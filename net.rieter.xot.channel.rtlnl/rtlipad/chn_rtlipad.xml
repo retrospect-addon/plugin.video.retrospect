@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>DE960970-70D3-11DF-B47C-FC51DFD72085</guid>
+        <name>iRTL 4,5,7 &amp; 8</name>
+        <description>Uitzendingen van de zenders RTL 4,5,7 &amp; 8 via de iPad feed (geen DRM).</description>
+        <icon>irtl.png</icon>
+        <category>National</category>
+        <sortorder>5</sortorder>
+        <language>nl</language>
+        <compatible>Environments.All</compatible>
+        <!--<fanart>../fanart.jpg</fanart>-->
+    </channel>
+</channels>

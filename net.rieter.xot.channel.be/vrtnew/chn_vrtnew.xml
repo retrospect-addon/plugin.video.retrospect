@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>79C799AE-B6BA-11E0-87FD-20434824019B</guid>
+        <name>De Redactie</name>
+        <description>Online uitzendingen van www.deredactie.be.</description>
+        <icon>redactielarge.png</icon>
+        <category>National</category>
+        <channelcode>redactie</channelcode>
+        <sortorder>122</sortorder>
+        <language>be</language>
+    </channel>
+    
+    <channel>
+        <guid>71128378-B6BA-11E0-A68A-1B434824019B</guid>
+        <name>Sporza</name>
+        <description>Online uitzendingen van www.sporza.be.</description>
+        <icon>sporzalarge.png</icon>
+        <category>National</category>
+        <channelcode>sporza</channelcode>
+        <sortorder>124</sortorder>
+        <language>be</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

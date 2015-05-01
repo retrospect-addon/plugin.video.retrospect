@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>D74952F3-B72B-4AF9-83E6-9394D37D786E</guid>
+        <name>Omroep Flevoland</name>
+        <description>Omroep Flevoland Uitzendinggemist</description>
+        <icon>flevolarge.png</icon>
+        <category>Regional</category>
+        <channelcode>rtvutrecht</channelcode>
+        <sortorder>12</sortorder>
+        <language>nl</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

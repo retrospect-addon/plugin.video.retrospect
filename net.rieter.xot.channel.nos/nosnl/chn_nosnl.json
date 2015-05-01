@@ -1,0 +1,15 @@
+{
+  "channels": [
+    {
+      "guid": "EE33E7EC-FDAB-11E0-AA09-1EED4724019B",
+      "name": "NOS.nl",
+      "description": "Video en audio van NOS.nl.",
+      "icon": "nosnllarge.png",
+      "category": "National",
+      "channelcode": "nosnl",
+      "sortorder": "13",
+      "language": "nl",
+      "compatible": "Environments.All"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "channels": [
+    {
+      "guid": "ED8FDB9C-3870-11E2-B1C2-192A6288709B",
+      "name": "Uitzendinggemist (NPO.nl)",
+      "description": "Uitzendingen van de publieke zenders beschikbaar op mobiele devices.",
+      "icon": "npolarge.png",
+      "category": "National",
+      "channelcode": "uzgjson",
+      "sortorder": "0",
+      "language": "nl",
+      "compatible": "Environments.All"
+    }
+  ],
+  "settings": [
+    {
+      "order": 2,
+      "id": "uzg_cache_path",
+      "value": "id=\"uzg_cache_path\" type=\"folder\" label=\"30050\" default=\"\" enable=\"!eq(-1,0)\""
+    },
+    {
+      "order": 1,
+      "value": "id=\"uzg_cache_new\" type=\"select\" label=\"30051\" default=\"0\" values=\"0|1|2|3|4|5|6|7|8|9|10|15|20|25|30\"",
+      "id": "uzg_cache_new"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>98506F58-CD6F-11DE-99BA-187F55D89593</guid>
+        <name>TV4 Play</name>
+        <description>Sändningar från TV4Play.se.</description>
+        <icon>tv4large.png</icon>
+        <category>National</category>
+        <channelcode>tv4se</channelcode>
+        <sortorder>104</sortorder>
+        <language>se</language>
+        <!--compatible>Environments.All</compatible-->
+    </channel>
+</channels>

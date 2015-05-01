@@ -1,0 +1,34 @@
+{
+  "channels": [
+    {
+      "guid": "C72D24F6-5FAE-11E0-9935-5F41E0D72085",
+      "name": "Kanal 5 Play",
+      "description": "Sändningar från Kanal 5",
+      "icon": "tv5selarge.png",
+      "category": "National",
+      "channelcode": "tv5json",
+      "sortorder": "105",
+      "language": "se"
+    },
+    {
+      "guid": "32B4A9AB-583C-4F78-A057-6D79C797B45C",
+      "name": "Kanal 9 Play",
+      "description": "Sändningar från Kanal 9",
+      "icon": "tv9selarge2014.png",
+      "category": "National",
+      "channelcode": "tv9json",
+      "sortorder": "108",
+      "language": "se"
+    },
+    {
+      "guid": "64E1CA5E-BC3C-4763-9A63-02BE76754BD3",
+      "name": "Kanal 11 Play",
+      "description": "Sändningar från Kanal 11",
+      "icon": "tv11selarge.png",
+      "category": "National",
+      "channelcode": "tv11json",
+      "sortorder": "109",
+      "language": "se"
+    }
+  ]
+}

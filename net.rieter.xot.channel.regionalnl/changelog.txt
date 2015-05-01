@@ -1,0 +1,7 @@
+﻿[B]Changelog[/B]
+Added: ATV.sr (Algemene Televisie Verzorging Uitzendinggemist) (Fixes #601)
+
+[I]Previous changes[/I]
+Fixed: Omrop Fryslân broke (Fixes #606)
+Fixed: RTV Utrecht changed URL
+Fixed: L1 did not play back

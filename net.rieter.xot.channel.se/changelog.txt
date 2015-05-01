@@ -1,0 +1,24 @@
+﻿[B]Changelog[/B]
+Added: Categories for SVT.se (Fixes #614)
+
+[I]Previous changes[/I]
+Fixed: URPlay updated their JSON format (Fixes #607)
+Added: 'Mest spelade', 'Mest delade', 'Senaste' and 'Sista chansen' to URPlay (Fixed #608)
+Fixed: SVT would not show videos (Fixes #599)
+Fixed: SVT Regex missed some episodes (not many) (Fixes #588)
+Fixed: SVT Changed again (Fixes #580)
+Fixed: SVTPlay.se live channels (Again fixes #578)
+Fixed: SVTPlay.se sometimes did not show all episodes (Fixes #579)
+Fixed: Senaste nyhetsprogram broke in SVTPlayFixed: SVT Updated site layout and broke live channels (Fixes #578)
+Fixed: SVT changed their layout a bit (Fixes #573 and the live channels)
+Fixed: SVT Play Clips were not shown (Fixes #567)
+Fixed: better TV4.se premium detection
+Fixed: TV4Play updated their API and now use Json (Fixes #562)
+Fixed: SVT changed the site and broke XOT (Fixes #554)
+Fixed: UR Play updated their playback format (Fixes #551)
+Updated: UR Play SWF path
+Fixed: SVTPlay - Piratöarna (and others), no video were found (Fixes #548)
+Fixed: Subtitle downloading for Swedish Kanal 5,9 and 11
+Fixed: Kanal9/Kanal5 try better to deterime a video stream (Fixes #540)
+Fixed: Date parsing in SVT Play channel (Fixes #535)
+Fixed: SVT changed their layout to be more touch friendly and XOT unfriendly (Fixes #533)

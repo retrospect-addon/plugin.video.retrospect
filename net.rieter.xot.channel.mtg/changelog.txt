@@ -1,0 +1,12 @@
+﻿[B]Changelog[/B]
+Fixed: more TV6 (MTG) stream issues
+
+[I]Previous changes[/I]
+Fixed: ViaSat channels sometimes won't work with manifest.m3u8 but do with master.m3u8 (See #598)
+Fixed: MTG channels did not select streams properly (Fixes #590)
+Fixed: MTG streams would not always play (Issue #558)
+Fixed: MTG channels could not open next pages (Fixes 556)
+Fixed: ViaSat channels did not show any shows due to site changes (Fixes #521)
+Removed: some logging in the MTG channel
+Fixed: Klipp instead of Clips in mtg channel
+Fixed: VIASAT changed their player and layouts (Issue 505)

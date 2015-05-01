@@ -1,0 +1,7 @@
+﻿[B]Changelog[/B]
+Fixed: NPO.nl changed their site which broke the alphabetical listing (Fixes #612)
+
+[I]Previous Changes[/I]
+Fixed: NPO broke due to site changes (Fixes #605)
+Fixed: 3FM web cam stream disappeared from the listing due to a previous fix (Fixes #594)
+Added: "Current" and "Next" to the NPO Live channels (Fixes #583) and don't cache the Live TV Url for now

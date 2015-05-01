@@ -1,0 +1,23 @@
+{
+  "channels": [
+    {
+      "guid": "3AF9C61E-88B2-11E1-A03F-08F6BAE59B18",
+      "name": "SVT Play",
+      "description": "Sändningar från Sveriges Television (SVTPlay.se)",
+      "icon": "svtlarge.png",
+      "category": "National",
+      "channelcode": "svt",
+      "sortorder": "101",
+      "language": "se",
+      "compatible": "Environments.All",
+      "message": "De nya SVTPlay-strömmarna fungerar inte på|XBMC 11.0 (Eden). De kan endast spelas upp|på den nya XBMC 12.0 (Frodo) versionen."
+    }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "id": "spoof_ip",
+      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
+    }
+  ]
+}

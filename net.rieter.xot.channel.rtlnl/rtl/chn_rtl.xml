@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>15D92364-42F4-11DD-AF9B-7BFF55D89593</guid>
+        <name>RTL 4,5,7 &amp; 8</name>
+        <description>Uitzendingen van de zenders RTL 4,5,7 &amp; 8.</description>
+        <icon>rtl.png</icon>
+        <category>National</category>
+        <sortorder>5</sortorder>
+        <language>nl</language>
+        <compatible>Environments.All</compatible>
+        <message>De meeste streams van RTL Gemist zijn beschermd|met behulp van DRM. Deze items kunnen enkel binnen|Nederland worden afgespeeld.</message>
+        <!--<fanart>../fanart.jpg</fanart>-->
+    </channel>
+</channels>

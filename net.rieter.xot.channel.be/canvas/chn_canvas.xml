@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>DA1992AE-B600-11E0-AC62-B3D74824019B</guid>
+        <name>Canvas</name>
+        <description>Online uitzendingen van www.canvas.be.</description>
+        <icon>canvaslarge.png</icon>
+        <category>National</category>
+        <channelcode>None</channelcode>
+        <sortorder>121</sortorder>
+        <language>be</language>
+    </channel>
+</channels>

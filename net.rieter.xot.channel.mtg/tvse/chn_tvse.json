@@ -1,0 +1,142 @@
+{
+  "channels": [
+    {
+      "guid": "9EC8F612-2EA4-11DE-867C-B84656D89593",
+      "name": "TV3 Play (Sverige)",
+      "description": "Sändningar från TV3Play.se",
+      "icon": "tv3selarge.png",
+      "category": "National",
+      "channelcode": "se3",
+      "sortorder": "103",
+      "language": "se"
+    },
+    {
+      "guid": "45527F0C-91FE-11E1-942B-5AB5BBE59B18",
+      "name": "TV3 Play (Eesti)",
+      "description": "TV3Play.ee episoodid",
+      "icon": "tv3nolarge.png",
+      "category": "National",
+      "channelcode": "tv3ee",
+      "sortorder": "113",
+      "language": "ee"
+    },
+    {
+      "guid": "82D73241-284B-4326-9E32-AFEF3C439951",
+      "name": "TV6 Play (Eesti)",
+      "description": "TV6Play.ee episoodid",
+      "icon": "tv6selarge.png",
+      "category": "National",
+      "channelcode": "tv6ee",
+      "sortorder": "113",
+      "language": "ee"
+    },
+    {
+      "guid": "FB34E1F0-2930-11DE-A339-255856D89593",
+      "name": "TV6 Play (Sverige)",
+      "description": "Sändningar från TV6Play.se",
+      "icon": "tv6selarge.png",
+      "category": "National",
+      "channelcode": "se6",
+      "sortorder": "106",
+      "language": "se"
+    },
+    {
+      "guid": "BDC1A5C5-2777-4D05-BB5B-742A88B89CC5",
+      "name": "TV8 Play (Sverige)",
+      "description": "Sändningar från TV8Play.se",
+      "icon": "tv8selarge.png",
+      "category": "National",
+      "channelcode": "se8",
+      "sortorder": "106",
+      "language": "se"
+    },
+    {
+      "guid": "584E7420-2867-11E3-AA01-F2806188709B",
+      "name": "TV10 Play",
+      "description": "Sändningar från TV10Play.se",
+      "icon": "tv10selarge.png",
+      "category": "National",
+      "channelcode": "se10",
+      "sortorder": "108",
+      "language": "se"
+    },
+    {
+      "guid": "7FEDC7EA-2281-11E0-8F30-67B5DFD72085",
+      "name": "TV3 Play (Lietuva)",
+      "description": "TV3Play.lt web.tv",
+      "icon": "tv3ltlarge.png",
+      "category": "National",
+      "channelcode": "tv3lt",
+      "sortorder": "110",
+      "language": "lt"
+    },
+    {
+      "guid": "49A02D20-2283-11E0-8771-2AB7DFD72085",
+      "name": "TV6 Play (Lietuva)",
+      "description": "TV6Play.lt web.tv",
+      "icon": "tv6ltlarge.png",
+      "category": "National",
+      "channelcode": "tv6lt",
+      "sortorder": "111",
+      "language": "lt",
+      "compatible": "Environments.All"
+    },
+    {
+      "guid": "1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD",
+      "name": "TV8 Play (Lietuva)",
+      "description": "TV8Play.lt web.tv",
+      "icon": "tv8selarge.png",
+      "category": "National",
+      "channelcode": "tv8lt",
+      "sortorder": "111",
+      "language": "lt"
+    },
+    {
+      "guid": "8D9FBD00-2284-11E0-8957-55B8DFD72085",
+      "name": "TV3 Play (Latvija)",
+      "description": "Sändningar från TV3Play.lv",
+      "icon": "tv3lvlarge.png",
+      "category": "National",
+      "channelcode": "se3lv",
+      "sortorder": "112",
+      "language": "lv"
+    },
+    {
+      "guid": "89673FF0-5EF3-11E0-8CC9-494DDFD72085",
+      "name": "TV3 Play (Norge)",
+      "description": "Sendninger fra TV3Play.no",
+      "icon": "tv3nolarge.png",
+      "category": "National",
+      "channelcode": "no3",
+      "sortorder": "91",
+      "language": "no"
+    },
+    {
+      "guid": "90DD5C88-5EF3-11E0-93A2-4D4DDFD72085",
+      "name": "Viasat4 (Norge)",
+      "description": "Sendninger fra Viasat4.no",
+      "icon": "viasat4nolarge.png",
+      "category": "National",
+      "channelcode": "no4",
+      "sortorder": "92",
+      "language": "no"
+    },
+    {
+      "guid": "3CD2662C-3C7A-4217-8375-079B2D850F27",
+      "name": "TV6 Play (Norge)",
+      "description": "Sendninger fra tv6play.no",
+      "icon": "tv6selarge.png",
+      "category": "National",
+      "channelcode": "no6",
+      "sortorder": "92",
+      "language": "no"
+    }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "id": "spoof_ip",
+      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
+    }
+  ]
+}

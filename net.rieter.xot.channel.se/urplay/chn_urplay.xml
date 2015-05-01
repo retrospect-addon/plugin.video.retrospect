@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>9F0F57D6-B897-11E0-AF2E-92314924019B</guid>
+        <name>UR Play</name>
+        <description>Sändningar från Sveriges Utbildningsradio (URPlay.se)</description>
+        <icon>urplaylarge.png</icon>
+        <category>National</category>
+        <channelcode>None</channelcode>
+        <sortorder>102</sortorder>
+        <language>se</language>
+    </channel>
+</channels>

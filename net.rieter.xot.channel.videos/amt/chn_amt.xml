@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>887F773F-E4E5-4E80-AD7D-65F627D1CA44</guid>
+        <name>Apple Movie Trailers</name>
+        <description>Trailers from the AMT site.</description>
+        <icon>amtlarge.png</icon>
+        <category>Video</category>
+        <channelcode>None</channelcode>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

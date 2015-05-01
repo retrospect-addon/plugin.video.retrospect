@@ -1,0 +1,8 @@
+﻿[B]Changelog[/B]
+Fixed: MTV.nl and MTV.de did not work correctly
+
+[I]Previous changes[/I]
+Fixed: Typo in Dutch MTV channel causing the URL to not load.
+Disabled: MTV.de for now as it is not yet supported by XOT-Uzg.v3.3.1
+Added: MTV.de
+Fixed: MTV channel broke due to site changes (Issue 377)

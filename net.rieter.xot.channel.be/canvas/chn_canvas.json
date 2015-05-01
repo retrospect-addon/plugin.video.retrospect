@@ -1,0 +1,14 @@
+{
+  "channels": [
+    {
+      "guid": "DA1992AE-B600-11E0-AC62-B3D74824019B",
+      "name": "Canvas",
+      "description": "Online uitzendingen van www.canvas.be.",
+      "icon": "canvaslarge.png",
+      "category": "National",
+      "channelcode": null,
+      "sortorder": "121",
+      "language": "be"
+    }
+  ]
+}

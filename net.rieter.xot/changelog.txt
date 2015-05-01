@@ -1,0 +1,65 @@
+﻿[B]Retrospect v4.0.0 - Changelog - 2015-05-01[/B]
+
+[I]Framework related[/I]
+* Updated: Add-on Settings.
+* Added: Channel specific settings.
+* Changed: Make sure that the channel settings are in the correct order when a new channel is deployed.
+* Changed: set channel settings in the channel json config file and update the settings.xml.
+* Changed: Displaying of empty lists improved.
+* Changed: Error handling improved.
+* Added: Language info to addon.xml files.
+* Changed: removed "user-agent" from MediaPart and added the HttpHeaders to it.
+* Fixed: correctly check for missing thumb url's.
+* Fixed: Charset testing now uses rfind.
+* Fixed: Some labels on XBMC4Xbox did not show correctly.
+* Fixed: XBMC4XBox updater missed a parameter (Fixes #587).
+* Changed: Let rPi users select their player (force DVDPlayer or Auto).
+* Fixed: in some rare cases, if only a cache ETag was present, response would incorrectly be cached for 3600 seconds. Now it's stale after 60 seconds and must-revalidate afterwards.
+* Added: the possibility for some channels to 'spoof' the client IP to allow playback from outside the original region (Fixes #595). This can be found under the respective channel settings.
+
+[I]GUI/Language related[/I]
+* Renamed: XOT/XBMC Online TV to Retrospect.
+* Updated: language files.
+* Version: bumped all to 4.0.0.
+* Added: new logo and new name.
+* Renamed: XBMC to Kodi.
+* Renamed: context menu items from XOT to Retro.
+* Updated: optimized PNG files for channels icons and art.
+* Changed: no more channel proxy in the context menu, but channel settings.
+* Updated: Swedish translations (Thanks to Göran).
+* Fixed: minor translation issue.
+
+[I]Channel related[/I]
+* Added: Categories for SVT.se (Fixes #614).
+* Fixed: NPO.nl changed their site which broke the alphabetical listing (Fixes #612).
+* Fixed: pages in kijk.nl did not show videos (Fixes #609).
+* Added: 'Mest spelade', 'Mest delade', 'Senaste' and 'Sista chansen' to URPlay (Fixed #608).
+* Fixed: URPlay updated their JSON format (Fixes #607).
+* Fixed: Omrop Fryslân broke (Fixes #606).
+* Fixed: RTV Utrecht changed URL.
+* Fixed: NPO broke due to site changes (Fixes #605).
+* Fixed: SBS 6, SBS 9, NET 5 and Veronica broke (Fixes #603).
+* Fixed: Radio 538 Live streams (Fixes #604).
+* Added: MTG channels now show a DRM protection '^' if they future items viewable by payment only.
+* Added: ATV.sr  Algemene Televisie Verzorging (Fixes #601).
+* Fixed: BBC iPlayer regex fixed (Fixes #602).
+* Updated: RTL logos.
+* Fixed: TV6.no icon had incorrect image.
+* Fixed: more TV6 (MTG) stream issues.
+* Fixed: SVT would not show videos (Fixes #599).
+* Added: SRF.ch channel.
+* Fixed: ViaSat channels sometimes won't work with manifest.m3u8 but do with master.m3u8 (See #598).
+* Added: channel configuration for TV3 Play (Eesti), TV6 Play (Eesti), TV3 Play (Lietuva), TV6 Play (Lietuva), TV8 Play (Lietuva), TV3 Play (Latvija), TV3 Play (Norge),  Viasat4 (Norge) and TV6 Play (Norge).
+* Added: channel configuration for TV 4 Play, TV 6 Play, TV 8 Play, TV 10 Play and SVT Öppet arkiv.
+* Added: channel configuration for TV3.se.
+* Fixed: UR Play would not play  back
+* Added: enabled SVT viewing for all over the world.
+* Fixed: 3FM web cam stream disappeared from the listing due to a previous fix (Fixes #594).
+* Fixed: MTG channels did not select streams properly (Fixes #590).
+* Fixed: RTL broke their paging..and my channel (Fixes #591).
+* Fixed: SVT Regex missed some episodes (not many) (Fixes #58.8)
+* Added: SBS 9 to Kijk.nl channel.
+* Changed: Add "Current" and "Next" to the NPO Live channels (Fixes #583) and don't cache the Live TV Url for now.
+* Added: SBS 9.nl channel
+* Updated: NPO logo.
+* Updated: RTL XL image.

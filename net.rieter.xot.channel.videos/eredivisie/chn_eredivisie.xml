@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>CC524DC0-C846-11E0-871B-984F4824019B</guid>
+        <name>Eredivisie Live</name>
+        <description>Videos van de Eredivisie Live website.</description>
+        <icon>eredivisielarge.png</icon>
+        <category>Sport</category>
+        <channelcode>eredivisie</channelcode>
+        <sortorder>13</sortorder>
+        <language>nl</language>
+    </channel>
+</channels>

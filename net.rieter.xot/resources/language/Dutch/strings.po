@@ -1,0 +1,590 @@
+# XBMC Media Center language file
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: 2015-04-01 03:32+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgctxt "#30000"
+msgid "Stream Quality"
+msgstr "Stream Kwaliteit"
+
+msgctxt "#30001"
+msgid "Low"
+msgstr "Laag"
+
+msgctxt "#30002"
+msgid "Medium"
+msgstr "Gemiddeld"
+
+msgctxt "#30003"
+msgid "High"
+msgstr "Hoog"
+
+msgctxt "#30004"
+msgid "Maximum number of pages to load"
+msgstr "Maximaal aantal pagina's om te laden"
+
+msgctxt "#30005"
+msgid "Dutch"
+msgstr "Nederlands"
+
+msgctxt "#30006"
+msgid "Swedish"
+msgstr "Zweeds"
+
+msgctxt "#30007"
+msgid "Lithuanian"
+msgstr "Litouws"
+
+msgctxt "#30008"
+msgid "Latvian"
+msgstr "Lets"
+
+msgctxt "#30009"
+msgid "General"
+msgstr "Algemeen"
+
+msgctxt "#30010"
+msgid "Channels"
+msgstr "Kanalen"
+
+msgctxt "#30011"
+msgid "Requires restart of Retrospect to take effect."
+msgstr "Herstart van Retrospect nodig om te activeren."
+
+msgctxt "#30012"
+msgid "Other"
+msgstr "Overige talen"
+
+msgctxt "#30013"
+msgid "French Canadian"
+msgstr "Frans-Canadees"
+
+msgctxt "#30014"
+msgid "English Canadian"
+msgstr "Engels-Canadees"
+
+msgctxt "#30015"
+msgid "Norwegian"
+msgstr "Norweegs"
+
+msgctxt "#30016"
+msgid "Sort by"
+msgstr "Sorteren op"
+
+msgctxt "#30017"
+msgid "Name"
+msgstr "Naam"
+
+msgctxt "#30018"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "#30019"
+msgid "Dim background (%)"
+msgstr "Achtergrond dimmen (%)"
+
+msgctxt "#30020"
+msgid "Maximum stream bitrate"
+msgstr "Maximale stream bitrate"
+
+msgctxt "#30021"
+msgid "Subtitle mode"
+msgstr "Subtitle modus"
+
+msgctxt "#30022"
+msgid "If available"
+msgstr "Tonen indien beschikbaar"
+
+msgctxt "#30023"
+msgid "Never show"
+msgstr "Nooit tonen"
+
+msgctxt "#30024"
+msgid "Belgium"
+msgstr "Belgisch"
+
+msgctxt "#30025"
+msgid "None"
+msgstr "Geen"
+
+msgctxt "#30026"
+msgid "Group list if exceeds # folders"
+msgstr "Groepeer lijst met meer dan # mappen"
+
+msgctxt "#30027"
+msgid "British"
+msgstr "Brits"
+
+msgctxt "#30028"
+msgid "Proxy"
+msgstr "Proxy"
+
+msgctxt "#30029"
+msgid "- Proxy server"
+msgstr "- Proxy server"
+
+msgctxt "#30030"
+msgid "- Proxy port"
+msgstr "- Proxy poort"
+
+msgctxt "#30031"
+msgid "Cache HTTP requests (experimental)"
+msgstr "Cache HTTP berichten (experimenteel)"
+
+msgctxt "#30032"
+msgid "Channel Settings"
+msgstr "Kanaal instellingen"
+
+msgctxt "#30033"
+msgid "Background - Programs"
+msgstr "Achtergrond - Programma's"
+
+msgctxt "#30034"
+msgid "Backgrounds"
+msgstr "Achtergronden"
+
+msgctxt "#30035"
+msgid "- Proxy Username"
+msgstr "- Proxy gebruikersnaam"
+
+msgctxt "#30036"
+msgid "- Proxy Password"
+msgstr "- Proxy wachtwoord"
+
+msgctxt "#30037"
+msgid "BBC iPlayer Settings"
+msgstr "BBC iPlayer instellingen"
+
+msgctxt "#30040"
+msgid "Channels"
+msgstr "Kanalen"
+
+msgctxt "#30041"
+msgid "Available after running Retrospect for the first time."
+msgstr "Komt pas beschikbaar na de eerste keer opstarten van Retrospect."
+
+msgctxt "#30042"
+msgid "Enabled"
+msgstr "Ingeschakeld"
+
+msgctxt "#30043"
+msgid "Folder prefix"
+msgstr "Folder voorvoegsel"
+
+msgctxt "#30044"
+msgid "Estonian"
+msgstr "Estlands"
+
+msgctxt "#30045"
+msgid "Danish"
+msgstr "Deens"
+
+msgctxt "#30046"
+msgid "DRM Geo Location"
+msgstr "DRM GEO locatie"
+
+msgctxt "#30047"
+msgid "German"
+msgstr "Duits"
+
+msgctxt "#30048"
+msgid "Log level"
+msgstr "Log level"
+
+msgctxt "#30049"
+msgid "Uitzendinggemist.nl Settings"
+msgstr "Uitzendinggemist.nl instellingen"
+
+msgctxt "#30050"
+msgid "Cache path"
+msgstr "Cache pad"
+
+msgctxt "#30051"
+msgid "Cleanup cache after # days (0=Streaming Playback)"
+msgstr "Cache opschonen na # dagen (0=cache niet gebruiken)"
+
+msgctxt "#30052"
+msgid "Send usage statistics"
+msgstr "Verzend gebruiksstatistieken"
+
+msgctxt "#30053"
+msgid "Appearance"
+msgstr "Weergaven"
+
+msgctxt "#30054"
+msgid "Change display name (requires XBMC restart)"
+msgstr "Pas weergave naam aan (active na XBMC herstart)"
+
+msgctxt "#30055"
+msgid "Advanced"
+msgstr "Geadvanceerd"
+
+msgctxt "#30056"
+msgid "Dutch Proxy"
+msgstr "Nederlandse Proxy"
+
+msgctxt "#30057"
+msgid "British Proxy"
+msgstr "Britse Proxy"
+
+msgctxt "#30058"
+msgid "Swedish Proxy"
+msgstr "Zweedse Proxy"
+
+msgctxt "#30059"
+msgid "Custom Proxy"
+msgstr "Alternatieve Proxy"
+
+msgctxt "#30060"
+msgid "Select a language to manage its channels"
+msgstr "Selecteer een taal om kanalen voor te beheren"
+
+msgctxt "#30061"
+msgid "Channel Language"
+msgstr "Kanaal taal"
+
+msgctxt "#30062"
+msgid "Proxy Channel Selection"
+msgstr "Kanaal proxy selectie"
+
+msgctxt "#30063"
+msgid "Channel to configure"
+msgstr "Kanaal om te configureren"
+
+msgctxt "#30064"
+msgid "Proxy Group"
+msgstr "Proxy groep"
+
+msgctxt "#30065"
+msgid "Proxy Group Configuration"
+msgstr "Proxy groep beheer"
+
+msgctxt "#30066"
+msgid "Select a proxy group to configure"
+msgstr "Selecteer een proxy groep om te beheren"
+
+msgctxt "#30067"
+msgid "Show channels in categories"
+msgstr "Groepeer kanalen in categoriën"
+
+msgctxt "#30068"
+msgid "Active"
+msgstr "Active"
+
+msgctxt "#30069"
+msgid "Channel Settings"
+msgstr "Kanaal instellingen"
+
+msgctxt "#30070"
+msgid "Let XBMC determine bitrate if possible"
+msgstr "Laat XBMC de beste bitrate selecteren"
+
+msgctxt "#30071"
+msgid "Proxy Configuration"
+msgstr "Proxy Configuratie"
+
+msgctxt "#30072"
+msgid "- Type"
+msgstr "- Type"
+
+msgctxt "#30073"
+msgid "- Geo-Locked items have a º after the name, DRM protected an ^."
+msgstr "- Geo-geblokkeerde items hebben een º achter de naam, DRM items een ^."
+
+msgctxt "#30074"
+msgid "Disabled"
+msgstr "Uitgeschakeld"
+
+msgctxt "#30075"
+msgid "Empty list behaviour"
+msgstr "Lege lijst gedrag"
+
+msgctxt "#30076"
+msgid "Show error"
+msgstr "Toon fout"
+
+msgctxt "#30077"
+msgid "Show empty list"
+msgstr "Toon lege lijst"
+
+msgctxt "#30078"
+msgid "Show dummy item"
+msgstr "Toon melding-item"
+
+msgctxt "#30079"
+msgid "Local IP (0.0.0.0=disabled)"
+msgstr "Lokaal IP (0.0.0.0=Uitgeschakeld)"
+
+msgctxt "#30100"
+msgid "None"
+msgstr "Geen"
+
+msgctxt "#30101"
+msgid "Regional"
+msgstr "Regionaal"
+
+msgctxt "#30102"
+msgid "National"
+msgstr "Nationaal"
+
+msgctxt "#30103"
+msgid "Video"
+msgstr "Video"
+
+msgctxt "#30104"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#30105"
+msgid "Sport"
+msgstr "Sport"
+
+msgctxt "#30106"
+msgid "Kids"
+msgstr "Kids"
+
+msgctxt "#30107"
+msgid "Tech"
+msgstr "Techniek"
+
+msgctxt "#30108"
+msgid "Other"
+msgstr "Overig"
+
+msgctxt "#30200"
+msgid "50"
+msgstr "50"
+
+msgctxt "#30201"
+msgid "75"
+msgstr "75"
+
+msgctxt "#30202"
+msgid "100"
+msgstr "100"
+
+msgctxt "#30203"
+msgid "150"
+msgstr "150"
+
+msgctxt "#30204"
+msgid "200"
+msgstr "200"
+
+msgctxt "#30205"
+msgid "1000"
+msgstr "1000"
+
+msgctxt "#30500"
+msgid "All Favourites"
+msgstr "Alle Favorieten"
+
+msgctxt "#30501"
+msgid "Favourite"
+msgstr "Favoriet"
+
+msgctxt "#30502"
+msgid "Favourites"
+msgstr "Favorieten"
+
+msgctxt "#30503"
+msgid "Channel Favourites"
+msgstr "Kanaal favorieten"
+
+msgctxt "#30504"
+msgid "Add to"
+msgstr "Toevoegen aan"
+
+msgctxt "#30505"
+msgid "Hide"
+msgstr "Verberg"
+
+msgctxt "#30506"
+msgid "Remove"
+msgstr "Verwijder"
+
+msgctxt "#30507"
+msgid "Channels"
+msgstr "Kanalen"
+
+msgctxt "#30508"
+msgid "No favourites available"
+msgstr "Geen favorieten gevonden"
+
+msgctxt "#30509"
+msgid "Cannot start playback"
+msgstr "Afspelen kan niet worden gestart"
+
+msgctxt "#30510"
+msgid "New version available"
+msgstr "Nieuwe versie beschikbaar"
+
+msgctxt "#30511"
+msgid "No updates"
+msgstr "Geen updates"
+
+msgctxt "#30512"
+msgid "Restart Retrospect"
+msgstr "Retrospect herstarten"
+
+msgctxt "#30513"
+msgid "The update of '%s'|was complete."
+msgstr "Het updaten van '%s'|is voltooid."
+
+msgctxt "#30514"
+msgid "Update Failed"
+msgstr "Updaten mislukt."
+
+msgctxt "#30515"
+msgid "The update of '%s' failed. Please|retry or manualy update the channel."
+msgstr "Het updaten van '%s' is mislukt. Probeer|het nog eens of update handmatig."
+
+msgctxt "#30516"
+msgid "New Version Available."
+msgstr "Nieuwe versie beschikbaar."
+
+msgctxt "#30517"
+msgid "A new version of %s is available.|Please visit the website to download|version %s."
+msgstr "Een nieuwe versie van %s is beschikbaar.|Bezoek de website om versie %s te downloaden."
+
+msgctxt "#30518"
+msgid "There is no new version of the Retrospect|Framework."
+msgstr "Er is geen nieuwe versie van het Retrospect Framework|beschikbaar."
+
+msgctxt "#30519"
+msgid "There were no updates found for the|installed channels."
+msgstr "Er zijn geen updates voor de geinstalleerde|kanalen gevonden."
+
+msgctxt "#30520"
+msgid "Repository Warning"
+msgstr "Repository waarschuwing"
+
+msgctxt "#30521"
+msgid "The Retrospect repository is not installed.|Please install it to allow future updates."
+msgstr "De Retrospect repository is niet geïnstalleerd.|Installeer deze om toekomstige update te ontvangen."
+
+msgctxt "#30522"
+msgid "Channel message"
+msgstr "Kanaal-bericht"
+
+msgctxt "#30523"
+msgid "Error"
+msgstr "Fout"
+
+msgctxt "#30524"
+msgid "No videos were found for the selected item."
+msgstr "Er zijn geen videos gevonden voor het geselecteerde item."
+
+msgctxt "#30525"
+msgid "The selected item does not have|any streams associated."
+msgstr "Het geselecteerde item heeft geen streams beschikbaar."
+
+msgctxt "#30526"
+msgid "Proxyserver '%s' is working."
+msgstr "Proxy-server '%s' functioneerd naar behoren."
+
+msgctxt "#30527"
+msgid "Proxyserver '%s' is not working as expected or is offline."
+msgstr "Proxy-server '%s' werkt niet naar behoren of is onbeschikbaar."
+
+msgctxt "#30528"
+msgid "Add-on Settings"
+msgstr "Add-on instellingen"
+
+msgctxt "#30529"
+msgid "Refresh list"
+msgstr "Ververs lijst"
+
+msgctxt "#30530"
+msgid "Check for Retrospect updates"
+msgstr "Controleer Retrospect updates"
+
+msgctxt "#30531"
+msgid "Initializing"
+msgstr "Initialiseren van"
+
+msgctxt "#30532"
+msgid "Importing common libraries"
+msgstr "Importeren van generieke componenten"
+
+msgctxt "#30533"
+msgid "Determining SkinFolder"
+msgstr "Bepaling van de Skin folder"
+
+msgctxt "#30534"
+msgid "Checking for updates"
+msgstr "Controleren op updates"
+
+msgctxt "#30535"
+msgid "Verifying the Repository"
+msgstr "Verificatie van repository"
+
+msgctxt "#30536"
+msgid "Checking for Cache folder"
+msgstr "Controleren van de cache folder"
+
+msgctxt "#30537"
+msgid "Cleaning up Cachefolder"
+msgstr "Opschonen van de cache folder"
+
+msgctxt "#30538"
+msgid "The selected live stream has not yet|begun."
+msgstr "De geselecteerde live stream is nog|niet begonnen."
+
+msgctxt "#30539"
+msgid "Live stream"
+msgstr "Live uitzending"
+
+msgctxt "#30540"
+msgid "Geo-Locked"
+msgstr "Geo-Locked"
+
+msgctxt "#30541"
+msgid "Queue item"
+msgstr "Queue item"
+
+msgctxt "#30542"
+msgid "Starting %s."
+msgstr "%s wordt gestart."
+
+msgctxt "#30543"
+msgid "Season"
+msgstr "Seizoen"
+
+msgctxt "#30544"
+msgid "Episode"
+msgstr "Aflevering"
+
+msgctxt "#30545"
+msgid "Titles with '%s'"
+msgstr "Titels met '%s'"
+
+msgctxt "#30546"
+msgid "Other Chars"
+msgstr "Overige Characters"
+
+msgctxt "#30547"
+msgid "More Pages"
+msgstr "Meer pagina's"
+
+msgctxt "#30548"
+msgid "Clips"
+msgstr "Clips"
+
+msgctxt "#30549"
+msgid "Error retrieving the list of items."
+msgstr "Fout bij het ophalen van de items."
+
+msgctxt "#30550"
+msgid "No episodes found for the selected item."
+msgstr "Geen afleveringen gevonden voor het geselecteerde item."

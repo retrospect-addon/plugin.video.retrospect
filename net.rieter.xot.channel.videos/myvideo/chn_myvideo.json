@@ -1,0 +1,13 @@
+{
+  "channels": [
+    {
+      "guid": "A6FF1534-42F3-11DD-8F18-08F555D89593",
+      "name": "MyVideo.nl",
+      "description": "Videos van Myvideo.nl",
+      "icon": "myvideolarge.png",
+      "category": "Video",
+      "language": "nl",
+      "compatible": "Environments.NoPlatform"
+    }
+  ]
+}

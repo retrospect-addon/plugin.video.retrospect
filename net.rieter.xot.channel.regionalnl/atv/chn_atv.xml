@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>05E10B8F-4BC5-47F9-8C34-3C378962082B</guid>
+        <name>ATV</name>
+        <description>Algemene Televisie Verzorging Uitzendinggemist</description>
+        <icon>atvicon.png</icon>
+        <category>Regional</category>
+        <sortorder>12</sortorder>
+        <language>nl</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

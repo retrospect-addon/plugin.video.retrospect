@@ -1,0 +1,161 @@
+﻿# coding:UTF-8
+import mediaitem
+import chn_class
+
+from regexer import Regexer
+from logger import Logger
+from urihandler import UriHandler
+
+
+class Channel(chn_class.Channel):
+    """
+    main class from which all channels inherit
+    """
+
+    def __init__(self, channelInfo):
+        """Initialisation of the class.
+
+        Arguments:
+        channelInfo: ChannelInfo - The channel info object to base this channel on.
+
+        All class variables should be instantiated here and this method should not
+        be overridden by any derived classes.
+
+        """
+
+        chn_class.Channel.__init__(self, channelInfo)
+
+        # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
+        # setup the main parsing data
+        self.episodeItemRegex = """<a[^>]+href="(?<url>/[^']+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'>\W+<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
+        self.episodeItemRegex = self.episodeItemRegex.replace("?<", "?P<")  # Expresso to Python compatibility
+
+        self.videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)" />\W+<p class='title'>(?<title>[^<]+)</p>\W+<p class='subtitle'>(?<subtitle>[^>]+)</p>"""
+        self.videoItemRegex = self.videoItemRegex.replace("?<", "?P<")  # Expresso to Python compatibility
+
+        self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
+        self.pageNavigationRegexIndex = 1
+        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
+
+        if self.channelCode == 'nickelodeon':
+            self.noImage = "nickelodeonimage.png"
+            self.mainListUri = "http://www.nickelodeon.nl/shows"
+            self.baseUrl = "http://www.nickelodeon.nl"
+
+        elif self.channelCode == "nickno":
+            self.noImage = "nickelodeonimage.png"
+            self.mainListUri = "http://www.nickelodeon.no/program/"
+            self.baseUrl = "http://www.nickelodeon.no"
+
+        elif self.channelCode == "nickse":
+            self.noImage = "nickelodeonimage.png"
+            self.mainListUri = "http://www.nickelodeon.se/serier/"
+            self.baseUrl = "http://www.nickelodeon.se"
+
+        else:
+            raise NotImplementedError("Unknown channel code")
+
+        self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
+
+        #===============================================================================================================
+        # Test cases:
+        #  NO: Avator -> Other items
+        #  SE: Hotel 13 -> Other items
+        #  NL: Sam & Cat -> Other items
+
+        # ====================================== Actual channel setup STOPS here =======================================
+        return
+
+    def PreProcessFolderList(self, data):
+        """Performs pre-process actions for data processing/
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        end = data.find("<p>Liknande videos</p>")
+        if end < 0:
+            end = data.find("<p>Andere leuke video’s</p>")
+        if end < 0:
+            end = data.find("<p>Andere leuke video’s</p>")
+
+        Logger.Debug("Pre-Processing finished")
+        if end > 0:
+            return data[:end], items
+
+        return data, items
+
+    def UpdateVideoItem(self, item):
+        """Updates an existing MediaItem with more data.
+
+        Arguments:
+        item : MediaItem - the MediaItem that needs to be updated
+
+        Returns:
+        The original item with more data added to it's properties.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        """
+
+        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+
+        data = UriHandler.Open(item.url, proxy=self.proxy)
+
+        # get the playlist GUID
+        playlistGuids = Regexer.DoRegex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
+        if not playlistGuids:
+            # let's try the alternative then (for the new channels)
+            playlistGuids = Regexer.DoRegex('mrss\W+:\W+"[^"]+local_playlist-([^"]+)"', data)
+        playlistGuid = playlistGuids[0]
+        # Logger.Trace(playlistGuid)
+
+        # now we can get the playlist meta data
+        # http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-39ce0652b0b3c09258d9-SE-uma_site--ad_site-nickelodeon.se-ad_site_referer-video/9764-barjakt&adSite=nickelodeon.se&umaSite={umaSite}&show_images=true&url=http%3A//www.nickelodeon.se/video/9764-barjakt
+        # but this seems to work.
+        # http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-39ce0652b0b3c09258d9
+        playListUrl = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-" + playlistGuid
+        playListData = UriHandler.Open(playListUrl, proxy=self.proxy)
+
+        # now get the real RTMP data
+        rtmpMetaData = Regexer.DoRegex("<media:content [^>]+url='([^']+)'", playListData)[0]
+        rtmpData = UriHandler.Open(rtmpMetaData, proxy=self.proxy)
+
+        rtmpUrls = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
+
+        part = item.CreateNewEmptyMediaPart()
+        for rtmpUrl in rtmpUrls:
+            url = "%s/%s" % (rtmpUrl[1], rtmpUrl[2])
+            bitrate = rtmpUrl[0]
+            # convertedUrl = url.replace("ondemand/","ondemand?slist=")
+            convertedUrl = self.GetVerifiableVideoUrl(url)
+            part.AppendMediaStream(convertedUrl, bitrate)
+
+        item.complete = True
+        Logger.Trace("Media url: %s", item)
+        return item

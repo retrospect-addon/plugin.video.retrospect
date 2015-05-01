@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>8BFC5538-FB78-11E2-9D7C-61DE6088709B</guid>
+        <name>TWiT.TV</name>
+        <description>The TWiT.tv Netcast Network with Leo Laporte features the #1 ranked technology podcast This Week in Tech, along with over 20 other top-ranked online shows.</description>
+        <icon>twitlarge.png</icon>
+        <category>Tech</category>
+        <channelcode>twit</channelcode>
+        <sortorder>255</sortorder>
+        <language>en-gb</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

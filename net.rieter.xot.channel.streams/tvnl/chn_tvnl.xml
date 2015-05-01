@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>1D6063B8-4BCF-11E0-AD8F-5533DFD72085</guid>
+        <name>TV.NL</name>
+        <description>Nederlandse TV streams using NL TV on Navi-X stream collection</description>
+        <icon>tvnllarge.png</icon>
+        <category>Other</category>
+        <channelcode>tvnl</channelcode>
+        <sortorder>9</sortorder>
+        <language>nl</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

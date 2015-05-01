@@ -1,0 +1,6 @@
+﻿[B]Changelog[/B]
+Fixed: Eén stream selection issue (Fixes #557)
+
+Fixed: VTM Nieuws playback issues
+Fixed: Belgium Een channel did not stream (Issue 508)
+Removed: Cobra.be for now due to incompatible site layout (Issue 508)

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>21D74788-8084-11E0-9A28-39E64824019B</guid>
+        <name>MSDN Channel 9</name>
+        <description>Channel 9 videos @ MSDN.com</description>
+        <icon>channel9large.png</icon>
+        <category>Tech</category>
+        <channelcode>channel9</channelcode>
+    </channel>
+</channels>

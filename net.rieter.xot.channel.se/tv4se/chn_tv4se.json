@@ -1,0 +1,21 @@
+{
+  "channels": [
+    {
+      "guid": "98506F58-CD6F-11DE-99BA-187F55D89593",
+      "name": "TV4 Play",
+      "description": "Sändningar från TV4Play.se.",
+      "icon": "tv4large.png",
+      "category": "National",
+      "channelcode": "tv4se",
+      "sortorder": "104",
+      "language": "se"
+    }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "id": "spoof_ip",
+      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
+    }
+  ]
+}

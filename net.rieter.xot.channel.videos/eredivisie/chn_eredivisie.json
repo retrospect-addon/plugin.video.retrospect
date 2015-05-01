@@ -1,0 +1,14 @@
+{
+  "channels": [
+    {
+      "guid": "CC524DC0-C846-11E0-871B-984F4824019B",
+      "name": "Eredivisie Live",
+      "description": "Videos van de Eredivisie Live website.",
+      "icon": "eredivisielarge.png",
+      "category": "Sport",
+      "channelcode": "eredivisie",
+      "sortorder": "13",
+      "language": "nl"
+    }
+  ]
+}

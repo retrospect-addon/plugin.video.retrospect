@@ -1,0 +1,4 @@
+﻿[B]Changelog[/B]
+Fixed: Nickelodeon site changes (Fixes #555)
+
+Fixed: Nickelodeon channels updated (Fixes #529)

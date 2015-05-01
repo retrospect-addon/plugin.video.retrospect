@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>7C52452A-F2F9-11DD-BE3F-3F7356D89593</guid>
+        <name>MTV.nl</name>
+        <description>MTV.nl Episodes</description>
+        <icon>mtvnllarge.png</icon>
+        <category>Video</category>
+        <channelcode>mtvnl</channelcode>
+        <sortorder>9</sortorder>
+        <language>nl</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+    
+    <channel>
+        <guid>55635AAA-183C-11E2-ABEC-36706188709B</guid>
+        <name>MTV.de</name>
+        <description>MTV.de Episodes</description>
+        <icon>mtvnllarge.png</icon>
+        <category>Video</category>
+        <channelcode>mtvde</channelcode>
+        <sortorder>140</sortorder>
+        <language>de</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>

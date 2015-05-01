@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>C72D24F6-5FAE-11E0-9935-5F41E0D72085</guid>
+        <name>Kanal 5 Play</name>
+        <description>Sändningar från Kanal 5</description>
+        <icon>tv5selarge.png</icon>
+        <category>National</category>
+        <channelcode>tv5json</channelcode>
+        <sortorder>105</sortorder>
+        <language>se</language>
+    </channel>
+
+    <channel>
+        <guid>32B4A9AB-583C-4F78-A057-6D79C797B45C</guid>
+        <name>Kanal 9 Play</name>
+        <description>Sändningar från Kanal 9</description>
+        <icon>tv9selarge2014.png</icon>
+        <category>National</category>
+        <channelcode>tv9json</channelcode>
+        <sortorder>108</sortorder>
+        <language>se</language>
+    </channel>
+
+    <channel>
+        <guid>64E1CA5E-BC3C-4763-9A63-02BE76754BD3</guid>
+        <name>Kanal 11 Play</name>
+        <description>Sändningar från Kanal 11</description>
+        <icon>tv11selarge.png</icon>
+        <category>National</category>
+        <channelcode>tv11json</channelcode>
+        <sortorder>109</sortorder>
+        <language>se</language>
+        <!--fanart>tv11fanart.jpg</fanart-->
+    </channel>
+</channels>

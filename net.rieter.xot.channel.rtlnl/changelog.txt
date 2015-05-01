@@ -1,0 +1,5 @@
+﻿[B]Changelog[/B]
+Fixed: RTL broke their paging..and my channel (Fixes #591)
+
+[I]Previous changes[/I]
+Fixed: Some RTL shows do not have any descriptions, and that broke stuff.

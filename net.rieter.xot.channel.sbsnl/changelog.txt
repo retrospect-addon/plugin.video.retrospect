@@ -1,0 +1,11 @@
+﻿[B]Changelog[/B]
+Fixed: pages in kijk.nl did not show videos (Fixes #609)
+
+[I]Previous changes[/I]
+Fixed: SBS 6, SBS 9, NET 5 and Veronica broke (Fixes #603)
+Added: SBS 9.nl channel
+Updated: SBS logo's
+Fixed: Kijk.nl changed site layout (Fixes #564)
+Fixed: In some cases not related videos were shown.
+Fixed: Kijk.nl changed layout (again) (Fixes #531)
+Fixed: Kijk.nl changed layout (Fixes #523)
