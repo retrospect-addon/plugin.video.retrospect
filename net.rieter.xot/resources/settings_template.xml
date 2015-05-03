@@ -123,7 +123,7 @@
         <!-- end of active channels -->
 
         <setting type="lsep" label="30032" />
-        <setting id="channel_00000000-0000-0000-0000-000000000000_none" label="No channel selected" type="text" enable="false" visible="eq(-2,)" />
+        <setting id="channel_00000000-0000-0000-0000-000000000000_none" label="30034" type="text" enable="false" visible="eq(-2,)" />
 
         <!-- begin of channel settings -->
         <!-- should be replaced -->
