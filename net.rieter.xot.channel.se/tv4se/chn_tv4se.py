@@ -6,6 +6,7 @@ import datetime
 import mediaitem
 import chn_class
 
+from parserdata import ParserData
 from regexer import Regexer
 from helpers import subtitlehelper
 from helpers import htmlentityhelper
@@ -36,14 +37,20 @@ class Channel(chn_class.Channel):
         self.noImage = "tv4image.png"
 
         # setup the urls
-        self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000&fl=nid,name&start=0"
+        self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
+                           "&fl=nid,name,program_image&start=0"
 
         self.baseUrl = "http://www.tv4play.se"
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
 
-        # setup the main parsing data
         self.episodeItemJson = ("results",)
+        self._AddDataParser(self.mainListUri,
+                            preprocessor=self.AddCategoriesAndSpecials, json=True, matchType=ParserData.MatchExact,
+                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+
         self.videoItemJson = ("results",)
+        self._AddDataParser("*", preprocessor=self.PreProcessFolderList, json=True,
+                            parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         #===============================================================================================================
         # non standard items
@@ -53,6 +60,7 @@ class Channel(chn_class.Channel):
         # Test cases:
         #   Batman - WideVine
         #   Antikdeckarna - Clips
+        #
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -87,8 +95,74 @@ class Channel(chn_class.Channel):
         item = mediaitem.MediaItem(title, url)
         # item.description = description
         item.icon = self.icon
-
+        item.thumb = resultSet.get("program_image", self.noImage)
         return item
+
+    def AddCategoriesAndSpecials(self, data):
+        """Performs pre-process actions for data processing/
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        extras = {
+            # "Categories": "",
+            "\a.: Mest sedda programmen just nu :.": (
+                "http://webapi.tv4play.se/play/video_assets/most_viewed?type=episode&platform=tablet&is_live=false&"
+                "per_page=%s&start=0" % (self.maxPageSize,),
+                None
+            )
+        }
+
+        today = datetime.datetime.now()
+        days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
+        for i in range(0, 7, 1):
+            startDate = today - datetime.timedelta(i)
+            endDate = startDate + datetime.timedelta(1)
+            Logger.Trace("Adding item for: %s - %s", startDate, endDate)
+            url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=nyheterna,v%C3%A4der,ekonomi,lotto," \
+                  "sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s,nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-" \
+                  "g%C3%B6teborg,nyheterna-halland,nyheterna-helsingborg,nyheterna-j%C3%B6nk%C3%B6ping,nyheterna-" \
+                  "kalmar,nyheterna-link%C3%B6ping,nyheterna-lule%C3%A5,nyheterna-malm%C3%B6,nyheterna-norrk%C3%B6" \
+                  "ping,nyheterna-skaraborg,nyheterna-skellefte%C3%A5,nyheterna-stockholm,nyheterna-sundsvall," \
+                  "nyheterna-ume%C3%A5,nyheterna-uppsala,nyheterna-v%C3%A4rmland,nyheterna-v%C3%A4st,nyheterna-" \
+                  "v%C3%A4ster%C3%A5s,nyheterna-v%C3%A4xj%C3%B6,nyheterna-%C3%B6rebro,nyheterna-%C3%B6stersund," \
+                  "tv4-tolken,fotbollskanalen-europa&platform=tablet&per_page=32&" \
+                  "is_live=false&product_groups=2&type=episode&per_page=100"
+            url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, startDate.strftime("%Y%m%d"), endDate.strftime("%Y%m%d"))
+            dayName = "\a.: %s :." % (days[startDate.weekday()], )
+            extras[dayName] = (url, startDate)
+
+        for name in extras:
+            url, date = extras[name]
+            item = mediaitem.MediaItem(name, url)
+            item.dontGroup = True
+            item.complete = True
+            item.thumb = self.noImage
+
+            if date is not None:
+                item.SetDate(date.year, date.month, date.day, 0, 0, 0, text=date.strftime("%Y-%m-%d"))
+            else:
+                item.SetDate(1901, 1, 1, 0, 0, 0, text="")
+            items.append(item)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
 
     def PreProcessFolderList(self, data):
         """Performs pre-process actions for data processing/
