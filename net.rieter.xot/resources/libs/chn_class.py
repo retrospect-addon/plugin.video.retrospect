@@ -824,7 +824,10 @@ class Channel:
                     saveFileName = "%s.%s" % (item.name, extension)
                 Logger.Debug(saveFileName)
 
-                headers = item.HttpHeaders + mediaItemPart.HttpHeaders
+                # headers = item.HttpHeaders + mediaItemPart.HttpHeaders
+                headers = item.HttpHeaders.copy()
+                headers.update(mediaItemPart.HttpHeaders)
+
                 progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
                 folderName = XbmcWrapper.ShowFolderSelection('Select download destination for "%s"' % (saveFileName, ))
                 UriHandler.Download(downloadUrl, saveFileName, folderName, progressDialog, proxy=self.proxy,
@@ -913,7 +916,11 @@ class Channel:
                     # setResolved will not work.
                     xbmc.executebuiltin("Dialog.Close(busydialog)")
 
-                    headers = item.HttpHeaders + part.HttpHeaders
+                    # headers = item.HttpHeaders + part.HttpHeaders
+                    headers = item.HttpHeaders.copy()
+                    headers.update(part.HttpHeaders)
+
+                    Logger.Error(headers)
                     streamFilename = "xot.%s.%skbps-%s.%s" % (fileName, stream.Bitrate, item.name, extension)
                     progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
                     cacheFile = UriHandler.Download(stream.Url, streamFilename, self.GetDefaultCachePath(),
