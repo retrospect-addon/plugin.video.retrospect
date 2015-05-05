@@ -37,8 +37,11 @@ class Channel(chn_class.Channel):
         self.noImage = "tv4image.png"
 
         # setup the urls
+        # self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
+        #                    "&fl=nid,name,program_image&start=0"
+
         self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
-                           "&fl=nid,name,program_image&start=0"
+                           "&fl=nid,name,program_image,is_premium,updated_at&start=0"
 
         self.baseUrl = "http://www.tv4play.se"
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
@@ -90,12 +93,14 @@ class Channel(chn_class.Channel):
 
         programId = json["nid"]
         programId = HtmlEntityHelper.UrlEncode(programId)
-        url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&is_live=false&type=episode&page=1&node_nids=%s&start=0" % (self.maxPageSize, programId, )
+        url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&is_live=false&type=episode&" \
+              "page=1&node_nids=%s&start=0" % (self.maxPageSize, programId, )
 
         item = mediaitem.MediaItem(title, url)
         # item.description = description
         item.icon = self.icon
         item.thumb = resultSet.get("program_image", self.noImage)
+        item.isDrmProtected = resultSet.get("is_premium", False)
         return item
 
     def AddCategoriesAndSpecials(self, data):
@@ -134,18 +139,28 @@ class Channel(chn_class.Channel):
         for i in range(0, 7, 1):
             startDate = today - datetime.timedelta(i)
             endDate = startDate + datetime.timedelta(1)
+
+            day = days[startDate.weekday()]
+            if i == 0:
+                day = "Idag"
+            elif i == 1:
+                day = "Igår"
+
             Logger.Trace("Adding item for: %s - %s", startDate, endDate)
-            url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=nyheterna,v%C3%A4der,ekonomi,lotto," \
-                  "sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s,nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-" \
-                  "g%C3%B6teborg,nyheterna-halland,nyheterna-helsingborg,nyheterna-j%C3%B6nk%C3%B6ping,nyheterna-" \
-                  "kalmar,nyheterna-link%C3%B6ping,nyheterna-lule%C3%A5,nyheterna-malm%C3%B6,nyheterna-norrk%C3%B6" \
-                  "ping,nyheterna-skaraborg,nyheterna-skellefte%C3%A5,nyheterna-stockholm,nyheterna-sundsvall," \
-                  "nyheterna-ume%C3%A5,nyheterna-uppsala,nyheterna-v%C3%A4rmland,nyheterna-v%C3%A4st,nyheterna-" \
-                  "v%C3%A4ster%C3%A5s,nyheterna-v%C3%A4xj%C3%B6,nyheterna-%C3%B6rebro,nyheterna-%C3%B6stersund," \
-                  "tv4-tolken,fotbollskanalen-europa&platform=tablet&per_page=32&" \
-                  "is_live=false&product_groups=2&type=episode&per_page=100"
+            # url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
+            #       "nyheterna,v%C3%A4der,ekonomi,lotto,sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s," \
+            #       "nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-g%C3%B6teborg,nyheterna-halland," \
+            #       "nyheterna-helsingborg,nyheterna-j%C3%B6nk%C3%B6ping,nyheterna-kalmar,nyheterna-link%C3%B6ping," \
+            #       "nyheterna-lule%C3%A5,nyheterna-malm%C3%B6,nyheterna-norrk%C3%B6ping,nyheterna-skaraborg," \
+            #       "nyheterna-skellefte%C3%A5,nyheterna-stockholm,nyheterna-sundsvall,nyheterna-ume%C3%A5," \
+            #       "nyheterna-uppsala,nyheterna-v%C3%A4rmland,nyheterna-v%C3%A4st,nyheterna-v%C3%A4ster%C3%A5s," \
+            #       "nyheterna-v%C3%A4xj%C3%B6,nyheterna-%C3%B6rebro,nyheterna-%C3%B6stersund,tv4-tolken," \
+            #       "fotbollskanalen-europa" \
+            #       "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
+            url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
+                  "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
             url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, startDate.strftime("%Y%m%d"), endDate.strftime("%Y%m%d"))
-            dayName = "\a.: %s :." % (days[startDate.weekday()], )
+            dayName = "\a.: %s :." % (day, )
             extras[dayName] = (url, startDate)
 
         for name in extras:

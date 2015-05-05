@@ -34,6 +34,7 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the urls
+        #  See: http://www.kanal5play.se/api
         if self.channelCode == "tv5json":
             self.baseUrl = "http://www.kanal5play.se"
             self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE"
