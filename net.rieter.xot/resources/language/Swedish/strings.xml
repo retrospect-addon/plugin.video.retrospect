@@ -149,4 +149,7 @@
     <string id="30548">Klipp</string>
     <string id="30549">Kunde inte ta emot programlistan.</string>
     <string id="30550">Det valda avsnittet gick inte att spela upp.</string>
+    <string id="30551">Idag</string>
+    <string id="30552">Igår</string>
+    <string id="30553">Dagen före igår</string>
 </strings>

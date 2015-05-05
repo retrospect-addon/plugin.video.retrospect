@@ -148,4 +148,7 @@
     <string id="30548">Clips</string>
     <string id="30549">Error retrieving the list of items.</string>
     <string id="30550">No episodes found for the selected item.</string>
+    <string id="30551">Today</string>
+    <string id="30552">Yesterdat</string>
+    <string id="30553">Day before yesterday</string>
 </strings>
