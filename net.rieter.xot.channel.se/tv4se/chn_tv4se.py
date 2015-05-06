@@ -9,7 +9,6 @@ import chn_class
 from parserdata import ParserData
 from regexer import Regexer
 from helpers import subtitlehelper
-from helpers import htmlentityhelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
 
@@ -49,6 +48,11 @@ class Channel(chn_class.Channel):
         self.episodeItemJson = ("results",)
         self._AddDataParser(self.mainListUri,
                             preprocessor=self.AddCategoriesAndSpecials, json=True, matchType=ParserData.MatchExact,
+                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+
+        self._AddDataParser("http://webapi.tv4play.se/play/categories.json", json=True, matchType=ParserData.MatchExact,
+                            parser=(), creator=self.CreateFolderItem)
+        self._AddDataParser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
                             parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
 
         self.videoItemJson = ("results",)
@@ -126,7 +130,9 @@ class Channel(chn_class.Channel):
         items = []
 
         extras = {
-            # "Categories": "",
+            "\a.: Categories :.":(
+                "http://webapi.tv4play.se/play/categories.json", None
+            ),
             "\a.: Mest sedda programmen just nu :.": (
                 "http://webapi.tv4play.se/play/video_assets/most_viewed?type=episode&platform=tablet&is_live=false&"
                 "per_page=%s&start=0" % (self.maxPageSize,),
@@ -345,24 +351,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        folderResults = Regexer.DoRegex('<a href="/search\?(categoryids=\d+.\d{7}&[^"]+)"[^<]*>Visa fler', resultSet[0])
-        if len(folderResults) == 0:
-            return None
-        else:
-            queryString = folderResults[0]
+        Logger.Trace(resultSet)
 
-        # http://www.tv4play.se/search?categoryids=1.1854778&amp;order=desc&amp;rows=8&amp;sorttype=date&amp;start=<value>
-
-        # http://www.tv4play.se/search?partial=true&rows=5&keyword=&sorttype=date&order=desc&video_types=programs&categoryids=1.1820998&start=5
-        # /search?categoryids=1.1820998&amp;keyword=&amp;order=desc&amp;rows=5&amp;sorttype=date&amp;video_types=programs
-
-        # url = "%s/search?partial=true&rows=%s&%s" % (self.baseUrl, 200, htmlentityhelper.HtmlEntityHelper.StripAmp(resultSet[2]))
-        # keyword=&sorttype=date&order=desc&video_types=programs&categoryids=%s&start=0" % (self.baseUrl, 200, resultSet[2])
-
-        url = "%s/search?partial=true&%s&start=0&rows=%s" % (self.baseUrl, htmlentityhelper.HtmlEntityHelper.StripAmp(queryString), 200)
-        name = resultSet[1]
-
-        item = mediaitem.MediaItem(name, url)
+        url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
+              "&fl=nid,name,program_image,category,logo,is_premium" \
+              "&per_page=%s&is_active=true&start=0" % (resultSet['nid'], self.maxPageSize)
+        item = mediaitem.MediaItem(resultSet['name'], url)
         item.thumb = self.noImage
         item.type = 'folder'
         item.complete = True
