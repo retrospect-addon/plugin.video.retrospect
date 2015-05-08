@@ -61,7 +61,7 @@ class MediaItem:
                 "downloaded",
                 "downloadable",
                 "items",
-                "httpHeaders",
+                "HttpHeaders",
                 "rating",
                 "guid",
                 "guidValue",
