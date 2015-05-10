@@ -10,8 +10,11 @@ import mediaitem
 import chn_class
 
 from regexer import Regexer
+from parserdata import ParserData
 from helpers import subtitlehelper
+from helpers.datehelper import DateHelper
 # from addonsettings import AddonSettings
+
 
 from logger import Logger
 from urihandler import UriHandler
@@ -35,21 +38,30 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the urls
         #  See: http://www.kanal5play.se/api
+        # self.mainListApi = "/getMobileFindProgramsContent"
+        self.mainListApi = "/listPrograms"
+
         if self.channelCode == "tv5json":
             self.baseUrl = "http://www.kanal5play.se"
-            self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE"
+            # self.mainListUri = "http://www.kanal5play.se/api/listPrograms?format=ALL_MOBILE&channel=KANAL5"
+            # self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL5"
+            self.mainListUri = "http://kanal5swe.appspot.com/api%s?format=ALL_MOBILE&channel=KANAL5" % (self.mainListApi,)
             self.noImage = "tv5seimage.png"
             self.swfUrl = "http://www.kanal5play.se/flash/K5StandardPlayer.swf"
 
         elif self.channelCode == "tv9json":
             self.baseUrl = "http://www.kanal9play.se"
-            self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL9"
+            # self.mainListUri = "http://www.kanal9play.se/api/listPrograms?format=ALL_MOBILE&channel=KANAL9"
+            # self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL9"
+            self.mainListUri = "http://kanal5swe.appspot.com/api%s?format=ALL_MOBILE&channel=KANAL9" % (self.mainListApi,)
             self.noImage = "tv9seimage.png"
             self.swfUrl = "http://www.kanal9play.se/flash/K9StandardPlayer.swf"
 
         elif self.channelCode == "tv11json":
             self.baseUrl = "http://www.kanal11play.se"
-            self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL11"
+            # self.mainListUri = "http://www.kanal11play.se/api/listPrograms?format=ALL_MOBILE&channel=KANAL11"
+            # self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL11"
+            self.mainListUri = "http://kanal5swe.appspot.com/api%s?format=ALL_MOBILE&channel=KANAL11" % (self.mainListApi,)
             self.noImage = "tv11seimage.jpg"
             self.swfUrl = "http://www.kanal11play.se/flash/K11StandardPlayer.swf"
 
@@ -58,8 +70,26 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         # we are going to use the new Json interface here
-        self.episodeItemJson = ('programsWithTemperatures',)
+        # self.episodeItemJson = ('programsWithTemperatures',)
+        self.episodeItemJson = ()
+        self._AddDataParser(self.mainListUri, json=True, matchType=ParserData.MatchExact,
+                            preprocessor=self.AddRecent,
+                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+
         self.videoItemJson = ('episodes',)
+        self._AddDataParser("*", json=True,
+                            parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+
+        # self._AddDataParser("api/listVideos", matchType=ParserData.MatchContains, json=True,
+        #                     parser=(), creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+
+        self.newVideoItemJson = ('newEpisodeVideos',)
+        self._AddDataParser("api/getMobileStartContent", matchType=ParserData.MatchContains, json=True,
+                            parser=self.newVideoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+
+        self._AddDataParser("/rss?type=", matchType=ParserData.MatchContains,
+                            parser=Regexer.FromExpresso("<title>(?<title>[^<]+)</title>\W+<link>[^<]+/(?<url>\d+)</link>\W+<description>(?<description>[^<]+)</description>\W+<pubDate>\w+, (?<day>\d+) (?<month>\w+) (?<year>\d+) (?<hours>\d+):(?<minutes>\d+):(?<seconds>\d+)[^<]+</pubDate>"),
+                            creator=self.CreateRssItem)
 
         #===============================================================================================================
         # non standard items
@@ -89,7 +119,10 @@ class Channel(chn_class.Channel):
         """
 
         # the resultSet already was in the Json format.
-        data = resultSet["program"]
+        if "program" in resultSet:
+            data = resultSet["program"]
+        else:
+            data = resultSet
         Logger.Trace(data)
 
         description = data.get("description", "")
@@ -115,7 +148,7 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = not availableAbroad
 
         # see if we can find seasons
-        if not "seasonNumbersWithContent" in data:
+        if "seasonNumbersWithContent" not in data:
             return None
 
         for season in data['seasonNumbersWithContent']:
@@ -129,6 +162,46 @@ class Channel(chn_class.Channel):
             item.items.append(season)
 
         return item
+
+    def AddRecent(self, data):
+        """Performs pre-process actions for data processing/
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+        """
+
+        items = []
+
+        # http://kanal5swe.appspot.com/api/getMobileStartContent?format=ALL_MOBILE&channel=KANAL9
+        extras = {
+            # "\a.: Senaste avsnitten via RSS :.": "%s/rss?type=PROGRAM" % (self.baseUrl, ),
+            # "\a.: Senaste clip via RSS :.": "%s/rss?type=CLIP" % (self.baseUrl, ),
+            # "\a.: Senaste avsnitten :.": "http://kanal5swe.appspot.com/api/getMobileStartContent?format=ALL_MOBILE&channel=KANAL5",
+            "\a.: Senaste avsnitten :.": self.mainListUri.replace(self.mainListApi, "/getMobileStartContent"),
+            # "\a.: Senaste avsnitten (All Video) :.": self.mainListUri.replace(self.mainListApi, "/listVideos"),
+        }
+        for (k, v) in extras.iteritems():
+            item = mediaitem.MediaItem(k, v)
+            item.thumb = self.noImage
+            item.complete = True
+            item.icon = self.icon
+            item.dontGroup = True
+            if "/getMobileStartContent" in item.url:
+                item.isGeoLocked = True
+            items.append(item)
+
+        return data, items
 
     def PreProcessFolderList(self, data):
         """Performs pre-process actions for data processing/
@@ -220,6 +293,35 @@ class Channel(chn_class.Channel):
 
         item.type = "page"
         Logger.Trace("Created '%s' for url %s", item.name, item.url)
+        return item
+
+    def CreateRssItem(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        month = DateHelper.GetMonthFromName(resultSet["month"], language="en")
+        item.SetDate(resultSet["year"], month, resultSet["day"],
+                     resultSet["hours"], resultSet["minutes"], resultSet["seconds"])
+        item.url = "http://kanal5swe.appspot.com/api/getVideo?videoId=%(url)s&format=ALL_MOBILE" % resultSet
+
+        # http://kanal5swe.appspot.com/api/getVideo?videoId=342011&format=ALL_MOBILE
         return item
 
     def CreateVideoItem(self, resultSet):
@@ -366,7 +468,7 @@ class Channel(chn_class.Channel):
             if "rtsp:" in url:
                 # audio only in XBMC
                 continue
-            elif not "://" in url:
+            elif "://" not in url:
                 if baseUrl is None:
                     # some cases the BaseUrl is missing for RTMP, we can't do anything then
                     continue
