@@ -50,6 +50,7 @@ class AddonSettings:
     __MD5_HASH_VALUE = "md_hash_value"
     __HIDE_FIRST_TIME_MESSAGE = "hide_first_time_message"
     __LIST_LIMIT = "list_limit"
+    __DRM_WARNING = "show_drm_warning"
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -123,6 +124,16 @@ class AddonSettings:
     #     """
     #
     #     return AddonSettings.__GetBooleanSetting(AddonSettings.__HIDE_GEOLOCKED)
+
+    @staticmethod
+    def ShowDrmWarning():
+        """ Should we show a DRM warning on DRM protected (^) items?
+
+        @return: Yes or No (boolean).
+
+        """
+
+        return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_WARNING)
 
     @staticmethod
     def HideGeoLockedItemsForLocation(channelRegion, valueOnly=False):

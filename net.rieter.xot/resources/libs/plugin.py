@@ -479,6 +479,14 @@ class Plugin:
         try:
             item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
+            if item.isDrmProtected and AddonSettings.ShowDrmWarning():
+                Logger.Debug("Showing DRM Warning message")
+                title = LanguageHelper.GetLocalizedString(LanguageHelper.DrmTitle)
+                message = LanguageHelper.GetLocalizedString(LanguageHelper.DrmText)
+                XbmcWrapper.ShowDialog(title, message)
+            elif item.isDrmProtected:
+                Logger.Debug("DRM Warning message disableb by settings")
+
             if not item.complete:
                 item = self.channelObject.ProcessVideoItem(item)
 

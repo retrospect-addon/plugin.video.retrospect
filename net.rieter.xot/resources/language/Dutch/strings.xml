@@ -19,7 +19,7 @@
     <string id="30016">Sorteren op</string>
     <string id="30017">Naam</string>
     <string id="30018">Datum</string>
-    <string id="30019">Achtergrond dimmen (%)</string>
+    <string id="30019">Toon DRM waarschuwing</string>
     <string id="30020">Maximale stream bitrate</string>
     <string id="30021">Subtitle modus</string>
     <string id="30022">Tonen indien beschikbaar</string>
@@ -151,4 +151,6 @@
     <string id="30551">Vandaag</string>
     <string id="30552">Gisteren</string>
     <string id="30553">Eergisteren</string>
+    <string id="30554">DRM Bescherming</string>
+    <string id="30555">Het geselecteerde item is DRM bescherm en|werkt wellicht niet in Kodi.</string>
 </strings>

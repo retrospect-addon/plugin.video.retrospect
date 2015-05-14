@@ -65,6 +65,8 @@ class LanguageHelper:
     Clips = 30548
     ErrorList = 30549
     ErrorNoEpisodes = 30550
+    DrmTitle = 30554
+    DrmText = 30555
 
     Active = 30068
     ShowChannelSettings = 30069

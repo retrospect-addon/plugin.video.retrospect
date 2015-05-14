@@ -17,6 +17,8 @@
         <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
         <setting id="folder_prefix" type="text" label="30043" default="" />
 
+        <setting type="lsep" label="30046" />
+        <setting id="show_drm_warning" type="bool" label="30019" enable="true" default="true" />
         <setting id="geo_region" type="select" label="30046" lvalues="30074|30024|30047|30044|30027|30007|30008|30005|30015|30006" />
         <setting id="geo_label" type="text" label="30073" enable="false" />
 
