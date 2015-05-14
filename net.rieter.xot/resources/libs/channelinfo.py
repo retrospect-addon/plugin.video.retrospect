@@ -177,11 +177,6 @@ class ChannelInfo:
     @staticmethod
     def FromJson(path):
         channelInfos = []
-        jsonPath = path.replace(".xml", ".json")
-        # if not os.path.isfile(jsonPath):
-        #     return ChannelInfo.FromFile(path)
-
-        path = jsonPath
         Logger.Trace("Using JSON reader for %s", path)
 
         jsonFile = open(path)
@@ -224,84 +219,84 @@ class ChannelInfo:
 
         return channelInfos
 
-    @staticmethod
-    def FromFile(path):
-        """ reads the ChannelInfo from a XML file
-
-        We don't use the build in xml.dom.minidom module, as it is much slower on ATV and rPI
-
-        Arguments:
-        path : String - The path of the XML file.
-
-        """
-
-        channelInfos = []
-
-        xmlFile = open(path)
-        xmlData = xmlFile.read()
-        xmlFile.close()
-
-        if not ChannelInfo.__channelInfoRegex:
-            ChannelInfo.__channelInfoRegex = re.compile('<([^>]+)>([^<]+)(?=<)', re.DOTALL + re.IGNORECASE)
-
-        channel = dict()
-
-        #for result in ChannelInfo.__channelInfoRegex.finditer(xmlData):
-        for result in ChannelInfo.__channelInfoRegex.findall(xmlData):
-            #result = result.groups()
-            key = result[0]
-            value = result[1]
-
-            if key == "channel":
-                #Logger.Trace("Found new channel start")
-                channel = dict()
-            elif key == "/channel":
-                # end of a channel, append it
-                Logger.Trace("Found end of channel. Creating channel object")
-
-                # fix the optional stuff
-                if not "channelcode" in channel or channel["channelcode"] == "None":
-                    channel["channelcode"] = None
-
-                if "sortorder" in channel:
-                    channel["sortorder"] = int(channel["sortorder"])
-                else:
-                    channel["sortorder"] = 255
-
-                if not "language" in channel or channel["language"] == "None":
-                    channel["language"] = None
-
-                # get the compatible platforms
-                if "compatible" in channel:
-                    channel["compatible"] = eval(channel["compatible"])
-                else:
-                    channel["compatible"] = Environments.All
-
-                fanart = None
-                if "fanart" in channel:
-                    fanart = channel["fanart"]
-
-                channelInfo = ChannelInfo(channel["guid"],
-                                          channel["name"],
-                                          channel["description"],
-                                          channel["icon"],
-                                          channel["category"],
-                                          path,
-                                          channel["channelcode"],
-                                          channel["sortorder"],
-                                          channel["language"],
-                                          channel["compatible"],
-                                          fanart=fanart)
-                channelInfo.firstTimeMessage = channel.get("message", None)
-                channelInfos.append(channelInfo)
-            elif key.startswith("/"):
-                # ignore other end tags
-                pass
-            else:
-                #Logger.Trace("Found new property: %s => %s", key, value)
-                channel[key] = value
-
-        return channelInfos
+    # @staticmethod
+    # def FromFile(path):
+    #     """ reads the ChannelInfo from a XML file
+    #
+    #     We don't use the build in xml.dom.minidom module, as it is much slower on ATV and rPI
+    #
+    #     Arguments:
+    #     path : String - The path of the XML file.
+    #
+    #     """
+    #
+    #     channelInfos = []
+    #
+    #     xmlFile = open(path)
+    #     xmlData = xmlFile.read()
+    #     xmlFile.close()
+    #
+    #     if not ChannelInfo.__channelInfoRegex:
+    #         ChannelInfo.__channelInfoRegex = re.compile('<([^>]+)>([^<]+)(?=<)', re.DOTALL + re.IGNORECASE)
+    #
+    #     channel = dict()
+    #
+    #     #for result in ChannelInfo.__channelInfoRegex.finditer(xmlData):
+    #     for result in ChannelInfo.__channelInfoRegex.findall(xmlData):
+    #         #result = result.groups()
+    #         key = result[0]
+    #         value = result[1]
+    #
+    #         if key == "channel":
+    #             #Logger.Trace("Found new channel start")
+    #             channel = dict()
+    #         elif key == "/channel":
+    #             # end of a channel, append it
+    #             Logger.Trace("Found end of channel. Creating channel object")
+    #
+    #             # fix the optional stuff
+    #             if not "channelcode" in channel or channel["channelcode"] == "None":
+    #                 channel["channelcode"] = None
+    #
+    #             if "sortorder" in channel:
+    #                 channel["sortorder"] = int(channel["sortorder"])
+    #             else:
+    #                 channel["sortorder"] = 255
+    #
+    #             if not "language" in channel or channel["language"] == "None":
+    #                 channel["language"] = None
+    #
+    #             # get the compatible platforms
+    #             if "compatible" in channel:
+    #                 channel["compatible"] = eval(channel["compatible"])
+    #             else:
+    #                 channel["compatible"] = Environments.All
+    #
+    #             fanart = None
+    #             if "fanart" in channel:
+    #                 fanart = channel["fanart"]
+    #
+    #             channelInfo = ChannelInfo(channel["guid"],
+    #                                       channel["name"],
+    #                                       channel["description"],
+    #                                       channel["icon"],
+    #                                       channel["category"],
+    #                                       path,
+    #                                       channel["channelcode"],
+    #                                       channel["sortorder"],
+    #                                       channel["language"],
+    #                                       channel["compatible"],
+    #                                       fanart=fanart)
+    #             channelInfo.firstTimeMessage = channel.get("message", None)
+    #             channelInfos.append(channelInfo)
+    #         elif key.startswith("/"):
+    #             # ignore other end tags
+    #             pass
+    #         else:
+    #             #Logger.Trace("Found new property: %s => %s", key, value)
+    #             channel[key] = value
+    #
+    #     return channelInfos
 
     @staticmethod
     def __GetText(channel, name):

@@ -158,14 +158,14 @@ class ChannelImporter:
 
                 # create ChannelInfo objects from the xml file and get the correct ChannelInfo object. It coulde that none
                 # is found and we might need to continue (in case there were duplicate channel names
-                fileName = os.path.join(classPath, "chn_" + folderToFind + ".xml")
+                fileName = os.path.join(classPath, "chn_" + folderToFind + ".json")
 
                 Logger.Debug("Loading info for chn_%s @ %s", folderToFind, fileName)
                 if not os.path.isfile(fileName):
                     Logger.Warning("Could not load %s", fileName)
                     continue
 
-                cis = ChannelInfo.FromFile(fileName)
+                cis = ChannelInfo.FromJson(fileName)
                 ci = filter(lambda c: c.moduleName == className and (c.channelCode == channelCode or c.channelCode is channelCode), cis)
                 if not ci or len(ci) > 1:
                     Logger.Warning("Could not load channel with className=%s and channelCode=%s from %s", className, channelCode, fileName)
@@ -465,7 +465,7 @@ class ChannelImporter:
                         continue
 
                     loadedChannels.append(channelName)
-                    fileName = os.path.join(channelPath, "chn_" + channelName + ".xml")
+                    fileName = os.path.join(channelPath, "chn_" + channelName + ".json")
 
                     Logger.Trace("Loading info for chn_%s @ %s", channelName, fileName)
                     if os.path.isfile(fileName):
