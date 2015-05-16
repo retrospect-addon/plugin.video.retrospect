@@ -1,7 +1,11 @@
 ﻿[B]Changelog[/B]
-Added: Categories for SVT.se (Fixes #614)
+Fixed: SVT Oppet Arkiv (Fixes #621)
+Updated: TV4Play added more categories (Fixes #519)
+Added: TV4Play has a DRM protection indicator for Premium indication (See #620)
+Added: Senaste avsnitten/clip to Kanal5.se, Kanal9.se and Kanal11.se (See #519)
 
 [I]Previous changes[/I]
+Added: Categories for SVT.se (Fixes #614)
 Fixed: URPlay updated their JSON format (Fixes #607)
 Added: 'Mest spelade', 'Mest delade', 'Senaste' and 'Sista chansen' to URPlay (Fixed #608)
 Fixed: SVT would not show videos (Fixes #599)

@@ -43,8 +43,10 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.episodeItemRegex = '<li class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
-        self.videoItemRegex = '<img[^>]+name="([^"]+)"[^>]+>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
-        self.pageNavigationRegex = '<a href="(http://www.oppetarkiv.se/[^?]+\?sida=)(\d+)(&amp;sort=[^"]+)'
+        self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
+                              '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
+                              '*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
+        self.pageNavigationRegex = '<a href="(/[^?]+\?sida=)(\d+)(&amp;sort=[^"]+)'
         self.pageNavigationRegexIndex = 1
 
         # ====================================== Actual channel setup STOPS here =======================================
