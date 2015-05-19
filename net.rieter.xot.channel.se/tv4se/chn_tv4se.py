@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         items = []
 
         extras = {
-            "\a.: Categories :.":(
+            "\a.: Kategorier :.": (
                 "http://webapi.tv4play.se/play/categories.json", None
             ),
             "\a.: Mest sedda programmen just nu :.": (
