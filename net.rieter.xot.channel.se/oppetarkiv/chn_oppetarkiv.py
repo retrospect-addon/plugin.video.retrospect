@@ -42,7 +42,7 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/public/swf/svtplayer-9017918b040e054d1e3c902fc13ceb5d.swf" % (self.baseUrl,)
 
         # setup the main parsing data
-        self.episodeItemRegex = '<li class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
+        self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
                               '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
                               '*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
