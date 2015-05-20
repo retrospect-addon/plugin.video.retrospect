@@ -18,8 +18,8 @@ def GetTextureHandler(channel, mode="local", logger=None):
         import remote
         return remote.Remote(channel, logger)
     elif mode == "package":
-        import package
-        return package.Package(channel, logger)
+        import cached
+        return cached.Cached(channel, logger)
     else:
         raise Exception("Invalide mode: %s" % (mode,))
 
@@ -29,8 +29,16 @@ class TextureBase:
         self.channel = channel
         self._logger = logger
 
-    def LoadTextureForChannel(self):
+    def GetTextureUri(self, fileName):
+        """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
+        the texture and return that path.
+
+        @type fileName: the file name
+
+        """
         pass
 
-    def GetTextureUri(self, fileName):
+    def PurgeTextureCache(self):
+        """ Removes those entries from the textures cache that are no longer required.
+        """
         pass

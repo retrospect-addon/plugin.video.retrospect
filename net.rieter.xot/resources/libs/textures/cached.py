@@ -10,6 +10,6 @@
 
 from textures import TextureBase
 
-class Package(TextureBase):
+class Cached(TextureBase):
     def __init__(self, channel, logger):
         TextureBase.__init__(self, channel, logger)
