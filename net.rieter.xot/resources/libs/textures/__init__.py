@@ -9,24 +9,32 @@
 #===============================================================================
 __all__ = ["local", "remote", "package"]
 
+Local = "local"
+Remote = "remote"
+Cached = "cached"
 
-def GetTextureHandler(channel, mode="local", logger=None):
-    if mode == "local":
+
+def GetTextureHandler(channel, mode, cdnUrl=None, logger=None):
+
+    if logger is not None:
+        logger.Debug("Creating '%s' Texture Mananger for: %s", mode, channel)
+
+    if mode == Local:
         import local
         return local.Local(channel, logger)
-    elif mode == "remote":
+    elif mode == Remote:
         import remote
-        return remote.Remote(channel, logger)
-    elif mode == "package":
+        return remote.Remote(cdnUrl, channel, logger)
+    elif mode == Cached:
         import cached
-        return cached.Cached(channel, logger)
+        return cached.Cached(cdnUrl, channel, logger)
     else:
         raise Exception("Invalide mode: %s" % (mode,))
 
 
 class TextureBase:
     def __init__(self, channel, logger=None):
-        self.channel = channel
+        self._channel = channel
         self._logger = logger
 
     def GetTextureUri(self, fileName):

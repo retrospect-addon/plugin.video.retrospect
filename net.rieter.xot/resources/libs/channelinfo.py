@@ -13,7 +13,6 @@
 #===============================================================================
 import os
 import sys
-import re
 
 import xbmcgui
 
@@ -21,11 +20,10 @@ from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
-from config import Config
-
+# from config import Config
+import textures
 
 class ChannelInfo:
-    __channelInfoRegex = None
 
     def __init__(self, guid, name, description, icon, category, path, channelCode=None, sortOrder=255, language=None, compatiblePlatforms=Environments.All, fanart=None):
         """ Creates a ChannelInfo object with basic information for a channel
@@ -51,26 +49,26 @@ class ChannelInfo:
         self.path = os.path.dirname(path)
         self.moduleName = os.path.splitext(os.path.basename(path))[0]
 
+        self.channelName = name
+        self.channelCode = channelCode
         self.guid = guid
+        self.channelDescription = description
+
+        self.category = category
+        self.compatiblePlatforms = compatiblePlatforms
+        self.sortOrder = sortOrder  # max 255 channels
+        self.language = language
+        self.firstTimeMessage = None
+
+        self.settings = []
+
+        self._textureManager = textures.GetTextureHandler(self, textures.Remote, logger=Logger.Instance())
+        self._textureManager.PurgeTextureCache()
 
         self.icon = self.__GetImagePath(icon)            # : The icon path or url
         self.fanart = None
-        if not fanart is None:
+        if fanart is not None:
             self.fanart = self.__GetImagePath(fanart)    # : The path or url
-
-        self.category = category
-
-        self.channelName = name
-        self.channelCode = channelCode
-        self.channelDescription = description
-
-        self.compatiblePlatforms = compatiblePlatforms
-        self.sortOrder = sortOrder  # max 255 channels
-
-        self.language = language
-
-        self.firstTimeMessage = None
-        self.settings = []
         return
 
     def GetChannel(self):
@@ -169,10 +167,12 @@ class ChannelInfo:
 
         """
 
-        if Config.CdnUrl is None:
-            return os.path.join(self.path, image)
+        return self._textureManager.GetTextureUri(image)
 
-        return "%s%s" % (Config.CdnUrl, image)
+        # if Config.CdnUrl is None:
+        #     return os.path.join(self.path, image)
+        #
+        # return "%s%s" % (Config.CdnUrl, image)
 
     @staticmethod
     def FromJson(path):

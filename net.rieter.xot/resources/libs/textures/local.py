@@ -8,8 +8,25 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+import os
+
 from textures import TextureBase
+
 
 class Local(TextureBase):
     def __init__(self, channel, logger):
         TextureBase.__init__(self, channel, logger)
+
+    def GetTextureUri(self, fileName):
+        """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
+        the texture and return that path.
+
+        @type fileName: the file name
+
+        """
+
+        returnValue = os.path.join(self._channel.path, fileName)
+        if self._logger is not None:
+            self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
+        return returnValue
+

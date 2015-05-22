@@ -11,5 +11,7 @@
 from textures import TextureBase
 
 class Cached(TextureBase):
-    def __init__(self, channel, logger):
+    def __init__(self, cdnUrl, channel, logger):
         TextureBase.__init__(self, channel, logger)
+
+        self.cdnUrl = cdnUrl
