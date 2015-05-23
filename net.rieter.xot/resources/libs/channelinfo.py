@@ -20,7 +20,8 @@ from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
-# from config import Config
+from urihandler import UriHandler
+from config import Config
 import textures
 
 class ChannelInfo:
@@ -62,8 +63,12 @@ class ChannelInfo:
 
         self.settings = []
 
-        self._textureManager = textures.GetTextureHandler(self, textures.Remote, logger=Logger.Instance())
-        self._textureManager.PurgeTextureCache()
+        self.textureManager = textures.GetTextureHandler(self, textures.Cached,
+                                                         cachePath=Config.profileDir,
+                                                         logger=Logger.Instance(),
+                                                         uriHandler=UriHandler.Instance())
+        # Should be called from channelimporter.py:299
+        self.textureManager.PurgeTextureCache()
 
         self.icon = self.__GetImagePath(icon)            # : The icon path or url
         self.fanart = None

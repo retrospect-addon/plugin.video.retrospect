@@ -8,24 +8,19 @@
 # San Francisco, California 94105, USA.
 # ===============================================================================
 
-import os
-
 from textures import TextureBase
 
 
 class Remote(TextureBase):
-    def __init__(self, cdnUrl, channel, logger):
-        TextureBase.__init__(self, channel, logger)
+    def __init__(self, cdnUrl, channelPath, logger):
+        TextureBase.__init__(self, channelPath, setCdn=True, logger=logger)
 
         self.cdnUrl = cdnUrl
 
-        (base, channelName) = os.path.split(self._channel.path)
-        (base, addonId) = os.path.split(base)
-
         if self.cdnUrl:
-            self.baseUrl = "%s/%s" % (self.cdnUrl, self._channel.path)
+            self.baseUrl = "%s/%s" % (self.cdnUrl, self._cdnSubFolder)
         else:
-            self.baseUrl = "http://www.rieter.net/net.rieter.xot.cdn/%s.%s" % (addonId, channelName)
+            self.baseUrl = "http://www.rieter.net/net.rieter.xot.cdn/%s" % (self._cdnSubFolder, )
 
     def PurgeTextureCache(self):
         """ Removes those entries from the textures cache that are no longer required. """
@@ -41,7 +36,7 @@ class Remote(TextureBase):
 
         """
 
-        returnValue =  "%s/%s" % (self.baseUrl, fileName)
+        returnValue = "%s/%s" % (self.baseUrl, fileName)
         if self._logger is not None:
             self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue
