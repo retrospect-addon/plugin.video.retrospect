@@ -16,8 +16,19 @@ Remote = "remote"
 Cached = "cached"
 
 
-def GetTextureHandler(channel, mode, cdnUrl=None, cachePath=None, uriHandler=None, logger=None):
+def GetTextureHandler(channel, config, uriHandler=None, logger=None):
+    """ Fetches a TextureManager for specific mode and channel.
 
+    @param channel:             The Channel or ChannelInfo object
+    @param config:              The Retrospect Config object
+    @param uriHandler:          The UriHandler
+    @param logger:              An optional Logger
+
+    @return: A TextureBase object for the requested mode
+
+    """
+
+    mode = config.TextureMode.lower()
     if logger is not None:
         logger.Trace("Creating '%s' Texture Mananger for: %s", mode, channel)
 
@@ -26,10 +37,10 @@ def GetTextureHandler(channel, mode, cdnUrl=None, cachePath=None, uriHandler=Non
         return local.Local(channel.path, logger)
     elif mode == Remote:
         import remote
-        return remote.Remote(cdnUrl, channel.path, logger)
+        return remote.Remote(config.TextureUrl, channel.path, logger)
     elif mode == Cached:
         import cached
-        return cached.Cached(cdnUrl, cachePath, channel.path, logger, uriHandler)
+        return cached.Cached(config.TextureUrl, config.profileDir, channel.path, logger, uriHandler)
     else:
         raise Exception("Invalide mode: %s" % (mode,))
 

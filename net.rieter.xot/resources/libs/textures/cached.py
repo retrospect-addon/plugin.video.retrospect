@@ -12,14 +12,15 @@ import os
 
 from textures import TextureBase
 
+
 class Cached(TextureBase):
-    def __init__(self, cdnUrl, cachePath, channel, logger, uriHandler):
+    def __init__(self, textureUrl, cachePath, channel, logger, uriHandler):
         TextureBase.__init__(self, channel, setCdn=True, logger=logger)
 
         # what is the URL for the CDN?
-        self.cdnUrl = cdnUrl
-        if self.cdnUrl:
-            self.baseUrl = "%s/%s" % (self.cdnUrl, self._cdnSubFolder)
+        self.textureUrl = textureUrl
+        if self.textureUrl:
+            self.baseUrl = "%s/%s" % (self.textureUrl, self._cdnSubFolder)
         else:
             self.baseUrl = "http://www.rieter.net/net.rieter.xot.cdn/%s" % (self._cdnSubFolder, )
 
@@ -37,17 +38,27 @@ class Cached(TextureBase):
 
         """
 
+        if os.path.isabs(fileName):
+            if self._logger is not None:
+                self._logger.Debug("Already cached texture found: '%s'", fileName)
+            return fileName
+
         # Check if we already have the file
         texturePath = os.path.join(self.cachePath, fileName)
         if not os.path.isfile(texturePath):
             # Missing item. Fetch it
             uri = "%s/%s" % (self.baseUrl, fileName)
-            progressBar = lambda retrievedSize, totalSize, perc, completed, status: \
-                self._logger.Trace("Downloaded: %s/%s (%s)", retrievedSize, totalSize, perc)
 
-            if self._logger:
-                self._logger.Debug("Fetching '%s' from '%s'", fileName, uri)
-            texturePath = self.__uriHandler.Download(uri, fileName, os.path.split(texturePath)[0], progressBar)
+            if self._logger is not None:
+                self._logger.Debug("Fetching texture '%s' from '%s'", fileName, uri)
+
+            imageBytes = self.__uriHandler.Open(uri)
+            fs = open(texturePath, mode='wb')
+            fs.write(imageBytes)
+            fs.close()
+
+        if self._logger is not None:
+            self._logger.Debug("Returning cached texture for '%s' from '%s'", fileName, texturePath)
 
         return texturePath
 

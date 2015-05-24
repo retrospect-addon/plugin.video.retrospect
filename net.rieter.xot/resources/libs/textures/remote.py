@@ -36,8 +36,11 @@ class Remote(TextureBase):
 
         """
 
-        returnValue = "%s/%s" % (self.baseUrl, fileName)
+        if fileName.startswith("http"):
+            returnValue = fileName
+        else:
+            returnValue = "%s/%s" % (self.baseUrl, fileName)
+
         if self._logger is not None:
             self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue
-

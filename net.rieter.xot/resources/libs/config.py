@@ -30,9 +30,9 @@ class Config:
     __path = __path.decode('utf-8')
 
     # get rootDir, addonsDir and profileDir
-    rootDir = __path.replace(";", "")                       # : The root directory where XOT resides.
-    addonDir = os.path.split(rootDir)[-1]                   # : The add-on directory of XBMC.
-    rootDir = os.path.join(rootDir, '')                     # : The root directory where XOT resides.
+    rootDir = __path.replace(";", "")                        # : The root directory where XOT resides.
+    addonDir = os.path.split(rootDir)[-1]                    # : The add-on directory of XBMC.
+    rootDir = os.path.join(rootDir, '')                      # : The root directory where XOT resides.
 
     # determine the profile directory, where user data is stored.
     if xbmc.getCondVisibility("system.platform.xbox"):
@@ -44,32 +44,32 @@ class Config:
     #noinspection PyArgumentEqualDefault
     profileDir = profileDir.decode('utf-8')
 
-    cacheDir = os.path.join(profileDir, 'cache', '')        # : The cache directory.
-    favouriteDir = os.path.join(profileDir, 'favourites')   # : The favourites directory
+    cacheDir = os.path.join(profileDir, 'cache', '')         # : The cache directory.
+    favouriteDir = os.path.join(profileDir, 'favourites')    # : The favourites directory
 
-    appName = "Retrospect"                                  # : Name of the XOT application (could be overwritten from the addon.xml)
-    cacheValidTime = 7 * 24 * 3600                          # : Time the cache files are valid in seconds.
-    webTimeOut = 30                                         # : Maximum wait time for HTTP requests.
+    appName = "Retrospect"                                   # : Name of the XOT application (could be overwritten from the addon.xml)
+    cacheValidTime = 7 * 24 * 3600                           # : Time the cache files are valid in seconds.
+    webTimeOut = 30                                          # : Maximum wait time for HTTP requests.
 
-    logLevel = 10                                           # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
-    logFileNameAddon = "retrospect.log"                     # : Filename of the log file of the plugin version
+    logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
+    logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin version
 
-    retroDb = os.path.join(profileDir, "retrospect.db")     # : Filename of the XOT DB file
+    retroDb = os.path.join(profileDir, "retrospect.db")      # : Filename of the XOT DB file
 
     # must be single quotes for build script
     __addonXmlPath = os.path.join(rootDir, 'addon.xml')
     __addonXmlcontents = xml.dom.minidom.parse(__addonXmlPath)
     for addonentry in __addonXmlcontents.getElementsByTagName("addon"):
-        addonId = str(addonentry.getAttribute("id"))        # : The ID the addon has in XBMC (from addon.xml)
-        __version = addonentry.getAttribute("version")      # : The Version of the addon (from addon.xml)
-        version = Version(version=__version)                # : The Version of the addon (from addon.xml)
+        addonId = str(addonentry.getAttribute("id"))         # : The ID the addon has in XBMC (from addon.xml)
+        __version = addonentry.getAttribute("version")       # : The Version of the addon (from addon.xml)
+        version = Version(version=__version)                 # : The Version of the addon (from addon.xml)
         #noinspection PyRedeclaration
-        appName = str(addonentry.getAttribute("name"))      # : The name from the addon (from addon.xml)
+        appName = str(addonentry.getAttribute("name"))       # : The name from the addon (from addon.xml)
 
+    # The URL that is called to check for updates. Should return "" if no update is available
     UpdateUrl = "http://www.rieter.net" \
                 "/net.rieter.xot.repository" \
-                "/addons.xml.md5"                           # : The URL that is called to check for updates.
-                                                            # : should return "" if no update is available
+                "/addons.xml.md5"
 
-    CdnUrl = None                                           # : The URL for the CDN servers (None for local)
-    # CdnUrl = "http://cdn.rieter.net/"                       # : The URL for the CDN servers (None for local)
+    TextureMode = "Cached"                                   # : The mode for the textures: Local, Remote or Cached
+    TextureUrl = "http://www.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location

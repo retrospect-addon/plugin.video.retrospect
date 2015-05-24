@@ -25,8 +25,11 @@ class Local(TextureBase):
 
         """
 
-        returnValue = os.path.join(self._channelPath, fileName)
+        if os.path.isabs(fileName):
+            returnValue = fileName
+        else:
+            returnValue = os.path.join(self._channelPath, fileName)
+
         if self._logger is not None:
             self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue
-

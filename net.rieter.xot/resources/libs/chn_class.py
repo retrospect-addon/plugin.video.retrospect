@@ -9,8 +9,6 @@
 #===============================================================================
 
 import urlparse
-import os
-import sys
 from datetime import datetime
 
 import xbmc
@@ -77,6 +75,7 @@ class Channel:
         self.category = channelInfo.category
         self.language = channelInfo.language
         self.path = channelInfo.path
+        self._textureManager = channelInfo.textureManager
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = ""
@@ -1004,9 +1003,11 @@ class Channel:
 
         """
 
-        if Config.CdnUrl is None:
-            return os.path.join(os.path.dirname(sys.modules[self.__module__].__file__), image)
-        return "%s%s" % (Config.CdnUrl, image)
+        # if Config.CdnUrl is None:
+        #     return os.path.join(os.path.dirname(sys.modules[self.__module__].__file__), image)
+        # return "%s%s" % (Config.CdnUrl, image)
+
+        return self._textureManager.GetTextureUri(image)
 
     def _AddDataParsers(self, urls, preprocessor=None,
                         parser=None, creator=None, updater=None,
