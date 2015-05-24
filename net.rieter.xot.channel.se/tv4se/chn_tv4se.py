@@ -353,9 +353,10 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
+        cat = HtmlEntityHelper.UrlEncode(resultSet['nid'])
         url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
               "&fl=nid,name,program_image,category,logo,is_premium" \
-              "&per_page=%s&is_active=true&start=0" % (resultSet['nid'], self.maxPageSize)
+              "&per_page=%s&is_active=true&start=0" % (cat, self.maxPageSize)
         item = mediaitem.MediaItem(resultSet['name'], url)
         item.thumb = self.noImage
         item.type = 'folder'
