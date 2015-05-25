@@ -342,6 +342,7 @@ class Channel:
                         item = mediaitem.MediaItem(titleFormat % (char.upper(),), "")
                     item.thumb = self.noImage
                     item.complete = True
+                    # item.SetDate(2100 + ord(char[0]), 1, 1, text='')
                     result[char] = item
                 else:
                     item = result[char]
