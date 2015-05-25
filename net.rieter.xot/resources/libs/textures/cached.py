@@ -29,6 +29,9 @@ class Cached(TextureBase):
 
         self.__uriHandler = uriHandler
 
+        # we should keep track of which ones we already used in this session, so we can refetch it in a purge situation.
+        self.__retrievedTexturePaths = []
+
     def GetTextureUri(self, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
@@ -40,6 +43,7 @@ class Cached(TextureBase):
         if os.path.isabs(fileName):
             if self._logger is not None:
                 self._logger.Trace("Already cached texture found: '%s'", fileName)
+
             return fileName
 
         # Check if we already have the file
@@ -66,6 +70,7 @@ class Cached(TextureBase):
         if self._logger is not None:
             self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)
 
+        self.__retrievedTexturePaths.append(texturePath)
         return texturePath
 
     def PurgeTextureCache(self):
@@ -102,6 +107,10 @@ class Cached(TextureBase):
                     if self._logger is not None:
                         self._logger.Warning("Texture expired: %s", filePath)
                     os.remove(filePath)
+
+                    # and fetch the updated one if it was already used
+                    if filePath in self.__retrievedTexturePaths:
+                        self.GetTextureUri(image)
             else:
                 if self._logger is not None:
                     self._logger.Warning("Texture no longer required: %s", filePath)
