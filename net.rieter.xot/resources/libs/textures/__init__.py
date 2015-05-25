@@ -55,10 +55,10 @@ class TextureBase:
 
         """
 
-        self._channelPath = channelPath
-        self._logger = logger
-        self._addonId = None
-        self._cdnSubFolder = None
+        self._channelPath = channelPath     # : the path of the actual channel
+        self._logger = logger               # : a logger
+        self._addonId = None                # : the addon ID
+        self._cdnSubFolder = None           # : the subfolder for the CDN
 
         if setCdn:
             (base, channelName) = os.path.split(self._channelPath)
