@@ -56,8 +56,12 @@ class Cached(TextureBase):
                 fs = open(texturePath, mode='wb')
                 fs.write(imageBytes)
                 fs.close()
-            elif self._logger:
-                self._logger.Error("Could not update Texture: %s", uri)
+            else:
+                # fallback to local cache.
+                texturePath = os.path.join(self._channelPath, fileName)
+
+                if self._logger:
+                    self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
 
         if self._logger is not None:
             self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)

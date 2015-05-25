@@ -136,11 +136,11 @@ class ChannelImporter:
         # list all add-ons
         for directory in os.listdir(addonPath):
             # find the xot ones
-            if channelPathStart in directory and not "BUILD" in directory:
+            if channelPathStart in directory and "BUILD" not in directory:
                 channelPath = os.path.join(addonPath, directory)
 
                 # list the subfolders for the requested folder to find the one we need
-                if not folderToFind in os.listdir(channelPath):
+                if folderToFind not in os.listdir(channelPath):
                     continue
 
                 # we perhaps found it.
@@ -297,6 +297,8 @@ class ChannelImporter:
         # see if the channel included XOT updates
         self.__DeployUpdates(channelInfo.path)
 
+        # purge the texture cache.
+        channelInfo.textureManager.PurgeTextureCache()
         return True
 
     def __DeployUpdates(self, channelPath, cleanup=False):

@@ -69,7 +69,7 @@ class ChannelInfo:
                                                          logger=Logger.Instance(),
                                                          uriHandler=UriHandler.Instance())
         # Should be called from channelimporter.py:299
-        self.textureManager.PurgeTextureCache()
+        # self.textureManager.PurgeTextureCache()
 
         self.icon = self.__GetImagePath(icon)            # : The icon path or url
         self.fanart = None
@@ -185,7 +185,7 @@ class ChannelInfo:
     @staticmethod
     def FromJson(path):
         channelInfos = []
-        Logger.Trace("Using JSON reader for %s", path)
+        # Logger.Trace("Using JSON reader for %s", path)
 
         jsonFile = open(path)
         jsonData = jsonFile.read()

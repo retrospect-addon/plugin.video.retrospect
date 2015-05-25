@@ -129,6 +129,10 @@ class EnvController:
             infoString = "%s\n%s: %s" % (infoString, "PathDetection", config.pathDetection)
             infoString = "%s\n%s: %s" % (infoString, "Encoding", sys.getdefaultencoding())
             infoString = "%s\n%s: %s" % (infoString, "Repository", repoName)
+            infoString = "%s\n%s: %s" % (infoString, "TextureMode", config.TextureMode)
+            if config.TextureUrl:
+                infoString = "%s\n%s: %s" % (infoString, "TextureUrl", config.TextureUrl)
+
             self.logger.Info("Kodi Information:\n%s", infoString)
 
             # log the settings
