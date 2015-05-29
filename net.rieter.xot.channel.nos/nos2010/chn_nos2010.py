@@ -267,6 +267,8 @@ class Channel(chn_class.Channel):
             extra.thumb = self.noImage
             extra.dontGroup = True
             extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+            extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
+
             extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
             items.append(extra)
 
@@ -482,6 +484,7 @@ class Channel(chn_class.Channel):
             item.type = 'folder'
             item.fanart = self.parentItem.fanart
             item.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+            item.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
             item.complete = True
             return item
         else:
