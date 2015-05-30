@@ -285,6 +285,11 @@ class ChannelImporter:
 
         Logger.Debug("Performing First time actions for channel: %s [%s]", channelInfo.moduleName, channelInfo.channelCode)
 
+        # show dialog
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)
+        text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText) % (channelInfo.channelName, )
+        XbmcWrapper.ShowNotification(title, text, displayTime=2000)
+
         # now import (required for the PerformFirstTimeActions
         sys.path.append(channelInfo.path)
 
