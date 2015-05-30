@@ -172,7 +172,7 @@ class ChannelImporter:
                     continue
 
                 ci = ci[0]
-                if self.__PerformFirstTimeActions(ci):
+                if self.__InitialiseChannelSet(ci, abortOnNew=True):
                     # apparently a new channel was found, so we need to do it all
                     Logger.Info("Found a new channel, we need to reload all channels")
                     return self.__ImportSingleChannel(className, channelCode)
@@ -265,12 +265,30 @@ class ChannelImporter:
 
         return
 
-    def __PerformFirstTimeActions(self, channelInfo):
-        """ Checks if it is the first time a channel is executed
-        and then performs some actions
+    def __FirstTimeChannelActions(self, channelInfo):
+        """ Performs the first time channel actions for a given channel.
 
         Arguments:
         channelInfo : ChannelInfo - The channelinfo
+        """
+
+        Logger.Info("Performing first time channel actions for: %s", channelInfo)
+
+        self.__ShowFirstTimeMessage(channelInfo)
+        return
+
+    def __InitialiseChannelSet(self, channelInfo, abortOnNew=False):
+        """ Checks if it is the first time a channel is executed
+        and then performs some actions.
+
+        WARNING: these actions are done ONCE per python file, not per channel.
+
+        Arguments:
+        channelInfo : ChannelInfo - The channelinfo
+
+        Keyword Arguments:
+        abortOnNew  : Boolean - If set to true, channel initialisation will not continue if a new channel was found.
+                                This will have to be done later.
 
         Returns True if any operations where executed
 
@@ -283,11 +301,15 @@ class ChannelImporter:
         if os.path.isfile(os.path.join(channelInfo.path, compiledName)) or os.path.isfile(os.path.join(channelInfo.path, optimizedName)):
             return False
 
-        Logger.Debug("Performing First time actions for channel: %s [%s]", channelInfo.moduleName, channelInfo.channelCode)
+        if abortOnNew:
+            Logger.Warning("New channel set found, but not allowed to initialise.")
+            return True
+
+        Logger.Info("Initialising channel set at: %s", channelInfo.path)
 
         # show dialog
         title = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)
-        text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText) % (channelInfo.channelName, )
+        text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText)
         XbmcWrapper.ShowNotification(title, text, displayTime=2000)
 
         # now import (required for the PerformFirstTimeActions
@@ -295,9 +317,6 @@ class ChannelImporter:
 
         # make sure a pyo or pyc exists
         __import__(channelInfo.moduleName)
-
-        # see if we should show a message
-        self.__ShowFirstTime(channelInfo)
 
         # see if the channel included XOT updates
         self.__DeployUpdates(channelInfo.path)
@@ -374,7 +393,7 @@ class ChannelImporter:
                 Logger.Info("Cleaning update path: %s", updatePath)
                 shutil.rmtree(updatePath)
 
-    def __ShowFirstTime(self, channelInfo):
+    def __ShowFirstTimeMessage(self, channelInfo):
         """ Checks if it is the first time a channel is executed
         and if a first time message is available it will be shown
 
@@ -432,7 +451,7 @@ class ChannelImporter:
 
             channelPathStart = "%s.channel" % (Config.addonDir, )
             for directory in os.listdir(addonPath):
-                if channelPathStart in directory and not "BUILD" in directory:
+                if channelPathStart in directory and "BUILD" not in directory:
                     path = os.path.join(addonPath, directory)
 
                     channelVersion = self.__ParseChannelVersionInfo(path)
@@ -480,9 +499,19 @@ class ChannelImporter:
                             ci = ChannelInfo.FromJson(fileName)
                             channelsToImport += ci
 
-                            # check for first time messages and updates
+                            # Initialise the channelset. If it was new (returns True) the channel was new and
+                            # initialsed. We then only need to perform the channel actions and finally update settings
+                            # and so.
+                            channelSetUpdated = False
                             for channelInfo in ci:
-                                channelsUpdated |= self.__PerformFirstTimeActions(channelInfo)
+                                # was the channel set update?
+                                channelSetUpdated |= self.__InitialiseChannelSet(channelInfo)
+                                channelsUpdated |= channelSetUpdated
+
+                                if channelSetUpdated:
+                                    # The channel set was updated, so for all channelInfo objects in ci perform the
+                                    # first time actions.
+                                    self.__FirstTimeChannelActions(channelInfo)
                         except:
                             Logger.Error("Error import chn_%s.xml", channelName, exc_info=True)
 
@@ -496,6 +525,7 @@ class ChannelImporter:
 
             # instantiate the registered channels
             for channelInfo in channelsToImport:
+                # noinspection PyUnusedLocal
                 isValid = self.__ValidateChannelInfo(channelInfo, platform)
 
             # sort the channels

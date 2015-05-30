@@ -16,8 +16,10 @@ from helpers.jsonhelper import JsonHelper
 
 
 class Cached(TextureBase):
-    def __init__(self, textureUrl, cachePath, channel, logger, uriHandler):
-        TextureBase.__init__(self, channel, logger, setCdn=True)
+    __retrievedTexturePaths = []
+
+    def __init__(self, textureUrl, cachePath, channelPath, logger, uriHandler):
+        TextureBase.__init__(self, channelPath, logger, setCdn=True)
 
         # what is the URL for the CDN?
         if textureUrl:
@@ -32,7 +34,6 @@ class Cached(TextureBase):
         self.__uriHandler = uriHandler
 
         # we should keep track of which ones we already used in this session, so we can refetch it in a purge situation.
-        self.__retrievedTexturePaths = []
 
     def GetTextureUri(self, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
@@ -65,7 +66,7 @@ class Cached(TextureBase):
                 self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
 
         self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)
-        self.__retrievedTexturePaths.append(texturePath)
+        Cached.__retrievedTexturePaths.append(texturePath)
         return texturePath
 
     def PurgeTextureCache(self):
@@ -85,8 +86,9 @@ class Cached(TextureBase):
 
         # remove items not in the textures.md5
         images = [image for image in os.listdir(self.__channelTexturePath)
-                  if image.lower().endswith(".png") or image.lower().endswith(".png")]
+                  if image.lower().endswith(".png") or image.lower().endswith(".jpg")]
 
+        textureChange = False
         for image in images:
             imageKey = "%s/%s" % (self._cdnSubFolder, image)
             filePath = os.path.join(self.__channelTexturePath, image)
@@ -99,16 +101,20 @@ class Cached(TextureBase):
                 else:
                     self._logger.Warning("Texture expired: %s", filePath)
                     os.remove(filePath)
+                    textureChange = True
 
                     # and fetch the updated one if it was already used
-                    if filePath in self.__retrievedTexturePaths:
+                    if filePath in Cached.__retrievedTexturePaths:
                         self.GetTextureUri(image)
             else:
                 self._logger.Warning("Texture no longer required: %s", filePath)
                 os.remove(filePath)
+                textureChange = True
 
         # always reset the Kodi Texture cache for this channel
-        self.__PurgeXbmcCache(self.__channelTexturePath)
+        if textureChange:
+            self.__PurgeXbmcCache(self.__channelTexturePath)
+
         return
 
     def __GetHash(self, filePath):
@@ -137,7 +143,7 @@ class Cached(TextureBase):
             self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", jsonCmd, results.json)
             return
 
-        results = results.GetValue("result", "textures")
+        results = results.GetValue("result", "textures", fallback=[])
         for result in results:
             textureId = result["textureid"]
             textureUrl = result["url"]
