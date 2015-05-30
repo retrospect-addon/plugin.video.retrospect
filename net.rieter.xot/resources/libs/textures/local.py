@@ -15,7 +15,7 @@ from textures import TextureBase
 
 class Local(TextureBase):
     def __init__(self, channelPath, logger):
-        TextureBase.__init__(self, channelPath, logger=logger)
+        TextureBase.__init__(self, channelPath, logger)
 
     def GetTextureUri(self, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
@@ -30,6 +30,5 @@ class Local(TextureBase):
         else:
             returnValue = os.path.join(self._channelPath, fileName)
 
-        if self._logger is not None:
-            self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
+        self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue

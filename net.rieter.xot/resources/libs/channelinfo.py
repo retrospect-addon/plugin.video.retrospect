@@ -66,7 +66,7 @@ class ChannelInfo:
         self.settings = []
 
         self.textureManager = textures.GetTextureHandler(self, Config,
-                                                         logger=Logger.Instance(),
+                                                         Logger.Instance(),
                                                          uriHandler=UriHandler.Instance())
         # Should be called from channelimporter.py:299
         # self.textureManager.PurgeTextureCache()

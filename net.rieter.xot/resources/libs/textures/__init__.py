@@ -16,13 +16,13 @@ Remote = "remote"
 Cached = "cached"
 
 
-def GetTextureHandler(channel, config, uriHandler=None, logger=None):
+def GetTextureHandler(channel, config, logger, uriHandler=None):
     """ Fetches a TextureManager for specific mode and channel.
 
     @param channel:             The Channel or ChannelInfo object
     @param config:              The Retrospect Config object
+    @param logger:              An Logger
     @param uriHandler:          The UriHandler
-    @param logger:              An optional Logger
 
     @return: A TextureBase object for the requested mode
 
@@ -46,12 +46,12 @@ def GetTextureHandler(channel, config, uriHandler=None, logger=None):
 
 
 class TextureBase:
-    def __init__(self, channelPath, setCdn=False, logger=None):
+    def __init__(self, channelPath, logger, setCdn=False):
         """ Initialize the texture base
 
         @param channelPath: The local path where the corresponding channel is
         @param setCdn:      Indicator if the determine CDN variables (performance impact)
-        @param logger:      You can add a logger if you want.
+        @param logger:      A logger to log stuff.
 
         """
 

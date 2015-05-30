@@ -13,7 +13,7 @@ from textures import TextureBase
 
 class Remote(TextureBase):
     def __init__(self, cdnUrl, channelPath, logger):
-        TextureBase.__init__(self, channelPath, setCdn=True, logger=logger)
+        TextureBase.__init__(self, channelPath, logger, setCdn=True)
 
         self.cdnUrl = cdnUrl
 
@@ -41,6 +41,5 @@ class Remote(TextureBase):
         else:
             returnValue = "%s/%s" % (self.baseUrl, fileName)
 
-        if self._logger is not None:
-            self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
+        self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue
