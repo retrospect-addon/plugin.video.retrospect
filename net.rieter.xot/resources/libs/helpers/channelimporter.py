@@ -172,7 +172,7 @@ class ChannelImporter:
                     continue
 
                 ci = ci[0]
-                if self.__InitialiseChannelSet(ci, abortOnNew=True):
+                if self.__IsChannelSetUpdated(ci):
                     # apparently a new channel was found, so we need to do it all
                     Logger.Info("Found a new channel, we need to reload all channels")
                     return self.__ImportSingleChannel(className, channelCode)
@@ -265,6 +265,23 @@ class ChannelImporter:
 
         return
 
+    def __IsChannelSetUpdated(self, channelInfo):
+        """ Checks whether a channel set was updated.
+
+        @param channelInfo: the channelInfo for a channel from the set
+        @rtype : boolean indicating if the channel was updated or not.
+
+        """
+
+        compiledName = "%s.pyc" % (channelInfo.moduleName,)
+        optimizedName = "%s.pyo" % (channelInfo.moduleName,)
+
+        # show the first time message when no Optimezed (.pyo) and no Compiled (.pyc) files are there
+        if os.path.isfile(os.path.join(channelInfo.path, compiledName)) or os.path.isfile(os.path.join(channelInfo.path, optimizedName)):
+            return False
+
+        return True
+
     def __FirstTimeChannelActions(self, channelInfo):
         """ Performs the first time channel actions for a given channel.
 
@@ -277,9 +294,8 @@ class ChannelImporter:
         self.__ShowFirstTimeMessage(channelInfo)
         return
 
-    def __InitialiseChannelSet(self, channelInfo, abortOnNew=False):
-        """ Checks if it is the first time a channel is executed
-        and then performs some actions.
+    def __InitialiseChannelSet(self, channelInfo):
+        """ Initialises a channelset (.py file)
 
         WARNING: these actions are done ONCE per python file, not per channel.
 
@@ -293,17 +309,6 @@ class ChannelImporter:
         Returns True if any operations where executed
 
         """
-
-        compiledName = "%s.pyc" % (channelInfo.moduleName,)
-        optimizedName = "%s.pyo" % (channelInfo.moduleName,)
-
-        # show the first time message when no Optimezed (.pyo) and no Compiled (.pyc) files are there
-        if os.path.isfile(os.path.join(channelInfo.path, compiledName)) or os.path.isfile(os.path.join(channelInfo.path, optimizedName)):
-            return False
-
-        if abortOnNew:
-            Logger.Warning("New channel set found, but not allowed to initialise.")
-            return True
 
         Logger.Info("Initialising channel set at: %s", channelInfo.path)
 
@@ -505,8 +510,12 @@ class ChannelImporter:
                             channelSetUpdated = False
                             for channelInfo in ci:
                                 # was the channel set update?
-                                channelSetUpdated |= self.__InitialiseChannelSet(channelInfo)
-                                channelsUpdated |= channelSetUpdated
+                                if self.__IsChannelSetUpdated(channelInfo):
+                                    # set the booleans for both this channelset and the overall channels
+                                    channelsUpdated |= True
+                                    channelSetUpdated |= True
+                                    # and then initialise the channelset
+                                    self.__InitialiseChannelSet(channelInfo)
 
                                 if channelSetUpdated:
                                     # The channel set was updated, so for all channelInfo objects in ci perform the
