@@ -144,7 +144,12 @@ class UriHandler:
 
         """
 
-        extensions = {".divx": "divx", ".flv": "flv", ".mp4": "mp4", "m4v": ".mp4", ".avi": "avi", "h264": "mp4"}
+        extensions = {".divx": "divx",
+                      ".flv": "flv",
+                      ".mp4": "mp4",
+                      ".m4v": "mp4",
+                      ".avi": "avi",
+                      "h264": "mp4"}
         for ext in extensions:
             if url.find(ext) > 0:
                 return extensions[ext]
