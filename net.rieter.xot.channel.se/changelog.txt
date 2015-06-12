@@ -1,7 +1,8 @@
-﻿[B]Changelog[/B]
-Fixed: URL encode the categorie names for TV4Play (See #519)
+﻿﻿[B]Changelog[/B]
+Added: TV4Play Live channel (Fixes #626)
 
 [I]Previous changes[/I]
+Fixed: URL encode the categorie names for TV4Play (See #519)
 Fixed: SVT Öppet Arkiv again (Fixes #622)
 Fixed: SVT Oppet Arkiv (Fixes #621)
 Updated: TV4Play added more categories (Fixes #519)

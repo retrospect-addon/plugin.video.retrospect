@@ -55,6 +55,8 @@ class Channel(chn_class.Channel):
         self._AddDataParser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
                             parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
 
+        self._AddDataParser("http://tv4live-i.akamaihd.net/hls/live/", updater=self.UpdateLiveItem)
+
         self.videoItemJson = ("results",)
         self._AddDataParser("*", preprocessor=self.PreProcessFolderList, json=True,
                             parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
@@ -181,6 +183,15 @@ class Channel(chn_class.Channel):
             else:
                 item.SetDate(1901, 1, 1, 0, 0, 0, text="")
             items.append(item)
+
+        live = mediaitem.MediaItem("\a.: Live TV :.",
+                                   "http://tv4live-i.akamaihd.net/hls/live/200284/akamaihls2/master.m3u8",
+                                   type="video")
+        live.dontGroup = True
+        live.isDrmProtected = True
+        live.isGeoLocked = True
+        live.isLive = True
+        items.append(live)
 
         Logger.Debug("Pre-Processing finished")
         return data, items
@@ -446,4 +457,45 @@ class Channel(chn_class.Channel):
 
                 item.complete = True
 
+        return item
+
+    def UpdateLiveItem(self, item):
+        """Updates an existing MediaItem with more data.
+
+        Arguments:
+        item : MediaItem - the MediaItem that needs to be updated
+
+        Returns:
+        The original item with more data added to it's properties.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        """
+
+        Logger.Debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
+
+        item.MediaItemParts = []
+        part = item.CreateNewEmptyMediaPart()
+
+        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
+        if spoofIp:
+            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
+                part.AppendMediaStream(s, b)
+            # data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders={"X-Forwarded-For": spoofIp})
+        else:
+            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+                part.AppendMediaStream(s, b)
+            # data = UriHandler.Open(item.url, proxy=self.proxy)
+
+        item.complete = True
         return item
