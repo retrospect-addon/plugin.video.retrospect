@@ -1,6 +1,7 @@
 ﻿[B]Changelog[/B]
-Fixed: Pathe updated their layout again (Fixes #577)
+Fixed: Dumpert cookie consent issue (Fixes #628)
 
 [I]Previous changes[/I]
+Fixed: Pathe updated their layout again (Fixes #577)
 Fixed: Pathe.nl updated their site (Fixes #576)
 Fixed: Dumpert (Fixes #527)

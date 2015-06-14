@@ -1,6 +1,7 @@
 #===============================================================================
 # Import the default modules
 #===============================================================================
+import cookielib
 import string
 #===============================================================================
 # Make global object available
@@ -54,6 +55,7 @@ class Channel(chn_class.Channel):
         self.mediaUrlRegex = '<div class="videoplayer" id="video1" data-files="([^"]+)"'
 
         # ====================================== Actual channel setup STOPS here =======================================
+        self.__IgnoreCookieLaw()
         return
 
     def GetMainListItems(self, data):
@@ -176,3 +178,18 @@ class Channel(chn_class.Channel):
     def CtMnDownloadItem(self, item):
         item = self.DownloadVideoItem(item)
         return item
+
+    def __IgnoreCookieLaw(self):
+        """ Accepts the cookies from UZG in order to have the site available """
+
+        Logger.Info("Setting the Cookie-Consent cookie for www.dumpert.nl")
+
+        # Set-Cookie: cpc=10; path=/; domain=www.dumpert.nl; expires=Thu, 11-Jun-2020 18:49:38 GMT
+
+        # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
+        c = cookielib.Cookie(version=0, name='cpc', value='10', port=None, port_specified=False,
+                             domain='.www.dumpert.nl', domain_specified=True, domain_initial_dot=False,
+                             path='/', path_specified=True, secure=False, expires=2327431273, discard=False,
+                             comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
+        UriHandler.Instance().cookieJar.set_cookie(c)
+        return
