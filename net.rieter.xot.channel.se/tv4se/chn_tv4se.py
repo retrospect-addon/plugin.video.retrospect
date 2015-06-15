@@ -330,7 +330,7 @@ class Channel(chn_class.Channel):
         if False and not premiumPeriod == "0":
             # always premium
             freeExpired = now - datetime.timedelta(days=99 * 365)
-        elif freePeriod == "30+":
+        elif freePeriod == "30+" or freePeriod is None:
             freeExpired = broadcastDate + datetime.timedelta(days=99 * 365)
         else:
             freeExpired = broadcastDate + datetime.timedelta(days=int(freePeriod))
