@@ -88,7 +88,11 @@ class Pickler:
         @return None if no error, or an error message if an error occurred.
         """
 
-        for attribute in dir(test):
+        if logger is not None:
+            Logger.Trace("Testing: %s", test.__dir__())
+
+        # the default dir() does not work for Android at the moment.
+        for attribute in test.__dir__():
             if logger is not None:
                 logger.Trace("Testing: %s", attribute)
 
