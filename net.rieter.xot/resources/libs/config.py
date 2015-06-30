@@ -72,4 +72,4 @@ class Config:
                 "/addons.xml.md5"
 
     TextureMode = "Cached"                                   # : The mode for the textures: Local, Remote or Cached
-    TextureUrl = "http://www.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
+    TextureUrl = "http://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
