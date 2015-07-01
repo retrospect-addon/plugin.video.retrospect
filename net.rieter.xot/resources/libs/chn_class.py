@@ -63,8 +63,7 @@ class Channel:
 
         # Initialize channel stuff from ChannelInfo object
         self.guid = channelInfo.guid
-        self.icon = channelInfo.icon
-        self.fanart = channelInfo.fanart
+
         self.channelName = channelInfo.channelName
         self.safeName = channelInfo.safeName
         self.channelCode = channelInfo.channelCode
@@ -75,7 +74,11 @@ class Channel:
         self.category = channelInfo.category
         self.language = channelInfo.language
         self.path = channelInfo.path
+
+        # get the textures from the channelinfo and get their full uri's.
         self._textureManager = channelInfo.textureManager
+        self.icon = self._textureManager.GetTextureUri(channelInfo.icon)
+        self.fanart = self._textureManager.GetTextureUri(channelInfo.fanart)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = ""

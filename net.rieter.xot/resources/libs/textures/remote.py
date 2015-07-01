@@ -36,6 +36,9 @@ class Remote(TextureBase):
 
         """
 
+        if fileName is None or fileName == "":
+            return fileName
+
         if fileName.startswith("http"):
             returnValue = fileName
         else:

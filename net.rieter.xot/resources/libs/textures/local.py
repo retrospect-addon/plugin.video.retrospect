@@ -25,6 +25,9 @@ class Local(TextureBase):
 
         """
 
+        if fileName is None or fileName == "":
+            return fileName
+
         if os.path.isabs(fileName):
             returnValue = fileName
         else:

@@ -68,13 +68,8 @@ class ChannelInfo:
         self.textureManager = textures.GetTextureHandler(self, Config,
                                                          Logger.Instance(),
                                                          uriHandler=UriHandler.Instance())
-        # Should be called from channelimporter.py:299
-        # self.textureManager.PurgeTextureCache()
-
-        self.icon = self.__GetImagePath(icon)            # : The icon path or url
-        self.fanart = None
-        if fanart is not None:
-            self.fanart = self.__GetImagePath(fanart)    # : The path or url
+        self.icon = icon
+        self.fanart = fanart
         return
 
     def GetChannel(self):
@@ -108,10 +103,14 @@ class ChannelInfo:
         name = HtmlEntityHelper.ConvertHTMLEntities(self.channelName)
         description = HtmlEntityHelper.ConvertHTMLEntities(self.channelDescription)
 
+        self.icon = self.__GetImagePath(self.icon)
         item = xbmcgui.ListItem(name, description, self.icon, self.icon)
         item.setInfo("video", {"tracknumber": self.sortOrder, "Tagline": description, "Plot": description})
+
         if self.fanart is not None:
+            self.fanart = self.__GetImagePath(self.fanart)
             item.setProperty('fanart_image', self.fanart)
+        return item
         return item
 
     def __str__(self):

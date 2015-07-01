@@ -43,6 +43,9 @@ class Cached(TextureBase):
 
         """
 
+        if fileName is None or fileName == "":
+            return fileName
+
         if os.path.isabs(fileName):
             self._logger.Trace("Already cached texture found: '%s'", fileName)
             return fileName
