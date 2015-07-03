@@ -140,6 +140,7 @@ class Channel(chn_class.Channel):
 
         # ===============================================================================================================
         # non standard items
+        # self.__TokenTest()
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -792,7 +793,7 @@ class Channel(chn_class.Channel):
                     jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
                     jsonUrl = None
                     for url in jsonUrls:
-                        jsonUrl = "http://e.omroep.nl/metadata/aflevering/%s" % (url,)
+                        jsonUrl = "http://e.omroep.nl/metadata/%s" % (url,)
 
                 jsonData = UriHandler.Open(jsonUrl, proxy=self.proxy)
                 json = JsonHelper(jsonData, Logger.Instance())
@@ -1060,10 +1061,45 @@ class Channel(chn_class.Channel):
             tokenData = tokenHandle.read()
             tokenHandle.close()
 
-        # perhaps we should random it?
         token = Regexer.DoRegex('npoplayer.token = "([^"]+)', tokenData)[-1]
-        Logger.Info("Found NOS token for %s: %s", item, token)
-        return token
+        actualToken = self.__SwapToken(token)
+        Logger.Info("Found NOS token: %s\n          was: %s\nfor %s", actualToken, token, item)
+        return actualToken
+
+    def __SwapToken(self, token):
+        """ Swaps some chars of the token to make it a valid one. NPO introduced this in july 2015
+
+        @param token: the original token from their file.
+
+        @return: the swapped version
+
+        """
+
+        first = -1
+        last = -1
+        startAt = 5
+        Logger.Debug("Starting Token swap at position in: %s %s %s", token[0:startAt], token[startAt:len(token) - startAt], token[len(token) - startAt:])
+        for i in range(5, len(token) - startAt, 1):
+            # Logger.Trace("Checking %s", token[i])
+            if token[i].isdigit():
+                if first < 0:
+                    first = i
+                    Logger.Trace("Storing first digit: %s", token[i])
+                elif last < 0:
+                    last = i
+                    Logger.Trace("Storing last digit: %s", token[i])
+                    break
+
+        # swap them
+        newToken = list(token)
+        if first < 0 or last < 0:
+            Logger.Trace("No number combo found in range %s. Swapping middle items", token[startAt:len(token) - startAt])
+            first = 12
+            last = 13
+        newToken[first] = token[last]
+        newToken[last] = token[first]
+        newToken = ''.join(newToken)
+        return newToken
 
     def __GetThumbUrl(self, thumbnails):
         """ fetches the thumburl from an coded string
@@ -1128,3 +1164,20 @@ class Channel(chn_class.Channel):
         # c = cookielib.Cookie(version=0, name='balancer://sapi1cluster', value='balancer.sapi1a', port=None, port_specified=False, domain='.pilot.odcontent.omroep.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
         # UriHandler.Instance().cookieJar.set_cookie(c)
         return
+
+    def __TokenTest(self):
+        # some test cases
+        tokenTests = {
+            "kouansr1o89hu1u0lnr20b6f60": "kouansr8o19hu1u0lnr20b6f60",
+            "h05npjekmn478nhfqft7g2i6q1": "h05npjekmn748nhfqft7g2i6q1",
+            "ncjamt9gu2d9qmg4dpu1plqd37": "ncjamt2gu9d9qmg4dpu1plqd37",
+            "m9mvj51ittnuglub3ibgoptvi4": "m9mvj15ittnuglub3ibgoptvi4",
+            "vgkn9j8r3135a7vf0e6992vmi1": "vgkn9j3r8135a7vf0e6992vmi1",
+            "eqn86lpcdadda9ajrceedcpef3": "eqn86lpcdadd9aajrceedcpef3",
+            "vagiq9ejnqbmcodtncp77uomj1": "vagiq7ejnqbmcodtncp97uomj1",
+        }
+
+        for inputToken, outputToken in tokenTests.iteritems():
+            token = self.__SwapToken(inputToken)
+            if token != outputToken:
+                raise Exception("Token mismatch:\nInput:   %s\nOutput:  %s\nShould be: %s")

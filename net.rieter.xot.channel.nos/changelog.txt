@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: NPO date items did not work (Fixed #623)
+Fixed: NPO updated their video back-end which broke playback (Fixes #634)
 
 [I]Previous Changes[/I]
+Fixed: NPO date items did not work (Fixed #623)
 Fixed: NPO.nl changed their site which broke the alphabetical listing (Fixes #612)
 Fixed: NPO broke due to site changes (Fixes #605)
 Fixed: 3FM web cam stream disappeared from the listing due to a previous fix (Fixes #594)
