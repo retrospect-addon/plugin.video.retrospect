@@ -1,4 +1,6 @@
 ﻿[B]Changelog[/B]
-Fixed: Nickelodeon site changes (Fixes #555)
+Fixed: Nickelodeon changed their layout which broke playback (Fixes #636)
 
+[I]Previous changes[/I]
+Fixed: Nickelodeon site changes (Fixes #555)
 Fixed: Nickelodeon channels updated (Fixes #529)

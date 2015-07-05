@@ -1,5 +1,4 @@
 ﻿# coding:UTF-8
-import mediaitem
 import chn_class
 
 from regexer import Regexer
@@ -131,7 +130,7 @@ class Channel(chn_class.Channel):
         playlistGuids = Regexer.DoRegex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
         if not playlistGuids:
             # let's try the alternative then (for the new channels)
-            playlistGuids = Regexer.DoRegex('mrss\W+:\W+"[^"]+local_playlist-([^"]+)"', data)
+            playlistGuids = Regexer.DoRegex('local_playlist[", -]+([a-f0-9]{20})"', data)
         playlistGuid = playlistGuids[0]
         # Logger.Trace(playlistGuid)
 
