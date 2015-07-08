@@ -297,9 +297,8 @@ class Plugin:
             # Add the items
             ok = xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
 
-            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
-            # xbmcplugin.setContent(handle=self.handle, content=self.contentType)
-            # xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
+            # Just let Kodi display the order we give.
+            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:

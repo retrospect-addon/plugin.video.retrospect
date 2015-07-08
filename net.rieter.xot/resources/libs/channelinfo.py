@@ -1,16 +1,16 @@
-#===============================================================================
+# ===============================================================================
 # LICENSE Retrospect-Framework - CC BY-NC-ND
-#===============================================================================
+# ===============================================================================
 # This work is licenced under the Creative Commons
 # Attribution-Non-Commercial-No Derivative Works 3.0 Unported License. To view a
 # copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
-#===============================================================================
+# ===============================================================================
 
-#===============================================================================
+# ===============================================================================
 # Import the default modules
-#===============================================================================
+# ===============================================================================
 import os
 import sys
 
@@ -26,7 +26,6 @@ import textures
 
 
 class ChannelInfo:
-
     def __init__(self, guid, name, description, icon, category, path,
                  channelCode=None, sortOrder=255, language=None, compatiblePlatforms=Environments.All, fanart=None):
         """ Creates a ChannelInfo object with basic information for a channel
@@ -59,8 +58,13 @@ class ChannelInfo:
 
         self.category = category
         self.compatiblePlatforms = compatiblePlatforms
-        self.sortOrder = sortOrder  # max 255 channels
         self.language = language
+        self.sortOrder = sortOrder  # max 255 channels
+        # I am Dutch, sorry about that
+        if language == "nl":
+            self.sortOrderPerCountry = "#_%s.%04d" % (language or "zz", sortOrder)
+        else:
+            self.sortOrderPerCountry = "#%s.%04d" % (language or "zz", sortOrder)
         self.firstTimeMessage = None
 
         self.settings = []
@@ -105,12 +109,17 @@ class ChannelInfo:
 
         self.icon = self.__GetImagePath(self.icon)
         item = xbmcgui.ListItem(name, description, self.icon, self.icon)
-        item.setInfo("video", {"tracknumber": self.sortOrder, "Tagline": description, "Plot": description})
+        # http://mirrors.kodi.tv/docs/python-docs/14.x-helix/xbmcgui.html#ListItem-setInfo
+        item.setInfo("video", {"Title": name,
+                               # "Count": self.sortOrderPerCountry,
+                               # "TrackNumber": self.sortOrder,
+                               "Genre": self.language,
+                               "Tagline": description,
+                               "Plot": description})
 
         if self.fanart is not None:
             self.fanart = self.__GetImagePath(self.fanart)
             item.setProperty('fanart_image', self.fanart)
-        return item
         return item
 
     def __str__(self):
@@ -118,10 +127,10 @@ class ChannelInfo:
 
         if self.channelCode is None:
             return "%s [%s, %s, %s] (Order: %s)" % (self.channelName, self.language, self.category,
-                                                    self.guid, self.sortOrder)
+                                                         self.guid, self.sortOrderPerCountry)
         else:
             return "%s (%s) [%s, %s, %s] (Order: %s)" % (self.channelName, self.channelCode, self.language,
-                                                         self.category, self.guid, self.sortOrder)
+                                                              self.category, self.guid, self.sortOrderPerCountry)
 
     def __repr__(self):
         """ Technical representation """
@@ -158,7 +167,7 @@ class ChannelInfo:
         if other is None:
             return 1
 
-        compVal = cmp(self.sortOrder, other.sortOrder)
+        compVal = cmp(self.sortOrderPerCountry, other.sortOrderPerCountry)
         if compVal == 0:
             compVal = cmp(self.channelName, other.channelName)
 
@@ -242,6 +251,7 @@ class ChannelInfo:
             return text
 
         return text
+
 
 if __name__ == "__main__":
     ci = ChannelInfo("",
