@@ -70,6 +70,8 @@ class LanguageHelper:
 
     Active = 30068
     ShowChannelSettings = 30069
+    InitChannelTitle = 30556
+    InitChannelText = 30557
 
     __Categories = {"None": 30100,
                     "Regional": 30101,

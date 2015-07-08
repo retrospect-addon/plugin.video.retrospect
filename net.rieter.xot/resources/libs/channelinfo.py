@@ -13,7 +13,6 @@
 #===============================================================================
 import os
 import sys
-import re
 
 import xbmcgui
 
@@ -21,13 +20,15 @@ from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
+from urihandler import UriHandler
 from config import Config
+import textures
 
 
 class ChannelInfo:
-    __channelInfoRegex = None
 
-    def __init__(self, guid, name, description, icon, category, path, channelCode=None, sortOrder=255, language=None, compatiblePlatforms=Environments.All, fanart=None):
+    def __init__(self, guid, name, description, icon, category, path,
+                 channelCode=None, sortOrder=255, language=None, compatiblePlatforms=Environments.All, fanart=None):
         """ Creates a ChannelInfo object with basic information for a channel
 
         Arguments:
@@ -51,26 +52,24 @@ class ChannelInfo:
         self.path = os.path.dirname(path)
         self.moduleName = os.path.splitext(os.path.basename(path))[0]
 
-        self.guid = guid
-
-        self.icon = self.__GetImagePath(icon)            # : The icon path or url
-        self.fanart = None
-        if not fanart is None:
-            self.fanart = self.__GetImagePath(fanart)    # : The path or url
-
-        self.category = category
-
         self.channelName = name
         self.channelCode = channelCode
+        self.guid = guid
         self.channelDescription = description
 
+        self.category = category
         self.compatiblePlatforms = compatiblePlatforms
         self.sortOrder = sortOrder  # max 255 channels
-
         self.language = language
-
         self.firstTimeMessage = None
+
         self.settings = []
+
+        self.textureManager = textures.GetTextureHandler(self, Config,
+                                                         Logger.Instance(),
+                                                         uriHandler=UriHandler.Instance())
+        self.icon = icon
+        self.fanart = fanart
         return
 
     def GetChannel(self):
@@ -104,24 +103,31 @@ class ChannelInfo:
         name = HtmlEntityHelper.ConvertHTMLEntities(self.channelName)
         description = HtmlEntityHelper.ConvertHTMLEntities(self.channelDescription)
 
+        self.icon = self.__GetImagePath(self.icon)
         item = xbmcgui.ListItem(name, description, self.icon, self.icon)
         item.setInfo("video", {"tracknumber": self.sortOrder, "Tagline": description, "Plot": description})
-        if not self.fanart is None:
+
+        if self.fanart is not None:
+            self.fanart = self.__GetImagePath(self.fanart)
             item.setProperty('fanart_image', self.fanart)
+        return item
         return item
 
     def __str__(self):
         """Returns a string representation of the current channel."""
 
         if self.channelCode is None:
-            return "%s [%s, %s, %s] (Order: %s)" % (self.channelName, self.language, self.category, self.guid, self.sortOrder)
+            return "%s [%s, %s, %s] (Order: %s)" % (self.channelName, self.language, self.category,
+                                                    self.guid, self.sortOrder)
         else:
-            return "%s (%s) [%s, %s, %s] (Order: %s)" % (self.channelName, self.channelCode, self.language, self.category, self.guid, self.sortOrder)
+            return "%s (%s) [%s, %s, %s] (Order: %s)" % (self.channelName, self.channelCode, self.language,
+                                                         self.category, self.guid, self.sortOrder)
 
     def __repr__(self):
         """ Technical representation """
 
-        return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (self, self.path, self.moduleName, self.icon, self.compatiblePlatforms)
+        return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (self, self.path, self.moduleName,
+                                                                               self.icon, self.compatiblePlatforms)
 
     def __eq__(self, other):
         """Compares to channel objects for equality
@@ -169,15 +175,16 @@ class ChannelInfo:
 
         """
 
-        if Config.CdnUrl is None:
-            return os.path.join(self.path, image)
-
-        return "%s%s" % (Config.CdnUrl, image)
+        # if Config.CdnUrl is None:
+        #     return os.path.join(self.path, image)
+        #
+        # return "%s%s" % (Config.CdnUrl, image)
+        return self.textureManager.GetTextureUri(image)
 
     @staticmethod
     def FromJson(path):
         channelInfos = []
-        Logger.Trace("Using JSON reader for %s", path)
+        # Logger.Trace("Using JSON reader for %s", path)
 
         jsonFile = open(path)
         jsonData = jsonFile.read()
@@ -218,85 +225,6 @@ class ChannelInfo:
             channelInfos.append(channelInfo)
 
         return channelInfos
-
-    # @staticmethod
-    # def FromFile(path):
-    #     """ reads the ChannelInfo from a XML file
-    #
-    #     We don't use the build in xml.dom.minidom module, as it is much slower on ATV and rPI
-    #
-    #     Arguments:
-    #     path : String - The path of the XML file.
-    #
-    #     """
-    #
-    #     channelInfos = []
-    #
-    #     xmlFile = open(path)
-    #     xmlData = xmlFile.read()
-    #     xmlFile.close()
-    #
-    #     if not ChannelInfo.__channelInfoRegex:
-    #         ChannelInfo.__channelInfoRegex = re.compile('<([^>]+)>([^<]+)(?=<)', re.DOTALL + re.IGNORECASE)
-    #
-    #     channel = dict()
-    #
-    #     #for result in ChannelInfo.__channelInfoRegex.finditer(xmlData):
-    #     for result in ChannelInfo.__channelInfoRegex.findall(xmlData):
-    #         #result = result.groups()
-    #         key = result[0]
-    #         value = result[1]
-    #
-    #         if key == "channel":
-    #             #Logger.Trace("Found new channel start")
-    #             channel = dict()
-    #         elif key == "/channel":
-    #             # end of a channel, append it
-    #             Logger.Trace("Found end of channel. Creating channel object")
-    #
-    #             # fix the optional stuff
-    #             if not "channelcode" in channel or channel["channelcode"] == "None":
-    #                 channel["channelcode"] = None
-    #
-    #             if "sortorder" in channel:
-    #                 channel["sortorder"] = int(channel["sortorder"])
-    #             else:
-    #                 channel["sortorder"] = 255
-    #
-    #             if not "language" in channel or channel["language"] == "None":
-    #                 channel["language"] = None
-    #
-    #             # get the compatible platforms
-    #             if "compatible" in channel:
-    #                 channel["compatible"] = eval(channel["compatible"])
-    #             else:
-    #                 channel["compatible"] = Environments.All
-    #
-    #             fanart = None
-    #             if "fanart" in channel:
-    #                 fanart = channel["fanart"]
-    #
-    #             channelInfo = ChannelInfo(channel["guid"],
-    #                                       channel["name"],
-    #                                       channel["description"],
-    #                                       channel["icon"],
-    #                                       channel["category"],
-    #                                       path,
-    #                                       channel["channelcode"],
-    #                                       channel["sortorder"],
-    #                                       channel["language"],
-    #                                       channel["compatible"],
-    #                                       fanart=fanart)
-    #             channelInfo.firstTimeMessage = channel.get("message", None)
-    #             channelInfos.append(channelInfo)
-    #         elif key.startswith("/"):
-    #             # ignore other end tags
-    #             pass
-    #         else:
-    #             #Logger.Trace("Found new property: %s => %s", key, value)
-    #             channel[key] = value
-    #
-    #     return channelInfos
 
     @staticmethod
     def __GetText(channel, name):

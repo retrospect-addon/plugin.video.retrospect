@@ -136,11 +136,11 @@ class ChannelImporter:
         # list all add-ons
         for directory in os.listdir(addonPath):
             # find the xot ones
-            if channelPathStart in directory and not "BUILD" in directory:
+            if channelPathStart in directory and "BUILD" not in directory:
                 channelPath = os.path.join(addonPath, directory)
 
                 # list the subfolders for the requested folder to find the one we need
-                if not folderToFind in os.listdir(channelPath):
+                if folderToFind not in os.listdir(channelPath):
                     continue
 
                 # we perhaps found it.
@@ -172,7 +172,7 @@ class ChannelImporter:
                     continue
 
                 ci = ci[0]
-                if self.__PerformFirstTimeActions(ci):
+                if self.__IsChannelSetUpdated(ci):
                     # apparently a new channel was found, so we need to do it all
                     Logger.Info("Found a new channel, we need to reload all channels")
                     return self.__ImportSingleChannel(className, channelCode)
@@ -265,14 +265,11 @@ class ChannelImporter:
 
         return
 
-    def __PerformFirstTimeActions(self, channelInfo):
-        """ Checks if it is the first time a channel is executed
-        and then performs some actions
+    def __IsChannelSetUpdated(self, channelInfo):
+        """ Checks whether a channel set was updated.
 
-        Arguments:
-        channelInfo : ChannelInfo - The channelinfo
-
-        Returns True if any operations where executed
+        @param channelInfo: the channelInfo for a channel from the set
+        @rtype : boolean indicating if the channel was updated or not.
 
         """
 
@@ -283,7 +280,37 @@ class ChannelImporter:
         if os.path.isfile(os.path.join(channelInfo.path, compiledName)) or os.path.isfile(os.path.join(channelInfo.path, optimizedName)):
             return False
 
-        Logger.Debug("Performing First time actions for channel: %s [%s]", channelInfo.moduleName, channelInfo.channelCode)
+        return True
+
+    def __FirstTimeChannelActions(self, channelInfo):
+        """ Performs the first time channel actions for a given channel.
+
+        Arguments:
+        channelInfo : ChannelInfo - The channelinfo
+        """
+
+        Logger.Info("Performing first time channel actions for: %s", channelInfo)
+
+        self.__ShowFirstTimeMessage(channelInfo)
+        return
+
+    def __InitialiseChannelSet(self, channelInfo):
+        """ Initialises a channelset (.py file)
+
+        WARNING: these actions are done ONCE per python file, not per channel.
+
+        Arguments:
+        channelInfo : ChannelInfo - The channelinfo
+
+        Keyword Arguments:
+        abortOnNew  : Boolean - If set to true, channel initialisation will not continue if a new channel was found.
+                                This will have to be done later.
+
+        Returns True if any operations where executed
+
+        """
+
+        Logger.Info("Initialising channel set at: %s", channelInfo.path)
 
         # now import (required for the PerformFirstTimeActions
         sys.path.append(channelInfo.path)
@@ -291,12 +318,11 @@ class ChannelImporter:
         # make sure a pyo or pyc exists
         __import__(channelInfo.moduleName)
 
-        # see if we should show a message
-        self.__ShowFirstTime(channelInfo)
-
         # see if the channel included XOT updates
         self.__DeployUpdates(channelInfo.path)
 
+        # purge the texture cache.
+        channelInfo.textureManager.PurgeTextureCache()
         return True
 
     def __DeployUpdates(self, channelPath, cleanup=False):
@@ -367,7 +393,7 @@ class ChannelImporter:
                 Logger.Info("Cleaning update path: %s", updatePath)
                 shutil.rmtree(updatePath)
 
-    def __ShowFirstTime(self, channelInfo):
+    def __ShowFirstTimeMessage(self, channelInfo):
         """ Checks if it is the first time a channel is executed
         and if a first time message is available it will be shown
 
@@ -425,7 +451,7 @@ class ChannelImporter:
 
             channelPathStart = "%s.channel" % (Config.addonDir, )
             for directory in os.listdir(addonPath):
-                if channelPathStart in directory and not "BUILD" in directory:
+                if channelPathStart in directory and "BUILD" not in directory:
                     path = os.path.join(addonPath, directory)
 
                     channelVersion = self.__ParseChannelVersionInfo(path)
@@ -442,60 +468,77 @@ class ChannelImporter:
             channelImport.sort()
             importTimer.Lap("Directories scanned for .channel")
 
-            # we need to make sure we don't load multiple channel classes!
+            # we need to make sure we don't load multiple channel classes and track if we found updates
             channelsUpdated = False
             loadedChannels = []
             channelsToImport = []
+
+            # now import the channels
             for channelPath in channelImport:
-                if os.path.isdir(channelPath):
-                    # determine channelname
-                    channelName = os.path.split(channelPath)[-1]
+                if not os.path.isdir(channelPath):
+                    continue
 
-                    if channelName == self.__updateChannelPath:
-                        Logger.Trace("Update path found and skipping: %s", channelName)
-                        continue
+                # determine channelname
+                channelName = os.path.split(channelPath)[-1]
+                if channelName == self.__updateChannelPath:
+                    Logger.Trace("Update path found and skipping: %s", channelName)
+                    continue
 
-                    # if loadedChannels.count(channelName) > 0:
-                    if channelName in loadedChannels:
-                        Logger.Warning("Not loading: chn_%s.xml in %s because there is already a path with "
-                                       "name '%s' that name loaded", channelName, channelPath, channelName)
-                        continue
+                # if loadedChannels.count(channelName) > 0:
+                if channelName in loadedChannels:
+                    Logger.Warning("Not loading: chn_%s.xml in %s because there is already a path with "
+                                   "name '%s' that name loaded", channelName, channelPath, channelName)
+                    continue
 
-                    if channelName.startswith("."):
-                        continue
+                if channelName.startswith("."):
+                    continue
 
-                    loadedChannels.append(channelName)
-                    fileName = os.path.join(channelPath, "chn_" + channelName + ".json")
+                # now we can continue
+                loadedChannels.append(channelName)
 
-                    Logger.Trace("Loading info for chn_%s @ %s", channelName, fileName)
-                    if os.path.isfile(fileName):
-                        try:
-                            ci = ChannelInfo.FromJson(fileName)
-                            channelsToImport += ci
+                fileName = os.path.join(channelPath, "chn_" + channelName + ".json")
+                Logger.Trace("Loading info for chn_%s @ %s", channelName, fileName)
+                if os.path.isfile(fileName):
+                    try:
+                        ci = ChannelInfo.FromJson(fileName)
+                        if len(ci) <= 0:
+                            Logger.Warning("No channels found in '%s'", fileName)
+                            continue
 
-                            # check for first time messages and updates
+                        # Add them to the list to import
+                        channelsToImport += ci
+
+                        if self.__IsChannelSetUpdated(ci[0]):
+                            if not channelsUpdated:
+                                # this was the first update found (otherwise channelsUpdated was True) show a message:
+                                title = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)
+                                text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText)
+                                XbmcWrapper.ShowNotification(title, text, displayTime=15000)
+
+                            # set the updates found bit
+                            channelsUpdated |= True
+
+                            # Initialise the channelset.
+                            self.__InitialiseChannelSet(ci[0])
+
+                            # And perform all first actions for the included channels in the set
                             for channelInfo in ci:
-                                channelsUpdated |= self.__PerformFirstTimeActions(channelInfo)
-                        except:
-                            Logger.Error("Error import chn_%s.xml", channelName, exc_info=True)
+                                self.__FirstTimeChannelActions(channelInfo)
+                    except:
+                        Logger.Error("Error import chn_%s.xml", channelName, exc_info=True)
 
             importTimer.Lap()
 
             # What platform are we
             platform = envcontroller.EnvController.GetPlatform()
 
-            # Uncomment to import in sortorder (wast of CPU otherwise)
-            # self.__channelsToImport.sort()
-
             # instantiate the registered channels
             for channelInfo in channelsToImport:
+                # noinspection PyUnusedLocal
                 isValid = self.__ValidateChannelInfo(channelInfo, platform)
 
             # sort the channels
             self.__enabledChannels.sort()
-            # no need to sort these channels
-            #self.__allChannels.sort()
-            #self.__validChannels.sort()
 
             if channelsUpdated:
                 Logger.Info("New or updated channels found. Updating add-on configuration for all "

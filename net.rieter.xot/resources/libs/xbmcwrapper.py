@@ -215,6 +215,15 @@ class XbmcWrapper:
         return destFolder
 
     @staticmethod
+    def ExecuteJsonRpc(json, logger=None):
+        if logger:
+            logger.Trace("Sending command: %s", json)
+        response = xbmc.executeJSONRPC(json)
+        if logger:
+            logger.Trace("Received result: %s", response)
+        return response
+
+    @staticmethod
     def WaitForPlayerToStart(player, timeout=10, logger=None, url=None):
         """ waits for the status of the player to start
 
