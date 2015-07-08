@@ -11,4 +11,26 @@
         <language>se</language>
         <!--compatible>Environments.All</compatible-->
     </channel>
+    <channel>
+        <guid>66174057-D5E3-4102-AF46-B2D8E800E0D9</guid>
+        <name>TV7 Play</name>
+        <description>Sändningar från TV7 via TV4Play.se.</description>
+        <icon>tv7large.png</icon>
+        <category>National</category>
+        <channelcode>tv7se</channelcode>
+        <sortorder>104</sortorder>
+        <language>se</language>
+        <!--compatible>Environments.All</compatible-->
+    </channel>
+    <channel>
+        <guid>F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E</guid>
+        <name>TV12 Play</name>
+        <description>Sändningar från TV12 via TV4Play.se.</description>
+        <icon>tv12large.png</icon>
+        <category>National</category>
+        <channelcode>tv12se</channelcode>
+        <sortorder>109</sortorder>
+        <language>se</language>
+        <!--compatible>Environments.All</compatible-->
+    </channel>
 </channels>

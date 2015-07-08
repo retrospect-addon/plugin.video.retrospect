@@ -33,14 +33,25 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.noImage = "tv4image.png"
+        self.__channelId = "tv4"
+        if self.channelCode == "tv4se":
+            self.noImage = "tv4image.png"
+            self.__channelId = "tv4"
+        elif self.channelCode == "tv7se":
+            self.noImage = "tv7image.png"
+            self.__channelId = "sjuan"
+        elif self.channelCode == "tv12se":
+            self.noImage = "tv12image.png"
+            self.__channelId = "tv12"
+        else:
+            raise Exception("Invalid channel code")
 
         # setup the urls
         # self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
         #                    "&fl=nid,name,program_image&start=0"
 
         self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
-                           "&fl=nid,name,program_image,is_premium,updated_at&start=0"
+                           "&fl=nid,name,program_image,is_premium,updated_at,channel&start=0"
 
         self.baseUrl = "http://www.tv4play.se"
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
@@ -89,11 +100,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
-
-        # http://api.tv4play.se/video/tv4play/tablet/programs/search.json?livepublished=false&video_types=programs&categoryids=1.2729892&sorttype=date&start=0
-
-        # json = JsonHelper(resultSet)
+        # Logger.Trace(resultSet)
         json = resultSet
         title = json["name"]
 
@@ -101,6 +108,20 @@ class Channel(chn_class.Channel):
         programId = HtmlEntityHelper.UrlEncode(programId)
         url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&is_live=false&type=episode&" \
               "page=1&node_nids=%s&start=0" % (self.maxPageSize, programId, )
+
+        if "channel" in json:
+            channelId = json["channel"]["nid"]
+            Logger.Trace("ChannelId found: %s", channelId)
+        else:
+            channelId = "tv4"
+            Logger.Warning("ChannelId NOT found. Assuming %s", channelId)
+
+        # match the exact channel or put them in TV4
+        isMatchForChannel = channelId.startswith(self.__channelId)
+        isMatchForChannel |= self.channelCode == "tv4se" and not channelId.startswith("sjuan") and not channelId.startswith("tv12")
+        if not isMatchForChannel:
+            Logger.Debug("Channel mismatch for '%s': %s vs %s", title, channelId, self.channelCode)
+            return None
 
         item = mediaitem.MediaItem(title, url)
         # item.description = description
@@ -130,6 +151,9 @@ class Channel(chn_class.Channel):
 
         Logger.Info("Performing Pre-Processing")
         items = []
+
+        if self.channelCode != "tv4se":
+            return data, items
 
         extras = {
             "\a.: Kategorier :.": (
