@@ -1076,28 +1076,30 @@ class Channel(chn_class.Channel):
         """
 
         first = -1
-        last = -1
+        second = -1
         startAt = 5
         Logger.Debug("Starting Token swap at position in: %s %s %s", token[0:startAt], token[startAt:len(token) - startAt], token[len(token) - startAt:])
-        for i in range(5, len(token) - startAt, 1):
+        for i in range(startAt, len(token) - startAt, 1):
             # Logger.Trace("Checking %s", token[i])
             if token[i].isdigit():
                 if first < 0:
                     first = i
-                    Logger.Trace("Storing first digit: %s", token[i])
-                elif last < 0:
-                    last = i
-                    Logger.Trace("Storing last digit: %s", token[i])
+                    Logger.Trace("Storing first digit at position %s: %s", first, token[i])
+                elif second < 0:
+                    second = i
+                    Logger.Trace("Storing second digit at position %s: %s", second, token[i])
                     break
 
         # swap them
         newToken = list(token)
-        if first < 0 or last < 0:
-            Logger.Trace("No number combo found in range %s. Swapping middle items", token[startAt:len(token) - startAt])
+        if first < 0 or second < 0:
+            Logger.Debug("No number combo found in range %s. Swapping middle items", token[startAt:len(token) - startAt])
             first = 12
-            last = 13
-        newToken[first] = token[last]
-        newToken[last] = token[first]
+            second = 13
+
+        Logger.Debug("Swapping position %s with %s", first, second)
+        newToken[first] = token[second]
+        newToken[second] = token[first]
         newToken = ''.join(newToken)
         return newToken
 
