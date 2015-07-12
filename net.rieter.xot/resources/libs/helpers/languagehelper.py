@@ -83,6 +83,17 @@ class LanguageHelper:
                     "Tech": 30107,
                     "Other": 30108}
 
+    __LanguageMapping = {None: 30025,
+                         "be": 30024,
+                         "de": 30047,
+                         "ee": 30044,
+                         "en-gb": 30027,
+                         "lt": 30007,
+                         "lv": 30008,
+                         "nl": 30005,
+                         "no": 30015,
+                         "se": 30006}
+
     def __init__(self):
         pass
 
@@ -96,6 +107,20 @@ class LanguageHelper:
             return categoryName
 
         return LanguageHelper.GetLocalizedString(stringId, False)
+
+    @staticmethod
+    def GetFullLanguage(languageId):
+        """ Converts a language short ID to a localized Full language name.
+
+        @param languageId: the sort ID for the language
+        @return: the long language
+
+        Eg: nl -> Dutch, se -> Swedish
+        """
+
+        return LanguageHelper.GetLocalizedString(
+            LanguageHelper.__LanguageMapping.get(languageId,
+                                                 LanguageHelper.__LanguageMapping[None]))
 
     @staticmethod
     def GetLocalizedString(stringId, splitOnPipes=True, replacePipes=False):

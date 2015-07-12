@@ -299,6 +299,8 @@ class Plugin:
 
             # Just let Kodi display the order we give.
             xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
+            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_TITLE)
+            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_GENRE)
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:

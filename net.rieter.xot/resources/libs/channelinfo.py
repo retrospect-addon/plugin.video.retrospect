@@ -22,6 +22,7 @@ from helpers.jsonhelper import JsonHelper
 from logger import Logger
 from urihandler import UriHandler
 from config import Config
+from helpers.languagehelper import LanguageHelper
 import textures
 
 
@@ -113,7 +114,7 @@ class ChannelInfo:
         item.setInfo("video", {"Title": name,
                                # "Count": self.sortOrderPerCountry,
                                # "TrackNumber": self.sortOrder,
-                               "Genre": self.language,
+                               "Genre": LanguageHelper.GetFullLanguage(self.language),
                                "Tagline": description,
                                "Plot": description})
 
@@ -127,10 +128,10 @@ class ChannelInfo:
 
         if self.channelCode is None:
             return "%s [%s, %s, %s] (Order: %s)" % (self.channelName, self.language, self.category,
-                                                         self.guid, self.sortOrderPerCountry)
+                                                    self.guid, self.sortOrderPerCountry)
         else:
             return "%s (%s) [%s, %s, %s] (Order: %s)" % (self.channelName, self.channelCode, self.language,
-                                                              self.category, self.guid, self.sortOrderPerCountry)
+                                                         self.category, self.guid, self.sortOrderPerCountry)
 
     def __repr__(self):
         """ Technical representation """
