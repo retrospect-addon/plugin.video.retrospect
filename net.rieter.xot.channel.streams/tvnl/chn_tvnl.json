@@ -7,7 +7,7 @@
       "icon": "tvnllarge.png",
       "category": "Other",
       "channelcode": "tvnl",
-      "sortorder": "9",
+      "sortorder": 401,
       "language": "nl",
       "compatible": "Environments.All"
     }

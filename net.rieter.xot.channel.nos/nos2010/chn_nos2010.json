@@ -7,7 +7,7 @@
       "icon": "npolarge.png",
       "category": "National",
       "channelcode": "uzgjson",
-      "sortorder": "0",
+      "sortorder": 1,
       "language": "nl",
       "compatible": "Environments.All"
     }

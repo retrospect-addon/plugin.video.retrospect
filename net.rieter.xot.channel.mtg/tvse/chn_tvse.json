@@ -7,7 +7,7 @@
       "icon": "tv3selarge.png",
       "category": "National",
       "channelcode": "se3",
-      "sortorder": "103",
+      "sortorder": 3,
       "language": "se"
     },
     {
@@ -17,7 +17,7 @@
       "icon": "tv3nolarge.png",
       "category": "National",
       "channelcode": "tv3ee",
-      "sortorder": "113",
+      "sortorder": 3,
       "language": "ee"
     },
     {
@@ -27,7 +27,7 @@
       "icon": "tv6selarge.png",
       "category": "National",
       "channelcode": "tv6ee",
-      "sortorder": "113",
+      "sortorder": 6,
       "language": "ee"
     },
     {
@@ -37,7 +37,7 @@
       "icon": "tv6selarge.png",
       "category": "National",
       "channelcode": "se6",
-      "sortorder": "106",
+      "sortorder": 6,
       "language": "se"
     },
     {
@@ -47,7 +47,7 @@
       "icon": "tv8selarge.png",
       "category": "National",
       "channelcode": "se8",
-      "sortorder": "106",
+      "sortorder": 8,
       "language": "se"
     },
     {
@@ -57,7 +57,7 @@
       "icon": "tv10selarge.png",
       "category": "National",
       "channelcode": "se10",
-      "sortorder": "108",
+      "sortorder": 10,
       "language": "se"
     },
     {
@@ -67,7 +67,7 @@
       "icon": "tv3ltlarge.png",
       "category": "National",
       "channelcode": "tv3lt",
-      "sortorder": "110",
+      "sortorder": 3,
       "language": "lt"
     },
     {
@@ -77,7 +77,7 @@
       "icon": "tv6ltlarge.png",
       "category": "National",
       "channelcode": "tv6lt",
-      "sortorder": "111",
+      "sortorder": 6,
       "language": "lt",
       "compatible": "Environments.All"
     },
@@ -88,7 +88,7 @@
       "icon": "tv8selarge.png",
       "category": "National",
       "channelcode": "tv8lt",
-      "sortorder": "111",
+      "sortorder": 8,
       "language": "lt"
     },
     {
@@ -98,7 +98,7 @@
       "icon": "tv3lvlarge.png",
       "category": "National",
       "channelcode": "se3lv",
-      "sortorder": "112",
+      "sortorder": 3,
       "language": "lv"
     },
     {
@@ -108,7 +108,7 @@
       "icon": "tv3nolarge.png",
       "category": "National",
       "channelcode": "no3",
-      "sortorder": "91",
+      "sortorder": 3,
       "language": "no"
     },
     {
@@ -118,7 +118,7 @@
       "icon": "viasat4nolarge.png",
       "category": "National",
       "channelcode": "no4",
-      "sortorder": "92",
+      "sortorder": 4,
       "language": "no"
     },
     {
@@ -128,7 +128,7 @@
       "icon": "tv6selarge.png",
       "category": "National",
       "channelcode": "no6",
-      "sortorder": "92",
+      "sortorder": 6,
       "language": "no"
     }
   ],

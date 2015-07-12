@@ -7,7 +7,7 @@
       "icon": "srficon.png",
       "category": "National",
       "channelcode": "srf",
-      "sortorder": "140",
+      "sortorder": 101,
       "language": "de",
       "compatible": "Environments.All"
     }

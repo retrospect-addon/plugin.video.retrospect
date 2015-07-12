@@ -7,7 +7,7 @@
       "icon": "rtvutrechtlarge.png",
       "category": "Regional",
       "channelcode": "rtvutrecht",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -18,7 +18,7 @@
       "icon": "rtvdrenthelarge.png",
       "category": "Regional",
       "channelcode": "rtvdrenthe",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -29,7 +29,7 @@
       "icon": "rtvoostlarge.png",
       "category": "Regional",
       "channelcode": "rtvoost",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -40,7 +40,7 @@
       "icon": "rtvnoordlarge.png",
       "category": "Regional",
       "channelcode": "rtvnoord",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -51,7 +51,7 @@
       "icon": "rtvnhlarge.png",
       "category": "Regional",
       "channelcode": "rtvnh",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -62,7 +62,7 @@
       "icon": "rtvrijnmondlarge.png",
       "category": "Regional",
       "channelcode": "rtvrijnmond",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -73,7 +73,7 @@
       "icon": "omroepwestlarge.png",
       "category": "Regional",
       "channelcode": "omroepwest",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -84,7 +84,7 @@
       "icon": "omroepgelderlandlarge.png",
       "category": "Regional",
       "channelcode": "omroepgelderland",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -95,7 +95,7 @@
       "icon": "omroepzeelandlarge.png",
       "category": "Regional",
       "channelcode": "omroepzeeland",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -106,7 +106,7 @@
       "icon": "omroepbrabantlarge.png",
       "category": "Regional",
       "channelcode": "omroepbrabant",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -117,7 +117,7 @@
       "icon": "omropfryslanlarge.png",
       "category": "Regional",
       "channelcode": "omropfryslan",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     }

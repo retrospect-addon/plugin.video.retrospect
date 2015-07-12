@@ -7,7 +7,7 @@
       "icon": "mtvnllarge.png",
       "category": "Video",
       "channelcode": "mtvnl",
-      "sortorder": "9",
+      "sortorder": 20,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -18,7 +18,7 @@
       "icon": "mtvnllarge.png",
       "category": "Video",
       "channelcode": "mtvde",
-      "sortorder": "140",
+      "sortorder": 20,
       "language": "de",
       "compatible": "Environments.All"
     }

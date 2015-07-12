@@ -7,7 +7,7 @@
       "icon": "tv4large.png",
       "category": "National",
       "channelcode": "tv4se",
-      "sortorder": "104",
+      "sortorder": 4,
       "language": "se"
     },
     {
@@ -17,7 +17,7 @@
       "icon": "tv7large.png",
       "category": "National",
       "channelcode": "tv7se",
-      "sortorder": "104",
+      "sortorder": 7,
       "language": "se"
     },
     {
@@ -27,7 +27,7 @@
       "icon": "tv12large.png",
       "category": "National",
       "channelcode": "tv12se",
-      "sortorder": "109",
+      "sortorder": 12,
       "language": "se"
     }
   ],

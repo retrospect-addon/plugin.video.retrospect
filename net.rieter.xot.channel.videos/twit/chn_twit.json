@@ -6,7 +6,7 @@
       "icon": "twitlarge.png",
       "category": "Tech",
       "channelcode": "twit",
-      "sortorder": "255",
+      "sortorder": 2,
       "language": "en-gb",
       "compatible": "Environments.All"
     }

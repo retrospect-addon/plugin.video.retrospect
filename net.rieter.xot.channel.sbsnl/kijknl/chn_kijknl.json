@@ -7,7 +7,7 @@
       "icon": "sbs6large.png",
       "category": "National",
       "channelcode": "sbs",
-      "sortorder": "7",
+      "sortorder": 6,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -18,7 +18,7 @@
       "icon": "net5large.png",
       "category": "National",
       "channelcode": "net5",
-      "sortorder": "6",
+      "sortorder": 5,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -29,7 +29,7 @@
       "icon": "veronicalarge.png",
       "category": "National",
       "channelcode": "veronica",
-      "sortorder": "8",
+      "sortorder": 10,
       "language": "nl",
       "compatible": "Environments.All"
     },
@@ -40,7 +40,7 @@
       "icon": "sbs9large.png",
       "category": "National",
       "channelcode": "sbs9",
-      "sortorder": "8",
+      "sortorder": 9,
       "language": "nl",
       "compatible": "Environments.All"
     }

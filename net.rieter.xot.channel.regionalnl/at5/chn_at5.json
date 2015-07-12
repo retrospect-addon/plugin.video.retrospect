@@ -6,7 +6,7 @@
       "description": "AT5 Uitzendinggemist",
       "icon": "at5large.png",
       "category": "Regional",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     }

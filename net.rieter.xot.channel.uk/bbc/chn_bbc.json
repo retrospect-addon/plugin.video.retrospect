@@ -7,7 +7,7 @@
       "icon": "bbciplayerlarge.png",
       "category": "National",
       "channelcode": "bbciplayer",
-      "sortorder": "158",
+      "sortorder": 1,
       "language": "en-gb",
       "compatible": "Environments.All"
     }

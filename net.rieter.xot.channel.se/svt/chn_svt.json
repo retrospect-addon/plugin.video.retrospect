@@ -7,7 +7,7 @@
       "icon": "svtlarge.png",
       "category": "National",
       "channelcode": "svt",
-      "sortorder": "101",
+      "sortorder": 0,
       "language": "se",
       "compatible": "Environments.All",
       "message": "De nya SVTPlay-strömmarna fungerar inte på|XBMC 11.0 (Eden). De kan endast spelas upp|på den nya XBMC 12.0 (Frodo) versionen."

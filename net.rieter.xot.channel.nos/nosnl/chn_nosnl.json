@@ -7,7 +7,7 @@
       "icon": "nosnllarge.png",
       "category": "National",
       "channelcode": "nosnl",
-      "sortorder": "13",
+      "sortorder": 200,
       "language": "nl",
       "compatible": "Environments.All"
     }

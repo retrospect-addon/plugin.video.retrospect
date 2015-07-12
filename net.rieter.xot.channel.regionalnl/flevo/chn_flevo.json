@@ -7,7 +7,7 @@
       "icon": "flevolarge.png",
       "category": "Regional",
       "channelcode": "rtvutrecht",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     }

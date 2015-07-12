@@ -7,7 +7,7 @@
       "icon": "gelderlandlarge.png",
       "category": "Regional",
       "channelcode": "tv1",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.NoPlatform"
     }

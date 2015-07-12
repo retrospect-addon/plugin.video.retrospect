@@ -60,7 +60,7 @@ class ChannelInfo:
         self.category = category
         self.compatiblePlatforms = compatiblePlatforms
         self.language = language
-        self.sortOrder = sortOrder  # max 255 channels
+        self.sortOrder = sortOrder
         # I am Dutch, sorry about that
         if language == "nl":
             self.sortOrderPerCountry = "#_%s.%04d" % (language or "zz", sortOrder)
@@ -219,7 +219,7 @@ class ChannelInfo:
 
                                       # none required items
                                       channel.get("channelcode", None),
-                                      int(channel.get("sortorder", "255")),
+                                      channel.get("sortorder", 255),
                                       channel.get("language", None),
                                       eval(channel.get("compatible", "Environments.All")),
                                       channel.get("fanart", None))

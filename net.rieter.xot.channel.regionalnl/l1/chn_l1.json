@@ -6,7 +6,7 @@
       "description": "L1.nl Uitzendinggemist",
       "icon": "l1large.png",
       "category": "Regional",
-      "sortorder": "12",
+      "sortorder": 100,
       "language": "nl",
       "compatible": "Environments.All"
     }

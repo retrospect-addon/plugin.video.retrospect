@@ -7,7 +7,7 @@
       "icon": "ketnetlarge.png",
       "category": "National",
       "channelcode": "ketnet",
-      "sortorder": "123",
+      "sortorder": 12,
       "language": "be",
       "compatible": "Environments.NoPlatform"
     },
@@ -18,7 +18,7 @@
       "icon": "cobralarge.png",
       "category": "National",
       "channelcode": "cobra",
-      "sortorder": "125",
+      "sortorder": 14,
       "language": "be",
       "compatible": "Environments.NoPlatform"
     }

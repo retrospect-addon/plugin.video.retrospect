@@ -7,7 +7,7 @@
       "icon": "eredivisielarge.png",
       "category": "Sport",
       "channelcode": "eredivisie",
-      "sortorder": "13",
+      "sortorder": 210,
       "language": "nl"
     }
   ]

@@ -7,7 +7,7 @@
       "icon": "eenlarge.png",
       "category": "National",
       "channelcode": null,
-      "sortorder": "120",
+      "sortorder": 1,
       "language": "be"
     }
   ]

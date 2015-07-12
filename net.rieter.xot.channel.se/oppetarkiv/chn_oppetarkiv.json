@@ -7,7 +7,7 @@
       "icon": "oppetarkivlarge.png",
       "category": "National",
       "channelcode": "oppetarkiv",
-      "sortorder": "102",
+      "sortorder": 1,
       "language": "se",
       "compatible": "Environments.All"
     }

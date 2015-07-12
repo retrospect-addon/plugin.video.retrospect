@@ -7,7 +7,7 @@
       "icon": "radionllarge.png",
       "category": "Radio",
       "channelcode": "radionl",
-      "sortorder": "9",
+      "sortorder": 400,
       "language": "nl",
       "compatible": "Environments.All"
     }

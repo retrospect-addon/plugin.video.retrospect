@@ -7,7 +7,7 @@
       "icon": "tv5selarge.png",
       "category": "National",
       "channelcode": "tv5json",
-      "sortorder": "105",
+      "sortorder": 5,
       "language": "se"
     },
     {
@@ -17,7 +17,7 @@
       "icon": "tv9selarge2014.png",
       "category": "National",
       "channelcode": "tv9json",
-      "sortorder": "108",
+      "sortorder": 9,
       "language": "se"
     },
     {
@@ -27,7 +27,7 @@
       "icon": "tv11selarge.png",
       "category": "National",
       "channelcode": "tv11json",
-      "sortorder": "109",
+      "sortorder": 11,
       "language": "se"
     }
   ]

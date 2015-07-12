@@ -7,7 +7,7 @@
       "icon": "redactielarge.png",
       "category": "National",
       "channelcode": "redactie",
-      "sortorder": "122",
+      "sortorder": 10,
       "language": "be"
     },
     {
@@ -17,7 +17,7 @@
       "icon": "sporzalarge.png",
       "category": "National",
       "channelcode": "sporza",
-      "sortorder": "124",
+      "sortorder": 13,
       "language": "be",
       "compatible": "Environments.All"
     }
