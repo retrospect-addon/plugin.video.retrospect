@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: pages in kijk.nl did not show videos (Fixes #609)
+Fixed: Kijk.nl changed their URL scheme (Fixes #642)
 
 [I]Previous changes[/I]
+Fixed: pages in kijk.nl did not show videos (Fixes #609)
 Fixed: SBS 6, SBS 9, NET 5 and Veronica broke (Fixes #603)
 Added: SBS 9.nl channel
 Updated: SBS logo's

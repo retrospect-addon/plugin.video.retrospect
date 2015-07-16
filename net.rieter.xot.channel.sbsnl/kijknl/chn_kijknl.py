@@ -31,7 +31,7 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.baseUrl = "http://www.kijk.nl"
         # Just retrieve a single page with 200 items (should be all)
-        self.mainListUri = "http://www.kijk.nl/ajax/section/overview/abc_Series-abc-ABCDEFGHIJKLMNOPQRSTUVWXYZ/1/200"
+        self.mainListUri = "http://www.kijk.nl/ajax/section/overview/programs-abc-ABCDEFGHIJKLMNOPQRSTUVWXYZ/1/200"
 
         channelId = None
         if self.channelCode == 'veronica':
@@ -75,10 +75,11 @@ class Channel(chn_class.Channel):
                             parser=self.ajaxItemRegex, creator=self.CreateVideoItem)
 
         # folders
-        self.folderItemRegex = ['(?<type>\w+)</h2>[^>]+data-id="(?<url>[^"]+)" [^>]*data-hasmore="1"'
+        self.folderItemRegex = ['(?<type>alle \w+)</h2>[^>]+data-id="(?<url>[^"]+)" [^>]*data-hasmore="1"'
                                 .replace("(?<", "(?P<"),
                                 '<li[^>]+data-filter="(?<url>[^"]+)">(?<title>[^<]+)</li>'
                                 .replace("(?<", "(?P<")]
+
         # we both need folders in the normal and ajax pages.
         self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
         self._AddDataParser("http://www.kijk.nl/ajax/section/series/",
