@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: TV4Play had some broken lists (Fixes #629)
+Added: TV12 and TV7 via TV4Play (Fixes #631)
 
 [I]Previous changes[/I]
+Fixed: TV4Play had some broken lists (Fixes #629)
 Added: TV4Play Live channel (Fixes #626)
 Fixed: URL encode the categorie names for TV4Play (See #519)
 Fixed: SVT Öppet Arkiv again (Fixes #622)
