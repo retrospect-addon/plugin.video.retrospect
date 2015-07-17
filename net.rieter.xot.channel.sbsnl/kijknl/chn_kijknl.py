@@ -69,13 +69,14 @@ class Channel(chn_class.Channel):
         self.ajaxItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]* itemprop="thumbnailUrl"[^>]*>\W*</noscript>[\w\W]' \
                              '{0,1000}?data-title="(?<title>[^"]+)">\W*</div>\W*</div>\W*</a>\W*<a[^>]+href="' \
                              '(?<url>[^"]+)/[^"]+"[^>]+\W+<div[^>]+>\W+<(?:div class="desc[^>]+|h3[^>]*)>' \
-                             '(?<description>[^<]+)[\W\w]{0,200}?<div class="airdate[^>]+content=' \
-                             '"(?<date>[^"]+)"'.replace("(?<", "(?P<")
+                             '(?<description>[^<]+)[\W\w]{0,400}?<div class="airdate[^>]+?(?:content="' \
+                             '(?<date>[^"]+)"|>)'.replace("(?<", "(?P<")
         self._AddDataParser("http://www.kijk.nl/ajax/section/series/",
                             parser=self.ajaxItemRegex, creator=self.CreateVideoItem)
 
         # folders
-        self.folderItemRegex = ['(?<type>alle \w+)</h2>[^>]+data-id="(?<url>[^"]+)" [^>]*data-hasmore="1"'
+        self.folderItemRegex = ['(?<type>\w+)</h2>\W*<div[^>]+class="showcase sidescroll[^>]+'
+                                'data-id="(?<url>[^"]+)" [^>]*data-hasmore="1"'
                                 .replace("(?<", "(?P<"),
                                 '<li[^>]+data-filter="(?<url>[^"]+)">(?<title>[^<]+)</li>'
                                 .replace("(?<", "(?P<")]
@@ -101,43 +102,43 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def PreProcessFolderList(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-
-        Logger.Info("Performing Pre-Processing")
-        items = []
-
-        dataStart = data.find('<h2 class="showcase-heading">')
-        # end = data.find('_SerieSeasonSlider"')
-        end = data.find('</li></ul></div><div')
-        if end > 0:
-            end += 20  # we want the </li> in case we found it
-        resultData = data[dataStart:end]
-
-        # Add a Clips item
-        # if "_Clips" in self.parentItem.url:
-        #     # self.CreateVideoItem = self.CreateClipItem
-        #     Logger.Trace("Switching to CLIPS regex")
-        #     self.videoItemRegex = self.clipItemRegex
-
-        Logger.Debug("Pre-Processing finished")
-        return resultData, items
+    # def PreProcessFolderList(self, data):
+    #     """Performs pre-process actions for data processing/
+    #
+    #     Arguments:
+    #     data : string - the retrieve data that was loaded for the current item and URL.
+    #
+    #     Returns:
+    #     A tuple of the data and a list of MediaItems that were generated.
+    #
+    #
+    #     Accepts an data from the ProcessFolderList method, BEFORE the items are
+    #     processed. Allows setting of parameters (like title etc) for the channel.
+    #     Inside this method the <data> could be changed and additional items can
+    #     be created.
+    #
+    #     The return values should always be instantiated in at least ("", []).
+    #
+    #     """
+    #
+    #     Logger.Info("Performing Pre-Processing")
+    #     items = []
+    #
+    #     dataStart = data.find('<h2 class="showcase-heading">')
+    #     # end = data.find('_SerieSeasonSlider"')
+    #     end = data.find('</li></ul></div><div')
+    #     if end > 0:
+    #         end += 20  # we want the </li> in case we found it
+    #     resultData = data[dataStart:end]
+    #
+    #     # Add a Clips item
+    #     # if "_Clips" in self.parentItem.url:
+    #     #     # self.CreateVideoItem = self.CreateClipItem
+    #     #     Logger.Trace("Switching to CLIPS regex")
+    #     #     self.videoItemRegex = self.clipItemRegex
+    #
+    #     Logger.Debug("Pre-Processing finished")
+    #     return resultData, items
 
     def CreateFolderItem(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
@@ -168,7 +169,7 @@ class Channel(chn_class.Channel):
                 # for ajax pages determine the next one and it's always a clip list or episode list
                 folderNumber = int(self.parentItem.url.split("/")[-2])
                 folderNumber += 1
-                if "clips" in self.parentItem.url.lower():
+                if "clip" in self.parentItem.url.lower():
                     title = "\bMeer clips"
                 else:
                     title = "\bMeer afleveringen"
@@ -204,29 +205,6 @@ class Channel(chn_class.Channel):
         item.complete = True
         Logger.Trace(item)
         return item
-
-    def CreateClipItem(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-
-        """
-
-        Logger.Trace(resultSet)
-        return None
 
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
@@ -270,14 +248,16 @@ class Channel(chn_class.Channel):
         item.thumb = resultSet['thumburl']
         item.icon = self.icon
 
-        dateStamp = resultSet["date"].split("T")
-        Logger.Trace(dateStamp)
-        datePart = dateStamp[0]
-        timePart = dateStamp[1].split("+")[0]
-        (year, month, day) = datePart.split("-")
-        (hour, minute, seconds) = timePart.split(":")
-        Logger.Trace((year, month, day, hour, minute, seconds))
-        item.SetDate(year, month, day, hour, minute, seconds)
+        date = resultSet["date"]
+        if date:
+            dateStamp = date.split("T")
+            Logger.Trace(dateStamp)
+            datePart = dateStamp[0]
+            timePart = dateStamp[1].split("+")[0]
+            (year, month, day) = datePart.split("-")
+            (hour, minute, seconds) = timePart.split(":")
+            Logger.Trace((year, month, day, hour, minute, seconds))
+            item.SetDate(year, month, day, hour, minute, seconds)
 
         item.complete = False
         Logger.Trace(item)
