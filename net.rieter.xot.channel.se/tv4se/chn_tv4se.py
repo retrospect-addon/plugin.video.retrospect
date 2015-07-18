@@ -127,7 +127,7 @@ class Channel(chn_class.Channel):
         # item.description = description
         item.icon = self.icon
         item.thumb = resultSet.get("program_image", self.noImage)
-        item.isDrmProtected = resultSet.get("is_premium", False)
+        item.isPaid = resultSet.get("is_premium", False)
         return item
 
     def AddCategoriesAndSpecials(self, data):
@@ -212,7 +212,7 @@ class Channel(chn_class.Channel):
                                    "http://tv4live-i.akamaihd.net/hls/live/200284/akamaihls2/master.m3u8",
                                    type="video")
         live.dontGroup = True
-        live.isDrmProtected = True
+        # live.isDrmProtected = True
         live.isGeoLocked = True
         live.isLive = True
         items.append(live)
@@ -362,7 +362,8 @@ class Channel(chn_class.Channel):
                      name, premiumPeriod, freePeriod, broadcastDate, freeExpired)
 
         if now > freeExpired:
-            item.name = "%s [Premium-innehåll]" % (item.name,)
+            # item.name = "%s [Premium-innehåll]" % (item.name,)
+            item.isPaid = True
 
         item.type = "video"
         item.complete = False

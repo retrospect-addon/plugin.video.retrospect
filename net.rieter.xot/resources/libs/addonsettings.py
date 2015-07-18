@@ -51,6 +51,9 @@ class AddonSettings:
     __HIDE_FIRST_TIME_MESSAGE = "hide_first_time_message"
     __LIST_LIMIT = "list_limit"
     __DRM_WARNING = "show_drm_warning"
+    __DRM_HIDE_ITEMS = "hide_drm"
+    __PREMIUM_HIDE_ITEMS = "hide_premium"
+    __HIDE_TYPES = "hide_types"
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -134,6 +137,28 @@ class AddonSettings:
         """
 
         return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_WARNING)
+
+    @staticmethod
+    def HideDrmItems():
+        """ Returns whether or not to hide DRM protected items.
+
+        @return: True/False
+        """
+        return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_HIDE_ITEMS)
+
+    @staticmethod
+    def HidePremiumItems():
+        """ Returns whether or not to hide Premium/Paid items.
+
+        @return: True/False
+        """
+        return AddonSettings.__GetBooleanSetting(AddonSettings.__PREMIUM_HIDE_ITEMS)
+
+    @staticmethod
+    def HideRestrictedFolders():
+        values = [True, False]
+        value = int(AddonSettings.__GetSetting(AddonSettings.__HIDE_TYPES))
+        return values[value]
 
     @staticmethod
     def HideGeoLockedItemsForLocation(channelRegion, valueOnly=False):
@@ -890,6 +915,10 @@ class AddonSettings:
         value = pattern % (value, "ListLimit", AddonSettings.GetListLimit())
         value = pattern % (value, "Loglevel", AddonSettings.GetLogLevel())
         value = pattern % (value, "Geo Location", AddonSettings.HideGeoLockedItemsForLocation(None, valueOnly=True))
+        value = pattern % (value, "Filter Folders", AddonSettings.HideRestrictedFolders())
+        value = pattern % (value, "DRM Warning", AddonSettings.ShowDrmWarning())
+        # value = pattern % (value, "Hide DRM Items", AddonSettings.HideDrmItems())
+        value = pattern % (value, "Hide Premium Items", AddonSettings.HidePremiumItems())
         value = pattern % (value, "Show Dutch", AddonSettings.ShowChannelWithLanguage("nl"))
         value = pattern % (value, "Show Swedish", AddonSettings.ShowChannelWithLanguage("se"))
         value = pattern % (value, "Show Lithuanian", AddonSettings.ShowChannelWithLanguage("lt"))

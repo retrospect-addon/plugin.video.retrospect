@@ -311,7 +311,7 @@ class Channel(chn_class.Channel):
         #         """
 
         tariffs = resultSet.get("ddr_timeframes")
-        drmProtected = False
+        premiumItem = False
         if tariffs:
             Logger.Trace(tariffs)
             for tariff in tariffs:
@@ -322,8 +322,7 @@ class Channel(chn_class.Channel):
                     end = datetime.datetime.fromtimestamp(end)
                     now = datetime.datetime.now()
                     if start < now < end:
-                        title = "%s [Betaald]" % (title,)
-                        drmProtected = True
+                        premiumItem = True
                         Logger.Debug("Found a tariff for this episode: %s - %s: %s", start, end, tariff["tariff"])
                         break
 
@@ -334,7 +333,7 @@ class Channel(chn_class.Channel):
 
         item = mediaitem.MediaItem(title.title(), url)
         item.type = "video"
-        item.isDrmProtected = drmProtected
+        item.isPaid = premiumItem
         item.description = description
         item.thumb = "%s%s" % (self.posterBase, uuid,)
 

@@ -44,7 +44,7 @@
     <string id="30043">Folder voorvoegsel</string>
     <string id="30044">Estlands</string>
     <string id="30045">Deens</string>
-    <string id="30046">DRM GEO locatie</string>
+    <string id="30046">DRM/GEO-locatie/Premium filters</string>
     <string id="30047">Duits</string>
     <string id="30048">Log level</string>
     <string id="30049">Uitzendinggemist.nl instellingen</string>
@@ -71,13 +71,19 @@
     <string id="30070">Laat XBMC de beste bitrate selecteren</string>
     <string id="30071">Proxy Configuratie</string>
     <string id="30072">- Type</string>
-    <string id="30073">- Geo-geblokkeerde items hebben een º achter de naam, DRM items een ^.</string>
+    <string id="30073">- Geo-geblokkeerde = º, DRM beschermd = ^ en betaald = ª.</string>
     <string id="30074">Uitgeschakeld</string>
     <string id="30075">Lege lijst gedrag</string>
     <string id="30076">Toon fout</string>
     <string id="30077">Toon lege lijst</string>
     <string id="30078">Toon melding-item</string>
     <string id="30079">Lokaal IP (0.0.0.0=Uitgeschakeld)</string>
+    <string id="30080">Verberg DRM beschermde streams</string>
+    <string id="30081">Verberg betaalde streams</string>
+    <string id="30082">Verberg de volgende types</string>
+    <string id="30083">Folders &amp; streams</string>
+    <string id="30084">Enkel streams</string>
+    <string id="30085">Geo Locatie</string>
 
     <string id="30100">Geen</string>
     <string id="30101">Regionaal</string>

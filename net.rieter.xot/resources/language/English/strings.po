@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2015-05-31 19:19+0000\n"
+"POT-Creation-Date: 2015-07-19 11:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -192,7 +192,7 @@ msgid "Danish"
 msgstr ""
 
 msgctxt "#30046"
-msgid "DRM Geo Location"
+msgid "DRM/Geo Location/Premium filters"
 msgstr ""
 
 msgctxt "#30047"
@@ -300,7 +300,7 @@ msgid "- Type"
 msgstr ""
 
 msgctxt "#30073"
-msgid "- Geo-Locked items have a º after the name, DRM protected an ^."
+msgid "- Geo-Locked = º, DRM protected = ^ and Premium = ª."
 msgstr ""
 
 msgctxt "#30074"
@@ -327,7 +327,31 @@ msgctxt "#30079"
 msgid "Local IP (0.0.0.0=disabled)"
 msgstr ""
 
-#empty strings from id 30080 to 30099
+msgctxt "#30080"
+msgid "Filter DRM protected items"
+msgstr ""
+
+msgctxt "#30081"
+msgid "Filter Premium/Paid items"
+msgstr ""
+
+msgctxt "#30082"
+msgid "Apply filter to"
+msgstr ""
+
+msgctxt "#30083"
+msgid "Folders & Streams"
+msgstr ""
+
+msgctxt "#30084"
+msgid "Streams Only"
+msgstr ""
+
+msgctxt "#30085"
+msgid "Geo Location"
+msgstr ""
+
+#empty strings from id 30086 to 30099
 
 msgctxt "#30100"
 msgid "None"

@@ -295,13 +295,29 @@ class Channel:
                     items.append(handlerItem)
 
         # should we exclude DRM/GEO?
-        hideDrm = AddonSettings.HideGeoLockedItemsForLocation(self.language)
-        if hideDrm:
-            newItems = filter(lambda i: not i.isGeoLocked, items)
-            if not newItems == items:
-                Logger.Info("Hidden %s items due to DRM/GEO restriction: %s",
-                            len(items) - len(newItems), self.language)
-            items = newItems
+        hideGeoLocked = AddonSettings.HideGeoLockedItemsForLocation(self.language)
+        hideDrmProtected = AddonSettings.HideDrmItems()
+        hidePremium = AddonSettings.HidePremiumItems()
+        hideFolders = AddonSettings.HideRestrictedFolders()
+        typeToExclude = None
+        if not hideFolders:
+            typeToExclude = "folder"
+
+        oldCount = len(items)
+        if hideDrmProtected:
+            Logger.Debug("Hiding DRM items")
+            items = filter(lambda i: i.isDrmProtected or i.type == typeToExclude, items)
+        if hideGeoLocked:
+            Logger.Debug("Hiding GEO Locked items due to GEO region: %s", self.language)
+            items = filter(lambda i: not i.isGeoLocked or i.type == typeToExclude, items)
+        if hidePremium:
+            Logger.Debug("Hiding Premium items")
+            items = filter(lambda i: not i.isPaid or i.type == typeToExclude, items)
+            # items = filter(lambda i: not i.isPaid or i.type == "folder", items)
+
+        if len(items) != oldCount:
+            Logger.Info("Hidden %s items due to DRM/GEO/Premium filter (Hide Folders=%s)",
+                        oldCount - len(items), hideFolders)
 
         # Check for grouping or not
         limit = AddonSettings.GetListLimit()

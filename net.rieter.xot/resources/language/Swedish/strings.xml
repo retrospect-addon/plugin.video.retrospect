@@ -44,7 +44,7 @@
     <string id="30043">Mapp-prefix</string>
     <string id="30044">Estniska</string>
     <string id="30045">Danska</string>
-    <string id="30046">DRM- / GEO-låsta</string>
+    <string id="30046">DRM/Geo Location/Premium filters</string>
     <string id="30047">Tyska</string>
     <string id="30048">Loggnivå</string>
     <string id="30049">Uitzendinggemist.nl-inställningar</string>
@@ -71,14 +71,19 @@
     <string id="30070">Låt XBMC välja bästa strömbits-hastighet</string>
     <string id="30071">Inställningar för proxy</string>
     <string id="30072">- Typ</string>
-    <string id="30073">- Geo-låsta har ett "º" efter namnet, DRM-skyddade ett "^".</string>
+    <string id="30073">- Geo-låsta = º, DRM-skyddade = ^ and Premium = ª.</string>
     <string id="30074">Inaktiverad</string>
     <string id="30075">Vid tom lista</string>
     <string id="30076">visa felet</string>
     <string id="30077">visa en tom lista</string>
     <string id="30078">visa ett meddelande</string>
     <string id="30079">Lokalt IP (0.0.0.0=inaktiverad)</string>
-
+    <string id="30080">Filter DRM protected items</string>
+    <string id="30081">Filter Premium/Paid items</string>
+    <string id="30082">Apply filter to</string>
+    <string id="30083">Folders &amp; Streams</string>
+    <string id="30084">Streams Only</string>
+    <string id="30085">GEO-låsta</string>
 
     <string id="30100">Ingen</string>
     <string id="30101">Regionala</string>

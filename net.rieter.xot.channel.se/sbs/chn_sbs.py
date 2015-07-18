@@ -134,11 +134,6 @@ class Channel(chn_class.Channel):
 
         url = "http://kanal5swe.appspot.com/api/getMobileProgramContent?format=ALL_MOBILE&programId=%s" % (programId,)
 
-        # do not show premium only content
-        if premium:
-            #name = "%s [Premium-innehåll]" % (name,)
-            return None
-
         item = mediaitem.MediaItem(name, url)
         item.thumb = thumbUrl
         item.type = "folder"
@@ -146,6 +141,7 @@ class Channel(chn_class.Channel):
         item.description = description
         item.fanart = self.fanart
         item.isGeoLocked = not availableAbroad
+        item.isPaid = premium
 
         # see if we can find seasons
         if "seasonNumbersWithContent" not in data:
@@ -357,11 +353,6 @@ class Channel(chn_class.Channel):
         isGeoLocked = not data["program"]["availableAbroad"]
         requiresWideVine = data.get("widevineRequired", False)
 
-        if premium:
-            # Premium was set and True
-            Logger.Debug("Premium item '%s' found", name)
-            return None
-
         # url = "http://www.kanal5play.se/api/getVideo?format=FLASH&videoId=%s" % (videoId, )
         url = "http://www.kanal9play.se/api/getVideo?format=FLASH&videoId=%s" % (videoId,)
 
@@ -374,6 +365,7 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         item.isDrmProtected = requiresWideVine
         item.isGeoLocked = isGeoLocked
+        item.isPaid = premium
 
         if "shownOnTvDateTimestamp" in data:
             timeStamp = data["shownOnTvDateTimestamp"]  # milli seconds since epoch

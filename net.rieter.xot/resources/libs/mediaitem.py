@@ -55,6 +55,7 @@ class MediaItem:
                 "isLive",
                 "isGeoLocked",
                 "isDrmProtected",
+                "isPaid"
                 "parent",
                 "complete",
                 "error",
@@ -110,6 +111,7 @@ class MediaItem:
         self.isLive = False                       # : if set to True, the item will have a random QuerySting param
         self.isGeoLocked = False                  # : if set to True, the item is GeoLocked to the channels language (o)
         self.isDrmProtected = False               # : if set to True, the item is DRM protected and cannot be played (^)
+        self.isPaid = False                       # : if set to True, the item is a Paid item and cannot be played (*)
 
         self.parent = parent
         self.complete = False
@@ -399,15 +401,25 @@ class MediaItem:
         description = self.description
         geoLock = "º"
         drmLock = "^"
-        if self.isDrmProtected and self.isGeoLocked:
-            name = "%s %s%s" % (name, geoLock, drmLock)
-            description = "%s\n\nGeo Locked / DRM Protected" % (self.description, )
-        elif self.isGeoLocked:
-            name = "%s %s" % (name, geoLock)
-            description = "%s\n\nGeo Locked" % (self.description, )
-        elif self.isDrmProtected:
-            name = "%s %s" % (name, drmLock)
-            description = "%s\n\nDRM Protected" % (self.description, )
+        paid = "ª"
+        descriptionAddition = []
+        titlePostfix = []
+
+        if self.isDrmProtected:
+            titlePostfix.append(drmLock)
+            descriptionAddition.append("DRM Protected")
+        if self.isGeoLocked:
+            titlePostfix.append(geoLock)
+            descriptionAddition.append("Geo Locked")
+        if self.isPaid:
+            titlePostfix.append(paid)
+            descriptionAddition.append("Premium/Paid")
+        # actually update it
+        if descriptionAddition:
+            descriptionAddition = " / ".join(descriptionAddition)
+            description = "%s\n\n%s" % (self.description, descriptionAddition)
+        if titlePostfix:
+            name = "%s %s" % (name, "".join(titlePostfix))
 
         name = self.__FullDecodeText(name)
         description = self.__FullDecodeText(description)
@@ -432,6 +444,8 @@ class MediaItem:
         if self.type != "Audio":
             infoLabels["PlotOutline"] = description
             infoLabels["Plot"] = description
+        if descriptionAddition:
+            infoLabels["Tagline"] = descriptionAddition
 
         if self.type == "audio":
             item.setInfo(type="Audio", infoLabels=infoLabels)
@@ -441,11 +455,6 @@ class MediaItem:
         # all items
         item.setLabel(name)
         item.setLabel2(self.__date)
-
-        # item.setProperty("XOT_Description", description)
-        # item.setProperty("XOT_Complete", str(self.complete))
-        # item.setProperty("XOT_Type", str(self.type))
-        # item.setProperty("XOT_Error", str(self.error))
 
         if self.fanart:
             item.setProperty('fanart_image', self.fanart)

@@ -44,7 +44,7 @@
     <string id="30043">Folder prefix</string>
     <string id="30044">Estonian</string>
     <string id="30045">Danish</string>
-    <string id="30046">DRM Geo Location</string>
+    <string id="30046">DRM/Geo Location/Premium filters</string>
     <string id="30047">German</string>
     <string id="30048">Log level</string>
     <string id="30049">Uitzendinggemist.nl Settings</string>
@@ -71,13 +71,19 @@
     <string id="30070">Let XBMC determine bitrate if possible</string>
     <string id="30071">Proxy Configuration</string>
     <string id="30072">- Type</string>
-    <string id="30073">- Geo-Locked items have a º after the name, DRM protected an ^.</string>
+    <string id="30073">- Geo-Locked = º, DRM protected = ^ and Premium = ª.</string>
     <string id="30074">Disabled</string>
     <string id="30075">Empty list behaviour</string>
     <string id="30076">Show error</string>
     <string id="30077">Show empty list</string>
     <string id="30078">Show dummy item</string>
     <string id="30079">Local IP (0.0.0.0=disabled)</string>
+    <string id="30080">Filter DRM protected items</string>
+    <string id="30081">Filter Premium/Paid items</string>
+    <string id="30082">Apply filter to</string>
+    <string id="30083">Folders &amp; Streams</string>
+    <string id="30084">Streams Only</string>
+    <string id="30085">Geo Location</string>
 
     <string id="30100">None</string>
     <string id="30101">Regional</string>
