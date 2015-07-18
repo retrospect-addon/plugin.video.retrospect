@@ -98,6 +98,11 @@ class Channel(chn_class.Channel):
                             parser=("episodes", ), creator=self.CreateVideoItemJson,
                             json=True, matchType=ParserData.MatchContains)
 
+        # genres
+        self._AddDataParser("http://www.npo.nl/uitzending-gemist", matchType=ParserData.MatchExact,
+                            parser='<option value="(\d+\.\d+\.\d+\.\d+)"[^>]*>([^<]+)<',
+                            creator=self.CreateGenreItem)
+
         # Set self.nonMobilePageSize to 0 to enable mobile pages
         self.nonMobilePageSize = 50
         self.nonMobileMaxPageSize = 100
@@ -231,6 +236,14 @@ class Channel(chn_class.Channel):
         extra.thumb = self.noImage
         extra.dontGroup = True
         extra.description = "Volledige programma lijst van de NPO iOS/Android App."
+        extra.SetDate(2200, 1, 1, text="")
+        items.append(extra)
+
+        extra = mediaitem.MediaItem("Genres", "http://www.npo.nl/uitzending-gemist")
+        extra.complete = True
+        extra.icon = self.icon
+        extra.thumb = self.noImage
+        extra.dontGroup = True
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
@@ -445,6 +458,31 @@ class Channel(chn_class.Channel):
         item.type = 'folder'
         item.url = "http://www.npo.nl/series/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
                    % (item.url, self.nonMobilePageSize)
+        return item
+
+    def CreateGenreItem(self, resultSet):
+        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+        Logger.Trace(resultSet)
+        item = mediaitem.MediaItem(resultSet[1], "http://www.npo.nl/zoeken?main_genre=%s&page=1" % (resultSet[0],))
+        item.thumb = self.parentItem.thumb
+        item.icon = self.parentItem.icon
+        item.type = 'folder'
+        item.fanart = self.parentItem.fanart
+        # item.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+        # item.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
+        item.complete = True
         return item
 
     def CreateFolderItemNonMobile(self, resultSet):
