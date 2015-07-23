@@ -169,15 +169,39 @@ class Channel(chn_class.Channel):
         elif self.parentItem.url.endswith("/live"):
             # let's add the 3FM live stream
             parent = self.parentItem
-            Logger.Debug("Adding 3fm live video item to sub item list: %s", parent)
-            item = mediaitem.MediaItem("3FM Live",
-                                       "http://e.omroep.nl/metadata/LI_3FM_300881")
-            item.icon = parent.icon
-            item.thumb = "http://www.3fm.nl/data/thumb/abc_media_image/113000/113453/w210.1b764.jpg"
-            item.type = 'video'
-            item.isLive = True
-            item.complete = False
-            items.append(item)
+
+            liveStreams = {
+                "3FM Live": {
+                    "url": "http://e.omroep.nl/metadata/LI_3FM_300881",
+                    "thumb": "http://www.3fm.nl/data/thumb/abc_media_image/113000/113453/w210.1b764.jpg"
+                },
+                "Radio 2 Live": {
+                    "url": "http://e.omroep.nl/metadata/LI_RADIO2_300879",
+                    "thumb": self.GetImageLocation("radio2.png")
+                    # "thumb": "http://www.radio2.nl/image/rm/48254/NPO_RD2_Logo_RGB_1200dpi.jpg?width=848&height=477"
+                },
+                "Radio 6 Live": {
+                    "url": "http://e.omroep.nl/metadata/LI_RADIO6_300883",
+                    # "thumb": "http://www.radio6.nl/data/thumb/abc_media_image/3000/3882/w500.1daa0.png"
+                    "thumb": self.GetImageLocation("radio6.png")
+                },
+                "Radio 1 Live": {
+                    "url": "http://e.omroep.nl/metadata/LI_RADIO1_300877",
+                    # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
+                    "thumb": self.GetImageLocation("radio1.png")
+                },
+            }
+
+            for stream in liveStreams:
+                Logger.Debug("Adding %s video item to sub item list: %s", parent, stream)
+                liveData = liveStreams[stream]
+                item = mediaitem.MediaItem(stream, liveData["url"])
+                item.icon = parent.icon
+                item.thumb = liveData["thumb"]
+                item.type = 'video'
+                item.isLive = True
+                item.complete = False
+                items.append(item)
         return data, items
 
     def GetInitialFolderItems(self, data):
@@ -624,7 +648,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        if "/radio/" in item.url or "/live/" in item.url or "/LI_3FM" in item.url:
+        if "/radio/" in item.url or "/live/" in item.url or "/LI_" in item.url:
             Logger.Info("Updating Live item: %s", item.url)
             return self.UpdateVideoItemLive(item)
 
