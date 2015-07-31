@@ -1,8 +1,10 @@
 ﻿[B]Changelog[/B]
-Added: more NPO Radio web cam streams (Fixes #643)
-Added: Genres to NPO.nl channel (Fixes #388)
+Fixed: Some NPO listings were empty due to site changes (Fixes #647)
+Fixed: Very old streams would not play (Fixes #648)
 
 [I]Previous Changes[/I]
+Added: more NPO Radio web cam streams (Fixes #643)
+Added: Genres to NPO.nl channel (Fixes #388)
 Fixed: NPO updated their video back-end which broke playback (Fixes #634)
 Fixed: NPO date items did not work (Fixed #623)
 Fixed: NPO.nl changed their site which broke the alphabetical listing (Fixes #612)

@@ -118,8 +118,17 @@ class Channel(chn_class.Channel):
                                        '<a href="(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>' \
                                        '[^/"]+))"[^>]*><h4>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]+>(?<Description>' \
                                        '[^<]*)'.replace('(?<', '(?P<')
+        self.nonMobileVideoItemRege2 = 'src="(?<Image>[^"]+)"[^>]+>\W*</a></div>\W*<div[^>]*>\W*<h3><a href="' \
+                                       '(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"' \
+                                       '[^>]*>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]*>' \
+                                       '(?<Description>[^<]*)'.replace('(?<', '(?P<')
 
+        # for the old pages
         self._AddDataParser("*", parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
+                            updater=self.UpdateVideoItem)
+
+        # for the new pages
+        self._AddDataParser("*", parser=self.nonMobileVideoItemRege2, creator=self.CreateVideoItemNonMobile,
                             updater=self.UpdateVideoItem)
 
         # Alpha listing and paging for that list
@@ -1040,7 +1049,7 @@ class Channel(chn_class.Channel):
             Logger.Warning("Apparently no streams were present in the normal places. Trying streams in metadata")
 
             # fetch the meta data to get more streams
-            metaUrl = "http://e.omroep.nl/metadata/aflevering/%s" % (episodeId,)
+            metaUrl = "http://e.omroep.nl/metadata/%s" % (episodeId,)
             metaData = UriHandler.Open(metaUrl, proxy=self.proxy)
             metaJson = JsonHelper(metaData, logger=Logger.Instance())
 
@@ -1056,6 +1065,9 @@ class Channel(chn_class.Channel):
                     bitrate = 1500
                 else:
                     bitrate = 0
+
+                if stream["formaat"] == "h264":
+                    bitrate += 1
                 part.AppendMediaStream(stream["url"], bitrate)
 
             # now we can get extra info from the data
