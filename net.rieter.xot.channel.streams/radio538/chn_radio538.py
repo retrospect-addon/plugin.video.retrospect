@@ -55,8 +55,8 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
 
         # updater for live streams
-        self._AddDataParser("^http://538-?hls.lswcdn.triple-it.nl/content.+", matchType=ParserData.MatchRegex,
-                            updater=self.UpdateLiveStream)
+        self._AddDataParsers(("^http://538-?hls.lswcdn.triple-it.nl/content.+", "^http://hls2.slamfm.nl/content.+"),
+                             matchType=ParserData.MatchRegex, updater=self.UpdateLiveStream)
 
         self.mediaUrlRegex = '<media:content url="([^"]+)"'
 
@@ -151,7 +151,14 @@ class Channel(chn_class.Channel):
         cam538.isLive = True
         live.items.append(cam538)
 
-        slam = mediaitem.MediaItem("Slam TV", "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/slamwebcam.m3u8")
+        slam = mediaitem.MediaItem("Slam! FM Webcam", "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/slamwebcam.m3u8")
+        slam.icon = self.icon
+        slam.thumb = self.noImage
+        slam.type = "video"
+        slam.isLive = True
+        live.items.append(slam)
+
+        slam = mediaitem.MediaItem("Slam! TV", "http://hls2.slamfm.nl/content/slamtv/slamtv.m3u8")
         slam.icon = self.icon
         slam.thumb = self.noImage
         slam.type = "video"
@@ -175,6 +182,7 @@ class Channel(chn_class.Channel):
         #     items.append(dateItem)
         #     current = current + datetime.timedelta(1)
 
+        data = data[0:data.find('data-filter-type="sortering"')]
         return data, items
 
     def CreateVideoItem(self, resultSet):

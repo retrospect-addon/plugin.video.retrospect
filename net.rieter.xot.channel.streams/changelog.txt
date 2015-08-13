@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: Radio 538 Live streams (Fixes #604)
+Added: SLAM! TV stream (Fixes #650)
+Fixed: Radio 538 had some data items appear as folders
 
 [I]Previous changes[/I]
+Fixed: Radio 538 Live streams (Fixes #604)
 Fixed: Radio 538 gemist
 Fixed: XBMCWrapper float vs. int issue (Fixes #530)
 Fixed: SLAM.tv did not work (Fixes #528)
