@@ -80,9 +80,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         # setup the categories
-        catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="'
-                                        '(?<Description>[^"]*)"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+'
-                                        'href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
+        catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
         self._AddDataParser("^http://www.svtplay.se/[^/?]+\?tab=titlar$", matchType=ParserData.MatchRegex,
                             preprocessor=self.StripNonCategories, parser=catRegex, creator=self.CreateCategoryItem)
         # self._AddDataParser("^http://www.svtplay.se/[^/?]+\?tab=titlar$", matchType=ParserData.MatchRegex,
@@ -138,6 +136,7 @@ class Channel(chn_class.Channel):
             "Populära": "http://www.svtplay.se/populara?sida=1",
         }
 
+        # http://www.svtplay.se/ajax/dokumentar/titlar?filterAccessibility=&filterRights=
         categoryItems = {
             "Film & Drama": "http://www.svtplay.se/filmochdrama?tab=titlar",
             "Barn": "http://www.svtplay.se/barn?tab=titlar",
@@ -230,6 +229,16 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.thumb = thumb
         item.isGeoLocked = resultSet["Abroad"] == "false"
+
+        if resultSet["Date1"] is not None:
+            year, month, day, hour, minutes = self.__GetDate(resultSet["Date1"], resultSet["Date2"], resultSet["Date3"])
+            item.SetDate(year, month, day, hour, minutes, 0)
+
+        if "/video/" in url:
+            item.type = "video"
+            videoId = url.split("/")[4]
+            item.url = "http://www.svtplay.se/video/%s?type=embed&output=json" % (videoId, )
+
         return item
 
     def StripNonCategories(self, data):
