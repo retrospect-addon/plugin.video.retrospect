@@ -29,26 +29,27 @@ class Channel(chn_class.Channel):
         self.noImage = "srfimage.png"
 
         # setup the urls
-        self.mainListUri = "http://www.srf.ch/player/webservice/videoprograms/index"
+        self.mainListUri = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/tv/assetGroup/editorialPlayerAlphabetical.json"
+
         self.baseUrl = "http://www.srf.ch"
         # self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
         # setup the intial listing
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.GetEpisodeItems)
+                            parser=("AssetGroups", "Show"), creator=self.CreateEpisodeItemNew)
+
         # self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
         #                     preprocessor=self.GetLiveItems)
 
         self._AddDataParser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play",
                             updater=self.UpdateLiveItem)
 
-        self._AddDataParser("http://www.srf.ch/player/webservice/videoprogram/index?id=", json=True,
-                            preprocessor=self.AddCalendar,
-                            parser=('content', 'videoProgram', 'sendungen', 'video'),
-                            creator=self.CreateVideoItem)
+        self._AddDataParser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup", json=True,
+                            # preprocessor=self.AddCalendar,
+                            parser=('AssetSets', 'AssetSet'),
+                            creator=self.CreateVideoItemNew)
 
         # TODO: folders
-
         self._AddDataParser("http://www.srf.ch/player/webservice/videodetail/", updater=self.UpdateVideoItem)
 
         # ===============================================================================================================
@@ -56,106 +57,6 @@ class Channel(chn_class.Channel):
         #
         # ====================================== Actual channel setup STOPS here =======================================
         return
-
-    def GetEpisodeItems(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-
-        Logger.Info("Fetching episode items")
-        items = []
-
-        json = JsonHelper(data)
-
-        alphabeth = json.GetValue("content", "sendungen", "block")
-
-        for char in alphabeth:
-            charItem = char["sendung"]
-            if isinstance(charItem, (list, )):
-                Logger.Debug("Found multiple items for: %s", char["headline"])
-                for episode in charItem:
-                    item = self.CreateEpisodeItem(episode)
-                    if item is not None:
-                        items.append(item)
-            else:
-                Logger.Debug("Found a single item for: %s", char["headline"])
-                item = self.CreateEpisodeItem(charItem)
-                if item is not None:
-                    items.append(item)
-
-        return data, items
-
-    def AddCalendar(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-
-        items = []
-
-        if "period=" in self.parentItem.url:
-            Logger.Debug("Found Non-Root program folder. Not adding calendar.")
-            return data, items
-
-        Logger.Debug("Fetching calendar folders for Root program folder.")
-        json = JsonHelper(data)
-        calendar = json.GetValue("content", "videoProgram", "calendar", "yearMonth")
-        currentPeriod = json.GetValue("content", "videoProgram", "period")
-
-        # first gather and then create
-        periods = []
-        for yearMonths in calendar:
-            year = yearMonths["year"]
-            months = yearMonths["month"]
-            Logger.Trace("Adding year: %s (%s)", year, yearMonths)
-
-            if isinstance(months, (list, tuple)):
-                for month in months:
-                    periods.append(("%s-%02d" % (year, int(month)), int(year), int(month)))
-            else:
-                periods.append(("%s-%02d" % (year, int(months)), int(year), int(months)))
-
-        for p in periods:
-            if p[0] == currentPeriod:
-                Logger.Trace("Skipping current period: %s", p[0])
-                continue
-
-            Logger.Trace("Adding %s (Year=%s, Month=%s)", p[0], p[1], p[2])
-            period = mediaitem.MediaItem("Archive %s" % (p[0],), "%s&amp;period=%s" % (self.parentItem.url, p[0]))
-            period.SetDate(p[1], p[2], 1, text="")
-            period.icon = self.parentItem.icon
-            period.thumb = self.parentItem.thumb
-            period.complete = True
-            items.append(period)
-
-        return data, items
 
     def GetLiveItems(self, data):
         """Performs pre-process actions for data processing/
@@ -215,7 +116,7 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        url = "http://www.srf.ch/player/webservice/videoprogram/index?id=%s" % (resultSet["id"],)
+        url = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup/%s.json" % (resultSet["id"],)
         item = mediaitem.MediaItem(resultSet["title"], url)
         item.description = resultSet.get("description", "")
         item.icon = self.icon
@@ -231,7 +132,33 @@ class Channel(chn_class.Channel):
         # item.thumb = resultSet.get("thumbUrl", None)
         # item.thumb = "%s/scale/width/288" % (item.thumb, )  # apparently only the 144 return the correct HEAD info
         # item.fanart = resultSet.get("imageUrl", None)  $# the HEAD will not return a size, so Kodi can't handle it
+        item.complete = True
+        return item
 
+    def CreateEpisodeItemNew(self, resultSet):
+        """Creates a new MediaItem for an episode
+
+        Arguments:
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+
+        Logger.Trace(resultSet)
+
+        url = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup/%s.json?pageSize=100" % (resultSet["id"],)
+        # url = "http://www.srf.ch/player/webservice/videoprogram/index?id=%s" % (resultSet["id"],)
+        item = mediaitem.MediaItem(resultSet["title"], url)
+        item.description = resultSet.get("description", "")
+        item.icon = self.icon
+        item.httpHeaders = self.httpHeaders
+        item.thumb = self.__GetNestedValue(resultSet, "Image", "ImageRepresentations", "ImageRepresentation", 0, "url")
         item.complete = True
         return item
 
@@ -279,6 +206,58 @@ class Channel(chn_class.Channel):
 
         dateValue = str(resultSet["time_published"])
         dateTime = time.strptime(dateValue, "%Y-%m-%d %H:%M:%S")  # 2015-01-20 22:17:59"
+        item.SetDate(*dateTime[0:6])
+
+        item.icon = self.icon
+        item.httpHeaders = self.httpHeaders
+        item.complete = False
+        return item
+
+    def CreateVideoItemNew(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        Logger.Trace(resultSet)
+
+        videos = self.__GetNestedValue(resultSet, "Assets", "Video")
+        if not videos:
+            Logger.Warning("No video information found.")
+            return None
+
+        videoInfos = filter(lambda vi: vi["fullLength"] == True, videos)
+        if len(videoInfos) > 0:
+            videoInfo = videoInfos[0]
+        else:
+            Logger.Warning("No full length video found.")
+            return None
+        videoId = videoInfo["id"]
+
+        url = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play/%s.json" % (videoId,)
+        item = mediaitem.MediaItem(resultSet["title"], url)
+        item.type = "video"
+
+        item.thumb = self.__GetNestedValue(videoInfo, "Image", "ImageRepresentations", "ImageRepresentation", 0, "url")
+        item.description = self.__GetNestedValue(videoInfo, "AssetMetadatas", "AssetMetadata", 0, "description")
+
+        dateValue = str(resultSet["publishedDate"])
+        dateValue = dateValue[0:-6]
+        dateTime = time.strptime(dateValue, "%Y-%m-%dT%H:%M:%S")  # 2015-01-20T22:17:59"
         item.SetDate(*dateTime[0:6])
 
         item.icon = self.icon
@@ -399,3 +378,16 @@ class Channel(chn_class.Channel):
         #     part.AppendMediaStream(videoInfo["downloadLink"], 1000)
 
         return item
+
+    def __GetNestedValue(self, dic, *args, **kwargs):
+        currentNode = dic
+        for a in args:
+            try:
+                currentNode = currentNode[a]
+            except:
+                Logger.Debug("Value '%s' is not found in '%s'", a, currentNode)
+                if "fallback" in kwargs:
+                    return kwargs["fallback"]
+                else:
+                    return None
+        return currentNode
