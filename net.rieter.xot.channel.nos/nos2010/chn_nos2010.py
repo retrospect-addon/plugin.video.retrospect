@@ -56,8 +56,13 @@ class Channel(chn_class.Channel):
 
         # mainlist stuff
         self._AddDataParser("#mainlist", preprocessor=self.GetInitialFolderItems)
+
+        # Alpha listing and paging for that list
+        self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
+
+        # Alpha listing based on JSON interface
         self._AddDataParser("%s/series.json" % (self.baseUrl,),
-                            parser=(), creator= self.CreateEpisodeItem,
+                            parser=(), creator=self.CreateJsonShows,
                             json=True)
 
         # live stuff
@@ -111,43 +116,34 @@ class Channel(chn_class.Channel):
         self.nonMobilePageRegex = "<div class=\Wsearch-results\W (?:data-num-found=\W(?<Total>\d+)\W " \
                                   "data-rows=\W(?<PageSize>\d+)\W data-start=\W(?<CurrentStart>\d+)\W|" \
                                   "data-page=\W(?<Page>\d+)\W)".replace("(?<", "(?P<")
-        self._AddDataParser("*", parser=self.nonMobilePageRegex, creator=self.CreateFolderItemNonMobile)
+        self._AddDataParser("*", parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
 
-        # Non-mobile videos
+        # Non-mobile videos: for the old pages
         self.nonMobileVideoItemRegex = 'src="(?<Image>[^"]+)"\W+>[\w\W]{0,500}?</a></div>\W*</div>\W*<div[^>]*>\W*' \
                                        '<a href="(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>' \
                                        '[^/"]+))"[^>]*><h4>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]+>(?<Description>' \
                                        '[^<]*)'.replace('(?<', '(?P<')
+        self._AddDataParser("*", parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
+                            updater=self.UpdateVideoItem)
+
+        # Non-mobile videos: for the new pages
         self.nonMobileVideoItemRege2 = 'src="(?<Image>[^"]+)"[^>]+>\W*</a></div>\W*<div[^>]*>\W*<h3><a href="' \
                                        '(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"' \
                                        '[^>]*>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]*>' \
                                        '(?<Description>[^<]*)'.replace('(?<', '(?P<')
-
-        # for the old pages
-        self._AddDataParser("*", parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
-                            updater=self.UpdateVideoItem)
-
-        # for the new pages
         self._AddDataParser("*", parser=self.nonMobileVideoItemRege2, creator=self.CreateVideoItemNonMobile,
                             updater=self.UpdateVideoItem)
 
-        # Alpha listing and paging for that list
-        self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
+        self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
+                            parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
         programRegex = Regexer.FromExpresso('<a href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)">\W*<img[^>]+src="'
                                             '(?<Image>[^"]+)" />\W*</a>\W*</div>\W*</div>\W*<div[^<]+<a[^>]*><h4>'
                                             '[\n\r]*(?<Title>[^<]+)\W*<span[^>]*>[^>]+>\W*<span[^>]*>[^>]+>\W*</h4>'
                                             '\W*<h5>(?:[^>]*>){2}[^<]*(?:<a[^>]*>\w+ (?<Day>\d+) (?<MonthName>\w+) '
                                             '(?<Year>\d+)[^>]*(?<Hour>\d+):(?<Minutes>\d+)</a></h5>\W*)?<p[^>]*>'
                                             '(?:<span>)?(?<Description>[^<]*)')
-        # programRegex = Regexer.FromExpresso('src="(?<Image>[^"]+)" />\W*(?:<div[^/]+</div><div[^/]+</div></div>\W*)?'
-        #                                     '</a></div>\W*</div>\W*<div[^>]*>\W*<a href="(?<Url>[^"]+\/(?<WhatsOnId>'
-        #                                     '[^/"]+))"[^>]*><h4>(?<Title>[^<]+)<[\W\w]{0,200}?<h5>([^>]*>){3}[^<]*?'
-        #                                     '(?<Day>\d+) (?<Month>\w+) (?<Year>\d+)[^<]+(?<Hours>\d+):(?<Minutes>\d+)'
-        #                                     '[^>]+></h5>\W*<p[^>]+>(?<Description>[^<]*)')
-        self._AddDataParser("^http://www.npo.nl/series/([a-z]|0-9)\?page=\d+$", matchType=ParserData.MatchRegex,
+        self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
                             parser=programRegex, creator=self.CreateFolderItemAlpha)
-        self._AddDataParser("^http://www.npo.nl/series/([a-z]|0-9)\?page=\d+$", matchType=ParserData.MatchRegex,
-                            parser=self.nonMobilePageRegex, creator=self.CreateFolderItemNonMobile)
 
         # needs to be here because it will be too late in the script version
         self.__IgnoreCookieLaw()
@@ -347,8 +343,10 @@ class Channel(chn_class.Channel):
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
-            subItem = mediaitem.MediaItem(titleFormat % (char,),
-                                          "http://www.npo.nl/series/%s?page=1" % (char.lower(), ))
+                subItem = mediaitem.MediaItem(titleFormat % (char,), "http://www.npo.nl/a-z?page=1")
+            else:
+                subItem = mediaitem.MediaItem(titleFormat % (char,),
+                                              "http://www.npo.nl/a-z/%s?page=1" % (char.lower(), ))
             subItem.complete = True
             subItem.icon = self.icon
             subItem.thumb = self.noImage
@@ -356,7 +354,29 @@ class Channel(chn_class.Channel):
             items.append(subItem)
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def CreateFolderItemAlpha(self, resultSet):
+        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+
+        item = self.CreateVideoItemNonMobile(resultSet)
+        item.type = 'folder'
+        item.url = "http://www.npo.nl%(Url)s/%(WhatsOnId)s/search?end_date=&media_type=broadcast&rows=%%s&start=0&start_date=" % resultSet
+        item.url = item.url % (self.nonMobilePageSize, )
+
+        return item
+
+    def CreateJsonShows(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -371,14 +391,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("CreateEpisodeItem(%s)", resultSet)
+        Logger.Trace("CreateJsonShows(%s)", resultSet)
 
         episodeId = resultSet['nebo_id']
         # if we should not use the mobile listing and we have a non-mobile ID)
         if 'mid' in resultSet and self.nonMobilePageSize > 0:
             nonMobileId = resultSet['mid']
-            url = "http://www.npo.nl/series/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
+            url = "http://www.npo.nl/a-z/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
                   % (nonMobileId, self.nonMobilePageSize)
+        # Apparently the first one still works
+        # elif 'mid' in resultSet:
+        #     nonMobileId = resultSet['mid']
+        #     url = "http://www.npo.nl/a-z/%s?page=1" % (nonMobileId, )
         else:
             url = "%s/series/%s.json" % (self.baseUrl, episodeId)
 
@@ -472,27 +496,6 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def CreateFolderItemAlpha(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
-        item = self.CreateVideoItemNonMobile(resultSet)
-        item.type = 'folder'
-        item.url = "http://www.npo.nl/series/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
-                   % (item.url, self.nonMobilePageSize)
-        return item
-
     def CreateGenreItem(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
@@ -518,7 +521,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateFolderItemNonMobile(self, resultSet):
+    def CreatePageItemNonMobile(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
