@@ -1,9 +1,8 @@
 # coding:Cp1252
-from datetime import datetime
 
 import mediaitem
 import chn_class
-from logger import Logger
+from regexer import Regexer
 
 
 class Channel(chn_class.Channel):
@@ -32,9 +31,21 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://nieuws.vtm.be"
 
         # setup the main parsing data
-        self.episodeItemRegex = '<li class="menu[^"]*"><a href="/([^l4"][^"]+)"[^>]+>([^>]+)</a></li>'
-        self.videoItemRegex = 'is-video">\W+<a[^>]+>(?:<img src="([^"]+/videocms/image/)(\d+)([^"]+)"[^>]+></a>\W+</div>\W+){0,1}<div[^>]+>([^<]+)</div>\W+<h3 class="pagemanager-item-title">\W*<span>\W*<a href="/([^"]+)">([^<]+)'
-        self.mediaUrlRegex = '<source src="([^"]+)" type="video/mp4"[^>]+>'
+        self.episodeItemRegex = '<li><a[^>]+href="/([^"]+)" class="level-1[^>]+>([^<]+)</a>'
+        self._AddDataParser(self.mainListUri, creator=self.CreateEpisodeItem, parser=self.episodeItemRegex)
+
+        self.videoItemRegex = '<article[^<]+has-video"[^>]*>\W*<a href="(?<Url>[^<"]+)"[^>]*>\W+<div[^<]+<img[^>]+' \
+                              'src="(?<Thumb>[^"]+)"[^>]*>[\w\W]{0,500}?<h3[^>]*>(?:\W+<span[^>]*>[^>]*>)?' \
+                              '(?<Title>[^<]+)</h3>\W+<div[^<]+<time[^>]+datetime="(?<DateTime>[^"]+)"[^<]+</time>\W*' \
+                              '</div>\W*<p[^>]+>*(?<Description>[^<]+)'
+        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
+        self._AddDataParser("*", creator=self.CreateVideoItem, parser=self.videoItemRegex, updater=self.UpdateVideoItem)
+
+        stadionRegex = '<article[^>]*>\W*<div class="image is-video">\W*<a href="(?<Url>[^"]+)[^>]*>\W*<img[^>]+src="(?<Thumb>[^"]+)"[\w\W]{0,1000}?<h3 class="pagemanager-item-title">\W*<span>\W*<a[^>]*>(?<Title>[^<]+)[\w\W]{0,1000}?<div class="teaser">\W*<a[^>]+>(?<Description>[^<]+)'
+        stadionRegex = Regexer.FromExpresso(stadionRegex)
+        self._AddDataParser("http://nieuws.vtm.be/stadion", parser=stadionRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+
+        self.mediaUrlRegex = '<source[^>]+src="([^"]+)"[^>]+type="video/mp4"[^>]*/>'
         self.pageNavigationRegex = ''
         self.pageNavigationRegexIndex = 0
 
@@ -68,6 +79,9 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
+        if "/het-weer" in item.url:
+            item.type = "video"
+            item.complete = False
         return item
 
     def CreateVideoItem(self, resultSet):
@@ -89,36 +103,48 @@ class Channel(chn_class.Channel):
         for playback.
 
         """
-        thumbUrl = "%s%s%s" % (resultSet[0], resultSet[1], resultSet[2])
-        year = resultSet[1]
-        dayOrTime = resultSet[3]
-        url = resultSet[4]
-        title = resultSet[5]
+        title = resultSet["Title"]
+        url = "%s%s" % (self.baseUrl, resultSet["Url"])
 
-        item = mediaitem.MediaItem(title, "%s/%s" % (self.baseUrl, url))
+        # thumbUrl = "%s%s%s" % (resultSet[0], resultSet[1], resultSet[2])
+        # year = resultSet[1]
+        # dayOrTime = resultSet[3]
+        # url = resultSet[4]
+        # title = resultSet[5]
+        #
+        item = mediaitem.MediaItem(title, url)
         item.type = 'video'
-
-        if thumbUrl:
-            item.thumb = thumbUrl
-        else:
-            item.thumb = self.noImage
-
-        item.icon = self.icon
-
-        if "/" in dayOrTime and year:
-            # date found
-            (day, month) = dayOrTime.split("/")
-            item.SetDate(year, month, day, 0, 0, 0)
-        elif "." in dayOrTime:
-            # time found for today
-            date = datetime.now()
-            day = date.day
-            month = date.month
-            year = date.year
-            (hour, minutes) = dayOrTime.split(".")
-            item.SetDate(year, month, day, hour, minutes, 0)
-        else:
-            Logger.Warning("Could not determine date for item '%s' with datestring='%s'", title, dayOrTime)
-
+        item.thumb = resultSet["Thumb"]
+        item.description = resultSet.get("Description", None)
         item.complete = False
+
+        if "DateTime" not in resultSet:
+            return item
+
+        dateInfo = resultSet["DateTime"]
+        info = dateInfo.split("T")
+        dateInfo = info[0]
+        timeInfo = info[1]
+        dateInfo = dateInfo.split("-")
+        timeInfo = timeInfo.split(":")
+        item.SetDate(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
+        # else:
+        #     item.thumb = self.noImage
+        #
+        # item.icon = self.icon
+        #
+        # if "/" in dayOrTime and year:
+        #     # date found
+        #     (day, month) = dayOrTime.split("/")
+        #     item.SetDate(year, month, day, 0, 0, 0)
+        # elif "." in dayOrTime:
+        #     # time found for today
+        #     date = datetime.now()
+        #     day = date.day
+        #     month = date.month
+        #     year = date.year
+        #     (hour, minutes) = dayOrTime.split(".")
+        #     item.SetDate(year, month, day, hour, minutes, 0)
+        # else:
+        #     Logger.Warning("Could not determine date for item '%s' with datestring='%s'", title, dayOrTime)
         return item
