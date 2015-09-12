@@ -342,7 +342,7 @@ class MediaItem:
             itemName = "%s %s" % (folderPrefix, itemName)
 
         # if there was a thumbUrl pass it to XBMC
-        item = xbmcgui.ListItem(itemName or "<unknown>", self.__date, self.icon, self.thumb)
+        item = xbmcgui.ListItem(itemName or "<unknown>", self.__date)
 
         # set a flag to indicate it is a item that can be used with setResolveUrl.
         if self.IsResolvable():
@@ -464,8 +464,9 @@ class MediaItem:
         else:
             item.setProperty("XOT_Rating", "xot_rating%s.png" % (self.rating,))
 
-        item.setThumbnailImage("")              # this one forces the update of the complete item, so always do this
-        item.setThumbnailImage(self.thumb)      # this one forces the update of the complete item, so always do this
+        item.setThumbnailImage(self.thumb)
+        item.setIconImage(self.icon)
+
         # art = dict()
         # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):
         #     art[l] = self.thumb

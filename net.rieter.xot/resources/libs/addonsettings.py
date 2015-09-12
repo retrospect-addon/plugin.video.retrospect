@@ -157,7 +157,7 @@ class AddonSettings:
     @staticmethod
     def HideRestrictedFolders():
         values = [True, False]
-        value = int(AddonSettings.__GetSetting(AddonSettings.__HIDE_TYPES))
+        value = int(AddonSettings.__GetSetting(AddonSettings.__HIDE_TYPES) or 0)
         return values[value]
 
     @staticmethod

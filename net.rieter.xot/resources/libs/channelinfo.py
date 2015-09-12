@@ -109,7 +109,10 @@ class ChannelInfo:
         description = HtmlEntityHelper.ConvertHTMLEntities(self.channelDescription)
 
         self.icon = self.__GetImagePath(self.icon)
-        item = xbmcgui.ListItem(name, description, self.icon, self.icon)
+        item = xbmcgui.ListItem(name, description)
+        item.setIconImage(self.icon)
+        item.setThumbnailImage(self.icon)
+
         # http://mirrors.kodi.tv/docs/python-docs/14.x-helix/xbmcgui.html#ListItem-setInfo
         item.setInfo("video", {"Title": name,
                                # "Count": self.sortOrderPerCountry,
