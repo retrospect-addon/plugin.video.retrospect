@@ -92,11 +92,15 @@ class AddonSettings:
     def GetPlayer(textOnly=False):
         """ Get's the default player. this is only used for raspberry pi. """
 
-        settingIndex = int(AddonSettings.__GetSetting(AddonSettings.__RPI_PLAYER) or 0)
-        if textOnly:
-            return ["Auto", "DVDPlayer"][settingIndex]
-        else:
-            return [xbmc.PLAYER_CORE_AUTO, xbmc.PLAYER_CORE_DVDPLAYER][settingIndex]
+        try:
+            settingIndex = int(AddonSettings.__GetSetting(AddonSettings.__RPI_PLAYER) or 0)
+            if textOnly:
+                return ["Auto", "DVDPlayer"][settingIndex]
+            else:
+                return [xbmc.PLAYER_CORE_AUTO, xbmc.PLAYER_CORE_DVDPLAYER][settingIndex]
+        except Exception, e:
+            Logger.Warning("Error determining the Player Core in Kodi, falling back to PLAYER_CORE_AUTO:\n%s", e.message)
+            return xbmc.PLAYER_CORE_AUTO
 
     @staticmethod
     def GetProxyGroupIds(asString=False, asCountryCodes=False):
