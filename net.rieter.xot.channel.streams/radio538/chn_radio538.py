@@ -151,6 +151,15 @@ class Channel(chn_class.Channel):
         cam538.isLive = True
         live.items.append(cam538)
 
+        radio538 = mediaitem.MediaItem("Radio 538", "http://vip-icecast.538.lw.triple-it.nl/RADIO538_MP3")
+        radio538.icon = self.icon
+        radio538.thumb = self.noImage
+        radio538.type = "audio"
+        radio538.isLive = True
+        radio538.complete = True
+        radio538.AppendSingleStream(radio538.url)
+        live.items.append(radio538)
+
         slam = mediaitem.MediaItem("Slam! FM Webcam", "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/slamwebcam.m3u8")
         slam.icon = self.icon
         slam.thumb = self.noImage
@@ -164,6 +173,15 @@ class Channel(chn_class.Channel):
         slam.type = "video"
         slam.isLive = True
         live.items.append(slam)
+
+        slamFm = mediaitem.MediaItem("Slam! FM", "http://edge2-icecast.538.lw.triple-it.nl/SLAMFM_MP3")
+        slamFm.icon = self.icon
+        slamFm.thumb = self.noImage
+        slamFm.type = "audio"
+        slamFm.isLive = True
+        slamFm.AppendSingleStream(slamFm.url)
+        slamFm.complete = True
+        live.items.append(slamFm)
 
         items = [live]
 

@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-Added: SLAM! TV stream (Fixes #650)
-Fixed: Radio 538 had some data items appear as folders
+Fixed: Radio 538, Slam! FM and Q-Music streams broken (Fixes #665, Fixes #666, Fixes #667)
 
 [I]Previous changes[/I]
+Added: SLAM! TV stream (Fixes #650)
+Fixed: Radio 538 had some data items appear as folders
 Fixed: Radio 538 Live streams (Fixes #604)
 Fixed: Radio 538 gemist
 Fixed: XBMCWrapper float vs. int issue (Fixes #530)
