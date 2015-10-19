@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: BBC iPlayer regex fixed (Fixes #602)
+Fixed: BBC moved their streams around which broke the channel (Fixes #669)
 
 [I]Previous changes[/I]
+Fixed: BBC iPlayer regex fixed (Fixes #602)
 Fixed: BBC iPlayer removed RSS Feeds (Fixes #574)
 Fixed: BBC streams
 Fixed: BBC iPlayer channel (Issue 442)
