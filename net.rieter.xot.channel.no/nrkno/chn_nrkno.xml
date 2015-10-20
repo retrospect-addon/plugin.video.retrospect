@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<channels xmlns="http://xsd.rieter.net/net.rieter.xot/channels">
+    <channel>
+        <guid>2FB36241-5BB1-4D38-AD36-F48EAE91CDB5</guid>
+        <name>NRK.no</name>
+        <description>TODO from NRK.no</description>
+        <icon>nrknolarge.png</icon>
+        <category>National</category>
+        <channelcode>nrkno</channelcode>
+        <sortorder>94</sortorder>
+        <language>no</language>
+        <compatible>Environments.All</compatible>
+    </channel>
+</channels>
