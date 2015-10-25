@@ -317,7 +317,7 @@ class Channel(chn_class.Channel):
             for tariff in tariffs:
                 if tariff["tariff"] > 0:
                     start = tariff.get("start", 0)
-                    end = tariff.get("stop", 4102444800)
+                    end = tariff.get("stop", 2147483647)
                     start = datetime.datetime.fromtimestamp(start)
                     end = datetime.datetime.fromtimestamp(end)
                     now = datetime.datetime.now()

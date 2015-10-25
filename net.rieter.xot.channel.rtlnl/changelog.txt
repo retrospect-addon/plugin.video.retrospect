@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
-Fixed: RTL broke their paging..and my channel (Fixes #591)
+Fixed: Some program listings did not work in the RTL channel on 32 bit systems.
 
 [I]Previous changes[/I]
+Fixed: RTL broke their paging..and my channel (Fixes #591)
 Fixed: Some RTL shows do not have any descriptions, and that broke stuff.
