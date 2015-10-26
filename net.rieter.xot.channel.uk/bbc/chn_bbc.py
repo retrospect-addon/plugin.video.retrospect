@@ -11,7 +11,7 @@ from helpers import subtitlehelper
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.datehelper import DateHelper
-from streams.m3u8 import M3u8
+from streams.f4m import F4m
 from logger import Logger
 from parserdata import ParserData
 from regexer import Regexer
@@ -438,7 +438,7 @@ class Channel(chn_class.Channel):
         #     part.AppendMediaStream(s, b)
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in self.__GetStreamsFromF4m(item.url, self.proxy):
+        for s, b in F4m.GetStreamsFromF4m(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             s = s.replace(".f4m", ".m3u8")
@@ -453,50 +453,3 @@ class Channel(chn_class.Channel):
         hour, minute, ignore = timePart.split(":")
         # Logger.Trace((year, month, day, hour, minute, 0))
         return year, month, day, hour, minute, 0
-
-    def __GetStreamsFromF4m(self, url, proxy=None, headers=None):
-        """ Parsers standard F4m lists and returns a list of tuples with streams and bitrates that can be used by
-        other methods
-
-        @type headers: dict   - Possible HTTP Headers
-        @param proxy:  Proxy  - The proxy to use for opening
-        @param url:    String - The url to download
-
-        Can be used like this:
-
-            part = item.CreateNewEmptyMediaPart()
-            for s, b in F4m.GetStreamsFromF4m(url, self.proxy):
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
-
-        """
-
-        streams = []
-
-        data = UriHandler.Open(url, proxy, additionalHeaders=headers)
-        Logger.Trace(data)
-        Logger.Debug("Processing F4M Streams: %s", url)
-        needle = '<media href="([^"]+)"[^>]*bitrate="([^"]+)"'
-        needles = Regexer.DoRegex(needle, data)
-
-        baseUrlLogged = False
-        baseUrl = url[:url.rindex("/")]
-        for n in needles:
-            # see if we need to append a server path
-            Logger.Trace(n)
-            if "://" not in n[0]:
-                if not baseUrlLogged:
-                    Logger.Trace("Using baseUrl %s for F4M", baseUrl)
-                    baseUrlLogged = True
-                stream = "%s/%s" % (baseUrl, n[0])
-            else:
-                if not baseUrlLogged:
-                    Logger.Trace("Full url found in M3u8")
-                    baseUrlLogged = True
-                stream = n[0]
-            bitrate = int(n[1])
-            streams.append((stream, bitrate))
-
-        Logger.Debug("Found %s substreams in F4M", len(streams))
-        return streams
