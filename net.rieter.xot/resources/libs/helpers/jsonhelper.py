@@ -132,6 +132,21 @@ class JsonHelper:
 
         return reduce(lambda x, y: "%s'%s': '%s'\n" % (x, y, dictionary[y]), dictionary, "Dictionary:\n")
 
+    @staticmethod
+    def Dump(dictionary, prettyPrint=True):
+        """ Dumps a JSON object to a string
+
+        @param prettyPrint:     (boolean) indicating if the format should be nice
+        @param dictionary: (string) the object to dump
+
+        @return: a valid JSON string
+        """
+
+        if prettyPrint:
+            return json.dumps(dictionary, indent=4)
+        else:
+            return json.dumps(dictionary)
+
     def __str__(self):
         return self.data
 

@@ -1,16 +1,16 @@
-#===============================================================================
+# ===============================================================================
 # LICENSE Retrospect-Framework - CC BY-NC-ND
-#===============================================================================
+# ===============================================================================
 # This work is licenced under the Creative Commons
 # Attribution-Non-Commercial-No Derivative Works 3.0 Unported License. To view a
 # copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
-#===============================================================================
+# ===============================================================================
 
-#===============================================================================
+# ===============================================================================
 # Import the default modules
-#===============================================================================
+# ===============================================================================
 import sys
 import os
 import shutil
@@ -27,12 +27,29 @@ from helpers.languagehelper import LanguageHelper
 from config import Config
 from channelinfo import ChannelInfo
 from logger import Logger
+from helpers.jsonhelper import JsonHelper
 
 
 class ChannelImporter:
     """Class that handles the deploying and loading of available channels."""
 
-    __channelImporter = None    # : Property to store the channel importer in.
+    __channelImporter = None  # : Property to store the channel importer in.
+
+    @staticmethod
+    def GetRegister():
+        """Returns the current active channel register.
+
+        Used for backward compatibility with Xbox.
+
+        """
+
+        if not ChannelImporter.__channelImporter:
+            Logger.Debug("Creating a new ChannelImporter")
+            ChannelImporter()
+
+        Logger.Debug("Fetching an existing channelImporter: %s", ChannelImporter.__channelImporter)
+
+        return ChannelImporter.__channelImporter
 
     def __init__(self):
         """Initialize the importer by reading the channels from the channel
@@ -43,13 +60,14 @@ class ChannelImporter:
         """
 
         self.__INTERNAL_CHANNEL_PATH = "channels"
+        self.__CHANNEL_INDEX = os.path.join(Config.profileDir, "channelindex.json")
 
         # initialise the collections
-        self.__enabledChannels = []       # list of all loaded channels (after checking languages and so)
-        self.__validChannels = []         # list of all channels that are available on the current platform and thus are loadable
-        self.__allChannels = []           # list of all available channels
+        self.__enabledChannels = []  # list of all loaded channels (after checking languages and so)
+        self.__validChannels = []  # list of all channels that are available on the current platform and thus are loadable
+        self.__allChannels = []  # list of all available channels
 
-        self.__channelVersions = []       # list of channelname+version that were found
+        self.__channelVersions = []  # list of channelname+version that were found
 
         self.__updateChannelPath = "_updates"
 
@@ -102,7 +120,7 @@ class ChannelImporter:
         else:
             return []
 
-    def GetSingleChannel(self, className, channelCode):
+    def GetSingleChannel_old(self, className, channelCode):
         """Imports a single channel
 
         Arguments:
@@ -175,7 +193,7 @@ class ChannelImporter:
                 if self.__IsChannelSetUpdated(ci):
                     # apparently a new channel was found, so we need to do it all
                     Logger.Info("Found a new channel, we need to reload all channels")
-                    return self.__ImportSingleChannel(className, channelCode)
+                    return self.__ImportChannel(className, channelCode)
 
                 # What platform are we
                 platform = envcontroller.EnvController.GetPlatform()
@@ -189,26 +207,123 @@ class ChannelImporter:
         Logger.Error("No Channel found for class '%s' and channelCode '%s'", className, channelCode)
         return channel
 
+    def GetSingleChannel(self, className, channelCode):
+        """Imports a single channel
+
+        Arguments:
+        className : string - class name of the channel to import.
+
+        Returns:
+        The channels in the requested class. So that could be more, but they
+        can be distinguished using the channelcode.
+
+        Returns an empty list if no channels were found.
+
+        """
+
+        if not className:
+            raise ValueError("className should be specified.")
+
+        Logger.Info("Loading channels for class '%s' and channelCode '%s'", className, channelCode)
+
+        self.__enabledChannels = []
+        self.__allChannels = []
+        self.__validChannels = []
+        self.__channelVersions = []
+
+        classPath = None
+        channelPath = None
+        classBaseName = className[4:]
+        if os.path.isfile(self.__CHANNEL_INDEX):
+            Logger.Debug("Using ChannelIndex for channel lookup: %s", self.__CHANNEL_INDEX)
+            fd = None
+            try:
+                fd = open(self.__CHANNEL_INDEX)
+                data = fd.read()
+            finally:
+                if fd is not None and not fd.closed:
+                    fd.close()
+            channelIndex = JsonHelper(data)
+            classPath = channelIndex.GetValue(className, channelCode or "null")
+            if classPath is not None:
+                channelPath = os.path.join(classPath, "..")
+        else:
+            Logger.Warning("Missing ChannelIndex. Importing all and selecting a single.")
+            return self.__ImportChannel(className, channelCode)
+
+            # Logger.Warning("Falling back to classic find pattern")
+            #
+            # # walk the channel dirs to find the one that has the channel
+            # addonPath = self.__GetAddonPath()
+            # channelPathStart = "%s.channel" % (Config.addonDir,)
+            #
+            # # list all add-ons
+            # for directory in os.listdir(addonPath):
+            #     # find the xot ones
+            #     if channelPathStart in directory and "BUILD" not in directory:
+            #         channelPath = os.path.join(addonPath, directory)
+            #
+            #         # list the subfolders for the requested folder to find the one we need
+            #         if classBaseName not in os.listdir(channelPath):
+            #             continue
+            #
+            #         # we perhaps found it.
+            #         classPath = os.path.join(channelPath, classBaseName)
+
+        if classPath is None:
+            Logger.Error("No Channel found for class '%s' and channelCode '%s'",
+                         className, channelCode)
+            return None
+
+        Logger.Debug("Found possible channel folder in %s", classPath)
+
+        # check the addon.xml with self.__ParseChannelVersionInfo(path)
+        channelVersion = self.__ParseChannelVersionInfo(channelPath)
+        if channelVersion:
+            self.__channelVersions.append(channelVersion)
+        else:
+            # no info was returned, so we will not include the channel
+            Logger.Error("Match in %s has incorrect version", classPath)
+            return None
+
+        # create ChannelInfo objects from the xml file and get the correct ChannelInfo object. It coulde that none
+        # is found and we might need to continue (in case there were duplicate channel names
+        fileName = os.path.join(classPath, "chn_" + classBaseName + ".json")
+
+        Logger.Debug("Loading info for chn_%s @ %s", classBaseName, fileName)
+        if not os.path.isfile(fileName):
+            Logger.Error("Could not load %s", fileName)
+            return None
+
+        cis = ChannelInfo.FromJson(fileName)
+        ci = filter(lambda c: c.moduleName == className and (c.channelCode == channelCode or
+                                                             c.channelCode is channelCode), cis)
+        if not ci or len(ci) > 1:
+            Logger.Error("Could not load channel with className=%s and channelCode=%s from %s",
+                         className, channelCode, fileName)
+            return None
+
+        ci = ci[0]
+        if self.__IsChannelSetUpdated(ci):
+            # apparently a new channel was found, so we need to do it all
+            Logger.Info("Found a new channel, we need to reload all channels")
+            return self.__ImportChannel(className, channelCode)
+
+        # What platform are we
+        platform = envcontroller.EnvController.GetPlatform()
+
+        # check if it is enabled or not
+        if self.__ValidateChannelInfo(ci, platform):
+            return ci.GetChannel()
+        else:
+            Logger.Error("Invalid Channel found for class '%s' and channelCode '%s'",
+                         className, channelCode)
+            return None
+
     def IsChannelInstalled(self, zipFileName):
         """Checks if the requested channel in the zipfile is already installed"""
 
         return zipFileName.replace(".zip", "") in self.__channelVersions
-
-    @staticmethod
-    def GetRegister():
-        """Returns the current active channel register.
-
-        Used for backward compatibility with Xbox.
-
-        """
-
-        if not ChannelImporter.__channelImporter:
-            Logger.Debug("Creating a new ChannelImporter")
-            ChannelImporter()
-
-        Logger.Debug("Fetching an existing channelImporter: %s", ChannelImporter.__channelImporter)
-
-        return ChannelImporter.__channelImporter
 
     def __DeployNewChannels(self):
         """Checks the deploy folder for new channels, if present, deploys them
@@ -231,7 +346,8 @@ class ChannelImporter:
 
         # addons folder, different for XBMC and XBMC4Xbox
         if envcontroller.EnvController.IsPlatform(Environments.Xbox):
-            targetFolder = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
+            targetFolder = os.path.abspath(
+                os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
             if not os.path.exists(targetFolder):
                 os.mkdir(targetFolder)
         else:
@@ -277,7 +393,8 @@ class ChannelImporter:
         optimizedName = "%s.pyo" % (channelInfo.moduleName,)
 
         # show the first time message when no Optimezed (.pyo) and no Compiled (.pyc) files are there
-        if os.path.isfile(os.path.join(channelInfo.path, compiledName)) or os.path.isfile(os.path.join(channelInfo.path, optimizedName)):
+        if os.path.isfile(os.path.join(channelInfo.path, compiledName)) or os.path.isfile(
+                os.path.join(channelInfo.path, optimizedName)):
             return False
 
         return True
@@ -316,7 +433,10 @@ class ChannelImporter:
         sys.path.append(channelInfo.path)
 
         # make sure a pyo or pyc exists
-        __import__(channelInfo.moduleName)
+        # __import__(channelInfo.moduleName)
+        # The debugger won't compile if __import__ is used. So let's use this one.
+        import py_compile
+        py_compile.compile(os.path.join(channelInfo.path, "%s.py" % (channelInfo.moduleName,)))
 
         # see if the channel included XOT updates
         self.__DeployUpdates(channelInfo.path)
@@ -357,7 +477,9 @@ class ChannelImporter:
                 versionNumber = version.Version(updateParts[-1])
 
                 if versionNumber < Config.version:
-                    Logger.Info("Skipping updated file: %s. A higher version of %s was already installed: %s", update, Config.appName, Config.version)
+                    Logger.Info(
+                        "Skipping updated file: %s. A higher version of %s was already installed: %s",
+                        update, Config.appName, Config.version)
                     break
 
                 # split the other part on the dots and create a new path
@@ -375,7 +497,9 @@ class ChannelImporter:
                         existingVersion = version.Version(existing.split("-")[-1])
                         if existingVersion >= versionNumber:
                             # stop, a newer version was already detected
-                            Logger.Info("Skipping updated file: %s. Newer (or same) version already installed: %s", update, existingVersion)
+                            Logger.Info(
+                                "Skipping updated file: %s. Newer (or same) version already installed: %s",
+                                update, existingVersion)
                             break
                 else:  # executed if the loop ended normally (no break)
                     # if we get here, either no update was found, or this one is newer
@@ -383,7 +507,8 @@ class ChannelImporter:
 
                     # construct the sources and destinations
                     targetFile = os.path.join(targetPath, fileName)
-                    targetFileVersion = os.path.join(targetPath, "%s-%s" % (fileName, versionNumber))
+                    targetFileVersion = os.path.join(targetPath,
+                                                     "%s-%s" % (fileName, versionNumber))
                     sourceFile = os.path.join(updatePath, update)
                     # actually copy them
                     shutil.copy(sourceFile, targetFileVersion)
@@ -409,13 +534,15 @@ class ChannelImporter:
 
         hideFirstTime = AddonSettings.HideFirstTimeMessages()
         if channelInfo.firstTimeMessage and not hideFirstTime:
-            Logger.Info("Showing first time message '%s' for channel chn_%s", channelInfo.firstTimeMessage, channelInfo.moduleName)
+            Logger.Info("Showing first time message '%s' for channel chn_%s",
+                        channelInfo.firstTimeMessage, channelInfo.moduleName)
 
             title = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelMessageId)
             XbmcWrapper.ShowDialog(title, channelInfo.firstTimeMessage.split("|"))
 
         if hideFirstTime:
-            Logger.Debug("Not showing first time message due to add-on setting set to '%s'.", hideFirstTime)
+            Logger.Debug("Not showing first time message due to add-on setting set to '%s'.",
+                         hideFirstTime)
 
         return
 
@@ -449,7 +576,7 @@ class ChannelImporter:
 
             addonPath = self.__GetAddonPath()
 
-            channelPathStart = "%s.channel" % (Config.addonDir, )
+            channelPathStart = "%s.channel" % (Config.addonDir,)
             for directory in os.listdir(addonPath):
                 if channelPathStart in directory and "BUILD" not in directory:
                     path = os.path.join(addonPath, directory)
@@ -463,7 +590,8 @@ class ChannelImporter:
 
                     # get all nested channels
                     subDirs = os.listdir(path)
-                    channelImport.extend([os.path.abspath(os.path.join(path, weapon)) for weapon in subDirs])
+                    channelImport.extend(
+                        [os.path.abspath(os.path.join(path, weapon)) for weapon in subDirs])
 
             channelImport.sort()
             importTimer.Lap("Directories scanned for .channel")
@@ -486,8 +614,9 @@ class ChannelImporter:
 
                 # if loadedChannels.count(channelName) > 0:
                 if channelName in loadedChannels:
-                    Logger.Warning("Not loading: chn_%s.xml in %s because there is already a path with "
-                                   "name '%s' that name loaded", channelName, channelPath, channelName)
+                    Logger.Warning(
+                        "Not loading: chn_%s.xml in %s because there is already a path with "
+                        "name '%s' that name loaded", channelName, channelPath, channelName)
                     continue
 
                 if channelName.startswith("."):
@@ -511,8 +640,10 @@ class ChannelImporter:
                         if self.__IsChannelSetUpdated(ci[0]):
                             if not channelsUpdated:
                                 # this was the first update found (otherwise channelsUpdated was True) show a message:
-                                title = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)
-                                text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText)
+                                title = LanguageHelper.GetLocalizedString(
+                                    LanguageHelper.InitChannelTitle)
+                                text = LanguageHelper.GetLocalizedString(
+                                    LanguageHelper.InitChannelText)
                                 XbmcWrapper.ShowNotification(title, text, displayTime=15000)
 
                             # set the updates found bit
@@ -548,13 +679,17 @@ class ChannelImporter:
             else:
                 Logger.Debug("No channel changes found. Skipping add-on configuration for channels")
 
+            # Should we update the channel index?
+            if channelsUpdated or not os.path.isfile(self.__CHANNEL_INDEX):
+                self.__CreateChannelIndex()
+
             Logger.Info("Imported %s channels from which %s are enabled",
                         len(self.__allChannels), len(self.__enabledChannels))
             importTimer.Stop()
         except:
             Logger.Critical("Error loading channel modules", exc_info=True)
 
-    def __ImportSingleChannel(self, className, channelCode):
+    def __ImportChannel(self, className, channelCode):
         """ Imports a single channel by first importing all others
 
         @param className: the class to import
@@ -568,12 +703,14 @@ class ChannelImporter:
             self.__ImportChannels()
 
         # now we filter the channels
-        results = filter(lambda c: c.moduleName == className and (c.channelCode == channelCode or c.channelCode is channelCode), self.__enabledChannels)
+        results = filter(lambda c: c.moduleName == className and (
+            c.channelCode == channelCode or c.channelCode is channelCode
+        ), self.__enabledChannels)
 
         # Order them by channelName MUST Also sort the buttons
-        Logger.Info("GetSingleChannel resulted in %s channel(s)", len(results))
+        Logger.Info("ImportChannel resulted in %s channel(s)", len(results))
         if len(results) == 1:
-            Logger.Info("GetSingleChannel found: %s", results[0])
+            Logger.Info("ImportChannel found: %s", results[0])
             return results[0].GetChannel()
         else:
             return None
@@ -594,20 +731,23 @@ class ChannelImporter:
 
         if channelInfo in self.__allChannels:
             existingChannel = self.__allChannels[self.__allChannels.index(channelInfo)]
-            Logger.Error("Not loading: %s -> a channel with the same guid already exist:\n%s.", channelInfo, existingChannel)
+            Logger.Error("Not loading: %s -> a channel with the same guid already exist:\n%s.",
+                         channelInfo, existingChannel)
             return False
 
         # store all the channels except the out of date and duplicate ones, we might need them somewhere
         self.__allChannels.append(channelInfo)
 
         if not channelInfo.compatiblePlatforms & platform == platform:
-            Logger.Warning("Not loading: %s -> platform '%s' is not compatible", channelInfo, Environments.Name(platform))
+            Logger.Warning("Not loading: %s -> platform '%s' is not compatible", channelInfo,
+                           Environments.Name(platform))
             return False
 
         # now it is a valid channel for this platform.
         self.__validChannels.append(channelInfo)
 
-        if not (AddonSettings.ShowChannel(channelInfo) and AddonSettings.ShowChannelWithLanguage(channelInfo.language)):
+        if not (AddonSettings.ShowChannel(channelInfo) and AddonSettings.ShowChannelWithLanguage(
+                channelInfo.language)):
             Logger.Warning("Not loading: %s -> Channel was disabled from settings.", channelInfo)
             return True
 
@@ -668,8 +808,33 @@ class ChannelImporter:
                 channelVersionID = "%s-%s" % (packVersion[0], packVersion[1])
                 return channelVersionID
             else:
-                Logger.Warning("Skipping %s version %s: Versions do not match.", packageId, packageVersion)
+                Logger.Warning("Skipping %s version %s: Versions do not match.", packageId,
+                               packageVersion)
                 return None
         else:
             Logger.Critical("Cannot determine channel version. Not loading channel @ '%s'", path)
             return None
+
+    def __CreateChannelIndex(self):
+        """ Creates a channel index file for lookups purposes """
+
+        indexPath = self.__CHANNEL_INDEX
+        Logger.Info("Generating channel index at '%s'", indexPath)
+        channels = dict()
+        for channel in self.__allChannels:
+            if channel.moduleName not in channels:
+                channels[channel.moduleName] = dict()
+            if channel.channelCode in channels[channel.moduleName]:
+                Logger.Error("Cannot create duplicate channelCode for channel:\n'%s'", channel)
+            else:
+                channels[channel.moduleName][channel.channelCode] = channel.path
+
+        data = JsonHelper.Dump(channels)
+        fd = None
+        try:
+            fd = file(indexPath, mode='w')
+            fd.write(data)
+        finally:
+            if fd is not None and not fd.closed:
+                fd.close()
+        return
