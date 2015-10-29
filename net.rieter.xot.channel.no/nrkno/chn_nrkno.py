@@ -1,5 +1,6 @@
 # coding:UTF-8
 import datetime
+import sys
 
 # import contextmenu
 import chn_class
@@ -39,6 +40,13 @@ class Channel(chn_class.Channel):
         #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
         self._AddDataParser(self.mainListUri, preprocessor=self.CreateMainList)
+        self._AddDataParser("http://m.nrk.no/tvapi/v1/categories/",
+                            matchType=ParserData.MatchExact, json=True,
+                            parser=(), creator=self.CreateCategory)
+        self._AddDataParser("http://m.nrk.no/tvapi/v1/categories/.+",
+                            matchType=ParserData.MatchRegex, json=True,
+                            parser=(), creator=self.CreateProgramFolder)
+
         self._AddDataParser("http://m.nrk.no/tvapi/v1/channels", json=True,
                             parser=(),
                             creator=self.CreateLiveChannel)
@@ -141,6 +149,34 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
+    def CreateCategory(self, resultSet):
+        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+        Logger.Trace(resultSet)
+
+        title = resultSet["displayValue"]
+        url = "%s/categories/%s/programs" % (self.baseUrl, resultSet["categoryId"], )
+        item = mediaitem.MediaItem(title, url)
+        item.icon = self.icon
+        item.type = 'folder'
+        item.fanart = self.fanart
+        item.HttpHeaders = self.httpHeaders
+
+        item.thumb = self.noImage
+        item.fanart = self.fanart
+        return item
+
     def CreateProgramFolder(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
@@ -159,6 +195,8 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
         title = resultSet["title"]
         seriesId = resultSet.get("seriesId")
+        if seriesId is None:
+            return None
 
         item = mediaitem.MediaItem(title, "%s/series/%s" % (self.baseUrl, seriesId))
         item.icon = self.icon
@@ -190,6 +228,11 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet["title"]
+        episodeData = resultSet.get("episodeNumberOrDate", None)
+        if episodeData is not None and ":" in episodeData:
+            episodeData = episodeData.split(":", 1)
+            title = "%s - s%02de%02d" % (title, int(episodeData[0]), int(episodeData[1]))
+
         url = resultSet.get("mediaUrl", None)
         if url is None:
             url = resultSet.get("programId", None)
@@ -212,12 +255,23 @@ class Channel(chn_class.Channel):
         if fanartId is not None:
             item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (fanartId, )
 
+        dateSet = False
+        if episodeData is not None and ". " in episodeData:
+            episodeData = episodeData.split(" ", 2)
+            day = episodeData[0].strip(".")
+            monthName = episodeData[1]
+            month = DateHelper.GetMonthFromName(monthName, "no", short=False)
+            year = episodeData[2]
+            item.SetDate(year, month, day)
+            dateSet = True
+
         if "usageRights" in resultSet:
             item.isGeoLocked = resultSet["usageRights"].get("geoblocked", False)
-            if "availableFrom" in resultSet["usageRights"]:
+            if not dateSet and "availableFrom" in resultSet["usageRights"]:
                 timeStamp = int(resultSet["usageRights"]["availableFrom"]) / 1000
-                date = datetime.datetime.fromtimestamp(timeStamp)
-                item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
+                if 0 < timeStamp < sys.maxint:
+                    date = datetime.datetime.fromtimestamp(timeStamp)
+                    item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
         return item
 

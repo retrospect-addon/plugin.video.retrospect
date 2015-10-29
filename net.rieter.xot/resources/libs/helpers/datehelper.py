@@ -146,6 +146,11 @@ class DateHelper:
         elif language == "nl":
             monthLookup = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"]
 
+        elif language == "no" and short:
+            monthLookup = ["jan", "feb", "mar", "apr", "mai", "jun", "jul", "aug", "sep", "okt", "nov", "des"]
+        elif language == "no":
+            monthLookup = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"]
+
         elif language == "en" and short:
             monthLookup = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
         elif language == "en":

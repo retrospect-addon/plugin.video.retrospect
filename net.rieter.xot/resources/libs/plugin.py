@@ -880,6 +880,7 @@ class Plugin:
             emptyListItem = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
             emptyListItem.icon = self.channelObject.icon
             emptyListItem.thumb = self.channelObject.noImage
+            emptyListItem.fanart = self.channelObject.fanart
             emptyListItem.dontGroup = True
             emptyListItem.description = "This listing was left empty intentionally."
             emptyListItem.complete = True
