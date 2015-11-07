@@ -229,9 +229,13 @@ class Channel(chn_class.Channel):
 
         title = resultSet["title"]
         episodeData = resultSet.get("episodeNumberOrDate", None)
+        season = None
+        episode = None
         if episodeData is not None and ":" in episodeData:
             episodeData = episodeData.split(":", 1)
-            title = "%s - s%02de%02d" % (title, int(episodeData[0]), int(episodeData[1]))
+            season = int(episodeData[0])
+            episode = int(episodeData[1])
+            title = "%s - s%02de%02d" % (title, season, episode)
 
         url = resultSet.get("mediaUrl", None)
         if url is None:
@@ -246,6 +250,9 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.fanart = self.parentItem.fanart
         item.HttpHeaders = self.httpHeaders
+
+        if season is not None and episode is not None:
+            item.SetSeasonInfo(season, episode)
 
         imageId = resultSet.get("imageId", None)
         if imageId is not None:

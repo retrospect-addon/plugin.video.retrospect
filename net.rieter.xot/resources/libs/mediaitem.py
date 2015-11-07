@@ -50,12 +50,13 @@ class MediaItem:
                 "icon",
                 "__date",
                 "__timestamp",
+                "__infoLabels",
                 "type",
                 "dontGroup",
                 "isLive",
                 "isGeoLocked",
                 "isDrmProtected",
-                "isPaid"
+                "isPaid",
                 "parent",
                 "complete",
                 "error",
@@ -69,7 +70,7 @@ class MediaItem:
                 "channels"]
 
     #noinspection PyShadowingBuiltins
-    def __init__(self, title, url, type="folder", parent=None):  # @ReservedAssignment
+    def __init__(self, title, url, type="folder", parent=None):
         """Creates a new MediaItem
 
         Arguments:
@@ -103,8 +104,7 @@ class MediaItem:
         self.icon = ""                            # : low quality icon for list
 
         self.__date = ""                          # : value show in interface
-        self.__timestamp = datetime.datetime.min  # : value for sorting, this one is set to minimum
-                                                  # so if non is set, it's shown at the bottom
+        self.__timestamp = datetime.datetime.min  # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
 
         self.type = type                          # : video, audio, folder, append, page, playlist
         self.dontGroup = False                    # : if set to True this item will not be auto grouped.
@@ -112,6 +112,7 @@ class MediaItem:
         self.isGeoLocked = False                  # : if set to True, the item is GeoLocked to the channels language (o)
         self.isDrmProtected = False               # : if set to True, the item is DRM protected and cannot be played (^)
         self.isPaid = False                       # : if set to True, the item is a Paid item and cannot be played (*)
+        self.__infoLabels = dict()                # : Additional Kodi InfoLabels
 
         self.parent = parent
         self.complete = False
@@ -215,6 +216,21 @@ class MediaItem:
         """ Resets the date (used for favourites for example). """
         self.__timestamp = datetime.datetime.min
         self.__date = ""
+
+    def SetSeasonInfo(self, season, episode):
+        """ Set season and episode information
+
+        @param season:
+        @param episode:
+        """
+
+        if season is None or episode is None:
+            Logger.Warning("Cannot set EpisodeInfo without season and episode")
+            return
+
+        self.__infoLabels["Episode"] = int(episode)
+        self.__infoLabels["Season"] = int(season)
+        return
 
     def SetDate(self, year, month, day, hour=None, minutes=None, seconds=None, onlyIfNewer=False, text=None):
         """Sets the datetime of the MediaItem
@@ -320,108 +336,14 @@ class MediaItem:
 
         """
 
-        # Logger.Debug("Creating XBMC ListItem: ListItem(%s, %s, %s, %s)",self.name, self.__date, self.icon, self.thumb)
+        # Update name and descriptions
+        namePostFix, descriptionPostFix = self.__UpdateTitleAndDescriptionWithLimitations()
 
-        if not name:
-            itemName = self.name
-        else:
-            itemName = name
-        # name = self.__FullDecodeText(name) This is done in the update. Saves CPU
-
-        if self.type == 'page':
-            # We need to add the Page prefix to the item
-            itemName = "Page %s" % (itemName,)
-            Logger.Debug("GetXBMCItem :: Adding Page Prefix")
-
-        elif self.__date != '' and not self.IsPlayable():
-                # not playable items should always show date
-                itemName = "%s (%s)" % (itemName, self.__date)
-
-        folderPrefix = AddonSettings.GetFolderPrefix()
-        if self.type == "folder" and not folderPrefix == "":
-            itemName = "%s %s" % (folderPrefix, itemName)
-
-        # if there was a thumbUrl pass it to XBMC
-        item = xbmcgui.ListItem(itemName or "<unknown>", self.__date)
-
-        # set a flag to indicate it is a item that can be used with setResolveUrl.
-        if self.IsResolvable():
-            Logger.Trace("Setting IsPlayable to True")
-            item.setProperty("IsPlayable", "true")
-
-        # now just call the update XBMCItem
-        self.UpdateXBMCItem(item, name=itemName)
-        return item
-
-    def UpdateXBMCItem(self, item, name=None):
-        """Updates an existing XBMC ListItem with properties and InfoLabels
-
-        Arguments:
-        item : ListItem - The XBMC ListItem to update.
-
-        Keyword Arguments:
-        name : [opt] string - Can be used to overwrite the name of the item.
-
-        Returns:
-        Nothing! The update of the XBMC ListItem is done by reference!
-
-        See for the InfoLabels: http://kodi.wiki/view/InfoLabels
-
-        Mapping:
-         * ListItem.Type           -> self.type
-         * ListItem.Label          -> self.name
-         * ListItem.Title          -> self.name
-         * ListItem.Date           -> self.__timestamp the format "%d.%m.%Y"
-         * ListItem.PlotOutline    -> self.description
-         * ListItem.Plot           -> self.description
-         * ListItem.Label2         -> self.__date
-         * ListItem.ThumbnailImage -> self.thumb
-
-        Besides these mappings, the following XOT mappings are set which are
-        by the XOT skin only:
-         * XOT_Description         -> self.description
-         * XOT_Complete            -> self.complete
-         * XOT_Type                -> self.type
-         * XOT_Rating              -> self.rating (-1 if self.rating is None)
-         * XOT_Error               -> self.error
-
-        Encoding:
-        All string values are set in UTF8 encoding and with the HTML characters
-        converted to UTF8 characters. This is done by the self.__FullDecodeText
-        method.
-
-        """
-
-        if not name:
-            name = self.name
-
-        # the likelihood of getting an name with both HTML entities and Unicode is very low. So do both
-        # conversions, one will be unnecessary
-
-        description = self.description
-        geoLock = "º"
-        drmLock = "^"
-        paid = "ª"
-        descriptionAddition = []
-        titlePostfix = []
-
-        if self.isDrmProtected:
-            titlePostfix.append(drmLock)
-            descriptionAddition.append("DRM Protected")
-        if self.isGeoLocked:
-            titlePostfix.append(geoLock)
-            descriptionAddition.append("Geo Locked")
-        if self.isPaid:
-            titlePostfix.append(paid)
-            descriptionAddition.append("Premium/Paid")
-        # actually update it
-        if descriptionAddition:
-            descriptionAddition = " / ".join(descriptionAddition)
-            description = "%s\n\n%s" % (self.description, descriptionAddition)
-        if titlePostfix:
-            name = "%s %s" % (name, "".join(titlePostfix))
-
+        name = self.__GetTitle(name)
+        name = "%s%s" % (name, namePostFix)
         name = self.__FullDecodeText(name)
+
+        description = "%s%s" % (self.description.lstrip(), descriptionPostFix)
         description = self.__FullDecodeText(description)
         if description is None:
             description = ""
@@ -435,34 +357,37 @@ class MediaItem:
             xbmcDate = ""
             xbmcYear = 0
 
-        # specific items
-        infoLabels = dict()
+        # Get all the info labels starting with the ones set and then add the specific ones
+        infoLabels = self.__infoLabels.copy()
         infoLabels["Label"] = name
         if xbmcDate:
             infoLabels["Date"] = xbmcDate
             infoLabels["Year"] = xbmcYear
         if self.type != "Audio":
-            infoLabels["PlotOutline"] = description
+            # infoLabels["PlotOutline"] = description
             infoLabels["Plot"] = description
-        if descriptionAddition:
-            infoLabels["Tagline"] = descriptionAddition
+        if descriptionPostFix:
+            infoLabels["Tagline"] = descriptionPostFix.lstrip()
 
+        # now create the XBMC item
+        item = xbmcgui.ListItem(name or "<unknown>", self.__date)
+        item.setLabel(name)
+        item.setLabel2(self.__date)
+
+        # set a flag to indicate it is a item that can be used with setResolveUrl.
+        if self.IsResolvable():
+            Logger.Trace("Setting IsPlayable to True")
+            item.setProperty("IsPlayable", "true")
+
+        # specific items
         if self.type == "audio":
             item.setInfo(type="Audio", infoLabels=infoLabels)
         else:
             item.setInfo(type="Video", infoLabels=infoLabels)
 
-        # all items
-        item.setLabel(name)
-        item.setLabel2(self.__date)
-
+        # now set all the art
         if self.fanart:
             item.setProperty('fanart_image', self.fanart)
-
-        if not self.rating:
-            item.setProperty("XOT_Rating", str(-1))
-        else:
-            item.setProperty("XOT_Rating", "xot_rating%s.png" % (self.rating,))
 
         item.setThumbnailImage(self.thumb)
         item.setIconImage(self.icon)
@@ -471,6 +396,7 @@ class MediaItem:
         # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):
         #     art[l] = self.thumb
         # item.setArt(art)
+        return item
 
     def GetXBMCPlayList(self, bitrate=None, updateItemUrls=False, proxy=None):
         """ Creates a XBMC Playlist containing the MediaItemParts in this MediaItem
@@ -732,6 +658,65 @@ class MediaItem:
         # if self.name == item.name and self.guid != item.guid:
         #    Logger.Debug("Duplicate names, but different guid: %s (%s), %s (%s)", self.name, self.url, item.name, item.url)
         return self.guidValue == item.guidValue
+
+    def __UpdateTitleAndDescriptionWithLimitations(self):
+        """ Updates the title/name and description with the symbols for DRM, GEO and Paid.
+
+        @return:            (tuple) name postfix, description postfix
+        """
+
+        geoLock = "º"
+        drmLock = "^"
+        paid = "ª"
+        descriptionAddition = []
+        titlePostfix = []
+
+        description = ""
+        title = ""
+
+        if self.isDrmProtected:
+            titlePostfix.append(drmLock)
+            descriptionAddition.append("DRM Protected")
+        if self.isGeoLocked:
+            titlePostfix.append(geoLock)
+            descriptionAddition.append("Geo Locked")
+        if self.isPaid:
+            titlePostfix.append(paid)
+            descriptionAddition.append("Premium/Paid")
+        # actually update it
+        if descriptionAddition:
+            descriptionAddition = " / ".join(descriptionAddition)
+            description = "\n\n%s" % (descriptionAddition, )
+        if titlePostfix:
+            title = " %s" % ("".join(titlePostfix), )
+
+        return title, description
+
+    def __GetTitle(self, name):
+        """ Create the title based on the MediaItems name and type.
+
+        @param name: (string) the name to update
+        @return:     (string) an updated name
+
+        """
+
+        if not name:
+            name = self.name
+
+        if self.type == 'page':
+            # We need to add the Page prefix to the item
+            name = "Page %s" % (name,)
+            Logger.Debug("GetXBMCItem :: Adding Page Prefix")
+
+        elif self.__date != '' and not self.IsPlayable():
+            # not playable items should always show date
+            name = "%s (%s)" % (name, self.__date)
+
+        folderPrefix = AddonSettings.GetFolderPrefix()
+        if self.type == "folder" and not folderPrefix == "":
+            name = "%s %s" % (folderPrefix, name)
+
+        return name
 
 
 class MediaItemPart:
