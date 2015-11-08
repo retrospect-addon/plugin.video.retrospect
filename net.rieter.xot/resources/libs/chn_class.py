@@ -143,8 +143,10 @@ class Channel:
 
         Logger.Debug("Initializing channel (InitChannel): %s", self)
 
-        self.icon = self.GetImageLocation(self.icon)
-        self.noImage = self.GetImageLocation(self.noImage)
+        # Make sure all images are from the correct absolute location
+        # self.icon = self.GetImageLocation(self.icon) -> already in the __init__
+        # self.fanart = self.GetImageLocation(self.fanart) -> already in the __init__
+        self.noImage = self._textureManager.GetTextureUri(self.noImage)
 
         # perhaps log on?
         self.loggedOn = self.LogOn(self.userName, self.passWord)
