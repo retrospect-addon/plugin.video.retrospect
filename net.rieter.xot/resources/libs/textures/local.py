@@ -9,6 +9,7 @@
 #===============================================================================
 
 import os
+from fileinput import filename
 
 from textures import TextureBase
 
@@ -26,6 +27,10 @@ class Local(TextureBase):
         """
 
         if fileName is None or fileName == "":
+            return fileName
+
+        if fileName.startswith("http"):
+            self._logger.Trace("Not going to resolve http(s) texture: '%s'.", fileName)
             return fileName
 
         if os.path.isabs(fileName):

@@ -46,6 +46,10 @@ class Cached(TextureBase):
         if fileName is None or fileName == "":
             return fileName
 
+        if fileName.startswith("http"):
+            self._logger.Trace("Not going to resolve http(s) texture: '%s'.", fileName)
+            return fileName
+
         if os.path.isabs(fileName):
             self._logger.Trace("Already cached texture found: '%s'", fileName)
             return fileName
