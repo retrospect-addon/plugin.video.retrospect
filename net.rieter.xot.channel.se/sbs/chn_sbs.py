@@ -6,20 +6,19 @@ import datetime
 #===============================================================================
 from helpers.jsonhelper import JsonHelper
 import mediaitem
-#import contextmenu
 import chn_class
 
-from regexer import Regexer
-from parserdata import ParserData
+from helpers.languagehelper import LanguageHelper
 from helpers import subtitlehelper
-from helpers.datehelper import DateHelper
-# from addonsettings import AddonSettings
-
+from urihandler import UriHandler
+from streams.m3u8 import M3u8
+from helpers.htmlentityhelper import HtmlEntityHelper
+from parserdata import ParserData
 
 from logger import Logger
-from urihandler import UriHandler
 
 
+# noinspection PyIncorrectDocstring
 class Channel(chn_class.Channel):
 
     def __init__(self, channelInfo):
@@ -35,131 +34,84 @@ class Channel(chn_class.Channel):
 
         chn_class.Channel.__init__(self, channelInfo)
 
-        # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        # setup the urls
-        #  See: http://www.kanal5play.se/api
-        # self.mainListApi = "/getMobileFindProgramsContent"
-        self.mainListApi = "/listPrograms"
+        # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
+        self.mainListUri = "#programs"
+        self.programPageSize = 50
+        self.videoPageSize = 25
+        self.swfUrl = "http://player.dplay.se/4.0.6/swf/AkamaiAdvancedFlowplayerProvider_v3.8.swf"
+        self.subtitleKey = "subtitles_se_srt"
+        self.channelSlugs = ()
+        self.liveUrl = None
+        self.recentUrl = None
 
         if self.channelCode == "tv5json":
-            self.baseUrl = "http://www.kanal5play.se"
-            # self.mainListUri = "http://www.kanal5play.se/api/listPrograms?format=ALL_MOBILE&channel=KANAL5"
-            # self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL5"
-            self.mainListUri = "http://kanal5swe.appspot.com/api%s?format=ALL_MOBILE&channel=KANAL5" % (self.mainListApi,)
             self.noImage = "tv5seimage.png"
-            self.swfUrl = "http://www.kanal5play.se/flash/K5StandardPlayer.swf"
+            self.baseUrl = "http://www.dplay.se/api/v2/ajax"
+            # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132040"
+            # self.fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/Kanal5-channel-large_kxf7fn.jpg"
+            self.recentUrl = "%s/modules?page_id=132040&module_id=458&items=%s&page=0"
+            # - From the /program/ page (requires slugs for filtering)
+            # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
+            # self.channelSlugs = ("kanal-5", "kanal-5-home")
+            # - From the /kanal??/ recommended -> fastest and does not require filtering on slugs
+            self.mainListFormat = "%s/shows/?items=%s&homechannel_id=48&page=%s&sort=title_asc"
 
         elif self.channelCode == "tv9json":
-            self.baseUrl = "http://www.kanal9play.se"
-            # self.mainListUri = "http://www.kanal9play.se/api/listPrograms?format=ALL_MOBILE&channel=KANAL9"
-            # self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL9"
-            self.mainListUri = "http://kanal5swe.appspot.com/api%s?format=ALL_MOBILE&channel=KANAL9" % (self.mainListApi,)
             self.noImage = "tv9seimage.png"
-            self.swfUrl = "http://www.kanal9play.se/flash/K9StandardPlayer.swf"
+            self.baseUrl = "http://www.dplay.se/api/v2/ajax"
+            # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132043"
+            # self.fanart = "http://a2.res.cloudinary.com/dumrsasw1/image/upload/Thewalkingdead_hqwfz1.jpg"
+            self.recentUrl = "%s/modules?page_id=132043&module_id=466&items=%s&page=0"
+            # - From the /program/ page (requires slugs for filtering)
+            # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
+            # self.channelSlugs = ("kanal-9", "kanal-9-home")
+            # - From the /kanal??/ recommended -> fastest and does not require filtering on slugs
+            self.mainListFormat = "%s/shows/?items=%s&homechannel_id=52&page=%s&sort=title_asc"
 
         elif self.channelCode == "tv11json":
-            self.baseUrl = "http://www.kanal11play.se"
-            # self.mainListUri = "http://www.kanal11play.se/api/listPrograms?format=ALL_MOBILE&channel=KANAL11"
-            # self.mainListUri = "http://kanal5swe.appspot.com/api/getMobileFindProgramsContent?format=ALL_MOBILE&channel=KANAL11"
-            self.mainListUri = "http://kanal5swe.appspot.com/api%s?format=ALL_MOBILE&channel=KANAL11" % (self.mainListApi,)
             self.noImage = "tv11seimage.jpg"
-            self.swfUrl = "http://www.kanal11play.se/flash/K11StandardPlayer.swf"
+            self.baseUrl = "http://www.dplay.se/api/v2/ajax"
+            # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
+            # self.fanart = "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
+            self.recentUrl = "%s/modules?page_id=132039&module_id=470&items=%s&page=0"
+            # - From the /program/ page (requires slugs for filtering)
+            # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
+            # self.channelSlugs = ("kanal-11", "kanal-11-home")
+            # - From the /kanal??/ recommended -> fastest and does not require filtering on slugs
+            self.mainListFormat = "%s/shows/?items=%s&homechannel_id=46&page=%s&sort=title_asc"
 
+        # elif self.channelCode == "dplaydk":
+        #     self.noImage = ""
+        #     self.baseUrl = "http://www.dplay.dk/api/v2/ajax"
+        #     self.mainListFormat = "%s/modules?page_id=227&module_id=99&items=%s&page=%s"
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
 
-        # setup the main parsing data
-        # we are going to use the new Json interface here
-        # self.episodeItemJson = ('programsWithTemperatures',)
-        self.episodeItemJson = ()
-        self._AddDataParser(self.mainListUri, json=True, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddRecent,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
-
-        self.videoItemJson = ('episodes',)
+        #===========================================================================================
+        # THIS CHANNEL DOES NOT SEEM TO WORK WITH PROXIES VERY WELL!
+        #===========================================================================================
+        self._AddDataParser("#programs", preprocessor=self.LoadPrograms)
+        self._AddDataParser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
+                            matchType=ParserData.MatchRegex,
+                            updater=self.UpdateChannelItem)
         self._AddDataParser("*", json=True,
-                            parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+                            parser=("data",), creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
+        self._AddDataParser("*", json=True,
+                            parser=(), creator=self.CreatePageItem)
 
-        # self._AddDataParser("api/listVideos", matchType=ParserData.MatchContains, json=True,
-        #                     parser=(), creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-
-        self.newVideoItemJson = ('newEpisodeVideos',)
-        self._AddDataParser("api/getMobileStartContent", matchType=ParserData.MatchContains, json=True,
-                            parser=self.newVideoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-
-        self._AddDataParser("/rss?type=", matchType=ParserData.MatchContains,
-                            parser=Regexer.FromExpresso("<title>(?<title>[^<]+)</title>\W+<link>[^<]+/(?<url>\d+)</link>\W+<description>(?<description>[^<]+)</description>\W+<pubDate>\w+, (?<day>\d+) (?<month>\w+) (?<year>\d+) (?<hours>\d+):(?<minutes>\d+):(?<seconds>\d+)[^<]+</pubDate>"),
-                            creator=self.CreateRssItem)
-
-        #===============================================================================================================
+        #===========================================================================================
         # non standard items
-        self.program = None
-        self.avsnitt = None
 
-        #===============================================================================================================
+        #===========================================================================================
         # Test cases:
         #  Arga snickaren : Has clips
 
-        # ====================================== Actual channel setup STOPS here =======================================
+        # ====================================== Actual channel setup STOPS here ===================
         return
 
-    def CreateEpisodeItem(self, resultSet):
-        """Creates a MediaItem of type 'page' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(string) - the resultSet of the self.pageNavigationRegex
-
-        Returns:
-        A new MediaItem of type 'page'
-
-        This method creates a new MediaItem from the Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
-        # the resultSet already was in the Json format.
-        if "program" in resultSet:
-            data = resultSet["program"]
-        else:
-            data = resultSet
-        Logger.Trace(data)
-
-        description = data.get("description", "")
-        thumbUrl = data.get("photoWithLogoUrl", "")  # .get("key", default)
-        name = data["name"]
-        premium = data["premium"]
-        programId = data["id"]
-        availableAbroad = data.get("availableAbroad", True)
-
-        url = "http://kanal5swe.appspot.com/api/getMobileProgramContent?format=ALL_MOBILE&programId=%s" % (programId,)
-
-        item = mediaitem.MediaItem(name, url)
-        item.thumb = thumbUrl
-        item.type = "folder"
-        item.complete = True
-        item.description = description
-        item.fanart = self.fanart
-        item.isGeoLocked = not availableAbroad
-        item.isPaid = premium
-
-        # see if we can find seasons
-        if "seasonNumbersWithContent" not in data:
-            return None
-
-        for season in data['seasonNumbersWithContent']:
-            title = "%s - Säsong %s" % (name, season,)
-            seasonUrl = "http://kanal5swe.appspot.com/api/getMobileSeasonContent?format=ALL_MOBILE&programId=%s&seasonNumber=%s" % (programId, season)
-            season = mediaitem.MediaItem(title, seasonUrl)
-            season.thumb = thumbUrl
-            season.fanart = self.fanart
-            season.complete = True
-            season.isGeoLocked = not availableAbroad
-            item.items.append(season)
-
-        return item
-
-    def AddRecent(self, data):
+    # noinspection PyUnusedLocal
+    def LoadPrograms(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -179,62 +131,51 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        # http://kanal5swe.appspot.com/api/getMobileStartContent?format=ALL_MOBILE&channel=KANAL9
-        extras = {
-            # "\a.: Senaste avsnitten via RSS :.": "%s/rss?type=PROGRAM" % (self.baseUrl, ),
-            # "\a.: Senaste clip via RSS :.": "%s/rss?type=CLIP" % (self.baseUrl, ),
-            # "\a.: Senaste avsnitten :.": "http://kanal5swe.appspot.com/api/getMobileStartContent?format=ALL_MOBILE&channel=KANAL5",
-            "\a.: Senaste avsnitten :.": self.mainListUri.replace(self.mainListApi, "/getMobileStartContent"),
-            # "\a.: Senaste avsnitten (All Video) :.": self.mainListUri.replace(self.mainListApi, "/listVideos"),
-        }
-        for (k, v) in extras.iteritems():
-            item = mediaitem.MediaItem(k, v)
-            item.thumb = self.noImage
-            item.complete = True
-            item.icon = self.icon
-            item.dontGroup = True
-            if "/getMobileStartContent" in item.url:
-                item.isGeoLocked = True
-            items.append(item)
+        # fetch al pages
+        currentPage = 0
+        url = self.mainListFormat % (self.baseUrl, self.programPageSize, currentPage)
+        data = UriHandler.Open(url, proxy=self.proxy)
+        json = JsonHelper(data)
+        pages = json.GetValue("total_pages")
+        programs = json.GetValue("data")
+
+        for p in range(1, pages, 1):
+            url = self.mainListFormat % (self.baseUrl, self.programPageSize, p)
+            Logger.Debug("Loading: %s", url)
+            data = UriHandler.Open(url, proxy=self.proxy)
+            json = JsonHelper(data)
+            programs += json.GetValue("data")
+        Logger.Debug("Found a total of %s items over %s pages", len(programs), pages)
+
+        for p in programs:
+            item = self.CreateProgramItem(p)
+            if item is not None:
+                items.append(item)
+
+        if self.recentUrl:
+            url = self.recentUrl % (self.baseUrl, self.videoPageSize)
+            recent = mediaitem.MediaItem("\b.: Recent :.", url)
+            recent.dontGroup = True
+            recent.fanart = self.fanart
+            items.append(recent)
+
+        # live items
+        if self.liveUrl:
+            live = mediaitem.MediaItem("\b.: Live :.", self.liveUrl)
+            live.type = "video"
+            live.dontGroup = True
+            live.isGeoLocked = True
+            live.isLive = True
+            live.fanart = self.fanart
+            items.append(live)
 
         return data, items
 
-    def PreProcessFolderList(self, data):
-        """Performs pre-process actions for data processing/
+    def CreateProgramItem(self, p):
+        """Creates a new MediaItem for a program
 
         Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-
-        Logger.Info("Performing Pre-Processing")
-        items = []
-
-        if self.channelCode == "tv5" or self.channelCode == "tv9":
-            # get the title of the program in season
-            results = Regexer.DoRegex('<h1[^>]*>([^<]+)</h1>', data)
-            for result in results:
-                self.program = result
-
-        Logger.Debug("Pre-Processing finished")
-        return data, items
-
-    def CreateFolderItem(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
 
         Returns:
         A new MediaItem of type 'folder'
@@ -245,22 +186,59 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        # Logger.Trace(p)
+        name = p["title"]
+        showName = p.get("video_metadata_show", None)
+        videoId = None
+        channelSlug = None
+        homeChannelSlug = None
 
-        if resultSet[0] == 0:
-            # first regex match
-            url = "%s/content/%s" % (self.baseUrl, resultSet[2])
-            name = resultSet[1]
-        else:
-            # second regex match
-            url = "%s/content/%s" % (self.baseUrl, resultSet[1])
-            name = resultSet[2]
+        # get some meta data
+        videoInfos = p["taxonomy_items"]
+        for videoInfo in videoInfos:
+            if videoInfo["type"] == "show":
+                videoId = videoInfo["term_id"]
+            elif videoInfo["type"] == "channel":
+                channelSlug = videoInfo["slug"]
+            elif videoInfo["type"] == "home-channel":
+                homeChannelSlug = videoInfo["slug"]
 
-        item = mediaitem.MediaItem("%s - %s" % (name, self.program), url)
-        item.thumb = self.noImage
-        item.type = "folder"
-        item.complete = True
-        item.fanart = self.fanart
+        if videoId is None:
+            Logger.Warning("Found '%s' without 'term_id'", name)
+            return None
+
+        Logger.Trace("Found '%s/%s' with id='%s'", showName or "<noShowName>", name, videoId)
+
+        if len(self.channelSlugs) > 0 \
+                and channelSlug not in self.channelSlugs \
+                and homeChannelSlug not in self.channelSlugs:
+            Logger.Debug("Found show '%s' for channel '%s' needed '%s'",
+                         name, channelSlug, self.channelSlugs)
+            return None
+
+        # now get the items
+        url = "%s/shows/%s/seasons/?show_id=%s&items=%s&sort=episode_number_desc&page=0" \
+              % (self.baseUrl, videoId, videoId, self.videoPageSize)
+        item = mediaitem.MediaItem(showName or name, url)
+        item.description = p.get("secondary_title")
+
+        # set the date
+        date = p["modified"]
+        datePart, timePart = date.split(" ")
+        year, month, day = datePart.split("-")
+        # hours, minutes, seconds = timePart.split(":")
+        # item.SetDate(year, month, day, hours, minutes, seconds)
+        item.SetDate(year, month, day)
+
+        # set the images
+        thumbId = p["image_data"].get("file", None)
+        if thumbId is not None:
+            thumb = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/c_crop,h_901,w_1352,x_72,y_1/c_fill,h_245,w_368/%s" % (thumbId, )
+            fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/%s" % (thumbId, )
+            item.thumb = thumb
+            item.fanart = fanart
+
+        item.isPaid = p["content_info"]["package_label"]["value"] != "Free"
         return item
 
     def CreatePageItem(self, resultSet):
@@ -272,52 +250,27 @@ class Channel(chn_class.Channel):
         Returns:
         A new MediaItem of type 'page'
 
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
-        total = ''
-
-        for result in resultSet:
-            total = "%s%s" % (total, result)
-
-        #total = htmlentityhelper.HtmlEntityHelper.StripAmp(total)
-
-        item = mediaitem.MediaItem(resultSet[1], "%s/content%s%s" % (self.baseUrl, resultSet[0], resultSet[1]))
-
-        item.type = "page"
-        Logger.Trace("Created '%s' for url %s", item.name, item.url)
-        return item
-
-    def CreateRssItem(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
         This method creates a new MediaItem from the Regular Expression or Json
         results <resultSet>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-
         """
 
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
-        month = DateHelper.GetMonthFromName(resultSet["month"], language="en")
-        item.SetDate(resultSet["year"], month, resultSet["day"],
-                     resultSet["hours"], resultSet["minutes"], resultSet["seconds"])
-        item.url = "http://kanal5swe.appspot.com/api/getVideo?videoId=%(url)s&format=ALL_MOBILE" % resultSet
+        Logger.Debug("Starting CreatePageItem")
 
-        # http://kanal5swe.appspot.com/api/getVideo?videoId=342011&format=ALL_MOBILE
+        # current page?
+        baseUrl, page = self.parentItem.url.rsplit("=", 1)
+        page = int(page)
+        maxPages = resultSet.get("total_pages", 0)
+        Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, baseUrl)
+        if page + 1 >= maxPages:
+            return None
+
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        url = "%s=%s" % (baseUrl, page + 1)
+        item = mediaitem.MediaItem(title, url)
+        item.fanart = self.parentItem.fanart
+        item.thumb = self.parentItem.thumb
         return item
 
     def CreateVideoItem(self, resultSet):
@@ -340,50 +293,69 @@ class Channel(chn_class.Channel):
 
         """
 
-        # data = "%s%s" % (resultSet[0], resultSet[1])
-        data = resultSet
+        # Logger.Trace(resultSet)
 
-        # basic info
-        name = data["episodeText"]
-        videoId = data["id"]
-        thumbUrl = data["posterUrl"]
-        description = data["description"]
-        premium = data["premium"]
-        program = data["program"]["name"]
-        isGeoLocked = not data["program"]["availableAbroad"]
-        requiresWideVine = data.get("widevineRequired", False)
+        title = resultSet["title"]
+        subtitle = resultSet.get("secondary_title", None)
+        season = resultSet.get("season", None)
+        episode = resultSet.get("episode", None)
+        if not subtitle and season and episode:
+            subtitle = "s%02de%02d" % (season, episode)
+        if subtitle:
+            title = "%s - %s" % (title, subtitle)
 
-        # url = "http://www.kanal5play.se/api/getVideo?format=FLASH&videoId=%s" % (videoId, )
-        url = "http://www.kanal9play.se/api/getVideo?format=FLASH&videoId=%s" % (videoId,)
-
-        item = mediaitem.MediaItem("%s - %s" % (program, name), url)
-        item.description = description
-        item.thumb = thumbUrl
+        # url = resultSet["hls"]
+        url = "%s/videos?video_id=%s&page=0&items=500" % (self.baseUrl, resultSet["id"])
+        item = mediaitem.MediaItem(title, url)
         item.type = "video"
-        item.complete = False
-        item.icon = self.icon
-        item.fanart = self.fanart
-        item.isDrmProtected = requiresWideVine
-        item.isGeoLocked = isGeoLocked
-        item.isPaid = premium
 
-        if "shownOnTvDateTimestamp" in data:
-            timeStamp = data["shownOnTvDateTimestamp"]  # milli seconds since epoch
-            timeStamp = int(timeStamp) / 1000
+        item.description = resultSet.get("video_metadata_longDescription", None)
+        if not item.description:
+            item.description = resultSet.get("description", None)
+
+        item.fanart = self.parentItem.fanart
+        item.thumb = resultSet.get("video_metadata_videoStillURL", self.parentItem.thumb)
+
+        # timeStamp = resultSet.get("video_metadata_first_startTime", None)
+        timeStamp = resultSet.get("video_metadata_svod_start_time", None)
+        if timeStamp:
+            timeStamp = int(timeStamp)
             date = datetime.datetime.fromtimestamp(timeStamp)
             item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
+        item.isPaid = "Packages-Free" not in resultSet["video_metadata_package"]
+
+        # not sure if this catches all, but it is a start
+        if "open-drm" in resultSet.get("hls", ""):
+            item.isGeoLocked = True
+        return item
+
+    def UpdateChannelItem(self, item):
+        """Updates an existing MediaItem with more data.
+
+        Arguments:
+        item : MediaItem - the MediaItem that needs to be updated
+
+        Returns:
+        The original item with more data added to it's properties.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        """
+
+        videoId = item.url.rsplit("/", 1)[-1]
         part = item.CreateNewEmptyMediaPart()
-        self.__FindStreamData(data, videoId, part)
-
-        if len(part.MediaStreams) == 0:
-            item.MediaItemParts = []
-            item.complete = False
-            #item.name = "%s [No streams]" % (item.name,)
-        else:
-            # we need to fetch subtitles
-            item.complete = False
-
+        item.complete = self.__GetVideoStreams(videoId, part)
         return item
 
     def UpdateVideoItem(self, item):
@@ -409,68 +381,57 @@ class Channel(chn_class.Channel):
 
         """
 
-        # http://www.kanal5play.se/api/subtitles/298903
-        if len(item.MediaItemParts) == 0:
-            Logger.Debug("No media info found, trying to determine it based on video ID")
-            data = UriHandler.Open(item.url, proxy=self.proxy)
-            data = JsonHelper(data)
-            data = data.GetValue()
+        videoData = UriHandler.Open(item.url, proxy=self.proxy)
+        if not videoData:
+            return item
 
-            part = item.CreateNewEmptyMediaPart()
-            videoId = data["id"]
+        videoData = JsonHelper(videoData)
+        videoInfo = videoData.GetValue("data", 0)
 
-            self.__FindStreamData(data, videoId, part)
+        part = item.CreateNewEmptyMediaPart()
+        item.complete = self.__GetVideoStreams(videoInfo["id"], part)
 
         if len(item.MediaItemParts) > 0:
             part = item.MediaItemParts[0]
+            part.Subtitle = videoInfo[self.subtitleKey]
             Logger.Trace("Fetching subtitle from %s", part.Subtitle)
-            if part.Subtitle.startswith(self.baseUrl):
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="json", proxy=self.proxy)
+            if part.Subtitle.startswith("http"):
+                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="srt", proxy=self.proxy)
 
-        item.complete = True
         return item
 
-    def __FindStreamData(self, data, videoId, part):
-        """ Retrieves stream data from the JSON objects and updates the MediaItemPart with the stream data. It also
-        determines the subtitle url and sets it.
+    def __GetVideoStreams(self, videoId, part):
+        """ Fetches the video stream for a given videoId
 
-        @param data:        Json data object
-        @param videoId:     The VideoID for this video
-        @param part:        The MediaItemPart to update
-        @return:            Nothing, the MediaItemPart is updated by reference.
+        @param videoId: (integer) the videoId
+        @param part:    (MediaPart) the mediapart to add the streams to
+        @return:        (bool) indicating a successfull retrieval
 
         """
 
-        part.Subtitle = "%s/api/subtitles/%s" % (self.baseUrl, videoId)
+        # hardcoded for now as it does not seem top matter
+        dscgeo = '{"countryCode":"%s","expiry":1446917369986}' % (self.language.upper(),)
+        dscgeo = HtmlEntityHelper.UrlEncode(dscgeo)
+        headers = {"Cookie": "dsc-geo=%s" % (dscgeo, )}
 
-        baseUrl = data.get("streamBaseUrl", None)
-        for stream in data.get("streams", []):
-            drm = stream['drmProtected']
-            if drm:
-                # skip drm
-                continue
+        # send the data
+        http, nothing, host, other = self.baseUrl.split("/", 3)
+        subdomain, domain = host.split(".", 1)
+        url = "https://secure.%s/secure/api/v2/user/authorization/stream/%s?stream_type=hls" \
+              % (domain, videoId,)
+        data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=True)
+        json = JsonHelper(data)
+        url = json.GetValue("hls")
 
-            if 'bitrate' in stream:
-                bitrate = int(stream['bitrate']) / 1000
+        streamsFound = False
+        qs = url.split("?")[-1]
+        for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+            # and we need to append the original QueryString
+            streamsFound = True
+            if "?" in s:
+                s = "%s&%s" % (s, qs)
             else:
-                # audio only in XBMC
-                continue
+                s = "%s?%s" % (s, qs)
+            part.AppendMediaStream(s, b)
 
-            url = stream['source']
-            if "rtsp:" in url:
-                # audio only in XBMC
-                continue
-            elif "://" not in url:
-                if baseUrl is None:
-                    # some cases the BaseUrl is missing for RTMP, we can't do anything then
-                    continue
-                url = "%s?slist=/%s.%s" % (baseUrl, url[4:], url[0:3])
-                url = self.GetVerifiableVideoUrl(url)
-                # if url.startswith("rtmp"):
-                #     # SBS changed something and the live=1 might be required.
-                #     url = "%s live=1" % (url, )
-                #     # part.AddProperty("IsLive", "true")
-
-            part.AppendMediaStream(url, bitrate)
-            # Logger.Trace(stream)
-        return
+        return streamsFound

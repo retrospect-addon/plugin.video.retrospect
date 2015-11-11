@@ -8,7 +8,8 @@
       "category": "National",
       "channelcode": "tv5json",
       "sortorder": 5,
-      "language": "se"
+      "language": "se",
+      "fanart": "http://a1.res.cloudinary.com/dumrsasw1/image/upload/Kanal5-channel-large_kxf7fn.jpg"
     },
     {
       "guid": "32B4A9AB-583C-4F78-A057-6D79C797B45C",
@@ -18,7 +19,8 @@
       "category": "National",
       "channelcode": "tv9json",
       "sortorder": 9,
-      "language": "se"
+      "language": "se",
+      "fanart": "http://a2.res.cloudinary.com/dumrsasw1/image/upload/Thewalkingdead_hqwfz1.jpg"
     },
     {
       "guid": "64E1CA5E-BC3C-4763-9A63-02BE76754BD3",
@@ -28,7 +30,8 @@
       "category": "National",
       "channelcode": "tv11json",
       "sortorder": 11,
-      "language": "se"
+      "language": "se",
+      "fanart": "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
     }
   ]
 }
