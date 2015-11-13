@@ -162,7 +162,7 @@ class DateHelper:
             monthLookup = ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"]
 
         else:
-            error = "Language code '%s' not implemented"
+            error = "Language code '%s' not implemented" % (language, )
             raise NotImplementedError(error)
 
         if monthLookup.count(month.lower()) > 0:
@@ -173,6 +173,8 @@ class DateHelper:
         return monthValue
 
 if __name__ == "__main__":
+    DateHelper.GetMonthFromName("blaat", "test")
+
     print "Next"
     for day in ("ma", "di", "wo", "do", "vr", "za", "zo", "morgen"):
         print "%s: %s" % (day, DateHelper.GetDateForNextDay(day))
