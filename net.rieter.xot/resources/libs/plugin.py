@@ -303,7 +303,7 @@ class Plugin:
             xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
             xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_TITLE)
             xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_GENRE)
-
+            xbmcplugin.setContent(handle=self.handle, content=self.contentType)
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:
             xbmcplugin.endOfDirectory(self.handle, False)

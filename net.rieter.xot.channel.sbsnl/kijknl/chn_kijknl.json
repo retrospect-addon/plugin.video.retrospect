@@ -9,7 +9,8 @@
       "channelcode": "sbs",
       "sortorder": 6,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "sbs6fanart.jpg"
     },
     {
       "guid": "658A5A36-60A4-11E2-A236-8CE36188709B",
@@ -20,7 +21,8 @@
       "channelcode": "net5",
       "sortorder": 5,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "net5fanart.jpg"
     },
     {
       "guid": "6B32718A-60A4-11E2-87B1-A6E36188709B",
@@ -31,7 +33,8 @@
       "channelcode": "veronica",
       "sortorder": 10,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "veronicafanart.png"
     },
     {
       "guid": "C77710DE-21B6-467A-A547-0F64C6C6186E",
@@ -42,7 +45,8 @@
       "channelcode": "sbs9",
       "sortorder": 9,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "sbs9fanart.png"
     }
   ]
 }
