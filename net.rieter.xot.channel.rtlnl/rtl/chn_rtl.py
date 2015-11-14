@@ -128,6 +128,7 @@ class Channel(chn_class.Channel):
         url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=getseasons/ak=%s" % (key,)
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
+        item.fanart = self.fanart
         item.complete = True
 
         desc = resultSet.get("synopsis", "")
