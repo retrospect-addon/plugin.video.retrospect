@@ -9,7 +9,8 @@
       "channelcode": "mtvnl",
       "sortorder": 20,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "mtvfanart.jpg"
     },
     {
       "guid": "55635AAA-183C-11E2-ABEC-36706188709B",
@@ -20,7 +21,8 @@
       "channelcode": "mtvde",
       "sortorder": 20,
       "language": "de",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "mtvfanart.jpg"
     }
   ]
 }

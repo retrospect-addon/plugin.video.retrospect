@@ -9,7 +9,8 @@
       "channelcode": "uzgjson",
       "sortorder": 1,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "nosfanart4.jpg"
     }
   ],
   "settings": [
