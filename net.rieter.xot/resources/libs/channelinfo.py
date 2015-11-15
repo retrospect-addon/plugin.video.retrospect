@@ -123,7 +123,9 @@ class ChannelInfo:
 
         if self.fanart is not None:
             self.fanart = self.__GetImagePath(self.fanart)
-            item.setProperty('fanart_image', self.fanart)
+        else:
+            self.fanart = os.path.join(Config.rootDir, "fanart.jpg")
+        item.setProperty('fanart_image', self.fanart)
         return item
 
     def __str__(self):
