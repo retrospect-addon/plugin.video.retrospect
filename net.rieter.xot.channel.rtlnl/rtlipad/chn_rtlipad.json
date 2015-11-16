@@ -8,7 +8,8 @@
       "category": "National",
       "sortorder": 4,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "rtlipadfanart.jpg"
     }
   ]
 }
