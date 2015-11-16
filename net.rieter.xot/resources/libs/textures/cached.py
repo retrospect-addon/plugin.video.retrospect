@@ -68,9 +68,9 @@ class Cached(TextureBase):
                 fs.close()
             else:
                 # fallback to local cache.
-                texturePath = os.path.join(self._channelPath, fileName)
-
-                self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
+                # texturePath = os.path.join(self._channelPath, fileName)
+                # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
+                self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texturePath)
 
         self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)
         Cached.__retrievedTexturePaths.append(texturePath)
@@ -87,7 +87,7 @@ class Cached(TextureBase):
         fp.close()
 
         # get a lookup table
-        textures = [reversed(line.rstrip().split(" ")) for line in lines]
+        textures = [reversed(line.rstrip().split(" ", 1)) for line in lines]
         # noinspection PyTypeChecker
         textures = dict(textures)
 

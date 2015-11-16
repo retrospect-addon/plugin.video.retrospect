@@ -20,7 +20,8 @@
       "channelcode": "pathejson",
       "sortorder": 50,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "pathefanart.jpg"
     }
   ]
 }

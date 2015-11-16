@@ -656,7 +656,7 @@ class ChannelImporter:
                             for channelInfo in ci:
                                 self.__FirstTimeChannelActions(channelInfo)
                     except:
-                        Logger.Error("Error import chn_%s.xml", channelName, exc_info=True)
+                        Logger.Error("Error import chn_%s.json", channelName, exc_info=True)
 
             importTimer.Lap()
 
