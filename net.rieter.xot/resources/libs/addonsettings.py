@@ -54,6 +54,7 @@ class AddonSettings:
     __DRM_HIDE_ITEMS = "hide_drm"
     __PREMIUM_HIDE_ITEMS = "hide_premium"
     __HIDE_TYPES = "hide_types"
+    __HIDE_FANART = "hide_fanart"
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -141,6 +142,14 @@ class AddonSettings:
         """
 
         return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_WARNING)
+
+    @staticmethod
+    def HideFanart():
+        """ Should we hide Fanart?
+
+        @return: Yes or No
+        """
+        return AddonSettings.__GetBooleanSetting(AddonSettings.__HIDE_FANART)
 
     @staticmethod
     def HideDrmItems():

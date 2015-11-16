@@ -13,22 +13,22 @@
 # ===============================================================================
 import os
 import sys
-
 import xbmcgui
-
 from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
 from urihandler import UriHandler
 from config import Config
+from addonsettings import AddonSettings
 from helpers.languagehelper import LanguageHelper
 import textures
 
 
 class ChannelInfo:
     def __init__(self, guid, name, description, icon, category, path,
-                 channelCode=None, sortOrder=255, language=None, compatiblePlatforms=Environments.All, fanart=None):
+                 channelCode=None, sortOrder=255, language=None,
+                 compatiblePlatforms=Environments.All, fanart=None):
         """ Creates a ChannelInfo object with basic information for a channel
 
         Arguments:
@@ -121,6 +121,9 @@ class ChannelInfo:
                                "Tagline": description,
                                "Plot": description})
 
+        if AddonSettings.HideFanart():
+            return item
+
         if self.fanart is not None:
             self.fanart = self.__GetImagePath(self.fanart)
         else:
@@ -135,14 +138,16 @@ class ChannelInfo:
             return "%s [%s, %s, %s] (Order: %s)" % (self.channelName, self.language, self.category,
                                                     self.guid, self.sortOrderPerCountry)
         else:
-            return "%s (%s) [%s, %s, %s] (Order: %s)" % (self.channelName, self.channelCode, self.language,
-                                                         self.category, self.guid, self.sortOrderPerCountry)
+            return "%s (%s) [%s, %s, %s] (Order: %s)" % (
+            self.channelName, self.channelCode, self.language,
+            self.category, self.guid, self.sortOrderPerCountry)
 
     def __repr__(self):
         """ Technical representation """
 
-        return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (self, self.path, self.moduleName,
-                                                                               self.icon, self.compatiblePlatforms)
+        return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (
+        self, self.path, self.moduleName,
+        self.icon, self.compatiblePlatforms)
 
     def __eq__(self, other):
         """Compares to channel objects for equality

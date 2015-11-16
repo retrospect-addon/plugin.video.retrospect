@@ -386,7 +386,7 @@ class MediaItem:
             item.setInfo(type="Video", infoLabels=infoLabels)
 
         # now set all the art
-        if self.fanart:
+        if self.fanart and not AddonSettings.HideFanart():
             item.setProperty('fanart_image', self.fanart)
 
         item.setThumbnailImage(self.thumb)

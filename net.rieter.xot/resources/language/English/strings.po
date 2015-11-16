@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2015-07-19 11:45+0000\n"
+"POT-Creation-Date: 2015-11-16 20:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -351,7 +351,11 @@ msgctxt "#30085"
 msgid "Geo Location"
 msgstr ""
 
-#empty strings from id 30086 to 30099
+msgctxt "#30086"
+msgid "Hide Fanart"
+msgstr ""
+
+#empty strings from id 30087 to 30099
 
 msgctxt "#30100"
 msgid "None"
