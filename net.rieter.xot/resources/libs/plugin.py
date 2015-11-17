@@ -389,6 +389,8 @@ class Plugin:
             for episodeItem in episodeItems:
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
+                if episodeItem.fanart == "":
+                    episodeItem.fanart = self.channelObject.fanart
 
                 if episodeItem.type == 'folder' or episodeItem.type == 'append' or episodeItem.type == "page":
                     action = self.actionListFolder
