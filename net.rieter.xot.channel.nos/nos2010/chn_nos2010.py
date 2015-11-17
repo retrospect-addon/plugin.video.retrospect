@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
 
         # json for video's if mobile mode
         self._AddDataParser("apps-api.uitzendinggemist.nl/series/",
-                            parser=("episodes", ), creator=self.CreateVideoItemJson,
+                            parser=("episodes",), creator=self.CreateVideoItemJson,
                             json=True, matchType=ParserData.MatchContains)
 
         # genres
@@ -137,11 +137,11 @@ class Channel(chn_class.Channel):
         self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
                             parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
         programRegex = Regexer.FromExpresso('<a href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)">\W*<img[^>]+src="'
-                                            '(?<Image>[^"]+)" />\W*</a>\W*</div>\W*</div>\W*<div[^<]+<a[^>]*><h4>'
-                                            '[\n\r]*(?<Title>[^<]+)\W*<span[^>]*>[^>]+>\W*<span[^>]*>[^>]+>\W*</h4>'
-                                            '\W*<h5>(?:[^>]*>){2}[^<]*(?:<a[^>]*>\w+ (?<Day>\d+) (?<MonthName>\w+) '
-                                            '(?<Year>\d+)[^>]*(?<Hour>\d+):(?<Minutes>\d+)</a></h5>\W*)?<p[^>]*>'
-                                            '(?:<span>)?(?<Description>[^<]*)')
+            '(?<Image>[^"]+)" />\W*</a>\W*</div>\W*</div>\W*<div[^<]+<a[^>]*><h4>'
+            '[\n\r]*(?<Title>[^<]+)\W*<span[^>]*>[^>]+>\W*<span[^>]*>[^>]+>\W*</h4>'
+            '\W*<h5>(?:[^>]*>){2}[^<]*(?:<a[^>]*>\w+ (?<Day>\d+) (?<MonthName>\w+) '
+            '(?<Year>\d+)[^>]*(?<Hour>\d+):(?<Minutes>\d+)</a></h5>\W*)?<p[^>]*>'
+            '(?:<span>)?(?<Description>[^<]*)')
         self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
                             parser=programRegex, creator=self.CreateFolderItemAlpha)
 
@@ -346,7 +346,7 @@ class Channel(chn_class.Channel):
                 subItem = mediaitem.MediaItem(titleFormat % (char,), "http://www.npo.nl/a-z?page=1")
             else:
                 subItem = mediaitem.MediaItem(titleFormat % (char,),
-                                              "http://www.npo.nl/a-z/%s?page=1" % (char.lower(), ))
+                                              "http://www.npo.nl/a-z/%s?page=1" % (char.lower(),))
             subItem.complete = True
             subItem.icon = self.icon
             subItem.thumb = self.noImage
@@ -372,7 +372,7 @@ class Channel(chn_class.Channel):
         item = self.CreateVideoItemNonMobile(resultSet)
         item.type = 'folder'
         item.url = "http://www.npo.nl%(Url)s/%(WhatsOnId)s/search?end_date=&media_type=broadcast&rows=%%s&start=0&start_date=" % resultSet
-        item.url = item.url % (self.nonMobilePageSize, )
+        item.url = item.url % (self.nonMobilePageSize,)
 
         return item
 
@@ -445,44 +445,45 @@ class Channel(chn_class.Channel):
         """
         Logger.Trace(resultSet)
 
-        # in some case some properties are at the root and some at the subnode
-        # get the root items here
+        # In some cases the name, posix and description are in the root, in other cases in the
+        # 'episode' node
         posix = resultSet.get('starts_at', None)
+        image = resultSet.get('image', None)
         name = resultSet.get('name', None)
         description = resultSet.get('description', '')
-        image = resultSet.get('image', None)
 
         # the tips has an extra 'episodes' key
         if 'episode' in resultSet:
             Logger.Debug("Found subnode: episodes")
             # set to episode node
             data = resultSet['episode']
-            Logger.Trace(data)
-            titleExtra = resultSet.get('title', '')
         else:
-            titleExtra = None
+            Logger.Warning("No subnode 'episodes' found, trying anyways")
             data = resultSet
 
+        # look for better values
         posix = data.get('broadcasted_at', posix)
         broadcasted = datetime.datetime.fromtimestamp(posix)
-
-        if not name:
-            Logger.Debug("Trying alternative ways to get the title")
-            name = data.get('series', {'name': self.parentItem.name})['name']
-
-        name.strip("")
-        if titleExtra:
-            name = "%s - %s" % (name, titleExtra)
-
-        # url = data['video']['m3u8']
-
+        description = resultSet.get('description', description)
         videoId = data.get('whatson_id', None)
-        item = mediaitem.MediaItem(name, videoId)
+
+        # try to fetch more name data
+        names = []
+        name = data.get("name", name)
+        if name:
+            names = [name, ]
+        if "series" in data and "name" in data["series"]:
+            names.insert(0, data["series"]["name"])
+
+        # Filter the duplicates
+        title = " - ".join(set(names))
+
+        item = mediaitem.MediaItem(title, videoId)
         item.icon = self.icon
         item.type = 'video'
         item.complete = False
         item.description = description
-
+        #
         images = data.get('stills', None)
         if images:
             # there were images in the stills
@@ -491,7 +492,8 @@ class Channel(chn_class.Channel):
             # no stills, or empty, check for image
             item.thumb = image
 
-        item.SetDate(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour, broadcasted.minute,
+        item.SetDate(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour,
+                     broadcasted.minute,
                      broadcasted.second)
 
         return item
@@ -543,7 +545,7 @@ class Channel(chn_class.Channel):
             # page from date search result
             title = "\a.: Meer programma's :."
             page = int(resultSet["Page"])
-            url = self.parentItem.url.replace("page=%s" % (page, ), "page=%s" % (page + 1, ))
+            url = self.parentItem.url.replace("page=%s" % (page,), "page=%s" % (page + 1,))
 
             # if "page=" in self.parentItem.url:
             #     url = self.parentItem.url.replace("page=%s" % (page, ), "page=%s" % (page + 1, ))
@@ -570,7 +572,7 @@ class Channel(chn_class.Channel):
             nextPage = currentPage + currentPageSize
             if nextPage >= totalSize:
                 Logger.Debug("Not adding next page item. All items displayed (Total=%s vs Current=%s)",
-                             totalSize, nextPage)
+                    totalSize, nextPage)
                 return None
             else:
                 pageSize = self.nonMobileMaxPageSize
@@ -579,7 +581,7 @@ class Channel(chn_class.Channel):
 
                 url = self.parentItem.url
                 url = url.replace("start=%s" % (currentPage,), "start=%s" % (nextPage,))
-                url = url.replace("rows=%s" % (currentPageSize,), "rows=%s" % (pageSize, ))
+                url = url.replace("rows=%s" % (currentPageSize,), "rows=%s" % (pageSize,))
 
                 pageItem = mediaitem.MediaItem("\a.: Meer afleveringen :.", url)
                 pageItem.thumb = self.parentItem.thumb
@@ -766,9 +768,9 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         if resultSet[1] in ('npo-1', 'npo-2', 'npo-3', 'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek',
-                            'npo-best', 'npo-doc', 'npo-zappxtra', 'npo-humor-tv''npo-1', 'npo-2', 'npo-3',
-                            'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek', 'npo-best', 'npo-doc',
-                            'npo-zappxtra', 'npo-humor-tv'):
+        'npo-best', 'npo-doc', 'npo-zappxtra', 'npo-humor-tv''npo-1', 'npo-2', 'npo-3',
+        'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek', 'npo-best', 'npo-doc',
+        'npo-zappxtra', 'npo-humor-tv'):
             # We already have those
             return None
 
@@ -881,7 +883,7 @@ class Channel(chn_class.Channel):
                         # http://ida.omroep.nl/aapi/?type=jsonp&stream=http://livestreams.omroep.nl/live/npo/thematv/journaal24/journaal24.isml/journaal24.m3u8
                         Logger.Debug("Opening IDA server for actual URL retrieval")
                         actualStreamData = UriHandler.Open("http://ida.omroep.nl/aapi/?stream=%s&token=%s" % (url, hashCode),
-                                                           proxy=self.proxy, referer=self.baseUrlLive)
+                            proxy=self.proxy, referer=self.baseUrlLive)
                         self.__AppendM3u8ToPart(part, actualStreamData)
 
                 thumbs = json.GetValue('images', fallback=None)
@@ -925,7 +927,7 @@ class Channel(chn_class.Channel):
     def CtMnDownload(self, item):
         """ downloads a video item and returns the updated one
         """
-        #noinspection PyUnusedLocal
+        # noinspection PyUnusedLocal
         item = self.DownloadVideoItem(item)
 
     def __AppendM3u8ToPart(self, part, idaData):
