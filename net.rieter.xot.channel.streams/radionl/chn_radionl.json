@@ -9,7 +9,8 @@
       "channelcode": "radionl",
       "sortorder": 400,
       "language": "nl",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "radionlfanart.jpg"
     }
   ]
 }
