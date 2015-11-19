@@ -48,7 +48,8 @@
       "category": "National",
       "channelcode": "se8",
       "sortorder": 8,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv8sefanart.png"
     },
     {
       "guid": "584E7420-2867-11E3-AA01-F2806188709B",

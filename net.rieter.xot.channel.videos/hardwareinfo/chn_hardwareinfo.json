@@ -6,7 +6,8 @@
       "description": "Videos van Hardware.info",
       "icon": "hardwareinfolarge.png",
       "category": "Tech",
-      "language": "nl"
+      "language": "nl",
+      "fanart": "hardwareinfofanart.jpg"
     }
   ]
 }

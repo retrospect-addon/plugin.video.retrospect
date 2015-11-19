@@ -8,7 +8,8 @@
       "category": "National",
       "channelcode": "tv4se",
       "sortorder": 4,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv4playsefanart.jpg"
     },
     {
       "guid": "66174057-D5E3-4102-AF46-B2D8E800E0D9",
@@ -28,7 +29,8 @@
       "category": "National",
       "channelcode": "tv12se",
       "sortorder": 12,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv12playfanart.jpg"
     }
   ],
   "settings": [
