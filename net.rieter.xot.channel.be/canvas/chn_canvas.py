@@ -1,13 +1,17 @@
 # coding:Cp1252
 import re
+import time
 
 import chn_class
 import mediaitem
-from helpers import jsonhelper
 
 from logger import Logger
-from streams.m3u8 import M3u8
+from regexer import Regexer
+from addonsettings import AddonSettings
 from urihandler import UriHandler
+from parserdata import ParserData
+from helpers.jsonhelper import JsonHelper
+from streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
@@ -28,25 +32,200 @@ class Channel(chn_class.Channel):
 
         chn_class.Channel.__init__(self, channelInfo)
 
-        # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
+        # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.noImage = "canvasimage.png"
 
         # setup the urls
-        self.mainListUri = "http://www.canvas.be/video_overzicht"
+        self.mainListUri = "http://www.canvas.be/video"
         self.baseUrl = "http://www.canvas.be"
         self.swfUrl = "http://www.canvas.be/sites/all/libraries/player/PolymediaShowFX16.swf"
 
         # setup the main parsing data
-        self.episodeItemRegex = '<option value="([^"]{15,100})">([^<]+)</option>'  # used for the ParseMainList
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddCategories,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            preprocessor=self.AddCategories,
+                            parser='<a class="header[^"]+" href="(http://www.canvas.be/video[^"]+)">([^<]+)</a>',
+                            creator=self.CreateEpisodeItem)
 
-        self.videoItemRegex = '\{"item":([\w\W]{0,3000})categoryBrandId'
-        self._AddDataParser("*", json=True, parser=("channel", "items"), preprocessor=self.FixCrappyJson,
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        # This video regex works with the default CreateVideoItem
+        # videoRegex = Regexer.FromExpresso(
+        #     '<a class="teaser[^>]+href="(?<url>[^"]+)"[\w\W]{0,1000}?<img[^>]+src="(?<thumburl>'
+        #     '[^"]+)[^>]+>\W+</div>\W+</div>\W+</div>\W+<h3[^>]*>\W+<span[^>]*>(?<title>[^<]+)<')
+        # self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem)
 
-        # ====================================== Actual channel setup STOPS here =======================================
+        self._AddDataParser("*", json=True,
+                            preprocessor=self.ExtractJsonData,
+                            parser=("data", ),
+                            creator=self.CreateVideoItemJson)
+
+        self._AddDataParser("*", updater=self.UpdateVideoItem)
+
+        # for the json files
+        self._AddDataParser(".json", json=True, matchType=ParserData.MatchEnd,
+                            preprocessor=self.FixCrappyJson,
+                            parser=("channel", "items"),
+                            creator=self.CreateVideoItemFeeds,
+                            updater=self.UpdateVideoItemFeeds)
+
+        # ==========================================================================================
+        # Test cases:
+        # Documentaire: pages (has http://www.canvas.be/tag/.... url)
+
+        # ====================================== Actual channel setup STOPS here ===================
         return
+
+    def CreateEpisodeItem(self, resultSet):
+        """
+        Accepts an arraylist of results. It returns an item.
+        """
+
+        Logger.Trace(resultSet)
+
+        item = mediaitem.MediaItem(resultSet[1].title(), resultSet[0])
+        item.icon = self.icon
+        item.type = "folder"
+        item.complete = True
+        return item
+
+    def ExtractJsonData(self, data):
+        """Performs pre-process actions for data processing
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+
+        data = Regexer.DoRegex("<script>var programEpisodes = ({[^<]+})", data)[-1]
+        items = []
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def CreateVideoItemJson(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        Logger.Trace(resultSet)
+        # there are 2 sets of data process both
+        title = ""
+        url = ""
+        image = ""
+        description = ""
+        dateTime = None
+        for data in (resultSet, resultSet.get("episode", None)):
+            if data is None:
+                continue
+
+            title = data.get("title", title)
+            url = data.get("videoUrl", url)
+            description = data.get("description", description)
+            image = data.get("image", image)
+            dateTime = data.get("time", dateTime)
+
+        if not url or url.endswith("-livestream"):
+            Logger.Warning("Found unplayable url for '%s': '%s'", title, url)
+            return None
+
+        item = mediaitem.MediaItem(title, url)
+        item.type = "video"
+        item.description = description
+        item.thumb = image
+
+        if dateTime:
+            # https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
+            # 2015-10-20T06:10:00+00:00 -
+            timeStamp = time.strptime(dateTime, "%Y-%m-%dT%H:%M:%S+00:00")
+            item.SetDate(*timeStamp[0:6])
+        return item
+
+    def UpdateVideoItem(self, item):
+        """Updates an existing MediaItem with more data.
+
+        Arguments:
+        item : MediaItem - the MediaItem that needs to be updated
+
+        Returns:
+        The original item with more data added to it's properties.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        """
+
+        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        videoId = Regexer.DoRegex('data-video="([^"]+)"', data)[-1]
+        url = "https://mediazone.vrt.be/api/v1/canvas/assets/%s" % (videoId, )
+        data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        json = JsonHelper(data)
+
+        geoLocked = str(json.GetValue("metaInfo", "allowedRegion").lower())
+        hideGeoLocked = AddonSettings.HideGeoLockedItemsForLocation(geoLocked)
+        if hideGeoLocked:
+            geoRegion = AddonSettings.HideGeoLockedItemsForLocation(geoLocked, True)
+            Logger.Warning("Found GEO Locked item for region '%s'. Current region is '%s'",
+                           geoLocked, geoRegion)
+            return item
+
+        part = item.CreateNewEmptyMediaPart()
+        for video in json.GetValue("targetUrls"):
+            videoType = video["type"].lower()
+            url = video["url"]
+            if videoType == "progressive_download":
+                bitrate = 1000
+            elif videoType == "hls":
+                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                    # s = self.GetVerifiableVideoUrl(s)
+                    part.AppendMediaStream(s, b)
+                continue
+            elif videoType == "rtmp":
+                # url=rtmp://vod.stream.vrt.be/mediazone_canvas/_definst_/mp4:2015/11/mz-ast-79a551d6-2621-4a0f-9af0-a272fb0954db-1/video_1296.mp4
+                url = url.replace("_definst_/mp4:", "?slist=")
+                bitrate = 1100
+            else:
+                Logger.Debug("Found unhandled stream type '%s':%s", videoType, url)
+                continue
+            part.AppendMediaStream(url, bitrate)
+
+        item.complete = True
+        return item
 
     def FixCrappyJson(self, data):
         """ Fixes description JSON tags
@@ -79,10 +258,12 @@ class Channel(chn_class.Channel):
         
         # let's add some specials
         #http://mp.vrt.be/api/playlist/collection_91.json
-        for url in ("http://mp.vrt.be/api/playlist/most_viewed_canvas.json",
-                    "http://mp.vrt.be/api/playlist/most_rated_canvas.json",
-                    "http://mp.vrt.be/api/playlist/most_recent_canvas.json",
-                    "http://mp.vrt.be/api/playlist/now_available_brand_canvas_recent.json"):
+        for url in (
+                "http://mp.vrt.be/api/playlist/most_viewed_canvas.json",
+                "http://mp.vrt.be/api/playlist/most_rated_canvas.json",
+                "http://mp.vrt.be/api/playlist/most_recent_canvas.json",
+                # "http://mp.vrt.be/api/playlist/now_available_brand_canvas_recent.json"
+        ):
             if "most_viewed_canvas" in url:
                 name = "Meest bekeken"
             elif "most_rated_canvas" in url:
@@ -101,42 +282,27 @@ class Channel(chn_class.Channel):
         
         return data, items
     
-    def CreateEpisodeItem(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item. 
-        """
-        
-        code = resultSet[0].replace(":", "\:")
-        url = "http://vrt-mp.polymedia.it/search/select/?q=brand:Canvas%20AND%20programme_code:" + code + \
-              "&sort=date%20desc&rows=160&wt=xslt&tr=json.xsl"
-        
-        item = mediaitem.MediaItem(resultSet[1], url)
-        item.icon = self.icon
-        item.type = "folder"
-        item.complete = True
-        return item
-    
-    def CreateVideoItem(self, resultSet):
+    def CreateVideoItemFeeds(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
-        
+
         Arguments:
         resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-        
+
         Returns:
         A new MediaItem of type 'video' or 'audio' (despite the method's name)
-        
-        This method creates a new MediaItem from the Regular Expression 
-        results <resultSet>. The method should be implemented by derived classes 
+
+        This method creates a new MediaItem from the Regular Expression
+        results <resultSet>. The method should be implemented by derived classes
         and are specific to the channel.
-        
+
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
         self.UpdateVideoItem method is called if the item is focused or selected
         for playback.
-         
+
         """
 
-        Logger.Trace(jsonhelper.JsonHelper.DictionaryToString(resultSet["item"]))
+        Logger.Trace(JsonHelper.DictionaryToString(resultSet["item"]))
 
         json = resultSet["item"]
 
@@ -149,8 +315,8 @@ class Channel(chn_class.Channel):
             thumbUrl = self.noImage
         guid = json["guid"]
         url = "http://mp.vrt.be/api/playlist/details/%s.json" % (guid,)
-        
-        item = mediaitem.MediaItem(title, url)        
+
+        item = mediaitem.MediaItem(title, url)
         item.thumb = thumbUrl
         item.icon = self.icon
         item.description = description
@@ -171,12 +337,12 @@ class Channel(chn_class.Channel):
         minutes = time[3:5]
         Logger.Trace("%s-%s-%s %s:%s", year, month, day, hour, minutes)
         item.SetDate(year, month, day, hour, minutes, 0)
-                
+
         item.type = 'video'
         item.complete = False
         return item
     
-    def UpdateVideoItem(self, item):
+    def UpdateVideoItemFeeds(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
@@ -187,7 +353,7 @@ class Channel(chn_class.Channel):
         # http://www.een.be/sites/een.be/modules/custom/vrt_video/player/player_4.3.swf
         
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        json = jsonhelper.JsonHelper(data)
+        json = JsonHelper(data)
 
         if item.MediaItemParts == 1:
             part = item.MediaItemParts[0]
