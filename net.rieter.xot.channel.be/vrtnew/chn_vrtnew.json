@@ -8,7 +8,8 @@
       "category": "National",
       "channelcode": "redactie",
       "sortorder": 10,
-      "language": "be"
+      "language": "be",
+      "fanart": "redactiefanart.png"
     },
     {
       "guid": "71128378-B6BA-11E0-A68A-1B434824019B",
@@ -19,7 +20,8 @@
       "channelcode": "sporza",
       "sortorder": 13,
       "language": "be",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "sportzafanart.jpg"
     }
   ]
 }

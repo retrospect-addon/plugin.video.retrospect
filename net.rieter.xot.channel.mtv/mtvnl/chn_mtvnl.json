@@ -10,7 +10,7 @@
       "sortorder": 20,
       "language": "nl",
       "compatible": "Environments.All",
-      "fanart": "mtvfanart.jpg"
+      "fanart": "mtvfanart2.jpg"
     },
     {
       "guid": "55635AAA-183C-11E2-ABEC-36706188709B",
@@ -22,7 +22,7 @@
       "sortorder": 20,
       "language": "de",
       "compatible": "Environments.All",
-      "fanart": "mtvfanart.jpg"
+      "fanart": "mtvfanart2.jpg"
     }
   ]
 }

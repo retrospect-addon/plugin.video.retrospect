@@ -9,7 +9,8 @@
       "channelcode": "srf",
       "sortorder": 101,
       "language": "de",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "srffanart.jpg"
     }
   ]
 }
