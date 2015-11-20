@@ -670,11 +670,18 @@ class AddonSettings:
         # Let's make sure they are sorted by channel module. So we first go through them all and then create
         # the XML.
         for channel in channels:
-            if not channel.settings:
-                continue
-
             if channel.moduleName not in settings:
                 settings[channel.moduleName] = []
+
+            # add channel visibility
+            settingXml = '<setting id="channel_%s_visible" type="bool" label="30042" ' \
+                         'default="true" visible="eq(-%%s,%s)" />' % \
+                         (channel.guid, channel.safeName)
+            Logger.Error(settingXml)
+            settings[channel.moduleName].append(settingXml)
+
+            if not channel.settings:
+                continue
 
             # Sort the settings so they are really in the correct order, because this is not guaranteed by the
             # json parser

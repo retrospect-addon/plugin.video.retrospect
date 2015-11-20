@@ -886,6 +886,7 @@ class Plugin:
             emptyListItem.dontGroup = True
             emptyListItem.description = "This listing was left empty intentionally."
             emptyListItem.complete = True
+            emptyListItem.fanart = self.channelObject.fanart
             # add funny stream here?
             # part = emptyListItem.CreateNewEmptyMediaPart()
             # for s, b in YouTube.GetStreamsFromYouTube("", self.channelObject.proxy):
