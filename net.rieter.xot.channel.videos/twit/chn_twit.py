@@ -6,6 +6,7 @@ from helpers.datehelper import DateHelper
 
 from logger import Logger
 from urihandler import UriHandler
+from parserdata import ParserData
 
 
 class Channel(chn_class.Channel):
@@ -27,18 +28,25 @@ class Channel(chn_class.Channel):
         self.noImage = "twitimage.png"
 
         # setup the urls
-        self.mainListUri = "http://twit.tv/shows"
-        self.baseUrl = "http://twit.tv"
+        self.mainListUri = "https://twit.tv/shows"
+        self.baseUrl = "https://twit.tv"
 
         # setup the main parsing data
-        self.episodeItemRegex = '<img src="([^"]+)"[^>]*></a>\W*</span>\W*</span>\W*<span[^<]+<span[^<]+<a href="/(show/\d+/latest)">([^<]+)'
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStream,
+        self.episodeItemRegex = '<img[^>]+src="(?<thumburl>[^"]+)"[^>]*></a>\W+<div[^>]+>\W+' \
+                                '<h2[^>]*><a[^>]+href="/(?<url>shows/[^"]+)"[^>]*>(?<title>[^<]+)' \
+                                '</a></h2>\W+<div[^>]*>(?<description>[^<]+)'
+        self.episodeItemRegex = Regexer.FromExpresso(self.episodeItemRegex)
+        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStream, matchType=ParserData.MatchExact,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
-        self.videoItemRegex = '<div class="date">(\w+) (\d+)\w+, (\d+)</div>\W+<div[^>]*><a href="([^"]+)"[^>]*>([^<]+)</a></div>\W+<div[^>]*><p>([^<]+)'
+        self.videoItemRegex = '<div[^>]+class="episode item"[^>]*>\W+<a[^>]+href="(?<url>[^"]+)" ' \
+                              'title="(?<title>[^"]+)">[\w\W]{0,500}?<img[^>]+src="' \
+                              '(?<thumburl>[^"]+)"[^>]+>[\w\W]{0,500}?<span[^>]+class="date"' \
+                              '[^>]*>(?<month>\w+) (?<day>\d+)\w+ (?<year>\d+)'
+        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
-        self.mediaUrlRegex = '<a class="[^"]+ download" href="(http://[^"]+_(\d+).mp4)"'
+        self.mediaUrlRegex = '<a href="([^"]+_(\d+).mp4)"[^>]+download>'
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -137,10 +145,10 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "%s/%s" % (self.baseUrl, resultSet[1])
-        item = mediaitem.MediaItem(resultSet[2], url)
+        url = "%s/%s" % (self.baseUrl, resultSet["url"])
+        item = mediaitem.MediaItem(resultSet["title"], url)
 
-        item.thumb = resultSet[0]
+        item.thumb = resultSet["thumburl"]
         if not item.thumb.startswith("http"):
             item.thumb = "%s%s" % (self.baseUrl, item.thumb)
         item.thumb = item.thumb.replace("coverart-small", "coverart")
@@ -171,22 +179,21 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        url = resultSet[3]
+        url = resultSet["url"]
         if not url.startswith("http"):
             url = "%s%s" % (self.baseUrl, url)
-        name = resultSet[4]
-        description = resultSet[5]
+        name = resultSet["title"]
 
         item = mediaitem.MediaItem(name, url)
-        item.description = description
+        # item.description = resultSet["description"]
         item.type = 'video'
         item.icon = self.icon
         item.thumb = self.noImage
 
-        month = resultSet[0]
+        month = resultSet["month"]
         month = DateHelper.GetMonthFromName(month, "en", False)
-        day = resultSet[1]
-        year = resultSet[2]
+        day = resultSet["day"]
+        year = resultSet["year"]
         item.SetDate(year, month, day)
 
         item.complete = False
