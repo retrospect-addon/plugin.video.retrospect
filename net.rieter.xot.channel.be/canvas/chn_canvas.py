@@ -279,7 +279,13 @@ class Channel(chn_class.Channel):
             item.complete = True
             item.dontGroup = True
             items.append(item)
-        
+
+        item = mediaitem.MediaItem("Bevergem", "http://www.canvas.be/video/bevergem")
+        item.thumb = self.noImage
+        item.icon = self.icon
+        item.complete = True
+        items.append(item)
+
         return data, items
     
     def CreateVideoItemFeeds(self, resultSet):
