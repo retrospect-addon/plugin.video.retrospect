@@ -343,6 +343,9 @@ class MediaItem:
         name = "%s%s" % (name, namePostFix)
         name = self.__FullDecodeText(name)
 
+        if self.description is None:
+            self.description = ''
+
         description = "%s%s" % (self.description.lstrip(), descriptionPostFix)
         description = self.__FullDecodeText(description)
         if description is None:
