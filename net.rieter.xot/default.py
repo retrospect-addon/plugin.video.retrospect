@@ -32,7 +32,7 @@ def RunPlugin():
         else:
             appendLogFile = True
         logFile = Logger.CreateLogger(os.path.join(Config.rootDir, Config.logFileNameAddon), Config.appName,
-                                      append=appendLogFile, memoryInfoProvider=xbmc.getFreeMem,
+                                      append=appendLogFile, memoryInfoProvider=None,
                                       dualLogger=lambda x, y=4: xbmc.log(x, y))
 
         from urihandler import UriHandler

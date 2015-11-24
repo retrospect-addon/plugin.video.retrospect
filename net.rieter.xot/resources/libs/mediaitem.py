@@ -469,8 +469,13 @@ class MediaItem:
                 elif not proxy.UseProxyForUrl(streamUrl):
                     logText = "%s\n    + Not adding proxy due to filter mismatch" % (logText, )
                 else:
-                    xbmcParams["HttpProxy"] = proxy.GetProxyAddress()
-                    logText = "%s\n    + Adding %s" % (logText, proxy)
+                    if True:
+                        xbmcParams["HttpProxy"] = proxy.GetProxyAddress()
+                        logText = "%s\n    + Adding %s" % (logText, proxy)
+                    else:
+                        Logger.Warning("Not adding HTTP proxy due to Kodi proxy support issues "
+                                       "(See https://github.com/xbmc/xbmc/pull/8434)")
+                        logText = "%s\n    + NOT adding %s" % (logText, proxy)
 
             # Now add the actual HTTP headers
             for k in part.HttpHeaders:

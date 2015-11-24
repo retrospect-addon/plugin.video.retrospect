@@ -166,7 +166,7 @@ class CustomLogger:
             self.logFormat = "%s - [%4sMB] %-8s - %-20s - %-4d - %s\n"
         else:
             # self.logFormat = "%s%s, %-4s%s" % ('%s - [', self.id, xbmc.getFreeMem(), 'MB] %-8s - %-20s - %-4d - %s\n')
-            self.logFormat = '%s - %-8s - %-20s - %-4d - %s\n'
+            self.logFormat = '%s - [%-8s] - %-20s - %-4d - %s\n'
 
         self.logLevelNames = {
             CRITICAL: 'CRITICAL',
