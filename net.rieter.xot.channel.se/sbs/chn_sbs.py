@@ -14,6 +14,7 @@ from urihandler import UriHandler
 from streams.m3u8 import M3u8
 from helpers.htmlentityhelper import HtmlEntityHelper
 from parserdata import ParserData
+from debug.router import Router
 
 from logger import Logger
 
@@ -188,7 +189,7 @@ class Channel(chn_class.Channel):
 
         # Logger.Trace(p)
         name = p["title"]
-        showName = p.get("video_metadata_show", None)
+        # showName = p.get("video_metadata_show", None)
         videoId = None
         channelSlug = None
         homeChannelSlug = None
@@ -207,7 +208,7 @@ class Channel(chn_class.Channel):
             Logger.Warning("Found '%s' without 'term_id'", name)
             return None
 
-        Logger.Trace("Found '%s/%s' with id='%s'", showName or "<noShowName>", name, videoId)
+        # Logger.Trace("Found '%s/%s' with id='%s'", showName or "<noShowName>", name, videoId)
 
         if len(self.channelSlugs) > 0 \
                 and channelSlug not in self.channelSlugs \
@@ -219,7 +220,7 @@ class Channel(chn_class.Channel):
         # now get the items
         url = "%s/shows/%s/seasons/?show_id=%s&items=%s&sort=episode_number_desc&page=0" \
               % (self.baseUrl, videoId, videoId, self.videoPageSize)
-        item = mediaitem.MediaItem(showName or name, url)
+        item = mediaitem.MediaItem(name, url)
         item.description = p.get("secondary_title")
 
         # set the date
@@ -300,7 +301,9 @@ class Channel(chn_class.Channel):
         season = resultSet.get("season", None)
         episode = resultSet.get("episode", None)
         if not subtitle and season and episode:
-            subtitle = "s%02de%02d" % (season, episode)
+            Logger.Debug("Found season (%s) and episode (%s) data", season, episode)
+
+            subtitle = "s%02de%02d" % (int(season), int(episode))
         if subtitle:
             title = "%s - %s" % (title, subtitle)
 
@@ -382,6 +385,7 @@ class Channel(chn_class.Channel):
         """
 
         videoData = UriHandler.Open(item.url, proxy=self.proxy)
+
         if not videoData:
             return item
 
@@ -423,15 +427,26 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
         url = json.GetValue("hls")
 
+        if url is None:
+            return False
+
         streamsFound = False
-        qs = url.split("?")[-1]
+        if "?" in url:
+            qs = url.split("?")[-1]
+        else:
+            qs = None
         for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
             # and we need to append the original QueryString
+            if "X-I-FRAME-STREAM" in s:
+                continue
+
             streamsFound = True
-            if "?" in s:
-                s = "%s&%s" % (s, qs)
-            else:
-                s = "%s?%s" % (s, qs)
+            if qs is not None:
+                if "?" in s:
+                    s = "%s&%s" % (s, qs)
+                else:
+                    s = "%s?%s" % (s, qs)
+
             part.AppendMediaStream(s, b)
 
         return streamsFound
