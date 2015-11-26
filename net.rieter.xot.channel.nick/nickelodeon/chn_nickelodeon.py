@@ -2,6 +2,7 @@
 import chn_class
 
 from regexer import Regexer
+from parserdata import ParserData
 from logger import Logger
 from urihandler import UriHandler
 
@@ -26,16 +27,6 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the main parsing data
-        self.episodeItemRegex = """<a[^>]+href="(?<url>/[^']+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'>\W+<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
-        self.episodeItemRegex = self.episodeItemRegex.replace("?<", "?P<")  # Expresso to Python compatibility
-
-        self.videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)" />\W+<p class='title'>(?<title>[^<]+)</p>\W+<p class='subtitle'>(?<subtitle>[^>]+)</p>"""
-        self.videoItemRegex = self.videoItemRegex.replace("?<", "?P<")  # Expresso to Python compatibility
-
-        self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
-        self.pageNavigationRegexIndex = 1
-        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
-
         if self.channelCode == 'nickelodeon':
             self.noImage = "nickelodeonimage.png"
             self.mainListUri = "http://www.nickelodeon.nl/shows"
@@ -54,6 +45,21 @@ class Channel(chn_class.Channel):
         else:
             raise NotImplementedError("Unknown channel code")
 
+        episodeItemRegex = """<a[^>]+href="(?<url>/[^']+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'>\W+<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
+        episodeItemRegex = Regexer.FromExpresso(episodeItemRegex)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            parser=episodeItemRegex, creator=self.CreateEpisodeItem)
+
+        videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)" />\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
+        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        self._AddDataParser("*", parser=videoItemRegex, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
+
+        self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
+        self.pageNavigationRegexIndex = 1
+        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+
+        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
 
         #===============================================================================================================

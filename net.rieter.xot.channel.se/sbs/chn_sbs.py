@@ -14,8 +14,6 @@ from urihandler import UriHandler
 from streams.m3u8 import M3u8
 from helpers.htmlentityhelper import HtmlEntityHelper
 from parserdata import ParserData
-from debug.router import Router
-
 from logger import Logger
 
 

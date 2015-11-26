@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: Swedish SBS channel change video content platform and broke Kanal 5, Kanal 9 and Kanal 11 (Fixes #673)
+Fixed: Swedish Kanal 5/9/11 updated their API and broke the channels (Fixes #679)
+Fixed: TV4Play added more subtitle streams that where interpreted as video (Fixes #676)
 
 [I]Previous changes[/I]
+Fixed: Swedish SBS channel change video content platform and broke Kanal 5, Kanal 9 and Kanal 11 (Fixes #673)
 Fixed: SVT Categories would mix up videos and folders (Fixes #652)
 Added: TV12 and TV7 via TV4Play (Fixes #631)
 Fixed: TV4Play had some broken lists (Fixes #629)
