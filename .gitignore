@@ -1,38 +1,12 @@
 *.pyo
 *.pyc
-.idea/workspace.xml
+#/**/Thumbs.db
+/**/*.lnk
 
-# /
-/.settings
-/BUILD
-/data/*.pstats
-
-# /images/
-/images/*.lnk
-
-# /net.rieter.xot/
 /net.rieter.xot/*.log
-
-# /net.rieter.xot/resources/libs/
-/net.rieter.xot/resources/libs/pysrc
 /net.rieter.xot/resources/settings.xml
+/net.rieter.xot.channel.streams/radionl/data/*
 
-# /net.rieter.xot/resources/skins/MC360/media/
-/net.rieter.xot/resources/skins/MC360/media/Thumbs.db
-
-# /net.rieter.xot.channel.rtlnl/rtl/
-/net.rieter.xot.channel.rtlnl/rtl/Thumbs.db
-
-# /net.rieter.xot.www/net.rieter.xot/
-/net.rieter.xot.www/*/*.7z
-/net.rieter.xot.www/*/*.zip
-
-# /utils/
-/utils/BUILD
-/userdata
-
-/net.rieter.filmdvd
-/net.rieter.pathe.script
 /metadata.*
 /packages
 /plugin.*
@@ -43,12 +17,3 @@
 /webinterface.*
 /screensaver.*
 /repository.*
-/net2.rieter.xot.trac11612
-/net2.rieter.xot.trac11731
-/net2.rieter.xot.trac12642
-/XOT-Uzg.v3.pyproj
-/XOT-Uzg.v3.pyproj.user
-/XOT-Uzg.v3.sln
-/XOT-Uzg.v3.v12.suo
-/net.rieter.xot.userdata
-/net.rieter.xot.channel.streams/radionl/data/*
