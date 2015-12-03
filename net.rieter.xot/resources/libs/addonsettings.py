@@ -677,7 +677,7 @@ class AddonSettings:
             settingXml = '<setting id="channel_%s_visible" type="bool" label="30042" ' \
                          'default="true" visible="eq(-%%s,%s)" />' % \
                          (channel.guid, channel.safeName)
-            Logger.Error(settingXml)
+            Logger.Trace(settingXml)
             settings[channel.moduleName].append(settingXml)
 
             if not channel.settings:

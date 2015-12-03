@@ -8,6 +8,7 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import hashlib
+import shutil
 import os
 
 from textures import TextureBase
@@ -56,21 +57,27 @@ class Cached(TextureBase):
 
         # Check if we already have the file
         texturePath = os.path.join(self.__channelTexturePath, fileName)
+
         if not os.path.isfile(texturePath):
             # Missing item. Fetch it
-            uri = "%s/%s" % (self.__channelTextureUrl, fileName)
-            self._logger.Trace("Fetching texture '%s' from '%s'", fileName, uri)
-
-            imageBytes = self.__uriHandler.Open(uri)
-            if imageBytes:
-                fs = open(texturePath, mode='wb')
-                fs.write(imageBytes)
-                fs.close()
+            localPath = os.path.join(self._channelPath, fileName)
+            if os.path.isfile(localPath):
+                self._logger.Trace("Fetching texture '%s' from '%s'", fileName, localPath)
+                shutil.copyfile(localPath, texturePath)
             else:
-                # fallback to local cache.
-                # texturePath = os.path.join(self._channelPath, fileName)
-                # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
-                self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texturePath)
+                uri = "%s/%s" % (self.__channelTextureUrl, fileName)
+                self._logger.Trace("Fetching texture '%s' from '%s'", fileName, uri)
+
+                imageBytes = self.__uriHandler.Open(uri)
+                if imageBytes:
+                    fs = open(texturePath, mode='wb')
+                    fs.write(imageBytes)
+                    fs.close()
+                else:
+                    # fallback to local cache.
+                    # texturePath = os.path.join(self._channelPath, fileName)
+                    # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
+                    self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texturePath)
 
         self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)
         Cached.__retrievedTexturePaths.append(texturePath)
