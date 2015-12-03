@@ -226,7 +226,9 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         thumbUrl = resultSet[0]
-        # episodeUrl = resultSet[1]
+        episodeUrl = resultSet[1]
+        if not episodeUrl.startswith("http"):
+            episodeUrl = "%s%s" % (self.baseUrl, episodeUrl)
         episodeId = resultSet[2]
         programTitle = resultSet[3]
         episodeTitle = resultSet[4]
@@ -241,7 +243,7 @@ class Channel(chn_class.Channel):
         if programTitle:
             title = "%s - %s" % (programTitle, episodeTitle)
 
-        url = "http://www.538.nl/static/VdaGemistBundle/Feed/xml/idGemist/%s" % (episodeId,)
+        url = "http://www.538.nl/static/VdaGemistBundle/Feed/xml/idGemist/%s|%s" % (episodeId, episodeUrl)
 
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'
@@ -319,15 +321,24 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
+        rssUrl, htmlUrl = item.url.split("|", 1)
+
         # now the mediaurl is derived. First we try WMV
-        data = UriHandler.Open(item.url)
+        data = UriHandler.Open(rssUrl, proxy=self.proxy)
         item.MediaItemParts = []
         i = 1
+        found = False
         for part in Regexer.DoRegex(self.mediaUrlRegex, data):
+            found = True
             name = "%s - Deel %s" % (item.name, i)
             mediaPart = mediaitem.MediaItemPart(name, part, 128)
             item.MediaItemParts.append(mediaPart)
             i += 1
+
+        if not found:
+            data = UriHandler.Open(htmlUrl, proxy=self.proxy)
+            for mediaUrl in Regexer.DoRegex('<meta property="og:video"[^>]+content="([^"]+)" />', data):
+                item.AppendSingleStream(mediaUrl, 128)
 
         item.complete = True
         return item

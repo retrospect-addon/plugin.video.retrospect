@@ -319,7 +319,7 @@ class AddonSettings:
         """Returns the maximum bitrate (kbps) for streams specified by the user"""
 
         setting = AddonSettings.__GetSetting(AddonSettings.__STREAM_BITRATE)
-        return int(setting)
+        return int(setting or 8000)
 
     @staticmethod
     def GetStreamAutoBitrate():
