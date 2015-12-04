@@ -41,6 +41,7 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         self.mainListUri = "http://www.svtplay.se/program"
+        # self.baseUrl = "http://www.svtplay.se/ajax/sok/forslag.json"
         self.baseUrl = "http://www.svtplay.se"
         self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
@@ -83,6 +84,7 @@ class Channel(chn_class.Channel):
         catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
         self._AddDataParser("^http://www.svtplay.se/[^/?]+\?tab=titlar$", matchType=ParserData.MatchRegex,
                             preprocessor=self.StripNonCategories, parser=catRegex, creator=self.CreateCategoryItem)
+        self._AddDataParser("http://www.svtplay.se/sok", parser=catRegex, creator=self.CreateCategoryItem)
         # self._AddDataParser("^http://www.svtplay.se/[^/?]+\?tab=titlar$", matchType=ParserData.MatchRegex,
         #                     parser=extendedRegex, creator=self.CreateVideoItemExtended)
 
@@ -116,6 +118,21 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    def SearchSite(self, url=None):  # @UnusedVariable
+        """Creates an list of items by searching the site
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        """
+
+        url = "http://www.svtplay.se/sok?q=%s"
+        return chn_class.Channel.SearchSite(self, url)
+
     def AddLiveItems(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
 
@@ -131,6 +148,7 @@ class Channel(chn_class.Channel):
             "Kanaler": "http://www.svtplay.se/kanaler",
             "Livesändningar": "http://www.svtplay.se/ajax/live?sida=1",
 
+            "S&ouml;k": "searchSite",
             "Senaste program": "http://www.svtplay.se/senaste?sida=1",
             "Sista chansen": "http://www.svtplay.se/sista-chansen?sida=1",
             "Populära": "http://www.svtplay.se/populara?sida=1",
@@ -230,7 +248,7 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         item.isGeoLocked = resultSet["Abroad"] == "false"
 
-        if resultSet["Date1"] is not None:
+        if resultSet["Date1"] is not None and resultSet["Date1"].lower() != "imorgon":
             year, month, day, hour, minutes = self.__GetDate(resultSet["Date1"], resultSet["Date2"], resultSet["Date3"])
             item.SetDate(year, month, day, hour, minutes, 0)
 

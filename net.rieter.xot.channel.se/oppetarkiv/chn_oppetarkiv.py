@@ -43,14 +43,69 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
+        self._AddDataParser(self.mainListUri, preprocessor=self.AddSearch,
+                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
                               '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
                               '*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
-        self.pageNavigationRegex = '<a href="(/[^?]+\?sida=)(\d+)(&amp;sort=[^"]+)'
+        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
+        self.pageNavigationRegex = '<a href="(/[^?]+\?[^"]*sida=)(\d+)(&amp;sort=[^"]+)?'
         self.pageNavigationRegexIndex = 1
+        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
+
+    def AddSearch(self, data):
+        """Performs pre-process actions for data processing, in this case adding a search
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        searchItem = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
+        searchItem.complete = True
+        searchItem.thumb = self.noImage
+        searchItem.dontGroup = True
+        searchItem.fanart = self.fanart
+        # searchItem.SetDate(2099, 1, 1, text="")
+        # -> No items have dates, so adding this will force a date sort in Retrospect
+        items.append(searchItem)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def SearchSite(self, url=None):  # @UnusedVariable
+        """Creates an list of items by searching the site
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        """
+
+        url = "http://www.oppetarkiv.se/sok/?q=%s"
+        return chn_class.Channel.SearchSite(self, url)
 
     def CreatePageItem(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
