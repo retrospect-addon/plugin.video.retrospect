@@ -86,7 +86,7 @@ class Statistics:
             # now we need something async without caching
             userAgent = AddonSettings.GetUserAgent()
             if userAgent:
-                UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent})
+                UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent}, noCache=True)
             else:
                 UriHandler.Open(url)
         except:
