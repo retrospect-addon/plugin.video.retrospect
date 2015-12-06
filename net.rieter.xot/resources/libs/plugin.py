@@ -514,7 +514,11 @@ class Plugin:
                 Logger.Warning("PlayVideoItem did not return valid playdata")
                 return
             else:
-                (playList, srt, xbmcPlayer) = playData
+                playList, srt = playData
+
+            # Get the Kodi Player instance (let Kodi decide what player, see
+            # http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)
+            xbmcPlayer = xbmc.Player()
 
             # now we force the busy dialog to close, else the video will not play and the
             # setResolved will not work.

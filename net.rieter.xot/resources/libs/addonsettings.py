@@ -38,11 +38,9 @@ class AddonSettings:
     __PROXY_SETTING_PATTERN = "channel_%s_proxy"
     __FOLDER_PREFIX = "folder_prefix"
     __EMPTY_FOLDER = "empty_folder"
-    # __HIDE_GEOLOCKED = "hide_geolocked"
     __GEO_REGION = "geo_region"
     __LOG_LEVEL = "log_level"
     __UZG_CACHE = "uzg_cache_new"
-    __RPI_PLAYER = "rpi_player_type"
     __UZG_CACHE_PATH = "uzg_cache_path"
     __SEND_STATISTICS = "send_statistics"
     __SHOW_CATEGORIES = "show_categories"
@@ -90,20 +88,6 @@ class AddonSettings:
         return setting
 
     @staticmethod
-    def GetPlayer(textOnly=False):
-        """ Get's the default player. this is only used for raspberry pi. """
-
-        try:
-            settingIndex = int(AddonSettings.__GetSetting(AddonSettings.__RPI_PLAYER) or 0)
-            if textOnly:
-                return ["Auto", "DVDPlayer"][settingIndex]
-            else:
-                return [xbmc.PLAYER_CORE_AUTO, xbmc.PLAYER_CORE_DVDPLAYER][settingIndex]
-        except Exception, e:
-            Logger.Warning("Error determining the Player Core in Kodi, falling back to PLAYER_CORE_AUTO:\n%s", e.message)
-            return xbmc.PLAYER_CORE_AUTO
-
-    @staticmethod
     def GetProxyGroupIds(asString=False, asCountryCodes=False):
         """ returns the all available ProxyGroupId's in order """
 
@@ -123,15 +107,6 @@ class AddonSettings:
         """ Returns the localized category names. """
 
         return AddonSettings.__GetBooleanSetting(AddonSettings.__SHOW_CATEGORIES)
-
-    # @staticmethod
-    # def HideGeoLocked():
-    #     """ Returs the config value that indicates of GeoLocked
-    #     items should be hidden.
-    #
-    #     """
-    #
-    #     return AddonSettings.__GetBooleanSetting(AddonSettings.__HIDE_GEOLOCKED)
 
     @staticmethod
     def ShowDrmWarning():
@@ -345,7 +320,7 @@ class AddonSettings:
 
         """
 
-        setting = int(AddonSettings.__GetSetting(AddonSettings.__EMPTY_FOLDER))
+        setting = int(AddonSettings.__GetSetting(AddonSettings.__EMPTY_FOLDER) or 1)
         if setting == 0:
             return "error"
         elif setting == 1:
@@ -582,6 +557,7 @@ class AddonSettings:
 
         # Then we read the original file
         filenameTemplate = os.path.join(config.rootDir, "resources", "settings_template.xml")
+        # noinspection PyArgumentEqualDefault
         settingsXml = open(filenameTemplate, "r")
         contents = settingsXml.read()
         settingsXml.close()
@@ -928,7 +904,6 @@ class AddonSettings:
         value = "%s: %s" % ("MaxStreamBitrate", AddonSettings.GetMaxStreamBitrate())
         value = pattern % (value, "SortingAlgorithm", AddonSettings.GetSortAlgorithm())
         value = pattern % (value, "UseSubtitle", AddonSettings.UseSubtitle())
-        value = pattern % (value, "Player", AddonSettings.GetPlayer(textOnly=True))
         value = pattern % (value, "CacheHttpResponses", AddonSettings.CacheHttpResponses())
         value = pattern % (value, "Folder Prefx", "'%s'" % AddonSettings.GetFolderPrefix())
         value = pattern % (value, "Empty List Behaviour", AddonSettings.GetEmptyListBehaviour())
@@ -937,7 +912,7 @@ class AddonSettings:
         value = pattern % (value, "Geo Location", AddonSettings.HideGeoLockedItemsForLocation(None, valueOnly=True))
         value = pattern % (value, "Filter Folders", AddonSettings.HideRestrictedFolders())
         value = pattern % (value, "DRM Warning", AddonSettings.ShowDrmWarning())
-        # value = pattern % (value, "Hide DRM Items", AddonSettings.HideDrmItems())
+        value = pattern % (value, "Hide DRM Items", AddonSettings.HideDrmItems())
         value = pattern % (value, "Hide Premium Items", AddonSettings.HidePremiumItems())
         value = pattern % (value, "Show Dutch", AddonSettings.ShowChannelWithLanguage("nl"))
         value = pattern % (value, "Show Swedish", AddonSettings.ShowChannelWithLanguage("se"))
@@ -947,6 +922,7 @@ class AddonSettings:
         # value = pattern % (value, "Show English Canadian", AddonSettings.ShowChannelWithLanguage("ca-en"))
         value = pattern % (value, "Show British", AddonSettings.ShowChannelWithLanguage("en-gb"))
         value = pattern % (value, "Show German", AddonSettings.ShowChannelWithLanguage("de"))
+        # noinspection PyTypeChecker
         value = pattern % (value, "Show Other languages", AddonSettings.ShowChannelWithLanguage(None))
         value = pattern % (value, "UZG Cache Path", AddonSettings.GetUzgCachePath())
         value = pattern % (value, "UZG Cache Time", AddonSettings.GetUzgCacheDuration())

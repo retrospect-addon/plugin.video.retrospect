@@ -308,7 +308,7 @@ class Channel:
         oldCount = len(items)
         if hideDrmProtected:
             Logger.Debug("Hiding DRM items")
-            items = filter(lambda i: i.isDrmProtected or i.type == typeToExclude, items)
+            items = filter(lambda i: not i.isDrmProtected or i.type == typeToExclude, items)
         if hideGeoLocked:
             Logger.Debug("Hiding GEO Locked items due to GEO region: %s", self.language)
             items = filter(lambda i: not i.isGeoLocked or i.type == typeToExclude, items)
@@ -970,21 +970,11 @@ class Channel:
         # get the playlist
         (playList, srt) = item.GetXBMCPlayList(bitrate, updateItemUrls=True, proxy=self.proxy)
 
-        # determine the player
-        if item.type == "audio":
-            Logger.Debug("Playing using default audio player")
-            xbmcPlayer = xbmc.Player(xbmc.PLAYER_CORE_PAPLAYER)
-        else:
-            playerName = AddonSettings.GetPlayer(textOnly=True)
-            playerType = AddonSettings.GetPlayer()
-            Logger.Debug("Playing using video player: %s", playerName)
-            xbmcPlayer = xbmc.Player(playerType)
-
         # call for statistics with timing
         Statistics.RegisterPlayback(self, Initializer.StartTime, -downloadDuration)
 
         # if the item urls have been updated, don't start playback, but return
-        return playList, srt, xbmcPlayer
+        return playList, srt
 
     def GetDefaultCachePath(self):
         """ returns the default cache path for this channel

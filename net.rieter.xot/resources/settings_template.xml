@@ -19,14 +19,13 @@
 
         <setting type="lsep" label="30046" />
         <setting id="show_drm_warning" type="bool" label="30019" enable="true" default="true" />
-        <!--<setting id="hide_drm" type="bool" label="30080" enable="true" default="false" />-->
-        <setting id="hide_types" type="enum" label="30082" lvalues="30083|30084" default="1" />
+        <setting id="hide_drm" type="bool" label="30080" enable="true" default="false" />
         <setting id="hide_premium" type="bool" label="30081" enable="true" default="false" />
+        <setting id="hide_types" type="enum" label="30082" lvalues="30083|30084" default="1" />
         <setting id="geo_region" type="select" label="30085" lvalues="30074|30024|30047|30044|30027|30007|30008|30005|30015|30006" />
         <setting id="geo_label" type="text" label="30073" enable="false" />
 
         <setting type="lsep" label="30055" />
-        <setting id="rpi_player_type" type="enum" label="Raspberry Pi Player" default="0" values="Auto|DVD Player" visible="System.Platform.Linux.RaspberryPi" />
         <setting id="send_statistics" type="bool" label="30052" default="true" />
         <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
         <setting id="http_cache" type="bool" label="30031" default="true" />
