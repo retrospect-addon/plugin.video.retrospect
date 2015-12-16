@@ -58,7 +58,7 @@ class Channel(chn_class.Channel):
         self.folderItemRegex = '<a href="(?<url>/iplayer/brand/[^"]+)"[^>]*>\W+<i[^>]+></i>\W+<span[^>]+>' \
                                '(?<title>[^<]+)<'.replace("(?<", "(?P<")
         self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
-        self.videoItemRegex = '<a href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+</div>\W+' \
+        self.videoItemRegex = '<a\W+href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+</div>\W+' \
                               '(?:<div[^>]+>[^>]+</div>\W+)?<div class="primary">\W+<div class="r-image"[^>]+' \
                               'src="(?<thumburl>[^"]+)"[\w\W]{0,500}?<div class="secondary">\W+<div[^>]+>' \
                               '(?<title>[^<]+)</div>\W+<div[^>]+>(?<subtitle>[^<]+)</div>\W+<p[^>]*>' \
