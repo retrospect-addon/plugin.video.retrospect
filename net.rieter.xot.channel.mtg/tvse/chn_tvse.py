@@ -12,6 +12,7 @@ from logger import Logger
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
+from parserdata import ParserData
 # from addonsettings import AddonSettings
 from streams.m3u8 import M3u8
 
@@ -31,7 +32,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        # The following data was taken from http://playapi.mtgx.tv/v1/channels
+        # The following data was taken from http://playapi.mtgx.tv/v3/channels
         channelId = None
         if self.channelCode == "se3":
             self.mainListUri = "http://www.tv3play.se/program"
@@ -75,23 +76,27 @@ class Channel(chn_class.Channel):
 
         # Lithuanian channels
         elif self.channelCode == "tv3lt":
-            self.mainListUri = "http://www.tv3play.lt/programos"
+            self.mainListUri = "http://play.tv3.lt/programos"
+            # self.mainListUri = "http://www.tv3play.lt/programos"
             self.noImage = "tv3ltimage.png"
             channelId = "3000|6503"
 
         elif self.channelCode == "tv6lt":
-            self.mainListUri = "http://www.tv3play.lt/programos"
+            self.mainListUri = "http://play.tv3.lt/programos"
+            # self.mainListUri = "http://www.tv3play.lt/programos"
             self.noImage = "tv6ltimage.png"
             channelId = "6501"
 
         elif self.channelCode == "tv8lt":
-            self.mainListUri = "http://www.tv3play.lt/programos"
+            self.mainListUri = "http://play.tv3.lt/programos"
+            # self.mainListUri = "http://www.tv3play.lt/programos"
             self.noImage = "tv8seimage.png"
             channelId = "6502"
 
         # Letvian Channel
         elif self.channelCode == "se3lv":
-            self.mainListUri = "http://www.tvplay.lv/parraides"
+            self.mainListUri = "http://tvplay.skaties.lv/parraides"
+            # self.mainListUri = "http://www.tvplay.lv/parraides"
             self.noImage = "tv3lvimage.png"
             channelId = "1482|6400|6401|6402|6403|6404|6405"
 
@@ -111,6 +116,16 @@ class Channel(chn_class.Channel):
             self.noImage = "viasat4noimage.png"
             channelId = "1337"
 
+        self.baseUrl = self.mainListUri.rsplit("/", 1)[0]
+        self.searchInfo = {
+            "se": ["sok", "S&ouml;k"],
+            "ee": ["otsing", "Otsi"],
+            "dk": ["sog", "S&oslash;g"],
+            "no": ["sok", "S&oslash;k"],
+            "lt": ["paieska", "Paie&scaron;ka"],
+            "lv": ["meklet", "Mekl&#275;t"]
+        }
+
         # setup the urls
         # self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-0.6.9.swf"
         # self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-1.2.2.swf"
@@ -121,17 +136,35 @@ class Channel(chn_class.Channel):
         # different channels on the same URL.
         self.episodeItemRegex = 'data-channel-id="(?:%s)"[^>]*>\W+<div class="clip-inner">\W+' \
                                 '<a\W+href="([^"]+)"[^>]*>[\w\W]{0,300}?<img[^>]+data-src="([^"]+)"[^>]*>' \
-                                '[\w\W]{0,200}?<h3[^>]+>([^<]+)' % (channelId, )
+                                '[\w\W]{0,200}?<h3[^>]+>([^<]+)' % (channelId,)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            preprocessor=self.AddSearch,
+                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+
+        searchRegex = '<a\W+href="[^"]+/(?<url>\d+)"[^>]*>[\w\W]{0,300}?<img[^>]+data-src="' \
+                      '(?<thumburl>[^"]+)"[^>]*>[\w\W]{0,200}?<h3[^>]+>(?<title>[^<]+)'
+        # searchRegex = '<a\W+href="([^"]+)"[^>]*>[\w\W]{0,300}?<img[^>]+data-src="' \
+        #               '([^"]+)"[^>]*>[\w\W]{0,200}?<h3[^>]+>([^<]+)'
+        searchRegex = Regexer.FromExpresso(searchRegex)
+        self._AddDataParser(self.__GetSearchUrl(),
+                            parser=searchRegex, creator=self.CreateSearchResult)
+
         self.videoItemJson = ('_embedded', 'videos')
+        self._AddDataParser("*", json=True, preprocessor=self.PreProcessFolderList,
+                            parser=self.videoItemJson, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
+
         self.pageNavigationJson = ("_links", "next")
         self.pageNavigationJsonIndex = 0
+        self._AddDataParser("*", json=True,
+                            parser=self.pageNavigationJson, creator=self.CreatePageItem)
 
-        #===============================================================================================================
+        # ===============================================================================================================
         # non standard items
         self.episodeLabel = LanguageHelper.GetLocalizedString(LanguageHelper.EpisodeId)
         self.seasonLabel = LanguageHelper.GetLocalizedString(LanguageHelper.SeasonId)
 
-        #===============================================================================================================
+        # ===============================================================================================================
         # Test Cases
         #  No GEO Lock: Extra Extra
         #  GEO Lock:
@@ -166,6 +199,58 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         return item
 
+    def AddSearch(self, data):
+        """Performs pre-process actions for data processing/
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        title = "\a.: %s :." % (self.searchInfo.get(self.language, self.searchInfo["se"])[1], )
+        Logger.Trace("Adding search item: %s", title)
+        searchItem = mediaitem.MediaItem(title, "searchSite")
+        searchItem.thumb = self.noImage
+        searchItem.fanart = self.fanart
+        items.append(searchItem)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def SearchSite(self, url=None):
+        """Creates an list of items by searching the site
+
+        Keyword Arguments:
+        url : String - Url to use to search with a %s for the search parameters
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        """
+
+        url = "%s?term=%%s" % (self.__GetSearchUrl(), )
+        return chn_class.Channel.SearchSite(self, url)
+
     def PreProcessFolderList(self, data):
         """Performs pre-process actions for data processing/
 
@@ -195,12 +280,12 @@ class Channel(chn_class.Channel):
         dataId = Regexer.DoRegex('data-format-id="(\d+)"', data)[-1]
         Logger.Debug("Found FormatId = %s", dataId)
 
-        programUrl = "http://playapi.mtgx.tv/v1/videos?format=%s&order=-airdate&type=program" % (dataId, )
+        programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
         data = UriHandler.Open(programUrl, proxy=self.proxy)
 
-        clipUrl = "http://playapi.mtgx.tv/v1/videos?format=%s&order=-updated&type=clip" % (dataId, )
+        clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
         clipTitle = LanguageHelper.GetLocalizedString(LanguageHelper.Clips)
-        clipItem = mediaitem.MediaItem("\a.: %s :." % (clipTitle, ), clipUrl)
+        clipItem = mediaitem.MediaItem("\a.: %s :." % (clipTitle,), clipUrl)
         clipItem.thumb = self.noImage
         items.append(clipItem)
 
@@ -231,6 +316,37 @@ class Channel(chn_class.Channel):
         item = mediaitem.MediaItem(page, url)
         item.type = "page"
         Logger.Debug("Created '%s' for url %s", item.name, item.url)
+        return item
+
+    def CreateSearchResult(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        Logger.Trace(resultSet)
+        item = mediaitem.MediaItem(
+                resultSet["title"],
+                "http://playapi.mtgx.tv/v3/videos/stream/%s" % (resultSet["url"], )
+        )
+        item.type = "video"
+        item.thumb = resultSet["thumburl"]
+        item.complete = False
+        # item.description = resultSet["description"]
         return item
 
     def CreateVideoItem(self, resultSet):
@@ -264,15 +380,15 @@ class Channel(chn_class.Channel):
 
         title = resultSet["title"]
         if "_links" not in resultSet or \
-                "stream" not in resultSet["_links"] or \
-                "href" not in resultSet["_links"]["stream"]:
+                        "stream" not in resultSet["_links"] or \
+                        "href" not in resultSet["_links"]["stream"]:
             Logger.Warning("No streams found for %s", title)
             return None
 
         # the description
         description = resultSet["description"].strip()  # The long version
-        summary = resultSet["summary"].strip()          # The short version
-        #Logger.Trace("Comparing:\nDesc: %s\nSumm:%s", description, summary)
+        summary = resultSet["summary"].strip()  # The short version
+        # Logger.Trace("Comparing:\nDesc: %s\nSumm:%s", description, summary)
         if description.startswith(summary):
             pass
         else:
@@ -440,3 +556,9 @@ class Channel(chn_class.Channel):
             item.complete = True
         Logger.Trace("Found mediaurl: %s", item)
         return item
+
+    def __GetSearchUrl(self):
+        searchInfo = self.searchInfo.get(self.language, None)
+        if searchInfo is None:
+            searchInfo = self.searchInfo["se"]
+        return "%s/%s" % (self.baseUrl, searchInfo[0])

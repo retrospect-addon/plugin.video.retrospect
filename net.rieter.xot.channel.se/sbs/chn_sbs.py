@@ -15,6 +15,7 @@ from streams.m3u8 import M3u8
 from helpers.htmlentityhelper import HtmlEntityHelper
 from parserdata import ParserData
 from logger import Logger
+from xbmcwrapper import XbmcWrapper
 
 
 # noinspection PyIncorrectDocstring
@@ -93,6 +94,10 @@ class Channel(chn_class.Channel):
         self._AddDataParser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
                             matchType=ParserData.MatchRegex,
                             updater=self.UpdateChannelItem)
+
+        self._AddDataParser("http://www.dplay.se/api/v2/ajax/search/?types=show&items=", json=True,
+                            parser=("data", ), creator=self.CreateProgramItem)
+
         self._AddDataParser("*", json=True,
                             parser=("data",), creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
@@ -167,6 +172,12 @@ class Channel(chn_class.Channel):
             live.isLive = True
             live.fanart = self.fanart
             items.append(live)
+
+        search = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
+        search.type = "folder"
+        search.dontGroup = True
+        search.fanart = self.fanart
+        items.append(search)
 
         return data, items
 
@@ -272,6 +283,47 @@ class Channel(chn_class.Channel):
         item.thumb = self.parentItem.thumb
         return item
 
+    def SearchSite(self, url=None):
+        """Creates an list of items by searching the site
+
+        Keyword Arguments:
+        url : String - Url to use to search with a %s for the search parameters
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        """
+
+        # http://www.dplay.se/api/v2/ajax/search/?q=test&items=12&types=video&video_types=episode,live
+        # http://www.dplay.se/api/v2/ajax/search/?q=test&items=6&types=show
+
+        needle = XbmcWrapper.ShowKeyBoard()
+        if needle:
+            Logger.Debug("Searching for '%s'", needle)
+            needle = HtmlEntityHelper.UrlEncode(needle)
+
+            url = "http://www.dplay.se/api/v2/ajax/search/?types=video&items=%s" \
+                  "&video_types=episode,live&q=%%s&page=0" % (self.videoPageSize, )
+            searchUrl = url % (needle, )
+            temp = mediaitem.MediaItem("Search", searchUrl)
+            episodes = self.ProcessFolderList(temp)
+
+            url = "http://www.dplay.se/api/v2/ajax/search/?types=show&items=%s" \
+                  "&q=%%s&page=0" % (self.programPageSize, )
+            searchUrl = url % (needle, )
+            temp = mediaitem.MediaItem("Search", searchUrl)
+            shows = self.ProcessFolderList(temp)
+            return shows + episodes
+
+        return []
+
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
@@ -293,6 +345,8 @@ class Channel(chn_class.Channel):
         """
 
         # Logger.Trace(resultSet)
+        if not resultSet:
+            return None
 
         title = resultSet["title"]
         subtitle = resultSet.get("secondary_title", None)

@@ -80,7 +80,6 @@ class Channel(chn_class.Channel):
         # Test cases:
         #   Batman - WideVine
         #   Antikdeckarna - Clips
-        #
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -152,48 +151,55 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        if self.channelCode != "tv4se":
-            return data, items
+        # if self.channelCode != "tv4se":
+        #     return data, items
 
         extras = {
-            "\a.: Kategorier :.": (
-                "http://webapi.tv4play.se/play/categories.json", None
-            ),
-            "\a.: Mest sedda programmen just nu :.": (
-                "http://webapi.tv4play.se/play/video_assets/most_viewed?type=episode&platform=tablet&is_live=false&"
-                "per_page=%s&start=0" % (self.maxPageSize,),
-                None
-            )
-        }
+            "\a.: S&ouml;k :.": (
+                "searchSite", None
+            )}
 
-        today = datetime.datetime.now()
-        days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
-        for i in range(0, 7, 1):
-            startDate = today - datetime.timedelta(i)
-            endDate = startDate + datetime.timedelta(1)
+        # Channel 4 specific items
+        if self.channelCode == "tv4se":
+            extras.update({
+                "\a.: Kategorier :.": (
+                    "http://webapi.tv4play.se/play/categories.json", None
+                ),
+                "\a.: Mest sedda programmen just nu :.": (
+                    "http://webapi.tv4play.se/play/video_assets/most_viewed?type=episode"
+                    "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.maxPageSize,),
+                    None
+                ),
+            })
 
-            day = days[startDate.weekday()]
-            if i == 0:
-                day = "Idag"
-            elif i == 1:
-                day = "Igår"
+            today = datetime.datetime.now()
+            days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
+            for i in range(0, 7, 1):
+                startDate = today - datetime.timedelta(i)
+                endDate = startDate + datetime.timedelta(1)
 
-            Logger.Trace("Adding item for: %s - %s", startDate, endDate)
-            # url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
-            #       "nyheterna,v%C3%A4der,ekonomi,lotto,sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s," \
-            #       "nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-g%C3%B6teborg,nyheterna-halland," \
-            #       "nyheterna-helsingborg,nyheterna-j%C3%B6nk%C3%B6ping,nyheterna-kalmar,nyheterna-link%C3%B6ping," \
-            #       "nyheterna-lule%C3%A5,nyheterna-malm%C3%B6,nyheterna-norrk%C3%B6ping,nyheterna-skaraborg," \
-            #       "nyheterna-skellefte%C3%A5,nyheterna-stockholm,nyheterna-sundsvall,nyheterna-ume%C3%A5," \
-            #       "nyheterna-uppsala,nyheterna-v%C3%A4rmland,nyheterna-v%C3%A4st,nyheterna-v%C3%A4ster%C3%A5s," \
-            #       "nyheterna-v%C3%A4xj%C3%B6,nyheterna-%C3%B6rebro,nyheterna-%C3%B6stersund,tv4-tolken," \
-            #       "fotbollskanalen-europa" \
-            #       "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
-            url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
-                  "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
-            url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, startDate.strftime("%Y%m%d"), endDate.strftime("%Y%m%d"))
-            dayName = "\a.: %s :." % (day, )
-            extras[dayName] = (url, startDate)
+                day = days[startDate.weekday()]
+                if i == 0:
+                    day = "Idag"
+                elif i == 1:
+                    day = "Igår"
+
+                Logger.Trace("Adding item for: %s - %s", startDate, endDate)
+                # url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
+                #       "nyheterna,v%C3%A4der,ekonomi,lotto,sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s," \
+                #       "nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-g%C3%B6teborg,nyheterna-halland," \
+                #       "nyheterna-helsingborg,nyheterna-j%C3%B6nk%C3%B6ping,nyheterna-kalmar,nyheterna-link%C3%B6ping," \
+                #       "nyheterna-lule%C3%A5,nyheterna-malm%C3%B6,nyheterna-norrk%C3%B6ping,nyheterna-skaraborg," \
+                #       "nyheterna-skellefte%C3%A5,nyheterna-stockholm,nyheterna-sundsvall,nyheterna-ume%C3%A5," \
+                #       "nyheterna-uppsala,nyheterna-v%C3%A4rmland,nyheterna-v%C3%A4st,nyheterna-v%C3%A4ster%C3%A5s," \
+                #       "nyheterna-v%C3%A4xj%C3%B6,nyheterna-%C3%B6rebro,nyheterna-%C3%B6stersund,tv4-tolken," \
+                #       "fotbollskanalen-europa" \
+                #       "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
+                url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
+                      "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
+                url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, startDate.strftime("%Y%m%d"), endDate.strftime("%Y%m%d"))
+                dayName = "\a.: %s :." % (day, )
+                extras[dayName] = (url, startDate)
 
         for name in extras:
             url, date = extras[name]
@@ -208,6 +214,9 @@ class Channel(chn_class.Channel):
                 item.SetDate(1901, 1, 1, 0, 0, 0, text="")
             items.append(item)
 
+        if not self.channelCode == "tv4se":
+            return data, items
+
         live = mediaitem.MediaItem("\a.: Live TV :.",
                                    "http://tv4live-i.akamaihd.net/hls/live/200284/akamaihls2/master.m3u8",
                                    type="video")
@@ -219,6 +228,27 @@ class Channel(chn_class.Channel):
 
         Logger.Debug("Pre-Processing finished")
         return data, items
+
+    def SearchSite(self, url=None):
+        """Creates an list of items by searching the site
+
+        Keyword Arguments:
+        url : String - Url to use to search with a %s for the search parameters
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        """
+        url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&page=1" \
+              "&sort_order=desc&type=episode&q=%%s&start=0" % (self.maxPageSize, )
+        return chn_class.Channel.SearchSite(self, url)
 
     def PreProcessFolderList(self, data):
         """Performs pre-process actions for data processing/
@@ -243,7 +273,9 @@ class Channel(chn_class.Channel):
         items = []
 
         # Add a klip folder only on the first page and only if it is not already a clip page
-        if "type=clip" not in self.parentItem.url and "&page=1&" in self.parentItem.url:
+        if "type=clip" not in self.parentItem.url \
+                and "&page=1&" in self.parentItem.url \
+                and "node_nids=" in self.parentItem.url:
             # get the category ID
             catStart = self.parentItem.url.rfind("node_nids=")
             # catEnd = self.parentItem.url.rfind("&start")
