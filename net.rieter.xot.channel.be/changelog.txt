@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Canvas updated their site (Fixes #677)
+Added: Ketnet (VRT) was added again (Fixes #686)
 
 [I]Previous Changes[/I]
+Fixed: Canvas updated their site (Fixes #677)
 Fixed: VTM site update broke listings (Fixes #656)
 Fixed: Eén stream selection issue (Fixes #557)
 Fixed: VTM Nieuws playback issues

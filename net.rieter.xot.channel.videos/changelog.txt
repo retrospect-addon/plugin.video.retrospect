@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Dumpert cookie consent issue (Fixes #628)
+Fixed: Eredivisie Live did not show any content (Fixes #651)
 
 [I]Previous changes[/I]
+Fixed: Dumpert cookie consent issue (Fixes #628)
 Fixed: Pathe updated their layout again (Fixes #577)
 Fixed: Pathe.nl updated their site (Fixes #576)
 Fixed: Dumpert (Fixes #527)

@@ -9,7 +9,7 @@
       "channelcode": "ketnet",
       "sortorder": 12,
       "language": "be",
-      "compatible": "Environments.NoPlatform"
+      "compatible": "Environments.All"
     },
     {
       "guid": "6C7374A8-B6BA-11E0-A21E-1A434824019B",
