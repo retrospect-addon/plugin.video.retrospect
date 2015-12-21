@@ -9,7 +9,8 @@
       "channelcode": "ketnet",
       "sortorder": 12,
       "language": "be",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "ketnetfanart.jpg"
     },
     {
       "guid": "6C7374A8-B6BA-11E0-A21E-1A434824019B",
