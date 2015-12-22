@@ -14,21 +14,23 @@
       "guid": "45527F0C-91FE-11E1-942B-5AB5BBE59B18",
       "name": "TV3 Play (Eesti)",
       "description": "TV3Play.ee episoodid",
-      "icon": "tv3nolarge.png",
+      "icon": "tv3eelarge.png",
       "category": "National",
       "channelcode": "tv3ee",
       "sortorder": 3,
-      "language": "ee"
+      "language": "ee",
+      "fanart": "tv3eefanart.png"
     },
     {
       "guid": "82D73241-284B-4326-9E32-AFEF3C439951",
       "name": "TV6 Play (Eesti)",
       "description": "TV6Play.ee episoodid",
-      "icon": "tv6selarge.png",
+      "icon": "tv6eelarge.png",
       "category": "National",
       "channelcode": "tv6ee",
       "sortorder": 6,
-      "language": "ee"
+      "language": "ee",
+      "fanart": "tv6eefanart.png"
     },
     {
       "guid": "FB34E1F0-2930-11DE-A339-255856D89593",
