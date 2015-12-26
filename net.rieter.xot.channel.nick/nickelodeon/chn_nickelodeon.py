@@ -45,12 +45,12 @@ class Channel(chn_class.Channel):
         else:
             raise NotImplementedError("Unknown channel code")
 
-        episodeItemRegex = """<a[^>]+href="(?<url>/[^']+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'>\W+<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
+        episodeItemRegex = """<a[^>]+href="(?<url>/[^"]+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'[^>]*>\W*<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
         episodeItemRegex = Regexer.FromExpresso(episodeItemRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeItemRegex, creator=self.CreateEpisodeItem)
 
-        videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)" />\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
+        videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
         videoItemRegex = Regexer.FromExpresso(videoItemRegex)
         self._AddDataParser("*", parser=videoItemRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)

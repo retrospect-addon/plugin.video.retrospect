@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
-Fixed:  Minor site change broke Nick channels (Fixes #680)
+Fixed: Minor site change broke Nick channels again...
+Fixed: Minor site change broke Nick channels (Fixes #680)
 
 [I]Previous changes[/I]
 Fixed: Nickelodeon changed their layout which broke playback (Fixes #636)
