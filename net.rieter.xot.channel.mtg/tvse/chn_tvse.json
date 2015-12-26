@@ -8,7 +8,8 @@
       "category": "National",
       "channelcode": "se3",
       "sortorder": 3,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv3sefanart.png"
     },
     {
       "guid": "45527F0C-91FE-11E1-942B-5AB5BBE59B18",
@@ -36,11 +37,12 @@
       "guid": "FB34E1F0-2930-11DE-A339-255856D89593",
       "name": "TV6 Play (Sverige)",
       "description": "Sändningar från TV6Play.se",
-      "icon": "tv6selarge.png",
+      "icon": "tv6large.png",
       "category": "National",
       "channelcode": "se6",
       "sortorder": 6,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv6viasatfanart.png"
     },
     {
       "guid": "BDC1A5C5-2777-4D05-BB5B-742A88B89CC5",
@@ -51,7 +53,7 @@
       "channelcode": "se8",
       "sortorder": 8,
       "language": "se",
-      "fanart": "tv8sefanart.png"
+      "fanart": "tv8sefanart.jpg"
     },
     {
       "guid": "584E7420-2867-11E3-AA01-F2806188709B",
@@ -61,7 +63,8 @@
       "category": "National",
       "channelcode": "se10",
       "sortorder": 10,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv10sefanart.png"
     },
     {
       "guid": "7FEDC7EA-2281-11E0-8F30-67B5DFD72085",
@@ -71,28 +74,31 @@
       "category": "National",
       "channelcode": "tv3lt",
       "sortorder": 3,
-      "language": "lt"
+      "language": "lt",
+      "fanart": "tv3ltfanart.jpg"
     },
     {
       "guid": "49A02D20-2283-11E0-8771-2AB7DFD72085",
       "name": "TV6 Play (Lietuva)",
       "description": "TV6Play.lt web.tv",
-      "icon": "tv6ltlarge.png",
+      "icon": "tv6large.png",
       "category": "National",
       "channelcode": "tv6lt",
       "sortorder": 6,
       "language": "lt",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "tv6viasatfanart.png"
     },
     {
       "guid": "1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD",
       "name": "TV8 Play (Lietuva)",
       "description": "TV8Play.lt web.tv",
-      "icon": "tv8selarge.png",
+      "icon": "tv8ltlarge.png",
       "category": "National",
       "channelcode": "tv8lt",
       "sortorder": 8,
-      "language": "lt"
+      "language": "lt",
+      "fanart": "tv8ltfanart.jpg"
     },
     {
       "guid": "8D9FBD00-2284-11E0-8957-55B8DFD72085",
@@ -102,7 +108,8 @@
       "category": "National",
       "channelcode": "se3lv",
       "sortorder": 3,
-      "language": "lv"
+      "language": "lv",
+      "fanart": "tv3lvfanart.jpg"
     },
     {
       "guid": "89673FF0-5EF3-11E0-8CC9-494DDFD72085",
@@ -112,7 +119,8 @@
       "category": "National",
       "channelcode": "no3",
       "sortorder": 3,
-      "language": "no"
+      "language": "no",
+      "fanart": "tv3fanart.jpg"
     },
     {
       "guid": "90DD5C88-5EF3-11E0-93A2-4D4DDFD72085",
@@ -122,17 +130,19 @@
       "category": "National",
       "channelcode": "no4",
       "sortorder": 4,
-      "language": "no"
+      "language": "no",
+      "fanart": "viasat4fanart.jpg"
     },
     {
       "guid": "3CD2662C-3C7A-4217-8375-079B2D850F27",
       "name": "TV6 Play (Norge)",
       "description": "Sendninger fra tv6play.no",
-      "icon": "tv6selarge.png",
+      "icon": "tv6large.png",
       "category": "National",
       "channelcode": "no6",
       "sortorder": 6,
-      "language": "no"
+      "language": "no",
+      "fanart": "tv6viasatfanart.png"
     }
   ],
   "settings": [
