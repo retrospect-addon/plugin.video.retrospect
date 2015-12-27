@@ -6,7 +6,8 @@
       "description": "Extreme.com movies",
       "icon": "extremelarge.png",
       "category": "Sport",
-      "channelcode": "extreme"
+      "channelcode": "extreme",
+      "fanart": "extremefanart.jpg"
     }
   ]
 }
