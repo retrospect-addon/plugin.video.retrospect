@@ -6,7 +6,8 @@
       "description": "Channel 9 videos @ MSDN.com",
       "icon": "channel9large.png",
       "category": "Tech",
-      "channelcode": "channel9"
+      "channelcode": "channel9",
+      "fanart": "channel9fanart.png"
     }
   ]
 }
