@@ -19,7 +19,8 @@
       "category": "National",
       "channelcode": "tv7se",
       "sortorder": 7,
-      "language": "se"
+      "language": "se",
+      "fanart": "tv7fanart.png"
     },
     {
       "guid": "F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E",
