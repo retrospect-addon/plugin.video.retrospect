@@ -34,31 +34,31 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         self.mainListUri = "#mainlist"
-        self.baseUrl = "http://m.nrk.no/tvapi/v1"
+        self.baseUrl = "https://tvapi.nrk.no/v1"
         self.httpHeaders["app-version-android"] = "60"
 
         #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
         self._AddDataParser(self.mainListUri, preprocessor=self.CreateMainList)
-        self._AddDataParser("http://m.nrk.no/tvapi/v1/categories/",
+        self._AddDataParser("https://tvapi.nrk.no/v1/categories/",
                             matchType=ParserData.MatchExact, json=True,
                             parser=(), creator=self.CreateCategory)
-        self._AddDataParser("http://m.nrk.no/tvapi/v1/categories/.+",
+        self._AddDataParser("https://tvapi.nrk.no/v1/categories/.+",
                             matchType=ParserData.MatchRegex, json=True,
                             parser=(), creator=self.CreateProgramFolder)
 
-        self._AddDataParser("http://m.nrk.no/tvapi/v1/channels", json=True,
+        self._AddDataParser("https://tvapi.nrk.no/v1/channels", json=True,
                             parser=(),
                             creator=self.CreateLiveChannel)
-        self._AddDataParser("http://m.nrk.no/tvapi/v1/series/", json=True, matchType=ParserData.MatchExact,
+        self._AddDataParser("https://tvapi.nrk.no/v1/programs/", json=True, matchType=ParserData.MatchExact,
                             parser=(),
                             creator=self.CreateProgramFolder)
 
-        self._AddDataParser("http://m.nrk.no/tvapi/v1/series/[^/]+", json=True, matchType=ParserData.MatchRegex,
+        self._AddDataParser("https://tvapi.nrk.no/v1/series/[^/]+", json=True, matchType=ParserData.MatchRegex,
                             parser=("programs", ),
                             creator=self.CreateCategoryVideo)
 
-        self._AddDataParser("http://m.nrk.no/tvapi/v1/categories/all-programs/", json=True,
+        self._AddDataParser("https://tvapi.nrk.no/v1/categories/all-programs/", json=True,
                             parser=(),
                             creator=self.CreateCategoryVideo)
 
@@ -96,12 +96,14 @@ class Channel(chn_class.Channel):
         items = []
 
         links = {
-            "Live streams": "http://m.nrk.no/tvapi/v1/channels",
-            "Recommended": "http://m.nrk.no/tvapi/v1/categories/all-programs/recommendedprograms",
-            "Popular": "http://m.nrk.no/tvapi/v1/categories/all-programs/popularprograms",
-            "Recent": "http://m.nrk.no/tvapi/v1/categories/all-programs/recentlysentprograms",
-            "Categories": "http://m.nrk.no/tvapi/v1/categories/",
-            "Programs": "http://m.nrk.no/tvapi/v1/series/",
+            "Live streams": "https://tvapi.nrk.no/v1/channels",
+            "Recommended": "https://tvapi.nrk.no/v1/categories/all-programs/recommendedprograms",
+            "Popular": "https://tvapi.nrk.no/v1/categories/all-programs/popularprograms",
+            "Recent": "https://tvapi.nrk.no/v1/categories/all   -programs/recentlysentprograms",
+            "Categories": "https://tvapi.nrk.no/v1/categories/",
+            # The other Programs url stopped working. This the next best thing.
+            # "Programs": "http://m.nrk.no/tvapi/v1/series/",
+            "Programs": "https://tvapi.nrk.no/v1/programs/",
         }
         for name, url in links.iteritems():
             item = mediaitem.MediaItem(name, url)
@@ -208,6 +210,14 @@ class Channel(chn_class.Channel):
         if imageId is not None:
             item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (imageId, )
             item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (imageId, )
+
+        if "usageRights" in resultSet:
+            item.isGeoLocked = resultSet["usageRights"].get("geoblocked", False)
+            if "availableFrom" in resultSet["usageRights"]:
+                timeStamp = int(resultSet["usageRights"]["availableFrom"]) / 1000
+                if 0 < timeStamp < sys.maxint:
+                    date = datetime.datetime.fromtimestamp(timeStamp)
+                    item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
         return item
 
     def CreateCategoryVideo(self, resultSet):
@@ -307,6 +317,11 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         url = item.url
+
+        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
+        if spoofIp is not None:
+            item.HttpHeaders["X-Forwarded-For"] = spoofIp
+
         if ".m3u8" not in item.url:
             data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
             json = JsonHelper(data)
@@ -314,10 +329,6 @@ class Channel(chn_class.Channel):
             if url is None:
                 Logger.Warning("Could not find mediaUrl in %s", item.url)
                 return
-
-        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
-        if spoofIp is not None:
-            item.HttpHeaders["X-Forwarded-For"] = spoofIp
 
         part = item.CreateNewEmptyMediaPart()
         for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=item.HttpHeaders):
