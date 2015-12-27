@@ -9,7 +9,8 @@
       "channelcode": "nrkno",
       "sortorder": 1,
       "language": "no",
-      "compatible": "Environments.All"
+      "compatible": "Environments.All",
+      "fanart": "nrkfanart.jpg"
     }
   ],
   "settings": [
