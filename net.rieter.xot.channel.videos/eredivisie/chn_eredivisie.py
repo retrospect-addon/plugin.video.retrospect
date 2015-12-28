@@ -28,7 +28,7 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.videoType = None
-        self.noImage = "eredivisieimage.png"
+        self.noImage = "eredivisieimage.jpg"
 
         # setup the urls
         self.baseUrl = "http://www.foxsports.nl"
