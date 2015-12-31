@@ -19,7 +19,7 @@ class Pickler:
     __PickleContainer = dict()        # : storage for pickled items to prevent duplicate pickling
     # hack for Base64 chars that are URL encoded. We only need 3 (or 6 to make it case-insenstive)
     # and then we don't need to use urlencode which is slow in Python.
-    __Base64Chars = {
+    __Base64CharsDecode = {
         "-": "\n",
         "%3d": "=",
         "%3D": "=",
@@ -27,6 +27,12 @@ class Pickler:
         "%2F": "/",
         "%2b": "+",
         "%2B": "+"
+    }
+    __Base64CharsEncode = {
+        "\n": "-",
+        "=": "%3d",
+        "/": "%2f",
+        "+": "%2b",
     }
 
     def __init__(self):
@@ -45,8 +51,8 @@ class Pickler:
         """
 
         hexString = hexString.rstrip(' ')
-        hexString = reduce(lambda x, y: x.replace(y, Pickler.__Base64Chars[y]),
-                           Pickler.__Base64Chars.keys(),
+        hexString = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsDecode[y]),
+                           Pickler.__Base64CharsDecode.keys(),
                            hexString)
 
         Logger.Trace("DePickle: HexString: %s (might be truncated)", hexString[0:256])
@@ -78,7 +84,9 @@ class Pickler:
         hexString = base64.b64encode(pickleString)
 
         # if not unquoted, we must replace the \n's for the URL
-        hexString = reduce(lambda x, y: x.replace(y, Pickler.__Base64Chars[y]), Pickler.__Base64Chars, hexString)
+        hexString = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsEncode[y]),
+                           Pickler.__Base64CharsEncode.keys(),
+                           hexString)
 
         # Logger.Trace("Pickle: HexString: %s", hexString)
 
