@@ -198,6 +198,8 @@ class EnvController:
                 platform = Environments.IOS
             elif xbmc.getCondVisibility("system.platform.atv2"):
                 platform = Environments.ATV2
+            elif xbmc.getCondVisibility("system.platform.tvos"):
+                platform = Environments.TVOS
             elif xbmc.getCondVisibility("system.platform.osx"):
                 platform = Environments.OSX
             elif xbmc.getCondVisibility("system.platform.android"):

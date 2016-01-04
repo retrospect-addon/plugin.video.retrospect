@@ -23,11 +23,12 @@ class Environments:
     ATV2 = 32
     IOS = 64
     Android = 128
+    TVOS = 256          # such as ATV4
 
     # special groups
-    Apple = OSX | ATV2 | IOS
+    Apple = OSX | ATV2 | IOS | TVOS
     Google = Android
-    All = Xbox | Linux | Windows | OSX | ATV2 | IOS | Android
+    All = Xbox | Linux | Windows | OSX | ATV2 | IOS | Android | TVOS
 
     @staticmethod
     def Name(environment):
@@ -52,6 +53,8 @@ class Environments:
             return "iOS"
         elif environment == Environments.ATV2:
             return "Apple TV2"
+        elif environment == Environments.TVOS:
+            return "Apple TV OS"
         elif environment == Environments.Android:
             return "Android"
         elif environment == Environments.NoPlatform:
@@ -70,6 +73,7 @@ if __name__ == "__main__":
     print printFormat % ("Windows", Environments.Name(Environments.Windows))
     print printFormat % ("OSX", Environments.Name(Environments.OSX))
     print printFormat % ("ATV2", Environments.Name(Environments.ATV2))
+    print printFormat % ("ATV2", Environments.Name(Environments.TVOS))
     print printFormat % ("IOS", Environments.Name(Environments.IOS))
     print printFormat % ("Android", Environments.Name(Environments.Android))
     print printFormat % ("Apple", Environments.Name(Environments.Apple))
