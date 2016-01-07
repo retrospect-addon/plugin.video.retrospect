@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: SVT and Oppet Arkiv Search (Fixes #681)
+Fixed: UR Play website was update which broke Retrospect (Fixes #691)
 
 [I]Previous changes[/I]
+Added: SVT and Oppet Arkiv Search (Fixes #681)
 Fixed: Swedish Kanal 5/9/11 updated their API and broke the channels (Fixes #679)
 Fixed: TV4Play added more subtitle streams that where interpreted as video (Fixes #676)
 Fixed: Swedish SBS channel change video content platform and broke Kanal 5, Kanal 9 and Kanal 11 (Fixes #673)

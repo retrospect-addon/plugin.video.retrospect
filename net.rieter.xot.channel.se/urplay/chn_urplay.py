@@ -42,10 +42,10 @@ class Channel(chn_class.Channel):
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         # videos
-        self.videoItemRegex = '<section class="([^"]+)">\W+<a[^>]+title="[^"]+" href="(/Produkter/[^"]+)">[\W\w]{0,200}' \
+        self.videoItemRegex = '<section class="([^"]+)">\W*<a[^>]+title="[^"]+" href="(/Produkter/[^"]+)">[\W\w]{0,200}' \
                               '<img[^>]+src="([^"]+)[\W\w]{0,1000}?<h1>([^<]+)</h1>[\w\W+]{0,500}?' \
-                              '<p class="ellipsis-lastline">([^<]+)</p>(?:[\w\W]{0,500}?' \
-                              '<time datetime="(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+))'
+                              '<p[^>]*class="ellipsis-lastline"[^>]*>([^<]+)</p>(?:[\w\W]{0,500}?' \
+                              '<time[^>]*datetime="(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+))'
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         # pages
