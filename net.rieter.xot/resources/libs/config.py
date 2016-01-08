@@ -54,7 +54,8 @@ class Config:
     logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
     logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin version
 
-    retroDb = os.path.join(profileDir, "retrospect.db")      # : Filename of the XOT DB file
+    retroDb = os.path.join(profileDir, "retrospect.db")     # : Filename of the XOT DB file
+    googleAnalyticsId = "UA-3902785-1"                      # : Google Analytics ID for statistics
 
     # must be single quotes for build script
     __addonXmlPath = os.path.join(rootDir, 'addon.xml')

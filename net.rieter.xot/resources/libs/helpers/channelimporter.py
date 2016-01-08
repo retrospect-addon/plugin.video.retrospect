@@ -676,6 +676,7 @@ class ChannelImporter:
                             "channels and user agent")
                 AddonSettings.UpdateAddOnSettingsWithChannels(self.__validChannels, Config)
                 AddonSettings.UpdateUserAgent()
+                AddonSettings.SetClientId()
             else:
                 Logger.Debug("No channel changes found. Skipping add-on configuration for channels")
 

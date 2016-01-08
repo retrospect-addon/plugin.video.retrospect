@@ -15,6 +15,7 @@ from logger import Logger
 from urihandler import UriHandler
 from addonsettings import AddonSettings
 from helpers.htmlentityhelper import HtmlEntityHelper
+from config import Config
 
 
 class Statistics:
@@ -33,7 +34,12 @@ class Statistics:
 
         """
 
-        return Statistics.__RegisterHit("Channel", Statistics.__GetSafeString(channel.channelName), startTime)
+        duration = None
+        if startTime:
+            timeDelta = (datetime.now() - startTime)
+            duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3))
+
+        return Statistics.__RegisterHit("Statistics", "Channel", channel.channelName, duration)
 
     @staticmethod
     def RegisterPlayback(channel, startTime=None, offset=0):
@@ -48,19 +54,26 @@ class Statistics:
 
         """
 
-        return Statistics.__RegisterHit("Playback", Statistics.__GetSafeString(channel.channelName), startTime, offset)
+        duration = offset
+        timeDelta = None
+        if startTime:
+            timeDelta = (datetime.now() - startTime)
+            duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3)) + offset
+
+        Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, timeDelta or "None", offset)
+        return Statistics.__RegisterHit("Statistics", "Playback", channel.channelName, duration)
 
     @staticmethod
-    def __RegisterHit(action, value, startTime=None, offset=0):
-        """ Register a hit
+    def __RegisterHit(category, action, label, value):
+        """ Register an event with Google Analytics
 
-        Arguments:
-        action   : String   - Name of action to register
-        value    : String   - Value of action to register
+        @param category:    String   - Name of category to register
+        @param action:      String   - Name of action to register
+        @param value:       String   - Value of action to register
+        @param label:       String   - The label for the event
+        @param value:       int      - The value for the event
 
-        Keyword Arguments:
-        starTime : datetime - The start time of the add-on
-        offSet   : int      - Milli seconds to substract due to downloading
+        v=1&t=event&tid=UA-3902785-1&cid=3c8961be-6a53-48f6-bded-d136760ab55f&ec=Test&ea=Test%20Action&el=Test%20%5Blabel)&ev=100
 
         """
 
@@ -69,41 +82,35 @@ class Statistics:
                 Logger.Debug("Not sending statistics because the configuration does not allow this.")
                 return
 
-            duration = None
-            if startTime:
-                timeDelta = (datetime.now() - startTime)
-                duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3)) + offset
-                Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, timeDelta, offset)
+            postData = {
+                "v": 1,
+                "t": "event",
+                "tid": Config.googleAnalyticsId,
+                "cid": AddonSettings.GetClientId(),
+                "ec": HtmlEntityHelper.UrlEncode(category),
+                # "ec": HtmlEntityHelper.UrlEncode("Test"),
+                "ea": HtmlEntityHelper.UrlEncode(action),
+                "el": HtmlEntityHelper.UrlEncode(label),
+            }
+            if value is not None:
+                postData["ev"] = value
 
-            value = HtmlEntityHelper.UrlEncode(value)
-            action = HtmlEntityHelper.UrlEncode(action)
-            # now = datetime.datetime.now()
-            # rnd = time.mktime(now.timetuple())
-            url = "http://www.rieter.net/net.rieter.xot.usage/%s/%s/%s" % (action, value, duration or "")
+            url = "http://www.google-analytics.com/collect"
+            data = ""
+            for k, v in postData.iteritems():
+                data += "%s=%s&" % (k, v)
+            data = data.rstrip("&")
+
             # url = "http://www.rieter.net/net.rieter.xot.usage/%s/%s/?rnd=%s" % (action, value, rnd)
-            Logger.Debug("Sending statistics: %s", url)
+            Logger.Debug("Sending statistics: %s", data)
 
             # now we need something async without caching
             userAgent = AddonSettings.GetUserAgent()
             if userAgent:
-                UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent}, noCache=True)
+                UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent}, params=data, noCache=True)
             else:
-                UriHandler.Open(url)
+                UriHandler.Open(url, params=data, noCache=True)
         except:
             # we should never ever fail here
             Logger.Warning("Cannot send statistics", exc_info=True)
             return
-
-    @staticmethod
-    def __GetSafeString(name):
-        """ HTML encodes and replaces brackets (seems a bug in GA)
-
-        Arguments:
-        name : String - The text to prep.
-
-        """
-
-        if ")" in name:
-            name = name.replace(")", "]").replace("(", "[")
-
-        return HtmlEntityHelper.ConvertHTMLEntities(name)

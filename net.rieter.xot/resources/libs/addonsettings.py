@@ -10,6 +10,7 @@
 from __builtin__ import staticmethod
 
 import os
+import uuid
 import xbmc
 
 #===============================================================================
@@ -48,6 +49,7 @@ class AddonSettings:
     __MD5_HASH_VALUE = "md_hash_value"
     __HIDE_FIRST_TIME_MESSAGE = "hide_first_time_message"
     __LIST_LIMIT = "list_limit"
+    __CLIENT_ID = "client_id"
     __DRM_WARNING = "show_drm_warning"
     __DRM_HIDE_ITEMS = "hide_drm"
     __PREMIUM_HIDE_ITEMS = "hide_premium"
@@ -204,6 +206,16 @@ class AddonSettings:
     @staticmethod
     def UpdateCurrentAddonXmlMd5(hashValue):
         AddonSettings.__settings.setSetting(AddonSettings.__MD5_HASH_VALUE, hashValue)
+
+    @staticmethod
+    def GetClientId():
+        return AddonSettings.__GetSetting(AddonSettings.__CLIENT_ID)
+
+    @staticmethod
+    def SetClientId():
+        clientId = AddonSettings.__GetSetting(AddonSettings.__CLIENT_ID)
+        if not clientId:
+            AddonSettings.__settings.setSetting(AddonSettings.__CLIENT_ID, uuid.uuid1())
 
     @staticmethod
     def UpdateUserAgent():
