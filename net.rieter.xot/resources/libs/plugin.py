@@ -431,6 +431,7 @@ class Plugin:
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:
+            Statistics.RegisterError(self.channelObject)
             XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
                                          LanguageHelper.GetLocalizedString(LanguageHelper.ErrorList),
                                          XbmcWrapper.Error, 4000)
@@ -481,6 +482,7 @@ class Plugin:
 
         Logger.Debug("Playing videoitem using PlayListMethod")
 
+        item = None
         try:
             item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
@@ -548,6 +550,11 @@ class Plugin:
                 xbmcPlayer.showSubtitles(showSubs)
 
         except:
+            if item:
+                Statistics.RegisterError(self.channelObject, item.name)
+            else:
+                Statistics.RegisterError(self.channelObject)
+
             XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
                                          LanguageHelper.GetLocalizedString(LanguageHelper.NoPlaybackId),
                                          XbmcWrapper.Error)
@@ -869,6 +876,9 @@ class Plugin:
         @rtype : boolean indicating succes or not
 
         """
+
+        if self.channelObject:
+            Statistics.RegisterError(self.channelObject)
 
         if favs:
             title = LanguageHelper.GetLocalizedString(LanguageHelper.NoFavsId)

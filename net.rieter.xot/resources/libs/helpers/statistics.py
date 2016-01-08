@@ -23,6 +23,18 @@ class Statistics:
         raise ValueError("Cannot and should not create an instance")
 
     @staticmethod
+    def RegisterError(channel, title="Channel"):
+        """ Register an empty list for a specific Channel and Title
+
+        @param channel: Channel : The channel that had the error
+        """
+
+        if channel.parentItem is not None:
+            title = channel.parentItem.name
+
+        Statistics.__RegisterHit("Errors", channel.channelName, title, 1)
+
+    @staticmethod
     def RegisterChannelOpen(channel, startTime=None):
         """ Register a Channel loading
 
@@ -31,7 +43,6 @@ class Statistics:
 
         Keyword Arguments:
         starTime : datetime - The start time of the add-on
-
         """
 
         duration = None
@@ -39,7 +50,7 @@ class Statistics:
             timeDelta = (datetime.now() - startTime)
             duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3))
 
-        return Statistics.__RegisterHit("Statistics", "Channel", channel.channelName, duration)
+        Statistics.__RegisterHit("Statistics", "Channel", channel.channelName, duration)
 
     @staticmethod
     def RegisterPlayback(channel, startTime=None, offset=0):
@@ -61,10 +72,10 @@ class Statistics:
             duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3)) + offset
 
         Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, timeDelta or "None", offset)
-        return Statistics.__RegisterHit("Statistics", "Playback", channel.channelName, duration)
+        Statistics.__RegisterHit("Statistics", "Playback", channel.channelName, duration)
 
     @staticmethod
-    def __RegisterHit(category, action, label, value):
+    def __RegisterHit(category, action, label, value=None):
         """ Register an event with Google Analytics
 
         @param category:    String   - Name of category to register
@@ -73,6 +84,7 @@ class Statistics:
         @param label:       String   - The label for the event
         @param value:       int      - The value for the event
 
+        See: https://ga-dev-tools.appspot.com/hit-builder/
         v=1&t=event&tid=UA-3902785-1&cid=3c8961be-6a53-48f6-bded-d136760ab55f&ec=Test&ea=Test%20Action&el=Test%20%5Blabel)&ev=100
 
         """
