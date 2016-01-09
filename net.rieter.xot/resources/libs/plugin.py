@@ -42,6 +42,7 @@ try:
     from helpers import stopwatch
     from helpers.statistics import Statistics
     from helpers.sessionhelper import SessionHelper
+    from textures import TextureBase
     # from streams.youtube import YouTube
     from pickler import Pickler
 except:
@@ -234,6 +235,8 @@ class Plugin:
             except:
                 Logger.Critical("Error parsing for add-on", exc_info=True)
 
+        if TextureBase.GetBytesTransfered() > 0:
+            Statistics.RegisterCdnBytes(TextureBase.GetBytesTransfered())
         return
 
     def ShowCategories(self):

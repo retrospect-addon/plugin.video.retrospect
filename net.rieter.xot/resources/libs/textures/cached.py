@@ -73,6 +73,7 @@ class Cached(TextureBase):
                     fs = open(texturePath, mode='wb')
                     fs.write(imageBytes)
                     fs.close()
+                    TextureBase._bytesTransfered += len(imageBytes)
                 else:
                     # fallback to local cache.
                     # texturePath = os.path.join(self._channelPath, fileName)

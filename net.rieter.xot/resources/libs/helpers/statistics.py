@@ -19,8 +19,19 @@ from config import Config
 
 
 class Statistics:
+    __STATISTICS = "Statistics"
+
     def __init__(self):
         raise ValueError("Cannot and should not create an instance")
+
+    @staticmethod
+    def RegisterCdnBytes(totalBytes):
+        """ Register the bytes transfered via CDN
+
+        @param totalBytes: int - The total bytes transfered
+        """
+
+        Statistics.__RegisterHit(Statistics.__STATISTICS, "CDN", "Cached", totalBytes)
 
     @staticmethod
     def RegisterError(channel, title="Channel"):
@@ -50,7 +61,7 @@ class Statistics:
             timeDelta = (datetime.now() - startTime)
             duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3))
 
-        Statistics.__RegisterHit("Statistics", "Channel", channel.channelName, duration)
+        Statistics.__RegisterHit(Statistics.__STATISTICS, "Channel", channel.channelName, duration)
 
     @staticmethod
     def RegisterPlayback(channel, startTime=None, offset=0):
@@ -72,7 +83,7 @@ class Statistics:
             duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3)) + offset
 
         Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, timeDelta or "None", offset)
-        Statistics.__RegisterHit("Statistics", "Playback", channel.channelName, duration)
+        Statistics.__RegisterHit(Statistics.__STATISTICS, "Playback", channel.channelName, duration)
 
     @staticmethod
     def __RegisterHit(category, action, label, value=None):

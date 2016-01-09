@@ -46,6 +46,8 @@ def GetTextureHandler(channel, config, logger, uriHandler=None):
 
 
 class TextureBase:
+    _bytesTransfered = 0                    # : the bytes transfered
+
     def __init__(self, channelPath, logger, setCdn=False):
         """ Initialize the texture base
 
@@ -66,6 +68,14 @@ class TextureBase:
             self._addonId = addonId
             # self._channelName = channel.channelName
             self._cdnSubFolder = "%s.%s" % (addonId, channelName)
+
+    @staticmethod
+    def GetBytesTransfered():
+        """
+        @return: the total number of bytes transfered so far.
+        """
+
+        return TextureBase._bytesTransfered
 
     def GetTextureUri(self, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
