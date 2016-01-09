@@ -209,13 +209,12 @@ class AddonSettings:
 
     @staticmethod
     def GetClientId():
-        return AddonSettings.__GetSetting(AddonSettings.__CLIENT_ID)
-
-    @staticmethod
-    def SetClientId():
         clientId = AddonSettings.__GetSetting(AddonSettings.__CLIENT_ID)
         if not clientId:
-            AddonSettings.__settings.setSetting(AddonSettings.__CLIENT_ID, str(uuid.uuid1()))
+            clientId = str(uuid.uuid1())
+            Logger.Debug("Generating new ClientID: %s", clientId)
+            AddonSettings.__settings.setSetting(AddonSettings.__CLIENT_ID, clientId)
+        return clientId
 
     @staticmethod
     def UpdateUserAgent():
@@ -913,7 +912,8 @@ class AddonSettings:
         """Prints the settings"""
 
         pattern = "%s\n%s: %s"
-        value = "%s: %s" % ("MaxStreamBitrate", AddonSettings.GetMaxStreamBitrate())
+        value = "%s: %s" % ("ClientId", AddonSettings.GetClientId())
+        value = pattern % (value, "MaxStreamBitrate", AddonSettings.GetMaxStreamBitrate())
         value = pattern % (value, "SortingAlgorithm", AddonSettings.GetSortAlgorithm())
         value = pattern % (value, "UseSubtitle", AddonSettings.UseSubtitle())
         value = pattern % (value, "CacheHttpResponses", AddonSettings.CacheHttpResponses())
