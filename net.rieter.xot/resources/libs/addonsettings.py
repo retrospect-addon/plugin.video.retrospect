@@ -215,7 +215,7 @@ class AddonSettings:
     def SetClientId():
         clientId = AddonSettings.__GetSetting(AddonSettings.__CLIENT_ID)
         if not clientId:
-            AddonSettings.__settings.setSetting(AddonSettings.__CLIENT_ID, uuid.uuid1())
+            AddonSettings.__settings.setSetting(AddonSettings.__CLIENT_ID, str(uuid.uuid1()))
 
     @staticmethod
     def UpdateUserAgent():
