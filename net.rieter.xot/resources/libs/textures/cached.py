@@ -12,11 +12,10 @@ import shutil
 import os
 
 from textures import TextureBase
-from xbmcwrapper import XbmcWrapper
-from helpers.jsonhelper import JsonHelper
 
 
 class Cached(TextureBase):
+    # we should keep track of which ones we already used in this session, so we can refetch it in a purge situation.
     __retrievedTexturePaths = []
 
     def __init__(self, textureUrl, cachePath, channelPath, logger, uriHandler):
@@ -34,13 +33,13 @@ class Cached(TextureBase):
 
         self.__uriHandler = uriHandler
 
-        # we should keep track of which ones we already used in this session, so we can refetch it in a purge situation.
-
     def GetTextureUri(self, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
         @type fileName: the file name
+
+        @return: the path to the texture to send to Kodi
 
         """
 
@@ -62,11 +61,11 @@ class Cached(TextureBase):
             # Missing item. Fetch it
             localPath = os.path.join(self._channelPath, fileName)
             if os.path.isfile(localPath):
-                self._logger.Trace("Fetching texture '%s' from '%s'", fileName, localPath)
+                self._logger.Debug("Fetching texture '%s' from '%s'", fileName, localPath)
                 shutil.copyfile(localPath, texturePath)
             else:
                 uri = "%s/%s" % (self.__channelTextureUrl, fileName)
-                self._logger.Trace("Fetching texture '%s' from '%s'", fileName, uri)
+                self._logger.Debug("Fetching texture '%s' from '%s'", fileName, uri)
 
                 imageBytes = self.__uriHandler.Open(uri)
                 if imageBytes:
@@ -128,47 +127,22 @@ class Cached(TextureBase):
 
         # always reset the Kodi Texture cache for this channel
         if textureChange:
-            self.__PurgeXbmcCache(self.__channelTexturePath)
+            self._PurgeXbmcCache(self._cdnSubFolder)
 
         return
 
     def __GetHash(self, filePath):
+        """ Returns the hash for the given file
+
+        @param filePath: string - The file to generate a hash from
+
+        @return: MD5 has for the file
+
+        """
+
         hashObject = hashlib.md5()
         with open(filePath, "rb") as fs:
             for block in iter(lambda: fs.read(65536), ""):
                 hashObject.update(block)
         md5 = hashObject.hexdigest()
         return md5
-
-    def __PurgeXbmcCache(self, channelTexturePath):
-        jsonCmd = '{' \
-                  '"jsonrpc": "2.0", ' \
-                  '"method": "Textures.GetTextures", ' \
-                  '"params": {' \
-                  '"filter": {"operator": "contains", "field": "url", "value": "%s"}, ' \
-                  '"properties": ["url"]' \
-                  '}, ' \
-                  '"id": "libTextures"' \
-                  '}' % \
-                  (os.path.split(channelTexturePath)[-1], )
-        jsonResults = XbmcWrapper.ExecuteJsonRpc(jsonCmd, self._logger)
-
-        results = JsonHelper(jsonResults, logger=self._logger)
-        if "error" in results.json or "result" not in results.json:
-            self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", jsonCmd, results.json)
-            return
-
-        results = results.GetValue("result", "textures", fallback=[])
-        for result in results:
-            textureId = result["textureid"]
-            textureUrl = result["url"]
-            self._logger.Debug("Going to remove texture: %d - %s", textureId, textureUrl)
-            jsonCmd = '{' \
-                      '"jsonrpc": "2.0", ' \
-                      '"method": "Textures.RemoveTexture", ' \
-                      '"params": {' \
-                      '"textureid": %s' \
-                      '}' \
-                      '}' % (textureId,)
-            XbmcWrapper.ExecuteJsonRpc(jsonCmd, self._logger)
-        return

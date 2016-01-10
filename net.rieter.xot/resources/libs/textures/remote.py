@@ -25,7 +25,7 @@ class Remote(TextureBase):
     def PurgeTextureCache(self):
         """ Removes those entries from the textures cache that are no longer required. """
 
-        # all is done by Kodi
+        self._PurgeXbmcCache(self._cdnSubFolder)
         return
 
     def GetTextureUri(self, fileName):
@@ -33,6 +33,8 @@ class Remote(TextureBase):
         the texture and return that path.
 
         @type fileName: the file name
+
+        @return: the path to the texture to send to Kodi
 
         """
 

@@ -24,6 +24,8 @@ class Local(TextureBase):
 
         @type fileName: the file name
 
+        @return: the path to the texture to send to Kodi
+
         """
 
         if fileName is None or fileName == "":

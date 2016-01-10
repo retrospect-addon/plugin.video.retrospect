@@ -11,6 +11,9 @@ __all__ = ["local", "remote", "package"]
 
 import os
 
+from xbmcwrapper import XbmcWrapper
+from helpers.jsonhelper import JsonHelper
+
 Local = "local"
 Remote = "remote"
 Cached = "cached"
@@ -84,8 +87,51 @@ class TextureBase:
         @type fileName: the file name
 
         """
+
+        # Should be implemented
         pass
 
     def PurgeTextureCache(self):
         """ Removes those entries from the textures cache that are no longer required. """
+
+        # Should be implemented
         pass
+
+    def _PurgeXbmcCache(self, channelTexturePath):
+        """ Class the JSON RPC within Kodi that removes all changed items which paths contain the
+        value given in channelTexturePath
+
+        @param channelTexturePath: string - The
+
+        """
+
+        jsonCmd = '{' \
+                  '"jsonrpc": "2.0", ' \
+                  '"method": "Textures.GetTextures", ' \
+                  '"params": {' \
+                  '"filter": {"operator": "contains", "field": "url", "value": "%s"}, ' \
+                  '"properties": ["url"]' \
+                  '}, ' \
+                  '"id": "libTextures"' \
+                  '}' % (channelTexturePath, )
+        jsonResults = XbmcWrapper.ExecuteJsonRpc(jsonCmd, self._logger)
+
+        results = JsonHelper(jsonResults, logger=self._logger)
+        if "error" in results.json or "result" not in results.json:
+            self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", jsonCmd, results.json)
+            return
+
+        results = results.GetValue("result", "textures", fallback=[])
+        for result in results:
+            textureId = result["textureid"]
+            textureUrl = result["url"]
+            self._logger.Debug("Going to remove texture: %d - %s", textureId, textureUrl)
+            jsonCmd = '{' \
+                      '"jsonrpc": "2.0", ' \
+                      '"method": "Textures.RemoveTexture", ' \
+                      '"params": {' \
+                      '"textureid": %s' \
+                      '}' \
+                      '}' % (textureId,)
+            XbmcWrapper.ExecuteJsonRpc(jsonCmd, self._logger)
+        return
