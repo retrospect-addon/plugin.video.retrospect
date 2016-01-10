@@ -37,6 +37,7 @@ def RunPlugin():
 
         from urihandler import UriHandler
         from addonsettings import AddonSettings
+        from textures import TextureHandler
 
         # update the loglevel
         Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
@@ -54,6 +55,9 @@ def RunPlugin():
             maxFileNameLength = 42
 
         UriHandler.CreateUriHandler(cacheDir=cacheDir, maxFileNameLength=maxFileNameLength)
+
+        # start texture handler
+        TextureHandler.SetTextureHandler(Config, Logger.Instance(), UriHandler.Instance())
 
         # run the plugin
         import plugin

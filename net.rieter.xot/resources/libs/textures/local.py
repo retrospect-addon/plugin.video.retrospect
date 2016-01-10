@@ -9,22 +9,20 @@
 #===============================================================================
 
 import os
-from fileinput import filename
 
-from textures import TextureBase
+from textures import TextureHandler
 
 
-class Local(TextureBase):
-    def __init__(self, channelPath, logger):
-        TextureBase.__init__(self, channelPath, logger)
+class Local(TextureHandler):
+    def __init__(self, logger):
+        TextureHandler.__init__(self, logger)
 
-    def GetTextureUri(self, fileName):
+    def GetTextureUri(self, channel, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
-        @type fileName: the file name
-
-        @return: the path to the texture to send to Kodi
+        @param fileName: the file name
+        @param channel:  the channel
 
         """
 
@@ -38,7 +36,7 @@ class Local(TextureBase):
         if os.path.isabs(fileName):
             returnValue = fileName
         else:
-            returnValue = os.path.join(self._channelPath, fileName)
+            returnValue = os.path.join(channel.path, fileName)
 
         self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue

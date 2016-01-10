@@ -19,58 +19,58 @@ Remote = "remote"
 Cached = "cached"
 
 
-def GetTextureHandler(channel, config, logger, uriHandler=None):
-    """ Fetches a TextureManager for specific mode and channel.
-
-    @param channel:             The Channel or ChannelInfo object
-    @param config:              The Retrospect Config object
-    @param logger:              An Logger
-    @param uriHandler:          The UriHandler
-
-    @return: A TextureBase object for the requested mode
-
-    """
-
-    mode = config.TextureMode.lower()
-    if logger is not None:
-        logger.Trace("Creating '%s' Texture Mananger for: %s", mode, channel)
-
-    if mode == Local:
-        import local
-        return local.Local(channel.path, logger)
-    elif mode == Remote:
-        import remote
-        return remote.Remote(config.TextureUrl, channel.path, logger)
-    elif mode == Cached:
-        import cached
-        return cached.Cached(config.TextureUrl, config.profileDir, channel.path, logger, uriHandler)
-    else:
-        raise Exception("Invalide mode: %s" % (mode,))
-
-
-class TextureBase:
+class TextureHandler:
     _bytesTransfered = 0                    # : the bytes transfered
+    __TextureHandler = None
 
-    def __init__(self, channelPath, logger, setCdn=False):
+    def __init__(self, logger, setCdn=False):
         """ Initialize the texture base
 
-        @param channelPath: The local path where the corresponding channel is
         @param setCdn:      Indicator if the determine CDN variables (performance impact)
         @param logger:      A logger to log stuff.
 
         """
 
-        self._channelPath = channelPath     # : the path of the actual channel
         self._logger = logger               # : a logger
         self._addonId = None                # : the addon ID
-        self._cdnSubFolder = None           # : the subfolder for the CDN
 
-        if setCdn:
-            (base, channelName) = os.path.split(self._channelPath)
-            (base, addonId) = os.path.split(base)
-            self._addonId = addonId
-            # self._channelName = channel.channelName
-            self._cdnSubFolder = "%s.%s" % (addonId, channelName)
+        # some dictionaries for caching
+        self.__cdnPaths = {}
+        self.__addonIds = {}
+
+    @staticmethod
+    def Instance():
+        return TextureHandler.__TextureHandler
+
+    @staticmethod
+    def SetTextureHandler(config, logger, uriHandler=None):
+        """ Fetches a TextureManager for specific mode and channel.
+
+        @param config:              The Retrospect Config object
+        @param logger:              An Logger
+        @param uriHandler:          The UriHandler
+
+        @return: A TextureHandler object for the requested mode
+
+        """
+
+        mode = config.TextureMode.lower()
+        if logger is not None:
+            logger.Trace("Creating '%s' Texture Mananger", mode)
+
+        if mode == Local:
+            import local
+            TextureHandler.__TextureHandler = local.Local(logger)
+        elif mode == Remote:
+            import remote
+            TextureHandler.__TextureHandler = remote.Remote(config.TextureUrl, logger)
+        elif mode == Cached:
+            import cached
+            TextureHandler.__TextureHandler = cached.Cached(config.TextureUrl, config.profileDir, logger, uriHandler)
+        else:
+            raise Exception("Invalide mode: %s" % (mode,))
+
+        return TextureHandler.__TextureHandler
 
     @staticmethod
     def GetBytesTransfered():
@@ -78,24 +78,68 @@ class TextureBase:
         @return: the total number of bytes transfered so far.
         """
 
-        return TextureBase._bytesTransfered
+        return TextureHandler._bytesTransfered
 
-    def GetTextureUri(self, fileName):
+    def GetTextureUri(self, channel, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
-        @type fileName: the file name
+        @param fileName: the file name
+        @param channel:  the channel
 
         """
 
         # Should be implemented
         pass
 
-    def PurgeTextureCache(self):
-        """ Removes those entries from the textures cache that are no longer required. """
+    def FetchTextures(self):
+        """ Fetches all the needed textures """
+        pass
+
+    def PurgeTextureCache(self, channel):
+        """ Removes those entries from the textures cache that are no longer required.
+
+        @param channel:  the channel
+
+        """
 
         # Should be implemented
         pass
+
+    def _GetAddonId(self, channel):
+        """ Determines the add-on ID from the add-on to which the channel belongs,
+        e.g.: net.rieter.xot.channel.be
+
+        @param channel: the channel to determine the CDN folder for.
+
+        Remark: we cache some stuff for performance improvements
+
+        """
+
+        if channel.path in self.__addonIds:
+            return self.__addonIds[channel.path]
+
+        parts = channel.path.rsplit(os.sep, 2)[-2:]
+        addonId = parts[0]
+        self.__addonIds[channel.path] = addonId
+        return addonId
+
+    def _GetCdnSubFolder(self, channel):
+        """ Determines the CDN folder, e.g.: net.rieter.xot.channel.be.canvas
+
+        @param channel: the channel to determine the CDN folder for.
+
+        Remark: we cache some stuff for performance improvements
+
+        """
+
+        if channel.path in self.__cdnPaths:
+            return self.__cdnPaths[channel.path]
+
+        parts = channel.path.rsplit(os.sep, 2)[-2:]
+        cdn = ".".join(parts)
+        self.__cdnPaths[channel.path] = cdn
+        return cdn
 
     def _PurgeXbmcCache(self, channelTexturePath):
         """ Class the JSON RPC within Kodi that removes all changed items which paths contain the

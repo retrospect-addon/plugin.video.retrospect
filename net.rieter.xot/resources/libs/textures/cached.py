@@ -11,35 +11,36 @@ import hashlib
 import shutil
 import os
 
-from textures import TextureBase
+from textures import TextureHandler
 
 
-class Cached(TextureBase):
+class Cached(TextureHandler):
     # we should keep track of which ones we already used in this session, so we can refetch it in a purge situation.
     __retrievedTexturePaths = []
 
-    def __init__(self, textureUrl, cachePath, channelPath, logger, uriHandler):
-        TextureBase.__init__(self, channelPath, logger, setCdn=True)
+    def __init__(self, cdnUrl, cachePath, logger, uriHandler):
+        TextureHandler.__init__(self, logger, setCdn=True)
 
-        # what is the URL for the CDN?
-        if textureUrl:
-            self.__channelTextureUrl = "%s/%s" % (textureUrl, self._cdnSubFolder)
-        else:
-            self.__channelTextureUrl = "http://www.rieter.net/net.rieter.xot.cdn/%s" % (self._cdnSubFolder, )
+        self.__cdnUrl = cdnUrl
+        if not self.__cdnUrl:
+            self.__cdnUrl = "http://www.rieter.net/net.rieter.xot.cdn/"
 
-        self.__channelTexturePath = os.path.join(cachePath, "textures", self._cdnSubFolder)
+        self.__channelTexturePath = os.path.join(cachePath, "textures")
         if not os.path.isdir(self.__channelTexturePath):
             os.makedirs(self.__channelTexturePath)
 
         self.__uriHandler = uriHandler
 
-    def GetTextureUri(self, fileName):
+        self.__textureQueue = {}
+
+    def GetTextureUri(self, channel, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
-        @type fileName: the file name
+        @param fileName: the file name
+        @param channel:  the channel
 
-        @return: the path to the texture to send to Kodi
+        @return: the texture path
 
         """
 
@@ -55,41 +56,46 @@ class Cached(TextureBase):
             return fileName
 
         # Check if we already have the file
-        texturePath = os.path.join(self.__channelTexturePath, fileName)
+        cdnFolder = self._GetCdnSubFolder(channel)
+        textureDir = os.path.join(self.__channelTexturePath, cdnFolder)
+        if not os.path.isdir(textureDir):
+            os.makedirs(textureDir)
+
+        texturePath = os.path.join(self.__channelTexturePath, cdnFolder, fileName)
 
         if not os.path.isfile(texturePath):
             # Missing item. Fetch it
-            localPath = os.path.join(self._channelPath, fileName)
+            localPath = os.path.join(channel.path, fileName)
             if os.path.isfile(localPath):
                 self._logger.Debug("Fetching texture '%s' from '%s'", fileName, localPath)
                 shutil.copyfile(localPath, texturePath)
             else:
-                uri = "%s/%s" % (self.__channelTextureUrl, fileName)
-                self._logger.Debug("Fetching texture '%s' from '%s'", fileName, uri)
+                uri = "%s/%s/%s" % (self.__cdnUrl, cdnFolder, fileName)
+                self._logger.Debug("Queueing texture '%s' for caching from '%s'", fileName, uri)
+                self.__textureQueue[uri] = texturePath
 
-                imageBytes = self.__uriHandler.Open(uri)
-                if imageBytes:
-                    fs = open(texturePath, mode='wb')
-                    fs.write(imageBytes)
-                    fs.close()
-                    TextureBase._bytesTransfered += len(imageBytes)
-                else:
-                    # fallback to local cache.
-                    # texturePath = os.path.join(self._channelPath, fileName)
-                    # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
-                    self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texturePath)
+                self.__FetchTexture(uri, texturePath)
 
         self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)
         Cached.__retrievedTexturePaths.append(texturePath)
         return texturePath
 
-    def PurgeTextureCache(self):
-        """ Removes those entries from the textures cache that are no longer required. """
+    def FetchTextures(self):
+        """ Fetches all the needed textures """
+        pass
 
-        self._logger.Info("Purging Texture for: %s", self._channelPath)
+    def PurgeTextureCache(self, channel):
+        """ Removes those entries from the textures cache that are no longer required.
+
+        @param channel:  the channel
+
+        """
+
+        self._logger.Info("Purging Texture for: %s", channel.path)
 
         # read the md5 hashes
-        fp = file(os.path.join(self._channelPath, "..", "%s.md5" % (self._addonId, )))
+        addonId = self._GetAddonId(channel)
+        fp = file(os.path.join(channel.path, "..", "%s.md5" % (addonId, )))
         lines = fp.readlines()
         fp.close()
 
@@ -99,13 +105,20 @@ class Cached(TextureBase):
         textures = dict(textures)
 
         # remove items not in the textures.md5
-        images = [image for image in os.listdir(self.__channelTexturePath)
+        cdnFolder = self._GetCdnSubFolder(channel)
+        texturePath = os.path.join(self.__channelTexturePath, cdnFolder)
+        if not os.path.isdir(texturePath):
+            self._logger.Warning("Missing path '%s' to purge", texturePath)
+            return
+
+        images = [image for image in os.listdir(texturePath)
                   if image.lower().endswith(".png") or image.lower().endswith(".jpg")]
 
         textureChange = False
+
         for image in images:
-            imageKey = "%s/%s" % (self._cdnSubFolder, image)
-            filePath = os.path.join(self.__channelTexturePath, image)
+            imageKey = "%s/%s" % (cdnFolder, image)
+            filePath = os.path.join(self.__channelTexturePath, cdnFolder, image)
 
             if imageKey in textures:
                 # verify the MD5 in the textures.md5
@@ -119,7 +132,7 @@ class Cached(TextureBase):
 
                     # and fetch the updated one if it was already used
                     if filePath in Cached.__retrievedTexturePaths:
-                        self.GetTextureUri(image)
+                        self.GetTextureUri(channel, image)
             else:
                 self._logger.Warning("Texture no longer required: %s", filePath)
                 os.remove(filePath)
@@ -127,8 +140,30 @@ class Cached(TextureBase):
 
         # always reset the Kodi Texture cache for this channel
         if textureChange:
-            self._PurgeXbmcCache(self._cdnSubFolder)
+            self._PurgeXbmcCache(cdnFolder)
 
+        return
+
+    def __FetchTexture(self, uri, texturePath):
+        """ Fetches a texture
+
+        @param uri:         string - The uri to fetch from
+        @param texturePath: string - The path to store to
+
+        """
+
+        imageBytes = self.__uriHandler.Open(uri)
+        if imageBytes:
+            fs = open(texturePath, mode='wb')
+            fs.write(imageBytes)
+            fs.close()
+            TextureHandler._bytesTransfered += len(imageBytes)
+            self._logger.Debug("Retrieved texture: %s", uri)
+        else:
+            # fallback to local cache.
+            # texturePath = os.path.join(self._channelPath, fileName)
+            # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
+            self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texturePath)
         return
 
     def __GetHash(self, filePath):

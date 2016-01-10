@@ -30,6 +30,7 @@ from addonsettings import AddonSettings
 from logger import Logger
 from urihandler import UriHandler
 from parserdata import ParserData
+from textures import TextureHandler
 
 
 class Channel:
@@ -76,9 +77,8 @@ class Channel:
         self.path = channelInfo.path
 
         # get the textures from the channelinfo and get their full uri's.
-        self._textureManager = channelInfo.textureManager
-        self.icon = self._textureManager.GetTextureUri(channelInfo.icon)
-        self.fanart = self._textureManager.GetTextureUri(channelInfo.fanart)
+        self.icon = TextureHandler.Instance().GetTextureUri(self, channelInfo.icon)
+        self.fanart = TextureHandler.Instance().GetTextureUri(self, channelInfo.fanart)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = ""
@@ -146,7 +146,7 @@ class Channel:
         # Make sure all images are from the correct absolute location
         # self.icon = self.GetImageLocation(self.icon) -> already in the __init__
         # self.fanart = self.GetImageLocation(self.fanart) -> already in the __init__
-        self.noImage = self._textureManager.GetTextureUri(self.noImage)
+        self.noImage = TextureHandler.Instance().GetTextureUri(self, self.noImage)
 
         # perhaps log on?
         self.loggedOn = self.LogOn(self.userName, self.passWord)
@@ -1019,7 +1019,7 @@ class Channel:
         #     return os.path.join(os.path.dirname(sys.modules[self.__module__].__file__), image)
         # return "%s%s" % (Config.CdnUrl, image)
 
-        return self._textureManager.GetTextureUri(image)
+        return TextureHandler.Instance().GetTextureUri(self, image)
 
     def _AddDataParsers(self, urls, preprocessor=None,
                         parser=None, creator=None, updater=None,

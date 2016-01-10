@@ -18,11 +18,10 @@ from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
-from urihandler import UriHandler
 from config import Config
 from addonsettings import AddonSettings
 from helpers.languagehelper import LanguageHelper
-import textures
+from textures import TextureHandler
 
 
 class ChannelInfo:
@@ -70,9 +69,6 @@ class ChannelInfo:
 
         self.settings = []
 
-        self.textureManager = textures.GetTextureHandler(self, Config,
-                                                         Logger.Instance(),
-                                                         uriHandler=UriHandler.Instance())
         self.icon = icon
         self.fanart = fanart
         return
@@ -139,15 +135,17 @@ class ChannelInfo:
                                                     self.guid, self.sortOrderPerCountry)
         else:
             return "%s (%s) [%s, %s, %s] (Order: %s)" % (
-            self.channelName, self.channelCode, self.language,
-            self.category, self.guid, self.sortOrderPerCountry)
+                self.channelName, self.channelCode, self.language,
+                self.category, self.guid, self.sortOrderPerCountry
+            )
 
     def __repr__(self):
         """ Technical representation """
 
         return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (
-        self, self.path, self.moduleName,
-        self.icon, self.compatiblePlatforms)
+            self, self.path, self.moduleName,
+            self.icon, self.compatiblePlatforms
+        )
 
     def __eq__(self, other):
         """Compares to channel objects for equality
@@ -199,7 +197,7 @@ class ChannelInfo:
         #     return os.path.join(self.path, image)
         #
         # return "%s%s" % (Config.CdnUrl, image)
-        return self.textureManager.GetTextureUri(image)
+        return TextureHandler.Instance().GetTextureUri(self, image)
 
     @staticmethod
     def FromJson(path):

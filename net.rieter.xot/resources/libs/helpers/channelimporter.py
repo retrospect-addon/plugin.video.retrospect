@@ -28,6 +28,7 @@ from config import Config
 from channelinfo import ChannelInfo
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
+from textures import TextureHandler
 
 
 class ChannelImporter:
@@ -231,6 +232,7 @@ class ChannelImporter:
         self.__validChannels = []
         self.__channelVersions = []
 
+        # noinspection PyUnusedLocal
         classPath = None
         channelPath = None
         classBaseName = className[4:]
@@ -442,7 +444,7 @@ class ChannelImporter:
         self.__DeployUpdates(channelInfo.path)
 
         # purge the texture cache.
-        channelInfo.textureManager.PurgeTextureCache()
+        TextureHandler.Instance().PurgeTextureCache(channelInfo)
         return True
 
     def __DeployUpdates(self, channelPath, cleanup=False):

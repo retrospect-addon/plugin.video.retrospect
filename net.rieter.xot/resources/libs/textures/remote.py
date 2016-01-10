@@ -8,33 +8,35 @@
 # San Francisco, California 94105, USA.
 # ===============================================================================
 
-from textures import TextureBase
+from textures import TextureHandler
 
 
-class Remote(TextureBase):
-    def __init__(self, cdnUrl, channelPath, logger):
-        TextureBase.__init__(self, channelPath, logger, setCdn=True)
+class Remote(TextureHandler):
+    def __init__(self, cdnUrl, logger):
+        TextureHandler.__init__(self, logger, setCdn=True)
 
-        self.cdnUrl = cdnUrl
+        self.__cdnUrl = cdnUrl
+        if not self.__cdnUrl:
+            self.__cdnUrl = "http://www.rieter.net/net.rieter.xot.cdn/"
 
-        if self.cdnUrl:
-            self.baseUrl = "%s/%s" % (self.cdnUrl, self._cdnSubFolder)
-        else:
-            self.baseUrl = "http://www.rieter.net/net.rieter.xot.cdn/%s" % (self._cdnSubFolder, )
+    def PurgeTextureCache(self, channel):
+        """ Removes those entries from the textures cache that are no longer required.
 
-    def PurgeTextureCache(self):
-        """ Removes those entries from the textures cache that are no longer required. """
+        @param channel:  the channel
 
-        self._PurgeXbmcCache(self._cdnSubFolder)
+        """
+
+        cdnFolder = self._GetCdnSubFolder(channel)
+        self._logger.Info("Purging Kodi Texture for: %s", cdnFolder)
+        self._PurgeXbmcCache(cdnFolder)
         return
 
-    def GetTextureUri(self, fileName):
+    def GetTextureUri(self, channel, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
-        @type fileName: the file name
-
-        @return: the path to the texture to send to Kodi
+        @param fileName: the file name
+        @param channel:  the channel
 
         """
 
@@ -44,7 +46,8 @@ class Remote(TextureBase):
         if fileName.startswith("http"):
             returnValue = fileName
         else:
-            returnValue = "%s/%s" % (self.baseUrl, fileName)
+            cdnFolder = self._GetCdnSubFolder(channel)
+            returnValue = "%s/%s/%s" % (self.__cdnUrl, cdnFolder, fileName)
 
         self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue
