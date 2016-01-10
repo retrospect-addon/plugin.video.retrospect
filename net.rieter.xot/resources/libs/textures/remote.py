@@ -49,5 +49,5 @@ class Remote(TextureHandler):
             cdnFolder = self._GetCdnSubFolder(channel)
             returnValue = "%s/%s/%s" % (self.__cdnUrl, cdnFolder, fileName)
 
-        self._logger.Trace("Resolved texture '%s' to '%s'", fileName, returnValue)
+        self._logger.Debug("Resolved texture '%s' to '%s'", fileName, returnValue)
         return returnValue

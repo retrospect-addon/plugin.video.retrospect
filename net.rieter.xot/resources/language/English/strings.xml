@@ -162,4 +162,6 @@
     <string id="30555">The selected item is DRM protected and might not|play on Kodi.</string>
     <string id="30556">Initialising channel(s).</string>
     <string id="30557">Channels have been updated or installed. Performing first time actions. This could take some time.</string>
+    <string id="30558">Fetching Textures</string>
+    <string id="30559">Fetching missing textures. This could take some time depending on the internet and system speed.</string>
 </strings>

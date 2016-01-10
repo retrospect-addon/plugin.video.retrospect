@@ -235,6 +235,7 @@ class Plugin:
             except:
                 Logger.Critical("Error parsing for add-on", exc_info=True)
 
+        TextureHandler.Instance().FetchTextures()
         if TextureHandler.GetBytesTransfered() > 0:
             Statistics.RegisterCdnBytes(TextureHandler.GetBytesTransfered())
         return

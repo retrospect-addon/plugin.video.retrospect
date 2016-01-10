@@ -162,4 +162,6 @@
     <string id="30555">Het geselecteerde item is DRM bescherm en|werkt wellicht niet in Kodi.</string>
     <string id="30556">Kanaal/kanalen initialiseren.</string>
     <string id="30557">Er zijn kanalen bijgewerkt of installeerd. Intiële acties worden uitgevoerd. Dit kan even duren.</string>
+    <string id="30558">Textures worden bijgewerkt</string>
+    <string id="30559">Ontbrekende textures worden opgehaald. Dit kan enige tijd duren afhankelijk van het systeem en internet snelheid.</string>
 </strings>

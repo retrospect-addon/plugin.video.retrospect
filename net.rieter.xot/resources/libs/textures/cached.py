@@ -12,6 +12,9 @@ import shutil
 import os
 
 from textures import TextureHandler
+from locker import LockWithDialog
+from xbmcwrapper import XbmcWrapper
+from helpers.languagehelper import LanguageHelper
 
 
 class Cached(TextureHandler):
@@ -66,23 +69,39 @@ class Cached(TextureHandler):
         if not os.path.isfile(texturePath):
             # Missing item. Fetch it
             localPath = os.path.join(channel.path, fileName)
+            # if False:
             if os.path.isfile(localPath):
-                self._logger.Debug("Fetching texture '%s' from '%s'", fileName, localPath)
+                self._logger.Trace("Fetching texture '%s' from '%s'", fileName, localPath)
                 shutil.copyfile(localPath, texturePath)
             else:
                 uri = "%s/%s/%s" % (self.__cdnUrl, cdnFolder, fileName)
-                self._logger.Debug("Queueing texture '%s' for caching from '%s'", fileName, uri)
+                self._logger.Trace("Queueing texture '%s' for caching from '%s'", fileName, uri)
                 self.__textureQueue[uri] = texturePath
 
-                self.__FetchTexture(uri, texturePath)
+                # self.__FetchTexture(uri, texturePath)
 
-        self._logger.Trace("Returning cached texture for '%s' from '%s'", fileName, texturePath)
+        self._logger.Debug("Resolved cached texture for '%s' to '%s'", fileName, texturePath)
         Cached.__retrievedTexturePaths.append(texturePath)
         return texturePath
 
+    @LockWithDialog()
     def FetchTextures(self):
         """ Fetches all the needed textures """
-        pass
+
+        if len(self.__textureQueue) == 0:
+            return
+
+        self._logger.Info("Fetching missing textures.")
+
+        if len(self.__textureQueue) > 2:
+            XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesTitle),
+                                         LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesText),
+                                         displayTime=4000,
+                                         logger=self._logger)
+
+        for uri, texturePath in self.__textureQueue.iteritems():
+            self.__FetchTexture(uri, texturePath)
+        return
 
     def PurgeTextureCache(self, channel):
         """ Removes those entries from the textures cache that are no longer required.
@@ -152,7 +171,7 @@ class Cached(TextureHandler):
 
         """
 
-        imageBytes = self.__uriHandler.Open(uri)
+        imageBytes = self.__uriHandler.Open(uri, noCache=True)
         if imageBytes:
             fs = open(texturePath, mode='wb')
             fs.write(imageBytes)

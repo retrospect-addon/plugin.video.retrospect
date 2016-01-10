@@ -94,6 +94,8 @@ class TextureHandler:
 
     def FetchTextures(self):
         """ Fetches all the needed textures """
+
+        # Could be implemented
         pass
 
     def PurgeTextureCache(self, channel):

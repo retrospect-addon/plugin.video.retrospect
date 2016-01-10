@@ -72,6 +72,8 @@ class LanguageHelper:
     ShowChannelSettings = 30069
     InitChannelTitle = 30556
     InitChannelText = 30557
+    FetchTexturesTitle = 30558
+    FetchTexturesText = 30559
 
     __Categories = {"None": 30100,
                     "Regional": 30101,
