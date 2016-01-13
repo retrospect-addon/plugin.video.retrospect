@@ -1071,7 +1071,7 @@ class Channel(chn_class.Channel):
                 else:
                     bitrate = 0
 
-                if stream["formaat"] == "h264":
+                if "formaat" in stream and stream["formaat"] == "h264":
                     bitrate += 1
                 part.AppendMediaStream(stream["url"], bitrate)
 
@@ -1080,7 +1080,9 @@ class Channel(chn_class.Channel):
             item.title = metaJson.GetValue('aflevering_titel')
             station = metaJson.GetValue('streamSense', 'station')
 
-            if station.startswith('nederland_1'):
+            if station is None:
+                item.icon = self.icon
+            elif station.startswith('nederland_1'):
                 item.icon = self.GetImageLocation("1large.png")
             elif station.startswith('nederland_2'):
                 item.icon = self.GetImageLocation("2large.png")
