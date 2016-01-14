@@ -79,7 +79,7 @@ class Pickler:
             Logger.Trace("Pickle Container cache hit")
             return Pickler.__PickleContainer[item.guid]
 
-        pickleString = pickle.dumps(item)
+        pickleString = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)
         # Logger.Trace("Pickle: PickleString: %s", pickleString)
         hexString = base64.b64encode(pickleString)
 
