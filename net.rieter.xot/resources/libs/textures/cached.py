@@ -12,9 +12,6 @@ import shutil
 import os
 
 from textures import TextureHandler
-from locker import LockWithDialog
-from xbmcwrapper import XbmcWrapper
-from helpers.languagehelper import LanguageHelper
 
 
 class Cached(TextureHandler):
@@ -71,37 +68,60 @@ class Cached(TextureHandler):
             localPath = os.path.join(channel.path, fileName)
             # if False:
             if os.path.isfile(localPath):
-                self._logger.Trace("Fetching texture '%s' from '%s'", fileName, localPath)
-                shutil.copyfile(localPath, texturePath)
+                self._logger.Trace("Queueing texture '%s' for caching from '%s'", fileName, localPath)
+                self.__textureQueue[localPath] = texturePath
             else:
                 uri = "%s/%s/%s" % (self.__cdnUrl, cdnFolder, fileName)
                 self._logger.Trace("Queueing texture '%s' for caching from '%s'", fileName, uri)
                 self.__textureQueue[uri] = texturePath
 
-                # self.__FetchTexture(uri, texturePath)
-
         self._logger.Debug("Resolved cached texture for '%s' to '%s'", fileName, texturePath)
         Cached.__retrievedTexturePaths.append(texturePath)
         return texturePath
 
-    @LockWithDialog()
-    def FetchTextures(self):
-        """ Fetches all the needed textures """
+    def NumberOfMissingTextures(self):
+        """ Indication whether or not textures need to be retrieved.
+
+        @return: a boolean value
+        """
+
+        return len(self.__textureQueue)
+
+    def FetchTextures(self, dialogCallBack=None):
+        """ Fetches all the needed textures
+
+        @param dialogCallBack:  Callback method with signature
+                                Function(self, retrieved, total, perc, completed, status)
+
+        @return: the number of bytes fetched
+
+        """
 
         if len(self.__textureQueue) == 0:
             return
 
         self._logger.Info("Fetching missing textures.")
 
-        if len(self.__textureQueue) > 2:
-            XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesTitle),
-                                         LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesText),
-                                         displayTime=4000,
-                                         logger=self._logger)
+        bytesTransfered = 0
+        texturesTotal = len(self.__textureQueue)
+        texturesCompleted = 0
 
         for uri, texturePath in self.__textureQueue.iteritems():
-            self.__FetchTexture(uri, texturePath)
-        return
+            self._logger.Debug("Fetching texture for '%s' to '%s'", uri, texturePath)
+            if os.path.isfile(uri):
+                shutil.copyfile(uri, texturePath)
+                import xbmc
+                xbmc.sleep(100)
+            else:
+                bytesTransfered += self.__FetchTexture(uri, texturePath)
+            texturesCompleted += 1
+            fileName = os.path.split(texturePath)[-1]
+
+            if dialogCallBack(texturesCompleted, texturesTotal, int(100 * texturesCompleted / texturesTotal), False, fileName):
+                self._logger.Warning("Texture retrieval cancelled")
+                break
+
+        return bytesTransfered
 
     def PurgeTextureCache(self, channel):
         """ Removes those entries from the textures cache that are no longer required.
@@ -176,14 +196,13 @@ class Cached(TextureHandler):
             fs = open(texturePath, mode='wb')
             fs.write(imageBytes)
             fs.close()
-            TextureHandler._bytesTransfered += len(imageBytes)
             self._logger.Debug("Retrieved texture: %s", uri)
         else:
             # fallback to local cache.
             # texturePath = os.path.join(self._channelPath, fileName)
             # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
             self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texturePath)
-        return
+        return len(imageBytes or [])
 
     def __GetHash(self, filePath):
         """ Returns the hash for the given file

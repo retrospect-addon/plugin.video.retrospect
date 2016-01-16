@@ -7,12 +7,11 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-__all__ = ["local", "remote", "package"]
-
 import os
-
 from xbmcwrapper import XbmcWrapper
 from helpers.jsonhelper import JsonHelper
+
+__all__ = ["local", "remote", "package"]
 
 Local = "local"
 Remote = "remote"
@@ -20,7 +19,6 @@ Cached = "cached"
 
 
 class TextureHandler:
-    _bytesTransfered = 0                    # : the bytes transfered
     __TextureHandler = None
 
     def __init__(self, logger, setCdn=False):
@@ -72,14 +70,6 @@ class TextureHandler:
 
         return TextureHandler.__TextureHandler
 
-    @staticmethod
-    def GetBytesTransfered():
-        """
-        @return: the total number of bytes transfered so far.
-        """
-
-        return TextureHandler._bytesTransfered
-
     def GetTextureUri(self, channel, fileName):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
@@ -92,11 +82,27 @@ class TextureHandler:
         # Should be implemented
         pass
 
-    def FetchTextures(self):
-        """ Fetches all the needed textures """
+    def NumberOfMissingTextures(self):
+        """ Indication whether or not textures need to be retrieved.
+
+        @return: a boolean value
+        """
 
         # Could be implemented
-        pass
+        return 0
+
+    def FetchTextures(self, dialogCallBack=None):
+        """ Fetches all the needed textures
+
+        @param dialogCallBack:  Callback method with signature
+                                Function(self, retrievedSize, totalSize, perc, completed, status)
+
+        @return: the number of bytes fetched
+
+        """
+
+        # Could be implemented
+        return 0
 
     def PurgeTextureCache(self, channel):
         """ Removes those entries from the textures cache that are no longer required.

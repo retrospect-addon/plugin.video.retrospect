@@ -50,6 +50,8 @@ class XbmcDialogProgressWrapper:
 
         @return: True if canceled.
 
+        NOTE: this method signature is the same as the XbmcDialogProgressBgWrapper.Update
+
         """
 
         if not completed:
@@ -58,6 +60,58 @@ class XbmcDialogProgressWrapper:
             self.progressBarDialog.close()
 
         return self.progressBarDialog.iscanceled()
+
+    def Close(self):
+        """ Close the progress dialog. """
+        self.progressBarDialog.close()
+
+
+class XbmcDialogProgressBgWrapper:
+    def __init__(self, heading, message):
+        """ Initialises a XbmcDialogProgressWrapper that wraps an XBMC DialogProgress object.
+
+        @param heading: Title of it
+        @param message: The first line to show
+
+        """
+
+        self.Heading = heading
+        self.Message = message
+        self.progressBarDialog = xbmcgui.DialogProgressBG()
+        self.progressBarDialog.create(heading, message)
+        # it does not reset?
+        self.progressBarDialog.update(percent=1, heading=heading, message=message)
+
+    def __call__(self, *args):
+        return self.ProgressUpdate(*args)
+
+    # noinspection PyUnusedLocal
+    def ProgressUpdate(self, retrievedSize, totalSize, perc, completed, status):
+        """ Updates the dialog
+
+        @param retrievedSize:   int    - the bytes received
+        @param totalSize:       int    - the total bytes to receive
+        @param perc:            int    - the percentage done
+        @param completed:       bool   - are we done?
+        @param status:          string - what is the status?
+
+        @return: True if canceled.
+
+        NOTE: this method signature is the same as the XbmcDialogProgressWrapper.Update
+
+        """
+
+        if not completed:
+            self.progressBarDialog.update(percent=int(perc), heading=self.Heading, message=status)
+        else:
+            self.progressBarDialog.close()
+
+        # no cancel
+        return False
+
+    def Close(self):
+        """ Close the progress dialog. """
+        self.progressBarDialog.close()
 
 
 class XbmcWrapper:

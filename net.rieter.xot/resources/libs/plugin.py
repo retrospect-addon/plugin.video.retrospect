@@ -30,7 +30,7 @@ try:
     from locker import LockWithDialog
     from config import Config
     from channelinfo import ChannelInfo
-    from xbmcwrapper import XbmcWrapper
+    from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
     from environments import Environments
     from initializer import Initializer
     from updater import Updater
@@ -235,9 +235,7 @@ class Plugin:
             except:
                 Logger.Critical("Error parsing for add-on", exc_info=True)
 
-        TextureHandler.Instance().FetchTextures()
-        if TextureHandler.GetBytesTransfered() > 0:
-            Statistics.RegisterCdnBytes(TextureHandler.GetBytesTransfered())
+        self.__FetchTextures()
         return
 
     def ShowCategories(self):
@@ -590,6 +588,36 @@ class Plugin:
             exec functionString
         except:
             Logger.Error("OnActionFromContextMenu :: Cannot execute '%s'.", functionString, exc_info=True)
+        return
+
+    def __FetchTextures(self):
+        texturesToRetrieve = TextureHandler.Instance().NumberOfMissingTextures()
+
+        if texturesToRetrieve > 0:
+            w = None
+            try:
+                # show a blocking or background progress bar
+                if texturesToRetrieve > 4:
+                    w = XbmcDialogProgressWrapper(
+                        "%s: %s" % (Config.appName, LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)),
+                        LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesTitle),
+                        # Config.TextureUrl
+                    )
+                else:
+                    w = XbmcDialogProgressBgWrapper(
+                        "%s: %s" % (Config.appName, LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesTitle)),
+                        Config.TextureUrl
+                    )
+
+                bytesTransfered = TextureHandler.Instance().FetchTextures(w.ProgressUpdate)
+                if bytesTransfered > 0:
+                    Statistics.RegisterCdnBytes(bytesTransfered)
+            except:
+                Logger.Error("Error fetching textures", exc_info=True)
+            finally:
+                if w is not None:
+                    # always close the progress bar
+                    w.Close()
         return
 
     def __ConfigureChannel(self, channelInfo):
