@@ -31,7 +31,10 @@ def RunPlugin():
             appendLogFile = False
         else:
             appendLogFile = True
-        logFile = Logger.CreateLogger(os.path.join(Config.rootDir, Config.logFileNameAddon), Config.appName,
+
+        # TODO: xx-xx-2016
+        logFile = Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                                      Config.appName,
                                       append=appendLogFile,
                                       dualLogger=lambda x, y=4: xbmc.log(x, y))
 
