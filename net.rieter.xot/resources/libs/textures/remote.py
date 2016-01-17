@@ -13,7 +13,7 @@ from textures import TextureHandler
 
 class Remote(TextureHandler):
     def __init__(self, cdnUrl, logger):
-        TextureHandler.__init__(self, logger, setCdn=True)
+        TextureHandler.__init__(self, logger)
 
         self.__cdnUrl = cdnUrl
         if not self.__cdnUrl:

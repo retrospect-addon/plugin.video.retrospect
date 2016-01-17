@@ -60,6 +60,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    # noinspection PyUnusedLocal
     def AddEpisodePaging(self, data):
         """Performs pre-process actions for data processing/
 

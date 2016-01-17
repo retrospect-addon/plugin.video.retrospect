@@ -7,7 +7,7 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300, 
 # San Francisco, California 94105, USA.
 #===============================================================================
-__all__ = ["cachedhttpresponse", "cachehandler","cachehttphandler"
+__all__ = ["cachedhttpresponse", "cachehandler", "cachehttphandler"
            "filecache", "memeorycache", "cachebase"]
 
 if __name__ == "__main__":
@@ -18,7 +18,8 @@ if __name__ == "__main__":
     from filecache import FileCache
     from cachehttphandler import CacheHttpHandler
     from cachehandler import CacheHandler
-    
+
+    # noinspection PyUnusedLocal
     class DummyLogger:
         """ Just a dummy logger class that can be used to test"""
         
@@ -37,9 +38,10 @@ if __name__ == "__main__":
     #cacheObject = FileCache(cachePath = "d:\\temp\\www\\", maxExpiredTime=300, logger=DummyLogger())
     
     #@CacheHandler(cacheObject=cacheObject, logger=DummyLogger())
+    # noinspection PyUnusedLocal
     def OpenUrl(url, headerOnly=False, params=""):
         print "OpenUrl :: Opening: %s [headerOnly=%s]" % (url, headerOnly)
-        proxyHandler = urllib2.ProxyHandler({"http" : "http://localhost:8888"})
+        proxyHandler = urllib2.ProxyHandler({"http": "http://localhost:8888"})
         
         cacheHandler = CacheHttpHandler(cacheObject, logger=DummyLogger())
         opener = urllib2.build_opener(proxyHandler, cacheHandler)
@@ -50,11 +52,11 @@ if __name__ == "__main__":
     
     start = datetime.datetime.now()
     
-    for i in range(0,2):
+    for i in range(0, 2):
         #OpenUrl("http://www.nu.nl").read()
         #print OpenUrl("http://beta.uitzendinggemist.nl/programmas?page=1&toon=nieuwste_eerst&weergave=lijst").info() # must validate
         DummyLogger().Debug("=============================================================")
-        OpenUrl("http://www.net5.nl/programmas/het-blok/videos/") # expires in 15 minutes
+        OpenUrl("http://www.net5.nl/programmas/het-blok/videos/")  # expires in 15 minutes
         #time.sleep(20)
     
     print "Time Taken: %s" % (datetime.datetime.now() - start,)

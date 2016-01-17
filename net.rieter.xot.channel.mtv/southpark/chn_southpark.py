@@ -1,7 +1,6 @@
 import mediaitem
 import chn_class
 from helpers import htmlentityhelper
-from helpers import jsonhelper
 
 from regexer import Regexer
 from logger import Logger
@@ -102,7 +101,7 @@ class Channel(chn_class.Channel):
 
         # Logger.Debug(resultSet)
 
-        data = resultSet.replace('" : "', '":"').replace("\\'", "'")
+        # data = resultSet.replace('" : "', '":"').replace("\\'", "'")
         # helper = jsonhelper.JsonHelper(data)
         #
         # episodeNumber = helper.GetNamedValue("episodenumber")

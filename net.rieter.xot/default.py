@@ -32,7 +32,7 @@ def RunPlugin():
         else:
             appendLogFile = True
         logFile = Logger.CreateLogger(os.path.join(Config.rootDir, Config.logFileNameAddon), Config.appName,
-                                      append=appendLogFile, memoryInfoProvider=None,
+                                      append=appendLogFile,
                                       dualLogger=lambda x, y=4: xbmc.log(x, y))
 
         from urihandler import UriHandler
@@ -89,11 +89,11 @@ currentPath = Initializer.SetupPythonPaths()
 # from debug import profilelinebyline as cProfile
 
 # Path for PC
-# statsPath = os.path.abspath(os.path.join(currentPath, "../data/retrospect.pc.pstats"))
+# statsPath = os.path.abspath(os.path.join(currentPath, "../../DEV/retrospect.pc.pstat"))
 # Path for ATV
-# statsPath = os.path.abspath("/private/var/mobile/retrospect.atv.pstats")
+# statsPath = os.path.abspath("/private/var/mobile/retrospect.atv.pstat")
 # Path for rPi
-# statsPath = os.path.abspath("/home/pi/.kodi/addons/net.rieter.xot/retrospect.rpi.pstats")
+# statsPath = os.path.abspath("/home/pi/.kodi/addons/net.rieter.xot/retrospect.rpi.pstat")
 
 # Profiled run
 # cProfile.run("RunPlugin()", statsPath)

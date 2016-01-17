@@ -73,10 +73,10 @@ class Smil:
         """
         
         urls = self.GetVideosAndBitrates()
-        if urls == None:
+        if urls is None:
             return ""
         
-        urls.sort(lambda x, y: int(y[1])-int(x[1]))        
+        urls.sort(lambda x, y: int(y[1]) - int(x[1]))
         return urls[0][0]
     
     def GetVideosAndBitrates(self):

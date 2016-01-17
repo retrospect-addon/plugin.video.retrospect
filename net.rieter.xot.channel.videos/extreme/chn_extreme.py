@@ -8,7 +8,6 @@ from logger import Logger
 from streams.youtube import YouTube
 from urihandler import UriHandler
 from streams.brightcove import BrightCove
-from streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
@@ -78,7 +77,6 @@ class Channel(chn_class.Channel):
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> playlist with bitrate
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> info (not needed, get description from main page.
 
-        url = ''
         if len(guid) > 0:
             url = '%s/player/smil/%s' % (self.baseUrl, guid[0],) 
             data = UriHandler.Open(url)

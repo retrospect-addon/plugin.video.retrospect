@@ -14,6 +14,7 @@ import base64
 try:
     import hashlib
 except:
+    # noinspection PyDeprecation
     import md5
 
 
@@ -67,6 +68,7 @@ class EncodingHelper:
         try:
             hashTool = hashlib.md5()    # @UndefinedVariable
         except:
+            # noinspection PyDeprecation
             hashTool = md5.new()
 
         hashTool.update(data)

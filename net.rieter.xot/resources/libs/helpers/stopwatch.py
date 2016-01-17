@@ -9,6 +9,7 @@
 #===============================================================================
 import time
 
+
 class StopWatch:
     """Class for time measurements and performance
     
@@ -24,7 +25,7 @@ class StopWatch:
         
         """
         
-        if name == None or name == "" or logger == None:
+        if name is None or name == "" or logger is None:
             raise ValueError("Name or logger not specified")
         
         self.logger = logger
@@ -48,7 +49,7 @@ class StopWatch:
         else:
             delta = self.stopTime - self.startTime
             
-        self.logger.Debug("Stopwatch :: Stop (%s): %s, time elapsed: %s ms (+%s ms)", self.name, self.stopTime, secondsTaken*1000, delta*1000)
+        self.logger.Debug("Stopwatch :: Stop (%s): %s, time elapsed: %s ms (+%s ms)", self.name, self.stopTime, secondsTaken * 1000, delta * 1000)
         return
         
     def Set(self):
@@ -75,9 +76,9 @@ class StopWatch:
         
         self.lapTime = now
         secondsTaken = self.lapTime - self.startTime
-        self.logger.Debug("Stopwatch :: Lap (%s) %s: elapsed since start: %s ms (delta +%s ms)", self.name, value, secondsTaken*1000, delta*1000)
+        self.logger.Debug("Stopwatch :: Lap (%s) %s: elapsed since start: %s ms (delta +%s ms)", self.name, value, secondsTaken * 1000, delta * 1000)
            
     def __str__(self):
         """String representation of this class."""
         
-        return "Stopwatch: [%s]" % (self.name,)
+        return "Stopwatch: [%s]" % (self.name, )

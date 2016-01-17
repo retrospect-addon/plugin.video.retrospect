@@ -24,6 +24,7 @@ class Initializer:
         """Forces the environment to UTF-8"""
 
         reload(sys)
+        # noinspection PyUnresolvedReferences
         sys.setdefaultencoding("utf-8")  # @UndefinedVariable
         return
 

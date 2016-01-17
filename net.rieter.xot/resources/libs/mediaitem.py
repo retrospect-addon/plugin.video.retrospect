@@ -116,7 +116,6 @@ class MediaItem:
 
         self.parent = parent
         self.complete = False
-        self.error = False
         self.downloaded = False
         self.downloadable = False
         self.items = []
@@ -302,21 +301,6 @@ class MediaItem:
             self.__date = ""
 
         return self.__timestamp
-
-    #noinspection PyUnusedLocal
-    def SetErrorState(self, errorMessage=None, error=True, complete=False):  # @UnusedVariable
-        """Sets the item in error
-
-        Keyword Arguments:
-        errorMessage : [opt] string - error message
-        error        : [opt] bool   - error is set. If set to false, error is reset
-        complete     : [opt] bool   - sets the complete bit to false
-
-        """
-
-        self.error = error
-        self.complete = complete
-        return
 
     def GetXBMCItem(self, name=None):
         """Creates an XBMC item with the same data is the MediaItem.

@@ -10,6 +10,7 @@
 from cachebase import CacheBase
 from cachedhttpresponse import CachedHttpResponse
 
+
 class CacheHandler(CacheBase):
     """ CacheHandler that can be used as a Decorative cache object.
     
@@ -18,7 +19,7 @@ class CacheHandler(CacheBase):
     
     """
     
-    def __init__(self, cacheObject = None, logger = None):
+    def __init__(self, cacheObject=None, logger=None):
         """ Initiate an instance of the CacheHandler
         
         Keyword Arguments:
@@ -80,7 +81,7 @@ class CacheHandler(CacheBase):
                 # find the parameters we need
                 url = args[0]
                 
-                if kwargs.has_key("params"):
+                if "params" in kwargs:
                     params = kwargs["params"]
                 else:
                     params = ""
@@ -130,6 +131,7 @@ class CacheHandler(CacheBase):
                 #    proLong = False                        
                 #    bodyValue = response.read()
                 
+                # noinspection PyUnboundLocalVariable
                 response = CachedHttpResponse(url, headerValue, bodyValue)
                 self.__Log("Creating a %s", response)
                 
@@ -143,7 +145,9 @@ class CacheHandler(CacheBase):
                     self.__Log("Cacheable response found, Caching request for url: '%s'", url)
                     
                     # store both in the cache
+                    # noinspection PyUnboundLocalVariable
                     self.__cacheObject.Set(headerKey, headerValue)
+                    # noinspection PyUnboundLocalVariable
                     self.__cacheObject.Set(bodyKey, bodyValue)
                 
             except:

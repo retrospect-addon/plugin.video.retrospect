@@ -21,10 +21,9 @@ Cached = "cached"
 class TextureHandler:
     __TextureHandler = None
 
-    def __init__(self, logger, setCdn=False):
+    def __init__(self, logger):
         """ Initialize the texture base
 
-        @param setCdn:      Indicator if the determine CDN variables (performance impact)
         @param logger:      A logger to log stuff.
 
         """

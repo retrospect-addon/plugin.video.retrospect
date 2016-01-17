@@ -796,7 +796,7 @@ class Channel:
             item.thumb = self.noImage
 
         if not item.HasMediaItemParts():
-            item.SetErrorState("Update did not result in streams")
+            item.complete = False
         else:
             item.complete = True
         return item
@@ -828,7 +828,6 @@ class Channel:
                 item = self.ProcessVideoItem(item)
 
             if not item.complete or not item.HasMediaItemParts():
-                item.SetErrorState("Update did not result in streams")
                 Logger.Error("Cannot download incomplete item or item without MediaItemParts")
                 return item
 

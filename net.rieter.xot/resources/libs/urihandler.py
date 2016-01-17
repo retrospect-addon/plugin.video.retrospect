@@ -234,7 +234,7 @@ class UriHandler:
 
             Logger.Info("Creating Downloader for url '%s' to filename '%s'", uri, destComplete)
             destHandle = open(destComplete, 'wb')
-            error, canceled, charSet = self.__RetreiveData(destHandle, uri, 2147483648, progressCallback, proxy, bytes,
+            error, canceled, charSet = self.__RetreiveData(destHandle, uri, 2147483648, progressCallback, proxy, 0,
                                                            params, referer, additionalHeaders, True, 32)
             destHandle.close()
 
@@ -612,8 +612,7 @@ class UriHandler:
                 else:
                     cacheHandler = cachehttphandler.CacheHttpHandler(self.cacheStore, logger=Logger.Instance())
 
-            urlHandlers = []
-            urlHandlers.append(urllib2.HTTPCookieProcessor(self.cookieJar))
+            urlHandlers = [urllib2.HTTPCookieProcessor(self.cookieJar)]
 
             if proxy is None:
                 pass
@@ -630,7 +629,9 @@ class UriHandler:
 
             elif proxy.Scheme == "dns":
                 Logger.Debug("Using an alternative DNS %s", proxy)
+                # noinspection PyTypeChecker
                 urlHandlers.append(DnsHTTPHandler)
+                # noinspection PyTypeChecker
                 urlHandlers.append(DnsHTTPSHandler)
 
                 # now we cache the DNS result

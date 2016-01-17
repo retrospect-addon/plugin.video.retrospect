@@ -143,7 +143,8 @@ class Channel(chn_class.Channel):
 
         if self.scheduleData:
             Logger.Debug("Adding schedule data")
-            scheduleData = filter(lambda s: s['movieId'] == movieId, self.scheduleData)
+            # scheduleData = filter(lambda s: s['movieId'] == movieId, self.scheduleData)
+            scheduleData = [s for s in self.scheduleData if s['movieId'] == movieId]
             schedule = ""
             day = ""
             for s in scheduleData:

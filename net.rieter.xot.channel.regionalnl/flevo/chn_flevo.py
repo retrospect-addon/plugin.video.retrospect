@@ -45,6 +45,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    # noinspection PyUnusedLocal
     def ParseXmlData(self, data):
         """ Parses the xml data entry of the mainlist
 
@@ -157,4 +158,3 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(s, b)
         item.complete = True
         return item
-

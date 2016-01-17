@@ -53,10 +53,10 @@ class HtmlHelper(taghelperbase.TagHelperBase):
             # to keep working with older versions where class could not be passed
             if name == "cls":
                 name = "class"
-            
-            htmlRegex = htmlRegex + '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)            
-        
-        htmlRegex = htmlRegex + "[^>]*>([^<]+)</"
+
+            htmlRegex += '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
+
+        htmlRegex += "[^>]*>([^<]+)</"
         #Logger.Debug("HtmlRegex = %s", htmlRegex)
         
         result = Regexer.DoRegex(htmlRegex, self.data)

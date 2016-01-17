@@ -19,7 +19,7 @@ class Cached(TextureHandler):
     __retrievedTexturePaths = []
 
     def __init__(self, cdnUrl, cachePath, logger, uriHandler):
-        TextureHandler.__init__(self, logger, setCdn=True)
+        TextureHandler.__init__(self, logger)
 
         self.__cdnUrl = cdnUrl
         if not self.__cdnUrl:
