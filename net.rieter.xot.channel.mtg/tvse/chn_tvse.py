@@ -340,8 +340,8 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
         item = mediaitem.MediaItem(
-                resultSet["title"],
-                "http://playapi.mtgx.tv/v3/videos/stream/%s" % (resultSet["url"], )
+            resultSet["title"],
+            "http://playapi.mtgx.tv/v3/videos/stream/%s" % (resultSet["url"], )
         )
         item.type = "video"
         item.thumb = resultSet["thumburl"]
@@ -379,9 +379,9 @@ class Channel(chn_class.Channel):
         #     return None
 
         title = resultSet["title"]
-        if "_links" not in resultSet or \
-                        "stream" not in resultSet["_links"] or \
-                        "href" not in resultSet["_links"]["stream"]:
+        if ("_links" not in resultSet or
+                "stream" not in resultSet["_links"] or
+                "href" not in resultSet["_links"]["stream"]):
             Logger.Warning("No streams found for %s", title)
             return None
 

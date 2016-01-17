@@ -76,7 +76,7 @@ class Regexer:
                     else:
                         regexResults = Regexer.__DoRegex(r, data)
                         if len(regexResults) > 0:
-                            if isinstance(regexResults[0], (tuple,list)):
+                            if isinstance(regexResults[0], (tuple, list)):
                                 # is a tupe/list was returned, prepend it with the count
                                 results += map(lambda x: (count,) + x, regexResults)
                             else:

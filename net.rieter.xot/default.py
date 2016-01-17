@@ -79,7 +79,7 @@ def RunPlugin():
 
 
 # setup the paths in Python
-from initializer import Initializer
+from initializer import Initializer  # nopep8
 Initializer.SetUnicode()
 currentPath = Initializer.SetupPythonPaths()
 

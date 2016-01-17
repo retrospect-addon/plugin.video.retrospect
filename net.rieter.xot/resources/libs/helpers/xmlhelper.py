@@ -94,4 +94,4 @@ class XmlHelper(TagHelperBase):
         
         #Logger.Debug(data)
         #Logger.Debug(data.replace("<![CDATA[","").replace("]]>",""))
-        return data.replace("<![CDATA[", "").replace("]]>","")
+        return data.replace("<![CDATA[", "").replace("]]>", "")

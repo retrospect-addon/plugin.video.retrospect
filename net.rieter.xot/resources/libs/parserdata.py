@@ -10,6 +10,7 @@
 
 import re
 
+
 class ParserData(object):
     __slots__ = ["Match", "PreProcessor",
                  "Parser", "Creator", "Updater",

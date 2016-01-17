@@ -122,7 +122,7 @@ class Version(Comparable):
         if minor is None and not (revision is None and build is None):
             raise ValueError("A Minor version must be provided if a revision or build is provided.")
 
-        if revision is None and not build is None:
+        if revision is None and build is not None:
             raise ValueError("A Revision number must be provided if a build is provided.")
 
         self.major = major
@@ -226,15 +226,15 @@ class Version(Comparable):
 
 
 if __name__ == "__main__":
-#version = Version()
-    #version = Version(version="2.1.2.0", major=2, minor=1, revision=2, build=0)
-    #version = Version(major=2, minor=None, revision=2, build=0)
-    #version = Version(major=2, minor=None, revision=2, build=None)
-    #version = Version(major=2, minor=1, revision=2, build=0)
-    #version = Version(version="2.1.2.0")
-    #version = Version(version="2.1.2")
-    #version = Version(version="2.1")
-    #version = Version(version="2")
+    # version = Version()
+    # version = Version(version="2.1.2.0", major=2, minor=1, revision=2, build=0)
+    # version = Version(major=2, minor=None, revision=2, build=0)
+    # version = Version(major=2, minor=None, revision=2, build=None)
+    # version = Version(major=2, minor=1, revision=2, build=0)
+    # version = Version(version="2.1.2.0")
+    # version = Version(version="2.1.2")
+    # version = Version(version="2.1")
+    # version = Version(version="2")
 
     lowestVersion = Version(major=2, minor=1, revision=2, build=1)
     middleVersion = Version(version="2.1.3.1")

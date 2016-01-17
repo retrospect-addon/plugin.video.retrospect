@@ -12,6 +12,7 @@ from regexer import Regexer
 from helpers import taghelperbase
 #from logger import Logger
 
+
 class HtmlHelper(taghelperbase.TagHelperBase):
     """Class that could help with parsing of simple HTML"""
     

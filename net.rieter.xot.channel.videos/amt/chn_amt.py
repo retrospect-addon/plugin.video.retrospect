@@ -58,7 +58,7 @@ class Channel(chn_class.Channel):
         date = resultSet["trailers"][0]["postdate"]
         url = resultSet["trailers"][0]["url"]
         thumbUrl = resultSet["poster"]
-        if not "http:" in thumbUrl:
+        if "http:" not in thumbUrl:
             thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
         fanart = thumbUrl.replace("poster.jpg", "background.jpg")
 

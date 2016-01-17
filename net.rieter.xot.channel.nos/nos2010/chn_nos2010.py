@@ -136,7 +136,8 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
                             parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
-        programRegex = Regexer.FromExpresso('<a href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)">\W*<img[^>]+src="'
+        programRegex = Regexer.FromExpresso(
+            '<a href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)">\W*<img[^>]+src="'
             '(?<Image>[^"]+)" />\W*</a>\W*</div>\W*</div>\W*<div[^<]+<a[^>]*><h4>'
             '[\n\r]*(?<Title>[^<]+)\W*<span[^>]*>[^>]+>\W*<span[^>]*>[^>]+>\W*</h4>'
             '\W*<h5>(?:[^>]*>){2}[^<]*(?:<a[^>]*>\w+ (?<Day>\d+) (?<MonthName>\w+) '
@@ -571,7 +572,8 @@ class Channel(chn_class.Channel):
             currentPageSize = int(resultSet["PageSize"])
             nextPage = currentPage + currentPageSize
             if nextPage >= totalSize:
-                Logger.Debug("Not adding next page item. All items displayed (Total=%s vs Current=%s)",
+                Logger.Debug(
+                    "Not adding next page item. All items displayed (Total=%s vs Current=%s)",
                     totalSize, nextPage)
                 return None
             else:
@@ -767,10 +769,12 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        if resultSet[1] in ('npo-1', 'npo-2', 'npo-3', 'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek',
-        'npo-best', 'npo-doc', 'npo-zappxtra', 'npo-humor-tv''npo-1', 'npo-2', 'npo-3',
-        'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek', 'npo-best', 'npo-doc',
-        'npo-zappxtra', 'npo-humor-tv'):
+        if resultSet[1] in (
+            'npo-1', 'npo-2', 'npo-3', 'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek',
+            'npo-best', 'npo-doc', 'npo-zappxtra', 'npo-humor-tv''npo-1', 'npo-2', 'npo-3',
+            'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek', 'npo-best', 'npo-doc',
+            'npo-zappxtra', 'npo-humor-tv'
+        ):
             # We already have those
             return None
 
@@ -882,8 +886,10 @@ class Channel(chn_class.Channel):
 
                         # http://ida.omroep.nl/aapi/?type=jsonp&stream=http://livestreams.omroep.nl/live/npo/thematv/journaal24/journaal24.isml/journaal24.m3u8
                         Logger.Debug("Opening IDA server for actual URL retrieval")
-                        actualStreamData = UriHandler.Open("http://ida.omroep.nl/aapi/?stream=%s&token=%s" % (url, hashCode),
-                            proxy=self.proxy, referer=self.baseUrlLive)
+                        actualStreamData = UriHandler.Open(
+                            "http://ida.omroep.nl/aapi/?stream=%s&token=%s" % (url, hashCode),
+                            proxy=self.proxy,
+                            referer=self.baseUrlLive)
                         self.__AppendM3u8ToPart(part, actualStreamData)
 
                 thumbs = json.GetValue('images', fallback=None)

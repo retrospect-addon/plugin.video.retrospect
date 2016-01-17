@@ -89,8 +89,9 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        self.pageSize = 10  # The main page has 10 items per call, so we need to keep this the same to make sure that
-                            # we continue at the right number
+        # The main page has 10 items per call, so we need to keep this the same to make sure that
+        # we continue at the right number
+        self.pageSize = 10
 
         #===============================================================================================================
         # Test cases:

@@ -84,7 +84,7 @@ class Channel(chn_class.Channel):
             Logger.Debug("Found first item of list")
             item = firstItems[0]
             url = item[0]
-            if not "http:" in url:
+            if "http:" not in url:
                 url = "%s%s" % (self.baseUrl, url)
             thumbUrl = item[4]
             mediaItem = mediaitem.MediaItem("Laatste uitzending", url)
@@ -174,7 +174,7 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         for stream in streams:
             url = stream.get("src", None)
-            if not "://" in url:
+            if "://" not in url:
                 url = "http://static.l1.nl/bbw%s" % (url, )
             bitrate = stream.get("bandwidth", None)
             if url:
@@ -182,7 +182,7 @@ class Channel(chn_class.Channel):
 
         if not item.thumb and json.GetValue("thumbnails"):
             url = json.GetValue("thumbnails")[0].get("src", None)
-            if url and not "http:/" in url:
+            if url and "http:/" not in url:
                 url = "%s%s" % (self.baseUrl, url)
             item.thumb = url
         item.complete = True

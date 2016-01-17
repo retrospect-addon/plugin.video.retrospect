@@ -10,11 +10,12 @@
 
 import datetime
 
+
 class MemoryCache:
     """ Cache object that caches data in memory. A dictionary is used to cache
     the objects. If the script exits, the cache is lost! """
     
-    def __init__(self, maxExpiredTime = 3600, logger = None):
+    def __init__(self, maxExpiredTime=3600, logger=None):
         """ Initialise the MemoryCache
         
         Keyword Arguments:
@@ -100,7 +101,7 @@ class MemoryCache:
         
         """
         
-        return self.__cacheObject.has_key(key)
+        return key in self.__cacheObject
     
     def Remove(self, key):
         """ removes a cached item from the cache.
