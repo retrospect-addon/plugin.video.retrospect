@@ -67,6 +67,7 @@ class Channel(chn_class.Channel):
                             parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
 
         self._AddDataParser("http://tv4live-i.akamaihd.net/hls/live/", updater=self.UpdateLiveItem)
+        self._AddDataParser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1", updater=self.UpdateLiveItem)
 
         self.videoItemJson = ("results",)
         self._AddDataParser("*", preprocessor=self.PreProcessFolderList, json=True,
@@ -218,7 +219,7 @@ class Channel(chn_class.Channel):
             return data, items
 
         live = mediaitem.MediaItem("\a.: Live TV :.",
-                                   "http://tv4live-i.akamaihd.net/hls/live/200284/akamaihls2/master.m3u8",
+                                   "http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1@324055/master.m3u8",
                                    type="video")
         live.dontGroup = True
         # live.isDrmProtected = True
