@@ -112,8 +112,8 @@ class Statistics:
                 "cid": AddonSettings.GetClientId(),
                 "ec": HtmlEntityHelper.UrlEncode(category),
                 # "ec": HtmlEntityHelper.UrlEncode("Test"),
-                "ea": HtmlEntityHelper.UrlEncode(action),
-                "el": HtmlEntityHelper.UrlEncode(label),
+                "ea": HtmlEntityHelper.UrlEncode(HtmlEntityHelper.ConvertHTMLEntities(action)),
+                "el": HtmlEntityHelper.UrlEncode(HtmlEntityHelper.ConvertHTMLEntities(label)),
             }
             if value is not None:
                 postData["ev"] = value
