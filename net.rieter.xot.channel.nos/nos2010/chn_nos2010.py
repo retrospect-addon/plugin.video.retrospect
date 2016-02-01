@@ -69,14 +69,10 @@ class Channel(chn_class.Channel):
         self.baseUrlLive = "http://www.npo.nl"
 
         # live radio, the folders and items
-        self._AddDataParser("/radio", matchType=ParserData.MatchEnd,
-                            parser='<a href="/(radio)/([^/"]+)"[^>]+><img[^>]+src="([^"]+)',
-                            creator=self.CreateLiveRadioFolder)
-
-        self._AddDataParser("/radio/", matchType=ParserData.MatchContains,
-                            preprocessor=self.GetAdditionalLiveItems,
-                            parser="<option value=\"(http://[^\"]+)\"[^>]+>([^<]+)</option>",
-                            creator=self.CreateLiveRadio,
+        self._AddDataParser("http://radio-app.omroep.nl/player/script/",
+                            preprocessor=self.ExtractJsonForLiveRadio, json=True,
+                            parser=(), creator=self.CreateLiveRadio)
+        self._AddDataParser("http://livestreams.omroep.nl",
                             updater=self.UpdateVideoItemLive)
 
         self._AddDataParser("/live", matchType=ParserData.MatchEnd, preprocessor=self.GetAdditionalLiveItems,
@@ -160,19 +156,19 @@ class Channel(chn_class.Channel):
         Logger.Info("Processing Live items")
 
         items = []
-        if "/radio/" in self.parentItem.url:
-            # we should always add the parent as radio item
-            parent = self.parentItem
-            Logger.Debug("Adding main radio item to sub item list: %s", parent)
-            item = mediaitem.MediaItem("%s (Hoofd kanaal)" % (parent.name,), parent.url)
-            item.icon = parent.icon
-            item.thumb = parent.thumb
-            item.type = 'video'
-            item.isLive = True
-            item.complete = False
-            items.append(item)
+        # if "/radio/" in self.parentItem.url:
+        #     # we should always add the parent as radio item
+        #     parent = self.parentItem
+        #     Logger.Debug("Adding main radio item to sub item list: %s", parent)
+        #     item = mediaitem.MediaItem("%s (Hoofd kanaal)" % (parent.name,), parent.url)
+        #     item.icon = parent.icon
+        #     item.thumb = parent.thumb
+        #     item.type = 'video'
+        #     item.isLive = True
+        #     item.complete = False
+        #     items.append(item)
 
-        elif self.parentItem.url.endswith("/live"):
+        if self.parentItem.url.endswith("/live"):
             # let's add the 3FM live stream
             parent = self.parentItem
 
@@ -244,7 +240,7 @@ class Channel(chn_class.Channel):
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Live Radio", "%s/radio" % (self.baseUrlLive,))
+        extra = mediaitem.MediaItem("Live Radio", "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -316,6 +312,18 @@ class Channel(chn_class.Channel):
             extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
             items.append(extra)
 
+        return data, items
+
+    def ExtractJsonForLiveRadio(self, data):
+        """ Extracts the JSON data from the HTML for the radio streams
+
+        @param data: the HTML data
+        @return:     a valid JSON string and no items
+
+        """
+
+        items = []
+        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?)/\*END NPW', data)[-1]
         return data, items
 
     def AlphaListing(self, data):
@@ -671,39 +679,6 @@ class Channel(chn_class.Channel):
         whatson_id = item.url
         return self.__UpdateVideoItem(item, whatson_id)
 
-    def CreateLiveRadioFolder(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
-        Logger.Trace(resultSet)
-
-        name = resultSet[1]
-        name = name.replace("-", " ").capitalize()
-
-        item = mediaitem.MediaItem(name, "%s/radio/%s" % (self.baseUrlLive, resultSet[1]))
-
-        if resultSet[2].startswith("http"):
-            item.thumb = resultSet[2].replace("regular_", "").replace("larger_", "")
-        elif resultSet[2].startswith("//"):
-            item.thumb = "http:%s" % (resultSet[2].replace("regular_", "").replace("larger_", ""),)
-        else:
-            item.thumb = "%s%s" % (self.baseUrlLive, resultSet[2].replace("regular_", "").replace("larger_", ""))
-
-        item.icon = self.icon
-        item.isLive = True
-        return item
-
     def CreateLiveTv(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
@@ -816,13 +791,37 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Trace("Content = %s", resultSet)
+        name = resultSet["name"]
+        if name == "demo":
+            return None
 
-        item = mediaitem.MediaItem(resultSet[1], resultSet[0], type="video")
+        item = mediaitem.MediaItem(name, "", type="audio")
         item.thumb = self.parentItem.thumb
-
         item.icon = self.icon
-        item.complete = False
         item.isLive = True
+        item.complete = False
+
+        streams = resultSet.get("audiostreams", [])
+        part = item.CreateNewEmptyMediaPart()
+
+        # first check for the video streams
+        for stream in resultSet.get("videostreams", []):
+            Logger.Trace(stream)
+            url = stream["url"]
+            if not url.endswith("m3u8"):
+                continue
+            item.url = url
+            item.complete = False
+            return item
+
+        # else the radio streams
+        for stream in streams:
+            Logger.Trace(stream)
+            bitrate = stream.get("bitrate", 0)
+            url = stream["url"]
+            part.AppendMediaStream(url, bitrate)
+            item.complete = True
+
         return item
 
     def UpdateVideoItemLive(self, item):
@@ -853,10 +852,17 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
 
-        if item.url.startswith("http://ida.omroep.nl/aapi/"):
+        if item.url.endswith("m3u8"):
+            hashCode = self.__GetHashCode(item)
+            actualStreamData = UriHandler.Open("http://ida.omroep.nl/aapi/?stream=%s&token=%s" % (item.url, hashCode),
+                                               proxy=self.proxy, referer=self.baseUrlLive)
+            self.__AppendM3u8ToPart(part, actualStreamData)
+
+        elif item.url.startswith("http://ida.omroep.nl/aapi/"):
             # we already have the m3u8
             actualStreamData = UriHandler.Open(item.url, proxy=self.proxy, referer=self.baseUrlLive)
             self.__AppendM3u8ToPart(part, actualStreamData)
+
         else:
             # we need to determine radio or live tv
             Logger.Debug("Fetching live stream data")

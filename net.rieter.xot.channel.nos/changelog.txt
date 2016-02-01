@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: NPO changed their URL scheme which broke parsing (Fixed #654)
+Fixed: NPO Radio channels
 
 [I]Previous Changes[/I]
+Fixed: NPO changed their URL scheme which broke parsing (Fixed #654)
 Fixed: Some NPO listings were empty due to site changes (Fixes #647)
 Fixed: Very old streams would not play (Fixes #648)
 Added: more NPO Radio web cam streams (Fixes #643)
