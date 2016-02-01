@@ -308,7 +308,7 @@ class UriHandler:
             # params = params
 
             if not uri:
-                return ""
+                return "", ""
 
             try:
                 if params == "":
