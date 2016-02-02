@@ -43,7 +43,7 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddCategories,
-                            parser='<a class="header[^"]+" href="(http://www.canvas.be/video[^"]+)">([^<]+)</a>',
+                            parser='<a class="header[^"]+"[^>]+href="(http://www.canvas.be/video[^"]+)">([^<]+)</a>',
                             creator=self.CreateEpisodeItem)
 
         # This video regex works with the default CreateVideoItem
@@ -51,6 +51,9 @@ class Channel(chn_class.Channel):
         #     '<a class="teaser[^>]+href="(?<url>[^"]+)"[\w\W]{0,1000}?<img[^>]+src="(?<thumburl>'
         #     '[^"]+)[^>]+>\W+</div>\W+</div>\W+</div>\W+<h3[^>]*>\W+<span[^>]*>(?<title>[^<]+)<')
         # self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem)
+
+        self._AddDataParser("http://www.canvas.be/api/video/", json=True,
+                            preprocessor=self.CreateVideoItemJsonFeed)
 
         self._AddDataParser("*", json=True,
                             preprocessor=self.ExtractJsonData,
@@ -110,6 +113,46 @@ class Channel(chn_class.Channel):
         data = Regexer.DoRegex("<script>var programEpisodes = ({[^<]+})", data)[-1]
         items = []
         Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def CreateVideoItemJsonFeed(self, data):
+        """ Adds the items from the recent/last chance/most viewed feeds
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+        """
+
+        items = []
+
+        json = JsonHelper(data)
+        videos = json.GetValue("videos")
+        for video in videos:
+            data = videos[video]
+            Logger.Trace(data)
+
+            title = data["title"]
+            category = data.get("category", {}).get("title")
+            if title != category:
+                title = "%s - %s" % (category, title)
+            url = data["link"]
+            item = mediaitem.MediaItem(title, url)
+            item.type = "video"
+            item.description = data.get("description", None)
+
+            if "image" in data:
+                item.thumb = data["image"].get("url", None)
+
+            if "date" in data:
+                date = data["date"]["date"]
+                timeStamp = time.strptime(date, "%Y-%m-%d %H:%M:%S.000000")
+                item.SetDate(*timeStamp[0:6])
+
+            items.append(item)
+
         return data, items
 
     def CreateVideoItemJson(self, resultSet):
@@ -258,20 +301,13 @@ class Channel(chn_class.Channel):
         
         # let's add some specials
         #http://mp.vrt.be/api/playlist/collection_91.json
-        for url in (
-                "http://mp.vrt.be/api/playlist/most_viewed_canvas.json",
-                "http://mp.vrt.be/api/playlist/most_rated_canvas.json",
-                "http://mp.vrt.be/api/playlist/most_recent_canvas.json",
-                # "http://mp.vrt.be/api/playlist/now_available_brand_canvas_recent.json"
-        ):
-            if "most_viewed_canvas" in url:
-                name = "Meest bekeken"
-            elif "most_rated_canvas" in url:
-                name = "Meest gewaardeerd"
-            elif "most_recent_canvas" in url:
-                name = "Meest recent"
-            else:
-                name = "Nieuw"
+        urls = {
+            "Recent": "http://www.canvas.be/api/video/1/0,999999/-date",
+            "Laatste kans": "http://www.canvas.be/api/video/1/0,999999/expiring",
+            "Enkel online": "http://www.canvas.be/api/video/1/0,999999/-date/vd258"
+        }
+
+        for name, url in urls.iteritems():
             name = "\aCanvas: %s" % (name,)
             item = mediaitem.MediaItem(name, url)
             item.thumb = self.noImage
@@ -280,11 +316,11 @@ class Channel(chn_class.Channel):
             item.dontGroup = True
             items.append(item)
 
-        item = mediaitem.MediaItem("Bevergem", "http://www.canvas.be/video/bevergem")
-        item.thumb = self.noImage
-        item.icon = self.icon
-        item.complete = True
-        items.append(item)
+        # item = mediaitem.MediaItem("Bevergem", "http://www.canvas.be/video/bevergem")
+        # item.thumb = self.noImage
+        # item.icon = self.icon
+        # item.complete = True
+        # items.append(item)
 
         return data, items
     
