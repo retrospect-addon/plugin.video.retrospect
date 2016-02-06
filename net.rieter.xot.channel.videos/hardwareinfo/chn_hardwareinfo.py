@@ -5,6 +5,8 @@ import contextmenu
 from helpers import xmlhelper
 from streams.youtube import YouTube
 from urihandler import UriHandler
+from helpers.datehelper import DateHelper
+from logger import Logger
 
 
 class Channel(chn_class.Channel):
@@ -38,15 +40,19 @@ class Channel(chn_class.Channel):
         self.requiresLogon = False
 
         # setup the urls
-        self.mainListUri = "http://gdata.youtube.com/feeds/api/users/hardwareinfovideo/uploads?max-results=1&start-index=1"
+        # self.mainListUri = "https://www.youtube.com/feeds/videos.xml?user=hardwareinfovideo"
+        self.mainListUri = "http://nl.hardware.info/tv/rss-private/streaming"
         self.baseUrl = "http://www.youtube.com"
 
         # setup the main parsing data
-        self.episodeItemRegex = '<name>([^-]+) - (\d+)-(\d+)-(\d+)[^<]*</name>'
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddEpisodePaging,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        # self.episodeItemRegex = '<name>([^-]+) - (\d+)-(\d+)-(\d+)[^<]*</name>'
+        # self._AddDataParser(self.mainListUri, preprocessor=self.AddEpisodePaging,
+        #                     parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
-        self.videoItemRegex = '<entry>([\w\W]+?)</entry>'
+        self.videoItemRegex = '<(?:entry|item)>([\w\W]+?)</(?:entry|item)>'
+        self._AddDataParser("http://nl.hardware.info/tv/rss-private/streaming",
+                            parser=self.videoItemRegex, creator=self.CreateVideoItemHwInfo,
+                            updater=self.UpdateVideoItem)
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         self.pageNavigationIndicationRegex = '<page>(\d+)</page>'
@@ -136,7 +142,7 @@ class Channel(chn_class.Channel):
 
         # Retrieve an ID and create an URL like: http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=OHqu64Qnz9M
         videoId = xmlData.GetSingleNodeContent("id")
-        lastSlash = videoId.rfind("/") + 1
+        lastSlash = videoId.rfind(":") + 1
         videoId = videoId[lastSlash:]
         # url = "http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (videoId,)
         url = "http://www.youtube.com/watch?v=%s" % (videoId, )
@@ -166,6 +172,61 @@ class Channel(chn_class.Channel):
             item.thumb = thumbUrl
         else:
             item.thumb = self.noImage
+
+        # finish up
+        item.complete = False
+        return item
+
+    def CreateVideoItemHwInfo(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        xmlData = xmlhelper.XmlHelper(resultSet)
+
+        title = xmlData.GetSingleNodeContent("title")
+
+        # Retrieve an ID and create an URL like: http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=OHqu64Qnz9M
+        url = xmlData.GetTagAttribute("enclosure", {'url': None}, {'type': 'video/youtube'})
+        Logger.Trace(url)
+
+        item = mediaitem.MediaItem(title, url)
+        item.icon = self.icon
+        item.type = 'video'
+
+        # date stuff
+        date = xmlData.GetSingleNodeContent("pubDate")
+        dayname, day, month, year, time, zone = date.split(' ', 6)
+        month = DateHelper.GetMonthFromName(month, language="en")
+        hour, minute, seconds = time.split(":")
+        Logger.Trace("%s-%s-%s %s:%s", year, month, day, hour, minute)
+        item.SetDate(year, month, day, hour, minute, 0)
+
+        # # description stuff
+        description = xmlData.GetSingleNodeContent("description")
+        item.description = description
+
+        # # thumbnail stuff
+        item.thumb = self.noImage
+        thumbUrls = xmlData.GetTagAttribute("enclosure", {'url': None}, {'type': 'image/jpg'}, firstOnly=False)
+        for thumbUrl in thumbUrls:
+            if thumbUrl != "" and "thumb" not in thumbUrl:
+                item.thumb = thumbUrl
 
         # finish up
         item.complete = False

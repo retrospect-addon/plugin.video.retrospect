@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Eredivisie Live did not show any content (Fixes #651)
+Fixed: Hardwareinfo.tv broke due to Google API deprecation.
 
 [I]Previous changes[/I]
+Fixed: Eredivisie Live did not show any content (Fixes #651)
 Fixed: Dumpert cookie consent issue (Fixes #628)
 Fixed: Pathe updated their layout again (Fixes #577)
 Fixed: Pathe.nl updated their site (Fixes #576)
