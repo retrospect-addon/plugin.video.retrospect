@@ -80,7 +80,7 @@ class Channel(chn_class.Channel):
                                    '<div class=\'time now\'>Nu</div>\W+<div class=\'description\'>\W+'
                                    '<a href="/live/([^"]+)" class="now">([^<]+)[\w\W]{0,200}?'
                                    '<div class=\'item next-item\'>\W+<div class=\'time next\'>([^<]+)</div>\W+'
-                                   '<div class=\'description next\'>\W+<a[^>]+class="next">([^<]+)',
+                                   '<div class=\'description next\'>\W+<[^>]+>([^<]+)',
                             creator=self.CreateLiveTv, updater=self.UpdateVideoItemLive)
 
         # and some additional ones that might not appear in the first list

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: NPO Radio channels
+Fixed: Most of the NPO TV Live streams were missing (Fixes #704)
 
 [I]Previous Changes[/I]
+Fixed: NPO Radio channels
 Fixed: NPO changed their URL scheme which broke parsing (Fixed #654)
 Fixed: Some NPO listings were empty due to site changes (Fixes #647)
 Fixed: Very old streams would not play (Fixes #648)
