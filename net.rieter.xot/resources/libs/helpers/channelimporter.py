@@ -248,9 +248,15 @@ class ChannelImporter:
             channelIndex = JsonHelper(data)
             classPath = channelIndex.GetValue(className, channelCode or "null")
             if classPath is not None:
+                if not os.path.isdir(classPath):
+                    Logger.Warning("Missing channel class path '%s' found. Rebuilding the ChannelIndex.", classPath)
+                    # remove the old one
+                    os.remove(self.__CHANNEL_INDEX)
+                    # return self.GetSingleChannel(className, channelCode)
+                    return self.__ImportChannel(className, channelCode)
                 channelPath = os.path.join(classPath, "..")
         else:
-            Logger.Warning("Missing ChannelIndex. Importing all and selecting a single.")
+            Logger.Warning("Missing ChannelIndex. Rebuilding the ChannelIndex.")
             return self.__ImportChannel(className, channelCode)
 
             # Logger.Warning("Falling back to classic find pattern")
