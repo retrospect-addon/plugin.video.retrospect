@@ -1,7 +1,5 @@
-import time
 import datetime
 import cookielib
-import os
 
 import mediaitem
 import contextmenu
@@ -14,6 +12,7 @@ from helpers.jsonhelper import JsonHelper
 
 from logger import Logger
 from streams.m3u8 import M3u8
+from streams.npostream import NpoStream
 from urihandler import UriHandler
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
@@ -323,7 +322,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?)/\*END NPW', data)[-1]
+        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?);NPW\.config', data)[-1].rstrip(";")
         return data, items
 
     def AlphaListing(self, data):
@@ -852,20 +851,16 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
 
-        if item.url.endswith("m3u8"):
-            hashCode = self.__GetHashCode(item)
-            actualStreamData = UriHandler.Open("http://ida.omroep.nl/aapi/?stream=%s&token=%s" % (item.url, hashCode),
-                                               proxy=self.proxy, referer=self.baseUrlLive)
-            self.__AppendM3u8ToPart(part, actualStreamData)
-
-        elif item.url.startswith("http://ida.omroep.nl/aapi/"):
-            # we already have the m3u8
-            actualStreamData = UriHandler.Open(item.url, proxy=self.proxy, referer=self.baseUrlLive)
-            self.__AppendM3u8ToPart(part, actualStreamData)
-
+        referer = {"referer": self.baseUrlLive}
+        streams = NpoStream.GetLiveStreamsFromNpo(item.url, Config.cacheDir, proxy=self.proxy, headers=referer)
+        if streams:
+            Logger.Debug("Found live stream urls from item url")
+            for s, b in streams:
+                item.complete = True
+                part.AppendMediaStream(s, b)
         else:
             # we need to determine radio or live tv
-            Logger.Debug("Fetching live stream data")
+            Logger.Debug("Fetching live stream data from item url")
             htmlData = UriHandler.Open(item.url, proxy=self.proxy)
 
             mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
@@ -881,26 +876,9 @@ class Channel(chn_class.Channel):
                     for url in jsonUrls:
                         jsonUrl = "http://e.omroep.nl/metadata/%s" % (url,)
 
-                jsonData = UriHandler.Open(jsonUrl, proxy=self.proxy)
-                json = JsonHelper(jsonData, Logger.Instance())
-
-                # we need an hash code
-                hashCode = self.__GetHashCode(item)
-                for stream in json.GetValue("streams"):
-                    if stream['type'] == "hls":
-                        url = stream['url']
-
-                        # http://ida.omroep.nl/aapi/?type=jsonp&stream=http://livestreams.omroep.nl/live/npo/thematv/journaal24/journaal24.isml/journaal24.m3u8
-                        Logger.Debug("Opening IDA server for actual URL retrieval")
-                        actualStreamData = UriHandler.Open(
-                            "http://ida.omroep.nl/aapi/?stream=%s&token=%s" % (url, hashCode),
-                            proxy=self.proxy,
-                            referer=self.baseUrlLive)
-                        self.__AppendM3u8ToPart(part, actualStreamData)
-
-                thumbs = json.GetValue('images', fallback=None)
-                if thumbs:
-                    item.thumb = thumbs[-1]['url']
+                for s, b in NpoStream.GetLiveStreamsFromNpo(jsonUrl, Config.cacheDir, proxy=self.proxy, headers=referer):
+                    item.complete = True
+                    part.AppendMediaStream(s, b)
 
         item.complete = True
         # Logger.Trace(item)
@@ -942,16 +920,6 @@ class Channel(chn_class.Channel):
         # noinspection PyUnusedLocal
         item = self.DownloadVideoItem(item)
 
-    def __AppendM3u8ToPart(self, part, idaData):
-        actualStreamJson = JsonHelper(idaData, Logger.Instance())
-        m3u8Url = actualStreamJson.GetValue('stream')
-
-        # now we have the m3u8 URL, but it will do a HTML 302 redirect
-        (headData, m3u8Url) = UriHandler.Header(m3u8Url, proxy=self.proxy)  # : @UnusedVariables
-
-        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
-            part.AppendMediaStream(s, b)
-
     def __UpdateVideoItem(self, item, episodeId):
         """Updates an existing MediaItem with more data.
 
@@ -984,7 +952,7 @@ class Channel(chn_class.Channel):
                                                                       proxy=self.proxy)
 
         # we need an hash code
-        hashCode = self.__GetHashCode(item)
+        hashCode = NpoStream.GetNpoToken(self.proxy, Config.cacheDir)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
@@ -1117,85 +1085,6 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def __GetHashCode(self, item):
-        tokenUrl = "http://ida.omroep.nl/npoplayer/i.js"
-        tokenExpired = True
-        tokenFile = "uzg-i.js"
-        tokenPath = os.path.join(Config.cacheDir, tokenFile)
-
-        # determine valid token
-        if os.path.exists(tokenPath):
-            mTime = os.path.getmtime(tokenPath)
-            timeDiff = time.time() - mTime
-            maxTime = 30 * 60  # if older than 15 minutes, 30 also seems to work.
-            Logger.Debug("Found token '%s' which is %s seconds old (maxAge=%ss)", tokenFile, timeDiff, maxTime)
-            if timeDiff > maxTime:
-                Logger.Debug("Token expired.")
-                tokenExpired = True
-            elif timeDiff < 0:
-                Logger.Debug("Token modified time is in the future. Ignoring token.")
-                tokenExpired = True
-            else:
-                tokenExpired = False
-        else:
-            Logger.Debug("No Token Found.")
-
-        if tokenExpired:
-            Logger.Debug("Fetching a Token.")
-            tokenData = UriHandler.Open(tokenUrl, proxy=self.proxy, noCache=True)
-            tokenHandle = file(tokenPath, 'w')
-            tokenHandle.write(tokenData)
-            tokenHandle.close()
-            Logger.Debug("Token saved for future use.")
-        else:
-            Logger.Debug("Reusing an existing Token.")
-            # noinspection PyArgumentEqualDefault
-            tokenHandle = file(tokenPath, 'r')
-            tokenData = tokenHandle.read()
-            tokenHandle.close()
-
-        token = Regexer.DoRegex('npoplayer.token = "([^"]+)', tokenData)[-1]
-        actualToken = self.__SwapToken(token)
-        Logger.Info("Found NOS token: %s\n          was: %s\nfor %s", actualToken, token, item)
-        return actualToken
-
-    def __SwapToken(self, token):
-        """ Swaps some chars of the token to make it a valid one. NPO introduced this in july 2015
-
-        @param token: the original token from their file.
-
-        @return: the swapped version
-
-        """
-
-        first = -1
-        second = -1
-        startAt = 5
-        Logger.Debug("Starting Token swap at position in: %s %s %s", token[0:startAt], token[startAt:len(token) - startAt], token[len(token) - startAt:])
-        for i in range(startAt, len(token) - startAt, 1):
-            # Logger.Trace("Checking %s", token[i])
-            if token[i].isdigit():
-                if first < 0:
-                    first = i
-                    Logger.Trace("Storing first digit at position %s: %s", first, token[i])
-                elif second < 0:
-                    second = i
-                    Logger.Trace("Storing second digit at position %s: %s", second, token[i])
-                    break
-
-        # swap them
-        newToken = list(token)
-        if first < 0 or second < 0:
-            Logger.Debug("No number combo found in range %s. Swapping middle items", token[startAt:len(token) - startAt])
-            first = 12
-            second = 13
-
-        Logger.Debug("Swapping position %s with %s", first, second)
-        newToken[first] = token[second]
-        newToken[second] = token[first]
-        newToken = ''.join(newToken)
-        return newToken
-
     def __GetThumbUrl(self, thumbnails):
         """ fetches the thumburl from an coded string
 
@@ -1259,20 +1148,3 @@ class Channel(chn_class.Channel):
         # c = cookielib.Cookie(version=0, name='balancer://sapi1cluster', value='balancer.sapi1a', port=None, port_specified=False, domain='.pilot.odcontent.omroep.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
         # UriHandler.Instance().cookieJar.set_cookie(c)
         return
-
-    def __TokenTest(self):
-        # some test cases
-        tokenTests = {
-            "kouansr1o89hu1u0lnr20b6f60": "kouansr8o19hu1u0lnr20b6f60",
-            "h05npjekmn478nhfqft7g2i6q1": "h05npjekmn748nhfqft7g2i6q1",
-            "ncjamt9gu2d9qmg4dpu1plqd37": "ncjamt2gu9d9qmg4dpu1plqd37",
-            "m9mvj51ittnuglub3ibgoptvi4": "m9mvj15ittnuglub3ibgoptvi4",
-            "vgkn9j8r3135a7vf0e6992vmi1": "vgkn9j3r8135a7vf0e6992vmi1",
-            "eqn86lpcdadda9ajrceedcpef3": "eqn86lpcdadd9aajrceedcpef3",
-            "vagiq9ejnqbmcodtncp77uomj1": "vagiq7ejnqbmcodtncp97uomj1",
-        }
-
-        for inputToken, outputToken in tokenTests.iteritems():
-            token = self.__SwapToken(inputToken)
-            if token != outputToken:
-                raise Exception("Token mismatch:\nInput:   %s\nOutput:  %s\nShould be: %s")

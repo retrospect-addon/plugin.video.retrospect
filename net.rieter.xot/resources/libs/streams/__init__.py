@@ -7,4 +7,4 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-__all__ = ["m3u8", "mms", "smil", "youtube", "brightcove", "f4m"]
+__all__ = ["m3u8", "mms", "smil", "youtube", "brightcove", "f4m", "npostream"]
