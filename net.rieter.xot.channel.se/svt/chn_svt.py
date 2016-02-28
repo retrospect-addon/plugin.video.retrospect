@@ -806,9 +806,15 @@ class Channel(chn_class.Channel):
                 # else just use the URL
                 mediaPart.AppendMediaStream(video[0], video[1])
 
-        subtitle = Regexer.DoRegex('"url":"([^"]+.wsrt)"', data)
+        subtitle = Regexer.DoRegex('"url":"([^"]+.wsrt)"|"url":"(http://media.svt.se/download/[^"]+.m3u8)', data)
         for sub in subtitle:
-            mediaPart.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(sub, format="srt", proxy=self.proxy)
+            if sub[-1]:
+                Logger.Info("Found M3u8 subtitle, replacing with WSRT")
+                start, name, index = sub[-1].rsplit("/", 2)
+                subUrl = "%s/%s/%s.wsrt" % (start, name, name)
+            else:
+                subUrl = sub[0]
+            mediaPart.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subUrl, format="srt", proxy=self.proxy)
 
         item.complete = True
         return item
