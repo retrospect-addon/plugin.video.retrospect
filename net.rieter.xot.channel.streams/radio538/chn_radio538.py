@@ -234,7 +234,7 @@ class Channel(chn_class.Channel):
         episodeTitle = resultSet[4]
         day = resultSet[5]
         month = resultSet[6]
-        month = DateHelper.GetMonthFromName(month, language="nl")
+        month = DateHelper.GetMonthFromName(month, language="en")
         year = resultSet[7]
         hour = resultSet[8]
         minute = resultSet[9]
