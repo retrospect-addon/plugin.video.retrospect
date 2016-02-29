@@ -494,7 +494,7 @@ class Plugin:
                 message = LanguageHelper.GetLocalizedString(LanguageHelper.DrmText)
                 XbmcWrapper.ShowDialog(title, message)
             elif item.isDrmProtected:
-                Logger.Debug("DRM Warning message disableb by settings")
+                Logger.Debug("DRM Warning message disabled by settings")
 
             if not item.complete:
                 item = self.channelObject.ProcessVideoItem(item)

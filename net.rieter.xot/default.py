@@ -32,7 +32,6 @@ def RunPlugin():
         else:
             appendLogFile = True
 
-        # TODO: xx-xx-2016
         logFile = Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                                       Config.appName,
                                       append=appendLogFile,

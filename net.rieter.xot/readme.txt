@@ -400,3 +400,19 @@ sorted chronologically):
 - Sean Berger
 - LHM Damen
 - Theo Jansen
+- René Mulder
+- Andrei Neculau
+- Fred Selders
+- Alfred Johansson
+- Adri Domeni
+- Peter Adriaanse
+- Andre Verbücheln
+- Frank Kraaijeveld
+- Thomas Stefan Nugter
+- Robert Mast
+- Daniel Skagerö
+- Christian Jivenius
+- Joost Vande Winkel
+- Johan Asplund
+- Björn Axelsson
+- Gunilla Westermark
