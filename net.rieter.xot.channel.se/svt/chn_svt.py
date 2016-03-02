@@ -1,6 +1,7 @@
 # coding:UTF-8
 import urlparse
 import datetime
+import time
 
 # import contextmenu
 import chn_class
@@ -55,11 +56,14 @@ class Channel(chn_class.Channel):
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         # setup channel listing
-        self._AddDataParser("http://www.svtplay.se/kanaler",
-                            parser='<a[^>]+data-thumbnail="([^"]+)" data-jsonhref="([^"]+)"[^>]+'
-                                   'channel="([^"]+)"[^>]*>\W*<span[^>]+>([^<]+)',
-                            creator=self.CreateChannelItem,
-                            updater=self.UpdateChannelItem)
+        # self._AddDataParser("http://www.svtplay.se/kanaler",
+        # self._AddDataParser("http://www.svtplay.se/api/channel_page",
+        self._AddDataParser("#kanaler",
+                            preprocessor=self.LoadChannelData,
+                            json=True,
+                            parser=("channels", ),
+                            creator=self.CreateChannelItem)
+        self._AddDataParser("http://www.svt.se/videoplayer-api/", updater=self.UpdateChannelItem)
 
         # pages with extended video info
         extendedRegex = 'data-title="([^"]+)"\W+data-description="([^"]*)"[\w\W]{0,200}?' \
@@ -145,7 +149,7 @@ class Channel(chn_class.Channel):
         items = []
 
         extraItems = {
-            "Kanaler": "http://www.svtplay.se/kanaler",
+            "Kanaler": "#kanaler",
             "Livesändningar": "http://www.svtplay.se/ajax/live?sida=1",
 
             "S&ouml;k": "searchSite",
@@ -186,6 +190,20 @@ class Channel(chn_class.Channel):
             # catItem.SetDate(2099, 1, 1, text="")
             newItem.items.append(catItem)
         items.append(newItem)
+        return data, items
+
+    # noinspection PyUnusedLocal
+    def LoadChannelData(self, data):
+        """ Adds the channel items to the listing.
+
+        @param data:    The data to use.
+
+        Returns a list of MediaItems that were retrieved.
+
+        """
+
+        items = []
+        data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -296,19 +314,35 @@ class Channel(chn_class.Channel):
 
         """
 
-        c, t = channel[3].split(",", 1)
-        title = "%s : %s" % (c.lstrip().title(), t.rstrip())
-        channelItem = mediaitem.MediaItem(title, "%s%s?output=json" % (self.baseUrl, channel[1]))
-        channelItem.type = "video"
-        channelItem.isLive = True
-        channelItem.isGeoLocked = True
+        Logger.Trace(channel)
+        if "schedule" not in channel or not channel["schedule"]:
+            return None
 
-        if "http://" in channel[0]:
-            channelItem.thumb = channel[0]
-        elif channel[0].startswith("//"):
-            channelItem.thumb = "http:%s" % (channel[0], )
-        else:
-            channelItem.thumb = "%s%s" % (self.baseUrl, channel[0])
+        title = channel["name"]
+        thumb = self.noImage
+        channelId = channel["title"]
+        currentSchedule = channel["schedule"][0]
+
+        currentItem = currentSchedule["title"]
+        title = "%s : %s" % (title, currentItem)
+        description = channel["schedule"][0].get("description", None)
+        if "titlePage" in channel["schedule"][0]:
+            thumb = channel["schedule"][0]["titlePage"]["thumbnailMedium"]
+
+        # dateFormat = "2016-03-02T19:55:00+0100"
+        dateFormat = "%Y-%m-%dT%H:%M:%S"
+        startTime = time.strptime(currentSchedule["broadcastStartTime"][:-5], dateFormat)
+        endTime = time.strptime(currentSchedule["broadcastEndTime"][:-5], dateFormat)
+        title = "%s (%02d:%02d - %02d:%02d)" % (title, startTime.tm_hour, startTime.tm_min, endTime.tm_hour, endTime.tm_min)
+
+        # In theory we could also extract the video URL here.....
+
+        channelItem = mediaitem.MediaItem(title, "http://www.svt.se/videoplayer-api/video/ch-%s" % (channelId, ))
+        channelItem.type = "video"
+        channelItem.description = description
+        channelItem.isLive = True
+        channelItem.thumb = thumb
+        channelItem.isGeoLocked = True
         return channelItem
 
     def PreProcessFolderList(self, data):
@@ -651,7 +685,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
         json = JsonHelper(data, logger=Logger.Instance())
-        videos = json.GetValue("video", "videoReferences")
+        videos = json.GetValue("videoReferences")
         Logger.Trace(videos)
 
         item.MediaItemParts = []
@@ -661,11 +695,11 @@ class Channel(chn_class.Channel):
             part.HttpHeaders["X-Forwarded-For"] = spoofIp
 
         for video in videos:
-            bitrate = video['bitrate']
+            # bitrate = video['bitrate']
             url = video['url']
-            player = video['playerType']
-            if "ios" in player:
-                bitrate += 1
+            # player = video['playerType']
+            # if "ios" in player:
+            #     bitrate += 1
 
             if "akamaihd" in url and "f4m" in url:
                 continue
@@ -681,7 +715,7 @@ class Channel(chn_class.Channel):
                 for s, b in M3u8.GetStreamsFromM3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
                     part.AppendMediaStream(s, b)
             else:
-                part.AppendMediaStream(url, bitrate)
+                part.AppendMediaStream(url, 0)
 
         item.complete = True
         return item
