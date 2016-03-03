@@ -130,9 +130,13 @@ class Statistics:
             # now we need something async without caching
             userAgent = AddonSettings.GetUserAgent()
             if userAgent:
-                UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent}, params=data, noCache=True)
+                result = UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent}, params=data, noCache=True)
             else:
-                UriHandler.Open(url, params=data, noCache=True)
+                result = UriHandler.Open(url, params=data, noCache=True)
+            if len(result) > 0:
+                Logger.Debug("Statistics were successfully sent. Content Length: %d", len(result))
+            else:
+                Logger.Warning("Statistics were not successfully sent")
         except:
             # we should never ever fail here
             Logger.Warning("Cannot send statistics", exc_info=True)

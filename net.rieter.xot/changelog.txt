@@ -58,8 +58,8 @@
 * Fixed: SVT changed their Live channel format (Fixes #708)
 * Fixed: Radio 538 apparently has English dates in the HTML
 * Fixed: SVT is moving to M3u8 subtitles (Fixes #706)
-* Fixed: Most of the NPO TV Live streams were missing (Fixes #704) (cherry picked from commit 54ae9e0)
-* Fixed: Hardwareinfo.tv broke due to Google API deprecation. (cherry picked from commit 4e28699)
+* Fixed: Most of the NPO TV Live streams were missing (Fixes #704)
+* Fixed: Hardwareinfo.tv broke due to Google API deprecation.
 * Fixed: Canvas.be update their layout (Fixes #702)
 * Fixed: NPO Radio channels
 * Renamed: "Live TV" into "Live-TV" for TV4play.se (See #697)
