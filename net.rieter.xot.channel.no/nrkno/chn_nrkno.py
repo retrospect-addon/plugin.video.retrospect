@@ -35,7 +35,7 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.mainListUri = "#mainlist"
         self.baseUrl = "https://tvapi.nrk.no/v1"
-        self.httpHeaders["app-version-android"] = "60"
+        self.httpHeaders["app-version-android"] = "999"
 
         #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
@@ -99,7 +99,7 @@ class Channel(chn_class.Channel):
             "Live streams": "https://tvapi.nrk.no/v1/channels",
             "Recommended": "https://tvapi.nrk.no/v1/categories/all-programs/recommendedprograms",
             "Popular": "https://tvapi.nrk.no/v1/categories/all-programs/popularprograms",
-            "Recent": "https://tvapi.nrk.no/v1/categories/all   -programs/recentlysentprograms",
+            "Recent": "https://tvapi.nrk.no/v1/categories/all-programs/recentlysentprograms",
             "Categories": "https://tvapi.nrk.no/v1/categories/",
             # The other Programs url stopped working. This the next best thing.
             # "Programs": "http://m.nrk.no/tvapi/v1/series/",
@@ -139,6 +139,10 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet["title"]
+        if "mediaUrl" not in resultSet:
+            Logger.Warning("Found channel without media url: %s", title)
+            return None
+
         url = resultSet["mediaUrl"]
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'

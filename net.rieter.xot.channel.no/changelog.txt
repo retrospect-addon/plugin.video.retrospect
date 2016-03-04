@@ -1,5 +1,5 @@
 ﻿[B]Changelog[/B]
--
+Fixed: NRK.no broke due to an API version bump (Fixes #709)
 
 [I]Previous changes[/I]
 -

@@ -55,6 +55,7 @@
 * Added: Images hash files
 
 [B]Channel related[/B]
+* Fixed: NRK.no broke due to an API version bump (Fixes #709)
 * Fixed: SVT changed their Live channel format (Fixes #708)
 * Fixed: Radio 538 apparently has English dates in the HTML
 * Fixed: SVT is moving to M3u8 subtitles (Fixes #706)
