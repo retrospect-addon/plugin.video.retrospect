@@ -516,6 +516,9 @@ class CustomLogger:
             self.logHandle.seek(0, 2)
             self.Info("XOT Logger :: Appending Existing logFile")
         else:
+            logDir = os.path.dirname(self.logFileName)
+            if not os.path.isdir(logDir):
+                os.makedirs(logDir)
             # no file exists, so just create a new one for writing
             self.logHandle = open(self.logFileName, "w")
 

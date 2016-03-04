@@ -248,11 +248,13 @@ class Plugin:
         categories = channelRegister.GetCategories()
 
         xbmcItems = []
+        icon = os.path.join(Config.rootDir, "icon.png")
+        fanart = os.path.join(Config.rootDir, "fanart.jpg")
         for category in categories:
-            icon = os.path.join(Config.rootDir, "icon.png")
             name = LanguageHelper.GetLocalizedCategory(category)
             xbmcItem = xbmcgui.ListItem(name, name)
             xbmcItem.setIconImage(icon)
+            xbmcItem.setProperty('fanart_image', fanart)
             xbmcItem.setThumbnailImage(icon)
             url = self.__CreateActionUrl(None, action=self.actionListCategory, category=category)
             xbmcItems.append((url, xbmcItem, True))
