@@ -34,16 +34,21 @@ class Statistics:
         Statistics.__RegisterHit(Statistics.__STATISTICS, "CDN", "Cached", totalBytes)
 
     @staticmethod
-    def RegisterError(channel, title="Channel"):
+    def RegisterError(channel, title="Channel", item=None):
         """ Register an empty list for a specific Channel and Title
 
         @param channel: Channel : The channel that had the error
         """
 
-        if channel.parentItem is not None:
+        referrer = None
+        if item is not None:
+            title = item.name
+            referrer = item.url
+        elif channel.parentItem is not None:
             title = channel.parentItem.name
+            referrer = channel.parentItem.url or None
 
-        Statistics.__RegisterHit("Errors", channel.channelName, title, 1)
+        Statistics.__RegisterHit("Errors", channel.channelName, title, 1, referrer)
 
     @staticmethod
     def RegisterChannelOpen(channel, startTime=None):
@@ -86,14 +91,16 @@ class Statistics:
         Statistics.__RegisterHit(Statistics.__STATISTICS, "Playback", channel.channelName, duration)
 
     @staticmethod
-    def __RegisterHit(category, action, label, value=None):
+    def __RegisterHit(category, action, label, value=None, referrer=None):
         """ Register an event with Google Analytics
 
         @param category:    String   - Name of category to register
         @param action:      String   - Name of action to register
         @param value:       String   - Value of action to register
         @param label:       String   - The label for the event
-        @param value:       int      - The value for the event
+        @param value:       int      - The value for the event (Defaults to None)
+        @param referrer:    String   - The referrer (Defaults to None)
+
 
         See: https://ga-dev-tools.appspot.com/hit-builder/
         v=1&t=event&tid=UA-3902785-1&cid=3c8961be-6a53-48f6-bded-d136760ab55f&ec=Test&ea=Test%20Action&el=Test%20%5Blabel)&ev=100
@@ -117,6 +124,8 @@ class Statistics:
             }
             if value is not None:
                 postData["ev"] = value
+            if referrer is not None:
+                postData["dr"] = HtmlEntityHelper.UrlEncode(referrer)
 
             url = "http://www.google-analytics.com/collect"
             data = ""

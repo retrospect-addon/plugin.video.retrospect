@@ -502,8 +502,9 @@ class Plugin:
                 item = self.channelObject.ProcessVideoItem(item)
 
             # validated the updated item
-            if not item.complete:
+            if not item.complete or not item.HasMediaItemParts():
                 Logger.Warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
+                Statistics.RegisterError(self.channelObject, item=item)
 
             if not item.HasMediaItemParts():
                 # the update failed or no items where found. Don't play
@@ -555,7 +556,7 @@ class Plugin:
 
         except:
             if item:
-                Statistics.RegisterError(self.channelObject, item.name)
+                Statistics.RegisterError(self.channelObject, item=item)
             else:
                 Statistics.RegisterError(self.channelObject)
 
