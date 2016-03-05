@@ -3,6 +3,7 @@ import chn_class
 
 from regexer import Regexer
 from streams.brightcove import BrightCove
+from streams.m3u8 import M3u8
 
 from parserdata import ParserData
 from logger import Logger
@@ -308,6 +309,11 @@ class Channel(chn_class.Channel):
 
         part = item.CreateNewEmptyMediaPart()
         for stream, bitrate in amfHelper.GetStreamInfo():
+            if "m3u8" in stream:
+                for s, b in M3u8.GetStreamsFromM3u8(stream, self.proxy):
+                    item.complete = True
+                    # s = self.GetVerifiableVideoUrl(s)
+                    part.AppendMediaStream(s, b)
             part.AppendMediaStream(stream.replace("&mp4:", ""), bitrate)
 
         item.complete = True
