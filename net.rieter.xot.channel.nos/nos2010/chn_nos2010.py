@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
 
         # genres
         self._AddDataParser("http://www.npo.nl/uitzending-gemist", matchType=ParserData.MatchExact,
-                            parser='<option value="(\d+\.\d+\.\d+\.\d+)"[^>]*>([^<]+)<',
+                            parser='<option value="(\d+)"[^>]*>([^<]+)<',
                             creator=self.CreateGenreItem)
 
         # Set self.nonMobilePageSize to 0 to enable mobile pages
@@ -114,9 +114,11 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
 
         # Non-mobile videos: for the old pages
-        self.nonMobileVideoItemRegex = 'src="(?<Image>[^"]+)"\W+>[\w\W]{0,500}?</a></div>\W*</div>\W*<div[^>]*>\W*' \
-                                       '<a href="(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>' \
-                                       '[^/"]+))"[^>]*><h4>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]+>(?<Description>' \
+        self.nonMobileVideoItemRegex = 'src="(?<Image>[^"]+)"\W+>(?<Premium><div class="not-' \
+                                       'available-image-overlay">)?[\w\W]{0,500}?</a></div>\W*' \
+                                       '</div>\W*<div[^>]*>\W*<a href="(?<Url>[^"]+/(?<Day>\d+)-' \
+                                       '(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"[^>]*>' \
+                                       '<h4>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]+>(?<Description>' \
                                        '[^<]*)'.replace('(?<', '(?P<')
         self._AddDataParser("*", parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
                             updater=self.UpdateVideoItem)
@@ -632,6 +634,8 @@ class Channel(chn_class.Channel):
         if item.thumb.startswith("//"):
             item.thumb = self.noImage
 
+        if "Premium" in resultSet and resultSet["Premium"]:
+            item.isPaid = True
         try:
             if "Year" in resultSet:
                 year = resultSet["Year"]
