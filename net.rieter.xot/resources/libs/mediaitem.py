@@ -59,7 +59,6 @@ class MediaItem:
                 "isPaid",
                 "parent",
                 "complete",
-                "error",
                 "downloaded",
                 "downloadable",
                 "items",
