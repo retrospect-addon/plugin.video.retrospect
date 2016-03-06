@@ -373,10 +373,14 @@ class MediaItem:
 
         # now set all the art
         if self.fanart and not AddonSettings.HideFanart():
-            item.setProperty('fanart_image', self.fanart)
+            item.setArt({'fanart': self.fanart})
 
-        item.setThumbnailImage(self.thumb)
-        item.setIconImage(self.icon)
+        try:
+            item.setIconImage(self.icon)
+        except:
+            # it was deprecated
+            pass
+        item.setArt({'thumb': self.thumb, 'icon': self.icon})
 
         # art = dict()
         # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):

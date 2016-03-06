@@ -90,7 +90,7 @@ class Plugin:
         self.channelFile = ""
         self.channelCode = None
 
-        self.contentType = "movies"
+        self.contentType = "episodes"
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
 
         # determine the query parameters
@@ -253,9 +253,17 @@ class Plugin:
         for category in categories:
             name = LanguageHelper.GetLocalizedCategory(category)
             xbmcItem = xbmcgui.ListItem(name, name)
-            xbmcItem.setIconImage(icon)
-            xbmcItem.setProperty('fanart_image', fanart)
-            xbmcItem.setThumbnailImage(icon)
+
+            # set art
+            try:
+                xbmcItem.setIconImage(icon)
+            except:
+                # it was deprecated
+                pass
+            xbmcItem.setArt({'thumb': icon, 'icon': icon})
+            if not AddonSettings.HideFanart():
+                xbmcItem.setArt({'fanart': fanart})
+
             url = self.__CreateActionUrl(None, action=self.actionListCategory, category=category)
             xbmcItems.append((url, xbmcItem, True))
 

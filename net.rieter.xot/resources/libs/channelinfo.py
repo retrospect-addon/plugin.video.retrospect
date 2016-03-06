@@ -106,8 +106,12 @@ class ChannelInfo:
 
         self.icon = self.__GetImagePath(self.icon)
         item = xbmcgui.ListItem(name, description)
-        item.setIconImage(self.icon)
-        item.setThumbnailImage(self.icon)
+        try:
+            item.setIconImage(self.icon)
+        except:
+            # it was deprecated
+            pass
+        item.setArt({'thumb': self.icon, 'icon': self.icon})
 
         # http://mirrors.kodi.tv/docs/python-docs/14.x-helix/xbmcgui.html#ListItem-setInfo
         item.setInfo("video", {"Title": name,
@@ -124,7 +128,7 @@ class ChannelInfo:
             self.fanart = self.__GetImagePath(self.fanart)
         else:
             self.fanart = os.path.join(Config.rootDir, "fanart.jpg")
-        item.setProperty('fanart_image', self.fanart)
+        item.setArt({'fanart': self.fanart})
         return item
 
     def __str__(self):
