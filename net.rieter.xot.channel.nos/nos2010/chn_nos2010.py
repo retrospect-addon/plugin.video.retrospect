@@ -402,6 +402,8 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Trace("CreateJsonShows(%s)", resultSet)
+        if not resultSet:
+            return None
 
         episodeId = resultSet['nebo_id']
         # if we should not use the mobile listing and we have a non-mobile ID)

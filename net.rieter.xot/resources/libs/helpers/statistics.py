@@ -41,12 +41,17 @@ class Statistics:
         """
 
         referrer = None
+
+        if item is None:
+            item = channel.parentItem
+
         if item is not None:
             title = item.name
             referrer = item.url
-        elif channel.parentItem is not None:
-            title = channel.parentItem.name
-            referrer = channel.parentItem.url or None
+            if item.IsPlayable():
+                title = "Play: %s" % (title,)
+            else:
+                title = "List: %s" % (title,)
 
         Statistics.__RegisterHit("Errors", channel.channelName, title, 1, referrer)
 
