@@ -5,7 +5,6 @@ import mediaitem
 import contextmenu
 import chn_class
 from helpers import datehelper
-from helpers import htmlhelper
 from regexer import Regexer
 
 from logger import Logger
@@ -39,11 +38,12 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.baseUrl = "http://trailers.apple.com"
         self.mainListUri = "http://trailers.apple.com/trailers/home/feeds/just_added.json"
+        # self.mainListUri = "http://trailers.apple.com/ca/home/feeds/most_pop.json"
 
         # setup the main parsing data
-        self.episodeItemJson = ''
-        self.videoItemRegex = "(\Wtrailer[^']+'>[\w\W]{200,2000}?\W</li>\W+(?:<li class|</ul>))"
-        self.mediaUrlRegex = '<a class="movieLink" href="([^"]+_)'
+        self._AddDataParser(self.mainListUri, parser=(), json=True, creator=self.CreateEpisodeItem)
+        self._AddDataParser("*", json=True, preprocessor=self.GetMovieId,
+                            parser=("clips", ), creator=self.CreateVideoItem)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
 
         # get the url that shows all trailers/clips. Because the json
         # only shows the most recent one.
-        url = "%s%sincludes/playlists/web.inc" % (self.baseUrl, url)
+        url = "%s%s" % (self.baseUrl, url)
 
         # Logger.Trace(date)
         dates = date.split(" ")
@@ -81,6 +81,26 @@ class Channel(chn_class.Channel):
         item.SetDate(year, month, day)
         item.complete = True
         return item
+
+    def GetMovieId(self, data):
+        """ Extract the movie ID and replace the data with the correct JSON
+
+        @param data: the original data
+        @return: the new data
+        """
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        movieId = Regexer.DoRegex("movietrailers://movie/detail/(\d+)", data)[-1]
+        Logger.Debug("Found Movie ID: %s", movieId)
+        url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movieId)
+        data = UriHandler.Open(url, proxy=self.proxy)
+
+        # set it for logging purposes
+        self.parentItem.url = url
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
 
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
@@ -102,46 +122,48 @@ class Channel(chn_class.Channel):
 
         """
 
-        html = htmlhelper.HtmlHelper(resultSet)
+        Logger.Trace(resultSet)
 
-        # create the item
-        itemName = html.GetTagContent("h3")
-        Logger.Trace(itemName)
-        title = "%s - %s" % (self.parentItem.name, itemName)
+        title = resultSet["title"]
+        title = "%s - %s" % (self.parentItem.name, title)
 
-        # get the URL using the name and
-        location = self.parentItem.url[:self.parentItem.url.rfind("/includes/")]
-        itemName = itemName.replace(' ', '').replace('-', '').lower()
-
-        # take the large to make sure we always have a html file
-        url = "%s/includes/%s/large.html" % (location, itemName)
-
-        item = mediaitem.MediaItem(title, url)
+        thumb = resultSet["thumb"]
+        year, month, day = resultSet["posted"].split("-")
+        item = mediaitem.MediaItem(title, self.parentItem.url)
         item.icon = self.icon
         item.description = self.parentItem.description
         item.type = 'video'
-        item.fanart = "%s/images/background.jpg" % (location,)
-        Logger.Trace(item.fanart)
+        item.thumb = thumb
+        item.fanart = self.parentItem.fanart
+        item.SetDate(year, month, day)
 
-        # get the thumburl
-        item.thumb = html.GetTagAttribute("img", {"src": None})
-        urls = html.GetTagAttribute("a", {"href": None}, {"cls": "OverlayPanel[^\"]+"}, firstOnly=False)
-        Logger.Trace(urls)
+        part = item.CreateNewEmptyMediaPart()
+        part.HttpHeaders["User-Agent"] = "QuickTime/7.6 (qtver=7.6;os=Windows NT 6.0Service Pack 2)"
 
-        if len(urls) == 0:
-            # could be that there are no URL, then skip
-            return None
+        if "versions" in resultSet and "enus" in resultSet["versions"] and "sizes" in resultSet["versions"]["enus"]:
+            streams = resultSet["versions"]["enus"]["sizes"]
+            streamTypes = ("src", "srcAlt")
+            bitrates = {"hd1080": 8300, "hd720": 5300, "sd": 1200}
+            for s in streams:
+                bitrate = bitrates.get(s, 0)
+                streamData = streams[s]
 
-        # get the date
-        dateResult = Regexer.DoRegex('<p>Posted: (\d+)/(\d+)/(\d+)', html.data)
-        for dates in dateResult:
-            year = "20%s" % (dates[2],)
-            day = dates[1]
-            month = dates[0]
-            item.SetDate(year, month, day)
+                # find all possible stream stream types
+                for t in streamTypes:
+                    if t in streamData:
+                        streamUrl = streamData[t]
+                        if streamUrl.endswith(".mov"):
+                            # movs need to have a 'h' before the quality
+                            parts = streamUrl.rsplit("_", 1)
+                            if len(parts) == 2:
+                                Logger.Trace(parts)
+                                streamUrl = "%s_h%s" % (parts[0], parts[1])
+                            part.AppendMediaStream(streamUrl, bitrate)
+                        else:
+                            part.AppendMediaStream(streamUrl, bitrate)
+                        item.complete = True
 
         item.downloadable = True
-        item.complete = False
         return item
 
     #noinspection PyUnusedLocal
@@ -149,49 +171,4 @@ class Channel(chn_class.Channel):
         """ downloads a video item and returns the updated one
         """
         item = self.DownloadVideoItem(item)
-        return item
-
-    def UpdateVideoItem(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
-
-        Used to update none complete MediaItems (self.complete = False). This
-        could include opening the item's URL to fetch more data and then process that
-        data or retrieve it's real media-URL.
-
-        The method should at least:
-        * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
-        * set self.complete = True.
-
-        if the returned item does not have a MediaItemPart then the self.complete flag
-        will automatically be set back to False.
-
-        """
-
-        # get the description
-        data = UriHandler.Open(item.url)
-        videoUrl = Regexer.DoRegex(self.mediaUrlRegex, data)[0]
-        Logger.Trace(videoUrl)
-
-        item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
-
-        # actual bitrates
-        #  720p -> 5300
-        #  1080p -> 8300
-        #  408p -> 2200
-        #  640w -> 1200
-        #  480 -> 800
-        #  320 -> 250
-        for (res, bitrate) in (('h480p', 2000), ('h720p', 4000), ('h1080p', 8000), ("h640w", 1200), ("h480", 800), ("h320", 250)):
-            part.AppendMediaStream("%s%s.mov" % (videoUrl, res), bitrate)
-
-        part.HttpHeaders["User-Agent"] = "QuickTime/7.6 (qtver=7.6;os=Windows NT 6.0Service Pack 2)"
-        item.complete = True
         return item

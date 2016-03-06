@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Hardwareinfo.tv broke due to Google API deprecation.
+Fixed: AMT introduced a new JSON API
 
 [I]Previous changes[/I]
+Fixed: Hardwareinfo.tv broke due to Google API deprecation.
 Fixed: Eredivisie Live did not show any content (Fixes #651)
 Fixed: Dumpert cookie consent issue (Fixes #628)
 Fixed: Pathe updated their layout again (Fixes #577)
