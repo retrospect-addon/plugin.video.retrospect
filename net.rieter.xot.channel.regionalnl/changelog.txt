@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: ATV.sr (Algemene Televisie Verzorging Uitzendinggemist) (Fixes #601)
+Fixed: a lot of Dutch Regional channel updated their JSON API
 
 [I]Previous changes[/I]
+Added: ATV.sr (Algemene Televisie Verzorging Uitzendinggemist) (Fixes #601)
 Fixed: Omrop Fryslân broke (Fixes #606)
 Fixed: RTV Utrecht changed URL
 Fixed: L1 did not play back

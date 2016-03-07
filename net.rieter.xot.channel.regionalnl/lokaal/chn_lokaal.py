@@ -36,84 +36,89 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.channelBitrate = 850  # : the default bitrate
         self.liveUrl = None        # : the live url if present
+        # self.liveSelector = ()     # : what stream keys to use
 
         if self.channelCode == "rtvutrecht":
             self.noImage = "rtvutrechtimage.png"
             self.mainListUri = "http://app.rtvutrecht.nl/ios-android/v520/gemist_rtvutrecht_programlist.json"
             self.baseUrl = "http://app.rtvutrecht.nl"
-            self.liveUrl = "http://app.rtvutrecht.nl/feeds/v400/live_televisie.json"
+            # Uses NPO stream with smshield cookie
+            self.liveUrl = "http://app.rtvutrecht.nl/ios-android/v520/live_rtvutrecht.json"
             self.channelBitrate = 780
 
         elif self.channelCode == "rtvrijnmond":
             self.noImage = "rtvrijnmondimage.png"
-            self.mainListUri = "http://www.rijnmond.nl/feeds/v500/programmas.php"
-            self.baseUrl = "http://www.rijnmond.nl"
-            self.liveUrl = "http://www.rijnmond.nl/feeds/v500/tv.php"
+            self.mainListUri = "http://rijnmond.api.regiogrid.nl/apps/v520/programs.json"
+            self.baseUrl = "http://rijnmond.api.regiogrid.nl"
+            self.liveUrl = "http://rijnmond.api.regiogrid.nl/apps/v520/tv.json"
             self.channelBitrate = 900
 
         elif self.channelCode == "rtvdrenthe":
             self.noImage = "rtvdrentheimage.png"
-            self.mainListUri = "http://www.rtvdrenthe.nl/feeds/v500/programmas"
-            self.baseUrl = "http://www.rtvdrenthe.nl"
-            self.liveUrl = "http://www.rtvdrenthe.nl/feeds/v500/tv"
+            self.mainListUri = "http://drenthe.api.regiogrid.nl/apps/v520/programs.json"
+            self.baseUrl = "http://drenthe.api.regiogrid.nl"
+            self.liveUrl = "http://feeds.rtvdrenthe.nl/app/all/tv.json"
             self.channelBitrate = 1350
 
         elif self.channelCode == "rtvnoord":
             self.noImage = "rtvnoordimage.png"
-            self.mainListUri = "http://www.rtvnoord.nl/feeds/v500/ug_programmas.json"
-            self.baseUrl = "http://www.rtvnoord.nl"
-            # self.liveUrl = "http://www.rtvnoord.nl/feeds/v500/tv-live-kiezer.json"  # Not working in XBMC
+            self.mainListUri = "http://noord.storage.regiogrid.nl/apps/v520/programs.json"
+            self.baseUrl = "http://noord.storage.regiogrid.nl"
+            # Uses NPO stream with smshield cookie
+            self.liveUrl = "http://noord.storage.regiogrid.nl/apps/v520/tv-live-kiezer.json"
             self.channelBitrate = 1350
 
         elif self.channelCode == "rtvoost":
             self.noImage = "rtvoostimage.png"
-            self.mainListUri = "http://mobileapp.rtvoost.nl/v500/feeds/programmas.aspx"
+            self.mainListUri = "http://mobileapp.rtvoost.nl/v520/feeds/programmas.aspx"
             self.baseUrl = "http://mobileapp.rtvoost.nl"
-            self.liveUrl = "http://mobileapp.rtvoost.nl/v500/feeds/tv.aspx"
+            # self.liveUrl = "http://mobileapp.rtvoost.nl/v500/feeds/tv.aspx"
+            self.liveUrl = "http://mobileapp.rtvoost.nl/v520/feeds/tv.aspx"
+            # the v500 has http://145.58.83.153:80/tv/live.stream/playlist.m3u8
+            # the v520 has rtsp://145.58.83.153:554/tv/live.stream and NPO streams
             self.channelBitrate = 1350
 
         elif self.channelCode == "rtvnh":
             self.noImage = "rtvnhimage.png"
             # self.mainListUri = "http://www.rtvnh.nl/iphone-app/v500/programmas"
-            self.mainListUri = "http://www.rtvnoord.nl/feeds/v500/ug_programmas.json"
+            # self.mainListUri = "http://www.rtvnh.nl/iphone-app/v520/programmas"
             self.baseUrl = "http://www.rtvnh.nl"
-            self.liveUrl = "http://www.rtvnh.nl/iphone-app/v500/tvnh"
+            self.liveUrl = "http://www.rtvnh.nl/iphone-app/v520/tvnh"
             self.channelBitrate = 1200
 
         elif self.channelCode == "omroepwest":
             self.noImage = "omroepwestimage.png"
-            self.mainListUri = "http://www.omroepwest.nl/feeds/v500/programmas.php"
+            self.mainListUri = "http://west.storage.regiogrid.nl/apps/v520/programs.json"
             self.baseUrl = "http://www.omroepwest.nl"
-            self.liveUrl = "http://www.omroepwest.nl/feeds/v500/tv.php"
+            self.liveUrl = "http://feeds.omroepwest.nl/v520/tv.json"
             self.channelBitrate = 1500
 
         elif self.channelCode == "omroepgelderland":
             self.noImage = "omroepgelderlandimage.png"
             self.mainListUri = "http://web.omroepgelderland.nl/json/v400/programmas.json"
-            # self.mainListUri = "http://app.gld.nl/data/json/v500/programmas.json" #  Currently only has empty items
             self.baseUrl = "http://web.omroepgelderland.nl"
             self.liveUrl = "http://app.gld.nl/data/json/v500/tv_live.json"
             self.channelBitrate = 1500
 
         elif self.channelCode == "omroepzeeland":
             self.noImage = "omroepzeelandimage.png"
-            self.mainListUri = "http://www.omroepzeeland.nl/apps/middleware/shows.php"
+            self.mainListUri = "http://www.omroepzeeland.nl/mobile/v520/ug_programmas.json"
             self.baseUrl = "http://www.omroepzeeland.nl"
-            self.liveUrl = "http://www.omroepzeeland.nl/apps/middleware/streams.php?t=tv&v=4"
+            self.liveUrl = "http://www.omroepzeeland.nl/mobile/v520/live-tv.json"
             self.channelBitrate = 1500
 
         elif self.channelCode == "omroepbrabant":
             self.noImage = "omroepbrabantimage.png"
-            self.mainListUri = "http://dr.omroepbrabant.nl/v500/UGSeries.json"
+            self.mainListUri = "http://feed.omroepbrabant.nl/v520/UGSeries.json"
             self.baseUrl = "http://www.omroepbrabant.nl"
-            self.liveUrl = "http://dr.omroepbrabant.nl/v500/tv.json"
+            self.liveUrl = "http://feed.omroepbrabant.nl/s520/tv.json"
             self.channelBitrate = 1500
 
         elif self.channelCode == "omropfryslan":
             self.noImage = "omropfryslanimage.png"
-            self.mainListUri = "http://www.omropfryslan.nl/feeds/v500/uitzendinggemist.php"
+            self.mainListUri = "http://www.omropfryslan.nl/feeds/v520/uitzendinggemist.php"
             self.baseUrl = "http://www.omropfryslan.nl"
-            self.liveUrl = "http://www.omropfryslan.nl/feeds/v500/tv.php"
+            self.liveUrl = "http://www.omropfryslan.nl/feeds/v520/tv.php"
             self.channelBitrate = 1500
 
         else:
@@ -228,6 +233,9 @@ class Channel(chn_class.Channel):
             for stream in streams:
                 Logger.Trace(stream)
                 bitrate = None
+                # if self.liveSelector and stream not in self.liveSelector:
+                #     Logger.Warning("Skipping '%s'", stream)
+                #     continue
 
                 # used in Omrop Fryslan
                 if stream == "android":
@@ -267,17 +275,21 @@ class Channel(chn_class.Channel):
                 else:
                     Logger.Warning("No url found for type '%s'", stream)
 
+                if "livestreams.omroep.nl/live/" in url and url.endswith("m3u8"):
+                    Logger.Info("Found NPO Stream, adding ?protection=url")
+                    url = "%s?protection=url" % (url, )
+
                 if bitrate:
                     part.AppendMediaStream(url, bitrate)
 
-                    if url == liveStreamValue and url.endswith("m3u8"):
+                    if url == liveStreamValue and ".m3u8" in url:
                         # if it was equal to the previous one, assume we have a m3u8. Reset the others.
                         Logger.Info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
                         liveItem.MediaItemParts = []
                         liveItem.url = url
                         liveItem.complete = False
                         break
-                    elif url.endswith("playlist.m3u8"):
+                    elif "playlist.m3u8" in url:
                         # if we have a playlist, use that one. Reset the others.
                         Logger.Info("Found M3u8 playlist for this Live channel, using that one: %s", url)
                         liveItem.MediaItemParts = []
@@ -433,12 +445,10 @@ class Channel(chn_class.Channel):
         Logger.Debug("Updating a (Live) video item")
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, appendQueryString=True):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
         item.complete = True
 
         return item
-
-
