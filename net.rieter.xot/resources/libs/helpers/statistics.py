@@ -54,20 +54,21 @@ class Statistics:
         @param channel: Channel : The channel that had the error
         """
 
-        referrer = None
+        referer = None
 
         if item is None:
             item = channel.parentItem
 
         if item is not None:
             title = item.name
-            referrer = item.url
+            referer = item.url
             if item.IsPlayable():
                 title = "%s: %s" % (Statistics.__ACTION_PLAY, title)
             else:
                 title = "%s: %s" % (Statistics.__ACTION_LIST, title)
 
-        Statistics.__RegisterHit(Statistics.__ERRORS, channel.channelName, title, 1, referrer)
+        Statistics.__RegisterHit(Statistics.__ERRORS,
+                                 channel.channelName, title, value=1, referer=referer)
 
     @staticmethod
     def RegisterChannelOpen(channel, startTime=None):
@@ -86,7 +87,7 @@ class Statistics:
             duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3))
 
         Statistics.__RegisterHit(Statistics.__STATISTICS,
-                                 channel.channelName, Statistics.__ACTION_CHANNEL, duration)
+                                 channel.channelName, Statistics.__ACTION_CHANNEL, value=duration)
 
     @staticmethod
     def RegisterPlayback(channel, item, startTime=None, offset=0):
@@ -112,10 +113,10 @@ class Statistics:
 
         action = "%s: %s" % (Statistics.__ACTION_PLAY, item.name)
         Statistics.__RegisterHit(Statistics.__STATISTICS,
-                                 channel.channelName, action, value=duration, referrer=item.url)
+                                 channel.channelName, action, value=duration, referer=item.url)
 
     @staticmethod
-    def __RegisterHit(category, action, label, value=None, referrer=None):
+    def __RegisterHit(category, action, label, value=None, referer=None):
         """ Register an event with Google Analytics
 
         @param category:    String   - Name of category to register
@@ -123,7 +124,7 @@ class Statistics:
         @param value:       String   - Value of action to register
         @param label:       String   - The label for the event
         @param value:       int      - The value for the event (Defaults to None)
-        @param referrer:    String   - The referrer (Defaults to None)
+        @param referer:     String   - The referer (Defaults to None)
 
         See: https://ga-dev-tools.appspot.com/hit-builder/
         v=1&t=event&tid=UA-3902785-1&cid=3c8961be-6a53-48f6-bded-d136760ab55f&ec=Test&ea=Test%20Action&el=Test%20%5Blabel)&ev=100
@@ -147,8 +148,10 @@ class Statistics:
             }
             if value is not None:
                 postData["ev"] = value
-            if referrer is not None:
-                postData["dr"] = HtmlEntityHelper.UrlEncode(referrer)
+            if referer is not None:
+                if "://" not in referer:
+                    referer = "http://%s" % (referer,)
+                postData["dr"] = HtmlEntityHelper.UrlEncode(referer)
 
             url = "http://www.google-analytics.com/collect"
             data = ""
