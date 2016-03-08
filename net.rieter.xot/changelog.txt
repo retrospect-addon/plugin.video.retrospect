@@ -1,120 +1,17 @@
-﻿[B]Retrospect v4.1.0 - Changelog - 2016-03-05[/B]
+﻿[B]Retrospect v4.1.1 - Changelog - 2016-03-08[/B]
 
 [B]Framework related[/B]
-* Changed: Reordered the channels in the main channel listing
-* Changed: added sort channels by Title and Language (using 'Genre' for that)
-* Fixed: UriOpener.Header return values had an issue
-* Fixed: statistics with special characters fixed
-* Moved: logfile can now be found in the Retrospect profile folder
-* Updated: log file format cleaned up
-* Added: support for Apple's TV OS  (such as ATV 4) (See #689)
-* Changed: New way of importing single channels using a pre-build ChannelIndex
-* Changed: bumped Python dependency to xbmc.python-2.14.0 (See http://forum.kodi.tv/showthread.php?tid=250936&pid=2196735#pid2196735)
-* Added: append QS to M3U8 sub streams
-* Added: custom infolabels such as season information
-* Changed: cleanup Kodi items creation
-* Added: F4m stream parser
-* Fixed: First time messages were only show for first channel in a python file
-* Fixed: Favourites would not work under Android
-* Fixed: URL video extension detection updated (See #619)
-* Fixed: don't check for channel.xml file, but only for json file.
-* Fixed: forgot to update the MediaItem __dir__() method which breaks the favorites
-* Moved: NPO Live Player stream extraction to npostream.py
+* Fixed: missed a mediaitem attribute (again...)
 
 [I]Statistics[/I]
-* Fixed: don't cache the statistics requests
-* Added: GA statistics instead of rieter.net
-* Added: GA statistics on empty lists and playback errors
-* Added: Register the total retrieved CDN bytes via GA
-* Updated: always generate a new ClientID if none was found
-
-[I]Milhouse[/I]
-* Fixed: Pickler was not updated for new URL encoding (See #688)
-* Fixed: Pickler would not handle upper case URL encoded chars (See #688)
-* Updated: removed specific Kodi Player selection as it has been deprecated for some time now (see http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)
-* Fixed: the Millhouse Kodi builds no longer have DVD Player but use the future VideoPlayer which broke Retrospect (See #658)
-* Updated: Jarvis API deprecations partly implemented. Only the setIconImage and setThumbnailImage remain.
+* Fixed: make sure the GA referer always as a http(s)
+* Fixed: GA for Errors and Statistics are now similar
+* Added: GA now distinguishes between Channel, List or Play
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Swedish and Dutch translations
-* Added: possibility to show/hide premium items. Defaults to "show" (Fixes #620)
-* Updated: make it possible to hide DRM protected items
-* Changed: Also make it possible to hide a channel from the channel settings
-* Updated: Only show an initialising message once
-
-[I]Textures[/I]
-* Added: Retrospect now supports fanarts
-* Updated: Channel icons/logos, thumbs and fanarts (720p)
-* Changed: moved textures (icons/logos/thumbs/fanart) outside of the main download
-* Added: Add a configuration that allows disabling Fanart
-* Added: TextureManager (Cached, Local or Remote) to fetch the textures for channels on-demand
-* Changed: Show progress bar on texture update
-* Fixed: if a local texture is already present use that one.
-* Fixed: Purge textures from Kodi if they are no longer required by Retrospect
-* Fixed: Don't try to resolve http(s) textures
-* Added: Images hash files
+* Fixed: thumb aspect ratio in some views
 
 [B]Channel related[/B]
-* Fixed: NRK.no broke due to an API version bump (Fixes #709)
-* Fixed: SVT changed their Live channel format (Fixes #708)
-* Fixed: Radio 538 apparently has English dates in the HTML
-* Fixed: SVT is moving to M3u8 subtitles (Fixes #706)
-* Fixed: Most of the NPO TV Live streams were missing (Fixes #704)
-* Fixed: Hardwareinfo.tv broke due to Google API deprecation.
-* Fixed: Canvas.be update their layout (Fixes #702)
-* Fixed: NPO Radio channels
-* Renamed: "Live TV" into "Live-TV" for TV4play.se (See #697)
-* Fixed: TV4play.se Live stream did not work (Fixes 697)
-* Removed: Eden warning from SVT (Fixes #694)
-* Fixed: some NPO streams would not play due to missing JSON data
-* Fixed: UR Play website was update which broke Retrospect (Fixes #691)
-* Renamed: Eredivisie Live to Fox Sports
-* Fixed: NRK did not show any programs
-* Fixed: Minor site change broke Nick channels again...
-* Added: Ketnet (VRT) was added again (Fixes #686)
-* Renamed: VRT to Ketnet
-* Fixed: Eredivisie Live did not show any content (Fixes #651)
-* Added: Swedish MTG channels, Swedish SBS Channels and TV4.se now have a search option (See #683)
-* Fixed: BBC iPlayer was not showing episodes due to minor site changes (Fixes #685)
-* Added: SVT and Oppet Arkiv Search (Fixes #681)
-* Fixed: Radio 538 did not play all streams
-* Fixed: Minor site change broke Nick channels (Fixes #680)
-* Fixed: Swedish Kanal 5/9/11 updated their API and broke the channels (Fixes #679)
-* Fixed: Canvas updated their site (Fixes #677)
-* Fixed: TWiT.tv did no longer work
-* Fixed: Canvas updated their site
-* Fixed: Swedish SBS channel change video content platform and broke Kanal 5, Kanal 9 and Kanal 11 (Fixes #673)
-* Added: nrk.no categories
-* Fixed: Some program listings did not work in the RTL channel on 32 bit systems.
-* Fixed: BBC moved their streams around which broke the channel (Fixes #669)
-* Added: NRK.no channel (Fixes #297)
-* Fixed: Radio 538, Slam! FM and Q-Music streams broken (Fixes #665, Fixes #666, Fixes #667)
-* Fixed: VTM site update broke listings (Fixes #656)
-* Fixed: NPO changed their URL scheme which broke parsing (Fixes #654)
-* Fixed: SRF.ch changed their Play API (Fixes #653)
-* Fixed: SVT Categories would mix up videos and folders (Fixes #652)
-* Fixed: Radio 538 had some data items appear as folders
-* Added: SLAM! TV stream (Fixes #650)
-* Fixed: Some NPO listings were empty due to site changes (Fixes #647)
-* Added: more NPO Radio web cam streams (Fixes #643)
-* Added: Genres to NPO.nl channel (Fixes #388)
-* Fixed: paging and clips were not shown for kijk.nl (Fixes #609)
-* Added: TV12 and TV7 via TV4Play (changelog.txt)
-* Fixed: Kijk.nl changed their URL scheme (Fixes #642)
-* Added: TV12 and TV7 via TV4Play (Fixes #631)
-* Fixed: Nickelodeon changed their layout which broke playback (Fixes #636)
-* Fixed: NPO updated their video back-end which broke playback (Fixes #634)
-* Fixed: TV4Play had some broken lists (Fixes #629)
-* Fixed: Dumpert cookie consent issue (Fixes #628)
-* Added: TV4Play Live channel (Fixes #626)
-* Fixed: NPO date items did not work (Fixes #623)
-* Fixed: URL encode the categorie names for TV4Play (See #519)
-* Fixed: SVT Öppet Arkiv again (Fixes #622)
-* Fixed: SVT Oppet Arkiv (Fixes #621)
-* Added: DRM Protection message (See #519)
-* Added: Senaste avsnitten/clip to Kanal5.se, Kanal9.se and Kanal11.se (See #519)
-* Updated: TV4Play added more categories (See #519)
-* Added: TV4Play has a DRM protection indicator for Premium indication (See #620)
-* Updated: TV4Play added more categories (Fixes #519)
-* Fixed: headers were not correctly set which prevent pre-fetching of streams for NPO (Fixes #619)
-* Fixed: NPO.nl recent and tips did not display show names
+* Added: kijk.nl now also has M3U8 streams.
+* Fixed: a lot of Dutch Regional channel updated their JSON API
+* Fixed: AMT introduced a new JSON API
