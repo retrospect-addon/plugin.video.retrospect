@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: SVT changed their Live channel format (Fixes #708)
+Fixed: UR Play updated their site
 
 [I]Previous changes[/I]
+Fixed: SVT changed their Live channel format (Fixes #708)
 Fixed: TV4play.se Live stream did not work (Fixed 697)
 Fixed: UR Play website was update which broke Retrospect (Fixes #691)
 Added: SVT and Oppet Arkiv Search (Fixes #681)

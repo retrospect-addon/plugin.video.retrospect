@@ -1,6 +1,4 @@
 # coding:UTF-8
-import urlparse
-
 import mediaitem
 import chn_class
 
@@ -31,22 +29,29 @@ class Channel(chn_class.Channel):
         self.noImage = "urplayimage.png"
 
         # setup the urls
-        self.mainListUri = "http://urplay.se/A-O"
+        self.mainListUri = "http://urplay.se/sok?product_type=series&rows=1000&start=0"
         self.baseUrl = "http://urplay.se"
-        self.swfUrl = "http://urplay.se/design/ur/javascript/jwplayer/jwplayer-6.12.swf"
+        self.swfUrl = "http://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
 
-        # setup the main parsing data
-
-        self.episodeItemRegex = '<a[^>]+href="(/Produkter[^"]+)">([^<]+)<span class="product-type \w+">([^<]+)'
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, preprocessor=self.AddCategories,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        # programs
+        programReg = '<a[^>]*data-id="(?<id>\d+)"[^>]*href="/(?<url>[^"]+)"[^>]*>[\w\W]{0,2000}?' \
+                     '<span class="(?<class>\w+)">[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+' \
+                     '<p[^>]*>(?<description>[^<]+)<'
+        programReg = Regexer.FromExpresso(programReg)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            preprocessor=self.AddCategories,
+                            parser=programReg, creator=self.CreateEpisodeItem)
 
         # videos
-        self.videoItemRegex = '<section class="([^"]+)">\W*<a[^>]+title="[^"]+" href="(/Produkter/[^"]+)">[\W\w]{0,200}' \
-                              '<img[^>]+src="([^"]+)[\W\w]{0,1000}?<h1>([^<]+)</h1>[\w\W+]{0,500}?' \
-                              '<p[^>]*class="ellipsis-lastline"[^>]*>([^<]+)</p>(?:[\w\W]{0,500}?' \
-                              '<time[^>]*datetime="(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+))'
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        videoItemRegex = '<li[^>]*>\W+<a[^>]*(?:data-id="(?<id2>\d+)")?[^>]*href="/(?<url>\w+/' \
+                         '(?<id>\d+)[^"]+)"[^>]*>[\w\W]{0,2000}?<h3>(?<title>[^<]+)</h3>\W+' \
+                         '<p[^>]*>(?<serie>[^<]+)</p>\W+<p[^>]*>(?<description>[^<]+)<'
+        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        self._AddDataParser("http://urplay.se/sok?product_type=program",
+                            parser=videoItemRegex, preprocessor=self.GetVideoSection,
+                            creator=self.CreateVideoItemWithSerie, updater=self.UpdateVideoItem)
+        self._AddDataParser("*", parser=videoItemRegex, preprocessor=self.GetVideoSection,
+                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         # pages
         self.pageNavigationRegex = '<a href="([^"]+page=)(\d+)"[^>]*>\d+</a>'
@@ -90,10 +95,13 @@ class Channel(chn_class.Channel):
 
         Logger.Info("Performing Pre-Processing")
         items = []
-        categories = {"\a.: Mest spelade :.": "http://urplay.se/Mest-spelade",
-                      "\a.: Mest delade :.": "http://urplay.se/Mest-delade",
-                      "\a.: Senaste :.": "http://urplay.se/Senaste",
-                      "\a.: Sista chansen :.": "http://urplay.se/Sista-chansen"}
+        maxItems = 200
+        categories = {
+            # "\a.: Mest spelade :.": "http://urplay.se/Mest-spelade",
+            "\a.: Mest delade :.": "http://urplay.se/sok?product_type=program&query=&view=most_viewed&rows=%s&start=0" % (maxItems, ),
+            "\a.: Senaste :.": "http://urplay.se/sok?product_type=program&query=&view=latest&rows=%s&start=0" % (maxItems, ),
+            "\a.: Sista chansen :.": "http://urplay.se/sok?product_type=program&query=&view=default&rows=%s&start=0" % (maxItems, )
+        }
 
         for cat in categories:
             item = mediaitem.MediaItem(cat, categories[cat])
@@ -121,10 +129,61 @@ class Channel(chn_class.Channel):
 
         """
 
-        title = "%s (%s)" % (resultSet[1].strip(), resultSet[2])
-        item = mediaitem.MediaItem(title, urlparse.urljoin(self.baseUrl, resultSet[0]))
-        item.thumb = self.noImage
+        title = "%(title)s (%(class)s)" % resultSet
+        url = "%s/%s" % (self.baseUrl, resultSet["url"])
+        # thumb = "http://assets.ur.se/id/192227/images/1_t.jpg"
+        # thumb = "http://assets.ur.se/id/192227/images/1.jpg"
+        fanart = "http://assets.ur.se/id/%(id)s/images/1_hd.jpg" % resultSet
+        thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
+        item = mediaitem.MediaItem(title, url)
+        item.thumb = thumb
+        item.description = resultSet["description"]
+        item.fanart = fanart
         item.icon = self.icon
+        return item
+
+    def GetVideoSection(self, data):
+        """Performs pre-process actions for data processing
+
+                Arguments:
+                data : string - the retrieve data that was loaded for the current item and URL.
+
+                Returns:
+                A tuple of the data and a list of MediaItems that were generated.
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        data = data[:data.find('<section id="related">')]
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def CreateVideoItemWithSerie(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+        item = self.CreateVideoItem(resultSet)
+        if item is None:
+            return item
+
+        if resultSet["serie"]:
+            item.name = "%s - %s" % (resultSet["serie"], item.name)
         return item
 
     def CreateVideoItem(self, resultSet):
@@ -149,28 +208,16 @@ class Channel(chn_class.Channel):
 
         # Logger.Trace(resultSet)
 
-        itemType = resultSet[0]
-        url = "%s%s" % (self.baseUrl, resultSet[1])
-        thumbUrl = resultSet[2].replace("_t", "_l")
-        title = resultSet[3]
-        description = resultSet[4]
-
-        if "radio" in itemType:
-            title = "%s (Audio Only)" % (title,)
-            mediaType = "audio"
-        else:
-            mediaType = "video"
-
+        title = resultSet["title"]
+        serie = resultSet["serie"]
+        url = "%s/%s" % (self.baseUrl, resultSet["url"])
+        thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
         item = mediaitem.MediaItem(title, url)
-        item.description = description
-        item.thumb = thumbUrl
-        item.type = mediaType
+        item.type = "video"
+        item.thumb = thumb
+        item.description = resultSet["description"]
+        item.fanart = self.parentItem.fanart
         item.icon = self.icon
-
-        if resultSet[5]:
-            item.SetDate(resultSet[5], resultSet[6], resultSet[7],
-                         resultSet[8], resultSet[9], resultSet[10])
-
         item.complete = False
         return item
 
@@ -252,7 +299,12 @@ class Channel(chn_class.Channel):
 
         # generic server information
         proxy = json.GetValue("streaming_config", "streamer", "redirect")
+        if proxy is None:
+            proxyData = UriHandler.Open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, noCache=True)
+            proxyJson = JsonHelper(proxyData)
+            proxy = proxyJson.GetValue("redirect")
         Logger.Trace("Found RTMP Proxy: %s", proxy)
+
         rtmpApplication = json.GetValue("streaming_config", "rtmp", "application")
         Logger.Trace("Found RTMP Application: %s", rtmpApplication)
 
@@ -279,9 +331,7 @@ class Channel(chn_class.Channel):
             # although all urls can be handled via RTMP, let's not do that and make the HTTP ones HTTP
             alwaysRtmp = False
             if alwaysRtmp or "_rtmp" in streamType:
-                url = "rtmp://%s/%s" % (proxy, streamUrl)
-                if "_definst_" not in streamUrl:
-                    url = url.replace("urplay/mp4", "urplay/_definst_/mp4")
+                url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmpApplication, streamUrl)
                 url = self.GetVerifiableVideoUrl(url)
             elif "_http" in streamType:
                 url = "http://%s/%smaster.m3u8" % (proxy, streamUrl)
