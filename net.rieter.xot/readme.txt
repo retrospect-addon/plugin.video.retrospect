@@ -395,7 +395,7 @@ sorted chronologically):
 - Richard Willems
 - Henk Haan
 - Michel van Verk
-- Progress text & konsult
+- Hans Filipsson
 - Magnus Bertilsson
 - Sean Berger
 - LHM Damen
