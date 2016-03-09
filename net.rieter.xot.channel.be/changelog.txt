@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Canvas.be update their layout (Fixes 702)
+Fixed: Ketnet updated their website
 
 [I]Previous Changes[/I]
+Fixed: Canvas.be update their layout (Fixes 702)
 Added: Ketnet (VRT) was added again (Fixes #686)
 Fixed: Canvas updated their site (Fixes #677)
 Fixed: VTM site update broke listings (Fixes #656)

@@ -35,7 +35,7 @@ class Channel(chn_class.Channel):
             self.noImage = "ketnetimage.png"
             self.mainListUri = "http://www.ketnet.be/kijken"
             self.baseUrl = "http://www.ketnet.be"
-            self.mediaUrlRegex = 'playerConfig\W*=\W*(\{[\w\W]{0,2000}?)playerConfig\.'
+            self.mediaUrlRegex = 'playerConfig\W*=\W*(\{[\w\W]{0,2000}?);.vamp'
 
         elif self.channelCode == "cobra":
             self.noImage = "cobraimage.png"
