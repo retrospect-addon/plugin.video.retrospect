@@ -767,8 +767,6 @@ class Channel(chn_class.Channel):
                                        LanguageHelper.GetLocalizedString(LanguageHelper.NoLiveStreamId))
             return item
 
-        videos = Regexer.DoRegex(self.mediaUrlRegex, data)
-
         item.MediaItemParts = []
         mediaPart = item.CreateNewEmptyMediaPart()
         spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
@@ -788,42 +786,53 @@ class Channel(chn_class.Channel):
         # replace items
         #videos = map(lambda v: self.__ReplaceClist(v), videos)
 
+        jsonVideoData = JsonHelper(data)
+        videos = jsonVideoData.GetValue("video", "videoReferences")
+        # videos = Regexer.DoRegex(self.mediaUrlRegex, data)
         for video in videos:
-            if video[0].startswith("rtmp"):
+            playerType = video.get("playerType", "")
+            if "dash" in playerType:
+                continue
+
+            if video["url"].startswith("rtmp"):
                 # just replace some data in the URL
-                mediaPart.AppendMediaStream(self.GetVerifiableVideoUrl(video[0]).replace("_definst_", "?slist="),
+                mediaPart.AppendMediaStream(self.GetVerifiableVideoUrl(video["url"]).replace("_definst_", "?slist="),
                                             video[1])
 
-            elif "m3u8" in video[0]:
-                Logger.Info("SVTPlay.se m3u8 stream found: %s", video[0])
+            elif "m3u8" in video["url"]:
+                Logger.Info("SVTPlay.se m3u8 stream found: %s", video["url"])
 
                 # apparently the m3u8 do not work well for server www0.c91001.dna.qbrick.com
-                if "www0.c91001.dna.qbrick.com" in video[0]:
+                if "www0.c91001.dna.qbrick.com" in video["url"]:
                     continue
 
                 # m3u8 we need to parse. Get more streams from this file.
-                videoUrl = video[0]
+                videoUrl = video["url"]
+                altIndex = videoUrl.find("m3u8?")
+                # altIndex = videoUrl.find("~uri")
+                if altIndex > 0:
+                    videoUrl = videoUrl[0:altIndex + 4]
                 for s, b in M3u8.GetStreamsFromM3u8(videoUrl, self.proxy, headers=mediaPart.HttpHeaders):
                     item.complete = True
                     mediaPart.AppendMediaStream(s, b)
 
-            elif "f4m" in video[0]:
-                Logger.Info("SVTPlay.se manifest.f4m stream found: %s", video[0])
+            elif "f4m" in video["url"]:
+                Logger.Info("SVTPlay.se manifest.f4m stream found: %s", video["url"])
 
-                #if "manifest.f4m?start=" in video[0]:
+                #if "manifest.f4m?start=" in video["url"]:
                 #    # this was a live stream, convert it to M3u8
                 #    # http://svt06-lh.akamaihd.net/z/svt06_0@77501/manifest.f4m?start=1386566700&end=1386579600
                 #    # to
                 #    # http://svt06hls-lh.akamaihd.net/i/svt06_0@77501/master.m3u8?__b__=563&start=1386566700&end=1386579600
-                #    m3u8Url = video[0].replace("-lh.akamaihd.net/z", "hls-lh.akamaihd.net/i").replace("manifest.f4m?", "master.m3u8?__b__=563&")
-                #    Logger.Info("Found f4m stream for an old Live stream. Converting to M3U8:\n%s -to -\n%s", video[0], m3u8Url)
+                #    m3u8Url = video["url"].replace("-lh.akamaihd.net/z", "hls-lh.akamaihd.net/i").replace("manifest.f4m?", "master.m3u8?__b__=563&")
+                #    Logger.Info("Found f4m stream for an old Live stream. Converting to M3U8:\n%s -to -\n%s", video["url"], m3u8Url)
                 #    videos.append((m3u8Url, 0))
                 #    continue
 
                 # for now we skip these as they do not yet work with XBMC
                 continue
                 # http://svtplay8m-f.akamaihd.net/z/se/krypterat/20120830/254218/LILYHAMMER-003A-mp4-,c,d,b,e,-v1-4bc7ecc090b19c82.mp4.csmil/manifest.f4m?hdcore=2.8.0&g=TZOMVRTEILSE
-                #videoDataUrl = video[0]
+                #videoDataUrl = video["url"]
                 # videoUrl = "%s?hdcore=2.8.0&g=TZOMVRTEILSE" % (videoDataUrl,)
                 #videoUrl = "%s?hdcore=2.10.3&g=IJGTWSVWPPKH" % (videoDataUrl,)
 
@@ -838,7 +847,7 @@ class Channel(chn_class.Channel):
             else:
                 Logger.Info("SVTPlay.se standard HTTP stream found.")
                 # else just use the URL
-                mediaPart.AppendMediaStream(video[0], video[1])
+                mediaPart.AppendMediaStream(video["url"], video["bitrate"])
 
         subtitle = Regexer.DoRegex('"url":"([^"]+.wsrt)"|"url":"(http://media.svt.se/download/[^"]+.m3u8)', data)
         for sub in subtitle:
@@ -853,25 +862,25 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def __ReplaceClist(self, video):
-        """ Replaces HTTP Dynamic streaming urls with corresponding M3U8 Urls
-
-        Arguments:
-        video - Tuple - that holds the video results
-
-        """
-
-        # Logger.Trace(video)
-        video = list(video)
-
-        if "akamaihd" in video[0] and "f4m" in video[0]:
-            Logger.Info("SVTPlay.se manifest.f4m stream found: %s", video[0])
-
-            video[0] = video[0].replace("/z/", "/i/").replace("/manifest.f4m", "/master.m3u8")
-            # Logger.Debug("New URL: %s", video[0])
-
-        # Logger.Debug(video)
-        return video
+    # def __ReplaceClist(self, video):
+    #     """ Replaces HTTP Dynamic streaming urls with corresponding M3U8 Urls
+    #
+    #     Arguments:
+    #     video - Tuple - that holds the video results
+    #
+    #     """
+    #
+    #     # Logger.Trace(video)
+    #     video = list(video)
+    #
+    #     if "akamaihd" in video[0] and "f4m" in video[0]:
+    #         Logger.Info("SVTPlay.se manifest.f4m stream found: %s", video[0])
+    #
+    #         video[0] = video[0].replace("/z/", "/i/").replace("/manifest.f4m", "/master.m3u8")
+    #         # Logger.Debug("New URL: %s", video[0])
+    #
+    #     # Logger.Debug(video)
+    #     return video
 
     def __GetDate(self, first, second, third):
         """ Tries to parse formats for dates like "Today 9:00" or "mon 9 jun" or "Tonight 9.00"
