@@ -49,7 +49,8 @@ class Channel(chn_class.Channel):
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132040"
             # self.fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/Kanal5-channel-large_kxf7fn.jpg"
-            self.recentUrl = "%s/modules?page_id=132040&module_id=458&items=%s&page=0"
+            self.recentUrl = "%s/modules?page_id=132040&module_id=5024&items=%s&page=0"
+
             # - From the /program/ page (requires slugs for filtering)
             # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
             # self.channelSlugs = ("kanal-5", "kanal-5-home")
@@ -98,6 +99,9 @@ class Channel(chn_class.Channel):
         self._AddDataParser("http://www.dplay.se/api/v2/ajax/search/?types=show&items=", json=True,
                             parser=("data", ), creator=self.CreateProgramItem)
 
+        self._AddDataParser("http://www.dplay.se/api/v2/ajax/modules", json=True,
+                            parser=("data",), creator=self.CreateVideoItemWithShowTitle,
+                            updater=self.UpdateVideoItem)
         self._AddDataParser("*", json=True,
                             parser=("data",), creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
@@ -323,6 +327,19 @@ class Channel(chn_class.Channel):
             return shows + episodes
 
         return []
+
+    def CreateVideoItemWithShowTitle(self, resultSet):
+        """Creates a MediaItem with ShowTitle """
+
+        # Logger.Trace(resultSet)
+        if not resultSet:
+            return None
+
+        title = resultSet["title"]
+        showTitle = resultSet.get("video_metadata_show", None)
+        if showTitle:
+            resultSet["title"] = "%s - %s" % (showTitle, title)
+        return self.CreateVideoItem(resultSet)
 
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
