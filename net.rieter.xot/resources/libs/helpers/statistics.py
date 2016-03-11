@@ -60,6 +60,10 @@ class Statistics:
             item = channel.parentItem
 
         if item is not None:
+            if item.isPaid or item.isDrmProtected:
+                Logger.Debug("Not registering error of item which is Paid or DRM Protected.")
+                return
+
             title = item.name
             referer = item.url
             if item.IsPlayable():
