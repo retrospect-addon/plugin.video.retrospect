@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-01-10 22:53+0000\n"
+"POT-Creation-Date: 2016-03-11 22:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -90,7 +90,7 @@ msgid "Date"
 msgstr ""
 
 msgctxt "#30019"
-msgid "Show DRM warning"
+msgid "Show DRM/Paid warning before playback"
 msgstr ""
 
 msgctxt "#30020"
@@ -631,7 +631,7 @@ msgid "Today"
 msgstr ""
 
 msgctxt "#30552"
-msgid "Yesterdat"
+msgid "Yesterday"
 msgstr ""
 
 msgctxt "#30553"
@@ -643,7 +643,7 @@ msgid "DRM Protection"
 msgstr ""
 
 msgctxt "#30555"
-msgid "The selected item is DRM protected and might not|play on Kodi."
+msgid "The selected item is DRM protected and might not play on Kodi."
 msgstr ""
 
 msgctxt "#30556"
@@ -660,4 +660,12 @@ msgstr ""
 
 msgctxt "#30559"
 msgid "Fetching missing textures. This could take some time depending on the internet and system speed."
+msgstr ""
+
+msgctxt "#30560"
+msgid "Paid video"
+msgstr ""
+
+msgctxt "#30561"
+msgid "The selected item is not free and might not play on Kodi."
 msgstr ""

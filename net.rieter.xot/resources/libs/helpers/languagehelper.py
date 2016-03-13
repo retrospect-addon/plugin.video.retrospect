@@ -67,6 +67,8 @@ class LanguageHelper:
     ErrorNoEpisodes = 30550
     DrmTitle = 30554
     DrmText = 30555
+    PaidTitle = 30560
+    PaidText = 30561
 
     Active = 30068
     ShowChannelSettings = 30069

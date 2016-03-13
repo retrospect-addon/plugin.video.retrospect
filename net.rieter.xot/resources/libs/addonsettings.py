@@ -50,7 +50,7 @@ class AddonSettings:
     __HIDE_FIRST_TIME_MESSAGE = "hide_first_time_message"
     __LIST_LIMIT = "list_limit"
     __CLIENT_ID = "client_id"
-    __DRM_WARNING = "show_drm_warning"
+    __DRM_PAID_WARNING = "show_drm_warning"
     __DRM_HIDE_ITEMS = "hide_drm"
     __PREMIUM_HIDE_ITEMS = "hide_premium"
     __HIDE_TYPES = "hide_types"
@@ -111,14 +111,14 @@ class AddonSettings:
         return AddonSettings.__GetBooleanSetting(AddonSettings.__SHOW_CATEGORIES)
 
     @staticmethod
-    def ShowDrmWarning():
+    def ShowDrmPaidWarning():
         """ Should we show a DRM warning on DRM protected (^) items?
 
         @return: Yes or No (boolean).
 
         """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_WARNING)
+        return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_PAID_WARNING)
 
     @staticmethod
     def HideFanart():
@@ -923,7 +923,7 @@ class AddonSettings:
         value = pattern % (value, "Loglevel", AddonSettings.GetLogLevel())
         value = pattern % (value, "Geo Location", AddonSettings.HideGeoLockedItemsForLocation(None, valueOnly=True))
         value = pattern % (value, "Filter Folders", AddonSettings.HideRestrictedFolders())
-        value = pattern % (value, "DRM Warning", AddonSettings.ShowDrmWarning())
+        value = pattern % (value, "DRM/Paid Warning", AddonSettings.ShowDrmPaidWarning())
         value = pattern % (value, "Hide DRM Items", AddonSettings.HideDrmItems())
         value = pattern % (value, "Hide Premium Items", AddonSettings.HidePremiumItems())
         value = pattern % (value, "Show Dutch", AddonSettings.ShowChannelWithLanguage("nl"))

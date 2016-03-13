@@ -19,7 +19,7 @@
     <string id="30016">Sort by</string>
     <string id="30017">Name</string>
     <string id="30018">Date</string>
-    <string id="30019">Show DRM warning</string>
+    <string id="30019">Show DRM/Paid warning before playback</string>
     <string id="30020">Maximum stream bitrate</string>
     <string id="30021">Subtitle mode</string>
     <string id="30022">If available</string>
@@ -156,12 +156,14 @@
     <string id="30549">Error retrieving the list of items.</string>
     <string id="30550">No episodes found for the selected item.</string>
     <string id="30551">Today</string>
-    <string id="30552">Yesterdat</string>
+    <string id="30552">Yesterday</string>
     <string id="30553">Day before yesterday</string>
     <string id="30554">DRM Protection</string>
-    <string id="30555">The selected item is DRM protected and might not|play on Kodi.</string>
+    <string id="30555">The selected item is DRM protected and might not play on Kodi.</string>
     <string id="30556">Initialising channel(s).</string>
     <string id="30557">Channels have been updated or installed. Performing first time actions. This could take some time.</string>
     <string id="30558">Fetching Textures</string>
     <string id="30559">Fetching missing textures. This could take some time depending on the internet and system speed.</string>
+    <string id="30560">Paid video</string>
+    <string id="30561">The selected item is not free and might not play on Kodi.</string>
 </strings>

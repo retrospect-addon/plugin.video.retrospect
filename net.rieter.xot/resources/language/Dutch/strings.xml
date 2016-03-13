@@ -19,7 +19,7 @@
     <string id="30016">Sorteren op</string>
     <string id="30017">Naam</string>
     <string id="30018">Datum</string>
-    <string id="30019">Toon DRM waarschuwing</string>
+    <string id="30019">Toon DRM waarschuwing voor afspelen</string>
     <string id="30020">Maximale stream bitrate</string>
     <string id="30021">Subtitle modus</string>
     <string id="30022">Tonen indien beschikbaar</string>
@@ -159,9 +159,11 @@
     <string id="30552">Gisteren</string>
     <string id="30553">Eergisteren</string>
     <string id="30554">DRM Bescherming</string>
-    <string id="30555">Het geselecteerde item is DRM bescherm en|werkt wellicht niet in Kodi.</string>
+    <string id="30555">Het geselecteerde item is DRM bescherm en werkt wellicht niet in Kodi.</string>
     <string id="30556">Kanaal/kanalen initialiseren.</string>
     <string id="30557">Er zijn kanalen bijgewerkt of installeerd. Intiële acties worden uitgevoerd. Dit kan even duren.</string>
     <string id="30558">Textures worden bijgewerkt</string>
     <string id="30559">Ontbrekende textures worden opgehaald. Dit kan enige tijd duren afhankelijk van het systeem en internet snelheid.</string>
+    <string id="30560">Betaalde video</string>
+    <string id="30561">Het geselecteerde item is niet gratis en werkt wellicht niet in Kodi.</string>
 </strings>
