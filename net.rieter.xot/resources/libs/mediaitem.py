@@ -39,6 +39,8 @@ class MediaItem:
 
     """
 
+    LabelTrackNumber = "TrackNumber"
+
     def __dir__(self):
         """ Required in order for the Pickler.Validate to work! """
         return ["name",
@@ -205,6 +207,13 @@ class MediaItem:
 
         return self.type.lower() in ('video', 'audio')
 
+    def HasTrack(self):
+        """
+        @return: if the track was set
+        """
+
+        return MediaItem.LabelTrackNumber in self.__infoLabels
+
     def HasDate(self):
         """Returns if a date was set """
 
@@ -214,6 +223,18 @@ class MediaItem:
         """ Resets the date (used for favourites for example). """
         self.__timestamp = datetime.datetime.min
         self.__date = ""
+
+    def SetInfoLabel(self, label, value):
+        # type: (str, Any) -> None
+        """
+        @param label: the name of the label
+        @param value: the value to assign
+
+        See http://kodi.wiki/view/InfoLabels
+
+        """
+
+        self.__infoLabels[label] = value
 
     def SetSeasonInfo(self, season, episode):
         """ Set season and episode information
@@ -346,10 +367,11 @@ class MediaItem:
         # Get all the info labels starting with the ones set and then add the specific ones
         infoLabels = self.__infoLabels.copy()
         infoLabels["Label"] = name
+        infoLabels["Title"] = name
         if xbmcDate:
             infoLabels["Date"] = xbmcDate
             infoLabels["Year"] = xbmcYear
-        if self.type != "Audio":
+        if self.type != "audio":
             # infoLabels["PlotOutline"] = description
             infoLabels["Plot"] = description
         if descriptionPostFix:
@@ -366,6 +388,7 @@ class MediaItem:
             item.setProperty("IsPlayable", "true")
 
         # specific items
+        Logger.Trace("Setting InfoLabels: %s", infoLabels)
         if self.type == "audio":
             item.setInfo(type="Audio", infoLabels=infoLabels)
         else:
@@ -579,57 +602,6 @@ class MediaItem:
         """
 
         return not self.Equals(item)
-
-    def __cmp__(self, other):
-        """ Compares 2 items based on their appearance order
-
-        Arguments:
-        other : MediaItem - The item to compare to
-
-        Returns:
-         * -1 : If the item is lower than the current one
-         *  0 : If the item is order is equal
-         *  1 : If the item is higher than the current one
-
-        The comparison is done base on:
-         * the type of the item. Non-playable items appear first.
-         * the defined sorting algorithm. This is a Add-on setting retrieved
-           using the AddonSettings method. Options are: Name or Timestamp.
-
-        """
-
-        if other is None:
-            return -1
-
-        if self.type == other.type:
-            # Logger.Debug("Comparing :: same types")
-            sortMethod = AddonSettings.GetSortAlgorithm()
-
-            # date sorting
-            if sortMethod == "date":
-                # Logger.Debug("Comparing :: Settings: Sorting by date")
-
-                # at this point both have timestamps or dates, so we can compare
-                if self.__timestamp == other.__timestamp:
-                    # same timestamps, compare names
-                    return cmp(self.name, other.name)
-                else:
-                    # compare timestamps
-                    return cmp(other.__timestamp, self.__timestamp)
-
-            # name sorting
-            elif sortMethod == "name":
-                # Logger.Debug("Comparing :: Settings: Sorting by name")
-                return cmp(self.name, other.name)
-            else:
-                return 0
-        else:
-            # one is folder other one is playable. Folders are always sorted first
-            # Logger.Debug("Comparing :: different types, none playable first")
-            if self.IsPlayable():
-                return -1
-            else:
-                return 1
 
     def __hash__(self):
         """ returns the hash value """

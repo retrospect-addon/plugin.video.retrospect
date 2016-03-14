@@ -10,7 +10,6 @@
         <!--setting id="stream_quality" type="enum" label="30000" lvalues="30001|30002|30003" default="2"/-->
         <!--setting id="stream_autobitrate" type="bool" label="30070" default="true" /-->
         <setting id="stream_bitrate" type="select" label="30020" default="4000" values="100|250|500|750|1000|1500|2000|2500|4000|8000|20000" />
-        <setting id="sorting_algorithm" type="select" label="30016" lvalues="30017|30018|30025" default="0" />
         <setting id="hide_fanart" type="bool" label="30086" default="false" />
         <setting id="subtitle_mode" type="enum" label="30021" lvalues="30022|30023" default="0" />
         <setting id="list_limit" type="enum" label="30026" default="5" lvalues="30074|30200|30201|30202|30203|30204|30205" />

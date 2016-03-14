@@ -30,7 +30,6 @@ class AddonSettings:
     __settings = None
     __UserAgent = None
 
-    __SORTING_ALGORITHM = "sorting_algorithm"
     __STREAM_BITRATE = "stream_bitrate"
     __STREAM_AUTOBITRATE = "stream_autobitrate"
     __SUBTITLE_MODE = "subtitle_mode"
@@ -349,24 +348,6 @@ class AddonSettings:
             return True
         else:
             return False
-
-    @staticmethod
-    def GetSortAlgorithm():
-        """Retrieves the sorting mechanism from the settings
-
-        Returns:
-         * date - If sorting should be based on timestamps
-         * name - If sorting should be based on names
-
-        """
-
-        setting = AddonSettings.__GetSetting(AddonSettings.__SORTING_ALGORITHM)
-        if setting == "0":
-            return "name"
-        elif setting == "1":
-            return "date"
-        else:
-            return "none"
 
     @staticmethod
     def GetUzgCacheDuration():
@@ -914,7 +895,6 @@ class AddonSettings:
         pattern = "%s\n%s: %s"
         value = "%s: %s" % ("ClientId", AddonSettings.GetClientId())
         value = pattern % (value, "MaxStreamBitrate", AddonSettings.GetMaxStreamBitrate())
-        value = pattern % (value, "SortingAlgorithm", AddonSettings.GetSortAlgorithm())
         value = pattern % (value, "UseSubtitle", AddonSettings.UseSubtitle())
         value = pattern % (value, "CacheHttpResponses", AddonSettings.CacheHttpResponses())
         value = pattern % (value, "Folder Prefx", "'%s'" % AddonSettings.GetFolderPrefix())

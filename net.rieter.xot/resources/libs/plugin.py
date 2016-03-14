@@ -694,37 +694,31 @@ class Plugin:
 
         """
 
-        sortAlgorthim = AddonSettings.GetSortAlgorithm()
-
-        if sortAlgorthim == "date":
-            # if we had a list, check it for dates. Else assume that there are no dates!
-            if items is not None:
-                hasDates = len(filter(lambda i: i.HasDate(), items)) > 0
-            else:
-                hasDates = True
-
+        # sortAlgorthim = AddonSettings.GetSortAlgorithm()
+        if items:
+            hasDates = len(filter(lambda i: i.HasDate(), items)) > 0
             if hasDates:
-                Logger.Debug("Sorting method default: Dates")
+                Logger.Debug("Sorting method: Dates")
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
+                return
+
+            hasTracks = len(filter(lambda i: i.HasTrack(), items)) > 0
+            if hasTracks:
+                Logger.Debug("Sorting method: Tracks")
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
-            else:
-                Logger.Debug("Sorting method default: Dates, but no dates are available, sorting by name")
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
+                return
 
-        elif sortAlgorthim == "name":
-            Logger.Debug("Sorting method default: Names")
-            xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
-            xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-            xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
-
-        else:
-            Logger.Debug("Sorting method default: None")
-            xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
-            xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
-            xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
+        Logger.Debug("Sorting method: Default (Label)")
+        xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
+        xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
+        xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
+        xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
         return
 
     def __CreateActionUrl(self, channel, action, item=None, category=None):
