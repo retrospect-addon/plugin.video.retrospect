@@ -137,7 +137,9 @@ class Channel(chn_class.Channel):
         item.thumb = self.parentItem.thumb
         item.complete = False
         item.description = "Composers: %(composers)s\nPerformers: %(performers)s" % resultSet
-        item.name = "%02d. %s" % (resultSet.get("order", 0), title)
+        item.SetInfoLabel("TrackNumber", resultSet["order"])
+        item.SetInfoLabel("AlbumArtist", resultSet["composers"].split(","))
+        item.SetInfoLabel("Artist", resultSet["performers"].split(","))
         return item
 
     def UpdateMusicItem(self, item):
