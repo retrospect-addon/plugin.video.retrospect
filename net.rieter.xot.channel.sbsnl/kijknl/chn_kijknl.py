@@ -60,7 +60,7 @@ class Channel(chn_class.Channel):
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         # normal video items
-        self.videoItemRegex = 'data-srchd="(?<thumburl>[^"]+)"[^>]* alt="(?<title>[^"]+)"[^>]*>[\w\W]{0,1000}?' \
+        self.videoItemRegex = 'data-srchd="(?<thumburl>[^"]+)"[^>]* alt="(?<title>[^"]+)"[^>]*>[\w\W]{0,2000}?' \
                               'itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,1000}itemprop="description">' \
                               '(?<description>[^<]+)<a href="(?<url>[^"]+)/[^"]+"'\
                               .replace("(?<", "(?P<")

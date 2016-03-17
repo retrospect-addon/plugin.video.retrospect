@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: paging and clips were not shown for kijk.nl (Fixes #609)
+Fixed: some Kijk.nl (SBS6/NET5/SBS9/Veronica) shows had some missing episodes (Fixes #716)
 
 [I]Previous changes[/I]
+Fixed: paging and clips were not shown for kijk.nl (Fixes #609)
 Fixed: Kijk.nl changed their URL scheme (Fixes #642)
 Fixed: pages in kijk.nl did not show videos (Fixes #609)
 Fixed: SBS 6, SBS 9, NET 5 and Veronica broke (Fixes #603)
