@@ -50,8 +50,8 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
 
         # setup the intial listing
-        self.episodeItemRegex = '<li class="play_js[^>]*data-abroad="([^"]+)"[^>]*>\W*' \
-                                '<a href="/([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
+        self.episodeItemRegex = '<li class="play_alpha[^>]*data-reactid="([^"]+)"[^>]*>\W*<a[^>]*' \
+                                'href="/([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, preprocessor=self.AddLiveItems,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
@@ -64,6 +64,12 @@ class Channel(chn_class.Channel):
                             parser=("channels", ),
                             creator=self.CreateChannelItem)
         self._AddDataParser("http://www.svt.se/videoplayer-api/", updater=self.UpdateChannelItem)
+
+        # genres
+        self._AddDataParser("http://www.svtplay.se/genre/",
+                            preprocessor=self.ExtractJsonData, json=True,
+                            parser=("context", "dispatcher", "stores", "ClusterStore", "titles"),
+                            creator=self.CreateGenreItem)
 
         # pages with extended video info
         extendedRegex = 'data-title="([^"]+)"\W+data-description="([^"]*)"[\w\W]{0,200}?' \
@@ -160,7 +166,7 @@ class Channel(chn_class.Channel):
 
         # http://www.svtplay.se/ajax/dokumentar/titlar?filterAccessibility=&filterRights=
         categoryItems = {
-            "Film & Drama": "http://www.svtplay.se/filmochdrama?tab=titlar",
+            "Drama": "http://www.svtplay.se/genre/drama",
             "Barn": "http://www.svtplay.se/barn?tab=titlar",
             "Dokumentär": "http://www.svtplay.se/dokumentar?tab=titlar",
             "Kultur & Nöje": "http://www.svtplay.se/kulturochnoje?tab=titlar",
@@ -206,6 +212,32 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
         return data, items
 
+    def ExtractJsonData(self, data):
+        """Performs pre-process actions for data processing
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+
+        data = Regexer.DoRegex('root\["__svtplay"\] = ([\w\W]+?);root\[', data)[-1]
+        items = []
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
 
@@ -235,6 +267,55 @@ class Channel(chn_class.Channel):
         item = mediaitem.MediaItem(resultSet[2], url)
         item.icon = self.icon
         item.thumb = self.noImage
+        return item
+
+    def CreateGenreItem(self, resultSet):
+        """Creates a new MediaItem for an episode
+
+        Arguments:
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+        Logger.Trace(resultSet)
+        title = resultSet["programTitle"]
+        itemType = resultSet["contentType"]
+        url = resultSet["contentUrl"]
+        broadCastDate = resultSet.get("broadcastDate", None)
+
+        if itemType == "videoEpisod":
+            if not url.startswith("/video/"):
+                Logger.Warning("Found video item without a /video/ url.")
+                return None
+            itemType = "video"
+            url = url.split("/")
+            Logger.Trace(url)
+            url = "%s/video/%s?type=embed&output=json" % (self.baseUrl, url[2])
+        else:
+            itemType = "folder"
+            url = "%s%s?tab=program" % (self.baseUrl, url)
+
+        item = mediaitem.MediaItem(title, url)
+        item.icon = self.icon
+        item.type = itemType
+        item.isGeoLocked = resultSet.get("onlyAvailableInSweden", False)
+        item.description = resultSet.get("description", "")
+
+        # thumb = resultSet.get("imageMedium", self.noImage).replace("/medium/", "/extralarge/")
+        thumb = resultSet.get("imageMedium", self.noImage).replace("/medium/", "/large/")
+        if thumb.startswith("//"):
+            thumb = "http:%s" % (thumb, )
+        item.thumb = thumb
+
+        if broadCastDate is not None:
+            timeStamp = time.strptime(broadCastDate[:-5], "%Y-%m-%dT%H:%M:%S")
+            item.SetDate(*timeStamp[0:6])
         return item
 
     def CreateCategoryItem(self, resultSet):

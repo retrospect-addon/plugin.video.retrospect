@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: Kanal5 'recent' streams broke
-Fixed: Video stream parsing for some  SVT streams (Fixes #712)
+Fixed: SVT updated their main show listing (Fixes #715)
 
 [I]Previous changes[/I]
+Fixed: Kanal5 'recent' streams broke
+Fixed: Video stream parsing for some  SVT streams (Fixes #712)
 Fixed: UR Play updated their site
 Fixed: SVT changed their Live channel format (Fixes #708)
 Fixed: TV4play.se Live stream did not work (Fixed 697)
