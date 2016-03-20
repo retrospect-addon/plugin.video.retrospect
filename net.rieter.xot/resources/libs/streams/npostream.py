@@ -22,6 +22,44 @@ class NpoStream:
         pass
 
     @staticmethod
+    def GetStreamsFromNpo(url, cacheDir, proxy=None, headers=None):
+        """ Retrieve NPO Player Live streams from a different number of stream urls.
+
+        @param url:               (String) The url to download
+        @param cacheDir:          (String) The cache dir where to find the 'uzg-i.js' file.
+        @param headers:           (dict) Possible HTTP Headers
+        @param proxy:             (Proxy) The proxy to use for opening
+
+        Can be used like this:
+
+            part = item.CreateNewEmptyMediaPart()
+            for s, b in NpoStream.GetStreamsFromNpo(m3u8Url, self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
+
+        """
+
+        Logger.Info("Determining streams for: %s", url)
+
+        if url.startswith("http://e.omroep.nl/metadata/"):
+            Logger.Debug("Found a metadata url '%s'. Determining the actual stream url's", url)
+            jsonData = UriHandler.Open(url, proxy=proxy)
+            json = JsonHelper(jsonData, Logger.Instance())
+            streams = []
+            for stream in json.GetValue("streams"):
+                if "formaat" not in stream:
+                    Logger.Warning("No compatible streams found: %s", stream)
+                    continue
+                Logger.Trace("Found %s stream: '%s'", stream["formaat"], stream["url"])
+                # the bitrate is more or less the quality * 500 kbps
+                streams.append((stream["url"], stream["kwaliteit"] * 500))
+            return streams
+        else:
+            Logger.Warning("None-stream url found: %s", url)
+            return []
+
+    @staticmethod
     def GetLiveStreamsFromNpo(url, cacheDir, proxy=None, headers=None):
         """ Retrieve NPO Player Live streams from a different number of stream urls.
 
@@ -39,6 +77,8 @@ class NpoStream:
                 part.AppendMediaStream(s, b)
 
         """
+
+        Logger.Info("Determining streams for: %s", url)
 
         if url.startswith("http://ida.omroep.nl/aapi/"):
             Logger.Debug("Already found an IDA data url '%s'. Using it to fetch the streams.", url)
@@ -65,9 +105,15 @@ class NpoStream:
             json = JsonHelper(jsonData, Logger.Instance())
             streams = []
             for stream in json.GetValue("streams"):
+                if "type" not in stream:
+                    Logger.Warning("No compatible streams found: %s", stream)
+                    continue
+
                 if stream['type'] != "hls":
                     continue
                 url = stream['url']
+
+                Logger.Trace("Found HLS stream: '%s'", url)
                 for k, v in NpoStream.GetLiveStreamsFromNpo(url, cacheDir, proxy=proxy, headers=headers):
                     streams.append((k, v))
             return streams
@@ -178,12 +224,17 @@ if __name__ == "__main__":
     DebugInitializer()
     cacheDir = os.path.join("..", "..", "..", "..", "..", "net.rieter.xot.userdata", "cache")
 
+    # Live
     # url = "http://livestreams.omroep.nl/live/regionaal/l1/l1tv/l1tv.isml/l1tv.m3u8"
     url = "http://e.omroep.nl/metadata/LI_NEDERLAND3_136696"
     # token = NpoStream.GetNpoToken(DebugInitializer.Proxy, cacheDir)
     # url = "http://ida.omroep.nl/aapi/?stream=http://livestreams.omroep.nl/live/npo/tvlive/ned3/ned3.isml/ned3.m3u8&token=%s" % (token, )
+    results = NpoStream.GetLiveStreamsFromNpo(url, cacheDir, proxy=DebugInitializer.Proxy)  # non live
 
-    results = NpoStream.GetLiveStreamsFromNpo(url, cacheDir, proxy=DebugInitializer.Proxy)
+    # url = "http://e.omroep.nl/metadata/urn:vpro:media:program:69816735"
+    # url = "http://e.omroep.nl/metadata/POMS_AT_3106978"
+    # results = NpoStream.GetStreamsFromNpo(url, cacheDir, proxy=DebugInitializer.Proxy)
+
     results.sort(lambda x, y: cmp(int(x[1]), int(y[1])))
     for s, b in results:
         if s.count("://") > 1:
