@@ -1,5 +1,5 @@
 ﻿[B]Changelog[/B]
-Fixed: NRK.no broke due to an API version bump (Fixes #709)
+Fixed: Show videos in the category lists (Fixes #718)
 
 [I]Previous changes[/I]
--
+Fixed: NRK.no broke due to an API version bump (Fixes #709)

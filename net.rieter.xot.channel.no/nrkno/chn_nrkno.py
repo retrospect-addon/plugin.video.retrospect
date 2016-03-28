@@ -43,9 +43,13 @@ class Channel(chn_class.Channel):
         self._AddDataParser("https://tvapi.nrk.no/v1/categories/",
                             matchType=ParserData.MatchExact, json=True,
                             parser=(), creator=self.CreateCategory)
+
         self._AddDataParser("https://tvapi.nrk.no/v1/categories/.+",
                             matchType=ParserData.MatchRegex, json=True,
                             parser=(), creator=self.CreateProgramFolder)
+        self._AddDataParser("https://tvapi.nrk.no/v1/categories/.+",
+                            matchType=ParserData.MatchRegex, json=True,
+                            parser=(), creator=self.CreateCategoryVideo)
 
         self._AddDataParser("https://tvapi.nrk.no/v1/channels", json=True,
                             parser=(),
