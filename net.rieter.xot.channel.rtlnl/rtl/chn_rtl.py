@@ -386,6 +386,9 @@ class Channel(chn_class.Channel):
         m3u8Url = "%s/%s" % (m3u8Urls[0][0], m3u8Urls[0][1])
 
         part = item.CreateNewEmptyMediaPart()
+        # prevent the "418 I'm a teapot" error
+        part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
+
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             item.complete = True
             part.AppendMediaStream(s, b)
