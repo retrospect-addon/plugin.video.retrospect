@@ -99,7 +99,7 @@ class Channel(chn_class.Channel):
         #                     parser=extendedRegex, creator=self.CreateVideoItemExtended)
 
         # set the more items
-        moreitemsRegex = 'tab=(\w+)[^>]+data-target="play_title-page__content--more-clips">'
+        moreitemsRegex = 'tab=(\w+)[^>]+data-target="play_title-page__content--more-\w+">'
         self._AddDataParser("*", parser=moreitemsRegex, creator=self.CreateMoreItem)
 
         self.mediaUrlRegex = '"url":"([^"]+)","bitrate":(\d+)'
@@ -355,6 +355,9 @@ class Channel(chn_class.Channel):
             item.type = "video"
             videoId = url.split("/")[4]
             item.url = "http://www.svtplay.se/video/%s?type=embed&output=json" % (videoId, )
+        else:
+            # make sure we get the right tab for displaying
+            item.url = "%s?tab=program" % (item.url, )
 
         return item
 
