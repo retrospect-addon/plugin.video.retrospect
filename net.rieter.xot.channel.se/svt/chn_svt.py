@@ -49,15 +49,13 @@ class Channel(chn_class.Channel):
         # Generic pre-processor
         self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
 
-        # setup the intial listing
-        self.episodeItemRegex = '<li class="play_alpha[^>]*data-reactid="([^"]+)"[^>]*>\W*<a[^>]*' \
-                                'href="/([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, preprocessor=self.AddLiveItems,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        # setup the intial listing based on Alphabeth and specials
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
+                            preprocessor=self.AddLiveItems)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
+                            preprocessor=self.AddShowItems)
 
         # setup channel listing
-        # self._AddDataParser("http://www.svtplay.se/kanaler",
-        # self._AddDataParser("http://www.svtplay.se/api/channel_page",
         self._AddDataParser("#kanaler",
                             preprocessor=self.LoadChannelData,
                             json=True,
@@ -65,21 +63,23 @@ class Channel(chn_class.Channel):
                             creator=self.CreateChannelItem)
         self._AddDataParser("http://www.svt.se/videoplayer-api/", updater=self.UpdateChannelItem)
 
-        # genres
+        # genres (using JSON)
         self._AddDataParser("http://www.svtplay.se/genre/",
                             preprocessor=self.ExtractJsonData, json=True,
                             parser=("context", "dispatcher", "stores", "ClusterStore", "titles"),
-                            creator=self.CreateGenreItem)
+                            creator=self.CreateJsonItem)
 
-        # pages with extended video info
-        extendedRegex = 'data-title="([^"]+)"\W+data-description="([^"]*)"[\w\W]{0,200}?' \
-                        'data-broadcasted="(?:([^ "]+) ([^. "]+)[ .]([^"]+))?"\W+' \
-                        'data-published="(?:([^ "]+) ([^. "]+)[ .]([^"]+))?"[\w\W]{0,200}?' \
-                        'data-abroad="([^"]+)[\w\W]{0,400}?<a[^>]+href="/((?:klipp|video)/\d+)[^"]+"[\w\W]{0,1400}?' \
-                        '<img[^>]+class="play_[^>]+?(?:data-imagename|src)="([^"]+)"'
-        self._AddDataParser("^http://www.svtplay.se/(senaste|sista-chansen|populara)\?sida=1$",
-                            matchType=ParserData.MatchRegex,
-                            parser=extendedRegex, creator=self.CreateVideoItemExtended)
+        # special pages (using JSON)
+        self._AddDataParser("^http://www.svtplay.se/(senaste|sista-chansen|populara)\?sida=\d+$",
+                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
+        self._AddDataParser("^http://www.svtplay.se/(senaste|sista-chansen|populara)\?sida=\d+$",
+                            matchType=ParserData.MatchRegex, json=True,
+                            parser=("context", "dispatcher", "stores", "GridStore", "content"),
+                            creator=self.CreateJsonItem)
+        self._AddDataParser("^http://www.svtplay.se/(senaste|sista-chansen|populara)\?sida=\d+$",
+                            matchType=ParserData.MatchRegex, json=True,
+                            parser=("context", "dispatcher", "stores", "MetaStore"),
+                            creator=self.CreateJsonPageItem)
 
         # setup the normal video items
         liveItemRegex = '<a href="/((?:live|video)/\d+)[\W\w]{0,2000}?<time\W+datetime="(\d+)-(\d+)-(\d+)T' \
@@ -142,6 +142,30 @@ class Channel(chn_class.Channel):
 
         url = "http://www.svtplay.se/sok?q=%s"
         return chn_class.Channel.SearchSite(self, url)
+
+    def AddShowItems(self, data):
+        """ Adds the shows from the alpabetical list
+
+        @param data:    The data to use.
+
+        Returns a list of MediaItems that were retrieved.
+
+        """
+
+        items = []
+
+        # add the json data as the actual data
+        dataStart = 'root["__svtplay"] = '
+        dataStartLen = len(dataStart)
+        dataStart = data.index(dataStart)
+        dataEnd = data.index(';root["__svtplay"].env')
+        data = data[dataStart + dataStartLen:dataEnd]
+        json = JsonHelper(data)
+        alphaList = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'alphabeticList')
+        for alpha in alphaList:
+            for show in alpha['titles']:
+                items.append(self.CreateEpisodeItemJson(show))
+        return data, items
 
     def AddLiveItems(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
@@ -231,12 +255,34 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
-
+        Logger.Info("Extracting JSON data during pre-processing")
         data = Regexer.DoRegex('root\["__svtplay"\] = ([\w\W]+?);root\[', data)[-1]
         items = []
-        Logger.Debug("Pre-Processing finished")
+        Logger.Trace("JSON data found: %s", data)
         return data, items
+
+    def CreateEpisodeItemJson(self, resultSet):
+        """Creates a new MediaItem for an episode
+
+        Arguments:
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+
+        Logger.Trace(resultSet)
+        url = "%s/%s?tab=program" % (self.baseUrl, resultSet['urlFriendlyTitle'], )
+        item = mediaitem.MediaItem(resultSet['title'], url)
+        item.icon = self.icon
+        item.thumb = self.noImage
+        item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)
+        return item
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -269,7 +315,34 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         return item
 
-    def CreateGenreItem(self, resultSet):
+    def CreateJsonPageItem(self, resultSet):
+        """Creates a new MediaItem for an episode
+
+        Arguments:
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+        Logger.Trace(resultSet)
+
+        if "nextPageUrl" not in resultSet:
+            return None
+
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        url = "%s%s" % (self.baseUrl, resultSet["nextPageUrl"])
+        item = mediaitem.MediaItem(title, url)
+        item.icon = self.icon
+        item.thumb = self.noImage
+        item.complete = True
+        return item
+
+    def CreateJsonItem(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -285,6 +358,9 @@ class Channel(chn_class.Channel):
         """
         Logger.Trace(resultSet)
         title = resultSet["programTitle"]
+        showTitle = resultSet.get("title", "")
+        if showTitle != "" and showTitle != title:
+            title = "%s - %s" % (title, showTitle)
         itemType = resultSet["contentType"]
         url = resultSet["contentUrl"]
         broadCastDate = resultSet.get("broadcastDate", None)
@@ -295,7 +371,7 @@ class Channel(chn_class.Channel):
                 return None
             itemType = "video"
             url = url.split("/")
-            Logger.Trace(url)
+            # Logger.Trace(url)
             url = "%s/video/%s?type=embed&output=json" % (self.baseUrl, url[2])
         else:
             itemType = "folder"
@@ -553,6 +629,29 @@ class Channel(chn_class.Channel):
         item.complete = False
         Logger.Trace("%s - %s - %s - %s - %s", title, description, date, thumbUrl, url)
         return item
+
+    def CreateVideoItemJson(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        Logger.Trace(resultSet)
+        return None
 
     def CreateVideoItemExtended(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
