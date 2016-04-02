@@ -120,12 +120,36 @@ class IndexedCollection(object):
             id(self))
 
 
+class ByteStringReferenceCollection(IndexedCollection):
+    """
+    There have been rare hash collisions within a single AMF payload causing
+    corrupt payloads.
+
+    Which strings cause collisions is dependent on the python runtime, each
+    platform might have a slightly different implementation which means that
+    testing is extremely difficult.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(ByteStringReferenceCollection, self).__init__(use_hash=False)
+
+    def getReferenceTo(self, byte_string):
+        return self.dict.get(byte_string, -1)
+
+    def append(self, byte_string):
+        self.list.append(byte_string)
+        idx = len(self.list) - 1
+        self.dict[byte_string] = idx
+
+        return idx
+
+
 class Context(object):
     """
     The base context for all AMF [de|en]coding.
 
-    @ivar extra: The only public attribute. This is a placeholder for any extra
-        contextual data that required for different adapters.
+    @ivar extra: This is a placeholder for any extra contextual data that
+        required for different adapters.
     @type extra: C{dict}
     @ivar _objects: A collection of stored references to objects that have
         already been visited by this context.
@@ -134,10 +158,19 @@ class Context(object):
         determined by L{pyamf.get_class_alias}
     @ivar _unicodes: Lookup of utf-8 encoded byte strings -> string objects
         (aka strings/unicodes).
+    @ivar forbid_dtd: Don't allow DTD in XML documents (decode only). By
+        default PyAMF will not support potentially malicious XML documents
+        - e.g. XXE.
+    @ivar forbid_entities: Don't allow entities in XML documents (decode only).
+        By default PyAMF will not support potentially malicious XML documents
+        - e.g. XXE.
     """
 
-    def __init__(self):
+    def __init__(self, forbid_dtd=True, forbid_entities=True):
         self._objects = IndexedCollection()
+
+        self.forbid_entities = forbid_entities
+        self.forbid_dtd = forbid_dtd
 
         self.clear()
 
@@ -215,13 +248,12 @@ class Context(object):
 
         @since: 0.6
         """
-        h = hash(s)
-        u = self._unicodes.get(h, None)
+        u = self._unicodes.get(s, None)
 
         if u is not None:
             return u
 
-        u = self._unicodes[h] = s.decode('utf-8')
+        u = self._unicodes[s] = s.decode('utf-8')
 
         return u
 
@@ -232,13 +264,12 @@ class Context(object):
 
         @since: 0.6
         """
-        h = hash(u)
-        s = self._unicodes.get(h, None)
+        s = self._unicodes.get(u, None)
 
         if s is not None:
             return s
 
-        s = self._unicodes[h] = u.encode('utf-8')
+        s = self._unicodes[u] = u.encode('utf-8')
 
         return s
 
@@ -258,18 +289,21 @@ class _Codec(object):
     """
 
     def __init__(self, stream=None, context=None, strict=False,
-                 timezone_offset=None):
-        if not isinstance(stream, util.BufferedByteStream):
+                 timezone_offset=None, forbid_dtd=True, forbid_entities=True):
+        if isinstance(stream, basestring) or stream is None:
             stream = util.BufferedByteStream(stream)
 
         self.stream = stream
-        self.context = context or self.buildContext()
+        self.context = context or self.buildContext(
+            forbid_dtd=forbid_dtd,
+            forbid_entities=forbid_entities
+        )
         self.strict = strict
         self.timezone_offset = timezone_offset
 
         self._func_cache = {}
 
-    def buildContext(self):
+    def buildContext(self, **kwargs):
         """
         A context factory.
         """
@@ -287,11 +321,19 @@ class Decoder(_Codec):
     """
     Base AMF decoder.
 
+    Supports an generator interface. Feed the decoder data using L{send} and
+    get Python objects out by using L{next}.
+
     @ivar strict: Defines how strict the decoding should be. For the time
         being this relates to typed objects in the stream that do not have a
         registered alias. Introduced in 0.4.
     @type strict: C{bool}
     """
+
+    def __init__(self, *args, **kwargs):
+        _Codec.__init__(self, *args, **kwargs)
+
+        self.__depth = 0
 
     def send(self, data):
         """
@@ -309,7 +351,22 @@ class Decoder(_Codec):
             # all data was successfully decoded from the stream
             raise StopIteration
 
-    def readElement(self):
+    def finalise(self, payload):
+        """
+        Finalise the payload.
+
+        This provides a useful hook to adapters to modify the payload that was
+        decoded.
+
+        Note that this is an advanced feature and is NOT directly called by the
+        decoder.
+        """
+        for c in pyamf.POST_DECODE_PROCESSORS:
+            payload = c(payload, self.context.extra)
+
+        return payload
+
+    def _readElement(self):
         """
         Reads an AMF3 element from the data stream.
 
@@ -341,6 +398,25 @@ class Decoder(_Codec):
 
             raise
 
+    def readElement(self):
+        """
+        Reads an AMF3 element from the data stream.
+
+        @raise DecodeError: The ActionScript type is unsupported.
+        @raise EOStream: No more data left to decode.
+        """
+        self.__depth += 1
+
+        try:
+            element = self._readElement()
+        finally:
+            self.__depth -= 1
+
+        if self.__depth == 0:
+            element = self.finalise(element)
+
+        return element
+
     def __iter__(self):
         return self
 
@@ -364,6 +440,13 @@ class _CustomTypeFunc(object):
 class Encoder(_Codec):
     """
     Base AMF encoder.
+
+    When using this to encode arbitrary object, the only 'public' method is
+    C{writeElement} all others are private and are subject to change in future
+    versions.
+
+    The encoder also supports an generator interface. Feed the encoder Python
+    object using L{send} and get AMF bytes out using L{next}.
     """
 
     def __init__(self, *args, **kwargs):
@@ -395,7 +478,7 @@ class Encoder(_Codec):
         try:
             alias = self.context.getClassAlias(iterable.__class__)
         except (AttributeError, pyamf.UnknownClassAlias):
-            self.writeList(iterable)
+            self.writeList(list(iterable))
 
             return
 
@@ -406,7 +489,7 @@ class Encoder(_Codec):
 
             return
 
-        self.writeList(iterable)
+        self.writeList(list(iterable))
 
     def writeGenerator(self, gen):
         """
@@ -443,9 +526,7 @@ class Encoder(_Codec):
             return self.writeNumber
         elif t in (list, tuple):
             return self.writeList
-        elif isinstance(data, (list, tuple)):
-            return self.writeSequence
-        elif t is types.GeneratorType:
+        elif t is types.GeneratorType:  # flake8: noqa
             return self.writeGenerator
         elif t is pyamf.UndefinedType:
             return self.writeUndefined
@@ -462,6 +543,9 @@ class Encoder(_Codec):
             except TypeError:
                 if python.callable(type_) and type_(data):
                     return _CustomTypeFunc(self, func)
+
+        if isinstance(data, (list, tuple)):
+            return self.writeSequence
 
         # now try some types that won't encode
         if t in python.class_types:

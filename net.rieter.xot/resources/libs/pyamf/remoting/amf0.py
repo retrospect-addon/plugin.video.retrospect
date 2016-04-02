@@ -18,6 +18,13 @@ class RequestProcessor(object):
     def __init__(self, gateway):
         self.gateway = gateway
 
+    @property
+    def logger(self):
+        if not self.gateway.logger:
+            return None
+
+        return self.gateway.logger
+
     def authenticateRequest(self, request, service_request, *args, **kwargs):
         """
         Authenticates the request against the service.
@@ -33,8 +40,13 @@ class RequestProcessor(object):
             username = cred['userid']
             password = cred['password']
 
-        return self.gateway.authenticateRequest(service_request, username,
-            password, *args, **kwargs)
+        return self.gateway.authenticateRequest(
+            service_request,
+            username,
+            password,
+            *args,
+            **kwargs
+        )
 
     def buildErrorResponse(self, request, error=None):
         """
@@ -50,15 +62,19 @@ class RequestProcessor(object):
         else:
             cls, e, tb = sys.exc_info()
 
-        return remoting.Response(build_fault(cls, e, tb, self.gateway.debug),
-            status=remoting.STATUS_ERROR)
+        fault = build_fault(cls, e, tb, self.gateway.debug)
+
+        return remoting.Response(fault, status=remoting.STATUS_ERROR)
 
     def _getBody(self, request, response, service_request, **kwargs):
         if 'DescribeService' in request.headers:
             return service_request.service.description
 
-        return self.gateway.callServiceRequest(service_request, *request.body,
-            **kwargs)
+        return self.gateway.callServiceRequest(
+            service_request,
+            *request.body,
+            **kwargs
+        )
 
     def __call__(self, request, *args, **kwargs):
         """
@@ -73,25 +89,44 @@ class RequestProcessor(object):
         response = remoting.Response(None)
 
         try:
-            service_request = self.gateway.getServiceRequest(request,
-                request.target)
+            service_request = self.gateway.getServiceRequest(
+                request,
+                request.target
+            )
         except gateway.UnknownServiceError:
+            if self.logger:
+                self.logger.error(
+                    'Unknown endpoint %r' % (request.target,)
+                )
+
             return self.buildErrorResponse(request)
 
         # we have a valid service, now attempt authentication
         try:
-            authd = self.authenticateRequest(request, service_request, *args,
-                **kwargs)
+            authd = self.authenticateRequest(
+                request,
+                service_request,
+                *args,
+                **kwargs
+            )
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
+            if self.logger:
+                self.logger.exception(
+                    'Unexpected error while authenticating request %r',
+                    request.target
+                )
+
             return self.buildErrorResponse(request)
 
         if not authd:
             # authentication failed
             response.status = remoting.STATUS_ERROR
-            response.body = remoting.ErrorFault(code='AuthenticationError',
-                description='Authentication failed')
+            response.body = remoting.ErrorFault(
+                code='AuthenticationError',
+                description='Authentication failed'
+            )
 
             return response
 
@@ -101,16 +136,33 @@ class RequestProcessor(object):
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
+            if self.logger:
+                self.logger.exception(
+                    'Unexpected error while pre-processing request %r',
+                    request.target
+                )
+
             return self.buildErrorResponse(request)
 
         try:
-            response.body = self._getBody(request, response, service_request,
-                *args, **kwargs)
+            response.body = self._getBody(
+                request,
+                response,
+                service_request,
+                *args,
+                **kwargs
+            )
 
             return response
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
+            if self.logger:
+                self.logger.exception(
+                    'Unexpected error while processing request %r',
+                    request.target
+                )
+
             return self.buildErrorResponse(request)
 
 
@@ -132,4 +184,8 @@ def build_fault(cls, e, tb, include_traceback=False):
     if include_traceback:
         details = traceback.format_exception(cls, e, tb)
 
-    return remoting.ErrorFault(code=code, description=unicode(e), details=details)
+    return remoting.ErrorFault(
+        code=code,
+        description=unicode(e),
+        details=details
+    )

@@ -10,11 +10,9 @@ Provides XML support.
 #: list of supported third party packages that support the C{etree}
 #: interface. At least enough for our needs anyway.
 ETREE_MODULES = [
-    'lxml.etree',
-    'xml.etree.cElementTree',
-    'cElementTree',
-    'xml.etree.ElementTree',
-    'elementtree.ElementTree'
+    'defusedxml.lxml',
+    'defusedxml.cElementTree',
+    'defusedxml.ElementTree',
 ]
 
 #: A tuple of class/type objects that are used to represent XML objects.
@@ -88,13 +86,10 @@ def is_xml(obj):
     try:
         _bootstrap()
     except ImportError:
-        return False    
-    except TypeError:
-        # in my case this check fails and returns an "TypeError: 'NoneType' object is not callable". 
-        # We need to return False then! (Edit by Bas Rieter d.d. 2012-01-03)
         return False
-    
+
     return isinstance(obj, types)
+
 
 def _get_type(e):
     """
@@ -118,8 +113,10 @@ def _get_etree_type(etree):
 
 
 def _no_et():
-    raise ImportError('Unable to find at least one compatible ElementTree '
-        'library, use pyamf.set_default_etree to enable XML support')
+    raise ImportError(
+        'Unable to find at least one compatible ElementTree library, use '
+        'pyamf.set_default_etree to enable XML support'
+    )
 
 
 def _bootstrap():
@@ -150,8 +147,10 @@ def tostring(element, *args, **kwargs):
     etree = modules.get(t, None)
 
     if not etree:
-        raise RuntimeError('Unable to find the etree implementation related '
-            'to %r (type %r)' % (element, t))
+        raise RuntimeError(
+            'Unable to find the etree implementation related to %r '
+            '(type %r)' % (element, t)
+        )
 
     return etree.tostring(element, *args, **kwargs)
 
@@ -164,5 +163,8 @@ def fromstring(*args, **kwargs):
     global ET
 
     _bootstrap()
+
+    kwargs.setdefault('forbid_dtd', True)
+    kwargs.setdefault('forbid_entities', True)
 
     return ET.fromstring(*args, **kwargs)

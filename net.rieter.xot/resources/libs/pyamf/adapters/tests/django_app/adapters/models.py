@@ -1,3 +1,6 @@
+# Copyright (c) The PyAMF Project.
+# See LICENSE.txt for details.
+
 from django.db import models
 
 
@@ -77,8 +80,8 @@ class Place(models.Model):
 
 
 class Restaurant(Place):
-    serves_hot_dogs = models.BooleanField()
-    serves_pizza = models.BooleanField()
+    serves_hot_dogs = models.BooleanField(default=False)
+    serves_pizza = models.BooleanField(default=False)
 
 
 # abstract inheritance
@@ -89,6 +92,7 @@ class CommonInfo(models.Model):
     class Meta:
         abstract = True
 
+
 class Student(CommonInfo):
     home_group = models.CharField(max_length=5)
 
@@ -96,6 +100,7 @@ class Student(CommonInfo):
 # foreign keys
 class NullForeignKey(models.Model):
     foobar = models.ForeignKey(SimplestModel, null=True)
+
 
 class BlankForeignKey(models.Model):
     foobar = models.ForeignKey(SimplestModel, blank=True)
@@ -117,7 +122,7 @@ try:
         file = models.ImageField(upload_to='profile')
         text = models.CharField(max_length=64)
 except ImportError:
-    pass
+    PIL = None
 
 
 class DBColumnModel(models.Model):

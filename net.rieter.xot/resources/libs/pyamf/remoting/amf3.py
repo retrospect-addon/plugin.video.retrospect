@@ -4,10 +4,11 @@
 """
 AMF3 RemoteObject support.
 
-@see: U{RemoteObject on LiveDocs
-<http://livedocs.adobe.com/flex/3/langref/mx/rpc/remoting/RemoteObject.html>}
+@see: U{RemoteObject on Adobe Help (external)
+    <http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/rpc/
+    remoting/RemoteObject.html>}
 
-@since: 0.1.0
+@since: 0.1
 """
 
 import calendar
@@ -63,11 +64,14 @@ def generate_error(request, cls, e, tb, include_traceback=False):
         code = cls.__name__
 
     details = None
-    rootCause = None
+    rootCause = e
 
     if include_traceback:
-        details = traceback.format_exception(cls, e, tb)
-        rootCause = e
+        buffer = pyamf.util.BufferedByteStream()
+
+        traceback.print_exception(cls, e, tb, file=buffer)
+
+        details = buffer.getvalue()
 
     faultDetail = None
     faultString = None
@@ -97,6 +101,13 @@ class RequestProcessor(object):
     def __init__(self, gateway):
         self.gateway = gateway
 
+    @property
+    def logger(self):
+        if not self.gateway.logger:
+            return None
+
+        return self.gateway.logger
+
     def buildErrorResponse(self, request, error=None):
         """
         Builds an error response.
@@ -118,31 +129,49 @@ class RequestProcessor(object):
         @raise ServerCallFailed: Unknown request.
         """
         if isinstance(ro_request, messaging.CommandMessage):
-            return self._processCommandMessage(amf_request, ro_request, **kwargs)
+            return self._processCommandMessage(
+                amf_request,
+                ro_request,
+                **kwargs
+            )
         elif isinstance(ro_request, messaging.RemotingMessage):
-            return self._processRemotingMessage(amf_request, ro_request, **kwargs)
+            return self._processRemotingMessage(
+                amf_request,
+                ro_request,
+                **kwargs
+            )
         elif isinstance(ro_request, messaging.AsyncMessage):
-            return self._processAsyncMessage(amf_request, ro_request, **kwargs)
+            return self._processAsyncMessage(
+                amf_request,
+                ro_request,
+                **kwargs
+            )
         else:
             raise ServerCallFailed("Unknown request: %s" % ro_request)
 
     def _processCommandMessage(self, amf_request, ro_request, **kwargs):
         """
         @raise ServerCallFailed: Unknown Command operation.
-        @raise ServerCallFailed: Authorization is not supported in RemoteObject.
+        @raise ServerCallFailed: Authorization is not supported in
+            RemoteObject.
         """
         ro_response = generate_acknowledgement(ro_request)
+        operation = ro_request.operation
 
-        if ro_request.operation == messaging.CommandMessage.PING_OPERATION:
+        if operation == messaging.CommandMessage.PING_OPERATION:
             ro_response.body = True
 
             return remoting.Response(ro_response)
-        elif ro_request.operation == messaging.CommandMessage.LOGIN_OPERATION:
-            raise ServerCallFailed("Authorization is not supported in RemoteObject")
-        elif ro_request.operation == messaging.CommandMessage.DISCONNECT_OPERATION:
+        elif operation == messaging.CommandMessage.LOGIN_OPERATION:
+            raise ServerCallFailed(
+                "Authorization is not supported in RemoteObject"
+            )
+        elif operation == messaging.CommandMessage.DISCONNECT_OPERATION:
             return remoting.Response(ro_response)
         else:
-            raise ServerCallFailed("Unknown Command operation %s" % ro_request.operation)
+            raise ServerCallFailed("Unknown Command operation %s" % (
+                operation,
+            ))
 
     def _processAsyncMessage(self, amf_request, ro_request, **kwargs):
         ro_response = generate_acknowledgement(ro_request)
@@ -153,20 +182,24 @@ class RequestProcessor(object):
     def _processRemotingMessage(self, amf_request, ro_request, **kwargs):
         ro_response = generate_acknowledgement(ro_request)
 
-        service_name = ro_request.operation
-
-        if hasattr(ro_request, 'destination') and ro_request.destination:
-            service_name = '%s.%s' % (ro_request.destination, service_name)
-
-        service_request = self.gateway.getServiceRequest(amf_request,
-                                                         service_name)
+        service_name = get_service_name(ro_request)
+        service_request = self.gateway.getServiceRequest(
+            amf_request,
+            service_name
+        )
 
         # fire the preprocessor (if there is one)
-        self.gateway.preprocessRequest(service_request, *ro_request.body,
-                                       **kwargs)
+        self.gateway.preprocessRequest(
+            service_request,
+            *ro_request.body,
+            **kwargs
+        )
 
-        ro_response.body = self.gateway.callServiceRequest(service_request,
-                                                *ro_request.body, **kwargs)
+        ro_response.body = self.gateway.callServiceRequest(
+            service_request,
+            *ro_request.body,
+            **kwargs
+        )
 
         return remoting.Response(ro_response)
 
@@ -183,9 +216,41 @@ class RequestProcessor(object):
         ro_request = amf_request.body[0]
 
         try:
-            return self._getBody(amf_request, ro_request, **kwargs)
+            body = self._getBody(amf_request, ro_request, **kwargs)
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
-            return remoting.Response(self.buildErrorResponse(ro_request),
-                                     status=remoting.STATUS_ERROR)
+            fault = self.buildErrorResponse(ro_request)
+
+            if hasattr(self.gateway, 'onServiceError'):
+                self.gateway.onServiceError(ro_request, fault)
+            elif self.logger:
+                self.logger.exception(
+                    'Unexpected error while processing request %r',
+                    get_service_name(ro_request)
+                )
+
+            body = remoting.Response(fault, status=remoting.STATUS_ERROR)
+
+        ro_response = body.body
+
+        dsid = ro_request.headers.get('DSId', None)
+
+        if not dsid or dsid == 'nil':
+            dsid = generate_random_id()
+
+        ro_response.headers.setdefault('DSId', dsid)
+
+        return body
+
+
+def get_service_name(ro_request):
+    """
+    Returns the full service name of a RemoteObject request.
+    """
+    service_name = ro_request.operation
+
+    if hasattr(ro_request, 'destination') and ro_request.destination:
+        service_name = '%s.%s' % (ro_request.destination, service_name)
+
+    return service_name

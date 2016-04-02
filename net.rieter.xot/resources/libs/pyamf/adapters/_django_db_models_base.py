@@ -8,11 +8,24 @@ C{django.db.models} adapter module.
 @since: 0.4.1
 """
 
+import datetime
+import sys
+
 from django.db.models.base import Model
 from django.db.models import fields
-from django.db.models.fields import related, files
+from django.db.models.fields import files
 
-import datetime
+models = sys.modules['django.db.models']
+
+try:
+    from django.db.models import related
+
+    ForeignObjectRel = related.RelatedObject
+except ImportError:
+    # django 1.8+
+    from django.db.models.fields import related
+
+    ForeignObjectRel = related.ForeignObjectRel
 
 import pyamf
 
@@ -74,12 +87,12 @@ class DjangoClassAlias(pyamf.ClassAlias):
             if isinstance(x, files.FileField):
                 self.readonly_attrs.update([name])
 
-            if isinstance(x, related.RelatedObject):
+            if isinstance(x, ForeignObjectRel):
                 continue
 
-            if isinstance(x, related.ManyToManyField):
+            if isinstance(x, models.ManyToManyField):
                 self.relations[name] = x
-            elif not isinstance(x, related.ForeignKey):
+            elif not isinstance(x, models.ForeignKey):
                 self.fields[name] = x
             else:
                 self.relations[name] = x
@@ -116,10 +129,24 @@ class DjangoClassAlias(pyamf.ClassAlias):
         if isinstance(field, fields.DateTimeField):
             return value
         elif isinstance(field, fields.DateField):
-            return datetime.datetime(value.year, value.month, value.day, 0, 0, 0)
+            return datetime.datetime(
+                value.year,
+                value.month,
+                value.day,
+                0,  # hour
+                0,  # minute
+                0,  # second
+            )
         elif isinstance(field, fields.TimeField):
-            return datetime.datetime(1970, 1, 1,
-                value.hour, value.minute, value.second, value.microsecond)
+            return datetime.datetime(
+                1970,  # year
+                1,  # month
+                1,  # day
+                value.hour,
+                value.minute,
+                value.second,
+                value.microsecond
+            )
         elif isinstance(value, files.FieldFile):
             return value.name
 
@@ -143,7 +170,12 @@ class DjangoClassAlias(pyamf.ClassAlias):
             if not value:
                 return None
 
-            return datetime.time(value.hour, value.minute, value.second, value.microsecond)
+            return datetime.time(
+                value.hour,
+                value.minute,
+                value.second,
+                value.microsecond,
+            )
 
         return value
 
@@ -169,26 +201,32 @@ class DjangoClassAlias(pyamf.ClassAlias):
             if '_%s_cache' % name in obj.__dict__:
                 attrs[name] = getattr(obj, name)
 
-            if isinstance(relation, related.ManyToManyField):
+            if isinstance(relation, models.ManyToManyField):
                 attrs[name] = [x for x in getattr(obj, name).all()]
             else:
-                del attrs[relation.attname]
+                attrs.pop(relation.attname, None)
 
         return attrs
 
     def getDecodableAttributes(self, obj, attrs, **kwargs):
-        attrs = pyamf.ClassAlias.getDecodableAttributes(self, obj, attrs, **kwargs)
+        attrs = pyamf.ClassAlias.getDecodableAttributes(
+            self,
+            obj,
+            attrs,
+            **kwargs
+        )
 
-        for n in self.decodable_properties:
-            if n in self.relations:
-                continue
+        if self.decodable_properties:
+            for n in self.decodable_properties:
+                if n in self.relations:
+                    continue
 
-            try:
-                f = self.fields[n]
-            except KeyError:
-                continue
+                try:
+                    f = self.fields[n]
+                except KeyError:
+                    continue
 
-            attrs[f.attname] = self._decodeValue(f, attrs[n])
+                attrs[f.attname] = self._decodeValue(f, attrs[n])
 
         # primary key of django object must always be set first for
         # relationships with other model objects to work properly
@@ -212,7 +250,7 @@ class DjangoClassAlias(pyamf.ClassAlias):
 
         if not getattr(obj, pk_attr):
             for name, relation in self.relations.iteritems():
-                if isinstance(relation, related.ManyToManyField):
+                if isinstance(relation, models.ManyToManyField):
                     try:
                         if len(attrs[name]) == 0:
                             del attrs[name]

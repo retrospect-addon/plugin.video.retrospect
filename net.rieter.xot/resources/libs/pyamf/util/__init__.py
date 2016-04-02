@@ -20,6 +20,19 @@ except ImportError:
     from pyamf.util.pure import BufferedByteStream
 
 
+__all__ = [
+    'BufferedByteStream',
+    'get_timestamp',
+    'get_datetime',
+    'get_properties',
+    'set_attrs',
+    'get_class_alias',
+    'is_class_sealed',
+    'get_class_meta',
+    'get_module',
+]
+
+
 #: On some Python versions retrieving a negative timestamp, like
 #: C{datetime.datetime.utcfromtimestamp(-31536000.0)} is broken.
 negative_timestamp_broken = False
@@ -107,7 +120,8 @@ def get_class_alias(klass):
 
 def is_class_sealed(klass):
     """
-    Whether or not the supplied class can accept dynamic properties.
+    Returns a boolean indicating whether or not the supplied class can accept
+    dynamic properties.
 
     @rtype: C{bool}
     @since: 0.5
@@ -158,11 +172,16 @@ def get_class_meta(klass):
     a = klass.__amf__
 
     if type(a) is dict:
-        in_func = lambda x: x in a
+        def in_func(x):
+            return x in a
+
         get_func = a.__getitem__
     else:
-        in_func = lambda x: hasattr(a, x)
-        get_func = lambda x: getattr(a, x)
+        def in_func(x):
+            return hasattr(a, x)
+
+        def get_func(x):
+            return getattr(a, x)
 
     for prop in ['alias', 'amf3', 'dynamic', 'external']:
         if in_func(prop):

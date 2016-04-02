@@ -81,8 +81,12 @@ class WSGIGateway(gateway.BaseGateway):
 
         # Decode the request
         try:
-            request = remoting.decode(body, strict=self.strict,
-                logger=self.logger, timezone_offset=timezone_offset)
+            request = remoting.decode(
+                body,
+                strict=self.strict,
+                logger=self.logger,
+                timezone_offset=timezone_offset
+            )
         except (pyamf.DecodeError, IOError):
             if self.logger:
                 self.logger.exception('Error decoding AMF request')
@@ -106,8 +110,10 @@ class WSGIGateway(gateway.BaseGateway):
             if self.logger:
                 self.logger.exception('Unexpected error decoding AMF request')
 
-            response = ("500 Internal Server Error\n\nAn unexpected error "
-                "occurred whilst decoding.")
+            response = (
+                "500 Internal Server Error\n\nAn unexpected error "
+                "occurred whilst decoding."
+            )
 
             if self.debug:
                 response += "\n\nTraceback:\n\n%s" % gateway.format_exception()
@@ -119,9 +125,6 @@ class WSGIGateway(gateway.BaseGateway):
             ])
 
             return [response]
-
-        if self.logger:
-            self.logger.debug("AMF Request: %r" % request)
 
         # Process the request
         try:
@@ -132,8 +135,10 @@ class WSGIGateway(gateway.BaseGateway):
             if self.logger:
                 self.logger.exception('Error processing AMF request')
 
-            response = ("500 Internal Server Error\n\nThe request was "
-                "unable to be successfully processed.")
+            response = (
+                "500 Internal Server Error\n\nThe request was "
+                "unable to be successfully processed."
+            )
 
             if self.debug:
                 response += "\n\nTraceback:\n\n%s" % gateway.format_exception()
@@ -146,19 +151,21 @@ class WSGIGateway(gateway.BaseGateway):
 
             return [response]
 
-        if self.logger:
-            self.logger.debug("AMF Response: %r" % response)
-
         # Encode the response
         try:
-            stream = remoting.encode(response, strict=self.strict,
-                timezone_offset=timezone_offset)
+            stream = remoting.encode(
+                response,
+                strict=self.strict,
+                timezone_offset=timezone_offset
+            )
         except:
             if self.logger:
                 self.logger.exception('Error encoding AMF request')
 
-            response = ("500 Internal Server Error\n\nThe request was "
-                "unable to be encoded.")
+            response = (
+                "500 Internal Server Error\n\nThe request was "
+                "unable to be encoded."
+            )
 
             if self.debug:
                 response += "\n\nTraceback:\n\n%s" % gateway.format_exception()

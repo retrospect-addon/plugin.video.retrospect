@@ -2,7 +2,7 @@
 # See LICENSE.txt for details.
 
 """
-Compatibility classes/functions for Flex.
+Compatibility classes/functions for Adobe Flex.
 
 @note: Not available in ActionScript 1.0 and 2.0.
 @see: U{Flex on Wikipedia<http://en.wikipedia.org/wiki/Adobe_Flex>}
@@ -21,11 +21,12 @@ class ArrayCollection(list):
 
     The C{ArrayCollection} class is a wrapper class that exposes an Array
     as a collection that can be accessed and manipulated using the
-    methods and properties of the `ICollectionView` or `IList`
+    methods and properties of the C{ICollectionView} or C{IList}
     interfaces in the Flex framework.
 
     @see: U{ArrayCollection on Livedocs <http://
-        livedocs.adobe.com/flex/201/langref/mx/collections/ArrayCollection.html>}
+        help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/
+        collections/ArrayCollection.html>}
     @note: This class does not implement the RemoteObject part of the
         documentation.
     @ivar length: [read-only] The number of items in this collection.
@@ -57,8 +58,9 @@ class ArrayCollection(list):
             data = data.source
         else:
             if not hasattr(data, '__iter__'):
-                raise pyamf.DecodeError('Unable to read a list when decoding '
-                    'ArrayCollection')
+                raise pyamf.DecodeError(
+                    'Unable to read a list when decoding ArrayCollection'
+                )
 
         self.extend(data)
 
@@ -188,11 +190,13 @@ class ArrayCollection(list):
 class ObjectProxy(object):
     """
     I represent the ActionScript 3 based class C{flex.messaging.io.ObjectProxy}
-    used in the Flex framework. Flex's C{ObjectProxy} class allows an anonymous,
-    dynamic ActionScript Object to be bindable and report change events.
+    used in the Flex framework. Flex's C{ObjectProxy} class allows an
+    anonymous, dynamic ActionScript Object to be bindable and report change
+    events.
 
     @see: U{ObjectProxy on Livedocs<http://
-        livedocs.adobe.com/flex/201/langref/mx/utils/ObjectProxy.html>}
+        help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/utils/
+        ObjectProxy.html>}
     """
 
     class __amf__:

@@ -13,14 +13,11 @@ from google.appengine.ext import blobstore
 import pyamf
 
 
-bi = blobstore.BlobInfo
-
-
 class BlobInfoStub(object):
     """
-    Since C{blobstore.BlobInfo} requires __init__ args, we stub the object until
-    C{applyAttributes} is called which then magically converts it to the correct
-    type.
+    Since C{blobstore.BlobInfo} requires __init__ args, we stub the object
+    until C{applyAttributes} is called which then magically converts it to the
+    correct type.
     """
 
 
@@ -57,21 +54,26 @@ class BlobInfoClassAlias(pyamf.ClassAlias):
         key = attrs.pop('key', None)
 
         if not key:
-            raise pyamf.DecodeError("Unable to build blobstore.BlobInfo "
-                "instance. Missing 'key' attribute.")
+            raise pyamf.DecodeError(
+                "Unable to build blobstore.BlobInfo instance. Missing 'key' "
+                "attribute."
+            )
 
         try:
             key = blobstore.BlobKey(key)
         except:
-            raise pyamf.DecodeError("Unable to build a valid blobstore.BlobKey "
-                "instance. Key supplied was %r" % (key,))
+            raise pyamf.DecodeError(
+                "Unable to build a valid blobstore.BlobKey instance. Key "
+                "supplied was %r" % (key,)
+            )
 
         obj.__class__ = blobstore.BlobInfo
 
         obj.__init__(key)
 
 
-pyamf.register_alias_type(BlobInfoClassAlias, bi)
-pyamf.register_class(bi, '.'.join([blobstore.__name__, bi.__name__]))
-
-del bi
+pyamf.register_alias_type(BlobInfoClassAlias, blobstore.BlobInfo)
+pyamf.register_class(blobstore.BlobInfo, '.'.join([
+    blobstore.__name__,
+    blobstore.BlobInfo.__name__
+]))

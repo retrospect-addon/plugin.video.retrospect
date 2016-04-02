@@ -16,6 +16,10 @@ import pyamf
 from pyamf import remoting
 import httplib
 
+# prevent cpyamf to be the main PyAMF module (See #720)
+import sys
+sys.modules['cpyamf'] = sys.modules['pyamf']
+
 
 class BrightCove:
     """ BrightCove is used to get video info of videos that use the
