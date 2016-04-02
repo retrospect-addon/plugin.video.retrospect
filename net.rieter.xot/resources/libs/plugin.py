@@ -97,7 +97,10 @@ class Plugin:
         self.params = self.__GetParameters(params)
 
         Logger.Info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
-        Logger.Debug("Plugin Params: %s (%s) [handle=%s, name=%s, query=%s]", self.params, len(self.params),
+        Logger.Debug("Plugin Params: %s (%s)\n"
+                     "Handle:      %s\n"
+                     "Name:        %s\n"
+                     "Query:       %s", self.params, len(self.params),
                      self.handle, self.pluginName, params)
 
         # are we in session?
