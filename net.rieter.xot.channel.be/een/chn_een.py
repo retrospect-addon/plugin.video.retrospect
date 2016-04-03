@@ -63,7 +63,7 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        self.mediaUrlRegex = """(?:url|hls):\W*['"]([^'"]+)['"](?:, filename:\W'([^']+)')?"""
+        self.mediaUrlRegex = """(?:url|hls|streamer):\W*['"]([^'"]+)['"](?:, (?:filename|file):\W['"]([^"']+)["'])?"""
 
         #===============================================================================================================
         # Test cases:
@@ -185,6 +185,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url)
 
         urls = Regexer.DoRegex(self.mediaUrlRegex, data)
+        Logger.Trace(urls)
         part = item.CreateNewEmptyMediaPart()
         for url in urls:
             if not url[1] == "":

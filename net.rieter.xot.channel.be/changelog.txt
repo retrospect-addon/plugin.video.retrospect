@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Ketnet updated their website
+Fixed: Eén stream selection issue
 
 [I]Previous Changes[/I]
+Fixed: Ketnet updated their website
 Fixed: Canvas.be update their layout (Fixes 702)
 Added: Ketnet (VRT) was added again (Fixes #686)
 Fixed: Canvas updated their site (Fixes #677)
