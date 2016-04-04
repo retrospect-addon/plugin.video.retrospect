@@ -45,10 +45,10 @@ class ChannelIndex:
         """
 
         if not ChannelIndex.__channelIndexer:
-            Logger.Debug("Creating a new ChannelImporter")
-            ChannelIndex()
+            Logger.Debug("Creating a new ChannelIndex")
+            ChannelIndex.__channelIndexer = ChannelIndex()
 
-        Logger.Debug("Fetching an existing channelImporter: %s", ChannelIndex.__channelIndexer)
+        Logger.Debug("Fetching an existing %s.", ChannelIndex.__channelIndexer)
 
         return ChannelIndex.__channelIndexer
 
@@ -61,7 +61,9 @@ class ChannelIndex:
         """
 
         self.__INTERNAL_CHANNEL_PATH = "channels"
-        self.__INFO_CHANNEL_KEY = "info"
+        self.__CHANNEL_INDEX_CHANNEL_KEY = "channels"
+        self.__CHANNEL_INDEX_ADD_ONS_KEY = "add-ons"
+        self.__CHANNEL_INDEX_CHANNEL_INFO_KEY = "info"
         self.__CHANNEL_INDEX = os.path.join(Config.profileDir, "channelindex.json")
 
         # initialise the collections
@@ -69,15 +71,59 @@ class ChannelIndex:
         self.__validChannels = []  # list of all channels that are available on the current platform and thus are loadable
         self.__allChannels = []  # list of all available channels
 
-        self.__DeployNewChannels()
+        self.__reindexed = False
+        self.__reindex = self.__DeployNewChannels()
         self.__channelIndex = self.__GetIndex()
 
-        # set it to the Singleton property
-        ChannelIndex.__channelIndexer = self
         return
 
     def GetChannel(self, className, channelCode):
-        return
+        """ Fetches a single channel for a given className and channelCode
+
+        @param className:
+        @param channelCode:
+        @return:
+        """
+
+        channelSet = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY].get(className, None)
+        if channelSet is None:
+            Logger.Error("Could not find info for channelClass '%s'.", className)
+            return None
+
+        channelSetInfoPath = channelSet[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
+        if not os.path.isfile(channelSetInfoPath) and not self.__reindexed:
+            Logger.Warning("Missing channelSet file: %s.", channelSetInfoPath)
+            self.__RebuildIndex()
+            return self.GetChannel(className, channelCode)
+
+        channelInfos = ChannelInfo.FromJson(channelSetInfoPath)
+        if channelCode is None:
+            channelInfos = filter(lambda ci: ci.channelCode is None, channelInfos)
+        else:
+            channelInfos = filter(lambda ci: ci.channelCode == channelCode, channelInfos)
+
+        if len(channelInfos) != 1:
+            Logger.Error("Found none or more than 1 matches for '%s' and '%s' in the channel index.",
+                         className, channelCode or "None")
+            return None
+        else:
+            Logger.Debug("Found single channel in the channel index: %s.", channelInfos[0])
+
+        if self.__IsChannelSetUpdated(channelInfos[0]):
+            # let's see if the index has already been updated this section, of not, do it and
+            # restart the ChannelRetrieval.
+            if not self.__reindexed:
+                # rebuild and restart
+                Logger.Warning("Re-index channel index due to channelSet update: %s.", channelSetInfoPath)
+                self.__RebuildIndex()
+                # new we should init all channels by loading them all, just to be shure that all is ok
+                Logger.Debug("Going to fetching all channels to init them all.")
+                self.GetChannels(includeDisabled=False, infoOnly=True)
+                return self.GetChannel(className, channelCode)
+            else:
+                Logger.Warning("Found updated channelSet: %s.", channelSetInfoPath)
+
+        return channelInfos[0].GetChannel()
 
     def GetChannels(self, includeDisabled=False, infoOnly=False):
         """
@@ -87,6 +133,11 @@ class ChannelIndex:
         @return:
 
         """
+
+        Logger.Info("Fetching all enabled channels.")
+
+        if includeDisabled or not infoOnly:
+            raise ValueError("Invalid input parameters provided.")
 
         self.__enabledChannels = []
         self.__allChannels = []
@@ -99,17 +150,28 @@ class ChannelIndex:
         platform = envcontroller.EnvController.GetPlatform()
 
         channelsUpdated = False
-        for channelSet in self.__channelIndex[self.__INTERNAL_CHANNEL_PATH]:
-            channelSet = self.__channelIndex[self.__INTERNAL_CHANNEL_PATH][channelSet]
-            # All channels in the set are loaded from the same JSON, so just take the first one
-            channelSetInfoPath = channelSet[channelSet.keys()[0]][self.__INFO_CHANNEL_KEY]
+        for channelSet in self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY]:
+            channelSet = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY][channelSet]
+            channelSetInfoPath = channelSet[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
 
-            # TODO: Make it a single def __CreateChannels(channelSetInfoPath). Returns list and bool for update
+            # Check if file exists. If not, rebuild index
+            if not os.path.isfile(channelSetInfoPath) and not self.__reindexed:
+                Logger.Warning("Missing channelSet file: %s.", channelSetInfoPath)
+                self.__RebuildIndex()
+                return self.GetChannels(includeDisabled, infoOnly)
+
             channelInfos = ChannelInfo.FromJson(channelSetInfoPath)
-
             # Check if the channel was updated
             if self.__IsChannelSetUpdated(channelInfos[0]):
-                Logger.Warning("Found updated channelSet: %s", channelSetInfoPath)
+                # let's see if the index has already been updated this section, of not, do it and
+                # restart the ChannelRetrieval.
+                if not self.__reindexed:
+                    # rebuild and restart
+                    Logger.Warning("Re-index channel index due to channelSet update: %s.", channelSetInfoPath)
+                    self.__RebuildIndex()
+                    return self.GetChannels(includeDisabled, infoOnly)
+                else:
+                    Logger.Warning("Found updated channelSet: %s.", channelSetInfoPath)
 
                 if not channelsUpdated:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
@@ -133,26 +195,43 @@ class ChannelIndex:
 
                 # valid channel for this platform ?
                 if not channelInfo.compatiblePlatforms & platform == platform:
-                    Logger.Warning("Not loading: %s -> platform '%s' is not compatible", channelInfo, Environments.Name(platform))
+                    Logger.Warning("Not loading: %s -> platform '%s' is not compatible.",
+                                   channelInfo, Environments.Name(platform))
                     continue
                 self.__validChannels.append(channelInfo)
 
                 # was the channel disabled?
-                if not (AddonSettings.ShowChannel(channelInfo) and AddonSettings.ShowChannelWithLanguage(channelInfo.language)):
-                    Logger.Warning("Not loading: %s -> Channel was disabled from settings.", channelInfo)
+                if not (AddonSettings.ShowChannel(
+                        channelInfo) and AddonSettings.ShowChannelWithLanguage(
+                        channelInfo.language)):
+                    Logger.Warning("Not loading: %s -> Channel was disabled from settings.",
+                                   channelInfo)
                     continue
                 self.__enabledChannels.append(channelInfo)
 
                 Logger.Debug("Loading: %s", channelInfo)
 
         if channelsUpdated:
-            Logger.Info("New or updated channels found. Updating add-on configuration for all "
-                        "channels and user agent")
+            Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
             AddonSettings.UpdateAddOnSettingsWithChannels(self.__validChannels, Config)
             AddonSettings.UpdateUserAgent()
         else:
-            Logger.Debug("No channel changes found. Skipping add-on configuration for channels")
+            Logger.Debug("No channel changes found. Skipping add-on configuration for channels.")
+
+        self.__enabledChannels.sort()
+        Logger.Info("Fetch a total of %d channels of which %d are enabled.",
+                    len(self.__allChannels),
+                    len(self.__enabledChannels))
         return self.__enabledChannels
+
+    def GetCategories(self):
+        """ Retrieves the available categories from the channels """
+
+        categories = set()
+        channels = self.GetChannels(infoOnly=True)
+        map(lambda c: categories.add(c.category), channels)
+        Logger.Debug("Found these categories: %s", ", ".join(categories))
+        return categories
 
     def __DeployNewChannels(self):
         """ Checks the deploy folder for new channels, if present, deploys them
@@ -175,7 +254,8 @@ class ChannelIndex:
 
         # addons folder, different for XBMC and XBMC4Xbox
         if envcontroller.EnvController.IsPlatform(Environments.Xbox):
-            targetFolder = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
+            targetFolder = os.path.abspath(
+                os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
             if not os.path.exists(targetFolder):
                 os.mkdir(targetFolder)
         else:
@@ -216,11 +296,18 @@ class ChannelIndex:
         @return:
         """
 
+        # if it was not already re-index and the bit was set
+        if self.__reindex:
+            if self.__reindexed:
+                Logger.Warning("Forced re-index set, but a re-index was already done previously. Not Rebuilding.")
+            else:
+                Logger.Info("Forced re-index set. Rebuilding.")
+                return self.__RebuildIndex()
+
         if not os.path.isfile(self.__CHANNEL_INDEX):
             Logger.Info("No index file found at '%s'. Rebuilding.", self.__CHANNEL_INDEX)
             return self.__RebuildIndex()
 
-        Logger.Info("Loading index from '%s'.", self.__CHANNEL_INDEX)
         fd = None
         try:
             fd = open(self.__CHANNEL_INDEX)
@@ -229,6 +316,10 @@ class ChannelIndex:
             if fd is not None and not fd.closed:
                 fd.close()
         indexJson = JsonHelper(data)
+        Logger.Debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
+
+        if not self.__IsIndexConsistent(indexJson.json):
+            return self.__RebuildIndex()
         return indexJson.json
 
     def __RebuildIndex(self):
@@ -247,10 +338,14 @@ class ChannelIndex:
 
         """
 
-        Logger.Info("Rebuilding the channel index")
+        if self.__reindexed:
+            Logger.Error("Channel index was already re-indexed this run. Not doing it again.")
+            return self.__channelIndex
+
+        Logger.Info("Rebuilding the channel index.")
         index = {
-            "add-ons": [],
-            self.__INTERNAL_CHANNEL_PATH: {}
+            self.__CHANNEL_INDEX_ADD_ONS_KEY: [],
+            self.__CHANNEL_INDEX_CHANNEL_KEY: {}
         }
 
         # iterate all Retrospect Video Add-ons
@@ -258,7 +353,7 @@ class ChannelIndex:
         channelPathStart = "%s.channel" % (Config.addonDir,)
         addOns = filter(lambda x: channelPathStart in x and "BUILD" not in x, os.listdir(addonPath))
         for addOnDir in addOns:
-            index["add-ons"].append(addOnDir)
+            index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(addOnDir)
 
             channelAddOnPath = os.path.join(addonPath, addOnDir)
             channelAddOnId, channelAddOnVersion = self.__ParseVideoAddOnVersion(channelAddOnPath)
@@ -271,28 +366,10 @@ class ChannelIndex:
                     continue
 
                 channelSetId = "chn_%s" % (channelSet,)
-                index[self.__INTERNAL_CHANNEL_PATH][channelSetId] = {}
-
-                infoPath = os.path.join(channelAddOnPath, channelSet, "%s.json" % (channelSetId, ))
-                if not os.path.isfile(infoPath):
-                    Logger.Warning("Could not read Channel Set info at '%s'", infoPath)
-
-                f = None
-                try:
-                    f = open(infoPath, 'r+')
-                    channelSetData = f.read()
-                finally:
-                    if f is not None:
-                        f.close()
-
-                channelSetInfo = JsonHelper(channelSetData)
-                channels = channelSetInfo.GetValue(self.__INTERNAL_CHANNEL_PATH)
-                for channel in channels:
-                    channelCode = channel.get("channelcode", None)
-                    index[self.__INTERNAL_CHANNEL_PATH][channelSetId][channelCode or "null"] = {
-                        "info": infoPath,
-                        "version": str(channelAddOnVersion)
-                    }
+                index[self.__CHANNEL_INDEX_CHANNEL_KEY][channelSetId] = {
+                    "version": str(channelAddOnVersion),
+                    "info": os.path.join(channelAddOnPath, channelSet, "%s.json" % (channelSetId,))
+                }
 
         f = None
         try:
@@ -301,6 +378,14 @@ class ChannelIndex:
         finally:
             if f is not None:
                 f.close()
+
+        # now we marked that we already re-indexed.
+        self.__reindexed = True
+        self.__channelIndex = index
+        Logger.Info("Rebuilding channel index completed with %d channelSets and %d add-ons: %s.",
+                    len(index[self.__CHANNEL_INDEX_CHANNEL_KEY]),
+                    len(index[self.__CHANNEL_INDEX_ADD_ONS_KEY]),
+                    index)
         return index
 
     def __ParseVideoAddOnVersion(self, path):
@@ -314,7 +399,7 @@ class ChannelIndex:
 
         # continue if no addon.xml exists
         if not os.path.isfile(addonFile):
-            Logger.Info("No addon.xml found at %s", addonFile)
+            Logger.Info("No addon.xml found at %s.", addonFile)
             return None, None
 
         f = open(addonFile, 'r+')
@@ -338,7 +423,8 @@ class ChannelIndex:
                                packageVersion)
                 return None, None
         else:
-            Logger.Critical("Cannot determine Channel Add-on version. Not loading Add-on @ '%s'", path)
+            Logger.Critical("Cannot determine Channel Add-on version. Not loading Add-on @ '%s'.",
+                            path)
             return None, None
 
     def __GetAddonPath(self):
@@ -376,8 +462,15 @@ class ChannelIndex:
         return True
 
     def __ChannelIsCorrect(self, channelInfo):
+        """ Validates if the given channel with channelInfo is correct
+
+        @param channelInfo: The channelInfo to use to validate the channel
+        @return:            True/False if valid or not.
+
+        """
+
         if not channelInfo.guid:
-            Logger.Error("Not loading: %s -> No guid present", channelInfo)
+            Logger.Error("Not loading: %s -> No guid present.", channelInfo)
             return False
 
         if channelInfo in self.__allChannels:
@@ -404,7 +497,7 @@ class ChannelIndex:
 
         """
 
-        Logger.Info("Initialising channel set at: %s", channelInfo.path)
+        Logger.Info("Initialising channel set at: %s.", channelInfo.path)
 
         # now import (required for the PerformFirstTimeActions
         sys.path.append(channelInfo.path)
@@ -426,7 +519,7 @@ class ChannelIndex:
         channelInfo : ChannelInfo - The channelinfo
         """
 
-        Logger.Info("Performing first time channel actions for: %s", channelInfo)
+        Logger.Info("Performing first time channel actions for: %s.", channelInfo)
 
         self.__ShowFirstTimeMessage(channelInfo)
         return
@@ -447,7 +540,7 @@ class ChannelIndex:
 
         hideFirstTime = AddonSettings.HideFirstTimeMessages()
         if channelInfo.firstTimeMessage and not hideFirstTime:
-            Logger.Info("Showing first time message '%s' for channel chn_%s",
+            Logger.Info("Showing first time message '%s' for channel chn_%s.",
                         channelInfo.firstTimeMessage, channelInfo.moduleName)
 
             title = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelMessageId)
@@ -458,6 +551,39 @@ class ChannelIndex:
                          hideFirstTime)
 
         return
+
+    def __IsIndexConsistent(self, index):
+        # type: (dict) -> boolean
+        """ A quick check if a given Channel Index is correct.
+
+        @param index: a index with Channel information
+        @return:      an indication (True/False) if the index is consistent.
+        """
+        if self.__CHANNEL_INDEX_CHANNEL_KEY not in index or self.__CHANNEL_INDEX_ADD_ONS_KEY not in index:
+            Logger.Warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_CHANNEL_INFO_KEY)
+            return False
+
+        # verify if the channels add-ons match, otherwise it is invalid anyways
+        indexedChannelAddOns = index[self.__CHANNEL_INDEX_ADD_ONS_KEY]
+        addonPath = self.__GetAddonPath()
+        channelPathStart = "%s.channel" % (Config.addonDir,)
+        addOns = filter(lambda x: channelPathStart in x and "BUILD" not in x, os.listdir(addonPath))
+
+        # see if the numbers match
+        if len(indexedChannelAddOns) != len(addOns):
+            Logger.Warning("Channel Index Inconsistent: add-on count is not up to date (index=%s vs actual=%s).",
+                           len(indexedChannelAddOns), len(addOns))
+            return False
+        # cross reference by putting them on a big pile and then get the distinct values (set) and
+        # compare the length of the distinct values.
+        if len(set(indexedChannelAddOns + addOns)) != len(addOns):
+            Logger.Warning("Channel Index Inconsistent: add-on content is not up to date.")
+            return False
+
+        return True
+
+    def __str__(self):
+        return "ChannelIndex for %s" % (Config.profileDir, )
 
 
 ChannelImporter = ChannelIndex
@@ -594,7 +720,9 @@ class ChannelImporter_old:
             classPath = channelIndex.GetValue(className, channelCode or "null")
             if classPath is not None:
                 if not os.path.isdir(classPath):
-                    Logger.Warning("Missing channel class path '%s' found. Rebuilding the ChannelIndex.", classPath)
+                    Logger.Warning(
+                        "Missing channel class path '%s' found. Rebuilding the ChannelIndex.",
+                        classPath)
                     # remove the old one
                     os.remove(self.__CHANNEL_INDEX)
                     # return self.GetSingleChannel(className, channelCode)
