@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-03-11 22:48+0000\n"
+"POT-Creation-Date: 2016-04-04 17:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -355,7 +355,11 @@ msgctxt "#30086"
 msgid "Hide Fanart"
 msgstr ""
 
-#empty strings from id 30087 to 30099
+msgctxt "#30087"
+msgid "Mix folders and streams while sorting"
+msgstr ""
+
+#empty strings from id 30088 to 30099
 
 msgctxt "#30100"
 msgid "None"

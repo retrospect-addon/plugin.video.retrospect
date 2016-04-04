@@ -54,6 +54,7 @@ class AddonSettings:
     __PREMIUM_HIDE_ITEMS = "hide_premium"
     __HIDE_TYPES = "hide_types"
     __HIDE_FANART = "hide_fanart"
+    __FOLDERS_AS_VIDEOS = "folders_as_video"
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -318,6 +319,12 @@ class AddonSettings:
 
         setting = AddonSettings.__GetSetting(AddonSettings.__FOLDER_PREFIX)
         return setting
+
+    @staticmethod
+    def MixFoldersAndVideos():
+        """ Should we treat Folders and Videos alike """
+
+        return AddonSettings.__GetBooleanSetting(AddonSettings.__FOLDERS_AS_VIDEOS)
 
     @staticmethod
     def GetEmptyListBehaviour():
@@ -898,6 +905,7 @@ class AddonSettings:
         value = pattern % (value, "UseSubtitle", AddonSettings.UseSubtitle())
         value = pattern % (value, "CacheHttpResponses", AddonSettings.CacheHttpResponses())
         value = pattern % (value, "Folder Prefx", "'%s'" % AddonSettings.GetFolderPrefix())
+        value = pattern % (value, "Mix Folders & Videos", AddonSettings.MixFoldersAndVideos())
         value = pattern % (value, "Empty List Behaviour", AddonSettings.GetEmptyListBehaviour())
         value = pattern % (value, "ListLimit", AddonSettings.GetListLimit())
         value = pattern % (value, "Loglevel", AddonSettings.GetLogLevel())

@@ -697,13 +697,17 @@ class Plugin:
 
         """
 
-        # sortAlgorthim = AddonSettings.GetSortAlgorithm()
+        if AddonSettings.MixFoldersAndVideos():
+            labelSortMethod = xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS
+        else:
+            labelSortMethod = xbmcplugin.SORT_METHOD_LABEL
+
         if items:
             hasDates = len(filter(lambda i: i.HasDate(), items)) > 0
             if hasDates:
                 Logger.Debug("Sorting method: Dates")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
@@ -713,12 +717,12 @@ class Plugin:
                 Logger.Debug("Sorting method: Tracks")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
 
         Logger.Debug("Sorting method: Default (Label)")
-        xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
+        xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)

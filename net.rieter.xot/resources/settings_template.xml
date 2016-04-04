@@ -15,6 +15,7 @@
         <setting id="list_limit" type="enum" label="30026" default="5" lvalues="30074|30200|30201|30202|30203|30204|30205" />
         <!--<setting id="list_limit" type="slider" label="30026" subsetting="true" default="1000" range="50,25,1000" option="int" />-->
         <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
+        <setting id="folders_as_video" type="bool" label="30087" default="false" />
         <setting id="folder_prefix" type="text" label="30043" default="" />
 
         <setting type="lsep" label="30046" />

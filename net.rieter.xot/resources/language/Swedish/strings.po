@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-03-11 22:48+0000\n"
+"POT-Creation-Date: 2016-04-04 17:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -91,7 +91,7 @@ msgstr "Datum"
 
 msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
-msgstr "Show DRM Warning"
+msgstr "Show DRM Warning before playback"
 
 msgctxt "#30020"
 msgid "Maximum stream bitrate"
@@ -352,6 +352,10 @@ msgstr "GEO-låsta"
 msgctxt "#30086"
 msgid "Hide Fanart"
 msgstr "Göm Fanart"
+
+msgctxt "#30087"
+msgid "Mix folders and streams while sorting"
+msgstr "Mix folders and streams while sorting"
 
 msgctxt "#30100"
 msgid "None"
@@ -635,7 +639,7 @@ msgstr "DRM Protection"
 
 msgctxt "#30555"
 msgid "The selected item is DRM protected and might not play on Kodi."
-msgstr "The selected item is DRM protected and|might not play on Kodi."
+msgstr "The selected item is DRM protected and might not play on Kodi."
 
 msgctxt "#30556"
 msgid "Initialising channel(s)."
@@ -655,8 +659,8 @@ msgstr "Fetching missing textures. This could take some time depending on the in
 
 msgctxt "#30560"
 msgid "Paid video"
-msgstr ""
+msgstr "Paid video"
 
 msgctxt "#30561"
 msgid "The selected item is not free and might not play on Kodi."
-msgstr ""
+msgstr "The selected item is not free and might not play on Kodi."

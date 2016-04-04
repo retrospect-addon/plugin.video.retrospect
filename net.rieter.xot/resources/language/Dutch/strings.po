@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-03-11 22:48+0000\n"
+"POT-Creation-Date: 2016-04-04 17:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -91,7 +91,7 @@ msgstr "Datum"
 
 msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
-msgstr "Toon DRM waarschuwing"
+msgstr "Toon DRM waarschuwing voor afspelen"
 
 msgctxt "#30020"
 msgid "Maximum stream bitrate"
@@ -352,6 +352,10 @@ msgstr "Geo Locatie"
 msgctxt "#30086"
 msgid "Hide Fanart"
 msgstr "Fanart niet tonen"
+
+msgctxt "#30087"
+msgid "Mix folders and streams while sorting"
+msgstr "Mix folders en streams bij het sorteren"
 
 msgctxt "#30100"
 msgid "None"
@@ -635,7 +639,7 @@ msgstr "DRM Bescherming"
 
 msgctxt "#30555"
 msgid "The selected item is DRM protected and might not play on Kodi."
-msgstr "Het geselecteerde item is DRM bescherm en|werkt wellicht niet in Kodi."
+msgstr "Het geselecteerde item is DRM bescherm en werkt wellicht niet in Kodi."
 
 msgctxt "#30556"
 msgid "Initialising channel(s)."
@@ -655,8 +659,8 @@ msgstr "Ontbrekende textures worden opgehaald. Dit kan enige tijd duren afhankel
 
 msgctxt "#30560"
 msgid "Paid video"
-msgstr ""
+msgstr "Betaalde video"
 
 msgctxt "#30561"
 msgid "The selected item is not free and might not play on Kodi."
-msgstr ""
+msgstr "Het geselecteerde item is niet gratis en werkt wellicht niet in Kodi."
