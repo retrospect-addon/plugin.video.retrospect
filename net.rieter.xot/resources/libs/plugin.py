@@ -167,7 +167,7 @@ class Plugin:
 
                     # import the channel
                     channelRegister = ChannelImporter.GetRegister()
-                    channel = channelRegister.GetSingleChannel(self.channelFile, self.channelCode)
+                    channel = channelRegister.GetChannel(self.channelFile, self.channelCode)
 
                     if channel is not None:
                         self.channelObject = channel

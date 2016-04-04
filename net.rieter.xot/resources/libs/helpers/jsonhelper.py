@@ -63,7 +63,7 @@ class JsonHelper:
         # here we are call the json.loads
         try:
             if self.logger is not None:
-                self.logger.Debug("Parsing JSON using: %s", _jsonLib)
+                self.logger.Trace("Parsing JSON using: %s", _jsonLib)
 
             if _jsonLoaded:
                 self.json = json.loads(self.data)
