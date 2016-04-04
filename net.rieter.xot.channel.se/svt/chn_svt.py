@@ -9,7 +9,7 @@ import mediaitem
 
 from regexer import Regexer
 from helpers import htmlentityhelper
-from helpers import subtitlehelper
+from helpers.subtitlehelper import SubtitleHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.xmlhelper import XmlHelper
 from helpers.datehelper import DateHelper
@@ -1040,7 +1040,8 @@ class Channel(chn_class.Channel):
                 subUrl = "%s/%s/%s.wsrt" % (start, name, name)
             else:
                 subUrl = sub[0]
-            mediaPart.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subUrl, format="srt", proxy=self.proxy)
+            mediaPart.Subtitle = SubtitleHelper.DownloadSubtitle(subUrl, format="srt", proxy=self.proxy,
+                                                                 replace=SubtitleHelper.ANSIColours)
 
         item.complete = True
         return item

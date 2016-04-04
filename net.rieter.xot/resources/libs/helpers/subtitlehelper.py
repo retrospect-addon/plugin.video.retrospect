@@ -22,6 +22,26 @@ from urihandler import UriHandler
 class SubtitleHelper:
     """Helper class that is used for handling subtitle files."""
 
+    # https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+    ANSIColours = {
+        "<30>": '<font color="#000000">',  # Black
+        "<31>": '<font color="#ff0000">',  # Red
+        "<32>": '<font color="#00ff00">',  # Green
+        "<33>": '<font color="#ffff00">',  # Brown/Yellow
+        "<34>": '<font color="#0000ff">',  # Blue
+        "<35>": '<font color="#ff00ff">',  # Magenta
+        "<36>": '<font color="#00ffff">',  # Cyan
+        "<37>": '<font color="#ffffff">',  # Gray
+        "</30>": "</font>",
+        "</31>": "</font>",
+        "</32>": "</font>",
+        "</33>": "</font>",
+        "</34>": "</font>",
+        "</35>": "</font>",
+        "</36>": "</font>",
+        "</37>": "</font>",
+    }
+
     def __init__(self):
         """Create a class instance. This is not allowed, due to only static
         methods.
@@ -33,7 +53,7 @@ class SubtitleHelper:
 
     # noinspection PyShadowingBuiltins
     @staticmethod
-    def DownloadSubtitle(url, fileName="", format='sami', proxy=None):
+    def DownloadSubtitle(url, fileName="", format='sami', proxy=None, replace=None):
         """Downloads a SAMI and stores the SRT in the cache folder
 
         Arguments:
@@ -92,6 +112,11 @@ class SubtitleHelper:
             else:
                 error = "Uknown subtitle format: %s" % (format,)
                 raise NotImplementedError(error)
+
+            if replace:
+                Logger.Debug("Replacing SRT data: %s", replace)
+                for needle in replace:
+                    srt = srt.replace(needle, replace[needle])
 
             f = open(localCompletePath, 'w')
             f.write(srt)
