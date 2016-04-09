@@ -219,7 +219,7 @@ class ChannelInfo:
             settings = json.GetValue("settings")
         else:
             settings = []
-        Logger.Debug("Found %s channels and %s settings", len(channels), len(settings))
+        Logger.Debug("Found %s channels and %s settings in %s", len(channels), len(settings), path)
 
         for channel in channels:
             channelInfo = ChannelInfo(channel["guid"],

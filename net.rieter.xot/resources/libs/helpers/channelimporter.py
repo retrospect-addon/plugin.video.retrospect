@@ -374,6 +374,7 @@ class ChannelIndex:
                     continue
 
                 channelSetId = "chn_%s" % (channelSet,)
+                Logger.Debug("Found channel set '%s'", channelSetId)
                 index[self.__CHANNEL_INDEX_CHANNEL_KEY][channelSetId] = {
                     "version": str(channelAddOnVersion),
                     "info": os.path.join(channelAddOnPath, channelSet, "%s.json" % (channelSetId,))
@@ -555,17 +556,16 @@ class ChannelIndex:
         """
 
         hideFirstTime = AddonSettings.HideFirstTimeMessages()
-        if channelInfo.firstTimeMessage and not hideFirstTime:
-            Logger.Info("Showing first time message '%s' for channel chn_%s.",
-                        channelInfo.firstTimeMessage, channelInfo.moduleName)
+        if channelInfo.firstTimeMessage:
+            if not hideFirstTime:
+                Logger.Info("Showing first time message '%s' for channel chn_%s.",
+                            channelInfo.firstTimeMessage, channelInfo.moduleName)
 
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelMessageId)
-            XbmcWrapper.ShowDialog(title, channelInfo.firstTimeMessage.split("|"))
-
-        if hideFirstTime:
-            Logger.Debug("Not showing first time message due to add-on setting set to '%s'.",
-                         hideFirstTime)
-
+                title = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelMessageId)
+                XbmcWrapper.ShowDialog(title, channelInfo.firstTimeMessage.split("|"))
+            else:
+                Logger.Debug("Not showing first time message due to add-on setting set to '%s'.",
+                             hideFirstTime)
         return
 
     def __IsIndexConsistent(self, index):
