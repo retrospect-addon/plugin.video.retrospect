@@ -36,7 +36,7 @@ try:
     from updater import Updater
     from favourites import Favourites
     from mediaitem import MediaItem
-    from helpers.channelimporter import ChannelImporter
+    from helpers.channelimporter import ChannelIndex
     from helpers.languagehelper import LanguageHelper
     from helpers.htmlentityhelper import HtmlEntityHelper
     from helpers import stopwatch
@@ -166,7 +166,7 @@ class Plugin:
                                  self.channelCode)
 
                     # import the channel
-                    channelRegister = ChannelImporter.GetRegister()
+                    channelRegister = ChannelIndex.GetRegister()
                     channel = channelRegister.GetChannel(self.channelFile, self.channelCode)
 
                     if channel is not None:
@@ -247,7 +247,7 @@ class Plugin:
         """
 
         Logger.Info("Plugin::ShowCategories")
-        channelRegister = ChannelImporter.GetRegister()
+        channelRegister = ChannelIndex.GetRegister()
         categories = channelRegister.GetCategories()
 
         xbmcItems = []
@@ -270,7 +270,7 @@ class Plugin:
             url = self.__CreateActionUrl(None, action=self.actionListCategory, category=category)
             xbmcItems.append((url, xbmcItem, True))
 
-        Logger.Trace(xbmcItems)
+        # Logger.Trace(xbmcItems)
         ok = xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
         xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
         xbmcplugin.endOfDirectory(self.handle, ok)
@@ -291,7 +291,7 @@ class Plugin:
             Logger.Info("Plugin::ShowChannelList")
         try:
             # only display channels
-            channelRegister = ChannelImporter.GetRegister()
+            channelRegister = ChannelIndex.GetRegister()
             channels = channelRegister.GetChannels(infoOnly=True)
 
             xbmcItems = []

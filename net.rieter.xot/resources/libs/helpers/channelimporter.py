@@ -16,12 +16,10 @@ import os
 import shutil
 
 import envcontroller
-import version
 
 from addonsettings import AddonSettings
 from regexer import Regexer
 from environments import Environments
-from stopwatch import StopWatch
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
 from config import Config
@@ -29,12 +27,13 @@ from channelinfo import ChannelInfo
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
 from textures import TextureHandler
+from version import Version
 
 
 class ChannelIndex:
     """ Class that handles the deploying and loading of available channels."""
 
-    __channelIndexer = None  # : Property to store the channel importer in.
+    __channelIndexer = None  # : Property to store the channel indexer in.
 
     @staticmethod
     def GetRegister():
@@ -45,10 +44,10 @@ class ChannelIndex:
         """
 
         if not ChannelIndex.__channelIndexer:
-            Logger.Debug("Creating a new ChannelIndex")
+            Logger.Debug("Creating a new ChannelIndex-er.")
             ChannelIndex.__channelIndexer = ChannelIndex()
-
-        Logger.Debug("Fetching an existing %s.", ChannelIndex.__channelIndexer)
+        else:
+            Logger.Debug("Fetching an existing %s.", ChannelIndex.__channelIndexer)
 
         return ChannelIndex.__channelIndexer
 
@@ -78,11 +77,16 @@ class ChannelIndex:
         return
 
     def GetChannel(self, className, channelCode):
+        # type: (str, str) -> ChannelInfo
         """ Fetches a single channel for a given className and channelCode
 
-        @param className:
-        @param channelCode:
-        @return:
+        If updated channels are found, the those channels are indexed and the
+        channel index is rebuild.
+
+        @param className:       the chn_<name> class name
+        @param channelCode:     a possible channel code within the channel set
+        @return:                a ChannelInfo object
+
         """
 
         channelSet = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY].get(className, None)
@@ -116,35 +120,35 @@ class ChannelIndex:
                 # rebuild and restart
                 Logger.Warning("Re-index channel index due to channelSet update: %s.", channelSetInfoPath)
                 self.__RebuildIndex()
-                # new we should init all channels by loading them all, just to be shure that all is ok
-                Logger.Debug("Going to fetching all channels to init them all.")
-                self.GetChannels(includeDisabled=False, infoOnly=True)
-                return self.GetChannel(className, channelCode)
             else:
                 Logger.Warning("Found updated channelSet: %s.", channelSetInfoPath)
 
+            # new we should init all channels by loading them all, just to be shure that all is ok
+            Logger.Debug("Going to fetching all channels to init them all.")
+            self.GetChannels()
+            return self.GetChannel(className, channelCode)
+
         return channelInfos[0].GetChannel()
 
-    def GetChannels(self, includeDisabled=False, infoOnly=False):
-        """
+    # noinspection PyUnusedLocal
+    def GetChannels(self, **kwargs):
+        # type: (object) -> list
+        """ Retrieves all enabled channels within Retrospect.
 
-        @param includeDisabled:
-        @param infoOnly:
-        @return:
+        If updated channels are found, the those channels are indexed and the
+        channel index is rebuild.
+
+        @type kwargs: here for backward compatibility
+
+        @return: a list of ChannelInfo objects of enabled channels.
 
         """
 
         Logger.Info("Fetching all enabled channels.")
 
-        if includeDisabled or not infoOnly:
-            raise ValueError("Invalid input parameters provided.")
-
         self.__enabledChannels = []
         self.__allChannels = []
         self.__validChannels = []
-
-        if not infoOnly:
-            raise NotImplementedError()
 
         # What platform are we
         platform = envcontroller.EnvController.GetPlatform()
@@ -158,7 +162,7 @@ class ChannelIndex:
             if not os.path.isfile(channelSetInfoPath) and not self.__reindexed:
                 Logger.Warning("Missing channelSet file: %s.", channelSetInfoPath)
                 self.__RebuildIndex()
-                return self.GetChannels(includeDisabled, infoOnly)
+                return self.GetChannels()
 
             channelInfos = ChannelInfo.FromJson(channelSetInfoPath)
             # Check if the channel was updated
@@ -169,7 +173,7 @@ class ChannelIndex:
                     # rebuild and restart
                     Logger.Warning("Re-index channel index due to channelSet update: %s.", channelSetInfoPath)
                     self.__RebuildIndex()
-                    return self.GetChannels(includeDisabled, infoOnly)
+                    return self.GetChannels()
                 else:
                     Logger.Warning("Found updated channelSet: %s.", channelSetInfoPath)
 
@@ -225,6 +229,7 @@ class ChannelIndex:
         return self.__enabledChannels
 
     def GetCategories(self):
+        # type: () -> set
         """ Retrieves the available categories from the channels """
 
         categories = set()
@@ -234,6 +239,7 @@ class ChannelIndex:
         return categories
 
     def __DeployNewChannels(self):
+        # type: () -> bool
         """ Checks the deploy folder for new channels, if present, deploys them
 
         The last part of the folders in the deploy subfolder are considered the
@@ -287,6 +293,7 @@ class ChannelIndex:
         return deployed
 
     def __GetIndex(self):
+        # type: () -> dict
         """ Loads the channel index and if there is none, makes sure one is created.
 
         Checks:
@@ -323,6 +330,7 @@ class ChannelIndex:
         return indexJson.json
 
     def __RebuildIndex(self):
+        # type: () -> dict
         """ Rebuilds the channel index that contains all channels and performs all necessary steps:
 
         1. Find all channel add-on paths and determine the version of the channel add-on
@@ -332,7 +340,7 @@ class ChannelIndex:
                the included channels.
             c. Add all channels within the channel set to the channelIndex
 
-        @return:
+        @return: the new channel index dictionary object.
 
         Remark: this method only generates the index of the channels, it does not import at all!
 
@@ -389,10 +397,12 @@ class ChannelIndex:
         return index
 
     def __ParseVideoAddOnVersion(self, path):
+        # type: (str) -> Version
         """ Parses the addon.xml file and checks if all is OK.
 
         @param path: path to load the addon from
         @return: the AddonId-Version
+
         """
 
         addonFile = os.path.join(path, "addon.xml")
@@ -412,7 +422,7 @@ class ChannelIndex:
             packVersion = packVersion[0]
 
             packageId = packVersion[0]
-            packageVersion = version.Version(version=packVersion[1])
+            packageVersion = Version(version=packVersion[1])
             # channelAddon = os.path.split(path)[-1]
             # packVersion = packVersion.
             if Config.version.EqualRevisions(packageVersion):
@@ -428,6 +438,7 @@ class ChannelIndex:
             return None, None
 
     def __GetAddonPath(self):
+        # type: () -> str
         """ Returns the path that holds all the XBMC add-ons. It differs for Xbox and other platforms.
 
         @return: The add-on base path
@@ -444,6 +455,7 @@ class ChannelIndex:
         return addonPath
 
     def __IsChannelSetUpdated(self, channelInfo):
+        # type: (ChannelInfo) -> bool
         """ Checks whether a channel set was updated.
 
         @param channelInfo: the channelInfo for a channel from the set
@@ -462,6 +474,7 @@ class ChannelIndex:
         return True
 
     def __ChannelIsCorrect(self, channelInfo):
+        # type: (ChannelInfo) -> bool
         """ Validates if the given channel with channelInfo is correct
 
         @param channelInfo: The channelInfo to use to validate the channel
@@ -482,6 +495,7 @@ class ChannelIndex:
         return True
 
     def __InitialiseChannelSet(self, channelInfo):
+        # type: (ChannelInfo) -> ()
         """ Initialises a channelset (.py file)
 
         WARNING: these actions are done ONCE per python file, not per channel.
@@ -513,6 +527,7 @@ class ChannelIndex:
         return
 
     def __InitialiseChannel(self, channelInfo):
+        # type: (ChannelInfo) -> ()
         """ Performs the first time channel actions for a given channel.
 
         Arguments:
@@ -525,6 +540,7 @@ class ChannelIndex:
         return
 
     def __ShowFirstTimeMessage(self, channelInfo):
+        # type: (ChannelInfo) -> ()
         """ Checks if it is the first time a channel is executed
         and if a first time message is available it will be shown
 
@@ -583,13 +599,11 @@ class ChannelIndex:
         return True
 
     def __str__(self):
+        # type: () -> str
         return "ChannelIndex for %s" % (Config.profileDir, )
 
 
-ChannelImporter = ChannelIndex
-
-
-class ChannelImporter_old:
+class ChannelImporter:
     """Class that handles the deploying and loading of available channels."""
 
     __channelImporter = None  # : Property to store the channel importer in.
@@ -955,7 +969,7 @@ class ChannelImporter_old:
             for update in os.listdir(updatePath):
                 # split the filename on - to get the version
                 updateParts = update.split("-")
-                versionNumber = version.Version(updateParts[-1])
+                versionNumber = Version(updateParts[-1])
 
                 if versionNumber < Config.version:
                     Logger.Info(
@@ -975,7 +989,7 @@ class ChannelImporter_old:
                 for existing in os.listdir(targetPath):
                     if fileName in existing and "-" in existing:
                         # update that was already installed found, check version
-                        existingVersion = version.Version(existing.split("-")[-1])
+                        existingVersion = Version(existing.split("-")[-1])
                         if existingVersion >= versionNumber:
                             # stop, a newer version was already detected
                             Logger.Info(
@@ -1053,7 +1067,7 @@ class ChannelImporter_old:
 
             # first find all folders with channels that we might need to import
             channelImport = []
-            importTimer = StopWatch("ChannelImporter :: importing channels", Logger.Instance())
+            # importTimer = StopWatch("ChannelImporter :: importing channels", Logger.Instance())
 
             addonPath = self.__GetAddonPath()
 
@@ -1075,7 +1089,7 @@ class ChannelImporter_old:
                         [os.path.abspath(os.path.join(path, weapon)) for weapon in subDirs])
 
             channelImport.sort()
-            importTimer.Lap("Directories scanned for .channel")
+            # importTimer.Lap("Directories scanned for .channel")
 
             # we need to make sure we don't load multiple channel classes and track if we found updates
             channelsUpdated = False
@@ -1139,7 +1153,7 @@ class ChannelImporter_old:
                     except:
                         Logger.Error("Error import chn_%s.json", channelName, exc_info=True)
 
-            importTimer.Lap()
+            # importTimer.Lap()
 
             # What platform are we
             platform = envcontroller.EnvController.GetPlatform()
@@ -1166,7 +1180,7 @@ class ChannelImporter_old:
 
             Logger.Info("Imported %s channels from which %s are enabled",
                         len(self.__allChannels), len(self.__enabledChannels))
-            importTimer.Stop()
+            # importTimer.Stop()
         except:
             Logger.Critical("Error loading channel modules", exc_info=True)
 
@@ -1278,7 +1292,7 @@ class ChannelImporter_old:
             packVersion = packVersion[0]
 
             packageId = packVersion[0]
-            packageVersion = version.Version(version=packVersion[1])
+            packageVersion = Version(version=packVersion[1])
             # channelAddon = os.path.split(path)[-1]
             # packVersion = packVersion.
             if Config.version.EqualRevisions(packageVersion):
@@ -1319,3 +1333,6 @@ class ChannelImporter_old:
             if fd is not None and not fd.closed:
                 fd.close()
         return
+
+
+# ChannelIndex = ChannelImporter
