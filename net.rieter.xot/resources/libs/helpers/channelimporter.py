@@ -63,6 +63,7 @@ class ChannelIndex:
         self.__CHANNEL_INDEX_CHANNEL_KEY = "channels"
         self.__CHANNEL_INDEX_ADD_ONS_KEY = "add-ons"
         self.__CHANNEL_INDEX_CHANNEL_INFO_KEY = "info"
+        self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY = "version"
         self.__CHANNEL_INDEX = os.path.join(Config.profileDir, "channelindex.json")
 
         # initialise the collections
@@ -95,12 +96,13 @@ class ChannelIndex:
             return None
 
         channelSetInfoPath = channelSet[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
+        channelSetVersion = channelSet[self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
         if not os.path.isfile(channelSetInfoPath) and not self.__reindexed:
             Logger.Warning("Missing channelSet file: %s.", channelSetInfoPath)
             self.__RebuildIndex()
             return self.GetChannel(className, channelCode)
 
-        channelInfos = ChannelInfo.FromJson(channelSetInfoPath)
+        channelInfos = ChannelInfo.FromJson(channelSetInfoPath, channelSetVersion)
         if channelCode is None:
             channelInfos = filter(lambda ci: ci.channelCode is None, channelInfos)
         else:
@@ -157,6 +159,7 @@ class ChannelIndex:
         for channelSet in self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY]:
             channelSet = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY][channelSet]
             channelSetInfoPath = channelSet[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
+            channelSetVersion = channelSet[self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
 
             # Check if file exists. If not, rebuild index
             if not os.path.isfile(channelSetInfoPath) and not self.__reindexed:
@@ -164,7 +167,8 @@ class ChannelIndex:
                 self.__RebuildIndex()
                 return self.GetChannels()
 
-            channelInfos = ChannelInfo.FromJson(channelSetInfoPath)
+            channelInfos = ChannelInfo.FromJson(channelSetInfoPath, channelSetVersion)
+
             # Check if the channel was updated
             if self.__IsChannelSetUpdated(channelInfos[0]):
                 # let's see if the index has already been updated this section, of not, do it and
@@ -376,8 +380,8 @@ class ChannelIndex:
                 channelSetId = "chn_%s" % (channelSet,)
                 Logger.Debug("Found channel set '%s'", channelSetId)
                 index[self.__CHANNEL_INDEX_CHANNEL_KEY][channelSetId] = {
-                    "version": str(channelAddOnVersion),
-                    "info": os.path.join(channelAddOnPath, channelSet, "%s.json" % (channelSetId,))
+                    self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY: str(channelAddOnVersion),
+                    self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channelAddOnPath, channelSet, "%s.json" % (channelSetId,))
                 }
 
         f = None

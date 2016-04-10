@@ -75,6 +75,7 @@ class Channel:
         self.category = channelInfo.category
         self.language = channelInfo.language
         self.path = channelInfo.path
+        self.version = channelInfo.version
 
         # get the textures from the channelinfo and get their full uri's.
         self.icon = TextureHandler.Instance().GetTextureUri(self, channelInfo.icon)
@@ -1184,11 +1185,13 @@ class Channel:
         """Returns a string representation of the current channel."""
 
         if self.channelCode is None:
-            return "%s [%s, %s, %s] (Order: %s)" % (
-                self.channelName, self.language, self.category, self.guid, self.sortOrder)
+            return "%s [%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.version, self.language, self.category, self.guid,
+                self.sortOrder)
         else:
-            return "%s (%s) [%s, %s, %s] (Order: %s)" % (
-                self.channelName, self.channelCode, self.language, self.category, self.guid, self.sortOrder)
+            return "%s (%s) [%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.channelCode, self.version, self.language, self.category,
+                self.guid, self.sortOrder)
 
     def __eq__(self, other):
         """Compares to channel objects for equality

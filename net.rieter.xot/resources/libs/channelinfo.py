@@ -71,6 +71,7 @@ class ChannelInfo:
 
         self.icon = icon
         self.fanart = fanart
+        self.version = "x.x.x.x"
         return
 
     def GetChannel(self):
@@ -135,11 +136,13 @@ class ChannelInfo:
         """Returns a string representation of the current channel."""
 
         if self.channelCode is None:
-            return "%s [%s, %s, %s] (Order: %s)" % (self.channelName, self.language, self.category,
-                                                    self.guid, self.sortOrderPerCountry)
+            return "%s [%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.version, self.language, self.category,
+                self.guid, self.sortOrderPerCountry
+            )
         else:
-            return "%s (%s) [%s, %s, %s] (Order: %s)" % (
-                self.channelName, self.channelCode, self.language,
+            return "%s (%s) [%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.channelCode, self.version, self.language,
                 self.category, self.guid, self.sortOrderPerCountry
             )
 
@@ -204,7 +207,7 @@ class ChannelInfo:
         return TextureHandler.Instance().GetTextureUri(self, image)
 
     @staticmethod
-    def FromJson(path):
+    def FromJson(path, version="x.x.x.x"):
         channelInfos = []
         # Logger.Trace("Using JSON reader for %s", path)
 
@@ -237,6 +240,7 @@ class ChannelInfo:
                                       channel.get("fanart", None))
             channelInfo.firstTimeMessage = channel.get("message", None)
             channelInfo.settings = settings
+            channelInfo.version = version
 
             # validate a bit
             if channelInfo.channelCode == "None":
