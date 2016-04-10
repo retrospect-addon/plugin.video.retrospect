@@ -64,6 +64,7 @@ class Channel:
 
         # Initialize channel stuff from ChannelInfo object
         self.guid = channelInfo.guid
+        self.id = channelInfo.id
 
         self.channelName = channelInfo.channelName
         self.safeName = channelInfo.safeName
@@ -1185,13 +1186,13 @@ class Channel:
         """Returns a string representation of the current channel."""
 
         if self.channelCode is None:
-            return "%s [%s, %s, %s, %s] (Order: %s)" % (
-                self.channelName, self.version, self.language, self.category, self.guid,
+            return "%s [%s-%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.id, self.version, self.language, self.category, self.guid,
                 self.sortOrder)
         else:
-            return "%s (%s) [%s, %s, %s, %s] (Order: %s)" % (
-                self.channelName, self.channelCode, self.version, self.language, self.category,
-                self.guid, self.sortOrder)
+            return "%s (%s) [%s-%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.channelCode, self.id, self.version, self.language,
+                self.category, self.guid, self.sortOrder)
 
     def __eq__(self, other):
         """Compares to channel objects for equality

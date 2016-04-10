@@ -49,7 +49,9 @@ class ChannelInfo:
 
         # set the path info
         self.path = os.path.dirname(path)
-        self.moduleName = os.path.splitext(os.path.basename(path))[0]
+        pathParts = path.split(os.sep)
+        self.moduleName = os.path.splitext(pathParts[-1])[0]
+        self.id = "%s.%s" % (pathParts[-3], pathParts[-2])
 
         self.channelName = name
         self.channelCode = channelCode
@@ -136,13 +138,13 @@ class ChannelInfo:
         """Returns a string representation of the current channel."""
 
         if self.channelCode is None:
-            return "%s [%s, %s, %s, %s] (Order: %s)" % (
-                self.channelName, self.version, self.language, self.category,
+            return "%s [%s-%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.id, self.version, self.language, self.category,
                 self.guid, self.sortOrderPerCountry
             )
         else:
-            return "%s (%s) [%s, %s, %s, %s] (Order: %s)" % (
-                self.channelName, self.channelCode, self.version, self.language,
+            return "%s (%s) [%s-%s, %s, %s, %s] (Order: %s)" % (
+                self.channelName, self.channelCode, self.id, self.version, self.language,
                 self.category, self.guid, self.sortOrderPerCountry
             )
 

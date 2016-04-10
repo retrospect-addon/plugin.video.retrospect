@@ -71,8 +71,9 @@ class Statistics:
             else:
                 title = "%s: %s" % (Statistics.__ACTION_LIST, title)
 
-        Statistics.__RegisterHit(Statistics.__ERRORS,
-                                 channel.channelName, title, value=1, referer=referer)
+        Statistics.__RegisterHit(Statistics.__ERRORS, channel.channelName, title,
+                                 value=1, referer=referer,
+                                 appVersion=channel.version, appId=channel.id)
 
     @staticmethod
     def RegisterChannelOpen(channel, startTime=None):
@@ -90,8 +91,10 @@ class Statistics:
             timeDelta = (datetime.now() - startTime)
             duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3))
 
-        Statistics.__RegisterHit(Statistics.__STATISTICS,
-                                 channel.channelName, Statistics.__ACTION_CHANNEL, value=duration)
+        Statistics.__RegisterHit(Statistics.__STATISTICS, channel.channelName,
+                                 Statistics.__ACTION_CHANNEL,
+                                 value=duration,
+                                 appVersion=channel.version, appId=channel.id)
 
     @staticmethod
     def RegisterPlayback(channel, item, startTime=None, offset=0):
@@ -116,19 +119,22 @@ class Statistics:
         Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, timeDelta or "None", offset)
 
         action = "%s: %s" % (Statistics.__ACTION_PLAY, item.name)
-        Statistics.__RegisterHit(Statistics.__STATISTICS,
-                                 channel.channelName, action, value=duration, referer=item.url)
+        Statistics.__RegisterHit(Statistics.__STATISTICS, channel.channelName, action,
+                                 value=duration, referer=item.url,
+                                 appVersion=channel.version, appId=channel.id)
 
     @staticmethod
-    def __RegisterHit(category, action, label, value=None, referer=None):
+    def __RegisterHit(category, action, label, value=None, referer=None, appVersion=None, appId=None):
         """ Register an event with Google Analytics
 
-        @param category:    String   - Name of category to register
-        @param action:      String   - Name of action to register
-        @param value:       String   - Value of action to register
-        @param label:       String   - The label for the event
-        @param value:       int      - The value for the event (Defaults to None)
-        @param referer:     String   - The referer (Defaults to None)
+        @param category:    String - Name of category to register
+        @param action:      String - Name of action to register
+        @param value:       String - Value of action to register
+        @param label:       String - The label for the event
+        @param value:       int    - The value for the event (Defaults to None)
+        @param referer:     String - The referer (Defaults to None)
+        @param appVersion:  String - Version of the channel
+        @param appId:       String - ID of the channel
 
         See: https://ga-dev-tools.appspot.com/hit-builder/
         v=1&t=event&tid=UA-3902785-1&cid=3c8961be-6a53-48f6-bded-d136760ab55f&ec=Test&ea=Test%20Action&el=Test%20%5Blabel)&ev=100
@@ -149,9 +155,16 @@ class Statistics:
                 # "ec": HtmlEntityHelper.UrlEncode("Test"),
                 "ea": HtmlEntityHelper.UrlEncode(HtmlEntityHelper.ConvertHTMLEntities(action)),
                 "el": HtmlEntityHelper.UrlEncode(HtmlEntityHelper.ConvertHTMLEntities(label)),
+                "an": Config.appName
             }
+
             if value is not None:
                 postData["ev"] = value
+            if appVersion is not None:
+                postData["av"] = appVersion
+            if appId is not None:
+                postData["aid"] = appId
+
             if referer is not None:
                 if "://" not in referer:
                     referer = "http://%s" % (referer,)
