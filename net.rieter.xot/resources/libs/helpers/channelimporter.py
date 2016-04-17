@@ -323,15 +323,18 @@ class ChannelIndex:
         try:
             fd = open(self.__CHANNEL_INDEX)
             data = fd.read()
+            indexJson = JsonHelper(data, logger=Logger.Instance())
+            Logger.Debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
+
+            if not self.__IsIndexConsistent(indexJson.json):
+                return self.__RebuildIndex()
+            return indexJson.json
+        except:
+            Logger.Critical("Error reading channel index. Rebuilding.", exc_info=True)
+            return self.__RebuildIndex()
         finally:
             if fd is not None and not fd.closed:
                 fd.close()
-        indexJson = JsonHelper(data)
-        Logger.Debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
-
-        if not self.__IsIndexConsistent(indexJson.json):
-            return self.__RebuildIndex()
-        return indexJson.json
 
     def __RebuildIndex(self):
         # type: () -> dict
