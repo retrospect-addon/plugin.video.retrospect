@@ -127,7 +127,7 @@ class BrightCove:
         pyamf.register_class(ViewerExperienceRequest, 'com.brightcove.experience.ViewerExperienceRequest')
         pyamf.register_class(ContentOverride, 'com.brightcove.experience.ContentOverride')
 
-        contentOverrides = [ContentOverride(int(contentId))]
+        contentOverrides = [ContentOverride(str(contentId))]
         viewerExperienceRequest = ViewerExperienceRequest(url, contentOverrides, int(experienceId), playerKey)
 
         envelope = remoting.Envelope(amfVersion=self.amfVersion)

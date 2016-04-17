@@ -115,5 +115,5 @@ class Channel(chn_class.Channel):
             for stream, bitrate in amfHelper.GetStreamInfo(renditions="IOSRenditions"):
                 part.AppendMediaStream(stream, bitrate)
 
-        Logger.Error("Cannot find GUID in url: %s", item.url)
+        # Logger.Error("Cannot find GUID in url: %s", item.url)
         return item
