@@ -52,7 +52,7 @@
     <string id="30051">Cleanup cache after # days (0=Streaming Playback)</string>
     <string id="30052">Send usage statistics</string>
     <string id="30053">Appearance</string>
-    <string id="30054">Change display name (requires XBMC restart)</string>
+    <string id="30054">Change display name (requires Kodi restart)</string>
     <string id="30055">Advanced</string>
     <string id="30056">Dutch Proxy</string>
     <string id="30057">British Proxy</string>
@@ -68,7 +68,7 @@
     <string id="30067">Show channels in categories</string>
     <string id="30068">Active</string>
     <string id="30069">Channel Settings</string>
-    <string id="30070">Let XBMC determine bitrate if possible</string>
+    <string id="30070">Let Kodi determine bitrate if possible</string>
     <string id="30071">Proxy Configuration</string>
     <string id="30072">- Type</string>
     <string id="30073">- Geo-Locked = º, DRM protected = ^ and Premium = ª.</string>
