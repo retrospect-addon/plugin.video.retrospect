@@ -304,7 +304,7 @@ class Channel(chn_class.Channel):
         # seed = "61773bc7479ab4e69a5214f17fd4afd21fe1987a"
         # seed = "0a2b91ec0fdb48c5dd5239d3e796d6f543974c33"
         seed = "0b0234fa8e2435244cdb1603d224bb8a129de5c1"
-        amfHelper = BrightCove(Logger.Instance(), objectData[0], objectData[1], url, seed)  # , proxy=ProxyInfo("localhost", 8888)
+        amfHelper = BrightCove(Logger.Instance(), str(objectData[0]), str(objectData[1]), url, seed)  # , proxy=ProxyInfo("localhost", 8888)
         item.description = amfHelper.GetDescription()
 
         part = item.CreateNewEmptyMediaPart()
