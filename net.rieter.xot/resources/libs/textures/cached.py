@@ -18,7 +18,17 @@ class Cached(TextureHandler):
     # we should keep track of which ones we already used in this session, so we can refetch it in a purge situation.
     __retrievedTexturePaths = []
 
-    def __init__(self, cdnUrl, cachePath, logger, uriHandler):
+    def __init__(self, cdnUrl, cachePath, cacheUri, logger, uriHandler):
+        """ Creates a Cached Texture handler
+
+        @param cdnUrl:          The URL of the CDN
+        @param cachePath:       The os path of the profile for caching
+        @param cacheUri:        The uri path (Kodi uri special:// ) for caching
+        @param logger:          The Logger instance
+        @param uriHandler:      The UriHandler instance
+
+        """
+
         TextureHandler.__init__(self, logger)
 
         self.__cdnUrl = cdnUrl
@@ -26,6 +36,7 @@ class Cached(TextureHandler):
             self.__cdnUrl = "http://www.rieter.net/net.rieter.xot.cdn/"
 
         self.__channelTexturePath = os.path.join(cachePath, "textures")
+        self.__channelTextureUri = "%s/%s" % (cacheUri, "textures")
         if not os.path.isdir(self.__channelTexturePath):
             os.makedirs(self.__channelTexturePath)
 
@@ -51,7 +62,7 @@ class Cached(TextureHandler):
             self._logger.Trace("Not going to resolve http(s) texture: '%s'.", fileName)
             return fileName
 
-        if os.path.isabs(fileName):
+        if os.path.isabs(fileName) or fileName.startswith(self.__channelTextureUri):
             self._logger.Trace("Already cached texture found: '%s'", fileName)
             return fileName
 
@@ -62,6 +73,7 @@ class Cached(TextureHandler):
             os.makedirs(textureDir)
 
         texturePath = os.path.join(self.__channelTexturePath, cdnFolder, fileName)
+        textureUri = "%s/%s/%s" % (self.__channelTextureUri, cdnFolder, fileName)
 
         if not os.path.isfile(texturePath):
             # Missing item. Fetch it
@@ -75,9 +87,9 @@ class Cached(TextureHandler):
                 self._logger.Trace("Queueing texture '%s' for caching from '%s'", fileName, uri)
                 self.__textureQueue[uri] = texturePath
 
-        self._logger.Debug("Resolved cached texture for '%s' to '%s'", fileName, texturePath)
+        self._logger.Debug("Resolved cached texture for '%s' to '%s'", fileName, textureUri)
         Cached.__retrievedTexturePaths.append(texturePath)
-        return texturePath
+        return textureUri
 
     def NumberOfMissingTextures(self):
         """ Indication whether or not textures need to be retrieved.

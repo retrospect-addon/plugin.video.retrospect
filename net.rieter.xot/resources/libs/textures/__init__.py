@@ -63,7 +63,9 @@ class TextureHandler:
             TextureHandler.__TextureHandler = remote.Remote(config.TextureUrl, logger)
         elif mode == Cached:
             import cached
-            TextureHandler.__TextureHandler = cached.Cached(config.TextureUrl, config.profileDir, logger, uriHandler)
+            TextureHandler.__TextureHandler = cached.Cached(config.TextureUrl,
+                                                            config.profileDir, config.profileUri,
+                                                            logger, uriHandler)
         else:
             raise Exception("Invalide mode: %s" % (mode,))
 
