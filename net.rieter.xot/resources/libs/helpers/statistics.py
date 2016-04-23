@@ -160,9 +160,8 @@ class Statistics:
 
             if value is not None:
                 postData["ev"] = value
-            if appVersion is not None:
+            if appVersion is not None and appId is not None:
                 postData["av"] = appVersion
-            if appId is not None:
                 postData["aid"] = appId
 
             if referer is not None:

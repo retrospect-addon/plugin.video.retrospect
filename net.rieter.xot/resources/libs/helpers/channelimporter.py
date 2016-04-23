@@ -28,6 +28,7 @@ from logger import Logger
 from helpers.jsonhelper import JsonHelper
 from textures import TextureHandler
 from version import Version
+from stopwatch import StopWatch
 
 
 class ChannelIndex:
@@ -146,6 +147,7 @@ class ChannelIndex:
 
         """
 
+        sw = StopWatch("ChannelIndex.GetChannels Importer", Logger.Instance())
         Logger.Info("Fetching all enabled channels.")
 
         self.__enabledChannels = []
@@ -230,6 +232,8 @@ class ChannelIndex:
         Logger.Info("Fetch a total of %d channels of which %d are enabled.",
                     len(self.__allChannels),
                     len(self.__enabledChannels))
+
+        sw.Stop()
         return self.__enabledChannels
 
     def GetCategories(self):
@@ -682,6 +686,8 @@ class ChannelImporter:
         A list of <Channel> objects
 
         """
+
+        sw = StopWatch("ChannelImporter.GetChannels", Logger.Instance())
         if not self.__enabledChannels:
             self.__ImportChannels()
 
@@ -695,6 +701,7 @@ class ChannelImporter:
             result = map(lambda c: c.GetChannel(), result)
             result = filter(lambda c: c is not None, result)
 
+        sw.Stop()
         if len(result) > 0:
             return result
         else:
@@ -741,9 +748,7 @@ class ChannelImporter:
             classPath = channelIndex.GetValue(className, channelCode or "null")
             if classPath is not None:
                 if not os.path.isdir(classPath):
-                    Logger.Warning(
-                        "Missing channel class path '%s' found. Rebuilding the ChannelIndex.",
-                        classPath)
+                    Logger.Warning("Missing channel class path '%s' found. Rebuilding the ChannelIndex.", classPath)
                     # remove the old one
                     os.remove(self.__CHANNEL_INDEX)
                     # return self.GetSingleChannel(className, channelCode)
