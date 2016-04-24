@@ -596,7 +596,7 @@ class ChannelIndex:
         indexedChannelAddOns = index[self.__CHANNEL_INDEX_ADD_ONS_KEY]
         addonPath = self.__GetAddonPath()
         channelPathStart = "%s.channel" % (Config.addonDir,)
-        addOns = filter(lambda x: channelPathStart in x and "BUILD" not in x, os.listdir(addonPath))
+        addOns = filter(lambda x: x.startswith(channelPathStart), os.listdir(addonPath))
 
         # see if the numbers match
         if len(indexedChannelAddOns) != len(addOns):
@@ -607,6 +607,14 @@ class ChannelIndex:
         # compare the length of the distinct values.
         if len(set(indexedChannelAddOns + addOns)) != len(addOns):
             Logger.Warning("Channel Index Inconsistent: add-on content is not up to date.")
+            return False
+
+        # Validate the version of the add-on and the channel-sets
+        channels = index[self.__CHANNEL_INDEX_CHANNEL_KEY]
+        firstVersion = channels[channels.keys()[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
+        firstVersion = Version(firstVersion)
+        if not Config.version.EqualRevisions(firstVersion):
+            Logger.Warning("Inconsisten version 'index' vs 'add-on': %s vs %s", firstVersion, Config.version)
             return False
 
         return True
