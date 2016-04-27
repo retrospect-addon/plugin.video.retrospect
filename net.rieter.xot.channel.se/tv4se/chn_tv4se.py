@@ -478,7 +478,7 @@ class Channel(chn_class.Channel):
         else:
             data = UriHandler.Open(item.url, proxy=self.proxy)
 
-        urlRegex = "<bitrate>(\d+)</bitrate>\W+<mediaFormat>([^<]+)</mediaFormat>\W+(?:<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+){0,1}<base>([^<]+)</base>\W+<url>([^<]+)</url>"
+        urlRegex = "<bitrate>(\d+)</bitrate>\W+(?:<[^>]+>[^>]+>\W+)*<mediaFormat>([^<]+)</mediaFormat>\W+(?:<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+){0,1}<base>([^<]+)</base>\W+<url>([^<]+)</url>"
         # urlRegex = "<bitrate>(\d+)</bitrate>\W+<mediaFormat>([^<]+)</mediaFormat>\W+<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+<base>([^<]+)</base>\W+<url>([^<]+)</url>"
 
         item.MediaItemParts = []
@@ -490,6 +490,8 @@ class Channel(chn_class.Channel):
             if "smi" in result[1]:
                 subTitleUrl = result[5]
                 part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, proxy=self.proxy)
+            elif result[1] in ("webvtts", "webvtt"):
+                Logger.Debug("Found '%s' subtitle stream. Ignoring.", result[1])
             else:
                 if "rtmp" in result[-1]:
                     Logger.Trace("RTMP Stream found")

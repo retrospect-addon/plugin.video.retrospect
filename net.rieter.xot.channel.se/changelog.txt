@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: SVT is moving to a JSON embed data set which is breaking the SVT channel every now and then.
+Fixed: TV4 would not play streams (Fixes #726)
 
 [I]Previous changes[/I]
+Fixed: SVT is moving to a JSON embed data set which is breaking the SVT channel every now and then.
 Fixed: The paging broke for SVT listings (Fixes #719)
 Fixed: SVT updated their main show listing (Fixes #715)
 Fixed: Kanal5 'recent' streams broke
