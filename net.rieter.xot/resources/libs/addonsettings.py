@@ -301,10 +301,20 @@ class AddonSettings:
         return AddonSettings.__GetBooleanSetting(AddonSettings.__CACHE_ENABLED)
 
     @staticmethod
-    def GetMaxStreamBitrate():
-        """Returns the maximum bitrate (kbps) for streams specified by the user"""
+    def GetMaxStreamBitrate(channel=None):
+        """Returns the maximum bitrate (kbps) for streams specified by the user
+        @type channel: Channel
+        """
 
-        setting = AddonSettings.__GetSetting(AddonSettings.__STREAM_BITRATE)
+        setting = "Retrospect"
+        if channel is not None:
+            setting = AddonSettings.GetChannelSetting(channel.guid, "bitrate")
+
+        if setting == "Retrospect":
+            setting = AddonSettings.__GetSetting(AddonSettings.__STREAM_BITRATE)
+            Logger.Debug("Using the Retrospect Default Bitrate: %s", setting)
+        else:
+            Logger.Debug("Using the Channel Specific Bitrate: %s", setting)
         return int(setting or 8000)
 
     @staticmethod
@@ -651,6 +661,12 @@ class AddonSettings:
             # add channel visibility
             settingXml = '<setting id="channel_%s_visible" type="bool" label="30042" ' \
                          'default="true" visible="eq(-%%s,%s)" />' % \
+                         (channel.guid, channel.safeName)
+            Logger.Trace(settingXml)
+            settings[channel.moduleName].append(settingXml)
+            settingXml = '<setting id="channel_%s_bitrate" type="select" label="30020" ' \
+                         'values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" ' \
+                         'default="Retrospect" visible="eq(-%%s,%s)" />' % \
                          (channel.guid, channel.safeName)
             Logger.Trace(settingXml)
             settings[channel.moduleName].append(settingXml)

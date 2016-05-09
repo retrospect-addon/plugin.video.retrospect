@@ -411,12 +411,13 @@ class MediaItem:
         # item.setArt(art)
         return item
 
-    def GetXBMCPlayList(self, bitrate=None, updateItemUrls=False, proxy=None):
+    def GetXBMCPlayList(self, bitrate, updateItemUrls=False, proxy=None):
         """ Creates a XBMC Playlist containing the MediaItemParts in this MediaItem
 
         Keyword Arguments:
-        bitrate        : [opt] integer   - The bitrate of the streams that should be in
+        bitrate        : integer         - The bitrate of the streams that should be in
                                            the playlist. Given in kbps
+
         updateItemUrls : [opt] boolean   - If specified, the Playlist items will
                                            have a path pointing to the actual stream
         proxy          : [opt] ProxyInfo - The proxy to set
@@ -464,7 +465,7 @@ class MediaItem:
                 continue
 
             # get the playlist item
-            (stream, xbmcItem) = part.GetXBMCPlayListItem(self, bitrate=bitrate, updateItemUrls=updateItemUrls)
+            (stream, xbmcItem) = part.GetXBMCPlayListItem(self, bitrate, updateItemUrls=updateItemUrls)
             logText = "%s\n + %s" % (logText, stream)
 
             streamUrl = stream.Url
@@ -765,12 +766,13 @@ class MediaItemPart:
         Logger.Debug("Adding property: %s = %s", name, value)
         self.Properties.append((name, value))
 
-    def GetXBMCPlayListItem(self, parent, bitrate=None, name=None, updateItemUrls=False):
+    def GetXBMCPlayListItem(self, parent, bitrate, name=None, updateItemUrls=False):
         """Returns a XBMC List Item than can be played or added to an XBMC
         PlayList.
 
         Arguments:
         parent : MediaItem - the parent MediaItem
+        bitrate: integer   - the bitrate for the list items
 
         Keyword Arguments:
         quality        : [opt] integer - The quality of the requested XBMC
@@ -797,7 +799,7 @@ class MediaItemPart:
         item = parent.GetXBMCItem(name=name)
 
         if not bitrate:
-            bitrate = AddonSettings.GetMaxStreamBitrate()
+            raise ValueError("Bitrate not specified")
 
         for prop in self.Properties:
             Logger.Trace("Adding property: %s", prop)

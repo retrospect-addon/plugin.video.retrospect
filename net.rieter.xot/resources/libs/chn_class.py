@@ -834,7 +834,7 @@ class Channel:
                 return item
 
             i = 1
-            bitrate = AddonSettings.GetMaxStreamBitrate()
+            bitrate = AddonSettings.GetMaxStreamBitrate(self)
             for mediaItemPart in item.MediaItemParts:
                 Logger.Info("Trying to download %s", mediaItemPart)
                 stream = mediaItemPart.GetMediaStreamForBitrate(bitrate)
@@ -918,7 +918,7 @@ class Channel:
 
         if bitrate is None:
             # use the bitrate from the xbmc settings if bitrate was not specified and the item is MultiBitrate
-            bitrate = AddonSettings.GetMaxStreamBitrate()
+            bitrate = AddonSettings.GetMaxStreamBitrate(self)
 
         # should we download items?
         Logger.Debug("Checking for not streamable parts")
