@@ -51,7 +51,7 @@ class Channel(chn_class.Channel):
 
         # setup the intial listing based on Alphabeth and specials
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveItems)
+                            preprocessor=self.AddLiveItemsAndGenres)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.AddShowItems)
 
@@ -167,7 +167,7 @@ class Channel(chn_class.Channel):
                 items.append(self.CreateEpisodeItemJson(show))
         return data, items
 
-    def AddLiveItems(self, data):
+    def AddLiveItemsAndGenres(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
 
         @param data:    The data to use.
@@ -193,7 +193,10 @@ class Channel(chn_class.Channel):
             "Drama": "http://www.svtplay.se/genre/drama",
             "Barn": "http://www.svtplay.se/barn?tab=titlar",
             "Dokumentär": "http://www.svtplay.se/dokumentar?tab=titlar",
+            "Humor": "http://www.svtplay.se/genre/humor?tab=titlar",
             "Kultur & Nöje": "http://www.svtplay.se/kulturochnoje?tab=titlar",
+            "Film": "http://www.svtplay.se/genre/film",
+            # "Långfilm i SVT": "http://www.svtplay.se/langfilm-i-svt",
             "Nyheter": "http://www.svtplay.se/nyheter?tab=titlar",
             "Samhälle & Fakta": "http://www.svtplay.se/samhalleochfakta?tab=titlar",
             "Sport": "http://www.svtplay.se/sport?tab=titlar",
