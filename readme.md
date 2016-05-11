@@ -46,7 +46,7 @@ In both situation run Retrospect at least once before accessing the Retrospect a
 Depending on what branch you are on, Kodi will or will not attempt to auto-update the Retrospect Add-on as soon as there is an official update available:
 
 * Master: this branch contains the most recent Retrospect code files. It will always be one version ahead of the current release and will thus not update. You need to ```git pull``` the changes.
-* Release-x.x.x: this branch contains the most recent stable and officially release Retrospect code files. It is the same version as can be found online and it will auto update via Kodi if an update is available.
+* Patch-x.x.x: this branch contains the most recent stable and officially release Retrospect code files. It is the same version as can be found online and it will auto update via Kodi if an update is available.
 
 # Copyrights and Licenses #
 *See also: http://www.rieter.net/content/xot/license/.*
