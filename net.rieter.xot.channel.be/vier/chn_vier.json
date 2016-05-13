@@ -1,0 +1,15 @@
+{
+  "channels": [
+    {
+      "guid": "50E04907-8983-4552-A775-E70F3D91FB99",
+      "name": "Vier",
+      "description": "Online uitzendingen van www.vier.be.",
+      "icon": "viericon.png",
+      "category": "National",
+      "channelcode": null,
+      "sortorder": 2,
+      "language": "be",
+      "fanart": "vierfanart.jpg"
+    }
+  ]
+}

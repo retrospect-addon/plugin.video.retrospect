@@ -1,0 +1,128 @@
+import chn_class
+
+from logger import Logger
+from regexer import Regexer
+from urihandler import UriHandler
+from parserdata import ParserData
+from streams.m3u8 import M3u8
+
+
+class Channel(chn_class.Channel):
+    """
+    main class from which all channels inherit
+    """
+
+    def __init__(self, channelInfo):
+        """Initialisation of the class.
+
+        Arguments:
+        channelInfo: ChannelInfo - The channel info object to base this channel on.
+
+        All class variables should be instantiated here and this method should not
+        be overridden by any derived classes.
+
+        """
+
+        chn_class.Channel.__init__(self, channelInfo)
+
+        # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
+        self.noImage = "vierimage.png"
+
+        # setup the urls
+        self.mainListUri = "http://www.vier.be/volledige-afleveringen"
+        self.baseUrl = "http://www.vier.be"
+        # self.swfUrl = "http://www.canvas.be/sites/all/libraries/player/PolymediaShowFX16.swf"
+
+        # setup the main parsing data
+        episodeRegex = '<h1 class="brick-title">(?<title>[^<]+)</h1>\W*<div[^>]*>\W*<a href="(?<url>[^"]+)">A'
+        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            parser=episodeRegex,
+                            creator=self.CreateEpisodeItem)
+
+        videoRegex = '<div class="[^"]+date[^"]+">\W*(?<date>\d+/\d+/\d+)\W*</div>[\w\W]{0,1000}?<h3>\W*<a[^<]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
+        videoRegex = Regexer.FromExpresso(videoRegex)
+        self._AddDataParser("*", matchType=ParserData.MatchExact,
+                            parser=videoRegex,
+                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+
+        # ==========================================================================================
+        # Test cases:
+        # Documentaire: pages (has http://www.canvas.be/tag/.... url)
+
+        # ====================================== Actual channel setup STOPS here ===================
+        return
+
+    def CreateVideoItem(self, resultSet):
+        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+
+        Arguments:
+        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+
+        Returns:
+        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.UpdateVideoItem method is called if the item is focussed or selected
+        for playback.
+
+        """
+
+        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+
+        if "date" in resultSet:
+            day, month, year = resultSet["date"].split("/")
+            item.SetDate(year, month, day)
+        return item
+
+    def UpdateVideoItem(self, item):
+        """Updates an existing MediaItem with more data.
+
+        Arguments:
+        item : MediaItem - the MediaItem that needs to be updated
+
+        Returns:
+        The original item with more data added to it's properties.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        """
+
+        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        # data-filename="achterderug/s2/160503_aflevering7"
+        # data-application="vier_vod_geo"
+        regex = 'data-filename="([^"]+)\W+data-application="([^"]+)"'
+        streamData = Regexer.DoRegex(regex, data)[-1]
+        # http://vod.streamcloud.be/vier_vod_geo/mp4:_definst_/achterderug/s2/160503_aflevering7.mp4/playlist.m3u8
+        m3u8Url = "http://vod.streamcloud.be/%s/mp4:_definst_/%s.mp4/playlist.m3u8" % (streamData[1], streamData[0])
+
+        # Geo Locked?
+        if "geo" in streamData[1].lower():
+            # set it for the error statistics
+            item.isGeoLocked = True
+
+        part = item.CreateNewEmptyMediaPart()
+        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+            item.complete = True
+            # s = self.GetVerifiableVideoUrl(s)
+            part.AppendMediaStream(s, b)
+
+        item.complete = True
+        return item
