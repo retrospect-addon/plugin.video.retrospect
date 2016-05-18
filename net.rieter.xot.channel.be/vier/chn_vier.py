@@ -53,6 +53,29 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here ===================
         return
 
+    def CreateEpisodeItem(self, resultSet):
+        """Creates a new MediaItem for an episode
+
+        Arguments:
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+
+        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        if item is None:
+            return item
+
+        # All of vier.be video's seem GEO locked.
+        item.isGeoLocked = True
+        return item
+
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
@@ -78,6 +101,9 @@ class Channel(chn_class.Channel):
         if "date" in resultSet:
             day, month, year = resultSet["date"].split("/")
             item.SetDate(year, month, day)
+
+        # All of vier.be video's seem GEO locked.
+        item.isGeoLocked = True
         return item
 
     def UpdateVideoItem(self, item):
