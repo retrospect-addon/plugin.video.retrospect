@@ -62,7 +62,7 @@ class Channel(chn_class.Channel):
                             parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
 
         self._AddDataParser("http://webapi.tv4play.se/play/categories.json", json=True, matchType=ParserData.MatchExact,
-                            parser=(), creator=self.CreateFolderItem)
+                            parser=(), creator=self.CreateCategoryItem)
         self._AddDataParser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
                             parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
 
@@ -405,7 +405,7 @@ class Channel(chn_class.Channel):
         item.isDrmProtected = resultSet["is_drm_protected"]
         return item
 
-    def CreateFolderItem(self, resultSet):
+    def CreateCategoryItem(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -425,7 +425,7 @@ class Channel(chn_class.Channel):
         cat = HtmlEntityHelper.UrlEncode(resultSet['nid'])
         url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
               "&fl=nid,name,program_image,category,logo,is_premium" \
-              "&per_page=%s&is_active=true&start=0" % (cat, self.maxPageSize)
+              "&per_page=1000&is_active=true&start=0" % (cat, )
         item = mediaitem.MediaItem(resultSet['name'], url)
         item.thumb = self.noImage
         item.type = 'folder'

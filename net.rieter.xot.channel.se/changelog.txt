@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: Langfilm i SVT (Fixes #730)
+Fixed: Categories in TV4Play only showed the first 25 items (Fixes #732)
 
 [I]Previous changes[/I]
+Added: Langfilm i SVT (Fixes #730)
 Fixed: TV4 would not play streams (Fixes #726)
 Fixed: SVT is moving to a JSON embed data set which is breaking the SVT channel every now and then.
 Fixed: The paging broke for SVT listings (Fixes #719)
