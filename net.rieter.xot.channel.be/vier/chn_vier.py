@@ -146,6 +146,9 @@ class Channel(chn_class.Channel):
 
         part = item.CreateNewEmptyMediaPart()
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+            if b < 200:
+                Logger.Info("Skipping stream of quality '%s' kbps", b)
+                continue
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)

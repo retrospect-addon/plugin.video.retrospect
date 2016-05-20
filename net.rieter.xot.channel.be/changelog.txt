@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-Added: RTBF.be (Fixes #725)
-Added: Vier.be (Fixes #674)
+Fixed: Filter out the audio only streams for Vier.be (See #674)
 
 [I]Previous Changes[/I]
+Added: RTBF.be (Fixes #725)
+Added: Vier.be (Fixes #674)
 Fixed: Eén stream selection issue
 Fixed: Ketnet updated their website
 Fixed: Canvas.be update their layout (Fixes 702)
