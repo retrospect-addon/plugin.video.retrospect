@@ -827,6 +827,8 @@ class AddonSettings:
 
         if languageCode == "nl":
             return "show_dutch", 30005
+        elif languageCode == "fi":
+            return "show_finnish", 30088
         elif languageCode == "se":
             return "show_swedish", 30006
         elif languageCode == "lt":
@@ -938,6 +940,7 @@ class AddonSettings:
         # value = pattern % (value, "Show English Canadian", AddonSettings.ShowChannelWithLanguage("ca-en"))
         value = pattern % (value, "Show British", AddonSettings.ShowChannelWithLanguage("en-gb"))
         value = pattern % (value, "Show German", AddonSettings.ShowChannelWithLanguage("de"))
+        value = pattern % (value, "Show Finnish", AddonSettings.ShowChannelWithLanguage("fi"))
         # noinspection PyTypeChecker
         value = pattern % (value, "Show Other languages", AddonSettings.ShowChannelWithLanguage(None))
         value = pattern % (value, "UZG Cache Path", AddonSettings.GetUzgCachePath())

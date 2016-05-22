@@ -10,120 +10,120 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: nl\n"
+"Language: fi\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgctxt "#30000"
 msgid "Stream Quality"
-msgstr "Stream Kwaliteit"
+msgstr "Toiston Laatu"
 
 msgctxt "#30001"
 msgid "Low"
-msgstr "Laag"
+msgstr "Matala"
 
 msgctxt "#30002"
 msgid "Medium"
-msgstr "Gemiddeld"
+msgstr "Keski"
 
 msgctxt "#30003"
 msgid "High"
-msgstr "Hoog"
+msgstr "Korkea"
 
 msgctxt "#30004"
 msgid "Maximum number of pages to load"
-msgstr "Maximaal aantal pagina's om te laden"
+msgstr "Ladattavien sivujen maksimimäärä"
 
 msgctxt "#30005"
 msgid "Dutch"
-msgstr "Nederlands"
+msgstr "Hollanti"
 
 msgctxt "#30006"
 msgid "Swedish"
-msgstr "Zweeds"
+msgstr "Ruotsi"
 
 msgctxt "#30007"
 msgid "Lithuanian"
-msgstr "Litouws"
+msgstr "Liettua"
 
 msgctxt "#30008"
 msgid "Latvian"
-msgstr "Lets"
+msgstr "Latvia"
 
 msgctxt "#30009"
 msgid "General"
-msgstr "Algemeen"
+msgstr "Yleinen"
 
 msgctxt "#30010"
 msgid "Channels"
-msgstr "Kanalen"
+msgstr "Kanavat"
 
 msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
-msgstr "Herstart van Retrospect nodig om te activeren."
+msgstr "Vaatii Retrospectin uudelleenkäynnistyksen."
 
 msgctxt "#30012"
 msgid "Other"
-msgstr "Overige talen"
+msgstr "Muut"
 
 msgctxt "#30013"
 msgid "French Canadian"
-msgstr "Frans-Canadees"
+msgstr "Kanadanranska"
 
 msgctxt "#30014"
 msgid "English Canadian"
-msgstr "Engels-Canadees"
+msgstr "Kanadan englanti"
 
 msgctxt "#30015"
 msgid "Norwegian"
-msgstr "Norweegs"
+msgstr "Norja"
 
 msgctxt "#30016"
 msgid "Sort by"
-msgstr "Sorteren op"
+msgstr "Lajittele"
 
 msgctxt "#30017"
 msgid "Name"
-msgstr "Naam"
+msgstr "Nimi"
 
 msgctxt "#30018"
 msgid "Date"
-msgstr "Datum"
+msgstr "Päivämäärä"
 
 msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
-msgstr "Toon DRM waarschuwing voor afspelen"
+msgstr "Näytä DRM/Maksullinen varoitus ennen toistoa"
 
 msgctxt "#30020"
 msgid "Maximum stream bitrate"
-msgstr "Maximale stream bitrate"
+msgstr "Toiston maksimi bittinopeus"
 
 msgctxt "#30021"
 msgid "Subtitle mode"
-msgstr "Subtitle modus"
+msgstr "Tekstityksen moodi"
 
 msgctxt "#30022"
 msgid "If available"
-msgstr "Tonen indien beschikbaar"
+msgstr "Jos saatavilla"
 
 msgctxt "#30023"
 msgid "Never show"
-msgstr "Nooit tonen"
+msgstr "Älä näytä koskaan"
 
 msgctxt "#30024"
 msgid "Belgium"
-msgstr "Belgisch"
+msgstr "Belgia"
 
 msgctxt "#30025"
 msgid "None"
-msgstr "Geen"
+msgstr "Ei mitään"
 
 msgctxt "#30026"
 msgid "Group list if exceeds # folders"
-msgstr "Groepeer lijst met meer dan # mappen"
+msgstr "Ryhmitä listaus jos # määrä kansioita ylittyy"
 
 msgctxt "#30027"
 msgid "British"
-msgstr "Brits"
+msgstr "Englanti"
 
 msgctxt "#30028"
 msgid "Proxy"
@@ -131,247 +131,247 @@ msgstr "Proxy"
 
 msgctxt "#30029"
 msgid "- Proxy server"
-msgstr "- Proxy server"
+msgstr "- Proxy palvelin"
 
 msgctxt "#30030"
 msgid "- Proxy port"
-msgstr "- Proxy poort"
+msgstr "- Proxy portti"
 
 msgctxt "#30031"
 msgid "Cache HTTP requests (experimental)"
-msgstr "Cache HTTP berichten (experimenteel)"
+msgstr "HTTP-pyyntöjen välimuisti (kokeellinen)"
 
 msgctxt "#30032"
 msgid "Channel Settings"
-msgstr "Kanaal instellingen"
+msgstr "Kanavan Asetukset"
 
 msgctxt "#30033"
 msgid "Background - Programs"
-msgstr "Achtergrond - Programma's"
+msgstr "Tausta - Ohjelmat"
 
 msgctxt "#30034"
 msgid "No channel selected"
-msgstr "Geen kanaal geselecteerd"
+msgstr "Kanavaa ei ole valittu"
 
 msgctxt "#30035"
 msgid "- Proxy Username"
-msgstr "- Proxy gebruikersnaam"
+msgstr "- Proxy Käyttäjänimi"
 
 msgctxt "#30036"
 msgid "- Proxy Password"
-msgstr "- Proxy wachtwoord"
+msgstr "- Proxy Salasana"
 
 msgctxt "#30037"
 msgid "BBC iPlayer Settings"
-msgstr "BBC iPlayer instellingen"
+msgstr "BBC iPlayer Asetukset"
 
 msgctxt "#30040"
 msgid "Channels"
-msgstr "Kanalen"
+msgstr "Kanavat"
 
 msgctxt "#30041"
 msgid "Available after running Retrospect for the first time."
-msgstr "Komt pas beschikbaar na de eerste keer opstarten van Retrospect."
+msgstr "Käytössä Retrospectin ensimmäisen käynnistyksen jälkeen."
 
 msgctxt "#30042"
 msgid "Enabled"
-msgstr "Ingeschakeld"
+msgstr "Käytössä"
 
 msgctxt "#30043"
 msgid "Folder prefix"
-msgstr "Folder voorvoegsel"
+msgstr "Kansion etuliite"
 
 msgctxt "#30044"
 msgid "Estonian"
-msgstr "Estlands"
+msgstr "Eesti"
 
 msgctxt "#30045"
 msgid "Danish"
-msgstr "Deens"
+msgstr "Tanska"
 
 msgctxt "#30046"
 msgid "DRM/Geo Location/Premium filters"
-msgstr "DRM/GEO-locatie/Premium filters"
+msgstr "DRM/Geolokaatio/Maksullinen suodattimet"
 
 msgctxt "#30047"
 msgid "German"
-msgstr "Duits"
+msgstr "Saksa"
 
 msgctxt "#30048"
 msgid "Log level"
-msgstr "Log level"
+msgstr "Login taso"
 
 msgctxt "#30049"
 msgid "Uitzendinggemist.nl Settings"
-msgstr "Uitzendinggemist.nl instellingen"
+msgstr "Uitzendinggemist.nl Asetukset"
 
 msgctxt "#30050"
 msgid "Cache path"
-msgstr "Cache pad"
+msgstr "Välimuistin polku"
 
 msgctxt "#30051"
 msgid "Cleanup cache after # days (0=Streaming Playback)"
-msgstr "Cache opschonen na # dagen (0=cache niet gebruiken)"
+msgstr "Puhdista välimuisti # päivän jälkeen (0=Suoratoisto)"
 
 msgctxt "#30052"
 msgid "Send usage statistics"
-msgstr "Verzend gebruiksstatistieken"
+msgstr "Lähetä statistiikkaa käytöstä"
 
 msgctxt "#30053"
 msgid "Appearance"
-msgstr "Weergaven"
+msgstr "Ulkonäkö"
 
 msgctxt "#30054"
 msgid "Change display name (requires Kodi restart)"
-msgstr "Pas weergave naam aan (active na Kodi herstart)"
+msgstr "Vaihda näyttönimi (Vaatii Kodin uudelleenkäynnistyksen)"
 
 msgctxt "#30055"
 msgid "Advanced"
-msgstr "Geadvanceerd"
+msgstr "Kehittyneet"
 
 msgctxt "#30056"
 msgid "Dutch Proxy"
-msgstr "Nederlandse Proxy"
+msgstr "Hollantilainen Proxy"
 
 msgctxt "#30057"
 msgid "British Proxy"
-msgstr "Britse Proxy"
+msgstr "Brittiläinen Proxy"
 
 msgctxt "#30058"
 msgid "Swedish Proxy"
-msgstr "Zweedse Proxy"
+msgstr "Ruotsalainen Proxy"
 
 msgctxt "#30059"
 msgid "Custom Proxy"
-msgstr "Alternatieve Proxy"
+msgstr "Custom Proxy"
 
 msgctxt "#30060"
 msgid "Select a language to manage its channels"
-msgstr "Selecteer een taal om kanalen voor te beheren"
+msgstr "Valitse kieli ja muokkaa sen kanavia"
 
 msgctxt "#30061"
 msgid "Channel Language"
-msgstr "Kanaal taal"
+msgstr "Kanavan Kieli"
 
 msgctxt "#30062"
 msgid "Proxy Channel Selection"
-msgstr "Kanaal proxy selectie"
+msgstr "Proxy Kanava Valinta"
 
 msgctxt "#30063"
 msgid "Channel to configure"
-msgstr "Kanaal om te configureren"
+msgstr "Kanavan asennus"
 
 msgctxt "#30064"
 msgid "Proxy Group"
-msgstr "Proxy groep"
+msgstr "Proxyryhmä"
 
 msgctxt "#30065"
 msgid "Proxy Group Configuration"
-msgstr "Proxy groep beheer"
+msgstr "Proxyryhmän Asennus"
 
 msgctxt "#30066"
 msgid "Select a proxy group to configure"
-msgstr "Selecteer een proxy groep om te beheren"
+msgstr "Valitse asennettava proxyryhmä"
 
 msgctxt "#30067"
 msgid "Show channels in categories"
-msgstr "Groepeer kanalen in categoriën"
+msgstr "Näytä eri kategorioiden kanavat"
 
 msgctxt "#30068"
 msgid "Active"
-msgstr "Active"
+msgstr "Aktiivi"
 
 msgctxt "#30069"
 msgid "Channel Settings"
-msgstr "Kanaal instellingen"
+msgstr "Kanava-asetukset"
 
 msgctxt "#30070"
 msgid "Let Kodi determine bitrate if possible"
-msgstr "Laat Kodi de beste bitrate selecteren"
+msgstr "Anna Kodin määrätä bittinopeus, jos mahdollista"
 
 msgctxt "#30071"
 msgid "Proxy Configuration"
-msgstr "Proxy Configuratie"
+msgstr "Proxyn Asennus"
 
 msgctxt "#30072"
 msgid "- Type"
-msgstr "- Type"
+msgstr "- Tyyppi"
 
 msgctxt "#30073"
 msgid "- Geo-Locked = º, DRM protected = ^ and Premium = ª."
-msgstr "- Geo-geblokkeerde = º, DRM beschermd = ^ en betaald = ª."
+msgstr "- Geolukittu = º, DRM-suojattu = ^ ja Maksullinen = ª."
 
 msgctxt "#30074"
 msgid "Disabled"
-msgstr "Uitgeschakeld"
+msgstr "Pois käytöstä"
 
 msgctxt "#30075"
 msgid "Empty list behaviour"
-msgstr "Lege lijst gedrag"
+msgstr "Tyhjän listan asetukset"
 
 msgctxt "#30076"
 msgid "Show error"
-msgstr "Toon fout"
+msgstr "Näytä virhe"
 
 msgctxt "#30077"
 msgid "Show empty list"
-msgstr "Toon lege lijst"
+msgstr "Näytä tyhjä listan"
 
 msgctxt "#30078"
 msgid "Show dummy item"
-msgstr "Toon melding-item"
+msgstr "Näytä tyhjät kohteet"
 
 msgctxt "#30079"
 msgid "Local IP (0.0.0.0=disabled)"
-msgstr "Lokaal IP (0.0.0.0=Uitgeschakeld)"
+msgstr "Paikallinen IP (0.0.0.0=pois käytöstä)"
 
 msgctxt "#30080"
 msgid "Filter DRM protected items"
-msgstr "Verberg DRM beschermde streams"
+msgstr "Suodata DRM-suojatut kohteet"
 
 msgctxt "#30081"
 msgid "Filter Premium/Paid items"
-msgstr "Verberg betaalde streams"
+msgstr "Suodata Maksulliset kohteet"
 
 msgctxt "#30082"
 msgid "Apply filter to"
-msgstr "Verberg de volgende types"
+msgstr "Sovella suodatinta"
 
 msgctxt "#30083"
 msgid "Folders & Streams"
-msgstr "Folders & streams"
+msgstr "Kansiot & Striimit"
 
 msgctxt "#30084"
 msgid "Streams Only"
-msgstr "Enkel streams"
+msgstr "Vain Striimit"
 
 msgctxt "#30085"
 msgid "Geo Location"
-msgstr "Geo Locatie"
+msgstr "Geolokaatio"
 
 msgctxt "#30086"
 msgid "Hide Fanart"
-msgstr "Fanart niet tonen"
+msgstr "Piilota Fanitaide"
 
 msgctxt "#30087"
 msgid "Mix folders and streams while sorting"
-msgstr "Mix folders en streams bij het sorteren"
+msgstr "Näytä kansiot ja striimit lajiteltuna"
 
 msgctxt "#30088"
 msgid "Finnish"
-msgstr "Fins"
+msgstr "Suomi"
 
 msgctxt "#30100"
 msgid "None"
-msgstr "Geen"
+msgstr "Ei mitään"
 
 msgctxt "#30101"
 msgid "Regional"
-msgstr "Regionaal"
+msgstr "Alueellinen"
 
 msgctxt "#30102"
 msgid "National"
-msgstr "Nationaal"
+msgstr "Maakohtainen"
 
 msgctxt "#30103"
 msgid "Video"
@@ -383,19 +383,19 @@ msgstr "Radio"
 
 msgctxt "#30105"
 msgid "Sport"
-msgstr "Sport"
+msgstr "Urheilu"
 
 msgctxt "#30106"
 msgid "Kids"
-msgstr "Kids"
+msgstr "Lasten"
 
 msgctxt "#30107"
 msgid "Tech"
-msgstr "Techniek"
+msgstr "Teknologia"
 
 msgctxt "#30108"
 msgid "Other"
-msgstr "Overig"
+msgstr "Muut"
 
 msgctxt "#30200"
 msgid "50"
@@ -423,248 +423,248 @@ msgstr "1000"
 
 msgctxt "#30500"
 msgid "All Favourites"
-msgstr "Alle Favorieten"
+msgstr "Kaikki Suosikit"
 
 msgctxt "#30501"
 msgid "Favourite"
-msgstr "Favoriet"
+msgstr "Suosikki"
 
 msgctxt "#30502"
 msgid "Favourites"
-msgstr "Favorieten"
+msgstr "Suosikit"
 
 msgctxt "#30503"
 msgid "Channel Favourites"
-msgstr "Kanaal favorieten"
+msgstr "Kanavasuosikit"
 
 msgctxt "#30504"
 msgid "Add to"
-msgstr "Toevoegen aan"
+msgstr "Lisää kohteeseen"
 
 msgctxt "#30505"
 msgid "Hide"
-msgstr "Verberg"
+msgstr "Piilota"
 
 msgctxt "#30506"
 msgid "Remove"
-msgstr "Verwijder"
+msgstr "Poista"
 
 msgctxt "#30507"
 msgid "Channels"
-msgstr "Kanalen"
+msgstr "Kanavat"
 
 msgctxt "#30508"
 msgid "No favourites available"
-msgstr "Geen favorieten gevonden"
+msgstr "Suosikkeja ei saatavilla"
 
 msgctxt "#30509"
 msgid "Cannot start playback"
-msgstr "Afspelen kan niet worden gestart"
+msgstr "Toistoa ei voi aloittaa"
 
 msgctxt "#30510"
 msgid "New version available"
-msgstr "Nieuwe versie beschikbaar"
+msgstr "Uusi versio saatavilla"
 
 msgctxt "#30511"
 msgid "No updates"
-msgstr "Geen updates"
+msgstr "Päivityksiä ei saatavilla"
 
 msgctxt "#30512"
 msgid "Restart Retrospect"
-msgstr "Retrospect herstarten"
+msgstr "Uudelleenkäynnistä Retrospect"
 
 msgctxt "#30513"
 msgid "The update of '%s'|was complete."
-msgstr "Het updaten van '%s'|is voltooid."
+msgstr "'%s' päivitys|on valmis."
 
 msgctxt "#30514"
 msgid "Update Failed"
-msgstr "Updaten mislukt."
+msgstr "Päivitys Epäonnistui"
 
 msgctxt "#30515"
 msgid "The update of '%s' failed. Please|retry or manualy update the channel."
-msgstr "Het updaten van '%s' is mislukt. Probeer|het nog eens of update handmatig."
+msgstr "'%s' päivitys epäonnistui. Yritä|uudelleen tai päivitä kanava manuaalisesti."
 
 msgctxt "#30516"
 msgid "New Version Available."
-msgstr "Nieuwe versie beschikbaar."
+msgstr "Uusi Versio Saatavilla."
 
 msgctxt "#30517"
 msgid "A new version of %s is available.|Please visit the website to download|version %s."
-msgstr "Een nieuwe versie van %s is beschikbaar.|Bezoek de website om versie %s te downloaden."
+msgstr "%s Uusi versio saatavilla.|Ole hyvä ja käy verkkosivustolla lataaksesi|versio %s."
 
 msgctxt "#30518"
 msgid "There is no new version of the Retrospect|Framework."
-msgstr "Er is geen nieuwe versie van het Retrospect Framework|beschikbaar."
+msgstr "Retrospectista ei ole saatavilla uutta|Versiota."
 
 msgctxt "#30519"
 msgid "There were no updates found for the|installed channels."
-msgstr "Er zijn geen updates voor de geinstalleerde|kanalen gevonden."
+msgstr "Asennetuille kanaville ei ole saatavilla|päivityksiä."
 
 msgctxt "#30520"
 msgid "Repository Warning"
-msgstr "Repository waarschuwing"
+msgstr "Ohjelmavaraston Varoitus"
 
 msgctxt "#30521"
 msgid "The Retrospect repository is not installed.|Please install it to allow future updates."
-msgstr "De Retrospect repository is niet geïnstalleerd.|Installeer deze om toekomstige update te ontvangen."
+msgstr "Retrospectin ohjelmavarastoa ei ole asennettu.|Ole hyvä ja asenna se varmistaaksesi tulevat päivitykset."
 
 msgctxt "#30522"
 msgid "Channel message"
-msgstr "Kanaal-bericht"
+msgstr "Kanava viesti"
 
 msgctxt "#30523"
 msgid "Error"
-msgstr "Fout"
+msgstr "Virhe"
 
 msgctxt "#30524"
 msgid "No videos were found for the selected item."
-msgstr "Er zijn geen videos gevonden voor het geselecteerde item."
+msgstr "Valitusta kohteesta ei löytynyt videoita."
 
 msgctxt "#30525"
 msgid "The selected item does not have|any streams associated."
-msgstr "Het geselecteerde item heeft geen streams beschikbaar."
+msgstr "Valitussa kohteessa|ei ole liitettyjä striimejä."
 
 msgctxt "#30526"
 msgid "Proxyserver '%s' is working."
-msgstr "Proxy-server '%s' functioneerd naar behoren."
+msgstr "Proxypalvelin '%s' toimii."
 
 msgctxt "#30527"
 msgid "Proxyserver '%s' is not working as expected or is offline."
-msgstr "Proxy-server '%s' werkt niet naar behoren of is onbeschikbaar."
+msgstr "Proxypalvelin '%s' ei toimi tai ole tavoitettavissa."
 
 msgctxt "#30528"
 msgid "Add-on Settings"
-msgstr "Add-on instellingen"
+msgstr "Lisäosan Asetukset"
 
 msgctxt "#30529"
 msgid "Refresh list"
-msgstr "Ververs lijst"
+msgstr "Päivitä lista"
 
 msgctxt "#30530"
 msgid "Check for Retrospect updates"
-msgstr "Controleer Retrospect updates"
+msgstr "Tarkista Retrospectin päivitykset"
 
 msgctxt "#30531"
 msgid "Initializing"
-msgstr "Initialiseren van"
+msgstr "Valmistelee"
 
 msgctxt "#30532"
 msgid "Importing common libraries"
-msgstr "Importeren van generieke componenten"
+msgstr "Tuodaan yleisiä kirjastoja"
 
 msgctxt "#30533"
 msgid "Determining SkinFolder"
-msgstr "Bepaling van de Skin folder"
+msgstr "Määritetään Skinin Kansio"
 
 msgctxt "#30534"
 msgid "Checking for updates"
-msgstr "Controleren op updates"
+msgstr "Tarkastetaan päivityksiä"
 
 msgctxt "#30535"
 msgid "Verifying the Repository"
-msgstr "Verificatie van repository"
+msgstr "Tarkastetaan Ohjelmakirjasto"
 
 msgctxt "#30536"
 msgid "Checking for Cache folder"
-msgstr "Controleren van de cache folder"
+msgstr "Tarkastetaan Välimuistikansio"
 
 msgctxt "#30537"
 msgid "Cleaning up Cachefolder"
-msgstr "Opschonen van de cache folder"
+msgstr "Puhdistetaan Välimuistikansio"
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."
-msgstr "De geselecteerde live stream is nog|niet begonnen."
+msgstr "Valittu live-striimi ei ole vielä|alkanut."
 
 msgctxt "#30539"
 msgid "Live stream"
-msgstr "Live uitzending"
+msgstr "Live-striimi"
 
 msgctxt "#30540"
 msgid "Geo-Locked"
-msgstr "Geo-Locked"
+msgstr "Geolukittu"
 
 msgctxt "#30541"
 msgid "Queue item"
-msgstr "Queue item"
+msgstr "Laita jonoon"
 
 msgctxt "#30542"
 msgid "Starting %s."
-msgstr "%s wordt gestart."
+msgstr "Aloitetaan %s."
 
 msgctxt "#30543"
 msgid "Season"
-msgstr "Seizoen"
+msgstr "Kausi"
 
 msgctxt "#30544"
 msgid "Episode"
-msgstr "Aflevering"
+msgstr "Jakso"
 
 msgctxt "#30545"
 msgid "Titles with '%s'"
-msgstr "Titels met '%s'"
+msgstr "Kohteet joissa '%s'"
 
 msgctxt "#30546"
 msgid "Other Chars"
-msgstr "Overige Characters"
+msgstr "Muut Merkit"
 
 msgctxt "#30547"
 msgid "More Pages"
-msgstr "Meer pagina's"
+msgstr "Lisää Sivuja"
 
 msgctxt "#30548"
 msgid "Clips"
-msgstr "Clips"
+msgstr "Pätkät"
 
 msgctxt "#30549"
 msgid "Error retrieving the list of items."
-msgstr "Fout bij het ophalen van de items."
+msgstr "Virhe haettaessa listaa kohteista."
 
 msgctxt "#30550"
 msgid "No episodes found for the selected item."
-msgstr "Geen afleveringen gevonden voor het geselecteerde item."
+msgstr "Valitusta kohteesta ei löytynyt jaksoja."
 
 msgctxt "#30551"
 msgid "Today"
-msgstr "Vandaag"
+msgstr "Tänään"
 
 msgctxt "#30552"
 msgid "Yesterday"
-msgstr "Gisteren"
+msgstr "Eilen"
 
 msgctxt "#30553"
 msgid "Day before yesterday"
-msgstr "Eergisteren"
+msgstr "Toissapäivänä"
 
 msgctxt "#30554"
 msgid "DRM Protection"
-msgstr "DRM Bescherming"
+msgstr "DRM-suojaus"
 
 msgctxt "#30555"
 msgid "The selected item is DRM protected and might not play on Kodi."
-msgstr "Het geselecteerde item is DRM bescherm en werkt wellicht niet in Kodi."
+msgstr "Valittu kohde on DRM-suojattu eikä välttämättä toistu Kodissa."
 
 msgctxt "#30556"
 msgid "Initialising channel(s)."
-msgstr "Kanaal/kanalen initialiseren."
+msgstr "Alustetaan kanavaa(ia)."
 
 msgctxt "#30557"
 msgid "Channels have been updated or installed. Performing first time actions. This could take some time."
-msgstr "Er zijn kanalen bijgewerkt of installeerd. Intiële acties worden uitgevoerd. Dit kan even duren."
+msgstr "Kanavat ovat päivitetty tai asennettu. Suoritetaan ensimmäisen käyttökerran asennusta. Tähän voi kulua jonkin verran aikaa."
 
 msgctxt "#30558"
 msgid "Fetching Textures"
-msgstr "Textures worden bijgewerkt"
+msgstr "Haetaan Tekstuureja"
 
 msgctxt "#30559"
 msgid "Fetching missing textures. This could take some time depending on the internet and system speed."
-msgstr "Ontbrekende textures worden opgehaald. Dit kan enige tijd duren afhankelijk van het systeem en internet snelheid."
+msgstr "Haetaan puuttuvat tekstuurit. Tähän voi kulua jonkin verran aikaa internet-yhteyden ja koneen nopeudesta riippuen."
 
 msgctxt "#30560"
 msgid "Paid video"
-msgstr "Betaalde video"
+msgstr "Maksullinen video"
 
 msgctxt "#30561"
 msgid "The selected item is not free and might not play on Kodi."
-msgstr "Het geselecteerde item is niet gratis en werkt wellicht niet in Kodi."
+msgstr "Valitut kohteet eivät ole ilmaisia ja niitä ei voi toistaa Kodissa."
