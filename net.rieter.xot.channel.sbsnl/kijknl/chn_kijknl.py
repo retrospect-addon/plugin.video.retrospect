@@ -293,7 +293,7 @@ class Channel(chn_class.Channel):
         videoId = item.url[item.url.rfind("/") + 1:]
 
         url = "http://embed.kijk.nl/?width=868&height=491&video=%s" % (videoId,)
-        referer = "http://www.kijk.nl/video/%s" % (videoId,)
+        referer = "http://embed.kijk.nl/video/%s" % (videoId,)
 
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(url, proxy=self.proxy, referer=referer)
