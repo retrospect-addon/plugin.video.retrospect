@@ -79,7 +79,7 @@ class AddonSettings:
         """
 
         fullSettingId = "channel_%s_%s" % (channelGuid, settingId)
-        setting = AddonSettings.__GetSetting(fullSettingId)
+        setting = AddonSettings.GetSetting(fullSettingId)
 
         if setting == "":
             setting = None
@@ -108,7 +108,7 @@ class AddonSettings:
     def ShowCategories():
         """ Returns the localized category names. """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__SHOW_CATEGORIES)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__SHOW_CATEGORIES)
 
     @staticmethod
     def ShowDrmPaidWarning():
@@ -118,7 +118,7 @@ class AddonSettings:
 
         """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_PAID_WARNING)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__DRM_PAID_WARNING)
 
     @staticmethod
     def HideFanart():
@@ -126,7 +126,7 @@ class AddonSettings:
 
         @return: Yes or No
         """
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__HIDE_FANART)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__HIDE_FANART)
 
     @staticmethod
     def HideDrmItems():
@@ -134,7 +134,7 @@ class AddonSettings:
 
         @return: True/False
         """
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__DRM_HIDE_ITEMS)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__DRM_HIDE_ITEMS)
 
     @staticmethod
     def HidePremiumItems():
@@ -142,12 +142,12 @@ class AddonSettings:
 
         @return: True/False
         """
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__PREMIUM_HIDE_ITEMS)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__PREMIUM_HIDE_ITEMS)
 
     @staticmethod
     def HideRestrictedFolders():
         values = [True, False]
-        value = int(AddonSettings.__GetSetting(AddonSettings.__HIDE_TYPES) or 0)
+        value = int(AddonSettings.GetSetting(AddonSettings.__HIDE_TYPES) or 0)
         return values[value]
 
     @staticmethod
@@ -163,7 +163,7 @@ class AddonSettings:
         # 30074    |30024|30047|30044|30027|30007|30008|30005|30015|30006
         # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se
         values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se"]
-        valueIndex = int(AddonSettings.__GetSetting(AddonSettings.__GEO_REGION) or 0)
+        valueIndex = int(AddonSettings.GetSetting(AddonSettings.__GEO_REGION) or 0)
         currentGeografficalRegion = values[valueIndex]
 
         if valueOnly:
@@ -189,7 +189,7 @@ class AddonSettings:
     def SendUsageStatistics():
         """ returns true if the user allows usage statistics sending """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__SEND_STATISTICS)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__SEND_STATISTICS)
 
     @staticmethod
     def HideFirstTimeMessages():
@@ -197,11 +197,11 @@ class AddonSettings:
         @return: returns true if the first time messages should be shown.
         """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__HIDE_FIRST_TIME_MESSAGE)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__HIDE_FIRST_TIME_MESSAGE)
 
     @staticmethod
     def GetCurrentAddonXmlMd5():
-        return AddonSettings.__GetSetting(AddonSettings.__MD5_HASH_VALUE)
+        return AddonSettings.GetSetting(AddonSettings.__MD5_HASH_VALUE)
 
     @staticmethod
     def UpdateCurrentAddonXmlMd5(hashValue):
@@ -209,7 +209,7 @@ class AddonSettings:
 
     @staticmethod
     def GetClientId():
-        clientId = AddonSettings.__GetSetting(AddonSettings.__CLIENT_ID)
+        clientId = AddonSettings.GetSetting(AddonSettings.__CLIENT_ID)
         if not clientId:
             clientId = str(uuid.uuid1())
             Logger.Debug("Generating new ClientID: %s", clientId)
@@ -275,7 +275,7 @@ class AddonSettings:
 
         if not AddonSettings.__UserAgent:
             # load and cache
-            AddonSettings.__UserAgent = AddonSettings.__GetSetting(AddonSettings.__USER_AGENT_SETTING) or None
+            AddonSettings.__UserAgent = AddonSettings.GetSetting(AddonSettings.__USER_AGENT_SETTING) or None
 
             # double check if the version of XBMC is still OK
             if AddonSettings.__UserAgent:
@@ -298,7 +298,7 @@ class AddonSettings:
     def CacheHttpResponses():
         """ Returns True if the HTTP responses need to be cached """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__CACHE_ENABLED)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__CACHE_ENABLED)
 
     @staticmethod
     def GetMaxStreamBitrate(channel=None):
@@ -311,7 +311,7 @@ class AddonSettings:
             setting = AddonSettings.GetChannelSetting(channel.guid, "bitrate")
 
         if setting == "Retrospect":
-            setting = AddonSettings.__GetSetting(AddonSettings.__STREAM_BITRATE)
+            setting = AddonSettings.GetSetting(AddonSettings.__STREAM_BITRATE)
             Logger.Debug("Using the Retrospect Default Bitrate: %s", setting)
         else:
             Logger.Debug("Using the Channel Specific Bitrate: %s", setting)
@@ -321,20 +321,20 @@ class AddonSettings:
     def GetStreamAutoBitrate():
         """ Returns true if XBMC should determine the bitrate if possible. """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__STREAM_AUTOBITRATE)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__STREAM_AUTOBITRATE)
 
     @staticmethod
     def GetFolderPrefix():
         """ returns the folder prefix """
 
-        setting = AddonSettings.__GetSetting(AddonSettings.__FOLDER_PREFIX)
+        setting = AddonSettings.GetSetting(AddonSettings.__FOLDER_PREFIX)
         return setting
 
     @staticmethod
     def MixFoldersAndVideos():
         """ Should we treat Folders and Videos alike """
 
-        return AddonSettings.__GetBooleanSetting(AddonSettings.__FOLDERS_AS_VIDEOS)
+        return AddonSettings.GetBooleanSetting(AddonSettings.__FOLDERS_AS_VIDEOS)
 
     @staticmethod
     def GetEmptyListBehaviour():
@@ -347,7 +347,7 @@ class AddonSettings:
 
         """
 
-        setting = int(AddonSettings.__GetSetting(AddonSettings.__EMPTY_FOLDER) or 1)
+        setting = int(AddonSettings.GetSetting(AddonSettings.__EMPTY_FOLDER) or 1)
         if setting == 0:
             return "error"
         elif setting == 1:
@@ -359,7 +359,7 @@ class AddonSettings:
     def UseSubtitle():
         """Returns whether to show subtitles or not"""
 
-        setting = AddonSettings.__GetSetting(AddonSettings.__SUBTITLE_MODE)
+        setting = AddonSettings.GetSetting(AddonSettings.__SUBTITLE_MODE)
 
         if setting == "0":
             return True
@@ -370,7 +370,7 @@ class AddonSettings:
     def GetUzgCacheDuration():
         """ Returns the UZG cache duration """
 
-        cacheTime = AddonSettings.__GetSetting(AddonSettings.__UZG_CACHE)
+        cacheTime = AddonSettings.GetSetting(AddonSettings.__UZG_CACHE)
         if cacheTime.lower() == "true":
             # kept for backwards compatibility
             cacheTime = 5
@@ -386,7 +386,7 @@ class AddonSettings:
     def GetUzgCachePath():
         """ returns the cachepath for UZG or None if not set """
 
-        path = AddonSettings.__GetSetting(AddonSettings.__UZG_CACHE_PATH)
+        path = AddonSettings.GetSetting(AddonSettings.__UZG_CACHE_PATH)
         if path.startswith("smb://"):
             path = path.replace("smb://", "\\\\").replace("/", "\\")
         return path
@@ -399,7 +399,7 @@ class AddonSettings:
         @return: an integer with the limit
         """
 
-        limit = AddonSettings.__GetSetting(AddonSettings.__LIST_LIMIT)
+        limit = AddonSettings.GetSetting(AddonSettings.__LIST_LIMIT)
         if limit == "":
             limit = -1
         else:
@@ -411,7 +411,7 @@ class AddonSettings:
     def GetLogLevel():
         """ Returns True if the add-on should do trace logging """
 
-        level = AddonSettings.__GetSetting(AddonSettings.__LOG_LEVEL)
+        level = AddonSettings.GetSetting(AddonSettings.__LOG_LEVEL)
         if level == "":
             return 10
 
@@ -428,7 +428,7 @@ class AddonSettings:
         """
 
         settingId = AddonSettings.__CHANNEL_SETTINGS_PATTERN % (channel.guid, )
-        setting = AddonSettings.__GetSetting(settingId)
+        setting = AddonSettings.GetSetting(settingId)
 
         if setting == "":
             return True
@@ -494,7 +494,7 @@ class AddonSettings:
 
         """
         (settingsId, settingsLabel) = AddonSettings.__GetLanguageSettingsIdAndLabel(languageCode)  # @UnusedVariables
-        return AddonSettings.__GetSetting(settingsId) == "true"
+        return AddonSettings.GetSetting(settingsId) == "true"
 
     @staticmethod
     def GetProxyForChannel(channelInfo):
@@ -513,11 +513,11 @@ class AddonSettings:
             return None
 
         prefix = proxies[proxyId]
-        server = AddonSettings.__GetSetting("%s_proxy_server" % (prefix,))
-        port = int(AddonSettings.__GetSetting("%s_proxy_port" % (prefix,)) or 0)
-        proxyType = AddonSettings.__GetSetting("%s_proxy_type" % (prefix,)) or "http"
-        username = AddonSettings.__GetSetting("%s_proxy_username" % (prefix,))
-        password = AddonSettings.__GetSetting("%s_proxy_password" % (prefix,))
+        server = AddonSettings.GetSetting("%s_proxy_server" % (prefix,))
+        port = int(AddonSettings.GetSetting("%s_proxy_port" % (prefix,)) or 0)
+        proxyType = AddonSettings.GetSetting("%s_proxy_type" % (prefix,)) or "http"
+        username = AddonSettings.GetSetting("%s_proxy_username" % (prefix,))
+        password = AddonSettings.GetSetting("%s_proxy_password" % (prefix,))
         pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
         Logger.Debug("Found proxy for channel %s:\n%s", channelInfo, pInfo)
         return pInfo
@@ -532,7 +532,7 @@ class AddonSettings:
         """
 
         settingId = AddonSettings.__PROXY_SETTING_PATTERN % (channelInfo.guid,)
-        proxyId = int(AddonSettings.__GetSetting(settingId) or 0)
+        proxyId = int(AddonSettings.GetSetting(settingId) or 0)
         return proxyId
 
     @staticmethod
@@ -874,7 +874,17 @@ class AddonSettings:
             AddonSettings.__settings = xbmc.Settings(path=Config.rootDir)
 
     @staticmethod
-    def __GetSetting(settingId):
+    def __SortChannels(x, y):
+        """ compares 2 channels based on language and then sortorder """
+
+        value = cmp(x.language, y.language)
+        if value == 0:
+            return cmp(x.sortOrder, y.sortOrder)
+        else:
+            return value
+
+    @staticmethod
+    def GetSetting(settingId):
         """Returns the setting for the requested ID, from the cached settings.
 
         Arguments:
@@ -891,27 +901,35 @@ class AddonSettings:
         return value
 
     @staticmethod
-    def __SortChannels(x, y):
-        """ compares 2 channels based on language and then sortorder """
+    def SetSetting(settingId, value):
+        """Sets the value for the setting with requested ID, from the cached settings.
 
-        value = cmp(x.language, y.language)
-        if value == 0:
-            return cmp(x.sortOrder, y.sortOrder)
-        else:
-            return value
-
-    @staticmethod
-    def __GetBooleanSetting(settingId):
-        """ Arguments:
-        id - string - the ID of the settings
+        Arguments:
+        settingId - string - the ID of the settings
+        value     - string - the value
 
         Returns:
         The configured XBMC add-on values for that <id>.
 
         """
 
-        setting = AddonSettings.__GetSetting(settingId)
-        return setting == "true"
+        AddonSettings.__CachedSettings().setSetting(settingId, value)
+        # Logger.Trace("Settings: %s = %s", settingId, value)
+        return value
+
+    @staticmethod
+    def GetBooleanSetting(settingId, trueValue="true"):
+        """ Arguments:
+        id - string - the ID of the settings
+        trueValue - string - the value to consider True
+
+        Returns:
+        The configured XBMC add-on values for that <id>.
+
+        """
+
+        setting = AddonSettings.GetSetting(settingId)
+        return setting == trueValue
 
     @staticmethod
     def PrintSettingValues():
@@ -950,10 +968,10 @@ class AddonSettings:
             proxies = ["NL", "UK", "SE", "Other"]
             for proxy in proxies:
                 value = pattern % (value, "%s Proxy" % (proxy, ),
-                                   AddonSettings.__GetSetting("%s_proxy_server" % (proxy.lower(), )) or "Not Set")
+                                   AddonSettings.GetSetting("%s_proxy_server" % (proxy.lower(),)) or "Not Set")
 
                 value = pattern % (value, "%s Proxy Port" % (proxy, ),
-                                   AddonSettings.__GetSetting("%s_proxy_port" % (proxy.lower(), )) or 0)
+                                   AddonSettings.GetSetting("%s_proxy_port" % (proxy.lower(),)) or 0)
         except:
             Logger.Error("Error", exc_info=True)
         return value

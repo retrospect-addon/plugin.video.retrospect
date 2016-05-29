@@ -125,13 +125,17 @@ class XbmcWrapper:
         pass
 
     @staticmethod
-    def ShowKeyBoard():
+    def ShowKeyBoard(default="", heading="", hidden=False):
         """ Displays the XBMC keyboard.
 
+        @type default: string
+        @type heading: string
+        @type hidden: boolean
         @return: returns the text that was entered or None if cancelled.
+
         """
 
-        keyboard = xbmc.Keyboard('')
+        keyboard = xbmc.Keyboard(default, heading, hidden)
         keyboard.doModal()
         if not keyboard.isConfirmed():
             return None
