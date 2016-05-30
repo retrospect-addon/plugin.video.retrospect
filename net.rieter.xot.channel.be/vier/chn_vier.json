@@ -11,5 +11,27 @@
       "language": "be",
       "fanart": "vierfanart.jpg"
     }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "id": "username",
+      "value": "label=\"Username\" type=\"text\" default=\"\""
+    },
+    {
+      "order": 2,
+      "id": "set_password",
+      "value": "label=\"Password\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Set Vier.be password)\""
+    },
+    {
+      "order": 3,
+      "id": "password",
+      "value": "type=\"hidden\" default=\"\""
+    },
+    {
+      "order": 4,
+      "id": "cookie",
+      "value": "type=\"hidden\" default=\"\""
+    }
   ]
 }

@@ -45,6 +45,7 @@ try:
     from textures import TextureHandler
     # from streams.youtube import YouTube
     from pickler import Pickler
+    from vault import Vault
 except:
     Logger.Critical("Error initializing %s", Config.appName, exc_info=True)
 
@@ -74,6 +75,8 @@ class Plugin:
         self.actionListFolder = "listfolder".lower()                    # : Action used to list a folder
         self.actionListCategory = "listcategory"                        # : Action used to show the channels from a category
         self.actionConfigureChannel = "configurechannel"                # : Action used to configure a channel
+        self.actionSetEncryptionPin = "setpin"                          # : Action used for setting an application pin
+        self.actionSetEncryptedValue = "encryptsetting"                 # : Action used for setting an application pin
 
         self.keywordPickle = "pickle".lower()                           # : Keyword used for the pickle item
         self.keywordAction = "action".lower()                           # : Keyword used for the action item
@@ -81,6 +84,8 @@ class Plugin:
         self.keywordChannelCode = "channelcode".lower()                 # : Keyword used for the channelcode
         self.keywordCategory = "category"                               # : Keyword used for the category
         self.keywordRandomLive = "rnd"                                  # : Keyword used for randomizing live items
+        self.keywordSettingId = "settingid"                             # : Keyword used for setting an encrypted setting
+        self.keywordSettingName = "settingname"                         # : Keyword used for setting an encrypted settings display name
 
         self.pluginName = pluginName
         self.handle = int(handle)
@@ -189,6 +194,21 @@ class Plugin:
                     # no channel needed for these favourites actions.
                     pass
 
+                elif self.keywordAction in self.params and \
+                        self.params[self.keywordAction] == self.actionSetEncryptionPin:
+                    v = Vault()
+                    v.ChangePin()
+                    return
+
+                elif self.keywordAction in self.params and \
+                        self.keywordSettingId in self.params and \
+                        self.params[self.keywordAction] == self.actionSetEncryptedValue:
+                    v = Vault()
+                    v.SetSetting(self.params[self.keywordSettingId],
+                                 self.params.get(self.keywordSettingName, ""))
+                    # value = v.GetSetting(self.params[self.keywordSettingId])
+                    # Logger.Critical(value)
+                    return
                 else:
                     Logger.Critical("Error determining Plugin action")
                     return
