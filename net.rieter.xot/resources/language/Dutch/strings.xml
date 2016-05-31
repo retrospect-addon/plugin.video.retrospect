@@ -87,6 +87,8 @@
     <string id="30086">Fanart niet tonen</string>
     <string id="30087">Mix folders en streams bij het sorteren</string>
     <string id="30088">Fins</string>
+    <string id="30089">Wachtwoord kluis</string>
+    <string id="30090">De paswoord kluis beschermt wachtwoorden door middel van encryptie en een PIN.</string>
 
     <string id="30100">Geen</string>
     <string id="30101">Regionaal</string>
@@ -168,4 +170,12 @@
     <string id="30559">Ontbrekende textures worden opgehaald. Dit kan enige tijd duren afhankelijk van het systeem en internet snelheid.</string>
     <string id="30560">Betaalde video</string>
     <string id="30561">Het geselecteerde item is niet gratis en werkt wellicht niet in Kodi.</string>
+
+    <string id="30590">Stel een nieuwe Retrospect PIN in</string>
+    <string id="30591">Geen Retrospect PIN ingevoerd</string>
+    <string id="30592">Herhaal de nieuwe Retrospect PIN</string>
+    <string id="30593">PIN's komen niet overeen</string>
+    <string id="30594">Voer de waarde in voor instelling: '%s'</string>
+    <string id="30595">Voer de Retrospect PIN in</string>
+    <string id="30596">Foutieve Retrospect PIN ingevoerd</string>
 </strings>

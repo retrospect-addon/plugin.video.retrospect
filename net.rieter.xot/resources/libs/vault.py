@@ -18,6 +18,7 @@ import hashlib
 from logger import Logger
 from addonsettings import AddonSettings
 from xbmcwrapper import XbmcWrapper
+from helpers.languagehelper import LanguageHelper
 
 
 class Vault:
@@ -60,24 +61,34 @@ class Vault:
             return True
 
         if applicationKey is None:
-            Logger.Debug("Usiing the ApplicationKey from the vault.")
+            Logger.Debug("Using the ApplicationKey from the vault.")
             applicationKey = Vault.__Key
         else:
-            Logger.Debug("Usiing the ApplicationKey from the input parameter.")
+            Logger.Debug("Using the ApplicationKey from the input parameter.")
 
         if not applicationKey:
             raise ValueError("No ApplicationKey specified.")
 
         # Now we get a new PIN and (re)encrypt
-        pin = XbmcWrapper.ShowKeyBoard(heading="Set a new Retrospect PIN", hidden=True)
+
+        pin = XbmcWrapper.ShowKeyBoard(
+            heading=LanguageHelper.GetLocalizedString(LanguageHelper.VaultNewPin),
+            hidden=True)
         if not pin:
-            XbmcWrapper.ShowNotification("", "No Retrospect PIN specified", XbmcWrapper.Error)
+            XbmcWrapper.ShowNotification(
+                "", LanguageHelper.GetLocalizedString(LanguageHelper.VaultNoPin),
+                XbmcWrapper.Error)
             return False
 
-        pin2 = XbmcWrapper.ShowKeyBoard(heading="Repeat the new Retrospect PIN", hidden=True)
+        pin2 = XbmcWrapper.ShowKeyBoard(
+            heading=LanguageHelper.GetLocalizedString(LanguageHelper.VaultRepeatPin),
+            hidden=True)
         if pin != pin2:
             Logger.Critical("Mismatch in PINs")
-            XbmcWrapper.ShowNotification("", "PINs don't match", XbmcWrapper.Error)
+            XbmcWrapper.ShowNotification(
+                "",
+                LanguageHelper.GetLocalizedString(LanguageHelper.VaultPinsDontMatch),
+                XbmcWrapper.Error)
             return False
 
         encryptedKey = "%s=%s" % (self.__APPLICATION_KEY_SETTING, applicationKey)
@@ -133,7 +144,9 @@ class Vault:
         """
 
         Logger.Info("Encrypting value for setting '%s'", settingId)
-        value = XbmcWrapper.ShowKeyBoard("", "Specify value for setting: '%s'" % (settingName or settingId, ))
+        value = XbmcWrapper.ShowKeyBoard(
+            "",
+            LanguageHelper.GetLocalizedString(LanguageHelper.VaultSpecifySetting) % (settingName or settingId, ))
         value = "%s=%s" % (settingId, value)
         encryptedValue = self.__Encrypt(value, Vault.__Key)
         AddonSettings.SetSetting(settingId, encryptedValue)
@@ -151,18 +164,19 @@ class Vault:
         if not applicationKeyEncrypted:
             return None
 
-        pin = XbmcWrapper.ShowKeyBoard(heading="Input Retrospect PIN", hidden=True)
+        vaultIncorrectPin = LanguageHelper.GetLocalizedString(LanguageHelper.VaultIncorrectPin)
+        pin = XbmcWrapper.ShowKeyBoard(
+            heading=LanguageHelper.GetLocalizedString(LanguageHelper.VaultInputPin),
+            hidden=True)
         if not pin:
-            error = "Incorrect Retrospect PIN specified"
-            XbmcWrapper.ShowNotification("", error, XbmcWrapper.Error)
-            raise RuntimeError(error)
+            XbmcWrapper.ShowNotification("", vaultIncorrectPin, XbmcWrapper.Error)
+            raise RuntimeError("Incorrect Retrospect PIN specified")
         pinKey = self.__GetPBK(pin)
         applicationKey = self.__Decrypt(applicationKeyEncrypted, pinKey)
         if not applicationKey.startswith(Vault.__APPLICATION_KEY_SETTING):
             Logger.Critical("Invalid Retrospect PIN")
-            error = "Incorrect Retrospect PIN specified"
-            XbmcWrapper.ShowNotification("", error, XbmcWrapper.Error)
-            raise RuntimeError(error)
+            XbmcWrapper.ShowNotification("", vaultIncorrectPin, XbmcWrapper.Error)
+            raise RuntimeError("Incorrect Retrospect PIN specified")
 
         applicationKeyValue = applicationKey[len(Vault.__APPLICATION_KEY_SETTING) + 1:]
         Logger.Info("Successfully decrypted the ApplicationKey.")

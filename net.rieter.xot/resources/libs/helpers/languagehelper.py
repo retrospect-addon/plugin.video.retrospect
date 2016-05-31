@@ -77,6 +77,14 @@ class LanguageHelper:
     FetchTexturesTitle = 30558
     FetchTexturesText = 30559
 
+    VaultNewPin = 30590
+    VaultNoPin = 30591
+    VaultRepeatPin = 30592
+    VaultPinsDontMatch = 30593
+    VaultSpecifySetting = 30594
+    VaultInputPin = 30595
+    VaultIncorrectPin = 30596
+
     __Categories = {"None": 30100,
                     "Regional": 30101,
                     "National": 30102,

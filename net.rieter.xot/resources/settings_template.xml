@@ -9,9 +9,6 @@
     <!--<setting id="test_encryption" type="hidden" default="" />-->
 
     <category label="30009">
-        <setting label="Set Pin" type="action" action="RunScript(net.rieter.xot, 0, ?action=setpin)"/>
-        <!--<setting label="Set test encryption" type="action" action="RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=test_encryption&amp;settingname=Set test encryption)"/>-->
-
         <!--setting id="stream_quality" type="enum" label="30000" lvalues="30001|30002|30003" default="2"/-->
         <!--setting id="stream_autobitrate" type="bool" label="30070" default="true" /-->
         <setting id="stream_bitrate" type="select" label="30020" default="4000" values="100|250|500|750|1000|1500|2000|2500|4000|8000|20000" />
@@ -22,6 +19,11 @@
         <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
         <setting id="folders_as_video" type="bool" label="30087" default="false" />
         <setting id="folder_prefix" type="text" label="30043" default="" />
+
+        <setting type="lsep" label="30089" />
+        <setting id="pin_label" type="text" label="30090" enable="false" />
+        <setting id="set_pin" label="Set Pin" type="action" action="RunScript(net.rieter.xot, 0, ?action=setpin)"/>
+        <!--<setting label="Set test encryption" type="action" action="RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=test_encryption&amp;settingname=Set test encryption)"/>-->
 
         <setting type="lsep" label="30046" />
         <setting id="show_drm_warning" type="bool" label="30019" enable="true" default="true" />

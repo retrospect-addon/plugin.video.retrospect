@@ -87,6 +87,8 @@
     <string id="30086">Dölj fanart</string>
     <string id="30087">Blanda mappar och strömmar vid sorteringen</string>
     <string id="30088">Finsk</string>
+    <string id="30089">Password Vault</string>
+    <string id="30090">The password vault protects stored password with encryption using a PIN.</string>
 
     <string id="30100">Ingen</string>
     <string id="30101">Regionala</string>
@@ -168,4 +170,12 @@
     <string id="30559">Hämtar saknade texturer. Detta kan ta en stund beroende på internet och systemets hastighet.</string>
     <string id="30560">Betalvideo</string>
     <string id="30561">Valt objekt är inte gratis och kanske inte går att spela upp i Kodi.</string>
+
+    <string id="30590">Set a new Retrospect PIN</string>
+    <string id="30591">No Retrospect PIN specified</string>
+    <string id="30592">Repeat the new Retrospect PIN</string>
+    <string id="30593">PINs don't match</string>
+    <string id="30594">Specify value for setting: '%s'</string>
+    <string id="30595">Input Retrospect PIN</string>
+    <string id="30596">Incorrect Retrospect PIN specified</string>
 </strings>
