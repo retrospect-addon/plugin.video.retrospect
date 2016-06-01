@@ -86,6 +86,8 @@ class Plugin:
         self.keywordRandomLive = "rnd"                                  # : Keyword used for randomizing live items
         self.keywordSettingId = "settingid"                             # : Keyword used for setting an encrypted setting
         self.keywordSettingName = "settingname"                         # : Keyword used for setting an encrypted settings display name
+        self.keywordSettingTabFocus = "tabfocus"                        # : Keyword used for setting the tabcontrol to focus after changing a setting
+        self.keywordSettingSettingFocus = "settingfocus"                # : Keyword used for setting the setting control to focus after changing a setting
 
         self.pluginName = pluginName
         self.handle = int(handle)
@@ -196,18 +198,28 @@ class Plugin:
 
                 elif self.keywordAction in self.params and \
                         self.params[self.keywordAction] == self.actionSetEncryptionPin:
-                    v = Vault()
-                    v.ChangePin()
+                    try:
+                        v = Vault()
+                        v.ChangePin()
+                    finally:
+                        if self.keywordSettingTabFocus in self.params:
+                            AddonSettings.ShowSettings(self.params[self.keywordSettingTabFocus],
+                                                       self.params.get(self.keywordSettingSettingFocus, None))
                     return
 
                 elif self.keywordAction in self.params and \
                         self.keywordSettingId in self.params and \
                         self.params[self.keywordAction] == self.actionSetEncryptedValue:
-                    v = Vault()
-                    v.SetSetting(self.params[self.keywordSettingId],
-                                 self.params.get(self.keywordSettingName, ""))
-                    # value = v.GetSetting(self.params[self.keywordSettingId])
-                    # Logger.Critical(value)
+                    try:
+                        v = Vault()
+                        v.SetSetting(self.params[self.keywordSettingId],
+                                     self.params.get(self.keywordSettingName, ""))
+                        # value = v.GetSetting(self.params[self.keywordSettingId])
+                        # Logger.Critical(value)
+                    finally:
+                        if self.keywordSettingTabFocus in self.params:
+                            AddonSettings.ShowSettings(self.params[self.keywordSettingTabFocus],
+                                                       self.params.get(self.keywordSettingSettingFocus, None))
                     return
                 else:
                     Logger.Critical("Error determining Plugin action")

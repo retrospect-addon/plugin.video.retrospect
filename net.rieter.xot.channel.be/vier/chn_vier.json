@@ -21,7 +21,7 @@
     {
       "order": 2,
       "id": "set_password",
-      "value": "label=\"Password\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Set Vier.be password)\""
+      "value": "label=\"Password\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Vier.be password&amp;tabfocus=102)\" option=\"close\""
     },
     {
       "order": 3,

@@ -452,22 +452,35 @@ class AddonSettings:
         # Set the channel to be the preselected one
         AddonSettings.__settings.setSetting("config_channel", channelName)
 
-        # show settings and focus on the channel settings tab
-        xbmc.executebuiltin('Addon.OpenSettings(%s)' % (Config.addonId,))
-
-        # the 100 range are the tabs
-        # the 200 range are the controls in a tab
-        xbmc.executebuiltin('SetFocus(%i)' % 102)
+        # # show settings and focus on the channel settings tab
+        return AddonSettings.ShowSettings(102)
 
     @staticmethod
-    def ShowSettings():
-        """Shows the settings dialog"""
+    def ShowSettings(tabId=None, settingId=None):
+        """Shows the settings dialog
+        @param tabId:       what tab should have focus in the settings?
+        @param settingId:   what control should have focus in the settings tab?
 
-        AddonSettings.__CachedSettings().openSettings()  # this will open settings window
+        """
 
-        # reload the cache because stuff might have changed
-        AddonSettings.__LoadSettings()
-        Logger.Info("Clearing Settings cache because settings dialog was shown.")
+        if tabId is None:
+            # shows the settings and blocks:
+            AddonSettings.__CachedSettings().openSettings()  # this will open settings window
+            # reload the cache because stuff might have changed
+            AddonSettings.__LoadSettings()
+            Logger.Info("Clearing Settings cache because settings dialog was shown.")
+        else:
+            # show settings and focus on a tab
+            xbmc.executebuiltin('Addon.OpenSettings(%s)' % (Config.addonId,))
+
+            if tabId:
+                # the 100 range are the tabs
+                # the 200 range are the controls in a tab
+                xbmc.executebuiltin('SetFocus(%i)' % int(tabId))
+                if settingId:
+                    xbmc.executebuiltin('SetFocus(%s)' % int(settingId))
+
+            Logger.Info("Settings shown with focus on %s-%s", tabId, settingId or "<none>")
         return
 
     @staticmethod

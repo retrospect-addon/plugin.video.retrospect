@@ -22,7 +22,9 @@
 
         <setting type="lsep" label="30089" />
         <setting id="pin_label" type="text" label="30090" enable="false" />
-        <setting id="set_pin" label="Set Pin" type="action" action="RunScript(net.rieter.xot, 0, ?action=setpin)"/>
+        <!-- we need the option="close" here to make sure we don't overwrite settings that were already done
+             while updating the settings from the script -->
+        <setting id="set_pin" label="Set Pin" type="action" action="RunScript(net.rieter.xot, 0, ?action=setpin&amp;tabfocus=100&amp;settingfocus=209)" option="close" />
         <!--<setting label="Set test encryption" type="action" action="RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=test_encryption&amp;settingname=Set test encryption)"/>-->
 
         <setting type="lsep" label="30046" />
