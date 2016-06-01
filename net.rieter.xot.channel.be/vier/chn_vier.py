@@ -9,7 +9,8 @@ from streams.m3u8 import M3u8
 from vault import Vault
 from helpers.htmlentityhelper import HtmlEntityHelper
 from addonsettings import AddonSettings
-
+from xbmcwrapper import XbmcWrapper
+from helpers.languagehelper import LanguageHelper
 
 class Channel(chn_class.Channel):
     """
@@ -172,6 +173,14 @@ class Channel(chn_class.Channel):
             password = v.GetChannelSetting(self.guid, "password")
             password = HtmlEntityHelper.UrlEncode(password)
             username = self._GetSetting("username")
+            if not username or not password:
+                XbmcWrapper.ShowDialog(
+                    title=None,
+                    lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+                    # notificationType=XbmcWrapper.Error,
+                    # displayTime=5000
+                )
+                return item
             username = HtmlEntityHelper.UrlEncode(username)
 
             # Let's log in, get the cookie and the data

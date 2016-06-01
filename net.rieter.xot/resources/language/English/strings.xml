@@ -170,6 +170,7 @@
     <string id="30559">Fetching missing textures. This could take some time depending on the internet and system speed.</string>
     <string id="30560">Paid video</string>
     <string id="30561">The selected item is not free and might not play on Kodi.</string>
+    <string id="30562">Username and/or password not set in Add-on settings</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>

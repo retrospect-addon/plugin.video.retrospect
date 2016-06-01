@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-05-31 20:19+0000\n"
+"POT-Creation-Date: 2016-06-01 20:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -686,7 +686,11 @@ msgctxt "#30561"
 msgid "The selected item is not free and might not play on Kodi."
 msgstr ""
 
-#empty strings from id 30562 to 30589
+msgctxt "#30562"
+msgid "Username and/or password not set in Add-on settings"
+msgstr ""
+
+#empty strings from id 30563 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

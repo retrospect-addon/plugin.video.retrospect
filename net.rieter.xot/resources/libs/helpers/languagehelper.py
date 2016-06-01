@@ -69,6 +69,7 @@ class LanguageHelper:
     DrmText = 30555
     PaidTitle = 30560
     PaidText = 30561
+    MissingCredentials = 30562
 
     Active = 30068
     ShowChannelSettings = 30069

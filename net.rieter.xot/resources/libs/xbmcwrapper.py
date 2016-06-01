@@ -135,6 +135,9 @@ class XbmcWrapper:
 
         """
 
+        # let's just unlock the interface, in case it's locked.
+        xbmc.executebuiltin("Dialog.Close(busydialog)")
+
         keyboard = xbmc.Keyboard(default, heading, hidden)
         keyboard.doModal()
         if not keyboard.isConfirmed():
