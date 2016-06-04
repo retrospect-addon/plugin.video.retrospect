@@ -52,8 +52,7 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self.episodeItemRegex = 'data-srchd="(?<thumburl>[^"]+)"[^>]*>\W*<noscript>\W*<img[^>]*>\W*</noscript>[\w\W]' \
                                 '{0,750}?data-itemid="[^"]+\.%s"[^>]*data-title="(?<title>[^"]+)"></div>\W+</div>' \
-                                '\W+</a>\W+<a href="(?<url>[^"]+)"[^>]+>\W+<div class="info[^>]*>\W+<h3[\w\W]{0,1500}' \
-                                '?<p class="meta" itemprop="description">(?<description>[^<]+)'\
+                                '\W+</a>\W+<a href="(?<url>[^"]+)"[^>]+>\W+<div class="info[^>]*>\W+'\
                                 .replace("(?<", "(?P<") \
                                 % (channelId or self.channelCode,)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
@@ -61,8 +60,8 @@ class Channel(chn_class.Channel):
 
         # normal video items
         self.videoItemRegex = 'data-srchd="(?<thumburl>[^"]+)"[^>]* alt="(?<title>[^"]+)"[^>]*>[\w\W]{0,2000}?' \
-                              'itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,1000}itemprop="description">' \
-                              '(?<description>[^<]+)<a href="(?<url>[^"]+)/[^"]+"'\
+                              'itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,1000}' \
+                              '<a href="(?<url>[^"]+)/[^"]+"' \
                               .replace("(?<", "(?P<")
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
