@@ -88,7 +88,9 @@
     <string id="30087">Näytä kansiot ja striimit lajiteltuna</string>
     <string id="30088">Suomi</string>
     <string id="30089">Password Vault</string>
-    <string id="30090">The password vault protects stored password with encryption using a PIN.</string>
+    <string id="30090">The 'Password Vault' protects stored password with encryption using a PIN.</string>
+    <string id="30091">Change Vault Pin</string>
+    <string id="30092">Reset Vault</string>
 
     <string id="30100">Ei mitään</string>
     <string id="30101">Alueellinen</string>
@@ -179,4 +181,5 @@
     <string id="30594">Specify value for setting: '%s'</string>
     <string id="30595">Input Retrospect PIN</string>
     <string id="30596">Incorrect Retrospect PIN specified</string>
+    <string id="30597">Resetting the vault will invalidate all existing encrypted values. Are you sure?</string>
 </strings>

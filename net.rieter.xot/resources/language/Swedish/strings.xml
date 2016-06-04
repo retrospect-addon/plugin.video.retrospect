@@ -89,6 +89,8 @@
     <string id="30088">Finsk</string>
     <string id="30089">Lösenordsskydd</string>
     <string id="30090">Lösenordet skyddar lagrade lösenord krypterade med hjälp av en KOD.</string>
+    <string id="30091">Change Vault Pin</string>
+    <string id="30092">Reset Vault</string>
 
     <string id="30100">Ingen</string>
     <string id="30101">Regionala</string>
@@ -179,4 +181,5 @@
     <string id="30594">Ange ett värde för inställning: '%s'</string>
     <string id="30595">Ange KODEN för Retrospect</string>
     <string id="30596">Felaktig KOD angiven för Retrospect</string>
+    <string id="30597">Resetting the vault will invalidate all existing encrypted values. Are you sure?</string>
 </strings>

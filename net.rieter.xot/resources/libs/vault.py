@@ -27,7 +27,7 @@ class Vault:
 
     def __init__(self):
         # type: (str) -> Vault
-        self.__newKeyGenerated = False    # : This was the very first time a key was generated
+        self.__newKeyGeneratedInConstructor = False    # : This was the very first time a key was generated
 
         # ask for PIN of no key is present
         if Vault.__Key is None:
@@ -39,7 +39,9 @@ class Vault:
                 key = self.__GetNewKey()
                 if not self.ChangePin(key):
                     raise RuntimeError("Error creating Application Key.")
-                self.__newKeyGenerated = True
+                Logger.Info("Created a new Application Key with MD5: %s (lengt=%s)",
+                            hashlib.md5(key).hexdigest(), len(key))
+                self.__newKeyGeneratedInConstructor = True
 
             Vault.__Key = key
             Logger.Trace("Using Application Key with MD5: %s (lengt=%s)", hashlib.md5(key).hexdigest(), len(key))
@@ -56,7 +58,7 @@ class Vault:
 
         Logger.Info("Updating the ApplicationKey with a new PIN")
 
-        if self.__newKeyGenerated:
+        if self.__newKeyGeneratedInConstructor:
             Logger.Info("A key was just generated, no need to change PINs.")
             return True
 
@@ -99,6 +101,26 @@ class Vault:
         AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, encryptedKey)
         Logger.Info("Successfully updated the Retrospect PIN")
         return True
+
+    @staticmethod
+    def Reset():
+        """ Resets the Vault and Retrospect Machine key, making all encrypted values
+        useless.
+
+        """
+
+        ok = XbmcWrapper.ShowYesNo(LanguageHelper.GetLocalizedString(LanguageHelper.VaultReset),
+                                   LanguageHelper.GetLocalizedString(LanguageHelper.VaultResetConfirm))
+        if not ok:
+            Logger.Debug("Aborting Reset Vault")
+            return
+
+        Logger.Info("Resetting the vault to a new initial state.")
+        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, "")
+
+        # create a vault instance so we initialize a new one with a new PIN.
+        Vault()
+        return
 
     def GetChannelSetting(self, channelGuid, settingId):
         # type: (str, str) -> str
@@ -220,7 +242,7 @@ class Vault:
         salt = AddonSettings.GetClientId()
         pbk = pyscrypt.hash(password=pin,
                             salt=salt,
-                            N=32,
+                            N=2 ** 7,  # should be so that Raspberry Pi can handle it
                             # N=1024,
                             r=1,
                             p=1,

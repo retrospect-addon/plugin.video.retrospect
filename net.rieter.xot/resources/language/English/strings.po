@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-06-01 20:38+0000\n"
+"POT-Creation-Date: 2016-06-04 22:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -368,10 +368,18 @@ msgid "Password Vault"
 msgstr ""
 
 msgctxt "#30090"
-msgid "The password vault protects stored password with encryption using a PIN."
+msgid "The 'Password Vault' protects stored password with encryption using a PIN."
 msgstr ""
 
-#empty strings from id 30091 to 30099
+msgctxt "#30091"
+msgid "Change Vault Pin"
+msgstr ""
+
+msgctxt "#30092"
+msgid "Reset Vault"
+msgstr ""
+
+#empty strings from id 30093 to 30099
 
 msgctxt "#30100"
 msgid "None"
@@ -718,4 +726,8 @@ msgstr ""
 
 msgctxt "#30596"
 msgid "Incorrect Retrospect PIN specified"
+msgstr ""
+
+msgctxt "#30597"
+msgid "Resetting the vault will invalidate all existing encrypted values. Are you sure?"
 msgstr ""

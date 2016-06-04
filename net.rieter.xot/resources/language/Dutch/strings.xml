@@ -87,8 +87,10 @@
     <string id="30086">Fanart niet tonen</string>
     <string id="30087">Mix folders en streams bij het sorteren</string>
     <string id="30088">Fins</string>
-    <string id="30089">Wachtwoord kluis</string>
-    <string id="30090">De paswoord kluis beschermt wachtwoorden door middel van encryptie en een PIN.</string>
+    <string id="30089">Wachtwoord Kluis</string>
+    <string id="30090">De 'Wachtwoord Kluis' beschermt wachtwoorden door middel van encryptie en een PIN.</string>
+    <string id="30091">Verander Kluis PIN</string>
+    <string id="30092">Reset de Kluis</string>
 
     <string id="30100">Geen</string>
     <string id="30101">Regionaal</string>
@@ -179,4 +181,5 @@
     <string id="30594">Voer de waarde in voor instelling: '%s'</string>
     <string id="30595">Voer de Retrospect PIN in</string>
     <string id="30596">Foutieve Retrospect PIN ingevoerd</string>
+    <string id="30597">Het resetten van de kluis zal alle bestaande versleutelde instellingen onleesbaar maken. Doorgaan met resetten?</string>
 </strings>

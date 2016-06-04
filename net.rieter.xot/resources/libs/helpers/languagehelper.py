@@ -85,6 +85,8 @@ class LanguageHelper:
     VaultSpecifySetting = 30594
     VaultInputPin = 30595
     VaultIncorrectPin = 30596
+    VaultResetConfirm = 30597
+    VaultReset = 30092
 
     __Categories = {"None": 30100,
                     "Regional": 30101,

@@ -217,6 +217,34 @@ class XbmcWrapper:
         return inputDialog.select(title, options)
 
     @staticmethod
+    def ShowYesNo(title, lines):
+        """ Shows a dialog yes/no box with title and text
+
+        Arguments:
+        title : string       - the title of the box
+        text  : List[string] - the lines to display
+
+        """
+
+        # let's just unlock the interface, in case it's locked.
+        xbmc.executebuiltin("Dialog.Close(busydialog)")
+
+        msgBox = xbmcgui.Dialog()
+        if title == "":
+            header = Config.appName
+        else:
+            header = "%s - %s" % (Config.appName, title)
+
+        if len(lines) == 0:
+            ok = msgBox.yesno(header, "")
+        elif isinstance(lines, basestring):
+            # it was just a string, no list or tuple
+            ok = msgBox.yesno(header, lines)
+        else:
+            ok = False
+        return ok
+
+    @staticmethod
     def ShowDialog(title, lines):
         """ Shows a dialog box with title and text
 
