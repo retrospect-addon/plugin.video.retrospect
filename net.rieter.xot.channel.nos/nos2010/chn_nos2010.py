@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
 
         # genres
         self._AddDataParser("http://www.npo.nl/uitzending-gemist", matchType=ParserData.MatchExact,
-                            parser='<option value="(\d+)"[^>]*>([^<]+)<',
+                            parser='<a href="http://www.npo.nl/zoeken\?main_genre=(\d+)"[^>]*>([^<]+)</a></li>',
                             creator=self.CreateGenreItem)
 
         # Set self.nonMobilePageSize to 0 to enable mobile pages
