@@ -1,5 +1,4 @@
 import datetime
-import cookielib
 
 import mediaitem
 import contextmenu
@@ -1118,39 +1117,9 @@ class Channel(chn_class.Channel):
 
         Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
-        # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
-        c = cookielib.Cookie(version=0, name='site_cookie_consent', value='yes', port=None, port_specified=False,
-                             domain='.www.uitzendinggemist.nl', domain_specified=True, domain_initial_dot=False,
-                             path='/', path_specified=True, secure=False, expires=2327431273, discard=False,
-                             comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        UriHandler.Instance().cookieJar.set_cookie(c)
+        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.www.uitzendinggemist.nl')
+        UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
 
-        # a second cookie seems to be required
-        c = cookielib.Cookie(version=0, name='npo_cc', value='tmp', port=None, port_specified=False,
-                             domain='.www.uitzendinggemist.nl', domain_specified=True, domain_initial_dot=False,
-                             path='/', path_specified=True, secure=False, expires=2327431273, discard=False,
-                             comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        UriHandler.Instance().cookieJar.set_cookie(c)
-
-        # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
-        c = cookielib.Cookie(version=0, name='site_cookie_consent', value='yes', port=None, port_specified=False,
-                             domain='.www.npo.nl', domain_specified=True, domain_initial_dot=False, path='/',
-                             path_specified=True, secure=False, expires=2327431273, discard=False, comment=None,
-                             comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        UriHandler.Instance().cookieJar.set_cookie(c)
-
-        # Set-Cookie: npo_cc=30; path=/; domain=www.npo.nl; expires=Tue, 09-Aug-2044 21:55:39 GMT
-        c = cookielib.Cookie(version=0, name='npo_cc', value='30', port=None, port_specified=False,
-                             domain='.www.npo.nl', domain_specified=True, domain_initial_dot=False, path='/',
-                             path_specified=True, secure=False, expires=2327431273, discard=False, comment=None,
-                             comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        UriHandler.Instance().cookieJar.set_cookie(c)
-
-        # http://pilot.odcontent.omroep.nl/codem/h264/1/nps/rest/2013/NPS_1220255/NPS_1220255.ism/NPS_1220255.m3u8
-        # balancer://sapi2cluster=balancer.sapi2a
-
-        # c = cookielib.Cookie(version=0, name='balancer://sapi2cluster', value='balancer.sapi2a', port=None, port_specified=False, domain='.pilot.odcontent.omroep.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        # UriHandler.Instance().cookieJar.set_cookie(c)
-        # c = cookielib.Cookie(version=0, name='balancer://sapi1cluster', value='balancer.sapi1a', port=None, port_specified=False, domain='.pilot.odcontent.omroep.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        # UriHandler.Instance().cookieJar.set_cookie(c)
+        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.www.npo.nl')
+        UriHandler.SetCookie(name='npo_cc', value='30', domain='.www.npo.nl')
         return

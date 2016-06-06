@@ -1,5 +1,3 @@
-import cookielib
-
 import mediaitem
 import chn_class
 import time
@@ -218,63 +216,11 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    # def AddSearch(self, data):
-    #     """Parses the mainlist of the channel and returns a list of MediaItems
-    #
-    #     This method creates a list of MediaItems that represent all the different
-    #     programs that are available in the online source. The list is used to fill
-    #     the ProgWindow.
-    #
-    #     Keyword parameters:
-    #     returnData : [opt] boolean - If set to true, it will return the retrieved
-    #                                  data as well
-    #
-    #     Returns a list of MediaItems that were retrieved.
-    #
-    #     """
-    #
-    #     searchItem = mediaitem.MediaItem("Search", "searchSite")
-    #     searchItem.complete = True
-    #     searchItem.icon = self.icon
-    #     searchItem.thumb = self.noImage
-    #     return data, [searchItem]
-
-    # def SearchSite(self, url=None):
-    #     """Creates an list of items by searching the site
-    #
-    #     Returns:
-    #     A list of MediaItems that should be displayed.
-    #
-    #     This method is called when the URL of an item is "searchSite". The channel
-    #     calling this should implement the search functionality. This could also include
-    #     showing of an input keyboard and following actions.
-    #
-    #     """
-    #
-    #     url = "http://nos.nl/zoeken/?sort=2&type[]=video&datumvan=&datumtot=&s=%s"
-    #     return chn_class.Channel.SearchSite(self, url)
-
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
         Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # a second cookie seems to be required
-        c = cookielib.Cookie(version=0, name='npo_cc', value='tmp', port=None, port_specified=False,
-                             domain='.nos.nl', domain_specified=True, domain_initial_dot=False,
-                             path='/', path_specified=True, secure=False, expires=2327431273, discard=False,
-                             comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        UriHandler.Instance().cookieJar.set_cookie(c)
-
-        # # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
-        # c = cookielib.Cookie(version=0, name='site_cookie_consent', value='yes', port=None, port_specified=False, domain='.nos.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        # UriHandler.Instance().cookieJar.set_cookie(c)
-
-        # http://pilot.odcontent.omroep.nl/codem/h264/1/nps/rest/2013/NPS_1220255/NPS_1220255.ism/NPS_1220255.m3u8
-        # balancer://sapi2cluster=balancer.sapi2a
-
-        # c = cookielib.Cookie(version=0, name='balancer://sapi2cluster', value='balancer.sapi2a', port=None, port_specified=False, domain='.pilot.odcontent.omroep.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        # UriHandler.Instance().cookieJar.set_cookie(c)
-        # c = cookielib.Cookie(version=0, name='balancer://sapi1cluster', value='balancer.sapi1a', port=None, port_specified=False, domain='.pilot.odcontent.omroep.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        # UriHandler.Instance().cookieJar.set_cookie(c)
+        UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.nos.nl')
         return

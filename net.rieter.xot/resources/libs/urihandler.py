@@ -56,6 +56,9 @@ class UriHandler:
             UriHandler.CookieCheck = UriHandler.__handler.CookieCheck
             UriHandler.CookiePrint = UriHandler.__handler.CookiePrint
             UriHandler.CorrectFileName = UriHandler.__handler.CorrectFileName
+            UriHandler.GetCookie = UriHandler.__handler.GetCookie
+            UriHandler.SetCookie = UriHandler.__handler.SetCookie
+
         else:
             Logger.Warning("Cannot create a second UriHandler instance!")
         return UriHandler.__handler
@@ -119,6 +122,28 @@ class UriHandler:
 
     @staticmethod
     def Header(uri, proxy=None, params="", additionalHeaders=None, noCache=False):
+        pass
+
+    @staticmethod
+    def SetCookie(version=0, name='', value='',
+                  port=None,  # port_specified=False,
+                  domain='',  # domain_specified=True,
+                  domain_initial_dot=False,
+                  path='/',  # path_specified=True,
+                  secure=False,
+                  expires=4102444555,
+                  # discard=False,
+                  # comment=None,
+                  # comment_url=None,
+                  # rest=None,
+                  # rfc2109=False
+                  ):
+        # type: (int, str, str, str, str, bool, str, bool, int) -> cookielib.Cookie
+        pass
+
+    @staticmethod
+    def GetCookie(name, domain, path="/", matchStart=False):
+        # type: (str, str, str, bool) -> cookielib.Cookie
         pass
 
     @staticmethod
@@ -327,6 +352,74 @@ class UriHandler:
             except:
                 Logger.Critical("Header info not retreived", exc_info=True)
                 return "", ""
+
+        def SetCookie(self, version=0, name='', value='',
+                      port=None,  # port_specified=False,
+                      domain='',  # domain_specified=True,
+                      domain_initial_dot=False,
+                      path='/',  # path_specified=True,
+                      secure=False,
+                      expires=4102444555,
+                      # discard=False,
+                      # comment=None,
+                      # comment_url=None,
+                      # rest=None,
+                      # rfc2109=False
+                      ):
+            # type: (int, str, str, str, str, bool, str, bool, int) -> cookielib.Cookie
+
+            """ Sets a cookie in the UriHandler cookie jar
+
+            @param version:             the cookie version
+            @param name:                the name of the cookie
+            @param value:               the value of the cookie
+            @param port:                String representing a port or a set of ports (eg. '80', or '80,8080'), or None
+            @param domain:              the domain for which the cookie should be valid
+            @param domain_initial_dot:  if the domain explicitly specified by the server began with a dot ('.').
+            @param path:                the path the cookie is valid for
+            @param secure:              if cookie should only be returned over a secure connection
+            @param expires:             Integer expiry date in seconds since epoch, or None.
+            """
+
+            Logger.Debug("Setting a cookie with this data:\n"
+                         "name:   '%s'\n"
+                         "value:  '%s'\n"
+                         "domain: '%s'\n"
+                         "path:   '%s'",
+                         name, value, domain, path)
+            c = cookielib.Cookie(version=version, name=name, value=value,
+                                 port=port, port_specified=port is not None,
+                                 domain=domain, domain_specified=domain is not None,
+                                 domain_initial_dot=domain_initial_dot,
+                                 path=path, path_specified=path is not None,
+                                 secure=secure,
+                                 expires=expires,
+                                 discard=False,
+                                 comment=None,
+                                 comment_url=None,
+                                 rest={'HttpOnly': None})  # rfc2109=False)
+            # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
+            self.cookieJar.set_cookie(c)
+            return c
+
+        # noinspection PyProtectedMember
+        def GetCookie(self, name, domain, path="/", matchStart=False):
+            # type: (str, str, str, bool) -> cookielib.Cookie
+            if domain not in self.cookieJar._cookies or path not in self.cookieJar._cookies[domain]:
+                return None
+
+            cookies = self.cookieJar._cookies[domain][path]
+            if not matchStart:
+                if name in cookies:
+                    return cookies[name]
+                return None
+
+            # do a startswith search
+            cookies = filter(lambda c: c.name.startswith(name), cookies.itervalues())
+            if not cookies:
+                return None
+            else:
+                return cookies[0]
 
         def CookieCheck(self, cookieName):
             """Checks if a cookie exists in the CookieJar
@@ -969,6 +1062,7 @@ if __name__ == "__main__":
     p = ProxyInfo("8.8.8.8", 8888, "dns")
     p = ProxyInfo("185.37.37.37", 8888, "dns")    # http://unlocator.com/
     p = ProxyInfo("204.12.225.226", 8888, "dns")  # http://proxydns.co/
+    p = ProxyInfo("127.0.0.1", 8888, "http")  # http://proxydns.co/
 
     from helpers.stopwatch import StopWatch
     s = StopWatch("Downloader", logger)
@@ -979,14 +1073,28 @@ if __name__ == "__main__":
     # noinspection PyArgumentEqualDefault
     # handler = UriHandler.CreateUriHandler(cacheDir="c:\\temp\\cache\\", useCompression=True, webTimeOut=30, maxFileNameLength=None)
     handler = UriHandler.CreateUriHandler(useCompression=True, webTimeOut=30, maxFileNameLength=None)
+    handler.SetCookie(name="test", domain=".google.com", value="test")
+    handler.SetCookie(name="test2", domain=".google.com", value="test")
     s.Lap("Created")
-    url = "http://www.google.com"
-    url = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/b043bpcn"
+    url = "https://www.google.com"
+    # url = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/b043bpcn"
     # data = handler.Open("http://download.thinkbroadband.com/5MB.zip", progressCallback=CallBack, proxy=None, bytes=0, params="", referer=None, additionalHeaders=None, noCache=False)
     # data = handler.Download("http://www.google.nl/", "google.html", "c:\\temp", CallBack, proxy=p, params="", referer=None, additionalHeaders=None)
     # print data
     s.Lap("Downloaded")
     data = handler.Open(url, progressCallback=CallBack, proxy=p, maxBytes=0, params="", referer=None, additionalHeaders=None, noCache=False)
     s.Lap("Opened")
+    cs = handler.GetCookie("test", ".google.com")
+    if cs is None:
+        raise Exception("Should not be null")
+    cs = handler.GetCookie("test", ".google.com", matchStart=True)
+    if cs is None:
+        raise Exception("Should not be null")
+    cs = handler.GetCookie("test", ".google.com", path='/test/')
+    if cs is not None:
+        raise Exception("Should not null")
+    cs = handler.GetCookie("test3", ".google.com")
+    if cs is not None:
+        raise Exception("Should be null")
     print data
     logger.CloseLog()

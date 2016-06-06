@@ -147,13 +147,18 @@ class Vault:
         if not encryptedValue:
             return encryptedValue
 
-        decryptedValue = self.__Decrypt(encryptedValue, Vault.__Key)
-        if not decryptedValue.startswith(settingId):
-            Logger.Error("Invalid decrypted value for setting '%s'", settingId)
+        try:
+            decryptedValue = self.__Decrypt(encryptedValue, Vault.__Key)
+            if not decryptedValue.startswith(settingId):
+                Logger.Error("Invalid decrypted value for setting '%s'", settingId)
+                return None
+
+            decryptedValue = decryptedValue[len(settingId) + 1:]
+            Logger.Info("Successfully decrypted value for setting '%s'", settingId)
+        except UnicodeDecodeError:
+            Logger.Error("Invalid Unicode data returned from decryption. Must be wrong data")
             return None
 
-        decryptedValue = decryptedValue[len(settingId) + 1:]
-        Logger.Info("Successfully decrypted value for setting '%s'", settingId)
         return decryptedValue
 
     def SetSetting(self, settingId, settingName=None):

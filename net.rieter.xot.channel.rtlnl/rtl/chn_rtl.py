@@ -1,5 +1,4 @@
 import datetime
-import cookielib
 
 import mediaitem
 import chn_class
@@ -401,6 +400,5 @@ class Channel(chn_class.Channel):
         Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
-        c = cookielib.Cookie(version=0, name='rtlcookieconsent', value='yes', port=None, port_specified=False, domain='.www.rtl.nl', domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=2327431273, discard=False, comment=None, comment_url=None, rest={'HttpOnly': None})  # , rfc2109=False)
-        UriHandler.Instance().cookieJar.set_cookie(c)
+        UriHandler.SetCookie(name='rtlcookieconsent', value='yes', domain='.www.rtl.nl')
         return
