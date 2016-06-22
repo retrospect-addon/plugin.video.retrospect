@@ -3,6 +3,7 @@
 import mediaitem
 import chn_class
 
+from parserdata import ParserData
 from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
@@ -33,32 +34,26 @@ class Channel(chn_class.Channel):
             self.mainListUri = "http://www.deredactie.be/cm/vrtnieuws/videozone"
             self.baseUrl = "http://www.deredactie.be"
 
-        elif self.channelCode == "sporza":
-            self.noImage = "sporzaimage.png"
-            self.mainListUri = "http://www.sporza.be/cm/sporza/videozone"
-            self.baseUrl = "http://www.sporza.be"
+        else:
+            raise IndexError("Invalid Channel Code")  # setup the urls
 
-        elif self.channelCode == "ketnet":
-            self.noImage = "ketnetimage.png"
-            self.mainListUri = "http://video.ketnet.be/cm/ketnet/ketnet-mediaplayer"
-            self.baseUrl = "http://video.ketnet.be"
-
-        elif self.channelCode == "cobra":
-            self.noImage = "cobraimage.png"
-            self.mainListUri = "http://www.cobra.be/cm/cobra/cobra-mediaplayer"
-            self.baseUrl = "http://www.cobra.be"
-
-        # setup the urls
         self.swfUrl = "%s/html/flash/common/player.5.10.swf" % (self.baseUrl,)
 
         # setup the main parsing data
-        self.episodeItemRegex = '<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>'
-        self.videoItemRegex = ('<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)" rel="videoplayer">\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"',
-                               '<a href="(/cm/[^/]+/videozone/[^?"]+)" >([^<]+)</a>')
-        self.mediaUrlRegex = 'data-video-((?:src|rtmp|iphone|mobile)[^=]*)="([^"]+)"\W+(?:data-video-[^"]+path="([^"]+)){0,1}'
-        self.pageNavigationRegex = '<a href="([^"]+\?page=\d+)"[^>]+>(\d+)'
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
+                            creator=self.CreateEpisodeItem)
+
+        self._AddDataParser("*", creator=self.CreateVideoItem,
+                            parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
+        self._AddDataParser("*", creator=self.CreateVideoItem,
+                            parser='<p>([^<]+)</p>[\w\W]{0,200}?<a href="(/cm/[^/]+/videozone/[^?"]+)" >([^<]+)</a>')
+
+        self._AddDataParser("*", creator=self.CreatePageItem,
+                            parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
         self.pageNavigationRegexIndex = 1
 
+        self.mediaUrlRegex = 'data-video-((?:src|rtmp|iphone|mobile)[^=]*)="([^"]+)"\W+(?:data-video-[^"]+path="([^"]+)){0,1}'
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
@@ -134,13 +129,12 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        if resultSet[0] == 0:
-            name = resultSet[2]
-            url = "%s%s" % (self.baseUrl, resultSet[1])
-            thumb = resultSet[3]
+        name = resultSet[1]
+        url = "%s%s" % (self.baseUrl, resultSet[0])
+
+        if len(resultSet) == 3:
+            thumb = resultSet[2]
         else:
-            name = resultSet[2]
-            url = "%s%s" % (self.baseUrl, resultSet[1])
             thumb = ""
 
         if thumb and not thumb.startswith("http://"):
@@ -153,11 +147,18 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.complete = False
 
-        if name[-3] == name[-6] == "/":
-            Logger.Debug("Found possible date in name")
-            year = int(name[-2:]) + 2000
-            month = name[-5:-3]
-            day = name[-8:-6]
+        nameParts = name.rsplit("/", 3)
+        # if name[-3] == name[-6] == "/":
+        #     year = int(name[-2:]) + 2000
+        #     month = name[-5:-3]
+        #     day = name[-8:-6]
+        if len(nameParts) == 3:
+            Logger.Debug("Found possible date in name: %s", nameParts)
+            year = nameParts[2]
+            if len(year) == 2:
+                year = 2000 + int(year)
+            month = nameParts[1]
+            day = nameParts[0].rsplit(" ", 1)[1]
             Logger.Trace("%s - %s - %s", year, month, day)
             item.SetDate(year, month, day)
 

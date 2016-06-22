@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: Filter out the audio only streams for Vier.be (See #674)
+Fixed: De Redactie did not show all items
+Fixed: Sporza.be broke (Fixes #740)
 
 [I]Previous Changes[/I]
+Fixed: Filter out the audio only streams for Vier.be (See #674)
 Added: RTBF.be (Fixes #725)
 Added: Vier.be (Fixes #674)
 Fixed: Eén stream selection issue
