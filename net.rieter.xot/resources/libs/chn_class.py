@@ -294,9 +294,12 @@ class Channel:
 
             Logger.Debug("Processing DataParser.Creator for %s items", len(parserResults))
             for parserResult in parserResults:
-                handlerItem = dataParser.Creator(parserResult)
-                if handlerItem is not None:
-                    items.append(handlerItem)
+                handlerResult = dataParser.Creator(parserResult)
+                if handlerResult is not None:
+                    if isinstance(handlerResult, list):
+                        items += handlerResult
+                    else:
+                        items.append(handlerResult)
 
         # should we exclude DRM/GEO?
         hideGeoLocked = AddonSettings.HideGeoLockedItemsForLocation(self.language)
