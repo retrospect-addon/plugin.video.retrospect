@@ -257,6 +257,9 @@ class Channel:
             (data, preItems) = dataParser.PreProcessor(data)
             items += preItems
 
+            if isinstance(data, JsonHelper):
+                Logger.Debug("Generic preprocessor resulted in JsonHelper data")
+
         # The the other handlers
         Logger.Trace("Processing %s Normal DataParsers", len(dataParsers))
         handlerJson = None
@@ -281,7 +284,10 @@ class Channel:
                 if handlerJson is None:
                     # Cache the json requests to improve performance
                     Logger.Trace("Caching JSON results for Dataparsing")
-                    handlerJson = JsonHelper(handlerData, Logger.Instance())
+                    if isinstance(handlerData, JsonHelper):
+                        handlerJson = handlerData
+                    else:
+                        handlerJson = JsonHelper(handlerData, Logger.Instance())
 
                 Logger.Trace(dataParser.Parser)
                 parserResults = handlerJson.GetValue(fallback=[], *dataParser.Parser)
@@ -290,7 +296,10 @@ class Channel:
                     # if there is just one match, return that as a list
                     parserResults = [parserResults]
             else:
-                parserResults = Regexer.DoRegex(dataParser.Parser, handlerData)
+                if isinstance(handlerData, JsonHelper):
+                    raise ValueError("Cannot perform Regex Parser on JsonHelper.")
+                else:
+                    parserResults = Regexer.DoRegex(dataParser.Parser, handlerData)
 
             Logger.Debug("Processing DataParser.Creator for %s items", len(parserResults))
             for parserResult in parserResults:
