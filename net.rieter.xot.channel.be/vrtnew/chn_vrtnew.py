@@ -47,7 +47,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", creator=self.CreateVideoItem,
                             parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
         self._AddDataParser("*", creator=self.CreateVideoItem,
-                            parser='<p>([^<]+)</p>[\w\W]{0,200}?<a href="(/cm/[^/]+/videozone/[^?"]+)" >([^<]+)</a>')
+                            parser='<p>([^<]+)</p>[\w\W]{0,200}?<a href="(/cm/[^/]+/videozone/[^?"]+)" >([^<]+)</a>',updater=self.UpdateVideoItem)
 
         self._AddDataParser("*", creator=self.CreatePageItem,
                             parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')

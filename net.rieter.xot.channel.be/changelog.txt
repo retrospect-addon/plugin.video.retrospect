@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: De Redactie did not show all items
-Fixed: Sporza.be broke (Fixes #740)
+Fixed: De Redactie did not retrieve media url
 
 [I]Previous Changes[/I]
+Fixed: De Redactie did not show all items
+Fixed: Sporza.be broke (Fixes #740)
 Fixed: Filter out the audio only streams for Vier.be (See #674)
 Added: RTBF.be (Fixes #725)
 Added: Vier.be (Fixes #674)
