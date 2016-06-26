@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: De Redactie did not retrieve media url
+Fixed: RTBF live streams broke due to HLS switch (Fixes #742)
 
 [I]Previous Changes[/I]
+Fixed: De Redactie did not retrieve media url
 Fixed: De Redactie did not show all items
 Fixed: Sporza.be broke (Fixes #740)
 Fixed: Filter out the audio only streams for Vier.be (See #674)

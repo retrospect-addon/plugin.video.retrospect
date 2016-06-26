@@ -9,7 +9,7 @@ from urihandler import UriHandler
 from parserdata import ParserData
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
-# from streams.m3u8 import M3u8
+from streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
@@ -52,9 +52,10 @@ class Channel(chn_class.Channel):
                             matchType=ParserData.MatchExact,
                             parser=("item", 3, "item"), creator=self.CreateCategory)
 
-        liveRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant</span> sur (?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
+        liveRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant</span> (?:sur )?(?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
         liveRegex = Regexer.FromExpresso(liveRegex)
-        self._AddDataParser("https://www.rtbf.be/auvio/direct/",
+        self._AddDataParser("#livechannels",
+                            preprocessor=self.LoadChannelData,
                             parser=liveRegex,
                             creator=self.CreateVideoItem)
 
@@ -108,7 +109,7 @@ class Channel(chn_class.Channel):
         items = []
 
         subItems = {
-            "\a.: Direct :.": "%s/auvio/direct/" % (self.baseUrl, ),
+            "\a.: Direct :.": "#livechannels",
             "\a.: Cat&eacute;gories :.": "http://www.rtbf.be/news/api/menu?site=media"
         }
 
@@ -119,6 +120,20 @@ class Channel(chn_class.Channel):
             items.append(item)
 
         Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def LoadChannelData(self, data):
+        """ Adds the channel items to the listing.
+
+        @param data:    The data to use.
+
+        Returns a list of MediaItems that were retrieved.
+
+        """
+
+        items = []
+        url = "%s/auvio/direct/" % (self.baseUrl, )
+        data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -143,14 +158,14 @@ class Channel(chn_class.Channel):
         item = mediaitem.MediaItem(resultSet["name"], url)
         item.complete = True
         return item
-
-    def CreateLiveChannelItem(self, resultSet):
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
-        if item is None:
-            return item
-
-        item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, resultSet["id"])
-        return item
+    #
+    # def CreateLiveChannelItem(self, resultSet):
+    #     item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+    #     if item is None:
+    #         return item
+    #
+    #     item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, resultSet["id"])
+    #     return item
 
     def CreatePageItem(self, resultSet):
         item = chn_class.Channel.CreatePageItem(self, resultSet)
@@ -167,6 +182,7 @@ class Channel(chn_class.Channel):
         if "videoId" in resultSet:
             item.url = "%s/auvio/embed/media?id=%s" % (self.baseUrl, resultSet["videoId"])
         elif "liveId" in resultSet:
+            item.name = "%s - %s" % (resultSet["channel"].strip(), item.name)
             item.url = "%s/auvio/embed/direct?id=%s" % (self.baseUrl, resultSet["liveId"])
             item.isLive = True
 
@@ -213,18 +229,29 @@ class Channel(chn_class.Channel):
         mediaInfo = HtmlEntityHelper.ConvertHTMLEntities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
         Logger.Trace(mediaInfo)
-
-        # fetch the token:
-        tokenUrl = "%s/api/media/streaming?streamname=%s" % (self.baseUrl, mediaInfo.json["streamName"])
-        tokenData = UriHandler.Open(tokenUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
-        tokenData = JsonHelper(tokenData)
-        token = tokenData.GetValue("token")
-        Logger.Debug("Found token %s for '%s'", token, mediaInfo.json["streamName"])
-
         part = item.CreateNewEmptyMediaPart()
-        rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
-        rtmpUrl = self.GetVerifiableVideoUrl(rtmpUrl)
-        part.AppendMediaStream(rtmpUrl, 0)
+
+        hlsUrl = mediaInfo.GetValue("streamUrl")
+        if hlsUrl is not None and "m3u8" in hlsUrl:
+            Logger.Debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
+            # from debug.router import Router
+            # data = Router.GetVia("be", hlsUrl, proxy=self.proxy)
+            for s, b in M3u8.GetStreamsFromM3u8(hlsUrl, self.proxy):
+                part.AppendMediaStream(s, b)
+                item.complete = True
+        else:
+            Logger.Debug("No HLS url found for %s. Fetching RTMP Token.", mediaInfo.json["streamName"])
+            # fetch the token:
+            tokenUrl = "%s/api/media/streaming?streamname=%s" % (self.baseUrl, mediaInfo.json["streamName"])
+            tokenData = UriHandler.Open(tokenUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
+            tokenData = JsonHelper(tokenData)
+            token = tokenData.GetValue("token")
+            Logger.Debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])
+
+            rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
+            rtmpUrl = self.GetVerifiableVideoUrl(rtmpUrl)
+            part.AppendMediaStream(rtmpUrl, 0)
+            item.complete = True
+
         item.isGeoLocked = not mediaInfo.GetValue("geoLocRestriction", fallback="world") == "world"
-        item.complete = True
         return item

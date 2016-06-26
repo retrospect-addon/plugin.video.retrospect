@@ -473,6 +473,9 @@ class Channel(chn_class.Channel):
             # they are the same
             title = showTitle
 
+        if "live" in resultSet and resultSet["live"] == True:
+            title = "%s (&middot;Live&middot;)" % (title, )
+
         itemType = resultSet["contentType"]
         if "contentUrl" in resultSet:
             url = resultSet["contentUrl"]
@@ -498,6 +501,13 @@ class Channel(chn_class.Channel):
         item.type = itemType
         item.isGeoLocked = resultSet.get("onlyAvailableInSweden", False)
         item.description = resultSet.get("description", "")
+
+        if "season" in resultSet and "episodeNumber" in resultSet:
+            season = int(resultSet["season"])
+            episode = int(resultSet["episodeNumber"])
+            if season > 0 and episode > 0:
+                item.name = "s%02de%02d - %s" % (season, episode, item.name)
+                item.SetSeasonInfo(season, episode)
 
         # thumb = resultSet.get("imageMedium", self.noImage).replace("/medium/", "/extralarge/")
         thumb = self.parentItem.thumb

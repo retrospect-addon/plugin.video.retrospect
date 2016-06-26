@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: SVT changed more layouts (Fixes #738)
+Added: *live* indicator to videos that are live at the moment (Fixes #741)
+Added: sXXeXX if Season and Episode data is present
 
 [I]Previous changes[/I]
+Fixed: SVT changed more layouts (Fixes #738)
 Fixed: Categories in TV4Play only showed the first 25 items (Fixes #732)
 Added: Langfilm i SVT (Fixes #730)
 Fixed: TV4 would not play streams (Fixes #726)
