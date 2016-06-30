@@ -54,8 +54,7 @@ class Channel(chn_class.Channel):
 
         liveRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant</span> (?:sur )?(?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
         liveRegex = Regexer.FromExpresso(liveRegex)
-        self._AddDataParser("#livechannels",
-                            preprocessor=self.LoadChannelData,
+        self._AddDataParser("https://www.rtbf.be/auvio/direct/",
                             parser=liveRegex,
                             creator=self.CreateVideoItem)
 
@@ -109,7 +108,7 @@ class Channel(chn_class.Channel):
         items = []
 
         subItems = {
-            "\a.: Direct :.": "#livechannels",
+            "\a.: Direct :.": "%s/auvio/direct/" % (self.baseUrl, ),
             "\a.: Cat&eacute;gories :.": "http://www.rtbf.be/news/api/menu?site=media"
         }
 
@@ -118,22 +117,9 @@ class Channel(chn_class.Channel):
             item.complete = True
             item.dontGroup = True
             items.append(item)
+            item.isLive = v.endswith('/direct/')
 
         Logger.Debug("Pre-Processing finished")
-        return data, items
-
-    def LoadChannelData(self, data):
-        """ Adds the channel items to the listing.
-
-        @param data:    The data to use.
-
-        Returns a list of MediaItems that were retrieved.
-
-        """
-
-        items = []
-        url = "%s/auvio/direct/" % (self.baseUrl, )
-        data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         return data, items
 
     def CreateEpisodeItem(self, resultSet):

@@ -574,8 +574,8 @@ class MediaItem:
                         % (value, self.type, self.complete, self.isLive, self.__date,
                            self.downloadable, self.isGeoLocked, self.isDrmProtected)
         else:
-            value = "%s [Type=%s, Url=%s, Date=%s, Geo/DRM=%s/%s]" \
-                    % (value, self.type, self.url, self.__date, self.isGeoLocked, self.isDrmProtected)
+            value = "%s [Type=%s, Url=%s, Date=%s, IsLive=%s, Geo/DRM=%s/%s]" \
+                    % (value, self.type, self.url, self.__date, self.isLive, self.isGeoLocked, self.isDrmProtected)
 
         return value
 

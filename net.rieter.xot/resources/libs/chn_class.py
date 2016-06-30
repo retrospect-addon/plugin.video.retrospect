@@ -226,7 +226,11 @@ class Channel:
             headers = item.HttpHeaders
 
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
-            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers)
+            # Disable cache on live folders
+            noCache = item is not None and not item.IsPlayable() and item.isLive
+            if noCache:
+                Logger.Debug("Disabling cache for '%s'", item)
+            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=noCache)
         elif url.startswith("#"):
             data = ""
         elif url == "searchSite":
