@@ -1038,7 +1038,7 @@ class Channel:
 
         return TextureHandler.Instance().GetTextureUri(self, image)
 
-    def _AddDataParsers(self, urls, preprocessor=None,
+    def _AddDataParsers(self, urls, name=None, preprocessor=None,
                         parser=None, creator=None, updater=None,
                         json=False, matchType=ParserData.MatchStart):
         """ Adds a DataParser to the handlers dictionary for the  given urls
@@ -1056,7 +1056,7 @@ class Channel:
         """
 
         for url in urls:
-            self._AddDataParser(url, preprocessor, parser, creator, updater, json, matchType=matchType)
+            self._AddDataParser(url, name, preprocessor, parser, creator, updater, json, matchType=matchType)
         return
 
     def _GetSetting(self, settingId, valueForNone=None):
@@ -1070,8 +1070,7 @@ class Channel:
         setting = AddonSettings.GetChannelSetting(self.guid, settingId, valueForNone)
         return setting
 
-    def _AddDataParser(self, url,
-                       preprocessor=None,
+    def _AddDataParser(self, url, name=None, preprocessor=None,
                        parser=None, creator=None, updater=None,
                        json=False, matchType=ParserData.MatchStart):
         """ Adds a DataParser to the handlers dictionary
@@ -1089,6 +1088,7 @@ class Channel:
         """
 
         data = ParserData(url)
+        data.Name = name
         data.PreProcessor = preprocessor
         data.Parser = parser
         data.Creator = creator

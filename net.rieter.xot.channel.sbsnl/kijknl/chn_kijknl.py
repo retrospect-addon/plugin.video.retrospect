@@ -55,7 +55,7 @@ class Channel(chn_class.Channel):
                                 '\W+</a>\W+<a href="(?<url>[^"]+)"[^>]+>\W+<div class="info[^>]*>\W+'\
                                 .replace("(?<", "(?P<") \
                                 % (channelId or self.channelCode,)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+        self._AddDataParser(self.mainListUri, name="Mainlist Parsing", matchType=ParserData.MatchExact,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         # normal video items
@@ -63,7 +63,9 @@ class Channel(chn_class.Channel):
                               'itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,1000}' \
                               '<a href="(?<url>[^"]+)/[^"]+"' \
                               .replace("(?<", "(?P<")
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        self._AddDataParser("*", name="Standard Videos",
+                            parser=self.videoItemRegex, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
 
         # ajax video items
         self.ajaxItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]* itemprop="thumbnailUrl"[^>]*>\W*</noscript>[\w\W]' \
@@ -71,7 +73,7 @@ class Channel(chn_class.Channel):
                              '(?<url>[^"]+)/[^"]+"[^>]+\W+<div[^>]+>\W+<(?:div class="desc[^>]+|h3[^>]*)>' \
                              '(?<description>[^<]+)[\W\w]{0,400}?<div class="airdate[^>]+?(?:content="' \
                              '(?<date>[^"]+)"|>)'.replace("(?<", "(?P<")
-        self._AddDataParser("http://www.kijk.nl/ajax/section/series/",
+        self._AddDataParser("http://www.kijk.nl/ajax/section/series/", name="Ajax Videos",
                             parser=self.ajaxItemRegex, creator=self.CreateVideoItem)
 
         # folders
@@ -82,8 +84,8 @@ class Channel(chn_class.Channel):
                                 .replace("(?<", "(?P<")]
 
         # we both need folders in the normal and ajax pages.
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
-        self._AddDataParser("http://www.kijk.nl/ajax/section/series/",
+        self._AddDataParser("*", name="Default Folder", parser=self.folderItemRegex, creator=self.CreateFolderItem)
+        self._AddDataParser("http://www.kijk.nl/ajax/section/series/", name="Ajax Folders",
                             parser=self.folderItemRegex, creator=self.CreateFolderItem)
         self.mediaUrlRegex = '<object id=@"myExperience[\w\W]+?playerKey@" value=@"([^@]+)[\w\W]{0,1000}?videoPlayer@" value=@"(\d+)@"'.replace("@", "\\\\")
 

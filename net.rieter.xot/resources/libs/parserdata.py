@@ -12,7 +12,7 @@ import re
 
 
 class ParserData(object):
-    __slots__ = ["Match", "PreProcessor",
+    __slots__ = ["Name", "Match", "PreProcessor",
                  "Parser", "Creator", "Updater",
                  "IsJson", "MatchType"]
 
@@ -24,9 +24,11 @@ class ParserData(object):
     MatchExact = "Exact"
     MatchRegex = "Regex"
 
+    # noinspection PyPropertyAccess
     def __init__(self, match):
         """ Creates an instance of ParserData with default values for the properties. """
         self.Match = match
+        self.Name = None
         self.PreProcessor = None
         self.Parser = None
         self.Creator = None
@@ -70,6 +72,18 @@ class ParserData(object):
         generic = ""
         if isGeneric:
             generic = "Generic "
+
+        if self.Name is not None:
+            return "%sDataParser '%s' (Json=%s, Generic=%s, MatchType=%s):\n" \
+                   "Match:   %s\n" \
+                   "Pre:     %s\n" \
+                   "Parser:  %s\n" \
+                   "Creator: %s\n" \
+                   "Updater: %s\n" % \
+                   (generic, self.Name, self.IsJson, self.IsGenericPreProcessor(),
+                    self.MatchType, self.Match,
+                    self.PreProcessor,
+                    self.Parser, self.Creator, self.Updater)
 
         return "%sDataParser (Json=%s, Generic=%s, MatchType=%s):\n" \
                "Match:   %s\n" \
