@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-Added: *live* indicator to videos that are live at the moment (Fixes #741)
-Added: sXXeXX if Season and Episode data is present
+Fixed: UR Play broke (Fixes #743)
 
 [I]Previous changes[/I]
+Added: *live* indicator to videos that are live at the moment (Fixes #741)
+Added: sXXeXX if Season and Episode data is present
 Fixed: SVT changed more layouts (Fixes #738)
 Fixed: Categories in TV4Play only showed the first 25 items (Fixes #732)
 Added: Langfilm i SVT (Fixes #730)

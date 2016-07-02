@@ -43,33 +43,36 @@ class Channel(chn_class.Channel):
                             parser=programReg, creator=self.CreateEpisodeItem)
 
         # videos
-        videoItemRegex = '<li[^>]*>\W+<a[^>]*(?:data-id="(?<id2>\d+)")?[^>]*href="/(?<url>\w+/' \
-                         '(?<id>\d+)[^"]+)"[^>]*>[\w\W]{0,2000}?<h3>(?<title>[^<]+)</h3>\W+' \
-                         '<p[^>]*>(?<serie>[^<]+)</p>\W+<p[^>]*>(?<description>[^<]+)<'
+        videoItemRegex = '<a [^>]+href="/(?<url>\w+/(?<id>\d+)[^"]+)"[^>]*>\W+<figure[^>]*>\W+' \
+                         '<span[^<]+[^>]*>\W+<img[^>]+data-src="(?<thumb>[^"]+)"\W+<span[^>]*' \
+                         'class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+' \
+                         '<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^[^>]+>(?<description>[^<]+)'
         videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        singleVideoRegex = '<figure[^>]*>\W+<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
+                           '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
+                           '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
+                           '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
+                           'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
+                           'content="(?<date>[^"]+)"'
+        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
         self._AddDataParser("http://urplay.se/sok?product_type=program",
                             parser=videoItemRegex, preprocessor=self.GetVideoSection,
                             creator=self.CreateVideoItemWithSerie, updater=self.UpdateVideoItem)
+
         self._AddDataParser("*", parser=videoItemRegex, preprocessor=self.GetVideoSection,
                             creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-
-        # pages
-        self.pageNavigationRegex = '<a href="([^"]+page=)(\d+)"[^>]*>\d+</a>'
-        self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
+                            creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
 
         self.mediaUrlRegex = "urPlayer.init\(([^<]+)\);"
 
         #===============================================================================================================
         # non standard items
-        self.categoryName = ""
-        self.currentUrlPart = ""
-        self.currentPageUrlPart = ""
+        self.__videoItemFound = False
 
         #===============================================================================================================
         # Test cases:
         #   Anaconda Auf Deutch : RTMP, Subtitles
-        #   Kunskapsdokumentar: folders, pages
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -155,7 +158,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        data = data[:data.find('<section id="related">')]
+        data = data[:data.find('<section id="related"')]
         Logger.Debug("Pre-Processing finished")
         return data, items
 
@@ -186,6 +189,13 @@ class Channel(chn_class.Channel):
             item.name = "%s - %s" % (resultSet["serie"], item.name)
         return item
 
+    def CreateSingleVideoItem(self, resultSet):
+        """ If no items were found, we should find the main item on the page. """
+
+        if self.__videoItemFound:
+            return None
+        return self.CreateVideoItem(resultSet)
+
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
@@ -209,7 +219,6 @@ class Channel(chn_class.Channel):
         # Logger.Trace(resultSet)
 
         title = resultSet["title"]
-        serie = resultSet["serie"]
         url = "%s/%s" % (self.baseUrl, resultSet["url"])
         thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
         item = mediaitem.MediaItem(title, url)
@@ -219,6 +228,8 @@ class Channel(chn_class.Channel):
         item.fanart = self.parentItem.fanart
         item.icon = self.icon
         item.complete = False
+
+        self.__videoItemFound = True
         return item
 
     def UpdateVideoItem(self, item):
