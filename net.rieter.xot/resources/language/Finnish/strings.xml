@@ -91,6 +91,8 @@
     <string id="30090">The 'Password Vault' protects stored password with encryption using a PIN.</string>
     <string id="30091">Change Vault Pin</string>
     <string id="30092">Reset Vault</string>
+    <string id="30093">Salasana</string>
+    <string id="30094">Käyttäjänimi</string>
 
     <string id="30100">Ei mitään</string>
     <string id="30101">Alueellinen</string>
