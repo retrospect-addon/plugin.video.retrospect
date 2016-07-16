@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
         baseEncode = Regexer.DoRegex(self.mediaUrlRegex, data)[-1]
-        jsonData = EncodingHelper().DecodeBase64(baseEncode)
+        jsonData = EncodingHelper.DecodeBase64(baseEncode)
         json = JsonHelper(jsonData, logger=Logger.Instance())
         Logger.Trace(json)
 

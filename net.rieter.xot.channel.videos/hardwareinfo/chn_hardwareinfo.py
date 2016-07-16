@@ -33,12 +33,6 @@ class Channel(chn_class.Channel):
         # set context menu items
         self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownload", itemTypes="video"))
 
-        # configure login stuff
-        self.passWord = ""
-        self.userName = ""
-        self.logonUrl = ""
-        self.requiresLogon = False
-
         # setup the urls
         # self.mainListUri = "https://www.youtube.com/feeds/videos.xml?user=hardwareinfovideo"
         self.mainListUri = "http://nl.hardware.info/tv/rss-private/streaming"

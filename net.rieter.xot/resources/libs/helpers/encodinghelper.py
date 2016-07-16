@@ -40,7 +40,8 @@ class EncodingHelper:
         #self.encoder = encoder
         return
 
-    def DecodeBase64(self, data):
+    @staticmethod
+    def DecodeBase64(data):
         """Decodes a Base64 encoded string into a normal string.
 
         Arguments:

@@ -89,9 +89,6 @@ class Channel:
         self.contextMenuItems = []
 
         # configure login stuff
-        self.passWord = ""
-        self.userName = ""
-        self.logonUrl = ""
         self.requiresLogon = False
 
         # setup the urls
@@ -151,7 +148,7 @@ class Channel:
         self.noImage = TextureHandler.Instance().GetTextureUri(self, self.noImage)
 
         # perhaps log on?
-        self.loggedOn = self.LogOn(self.userName, self.passWord)
+        self.loggedOn = self.LogOn()
 
         if not self.loggedOn:
             Logger.Error('Not logged on...exiting')
@@ -877,12 +874,8 @@ class Channel:
         return item
 
     #noinspection PyUnusedLocal
-    def LogOn(self, *args):
+    def LogOn(self):
         """Logs on to a website, using an url.
-
-        Arguments:
-        userName : string - the username to use to log on
-        passWord : string - the password to use to log on
 
         Returns:
         True if successful.

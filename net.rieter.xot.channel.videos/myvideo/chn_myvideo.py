@@ -28,12 +28,6 @@ class Channel(chn_class.Channel):
         # set context menu items
         self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
 
-        # configure login stuff
-        self.passWord = ""
-        self.userName = ""
-        self.logonUrl = ""
-        self.requiresLogon = False
-
         # setup the urls
         self.mainListUri = "http://www.myvideo.nl/"
         self.baseUrl = "http://www.myvideo.nl"
