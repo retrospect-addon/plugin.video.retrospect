@@ -103,6 +103,8 @@ class SubtitleHelper:
                 srt = SubtitleHelper.__ConvertSamiToSrt(raw)
             elif format.lower() == 'srt':
                 srt = raw
+            elif format.lower() == 'webvtt':
+                srt = SubtitleHelper.__ConvertWebVttToSrt(raw)
             elif format.lower() == 'ttml':
                 srt = SubtitleHelper.__ConvertTtmlToSrt(raw)
             elif format.lower() == 'dcsubtitle':
@@ -239,6 +241,43 @@ class SubtitleHelper:
             except:
                 Logger.Error("Error parsing subtitle: %s", sub, exc_info=True)
         return srt
+
+    @staticmethod
+    def __ConvertWebVttToSrt(webvvt):
+        """Converts sami format into SRT format:
+
+        Arguments:
+        ttml : string - TTML (Timed Text Markup Language) subtitle format
+
+        Returns:
+        SRT formatted subtitle:
+
+        Example:
+            1
+            00:00:20,000 --> 00:00:24,400
+            text
+
+        """
+
+        count = 0
+        result = ""
+        for line in webvvt.split("\n"):
+            line = line.strip()
+            if line.endswith("WEBVTT"):
+                continue
+
+            if " --> " in line:
+                count += 1
+                start, end = line.split(" --> ")
+                result = "%s\r\n%s" % (result, count)
+                if start.count(":") == 1:
+                    result = "%s\r\n00:%s --> 00:%s" % (result, start.replace(".", ","), end.replace(".", ","))
+                else:
+                    result = "%s\r\n%s --> %s" % (result, start.replace(".", ","), end.replace(".", ","))
+            else:
+                result = "%s\r\n%s" % (result, line)
+
+        return result
 
     @staticmethod
     def __ConvertTtmlToSrt(ttml):
