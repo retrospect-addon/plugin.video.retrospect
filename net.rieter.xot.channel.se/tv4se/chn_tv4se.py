@@ -489,8 +489,13 @@ class Channel(chn_class.Channel):
 
             if "smi" in result[1]:
                 subTitleUrl = result[5]
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, proxy=self.proxy)
-            elif result[1] in ("webvtts", "webvtt"):
+                if not part.Subtitle:
+                    part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, proxy=self.proxy)
+            if result[1] == "webvtt":
+                subTitleUrl = result[5]
+                if not part.Subtitle:
+                    part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, proxy=self.proxy, format="webvtt")
+            elif result[1] in ("webvtts",):
                 Logger.Debug("Found '%s' subtitle stream. Ignoring.", result[1])
             else:
                 if "rtmp" in result[-1]:
