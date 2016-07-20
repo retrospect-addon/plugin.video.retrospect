@@ -89,8 +89,8 @@
     <string id="30088">Finsk</string>
     <string id="30089">Lösenordsskydd</string>
     <string id="30090">Lösenordet skyddar lagrade lösenord krypterade med hjälp av en KOD.</string>
-    <string id="30091">Change Vault Pin</string>
-    <string id="30092">Reset Vault</string>
+    <string id="30091">Ändra KODEN</string>
+    <string id="30092">Återställ KODENReset Vault</string>
     <string id="30093">Lösenord</string>
     <string id="30094">Användarnamn</string>
 
@@ -165,7 +165,7 @@
     <string id="30550">Det valda avsnittet gick inte att spela upp.</string>
     <string id="30551">Idag</string>
     <string id="30552">Igår</string>
-    <string id="30553">Dagen före igår</string>
+    <string id="30553">Förrgår</string>
     <string id="30554">DRM-skydd</string>
     <string id="30555">Valt objekt är DRM-skyddat och|kanske inte går att spela upp|i Kodi.</string>
     <string id="30556">Initierar kanal(er)</string>
@@ -174,7 +174,7 @@
     <string id="30559">Hämtar saknade texturer. Detta kan ta en stund beroende på internet och systemets hastighet.</string>
     <string id="30560">Betalvideo</string>
     <string id="30561">Valt objekt är inte gratis och kanske inte går att spela upp i Kodi.</string>
-    <string id="30562">Username and/or password not set in Add-on settings</string>
+    <string id="30562">Användarnamn och/eller lösenord har inte angivits i tilläggsinställningarna</string>
 
     <string id="30590">Ange en ny KOD för Retrospect</string>
     <string id="30591">Ingen KOD angiven för Retrospect</string>
@@ -183,5 +183,5 @@
     <string id="30594">Ange ett värde för inställning: '%s'</string>
     <string id="30595">Ange KODEN för Retrospect</string>
     <string id="30596">Felaktig KOD angiven för Retrospect</string>
-    <string id="30597">Resetting the vault will invalidate all existing encrypted values. Are you sure?</string>
+    <string id="30597">Om du återställer KODEN går alla sparade inloggningar förlorade. Är du säker?</string>
 </strings>
