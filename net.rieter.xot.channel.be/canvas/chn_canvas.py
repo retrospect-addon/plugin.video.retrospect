@@ -41,10 +41,8 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://www.canvas.be/sites/all/libraries/player/PolymediaShowFX16.swf"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddCategories,
-                            parser='<a class="header[^"]+"[^>]+href="(http://www.canvas.be/video[^"]+)">([^<]+)</a>',
-                            creator=self.CreateEpisodeItem)
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
+                            preprocessor=self.AddCategoriesAndExtractJson)
 
         # This video regex works with the default CreateVideoItem
         # videoRegex = Regexer.FromExpresso(
@@ -83,7 +81,8 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        item = mediaitem.MediaItem(resultSet[1].title(), resultSet[0])
+        url = "http://www.canvas.be/api/video/1/0,999999/-date/%s" % (resultSet[0], )
+        item = mediaitem.MediaItem(resultSet[1], url)
         item.icon = self.icon
         item.type = "folder"
         item.complete = True
@@ -127,6 +126,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
+        # Logger.Trace(data)
 
         json = JsonHelper(data)
         videos = json.GetValue("videos")
@@ -147,8 +147,9 @@ class Channel(chn_class.Channel):
                 item.thumb = data["image"].get("url", None)
 
             if "date" in data:
-                date = data["date"]["date"]
-                timeStamp = time.strptime(date, "%Y-%m-%d %H:%M:%S.000000")
+                date = data["date"]
+                # u'2016-07-19T20:00:00+00:00'
+                timeStamp = time.strptime(date.split("+")[0], "%Y-%m-%dT%H:%M:%S")
                 item.SetDate(*timeStamp[0:6])
 
             items.append(item)
@@ -283,7 +284,7 @@ class Channel(chn_class.Channel):
         Logger.Trace(data)
         return data, items
 
-    def AddCategories(self, data):
+    def AddCategoriesAndExtractJson(self, data):
         """ Adds live streams to the initial list to display
 
         Arguments:
@@ -322,6 +323,12 @@ class Channel(chn_class.Channel):
         # item.complete = True
         # items.append(item)
 
+        data = Regexer.DoRegex('({"program":[\W\w]*?}});\W*</script>', data)[0]
+        Logger.Trace(data)
+        jsonData = JsonHelper(data)
+        data = jsonData.GetValue("program")
+        for url, name in data.iteritems():
+            items.append(self.CreateEpisodeItem([url, name]))
         return data, items
     
     def CreateVideoItemFeeds(self, resultSet):

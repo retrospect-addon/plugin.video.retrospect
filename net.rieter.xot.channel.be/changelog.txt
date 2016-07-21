@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: RTBF live streams broke due to HLS switch (Fixes #742)
+Fixed: Canvas updated their site (Fixes #747)
 
 [I]Previous Changes[/I]
+Fixed: RTBF live streams broke due to HLS switch (Fixes #742)
 Fixed: De Redactie did not retrieve media url
 Fixed: De Redactie did not show all items
 Fixed: Sporza.be broke (Fixes #740)
