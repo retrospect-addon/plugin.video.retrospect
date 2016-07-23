@@ -146,14 +146,6 @@ class Channel:
         # self.icon = self.GetImageLocation(self.icon) -> already in the __init__
         # self.fanart = self.GetImageLocation(self.fanart) -> already in the __init__
         self.noImage = TextureHandler.Instance().GetTextureUri(self, self.noImage)
-
-        # perhaps log on?
-        self.loggedOn = self.LogOn()
-
-        if not self.loggedOn:
-            Logger.Error('Not logged on...exiting')
-            return False
-
         return
 
     #noinspection PyUnusedLocal
@@ -215,12 +207,19 @@ class Channel:
         if item is None:
             Logger.Info("ProcessFolderList :: No item was specified. Assuming it was the main channel list")
             url = self.mainListUri
-            headers = self.httpHeaders
         elif len(item.items) > 0:
             return item.items
         else:
             url = item.url
-            headers = item.HttpHeaders
+
+        # Determine the handlers and process
+        dataParsers = self.__GetDataParsers(url)
+        if filter(lambda p: p.LogOnRequired, dataParsers):
+            Logger.Info("One or more dataparsers require logging in.")
+            self.loggedOn = self.LogOn()
+
+        # now set the headers here and not earlier in case they might have been update by the logon
+        headers = self.httpHeaders
 
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
@@ -236,9 +235,6 @@ class Channel:
         else:
             Logger.Debug("Unknown URL format. Setting data to ''")
             data = ""
-
-        # Determine the handlers and process
-        dataParsers = self.__GetDataParsers(url)
 
         # first check if there is a generic pre-processor
         preProcs = filter(lambda p: p.IsGenericPreProcessor(), dataParsers)
@@ -1063,9 +1059,10 @@ class Channel:
         setting = AddonSettings.GetChannelSetting(self.guid, settingId, valueForNone)
         return setting
 
+    # noinspection PyPropertyAccess
     def _AddDataParser(self, url, name=None, preprocessor=None,
                        parser=None, creator=None, updater=None,
-                       json=False, matchType=ParserData.MatchStart):
+                       json=False, matchType=ParserData.MatchStart, requiresLogon=False):
         """ Adds a DataParser to the handlers dictionary
 
         @param url:             The URL that triggers these handlers
@@ -1075,6 +1072,8 @@ class Channel:
         @param updater:         The updater called for updating a item
         @param json:            Indication whether the parsers are JSON (True) or Regex (False)
         @param matchType:       The type of matching to use
+        @param name:            The name of the dataparser
+        @param requiresLogon:   Do we need to logon for this?
 
         @return: Nothing
 
@@ -1088,6 +1087,7 @@ class Channel:
         data.Updater = updater
         data.IsJson = json
         data.MatchType = matchType
+        data.LogOnRequired = requiresLogon
 
         if url in self.dataParsers:
             self.dataParsers[url].append(data)

@@ -14,7 +14,7 @@ import re
 class ParserData(object):
     __slots__ = ["Name", "Match", "PreProcessor",
                  "Parser", "Creator", "Updater",
-                 "IsJson", "MatchType"]
+                 "IsJson", "MatchType", "LogOnRequired"]
 
     # define them here so we can just refer to them instead of using the strings all
     # over the place. The values are self explaining.
@@ -34,6 +34,7 @@ class ParserData(object):
         self.Creator = None
         self.Updater = None
         self.IsJson = False
+        self.LogOnRequired = False
         self.MatchType = ParserData.MatchStart
 
     def IsGenericPreProcessor(self):
@@ -74,24 +75,28 @@ class ParserData(object):
             generic = "Generic "
 
         if self.Name is not None:
-            return "%sDataParser '%s' (Json=%s, Generic=%s, MatchType=%s):\n" \
+            return "%sDataParser '%s' (Json=%s, Generic=%s, MatchType=%s, Logon=%s):\n" \
                    "Match:   %s\n" \
                    "Pre:     %s\n" \
                    "Parser:  %s\n" \
                    "Creator: %s\n" \
                    "Updater: %s\n" % \
                    (generic, self.Name, self.IsJson, self.IsGenericPreProcessor(),
-                    self.MatchType, self.Match,
+                    self.MatchType,
+                    self.LogOnRequired,
+                    self.Match,
                     self.PreProcessor,
                     self.Parser, self.Creator, self.Updater)
 
-        return "%sDataParser (Json=%s, Generic=%s, MatchType=%s):\n" \
+        return "%sDataParser (Json=%s, Generic=%s, MatchType=%s, Logon=%s):\n" \
                "Match:   %s\n" \
                "Pre:     %s\n" \
                "Parser:  %s\n" \
                "Creator: %s\n" \
                "Updater: %s\n" % \
                (generic, self.IsJson, self.IsGenericPreProcessor(),
-                self.MatchType, self.Match,
+                self.MatchType,
+                self.LogOnRequired,
+                self.Match,
                 self.PreProcessor,
                 self.Parser, self.Creator, self.Updater)
