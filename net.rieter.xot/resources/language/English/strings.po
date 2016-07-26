@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-07-16 19:54+0000\n"
+"POT-Creation-Date: 2016-07-25 22:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -426,7 +426,11 @@ msgid "Other"
 msgstr ""
 
 #used for list limits
-#empty strings from id 30109 to 30199
+#empty strings from id 30109 to 30198
+
+msgctxt "#30199"
+msgid "10"
+msgstr ""
 
 msgctxt "#30200"
 msgid "50"

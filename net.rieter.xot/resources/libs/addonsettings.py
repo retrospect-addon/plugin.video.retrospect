@@ -405,7 +405,7 @@ class AddonSettings:
         else:
             limit = int(limit)
 
-        return [-1, 50, 75, 100, 150, 200, 1000][limit]
+        return [-1, 10, 50, 75, 100, 150, 200, 1000][limit]
 
     @staticmethod
     def GetLogLevel():

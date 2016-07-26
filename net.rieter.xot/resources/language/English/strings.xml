@@ -105,6 +105,7 @@
     <string id="30108">Other</string>
 
     <!-- used for list limits -->
+    <string id="30199">10</string>
     <string id="30200">50</string>
     <string id="30201">75</string>
     <string id="30202">100</string>
