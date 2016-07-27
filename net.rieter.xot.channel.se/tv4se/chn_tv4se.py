@@ -191,7 +191,9 @@ class Channel(chn_class.Channel):
         tokenData = EncodingHelper.DecodeBase64(expires)
         tokenData = JsonHelper(tokenData)
         expiresAt = tokenData.GetValue("exp")
-        Logger.Debug("Token expires at: %s", expiresAt)
+
+        Logger.Debug("Token expires at: %s (%s)",
+                     datetime.datetime.fromtimestamp(float(expiresAt)), expiresAt)
         # AddonSettings.SetSetting(tokenSettingId, "%s|%s" % (expiresAt, token))
         AddonSettings.SetSetting(tokenSettingId, "%s|%s|%s" % (expiresAt, vimondSessionToken, sessionToken))
 
