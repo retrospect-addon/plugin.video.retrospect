@@ -38,9 +38,31 @@ class Channel(chn_class.Channel):
                      '<span class="(?<class>\w+)">[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+' \
                      '<p[^>]*>(?<description>[^<]+)<'
         programReg = Regexer.FromExpresso(programReg)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+        self._AddDataParser(self.mainListUri,
+                            name="Show parser with categories",
+                            matchType=ParserData.MatchExact,
                             preprocessor=self.AddCategories,
                             parser=programReg, creator=self.CreateEpisodeItem)
+
+        categoryProgramReg = '<article class="program">\W*<a[^>]*href="/(?<url>[^"]+/' \
+                             '(?<id>\d+)-[^"]+)"[^>]*>[\w\W]{0,2000}?<span class="(?<class>\w+)">' \
+                             '[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+<p[^>]*>(?<subtitle>[^<]*)' \
+                             '</p>\W*<p[^>]*>(?<description>[^<]*)</p>'
+        categoryProgramReg = Regexer.FromExpresso(categoryProgramReg)
+        self._AddDataParser("http://urplay.se/sok?play_category=",
+                            name="Category show parser",
+                            matchType=ParserData.MatchStart,
+                            parser=categoryProgramReg,
+                            creator=self.CreateEpisodeItem)
+
+        # Categories
+        catReg = '<a[^>]+href="(?<url>[^"]+)">\W*<img[^>]+data-src="(?<thumburl>[^"]+)' \
+                 '"[^>]*>\W*<span>(?<title>[^<]+)<'
+        catReg = Regexer.FromExpresso(catReg)
+        self._AddDataParser("http://urplay.se/", name="Category parser",
+                            matchType=ParserData.MatchExact,
+                            parser=catReg,
+                            creator=self.CreateCategory)
 
         # videos
         videoItemRegex = '<a [^>]+href="/(?<url>\w+/(?<id>\d+)[^"]+)"[^>]*>\W+<figure[^>]*>\W+' \
@@ -77,6 +99,13 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    def CreateCategory(self, resultSet):
+        if not resultSet['thumburl'].startswith("http"):
+            resultSet['thumburl'] = "%s/%s" % (self.baseUrl, resultSet["thumburl"])
+
+        resultSet["url"] = "%s&rows=1000&start=0" % (resultSet["url"],)
+        return self.CreateFolderItem(resultSet)
+
     def AddCategories(self, data):
         """Performs pre-process actions for data processing
 
@@ -103,7 +132,8 @@ class Channel(chn_class.Channel):
             # "\a.: Mest spelade :.": "http://urplay.se/Mest-spelade",
             "\a.: Mest delade :.": "http://urplay.se/sok?product_type=program&query=&view=most_viewed&rows=%s&start=0" % (maxItems, ),
             "\a.: Senaste :.": "http://urplay.se/sok?product_type=program&query=&view=latest&rows=%s&start=0" % (maxItems, ),
-            "\a.: Sista chansen :.": "http://urplay.se/sok?product_type=program&query=&view=default&rows=%s&start=0" % (maxItems, )
+            "\a.: Sista chansen :.": "http://urplay.se/sok?product_type=program&query=&view=default&rows=%s&start=0" % (maxItems, ),
+            "\a.: Kategorier :.": "http://urplay.se/"
         }
 
         for cat in categories:
