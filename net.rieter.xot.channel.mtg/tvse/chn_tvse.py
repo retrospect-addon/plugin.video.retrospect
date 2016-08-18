@@ -12,8 +12,9 @@ from logger import Logger
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
+from helpers.htmlentityhelper import HtmlEntityHelper
 from parserdata import ParserData
-# from addonsettings import AddonSettings
+from addonsettings import AddonSettings
 from streams.m3u8 import M3u8
 
 
@@ -33,88 +34,101 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # The following data was taken from http://playapi.mtgx.tv/v3/channels
-        channelId = None
+        self.channelId = None
+        self.useOldParsing = False
         if self.channelCode == "se3":
-            self.mainListUri = "http://www.tv3play.se/program"
+            self.mainListUri = "http://www.viafree.se/program/"
             self.noImage = "tv3seimage.png"
-            channelId = "1209|6000|6001"
+            self.channelId = (
+                1209,  # TV4
+                6000,  # MTV
+                6001,  # Comedy Central
+                7000,  # Online Only ???
+            )
 
         elif self.channelCode == "se6":
-            self.mainListUri = "http://www.tv6play.se/program"
+            self.mainListUri = "http://www.viafree.se/program/"
             self.noImage = "tv6seimage.png"
-            channelId = "959"
+            self.channelId = (959, )
 
         elif self.channelCode == "se8":
-            self.mainListUri = "http://www.tv8play.se/program"
+            self.mainListUri = "http://www.viafree.se/program/"
             self.noImage = "tv8seimage.png"
-            channelId = "801"
+            self.channelId = (801, )
 
         elif self.channelCode == "se10":
-            self.mainListUri = "http://www.tv10play.se/program"
+            self.mainListUri = "http://www.viafree.se/program/"
             self.noImage = "tv10seimage.png"
-            channelId = "5462"
+            self.channelId = (5462, )
 
         elif self.channelCode == "sesport":
             raise NotImplementedError('ViaSat sport is not in this channel anymore.')
 
         # Danish channels
         elif self.channelCode == "tv3dk":
-            self.mainListUri = "http://www.tv3play.dk/programmer"
+            self.mainListUri = "http://www.viafree.dk/programmer"
             self.noImage = "tv3noimage.png"
-            channelId = "3687|6200|6201"
+            # self.channelId = (3687, 6200, 6201) -> show all for now
 
+        # Norwegian Channels
+        elif self.channelCode == "no3":
+            self.mainListUri = "http://www.viafree.no/programmer"
+            self.noImage = "tv3noimage.png"
+            self.channelId = (1550, 6100, 6101)
+
+        elif self.channelCode == "no4":
+            self.mainListUri = "http://www.viafree.no/programmer"
+            self.noImage = "viasat4noimage.png"
+            self.channelId = (935,)
+
+        elif self.channelCode == "no6":
+            self.mainListUri = "http://www.viafree.no/programmer"
+            self.noImage = "viasat4noimage.png"
+            self.channelId = (1337,)
+
+        # These are still using old pages!
         # EE channels
         elif self.channelCode == "tv3ee":
             self.mainListUri = "http://www.tv3play.ee/sisu"
             self.noImage = "tv3noimage.png"
-            channelId = "1375|6301|6302"
+            self.channelId = (1375, 6301, 6302)
+            self.useOldParsing = True
 
         elif self.channelCode == "tv6ee":
             self.mainListUri = "http://www.tv3play.ee/sisu"
             self.noImage = "tv6seimage.png"
-            channelId = "6300"
+            self.channelId = (6300, )
+            self.useOldParsing = True
 
         # Lithuanian channels
         elif self.channelCode == "tv3lt":
             self.mainListUri = "http://play.tv3.lt/programos"
             # self.mainListUri = "http://www.tv3play.lt/programos"
             self.noImage = "tv3ltimage.png"
-            channelId = "3000|6503"
+            self.channelId = (3000, 6503)
+            self.useOldParsing = True
 
         elif self.channelCode == "tv6lt":
             self.mainListUri = "http://play.tv3.lt/programos"
             # self.mainListUri = "http://www.tv3play.lt/programos"
             self.noImage = "tv6ltimage.png"
-            channelId = "6501"
+            self.channelId = (6501, )
+            self.useOldParsing = True
 
         elif self.channelCode == "tv8lt":
             self.mainListUri = "http://play.tv3.lt/programos"
             # self.mainListUri = "http://www.tv3play.lt/programos"
             self.noImage = "tv8seimage.png"
-            channelId = "6502"
+            self.channelId = (6502, )
+            self.useOldParsing = True
 
         # Letvian Channel
         elif self.channelCode == "se3lv":
             self.mainListUri = "http://tvplay.skaties.lv/parraides"
             # self.mainListUri = "http://www.tvplay.lv/parraides"
             self.noImage = "tv3lvimage.png"
-            channelId = "1482|6400|6401|6402|6403|6404|6405"
-
-        # Norwegian Channels
-        elif self.channelCode == "no3":
-            self.mainListUri = "http://www.tv3play.no/programmer"
-            self.noImage = "tv3noimage.png"
-            channelId = "1550|6100|6101"
-
-        elif self.channelCode == "no4":
-            self.mainListUri = "http://www.viasat4play.no/programmer"
-            self.noImage = "viasat4noimage.png"
-            channelId = "935"
-
-        elif self.channelCode == "no6":
-            self.mainListUri = "http://www.tv6play.no/programmer"
-            self.noImage = "viasat4noimage.png"
-            channelId = "1337"
+            self.channelId = (1482, 6400, 6401, 6402, 6403, 6404, 6405)
+            self.useOldParsing = True
 
         self.baseUrl = self.mainListUri.rsplit("/", 1)[0]
         self.searchInfo = {
@@ -127,19 +141,45 @@ class Channel(chn_class.Channel):
         }
 
         # setup the urls
-        # self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-0.6.9.swf"
-        # self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-1.2.2.swf"
         self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-1.8.swf"
 
-        # setup the main parsing data
-        # the epsiode item regex is based on the channelId's. This is because the website has a filter options and shows
-        # different channels on the same URL.
-        self.episodeItemRegex = 'data-channel-id="(?:%s)"[^>]*>\W+<div class="clip-inner">\W+' \
-                                '<a\W+href="([^"]+)"[^>]*>[\w\W]{0,300}?<img[^>]+data-src="([^"]+)"[^>]*>' \
-                                '[\w\W]{0,200}?<h3[^>]+>([^<]+)' % (channelId,)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddSearch,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        if self.useOldParsing:
+            # the epsiode item regex is based on the channelId's. This is because the website has a filter options and shows
+            # different channels on the same URL.
+            self.episodeItemRegex = 'data-channel-id="(?:%s)"[^>]*>\W+<div class="clip-inner">\W+' \
+                                    '<a\W+href="([^"]+)"[^>]*>[\w\W]{0,300}?<img[^>]+data-src="([^"]+)"[^>]*>' \
+                                    '[\w\W]{0,200}?<h3[^>]+>([^<]+)' % ('|'.join(map(lambda x: str(x), self.channelId)),)
+            self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                                preprocessor=self.AddSearch,
+                                parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+            Logger.Warning("Channel still uses old parsing of episodes.")
+        else:
+            # New JSON page data
+            self._AddDataParser(self.mainListUri, preprocessor=self.ExtractJsonData,
+                                matchType=ParserData.MatchExact)
+            self._AddDataParser(self.mainListUri, preprocessor=self.ExtractCategoriesAndAddSearch, json=True,
+                                matchType=ParserData.MatchExact,
+                                parser=("context", "dispatcher", "stores", "ApplicationStore", "programs"),
+                                creator=self.CreateJsonEpisodeItem)
+
+        # This is the new way, but more complex and some channels have items with missing
+        # category slugs and is not compatible with the old method channels.
+        self.useNewPages = not self.useOldParsing and False
+        if self.useNewPages:
+            self._AddDataParser("*", preprocessor=self.ExtractJsonData)
+            self._AddDataParser("*", json=True, preprocessor=self.MergeSeasonData,
+                                # parser=("context", "dispatcher", "stores", "ContentPageProgramStore", "format", "videos", "0", "program"),
+                                # creator=self.CreateJsonVideoItem
+                                )
+
+            self._AddDataParser("http://playapi.mtgx.tv/", updater=self.UpdateVideoItem)
+        else:
+            self._AddDataParser("*", parser=('_embedded', 'videos'), json=True, preprocessor=self.AddClips,
+                                creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+            self.pageNavigationJson = ("_links", "next")
+            self.pageNavigationJsonIndex = 0
+            self._AddDataParser("*", json=True,
+                                parser=self.pageNavigationJson, creator=self.CreatePageItem)
 
         searchRegex = '<a\W+href="[^"]+/(?<url>\d+)"[^>]*>[\w\W]{0,300}?<img[^>]+data-src="' \
                       '(?<thumburl>[^"]+)"[^>]*>[\w\W]{0,200}?<h3[^>]+>(?<title>[^<]+)'
@@ -148,21 +188,20 @@ class Channel(chn_class.Channel):
         searchRegex = Regexer.FromExpresso(searchRegex)
         self._AddDataParser(self.__GetSearchUrl(),
                             parser=searchRegex, creator=self.CreateSearchResult)
-
-        self.videoItemJson = ('_embedded', 'videos')
-        self._AddDataParser("*", json=True, preprocessor=self.PreProcessFolderList,
-                            parser=self.videoItemJson, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
-
-        self.pageNavigationJson = ("_links", "next")
-        self.pageNavigationJsonIndex = 0
-        self._AddDataParser("*", json=True,
-                            parser=self.pageNavigationJson, creator=self.CreatePageItem)
-
+        self._AddDataParser("/api/playClient;isColumn=true;query=", json=True,
+                            matchType=ParserData.MatchContains,
+                            parser=("data", "formats"), creator=self.CreateJsonEpisodeItem)
+        self._AddDataParser("/api/playClient;isColumn=true;query=", json=True,
+                            matchType=ParserData.MatchContains,
+                            parser=("data", "clips"), creator=self.CreateJsonVideoItem)
+        self._AddDataParser("/api/playClient;isColumn=true;query=", json=True,
+                            matchType=ParserData.MatchContains,
+                            parser=("data", "episodes"), creator=self.CreateJsonVideoItem)
         # ===============================================================================================================
         # non standard items
         self.episodeLabel = LanguageHelper.GetLocalizedString(LanguageHelper.EpisodeId)
         self.seasonLabel = LanguageHelper.GetLocalizedString(LanguageHelper.SeasonId)
+        self.__categories = {}
 
         # ===============================================================================================================
         # Test Cases
@@ -172,6 +211,110 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
+
+    def ExtractCategoriesAndAddSearch(self, data):
+        """ Extracts the Category information from the JSON data
+
+        @param data: the JSON data
+        @return: Unmodified JSON data
+        """
+
+        Logger.Info("Extracting Category Information")
+        dummyData, items = self.AddSearch(data)
+
+        json = JsonHelper(data, logger=Logger.Instance())
+        categories = json.GetValue("context", "dispatcher", "stores", "ApplicationStore", "categories")
+        for category in categories:
+            self.__categories[category["id"]] = category
+
+        Logger.Debug("Extracting Category Information finished")
+        return data, items
+
+    def ExtractJsonData(self, data):
+        """ Extracts the JSON data from the HTML page and passes it back to Retrospect.
+
+        @param data: the HTML data
+        @return: the JSON part of the HTML data
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        jsonData = Regexer.DoRegex('window.App=({[^<]+);', data)[0]
+        # the "RouteStore" has some weird functions, removing it.
+        start = jsonData.index('"RouteStore"')
+        end = jsonData.index('"SearchStore"')
+        data = jsonData[0:start] + jsonData[end:]
+        Logger.Trace("Found Json:\n%s", data)
+        return data, items
+
+    def CreateJsonEpisodeItem(self, resultSet):
+        Logger.Trace(resultSet)
+        if self.channelId is not None and resultSet['channel'] not in self.channelId:
+            Logger.Trace("Found item for wrong channel %s instead of %s", resultSet['channel'], self.channelId)
+            return None
+
+        # For now we keep using the API, otherwise we need to do more complex VideoItem parsing
+        if self.useNewPages:
+            categorySlug = self.__categories[resultSet["category"]]["slug"]
+            url = "%s/%s/%s" % (self.baseUrl, categorySlug, resultSet['slug'])
+        else:
+            url = "http://playapi.mtgx.tv/v3/videos?format=%(id)s&order=-airdate&type=program" % resultSet
+        item = mediaitem.MediaItem(resultSet['title'], url)
+        item.icon = self.icon
+        item.thumb = self.__GetThumbImage(resultSet.get("image") or self.noImage)
+        # item.fanart = self.__GetThumbImage(resultSet.get("image") or self.fanart, fanartSize=True)
+
+        item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)
+        # dateTime = datetime.datetime.fromtimestamp(resultSet['freshness'] / 1000)
+        # item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
+        return item
+
+    def MergeSeasonData(self, data):
+        items = []
+
+        jsonData = JsonHelper(data)
+        seasonFolders = jsonData.GetValue("context", "dispatcher", "stores",
+                                          "ContentPageProgramStore", "format", "videos")
+        for season in seasonFolders:
+            for video in seasonFolders[season]['program']:
+                items.append(self.CreateJsonVideoItem(video))
+
+        return data, items
+
+    def CreateJsonVideoItem(self, resultSet):
+        Logger.Trace(resultSet)
+        url = "http://playapi.mtgx.tv/v3/videos/stream/%(id)s" % resultSet
+        item = mediaitem.MediaItem(resultSet["title"], url)
+        item.type = "video"
+        item.thumb = self.parentItem.thumb
+        item.icon = self.parentItem.icon
+        item.description = resultSet.get("summary", None)
+
+        airedAt = resultSet.get("airedAt", None)
+        if airedAt is None:
+            airedAt = resultSet.get("publishedAt", None)
+        if airedAt is not None:
+            # 2016-05-20T15:05:00+00:00
+            airedAt = airedAt.split("+")[0].rstrip('Z')
+            timeStamp = time.strptime(airedAt, "%Y-%m-%dT%H:%M:%S")
+            item.SetDate(*timeStamp[0:6])
+
+        item.thumb = self.__GetThumbImage(resultSet.get("image"))
+
+        # webvttPath / samiPath
+        # loginRequired
+        isPremium = resultSet.get("loginRequired", False)
+        if isPremium and AddonSettings.HidePremiumItems():
+            Logger.Debug("Found premium item, hiding it.")
+            return None
+
+        srt = resultSet.get("samiPath")
+        if srt:
+            Logger.Debug("Storing SRT path: %s", srt)
+            part = item.CreateNewEmptyMediaPart()
+            part.Subtitle = srt
+        return item
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -198,6 +341,35 @@ class Channel(chn_class.Channel):
         item.thumb = thumbUrl
         item.icon = self.icon
         return item
+
+    def AddClips(self, data):
+        Logger.Info("Adding Clips Pre-Processing")
+        items = []
+
+        # if the main list was retrieve using json, are the current data is json, just determine
+        # the clip URL
+        clipUrl = None
+        if data.lstrip().startswith("{"):
+            if self.parentItem.url.endswith("type=program"):
+                # http://playapi.mtgx.tv/v3/videos?format=6723&order=-airdate&type=program
+                # http://playapi.mtgx.tv/v3/videos?format=6723&order=-updated&type=clip" % (dataId,)
+                clipUrl = self.parentItem.url.replace("type=program", "type=clip")
+        else:
+            # now we determine the ID and load the json data
+            dataId = Regexer.DoRegex('data-format-id="(\d+)"', data)[-1]
+            Logger.Debug("Found FormatId = %s", dataId)
+            programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
+            data = UriHandler.Open(programUrl, proxy=self.proxy)
+            clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
+
+        if clipUrl is not None:
+            clipTitle = LanguageHelper.GetLocalizedString(LanguageHelper.Clips)
+            clipItem = mediaitem.MediaItem("\a.: %s :." % (clipTitle,), clipUrl)
+            clipItem.thumb = self.noImage
+            items.append(clipItem)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
 
     def AddSearch(self, data):
         """Performs pre-process actions for data processing/
@@ -248,49 +420,17 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "%s?term=%%s" % (self.__GetSearchUrl(), )
+        if self.useOldParsing:
+            url = "%s?term=%%s" % (self.__GetSearchUrl(), )
+        else:
+            # we need to do some ugly stuff to get the %s in the URL-Encoded query.
+            query = '{"term":"tttt","limit":2000,"columns":"formats,episodes,clips","with":"format"}'
+            query = HtmlEntityHelper.UrlEncode(query).replace("%", "%%").replace("tttt", "%s")
+            baseUrl = self.baseUrl.rsplit('/', 1)[0]
+            url = "%s/api/playClient;isColumn=true;query=%s;resource=search?returnMeta=true" % (baseUrl, query)
+
+        Logger.Debug("Using %s search url: %s", "old" if self.useOldParsing else "new", url)
         return chn_class.Channel.SearchSite(self, url)
-
-    def PreProcessFolderList(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-
-        Logger.Info("Performing Pre-Processing")
-        items = []
-
-        # if the main list was retrieve using json, are the current data is json, just do the default stuff.
-        if data.lstrip().startswith("{"):
-            return data, items
-
-        # now we determine the ID and load the json data
-        dataId = Regexer.DoRegex('data-format-id="(\d+)"', data)[-1]
-        Logger.Debug("Found FormatId = %s", dataId)
-
-        programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
-        data = UriHandler.Open(programUrl, proxy=self.proxy)
-
-        clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
-        clipTitle = LanguageHelper.GetLocalizedString(LanguageHelper.Clips)
-        clipItem = mediaitem.MediaItem("\a.: %s :." % (clipTitle,), clipUrl)
-        clipItem.thumb = self.noImage
-        items.append(clipItem)
-
-        Logger.Debug("Pre-Processing finished")
-        return data, items
 
     def CreatePageItem(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
@@ -455,7 +595,7 @@ class Channel(chn_class.Channel):
         thumbData = resultSet['_links'].get('image', None)
         if thumbData is not None:
             # item.thumbUrl = thumbData['href'].replace("{size}", "thumb")
-            item.thumb = thumbData['href'].replace("{size}", "230x150")
+            item.thumb = self.__GetThumbImage(thumbData['href'])
 
         item.description = description
 
@@ -562,3 +702,11 @@ class Channel(chn_class.Channel):
         if searchInfo is None:
             searchInfo = self.searchInfo["se"]
         return "%s/%s" % (self.baseUrl, searchInfo[0])
+
+    def __GetThumbImage(self, url, fanartSize=False):
+        if not url:
+            return url
+
+        if fanartSize:
+            return url.replace("{size}", "1280x720")
+        return url.replace("{size}", "230x150")

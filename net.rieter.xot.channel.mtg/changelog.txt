@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: more TV6 (MTG) stream issues
+Fixed: MTG update their sites to a new standard and broke the Swedish and Norwegian channels (See #750)
 
 [I]Previous changes[/I]
+Fixed: more TV6 (MTG) stream issues
 Fixed: ViaSat channels sometimes won't work with manifest.m3u8 but do with master.m3u8 (See #598)
 Fixed: MTG channels did not select streams properly (Fixes #590)
 Fixed: MTG streams would not always play (Issue #558)
