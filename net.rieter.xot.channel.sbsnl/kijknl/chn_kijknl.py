@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.baseUrl = "http://www.kijk.nl"
         # Just retrieve a single page with 200 items (should be all)
-        self.mainListUri = "http://www.kijk.nl/ajax/section/overview/programs-abc-ABCDEFGHIJKLMNOPQRSTUVWXYZ/1/200"
+        self.mainListUri = "http://www.kijk.nl/ajax/section/overview/programs-abc-ABCDEFGHIJKLMNOPQRSTUVWXYZ/1/400"
 
         channelId = None
         if self.channelCode == 'veronica':
