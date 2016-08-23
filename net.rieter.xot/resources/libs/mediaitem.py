@@ -374,8 +374,8 @@ class MediaItem:
         if self.type != "audio":
             # infoLabels["PlotOutline"] = description
             infoLabels["Plot"] = description
-        if descriptionPostFix:
-            infoLabels["Tagline"] = descriptionPostFix.lstrip()
+        # if descriptionPostFix:
+        #     infoLabels["Tagline"] = descriptionPostFix.lstrip()
 
         # now create the XBMC item
         item = xbmcgui.ListItem(name or "<unknown>", self.__date)
