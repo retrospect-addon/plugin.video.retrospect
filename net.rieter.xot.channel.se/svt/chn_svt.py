@@ -65,7 +65,7 @@ class Channel(chn_class.Channel):
                             matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
         self._AddDataParser(specialJsonPages,
                             matchType=ParserData.MatchRegex, json=True,
-                            parser=("context", "dispatcher", "stores", "GridStore", "content"),
+                            parser=("context", "dispatcher", "stores", "GridPageStore", "content"),
                             creator=self.CreateJsonItem)
         self._AddDataParser(specialJsonPages,
                             matchType=ParserData.MatchRegex, json=True,

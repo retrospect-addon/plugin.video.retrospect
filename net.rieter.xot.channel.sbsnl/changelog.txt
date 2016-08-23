@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Kijk.nl removed their descriptions, which broke the channels (Fixes #737)
+Fixed: Not all kijk.nl shows were displayed
 
 [I]Previous changes[/I]
+Fixed: Kijk.nl removed their descriptions, which broke the channels (Fixes #737)
 Fixed: clips of Kijk.nl would not play
 Fixed: most videos of Kijk.nl (SBS6/NET5/SBS9/Veronica) did not play (Fixes #723)
 Fixed: some Kijk.nl (SBS6/NET5/SBS9/Veronica) shows had some missing episodes (Fixes #716)

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: URPlay Kategorier (Fixes #749)
+Fixed: SVT special folders did not work
 
-[I]Previous changes[/I]
+[I]Previous changes[/I]N
+Added: URPlay Kategorier (Fixes #749)
 Fixed: UR Play broke (Fixes #743)
 Added: *live* indicator to videos that are live at the moment (Fixes #741)
 Added: sXXeXX if Season and Episode data is present
