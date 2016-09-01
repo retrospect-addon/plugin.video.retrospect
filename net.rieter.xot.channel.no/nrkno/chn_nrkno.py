@@ -142,15 +142,18 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
+        channelId = resultSet["channelId"]
         title = resultSet["title"]
         if "mediaUrl" not in resultSet:
             Logger.Warning("Found channel without media url: %s", title)
             return None
 
-        url = resultSet["mediaUrl"]
+        # url = resultSet["mediaUrl"]
+        url = "https://psapi-ne.nrk.no/mediaelement/%s" % (channelId, )
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'
         item.isLive = True
+        item.HttpHeaders = self.httpHeaders
 
         thumbId = resultSet.get("imageId", None)
         if thumbId is not None:
@@ -337,6 +340,11 @@ class Channel(chn_class.Channel):
             if url is None:
                 Logger.Warning("Could not find mediaUrl in %s", item.url)
                 return
+            f4mNeedle = "/manifest.f4m"
+            if f4mNeedle in url:
+                Logger.Info("Found F4m stream. Converting to M3u8.")
+                url = url[:url.index(f4mNeedle)].replace("/z/", "/i/").replace("http:", "https:")
+                url = "%s/master.m3u8" % (url, )
 
         part = item.CreateNewEmptyMediaPart()
         for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=item.HttpHeaders):

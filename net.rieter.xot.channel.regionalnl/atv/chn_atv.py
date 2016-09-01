@@ -49,7 +49,7 @@ class Channel(chn_class.Channel):
                             parser='<a[^>]*title="([^"]+)"[^>]*href="([^"]+)"[^>]*>\W+<img[^>]*src="([^"]+)"',
                             creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
-        self._AddDataParser("http://www.tikilive.com:8080/socket.io/",
+        self._AddDataParser("http://cache.tikilive.com:8080/socket.io/",
                             updater=self.UpdateLiveItem)
         #===============================================================================================================
         # non standard items
@@ -82,10 +82,12 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        item = mediaitem.MediaItem("\a.: Live TV :.", "http://www.tikilive.com:8080/socket.io/"
+        item = mediaitem.MediaItem("\a.: Live TV :.", "http://cache.tikilive.com:8080/socket.io/"
                                                       "?c=34967&n=TIKISESSID&i=fo84il3e7qs68uet2ql2eav081&EIO=3"
                                                       "&transport=polling&t=1428225927102-0")
         item.type = 'video'
+        item.dontGroup = True
+        item.isLive = True
         items.append(item)
 
         Logger.Debug("Pre-Processing finished")
@@ -178,6 +180,13 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
 
         sid = json.GetValue("sid")
+        # The i= is the same as the one from the RTMP stream at the page of ATV.sr:
+        # http://edge1.tikilive.com:1935/rtmp_tikilive/34967/amlst:mainstream/jwplayer.smil?id=dIzAVAVL2dirCfJgAPEb&i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcmtzJm9JRD0xMzY1NTUmb05hbWU9YXR2bmV0d29ya3Mmc0lkPWJwaHR2bXR2OXI4M2N1Mm9sZ2Q5dWx1aWs2JnVJRD0wJnVOYW1lPUd1ZXN0OWFmYTE=
+
+        # videoUrl = "http://edge2.tikilive.com:1935/html5_tikilive/34967/amlst:mainstream/playlist.m3u8" \
+        #            "?i=8xbrQERMXS2dTUKuAPbW&i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcm" \
+        #            "tzJm9JRD0xMzY1NTUmb05hbWU9YXR2bmV0d29ya3Mmc0lkPWJwaHR2bXR2OXI4M2N1Mm9sZ2Q5dWx1aWs2JnVJRD0wJnVOYW1lPUd1ZXN0YzExZmE=&id=%s" \
+        #            % (sid,)
         videoUrl = "http://edge2.tikilive.com:1935/html5_tikilive/34967/amlst:mainstream/playlist.m3u8" \
                    "?i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcmtzJm9JRD0xMzY1NTUmb05hbW" \
                    "U9YXR2bmV0d29ya3Mmc0lkPWZvODRpbDNlN3FzNjh1ZXQycWwyZWF2MDgxJnVJRD0wJnVOYW1lPUd1ZXN0MTNiNjk=&id=%s" \

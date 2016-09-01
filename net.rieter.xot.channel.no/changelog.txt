@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
-Fixed: Show videos in the category lists (Fixes #718)
+Fixed: NRK live channels broke due to stream location change (Fixes #752)
 
 [I]Previous changes[/I]
+Fixed: Show videos in the category lists (Fixes #718)
 Fixed: NRK.no broke due to an API version bump (Fixes #709)

@@ -49,7 +49,8 @@ class Channel(chn_class.Channel):
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132040"
             # self.fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/Kanal5-channel-large_kxf7fn.jpg"
-            self.recentUrl = "%s/modules?page_id=132040&module_id=5024&items=%s&page=0"
+            # Recent URL changes over time. See the 'website -> channel' page
+            self.recentUrl = "%s/modules?page_id=132040&module_id=7556&items=%s&page=0"
 
             # - From the /program/ page (requires slugs for filtering)
             # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"

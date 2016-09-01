@@ -397,6 +397,7 @@ class Channel(chn_class.Channel):
         searchItem = mediaitem.MediaItem(title, "searchSite")
         searchItem.thumb = self.noImage
         searchItem.fanart = self.fanart
+        searchItem.dontGroup = True
         items.append(searchItem)
 
         Logger.Debug("Pre-Processing finished")
