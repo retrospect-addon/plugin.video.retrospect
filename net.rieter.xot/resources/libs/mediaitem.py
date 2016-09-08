@@ -409,6 +409,14 @@ class MediaItem:
         # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):
         #     art[l] = self.thumb
         # item.setArt(art)
+
+        # We never set the content resolving, Retrospect does this. And if we do, then the custom
+        # headers are removed from the URL when opening the resolved URL.
+        try:
+            item.setContentLookup(False)
+        except:
+            # apparently not yet supported on this Kodi version3
+            pass
         return item
 
     def GetXBMCPlayList(self, bitrate, updateItemUrls=False, proxy=None):
@@ -480,13 +488,19 @@ class MediaItem:
                 elif not proxy.UseProxyForUrl(streamUrl):
                     logText = "%s\n    + Not adding proxy due to filter mismatch" % (logText, )
                 else:
-                    if True:
-                        xbmcParams["HttpProxy"] = proxy.GetProxyAddress()
-                        logText = "%s\n    + Adding %s" % (logText, proxy)
+                    if AddonSettings.IsMinVersion(17):
+                        # See ffmpeg proxy in https://github.com/xbmc/xbmc/commit/60b21973060488febfdc562a415e11cb23eb9764
+                        xbmcItem.setProperty("proxy.host", proxy.Proxy)
+                        xbmcItem.setProperty("proxy.port", str(proxy.Port))
+                        xbmcItem.setProperty("proxy.type", proxy.Scheme)
+                        if proxy.Username:
+                            xbmcItem.setProperty("proxy.user", proxy.Username)
+                        if proxy.Password:
+                            xbmcItem.setProperty("proxy.password", proxy.Password)
+                        logText = "%s\n    + Adding (Krypton) %s" % (logText, proxy)
                     else:
-                        Logger.Warning("Not adding HTTP proxy due to Kodi proxy support issues "
-                                       "(See https://github.com/xbmc/xbmc/pull/8434)")
-                        logText = "%s\n    + NOT adding %s" % (logText, proxy)
+                        xbmcParams["HttpProxy"] = proxy.GetProxyAddress()
+                        logText = "%s\n    + Adding (Pre-Krypton) %s" % (logText, proxy)
 
             # Now add the actual HTTP headers
             for k in part.HttpHeaders:

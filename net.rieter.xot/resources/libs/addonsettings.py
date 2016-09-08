@@ -7,8 +7,6 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-from __builtin__ import staticmethod
-
 import os
 import uuid
 import xbmc
@@ -29,6 +27,7 @@ class AddonSettings:
     # these are static properties that store the settings. Creating them each time is causing major slow-down
     __settings = None
     __UserAgent = None
+    __KodiVersion = None
 
     __STREAM_BITRATE = "stream_bitrate"
     __STREAM_AUTOBITRATE = "stream_autobitrate"
@@ -217,6 +216,30 @@ class AddonSettings:
         return clientId
 
     @staticmethod
+    def GetKodiVersion():
+        """ Retrieves the Kodi version we are running on.
+
+        @return: the full string of the Kodi version. E.g.: 16.1 Git:20160424-c327c53
+
+        """
+
+        if AddonSettings.__KodiVersion is None:
+            AddonSettings.__KodiVersion = xbmc.getInfoLabel("system.buildversion")
+
+        return AddonSettings.__KodiVersion
+
+    @staticmethod
+    def IsMinVersion(minValue):
+        """ Checks whether the version of Kodi is higher or equal to the given version.
+
+        @param minValue: the minimum Kodi version
+        @return: True if higher or equal, False otherwise.
+        """
+
+        version = int(AddonSettings.GetKodiVersion().split(".")[0])
+        return version >= minValue
+
+    @staticmethod
     def UpdateUserAgent():
         """ Creates a user agent for this instance of XOT
 
@@ -240,7 +263,7 @@ class AddonSettings:
         import platform
         from envcontroller import EnvController
 
-        version = xbmc.getInfoLabel("system.buildversion")
+        version = AddonSettings.GetKodiVersion()
 
         # UriHandler.__UserAgent = "XBMC/%s (%s;%s;%s;%s, http://www.xbmc.org)" % (version, kernel, machine, windows, "")
         try:
@@ -279,7 +302,7 @@ class AddonSettings:
 
             # double check if the version of XBMC is still OK
             if AddonSettings.__UserAgent:
-                version = xbmc.getInfoLabel("system.buildversion")
+                version = AddonSettings.GetKodiVersion()
 
                 if version not in AddonSettings.__UserAgent:
                     old = AddonSettings.__UserAgent
