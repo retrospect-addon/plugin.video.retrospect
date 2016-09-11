@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Live TV channels and some video items for NPO did not show (Fixes #756)
+Fixed: NPO update broke paging (Fixes #756)
 
 [I]Previous Changes[/I]
+Fixed: Live TV channels and some video items for NPO did not show (Fixes #756)
 Fixed: Most of the NPO TV Live streams were missing (Fixes #704)
 Fixed: NPO Radio channels
 Fixed: NPO changed their URL scheme which broke parsing (Fixed #654)

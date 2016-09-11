@@ -423,9 +423,8 @@ class Channel(chn_class.Channel):
         # if we should not use the mobile listing and we have a non-mobile ID)
         if 'mid' in resultSet and self.nonMobilePageSize > 0:
             nonMobileId = resultSet['mid']
-            url = "http://www.npo.nl/a-z/%s/search?category=all&page=1" % (nonMobileId, )
-            # url = "http://www.npo.nl/a-z/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
-            #       % (nonMobileId, self.nonMobilePageSize)
+            url = "http://www.npo.nl/a-z/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
+                  % (nonMobileId, self.nonMobilePageSize)
         # Apparently the first one still works
         # elif 'mid' in resultSet:
         #     nonMobileId = resultSet['mid']
@@ -568,8 +567,10 @@ class Channel(chn_class.Channel):
             pageItem.thumb = self.parentItem.thumb
             pageItem.complete = True
             pageItem.SetDate(2200, 1, 1, text="")
+            pageItem.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+            pageItem.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
             items.append(pageItem)
-            Logger.Debug("Adding next page based on URL")
+            Logger.Debug("Adding page item based on URL")
             self.__NextPageAdded = True
             break
         return data, items
