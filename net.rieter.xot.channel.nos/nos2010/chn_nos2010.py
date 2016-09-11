@@ -76,7 +76,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("/live", matchType=ParserData.MatchEnd, preprocessor=self.GetAdditionalLiveItems,
                             parser='<img[^>]+src="([^"]+)" /></a>[\w\W]{0,400}?<div class=\'item current-item\'>\W+'
                                    '<div class=\'time now\'>Nu</div>\W+<div class=\'description\'>\W+'
-                                   '<a href="/live/([^"]+)" class="now">([^<]+)[\w\W]{0,200}?'
+                                   '<a[^>]+href="/live/([^"]+)"[^>]*>([^<]+)[\w\W]{0,200}?'
                                    '<div class=\'item next-item\'>\W+<div class=\'time next\'>([^<]+)</div>\W+'
                                    '<div class=\'description next\'>\W+<[^>]+>([^<]+)',
                             creator=self.CreateLiveTv, updater=self.UpdateVideoItemLive)
@@ -99,7 +99,7 @@ class Channel(chn_class.Channel):
 
         # genres
         self._AddDataParser("http://www.npo.nl/uitzending-gemist", matchType=ParserData.MatchExact,
-                            parser='<a href="http://www.npo.nl/zoeken\?main_genre=(\d+)"[^>]*>([^<]+)</a></li>',
+                            parser='<li><a[^>]*\.genre\.[^>]*href="[^"]+=(\d+)">([^>]+)</a></li>',
                             creator=self.CreateGenreItem)
 
         # Set self.nonMobilePageSize to 0 to enable mobile pages
@@ -107,31 +107,26 @@ class Channel(chn_class.Channel):
         self.nonMobileMaxPageSize = 100
 
         # Non-mobile folders -> indicator if there are more items
-        self.nonMobilePageRegex = "<div class=\Wsearch-results\W (?:data-num-found=\W(?<Total>\d+)\W " \
-                                  "data-rows=\W(?<PageSize>\d+)\W data-start=\W(?<CurrentStart>\d+)\W|" \
+        self.nonMobilePageRegex = "(?:data-num-found=\W(?<Total>\d+)\W data-rows=\W(?<PageSize>" \
+                                  "\d+)\W data-start=\W(?<CurrentStart>\d+)\W|data-current-page=" \
+                                  "'(?<CurrentPage>\d+)' data-pages='(?<TotalPages>\d+)'|" \
                                   "data-page=\W(?<Page>\d+)\W)".replace("(?<", "(?P<")
-        self._AddDataParser("*", parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
-
-        # Non-mobile videos: for the old pages
+        # Non-mobile videos: for the old pages such as the 'day' pages
         self.nonMobileVideoItemRegex = 'src="(?<Image>[^"]+)"\W+>(?<Premium><div class="not-' \
                                        'available-image-overlay">)?[\w\W]{0,500}?</a></div>\W*' \
-                                       '</div>\W*<div[^>]*>\W*<a href="(?<Url>[^"]+/(?<Day>\d+)-' \
+                                       '</div>\W*<div[^>]*>\W*<a[^>]*href="(?<Url>[^"]+/(?<Day>\d+)-' \
                                        '(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"[^>]*>' \
-                                       '<h4>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]+>(?<Description>' \
+                                       '<h4>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]*>(?<Description>' \
                                        '[^<]*)'.replace('(?<', '(?P<')
-        self._AddDataParser("*", parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
+
+        # Pages based on searching
+        self._AddDataParser("http://www.npo.nl/zoeken?",
+                            preprocessor=self.AddNextPageItem,
+                            parser=self.nonMobileVideoItemRegex,
+                            creator=self.CreateVideoItemNonMobile,
                             updater=self.UpdateVideoItem)
 
-        # Non-mobile videos: for the new pages
-        self.nonMobileVideoItemRege2 = 'src="(?<Image>[^"]+)"[^>]+>\W*</a></div>\W*<div[^>]*>\W*<h3><a href="' \
-                                       '(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"' \
-                                       '[^>]*>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]*>' \
-                                       '(?<Description>[^<]*)'.replace('(?<', '(?P<')
-        self._AddDataParser("*", parser=self.nonMobileVideoItemRege2, creator=self.CreateVideoItemNonMobile,
-                            updater=self.UpdateVideoItem)
-
-        self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
-                            parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
+        # The A-Z pages
         programRegex = Regexer.FromExpresso(
             '<a href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)">\W*<img[^>]+src="'
             '(?<Image>[^"]+)" />\W*</a>\W*</div>\W*</div>\W*<div[^<]+<a[^>]*><h4>'
@@ -141,6 +136,25 @@ class Channel(chn_class.Channel):
             '(?:<span>)?(?<Description>[^<]*)')
         self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
                             parser=programRegex, creator=self.CreateFolderItemAlpha)
+        self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
+                            parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
+
+        # Non-mobile videos: for the new pages with a direct URL
+        self.nonMobileVideoItemRege2 = 'src="(?<Image>[^"]+)"[^>]+>\W*</a></div>\W*<div[^>]*>\W*<h3><a href="' \
+                                       '(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"' \
+                                       '[^>]*>(?<Title>[^<]+)<[\W\w]{0,600}?<p[^>]*>' \
+                                       '(?<Description>[^<]*)'.replace('(?<', '(?P<')
+
+        self._AddDataParser("*", preprocessor=self.AddNextPageItem)
+        self._AddDataParser("*",
+                            parser=self.nonMobileVideoItemRege2, creator=self.CreateVideoItemNonMobile,
+                            updater=self.UpdateVideoItem)
+
+        self._AddDataParser("*",
+                            parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
+                            updater=self.UpdateVideoItem)
+
+        self._AddDataParser("*", parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
 
         # needs to be here because it will be too late in the script version
         self.__IgnoreCookieLaw()
@@ -148,6 +162,7 @@ class Channel(chn_class.Channel):
         # ===============================================================================================================
         # non standard items
         # self.__TokenTest()
+        self.__NextPageAdded = False
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -408,8 +423,9 @@ class Channel(chn_class.Channel):
         # if we should not use the mobile listing and we have a non-mobile ID)
         if 'mid' in resultSet and self.nonMobilePageSize > 0:
             nonMobileId = resultSet['mid']
-            url = "http://www.npo.nl/a-z/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
-                  % (nonMobileId, self.nonMobilePageSize)
+            url = "http://www.npo.nl/a-z/%s/search?category=all&page=1" % (nonMobileId, )
+            # url = "http://www.npo.nl/a-z/%s/search?media_type=broadcast&start_date=&end_date=&start=0&rows=%s" \
+            #       % (nonMobileId, self.nonMobilePageSize)
         # Apparently the first one still works
         # elif 'mid' in resultSet:
         #     nonMobileId = resultSet['mid']
@@ -534,6 +550,30 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
+    def AddNextPageItem(self, data):
+        """ Add a possible next-page item
+        @param data: the input data
+
+        """
+
+        items = []
+        if self.__NextPageAdded:
+            return data, items
+
+        currentPage = Regexer.DoRegex("page=(\d+)", self.parentItem.url)
+        for page in currentPage:
+            nextPage = int(page) + 1
+            url = self.parentItem.url.replace("page=%s" % (page, ), "page=%s" % (nextPage,))
+            pageItem = mediaitem.MediaItem("\a.: Meer afleveringen :.", url)
+            pageItem.thumb = self.parentItem.thumb
+            pageItem.complete = True
+            pageItem.SetDate(2200, 1, 1, text="")
+            items.append(pageItem)
+            Logger.Debug("Adding next page based on URL")
+            self.__NextPageAdded = True
+            break
+        return data, items
+
     def CreatePageItemNonMobile(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
@@ -551,8 +591,11 @@ class Channel(chn_class.Channel):
 
         # Used for paging in the episode listings
         Logger.Trace(resultSet)
+        if self.__NextPageAdded:
+            return None
 
         if "Page" in resultSet and resultSet["Page"]:
+            Logger.Debug("Adding page item based on 'Page' index only.")
             # page from date search result
             title = "\a.: Meer programma's :."
             page = int(resultSet["Page"])
@@ -574,8 +617,11 @@ class Channel(chn_class.Channel):
             item.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
             item.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
             item.complete = True
+            self.__NextPageAdded = True
             return item
-        else:
+
+        elif "CurrentStart" in resultSet and resultSet['CurrentStart']:
+            Logger.Debug("Adding page item based on 'Total, CurrentStart, PageSize' values.")
             # page from episode list
             totalSize = int(resultSet["Total"])
             currentPage = int(resultSet["CurrentStart"])
@@ -585,6 +631,7 @@ class Channel(chn_class.Channel):
                 Logger.Debug(
                     "Not adding next page item. All items displayed (Total=%s vs Current=%s)",
                     totalSize, nextPage)
+                self.__NextPageAdded = True
                 return None
             else:
                 pageSize = self.nonMobileMaxPageSize
@@ -599,7 +646,34 @@ class Channel(chn_class.Channel):
                 pageItem.thumb = self.parentItem.thumb
                 pageItem.complete = True
                 pageItem.SetDate(2200, 1, 1, text="")
+                self.__NextPageAdded = True
                 return pageItem
+
+        elif "TotalPages" in resultSet and resultSet["TotalPages"]:
+            Logger.Debug("Adding page item based on 'TotalPages' and 'CurrentPage'")
+            # Page 2 is:
+            # http://www.npo.nl/baby-te-huur/POMS_S_BNN_097316/search?page=2&category=all
+            # But page 1 is:
+            # http://www.npo.nl/baby-te-huur/POMS_S_BNN_097316/search?end_date=&media_type=broadcast&rows=50&start=0&start_date=
+            currentPage = int(resultSet["CurrentPage"])
+            totalPages = int(resultSet["TotalPages"])
+            if currentPage >= totalPages:
+                Logger.Debug("No more additional pages")
+                self.__NextPageAdded = True
+                return None
+
+            url = self.parentItem.url.split("?")[0]
+            url = "%s?page=%s&category=all" % (url, currentPage + 1)
+            pageItem = mediaitem.MediaItem("\a.: Meer afleveringen :.", url)
+            pageItem.thumb = self.parentItem.thumb
+            pageItem.complete = True
+            pageItem.SetDate(2200, 1, 1, text="")
+            self.__NextPageAdded = True
+            return pageItem
+
+        else:
+            Logger.Warning("No paging information found.")
+            return None
 
     def CreateVideoItemNonMobile(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
