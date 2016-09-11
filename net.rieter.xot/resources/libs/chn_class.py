@@ -219,7 +219,10 @@ class Channel:
             self.loggedOn = self.LogOn()
 
         # now set the headers here and not earlier in case they might have been update by the logon
-        headers = self.httpHeaders
+        if item is not None and item.HttpHeaders:
+            headers = item.HttpHeaders
+        else:
+            headers = self.httpHeaders
 
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
