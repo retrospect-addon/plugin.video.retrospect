@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Kanal 5 'recent' videos did not work
+Fixed: SVT changed API location (Fixes #757)
 
 [I]Previous changes[/I]N
+Fixed: Kanal 5 'recent' videos did not work
 Fixed: SVT special folders did not work
 Added: URPlay Kategorier (Fixes #749)
 Fixed: UR Play broke (Fixes #743)

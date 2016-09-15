@@ -45,8 +45,8 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.AddLiveItemsAndGenres)
         # in case we use the program HTML page
-        self._AddDataParser("http://www.svtplay.se/program", matchType=ParserData.MatchExact,
-                            json=True, preprocessor=self.AddShowItems)
+        # self._AddDataParser("http://www.svtplay.se/program", matchType=ParserData.MatchExact,
+        #                     json=True, preprocessor=self.AddShowItems)
         # in case we use the forslag.json
         self._AddDataParser("http://www.svtplay.se/ajax/sok/forslag.json",
                             matchType=ParserData.MatchExact, json=True,
@@ -62,28 +62,28 @@ class Channel(chn_class.Channel):
         # special pages (using JSON) using a generic pre-processor to extract the data
         specialJsonPages = "^https?://www.svtplay.se/(senaste|sista-chansen|populara|live)\?sida=\d+$"
         self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
+                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonDataRedux)
         self._AddDataParser(specialJsonPages,
                             matchType=ParserData.MatchRegex, json=True,
-                            parser=("context", "dispatcher", "stores", "GridPageStore", "content"),
+                            parser=("gridPage", "content"),
                             creator=self.CreateJsonItem)
         self._AddDataParser(specialJsonPages,
                             matchType=ParserData.MatchRegex, json=True,
-                            parser=("context", "dispatcher", "stores", "MetaStore"),
+                            parser=("gridPage", "pagination"),
                             creator=self.CreateJsonPageItem)
 
         # genres (using JSON)
         self._AddDataParser("http://www.svtplay.se/genre/",
-                            preprocessor=self.ExtractJsonData, json=True,
-                            parser=("context", "dispatcher", "stores", "ClusterStore", "titles"),
+                            preprocessor=self.ExtractJsonDataRedux, json=True,
+                            parser=("clusterPage", "content", "titles"),
                             creator=self.CreateJsonItem)
 
-        self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
+        self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonDataRedux)
         self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
-                            parser=("context", "dispatcher", "stores", "SearchStore", "episodes"),
+                            parser=("searchResult", "episodes"),
                             creator=self.CreateJsonItem)
         self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
-                            parser=("context", "dispatcher", "stores", "SearchStore", "titles"),
+                            parser=("searchResult", "titles"),
                             creator=self.CreateJsonItem)
 
         # slugged items for which we need to filter tab items
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
                             preprocessor=self.ExtractSlugData, json=True)
 
         # Other Json items
-        self._AddDataParser("*", preprocessor=self.ExtractJsonData, json=True)
+        self._AddDataParser("*", preprocessor=self.ExtractJsonDataSvt, json=True)
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
@@ -144,35 +144,35 @@ class Channel(chn_class.Channel):
         url = "http://www.svtplay.se/sok?q=%s"
         return chn_class.Channel.SearchSite(self, url)
 
-    def AddShowItems(self, data):
-        """ Adds the shows from the alpabetical list
-
-        @param data:    The data to use.
-
-        Returns a list of MediaItems that were retrieved.
-
-        """
-
-        items = []
-
-        # add the json data as the actual data
-        dataStart = 'root["__svtplay"] = '
-        dataStartLen = len(dataStart)
-        dataStart = data.index(dataStart)
-        dataEnd = data.index(';root["__svtplay"].env')
-        data = data[dataStart + dataStartLen:dataEnd]
-        json = JsonHelper(data)
-        alphaList = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'alphabeticList')
-        for alpha in alphaList:
-            for show in alpha['titles']:
-                items.append(self.CreateJsonEpisodeItem(show))
-
-        # clusters = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'allClusters')
-        # for cluster in clusters:
-        #     for alphaList in clusters[cluster]:
-        #         for show in alphaList:
-        #             items.append(self.CreateJsonEpisodeItem(show))
-        return data, items
+    # def AddShowItems(self, data):
+    #     """ Adds the shows from the alpabetical list
+    #
+    #     @param data:    The data to use.
+    #
+    #     Returns a list of MediaItems that were retrieved.
+    #
+    #     """
+    #
+    #     items = []
+    #
+    #     # add the json data as the actual data
+    #     dataStart = 'root[\'__svtplay\'] = '
+    #     dataStartLen = len(dataStart)
+    #     dataStart = data.index(dataStart)
+    #     dataEnd = data.index(';root[\'__svtplay\'].env')
+    #     data = data[dataStart + dataStartLen:dataEnd]
+    #     json = JsonHelper(data)
+    #     alphaList = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'alphabeticList')
+    #     for alpha in alphaList:
+    #         for show in alpha['titles']:
+    #             items.append(self.CreateJsonEpisodeItem(show))
+    #
+    #     # clusters = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'allClusters')
+    #     # for cluster in clusters:
+    #     #     for alphaList in clusters[cluster]:
+    #     #         for show in alphaList:
+    #     #             items.append(self.CreateJsonEpisodeItem(show))
+    #     return data, items
 
     def AddLiveItemsAndGenres(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
@@ -272,7 +272,13 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
         return data, items
 
-    def ExtractJsonData(self, data):
+    def ExtractJsonDataSvt(self, data):
+        return self.__ExtractJsonData(data, "__svtplay")
+
+    def ExtractJsonDataRedux(self, data):
+        return self.__ExtractJsonData(data, "__reduxStore")
+
+    def __ExtractJsonData(self, data, root):
         """Performs pre-process actions for data processing
 
         Arguments:
@@ -292,7 +298,7 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Info("Extracting JSON data during pre-processing")
-        data = Regexer.DoRegex('root\["__svtplay"\] = ([\w\W]+?);root\[', data)[-1]
+        data = Regexer.DoRegex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root, ), data)[-1]
         items = []
         Logger.Trace("JSON data found: %s", data)
         return data, items
@@ -301,7 +307,7 @@ class Channel(chn_class.Channel):
         """ Extracts the correct Slugged Data for tabbed items """
 
         Logger.Info("Extracting Slugged data during pre-processing")
-        data, items = self.ExtractJsonData(data)
+        data, items = self.ExtractJsonDataSvt(data)
 
         json = JsonHelper(data)
         slugs = json.GetValue("context", "dispatcher", "stores", "VideoTitlePageStore", "data", "relatedVideoTabs")
@@ -473,7 +479,7 @@ class Channel(chn_class.Channel):
             # they are the same
             title = showTitle
 
-        if "live" in resultSet and resultSet["live"] == True:
+        if "live" in resultSet and resultSet["live"]:
             title = "%s (&middot;Live&middot;)" % (title, )
 
         itemType = resultSet["contentType"]
@@ -659,7 +665,7 @@ class Channel(chn_class.Channel):
         """
         data = UriHandler.Open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
-        data = self.ExtractJsonData(data)[0]
+        data = self.ExtractJsonDataSvt(data)[0]
         json = JsonHelper(data)
 
         # check for direct streams:
