@@ -147,6 +147,18 @@ class JsonHelper:
         else:
             return json.dumps(dictionary)
 
+    @staticmethod
+    def Loads(jsonData):
+        # type: (str) -> Object
+        """ Loads a JSON object to a valid object
+
+        @param jsonData:   (string) the JSON data to load
+
+        @return: a valid JSON object
+        """
+
+        return json.loads(jsonData)
+
     def __str__(self):
         return self.data
 

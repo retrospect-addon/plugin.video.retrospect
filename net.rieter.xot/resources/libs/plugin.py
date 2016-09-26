@@ -1,3 +1,4 @@
+# coding=utf-8
 #===============================================================================
 # LICENSE Retrospect-Framework - CC BY-NC-ND
 #===============================================================================
@@ -33,6 +34,7 @@ try:
     from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
     from environments import Environments
     from initializer import Initializer
+    from cloaker import Cloaker
     from updater import Updater
     from favourites import Favourites
     from mediaitem import MediaItem
@@ -78,6 +80,8 @@ class Plugin:
         self.actionSetEncryptionPin = "changepin"                       # : Action used for setting an application pin
         self.actionSetEncryptedValue = "encryptsetting"                 # : Action used for setting an application pin
         self.actionResetVault = "resetvault"                            # : Action used for resetting the vault
+        self.actionCloak = "cloak"                                      # : Action used for cloaking
+        self.actionUnCloak = "uncloak"                                  # : Action used for uncloaking
 
         self.keywordPickle = "pickle".lower()                           # : Keyword used for the pickle item
         self.keywordAction = "action".lower()                           # : Keyword used for the action item
@@ -241,7 +245,13 @@ class Plugin:
                     Logger.Critical("Action parameters missing from request. Parameters=%s", self.params)
                     return
 
-                if self.params[self.keywordAction] == self.actionListCategory:
+                if self.params[self.keywordAction] == self.actionCloak:
+                    self.__CloakItem()
+
+                elif self.params[self.keywordAction] == self.actionUnCloak:
+                    self.__UnCloakItem()
+
+                elif self.params[self.keywordAction] == self.actionListCategory:
                     self.ShowChannelList(self.params[self.keywordCategory])
 
                 elif self.params[self.keywordAction] == self.actionConfigureChannel:
@@ -877,9 +887,23 @@ class Plugin:
             cmdUrl = self.__CreateActionUrl(channel, action=self.actionAddFavourite, item=item)
             # cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
             cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-            # Logger.Trace("Adding command: %s", cmd)
+            Logger.Trace("Adding command: %s", cmd)
             addTo = LanguageHelper.GetLocalizedString(LanguageHelper.AddToId)
             contextMenuItems.append(("Retro: %s %s" % (addTo, favs), cmd))
+
+        # Cloaking?
+        if item.type == "folder" and item.url is not None and item.url.startswith("http"):
+            if item.isCloaked:
+                cmdUrl = self.__CreateActionUrl(channel, action=self.actionUnCloak, item=item)
+                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
+                Logger.Trace("Adding command: %s", cmd)
+                title = "Un-Cloak Item"
+            else:
+                cmdUrl = self.__CreateActionUrl(channel, action=self.actionCloak, item=item)
+                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
+                Logger.Trace("Adding command: %s", cmd)
+                title = "Cloak Item"
+            contextMenuItems.append(("Retro: %s" % (title,), cmd))
 
         # if it was a favourites list, don't add the channel methods as they might be from a different channel
         if channel is None:
@@ -1004,3 +1028,15 @@ class Plugin:
         XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
                                      title, XbmcWrapper.Error, 2500)
         return ok
+
+    def __CloakItem(self):
+        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        Logger.Info("Cloaking current item: %s", item)
+        c = Cloaker(Config.profileDir, self.channelObject.guid)
+        c.Cloak(item.url)
+
+    def __UnCloakItem(self):
+        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        Logger.Info("Un-Cloaking current item: %s", item)
+        c = Cloaker(Config.profileDir, self.channelObject.guid)
+        c.UnCloak(item.url)

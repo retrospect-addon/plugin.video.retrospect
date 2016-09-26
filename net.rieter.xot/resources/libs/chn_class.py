@@ -1,3 +1,4 @@
+# coding=utf-8
 #==============================================================================
 # LICENSE Retrospect-Framework - CC BY-NC-ND
 #===============================================================================
@@ -15,6 +16,7 @@ import xbmc
 
 import mediaitem
 from regexer import Regexer
+from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper
 from config import Config
 from initializer import Initializer
@@ -331,8 +333,17 @@ class Channel:
             items = filter(lambda i: not i.isPaid or i.type == typeToExclude, items)
             # items = filter(lambda i: not i.isPaid or i.type == "folder", items)
 
+        cloaker = Cloaker(Config.profileDir, self.guid, logger=Logger.Instance())
+        if not AddonSettings.ShowCloakedItems():
+            Logger.Debug("Hiding Cloaked items")
+            items = filter(lambda i: not cloaker.IsCloaked(i.url), items)
+        else:
+            cloakedItems = filter(lambda i: cloaker.IsCloaked(i.url), items)
+            for c in cloakedItems:
+                c.isCloaked = True
+
         if len(items) != oldCount:
-            Logger.Info("Hidden %s items due to DRM/GEO/Premium filter (Hide Folders=%s)",
+            Logger.Info("Hidden %s items due to DRM/GEO/Premium/Cloak filter (Hide Folders=%s)",
                         oldCount - len(items), hideFolders)
 
         # Check for grouping or not

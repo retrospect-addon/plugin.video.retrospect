@@ -123,6 +123,9 @@ class MediaItem:
         self.HttpHeaders = dict()                 # : http headers for the item data retrieval
         self.rating = None
 
+        # Items that are not essential for pickled
+        self.isCloaked = False
+
         # GUID used for identifcation of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues
         try:
@@ -650,6 +653,7 @@ class MediaItem:
         geoLock = "º"
         drmLock = "^"
         paid = "ª"
+        cloaked = "©"
         descriptionAddition = []
         titlePostfix = []
 
@@ -665,6 +669,9 @@ class MediaItem:
         if self.isPaid:
             titlePostfix.append(paid)
             descriptionAddition.append("Premium/Paid")
+        if self.isCloaked:
+            titlePostfix.append(cloaked)
+            descriptionAddition.append("Cloaked")
         # actually update it
         if descriptionAddition:
             descriptionAddition = " / ".join(descriptionAddition)
@@ -699,6 +706,23 @@ class MediaItem:
             name = "%s %s" % (folderPrefix, name)
 
         return name
+
+    def __setstate__(self, state):
+        """ Sets the current MediaItem's state based on the pickled value. However, it also adds
+        newly added class variables so old items won't brake.
+
+        @param state: a default Pickle __dict__
+        """
+
+        # creating a new MediaItem here should not cause too much performance issues, as not very many
+        # will be depickled.
+
+        m = MediaItem("", "")
+        self.__dict__ = m.__dict__
+        self.__dict__.update(state)
+
+    # def __getstate__(self):
+    #     return self.__dict__
 
 
 class MediaItemPart:

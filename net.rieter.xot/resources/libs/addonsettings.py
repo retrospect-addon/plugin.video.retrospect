@@ -54,6 +54,7 @@ class AddonSettings:
     __HIDE_TYPES = "hide_types"
     __HIDE_FANART = "hide_fanart"
     __FOLDERS_AS_VIDEOS = "folders_as_video"
+    __SHOW_CLOAKED_ITEMS = "show_cloaked_items"
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -115,6 +116,11 @@ class AddonSettings:
             return proxyCodes
 
         return proxyIds
+
+    @staticmethod
+    def ShowCloakedItems():
+        """ Should we show cloaked items? """
+        return AddonSettings.GetBooleanSetting(AddonSettings.__SHOW_CLOAKED_ITEMS)
 
     @staticmethod
     def ShowCategories():
@@ -999,6 +1005,7 @@ class AddonSettings:
         value = pattern % (value, "DRM/Paid Warning", AddonSettings.ShowDrmPaidWarning())
         value = pattern % (value, "Hide DRM Items", AddonSettings.HideDrmItems())
         value = pattern % (value, "Hide Premium Items", AddonSettings.HidePremiumItems())
+        value = pattern % (value, "Show Cloaked Items", AddonSettings.ShowCloakedItems())
         value = pattern % (value, "Show Dutch", AddonSettings.ShowChannelWithLanguage("nl"))
         value = pattern % (value, "Show Swedish", AddonSettings.ShowChannelWithLanguage("se"))
         value = pattern % (value, "Show Lithuanian", AddonSettings.ShowChannelWithLanguage("lt"))
