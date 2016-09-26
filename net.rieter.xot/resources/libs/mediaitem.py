@@ -650,10 +650,10 @@ class MediaItem:
         @return:            (tuple) name postfix, description postfix
         """
 
-        geoLock = "º"
-        drmLock = "^"
-        paid = "ª"
-        cloaked = "©"
+        geoLock = "&ordm;"  # º
+        drmLock = "^"       # ^
+        paid = "&ordf;"     # ª
+        cloaked = "&uml;"   # ¨
         descriptionAddition = []
         titlePostfix = []
 
