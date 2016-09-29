@@ -32,7 +32,8 @@ class Cloaker:
         # Create a new file if none existed
         if not os.path.exists(self.__cloakedSettings):
             self.__cloaked = dict()
-            self.__logger.Info("Creating a new cloaked settings file at '%s'", self.__cloakedSettings)
+            if self.__logger:
+                self.__logger.Info("Creating a new cloaked settings file at '%s'", self.__cloakedSettings)
             self.__Store()
 
         with file(self.__cloakedSettings, mode='r') as fp:

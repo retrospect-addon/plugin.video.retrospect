@@ -1032,11 +1032,11 @@ class Plugin:
     def __CloakItem(self):
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid)
+        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
         c.Cloak(item.url)
 
     def __UnCloakItem(self):
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Un-Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid)
+        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
         c.UnCloak(item.url)
