@@ -70,6 +70,8 @@ class LanguageHelper:
     PaidTitle = 30560
     PaidText = 30561
     MissingCredentials = 30562
+    CloakItem = 30563
+    UnCloakItem = 30564
 
     Active = 30068
     ShowChannelSettings = 30069

@@ -177,6 +177,8 @@
     <string id="30560">Betalvideo</string>
     <string id="30561">Valt objekt är inte gratis och kanske inte går att spela upp i Kodi.</string>
     <string id="30562">Användarnamn och/eller lösenord har inte angivits i tilläggsinställningarna</string>
+    <string id="30563">Cloak Item</string>
+    <string id="30564">Un-Cloak Item</string>
 
     <string id="30590">Ange en ny KOD för Retrospect</string>
     <string id="30591">Ingen KOD angiven för Retrospect</string>

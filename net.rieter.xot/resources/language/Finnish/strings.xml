@@ -177,6 +177,8 @@
     <string id="30560">Maksullinen video</string>
     <string id="30561">Valitut kohteet eivät ole ilmaisia ja niitä ei voi toistaa Kodissa.</string>
     <string id="30562">Username and/or password not set in Add-on settings</string>
+    <string id="30563">Cloak Item</string>
+    <string id="30564">Un-Cloak Item</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>

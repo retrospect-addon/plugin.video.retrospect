@@ -897,12 +897,12 @@ class Plugin:
                 cmdUrl = self.__CreateActionUrl(channel, action=self.actionUnCloak, item=item)
                 cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
                 Logger.Trace("Adding command: %s", cmd)
-                title = "Un-Cloak Item"
+                title = LanguageHelper.GetLocalizedString(LanguageHelper.UnCloakItem)
             else:
                 cmdUrl = self.__CreateActionUrl(channel, action=self.actionCloak, item=item)
                 cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
                 Logger.Trace("Adding command: %s", cmd)
-                title = "Cloak Item"
+                title = LanguageHelper.GetLocalizedString(LanguageHelper.CloakItem)
             contextMenuItems.append(("Retro: %s" % (title,), cmd))
 
         # if it was a favourites list, don't add the channel methods as they might be from a different channel
