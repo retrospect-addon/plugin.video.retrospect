@@ -1033,7 +1033,10 @@ class Plugin:
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
         c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
-        c.Cloak(item.url)
+        firstTime = c.Cloak(item.url)
+        if firstTime:
+            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
+                                   LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
 
     def __UnCloakItem(self):
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])

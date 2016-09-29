@@ -72,6 +72,8 @@ class LanguageHelper:
     MissingCredentials = 30562
     CloakItem = 30563
     UnCloakItem = 30564
+    CloakFirstTime = 30565
+    CloakMessage = 30566
 
     Active = 30068
     ShowChannelSettings = 30069

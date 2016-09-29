@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-09-29 19:06+0000\n"
+"POT-Creation-Date: 2016-09-29 20:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -387,7 +387,7 @@ msgstr "Användarnamn"
 
 msgctxt "#30095"
 msgid "Show Cloaked Items"
-msgstr "Show Cloaked Items"
+msgstr "Visa dolda objekt"
 
 msgctxt "#30100"
 msgid "None"
@@ -707,11 +707,19 @@ msgstr "Användarnamn och/eller lösenord har inte angivits i tilläggsinställn
 
 msgctxt "#30563"
 msgid "Cloak Item"
-msgstr "Cloak Item"
+msgstr "Dölj objekt"
 
 msgctxt "#30564"
 msgid "Un-Cloak Item"
-msgstr "Un-Cloak Item"
+msgstr "Visa dolt objekt"
+
+msgctxt "#30565"
+msgid "(Un-)Cloaking items"
+msgstr "Dolda objekt"
+
+msgctxt "#30566"
+msgid "To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu."
+msgstr "För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn till att visa dolda objekt."
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

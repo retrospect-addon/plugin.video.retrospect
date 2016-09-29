@@ -12,6 +12,8 @@ from helpers.jsonhelper import JsonHelper
 
 
 class Cloaker:
+    __MESSAGE_SHOWN = "messageShown"
+
     def __init__(self, profilePath, channelId, logger=None):
         # type: (str, str, Logger) -> Cloaker
         """ Creates a Cloaker object that helps with cloaking objects
@@ -31,7 +33,7 @@ class Cloaker:
 
         # Create a new file if none existed
         if not os.path.exists(self.__cloakedSettings):
-            self.__cloaked = dict()
+            self.__cloaked = {Cloaker.__MESSAGE_SHOWN: False}
             if self.__logger:
                 self.__logger.Info("Creating a new cloaked settings file at '%s'", self.__cloakedSettings)
             self.__Store()
@@ -47,10 +49,12 @@ class Cloaker:
             self.__logger.Trace("Found cloaked data:\n%s", JsonHelper.Dump(self.__cloaked, prettyPrint=True))
 
     def Cloak(self, url):
-        # type: (str) -> None
+        # type: (str) -> bool
         """ Cloaks a specific URL from future listing.
 
         @param url: the url to cloak.
+        @return: boolean indicating whether this was the first cloak or not.
+
         """
 
         if url in self.__cloaked[self.__channelId]:
@@ -62,8 +66,7 @@ class Cloaker:
             self.__logger.Debug("Cloaking '%s' in channel '%s'", url, self.__channelId)
 
         self.__cloaked[self.__channelId][url] = {}
-        self.__Store()
-        return
+        return self.__Store()
 
     def UnCloak(self, url):
         # type: (str) -> None
@@ -95,12 +98,24 @@ class Cloaker:
         return url in self.__cloaked[self.__channelId]
 
     def __Store(self):
-        # type: () -> None
-        """ Store the current cloak information to the profile folder. """
+        # type: () -> bool
+        """ Store the current cloak information to the profile folder.
+
+        @return: boolean indicating whether this was the first run.
+
+        """
+
+        firstTime = not self.__cloaked.get(Cloaker.__MESSAGE_SHOWN, False)
+        self.__cloaked[Cloaker.__MESSAGE_SHOWN] = True
+
         with file(self.__cloakedSettings, mode='w') as fp:
             if self.__logger:
                 self.__logger.Info("Storing Cloaking information to cloak file '%s'.", self.__cloakedSettings)
             fp.write(JsonHelper.Dump(self.__cloaked, prettyPrint=True))
+
+        if self.__logger:
+            self.__logger.Debug("First time cloak found.")
+        return firstTime
 
 
 if __name__ == '__main__':
@@ -130,6 +145,7 @@ if __name__ == '__main__':
             message = "Dummy TRACE >> %s" % (message,)
             print message % args
 
+    os.remove(os.path.join(cloakPath, "cloaked.json"))
     c = Cloaker(cloakPath, "channel2", logger=DummyLogger())
     c.Cloak("test1")
     c.Cloak("test2")

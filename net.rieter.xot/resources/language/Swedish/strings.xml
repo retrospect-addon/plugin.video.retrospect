@@ -93,7 +93,7 @@
     <string id="30092">Återställ KODENReset Vault</string>
     <string id="30093">Lösenord</string>
     <string id="30094">Användarnamn</string>
-    <string id="30095">Show Cloaked Items</string>
+    <string id="30095">Visa dolda objekt</string>
 
     <string id="30100">Ingen</string>
     <string id="30101">Regionala</string>
@@ -177,8 +177,10 @@
     <string id="30560">Betalvideo</string>
     <string id="30561">Valt objekt är inte gratis och kanske inte går att spela upp i Kodi.</string>
     <string id="30562">Användarnamn och/eller lösenord har inte angivits i tilläggsinställningarna</string>
-    <string id="30563">Cloak Item</string>
-    <string id="30564">Un-Cloak Item</string>
+    <string id="30563">Dölj objekt</string>
+    <string id="30564">Visa dolt objekt</string>
+    <string id="30565">Dolda objekt</string>
+    <string id="30566">För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn till att visa dolda objekt.</string>
 
     <string id="30590">Ange en ny KOD för Retrospect</string>
     <string id="30591">Ingen KOD angiven för Retrospect</string>
