@@ -38,11 +38,6 @@
       "order": 5,
       "value": "type=\"hidden\" default=\"\"",
       "id": "password"
-    },
-    {
-      "order": 6,
-      "value": "type=\"hidden\" default=\"\"",
-      "id": "cookie"
     }
   ]
 }

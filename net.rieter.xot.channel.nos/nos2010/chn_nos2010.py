@@ -185,16 +185,12 @@ class Channel(chn_class.Channel):
             Logger.Info("No user name for TV4 Play, not logging in")
             return False
 
-        cookieValue = self._GetSetting("cookie")
-        if cookieValue:
-            expires, cookieValue = cookieValue.split("|")
-            expireDate = datetime.datetime.fromtimestamp(float(expires))
-            if expireDate > datetime.datetime.now():
-                Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
-                UriHandler.SetCookie(name="npo_portal_auth_token", value=cookieValue)
-                # data = UriHandler.Open("https://mijn.npo.nl/profiel/favorieten", proxy=self.proxy, additionalHeaders=self.httpHeaders)
-                return True
-            Logger.Warning("Found existing expired TV4Play token")
+        # cookieValue = self._GetSetting("cookie")
+        cookie = UriHandler.GetCookie("npo_portal_auth_token", ".mijn.npo.nl")
+        if cookie:
+            expireDate = datetime.datetime.fromtimestamp(float(cookie.expires))
+            Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
+            return True
 
         v = Vault()
         password = v.GetChannelSetting(self.guid, "password")
@@ -223,11 +219,6 @@ class Channel(chn_class.Channel):
         if not authCookie:
             Logger.Error("Error logging in: Cookie not found.")
             return False
-
-        AddonSettings.SetChannelSetting(self.guid,
-                                        "cookie",
-                                        "%s|%s" % (authCookie.expires,
-                                                   HtmlEntityHelper.UrlDecode(authCookie.value)))
 
         # The cookie should already be in the jar now
         return True
