@@ -56,7 +56,8 @@ def RunPlugin():
         if EnvController.IsPlatform(Environments.Xbox):
             maxFileNameLength = 42
 
-        UriHandler.CreateUriHandler(cacheDir=cacheDir, maxFileNameLength=maxFileNameLength)
+        UriHandler.CreateUriHandler(cacheDir=cacheDir, maxFileNameLength=maxFileNameLength,
+                                    cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"))
 
         # start texture handler
         TextureHandler.SetTextureHandler(Config, Logger.Instance(), UriHandler.Instance())

@@ -34,7 +34,8 @@ class UriHandler:
     __error = "UriHandler not initialized. Use UriHandler.CreateUriHandler ======="
 
     @staticmethod
-    def CreateUriHandler(cacheDir=None, useCompression=True, webTimeOut=30, maxFileNameLength=None, blockSize=4096):
+    def CreateUriHandler(cacheDir=None, useCompression=True, webTimeOut=30, maxFileNameLength=None,
+                         blockSize=4096, cookieJar=None):
         """Initialises the UriHandler class
 
         Keyword Arguments:
@@ -43,11 +44,13 @@ class UriHandler:
         @param useCompression:    boolean - Indicates whether compression is supported or not.
         @param webTimeOut:        integer - timeout for requests in seconds
         @param maxFileNameLength: integer - the max filename length (should be 42 on Xbox)
+        @param cookieJar:         string  - the path to the cookie jar (in case of file storage)
 
         """
 
         if UriHandler.__handler is None:
-            UriHandler.__handler = UriHandler.CustomUriHandler(cacheDir, useCompression, webTimeOut, maxFileNameLength, blockSize)
+            UriHandler.__handler = UriHandler.CustomUriHandler(cacheDir, useCompression, webTimeOut,
+                                                               maxFileNameLength, blockSize, cookieJar)
 
             # hook up all the methods to pass to the actual UriHandler
             UriHandler.Download = UriHandler.__handler.Download
@@ -184,7 +187,8 @@ class UriHandler:
     class CustomUriHandler:
         """Class that handles all the URL downloads"""
 
-        def __init__(self, cacheDir=None, useCompression=True, webTimeOut=30, maxFileNameLength=None, blockSize=4096):
+        def __init__(self, cacheDir=None, useCompression=True, webTimeOut=30,
+                     maxFileNameLength=None, blockSize=4096, cookieJar=None):
             """Initialises the UriHandler class
 
             Keyword Arguments:
@@ -193,9 +197,20 @@ class UriHandler:
             @param cacheDir:          string  - a path for http caching. If specified, caching will be used.
             @param useCompression:    boolean - Indicates whether compression is supported or not.
             @param webTimeOut:        integer - timeout for requests in seconds
+            @param cookieJar:         string  - the path to the cookie jar (in case of file storage)
 
             """
-            self.cookieJar = cookielib.CookieJar()
+            if cookieJar:
+                self.cookieJar = cookielib.MozillaCookieJar(cookieJar)
+                if not os.path.isfile(cookieJar):
+                    # noinspection PyUnresolvedReferences
+                    self.cookieJar.save()
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.load()
+                self.cookieJarFile = True
+            else:
+                self.cookieJar = cookielib.CookieJar()
+                self.cookieJarFile = False
 
             # set caching stuff
             if cacheDir:
@@ -402,9 +417,9 @@ class UriHandler:
             self.cookieJar.set_cookie(c)
             return c
 
-        # noinspection PyProtectedMember
+        # noinspection PyProtectedMember,PyTypeChecker
         def GetCookie(self, name, domain, path="/", matchStart=False):
-            # type: (str, str, str, bool) -> cookielib.Cookie
+            # type: (str, str, str, bool) -> [Optional]cookielib.Cookie
             if domain not in self.cookieJar._cookies or path not in self.cookieJar._cookies[domain]:
                 return None
 
@@ -635,6 +650,9 @@ class UriHandler:
             elif not error:
                 Logger.Info("Url %s was opened successfully", uri)
 
+            if self.cookieJarFile:
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.save()
             return error, canceled, charSet
 
         def __DoCallback(self, progressCallback, blocks, blockSize, totalSize, completed):
