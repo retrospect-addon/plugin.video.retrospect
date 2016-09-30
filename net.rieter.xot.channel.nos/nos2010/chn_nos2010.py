@@ -17,6 +17,8 @@ from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from parserdata import ParserData
 from helpers.languagehelper import LanguageHelper
+from helpers.htmlentityhelper import HtmlEntityHelper
+from vault import Vault
 
 
 class Channel(chn_class.Channel):
@@ -139,6 +141,14 @@ class Channel(chn_class.Channel):
         self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
                             parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
 
+        # favorites
+        favRegex = 'data-mid=\'(?<id>[^"\']+)\'>\W*<a[^>]*href="(?<url>[^"]+)[^>]*>[^>]*</a>\W*' \
+                   '<div[^>]*>\W*<img[^>]*src="(?<thumburl>[^"]+)"[^>]*>\W*</div>[\w\W]{0,400}?' \
+                   '<div[^>]*title\'[^>]*>(?<title>[^<]*)</div>'
+        favRegex = Regexer.FromExpresso(favRegex)
+        self._AddDataParser("https://mijn.npo.nl/profiel/favorieten", name="Favourites with logon",
+                            requiresLogon=True, parser=favRegex, creator=self.CreateFolderItem)
+
         # Non-mobile videos: for the new pages with a direct URL
         self.nonMobileVideoItemRege2 = 'src="(?<Image>[^"]+)"[^>]+>\W*</a></div>\W*<div[^>]*>\W*<h3><a href="' \
                                        '(?<Url>[^"]+/(?<Day>\d+)-(?<Month>\d+)-(?<Year>\d+)/(?<WhatsOnId>[^/"]+))"' \
@@ -166,6 +176,61 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
+
+    def LogOn(self):
+        """ Makes sure that we are logged on. """
+
+        username = self._GetSetting("username")
+        if not username:
+            Logger.Info("No user name for TV4 Play, not logging in")
+            return False
+
+        cookieValue = self._GetSetting("cookie")
+        if cookieValue:
+            expires, cookieValue = cookieValue.split("|")
+            expireDate = datetime.datetime.fromtimestamp(float(expires))
+            if expireDate > datetime.datetime.now():
+                Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
+                UriHandler.SetCookie(name="npo_portal_auth_token", value=cookieValue)
+                # data = UriHandler.Open("https://mijn.npo.nl/profiel/favorieten", proxy=self.proxy, additionalHeaders=self.httpHeaders)
+                return True
+            Logger.Warning("Found existing expired TV4Play token")
+
+        v = Vault()
+        password = v.GetChannelSetting(self.guid, "password")
+        # get the logon security token: http://www.npo.nl/sign_in_modal
+        tokenData = UriHandler.Open("http://www.npo.nl/sign_in_modal",
+                                    proxy=self.proxy, noCache=True)
+        token = Regexer.DoRegex('name="authenticity_token"[^>]+value="([^"]+)"', tokenData)[0]
+
+        # login: https://mijn.npo.nl/sessions POST
+        # utf8=%E2%9C%93&authenticity_token=<token>&email=<username>&password=<password>&remember_me=1&commit=Inloggen
+        postData = {
+            "token": HtmlEntityHelper.UrlEncode(token),
+            "email": HtmlEntityHelper.UrlEncode(username),
+            "password": HtmlEntityHelper.UrlEncode(password)
+        }
+        postData = "utf8=%%E2%%9C%%93&authenticity_token=%(token)s&email=%(email)s&" \
+                   "password=%(password)s&remember_me=1&commit=Inloggen" % postData
+        data = UriHandler.Open("https://mijn.npo.nl/sessions", noCache=True, proxy=self.proxy,
+                               params=postData)
+        if not data:
+            Logger.Error("Error logging in: no response data")
+            return False
+
+        # extract the cookie and store
+        authCookie = UriHandler.GetCookie("npo_portal_auth_token", ".mijn.npo.nl")
+        if not authCookie:
+            Logger.Error("Error logging in: Cookie not found.")
+            return False
+
+        AddonSettings.SetChannelSetting(self.guid,
+                                        "cookie",
+                                        "%s|%s" % (authCookie.expires,
+                                                   HtmlEntityHelper.UrlDecode(authCookie.value)))
+
+        # The cookie should already be in the jar now
+        return True
 
     def GetAdditionalLiveItems(self, data):
         Logger.Info("Processing Live items")
@@ -230,6 +295,16 @@ class Channel(chn_class.Channel):
         search.dontGroup = True
         search.SetDate(2200, 1, 1, text="")
         items.append(search)
+
+        favs = mediaitem.MediaItem("Favorieten", "https://mijn.npo.nl/profiel/favorieten")
+        favs.complete = True
+        favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
+                           "wordt nog niet ondersteund."
+        favs.icon = self.icon
+        favs.thumb = self.noImage
+        favs.dontGroup = True
+        favs.SetDate(2200, 1, 1, text="")
+        items.append(favs)
 
         extra = mediaitem.MediaItem("Populair", "%s/episodes/popular.json" % (self.baseUrl,))
         extra.complete = True
@@ -377,6 +452,12 @@ class Channel(chn_class.Channel):
             subItem.dontGroup = True
             items.append(subItem)
         return data, items
+
+    def CreateFolderItem(self, resultSet):
+        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+        if item.thumb.startswith("//"):
+            item.thumb = "https:%s" % (item.thumb, )
+        return item
 
     def CreateFolderItemAlpha(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
@@ -1195,6 +1276,6 @@ class Channel(chn_class.Channel):
         UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.www.uitzendinggemist.nl')
         UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.www.npo.nl')
-        UriHandler.SetCookie(name='npo_cc', value='30', domain='.www.npo.nl')
+        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
+        UriHandler.SetCookie(name='npo_cc', value='30', domain='.npo.nl')
         return
