@@ -89,6 +89,19 @@ class AddonSettings:
         return setting
 
     @staticmethod
+    def SetChannelSetting(channelGuid, settingId, value):
+        """ Retrieves channel settings for the given channel
+
+        @param channelGuid: The channel object to get the channels for
+        @param settingId:   The setting to retrieve
+        @type value: Value to set
+        @rtype : the configured value
+        """
+
+        fullSettingId = "channel_%s_%s" % (channelGuid, settingId)
+        return AddonSettings.SetSetting(fullSettingId, value)
+
+    @staticmethod
     def GetProxyGroupIds(asString=False, asCountryCodes=False):
         """ returns the all available ProxyGroupId's in order """
 
