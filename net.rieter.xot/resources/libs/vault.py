@@ -26,7 +26,7 @@ class Vault:
     __APPLICATION_KEY_SETTING = "application_key"
 
     def __init__(self):
-        # type: (str) -> Vault
+        # type: (str) -> None
         self.__newKeyGeneratedInConstructor = False    # : This was the very first time a key was generated
 
         # ask for PIN of no key is present
@@ -45,7 +45,6 @@ class Vault:
 
             Vault.__Key = key
             Logger.Trace("Using Application Key with MD5: %s (lengt=%s)", hashlib.md5(key).hexdigest(), len(key))
-        return
 
     def ChangePin(self, applicationKey=None):
         # type: (str) -> bool
@@ -135,7 +134,7 @@ class Vault:
         return self.GetSetting(fullSettingId)
 
     def GetSetting(self, settingId):
-        # type: (str) -> str
+        # type: (str) -> Optional[str]
         """ Retrieves an encrypted setting from the Kodi Add-on Settings.
 
         @param settingId: the ID for the setting to retrieve
@@ -161,27 +160,32 @@ class Vault:
 
         return decryptedValue
 
-    def SetSetting(self, settingId, settingName=None):
+    def SetSetting(self, settingId, settingName=None, settingActionId=None):
         # type: (str, str) -> None
         """ Reads a value for a setting from the keyboard and encryptes it in the Kodi
         Add-on settings
 
         @param settingId:   the ID for the Kodi Add-on setting to set
         @param settingName: the name to display in the keyboard
+        @param settingActionId: the name of the action that was called.
         """
 
         Logger.Info("Encrypting value for setting '%s'", settingId)
-        value = XbmcWrapper.ShowKeyBoard(
+        inputValue = XbmcWrapper.ShowKeyBoard(
             "",
             LanguageHelper.GetLocalizedString(LanguageHelper.VaultSpecifySetting) % (settingName or settingId, ))
-        value = "%s=%s" % (settingId, value)
+        value = "%s=%s" % (settingId, inputValue)
         encryptedValue = self.__Encrypt(value, Vault.__Key)
         AddonSettings.SetSetting(settingId, encryptedValue)
+        if settingActionId and inputValue:
+            AddonSettings.SetSetting(settingActionId, "******")
+        elif settingActionId:
+            AddonSettings.SetSetting(settingActionId, "")
         Logger.Info("Successfully encrypted value for setting '%s'", settingId)
         return
 
     def __GetApplicationKey(self):
-        # type: () -> string
+        # type: () -> Optional[str]
         """ Gets the decrypted application key that is used for all the encryption
 
         @return: the decrypted application key that is used for all the encryption

@@ -86,6 +86,7 @@ class Plugin:
         self.keywordCategory = "category"                               # : Keyword used for the category
         self.keywordRandomLive = "rnd"                                  # : Keyword used for randomizing live items
         self.keywordSettingId = "settingid"                             # : Keyword used for setting an encrypted setting
+        self.keywordSettingActionId = "settingactionid"                 # : Keyword used for passing the actionid for the encryption
         self.keywordSettingName = "settingname"                         # : Keyword used for setting an encrypted settings display name
         self.keywordSettingTabFocus = "tabfocus"                        # : Keyword used for setting the tabcontrol to focus after changing a setting
         self.keywordSettingSettingFocus = "settingfocus"                # : Keyword used for setting the setting control to focus after changing a setting
@@ -218,7 +219,8 @@ class Plugin:
                             v.ChangePin()
                         elif action == self.actionSetEncryptedValue:
                             v.SetSetting(self.params[self.keywordSettingId],
-                                         self.params.get(self.keywordSettingName, ""))
+                                         self.params.get(self.keywordSettingName, ""),
+                                         self.params.get(self.keywordSettingActionId, None))
                             # value = v.GetSetting(self.params[self.keywordSettingId])
                             # Logger.Critical(value)
                     finally:
