@@ -7,7 +7,6 @@ from parserdata import ParserData
 from streams.m3u8 import M3u8
 from vault import Vault
 from helpers.htmlentityhelper import HtmlEntityHelper
-from addonsettings import AddonSettings
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
 
@@ -54,6 +53,7 @@ class Channel(chn_class.Channel):
         # ==========================================================================================
         # Test cases:
         # Documentaire: pages (has http://www.canvas.be/tag/.... url)
+        # Not-Geo locked: Kroost
 
         # ====================================== Actual channel setup STOPS here ===================
         return
@@ -136,23 +136,11 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        cookieValue = self._GetSetting("cookie", None)
-        data = ""
-        if cookieValue:
-            Logger.Info("Found Vier.be cookie in add-on settings: %s", cookieValue)
-            # Or set the cookie and just load
-            name, value, expires = cookieValue.split("|")
-            cookie = UriHandler.SetCookie(name=name, value=value,
-                                          domain='.vier.be', expires=int(expires))
-            # only continue if the cookie has not expired yet
-            if cookie.is_expired():
-                Logger.Warning("Vier.be cookie in add-on settings expired")
-                cookieValue = None
-            else:
-                data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-
-        # of no setting was found, or it has expired, retry
-        if not cookieValue:
+        cookie = UriHandler.GetCookie("SESS", ".vier.be", matchStart=True)
+        if cookie is not None:
+            Logger.Info("Found Vier.be cookie in add-on settings: %s", cookie.value)
+            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        else:
             Logger.Info("No valid Vier.be cookie found. Getting one")
             v = Vault()
             username = self._GetSetting("username")
@@ -176,13 +164,6 @@ class Channel(chn_class.Channel):
                                           "&pass=%s"
                                           "&op=Inloggen"
                                           "&form_id=user_login_block" % (username, password))
-
-            # noinspection PyProtectedMember
-            cookie = UriHandler.GetCookie(domain=".vier.be", path="/", name="SESS", matchStart=True)
-            if cookie:
-                cookieValue = "%s|%s|%s" % (cookie.name, cookie.value, cookie.expires)
-                Logger.Info("Found new Vier.be cookie: %s", cookieValue)
-                AddonSettings.SetSetting("channel_%s_cookie" % (self.guid, ), cookieValue)
 
         # data-filename="achterderug/s2/160503_aflevering7"
         # data-application="vier_vod_geo"

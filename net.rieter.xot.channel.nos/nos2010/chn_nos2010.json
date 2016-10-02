@@ -26,13 +26,13 @@
     },
     {
       "order": 3,
-      "value": "type=\"text\" label=\"Email_todo\" default=\"\"",
+      "value": "type=\"text\" label=\"30094\" default=\"\"",
       "id": "username"
     },
     {
       "order": 4,
-      "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_password&amp;settingname=NPO.nl password&amp;tabfocus=102&amp;settingactionid=channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_set_password)\" option=\"close\"",
-      "id": "set_password"
+      "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_password&amp;settingname=NPO.nl password&amp;tabfocus=102)\" option=\"close\"",
+      "id": "password_set"
     },
     {
       "order": 5,

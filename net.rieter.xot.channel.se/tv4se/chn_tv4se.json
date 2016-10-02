@@ -47,8 +47,8 @@
     },
     {
       "order": 3,
-      "id": "set_password",
-      "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_tv4play_se_password&amp;settingname=TV4Play.se password&amp;tabfocus=102)\" option=\"close\""
+      "id": "password_set",
+      "value": "id=\"channel_tv4play_se_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_tv4play_se_password&amp;settingname=TV4Play.se password&amp;tabfocus=102)\" option=\"close\""
     },
     {
       "order": 4,

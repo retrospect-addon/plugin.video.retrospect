@@ -168,6 +168,9 @@ class Vault:
         @param settingId:   the ID for the Kodi Add-on setting to set
         @param settingName: the name to display in the keyboard
         @param settingActionId: the name of the action that was called.
+
+        The setttingActionId defaults to <settingId>_set
+
         """
 
         Logger.Info("Encrypting value for setting '%s'", settingId)
@@ -176,10 +179,15 @@ class Vault:
             LanguageHelper.GetLocalizedString(LanguageHelper.VaultSpecifySetting) % (settingName or settingId, ))
         value = "%s=%s" % (settingId, inputValue)
         encryptedValue = self.__Encrypt(value, Vault.__Key)
+
+        if settingActionId is None:
+            settingActionId = "%s_set" % (settingId,)
+
+        Logger.Debug("Updating '%s' and '%s'", settingId, settingActionId)
         AddonSettings.SetSetting(settingId, encryptedValue)
-        if settingActionId and inputValue:
+        if inputValue:
             AddonSettings.SetSetting(settingActionId, "******")
-        elif settingActionId:
+        else:
             AddonSettings.SetSetting(settingActionId, "")
         Logger.Info("Successfully encrypted value for setting '%s'", settingId)
         return

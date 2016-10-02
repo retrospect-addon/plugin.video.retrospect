@@ -20,17 +20,12 @@
     },
     {
       "order": 2,
-      "id": "set_password",
+      "id": "password_set",
       "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Vier.be password&amp;tabfocus=102)\" option=\"close\""
     },
     {
       "order": 3,
       "id": "password",
-      "value": "type=\"hidden\" default=\"\""
-    },
-    {
-      "order": 4,
-      "id": "cookie",
       "value": "type=\"hidden\" default=\"\""
     }
   ]
