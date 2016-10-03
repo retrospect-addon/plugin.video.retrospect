@@ -243,7 +243,8 @@ class Channel(chn_class.Channel):
         jsonData = Regexer.DoRegex('window.App=({[^<]+);', data)[0]
         # the "RouteStore" has some weird functions, removing it.
         start = jsonData.index('"RouteStore"')
-        end = jsonData.index('"SearchStore"')
+        # the need at least the 'ApplicationStore'
+        end = jsonData.index('"ApplicationStore"')
         data = jsonData[0:start] + jsonData[end:]
         Logger.Trace("Found Json:\n%s", data)
         return data, items
