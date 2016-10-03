@@ -136,6 +136,12 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
+        username = self._GetSetting("username")
+        if not username:
+            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+            Logger.Info("No Vier.be login configured. Not logging in.")
+            return self.__UpdateVideo(item, data)
+
         cookie = UriHandler.GetCookie("SESS", ".vier.be", matchStart=True)
         if cookie is not None:
             Logger.Info("Found Vier.be cookie in add-on settings: %s", cookie.value)
@@ -143,7 +149,6 @@ class Channel(chn_class.Channel):
         else:
             Logger.Info("No valid Vier.be cookie found. Getting one")
             v = Vault()
-            username = self._GetSetting("username")
             password = v.GetChannelSetting(self.guid, "password")
             if not username or not password:
                 XbmcWrapper.ShowDialog(
@@ -165,6 +170,9 @@ class Channel(chn_class.Channel):
                                           "&op=Inloggen"
                                           "&form_id=user_login_block" % (username, password))
 
+        return self.__UpdateVideo(item, data)
+
+    def __UpdateVideo(self, item, data):
         # data-filename="achterderug/s2/160503_aflevering7"
         # data-application="vier_vod_geo"
         regex = 'data-filename="([^"]+)\W+data-application="([^"]+)"'

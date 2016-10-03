@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Eén updated their site (Fixes #762)
+Fixed: no longer required to log on for playback (See #736)
 
 [I]Previous Changes[/I]
+Fixed: Eén updated their site (Fixes #762)
 Fixed: Canvas updated their site (Fixes #747)
 Fixed: RTBF live streams broke due to HLS switch (Fixes #742)
 Fixed: De Redactie did not retrieve media url
