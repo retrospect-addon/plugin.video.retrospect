@@ -91,14 +91,13 @@ class Channel(chn_class.Channel):
                             preprocessor=self.ExtractSlugData, json=True)
 
         # Other Json items
-        self._AddDataParser("*", preprocessor=self.ExtractJsonDataSvt, json=True)
+        self._AddDataParser("*", preprocessor=self.ExtractJsonDataRedux, json=True)
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
         self._AddDataParser("*", json=True,
                             preprocessor=self.ListSomeVideos,
-                            parser=("context", "dispatcher", "stores", "VideoTitlePageStore",
-                                    "data", "relatedVideoTabs"),
+                            parser=("videoTitlePage", "realatedVideoTabs"),
                             creator=self.CreateJsonFolderItem)
 
         # self._AddDataParser("*", json=True,
@@ -272,8 +271,8 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
         return data, items
 
-    def ExtractJsonDataSvt(self, data):
-        return self.__ExtractJsonData(data, "__svtplay")
+    # def ExtractJsonDataSvt(self, data):
+    #     return self.__ExtractJsonData(data, "__svtplay")
 
     def ExtractJsonDataRedux(self, data):
         return self.__ExtractJsonData(data, "__reduxStore")
@@ -307,10 +306,10 @@ class Channel(chn_class.Channel):
         """ Extracts the correct Slugged Data for tabbed items """
 
         Logger.Info("Extracting Slugged data during pre-processing")
-        data, items = self.ExtractJsonDataSvt(data)
+        data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
-        slugs = json.GetValue("context", "dispatcher", "stores", "VideoTitlePageStore", "data", "relatedVideoTabs")
+        slugs = json.GetValue("videoTitlePage", "realatedVideoTabs")
         for slugData in slugs:
             tabSlug = "?tab=%s" % (slugData["slug"], )
             if not self.parentItem.url.endswith(tabSlug):
@@ -417,8 +416,7 @@ class Channel(chn_class.Channel):
             return data, items
 
         jsonData = JsonHelper(data)
-        sections = jsonData.GetValue("context", "dispatcher", "stores", "VideoTitlePageStore",
-                                     "data", "relatedVideoTabs")
+        sections = jsonData.GetValue("videoTitlePage", "realatedVideoTabs")
 
         Logger.Debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:
@@ -665,12 +663,12 @@ class Channel(chn_class.Channel):
         """
         data = UriHandler.Open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
-        data = self.ExtractJsonDataSvt(data)[0]
+        data = self.ExtractJsonDataRedux(data)[0]
         json = JsonHelper(data)
 
         # check for direct streams:
-        streams = json.GetValue("context", "dispatcher", "stores", "VideoTitlePageStore", "data", "video", "videoReferences")
-        subtitles = json.GetValue("context", "dispatcher", "stores", "VideoTitlePageStore", "data", "video", "subtitles")
+        streams = json.GetValue("videoTitlePage", "video", "videoReferences")
+        subtitles = json.GetValue("videoTitlePage", "video", "subtitles")
 
         if streams:
             Logger.Info("Found stream information within HTML data")
