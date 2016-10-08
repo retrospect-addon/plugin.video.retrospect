@@ -123,8 +123,8 @@ class Version(Comparable):
         if minor is None and not (revision is None and build is None):
             raise ValueError("A Minor version must be provided if a revision or build is provided.")
 
-        if revision is None and build is not None:
-            raise ValueError("A Revision number must be provided if a build is provided.")
+        if build is None and revision is not None:
+            raise ValueError("A build number must be provided if a revision is provided.")
 
         self.major = major
         self.minor = minor
@@ -213,7 +213,7 @@ class Version(Comparable):
         else:
             if self.minor is None:
                 return str(self.major)
-            elif self.revision is None:
+            elif self.build is None:
                 return "%s.%s" % (self.major, self.minor)
             elif self.revision is None:
                 return "%s.%s.%s" % (self.major, self.minor, self.build)
@@ -234,20 +234,16 @@ class Version(Comparable):
         versionTypes = ["alpha", "beta"]
 
         if not self.__NoneIsZero(self.major) == self.__NoneIsZero(other.major):
-            #print "Match major"
             return self.__NoneIsZero(self.major) < self.__NoneIsZero(other.major)
 
         if not self.__NoneIsZero(self.minor) == self.__NoneIsZero(other.minor):
-            #print "Match minor"
             return self.__NoneIsZero(self.minor) < self.__NoneIsZero(other.minor)
 
-        if not self.__NoneIsZero(self.revision) == self.__NoneIsZero(other.revision):
-            #print "Match revision"
-            return self.__NoneIsZero(self.revision) < self.__NoneIsZero(other.revision)
-
-        #print "Match build: %s < %s" % (self.__NoneIsZero(self.build), self.__NoneIsZero(other.build))         
         if not self.__NoneIsZero(self.build) == self.__NoneIsZero(other.build):
             return self.__NoneIsZero(self.build) < self.__NoneIsZero(other.build)
+
+        if not self.__NoneIsZero(self.revision) == self.__NoneIsZero(other.revision):
+            return self.__NoneIsZero(self.revision) < self.__NoneIsZero(other.revision)
 
         if self.buildType is None and other.buildType is None:
             # they are the same
