@@ -79,7 +79,7 @@ class ChannelIndex:
         return
 
     def GetChannel(self, className, channelCode):
-        # type: (str, str) -> ChannelInfo
+        # type: (str, str) -> Optional[ChannelInfo]
         """ Fetches a single channel for a given className and channelCode
 
         If updated channels are found, the those channels are indexed and the
@@ -409,7 +409,7 @@ class ChannelIndex:
         return index
 
     def __ValidateAddOnVersion(self, path):
-        # type: (str) -> Version
+        # type: (str) -> (str, Version)
         """ Parses the addon.xml file and checks if all is OK.
 
         @param path: path to load the addon from
@@ -434,7 +434,7 @@ class ChannelIndex:
             packVersion = packVersion[0]
             packageId = packVersion[0]
             packageVersion = Version(version=packVersion[1])
-            if Config.version.EqualRevisions(packageVersion):
+            if Config.version.EqualBuilds(packageVersion):
                 Logger.Info("Adding %s version %s", packageId, packageVersion)
                 return packageId, packageVersion
             else:
@@ -613,7 +613,7 @@ class ChannelIndex:
         channels = index[self.__CHANNEL_INDEX_CHANNEL_KEY]
         firstVersion = channels[channels.keys()[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
         firstVersion = Version(firstVersion)
-        if not Config.version.EqualRevisions(firstVersion):
+        if not Config.version.EqualBuilds(firstVersion):
             Logger.Warning("Inconsisten version 'index' vs 'add-on': %s vs %s", firstVersion, Config.version)
             return False
 

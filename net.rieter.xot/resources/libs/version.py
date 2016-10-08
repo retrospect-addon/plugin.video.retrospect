@@ -96,7 +96,7 @@ class Comparable:
 class Version(Comparable):
     """ Class representing a version number """
 
-    def __init__(self, version=None, major=None, minor=None, revision=None, build=None):
+    def __init__(self, version=None, major=None, minor=None, build=None, revision=None, buildType=None):
         """ Initialises a new version number
 
         Keyword arguments:
@@ -105,6 +105,7 @@ class Version(Comparable):
         minor    : Integer - The Minor build number
         revision : Integer - The Revision number
         build    : Integer - The Build number
+        buildType: String  - None, Alpha, Beta etc
 
         """
 
@@ -129,10 +130,15 @@ class Version(Comparable):
         self.minor = minor
         self.revision = revision
         self.build = build
+        if buildType is not None:
+            self.buildType = buildType.lower()
+        else:
+            self.buildType = None
+
         if version:
             self.__ExtractVersion(version)
 
-    def EqualRevisions(self, other):
+    def EqualBuilds(self, other):
         """ Checks if two versions have the same version up until the revision 
         part of the version 
         
@@ -147,10 +153,9 @@ class Version(Comparable):
         if other is None:
             return False
 
-        thisVersion = Version(major=self.major, minor=self.minor, revision=self.revision)
-        otherVersion = Version(major=other.major, minor=other.minor, revision=other.revision)
-
-        return thisVersion == otherVersion
+        # thisVersion = Version(major=self.major, minor=self.minor, revision=self.build)
+        # otherVersion = Version(major=other.major, minor=other.minor, revision=other.build)
+        return self.major == other.major and self.minor == other.minor and self.build == other.build
 
     def __ExtractVersion(self, version):
         """ Extracts the Major, Minor, Revision and Buildnumber from a version string
@@ -160,15 +165,18 @@ class Version(Comparable):
         
         """
 
+        if "~" in version:
+            version, self.buildType = version.split("~")
+
         split = str(version).split('.')
         if len(split) > 0:
             self.major = int(split[0])
         if len(split) > 1:
             self.minor = int(split[1])
         if len(split) > 2:
-            self.revision = int(split[2])
+            self.build = int(split[2])
         if len(split) > 3:
-            self.build = int(split[3])
+            self.revision = int(split[3])
 
     def __NoneIsZero(self, value):
         """ Returns 0 if a value is None. This is needed for comparison. As None
@@ -184,19 +192,33 @@ class Version(Comparable):
             return 0
         return int(value)
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
         """ String representation """
 
         if self.major is None:
             return "None"
-        elif self.minor is None:
-            return str(self.major)
-        elif self.revision is None:
-            return "%s.%s" % (self.major, self.minor)
-        elif self.build is None:
-            return "%s.%s.%s" % (self.major, self.minor, self.revision)
+
+        if self.buildType:
+            if self.minor is None:
+                return "%s~%s" % (self.major, self.buildType)
+            elif self.build is None:
+                return "%s.%s~%s" % (self.major, self.minor, self.buildType)
+            elif self.revision is None:
+                return "%s.%s.%s~%s" % (self.major, self.minor, self.build, self.buildType)
+            else:
+                return "%s.%s.%s.%s~%s" % (self.major, self.minor, self.build, self.revision, self.buildType)
         else:
-            return "%s.%s.%s.%s" % (self.major, self.minor, self.revision, self.build)
+            if self.minor is None:
+                return str(self.major)
+            elif self.revision is None:
+                return "%s.%s" % (self.major, self.minor)
+            elif self.revision is None:
+                return "%s.%s.%s" % (self.major, self.minor, self.build)
+            else:
+                return "%s.%s.%s.%s" % (self.major, self.minor, self.build, self.revision)
 
     def __lt__(self, other):
         """ Tests two versios for 'Lower Then' 
@@ -206,8 +228,10 @@ class Version(Comparable):
         
         Returns:
         True or False
-        
+
         """
+
+        versionTypes = ["alpha", "beta"]
 
         if not self.__NoneIsZero(self.major) == self.__NoneIsZero(other.major):
             #print "Match major"
@@ -222,63 +246,27 @@ class Version(Comparable):
             return self.__NoneIsZero(self.revision) < self.__NoneIsZero(other.revision)
 
         #print "Match build: %s < %s" % (self.__NoneIsZero(self.build), self.__NoneIsZero(other.build))         
-        return self.__NoneIsZero(self.build) < self.__NoneIsZero(other.build)
+        if not self.__NoneIsZero(self.build) == self.__NoneIsZero(other.build):
+            return self.__NoneIsZero(self.build) < self.__NoneIsZero(other.build)
 
+        if self.buildType is None and other.buildType is None:
+            # they are the same
+            return False
 
-if __name__ == "__main__":
-    # version = Version()
-    # version = Version(version="2.1.2.0", major=2, minor=1, revision=2, build=0)
-    # version = Version(major=2, minor=None, revision=2, build=0)
-    # version = Version(major=2, minor=None, revision=2, build=None)
-    # version = Version(major=2, minor=1, revision=2, build=0)
-    # version = Version(version="2.1.2.0")
-    # version = Version(version="2.1.2")
-    # version = Version(version="2.1")
-    # version = Version(version="2")
+        if self.buildType is None and other.buildType is not None:
+            # one has beta/alpha, the other None, so the other is larger
+            return False
 
-    lowestVersion = Version(major=2, minor=1, revision=2, build=1)
-    middleVersion = Version(version="2.1.3.1")
-    highestVersion = Version(version="2.1.3.5")
-    print "%s <  %s = %s" % (lowestVersion, middleVersion, lowestVersion < middleVersion)
-    if not lowestVersion < middleVersion:
-        raise ArithmeticError()
+        if self.buildType is not None and other.buildType is None:
+            return True
 
-    print "%s <= %s = %s" % (lowestVersion, middleVersion, lowestVersion <= middleVersion)
-    if not lowestVersion <= middleVersion:
-        raise ArithmeticError()
+        # we have 2 build types
+        selfBuildName = self.buildType.rstrip("0123456789")
+        selfBuildNameNumber = self.buildType.lstrip("".join(versionTypes))
+        otherBuildName = other.buildType.rstrip("0123456789")
+        otherBuildNameNumber = other.buildType.lstrip("".join(versionTypes))
 
-    print "%s <= %s = %s" % (lowestVersion, lowestVersion, lowestVersion <= lowestVersion)
-    if not lowestVersion <= lowestVersion:
-        raise ArithmeticError()
+        if selfBuildName == otherBuildName:
+            return selfBuildNameNumber < otherBuildNameNumber
 
-    print "%s == %s = %s" % (lowestVersion, middleVersion, lowestVersion == middleVersion)
-    if lowestVersion == middleVersion:
-        raise ArithmeticError()
-
-    print "%s == %s = %s" % (lowestVersion, lowestVersion, lowestVersion == lowestVersion)
-    if not lowestVersion == lowestVersion:
-        raise ArithmeticError()
-
-    print "%s >= %s = %s" % (lowestVersion, middleVersion, lowestVersion >= middleVersion)
-    if lowestVersion >= middleVersion:
-        raise ArithmeticError()
-
-    print "%s >= %s = %s" % (lowestVersion, lowestVersion, lowestVersion >= lowestVersion)
-    if not lowestVersion >= lowestVersion:
-        raise ArithmeticError()
-
-    print "%s >  %s = %s" % (lowestVersion, middleVersion, lowestVersion > middleVersion)
-    if lowestVersion > middleVersion:
-        raise ArithmeticError()
-
-    print "%s != %s = %s" % (lowestVersion, middleVersion, lowestVersion != middleVersion)
-    if not lowestVersion != middleVersion:
-        raise ArithmeticError()
-
-    print "%s EqualRevisions %s = %s" % (lowestVersion, middleVersion, lowestVersion.EqualRevisions(middleVersion))
-    if lowestVersion.EqualRevisions(middleVersion):
-        raise ArithmeticError()
-
-    print "%s EqualRevisions %s = %s" % (middleVersion, highestVersion, middleVersion.EqualRevisions(highestVersion))
-    if not middleVersion.EqualRevisions(highestVersion):
-        raise ArithmeticError()
+        return versionTypes.index(selfBuildName) < versionTypes.index(otherBuildName)
