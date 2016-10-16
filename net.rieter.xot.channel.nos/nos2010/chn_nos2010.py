@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import mediaitem
 import contextmenu
@@ -404,7 +405,9 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?);NPW\.config', data)[-1].rstrip(";")
+        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
+        # fixUp some json
+        data = re.sub('(\w+):([^/])', '"\\1":\\2', data)
         return data, items
 
     def AlphaListing(self, data):
