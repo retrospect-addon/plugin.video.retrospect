@@ -103,7 +103,7 @@ class Mms:
 
         Logger.Debug("Parsing %s to find MMS", url)
         data = UriHandler.Open(url, proxy=proxy)
-        urls = Regexer.DoRegex('[Rr]ef href="mms://([^"]+)"', data)
+        urls = Regexer.DoRegex('[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
 
         if len(urls) > 0:
             return "mms://%s" % (urls[0],)

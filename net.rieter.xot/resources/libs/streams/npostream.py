@@ -12,6 +12,8 @@ import time
 
 from helpers.jsonhelper import JsonHelper
 from streams.m3u8 import M3u8
+from helpers.subtitlehelper import SubtitleHelper
+from streams.mms import Mms
 from urihandler import UriHandler
 from logger import Logger
 from regexer import Regexer
@@ -22,7 +24,8 @@ class NpoStream:
         pass
 
     @staticmethod
-    def GetStreamsFromNpo(url, cacheDir, proxy=None, headers=None):
+    def GetStreamsFromNpo(url, streamId, cacheDir, proxy=None, headers=None):
+        # type: (Union[str, None], str, str, Proxy, Dict[str,str]) -> List[Tuple[str, int]]
         """ Retrieve NPO Player Live streams from a different number of stream urls.
 
         @param url:               (String) The url to download
@@ -40,24 +43,89 @@ class NpoStream:
 
         """
 
-        Logger.Info("Determining streams for: %s", url)
-
-        if url.startswith("http://e.omroep.nl/metadata/"):
-            Logger.Debug("Found a metadata url '%s'. Determining the actual stream url's", url)
-            jsonData = UriHandler.Open(url, proxy=proxy)
-            json = JsonHelper(jsonData, Logger.Instance())
-            streams = []
-            for stream in json.GetValue("streams"):
-                if "formaat" not in stream:
-                    Logger.Warning("No compatible streams found: %s", stream)
-                    continue
-                Logger.Trace("Found %s stream: '%s'", stream["formaat"], stream["url"])
-                # the bitrate is more or less the quality * 500 kbps
-                streams.append((stream["url"], stream["kwaliteit"] * 500))
-            return streams
+        if url:
+            Logger.Info("Determining streams for url: %s", url)
+        elif streamId:
+            Logger.Info("Determining streams for VideoId: %s", streamId)
         else:
-            Logger.Warning("None-stream url found: %s", url)
+            Logger.Error("No url or streamId specified!")
             return []
+
+        results = []
+        token = NpoStream.GetNpoToken(proxy, cacheDir)
+
+        # first try M3U8, the others
+        streamUrls = [
+            "http://ida.omroep.nl/odi/?prid=%s&puboptions=adaptive&adaptive=yes&part=1&token=%s" % (streamId, token,),
+            "http://ida.omroep.nl/odi/?prid=%s&puboptions=h264_bb,h264_sb,h264_std&adaptive=no&part=1&token=%s" % (streamId, token,)
+        ]
+        Logger.Debug("Trying to fetch the adaptive & progressive streams")
+        for streamUrl in streamUrls:
+            streamData = UriHandler.Open(streamUrl, proxy=proxy, additionalHeaders=headers)
+            streamInfo = JsonHelper(streamData)
+            Logger.Info("Found '%s' stream", streamInfo.GetValue("family"))
+            for subStreamUrl in streamInfo.GetValue("streams"):
+                subStreamData = UriHandler.Open(subStreamUrl, proxy)
+                subSreamInfo = JsonHelper(subStreamData)
+                if "errorstring" in subSreamInfo.json:
+                    Logger.Warning("Could not find streams: %s", subSreamInfo.json["errorstring"])
+                    continue
+
+                url = subSreamInfo.GetValue("url")
+                if "m3u8" in url:
+                    Logger.Debug("Found M3U8 stream: %s", url)
+                    for s, b in M3u8.GetStreamsFromM3u8(url, proxy):
+                        results.append((s, b))
+
+                    # No more need to look further for this stream
+                    continue
+
+                Logger.Debug("Found MP4/M4V stream: %s", url)
+                if "h264_bb" in subStreamUrl:
+                    bitrate = 500
+                elif "h264_sb" in subStreamUrl:
+                    bitrate = 220
+                elif "h264_std" in subStreamUrl:
+                    bitrate = 1000
+                else:
+                    bitrate = None
+
+                if "?odiredirecturl" in url:
+                    url = url[:url.index("?odiredirecturl")]
+                results.append((url, bitrate))
+
+            if results:
+                return results
+
+        # no results so far
+        streamUrl = "http://e.omroep.nl/metadata/%s" % (streamId,)
+        Logger.Info("Atttemting old school URL: %s", url)
+        streamData = UriHandler.Open(streamUrl, proxy=proxy, additionalHeaders=headers)
+        streamInfo = JsonHelper(streamData)
+        for stream in streamInfo.GetValue("streams"):
+            quality = stream.get("kwaliteit", 0)
+            if quality == 1:
+                bitrate = 180
+            elif quality == 2:
+                bitrate = 1000
+            elif quality == 3:
+                bitrate = 1500
+            else:
+                bitrate = 0
+
+            if "formaat" in stream and stream["formaat"] == "h264":
+                bitrate += 1
+
+            url = stream['url']
+            url = Mms.GetMmsFromAsx(url, proxy)
+            results.append((url, bitrate))
+        return results
+
+    @staticmethod
+    def GetSubtitle(streamId, proxy=None):
+        # type: (str, Proxy) -> str
+        subTitleUrl = "http://e.omroep.nl/tt888/%s" % (streamId,)
+        return SubtitleHelper.DownloadSubtitle(subTitleUrl, streamId + ".srt", format='srt', proxy=proxy)
 
     @staticmethod
     def GetLiveStreamsFromNpo(url, cacheDir, proxy=None, headers=None):

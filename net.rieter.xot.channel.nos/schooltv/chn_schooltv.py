@@ -3,16 +3,12 @@ import datetime
 import chn_class
 import mediaitem
 
-from regexer import Regexer
 from config import Config
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
 from urihandler import UriHandler
 from streams.npostream import NpoStream
-from streams.m3u8 import M3u8
-# from streams.mms import Mms
 from helpers.languagehelper import LanguageHelper
-from helpers.subtitlehelper import SubtitleHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 
 
@@ -267,7 +263,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
 
         part = item.CreateNewEmptyMediaPart()
-        part.Subtitle = Channel.__GetSubtitle(json.GetValue("mid"), proxy=self.proxy)
+        part.Subtitle = NpoStream.GetSubtitle(json.GetValue("mid"), proxy=self.proxy)
 
         for stream in json.GetValue("videoStreams"):
             if not stream["url"].startswith("odi"):
@@ -277,127 +273,8 @@ class Channel(chn_class.Channel):
         if item.HasMediaItemParts():
             return item
 
-        for s, b in Channel.__GetStreamsFromNpo(None, json.GetValue("mid"), cacheDir=Config.cacheDir, proxy=self.proxy):
+        for s, b in NpoStream.GetStreamsFromNpo(None, json.GetValue("mid"), cacheDir=Config.cacheDir, proxy=self.proxy):
             item.complete = True
             part.AppendMediaStream(s, b)
 
         return item
-
-    @staticmethod
-    def __GetMmsFromAsx(url, proxy):
-        if url.find(".mms") > 0:
-            Logger.Info("MMS found in url: %s", url)
-            return url
-
-        Logger.Debug("Parsing %s to find MMS", url)
-        data = UriHandler.Open(url, proxy=proxy)
-        urls = Regexer.DoRegex('[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
-
-        if len(urls) > 0:
-            return "mms://%s" % (urls[0],)
-        else:
-            return url
-
-    @staticmethod
-    def __GetStreamsFromNpo(url, streamId, cacheDir, proxy=None, headers=None):
-        # type: (Union[str, None], str, str, Proxy, Dict[str,str]) -> List[Tuple[str, int]]
-        """ Retrieve NPO Player Live streams from a different number of stream urls.
-
-        @param url:               (String) The url to download
-        @param cacheDir:          (String) The cache dir where to find the 'uzg-i.js' file.
-        @param headers:           (dict) Possible HTTP Headers
-        @param proxy:             (Proxy) The proxy to use for opening
-
-        Can be used like this:
-
-            part = item.CreateNewEmptyMediaPart()
-            for s, b in NpoStream.GetStreamsFromNpo(m3u8Url, self.proxy):
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
-
-        """
-
-        if url:
-            Logger.Info("Determining streams for url: %s", url)
-        elif streamId:
-            Logger.Info("Determining streams for VideoId: %s", streamId)
-        else:
-            Logger.Error("No url or streamId specified!")
-            return []
-
-        results = []
-        token = NpoStream.GetNpoToken(proxy, cacheDir)
-
-        # first try M3U8, the others
-        streamUrls = [
-            "http://ida.omroep.nl/odi/?prid=%s&puboptions=adaptive&adaptive=yes&part=1&token=%s" % (streamId, token,),
-            "http://ida.omroep.nl/odi/?prid=%s&puboptions=h264_bb,h264_sb,h264_std&adaptive=no&part=1&token=%s" % (streamId, token,)
-        ]
-        Logger.Debug("Trying to fetch the adaptive & progressive streams")
-        for streamUrl in streamUrls:
-            streamData = UriHandler.Open(streamUrl, proxy=proxy, additionalHeaders=headers)
-            streamInfo = JsonHelper(streamData)
-            Logger.Info("Found '%s' stream", streamInfo.GetValue("family"))
-            for subStreamUrl in streamInfo.GetValue("streams"):
-                subStreamData = UriHandler.Open(subStreamUrl, proxy)
-                subSreamInfo = JsonHelper(subStreamData)
-                if "errorstring" in subSreamInfo.json:
-                    Logger.Warning("Could not find streams: %s", subSreamInfo.json["errorstring"])
-                    continue
-
-                url = subSreamInfo.GetValue("url")
-                if "m3u8" in url:
-                    Logger.Debug("Found M3U8 stream: %s", url)
-                    for s, b in M3u8.GetStreamsFromM3u8(url, proxy):
-                        results.append((s, b))
-
-                    # No more need to look further for this stream
-                    continue
-
-                Logger.Debug("Found MP4/M4V stream: %s", url)
-                if "h264_bb" in subStreamUrl:
-                    bitrate = 500
-                elif "h264_sb" in subStreamUrl:
-                    bitrate = 220
-                elif "h264_std" in subStreamUrl:
-                    bitrate = 1000
-                else:
-                    bitrate = None
-
-                if "?odiredirecturl" in url:
-                    url = url[:url.index("?odiredirecturl")]
-                results.append((url, bitrate))
-
-            if results:
-                return results
-
-        # no results so far
-        streamUrl = "http://e.omroep.nl/metadata/%s" % (streamId, )
-        Logger.Info("Atttemting old school URL: %s", url)
-        streamData = UriHandler.Open(streamUrl, proxy=proxy, additionalHeaders=headers)
-        streamInfo = JsonHelper(streamData)
-        for stream in streamInfo.GetValue("streams"):
-            quality = stream.get("kwaliteit", 0)
-            if quality == 1:
-                bitrate = 180
-            elif quality == 2:
-                bitrate = 1000
-            elif quality == 3:
-                bitrate = 1500
-            else:
-                bitrate = 0
-
-            if "formaat" in stream and stream["formaat"] == "h264":
-                bitrate += 1
-
-            url = stream['url']
-            url = Channel.__GetMmsFromAsx(url, proxy)
-            results.append((url, bitrate))
-        return results
-
-    @staticmethod
-    def __GetSubtitle(streamId, proxy=None):
-        # type: (str, Proxy) -> str
-        subTitleUrl = "http://e.omroep.nl/tt888/%s" % (streamId,)
-        return SubtitleHelper.DownloadSubtitle(subTitleUrl, streamId + ".srt", format='srt', proxy=proxy)
