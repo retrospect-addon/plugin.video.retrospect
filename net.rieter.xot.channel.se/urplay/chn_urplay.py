@@ -34,9 +34,9 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
 
         # programs
-        programReg = '<a[^>]*data-id="(?<id>\d+)"[^>]*href="/(?<url>[^"]+)"[^>]*>[\w\W]{0,2000}?' \
-                     '<span class="(?<class>\w+)">[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+' \
-                     '<p[^>]*>(?<description>[^<]+)<'
+        programReg = 'href="/(?<url>[^"]+)"[^>]*>[^<]+</a>\W+<div[^>]+data-id="(?<id>\d+)"[^>]*>' \
+                     '[\w\W]{0,2000}?<span class="(?<class>\w+)">[\w\W]{0,500}?<h3>' \
+                     '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<description>[^<]+)<'
         programReg = Regexer.FromExpresso(programReg)
         self._AddDataParser(self.mainListUri,
                             name="Show parser with categories",
@@ -65,10 +65,11 @@ class Channel(chn_class.Channel):
                             creator=self.CreateCategory)
 
         # videos
-        videoItemRegex = '<a [^>]+href="/(?<url>\w+/(?<id>\d+)[^"]+)"[^>]*>\W+<figure[^>]*>\W+' \
-                         '<span[^<]+[^>]*>\W+<img[^>]+data-src="(?<thumb>[^"]+)"\W+<span[^>]*' \
-                         'class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+' \
-                         '<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^[^>]+>(?<description>[^<]+)'
+        videoItemRegex = 'href="/(?<url>\w+/(?<id>\d+)[^"]+)[^>]*>[^<]+</a>\W*<div[^>]*>\W*' \
+                         '<figure[^>]*>\W+<span[^<]+[^>]*>\W+<img[^>]+data-src="(?<thumb>[^"]+)"' \
+                         '\W+<span[^>]*class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>' \
+                         '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^>]+>' \
+                         '(?<description>[^<]+)'
         videoItemRegex = Regexer.FromExpresso(videoItemRegex)
         singleVideoRegex = '<figure[^>]*>\W+<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
                            '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
@@ -188,7 +189,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        data = data[:data.find('<section id="related"')]
+        data = data[:data.find('<h2>Relaterade</h2>')]
         Logger.Debug("Pre-Processing finished")
         return data, items
 

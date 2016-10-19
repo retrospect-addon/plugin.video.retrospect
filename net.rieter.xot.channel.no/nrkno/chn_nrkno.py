@@ -215,6 +215,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
+        item.description = resultSet.get("description", "")
         item.HttpHeaders = self.httpHeaders
 
         imageId = resultSet.get("imageId", None)

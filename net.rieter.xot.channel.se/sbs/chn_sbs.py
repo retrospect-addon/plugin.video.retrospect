@@ -467,10 +467,23 @@ class Channel(chn_class.Channel):
 
         if len(item.MediaItemParts) > 0:
             part = item.MediaItemParts[0]
-            part.Subtitle = videoInfo[self.subtitleKey]
-            Logger.Trace("Fetching subtitle from %s", part.Subtitle)
-            if part.Subtitle.startswith("http"):
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="srt", proxy=self.proxy)
+            subtitle = None
+            # check for the main key and otherwise just fall back.
+            if self.subtitleKey in videoInfo and videoInfo[self.subtitleKey]:
+                subtitle = videoInfo[self.subtitleKey]
+            else:
+                for key in videoInfo.keys():
+                    if not key.startswith("subtitles_") or not key.endswith("_srt"):
+                        continue
+                    if not videoInfo[key]:
+                        continue
+
+                    subtitle = videoInfo[key]
+                    break
+
+            if subtitle is not None and subtitle.startswith("http"):
+                Logger.Trace("Fetching subtitle from %s", subtitle)
+                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subtitle, format="srt", proxy=self.proxy)
 
         return item
 
