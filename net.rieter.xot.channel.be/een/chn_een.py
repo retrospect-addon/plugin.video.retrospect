@@ -45,41 +45,40 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri, preprocessor=self.ExtractJson, json=True,
                             parser=("data", ), creator=self.CreateShowItem)
 
-        # url's pointing to stream info
-        videoParser = 'data-image="(?<thumburl>[^"]+(?<year>\d{4})/(?<month>\d{2})/(?<day>\d{2})/' \
-                      '[^"]+)"\W+data-anal[\w\W]{0,500}?data-video="(?<url>[^"]+)"[\w\W+]' \
-                      '{0,2000}?<div[^>]*>(?<title>[^>]*)</div>\W*<h3[^>]*>(?<subtitle>[^<]+)' \
-                      '</h3>\W+<div[^>]*>\W+<span[^>]*>[^<]*</span>(?<description>[^<]+)'
+        videoParser = '<a class="card-teaser"[^>][^>]*href="(?<url>[^"]+)"[^>]*>\W+<div[^>]+' \
+                      'style="background-image: url\(\'(?<thumburl>[^\']+/(?<year>\d{4})/' \
+                      '(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*>\W+<div[^>]+_play[\w\W+]' \
+                      '{0,2000}?<div[^>]*>(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)' \
+                      '</h3>\W+<div[^>]*>\W+(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
         videoParser = Regexer.FromExpresso(videoParser)
-        self._AddDataParser("*", parser=videoParser, creator=self.CreateVideoItem,
+        self._AddDataParser("*", name="Links to teasers of videos (Card teaser)",
+                            # preprocessor=self.CropData,
+                            parser=videoParser, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
-        # urls pointing to HTML with a single video
-        folderParser = '<a class="card-teaser"[^>][^>]*href="(?<url>[^"]+)"[^>]*>\W+<div[^>]+' \
-                       'style="background-image: url\(\'(?<thumburl>[^\']+/(?<year>\d{4})/' \
-                       '(?<month>\d{2})/(?<day>\d{2})/[^\']+)[\w\W+]{0,2000}?<div[^>]*>' \
-                       '(?<title>[^>]*)</div>\W*<h3[^>]*>(?<subtitle>[^<]+)</h3>\W+<div[^>]*>' \
-                       '\W+(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
-        folderParser = Regexer.FromExpresso(folderParser)
-        self._AddDataParser("https://www.een.be/deze-week",
-                            parser=videoParser, creator=self.CreateVideoItem)
-        self._AddDataParser("https://www.een.be/deze-week",
-                            parser=folderParser, creator=self.CreateFolderItem)
+        videoParser = '<a[^>]*class="[^"]+-teaser"[^>]*background-image: url\(\'(?<thumburl>' \
+                      '[^\']+/(?<year>\d{4})/(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*href="' \
+                      '(?<url>[^"]+)"[^>]*>\W+<div[^>]+_play[\w\W+]{0,2000}?<div[^>]*>' \
+                      '(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>\W+' \
+                      '(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
+        videoParser = Regexer.FromExpresso(videoParser)
+        self._AddDataParser("*", name="Links to teasers of videos (Image Teaser)",
+                            # preprocessor=self.CropData,
+                            parser=videoParser, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
 
-        # single video parsers in case a page only contains a single video
         singleVideoParser = '>(?<title>[^<]+)</h1>[\w\W]{0,2000}?(?:<h2>?<description>[^<]+)?' \
                             '[\w\W]{0,1000}?data-video="(?<url>[^"]+)"[\w\W]{0,500}data-analytics' \
                             '=\'{&quot;date&quot;:&quot;(?<year>\d+)-(?<month>\d+)-(?<day>\d+)'
         singleVideoParser = Regexer.FromExpresso(singleVideoParser)
-        self._AddDataParser("*", parser=singleVideoParser, creator=self.CreateVideoItem)
+        self._AddDataParser("*", name="Pages that contain only a single video",
+                            parser=singleVideoParser, creator=self.CreateVideoItem)
 
         #===============================================================================================================
         # non standard items
 
         #===============================================================================================================
         # Test cases:
-        #   Laura: year is first 2 digits
-        #   Koppen: year is first 2 and last 2
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -102,34 +101,27 @@ class Channel(chn_class.Channel):
         data = Regexer.DoRegex('epgAZ\W+({"data"[\w\W]+?);<', data)[0]
         return data, items
 
+    def CropData(self, data):
+        """ Removes unwanted HTML data
+
+        @param data: the HTML data
+        @return: the JSON part only
+
+        """
+
+        items = []
+        data = data[0: data.find('<div class="section section--12">')]
+        return data, items
+
     def CreateVideoItem(self, resultSet):
         if not resultSet["url"].startswith("http"):
             resultSet["url"] = "https://mediazone.vrt.be/api/v1/een/assets/%(url)s" % resultSet
+
         item = chn_class.Channel.CreateVideoItem(self, resultSet)
         item.fanart = self.parentItem.fanart
         if "year" in resultSet and resultSet["year"]:
             item.SetDate(resultSet["year"], resultSet["month"], resultSet["day"])
         return item
-
-    # def PreProcessFolderList(self, data):
-    #     """Performs pre-process actions for data processing/
-    #
-    #     Arguments:
-    #     data : string - the retrieve data that was loaded for the current item and URL.
-    #
-    #     Returns:
-    #     A tuple of the data and a list of MediaItems that were generated.
-    #
-    #
-    #     Accepts an data from the ProcessFolderList method, BEFORE the items are
-    #     processed. Allows setting of parameters (like title etc) for the channel.
-    #     Inside this method the <data> could be changed and additional items can
-    #     be created.
-    #
-    #     The return values should always be instantiated in at least ("", []).
-    #
-    #     """
-    #     return data.replace("&apos", "'"), []
 
     def CreateShowItem(self, resultSet):
         """
@@ -137,6 +129,16 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Trace(resultSet)
+
+        exclude = {
+            11: "Dagelijkse Kost",
+            388: "Het journaal",
+            400: "Karakters",
+            413: "Het weer"
+        }
+        if resultSet["id"] in exclude.keys():
+            return None
+
         # # dummy class
         # url = "http://www.een.be/mediatheek/tag/%s"
         item = mediaitem.MediaItem(resultSet["title"], resultSet["url"])
@@ -148,71 +150,6 @@ class Channel(chn_class.Channel):
             item.thumb = resultSet["image"]["data"]["url"]
             item.fanart = resultSet["image"]["data"]["url"]
         return item
-
-    # def CreatePageItem(self, resultSet):
-    #     """Creates a MediaItem of type 'page' using the resultSet from the regex.
-    #
-    #     Arguments:
-    #     resultSet : tuple(string) - the resultSet of the self.pageNavigationRegex
-    #
-    #     Returns:
-    #     A new MediaItem of type 'page'
-    #
-    #     This method creates a new MediaItem from the Regular Expression
-    #     results <resultSet>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     """
-    #
-    #     # we need to overwrite the page number, as the Een.be pages are zero-based.
-    #     item = chn_class.Channel.CreatePageItem(self, (resultSet[0], ''))
-    #     item.name = resultSet[1]
-    #
-    #     Logger.Trace("Created '%s' for url %s", item.name, item.url)
-    #     return item
-    #
-    # def CreateVideoItemHtml(self, resultSet):
-    #     """Creates a MediaItem of type 'video' using the resultSet from the regex.
-    #
-    #     Arguments:
-    #     resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-    #
-    #     Returns:
-    #     A new MediaItem of type 'video' or 'audio' (despite the method's name)
-    #
-    #     This method creates a new MediaItem from the Regular Expression
-    #     results <resultSet>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     If the item is completely processed an no further data needs to be fetched
-    #     the self.complete property should be set to True. If not set to True, the
-    #     self.UpdateVideoItem method is called if the item is focused or selected
-    #     for playback.
-    #
-    #     """
-    #
-    #     #http://www.een.be/mediatheek/ajax/video/531837
-    #     url = "%sajax/video/%s" % (resultSet[0], resultSet[1])
-    #     item = mediaitem.MediaItem(resultSet[3], urlparse.urljoin(self.baseUrl, url))
-    #     item.thumb = resultSet[2]
-    #     item.icon = self.icon
-    #
-    #     dateRegex = Regexer.DoRegex("/(?:20(\d{2})_[^/]+|[^\/]+)/[^/]*_(\d{2})(\d{2})(\d{2})[_.]", item.thumb)
-    #     if len(dateRegex) == 1:
-    #         dateRegex = dateRegex[0]
-    #
-    #         # figure out if the year is the first part
-    #         year = dateRegex[0]
-    #         if dateRegex[1] == year or year == "":
-    #             # The year was in the path, so use that one. OR the year was not in the
-    #             # path and we assume that the first part is the year
-    #             item.SetDate(2000 + int(dateRegex[1]), dateRegex[2], dateRegex[3])
-    #         else:
-    #             # the year was in the path and tells us the first part is the day.
-    #             item.SetDate(2000 + int(dateRegex[3]), dateRegex[2], dateRegex[1])
-    #     item.type = 'video'
-    #     item.complete = False
-    #     return item
 
     def UpdateVideoItem(self, item):
         """
@@ -226,15 +163,22 @@ class Channel(chn_class.Channel):
 
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(item.url, proxy=self.proxy)
+
+        part = item.CreateNewEmptyMediaPart()
         if "mediazone.vrt.be" not in item.url:
             # Extract actual media data
-            videoId = Regexer.DoRegex('data-video=[\'"]([^"\']+)[\'"]', data)
-            url = "https://mediazone.vrt.be/api/v1/een/assets/%s" % (videoId[0], )
+            videoId = Regexer.DoRegex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
+            # if videoId.startswith("http"):
+            #     Logger.Info("Found direct stream. Not processing any further.")
+            #     part.AppendMediaStream(videoId, 0)
+            #     item.complete = True
+            #     return item
+
+            url = "https://mediazone.vrt.be/api/v1/een/assets/%s" % (videoId, )
             data = UriHandler.Open(url, proxy=self.proxy)
 
         json = JsonHelper(data)
         urls = json.GetValue("targetUrls")
-        part = item.CreateNewEmptyMediaPart()
         for urlInfo in urls:
             Logger.Trace(urlInfo)
             if urlInfo["type"].lower() != "hls":
