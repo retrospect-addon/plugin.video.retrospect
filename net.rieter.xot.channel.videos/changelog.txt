@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: AMT introduced a new JSON API
+Fixed: support Youtube streams from Dumpert
 
 [I]Previous changes[/I]
+Fixed: AMT introduced a new JSON API
 Fixed: Hardwareinfo.tv broke due to Google API deprecation.
 Fixed: Eredivisie Live did not show any content (Fixes #651)
 Fixed: Dumpert cookie consent issue (Fixes #628)

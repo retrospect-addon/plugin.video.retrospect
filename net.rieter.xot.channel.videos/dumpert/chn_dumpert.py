@@ -16,7 +16,7 @@ from urihandler import UriHandler
 from xbmcwrapper import XbmcWrapper
 from helpers.encodinghelper import EncodingHelper
 from helpers.jsonhelper import JsonHelper
-
+from streams.youtube import YouTube
 
 class Channel(chn_class.Channel):
 
@@ -148,6 +148,12 @@ class Channel(chn_class.Channel):
                 part.AppendMediaStream(streams[key], 800)
             elif key == "mobile":
                 part.AppendMediaStream(streams[key], 450)
+            elif key == "embed" and streams[key].startswith("youtube"):
+                embedType, youtubeId = streams[key].split(":")
+                url = "https://www.youtube.com/watch?v=%s" % (youtubeId, )
+                for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+                    item.complete = True
+                    part.AppendMediaStream(s, b)
             else:
                 Logger.Debug("Key '%s' was not used", key)
 
