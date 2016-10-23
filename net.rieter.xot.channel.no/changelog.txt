@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Show description for NRK shows (Fixes #768)
+Fixed: Don't show unavailable videos (Fixes #775)
 
 [I]Previous changes[/I]
+Fixed: Show description for NRK shows (Fixes #768)
 Fixed: NRK live channels broke due to stream location change (Fixes #752)
 Fixed: Show videos in the category lists (Fixes #718)
 Fixed: NRK.no broke due to an API version bump (Fixes #709)

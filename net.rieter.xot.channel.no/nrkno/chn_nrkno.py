@@ -250,6 +250,11 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet["title"]
+
+        if not resultSet['isAvailable']:
+            Logger.Trace("Found unavailable video: %s", title)
+            return None
+
         episodeData = resultSet.get("episodeNumberOrDate", None)
         season = None
         episode = None

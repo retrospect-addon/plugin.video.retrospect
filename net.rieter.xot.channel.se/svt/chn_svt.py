@@ -366,7 +366,7 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
         url = resultSet["url"]
-        if url.startswith("/video") or url.startswith("/genre"):
+        if url.startswith("/video") or url.startswith("/genre") or url.startswith('/oppetarkiv'):
             return None
 
         url = "%s%s" % (self.baseUrl, url, )

@@ -1,9 +1,10 @@
 ﻿[B]Changelog[/B]
+Fixed: Don't show Oppet Arkiv in SVT (Fixes #774)
+
+[I]Previous changes[/I]N
 Fixed: SVT updated a typoo in their API (And left the biggest one in there) (Fixes #769)
 Fixed: MTG (Kanal 5) subtitle issue (Fixes #770)
 Fixed: UR Play broke (Fixes #771)
-
-[I]Previous changes[/I]N
 Fixed: SVT changed API location - part #2 (Fixes #767)
 Fixed: SVT changed API location (Fixes #757)
 Fixed: Kanal 5 'recent' videos did not work
