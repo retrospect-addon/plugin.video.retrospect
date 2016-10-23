@@ -58,12 +58,14 @@ class Channel(chn_class.Channel):
         self.folderItemRegex = '<a href="(?<url>/iplayer/brand/[^"]+)"[^>]*>\W+<i[^>]+></i>\W+<span[^>]+>' \
                                '(?<title>[^<]+)<'.replace("(?<", "(?P<")
         self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
-        self.videoItemRegex = '<a\W+href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+</div>\W+' \
-                              '(?:<div[^>]+>[^>]+</div>\W+)?<div class="primary">\W+<div class="r-image"[^>]+' \
-                              'src="(?<thumburl>[^"]+)"[\w\W]{0,500}?<div class="secondary">\W+<div[^>]+>' \
-                              '(?<title>[^<]+)</div>\W+<div[^>]+>(?<subtitle>[^<]+)</div>\W+<p[^>]*>' \
-                              '(?<description>[^<]*)</p>[\w\W]{0,1000}?<span class="release">\W+First shown: ' \
-                              '(?<day>\d+) (?<month>\w+) (?<year>\d+)'.replace("(?<", "(?P<")
+        self.videoItemRegex = '<a\W+href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+' \
+                              '</div>\W+(?:<div[^>]+>[^>]+</div>\W+)?<div class="primary">\W+' \
+                              '<div class="r-image"[^>]+src="(?<thumburl>[^"]+)"[\w\W]{0,500}?<div ' \
+                              'class="secondary">\W+<div[^>]+>(?<title>[^<]+)</div>\W+(?:<div[^>]+>' \
+                              '(?<subtitle>[^<]+)</div>\W+)?<p[^>]*>(?<description>[^<]*)</p>' \
+                              '[\w\W]{0,1000}?(?:<span class="release">\W+First shown: (?<day>\d+) ' \
+                              '(?<month>\w+) (?<year>\d+)|<div class="period")'
+        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem)
 
         # Live channels
@@ -205,11 +207,14 @@ class Channel(chn_class.Channel):
 
         """
 
+        if "subtitle" in resultSet and not resultSet["subtitle"]:
+            del resultSet["subtitle"]
+
         item = chn_class.Channel.CreateVideoItem(self, resultSet)
         vid = item.url.replace(self.baseUrl, "")
         # item.thumb = item.thumb.replace("192x108", "%sx%s" % (192 * 2, 108 * 2))
         item.url = "http://www.bbc.co.uk/iplayer/episode/%s" % (vid,)
-        if "year" in resultSet:
+        if "year" in resultSet and resultSet["year"]:
             month = DateHelper.GetMonthFromName(resultSet["month"], "en", short=True)
             item.SetDate(resultSet["year"], month, resultSet["day"])
 
