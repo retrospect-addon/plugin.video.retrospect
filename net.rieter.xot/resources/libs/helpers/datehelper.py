@@ -8,6 +8,7 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import datetime
+import time
 
 #===============================================================================
 # Make global object available
@@ -126,6 +127,40 @@ class DateHelper:
             return DateHelper.__GetMonthFromName(month, language, short)
 
     @staticmethod
+    def GetDateFromPosix(posix, tz=None):
+        # type: (int) -> datetime.datetime
+        """ Creates a datetime from a Posix Time stamp
+
+        @param posix:   the posix time stamp integer
+        @return:        a valid datetime.datetime object.
+        """
+
+        return datetime.datetime.fromtimestamp(posix, tz)
+
+    @staticmethod
+    def GetDateFromString(value, dateFormat="%Y-%m-%dT%H:%M:%S+00:00"):
+        # type: (str, str) -> time.struct_time
+        """ Converts a formatted date-time string to a time struct.
+
+        @param value:       the string value to parse
+        @param dateFormat:  the format to use
+        @return:            a time.struct_time
+
+        time.struct_time values:
+        0 	tm_year 	(for example, 1993)
+        1 	tm_mon 	    range [1, 12]
+        2 	tm_mday 	range [1, 31]
+        3 	tm_hour 	range [0, 23]
+        4 	tm_min 	    range [0, 59]
+        5 	tm_sec 	    range [0, 61]; see (2) in strftime() description
+        6 	tm_wday 	range [0, 6], Monday is 0
+        7 	tm_yday 	range [1, 366]
+        8 	tm_isdst 	0, 1 or -1; see below
+        """
+
+        return time.strptime(value, dateFormat)
+
+    @staticmethod
     def __GetMonthFromName(month, language, short=True):
         """Gets the month number from the name.
 
@@ -171,14 +206,3 @@ class DateHelper:
             error = "Month '%s' not found for language '%s'" % (month, language)
             raise ValueError(error)
         return monthValue
-
-if __name__ == "__main__":
-    DateHelper.GetMonthFromName("blaat", "test")
-
-    print "Next"
-    for day in ("ma", "di", "wo", "do", "vr", "za", "zo", "morgen"):
-        print "%s: %s" % (day, DateHelper.GetDateForNextDay(day))
-
-    print "Previous"
-    for day in ("ma", "di", "wo", "do", "vr", "za", "zo", "gisteren"):
-        print "%s: %s" % (day, DateHelper.GetDateForPreviousDay(day))
