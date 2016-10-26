@@ -1,6 +1,5 @@
 # coding:UTF-8
 import datetime
-import time
 
 # import contextmenu
 import chn_class
@@ -528,7 +527,7 @@ class Channel(chn_class.Channel):
         item.thumb = self.__GetThumb(thumb)
 
         if broadCastDate is not None:
-            timeStamp = time.strptime(broadCastDate[:-5], "%Y-%m-%dT%H:%M:%S")
+            timeStamp = DateHelper.GetDateFromString(broadCastDate[:-5], "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
         return item
 
@@ -629,8 +628,8 @@ class Channel(chn_class.Channel):
 
         # dateFormat = "2016-03-02T19:55:00+0100"
         dateFormat = "%Y-%m-%dT%H:%M:%S"
-        startTime = time.strptime(currentSchedule["broadcastStartTime"][:-5], dateFormat)
-        endTime = time.strptime(currentSchedule["broadcastEndTime"][:-5], dateFormat)
+        startTime = DateHelper.GetDateFromString(currentSchedule["broadcastStartTime"][:-5], dateFormat)
+        endTime = DateHelper.GetDateFromString(currentSchedule["broadcastEndTime"][:-5], dateFormat)
         title = "%s (%02d:%02d - %02d:%02d)" % (title, startTime.tm_hour, startTime.tm_min, endTime.tm_hour, endTime.tm_min)
 
         # In theory we could also extract the video URL here.....

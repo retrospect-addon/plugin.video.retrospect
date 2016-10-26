@@ -14,7 +14,7 @@ from regexer import Regexer
 from helpers import subtitlehelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
-
+from helpers.datehelper import DateHelper
 from logger import Logger
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
@@ -111,7 +111,7 @@ class Channel(chn_class.Channel):
         sessionToken = None
         if token:
             expiresAt, vimondSessionToken, sessionToken = token.split("|")
-            expireDate = datetime.datetime.fromtimestamp(float(expiresAt))
+            expireDate = DateHelper.GetDateFromPosix(float(expiresAt))
             if expireDate > datetime.datetime.now():
                 Logger.Info("Found existing valid TV4Play token (valid until: %s)", expireDate)
                 self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
@@ -192,8 +192,7 @@ class Channel(chn_class.Channel):
         tokenData = JsonHelper(tokenData)
         expiresAt = tokenData.GetValue("exp")
 
-        Logger.Debug("Token expires at: %s (%s)",
-                     datetime.datetime.fromtimestamp(float(expiresAt)), expiresAt)
+        Logger.Debug("Token expires at: %s (%s)", DateHelper.GetDateFromPosix(float(expiresAt)), expiresAt)
         # AddonSettings.SetSetting(tokenSettingId, "%s|%s" % (expiresAt, token))
         AddonSettings.SetSetting(tokenSettingId, "%s|%s|%s" % (expiresAt, vimondSessionToken, sessionToken))
 

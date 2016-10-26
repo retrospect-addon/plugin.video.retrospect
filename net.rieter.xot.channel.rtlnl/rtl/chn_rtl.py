@@ -9,6 +9,7 @@ from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from streams.m3u8 import M3u8
 from parserdata import ParserData
+from helpers.datehelper import DateHelper
 
 
 class Channel(chn_class.Channel):
@@ -318,8 +319,8 @@ class Channel(chn_class.Channel):
                 if tariff["tariff"] > 0:
                     start = tariff.get("start", 0)
                     end = tariff.get("stop", 2147483647)
-                    start = datetime.datetime.fromtimestamp(start)
-                    end = datetime.datetime.fromtimestamp(end)
+                    start = DateHelper.GetDateFromPosix(start)
+                    end = DateHelper.GetDateFromPosix(end)
                     now = datetime.datetime.now()
                     if start < now < end:
                         premiumItem = True
@@ -346,7 +347,7 @@ class Channel(chn_class.Channel):
 
         dateTime = resultSet.get("display_date", None)
         if dateTime:
-            dateTime = datetime.datetime.fromtimestamp(int(dateTime))
+            dateTime = DateHelper.GetDateFromPosix(int(dateTime))
             item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
 
         return item

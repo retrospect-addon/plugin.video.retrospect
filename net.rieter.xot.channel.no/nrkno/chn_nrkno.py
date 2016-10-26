@@ -228,7 +228,7 @@ class Channel(chn_class.Channel):
             if "availableFrom" in resultSet["usageRights"]:
                 timeStamp = int(resultSet["usageRights"]["availableFrom"]) / 1000
                 if 0 < timeStamp < sys.maxint:
-                    date = datetime.datetime.fromtimestamp(timeStamp)
+                    date = DateHelper.GetDateFromPosix(timeStamp)
                     item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
         return item
 
@@ -304,7 +304,7 @@ class Channel(chn_class.Channel):
             if not dateSet and "availableFrom" in resultSet["usageRights"]:
                 timeStamp = int(resultSet["usageRights"]["availableFrom"]) / 1000
                 if 0 < timeStamp < sys.maxint:
-                    date = datetime.datetime.fromtimestamp(timeStamp)
+                    date = DateHelper.GetDateFromPosix(timeStamp)
                     item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
         return item

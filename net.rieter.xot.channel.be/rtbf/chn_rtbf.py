@@ -1,5 +1,3 @@
-import time
-
 import chn_class
 import mediaitem
 
@@ -9,6 +7,7 @@ from urihandler import UriHandler
 from parserdata import ParserData
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
+from helpers.datehelper import DateHelper
 from streams.m3u8 import M3u8
 
 
@@ -174,7 +173,7 @@ class Channel(chn_class.Channel):
 
         if "date" in resultSet:
             # 2016-05-14T20:00:00+02:00 -> strip the hours
-            timeStamp = time.strptime(resultSet["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
+            timeStamp = DateHelper.GetDateFromString(resultSet["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
 
         return item

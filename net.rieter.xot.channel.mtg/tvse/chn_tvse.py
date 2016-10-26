@@ -1,5 +1,4 @@
 ﻿# coding:UTF-8
-import time
 import datetime
 
 import mediaitem
@@ -13,6 +12,7 @@ from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.datehelper import DateHelper
 from parserdata import ParserData
 from addonsettings import AddonSettings
 from streams.m3u8 import M3u8
@@ -267,8 +267,6 @@ class Channel(chn_class.Channel):
         # item.fanart = self.__GetThumbImage(resultSet.get("image") or self.fanart, fanartSize=True)
 
         item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)
-        # dateTime = datetime.datetime.fromtimestamp(resultSet['freshness'] / 1000)
-        # item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
         return item
 
     def MergeSeasonData(self, data):
@@ -298,7 +296,7 @@ class Channel(chn_class.Channel):
         if airedAt is not None:
             # 2016-05-20T15:05:00+00:00
             airedAt = airedAt.split("+")[0].rstrip('Z')
-            timeStamp = time.strptime(airedAt, "%Y-%m-%dT%H:%M:%S")
+            timeStamp = DateHelper.GetDateFromString(airedAt, "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
 
         item.thumb = self.__GetThumbImage(resultSet.get("image"))
@@ -570,8 +568,8 @@ class Channel(chn_class.Channel):
 
             if "playable_from" in resultSet["broadcasts"][0]:
                 startDate = resultSet["broadcasts"][0]["playable_from"]
-                playableFrom = time.strptime(startDate[0:-6], dateFormat)
-                playableFrom = datetime.datetime(*playableFrom[0:6])  # the datetime.strptime does not work in Kodi
+                playableFrom = DateHelper.GetDateFromString(startDate[0:-6], dateFormat)
+                playableFrom = datetime.datetime(*playableFrom[0:6])
                 if playableFrom > datetime.datetime.now():
                     drmLocked = True
 

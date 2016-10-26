@@ -1,7 +1,5 @@
 # coding:Cp1252
 
-import datetime
-
 import mediaitem
 import chn_class
 
@@ -11,6 +9,7 @@ from parserdata import ParserData
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
+from helpers.datehelper import DateHelper
 
 
 class Channel(chn_class.Channel):
@@ -101,7 +100,7 @@ class Channel(chn_class.Channel):
         item.type = "video"
         item.isGeoLocked = resultSet[3].lower() == "true"
 
-        dateTime = datetime.datetime.fromtimestamp(int(resultSet[2]) * 1 / 1000)
+        dateTime = DateHelper.GetDateFromPosix(int(resultSet[2]) * 1 / 1000)
         item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute,
                      dateTime.second)
 

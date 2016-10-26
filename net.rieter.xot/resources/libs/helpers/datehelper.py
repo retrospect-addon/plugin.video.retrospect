@@ -128,7 +128,7 @@ class DateHelper:
 
     @staticmethod
     def GetDateFromPosix(posix, tz=None):
-        # type: (int) -> datetime.datetime
+        # type: (float) -> datetime.datetime
         """ Creates a datetime from a Posix Time stamp
 
         @param posix:   the posix time stamp integer
@@ -156,6 +156,10 @@ class DateHelper:
         6 	tm_wday 	range [0, 6], Monday is 0
         7 	tm_yday 	range [1, 366]
         8 	tm_isdst 	0, 1 or -1; see below
+
+        The datetime.strptime does not work in Kodi. See:
+        https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
+
         """
 
         return time.strptime(value, dateFormat)

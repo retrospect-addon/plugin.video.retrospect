@@ -1,9 +1,9 @@
 import urlparse
-import datetime
 
 import contextmenu
 import mediaitem
 import chn_class
+from helpers.datehelper import DateHelper
 from parserdata import ParserData
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
@@ -388,7 +388,7 @@ class Channel(chn_class.Channel):
 
         posix = resultSet.get("timestamp", None)
         if posix:
-            broadcastDate = datetime.datetime.fromtimestamp(int(posix))
+            broadcastDate = DateHelper.GetDateFromPosix(int(posix))
             item.SetDate(broadcastDate.year,
                          broadcastDate.month,
                          broadcastDate.day,

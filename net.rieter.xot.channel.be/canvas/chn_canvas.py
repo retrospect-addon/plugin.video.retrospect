@@ -1,6 +1,5 @@
 # coding:Cp1252
 import re
-import time
 
 import chn_class
 import mediaitem
@@ -11,6 +10,7 @@ from addonsettings import AddonSettings
 from urihandler import UriHandler
 from parserdata import ParserData
 from helpers.jsonhelper import JsonHelper
+from helpers.datehelper import DateHelper
 from streams.m3u8 import M3u8
 
 
@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
             if "date" in data:
                 date = data["date"]
                 # u'2016-07-19T20:00:00+00:00'
-                timeStamp = time.strptime(date.split("+")[0], "%Y-%m-%dT%H:%M:%S")
+                timeStamp = DateHelper.GetDateFromString(date.split("+")[0], "%Y-%m-%dT%H:%M:%S")
                 item.SetDate(*timeStamp[0:6])
 
             items.append(item)
@@ -203,9 +203,8 @@ class Channel(chn_class.Channel):
         item.thumb = image
 
         if dateTime:
-            # https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
             # 2015-10-20T06:10:00+00:00 -
-            timeStamp = time.strptime(dateTime, "%Y-%m-%dT%H:%M:%S+00:00")
+            timeStamp = DateHelper.GetDateFromString(dateTime, "%Y-%m-%dT%H:%M:%S+00:00")
             item.SetDate(*timeStamp[0:6])
         return item
 

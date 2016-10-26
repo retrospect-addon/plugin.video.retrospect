@@ -189,7 +189,7 @@ class Channel(chn_class.Channel):
         # cookieValue = self._GetSetting("cookie")
         cookie = UriHandler.GetCookie("npo_portal_auth_token", ".mijn.npo.nl")
         if cookie:
-            expireDate = datetime.datetime.fromtimestamp(float(cookie.expires))
+            expireDate = DateHelper.GetDateFromPosix(float(cookie.expires))
             Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
             return True
 
@@ -564,7 +564,7 @@ class Channel(chn_class.Channel):
 
         # look for better values
         posix = data.get('broadcasted_at', posix)
-        broadcasted = datetime.datetime.fromtimestamp(posix)
+        broadcasted = DateHelper.GetDateFromPosix(posix)
         description = resultSet.get('description', description)
         videoId = data.get('whatson_id', None)
 

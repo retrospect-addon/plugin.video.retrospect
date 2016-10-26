@@ -1,5 +1,3 @@
-import datetime
-
 import chn_class
 import mediaitem
 
@@ -10,6 +8,7 @@ from urihandler import UriHandler
 from streams.npostream import NpoStream
 from helpers.languagehelper import LanguageHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.datehelper import DateHelper
 
 
 class Channel(chn_class.Channel):
@@ -247,7 +246,7 @@ class Channel(chn_class.Channel):
         item.SetInfoLabel("duration", resultSet['duration'])
 
         if "publicationDate" in resultSet:
-            broadcastDate = datetime.datetime.fromtimestamp(int(resultSet['publicationDate']))
+            broadcastDate = DateHelper.GetDateFromPosix(int(resultSet['publicationDate']))
             item.SetDate(broadcastDate.year,
                          broadcastDate.month,
                          broadcastDate.day,

@@ -1,15 +1,13 @@
 # coding:UTF-8
-import datetime
 
-#===============================================================================
-# Make global object available
-#===============================================================================
-from helpers.jsonhelper import JsonHelper
+
 import mediaitem
 import chn_class
 
+from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
-from helpers import subtitlehelper
+from helpers.datehelper import DateHelper
+from helpers.subtitlehelper import SubtitleHelper
 from urihandler import UriHandler
 from streams.m3u8 import M3u8
 from helpers.htmlentityhelper import HtmlEntityHelper
@@ -393,7 +391,7 @@ class Channel(chn_class.Channel):
         timeStamp = resultSet.get("video_metadata_svod_start_time", None)
         if timeStamp:
             timeStamp = int(timeStamp)
-            date = datetime.datetime.fromtimestamp(timeStamp)
+            date = DateHelper.GetDateFromPosix(timeStamp)
             item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
         item.isPaid = "Packages-Free" not in resultSet["video_metadata_package"]
@@ -483,7 +481,7 @@ class Channel(chn_class.Channel):
 
             if subtitle is not None and subtitle.startswith("http"):
                 Logger.Trace("Fetching subtitle from %s", subtitle)
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subtitle, format="srt", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.DownloadSubtitle(subtitle, format="srt", proxy=self.proxy)
 
         return item
 
