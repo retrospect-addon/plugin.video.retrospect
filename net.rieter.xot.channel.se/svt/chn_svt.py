@@ -62,7 +62,7 @@ class Channel(chn_class.Channel):
         # special pages (using JSON) using a generic pre-processor to extract the data
         specialJsonPages = "^https?://www.svtplay.se/(senaste|sista-chansen|populara|live)\?sida=\d+$"
         self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonDataRedux)
+                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
         self._AddDataParser(specialJsonPages,
                             matchType=ParserData.MatchRegex, json=True,
                             parser=("gridPage", "content"),
@@ -74,11 +74,11 @@ class Channel(chn_class.Channel):
 
         # genres (using JSON)
         self._AddDataParser("http://www.svtplay.se/genre/",
-                            preprocessor=self.ExtractJsonDataRedux, json=True,
+                            preprocessor=self.ExtractJsonData, json=True,
                             parser=("clusterPage", "content", "titles"),
                             creator=self.CreateJsonItem)
 
-        self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonDataRedux)
+        self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
         self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
                             parser=("searchResult", "episodes"),
                             creator=self.CreateJsonItem)
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
                             preprocessor=self.ExtractSlugData, json=True)
 
         # Other Json items
-        self._AddDataParser("*", preprocessor=self.ExtractJsonDataRedux, json=True)
+        self._AddDataParser("*", preprocessor=self.ExtractJsonData, json=True)
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
@@ -273,9 +273,12 @@ class Channel(chn_class.Channel):
 
     # def ExtractJsonDataSvt(self, data):
     #     return self.__ExtractJsonData(data, "__svtplay")
+    #
+    # def ExtractJsonDataRedux(self, data):
+    #     return self.__ExtractJsonData(data, "__reduxStore")
 
-    def ExtractJsonDataRedux(self, data):
-        return self.__ExtractJsonData(data, "__reduxStore")
+    def ExtractJsonData(self, data):
+        return self.__ExtractJsonData(data, "(?:__svtplay|__reduxStore)")
 
     def __ExtractJsonData(self, data, root):
         """Performs pre-process actions for data processing
@@ -306,7 +309,8 @@ class Channel(chn_class.Channel):
         """ Extracts the correct Slugged Data for tabbed items """
 
         Logger.Info("Extracting Slugged data during pre-processing")
-        data, items = self.ExtractJsonDataRedux(data)
+        data, items = self.ExtractJsonData(data)
+        # data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
         slugs = json.GetValue("videoTitlePage", "realatedVideosTabs")
@@ -663,7 +667,7 @@ class Channel(chn_class.Channel):
         """
         data = UriHandler.Open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
-        data = self.ExtractJsonDataRedux(data)[0]
+        data = self.ExtractJsonData(data)[0]
         json = JsonHelper(data)
 
         # check for direct streams:
