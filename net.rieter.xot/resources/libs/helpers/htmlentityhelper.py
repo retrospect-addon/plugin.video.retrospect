@@ -24,7 +24,7 @@ class HtmlEntityHelper:
     def __init__(self):
         """Initialises the class"""
 
-        return
+        raise NotImplementedError("Just statics")
 
     @staticmethod
     def StripAmp(data):
@@ -41,21 +41,6 @@ class HtmlEntityHelper:
         return string.replace(data, "&amp;", "&")
 
     @staticmethod
-    def ConvertURLEntities(url):
-        """Convert the URL entities into their real characters
-
-        Arguments:
-        url : string - The URL to convert
-
-        Returns:
-        The URL with converted characters
-
-        """
-
-        htmlHelper = HtmlEntityHelper()
-        return htmlHelper.__ConvertURLEntities(url)
-
-    @staticmethod
     def ConvertHTMLEntities(html):
         """Convert the HTML entities into their real characters
 
@@ -68,8 +53,7 @@ class HtmlEntityHelper:
         """
 
         try:
-            htmlHelper = HtmlEntityHelper()
-            return htmlHelper.__ConvertHTMLEntities(html)
+            return HtmlEntityHelper.__ConvertHTMLEntities(html)
         except:
             Logger.Error("Error converting: %s", html, exc_info=True)
             return html
@@ -88,8 +72,12 @@ class HtmlEntityHelper:
 
         """
 
-        htmlHelper = HtmlEntityHelper()
-        return htmlHelper.__UrlEncode(url)
+        if isinstance(url, unicode):
+            Logger.Trace("Unicode url: %s", url)
+            return urllib.quote(url.encode())
+        else:
+            # this is the main time waster
+            return urllib.quote(url)
 
     @staticmethod
     def UrlDecode(url):
@@ -107,29 +95,8 @@ class HtmlEntityHelper:
 
         return urllib.unquote(url)
 
-    def __UrlEncode(self, url):
-        """Converts an URL in url encode characters
-
-        Arguments:
-        url : string - the URL to encode.
-
-        Returns:
-        encoded URL like this.
-
-        Example: '/~connolly/' yields '/%7econnolly/'.
-
-        """
-
-        # some Unicode characters cannot be quoted so
-        # we should encode first
-        if isinstance(url, unicode):
-            Logger.Trace("Unicode url: %s", url)
-            return urllib.quote(url.encode())
-        else:
-            # this is the main time waster
-            return urllib.quote(url)
-
-    def __ConvertHTMLEntities(self, html):
+    @staticmethod
+    def __ConvertHTMLEntities(html):
         """Convert the entities in HTML using the HTMLEntityConverter into
         their real characters.
 
@@ -141,24 +108,10 @@ class HtmlEntityHelper:
 
         """
 
-        return re.sub("&(#?x?)(\w+?);", self.__HTMLEntityConverter, html)
+        return re.sub("&(#?x?)(\w+?);", HtmlEntityHelper.__HTMLEntityConverter, html)
 
-    def __ConvertURLEntities(self, url):
-        """Convert the entities in an URL using the UrlEntityConverter into
-        their real characters.
-
-        Arguments:
-        url : string - The URL to convert
-
-        Returns:
-        The URL with converted characters
-
-        """
-
-        newUrl = re.sub("(%)([1234567890ABCDEF]{2})", self.__UrlEntityConverter, url)
-        return newUrl
-
-    def __HTMLEntityConverter(self, entity):
+    @staticmethod
+    def __HTMLEntityConverter(entity):
         """Substitutes an HTML entity with the correct character
 
         Arguments:
@@ -193,53 +146,3 @@ class HtmlEntityHelper:
             Logger.Error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
             return '&%s%s;' % (entity.group(1), entity.group(2))
         # return entity
-
-    def __UrlEntityConverter(self, entity):
-        """Substitutes an URL entity with the correct character
-
-        Arguments:
-        entity - string - Value of the URL entity without the '%'
-
-        Returns:
-        Replaces %xx where x is single digit into the real character. That
-        character is returned.
-
-        """
-
-        # Logger.Debug("1:%s, 2:%s", entity.group(1), entity.group(2))
-        try:
-            tmpHex = '0x%s' % (entity.group(2))
-            # Logger.Debug(int(tmpHex, 16))
-            return chr(int(tmpHex, 16))
-        except:
-            Logger.Error("error converting URLEntities", exc_info=True)
-            return '%s%s' % (entity.group(1), entity.group(2))
-
-
-if __name__ == "__main__":
-
-    def Test():
-        Logger.CreateLogger("c:\\temp\\test.log", "HTML EntityHelper Test", 0, False)
-        chars = {"&amp;": "&",
-                 "&apos;": "'",
-                 "&#100;": "d",
-                 "&gt;": ">",
-                 "&#39;": "'",
-                 "&#039;": "'",
-                 "&#x27;": "'",
-                 "&quot;": '"'}
-        for char in chars:
-            val = HtmlEntityHelper.ConvertHTMLEntities(char)
-            print "%-7s: %s -> %s - %s" % (val == chars[char], char, val, chars[char])
-
-    def Display():
-        keys = htmlentitydefs.name2codepoint.keys()
-        keys.sort()
-        for k in keys:
-            print "%s : %s" % (k, htmlentitydefs.name2codepoint[k])
-
-    Test()
-    # Display()
-
-    # import cProfile
-    # cProfile.run("Test()")

@@ -154,7 +154,7 @@ class Channel(chn_class.Channel):
 
     def CreatePageItem(self, resultSet):
         item = chn_class.Channel.CreatePageItem(self, resultSet)
-        url = "%s/auvio/archives%s%s" % (self.baseUrl, HtmlEntityHelper.ConvertURLEntities(resultSet[0]), resultSet[1])
+        url = "%s/auvio/archives%s%s" % (self.baseUrl, HtmlEntityHelper.UrlDecode(resultSet[0]), resultSet[1])
         item.url = url
         return item
 
