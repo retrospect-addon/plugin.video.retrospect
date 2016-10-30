@@ -1019,9 +1019,19 @@ class Channel:
         if self.swfUrl == "":
             return url
 
-        # return "%s --swfVfy -W %s" % (url, self.swfUrl)
-        # return "%s swfurl=%s swfvfy=true" % (url, self.swfUrl)
-        return "%s swfurl=%s swfvfy=1" % (url, self.swfUrl)
+        # Kodi 17.x also accepts an SWF-url as swfvfy option (https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp).
+        # This option should be set via the XbmcListItem.setProperty, so within Retrospect via:
+        #   part.AddProperty("swfvfy", self.swfUrl)
+        # Or as an URL parameter swfvfy where we add the full URL instead of just 1:
+        #   return "%s swfvfy=%s" % (url, self.swfUrl)
+
+        if AddonSettings.IsMinVersion(17):
+            Logger.Debug("Using Kodi 17+ RTMP parameters")
+            return "%s swfvfy=%s" % (url, self.swfUrl)
+        else:
+            Logger.Debug("Using Legacy (Kodi 16 and older) RTMP parameters")
+            # return "%s swfurl=%s swfvfy=true" % (url, self.swfUrl)
+            return "%s swfurl=%s swfvfy=1" % (url, self.swfUrl)
 
     def GetImageLocation(self, image):
         """returns the path for a specific image name.
