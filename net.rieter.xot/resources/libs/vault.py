@@ -177,6 +177,11 @@ class Vault:
         inputValue = XbmcWrapper.ShowKeyBoard(
             "",
             LanguageHelper.GetLocalizedString(LanguageHelper.VaultSpecifySetting) % (settingName or settingId, ))
+
+        if inputValue is None:
+            Logger.Debug("Setting of encrypted value cancelled.")
+            return
+
         value = "%s=%s" % (settingId, inputValue)
         encryptedValue = self.__Encrypt(value, Vault.__Key)
 
