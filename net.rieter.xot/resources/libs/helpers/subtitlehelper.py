@@ -12,11 +12,11 @@ import os
 
 from regexer import Regexer
 from config import Config
-from helpers import htmlentityhelper
-from helpers import encodinghelper
-from helpers import jsonhelper
 from logger import Logger
 from urihandler import UriHandler
+from helpers.jsonhelper import JsonHelper
+from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.encodinghelper import EncodingHelper
 
 
 class SubtitleHelper:
@@ -72,7 +72,7 @@ class SubtitleHelper:
 
         if fileName == "":
             Logger.Debug("No filename present, generating filename using MD5 hash of url.")
-            fileName = "%s.srt" % (encodinghelper.EncodingHelper.EncodeMD5(url),)
+            fileName = "%s.srt" % (EncodingHelper.EncodeMD5(url),)
         elif not fileName.endswith(".srt"):
             Logger.Debug("No SRT extension present, appending it.")
             fileName = "%s.srt" % (fileName, )
@@ -166,8 +166,8 @@ class SubtitleHelper:
                 end = SubtitleHelper.__ConvertToTime(sub[1])
 
                 text = sub[2].replace('\"', '"')
-                text = jsonhelper.JsonHelper.ConvertSpecialChars(text)
-                text = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(text)
+                text = JsonHelper.ConvertSpecialChars(text)
+                text = HtmlEntityHelper.ConvertHTMLEntities(text)
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
             except:
@@ -230,7 +230,7 @@ class SubtitleHelper:
                     # new start of a sub
                     if text and start and end:
                         # if we have a complete old one, save it
-                        text = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(text)
+                        text = HtmlEntityHelper.ConvertHTMLEntities(text)
                         srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                         i += 1
                     start = "%s,%03d" % (sub[1], int(sub[2]) * 4)
@@ -309,7 +309,7 @@ class SubtitleHelper:
                 end = "%s,%03d" % (sub[2], int(sub[3]))
                 text = sub[4].replace("<br />", "\n")
                 # text = sub[4].replace("<br />", "\n")
-                text = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(text)
+                text = HtmlEntityHelper.ConvertHTMLEntities(text)
                 text = text.replace("\r\n", "")
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
@@ -350,7 +350,7 @@ class SubtitleHelper:
                 start = SubtitleHelper.__ConvertToTime(sub[0])
                 end = SubtitleHelper.__ConvertToTime(sub[2])
                 text = sub[1]
-                text = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(text)
+                text = HtmlEntityHelper.ConvertHTMLEntities(text)
                 # text = sub[1]
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text)
                 i += 1

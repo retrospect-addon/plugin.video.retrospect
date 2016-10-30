@@ -3,14 +3,14 @@ import urlparse
 import mediaitem
 #import contextmenu
 import chn_class
-from regexer import Regexer
-from helpers import htmlentityhelper
-from helpers import datehelper
-from helpers import htmlhelper
-from helpers import xmlhelper
 
+from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
+from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.datehelper import DateHelper
+from helpers.htmlhelper import HtmlHelper
+from helpers.xmlhelper import XmlHelper
 
 
 class Channel(chn_class.Channel):
@@ -54,7 +54,7 @@ class Channel(chn_class.Channel):
         Accepts an arraylist of results. It returns an item.
         """
 
-        url = urlparse.urljoin(self.baseUrl, htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
         name = resultSet[1]
 
         if name == "Tags":
@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = urlparse.urljoin(self.baseUrl, htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
         item = mediaitem.MediaItem(resultSet[self.pageNavigationRegexIndex], url)
         item.type = "page"
         item.complete = True
@@ -145,7 +145,7 @@ class Channel(chn_class.Channel):
 
         if len(resultSet) > 3 and resultSet[3] != "":
             Logger.Debug("Sub category folder found.")
-            url = urlparse.urljoin(self.baseUrl, htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(resultSet[3]))
+            url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[3]))
             name = "\a.: %s :." % (resultSet[4],)
             item = mediaitem.MediaItem(name, url)
             item.thumb = self.noImage
@@ -153,10 +153,10 @@ class Channel(chn_class.Channel):
             item.type = "folder"
             return item
 
-        url = urlparse.urljoin(self.baseUrl, htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
-        name = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(resultSet[1])
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        name = HtmlEntityHelper.ConvertHTMLEntities(resultSet[1])
 
-        helper = htmlhelper.HtmlHelper(resultSet[2])
+        helper = HtmlHelper(resultSet[2])
         description = helper.GetTagContent("div", {'class': 'description'})
 
         item = mediaitem.MediaItem(name, "%s/RSS" % (url,))
@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
                 yearPart = dateParts[2]
 
                 try:
-                    month = datehelper.DateHelper.GetMonthFromName(monthPart, "en")
+                    month = DateHelper.GetMonthFromName(monthPart, "en")
                     item.SetDate(yearPart, month, dayPart)
                 except:
                     Logger.Error("Error matching month: %s", monthPart, exc_info=True)
@@ -207,7 +207,7 @@ class Channel(chn_class.Channel):
 
         # Logger.Trace(resultSet)
 
-        xmlData = xmlhelper.XmlHelper(resultSet)
+        xmlData = XmlHelper(resultSet)
         title = xmlData.GetSingleNodeContent("title")
         url = xmlData.GetSingleNodeContent("link")
         description = xmlData.GetSingleNodeContent("description")
@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
                 bitrate = 200
             else:
                 bitrate = 0
-            mediaPart.AppendMediaStream(htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(url[0]), bitrate)
+            mediaPart.AppendMediaStream(HtmlEntityHelper.ConvertHTMLEntities(url[0]), bitrate)
 
         item.MediaItemParts.append(mediaPart)
 

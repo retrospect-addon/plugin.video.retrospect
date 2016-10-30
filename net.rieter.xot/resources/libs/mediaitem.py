@@ -16,10 +16,10 @@ import random
 import xbmc
 import xbmcgui
 
-from helpers import htmlentityhelper
-from helpers import encodinghelper
 from addonsettings import AddonSettings
 from logger import Logger
+from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.encodinghelper import EncodingHelper
 
 
 class MediaItem:
@@ -129,7 +129,7 @@ class MediaItem:
         # GUID used for identifcation of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues
         try:
-            self.guid = "%s%s" % (encodinghelper.EncodingHelper.EncodeMD5(title), encodinghelper.EncodingHelper.EncodeMD5(url or ""))
+            self.guid = "%s%s" % (EncodingHelper.EncodeMD5(title), EncodingHelper.EncodeMD5(url or ""))
             # self.guid = ("%s-%s" % (encodinghelper.EncodingHelper.EncodeMD5(title), url)).replace(" ", "")
         except:
             Logger.Error("Error setting GUID for title:'%s' and url:'%s'. Falling back to UUID", title, url, exc_info=True)
@@ -227,6 +227,7 @@ class MediaItem:
         self.__timestamp = datetime.datetime.min
         self.__date = ""
 
+    # noinspection PyUnresolvedReferences
     def SetInfoLabel(self, label, value):
         # type: (str, Any) -> None
         """
@@ -507,7 +508,7 @@ class MediaItem:
 
             # Now add the actual HTTP headers
             for k in part.HttpHeaders:
-                xbmcParams[k] = htmlentityhelper.HtmlEntityHelper.UrlEncode(part.HttpHeaders[k])
+                xbmcParams[k] = HtmlEntityHelper.UrlEncode(part.HttpHeaders[k])
 
             if xbmcParams:
                 xbmcQueryString = reduce(lambda x, y: "%s&%s=%s" %
@@ -546,7 +547,7 @@ class MediaItem:
         r = long(random.random() * 100000000000000000L)
         a = random.random() * 100000000000000000L
         data = str(t) + ' ' + str(r) + ' ' + str(a)
-        data = encodinghelper.EncodingHelper.EncodeMD5(data)
+        data = EncodingHelper.EncodeMD5(data)
         return data
 
     def __FullDecodeText(self, stringValue):
@@ -570,7 +571,7 @@ class MediaItem:
             return ""
 
         # then get rid of the HTML entities
-        stringValue = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(stringValue)
+        stringValue = HtmlEntityHelper.ConvertHTMLEntities(stringValue)
         return stringValue
 
     def __str__(self):

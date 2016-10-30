@@ -1,11 +1,11 @@
 import mediaitem
 #import contextmenu
 import chn_class
-from helpers import htmlentityhelper
 
 from logger import Logger
 from urihandler import UriHandler
 from regexer import Regexer
+from helpers.htmlentityhelper import HtmlEntityHelper
 
 
 class Channel(chn_class.Channel):
@@ -285,7 +285,7 @@ class Channel(chn_class.Channel):
             metaData = data
         else:
             mgid = Regexer.DoRegex("mgid:[^ ]+playlist-[abcdef0-9]+", data)[0]
-            mgidUrlEncoded = htmlentityhelper.HtmlEntityHelper.UrlEncode(mgid)
+            mgidUrlEncoded = HtmlEntityHelper.UrlEncode(mgid)
             metaData = UriHandler.Open("http://api.mtvnn.com/v2/mrss.xml?uri=%s" % (mgidUrlEncoded,))
 
         videoUrl = Regexer.DoRegex("<media:content[^>]+url='([^']+)'>", metaData)[0]

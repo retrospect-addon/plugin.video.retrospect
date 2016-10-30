@@ -13,26 +13,25 @@ import urlparse
 from datetime import datetime
 
 import xbmc
-
 import mediaitem
+
 from regexer import Regexer
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper
 from config import Config
 from initializer import Initializer
-# from environments import Environments
-from helpers import htmlentityhelper
-from helpers import stopwatch
-from helpers import encodinghelper
-from helpers.jsonhelper import JsonHelper
-from helpers.languagehelper import LanguageHelper
-from helpers.statistics import Statistics
-from addonsettings import AddonSettings
-
 from logger import Logger
 from urihandler import UriHandler
 from parserdata import ParserData
 from textures import TextureHandler
+
+from helpers.stopwatch import StopWatch
+from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.encodinghelper import EncodingHelper
+from helpers.jsonhelper import JsonHelper
+from helpers.languagehelper import LanguageHelper
+from helpers.statistics import Statistics
+from addonsettings import AddonSettings
 
 
 class Channel:
@@ -454,7 +453,7 @@ class Channel:
         Logger.Trace("Retrieved %s chars as mainlist data", len(data))
 
         # first process folder items.
-        watch = stopwatch.StopWatch('Mainlist', Logger.Instance())
+        watch = StopWatch('Mainlist', Logger.Instance())
 
         episodeItems = []
         if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
@@ -516,7 +515,7 @@ class Channel:
             if needle:
                 Logger.Debug("Searching for '%s'", needle)
                 # convert to HTML
-                needle = htmlentityhelper.HtmlEntityHelper.UrlEncode(needle)
+                needle = HtmlEntityHelper.UrlEncode(needle)
                 searchUrl = url % (needle, )
                 temp = mediaitem.MediaItem("Search", searchUrl)
                 return self.ProcessFolderList(temp)
@@ -666,7 +665,7 @@ class Channel:
         for result in resultSet:
             total = "%s%s" % (total, result)
 
-        total = htmlentityhelper.HtmlEntityHelper.StripAmp(total)
+        total = HtmlEntityHelper.StripAmp(total)
 
         if not self.pageNavigationRegexIndex == '':
             item = mediaitem.MediaItem(resultSet[self.pageNavigationRegexIndex], urlparse.urljoin(self.baseUrl, total))
@@ -950,7 +949,7 @@ class Channel:
                     Logger.Debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
 
                     # we need a unique filename
-                    fileName = encodinghelper.EncodingHelper.EncodeMD5(stream.Url)
+                    fileName = EncodingHelper.EncodeMD5(stream.Url)
                     extension = UriHandler.GetExtensionFromUrl(stream.Url)
 
                     # now we force the busy dialog to close, else we cannot cancel the download

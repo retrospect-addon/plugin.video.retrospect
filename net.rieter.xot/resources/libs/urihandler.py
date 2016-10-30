@@ -419,7 +419,7 @@ class UriHandler:
 
         # noinspection PyProtectedMember,PyTypeChecker
         def GetCookie(self, name, domain, path="/", matchStart=False):
-            # type: (str, str, str, bool) -> [Optional]cookielib.Cookie
+            # type: (str, str, str, bool) -> Optional[cookielib.Cookie]
             if domain not in self.cookieJar._cookies or path not in self.cookieJar._cookies[domain]:
                 return None
 

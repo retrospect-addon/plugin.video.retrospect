@@ -18,6 +18,7 @@ from helpers.encodinghelper import EncodingHelper
 from helpers.jsonhelper import JsonHelper
 from streams.youtube import YouTube
 
+
 class Channel(chn_class.Channel):
 
     def __init__(self, channelInfo):

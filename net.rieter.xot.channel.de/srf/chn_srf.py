@@ -240,7 +240,7 @@ class Channel(chn_class.Channel):
             Logger.Warning("No video information found.")
             return None
 
-        videoInfos = filter(lambda vi: vi["fullLength"] == True, videos)
+        videoInfos = filter(lambda vi: vi["fullLength"], videos)
         if len(videoInfos) > 0:
             videoInfo = videoInfos[0]
         else:

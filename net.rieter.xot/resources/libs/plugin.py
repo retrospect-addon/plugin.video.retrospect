@@ -34,20 +34,17 @@ try:
     from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
     from environments import Environments
     from initializer import Initializer
-    from cloaker import Cloaker
-    from updater import Updater
     from favourites import Favourites
     from mediaitem import MediaItem
     from helpers.channelimporter import ChannelIndex
     from helpers.languagehelper import LanguageHelper
     from helpers.htmlentityhelper import HtmlEntityHelper
-    from helpers import stopwatch
+    from helpers.stopwatch import StopWatch
     from helpers.statistics import Statistics
     from helpers.sessionhelper import SessionHelper
     from textures import TextureHandler
     # from streams.youtube import YouTube
     from pickler import Pickler
-    from vault import Vault
 except:
     Logger.Critical("Error initializing %s", Config.appName, exc_info=True)
 
@@ -137,6 +134,7 @@ class Plugin:
 
             # check for updates
             if envCtrl.IsPlatform(Environments.Xbox):
+                from updater import Updater
                 Updater().AutoUpdate()
 
             # check if the repository is available
@@ -213,6 +211,10 @@ class Plugin:
                             self.actionResetVault
                         ):
                     try:
+                        # Import vault here, as it is only used here or in a channel
+                        # that supports it
+                        from vault import Vault
+
                         action = self.params[self.keywordAction]
                         if action == self.actionResetVault:
                             Vault.Reset()
@@ -391,7 +393,7 @@ class Plugin:
             Logger.Info("Showing all favourites")
         else:
             Logger.Info("Showing favourites for: %s", channel)
-        stopWatch = stopwatch.StopWatch("Plugin Favourites timer", Logger.Instance())
+        stopWatch = StopWatch("Plugin Favourites timer", Logger.Instance())
 
         try:
             ok = True
@@ -441,7 +443,7 @@ class Plugin:
             if self.keywordPickle in self.params:
                 selectedItem = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
-            watcher = stopwatch.StopWatch("Plugin ProcessFolderList", Logger.Instance())
+            watcher = StopWatch("Plugin ProcessFolderList", Logger.Instance())
             episodeItems = self.channelObject.ProcessFolderList(selectedItem)
             watcher.Lap("Class ProcessFolderList finished")
 
@@ -1030,6 +1032,8 @@ class Plugin:
         return ok
 
     def __CloakItem(self):
+        from cloaker import Cloaker
+
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
         c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
@@ -1039,6 +1043,8 @@ class Plugin:
                                    LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
 
     def __UnCloakItem(self):
+        from cloaker import Cloaker
+
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Un-Cloaking current item: %s", item)
         c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
