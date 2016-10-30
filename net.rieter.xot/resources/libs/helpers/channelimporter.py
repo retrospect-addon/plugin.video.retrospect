@@ -409,7 +409,7 @@ class ChannelIndex:
         return index
 
     def __ValidateAddOnVersion(self, path):
-        # type: (str) -> (str, Version)
+        # type: (str) -> Tuple[str, Version]
         """ Parses the addon.xml file and checks if all is OK.
 
         @param path: path to load the addon from
@@ -504,7 +504,7 @@ class ChannelIndex:
         return True
 
     def __InitialiseChannelSet(self, channelInfo):
-        # type: (ChannelInfo) -> ()
+        # type: (ChannelInfo) -> None
         """ Initialises a channelset (.py file)
 
         WARNING: these actions are done ONCE per python file, not per channel.
@@ -536,7 +536,7 @@ class ChannelIndex:
         return
 
     def __InitialiseChannel(self, channelInfo):
-        # type: (ChannelInfo) -> ()
+        # type: (ChannelInfo) -> None
         """ Performs the first time channel actions for a given channel.
 
         Arguments:
@@ -549,7 +549,7 @@ class ChannelIndex:
         return
 
     def __ShowFirstTimeMessage(self, channelInfo):
-        # type: (ChannelInfo) -> ()
+        # type: (ChannelInfo) -> None
         """ Checks if it is the first time a channel is executed
         and if a first time message is available it will be shown
 

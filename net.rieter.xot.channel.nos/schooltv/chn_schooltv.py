@@ -102,7 +102,7 @@ class Channel(chn_class.Channel):
         return item
 
     def AddCategories(self, data):
-        # type: (str) -> (str, List[mediaitem.MediaItem])
+        # type: (str) -> Tuple[str, List[mediaitem.MediaItem]]
         """ Add categories to the main listing
 
         @param data:    the Parsed Data
@@ -176,7 +176,7 @@ class Channel(chn_class.Channel):
         return item
 
     def AddPageItems(self, data):
-        # type: (str) -> (str, List[mediaitem.MediaItem])
+        # type: (str) -> Tuple[str, List[mediaitem.MediaItem]]
         """ Adds page items to the main listing
 
         @param data:    the Parsed Data

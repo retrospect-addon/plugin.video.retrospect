@@ -17,6 +17,7 @@ from streams.mms import Mms
 from urihandler import UriHandler
 from logger import Logger
 from regexer import Regexer
+from proxyinfo import ProxyInfo
 
 
 class NpoStream:
@@ -25,7 +26,7 @@ class NpoStream:
 
     @staticmethod
     def GetStreamsFromNpo(url, streamId, cacheDir, proxy=None, headers=None):
-        # type: (Union[str, None], str, str, Proxy, Dict[str,str]) -> List[Tuple[str, int]]
+        # type: (Union[str, None], str, str, ProxyInfo, Dict[str, str]) -> List[Tuple[str, int]]
         """ Retrieve NPO Player Live streams from a different number of stream urls.
 
         @param url:               (String) The url to download
