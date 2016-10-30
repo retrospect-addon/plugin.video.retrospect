@@ -15,7 +15,7 @@ class Cloaker:
     __MESSAGE_SHOWN = "messageShown"
 
     def __init__(self, profilePath, channelId, logger=None):
-        # type: (str, str, Logger) -> Cloaker
+        # type: (str, str, Logger) -> None
         """ Creates a Cloaker object that helps with cloaking objects
 
         @param profilePath: the path to the Kodi profile settings folder.
@@ -60,7 +60,7 @@ class Cloaker:
         if url in self.__cloaked[self.__channelId]:
             if self.__logger:
                 self.__logger.Debug("'%s' in channel '%s' was already cloaked.", url, self.__channelId)
-            return
+            return False
 
         if self.__logger:
             self.__logger.Debug("Cloaking '%s' in channel '%s'", url, self.__channelId)
