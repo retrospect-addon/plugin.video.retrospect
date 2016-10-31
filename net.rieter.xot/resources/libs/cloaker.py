@@ -36,14 +36,16 @@ class Cloaker:
             self.__cloaked = {Cloaker.__MESSAGE_SHOWN: False}
             if self.__logger:
                 self.__logger.Info("Creating a new cloaked settings file at '%s'", self.__cloakedSettings)
-            self.__Store()
+            # store but keep the first time message
+            self.__Store(False)
 
         with file(self.__cloakedSettings, mode='r') as fp:
             self.__cloaked = JsonHelper.Loads(fp.read())
 
         if self.__channelId not in self.__cloaked:
             self.__cloaked[self.__channelId] = {}
-            self.__Store()
+            # store but keep the first time message
+            self.__Store(False)
 
         if self.__logger:
             self.__logger.Trace("Found cloaked data:\n%s", JsonHelper.Dump(self.__cloaked, prettyPrint=True))
@@ -97,16 +99,20 @@ class Cloaker:
 
         return url in self.__cloaked[self.__channelId]
 
-    def __Store(self):
+    def __Store(self, updateFirstTimeMessage=True):
         # type: () -> bool
         """ Store the current cloak information to the profile folder.
 
+        @type updateFirstTimeMessage: bool
         @return: boolean indicating whether this was the first run.
 
         """
 
         firstTime = not self.__cloaked.get(Cloaker.__MESSAGE_SHOWN, False)
-        self.__cloaked[Cloaker.__MESSAGE_SHOWN] = True
+
+        # update the first time message setting unless we should not.
+        if updateFirstTimeMessage:
+            self.__cloaked[Cloaker.__MESSAGE_SHOWN] = updateFirstTimeMessage
 
         with file(self.__cloakedSettings, mode='w') as fp:
             if self.__logger:
@@ -116,43 +122,3 @@ class Cloaker:
         if self.__logger:
             self.__logger.Debug("First time cloak found.")
         return firstTime
-
-
-if __name__ == '__main__':
-    cloakPath = os.path.join("..", "..", "..", "..", "net.rieter.xot.userdata")
-    cloakPath = os.path.abspath(cloakPath)
-
-    # noinspection PyUnusedLocal
-    class DummyLogger:
-        """ Just a dummy logger class that can be used to test"""
-
-        def __init__(self):
-            pass
-
-        def Error(self, message, *args, **kwargs):
-            message = "Dummy ERROR >> %s" % (message,)
-            print message % args
-
-        def Info(self, message, *args, **kwargs):
-            message = "Dummy INFO >> %s" % (message,)
-            print message % args
-
-        def Debug(self, message, *args, **kwargs):
-            message = "Dummy DEBUG >> %s" % (message,)
-            print message % args
-
-        def Trace(self, message, *args, **kwargs):
-            message = "Dummy TRACE >> %s" % (message,)
-            print message % args
-
-    os.remove(os.path.join(cloakPath, "cloaked.json"))
-    c = Cloaker(cloakPath, "channel2", logger=DummyLogger())
-    c.Cloak("test1")
-    c.Cloak("test2")
-    c.Cloak("test2")
-    print c.IsCloaked("test1")
-    print c.IsCloaked("test2")
-    print c.IsCloaked("test3")
-    c.UnCloak("test2")
-    c = Cloaker(cloakPath, "channel2", logger=DummyLogger())
-    # print c._Cloaked__cloaked
