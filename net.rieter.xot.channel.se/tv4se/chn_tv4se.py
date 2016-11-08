@@ -499,7 +499,8 @@ class Channel(chn_class.Channel):
         # Logger.Debug("ProgId = %s", programId)
 
         # let's use the mobile streams, as they are still m3u8.
-        url = "https://prima.tv4play.se/api/web/asset/%s/play?protocol=hls" % (programId,)
+        # https://prima.tv4play.se/api/web/asset/224181/play?protocol=hls3&videoFormat=MP4+WEBVTTS+WEBVTT&_=1478631069593
+        url = "https://prima.tv4play.se/api/web/asset/%s/play?protocol=hls3" % (programId,)
         name = resultSet["title"]
 
         item = mediaitem.MediaItem(name, url)
