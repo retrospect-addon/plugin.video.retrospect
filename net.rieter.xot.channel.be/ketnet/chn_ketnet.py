@@ -154,6 +154,8 @@ class Channel(chn_class.Channel):
             json = JsonHelper(jsonData[0])
             Logger.Trace(json.json)
             stream = json.GetValue("source", "hls")
+            if stream is None:
+                stream = json.GetValue("mzsource", "hls")
             Logger.Debug("Found HLS: %s", stream)
         else:
             stream = item.url
