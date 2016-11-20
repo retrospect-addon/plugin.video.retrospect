@@ -79,10 +79,10 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
         self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchResult", "episodes"),
+                            parser=("searchPage", "episodes"),
                             creator=self.CreateJsonItem)
         self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchResult", "titles"),
+                            parser=("searchPage", "titles"),
                             creator=self.CreateJsonItem)
 
         # slugged items for which we need to filter tab items
