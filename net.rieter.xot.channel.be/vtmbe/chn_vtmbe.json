@@ -1,0 +1,15 @@
+{
+  "channels": [
+    {
+      "guid": "7F92EAEE-6066-4ED5-911A-2C3DCF964D19",
+      "name": "VTM.be",
+      "description": "Online uitzendingen van VTM.be.",
+      "icon": "vtmbelogo.png",
+      "category": "National",
+      "channelcode": "vtm",
+      "sortorder": 10,
+      "language": "be",
+      "fanart": "vtmbefanart.jpg"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Ketnet is switching stream provider (Fixes #780)
+Added: Initial VTM.be channel (Fixes #758)
 
 [I]Previous Changes[/I]
+Fixed: Ketnet is switching stream provider (Fixes #780)
 Fixed: Eén updated their site again (Fixes #773)
 Fixed: no longer required to log on for playback (See #736)
 Fixed: Eén updated their site (Fixes #762)
