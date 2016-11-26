@@ -265,17 +265,19 @@ class SubtitleHelper:
             line = line.strip()
             if line.endswith("WEBVTT"):
                 continue
+            if not line:
+                continue
 
             if " --> " in line:
                 count += 1
                 start, end = line.split(" --> ")
-                result = "%s\r\n%s" % (result, count)
+                result = "%s\n\n%s" % (result, count)
                 if start.count(":") == 1:
-                    result = "%s\r\n00:%s --> 00:%s" % (result, start.replace(".", ","), end.replace(".", ","))
+                    result = "%s\n00:%s --> 00:%s" % (result, start.replace(".", ","), end.replace(".", ","))
                 else:
-                    result = "%s\r\n%s --> %s" % (result, start.replace(".", ","), end.replace(".", ","))
+                    result = "%s\n%s --> %s" % (result, start.replace(".", ","), end.replace(".", ","))
             else:
-                result = "%s\r\n%s" % (result, line)
+                result = "%s\n%s" % (result, line)
 
         return result
 
