@@ -309,8 +309,10 @@ class Channel(chn_class.Channel):
             return None
 
         srt = resultSet.get("samiPath")
+        if not srt:
+            srt = resultSet.get("subtitles_webvtt")
         if srt:
-            Logger.Debug("Storing SRT path: %s", srt)
+            Logger.Debug("Storing SRT/WebVTT path: %s", srt)
             part = item.CreateNewEmptyMediaPart()
             part.Subtitle = srt
         return item
@@ -600,8 +602,10 @@ class Channel(chn_class.Channel):
         item.description = description
 
         srt = resultSet.get("sami_path")
+        if not srt:
+            srt = resultSet.get("subtitles_webvtt")
         if srt:
-            Logger.Debug("Storing SRT path: %s", srt)
+            Logger.Debug("Storing SRT/WebVTT path: %s", srt)
             part = item.CreateNewEmptyMediaPart()
             part.Subtitle = srt
         return item
@@ -645,9 +649,10 @@ class Channel(chn_class.Channel):
         # see if there was an srt already
         if item.MediaItemParts:
             part = item.MediaItemParts[0]
-            if part.Subtitle:
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="dcsubtitle",
-                                                                               proxy=self.proxy)
+            if part.Subtitle and part.Subtitle.endswith(".vtt"):
+                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
+            else:
+                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
         else:
             part = item.CreateNewEmptyMediaPart()
 

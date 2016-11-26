@@ -389,12 +389,17 @@ class Channel(chn_class.Channel):
             language = caption["label"]
             default = caption["default"]
             url = caption["file"]
+            if url.startswith("//"):
+                url = "http:%s" % (url, )
             Logger.Debug("Found subtitle language: %s [Default=%s]", language, default)
             if "Svenska" in language:
                 Logger.Debug("Selected subtitle language: %s", language)
                 fileName = caption["file"]
                 fileName = fileName[fileName.rindex("/") + 1:] + ".srt"
-                subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "ttml", proxy=self.proxy)
+                if url.endswith("vtt"):
+                    subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "webvtt", proxy=self.proxy)
+                else:
+                    subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "ttml", proxy=self.proxy)
                 break
         part.Subtitle = subtitle
 
