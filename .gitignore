@@ -6,7 +6,6 @@
 /net.rieter.xot/resources/libs/debug
 /net.rieter.xot/debugrun.py
 /net.rieter.xot/*.log
-/net.rieter.xot/resources/settings.xml
 /net.rieter.xot.channel.streams/radionl/data/*
 
 /metadata.*
