@@ -233,8 +233,8 @@ class SubtitleHelper:
                         text = HtmlEntityHelper.ConvertHTMLEntities(text)
                         srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                         i += 1
-                    start = "%s,%03d" % (sub[1], int(sub[2]) * 4)
-                    end = "%s,%03d" % (sub[3], int(sub[4]) * 4)
+                    start = "%s,%03d" % (sub[1], int(sub[2]))
+                    end = "%s,%03d" % (sub[3], int(sub[4]))
                     text = ""
                 else:
                     text = "%s\n%s" % (text, sub[5].replace("<br />", "\n"))
