@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
         # genres (using JSON)
         self._AddDataParser("http://www.svtplay.se/genre/",
                             preprocessor=self.ExtractJsonData, json=True,
-                            parser=("clusterPage", "content", "titles"),
+                            parser=("clusterPage", "titlesAndEpisodes"),
                             creator=self.CreateJsonItem)
 
         self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
@@ -227,10 +227,18 @@ class Channel(chn_class.Channel):
                 "http://www.svtplay.se/genre/film",
                 "http://www.svtstatic.se/image-cms/svtse/1436202866/svtplay/article2952281.svt/ALTERNATES/large/film1280-jpg"
             ),
-            # Category items that are in the old layout and won't work yet.
-            # "Barn": "http://www.svtplay.se/barn",
-            # "Nyheter": "http://www.svtplay.se/nyheter",
-            # "Sport": "http://www.svtplay.se/sport",
+            "Barn": (
+                "http://www.svtplay.se/genre/barn",
+                "http://www.svtstatic.se/play/play5/images/categories/posters/barn-c17302a6f7a9a458e0043b58bbe8ab79.jpg"
+            ),
+            "Nyheter": (
+                "http://www.svtplay.se/genre/nyheter",
+                "https://www.svtstatic.se/play/play6/images/categories/posters/nyheter.e67ff1b5770152af4690ad188546f9e9.jpg"
+            ),
+            "Sport": (
+                "http://www.svtplay.se/genre/sport",
+                "https://www.svtstatic.se/play/play6/images/categories/posters/sport.98b65f6627e4addbc4177542035ea504.jpg"
+            )
         }
 
         for title, url in extraItems.iteritems():
@@ -483,7 +491,7 @@ class Channel(chn_class.Channel):
         if "live" in resultSet and resultSet["live"]:
             title = "%s (&middot;Live&middot;)" % (title, )
 
-        itemType = resultSet["contentType"]
+        itemType = resultSet.get("contentType")
         if "contentUrl" in resultSet:
             url = resultSet["contentUrl"]
         else:
@@ -524,10 +532,14 @@ class Channel(chn_class.Channel):
             thumb = resultSet["thumbnailMedium"]
         elif "thumbnail" in resultSet:
             thumb = resultSet["thumbnail"]
+        elif "poster" in resultSet:
+            thumb = resultSet["poster"]
         item.thumb = self.__GetThumb(thumb)
 
         if broadCastDate is not None:
-            timeStamp = DateHelper.GetDateFromString(broadCastDate[:-5], "%Y-%m-%dT%H:%M:%S")
+            if "+" in broadCastDate:
+                broadCastDate = broadCastDate.rsplit("+")[0]
+            timeStamp = DateHelper.GetDateFromString(broadCastDate, "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
         return item
 
