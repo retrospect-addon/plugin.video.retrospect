@@ -1,16 +1,14 @@
 # coding:UTF-8
 import datetime
 import sys
-import os
 
 # import contextmenu
 import chn_class
 import mediaitem
-from config import Config
 from parserdata import ParserData
 from helpers.datehelper import DateHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.encodinghelper import EncodingHelper
+from helpers.subtitlehelper import SubtitleHelper
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
@@ -363,7 +361,7 @@ class Channel(chn_class.Channel):
         if subMatches:
             subUrl = HtmlEntityHelper.UrlDecode(subMatches[0])
             Logger.Info("Item has subtitles: %s", subUrl)
-            subTitle = self.__DownloadSubtitle(subUrl, self.proxy)
+            subTitle = SubtitleHelper.DownloadSubtitle(subUrl, format="m3u8srt", proxy=self.proxy)
             if subTitle:
                 part.Subtitle = subTitle
 
@@ -425,63 +423,3 @@ class Channel(chn_class.Channel):
             year = month = day = hour = minutes = 0
 
         return year, month, day, hour, minutes
-
-    def __DownloadSubtitle(self, url, proxy=None):
-        """ Basically the same as the SubtitleHelper.DownloadSubtitle() in functionality """
-
-        fileName = "%s.srt" % (EncodingHelper.EncodeMD5(url),)
-        localCompletePath = os.path.join(Config.cacheDir, fileName)
-        # no need to download it again!
-        if os.path.exists(localCompletePath):
-            return localCompletePath
-
-        raw = UriHandler.Open(url, proxy=proxy)
-        # try to decode it
-        try:
-            raw = raw.decode()
-        except:
-            Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
-            raw = raw.decode('unicode_escape')
-
-        srt = self.__ConvertM3u8SrtToSubtitleToSrt(raw, url, proxy)
-
-        f = open(localCompletePath, 'w')
-        f.write(srt)
-        f.close()
-        Logger.Info("Saved SRT as %s", localCompletePath)
-        return localCompletePath
-
-    def __ConvertM3u8SrtToSubtitleToSrt(self, raw, url, proxy):
-        # Find the VTT line in the subtitle
-        lines = raw.split("\n")
-        subUrl = None
-        for line in lines:
-            if ".vtt" in line:
-                subUrl = line
-                break
-
-        if not subUrl:
-            return ""
-
-        if not subUrl.startswith("http"):
-            subUrl = "%s/%s" % (url.rsplit("/", 1)[0], subUrl)
-
-        # Now we know the subtitle, it would be wise to just use the existing converters to just
-        # convert the data, but now now
-        result = ""
-        m3u8Sub = UriHandler.Open(subUrl, proxy=proxy)
-        for line in m3u8Sub.split("\n"):
-            line = line.strip()
-            if line.endswith("WEBVTT") or line.startswith("X-TIMESTAMP"):
-                continue
-
-            if " --> " in line:
-                start, end = line.split(" --> ")
-                if start.count(":") == 1:
-                    result = "%s\n00:%s --> 00:%s" % (result, start.replace(".", ","), end.replace(".", ","))
-                else:
-                    result = "%s\n%s --> %s" % (result, start.replace(".", ","), end.replace(".", ","))
-            else:
-                result = "%s\n%s" % (result, line)
-
-        return result

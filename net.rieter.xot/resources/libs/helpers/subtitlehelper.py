@@ -111,6 +111,8 @@ class SubtitleHelper:
                 srt = SubtitleHelper.__ConvertDCSubtitleToSrt(raw)
             elif format.lower() == 'json':
                 srt = SubtitleHelper.__ConvertJsonSubtitleToSrt(raw)
+            elif format.lower() == 'm3u8srt':
+                srt = SubtitleHelper.__ConvertM3u8SrtToSubtitleToSrt(raw, url, proxy)
             else:
                 error = "Uknown subtitle format: %s" % (format,)
                 raise NotImplementedError(error)
@@ -361,6 +363,49 @@ class SubtitleHelper:
 
         # re-encode to be able to write it
         return srt
+
+    @staticmethod
+    def __ConvertM3u8SrtToSubtitleToSrt(raw, url, proxy):
+        # Find the VTT line in the subtitle
+        lines = raw.split("\n")
+        subUrl = None
+        for line in lines:
+            if ".vtt" in line:
+                subUrl = line
+                break
+
+        if not subUrl:
+            return ""
+
+        if not subUrl.startswith("http"):
+            subUrl = "%s/%s" % (url.rsplit("/", 1)[0], subUrl)
+
+        # Now we know the subtitle, it would be wise to just use the existing converters to just
+        # convert the data, but now now
+        result = ""
+        m3u8Sub = UriHandler.Open(subUrl, proxy=proxy)
+        # Again decode the data
+        try:
+            m3u8Sub = m3u8Sub.decode()
+        except:
+            Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
+            m3u8Sub = m3u8Sub.decode('unicode_escape')
+
+        for line in m3u8Sub.split("\n"):
+            line = line.strip()
+            if line.endswith("WEBVTT") or line.startswith("X-TIMESTAMP"):
+                continue
+
+            if " --> " in line:
+                start, end = line.split(" --> ")
+                if start.count(":") == 1:
+                    result = "%s\n00:%s --> 00:%s" % (result, start.replace(".", ","), end.replace(".", ","))
+                else:
+                    result = "%s\n%s --> %s" % (result, start.replace(".", ","), end.replace(".", ","))
+            else:
+                result = "%s\n%s" % (result, line)
+
+        return result
 
     @staticmethod
     def __ConvertToTime(timestamp):
