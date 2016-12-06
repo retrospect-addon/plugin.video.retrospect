@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Don't show unavailable videos (Fixes #775)
+Added: Subtitles for NRK.no (Fixes #789)
 
 [I]Previous changes[/I]
+Fixed: Don't show unavailable videos (Fixes #775)
 Fixed: Show description for NRK shows (Fixes #768)
 Fixed: NRK live channels broke due to stream location change (Fixes #752)
 Fixed: Show videos in the category lists (Fixes #718)
