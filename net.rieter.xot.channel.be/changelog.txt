@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: Initial VTM.be channel (Fixes #758)
+Added: VTM.be live TV and full episodes (See #758)
 
 [I]Previous Changes[/I]
+Added: Initial VTM.be channel (Fixes #758)
 Fixed: Ketnet is switching stream provider (Fixes #780)
 Fixed: Eén updated their site again (Fixes #773)
 Fixed: no longer required to log on for playback (See #736)

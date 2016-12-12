@@ -11,5 +11,27 @@
       "language": "be",
       "fanart": "vtmbefanart.jpg"
     }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "value": "type=\"text\" label=\"30094\" default=\"\"",
+      "id": "username"
+    },
+    {
+      "order": 2,
+      "value": "type=\"hidden\" default=\"\"",
+      "id": "password"
+    },
+    {
+      "order": 3,
+      "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_password&amp;settingname=VTM.be password&amp;tabfocus=102)\" option=\"close\"",
+      "id": "password_set"
+    },
+    {
+      "order": 4,
+      "value": "type=\"hidden\" default=\"\"",
+      "id": "uid_signature"
+    }
   ]
 }
