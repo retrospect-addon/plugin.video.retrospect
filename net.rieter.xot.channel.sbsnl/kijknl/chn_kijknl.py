@@ -50,8 +50,8 @@ class Channel(chn_class.Channel):
             self.noImage = "net5image.png"
 
         # setup the main parsing data
-        self.episodeItemRegex = 'data-srchd="(?<thumburl>[^"]+)"[^>]*>\W*<noscript>\W*<img[^>]*>\W*</noscript>[\w\W]' \
-                                '{0,750}?data-itemid="[^"]+\.%s"[^>]*data-title="(?<title>[^"]+)"></div>\W+</div>' \
+        self.episodeItemRegex = '(?:data-srchd="(?<thumburl>[^"]+)"[^>]*>\W*<noscript>\W*<img[^>]*>\W*</noscript>[\w\W]' \
+                                '{0,750}?){0,1}data-itemid="[^"]+\.%s"[^>]*data-title="(?<title>[^"]+)"></div>\W+</div>' \
                                 '\W+</a>\W+<a href="(?<url>[^"]+)"[^>]+>\W+<div class="info[^>]*>\W+'\
                                 .replace("(?<", "(?P<") \
                                 % (channelId or self.channelCode,)
@@ -59,20 +59,19 @@ class Channel(chn_class.Channel):
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         # normal video items
-        self.videoItemRegex = 'data-srchd="(?<thumburl>[^"]+)"[^>]* alt="(?<title>[^"]+)"[^>]*>[\w\W]{0,2000}?' \
-                              'itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,1000}' \
-                              '<a href="(?<url>[^"]+)/[^"]+"' \
+        self.videoItemRegex = '(?:data-srchd="(?<thumburl>[^"]+)"[\w\W]{0,2000}?){0,1}itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,800}?<div class="title">(?<title>[^<]+)<[\w\W]{0,800}?<a href="(?<url>[^"]+)/[^"]+"' \
                               .replace("(?<", "(?P<")
         self._AddDataParser("*", name="Standard Videos",
                             parser=self.videoItemRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
         # ajax video items
-        self.ajaxItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]* itemprop="thumbnailUrl"[^>]*>\W*</noscript>[\w\W]' \
-                             '{0,1000}?data-title="(?<title>[^"]+)">\W*</div>\W*</div>\W*</a>\W*<a[^>]+href="' \
-                             '(?<url>[^"]+)/[^"]+"[^>]+\W+<div[^>]+>\W+<(?:div class="desc[^>]+|h3[^>]*)>' \
-                             '(?<description>[^<]+)[\W\w]{0,400}?<div class="airdate[^>]+?(?:content="' \
-                             '(?<date>[^"]+)"|>)'.replace("(?<", "(?P<")
+        self.ajaxItemRegex = '(?:<img src="(?<thumburl>[^"]+)"[^>]* itemprop="thumbnailUrl"[^>]*>' \
+                             '\W*</noscript>[\w\W]{0,1000}?){0,1}data-title="(?<title>[^"]+)">\W*' \
+                             '</div>\W*</div>\W*</a>\W*<a[^>]+href="(?<url>[^"]+)/[^"]+"[^>]+\W+' \
+                             '<div[^>]+>\W+<(?:div class="desc[^>]+|h3[^>]*)>' \
+                             '(?<description>[^<]+)[\W\w]{0,1000}?<div class="airdate[^>]+?' \
+                             '(?:content="(?<date>[^"]+)"|>)'.replace("(?<", "(?P<")
         self._AddDataParser("http://www.kijk.nl/ajax/section/series/", name="Ajax Videos",
                             parser=self.ajaxItemRegex, creator=self.CreateVideoItem)
 
@@ -248,8 +247,11 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         if "description" in resultSet:
             item.description = resultSet['description']
-        item.thumb = resultSet['thumburl']
+
         item.icon = self.icon
+        item.thumb = self.noImage
+        if resultSet['thumburl']:
+            item.thumb = resultSet['thumburl']
 
         date = resultSet["date"]
         if date:

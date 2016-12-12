@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Not all kijk.nl shows were displayed
+Fixed: Missing thumbs on the site cause missing items (Fixes #791)
 
 [I]Previous changes[/I]
+Fixed: Not all kijk.nl shows were displayed
 Fixed: Kijk.nl removed their descriptions, which broke the channels (Fixes #737)
 Fixed: clips of Kijk.nl would not play
 Fixed: most videos of Kijk.nl (SBS6/NET5/SBS9/Veronica) did not play (Fixes #723)
