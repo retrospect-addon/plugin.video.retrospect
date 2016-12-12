@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: Subtitles for NRK.no (Fixes #789)
+Added: A - Å folder item with a lot, really a lot of shows. It loads slow! (Fixes #790).
 
 [I]Previous changes[/I]
+Added: Subtitles for NRK.no (Fixes #789)
 Fixed: Don't show unavailable videos (Fixes #775)
 Fixed: Show description for NRK shows (Fixes #768)
 Fixed: NRK live channels broke due to stream location change (Fixes #752)

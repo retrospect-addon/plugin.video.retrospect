@@ -61,12 +61,18 @@ class Channel(chn_class.Channel):
                             creator=self.CreateProgramFolder)
 
         self._AddDataParser("https://tvapi.nrk.no/v1/series/[^/]+", json=True, matchType=ParserData.MatchRegex,
+                            name="Default Series parser",
                             parser=("programs", ),
                             creator=self.CreateCategoryVideo)
 
         self._AddDataParser("https://tvapi.nrk.no/v1/categories/all-programs/", json=True,
                             parser=(),
                             creator=self.CreateCategoryVideo)
+
+        self._AddDataParser("https://tvapi.nrk.no/v1/search/indexelements", json=True,
+                            name="Main Searchable Index items",
+                            parser=(),
+                            creator=self.CreateIndexedItem)
 
         self._AddDataParser("*", updater=self.UpdateVideoItem)
 
@@ -110,6 +116,7 @@ class Channel(chn_class.Channel):
             # The other Programs url stopped working. This the next best thing.
             # "Programs": "http://m.nrk.no/tvapi/v1/series/",
             "Programs": "https://tvapi.nrk.no/v1/programs/",
+            "A - Å": "https://tvapi.nrk.no/v1/search/indexelements"
         }
         for name, url in links.iteritems():
             item = mediaitem.MediaItem(name, url)
@@ -191,6 +198,22 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         item.fanart = self.fanart
         return item
+
+    def CreateIndexedItem(self, resultSet):
+        if "seriesId" in resultSet:
+            return self.CreateProgramFolder(resultSet)
+
+        # elif "programId" in resultSet:
+        #     item = mediaitem.MediaItem(resultSet["title"], "https://tvapi.nrk.no/v1/programs/%s/" % (resultSet["programId"]))
+        #     item.type = "video"
+        #     imageId = resultSet.get("imageId")
+        #     if imageId:
+        #         item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (imageId,)
+        #         item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (imageId,)
+        #     item.complete = False
+        #     item.HttpHeaders = self.httpHeaders
+        #     return item
+        return None
 
     def CreateProgramFolder(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
@@ -423,3 +446,78 @@ class Channel(chn_class.Channel):
             year = month = day = hour = minutes = 0
 
         return year, month, day, hour, minutes
+
+#     @GET("/system/isAddressNorwegian?withIp=true")
+#     <T> IpCheck checkMyIp();
+#
+#     @GET("/search/autocomplete/{query}")
+#     <T> void getAutoComplete(@Path("query") String str, @Query("viewerAgeLimit") int i, Callback<T> callback);
+#
+#     @GET("/categories")
+#     <T> void getCategories(Callback<T> callback);
+#
+#     @GET("/channels")
+#     <T> List<Channel> getChannels();
+#
+#     @GET("/channels")
+#     <T> void getChannels(Callback<T> callback);
+#
+#     @GET("/series/{seriesId}/currentprogram")
+#     <T> void getCurrentProgramForSeries(@Path("seriesId") String str, @Query("viewerAgeLimit") int i, Callback<T> callback);
+#
+#     @GET("/series/{seriesId}/currentprogram")
+#     <T> void getCurrentProgramForSeries(@Path("seriesId") String str, Callback<T> callback);
+#
+#     @GET("/channels/epg")
+#     <T> void getEpg(@Query("date") String str, Callback<T> callback);
+#
+#     @GET("/search/{query}")
+#     <T> void getForSearchPrograms(@Path("query") String str, Callback<T> callback);
+#
+#     @GET("/search/indexelements")
+#     <T> List<ProgramTeaser> getIndexElements();
+#
+#     @POST("/series/newepisodes")
+#     <T> void getNewEpisodesForSeries(@Body SeriesLastSeen[] seriesLastSeenArr, Callback<T> callback);
+#
+#     @GET("/programs/{programId}/nextepisode")
+#     <T> void getNextEpisode(@Path("programId") String str, @Query("viewerAgeLimit") int i, Callback<T> callback);
+#
+#     @GET("/programs/{programId}")
+#     <T> void getProgram(@Path("programId") String str, @Query("viewerAgeLimit") int i, Callback<Program> callback);
+#
+#     @GET("/programs/{programId}")
+#     <T> void getProgram(@Path("programId") String str, Callback<Program> callback);
+#
+#     @GET("/categories/{categoryId}/programs")
+#     <T> void getProgramByCategoryFeed(@Path("categoryId") String str, Callback<T> callback);
+#
+#     @GET("/categories/{categoryId}/popularprograms")
+#     <T> void getProgramByCategoryPopular(@Path("categoryId") String str, Callback<T> callback);
+#
+#     @GET("/categories/{categoryId}/recentlysentprograms")
+#     <T> void getProgramByCategoryRecent(@Path("categoryId") String str, Callback<T> callback);
+#
+#     @GET("/categories/{categoryId}/recommendedprograms")
+#     <T> void getProgramByCategoryRecommended(@Path("categoryId") String str, Callback<T> callback);
+#
+#     @GET("/programs")
+#     <T> List<ProgramTeaser> getProgramFeed();
+#
+#     @GET("/programs")
+#     <T> void getProgramFeed(Callback<T> callback);
+#
+#     @GET("/programs/{programId}")
+#     <T> ProgramTeaser getProgramTeaser(@Path("programId") String str);
+#
+#     @POST("/programs")
+#     <T> List<ProgramTeaser> getProgramTeaserByIdList(@Body String[] strArr);
+#
+#     @POST("/programs")
+#     <T> void getProgramTeaserByIdList(@Body String[] strArr, Callback<T> callback);
+#
+#     @POST("/programs")
+#     List<ProgramTeaser> getProgramTeaserByIdListSynchronous(@Body String[] strArr);
+#
+#     @GET("/categories/barn/programs")
+#     <T> void getSuperFeed(Callback<T> callback);
