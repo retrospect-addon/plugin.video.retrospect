@@ -31,8 +31,8 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         if self.channelCode == "redactie":
             self.noImage = "redactieimage.png"
-            self.mainListUri = "http://www.deredactie.be/cm/vrtnieuws/videozone"
-            self.baseUrl = "http://www.deredactie.be"
+            self.mainListUri = "http://deredactie.be/cm/vrtnieuws/videozone"
+            self.baseUrl = "http://deredactie.be"
 
         else:
             raise IndexError("Invalid Channel Code")  # setup the urls
@@ -47,7 +47,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", creator=self.CreateVideoItem,
                             parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
         self._AddDataParser("*", creator=self.CreateVideoItem,
-                            parser='<p>([^<]+)</p>[\w\W]{0,200}?<a href="(/cm/[^/]+/videozone/[^?"]+)" >([^<]+)</a>', updater=self.UpdateVideoItem)
+                            parser='data-video-permalink="([^"]+)"[^>]*>\W+<span[^>]*>([^<]+)</span>\W+<span[^>]*>\W+<img[^>]*src="([^"]+)"', updater=self.UpdateVideoItem)
 
         self._AddDataParser("*", creator=self.CreatePageItem,
                             parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
@@ -130,7 +130,9 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         name = resultSet[1]
-        url = "%s%s" % (self.baseUrl, resultSet[0])
+        url = resultSet[0]
+        if not url.startswith("http"):
+            url = "%s%s" % (self.baseUrl, resultSet[0])
 
         if len(resultSet) == 3:
             thumb = resultSet[2]

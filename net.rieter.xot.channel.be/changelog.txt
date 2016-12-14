@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: VTM.be live TV and full episodes (See #758)
+Fixed: De Redactie did not show most recent shows (Fixes #439 again)
 
 [I]Previous Changes[/I]
+Added: VTM.be live TV and full episodes (See #758)
 Added: Initial VTM.be channel (Fixes #758)
 Fixed: Ketnet is switching stream provider (Fixes #780)
 Fixed: Eén updated their site again (Fixes #773)
