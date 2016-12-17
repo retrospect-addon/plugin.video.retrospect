@@ -39,7 +39,7 @@
     <string id="30036">- Lösenord</string>
     <string id="30037">"BBC iPlayer"-inställningar</string>
     <string id="30040">Kanaler</string>
-    <string id="30041">Tillgängligt efter du startat Retrospect för första gången.</string>
+    <string id="30041">Tillgängligt efter att du startat Retrospect för första gången.</string>
     <string id="30042">Aktiverad</string>
     <string id="30043">Mapp-prefix</string>
     <string id="30044">Estniska</string>
@@ -49,7 +49,7 @@
     <string id="30048">Loggnivå</string>
     <string id="30049">Uitzendinggemist.nl-inställningar</string>
     <string id="30050">Sökväg för buffert</string>
-    <string id="30051">Töm bufferten efter # dagar (0=Ingen buffert)</string>
+    <string id="30051">Töm bufferten efter # dagar (0=ingen buffert)</string>
     <string id="30052">Skicka användningsstatistik</string>
     <string id="30053">Utseende</string>
     <string id="30054">Ändra visningsnamn (omstart av Kodi krävs)</string>
@@ -86,11 +86,11 @@
     <string id="30085">GEO-låsta</string>
     <string id="30086">Dölj fanart</string>
     <string id="30087">Blanda mappar och strömmar vid sorteringen</string>
-    <string id="30088">Finsk</string>
+    <string id="30088">Finska</string>
     <string id="30089">Lösenordsskydd</string>
-    <string id="30090">Lösenordet skyddar lagrade lösenord krypterade med hjälp av en KOD.</string>
-    <string id="30091">Ändra KODEN</string>
-    <string id="30092">Återställ KODENReset Vault</string>
+    <string id="30090">Lösenordet skyddar lagrade lösenord krypterat med hjälp av en kod.</string>
+    <string id="30091">Ändra koden</string>
+    <string id="30092">Återställ alla koder</string>
     <string id="30093">Lösenord</string>
     <string id="30094">Användarnamn</string>
     <string id="30095">Visa dolda objekt</string>
@@ -152,8 +152,8 @@
     <string id="30535">Verifierar tilläggsförråd</string>
     <string id="30536">Letar efter buffertmapp</string>
     <string id="30537">Rensar buffertmappen</string>
-    <string id="30538">Den valda LIVE-strömmen gick inte|att spela upp.</string>
-    <string id="30539">LIVE-sändning</string>
+    <string id="30538">Den valda live-strömmen gick inte|att spela upp.</string>
+    <string id="30539">Live-sändning</string>
     <string id="30540">GEO-låsta</string>
     <string id="30541">Köa objekt</string>
     <string id="30542">Startar %s.</string>
@@ -164,14 +164,14 @@
     <string id="30547">Fler sidor</string>
     <string id="30548">Klipp</string>
     <string id="30549">Kunde inte ta emot programlistan.</string>
-    <string id="30550">Det valda avsnittet gick inte att spela upp.</string>
+    <string id="30550">Hittade inga program eller avsnitt.</string>
     <string id="30551">Idag</string>
     <string id="30552">Igår</string>
-    <string id="30553">Förrgår</string>
+    <string id="30553">I förrgår</string>
     <string id="30554">DRM-skydd</string>
     <string id="30555">Valt objekt är DRM-skyddat och|kanske inte går att spela upp|i Kodi.</string>
     <string id="30556">Initierar kanal(er)</string>
-    <string id="30557">Kanaler har blivit uppdaterade eller installerade. Utföra förstagångsåtgärder. Detta kan ta en stund.</string>
+    <string id="30557">Kanaler har blivit uppdaterade eller installerade. Utför|förstagångsåtgärder. Detta kan ta en stund.</string>
     <string id="30558">Hämtar texturer</string>
     <string id="30559">Hämtar saknade texturer. Detta kan ta en stund beroende på internet och systemets hastighet.</string>
     <string id="30560">Betalvideo</string>
@@ -180,14 +180,14 @@
     <string id="30563">Dölj objekt</string>
     <string id="30564">Visa dolt objekt</string>
     <string id="30565">Dolda objekt</string>
-    <string id="30566">För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn till att visa dolda objekt.</string>
+    <string id="30566">För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn för att visa dolda objekt.</string>
 
-    <string id="30590">Ange en ny KOD för Retrospect</string>
-    <string id="30591">Ingen KOD angiven för Retrospect</string>
-    <string id="30592">Repetera den nya KODEN för Retrospect</string>
-    <string id="30593">KODERNA matchade inte</string>
+    <string id="30590">Ange en ny kod för Retrospect</string>
+    <string id="30591">Ingen kod angiven för Retrospect</string>
+    <string id="30592">Repetera den nya koden för Retrospect</string>
+    <string id="30593">Koderna matchade inte</string>
     <string id="30594">Ange ett värde för inställning: '%s'</string>
-    <string id="30595">Ange KODEN för Retrospect</string>
-    <string id="30596">Felaktig KOD angiven för Retrospect</string>
-    <string id="30597">Om du återställer KODEN går alla sparade inloggningar förlorade. Är du säker?</string>
+    <string id="30595">Ange koden för Retrospect</string>
+    <string id="30596">Felaktig kod angiven för Retrospect</string>
+    <string id="30597">Om du återställer koden går alla sparade inloggningar förlorade. Är du säker?</string>
 </strings>

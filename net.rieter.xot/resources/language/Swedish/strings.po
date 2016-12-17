@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2016-09-29 20:49+0000\n"
+"POT-Creation-Date: 2016-12-16 21:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -171,7 +171,7 @@ msgstr "Kanaler"
 
 msgctxt "#30041"
 msgid "Available after running Retrospect for the first time."
-msgstr "Tillgängligt efter du startat Retrospect för första gången."
+msgstr "Tillgängligt efter att du startat Retrospect för första gången."
 
 msgctxt "#30042"
 msgid "Enabled"
@@ -211,7 +211,7 @@ msgstr "Sökväg för buffert"
 
 msgctxt "#30051"
 msgid "Cleanup cache after # days (0=Streaming Playback)"
-msgstr "Töm bufferten efter # dagar (0=Ingen buffert)"
+msgstr "Töm bufferten efter # dagar (0=ingen buffert)"
 
 msgctxt "#30052"
 msgid "Send usage statistics"
@@ -359,7 +359,7 @@ msgstr "Blanda mappar och strömmar vid sorteringen"
 
 msgctxt "#30088"
 msgid "Finnish"
-msgstr "Finsk"
+msgstr "Finska"
 
 msgctxt "#30089"
 msgid "Password Vault"
@@ -367,15 +367,15 @@ msgstr "Lösenordsskydd"
 
 msgctxt "#30090"
 msgid "The 'Password Vault' protects stored password with encryption using a PIN."
-msgstr "Lösenordet skyddar lagrade lösenord krypterade med hjälp av en KOD."
+msgstr "Lösenordet skyddar lagrade lösenord krypterat med hjälp av en kod."
 
 msgctxt "#30091"
 msgid "Change Vault Pin"
-msgstr "Ändra KODEN"
+msgstr "Ändra koden"
 
 msgctxt "#30092"
 msgid "Reset Vault"
-msgstr "Återställ KODENReset Vault"
+msgstr "Återställ alla koder"
 
 msgctxt "#30093"
 msgid "Password"
@@ -607,11 +607,11 @@ msgstr "Rensar buffertmappen"
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."
-msgstr "Den valda LIVE-strömmen gick inte|att spela upp."
+msgstr "Den valda live-strömmen gick inte|att spela upp."
 
 msgctxt "#30539"
 msgid "Live stream"
-msgstr "LIVE-sändning"
+msgstr "Live-sändning"
 
 msgctxt "#30540"
 msgid "Geo-Locked"
@@ -655,7 +655,7 @@ msgstr "Kunde inte ta emot programlistan."
 
 msgctxt "#30550"
 msgid "No episodes found for the selected item."
-msgstr "Det valda avsnittet gick inte att spela upp."
+msgstr "Hittade inga program eller avsnitt."
 
 msgctxt "#30551"
 msgid "Today"
@@ -667,7 +667,7 @@ msgstr "Igår"
 
 msgctxt "#30553"
 msgid "Day before yesterday"
-msgstr "Förrgår"
+msgstr "I förrgår"
 
 msgctxt "#30554"
 msgid "DRM Protection"
@@ -683,7 +683,7 @@ msgstr "Initierar kanal(er)"
 
 msgctxt "#30557"
 msgid "Channels have been updated or installed. Performing first time actions. This could take some time."
-msgstr "Kanaler har blivit uppdaterade eller installerade. Utföra förstagångsåtgärder. Detta kan ta en stund."
+msgstr "Kanaler har blivit uppdaterade eller installerade. Utför|förstagångsåtgärder. Detta kan ta en stund."
 
 msgctxt "#30558"
 msgid "Fetching Textures"
@@ -719,23 +719,23 @@ msgstr "Dolda objekt"
 
 msgctxt "#30566"
 msgid "To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu."
-msgstr "För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn till att visa dolda objekt."
+msgstr "För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn för att visa dolda objekt."
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"
-msgstr "Ange en ny KOD för Retrospect"
+msgstr "Ange en ny kod för Retrospect"
 
 msgctxt "#30591"
 msgid "No Retrospect PIN specified"
-msgstr "Ingen KOD angiven för Retrospect"
+msgstr "Ingen kod angiven för Retrospect"
 
 msgctxt "#30592"
 msgid "Repeat the new Retrospect PIN"
-msgstr "Repetera den nya KODEN för Retrospect"
+msgstr "Repetera den nya koden för Retrospect"
 
 msgctxt "#30593"
 msgid "PINs don't match"
-msgstr "KODERNA matchade inte"
+msgstr "Koderna matchade inte"
 
 msgctxt "#30594"
 msgid "Specify value for setting: '%s'"
@@ -743,12 +743,12 @@ msgstr "Ange ett värde för inställning: '%s'"
 
 msgctxt "#30595"
 msgid "Input Retrospect PIN"
-msgstr "Ange KODEN för Retrospect"
+msgstr "Ange koden för Retrospect"
 
 msgctxt "#30596"
 msgid "Incorrect Retrospect PIN specified"
-msgstr "Felaktig KOD angiven för Retrospect"
+msgstr "Felaktig kod angiven för Retrospect"
 
 msgctxt "#30597"
 msgid "Resetting the vault will invalidate all existing encrypted values. Are you sure?"
-msgstr "Om du återställer KODEN går alla sparade inloggningar förlorade. Är du säker?"
+msgstr "Om du återställer koden går alla sparade inloggningar förlorade. Är du säker?"
