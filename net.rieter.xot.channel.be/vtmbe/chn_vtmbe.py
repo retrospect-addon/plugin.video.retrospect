@@ -13,6 +13,7 @@ from streams.m3u8 import M3u8
 from regexer import Regexer
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
+from parserdata import ParserData
 
 
 class Channel(chn_class.Channel):
@@ -60,13 +61,20 @@ class Channel(chn_class.Channel):
             parser=htmlEpisodeRegex,
             creator=self.CreateEpisodeItemHtml)
 
+        #    http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AFamilie
         htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
         htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
         self._AddDataParser(
             "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
             name="HTML Page Video Parser",
-            parser=htmlVideoRegex, creator=self.CreateVideoItemHtml,
-            updater=self.UpdateVideoItem)
+            parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
+
+        #    http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AFamilie&aid=158955
+        self._AddDataParser(
+            "http://vtm.be/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
+            matchType=ParserData.MatchRegex,
+            name="HTML Page Video Updater",
+            updater=self.UpdateVideoItem, requiresLogon=True)
 
         self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
                             updater=self.UpdateLiveStream)
@@ -297,8 +305,6 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        if not self.loggedOn:
-            self.loggedOn = self.LogOn()
         if not self.loggedOn:
             Logger.Warning("Cannot log on")
             return None
