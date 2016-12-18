@@ -424,6 +424,10 @@ class Channel:
             Logger.Error("No videoupdater found cannot update item.")
             return item
 
+        if dataParser.LogOnRequired:
+            Logger.Info("One or more dataparsers require logging in.")
+            self.loggedOn = self.LogOn()
+
         Logger.Debug("Processing Updater from %s", dataParser)
         return dataParser.Updater(item)
 
