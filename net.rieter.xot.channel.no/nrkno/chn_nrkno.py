@@ -243,7 +243,7 @@ class Channel(chn_class.Channel):
         item.description = resultSet.get("description", "")
         item.HttpHeaders = self.httpHeaders
 
-        imageId = resultSet.get("imageId", None)
+        imageId = resultSet.get("seriesImageId", None)
         if imageId is not None:
             item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (imageId, )
             item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (imageId, )
@@ -287,7 +287,7 @@ class Channel(chn_class.Channel):
             episodeData = episodeData.split(":", 1)
             season = int(episodeData[0])
             episode = int(episodeData[1])
-            title = "%s - s%02de%02d" % (title, season, episode)
+            title = "%s - %02d:%02d" % (title, season, episode)
 
         url = resultSet.get("mediaUrl", None)
         if url is None:
