@@ -118,7 +118,7 @@ class Channel(chn_class.Channel):
         # username = HtmlEntityHelper.UrlEncode(username)
         # password = HtmlEntityHelper.UrlEncode(password)
 
-        Logger.Debug("Using: %s / %s", username, password)
+        Logger.Debug("Using: %s / %s", username, "*" * len(password))
         url = "https://accounts.eu1.gigya.com/accounts.login" \
               "?APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
               "&sdk=js_6.1" \
@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
               "&loginID=%s" \
               "&password=%s" % (username, password)
 
-        logonData = UriHandler.Open(url, proxy=self.proxy)
+        logonData = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         logonJson = JsonHelper(logonData)
         resultCode = logonJson.GetValue("statusCode")
         if resultCode != 200:
@@ -310,10 +310,9 @@ class Channel(chn_class.Channel):
             return None
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        dataRegex = '.vmmaplayer\(([^<]+)\);\W+</script>'
-        videoData = Regexer.DoRegex(dataRegex, data)[0]
-        videoJson = JsonHelper("[%s]" % (videoData, ), logger=Logger.Instance())
-        videoData = videoJson.GetValue(1)
+        dataRegex = "JSON\.parse\('([\w\W]+?)'\);\W+window\.media"
+        videoData = Regexer.DoRegex(dataRegex, data)[0].replace("\\\"", "\"")
+        videoJson = JsonHelper(videoData, logger=Logger.Instance())
 
         mediaUrl = "http://vod.medialaan.io/api/1.0/item/" \
                    "%s" \
@@ -321,7 +320,7 @@ class Channel(chn_class.Channel):
                    "&UID=%s" \
                    "&UIDSignature=%s" \
                    "&signatureTimestamp=%s" % (
-                       videoData["id"],
+                       videoJson.json["vodId"],
                        self.__userId,
                        HtmlEntityHelper.UrlEncode(self.__signature),
                        self.__signatureTimeStamp
@@ -338,7 +337,7 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(s, b)
 
         # duration is not calculated correctly
-        duration = videoData["duration"]
+        duration = videoJson.GetValue("videoConfig", "duration")
         item.SetInfoLabel("Duration", duration)
 
         # http://vod.medialaan.io/api/1.0/item/
