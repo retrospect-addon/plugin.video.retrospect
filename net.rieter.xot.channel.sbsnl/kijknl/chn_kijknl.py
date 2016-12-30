@@ -2,7 +2,6 @@ import mediaitem
 import chn_class
 
 from regexer import Regexer
-from streams.brightcove import BrightCove
 from streams.m3u8 import M3u8
 from helpers.jsonhelper import JsonHelper
 
@@ -88,7 +87,6 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", name="Default Folder", parser=self.folderItemRegex, creator=self.CreateFolderItem)
         self._AddDataParser("http://www.kijk.nl/ajax/section/series/", name="Ajax Folders",
                             parser=self.folderItemRegex, creator=self.CreateFolderItem)
-        self.mediaUrlRegex = '<object id=@"myExperience[\w\W]+?playerKey@" value=@"([^@]+)[\w\W]{0,1000}?videoPlayer@" value=@"(\d+)@"'.replace("@", "\\\\")
 
         #===============================================================================================================
         # non standard items
@@ -288,37 +286,42 @@ class Channel(chn_class.Channel):
 
         videoId = item.url[item.url.rfind("/") + 1:]
 
-        url = "http://embed.kijk.nl/?width=868&height=491&video=%s" % (videoId,)
+        # url = "http://embed.kijk.nl/?width=868&height=491&video=%s" % (videoId,)
+        url = "http://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
         referer = "http://embed.kijk.nl/video/%s" % (videoId,)
+        part = item.CreateNewEmptyMediaPart()
 
-        # now the mediaurl is derived. First we try WMV
+        # First try the new BrightCove JSON
         data = UriHandler.Open(url, proxy=self.proxy, referer=referer)
-        objectData = Regexer.DoRegex(self.mediaUrlRegex, data)
-        if not objectData:
-            Logger.Info("No HTML video found. Trying new API")
-            url = "http://embed.kijk.nl/api/video/%s" % (videoId,)
-            data = UriHandler.Open(url, proxy=self.proxy, referer=referer)
-            videoJson = JsonHelper(data)
-            m3u8Url = videoJson.GetValue("playlist")
-            part = item.CreateNewEmptyMediaPart()
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
-        else:
-            objectData = objectData[0]
-            # seed = "61773bc7479ab4e69a5214f17fd4afd21fe1987a"
-            # seed = "0a2b91ec0fdb48c5dd5239d3e796d6f543974c33"
-            seed = "0b0234fa8e2435244cdb1603d224bb8a129de5c1"
-            amfHelper = BrightCove(Logger.Instance(), str(objectData[0]), str(objectData[1]), url, seed)  # , proxy=ProxyInfo("localhost", 8888)
-            item.description = amfHelper.GetDescription()
+        brightCoveRegex = '<video[^>]+data-video-id="(?<videoId>[^"]+)[^>]+data-account="(?<videoAccount>[^"]+)'
+        brightCoveData = Regexer.DoRegex(Regexer.FromExpresso(brightCoveRegex), data)
+        if brightCoveData:
+            Logger.Info("Found new BrightCove JSON data")
+            brightCoveUrl = 'https://edge.api.brightcove.com/playback/v1/accounts/%(videoAccount)s/videos/%(videoId)s' % brightCoveData[0]
+            headers = {"Accept": "application/json;pk=BCpkADawqM3ve1c3k3HcmzaxBvD8lXCl89K7XEHiKutxZArg2c5RhwJHJANOwPwS_4o7UsC4RhIzXG8Y69mrwKCPlRkIxNgPQVY9qG78SJ1TJop4JoDDcgdsNrg"}
+            brightCoveData = UriHandler.Open(brightCoveUrl, proxy=self.proxy, additionalHeaders=headers)
+            brightCoveJson = JsonHelper(brightCoveData)
+            streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.GetValue("sources"))
+            if streams:
+                # noinspection PyTypeChecker
+                streamUrl = streams[0]["src"]
+                for s, b in M3u8.GetStreamsFromM3u8(streamUrl, self.proxy):
+                    item.complete = True
+                    part.AppendMediaStream(s, b)
+                return item
 
-            part = item.CreateNewEmptyMediaPart()
-            for stream, bitrate in amfHelper.GetStreamInfo():
-                if "m3u8" in stream:
-                    for s, b in M3u8.GetStreamsFromM3u8(stream, self.proxy):
-                        item.complete = True
-                        # s = self.GetVerifiableVideoUrl(s)
-                        part.AppendMediaStream(s, b)
-                part.AppendMediaStream(stream.replace("&mp4:", ""), bitrate)
+        # fallback to the Ericson Streams
+        Logger.Info("No BrightCove JSON data found. Trying other API")
+        url = "http://embed.kijk.nl/api/video/%s" % (videoId,)
+        data = UriHandler.Open(url, proxy=self.proxy, referer=referer)
+        videoJson = JsonHelper(data)
+        m3u8Url = videoJson.GetValue("playlist")
+        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
+            if "_enc_" in s:
+                Logger.Warning("Found encrypted stream. Skipping %s", s)
+                continue
+
+            item.complete = True
+            # s = self.GetVerifiableVideoUrl(s)
+            part.AppendMediaStream(s, b)
         return item
