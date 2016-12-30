@@ -137,9 +137,6 @@ class Channel(chn_class.Channel):
             # 1: https://www.tv4play.se/session/new
             # Extract the "authenticity_token"
             Logger.Info("Authenticating based on username and password")
-            data = UriHandler.Open("https://www.tv4play.se/session/new",
-                                   noCache=True, proxy=self.proxy)
-            authenticityToken = Regexer.DoRegex(' id="authenticity_token"\W+value="([^"]+)"', data)[-1]
 
             v = Vault()
             password = v.GetSetting("channel_tv4play_se_password")
@@ -156,11 +153,9 @@ class Channel(chn_class.Channel):
             params = "username=%s&" \
                      "password=%s&" \
                      "remember_me=true&" \
-                     "authenticity_token=%s&" \
                      "client=tv4play-web" % (
                          HtmlEntityHelper.UrlEncode(username),
                          HtmlEntityHelper.UrlEncode(password),
-                         HtmlEntityHelper.UrlEncode(authenticityToken)
                      )
             data = UriHandler.Open("https://account.services.tv4play.se/session/authenticate",
                                    noCache=True, proxy=self.proxy, params=params)
