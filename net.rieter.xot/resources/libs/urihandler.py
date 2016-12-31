@@ -593,7 +593,8 @@ class UriHandler:
                         charSetNeedle = 'charset='
                         charSetIndex = contentType.rfind(charSetNeedle)
                         if charSetIndex > 0:
-                            charSet = contentType[charSetIndex + len(charSetNeedle):]
+                            charSetEndIndex = contentType.find(";", charSetIndex)
+                            charSet = contentType[charSetIndex + len(charSetNeedle):charSetEndIndex]
                             Logger.Trace("Found Charset HTML Header: %s", charSet)
                 except:
                     charSet = None
