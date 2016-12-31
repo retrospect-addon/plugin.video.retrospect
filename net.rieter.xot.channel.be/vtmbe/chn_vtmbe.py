@@ -82,6 +82,7 @@ class Channel(chn_class.Channel):
         # ===============================================================================================================
         # non standard items
         self.__signatureSettings = "channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_signature"
+        # needed for playback
         self.__signature = None
         self.__signatureTimeStamp = None
         self.__userId = None
@@ -94,14 +95,17 @@ class Channel(chn_class.Channel):
 
     def LogOn(self):
         signatureSetting = AddonSettings.GetSetting(self.__signatureSettings)
-        if signatureSetting:
-            signatureTimestamp, signature, userId = signatureSetting.split("|", 2)
-            if time.time() < int(signatureTimestamp) + 1 * 60:
-                Logger.Info("Found valid signature for userId %s", userId)
-                self.__signature = signature
-                self.__userId = userId
-                self.__signatureTimeStamp = signatureTimestamp
+        if signatureSetting and "|" not in signatureSetting:
+            url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
+            data = "APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
+                   "&sdk=js_6.5.23" \
+                   "&format=jsonp" \
+                   "&callback=null" \
+                   "&login_token=%s" % (signatureSetting, )
+            logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
+            if self.__ExtractSessionData(logonData):
                 return True
+            Logger.Warning("Failed to extend the VTM.be session.")
 
         Logger.Info("Logging onto VTM.be")
         v = Vault()
@@ -115,33 +119,21 @@ class Channel(chn_class.Channel):
                 # displayTime=5000
             )
             return False
-        # username = HtmlEntityHelper.UrlEncode(username)
-        # password = HtmlEntityHelper.UrlEncode(password)
 
         Logger.Debug("Using: %s / %s", username, "*" * len(password))
-        url = "https://accounts.eu1.gigya.com/accounts.login" \
-              "?APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
-              "&sdk=js_6.1" \
-              "&format=json" \
-              "&loginID=%s" \
-              "&password=%s" % (username, password)
+        url = "https://accounts.eu1.gigya.com/accounts.login"
+        data = "loginID=%s" \
+               "&password=%s" \
+               "&targetEnv=jssdk" \
+               "&APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
+               "&includeSSOToken=true" \
+               "&format=jsonp" \
+               "&callback=null" \
+               "&authMode=cookie" % \
+               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password))
 
-        logonData = UriHandler.Open(url, proxy=self.proxy, noCache=True)
-        logonJson = JsonHelper(logonData)
-        resultCode = logonJson.GetValue("statusCode")
-        if resultCode != 200:
-            Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
-                         logonJson.GetValue("errorDetails"))
-            return False
-
-        self.__signature = logonJson.GetValue("UIDSignature")
-        self.__userId = logonJson.GetValue("UID")
-        self.__signatureTimeStamp = logonJson.GetValue("signatureTimestamp")
-        AddonSettings.SetSetting(self.__signatureSettings, "%s|%s|%s" % (
-            self.__signatureTimeStamp,
-            self.__signature,
-            self.__userId))
-        return True
+        logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
+        return self.__ExtractSessionData(logonData)
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -419,3 +411,21 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         jsonData = JsonHelper(data)
         return jsonData.GetValue("response")
+
+    def __ExtractSessionData(self, logonData):
+        logonJson = JsonHelper(logonData)
+        resultCode = logonJson.GetValue("statusCode")
+        if resultCode != 200:
+            Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
+                         logonJson.GetValue("errorDetails"))
+            return False
+
+        signatureSetting = logonJson.GetValue("sessionInfo", "login_token")
+        if signatureSetting:
+            Logger.Info("Found 'login_token'. Saving it.")
+            AddonSettings.SetSetting(self.__signatureSettings, signatureSetting.split("|")[0])
+
+        self.__signature = logonJson.GetValue("UIDSignature")
+        self.__userId = logonJson.GetValue("UID")
+        self.__signatureTimeStamp = logonJson.GetValue("signatureTimestamp")
+        return True
