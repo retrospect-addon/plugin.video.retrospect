@@ -99,8 +99,6 @@ class Channel(chn_class.Channel):
             url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
             data = "APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
                    "&sdk=js_6.5.23" \
-                   "&format=jsonp" \
-                   "&callback=null" \
                    "&login_token=%s" % (signatureSetting, )
             logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
             if self.__ExtractSessionData(logonData):
@@ -127,8 +125,6 @@ class Channel(chn_class.Channel):
                "&targetEnv=jssdk" \
                "&APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
                "&includeSSOToken=true" \
-               "&format=jsonp" \
-               "&callback=null" \
                "&authMode=cookie" % \
                (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password))
 
