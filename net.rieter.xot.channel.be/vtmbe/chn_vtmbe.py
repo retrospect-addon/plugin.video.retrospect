@@ -299,7 +299,10 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         dataRegex = "JSON\.parse\('([\w\W]+?)'\);\W+window\.media"
-        videoData = Regexer.DoRegex(dataRegex, data)[0].replace("\\\"", "\"")
+        videoData = Regexer.DoRegex(dataRegex, data)[0]
+        # VTM has some strange escapes
+        videoData = videoData.replace("\\\"", "\"")
+        videoData = videoData.replace("\\'", "'")
         videoJson = JsonHelper(videoData, logger=Logger.Instance())
 
         mediaUrl = "http://vod.medialaan.io/api/1.0/item/" \
