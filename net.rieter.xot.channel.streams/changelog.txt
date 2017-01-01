@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: 24Classics.com (Fixes #714)
+Fixed: Radio 538 channel was completely broken
 
 [I]Previous changes[/I]
+Added: 24Classics.com (Fixes #714)
 Fixed: Radio 538, Slam! FM and Q-Music streams broken (Fixes #665, Fixes #666, Fixes #667)
 Added: SLAM! TV stream (Fixes #650)
 Fixed: Radio 538 had some data items appear as folders
