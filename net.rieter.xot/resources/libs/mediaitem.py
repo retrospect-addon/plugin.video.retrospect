@@ -805,7 +805,7 @@ class MediaItemPart:
         Logger.Debug("Adding property: %s = %s", name, value)
         self.Properties.append((name, value))
 
-    def GetXBMCPlayListItem(self, parent, bitrate, name=None, updateItemUrls=False):
+    def GetXBMCPlayListItem(self, parent, bitrate, updateItemUrls=False):
         """Returns a XBMC List Item than can be played or added to an XBMC
         PlayList.
 
@@ -816,8 +816,6 @@ class MediaItemPart:
         Keyword Arguments:
         quality        : [opt] integer - The quality of the requested XBMC
                                          PlayListItem streams.
-        name           : [opt] string  - If set, it overrides the original
-                                         name of the MediaItem.
         updateItemUrls : [opt] boolean - If set, the xbmc items will have a path
                                          that corresponds with the actual stream.
 
@@ -831,11 +829,12 @@ class MediaItemPart:
 
         """
 
-        if not name:
+        if self.Name:
             Logger.Debug("Creating XBMC ListItem '%s'", self.Name)
+            item = parent.GetXBMCItem(name=self.Name)
         else:
-            Logger.Debug("Creating XBMC ListItem '%s'", name)
-        item = parent.GetXBMCItem(name=name)
+            Logger.Debug("Creating XBMC ListItem '%s'", parent.name)
+            item = parent.GetXBMCItem()
 
         if not bitrate:
             raise ValueError("Bitrate not specified")
