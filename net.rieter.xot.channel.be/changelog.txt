@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: VTM.be streams did not play (Fixes #795)
+Fixed: VTM has some strange escapes in the JSON
 
 [I]Previous Changes[/I]
+Fixed: VTM.be streams did not play (Fixes #795)
 Fixed: De Redactie did not show most recent shows (Fixes #439 again)
 Added: VTM.be live TV and full episodes (See #758)
 Added: Initial VTM.be channel (Fixes #758)
