@@ -35,21 +35,23 @@ class Channel(chn_class.Channel):
         self.noImage = "svtimage.png"
 
         # setup the urls
-        # self.mainListUri = "http://www.svtplay.se/program"
         self.mainListUri = "http://www.svtplay.se/ajax/sok/forslag.json"
+        self.mainListUri = "http://www.svtplay.se/api/all_titles_and_singles"
         self.baseUrl = "http://www.svtplay.se"
         self.swfUrl = "http://media.svt.se/swf/video/svtplayer-2016.01.swf"
 
         # setup the intial listing based on Alphabeth and specials
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.AddLiveItemsAndGenres)
-        # in case we use the program HTML page
-        # self._AddDataParser("http://www.svtplay.se/program", matchType=ParserData.MatchExact,
-        #                     json=True, preprocessor=self.AddShowItems)
         # in case we use the forslag.json
         self._AddDataParser("http://www.svtplay.se/ajax/sok/forslag.json",
                             matchType=ParserData.MatchExact, json=True,
                             parser=(), creator=self.CreateJsonEpisodeItemSok)
+        # in case we use the All Titles and Singles
+        self._AddDataParser("http://www.svtplay.se/api/all_titles_and_singles",
+                            matchType=ParserData.MatchExact, json=True,
+                            parser=(), creator=self.CreateJsonEpisodeItem)
+        #                    parser=(), creator=self.CreateJsonItem)  # Will include videos
 
         # setup channel listing based on JSON data
         self._AddDataParser("#kanaler",
@@ -99,11 +101,6 @@ class Channel(chn_class.Channel):
                             parser=("videoTitlePage", "realatedVideosTabs"),
                             creator=self.CreateJsonFolderItem)
 
-        # self._AddDataParser("*", json=True,
-        #                     parser=("context", "dispatcher", "stores", "VideoTitlePageStore",
-        #                             "data", "relatedVideoTabs", 0, "videos"),
-        #                     creator=self.CreateJsonItem)
-
         # And the old stuff
         catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
         self._AddDataParser("http://www.svtplay.se/barn",
@@ -141,36 +138,6 @@ class Channel(chn_class.Channel):
 
         url = "http://www.svtplay.se/sok?q=%s"
         return chn_class.Channel.SearchSite(self, url)
-
-    # def AddShowItems(self, data):
-    #     """ Adds the shows from the alpabetical list
-    #
-    #     @param data:    The data to use.
-    #
-    #     Returns a list of MediaItems that were retrieved.
-    #
-    #     """
-    #
-    #     items = []
-    #
-    #     # add the json data as the actual data
-    #     dataStart = 'root[\'__svtplay\'] = '
-    #     dataStartLen = len(dataStart)
-    #     dataStart = data.index(dataStart)
-    #     dataEnd = data.index(';root[\'__svtplay\'].env')
-    #     data = data[dataStart + dataStartLen:dataEnd]
-    #     json = JsonHelper(data)
-    #     alphaList = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'alphabeticList')
-    #     for alpha in alphaList:
-    #         for show in alpha['titles']:
-    #             items.append(self.CreateJsonEpisodeItem(show))
-    #
-    #     # clusters = json.GetValue('context', 'dispatcher', 'stores', 'ProgramsStore', 'allClusters')
-    #     # for cluster in clusters:
-    #     #     for alphaList in clusters[cluster]:
-    #     #         for show in alphaList:
-    #     #             items.append(self.CreateJsonEpisodeItem(show))
-    #     return data, items
 
     def AddLiveItemsAndGenres(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
@@ -278,39 +245,8 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
         return data, items
 
-    # def ExtractJsonDataSvt(self, data):
-    #     return self.__ExtractJsonData(data, "__svtplay")
-    #
-    # def ExtractJsonDataRedux(self, data):
-    #     return self.__ExtractJsonData(data, "__reduxStore")
-
     def ExtractJsonData(self, data):
         return self.__ExtractJsonData(data, "(?:__svtplay|__reduxStore)")
-
-    def __ExtractJsonData(self, data, root):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-
-        Logger.Info("Extracting JSON data during pre-processing")
-        data = Regexer.DoRegex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root, ), data)[-1]
-        items = []
-        Logger.Trace("JSON data found: %s", data)
-        return data, items
 
     def ExtractSlugData(self, data):
         """ Extracts the correct Slugged Data for tabbed items """
@@ -347,17 +283,23 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Trace(resultSet)
+
+        if "titleArticleId" in resultSet:
+            return None
+
         # url = "%s/%s?tab=program" % (self.baseUrl, resultSet['urlFriendlyTitle'], )
-        url = "%s/%s" % (self.baseUrl, resultSet['urlFriendlyTitle'],)
-        item = mediaitem.MediaItem(resultSet['title'], url)
+        url = "%s%s" % (self.baseUrl, resultSet['contentUrl'],)
+        item = mediaitem.MediaItem(resultSet['programTitle'], url)
         item.icon = self.icon
-        item.thumb = self.noImage
         item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)
-        # url = "%s/%s" % (self.baseUrl, resultSet['term'], )
-        # item = mediaitem.MediaItem(resultSet['name'], url)
-        # item.icon = self.icon
-        # item.thumb = self.noImage
-        # item.isGeoLocked = resultSet["metaData"].get('onlyAvailableInSweden', False)
+        item.description = resultSet.get('description')
+
+        thumb = self.noImage
+        if "poster" in resultSet:
+            thumb = resultSet["poster"]
+            thumb = self.__GetThumb(thumb or self.noImage)
+
+        item.thumb = thumb
         return item
 
     def CreateJsonEpisodeItemSok(self, resultSet):
@@ -525,7 +467,10 @@ class Channel(chn_class.Channel):
                 item.SetSeasonInfo(season, episode)
 
         # thumb = resultSet.get("imageMedium", self.noImage).replace("/medium/", "/extralarge/")
-        thumb = self.parentItem.thumb
+        thumb = self.noImage
+        if self.parentItem:
+            thumb = self.parentItem.thumb
+
         if "imageMedium" in resultSet:
             thumb = resultSet["imageMedium"]
         elif "thumbnailMedium" in resultSet:
@@ -534,7 +479,7 @@ class Channel(chn_class.Channel):
             thumb = resultSet["thumbnail"]
         elif "poster" in resultSet:
             thumb = resultSet["poster"]
-        item.thumb = self.__GetThumb(thumb)
+        item.thumb = self.__GetThumb(thumb or self.noImage)
 
         if broadCastDate is not None:
             if "+" in broadCastDate:
@@ -860,3 +805,28 @@ class Channel(chn_class.Channel):
             .replace("/small/", thumbSize)
         Logger.Trace(thumb)
         return thumb
+
+    def __ExtractJsonData(self, data, root):
+        """Performs pre-process actions for data processing
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Extracting JSON data during pre-processing")
+        data = Regexer.DoRegex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root, ), data)[-1]
+        items = []
+        Logger.Trace("JSON data found: %s", data)
+        return data, items

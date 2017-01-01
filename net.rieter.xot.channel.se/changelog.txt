@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: SVT upgraded some of their genres (Barn, Sport) to the new format (Fixes #787)
+Changed: SVT Play shows Geo Block information from main list now (See #800)
 
 [I]Previous changes[/I]N
+Fixed: SVT upgraded some of their genres (Barn, Sport) to the new format (Fixes #787)
 Fixed: UR Play changed subtitle formats (Fixes #784)
 Fixed: SVT Search(Fixes #782)
 Fixed: TV4 Play updated their Video API (Fixes #779)
