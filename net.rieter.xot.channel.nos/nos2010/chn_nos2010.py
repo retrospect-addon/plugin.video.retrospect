@@ -131,15 +131,14 @@ class Channel(chn_class.Channel):
 
         # The A-Z pages
         programRegex = Regexer.FromExpresso(
-            '<a href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)">\W*<img[^>]+src="'
-            '(?<Image>[^"]+)" />\W*</a>\W*</div>\W*</div>\W*<div[^<]+<a[^>]*><h4>'
-            '[\n\r]*(?<Title>[^<]+)\W*<span[^>]*>[^>]+>\W*<span[^>]*>[^>]+>\W*</h4>'
-            '\W*<h5>(?:[^>]*>){2}[^<]*(?:<a[^>]*>\w+ (?<Day>\d+) (?<MonthName>\w+) '
-            '(?<Year>\d+)[^>]*(?<Hour>\d+):(?<Minutes>\d+)</a></h5>\W*)?<p[^>]*>'
-            '(?:<span>)?(?<Description>[^<]*)')
-        self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
+            '<div[^>]+strip-item[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)"[^>]*>'
+            '[^<]*</a>\W*<div[^>]*>\W*<img[^>]+data-img-src="(?<Image>[^"]+)"[\w\W]{0,1000}?'
+            '<h3[^>]*>[\n\r]*(?<Title>[^<]+)[\n\r]*<')
+        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?", matchType=ParserData.MatchRegex,
+                            name="The A-Z Page video items",
                             parser=programRegex, creator=self.CreateFolderItemAlpha)
-        self._AddDataParser("^http://www.npo.nl/a-z(/[a-z])?\?page=", matchType=ParserData.MatchRegex,
+        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?", matchType=ParserData.MatchRegex,
+                            name="The A-Z Page page items",
                             parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
 
         # favorites
@@ -436,10 +435,10 @@ class Channel(chn_class.Channel):
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
-                subItem = mediaitem.MediaItem(titleFormat % (char,), "http://www.npo.nl/a-z?page=1")
+                subItem = mediaitem.MediaItem(titleFormat % (char,), "http://www.npo.nl/programmas/a-z")
             else:
                 subItem = mediaitem.MediaItem(titleFormat % (char,),
-                                              "http://www.npo.nl/a-z/%s?page=1" % (char.lower(),))
+                                              "http://www.npo.nl/programmas/a-z/%s" % (char.lower(),))
             subItem.complete = True
             subItem.icon = self.icon
             subItem.thumb = self.noImage
@@ -471,7 +470,7 @@ class Channel(chn_class.Channel):
         item = self.CreateVideoItemNonMobile(resultSet)
         item.type = 'folder'
         item.url = "http://www.npo.nl%(Url)s/%(WhatsOnId)s/search?end_date=&media_type=broadcast&rows=%%s&start=0&start_date=" % resultSet
-        item.url = item.url % (self.nonMobilePageSize,)
+        item.url %= self.nonMobilePageSize,
 
         return item
 
@@ -675,7 +674,12 @@ class Channel(chn_class.Channel):
             # page from date search result
             title = "\a.: Meer programma's :."
             page = int(resultSet["Page"])
-            url = self.parentItem.url.replace("page=%s" % (page,), "page=%s" % (page + 1,))
+            if "page=" in self.parentItem.url:
+                url = self.parentItem.url.replace("page=%s" % (page,), "page=%s" % (page + 1,))
+            elif "?" in self.parentItem.url:
+                url = "%s&page=%s" % (self.parentItem.url, page + 1)
+            else:
+                url = "%s?page=%s" % (self.parentItem.url, page + 1)
 
             # if "page=" in self.parentItem.url:
             #     url = self.parentItem.url.replace("page=%s" % (page, ), "page=%s" % (page + 1, ))
@@ -774,7 +778,7 @@ class Channel(chn_class.Channel):
 
         name = resultSet["Title"].strip()
         videoId = resultSet["WhatsOnId"]
-        description = resultSet["Description"]
+        description = resultSet.get("Description")
 
         item = mediaitem.MediaItem(name, videoId)
         item.icon = self.icon
@@ -783,7 +787,7 @@ class Channel(chn_class.Channel):
         item.description = description
         item.thumb = resultSet["Image"].replace("s174/c174x98", "s348/c348x196")
         if item.thumb.startswith("//"):
-            item.thumb = self.noImage
+            item.thumb = "https:%s" % (item.thumb, )
 
         if "Premium" in resultSet and resultSet["Premium"]:
             item.isPaid = True
