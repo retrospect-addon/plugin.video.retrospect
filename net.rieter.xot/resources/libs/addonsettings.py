@@ -9,6 +9,7 @@
 #===============================================================================
 import os
 import uuid
+import shutil
 import xbmc
 
 #===============================================================================
@@ -223,7 +224,7 @@ class AddonSettings:
 
     @staticmethod
     def UpdateCurrentAddonXmlMd5(hashValue):
-        AddonSettings.__settings.setSetting(AddonSettings.__MD5_HASH_VALUE, hashValue)
+        AddonSettings.SetSetting(AddonSettings.__MD5_HASH_VALUE, hashValue)
 
     @staticmethod
     def GetClientId():
@@ -231,7 +232,7 @@ class AddonSettings:
         if not clientId:
             clientId = str(uuid.uuid1())
             Logger.Debug("Generating new ClientID: %s", clientId)
-            AddonSettings.__settings.setSetting(AddonSettings.__CLIENT_ID, clientId)
+            AddonSettings.SetSetting(AddonSettings.__CLIENT_ID, clientId)
         return clientId
 
     @staticmethod
@@ -282,6 +283,7 @@ class AddonSettings:
         import platform
         from envcontroller import EnvController
 
+        # noinspection PyNoneFunctionAssignment
         version = AddonSettings.GetKodiVersion()
 
         # UriHandler.__UserAgent = "XBMC/%s (%s;%s;%s;%s, http://www.xbmc.org)" % (version, kernel, machine, windows, "")
@@ -303,7 +305,7 @@ class AddonSettings:
             userAgent = "Kodi/%s (%s; <unknown>; http://www.xbmc.org)" % (version, currentEnv)
 
         # now we store it
-        AddonSettings.__settings.setSetting(AddonSettings.__USER_AGENT_SETTING, userAgent)
+        AddonSettings.SetSetting(AddonSettings.__USER_AGENT_SETTING, userAgent)
         AddonSettings.__UserAgent = userAgent
         Logger.Info("User agent set to: %s", userAgent)
         return
@@ -321,6 +323,7 @@ class AddonSettings:
 
             # double check if the version of XBMC is still OK
             if AddonSettings.__UserAgent:
+                # noinspection PyNoneFunctionAssignment
                 version = AddonSettings.GetKodiVersion()
 
                 if version not in AddonSettings.__UserAgent:
@@ -492,9 +495,9 @@ class AddonSettings:
         Logger.Debug("Showing channel settings for channel: %s (%s)", channelName, channel.channelName)
 
         # Set the channel to be the preselected one
-        AddonSettings.__settings.setSetting("config_channel", channelName)
+        AddonSettings.SetSetting("config_channel", channelName)
 
-        # # show settings and focus on the channel settings tab
+        # show settings and focus on the channel settings tab
         return AddonSettings.ShowSettings(102)
 
     @staticmethod
@@ -601,7 +604,7 @@ class AddonSettings:
         """
 
         settingId = AddonSettings.__PROXY_SETTING_PATTERN % (channelInfo.guid,)
-        AddonSettings.__CachedSettings().setSetting(settingId, str(proxyIndex))
+        AddonSettings.SetSetting(settingId, str(proxyIndex))
         return
 
     #noinspection PyUnresolvedReferences
@@ -634,21 +637,45 @@ class AddonSettings:
 
         # Finally we insert the new XML into the old one
         filename = os.path.join(config.rootDir, "resources", "settings.xml")
+        filenameTemp = os.path.join(config.rootDir, "resources", "settings.tmp.xml")
         try:
+            # Backup the user profile settings.xml because sometimes it gets reset. Because in some
+            # concurrency situations, Kodi might decide to think we have no settings and just
+            # erase all user settings.
+            userSettings = os.path.join(Config.profileDir, "settings.xml")
+            userSettingsBackup = os.path.join(Config.profileDir, "settings.old.xml")
+            Logger.Debug("Backing-up user settings: %s", userSettingsBackup)
+            shutil.copy(userSettings, userSettingsBackup)
+
+            # Update the addonsettings.xml by first updating a temp xml file.
+            Logger.Debug("Creating new settings.xml file: %s", filenameTemp)
             Logger.Trace(newContents)
-            settingsXml = open(filename, "w+")
+            settingsXml = open(filenameTemp, "w+")
             settingsXml.write(newContents)
             settingsXml.close()
+            Logger.Debug("Replacing existing settings.xml file: %s", filename)
+            shutil.move(filenameTemp, filename)
+
+            # restore the user profile settings.xml file when needed
+            if os.stat(userSettings).st_size != os.stat(userSettingsBackup).st_size:
+                Logger.Critical("User settings.xml was overwritten during setttings update. Restoring from %s", userSettingsBackup)
+                shutil.copy(userSettingsBackup, userSettings)
         except:
             Logger.Error("Something went wrong trying to update the settings.xml", exc_info=True)
             try:
                 settingsXml.close()
             except:
                 pass
+
+            #  clean up time file
+            if os.path.isfile(filenameTemp):
+                os.remove(filenameTemp)
+
             # restore original settings
-            settingsXml = open(filename, "w+")
+            settingsXml = open(filenameTemp, "w+")
             settingsXml.write(contents)
             settingsXml.close()
+            shutil.move(filenameTemp, filename)
             return
 
         Logger.Info("Settings.xml updated succesfully. Reloading settings.")
