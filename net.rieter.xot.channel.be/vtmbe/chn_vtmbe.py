@@ -52,10 +52,10 @@ class Channel(chn_class.Channel):
                             name="JSON Video Parser",
                             creator=self.CreateVideoItem, parser=("response", "items"))
 
-        htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+sm_field_program_active[^"]+)"[^>]*>(?<title>[^(<]+)'
+        htmlEpisodeRegex = '<a[^>]+href="(?<url>http[^"]+im_field_program[^"]+)"[^>]*>(?<title>[^(<]+)'
         htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
         self._AddDataParser(
-            "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
+            self.mainListUri, matchType=ParserData.MatchExact,
             name="HTML Page Show Parser",
             preprocessor=self.AddLiveChannel,
             parser=htmlEpisodeRegex,
