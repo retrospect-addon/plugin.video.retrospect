@@ -289,6 +289,9 @@ class Channel(chn_class.Channel):
 
         # url = "%s/%s?tab=program" % (self.baseUrl, resultSet['urlFriendlyTitle'], )
         url = "%s%s" % (self.baseUrl, resultSet['contentUrl'],)
+        if "/video/" in url:
+            return None
+
         item = mediaitem.MediaItem(resultSet['programTitle'], url)
         item.icon = self.icon
         item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)

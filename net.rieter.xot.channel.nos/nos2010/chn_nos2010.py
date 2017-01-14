@@ -77,11 +77,7 @@ class Channel(chn_class.Channel):
                             updater=self.UpdateVideoItemLive)
 
         self._AddDataParser("/live", matchType=ParserData.MatchEnd, preprocessor=self.GetAdditionalLiveItems,
-                            parser='<img[^>]+src="([^"]+)" /></a>[\w\W]{0,400}?<div class=\'item current-item\'>\W+'
-                                   '<div class=\'time now\'>Nu</div>\W+<div class=\'description\'>\W+'
-                                   '<a[^>]+href="/live/([^"]+)"[^>]*>([^<]+)[\w\W]{0,200}?'
-                                   '<div class=\'item next-item\'>\W+<div class=\'time next\'>([^<]+)</div>\W+'
-                                   '<div class=\'description next\'>\W+<[^>]+>([^<]+)',
+                            parser="<img[^>]+alt=\"Logo van ([^\"]+)\" [^>]+src=\"([^\"]+)\" /></a>[\w\W]{0,400}?<div class='item current-item'>\W+<div class='time now'>Nu</div>\W+<div class='description'>\W+<a[^>]+href=\"/live/([^\"]+)\"[^>]*>([^<]+)[\w\W]{0,400}?<div class='item next-item'>\W+(?:<div class='time next'>([^<]+)</div>\W+<div class='description next'>\W+<[^>]+>([^<]+)|</div>)",
                             creator=self.CreateLiveTv, updater=self.UpdateVideoItemLive)
 
         # and some additional ones that might not appear in the first list
@@ -266,7 +262,7 @@ class Channel(chn_class.Channel):
             }
 
             for stream in liveStreams:
-                Logger.Debug("Adding %s video item to sub item list: %s", parent, stream)
+                Logger.Debug("Adding video item to '%s' sub item list: %s", parent, stream)
                 liveData = liveStreams[stream]
                 item = mediaitem.MediaItem(stream, liveData["url"])
                 item.icon = parent.icon
@@ -860,20 +856,23 @@ class Channel(chn_class.Channel):
         Logger.Trace("Content = %s", resultSet)
 
         # first regex matched -> video channel
-        name = resultSet[1]
-        name = name.replace("-", " ").capitalize()
-        name = "%s: %s" % (name, resultSet[2].strip())
-        description = "Nu: %s\nStraks om %s: %s" % (resultSet[2].strip(), resultSet[3], resultSet[4].strip())
+        name = resultSet[0]
+        # name = name.replace("-", " ").capitalize()
+        name = "%s: %s" % (name, resultSet[3].strip())
+        if resultSet[4]:
+            description = "Nu: %s\nStraks om %s: %s" % (resultSet[3].strip(), resultSet[4], resultSet[4].strip())
+        else:
+            description = "Nu: %s" % (resultSet[3].strip(), )
 
-        item = mediaitem.MediaItem(name, "%s/live/%s" % (self.baseUrlLive, resultSet[1]), type="video")
+        item = mediaitem.MediaItem(name, "%s/live/%s" % (self.baseUrlLive, resultSet[2]), type="video")
         item.description = description
 
-        if resultSet[0].startswith("http"):
-            item.thumb = resultSet[0].replace("regular_", "").replace("larger_", "")
-        elif resultSet[0].startswith("//"):
-            item.thumb = "http:%s" % (resultSet[0].replace("regular_", "").replace("larger_", ""),)
+        if resultSet[1].startswith("http"):
+            item.thumb = resultSet[1].replace("regular_", "").replace("larger_", "")
+        elif resultSet[1].startswith("//"):
+            item.thumb = "http:%s" % (resultSet[1].replace("regular_", "").replace("larger_", ""),)
         else:
-            item.thumb = "%s%s" % (self.baseUrlLive, resultSet[0].replace("regular_", "").replace("larger_", ""))
+            item.thumb = "%s%s" % (self.baseUrlLive, resultSet[1].replace("regular_", "").replace("larger_", ""))
 
         item.icon = self.icon
         item.complete = False

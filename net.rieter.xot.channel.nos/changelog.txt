@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: NPO "Titles with '..'" listings (Fixes #801)
+Fixed: Some live channels were missing (Fixes #804)
 
 [I]Previous Changes[/I]
+Fixed: NPO "Titles with '..'" listings (Fixes #801)
 Added: NTR School.tv (Fixes #671)
 Fixed: NPO Radio streams
 Fixed: NPO update broke paging (Fixes #756)

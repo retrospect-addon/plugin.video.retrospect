@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Changed: SVT Play shows Geo Block information from main list now (See #800)
+Fixed: removed video files from main listing (Fixes #800)
 
 [I]Previous changes[/I]N
+Changed: SVT Play shows Geo Block information from main list now (See #800)
 Fixed: SVT upgraded some of their genres (Barn, Sport) to the new format (Fixes #787)
 Fixed: UR Play changed subtitle formats (Fixes #784)
 Fixed: SVT Search(Fixes #782)
