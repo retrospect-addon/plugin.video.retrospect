@@ -29,12 +29,26 @@ class Channel(chn_class.Channel):
         self.noImage = "l1image.png"
 
         # setup the urls
-        self.mainListUri = "http://www.l1.nl/programmas"
-        self.baseUrl = "http://www.l1.nl"
+        self.mainListUri = "https://l1.nl/gemist/"
+        self.baseUrl = "https://l1.nl"
 
         # setup the main parsing data
-        self.episodeItemRegex = '<a href="(http://www.l1.nl/programma/[^"]+)">([^<]+)'  # used for the ParseMainList
-        self.videoItemRegex = '(:?<a href="/video/[^"]+"[^>]+><img src="([^"]+)"[^>]+>[\w\W]{0,200}){0,1}<a href="(/video/[^"]+-(\d{1,2})-(\w{3})-(\d{4})[^"]*|/video/[^"]+)"[^>]*>([^>]+)</a>'
+        episodeRegex = '<li>\W*<a[^>]*href="(?<url>/[^"]+)"[^>]*>(?<title>[^<]+)</a>\W*</li>'
+        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        self._AddDataParser(self.mainListUri, preprocessor=self.PreProcessFolderList,
+                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+
+        videoRegex = '<a[^>]*class="mediaItem"[^>]*href="(?<url>[^"]+)"[^>]*title="(?<title>' \
+                     '[^"]+)"[^>]*>[\w\W]{0,500}?<img[^>]+src="/(?<thumburl>[^"]+)'
+        videoRegex = Regexer.FromExpresso(videoRegex)
+        self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+
+        pageRegex = '<a[^>]+href="https?://l1.nl/([^"]+?pagina=)(\d+)"'
+        pageRegex = Regexer.FromExpresso(pageRegex)
+        self.pageNavigationRegexIndex = 1
+        self._AddDataParser("*", parser=pageRegex, creator=self.CreatePageItem)
+        # self.episodeItemRegex = '<a href="(http://www.l1.nl/programma/[^"]+)">([^<]+)'  # used for the ParseMainList
+        # self.videoItemRegex = '(:?<a href="/video/[^"]+"[^>]+><img src="([^"]+)"[^>]+>[\w\W]{0,200}){0,1}<a href="(/video/[^"]+-(\d{1,2})-(\w{3})-(\d{4})[^"]*|/video/[^"]+)"[^>]*>([^>]+)</a>'
 
         #===============================================================================================================
         # non standard items
@@ -44,17 +58,6 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
-
-    def CreateEpisodeItem(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item.
-        """
-
-        item = mediaitem.MediaItem(resultSet[1], resultSet[0])
-        item.icon = self.icon
-        item.thumb = self.noImage
-        item.complete = True
-        return item
 
     def PreProcessFolderList(self, data):
         """Performs pre-process actions for data processing/
@@ -78,31 +81,29 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        firstItemRegex = '<a href="(/video/[^"]+-(\d{1,2})-(\w{3})-(\d{4})[^"]*|/video/[^"]+)"[^>]*><img src="([^"]+)"[^>]+/></a>'
-        firstItems = Regexer.DoRegex(firstItemRegex, data)
-        if firstItems:
-            Logger.Debug("Found first item of list")
-            item = firstItems[0]
-            url = item[0]
-            if "http:" not in url:
-                url = "%s%s" % (self.baseUrl, url)
-            thumbUrl = item[4]
-            mediaItem = mediaitem.MediaItem("Laatste uitzending", url)
-            mediaItem.thumb = thumbUrl
-            mediaItem.complete = False
-            mediaItem.type = 'video'
-            if item[1]:
-                day = item[1]
-                month = item[2]
-                month = datehelper.DateHelper.GetMonthFromName(month, "nl", True)
-                year = item[3]
-                mediaItem.SetDate(year, month, day)
-            items.append(mediaItem)
+        if '>Populair<' in data:
+            data = data[data.index('>Populair<'):]
+        if '>L1-kanalen<' in data:
+            data = data[:data.index('>L1-kanalen<')]
 
         Logger.Debug("Pre-Processing finished")
         return data, items
 
+    def CreateEpisodeItem(self, resultSet):
+        """ We need to exclude L1 Gemist """
+
+        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        if "L1 Gemist" in item.name:
+            return None
+        return item
+
     def CreateVideoItem(self, resultSet):
+        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        if not item.thumb.startswith("http"):
+            item.thumb = "%s/%s" % (self.baseUrl, item.thumb)
+        return item
+
+    def CreateVideoItem_old(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -155,10 +156,12 @@ class Channel(chn_class.Channel):
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        javascriptUrls = Regexer.DoRegex('<script type="text/javascript" src="(http://l1.bbvms.com/p/standaard/c/\d+.js)">', data)
+        javascriptUrls = Regexer.DoRegex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
         dataUrl = None
         for javascriptUrl in javascriptUrls:
             dataUrl = javascriptUrl
+            if not dataUrl.startswith("http"):
+                dataUrl = "https:%s" % (dataUrl, )
 
         if not dataUrl:
             return item

@@ -35,13 +35,14 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.episodeItemRegex = '<option value="(\d+)"[^>]*>([^<]+)'
-        self.videoItemRegex = 'data-href="(/gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+<div class="uitz_new_desc">\W+<div class="uitz_new_desc_title">([^<]+)'
+        self.videoItemRegex = 'data-href="/(gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+<div class="uitz_new_desc">(?:\W*<div[^>]*>){1,2}[^-]*-([^<]+)</div>\W+div class="uitz_new_desc_title_time">\W+\w+ (\d+) (\w+) (\d+) (\d+):(\d+)'
         self.mediaUrlRegex = '.setup([^<]+);\W*</script>'
-        self.pageNavigationRegex = '<a href="(/[^"]+page/)(\d+)">\d+</a>'
+        self.pageNavigationRegex = '<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
         self.pageNavigationRegexIndex = 1
 
         #===============================================================================================================
         # non standard items
+        # Live: http://www.at5.nl/video/json?s=live
 
         #===============================================================================================================
         # Test cases:
@@ -95,19 +96,13 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.complete = False
 
-        # try to parse a date (for Journaal)
-        try:
-            dateParts = resultSet[0].split("/")[-1].split("+")
-            Logger.Trace(dateParts)
-            day = dateParts[1]
-            monthName = dateParts[2]
-            year = dateParts[3]
-            month = DateHelper.GetMonthFromName(monthName, "nl")
-            hour = dateParts[5][:2]
-            minutes = dateParts[5][-2:]
-            item.SetDate(year, month, day, hour, minutes, 0)
-        except:
-            Logger.Warning("Error parsing date", exc_info=True)
+        day = resultSet[4]
+        month = resultSet[5]
+        month = DateHelper.GetMonthFromName(month, language="nl")
+        year = resultSet[6]
+        hour = resultSet[7]
+        minute = resultSet[8]
+        item.SetDate(year, month, day, hour, minute, 0)
         return item
 
     def UpdateVideoItem(self, item):
@@ -121,16 +116,27 @@ class Channel(chn_class.Channel):
         streams = Regexer.DoRegex("file:\W+'([^']+)'", data)
         part = item.CreateNewEmptyMediaPart()
         for s in streams:
-            if "anifest" in s:
+            if "anifest" in s or "smil?" in s:
                 continue
             s = JsonHelper.ConvertSpecialChars(s)
             if s.startswith("rtmp"):
-                s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, 1001)
-                part.AppendMediaStream(s.replace("_medium.mp4", "_low.mp4"), 301)
-            else:
-                part.AppendMediaStream(s, 1002)
-                part.AppendMediaStream(s.replace("_medium.mp4", "_low.mp4"), 302)
+                continue
 
+            bitrateAdd = 0
+            if s.endswith(".m3u8"):
+                bitrateAdd = 200
+
+            if "_hi.mp4" in s:
+                # if s.startswith("rtmp"):
+                #     s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, 2402 + bitrateAdd)
+                part.AppendMediaStream(s.replace("_hi.mp4", "_medium.mp4"), 1402 + bitrateAdd)
+                part.AppendMediaStream(s.replace("_hi.mp4", "_low.mp4"), 302 + bitrateAdd)
+
+            elif "_medium.mp4" in s:
+                # if s.startswith("rtmp"):
+                #     s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, 1402 + bitrateAdd)
+                part.AppendMediaStream(s.replace("_medium.mp4", "_low.mp4"), 302 + bitrateAdd)
         item.complete = True
         return item

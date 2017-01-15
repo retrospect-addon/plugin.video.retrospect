@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: AVT.sr Live Stream
+Fixed: AT5 programs, videos and streams
+Fixed: L1 channel broke due to site changes
 
 [I]Previous changes[/I]
+Fixed: AVT.sr Live Stream
 Fixed: a lot of Dutch Regional channel updated their JSON API
 Added: ATV.sr (Algemene Televisie Verzorging Uitzendinggemist) (Fixes #601)
 Fixed: Omrop Fryslân broke (Fixes #606)
