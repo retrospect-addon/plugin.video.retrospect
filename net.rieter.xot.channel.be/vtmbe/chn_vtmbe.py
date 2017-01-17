@@ -38,20 +38,51 @@ class Channel(chn_class.Channel):
         self.noImage = "vtmbeimage.jpg"
 
         # setup the urls
-        # self.mainListUri = "http://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
-        self.mainListUri = "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
-        self.baseUrl = "http://vtm.be"
+        self.__api = None
+        self.__sso = None
+        if self.channelCode == "vtm":
+            # self.mainListUri = "http://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
+            self.mainListUri = "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
+            self.baseUrl = "http://vtm.be"
+            self.__app = "vtm_watch"
+            self.__sso = "vtm-sso"
 
-        # setup the main parsing data
-        self._AddDataParser("http://vtm.be/feed/programs?format=json&type=all&only_with_video=true",
-                            name="JSON Feed Show Parser",
-                            json=True, preprocessor=self.AddLiveChannel,
-                            creator=self.CreateEpisodeItem, parser=("response", "items"))
+            # setup the main parsing data
+            self._AddDataParser("http://vtm.be/feed/programs?format=json&type=all&only_with_video=true",
+                                name="JSON Feed Show Parser",
+                                json=True, preprocessor=self.AddLiveChannel,
+                                creator=self.CreateEpisodeItem, parser=("response", "items"))
 
-        self._AddDataParser("http://vtm.be/feed/articles?program=", json=True,
-                            name="JSON Video Parser",
-                            creator=self.CreateVideoItem, parser=("response", "items"))
+            self._AddDataParser("http://vtm.be/feed/articles?program=", json=True,
+                                name="JSON Video Parser",
+                                creator=self.CreateVideoItem, parser=("response", "items"))
 
+            self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
+                                updater=self.UpdateLiveStream)
+
+            htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
+            htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
+            self._AddDataParser(
+                "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
+                name="HTML Page Video Parser for VTM",
+                parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
+
+        elif self.channelCode == "q2":
+            self.mainListUri = "http://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
+            self.baseUrl = "http://www.q2.be"
+            self.__app = "q2"
+            self.__sso = "q2-sso"
+
+            htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
+            htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
+            self._AddDataParser(
+                "http://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
+                name="HTML Page Video Parser for Q2",
+                parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
+        else:
+            raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
+
+        # generic to all channels
         htmlEpisodeRegex = '<a[^>]+href="(?<url>http[^"]+im_field_program[^"]+)"[^>]*>(?<title>[^(<]+)'
         htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
         self._AddDataParser(
@@ -61,28 +92,14 @@ class Channel(chn_class.Channel):
             parser=htmlEpisodeRegex,
             creator=self.CreateEpisodeItemHtml)
 
-        #    http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AFamilie
-        htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
-        htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
         self._AddDataParser(
-            "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
-            name="HTML Page Video Parser",
-            parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
-
-        #    http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AFamilie&aid=158955
-        self._AddDataParser(
-            "http://vtm.be/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
+            "http://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
             matchType=ParserData.MatchRegex,
             name="HTML Page Video Updater",
             updater=self.UpdateVideoItem, requiresLogon=True)
 
-        self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
-                            updater=self.UpdateLiveStream)
-
         # ===============================================================================================================
         # non standard items
-        self.__signatureSettings = "channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_signature"
-        # needed for playback
         self.__signature = None
         self.__signatureTimeStamp = None
         self.__userId = None
@@ -94,21 +111,22 @@ class Channel(chn_class.Channel):
         return
 
     def LogOn(self):
-        signatureSetting = AddonSettings.GetSetting(self.__signatureSettings)
+        signatureSettings = "mediaan_signature"
+        signatureSetting = AddonSettings.GetSetting(signatureSettings)
         if signatureSetting and "|" not in signatureSetting:
             url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
             data = "APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
                    "&sdk=js_6.5.23" \
                    "&login_token=%s" % (signatureSetting, )
             logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-            if self.__ExtractSessionData(logonData):
+            if self.__ExtractSessionData(logonData, signatureSettings):
                 return True
             Logger.Warning("Failed to extend the VTM.be session.")
 
         Logger.Info("Logging onto VTM.be")
         v = Vault()
-        password = v.GetChannelSetting("7F92EAEE-6066-4ED5-911A-2C3DCF964D19", "password")
-        username = self._GetSetting("username")
+        password = v.GetSetting("mediaan_password")
+        username = AddonSettings.GetSetting("mediaan_username")
         if not username or not password:
             XbmcWrapper.ShowDialog(
                 title=None,
@@ -129,7 +147,7 @@ class Channel(chn_class.Channel):
                (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password))
 
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-        return self.__ExtractSessionData(logonData)
+        return self.__ExtractSessionData(logonData, signatureSettings)
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -262,7 +280,9 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet['title']
-        url = "%s/%s" % (self.baseUrl, resultSet["url"])
+        url = resultSet["url"]
+        if not resultSet["url"].startswith("http"):
+            url = "%s/%s" % (self.baseUrl, resultSet["url"])
         item = MediaItem(title, url, type="video")
         item.thumb = resultSet['thumburl']
         item.complete = False
@@ -305,13 +325,16 @@ class Channel(chn_class.Channel):
         videoData = videoData.replace("\\'", "'")
         videoJson = JsonHelper(videoData, logger=Logger.Instance())
 
+        # https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=Lfz8qNv9oeVst7I%2B8pHytr02QLU%3D&timestamp=1484682292&apikey=q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk&database=q2-sso&_=1484682287800
         mediaUrl = "http://vod.medialaan.io/api/1.0/item/" \
                    "%s" \
-                   "/video?app_id=vtm_watch&user_network=vtm-sso" \
+                   "/video?app_id=%s&user_network=%s" \
                    "&UID=%s" \
                    "&UIDSignature=%s" \
                    "&signatureTimestamp=%s" % (
                        videoJson.json["vodId"],
+                       self.__app,
+                       self.__sso,
                        self.__userId,
                        HtmlEntityHelper.UrlEncode(self.__signature),
                        self.__signatureTimeStamp
@@ -342,7 +365,10 @@ class Channel(chn_class.Channel):
 
     def AddLiveChannel(self, data):
         Logger.Info("Performing Pre-Processing")
-        username = self._GetSetting("username")
+        if self.channelCode != "vtm":
+            return data, []
+
+        username = AddonSettings.GetSetting("mediaan_username")
         if not username:
             return data, []
 
@@ -411,7 +437,7 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(data)
         return jsonData.GetValue("response")
 
-    def __ExtractSessionData(self, logonData):
+    def __ExtractSessionData(self, logonData, signatureSettings):
         logonJson = JsonHelper(logonData)
         resultCode = logonJson.GetValue("statusCode")
         if resultCode != 200:
@@ -422,7 +448,7 @@ class Channel(chn_class.Channel):
         signatureSetting = logonJson.GetValue("sessionInfo", "login_token")
         if signatureSetting:
             Logger.Info("Found 'login_token'. Saving it.")
-            AddonSettings.SetSetting(self.__signatureSettings, signatureSetting.split("|")[0])
+            AddonSettings.SetSetting(signatureSettings, signatureSetting.split("|")[0])
 
         self.__signature = logonJson.GetValue("UIDSignature")
         self.__userId = logonJson.GetValue("UID")
