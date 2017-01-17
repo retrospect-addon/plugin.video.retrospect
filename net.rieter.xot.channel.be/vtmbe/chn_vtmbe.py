@@ -35,12 +35,12 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.noImage = "vtmbeimage.jpg"
 
         # setup the urls
         self.__api = None
         self.__sso = None
         if self.channelCode == "vtm":
+            self.noImage = "vtmbeimage.jpg"
             # self.mainListUri = "http://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
             self.mainListUri = "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
             self.baseUrl = "http://vtm.be"
@@ -68,6 +68,7 @@ class Channel(chn_class.Channel):
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
         elif self.channelCode == "q2":
+            self.noImage = "q2beimage.jpg"
             self.mainListUri = "http://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
             self.baseUrl = "http://www.q2.be"
             self.__app = "q2"

@@ -15,12 +15,12 @@
       "guid": "01C7064B-7E7A-4742-A042-E6F2F4EC5966",
       "name": "Q2.be",
       "description": "Online uitzendingen van Q2.be.",
-      "icon": "vtmbelogo.png",
+      "icon": "q2belogo.png",
       "category": "National",
       "channelcode": "q2",
       "sortorder": 11,
       "language": "be",
-      "fanart": "vtmbefanart.jpg"
+      "fanart": "q2befanart.jpg"
     }
   ],
   "settings": [
