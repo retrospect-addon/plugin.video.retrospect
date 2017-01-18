@@ -46,8 +46,9 @@ class Channel(chn_class.Channel):
             self.baseUrl = "http://vtm.be"
             self.__app = "vtm_watch"
             self.__sso = "vtm-sso"
+            self.__apiKey = "vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY"
 
-            # setup the main parsing data
+            # setup the main parsing data in case of JSON
             self._AddDataParser("http://vtm.be/feed/programs?format=json&type=all&only_with_video=true",
                                 name="JSON Feed Show Parser",
                                 json=True, preprocessor=self.AddLiveChannel,
@@ -57,9 +58,7 @@ class Channel(chn_class.Channel):
                                 name="JSON Video Parser",
                                 creator=self.CreateVideoItem, parser=("response", "items"))
 
-            self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
-                                updater=self.UpdateLiveStream)
-
+            # setup the main parsing data in case of HTML
             htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
             self._AddDataParser(
@@ -73,6 +72,7 @@ class Channel(chn_class.Channel):
             self.baseUrl = "http://www.q2.be"
             self.__app = "q2"
             self.__sso = "q2-sso"
+            self.__apiKey = "q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk"
 
             htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
@@ -98,6 +98,9 @@ class Channel(chn_class.Channel):
             matchType=ParserData.MatchRegex,
             name="HTML Page Video Updater",
             updater=self.UpdateVideoItem, requiresLogon=True)
+
+        self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
+                            updater=self.UpdateLiveStream)
 
         # ===============================================================================================================
         # non standard items
@@ -366,8 +369,8 @@ class Channel(chn_class.Channel):
 
     def AddLiveChannel(self, data):
         Logger.Info("Performing Pre-Processing")
-        if self.channelCode != "vtm":
-            return data, []
+        # if self.channelCode != "vtm":
+        #     return data, []
 
         username = AddonSettings.GetSetting("mediaan_username")
         if not username:
@@ -375,7 +378,10 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        item = MediaItem("Live VTM", "#livestream")
+        if self.channelCode == "vtm":
+            item = MediaItem("Live VTM", "#livestream")
+        else:
+            item = MediaItem("Live Q2", "#livestream")
         item.type = "video"
         item.isLive = True
         item.fanart = self.fanart
@@ -387,11 +393,16 @@ class Channel(chn_class.Channel):
 
     def UpdateLiveStream(self, item):
         Logger.Debug("Updating Live stream")
-        # no cache
-        # http://stream-live.medialaan.io/stream-live/v1/channels/vtm/episodes/current/video?access_token=xY7XaPCwD%2BdO3T%2F83b1KSSen2Vk7wOKs3aaWR585Olqwk0DGR4qISGXHm%2BztUY9odESYeXGWgV%2FQ30Hb%2BmLBnPFCsGu%2FYYDcJLirGEqzeeJNrK%2BviJNzgbLFY2x3iN73s58%2BB3rdEApGIqnBegVxCe55P0RFeVhcXbRuzYXXik2UErI84sXcPvASzZPfoef28fClf7xo%2BM0OrrPQFRq23w%3D%3D&_=1480883641044
         # let's request a token
         token = self.__GetToken()
-        url = "http://stream-live.medialaan.io/stream-live/v1/channels/vtm/episodes/current/video?access_token=%s&_=%s" % (
+
+        # What is the channel name to play
+        channel = self.channelCode
+        if self.channelCode == "q2":
+            channel = "2be"
+
+        url = "http://stream-live.medialaan.io/stream-live/v1/channels/%s/episodes/current/video?access_token=%s&_=%s" % (
+            channel,
             HtmlEntityHelper.UrlEncode(token),
             int(time.time())  # Could be a random int
         )
@@ -427,13 +438,15 @@ class Channel(chn_class.Channel):
             Logger.Warning("Cannot log on")
             return None
 
-        # https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=Ak10FWFpuF2cSXfmGnNIBsJV4ss%3D&timestamp=1481233821&apikey=vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY&database=vtm-sso
-        apiKey = "vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY"
-        url = "https://user.medialaan.io/user/v1/gigya/request_token?uid=%s&signature=%s&timestamp=%s&apikey=%s&database=vtm-sso" % (
+        # Q2:  https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=SM7b5ciP09Z0gbcaCoZ%2B7r4b3uk%3D&timestamp=1484691251&apikey=q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk&database=q2-sso&_=1484691247493
+        # VTM: https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=Ak10FWFpuF2cSXfmGnNIBsJV4ss%3D&timestamp=1481233821&apikey=vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY&database=vtm-sso
+
+        url = "https://user.medialaan.io/user/v1/gigya/request_token?uid=%s&signature=%s&timestamp=%s&apikey=%s&database=%s" % (
             self.__userId,
             HtmlEntityHelper.UrlEncode(self.__signature),
             self.__signatureTimeStamp,
-            HtmlEntityHelper.UrlEncode(apiKey))
+            HtmlEntityHelper.UrlEncode(self.__apiKey),
+            self.__sso)
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         jsonData = JsonHelper(data)
         return jsonData.GetValue("response")
