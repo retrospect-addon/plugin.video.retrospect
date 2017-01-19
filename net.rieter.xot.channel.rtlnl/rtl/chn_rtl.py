@@ -48,11 +48,9 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        self.iconSet = dict()
         self.largeIconSet = dict()
 
         for channel in ["rtl4", "rtl5", "rtl7", "rtl8"]:
-            self.iconSet[channel] = self.GetImageLocation("%sicon.png" % (channel,))
             self.largeIconSet[channel] = self.GetImageLocation("%slarge.png" % (channel,))
 
         self.__IgnoreCookieLaw()
@@ -136,7 +134,7 @@ class Channel(chn_class.Channel):
 
         channel = resultSet.get("station", "folder").lower()
         if channel in self.largeIconSet:
-            item.icon = self.iconSet[channel]
+            item.icon = self.largeIconSet[channel]
             item.thumb = self.largeIconSet[channel]
 
         progLogo = resultSet.get("proglogo", None)
@@ -340,7 +338,7 @@ class Channel(chn_class.Channel):
 
         station = resultSet.get("station", None)
         if station:
-            icon = self.iconSet.get(station.lower(), None)
+            icon = self.largeIconSet.get(station.lower(), None)
             if icon:
                 Logger.Trace("Setting icon to: %s", icon)
                 item.icon = icon
