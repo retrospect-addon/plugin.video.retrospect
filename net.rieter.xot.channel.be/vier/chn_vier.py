@@ -5,10 +5,10 @@ from regexer import Regexer
 from urihandler import UriHandler
 from parserdata import ParserData
 from streams.m3u8 import M3u8
-from vault import Vault
-from helpers.htmlentityhelper import HtmlEntityHelper
-from xbmcwrapper import XbmcWrapper
-from helpers.languagehelper import LanguageHelper
+# from vault import Vault
+# from helpers.htmlentityhelper import HtmlEntityHelper
+# from xbmcwrapper import XbmcWrapper
+# from helpers.languagehelper import LanguageHelper
 
 
 class Channel(chn_class.Channel):
@@ -29,22 +29,24 @@ class Channel(chn_class.Channel):
 
         chn_class.Channel.__init__(self, channelInfo)
 
-        # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
-        self.noImage = "vierimage.png"
-
-        # setup the urls
-        self.mainListUri = "http://www.vier.be/volledige-afleveringen"
-        self.baseUrl = "http://www.vier.be"
-        # self.swfUrl = "http://www.canvas.be/sites/all/libraries/player/PolymediaShowFX16.swf"
-
         # setup the main parsing data
+        if self.channelCode == "vijfbe":
+            self.noImage = "vijfimage.png"
+            self.mainListUri = "http://www.vijf.be/volledige-afleveringen"
+            self.baseUrl = "http://www.vijf.be"
+            videoRegex = '<div class="[^"]+date[^"]+">(?:<div[^>]*>){2}\W*(?<date>\d+/\d+/\d+)\W*</div>[\w\W]{0,2000}?data-video-title="(?<title>[^"]+)[^>]+data-video-link="(?<url>[^"]+)[^>]+data-video-description="(?<description>[^"]+)"[^>]*>(?:<div[^>]*>){2}<a[^>]+><img[^>]*src="(?<thumburl>[^"]+)'
+        else:
+            self.noImage = "vierimage.png"
+            self.mainListUri = "http://www.vier.be/volledige-afleveringen"
+            self.baseUrl = "http://www.vier.be"
+            videoRegex = '<img[^>]*src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<div class="[^"]+date[^"]+">\W*(?<date>\d+/\d+/\d+)\W*</div>[\w\W]{0,1000}?<h3>\W*<a[^<]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
+
         episodeRegex = '<h1 class="brick-title">(?<title>[^<]+)</h1>\W*<div[^>]*>\W*<a href="(?<url>[^"]+)">A'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeRegex,
                             creator=self.CreateEpisodeItem)
 
-        videoRegex = '<div class="[^"]+date[^"]+">\W*(?<date>\d+/\d+/\d+)\W*</div>[\w\W]{0,1000}?<h3>\W*<a[^<]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
         videoRegex = Regexer.FromExpresso(videoRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             parser=videoRegex,
@@ -79,6 +81,7 @@ class Channel(chn_class.Channel):
 
         # All of vier.be video's seem GEO locked.
         item.isGeoLocked = True
+        item.thumb = item.thumb or self.noImage
         return item
 
     def CreateVideoItem(self, resultSet):
@@ -136,41 +139,41 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        username = self._GetSetting("username")
-        if not username:
-            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-            Logger.Info("No Vier.be login configured. Not logging in.")
-            return self.__UpdateVideo(item, data)
-
-        cookie = UriHandler.GetCookie("SESS", ".vier.be", matchStart=True)
-        if cookie is not None:
-            Logger.Info("Found Vier.be cookie in add-on settings: %s", cookie.value)
-            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-        else:
-            Logger.Info("No valid Vier.be cookie found. Getting one")
-            v = Vault()
-            password = v.GetChannelSetting(self.guid, "password")
-            if not username or not password:
-                XbmcWrapper.ShowDialog(
-                    title=None,
-                    lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
-                    # notificationType=XbmcWrapper.Error,
-                    # displayTime=5000
-                )
-                return item
-            password = HtmlEntityHelper.UrlEncode(password)
-            username = HtmlEntityHelper.UrlEncode(username)
-
-            # Let's log in, get the cookie and the data
-            destination = item.url.rsplit("/")[-1]
-            loginUrl = "http://www.vier.be/achterderug/user?destination=node/%s" % (destination, )
-            data = UriHandler.Open(loginUrl, proxy=self.proxy,
-                                   params="name=%s"
-                                          "&pass=%s"
-                                          "&op=Inloggen"
-                                          "&form_id=user_login_block" % (username, password))
-
+        videoId = item.url.split("/")[-1]
+        url = "%s/video/v3/embed/%s" % (self.baseUrl, videoId,)
+        data = UriHandler.Open(url, proxy=self.proxy)
         return self.__UpdateVideo(item, data)
+
+        # we don't need a username and password for now (See #809)
+        # cookie = UriHandler.GetCookie("SESS", ".vier.be", matchStart=True)
+        # if cookie is not None:
+        #     Logger.Info("Found Vier.be cookie in add-on settings: %s", cookie.value)
+        #     data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        # else:
+        #     Logger.Info("No valid Vier.be cookie found. Getting one")
+        #     v = Vault()
+        #     password = v.GetChannelSetting(self.guid, "password")
+        #     if not username or not password:
+        #         XbmcWrapper.ShowDialog(
+        #             title=None,
+        #             lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+        #             # notificationType=XbmcWrapper.Error,
+        #             # displayTime=5000
+        #         )
+        #         return item
+        #     password = HtmlEntityHelper.UrlEncode(password)
+        #     username = HtmlEntityHelper.UrlEncode(username)
+        #
+        #     # Let's log in, get the cookie and the data
+        #     destination = item.url.rsplit("/")[-1]
+        #     loginUrl = "http://www.vier.be/achterderug/user?destination=node/%s" % (destination,)
+        #     data = UriHandler.Open(loginUrl, proxy=self.proxy,
+        #                            params="name=%s"
+        #                                   "&pass=%s"
+        #                                   "&op=Inloggen"
+        #                                   "&form_id=user_login_block" % (username, password))
+        #
+        # return self.__UpdateVideo(item, data)
 
     def __UpdateVideo(self, item, data):
         # data-filename="achterderug/s2/160503_aflevering7"
