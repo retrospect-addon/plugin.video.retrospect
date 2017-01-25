@@ -765,6 +765,9 @@ class UriHandler:
             if headOnly:
                 uriOpener.add_handler(headHandler)
 
+            if "Content-Type" in additionalHeaders:
+                uriOpener.add_handler(HttpContentTypeFixHandler(additionalHeaders["Content-Type"]))
+
             # add the compression handler before the cache in the
             # chain. That way we store decompressed data and save
             # cpu time.
@@ -842,6 +845,26 @@ class DnsHTTPSHandler(urllib2.HTTPSHandler):
         """
 
         return self.do_open(DnsHTTPSConnection, req)
+
+
+class HttpContentTypeFixHandler(urllib2.BaseHandler):
+    def __init__(self, contentType):
+        self.contentType = contentType
+        return
+
+    def default_open(self, request):
+        """H andles requests and replaces the Content-Type: application/x-www-form-urlencoded in
+        case we specifed a content-type in the headers
+
+        Returns None
+        """
+
+        # just set the head
+        Logger.Debug("Setting request content type: %s", self.contentType)
+        # headers are .capitalize()-ed in the end
+        request.add_unredirected_header("Content-type", self.contentType)
+        # request.unredirected_hdrs.pop("Content-type", None)
+        return None
 
 
 class HttpHeadHandler(urllib2.BaseHandler):
