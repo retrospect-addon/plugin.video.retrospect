@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
 
         # slugged items for which we need to filter tab items
         self._AddDataParser("^https?://www.svtplay.se/[^?]+\?tab=", matchType=ParserData.MatchRegex,
-                            preprocessor=self.ExtractSlugData, json=True)
+                            preprocessor=self.ExtractSlugData, json=True, updater=self.UpdateVideoHtmlItem)
 
         # Other Json items
         self._AddDataParser("*", preprocessor=self.ExtractJsonData, json=True)
@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
         self._AddDataParser("*", json=True,
                             preprocessor=self.ListSomeVideos,
-                            parser=("videoTitlePage", "realatedVideosTabs"),
+                            parser=("videoTitlePage", "relatedVideosTabs"),
                             creator=self.CreateJsonFolderItem)
 
         # And the old stuff
@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
         # data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
-        slugs = json.GetValue("videoTitlePage", "realatedVideosTabs")
+        slugs = json.GetValue("videoTitlePage", "relatedVideosTabs")
         for slugData in slugs:
             tabSlug = "?tab=%s" % (slugData["slug"], )
             if not self.parentItem.url.endswith(tabSlug):
@@ -372,17 +372,17 @@ class Channel(chn_class.Channel):
             return data, items
 
         jsonData = JsonHelper(data)
-        sections = jsonData.GetValue("videoTitlePage", "realatedVideosTabs")
+        sections = jsonData.GetValue("videoTitlePage", "relatedVideosTabs")
 
         Logger.Debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:
             # we should exclude that tab from the folders list and show the videos here
-            self.__listedRelatedTab = sections[0]["key"]
+            self.__listedRelatedTab = sections[0]["type"]
             # otherwise the default "RELATED_VIDEO_TABS_LATEST" is used
         Logger.Debug("Excluded tab '%s' which will be show as videos", self.__listedRelatedTab)
 
         for section in sections:
-            if not section["key"] == self.__listedRelatedTab:
+            if not section["type"] == self.__listedRelatedTab:
                 continue
 
             for videoData in section['videos']:
@@ -391,7 +391,7 @@ class Channel(chn_class.Channel):
 
     def CreateJsonFolderItem(self, resultSet):
         Logger.Trace(resultSet),
-        if resultSet["key"] == self.__listedRelatedTab and self.__showSomeVideosInListing:
+        if resultSet["type"] == self.__listedRelatedTab and self.__showSomeVideosInListing:
             return None
 
         slug = resultSet["slug"]
@@ -418,8 +418,8 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         # determine the title
-        programTitle = resultSet.get("programTitle", "")
-        showTitle = resultSet.get("title", "")
+        programTitle = resultSet.get("programTitle", "") or ""
+        showTitle = resultSet.get("title", "") or ""
         if showTitle == "" and programTitle != "":
             title = programTitle
         elif showTitle != "" and programTitle == "":
@@ -462,7 +462,7 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = resultSet.get("onlyAvailableInSweden", False)
         item.description = resultSet.get("description", "")
 
-        if "season" in resultSet and "episodeNumber" in resultSet:
+        if "season" in resultSet and "episodeNumber" in resultSet and resultSet["episodeNumber"]:
             season = int(resultSet["season"])
             episode = int(resultSet["episodeNumber"])
             if season > 0 and episode > 0:
@@ -627,7 +627,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
         data = self.ExtractJsonData(data)[0]
-        json = JsonHelper(data)
+        json = JsonHelper(data, logger=Logger.Instance())
 
         # check for direct streams:
         streams = json.GetValue("videoTitlePage", "video", "videoReferences")
@@ -637,7 +637,7 @@ class Channel(chn_class.Channel):
             Logger.Info("Found stream information within HTML data")
             return self.__UpdateItemFromVideoReferences(item, streams, subtitles)
 
-        programVersionId = json.GetValue("context", "dispatcher", "stores", "VideoTitlePageStore", "data", "video", "programVersionId")
+        programVersionId = json.GetValue("videoTitlePage", "video", "programVersionId")
         if programVersionId:
             item.url = "http://www.svt.se/videoplayer-api/video/%s" % (programVersionId, )
         return self.UpdateVideoApiItem(item)
