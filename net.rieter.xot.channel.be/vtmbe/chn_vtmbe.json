@@ -41,7 +41,7 @@
     },
     {
       "order": 4,
-      "value": "id=\"mediaan_uid_signature\" type=\"hidden\" default=\"\"",
+      "value": "id=\"mediaan_signature\" type=\"hidden\" default=\"\"",
       "id": "mediaan_signature"
     }
   ]

@@ -1,0 +1,32 @@
+{
+  "channels": [
+    {
+      "guid": "F530A9EC-3C0D-49B6-96C2-480273417460",
+      "name": "VRT NU",
+      "description": "Online uitzendingen van VRTnu.be.",
+      "icon": "vrtnuicon.png",
+      "category": "National",
+      "channelcode": "vrtnu",
+      "sortorder": 11,
+      "language": "be",
+      "fanart": "vrtnufanart.jpg"
+    }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "id": "username",
+      "value": "label=\"30094\" type=\"text\" default=\"\""
+    },
+    {
+      "order": 2,
+      "id": "password_set",
+      "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_F530A9EC-3C0D-49B6-96C2-480273417460_password&amp;settingname=VRT NU password&amp;tabfocus=102)\" option=\"close\""
+    },
+    {
+      "order": 3,
+      "id": "password",
+      "value": "type=\"hidden\" default=\"\""
+    }
+  ]
+}
