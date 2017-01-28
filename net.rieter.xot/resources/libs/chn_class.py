@@ -768,7 +768,7 @@ class Channel:
             url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
 
         # The title
-        if "subtitle" in resultSet:
+        if "subtitle" in resultSet and resultSet["subtitle"] is not None:
             title = "%(title)s - %(subtitle)s" % resultSet
         else:
             title = resultSet["title"]
