@@ -1,4 +1,5 @@
 import chn_class
+import mediaitem
 from regexer import Regexer
 from parserdata import ParserData
 from logger import Logger
@@ -38,8 +39,22 @@ class Channel(chn_class.Channel):
                        '&lt;/p&gt;<'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
+                            preprocessor=self.AddCategories,
                             matchType=ParserData.MatchExact,
                             parser=episodeRegex, creator=self.CreateEpisodeItem)
+
+        self._AddDataParser("https://search.vrt.be/suggest?facets[categories]",
+                            name="JSON Show Parser", json=True,
+                            parser=(), creator=self.CreateShowItem)
+
+        catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
+                   '*>\W*){2}<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)' \
+                   '[\w\W]{0,2000}?<h3[^>]+>(?<title>[^<]+)'
+        catregex = Regexer.FromExpresso(catregex)
+        self._AddDataParser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
+                            matchType=ParserData.MatchExact,
+                            parser=catregex,
+                            creator=self.CreateCategory)
 
         folderRegex = '<option[^>]+data-href="/(?<url>[^"]+)">(?<title>[^<]+)</option>'
         folderRegex = Regexer.FromExpresso(folderRegex)
@@ -109,6 +124,39 @@ class Channel(chn_class.Channel):
         headers = {"Content-Type": "application/json", "Referer": "https://www.vrt.be/vrtnu/"}
         UriHandler.Open(url, params=tokenData, proxy=self.proxy, additionalHeaders=headers)
         return True
+
+    def AddCategories(self, data):
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        cat = mediaitem.MediaItem("\a.: Categori&euml;n :.", "https://www.vrt.be/vrtnu/categorieen/")
+        cat.fanart = self.fanart
+        cat.thumb = self.noImage
+        cat.icon = self.icon
+        cat.dontGroup = True
+        items.append(cat)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def CreateCategory(self, resultSet):
+        # https://search.vrt.be/suggest?facets[categories]=met-audiodescriptie
+        resultSet["url"] = "https://search.vrt.be/suggest?facets[categories]=%(catid)s" % resultSet
+        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+        if item is not None and item.thumb and item.thumb.startswith("//"):
+            item.thumb = "https:%s" % (item.thumb, )
+
+        return item
+
+    def CreateShowItem(self, resultSet):
+        Logger.Trace(resultSet)
+        if resultSet["targetUrl"].startswith("//"):
+            resultSet["url"] = "https:%(targetUrl)s" % resultSet
+        else:
+            resultSet["url"] = resultSet["targetUrl"]
+        resultSet["thumburl"] = resultSet["thumbnail"]
+
+        return chn_class.Channel.CreateEpisodeItem(self, resultSet)
 
     def CreateEpisodeItem(self, resultSet):
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
