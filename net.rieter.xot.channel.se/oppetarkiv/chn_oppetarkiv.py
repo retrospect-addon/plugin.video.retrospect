@@ -13,7 +13,7 @@ from helpers.encodinghelper import EncodingHelper
 # from addonsettings import AddonSettings
 from helpers.htmlentityhelper import HtmlEntityHelper
 
-from parserdata import ParserData
+# from parserdata import ParserData
 from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
@@ -48,10 +48,6 @@ class Channel(chn_class.Channel):
         self.episodeItemRegex = '<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self._AddDataParser(self.mainListUri,
                             preprocessor=self.AddSearchAndGenres,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
-
-        self._AddDataParser("https://www.oppetarkiv.se/kategori/titel?genre=", matchType=ParserData.MatchStart,
-                            preprocessor=self.GetGenreData,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
@@ -89,6 +85,11 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
+        if self.parentItem is not None and "genre" in self.parentItem.metaData:
+            self.__genre = self.parentItem.metaData["genre"]
+            Logger.Debug("Parsing a specific genre: %s", self.__genre)
+            return data, items
+
         searchItem = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
         searchItem.complete = True
         searchItem.thumb = self.noImage
@@ -112,19 +113,14 @@ class Channel(chn_class.Channel):
         for genre in genres:
             if genre["genre"] == "all":
                 continue
-            genreItem = mediaitem.MediaItem(genre["title"], "https://www.oppetarkiv.se/kategori/titel?genre=%(genre)s" % genre)
+            genreItem = mediaitem.MediaItem(genre["title"], self.mainListUri)
             genreItem.complete = True
             genreItem.thumb = self.noImage
             genreItem.fanart = self.fanart
+            genreItem.metaData = {"genre": genre["genre"]}
             genresItem.items.append(genreItem)
 
         Logger.Debug("Pre-Processing finished")
-        return data, items
-
-    def GetGenreData(self, data):
-        items = []
-        self.__genre = self.parentItem.url.rsplit("=")[-1]
-        Logger.Info("Filtering on Genre: %s", self.__genre)
         return data, items
 
     def SearchSite(self, url=None):  # @UnusedVariable
