@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: SVT Update their API (Fixes #811)
+Added: SVT and Oppet Arkiv genres (Fixes #624)
 
 [I]Previous changes[/I]N
+Fixed: SVT Update their API (Fixes #811)
 Fixed: removed video files from main listing (Fixes #800)
 Changed: SVT Play shows Geo Block information from main list now (See #800)
 Fixed: SVT upgraded some of their genres (Barn, Sport) to the new format (Fixes #787)

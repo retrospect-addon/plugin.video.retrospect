@@ -74,8 +74,16 @@ class Channel(chn_class.Channel):
                             creator=self.CreateJsonPageItem)
 
         # genres (using JSON)
+        self._AddDataParser("http://www.svtplay.se/genre",
+                            preprocessor=self.ExtractJsonData, json=True,
+                            name="Parser for dynamically parsing tags/genres from overview",
+                            matchType=ParserData.MatchExact,
+                            parser=("clusters", "alphabetical"),
+                            creator=self.CreateJsonGenre)
+
         self._AddDataParser("http://www.svtplay.se/genre/",
                             preprocessor=self.ExtractJsonData, json=True,
+                            name="Video/Folder parsers for items in a Genre/Tag",
                             parser=("clusterPage", "titlesAndEpisodes"),
                             creator=self.CreateJsonItem)
 
@@ -216,7 +224,7 @@ class Channel(chn_class.Channel):
             newItem.SetDate(2099, 1, 1, text="")
             items.append(newItem)
 
-        newItem = mediaitem.MediaItem("\a.: Genrer :.", "")
+        newItem = mediaitem.MediaItem("\a.: Kategorier :.", "http://www.svtplay.se/genre")
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
@@ -229,6 +237,14 @@ class Channel(chn_class.Channel):
             # catItem.SetDate(2099, 1, 1, text="")
             newItem.items.append(catItem)
         items.append(newItem)
+
+        newItem = mediaitem.MediaItem("\a.: Genrer/Tags :.", "http://www.svtplay.se/genre")
+        newItem.complete = True
+        newItem.thumb = self.noImage
+        newItem.dontGroup = True
+        newItem.SetDate(2099, 1, 1, text="")
+        items.append(newItem)
+
         return data, items
 
     # noinspection PyUnusedLocal
@@ -400,6 +416,35 @@ class Channel(chn_class.Channel):
         item = mediaitem.MediaItem(title, url)
         item.thumb = self.parentItem.thumb
         return item
+
+    def CreateJsonGenre(self, resultSet):
+        """Creates a new MediaItem for an episode
+
+        Arguments:
+        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+
+        Returns:
+        A new MediaItem of type 'folder'
+
+        This method creates a new MediaItem from the Regular Expression
+        results <resultSet>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        """
+
+        genres = []
+
+        for cluster in resultSet['clusters']:
+            Logger.Trace(cluster)
+            url = "%s%s" % (self.baseUrl, cluster['contentUrl'])
+            genre = mediaitem.MediaItem(cluster['name'], url)
+            genre.icon = self.icon
+            genre.description = cluster.get('description')
+            genre.fanart = cluster.get('backgroundImage') or self.parentItem.fanart
+            genre.thumb = cluster.get('thumbnailImage') or self.noImage
+            genres.append(genre)
+
+        return genres
 
     def CreateJsonItem(self, resultSet):
         """Creates a new MediaItem for an episode

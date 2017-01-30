@@ -13,6 +13,8 @@ from helpers.encodinghelper import EncodingHelper
 # from addonsettings import AddonSettings
 from helpers.htmlentityhelper import HtmlEntityHelper
 
+from parserdata import ParserData
+from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
@@ -37,13 +39,19 @@ class Channel(chn_class.Channel):
         self.noImage = "oppetarkivimage.png"
 
         # setup the urls
-        self.mainListUri = "http://www.oppetarkiv.se/kategori/titel"
-        self.baseUrl = "http://www.oppetarkiv.se"
+        self.mainListUri = "https://www.oppetarkiv.se/kategori/titel"
+        self.baseUrl = "https://www.oppetarkiv.se"
         self.swfUrl = "%s/public/swf/svtplayer-9017918b040e054d1e3c902fc13ceb5d.swf" % (self.baseUrl,)
 
         # setup the main parsing data
-        self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddSearch,
+        # self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
+        self.episodeItemRegex = '<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
+        self._AddDataParser(self.mainListUri,
+                            preprocessor=self.AddSearchAndGenres,
+                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+
+        self._AddDataParser("https://www.oppetarkiv.se/kategori/titel?genre=", matchType=ParserData.MatchStart,
+                            preprocessor=self.GetGenreData,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
@@ -56,9 +64,10 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
 
         # ====================================== Actual channel setup STOPS here =======================================
+        self.__genre = None
         return
 
-    def AddSearch(self, data):
+    def AddSearchAndGenres(self, data):
         """Performs pre-process actions for data processing, in this case adding a search
 
         Arguments:
@@ -89,7 +98,33 @@ class Channel(chn_class.Channel):
         # -> No items have dates, so adding this will force a date sort in Retrospect
         items.append(searchItem)
 
+        genresItem = mediaitem.MediaItem("\a.: Genrer :.", "")
+        genresItem.complete = True
+        genresItem.thumb = self.noImage
+        genresItem.dontGroup = True
+        genresItem.fanart = self.fanart
+        items.append(genresItem)
+
+        # find the actual genres
+        genreRegex = '<li[^>]+genre[^>]*><button[^>]+data-value="(?<genre>[^"]+)"[^>]*>(?<title>[^>]+)</button></li>'
+        genreRegex = Regexer.FromExpresso(genreRegex)
+        genres = Regexer.DoRegex(genreRegex, data)
+        for genre in genres:
+            if genre["genre"] == "all":
+                continue
+            genreItem = mediaitem.MediaItem(genre["title"], "https://www.oppetarkiv.se/kategori/titel?genre=%(genre)s" % genre)
+            genreItem.complete = True
+            genreItem.thumb = self.noImage
+            genreItem.fanart = self.fanart
+            genresItem.items.append(genreItem)
+
         Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def GetGenreData(self, data):
+        items = []
+        self.__genre = self.parentItem.url.rsplit("=")[-1]
+        Logger.Info("Filtering on Genre: %s", self.__genre)
         return data, items
 
     def SearchSite(self, url=None):  # @UnusedVariable
@@ -143,7 +178,12 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        url = resultSet[0]
+        genres = resultSet[0]
+        if self.__genre and self.__genre not in genres:
+            Logger.Debug("Item '%s' filtered due to genre: %s", resultSet[2], genres)
+            return None
+
+        url = resultSet[1]
         if "&" in url:
             url = HtmlEntityHelper.ConvertHTMLEntities(url)
 
@@ -153,7 +193,7 @@ class Channel(chn_class.Channel):
         # get the ajax page for less bandwidth
         url = "%s?sida=1&amp;sort=tid_stigande&embed=true" % (url, )
 
-        item = mediaitem.MediaItem(resultSet[1], url)
+        item = mediaitem.MediaItem(resultSet[2], url)
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
