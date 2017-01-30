@@ -59,7 +59,6 @@ class MediaItem:
                 "isGeoLocked",
                 "isDrmProtected",
                 "isPaid",
-                "parent",
                 "complete",
                 "downloaded",
                 "downloadable",
@@ -71,7 +70,7 @@ class MediaItem:
                 "channels"]
 
     #noinspection PyShadowingBuiltins
-    def __init__(self, title, url, type="folder", parent=None):
+    def __init__(self, title, url, type="folder"):
         """Creates a new MediaItem
 
         Arguments:
@@ -115,7 +114,6 @@ class MediaItem:
         self.isPaid = False                       # : if set to True, the item is a Paid item and cannot be played (*)
         self.__infoLabels = dict()                # : Additional Kodi InfoLabels
 
-        self.parent = parent
         self.complete = False
         self.downloaded = False
         self.downloadable = False
@@ -125,6 +123,7 @@ class MediaItem:
 
         # Items that are not essential for pickled
         self.isCloaked = False
+        self.metaData = dict()                    # : Additional data that is for internal / routing use only
 
         # GUID used for identifcation of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues
