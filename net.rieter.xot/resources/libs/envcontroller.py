@@ -52,25 +52,6 @@ class EnvController:
         build = sys.version_info[2]
         return "%s.%s.%s" % (major, minor, build)
 
-    def SQLiteEnabled(self):
-        """ Indicates if SQLite is available (and thus the functionality that depends on this)
-
-        @return: True or False
-        """
-
-        if EnvController.__SQLiteEnabled is None:
-            major = sys.version_info[0]
-            minor = sys.version_info[1]
-
-            if major > 2 or minor > 4:
-                # this is not the default XBMC python, so we can use most Python modules
-                EnvController.__SQLiteEnabled = True
-            else:
-                # the old Python 2.4 from XBMC4Xbox does not have SQLite
-                EnvController.__SQLiteEnabled = False
-
-        return EnvController.__SQLiteEnabled
-
     def IsInstallMethodValid(self, config):
         """ Validates that Retrospect is installed using the repository. If not
         it will popup a dialog box.
@@ -121,7 +102,6 @@ class EnvController:
             infoString = "%s\n%s: %s" % (infoString, "Environment", envCtrl.__GetEnvironment())
             infoString = "%s\n%s: %s" % (infoString, "Platform", envCtrl.GetPlatform(True))
             infoString = "%s\n%s: %s" % (infoString, "Python Version", envCtrl.GetPythonVersion())
-            infoString = "%s\n%s: %s" % (infoString, "SQLite Available", envCtrl.SQLiteEnabled())
             infoString = "%s\n%s: %s" % (infoString, "Retrospect Version", config.version)
             infoString = "%s\n%s: %s" % (infoString, "AddonID", config.addonId)
             infoString = "%s\n%s: %s" % (infoString, "Path", config.rootDir)
