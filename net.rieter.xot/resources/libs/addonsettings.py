@@ -267,27 +267,24 @@ class AddonSettings:
 
         @return: Nothing
 
-        Actual
-        User-Agent: XBMC/12.2 Git:20130502-32b1a5e (Windows NT 6.1;WOW64;Win64;x64; http://www.xbmc.org)
-        Retro:
-        User-Agent: XBMC/12.2 Git:20130502-32b1a5e (Windows 7;x86; http://www.xbmc.org)
-
         Actual:
-        User-Agent: XBMC/13.0-ALPHA3 Git:e8fe5cf (Linux; Ubuntu 11.10 - XBMCbuntu; 3.0.0-17-generic i686; http://www.xbmc.org)
+        User-Agent: Kodi/16.1 (Windows NT 10.0; WOW64) App_Bitness/32 Version/16.1-Git:20160424-c327c53
         Retro:
-        User-Agent: XBMC/13.0-ALPHA3 Git:e8fe5cf (Linux 3.0.0-17-generic;i686; http://www.xbmc.org)
+        User-Agent: Kodi/16.1 Git:20160424-c327c53 (Windows 10;AMD64; http://kodi.tv)
 
+        Firefox:
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0
         """
 
         # there are slow imports, so only do them here
         import platform
         from envcontroller import EnvController
 
-        # noinspection PyNoneFunctionAssignment
-        version = AddonSettings.GetKodiVersion()
-
-        # UriHandler.__UserAgent = "XBMC/%s (%s;%s;%s;%s, http://www.xbmc.org)" % (version, kernel, machine, windows, "")
         try:
+            # noinspection PyNoneFunctionAssignment
+            completeVersion = AddonSettings.GetKodiVersion()
+            version, git = completeVersion.split(" ")
+
             # The platform.<method> are not working on rPi and IOS
             # kernel = platform.architecture()
             # Logger.Trace(kernel)
@@ -297,12 +294,12 @@ class AddonSettings:
 
             uname = platform.uname()
             Logger.Trace(uname)
-            userAgent = "Kodi/%s (%s %s;%s; http://www.xbmc.org)" % (version, uname[0], uname[2], uname[4])
+            userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s-%s" % (version, uname[0], uname[2], uname[4], version, git)
         except:
             Logger.Warning("Error setting user agent", exc_info=True)
             currentEnv = EnvController.GetPlatform(True)
             # Kodi/14.2 (Windows NT 6.1; WOW64) App_Bitness/32 Version/14.2-Git:20150326-7cc53a9
-            userAgent = "Kodi/%s (%s; <unknown>; http://www.xbmc.org)" % (version, currentEnv)
+            userAgent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, currentEnv)
 
         # now we store it
         AddonSettings.SetSetting(AddonSettings.__USER_AGENT_SETTING, userAgent)
