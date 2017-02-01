@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
         self.channelId = None
         self.useOldParsing = False
         if self.channelCode == "se3":
-            self.mainListUri = "http://www.viafree.se/program/"
+            self.mainListUri = "https://www.viafree.se/program/"
             self.noImage = "tv3seimage.png"
             self.channelId = (
                 1209,  # TV4
@@ -47,17 +47,17 @@ class Channel(chn_class.Channel):
             )
 
         elif self.channelCode == "se6":
-            self.mainListUri = "http://www.viafree.se/program/"
+            self.mainListUri = "https://www.viafree.se/program/"
             self.noImage = "tv6seimage.png"
             self.channelId = (959, )
 
         elif self.channelCode == "se8":
-            self.mainListUri = "http://www.viafree.se/program/"
+            self.mainListUri = "https://www.viafree.se/program/"
             self.noImage = "tv8seimage.png"
             self.channelId = (801, )
 
         elif self.channelCode == "se10":
-            self.mainListUri = "http://www.viafree.se/program/"
+            self.mainListUri = "https://www.viafree.se/program/"
             self.noImage = "tv10seimage.png"
             self.channelId = (5462, )
 
@@ -72,30 +72,30 @@ class Channel(chn_class.Channel):
 
         # Norwegian Channels
         elif self.channelCode == "no3":
-            self.mainListUri = "http://www.viafree.no/programmer"
+            self.mainListUri = "https://www.viafree.no/programmer"
             self.noImage = "tv3noimage.png"
             self.channelId = (1550, 6100, 6101)
 
         elif self.channelCode == "no4":
-            self.mainListUri = "http://www.viafree.no/programmer"
+            self.mainListUri = "https://www.viafree.no/programmer"
             self.noImage = "viasat4noimage.png"
             self.channelId = (935,)
 
         elif self.channelCode == "no6":
-            self.mainListUri = "http://www.viafree.no/programmer"
+            self.mainListUri = "https://www.viafree.no/programmer"
             self.noImage = "viasat4noimage.png"
             self.channelId = (1337,)
 
         # These are still using old pages!
         # EE channels
         elif self.channelCode == "tv3ee":
-            self.mainListUri = "http://www.tv3play.ee/sisu"
+            self.mainListUri = "http://tv3play.tv3.ee/sisu"
             self.noImage = "tv3noimage.png"
             self.channelId = (1375, 6301, 6302)
             self.useOldParsing = True
 
         elif self.channelCode == "tv6ee":
-            self.mainListUri = "http://www.tv3play.ee/sisu"
+            self.mainListUri = "http://tv3play.tv3.ee/sisu"
             self.noImage = "tv6seimage.png"
             self.channelId = (6300, )
             self.useOldParsing = True
