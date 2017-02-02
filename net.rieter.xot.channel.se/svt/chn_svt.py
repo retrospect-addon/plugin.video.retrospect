@@ -50,8 +50,8 @@ class Channel(chn_class.Channel):
         # in case we use the All Titles and Singles
         self._AddDataParser("http://www.svtplay.se/api/all_titles_and_singles",
                             matchType=ParserData.MatchExact, json=True,
-                            parser=(), creator=self.CreateJsonEpisodeItem)
-        #                    parser=(), creator=self.CreateJsonItem)  # Will include videos
+                            preprocessor=self.FetchThumbData,
+                            parser=(), creator=self.MergeJsonEpisodeItem)
 
         # setup channel listing based on JSON data
         self._AddDataParser("#kanaler",
@@ -124,6 +124,7 @@ class Channel(chn_class.Channel):
 
         # ===============================================================================================================
         # non standard items
+        self.__thumbLookup = dict()
 
         # ===============================================================================================================
         # Test cases:
@@ -246,6 +247,27 @@ class Channel(chn_class.Channel):
         items.append(newItem)
 
         return data, items
+
+    def FetchThumbData(self, data):
+        items = []
+
+        thumbData = UriHandler.Open("http://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
+        json = JsonHelper(thumbData)
+        for jsonData in json.GetValue():
+            if "thumbnail" not in jsonData:
+                continue
+            self.__thumbLookup[jsonData["url"]] = jsonData["thumbnail"]
+
+        return data, items
+
+    def MergeJsonEpisodeItem(self, resultSet):
+
+        thumb = self.__thumbLookup.get(resultSet["contentUrl"])
+        if thumb:
+            resultSet["poster"] = thumb
+
+        item = self.CreateJsonEpisodeItem(resultSet)
+        return item
 
     # noinspection PyUnusedLocal
     def LoadChannelData(self, data):
@@ -519,14 +541,11 @@ class Channel(chn_class.Channel):
         if self.parentItem:
             thumb = self.parentItem.thumb
 
-        if "imageMedium" in resultSet:
-            thumb = resultSet["imageMedium"]
-        elif "thumbnailMedium" in resultSet:
-            thumb = resultSet["thumbnailMedium"]
-        elif "thumbnail" in resultSet:
-            thumb = resultSet["thumbnail"]
-        elif "poster" in resultSet:
-            thumb = resultSet["poster"]
+        for imageKey in ("image", "imageMedium", "thumbnailMedium", "thumbnail", "poster"):
+            if imageKey in resultSet and resultSet[imageKey] is not None:
+                thumb = resultSet[imageKey]
+                break
+
         item.thumb = self.__GetThumb(thumb or self.noImage)
 
         if broadCastDate is not None:
