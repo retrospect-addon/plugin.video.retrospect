@@ -429,3 +429,13 @@ sorted chronologically):
 - Daniel Skagerö
 - Robert Rutherford
 - Ulf Svensson
+- Bert Olsson
+- Svante Dackemyr
+- Koen Bekaert
+- Rob Hermans
+- Marcin Rönndahl
+- Robert Smedjeborg
+- Bo Johansson
+- Olivier De Groote
+- Robin Lövgren
+- Koen Bekaert (second donation!)
