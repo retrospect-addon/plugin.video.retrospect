@@ -9,7 +9,8 @@
       "channelcode": "vtm",
       "sortorder": 10,
       "language": "be",
-      "fanart": "vtmbefanart.jpg"
+      "fanart": "vtmbefanart.jpg",
+      "message": "Streams from VTM.be require a Mediaan account. It can be configured via the Channel settings."
     },
     {
       "guid": "01C7064B-7E7A-4742-A042-E6F2F4EC5966",
@@ -20,7 +21,8 @@
       "channelcode": "q2",
       "sortorder": 11,
       "language": "be",
-      "fanart": "q2befanart.jpg"
+      "fanart": "q2befanart.jpg",
+      "message": "Streams from VTM.be require a Mediaan account. It can be configured via the Channel settings."
     }
   ],
   "settings": [
