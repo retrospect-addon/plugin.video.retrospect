@@ -34,7 +34,7 @@ class Channel(chn_class.Channel):
             self.noImage = "vijfimage.png"
             self.mainListUri = "http://www.vijf.be/volledige-afleveringen"
             self.baseUrl = "http://www.vijf.be"
-            videoRegex = '<div class="[^"]+date[^"]+">(?:<div[^>]*>){2}\W*(?<date>\d+/\d+/\d+)\W*</div>[\w\W]{0,2000}?data-video-title="(?<title>[^"]+)[^>]+data-video-link="(?<url>[^"]+)[^>]+data-video-description="(?<description>[^"]+)"[^>]*>(?:<div[^>]*>){2}<a[^>]+><img[^>]*src="(?<thumburl>[^"]+)'
+            videoRegex = 'data-video-title="(?<title>[^"]+)[^>]+data-video-link="(?<url>[^"]+)[^>]+data-video-description="(?<description>[^"]+)"[^>]*>(?:<div[^>]*>){2}<a[^>]+><img[^>]*src="(?<thumburl>[^"]+)[\w\W]{0,2000}?<div class="[^"]+date[^"]+">(?:<div[^>]*>){2}\W*(?<date>\d+/\d+/\d+)\W*</div>'
         else:
             self.noImage = "vierimage.png"
             self.mainListUri = "http://www.vier.be/volledige-afleveringen"

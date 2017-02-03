@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-Added: Vijf.be (Fixes #760)
-Changed: no more login required for Vier.be (See #809)
+Fixed: Vijf.be did not show all episodes (Fixes #815)
 
 [I]Previous Changes[/I]
+Added: Vijf.be (Fixes #760)
+Changed: no more login required for Vier.be (See #809)
 Added: Q2.be (Fixes #759)
 Added: More VTM programs (See #795)
 Fixed: VTM has some strange escapes in the JSON
