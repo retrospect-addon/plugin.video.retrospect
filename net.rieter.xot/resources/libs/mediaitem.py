@@ -397,16 +397,17 @@ class MediaItem:
         else:
             item.setInfo(type="Video", infoLabels=infoLabels)
 
-        # now set all the art
-        if self.fanart and not AddonSettings.HideFanart():
-            item.setArt({'fanart': self.fanart})
-
         try:
             item.setIconImage(self.icon)
         except:
             # it was deprecated
             pass
-        item.setArt({'thumb': self.thumb, 'icon': self.icon})
+
+        # now set all the art to prevent duplicate calls to Kodi
+        if self.fanart and not AddonSettings.HideFanart():
+            item.setArt({'thumb': self.thumb, 'icon': self.icon, 'fanart': self.fanart})
+        else:
+            item.setArt({'thumb': self.thumb, 'icon': self.icon})
 
         # art = dict()
         # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):
