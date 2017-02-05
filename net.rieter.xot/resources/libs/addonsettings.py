@@ -280,10 +280,15 @@ class AddonSettings:
         import platform
         from envcontroller import EnvController
 
+        # noinspection PyNoneFunctionAssignment
+        version = AddonSettings.GetKodiVersion()
+        Logger.Debug("Found Kodi version: %s", version)
+        git = ""
         try:
             # noinspection PyNoneFunctionAssignment
-            completeVersion = AddonSettings.GetKodiVersion()
-            version, git = completeVersion.split(" ")
+            if "Git:" in version:
+                version, git = version.split("Git:", 1)
+            version = version.rstrip()
 
             # The platform.<method> are not working on rPi and IOS
             # kernel = platform.architecture()
@@ -294,7 +299,10 @@ class AddonSettings:
 
             uname = platform.uname()
             Logger.Trace(uname)
-            userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s-%s" % (version, uname[0], uname[2], uname[4], version, git)
+            if git:
+                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s-Git:%s" % (version, uname[0], uname[2], uname[4], version, git)
+            else:
+                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % (version, uname[0], uname[2], uname[4], version)
         except:
             Logger.Warning("Error setting user agent", exc_info=True)
             currentEnv = EnvController.GetPlatform(True)
