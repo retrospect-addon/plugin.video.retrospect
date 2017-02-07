@@ -37,6 +37,15 @@ class ParserData(object):
         self.LogOnRequired = False
         self.MatchType = ParserData.MatchStart
 
+    def IsVideoUpdaterOnly(self):
+        """ Return whether only this instance is used for updating only """
+
+        return \
+            self.PreProcessor is None \
+            and self.Parser is None \
+            and self.Creator is None \
+            and self.Updater is not None
+
     def IsGenericPreProcessor(self):
         """ Returns True if only a pre-processor is defined. In that case it should be considered a generic
         pre-processor that needs to be processed before other data.

@@ -215,6 +215,8 @@ class Channel:
 
         # Determine the handlers and process
         dataParsers = self.__GetDataParsers(url)
+        # Exclude the updaters only
+        dataParsers = filter(lambda p: not p.IsVideoUpdaterOnly(), dataParsers)
         if filter(lambda p: p.LogOnRequired, dataParsers):
             Logger.Info("One or more dataparsers require logging in.")
             self.loggedOn = self.LogOn()
@@ -1122,7 +1124,7 @@ class Channel:
             self.dataParsers[url] = [data]
         return
 
-    def __GetDataParsers(self, url):
+    def __GetDataParsers(self, url, ):
         """ Fetches a list of dataparsers that are valid for this URL. The Parsers and Creators can then
         be used to parse the data from the url. The first match is returned.
 
