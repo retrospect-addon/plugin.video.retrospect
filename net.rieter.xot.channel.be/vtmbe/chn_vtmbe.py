@@ -326,6 +326,7 @@ class Channel(chn_class.Channel):
         videoData = Regexer.DoRegex(dataRegex, data)[0]
         # VTM has some strange escapes
         videoData = videoData.replace("\\\"", "\"")
+        videoData = videoData.replace("\\\\", "\\")
         videoData = videoData.replace("\\'", "'")
         videoJson = JsonHelper(videoData, logger=Logger.Instance())
 

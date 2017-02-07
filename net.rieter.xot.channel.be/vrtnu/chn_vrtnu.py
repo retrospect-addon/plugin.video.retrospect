@@ -8,6 +8,7 @@ from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from streams.m3u8 import M3u8
 from vault import Vault
+from helpers.datehelper import DateHelper
 
 
 class Channel(chn_class.Channel):
@@ -47,6 +48,13 @@ class Channel(chn_class.Channel):
                             name="JSON Show Parser", json=True,
                             parser=(), creator=self.CreateShowItem)
 
+        self._AddDataParser("https://services.vrt.be/videoplayer/r/live.json", json=True,
+                            name="Live streams parser",
+                            parser=(), creator=self.CreateLiveStream)
+        self._AddDataParser("http://live.stream.vrt.be/",
+                            name="Live streams updater",
+                            updater=self.UpdateLiveVideo)
+
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
                    '*>\W*){2}<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)' \
                    '[\w\W]{0,2000}?<h3[^>]+>(?<title>[^<]+)'
@@ -64,8 +72,11 @@ class Channel(chn_class.Channel):
         videoRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
                      '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[^>]*>\W*' \
                      '<img[^>]+>\W*(?:</\w+>\W*)+<div[^>]+>\W*<h3[^>]+>(?<title>[^<]+)</h3>' \
-                     '[\w\W]{0,1000}?(?:<span[^>]+tile__broadcastdate--other[^>]+>' \
-                     '(?<subtitle>[^<]+)</span></div><div>)?<abbr[^>]+title'
+                     '[\w\W]{0,1000}?(?:<span[^>]+class="tile__broadcastdate--mobile[^>]*>' \
+                     '(?<day>\d+)/(?<month>\d+)/?(?<year>\d+)?</span><span[^>]+' \
+                     'tile__broadcastdate--other[^>]+>(?<subtitle_>[^<]+)</span></div>\W*<div>)?' \
+                     '[^<]*<abbr[^>]+title'
+        # No need for a subtitle for now as it only includes the textual date
         videoRegex = Regexer.FromExpresso(videoRegex)
         self._AddDataParser("*", name="Video item parser",
                             parser=videoRegex, creator=self.CreateVideoItem)
@@ -136,6 +147,14 @@ class Channel(chn_class.Channel):
         cat.dontGroup = True
         items.append(cat)
 
+        live = mediaitem.MediaItem("\a.: Live Streams :.", "https://services.vrt.be/videoplayer/r/live.json")
+        live.fanart = self.fanart
+        live.thumb = self.noImage
+        live.icon = self.icon
+        live.dontGroup = True
+        live.isLive = True
+        items.append(live)
+
         Logger.Debug("Pre-Processing finished")
         return data, items
 
@@ -147,6 +166,52 @@ class Channel(chn_class.Channel):
             item.thumb = "https:%s" % (item.thumb, )
 
         return item
+
+    def CreateLiveStream(self, resultSet):
+        items = []
+        for keyValue, streamValue in resultSet.iteritems():
+            Logger.Trace(streamValue)
+
+            # stuff taken from: http://radioplus.be/conf/channels.js
+            # fanart = self.parentItem.fanart
+            # thumb = self.parentItem.thumb
+            if keyValue == "mnm":
+                title = "MNM"
+                fanart = "http://radioplus.be/img/channels/mnm/splash@2x.jpg"
+                # thumb = "http://radioplus.be/img/channels/mnm/logo@2x.png"
+                thumb = "http://radioplus.be/img/channels/mnm/thumb@2x.jpg"
+            elif keyValue == "stubru":
+                title = "Studio Brussel"
+                fanart = "http://radioplus.be/img/channels/stubru/splash@2x.jpg"
+                # thumb = "http://radioplus.be/img/channels/stubru/logo@2x.png"
+                thumb = "http://radioplus.be/img/channels/stubru/thumb@2x.jpg"
+            elif keyValue == "vrtvideo1":
+                title = "E&eacute;n"
+                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.een/eenfanart.jpg"
+                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.een/eenimage.png"
+            elif keyValue == "vrtvideo2":
+                title = "Canvas"
+                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.canvas/canvasfanart.png"
+                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.canvas/canvasimage.png"
+            elif keyValue == "events3":
+                title = "Ketnet"
+                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.ketnet/ketnetfanart.jpg"
+                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.ketnet/ketnetimage.png"
+            elif keyValue == "sporza":
+                title = "Sporza"
+                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.sporza/sportzafanart.jpg"
+                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.sporza/sporzaimage.png"
+            else:
+                continue
+
+            liveItem = mediaitem.MediaItem(title, streamValue["hls"])
+            liveItem.isLive = True
+            liveItem.type = 'video'
+            liveItem.fanart = fanart
+            liveItem.thumb = thumb
+            items.append(liveItem)
+
+        return items
 
     def CreateShowItem(self, resultSet):
         Logger.Trace(resultSet)
@@ -188,12 +253,24 @@ class Channel(chn_class.Channel):
         if item is None:
             return None
 
-        if "year" in resultSet and resultSet["year"]:
-            item.SetDate(resultSet["year"], resultSet["month"], resultSet["day"])
+        if "day" in resultSet and resultSet["day"]:
+            item.SetDate(resultSet["year"] or DateHelper.ThisYear(), resultSet["month"], resultSet["day"])
+
         if item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
 
         self.__hasAlreadyVideoItems = True
+        return item
+
+    def UpdateLiveVideo(self, item):
+        if "m3u8" not in item.url:
+            Logger.Error("Cannot update live stream that is not an M3u8: %s", item.url)
+
+        part = item.CreateNewEmptyMediaPart()
+        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+            item.complete = True
+            # s = self.GetVerifiableVideoUrl(s)
+            part.AppendMediaStream(s, b)
         return item
 
     def UpdateVideoItem(self, item):
