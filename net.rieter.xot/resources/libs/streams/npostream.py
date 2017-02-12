@@ -125,7 +125,7 @@ class NpoStream:
     @staticmethod
     def GetSubtitle(streamId, proxy=None):
         # type: (str, Proxy) -> str
-        subTitleUrl = "http://e.omroep.nl/tt888/%s" % (streamId,)
+        subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (streamId,)
         return SubtitleHelper.DownloadSubtitle(subTitleUrl, streamId + ".srt", format='srt', proxy=proxy)
 
     @staticmethod
