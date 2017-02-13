@@ -9,6 +9,7 @@ from helpers.jsonhelper import JsonHelper
 from streams.m3u8 import M3u8
 from vault import Vault
 from helpers.datehelper import DateHelper
+from helpers.languagehelper import LanguageHelper
 
 
 class Channel(chn_class.Channel):
@@ -36,13 +37,16 @@ class Channel(chn_class.Channel):
 
         episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
                        '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[\w\W]{0,2000}?' \
-                       '<h3[^>]+>(?<title>[^<]+)<span[^>]+>&lt;p&gt;(?<description>[^<]+)' \
-                       '&lt;/p&gt;<'
+                       '<h3[^>]+>(?<title>[^<]+)(?:<span[^>]+>&lt;p&gt;(?<description>[^<]+)' \
+                       '&lt;/p&gt;<)?[\w\W]{0,5000}?<use xlink:href="#logo-(?<channel>[^"]+)'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
                             matchType=ParserData.MatchExact,
                             parser=episodeRegex, creator=self.CreateEpisodeItem)
+
+        self._AddDataParser("#channels", name="Main channel name listing",
+                            preprocessor=self.ListChannels)
 
         self._AddDataParser("https://search.vrt.be/suggest?facets[categories]",
                             name="JSON Show Parser", json=True,
@@ -94,6 +98,7 @@ class Channel(chn_class.Channel):
         # ===============================================================================================================
         # non standard items
         self.__hasAlreadyVideoItems = False
+        self.__currentChannel = None
 
         # ===============================================================================================================
         # Test cases:
@@ -140,6 +145,11 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
+        if self.parentItem and "code" in self.parentItem.metaData:
+            self.__currentChannel = self.parentItem.metaData["code"]
+            Logger.Info("Only showing items for channel: '%s'", self.__currentChannel)
+            return data, items
+
         cat = mediaitem.MediaItem("\a.: Categori&euml;n :.", "https://www.vrt.be/vrtnu/categorieen/")
         cat.fanart = self.fanart
         cat.thumb = self.noImage
@@ -155,7 +165,36 @@ class Channel(chn_class.Channel):
         live.isLive = True
         items.append(live)
 
+        channelText = LanguageHelper.GetLocalizedString(30010)
+        channels = mediaitem.MediaItem(".: %s :." % (channelText, ), "#channels")
+        channels.fanart = self.fanart
+        channels.thumb = self.noImage
+        channels.icon = self.icon
+        channels.dontGroup = True
+        items.append(channels)
+
         Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def ListChannels(self, data):
+        items = []
+        channelData = {
+            "een": ("E&eacute;n",),
+            "ketnet": ("Ketnet",),
+            "ketnet-jr": ("Ketnet Junior",),
+            "canvas": ("CANVAS",),
+            "mnm": ("MNM",),
+            "stubru": ("Studio Brussel",)
+        }
+
+        for name, meta in channelData.iteritems():
+            channel = mediaitem.MediaItem(meta[0], self.mainListUri)
+            channel.fanart = self.fanart
+            channel.thumb = self.noImage
+            channel.icon = self.icon
+            channel.dontGroup = True
+            channel.metaData["code"] = name
+            items.append(channel)
         return data, items
 
     def CreateCategory(self, resultSet):
@@ -224,7 +263,12 @@ class Channel(chn_class.Channel):
         return chn_class.Channel.CreateEpisodeItem(self, resultSet)
 
     def CreateEpisodeItem(self, resultSet):
+        if self.__currentChannel is not None and resultSet["channel"] != self.__currentChannel:
+            Logger.Debug("Skipping items due to channel mismatch: %s", resultSet)
+            return None
+
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        Logger.Critical(resultSet['channel'])
 
         if item is not None and item.thumb and item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )

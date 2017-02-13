@@ -1,8 +1,10 @@
 ﻿[B]Changelog[/B]
-Added: VRT.NU dates and Live channels (See #810)
-Fixed: JSON parsing of VTM.be
+Fixed: Vier/Vijf.be would also have the audio only streams (Fixes #822)
+Added: VRTnu.be now has listings per channels (Fixes #823)
 
 [I]Previous Changes[/I]
+Added: VRT.NU dates and Live channels (See #810)
+Fixed: JSON parsing of VTM.be
 Fixed: Vijf.be did not show all episodes (Fixes #815)
 Added: Vijf.be (Fixes #760)
 Changed: no more login required for Vier.be (See #809)
