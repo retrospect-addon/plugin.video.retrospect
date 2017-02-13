@@ -1105,7 +1105,7 @@ class Channel(chn_class.Channel):
         Logger.Trace("Using Generic UpdateVideoItem method")
 
         # get the subtitle
-        subTitleUrl = "http://e.omroep.nl/tt888/%s" % (episodeId,)
+        subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (episodeId,)
         subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, episodeId + ".srt", format='srt',
                                                                       proxy=self.proxy)
 

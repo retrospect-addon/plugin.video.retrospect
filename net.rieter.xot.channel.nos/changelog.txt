@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Some live channels were missing (Fixes #804)
+Fixed: NPO moved the subtitle (TT888) urls
 
 [I]Previous Changes[/I]
+Fixed: Some live channels were missing (Fixes #804)
 Fixed: NPO "Titles with '..'" listings (Fixes #801)
 Added: NTR School.tv (Fixes #671)
 Fixed: NPO Radio streams
