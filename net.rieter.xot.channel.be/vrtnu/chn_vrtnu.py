@@ -10,6 +10,7 @@ from streams.m3u8 import M3u8
 from vault import Vault
 from helpers.datehelper import DateHelper
 from helpers.languagehelper import LanguageHelper
+from textures import TextureHandler
 
 
 class Channel(chn_class.Channel):
@@ -99,6 +100,57 @@ class Channel(chn_class.Channel):
         # non standard items
         self.__hasAlreadyVideoItems = False
         self.__currentChannel = None
+        # The key is the channel live stream key
+        self.__channelData = {
+            "mnm": {
+                "title": "MNM",
+                "metaCode": "mnm",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "mnmfanart.jpg"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "mnmimage.jpg"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "mnmicon.png"),
+            },
+            "stubru": {
+                "title": "Studio Brussel",
+                "metaCode": "stubru",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "stubrufanart.jpg"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "stubruimage.jpg"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "stubruicon.png"),
+            },
+            "vrtvideo1": {
+                "title": "E&eacute;n",
+                "metaCode": "een",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "eenfanart.jpg"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "eenimage.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "eenlarge.png")
+            },
+            "vrtvideo2": {
+                "title": "Canvas",
+                "metaCode": "canvas",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "canvasfanart.png"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "canvasimage.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "canvaslarge.png")
+            },
+            "events3": {
+                "title": "KetNet",
+                "metaCode": "ketnet",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
+            },
+            "sporza": {  # not in the channel filter maps, so no metaCode
+                "title": "Sporza",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "sporzafanart.jpg"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "sporzaimage.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "sporzalarge.png")
+            },
+            "ketnet-jr": {  # Not in the live channels
+                "title": "KetNet Junior",
+                "metaCode": "ketnet-jr",
+                "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
+                "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
+            }
+        }
 
         # ===============================================================================================================
         # Test cases:
@@ -178,22 +230,20 @@ class Channel(chn_class.Channel):
 
     def ListChannels(self, data):
         items = []
-        channelData = {
-            "een": ("E&eacute;n",),
-            "ketnet": ("Ketnet",),
-            "ketnet-jr": ("Ketnet Junior",),
-            "canvas": ("CANVAS",),
-            "mnm": ("MNM",),
-            "stubru": ("Studio Brussel",)
-        }
 
-        for name, meta in channelData.iteritems():
-            channel = mediaitem.MediaItem(meta[0], self.mainListUri)
-            channel.fanart = self.fanart
-            channel.thumb = self.noImage
-            channel.icon = self.icon
+        for name, meta in self.__channelData.iteritems():
+            if "metaCode" not in meta:
+                continue
+
+            channel = mediaitem.MediaItem(meta["title"], self.mainListUri)
+            # noinspection PyArgumentList
+            channel.fanart = meta.get("fanart", self.fanart)
+            # noinspection PyArgumentList
+            channel.thumb = meta.get("icon", self.icon)
+            # noinspection PyArgumentList
+            channel.icon = meta.get("icon", self.icon)
             channel.dontGroup = True
-            channel.metaData["code"] = name
+            channel.metaData["code"] = meta["metaCode"]
             items.append(channel)
         return data, items
 
@@ -210,46 +260,18 @@ class Channel(chn_class.Channel):
         items = []
         for keyValue, streamValue in resultSet.iteritems():
             Logger.Trace(streamValue)
-
-            # stuff taken from: http://radioplus.be/conf/channels.js
-            # fanart = self.parentItem.fanart
-            # thumb = self.parentItem.thumb
-            if keyValue == "mnm":
-                title = "MNM"
-                fanart = "http://radioplus.be/img/channels/mnm/splash@2x.jpg"
-                # thumb = "http://radioplus.be/img/channels/mnm/logo@2x.png"
-                thumb = "http://radioplus.be/img/channels/mnm/thumb@2x.jpg"
-            elif keyValue == "stubru":
-                title = "Studio Brussel"
-                fanart = "http://radioplus.be/img/channels/stubru/splash@2x.jpg"
-                # thumb = "http://radioplus.be/img/channels/stubru/logo@2x.png"
-                thumb = "http://radioplus.be/img/channels/stubru/thumb@2x.jpg"
-            elif keyValue == "vrtvideo1":
-                title = "E&eacute;n"
-                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.een/eenfanart.jpg"
-                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.een/eenimage.png"
-            elif keyValue == "vrtvideo2":
-                title = "Canvas"
-                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.canvas/canvasfanart.png"
-                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.canvas/canvasimage.png"
-            elif keyValue == "events3":
-                title = "Ketnet"
-                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.ketnet/ketnetfanart.jpg"
-                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.ketnet/ketnetimage.png"
-            elif keyValue == "sporza":
-                title = "Sporza"
-                fanart = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.sporza/sportzafanart.jpg"
-                thumb = "http://cdn.rieter.net/net.rieter.xot.cdn/net.rieter.xot.channel.be.sporza/sporzaimage.png"
-            else:
+            # noinspection PyArgumentList
+            channelData = self.__channelData.get(keyValue, None)
+            if not channelData:
                 continue
 
-            liveItem = mediaitem.MediaItem(title, streamValue["hls"])
+            liveItem = mediaitem.MediaItem(channelData["title"], streamValue["hls"])
             liveItem.isLive = True
             liveItem.type = 'video'
-            liveItem.fanart = fanart
-            liveItem.thumb = thumb
+            liveItem.fanart = channelData.get("fanart", self.fanart)
+            liveItem.thumb = channelData.get("icon", self.icon)
+            liveItem.icon = channelData.get("icon", self.icon)
             items.append(liveItem)
-
         return items
 
     def CreateShowItem(self, resultSet):
@@ -268,11 +290,15 @@ class Channel(chn_class.Channel):
             return None
 
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
-        Logger.Critical(resultSet['channel'])
+        if item is None:
+            return None
 
-        if item is not None and item.thumb and item.thumb.startswith("//"):
+        # update artswork
+        if item.thumb and item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
-
+        else:
+            item.thumb = self.noImage
+        item.fanart = self.fanart
         return item
 
     def CreateFolderItem(self, resultSet):
@@ -304,6 +330,7 @@ class Channel(chn_class.Channel):
             item.thumb = "https:%s" % (item.thumb, )
 
         self.__hasAlreadyVideoItems = True
+        item.fanart = self.parentItem.fanart
         return item
 
     def UpdateLiveVideo(self, item):
