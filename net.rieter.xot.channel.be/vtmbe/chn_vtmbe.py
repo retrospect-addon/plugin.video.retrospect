@@ -1,5 +1,5 @@
-import datetime
 import time
+import re
 
 import chn_class
 from logger import Logger
@@ -9,6 +9,7 @@ from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from addonsettings import AddonSettings
 from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.datehelper import DateHelper
 from streams.m3u8 import M3u8
 from regexer import Regexer
 from xbmcwrapper import XbmcWrapper
@@ -48,15 +49,9 @@ class Channel(chn_class.Channel):
             self.__sso = "vtm-sso"
             self.__apiKey = "vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY"
 
-            # setup the main parsing data in case of JSON
-            self._AddDataParser("http://vtm.be/feed/programs?format=json&type=all&only_with_video=true",
-                                name="JSON Feed Show Parser",
-                                json=True, preprocessor=self.AddLiveChannel,
-                                creator=self.CreateEpisodeItem, parser=("response", "items"))
-
-            self._AddDataParser("http://vtm.be/feed/articles?program=", json=True,
-                                name="JSON Video Parser",
-                                creator=self.CreateVideoItem, parser=("response", "items"))
+            # self._AddDataParser("http://vtm.be/feed/articles?program=", json=True,
+            #                     name="JSON Parser for Video Only results",
+            #                     creator=self.CreateVideoItem, parser=("response", "items"))
 
             # setup the main parsing data in case of HTML
             htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
@@ -68,6 +63,7 @@ class Channel(chn_class.Channel):
 
         elif self.channelCode == "q2":
             self.noImage = "q2beimage.jpg"
+            # self.mainListUri = "http://www.q2.be/feed/programs?format=json&type=all&only_with_video=true"
             self.mainListUri = "http://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
             self.baseUrl = "http://www.q2.be"
             self.__app = "q2"
@@ -87,7 +83,8 @@ class Channel(chn_class.Channel):
         htmlEpisodeRegex = '<a[^>]+href="(?<url>http[^"]+im_field_program[^"]+)"[^>]*>(?<title>[^(<]+)'
         htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
         self._AddDataParser(
-            self.mainListUri, matchType=ParserData.MatchExact,
+            "sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
+            matchType=ParserData.MatchEnd,
             name="HTML Page Show Parser",
             preprocessor=self.AddLiveChannel,
             parser=htmlEpisodeRegex,
@@ -99,6 +96,22 @@ class Channel(chn_class.Channel):
             name="HTML Page Video Updater",
             updater=self.UpdateVideoItem, requiresLogon=True)
 
+        # setup the main parsing data in case of JSON
+        self._AddDataParser("/feed/programs?format=json&type=all&only_with_video=true",
+                            matchType=ParserData.MatchEnd,
+                            name="JSON Feed Show Parser for Medialaan",
+                            json=True, preprocessor=self.AddLiveChannelAndFetchAllData,
+                            creator=self.CreateEpisodeItemJson, parser=("response", "items"))
+
+        self._AddDataParser("http://vod.medialaan.io/api/1.0/list", json=True,
+                            name="JSON Video Parser for Medialaan",
+                            parser=("response", "items"), creator=self.CreateVideoItemJson)
+
+        self._AddDataParser("http://vod.medialaan.io/vod/v2/videos/",
+                            matchType=ParserData.MatchRegex,
+                            name="JSON Video Updater for Medialaan",
+                            updater=self.UpdateVideoItemJson, requiresLogon=True)
+
         self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
                             updater=self.UpdateLiveStream)
 
@@ -107,6 +120,7 @@ class Channel(chn_class.Channel):
         self.__signature = None
         self.__signatureTimeStamp = None
         self.__userId = None
+        self.__cleanRegex = re.compile("<[^>]+>")
 
         # ===============================================================================================================
         # Test cases:
@@ -153,7 +167,27 @@ class Channel(chn_class.Channel):
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
         return self.__ExtractSessionData(logonData, signatureSettings)
 
-    def CreateEpisodeItem(self, resultSet):
+    def AddLiveChannelAndFetchAllData(self, data):
+        data, items = self.AddLiveChannel(data)
+
+        # The current issue with this is that the API is providing only the videos and not
+        # the full episodes.
+
+        json = JsonHelper(data)
+        jsonItems = json.GetValue("response", "items")
+        count = json.GetValue("response", "total")
+        for i in range(100, count, 100):
+            url = "%s&from=%s" % (self.mainListUri, i)
+            Logger.Debug("Retrieving more items from: %s", url)
+            moreData = UriHandler.Open(url, proxy=self.proxy)
+            moreJson = JsonHelper(moreData)
+            moreItems = moreJson.GetValue("response", "items")
+            if moreItems:
+                jsonItems += moreItems
+
+        return json, items
+
+    def CreateEpisodeItemJson(self, resultSet):
         """Creates a new MediaItem for an episode
 
        Arguments:
@@ -171,67 +205,114 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet['title']
-        archived = resultSet['archived']
-        if archived:
-            Logger.Warning("Found archived item: %s", title)
-            return None
 
-        programId = resultSet['id']
-        url = "http://vtm.be/feed/articles" \
-              "?program=%s" \
-              "&fields=text,video&type=all" \
-              "&sort=mostRecent" \
-              "&&count=100" \
-              "&filterExcluded=true" % (programId, )
+        if resultSet["parent_series_oid"] is None:
+            return None
+        # if not resultSet["is_featured"]:
+        #     # most of them are empty anyways
+        #     return None
+
+        url = "http://vod.medialaan.io/api/1.0/list?" \
+              "app_id=%s&parentSeriesOID=%s" % (self.__app, resultSet['parent_series_oid'])
         item = MediaItem(title, url)
         item.fanart = self.fanart
         item.thumb = self.noImage
         item.description = resultSet.get('body', None)
+        if item.description:
+            # Clean HTML
+            item.description = item.description.replace("<br />", "\n\n")
+            item.description = self.__cleanRegex.sub("", item.description)
 
         if 'images' in resultSet and 'image' in resultSet['images']:
             item.thumb = resultSet['images']['image'].get('full', self.noImage)
         return item
 
-    def CreateVideoItem(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-
-        """
-
+    def CreateVideoItemJson(self, resultSet):
         Logger.Trace(resultSet)
 
         title = resultSet['title']
-        item = MediaItem(title, "", type="video")
+        url = "http://vod.medialaan.io/vod/v2/videos/%(id)s" % resultSet
+        item = MediaItem(title, url, type="video")
         item.description = resultSet.get('text')
 
         if 'image' in resultSet:
             item.thumb = resultSet['image'].get("full", None)
 
-        created = Channel.GetDateFromPosix(resultSet['created']['timestamp'])
+        created = DateHelper.GetDateFromPosix(resultSet['created'])
         item.SetDate(created.year, created.month, created.day, created.hour, created.minute,
                      created.second)
 
-        if 'video' not in resultSet:
-            Logger.Warning("Found item without video: %s", item)
-            return None
-
-        item.AppendSingleStream(resultSet['video']['url']['default'], 0)
-        item.complete = True
         return item
+
+    def UpdateVideoItemJson(self, item):
+        videoId = item.url.rsplit("/", 1)[-1]
+        return self.__UpdateVideoItem(item, videoId)
+
+    # Used for video's only
+    # def CreateVideoItem(self, resultSet):
+    #     """Creates a MediaItem of type 'video' using the resultSet from the regex.
+    #
+    #     Arguments:
+    #     resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+    #
+    #     Returns:
+    #     A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    #
+    #     This method creates a new MediaItem from the Regular Expression or Json
+    #     results <resultSet>. The method should be implemented by derived classes
+    #     and are specific to the channel.
+    #
+    #     If the item is completely processed an no further data needs to be fetched
+    #     the self.complete property should be set to True. If not set to True, the
+    #     self.UpdateVideoItem method is called if the item is focussed or selected
+    #     for playback.
+    #
+    #     """
+    #
+    #     Logger.Trace(resultSet)
+    #
+    #     title = resultSet['title']
+    #     item = MediaItem(title, "", type="video")
+    #     item.description = resultSet.get('text')
+    #
+    #     if 'image' in resultSet:
+    #         item.thumb = resultSet['image'].get("full", None)
+    #
+    #     created = Channel.GetDateFromPosix(resultSet['created']['timestamp'])
+    #     item.SetDate(created.year, created.month, created.day, created.hour, created.minute,
+    #                  created.second)
+    #
+    #     if 'video' not in resultSet:
+    #         Logger.Warning("Found item without video: %s", item)
+    #         return None
+    #
+    #     item.AppendSingleStream(resultSet['video']['url']['default'], 0)
+    #     item.complete = True
+    #     return item
+
+    def AddLiveChannel(self, data):
+        Logger.Info("Performing Pre-Processing")
+        # if self.channelCode != "vtm":
+        #     return data, []
+
+        username = AddonSettings.GetSetting("mediaan_username")
+        if not username:
+            return data, []
+
+        items = []
+
+        if self.channelCode == "vtm":
+            item = MediaItem("Live VTM", "#livestream")
+        else:
+            item = MediaItem("Live Q2", "#livestream")
+        item.type = "video"
+        item.isLive = True
+        item.fanart = self.fanart
+        item.thumb = self.noImage
+        items.append(item)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
 
     def CreateEpisodeItemHtml(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -251,7 +332,13 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet['title']
-        url = HtmlEntityHelper.StripAmp(resultSet['url'])
+        url = resultSet['url']
+        # Try to mix the Medialaan API with HTML is not working
+        # programId = resultSet['url'].split('%3A')[-1]
+        # url = "http://vod.medialaan.io/api/1.0/list?" \
+        #       "app_id=%s&parentSeriesOID=%s" % (self.__app, programId)
+
+        url = HtmlEntityHelper.StripAmp(url)
         # We need to convert the URL
         # http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&amp;f[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie
         # http://vtm.be/video/?amp%3Bf[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie&f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie
@@ -330,67 +417,11 @@ class Channel(chn_class.Channel):
         videoData = videoData.replace("\\'", "'")
         videoJson = JsonHelper(videoData, logger=Logger.Instance())
 
-        # https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=Lfz8qNv9oeVst7I%2B8pHytr02QLU%3D&timestamp=1484682292&apikey=q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk&database=q2-sso&_=1484682287800
-        mediaUrl = "http://vod.medialaan.io/api/1.0/item/" \
-                   "%s" \
-                   "/video?app_id=%s&user_network=%s" \
-                   "&UID=%s" \
-                   "&UIDSignature=%s" \
-                   "&signatureTimestamp=%s" % (
-                       videoJson.json["vodId"],
-                       self.__app,
-                       self.__sso,
-                       self.__userId,
-                       HtmlEntityHelper.UrlEncode(self.__signature),
-                       self.__signatureTimeStamp
-                   )
-
-        data = UriHandler.Open(mediaUrl, proxy=self.proxy)
-        jsonData = JsonHelper(data)
-        m3u8Url = jsonData.GetValue("response", "uri")
-        # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
-            item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
-
         # duration is not calculated correctly
         duration = videoJson.GetValue("videoConfig", "duration")
         item.SetInfoLabel("Duration", duration)
 
-        # http://vod.medialaan.io/api/1.0/item/
-        # vtm_20161124_VM0677613_vtmwatch
-        # /video?app_id=vtm_watch&user_network=vtm-sso
-        # &UID=897b786c46e3462eac81549453680c0d
-        # &UIDSignature=Hf4TrZ7TFwH5cjeJ8pqVwjFp25I%3D
-        # &signatureTimestamp=1481494782
-
-        return item
-
-    def AddLiveChannel(self, data):
-        Logger.Info("Performing Pre-Processing")
-        # if self.channelCode != "vtm":
-        #     return data, []
-
-        username = AddonSettings.GetSetting("mediaan_username")
-        if not username:
-            return data, []
-
-        items = []
-
-        if self.channelCode == "vtm":
-            item = MediaItem("Live VTM", "#livestream")
-        else:
-            item = MediaItem("Live Q2", "#livestream")
-        item.type = "video"
-        item.isLive = True
-        item.fanart = self.fanart
-        item.thumb = self.noImage
-        items.append(item)
-
-        Logger.Debug("Pre-Processing finished")
-        return data, items
+        return self.__UpdateVideoItem(item, videoJson.json["vodId"])
 
     def UpdateLiveStream(self, item):
         Logger.Debug("Updating Live stream")
@@ -420,16 +451,40 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(s, b)
         return item
 
-    @staticmethod
-    def GetDateFromPosix(posix, tz=None):
-        # type: (float) -> datetime.datetime
-        """ Creates a datetime from a Posix Time stamp
+    def __UpdateVideoItem(self, item, videoId):
+        # https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=Lfz8qNv9oeVst7I%2B8pHytr02QLU%3D&timestamp=1484682292&apikey=q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk&database=q2-sso&_=1484682287800
+        mediaUrl = "http://vod.medialaan.io/api/1.0/item/" \
+                   "%s" \
+                   "/video?app_id=%s&user_network=%s" \
+                   "&UID=%s" \
+                   "&UIDSignature=%s" \
+                   "&signatureTimestamp=%s" % (
+                       videoId,
+                       self.__app,
+                       self.__sso,
+                       self.__userId,
+                       HtmlEntityHelper.UrlEncode(self.__signature),
+                       self.__signatureTimeStamp
+                   )
 
-        @param posix:   the posix time stamp integer
-        @return:        a valid datetime.datetime object.
-        """
+        data = UriHandler.Open(mediaUrl, proxy=self.proxy)
+        jsonData = JsonHelper(data)
+        m3u8Url = jsonData.GetValue("response", "uri")
+        # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
+        part = item.CreateNewEmptyMediaPart()
+        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+            item.complete = True
+            # s = self.GetVerifiableVideoUrl(s)
+            part.AppendMediaStream(s, b)
 
-        return datetime.datetime.fromtimestamp(posix, tz)
+        # http://vod.medialaan.io/api/1.0/item/
+        # vtm_20161124_VM0677613_vtmwatch
+        # /video?app_id=vtm_watch&user_network=vtm-sso
+        # &UID=897b786c46e3462eac81549453680c0d
+        # &UIDSignature=Hf4TrZ7TFwH5cjeJ8pqVwjFp25I%3D
+        # &signatureTimestamp=1481494782
+
+        return item
 
     def __GetToken(self):
         """ Requests a playback token """
