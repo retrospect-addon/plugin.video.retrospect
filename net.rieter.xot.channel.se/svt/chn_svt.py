@@ -463,7 +463,9 @@ class Channel(chn_class.Channel):
             genre.icon = self.icon
             genre.description = cluster.get('description')
             genre.fanart = cluster.get('backgroundImage') or self.parentItem.fanart
+            genre.fanart = self.__GetThumb(genre.fanart, thumbSize="/extralarge/")
             genre.thumb = cluster.get('thumbnailImage') or self.noImage
+            genre.thumb = self.__GetThumb(genre.thumb)
             genres.append(genre)
 
         return genres
@@ -701,9 +703,12 @@ class Channel(chn_class.Channel):
             Logger.Info("Found stream information within HTML data")
             return self.__UpdateItemFromVideoReferences(item, streams, subtitles)
 
-        programVersionId = json.GetValue("videoTitlePage", "video", "programVersionId")
-        if programVersionId:
-            item.url = "http://www.svt.se/videoplayer-api/video/%s" % (programVersionId, )
+        videoId = json.GetValue("videoTitlePage", "video", "id")
+        # in case that did not work, try the old version.
+        if not videoId:
+            videoId = json.GetValue("videoTitlePage", "video", "programVersionId")
+        if videoId:
+            item.url = "http://www.svt.se/videoplayer-api/video/%s" % (videoId, )
         return self.UpdateVideoApiItem(item)
 
     def UpdateVideoApiItem(self, item):
@@ -849,8 +854,15 @@ class Channel(chn_class.Channel):
 
         return year, month, day, hour, minutes
 
-    def __GetThumb(self, thumb):
-        thumbSize = "/large/"
+    def __GetThumb(self, thumb, thumbSize="/large/"):
+        """ Converts images into the correct url format
+
+        @param thumb:       the original URL 
+        @param thumbSize:   the size to make them
+        @return:            the actual url
+        
+        """
+
         if "<>" in thumb:
             thumbParts = thumb.split("<>")
             thumbIndex = int(thumbParts[1])

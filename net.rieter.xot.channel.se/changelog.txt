@@ -1,7 +1,10 @@
 ﻿[B]Changelog[/B]
-Fixed: Some thumbnails did not show for SVT (Fixes #813)
+Fixed: Some fanart did now show for SVT
+Fixed: SVT did not play due to API changes (Fixes #828)
+
 
 [I]Previous changes[/I]N
+Fixed: Some thumbnails did not show for SVT (Fixes #813)
 Added: SVT and Oppet Arkiv genres (Fixes #624)
 Fixed: SVT Update their API (Fixes #811)
 Fixed: removed video files from main listing (Fixes #800)
