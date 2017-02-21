@@ -513,7 +513,7 @@ class MediaItem:
             if xbmcParams:
                 xbmcQueryString = reduce(lambda x, y: "%s&%s=%s" %
                                                       (x, y, xbmcParams[y]), xbmcParams.keys(), "").lstrip("&")
-                Logger.Debug("Adding Kodi Stream paramters: %s\n%s", xbmcParams, xbmcQueryString)
+                Logger.Debug("Adding Kodi Stream parameters: %s\n%s", xbmcParams, xbmcQueryString)
                 streamUrl = "%s|%s" % (stream.Url, xbmcQueryString)
 
             if index == currentIndex and index < len(playListItems):
