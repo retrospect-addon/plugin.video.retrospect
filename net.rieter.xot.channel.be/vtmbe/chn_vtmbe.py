@@ -471,7 +471,12 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(data)
         m3u8Url = jsonData.GetValue("response", "uri")
         # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
+
         part = item.CreateNewEmptyMediaPart()
+        # Remove the Range header to make all streams start at the beginning.
+        Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
+        part.HttpHeaders["Range"] = ''
+
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)

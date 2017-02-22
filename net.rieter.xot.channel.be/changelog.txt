@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Added: VRT NU art for all included channels (See #823)
+Fixed: VTM and Q2 streams now always start at the beginning (Fixes #820)
 
 [I]Previous Changes[/I]
+Added: VRT NU art for all included channels (See #823)
 Fixed: Vier/Vijf.be would also have the audio only streams (Fixes #822)
 Added: VRTnu.be now has listings per channels (Fixes #823)
 Added: VRT.NU dates and Live channels (See #810)

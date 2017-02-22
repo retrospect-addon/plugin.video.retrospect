@@ -386,6 +386,9 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         # prevent the "418 I'm a teapot" error
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
+        # Remove the Range header to make all streams start at the beginning.
+        Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
+        part.HttpHeaders["Range"] = ''
 
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             item.complete = True
