@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: NPO moved the subtitle (TT888) urls
+Fixed: NPO live streams (See #831)
+Fixed: NPO changed their API (Fixes #831)
 
 [I]Previous Changes[/I]
+Fixed: NPO moved the subtitle (TT888) urls
 Fixed: Some live channels were missing (Fixes #804)
 Fixed: NPO "Titles with '..'" listings (Fixes #801)
 Added: NTR School.tv (Fixes #671)

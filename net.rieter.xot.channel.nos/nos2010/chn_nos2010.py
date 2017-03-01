@@ -1012,7 +1012,7 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
 
         referer = {"referer": self.baseUrlLive}
-        streams = NpoStream.GetLiveStreamsFromNpo(item.url, Config.cacheDir, proxy=self.proxy, headers=referer)
+        streams = []  # NpoStream.GetLiveStreamsFromNpo(item.url, Config.cacheDir, proxy=self.proxy, headers=referer)
         if streams:
             Logger.Debug("Found live stream urls from item url")
             for s, b in streams:
@@ -1028,17 +1028,13 @@ class Channel(chn_class.Channel):
                 Logger.Debug("Found MP3 URL")
                 part.AppendMediaStream(mp3Urls[0], 192)
             else:
-                jsonUrl = item.url
-                if not item.url.startswith("http://e.omroep.nl/metadata/"):
-                    Logger.Debug("Finding the actual metadata url from %s", item.url)
-                    jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
-                    jsonUrl = None
-                    for url in jsonUrls:
-                        jsonUrl = "http://e.omroep.nl/metadata/%s" % (url,)
-
-                for s, b in NpoStream.GetLiveStreamsFromNpo(jsonUrl, Config.cacheDir, proxy=self.proxy, headers=referer):
-                    item.complete = True
-                    part.AppendMediaStream(s, b)
+                Logger.Debug("Finding the actual metadata url from %s", item.url)
+                jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
+                jsonUrl = None
+                for episodeId in jsonUrls:
+                    return self.__UpdateVideoItem(item, episodeId)
+                Logger.Warning("Cannot update live item: %s", item)
+                return item
 
         item.complete = True
         # Logger.Trace(item)
@@ -1131,6 +1127,20 @@ class Channel(chn_class.Channel):
                 item.complete = True
                 continue
                 
+            elif streamInfo["contentType"] == "live":
+                Logger.Debug("Found live stream")
+                url = streamInfo["url"]
+                url = url.replace("jsonp", "json")
+                liveUrlData = UriHandler.Open(url, proxy=self.proxy)
+                # liveUrl = JsonHelper(liveUrlData, logger=Logger.Instance()).GetValue()
+                liveUrl = liveUrlData.strip("\"").replace("\\", "")
+                Logger.Trace(liveUrl)
+                for s, b in M3u8.GetStreamsFromM3u8(liveUrl, self.proxy):
+                    item.complete = True
+                    # s = self.GetVerifiableVideoUrl(s)
+                    part.AppendMediaStream(s, b)
+                return item
+            
             elif streamInfo["format"] != "hls":
                 continue
             
