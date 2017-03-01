@@ -974,6 +974,8 @@ class Channel(chn_class.Channel):
         # else the radio streams
         for stream in streams:
             Logger.Trace(stream)
+            if not stream["protocol"] or stream["protocol"] == "prid":
+                continue
             bitrate = stream.get("bitrate", 0)
             url = stream["url"]
             part.AppendMediaStream(url, bitrate)
@@ -1106,10 +1108,44 @@ class Channel(chn_class.Channel):
 
         # get the subtitle
         subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (episodeId,)
-        subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, episodeId + ".srt", format='srt',
-                                                                      proxy=self.proxy)
+        subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, episodeId + ".srt", format='srt', proxy=self.proxy)
 
         # we need an hash code
+        tokenJsonData = UriHandler.Open("http://ida.omroep.nl/app.php/auth", noCache=True, proxy=self.proxy)
+        tokenJson = JsonHelper(tokenJsonData)
+        token = tokenJson.GetValue("token")
+        
+        url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episodeId, token)
+        streamData = UriHandler.Open(url, proxy=self.proxy)
+        streamJson = JsonHelper(streamData, logger=Logger.Instance())
+        item.MediaItemParts = []
+        part = item.CreateNewEmptyMediaPart()
+        part.Subtitle = subTitlePath
+        
+        streamInfos = streamJson.GetValue("items")[0]
+        Logger.Trace(streamInfos)
+        for streamInfo in streamInfos:
+            Logger.Debug("Found stream info: %s", streamInfo)
+            if streamInfo["format"] == "mp3":
+                part.AppendMediaStream(streamInfo["url"], 0)
+                item.complete = True
+                continue
+                
+            elif streamInfo["format"] != "hls":
+                continue
+            
+            m3u8InfoUrl = streamInfo["url"]
+            m3u8InfoData = UriHandler.Open(m3u8InfoUrl, proxy=self.proxy)
+            m3u8InfoJson = JsonHelper(m3u8InfoData, logger=Logger.Instance())
+            m3u8Url = m3u8InfoJson.GetValue("url")
+            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
+            
+        
+        return item
+        
         hashCode = NpoStream.GetNpoToken(self.proxy, Config.cacheDir)
 
         item.MediaItemParts = []
