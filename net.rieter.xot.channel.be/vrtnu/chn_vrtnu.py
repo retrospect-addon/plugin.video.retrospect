@@ -169,6 +169,8 @@ class Channel(chn_class.Channel):
 
         v = Vault()
         password = v.GetChannelSetting(self.guid, "password")
+        if not password:
+            Logger.Warning("Found empty password for VRT user")
 
         Logger.Debug("Using: %s / %s", username, "*" * len(password))
         url = "https://accounts.eu1.gigya.com/accounts.login"
@@ -182,6 +184,9 @@ class Channel(chn_class.Channel):
 
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
         sig, uid, timestamp = self.__ExtractSessionData(logonData)
+        if sig is None and uid is None and timestamp is None:
+            return False
+
         url = "https://token.vrt.be/"
         tokenData = '{"uid": "%s", ' \
                     '"uidsig": "%s", ' \
@@ -376,7 +381,7 @@ class Channel(chn_class.Channel):
         if resultCode != 200:
             Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
                          logonJson.GetValue("errorDetails"))
-            return False
+            return None, None, None
 
         return \
             logonJson.GetValue("UIDSignature"), \
