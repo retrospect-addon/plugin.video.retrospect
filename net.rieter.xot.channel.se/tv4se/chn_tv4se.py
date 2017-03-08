@@ -5,21 +5,21 @@ import datetime
 
 import mediaitem
 import chn_class
-from addonsettings import AddonSettings
-from helpers.encodinghelper import EncodingHelper
-from helpers.jsonhelper import JsonHelper
+# from addonsettings import AddonSettings
+# from helpers.encodinghelper import EncodingHelper
+# from helpers.jsonhelper import JsonHelper
 
 from parserdata import ParserData
 from regexer import Regexer
 from helpers import subtitlehelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
-from helpers.datehelper import DateHelper
+# from helpers.datehelper import DateHelper
 from logger import Logger
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
-from vault import Vault
-from xbmcwrapper import XbmcWrapper
+# from vault import Vault
+# from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -64,13 +64,13 @@ class Channel(chn_class.Channel):
         self.episodeItemJson = ("results",)
         self._AddDataParser(self.mainListUri,
                             preprocessor=self.AddCategoriesAndSpecials, json=True,
-                            matchType=ParserData.MatchExact, requiresLogon=True,
+                            matchType=ParserData.MatchExact,  # requiresLogon=True,
                             parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
 
-        favRegex = '<a href="/program/(?<nid>[^"]+)"><img[^>]+alt="(?<name>[^"]+)"[^>]+src="(?<program_image>[^"]+)'
-        self._AddDataParser("http://www.tv4play.se/tv/favourites", name="Favourite parser",
-                            requiresLogon=True,
-                            parser=Regexer.FromExpresso(favRegex), creator=self.CreateEpisodeItem)
+        # favRegex = '<a href="/program/(?<nid>[^"]+)"><img[^>]+alt="(?<name>[^"]+)"[^>]+src="(?<program_image>[^"]+)'
+        # self._AddDataParser("http://www.tv4play.se/program/favourites", name="Favourite parser",
+        #                     requiresLogon=True,
+        #                     parser=Regexer.FromExpresso(favRegex), creator=self.CreateEpisodeItem)
 
         self._AddDataParser("http://webapi.tv4play.se/play/categories.json", json=True, matchType=ParserData.MatchExact,
                             parser=(), creator=self.CreateCategoryItem)
@@ -87,7 +87,6 @@ class Channel(chn_class.Channel):
         #===============================================================================================================
         # non standard items
         self.maxPageSize = 25  # The Android app uses a page size of 20
-        # self.loggedOn = self.AssureLoggedOn()
 
         #===============================================================================================================
         # Test cases:
@@ -97,109 +96,109 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def LogOn(self):
-        """ Makes sure that we are logged on. """
-
-        username = AddonSettings.GetSetting("channel_tv4play_se_username")
-        if not username:
-            Logger.Info("No user name for TV4 Play, not logging in")
-            return False
-
-        # Fetch an existing token
-        tokenSettingId = "channel_tv4play_se_token"
-        token = AddonSettings.GetSetting(tokenSettingId)
-        sessionToken = None
-        if token:
-            expiresAt, vimondSessionToken, sessionToken = token.split("|")
-            expireDate = DateHelper.GetDateFromPosix(float(expiresAt))
-            if expireDate > datetime.datetime.now():
-                Logger.Info("Found existing valid TV4Play token (valid until: %s)", expireDate)
-                self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
-                return True
-            Logger.Warning("Found existing expired TV4Play token")
-
-        Logger.Info("Fetching a new TV4Play token")
-        data = None
-        if sessionToken:
-            # 2a: try reauthenticating
-            # POST https://account.services.tv4play.se/session/reauthenticate
-            # session_token=<sessionToken>&client=tv4play-web
-            # returns the same as authenticate
-            Logger.Info("Reauthenticating based on the old TV4Play token")
-            params = "session_token=%s&" \
-                     "client=tv4play-web" % (
-                         HtmlEntityHelper.UrlEncode(sessionToken)
-                     )
-            data = UriHandler.Open("https://account.services.tv4play.se/session/reauthenticate",
-                                   noCache=True, proxy=self.proxy, params=params)
-
-        if not data or "vimond_session_token" not in data:
-            # 1: https://www.tv4play.se/session/new
-            # Extract the "authenticity_token"
-            Logger.Info("Authenticating based on username and password")
-
-            v = Vault()
-            password = v.GetSetting("channel_tv4play_se_password")
-            if not password:
-                XbmcWrapper.ShowDialog(
-                    title=None,
-                    lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
-                    # notificationType=XbmcWrapper.Error,
-                    # displayTime=5000
-                )
-
-            # 2b: https://account.services.tv4play.se/session/authenticate
-            # Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-            params = "username=%s&" \
-                     "password=%s&" \
-                     "remember_me=true&" \
-                     "client=tv4play-web" % (
-                         HtmlEntityHelper.UrlEncode(username),
-                         HtmlEntityHelper.UrlEncode(password),
-                     )
-            data = UriHandler.Open("https://account.services.tv4play.se/session/authenticate",
-                                   noCache=True, proxy=self.proxy, params=params)
-            if not data:
-                Logger.Error("Error logging in")
-                return
-
-        # Extract the data we need
-        data = JsonHelper(data)
-        vimondSessionToken = data.GetValue('vimond_session_token')
-        # vimondRememberMe = data.GetValue('vimond_remember_me')
-        sessionToken = data.GetValue('session_token')
-
-        # 2c: alternative: POST https://account.services.tv4play.se/session/keep_alive
-        # vimond_session_token=<vimondSessionToken>&session_token=<sessionToken>&client=tv4play-web
-        # returns:
-        # {"vimond_session_token":".....", # "vimond_remember_me":"......"}
-
-        # 3: https://token.services.tv4play.se/jwt?jsessionid=<vimondSessionToken>&client=tv4play-web
-        # Get an OAuth token -> not really needed for the standard HTTP calls but it gets us the
-        # expiration date
-        tokenUrl = "https://token.services.tv4play.se/jwt?jsessionid=%s&client=tv4play-web" % (vimondSessionToken, )
-        token = UriHandler.Open(tokenUrl, noCache=True, proxy=self.proxy)
-        # Figure out the expiration data
-        data, expires, other = token.split('.')
-        expires += "=" * (4 - len(expires) % 4)
-        Logger.Debug("Found data: \n%s\n%s\n%s", data, expires, other)
-        tokenData = EncodingHelper.DecodeBase64(expires)
-        tokenData = JsonHelper(tokenData)
-        expiresAt = tokenData.GetValue("exp")
-
-        Logger.Debug("Token expires at: %s (%s)", DateHelper.GetDateFromPosix(float(expiresAt)), expiresAt)
-        # AddonSettings.SetSetting(tokenSettingId, "%s|%s" % (expiresAt, token))
-        AddonSettings.SetSetting(tokenSettingId, "%s|%s|%s" % (expiresAt, vimondSessionToken, sessionToken))
-
-        # 4: use with: Authorization: Bearer <token>
-        # 4: use cookies:
-        #  Cookie: JSESSIONID=<vimondSessionToken>;
-        #  Cookie: sessionToken=<sessionToken>;
-        #  Cookie: rememberme=<sessionToken>;
-
-        # return {"JSESSIONID": vimondSessionToken, "sessionToken": sessionToken}
-        self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
-        return True
+    # def LogOn(self):
+    #     """ Makes sure that we are logged on. """
+    #
+    #     username = AddonSettings.GetSetting("channel_tv4play_se_username")
+    #     if not username:
+    #         Logger.Info("No user name for TV4 Play, not logging in")
+    #         return False
+    #
+    #     # Fetch an existing token
+    #     tokenSettingId = "channel_tv4play_se_token"
+    #     token = AddonSettings.GetSetting(tokenSettingId)
+    #     sessionToken = None
+    #     if token:
+    #         expiresAt, vimondSessionToken, sessionToken = token.split("|")
+    #         expireDate = DateHelper.GetDateFromPosix(float(expiresAt))
+    #         if expireDate > datetime.datetime.now():
+    #             Logger.Info("Found existing valid TV4Play token (valid until: %s)", expireDate)
+    #             self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
+    #             return True
+    #         Logger.Warning("Found existing expired TV4Play token")
+    #
+    #     Logger.Info("Fetching a new TV4Play token")
+    #     data = None
+    #     if sessionToken:
+    #         # 2a: try reauthenticating
+    #         # POST https://account.services.tv4play.se/session/reauthenticate
+    #         # session_token=<sessionToken>&client=tv4play-web
+    #         # returns the same as authenticate
+    #         Logger.Info("Reauthenticating based on the old TV4Play token")
+    #         params = "session_token=%s&" \
+    #                  "client=tv4play-web" % (
+    #                      HtmlEntityHelper.UrlEncode(sessionToken)
+    #                  )
+    #         data = UriHandler.Open("https://account.services.tv4play.se/session/reauthenticate",
+    #                                noCache=True, proxy=self.proxy, params=params)
+    #
+    #     if not data or "vimond_session_token" not in data:
+    #         # 1: https://www.tv4play.se/session/new
+    #         # Extract the "authenticity_token"
+    #         Logger.Info("Authenticating based on username and password")
+    #
+    #         v = Vault()
+    #         password = v.GetSetting("channel_tv4play_se_password")
+    #         if not password:
+    #             XbmcWrapper.ShowDialog(
+    #                 title=None,
+    #                 lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+    #                 # notificationType=XbmcWrapper.Error,
+    #                 # displayTime=5000
+    #             )
+    #
+    #         # 2b: https://account.services.tv4play.se/session/authenticate
+    #         # Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+    #         params = "username=%s&" \
+    #                  "password=%s&" \
+    #                  "remember_me=true&" \
+    #                  "client=tv4play-web" % (
+    #                      HtmlEntityHelper.UrlEncode(username),
+    #                      HtmlEntityHelper.UrlEncode(password),
+    #                  )
+    #         data = UriHandler.Open("https://account.services.tv4play.se/session/authenticate",
+    #                                noCache=True, proxy=self.proxy, params=params)
+    #         if not data:
+    #             Logger.Error("Error logging in")
+    #             return
+    #
+    #     # Extract the data we need
+    #     data = JsonHelper(data)
+    #     vimondSessionToken = data.GetValue('vimond_session_token')
+    #     # vimondRememberMe = data.GetValue('vimond_remember_me')
+    #     sessionToken = data.GetValue('session_token')
+    #
+    #     # 2c: alternative: POST https://account.services.tv4play.se/session/keep_alive
+    #     # vimond_session_token=<vimondSessionToken>&session_token=<sessionToken>&client=tv4play-web
+    #     # returns:
+    #     # {"vimond_session_token":".....", # "vimond_remember_me":"......"}
+    #
+    #     # 3: https://token.services.tv4play.se/jwt?jsessionid=<vimondSessionToken>&client=tv4play-web
+    #     # Get an OAuth token -> not really needed for the standard HTTP calls but it gets us the
+    #     # expiration date
+    #     tokenUrl = "https://token.services.tv4play.se/jwt?jsessionid=%s&client=tv4play-web" % (vimondSessionToken, )
+    #     token = UriHandler.Open(tokenUrl, noCache=True, proxy=self.proxy)
+    #     # Figure out the expiration data
+    #     data, expires, other = token.split('.')
+    #     expires += "=" * (4 - len(expires) % 4)
+    #     Logger.Debug("Found data: \n%s\n%s\n%s", data, expires, other)
+    #     tokenData = EncodingHelper.DecodeBase64(expires)
+    #     tokenData = JsonHelper(tokenData)
+    #     expiresAt = tokenData.GetValue("exp")
+    #
+    #     Logger.Debug("Token expires at: %s (%s)", DateHelper.GetDateFromPosix(float(expiresAt)), expiresAt)
+    #     # AddonSettings.SetSetting(tokenSettingId, "%s|%s" % (expiresAt, token))
+    #     AddonSettings.SetSetting(tokenSettingId, "%s|%s|%s" % (expiresAt, vimondSessionToken, sessionToken))
+    #
+    #     # 4: use with: Authorization: Bearer <token>
+    #     # 4: use cookies:
+    #     #  Cookie: JSESSIONID=<vimondSessionToken>;
+    #     #  Cookie: sessionToken=<sessionToken>;
+    #     #  Cookie: rememberme=<sessionToken>;
+    #
+    #     # return {"JSESSIONID": vimondSessionToken, "sessionToken": sessionToken}
+    #     self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
+    #     return True
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -288,13 +287,13 @@ class Channel(chn_class.Channel):
                     None, False
                 ),
             })
-            if self.loggedOn:
-                extras.update({
-                    "\a.: Favoriter :.": (
-                        "http://www.tv4play.se/tv/favourites",
-                        None, True
-                    ),
-                })
+            # if self.loggedOn:
+            #     extras.update({
+            #         "\a.: Favoriter :.": (
+            #             "http://www.tv4play.se/program/favourites",
+            #             None, True
+            #         ),
+            #     })
 
             today = datetime.datetime.now()
             days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
