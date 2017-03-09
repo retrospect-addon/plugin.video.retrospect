@@ -2,16 +2,13 @@ import datetime
 import re
 
 import mediaitem
-import contextmenu
 import chn_class
 
-from config import Config
 from regexer import Regexer
 from helpers import subtitlehelper
-from helpers.jsonhelper import JsonHelper
+# from helpers.jsonhelper import JsonHelper
 
 from logger import Logger
-from streams.m3u8 import M3u8
 from streams.npostream import NpoStream
 from urihandler import UriHandler
 from addonsettings import AddonSettings
@@ -43,9 +40,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "nosimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download item", "CtMnDownload", itemTypes='video'))
-
         # setup the urls
         if self.channelCode == "uzgjson":
             self.baseUrl = "http://apps-api.uitzendinggemist.nl"
@@ -66,28 +60,31 @@ class Channel(chn_class.Channel):
                             parser=(), creator=self.CreateJsonShows,
                             json=True)
 
+        # Use old urls with new Updater
+        self._AddDataParser("http://e.omroep.nl/metadata/", name="e.omroep.nl classic parser",
+                            updater=self.UpdateFromPoms)
+
         # live stuff
         self.baseUrlLive = "http://www.npo.nl"
 
         # live radio, the folders and items
         self._AddDataParser("http://radio-app.omroep.nl/player/script/",
+                            name="Live Radio Streams",
                             preprocessor=self.ExtractJsonForLiveRadio, json=True,
                             parser=(), creator=self.CreateLiveRadio)
-        self._AddDataParser("http://livestreams.omroep.nl",
+
+        self._AddDataParser("/live", matchType=ParserData.MatchEnd,
+                            name="Main Live Stream HTML parser",
+                            preprocessor=self.GetAdditionalLiveItems,
+                            parser="<img[^>]+alt=\"Logo van ([^\"]+)\" [^>]+src=\"([^\"]+)\" /></a>[\w\W]{0,400}?<div class='item current-item'>\W+<div class='time now'>Nu</div>\W+<div class='description'>\W+<a[^>]+href=\"/live/([^\"]+)\"[^>]*>([^<]+)[\w\W]{0,400}?<div class='item next-item'>\W+(?:<div class='time next'>([^<]+)</div>\W+<div class='description next'>\W+<[^>]+>([^<]+)|</div>)",
+                            creator=self.CreateLiveTv,
                             updater=self.UpdateVideoItemLive)
 
-        self._AddDataParser("/live", matchType=ParserData.MatchEnd, preprocessor=self.GetAdditionalLiveItems,
-                            parser="<img[^>]+alt=\"Logo van ([^\"]+)\" [^>]+src=\"([^\"]+)\" /></a>[\w\W]{0,400}?<div class='item current-item'>\W+<div class='time now'>Nu</div>\W+<div class='description'>\W+<a[^>]+href=\"/live/([^\"]+)\"[^>]*>([^<]+)[\w\W]{0,400}?<div class='item next-item'>\W+(?:<div class='time next'>([^<]+)</div>\W+<div class='description next'>\W+<[^>]+>([^<]+)|</div>)",
-                            creator=self.CreateLiveTv, updater=self.UpdateVideoItemLive)
-
-        # and some additional ones that might not appear in the first list
-        self._AddDataParser("/live", matchType=ParserData.MatchEnd,
-                            parser='<a href="/(live)/([^/"]+)"[^>]*>[\w\W]{0,300}?<div[^>]+'
-                                   'style="background-image: url\(&#x27;([^)]+)&#x27;\)"[^>]*></div>',
-                            creator=self.CreateLiveTv2)
+        self._AddDataParser("http://www.npo.nl/live/", name="Live Video Updater from HTML",
+                            updater=self.UpdateVideoItemLive)
 
         # recent and popular stuff and other Json data
-        self._AddDataParser(".json",
+        self._AddDataParser(".json", name="JSON List Parser",
                             parser=(), creator=self.CreateVideoItemJson,
                             json=True, matchType=ParserData.MatchEnd)
 
@@ -130,11 +127,13 @@ class Channel(chn_class.Channel):
             '<div[^>]+strip-item[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)"[^>]*>'
             '[^<]*</a>\W*<div[^>]*>\W*<img[^>]+data-img-src="(?<Image>[^"]+)"[\w\W]{0,1000}?'
             '<h3[^>]*>[\n\r]*(?<Title>[^<]+)[\n\r]*<')
-        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?", matchType=ParserData.MatchRegex,
-                            name="The A-Z Page video items",
+        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?",
+                            matchType=ParserData.MatchRegex,
+                            name="The A-Z Page 'video' items",
                             parser=programRegex, creator=self.CreateFolderItemAlpha)
-        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?", matchType=ParserData.MatchRegex,
-                            name="The A-Z Page page items",
+        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?",
+                            matchType=ParserData.MatchRegex,
+                            name="The A-Z Page 'page' items",
                             parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
 
         # favorites
@@ -153,14 +152,14 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("*", preprocessor=self.AddNextPageItem)
         self._AddDataParser("*",
-                            parser=self.nonMobileVideoItemRege2, creator=self.CreateVideoItemNonMobile,
+                            parser=self.nonMobileVideoItemRege2,
+                            creator=self.CreateVideoItemNonMobile,
                             updater=self.UpdateVideoItem)
 
-        self._AddDataParser("*",
-                            parser=self.nonMobileVideoItemRegex, creator=self.CreateVideoItemNonMobile,
-                            updater=self.UpdateVideoItem)
-
-        self._AddDataParser("*", parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
+        self._AddDataParser("*", parser=self.nonMobileVideoItemRegex,
+                            creator=self.CreateVideoItemNonMobile)
+        self._AddDataParser("*", parser=self.nonMobilePageRegex,
+                            creator=self.CreatePageItemNonMobile)
 
         # needs to be here because it will be too late in the script version
         self.__IgnoreCookieLaw()
@@ -178,7 +177,7 @@ class Channel(chn_class.Channel):
 
         username = self._GetSetting("username")
         if not username:
-            Logger.Info("No user name for TV4 Play, not logging in")
+            Logger.Info("No user name for NPO, not logging in")
             return False
 
         # cookieValue = self._GetSetting("cookie")
@@ -192,7 +191,8 @@ class Channel(chn_class.Channel):
         password = v.GetChannelSetting(self.guid, "password")
         # get the logon security token: http://www.npo.nl/sign_in_modal
         tokenData = UriHandler.Open("http://www.npo.nl/sign_in_modal",
-                                    proxy=self.proxy, noCache=True)
+                                    proxy=self.proxy, noCache=True,
+                                    additionalHeaders={"X-Requested-With": "XMLHttpRequest"})
         token = Regexer.DoRegex('name="authenticity_token"[^>]+value="([^"]+)"', tokenData)[0]
 
         # login: https://mijn.npo.nl/sessions POST
@@ -317,7 +317,8 @@ class Channel(chn_class.Channel):
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Live Radio", "http://radio-app.omroep.nl/player/script/player.js")
+        extra = mediaitem.MediaItem("Live Radio",
+                                    "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -403,6 +404,7 @@ class Channel(chn_class.Channel):
         data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
         # fixUp some json
         data = re.sub('(\w+):([^/])', '"\\1":\\2', data)
+        Logger.Trace(data)
         return data, items
 
     def AlphaListing(self, data):
@@ -431,10 +433,12 @@ class Channel(chn_class.Channel):
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
-                subItem = mediaitem.MediaItem(titleFormat % (char,), "http://www.npo.nl/programmas/a-z")
+                subItem = mediaitem.MediaItem(titleFormat % (char,),
+                                              "http://www.npo.nl/programmas/a-z")
             else:
                 subItem = mediaitem.MediaItem(titleFormat % (char,),
-                                              "http://www.npo.nl/programmas/a-z/%s" % (char.lower(),))
+                                              "http://www.npo.nl/programmas/a-z/%s" % (
+                                              char.lower(),))
             subItem.complete = True
             subItem.icon = self.icon
             subItem.thumb = self.noImage
@@ -445,7 +449,7 @@ class Channel(chn_class.Channel):
     def CreateFolderItem(self, resultSet):
         item = chn_class.Channel.CreateFolderItem(self, resultSet)
         if item.thumb.startswith("//"):
-            item.thumb = "https:%s" % (item.thumb, )
+            item.thumb = "https:%s" % (item.thumb,)
         return item
 
     def CreateFolderItemAlpha(self, resultSet):
@@ -632,7 +636,7 @@ class Channel(chn_class.Channel):
         currentPage = Regexer.DoRegex("page=(\d+)", self.parentItem.url)
         for page in currentPage:
             nextPage = int(page) + 1
-            url = self.parentItem.url.replace("page=%s" % (page, ), "page=%s" % (nextPage,))
+            url = self.parentItem.url.replace("page=%s" % (page,), "page=%s" % (nextPage,))
             pageItem = mediaitem.MediaItem("\a.: Meer afleveringen :.", url)
             pageItem.thumb = self.parentItem.thumb
             pageItem.complete = True
@@ -783,7 +787,7 @@ class Channel(chn_class.Channel):
         item.description = description
         item.thumb = resultSet["Image"].replace("s174/c174x98", "s348/c348x196")
         if item.thumb.startswith("//"):
-            item.thumb = "https:%s" % (item.thumb, )
+            item.thumb = "https:%s" % (item.thumb,)
 
         if "Premium" in resultSet and resultSet["Premium"]:
             item.isPaid = True
@@ -802,36 +806,6 @@ class Channel(chn_class.Channel):
         except:
             Logger.Warning("Could not set date", exc_info=True)
         return item
-
-    def UpdateVideoItem(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
-
-        Used to update none complete MediaItems (self.complete = False). This
-        could include opening the item's URL to fetch more data and then process that
-        data or retrieve it's real media-URL.
-
-        The method should at least:
-        * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
-        * set self.complete = True.
-
-        if the returned item does not have a MediaItemPart then the self.complete flag
-        will automatically be set back to False.
-
-        """
-
-        if "/radio/" in item.url or "/live/" in item.url or "/LI_" in item.url:
-            Logger.Info("Updating Live item: %s", item.url)
-            return self.UpdateVideoItemLive(item)
-
-        whatson_id = item.url
-        return self.__UpdateVideoItem(item, whatson_id)
 
     def CreateLiveTv(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
@@ -879,54 +853,6 @@ class Channel(chn_class.Channel):
         item.isLive = True
         return item
 
-    def CreateLiveTv2(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-
-        """
-
-        Logger.Trace(resultSet)
-
-        if resultSet[1] in (
-            'npo-1', 'npo-2', 'npo-3', 'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek',
-            'npo-best', 'npo-doc', 'npo-zappxtra', 'npo-humor-tv''npo-1', 'npo-2', 'npo-3',
-            'npo-nieuws', 'npo-cultura', 'npo-101', 'npo-politiek', 'npo-best', 'npo-doc',
-            'npo-zappxtra', 'npo-humor-tv'
-        ):
-            # We already have those
-            return None
-
-        # first regex matched -> video channel
-        name = resultSet[1]
-        name = name.replace("-", " ").capitalize()
-
-        item = mediaitem.MediaItem(name, "%s/%s/%s" % (self.baseUrlLive, resultSet[0], resultSet[1]), type="video")
-
-        if resultSet[2].startswith("http"):
-            item.thumb = resultSet[2].replace("regular_", "").replace("larger_", "")
-        elif resultSet[2].startswith("//"):
-            item.thumb = "http:%s" % (resultSet[2].replace("regular_", "").replace("larger_", ""),)
-        else:
-            item.thumb = "%s%s" % (self.baseUrlLive, resultSet[2].replace("regular_", "").replace("larger_", ""))
-        item.icon = self.icon
-        item.complete = False
-        item.isLive = True
-        return item
-
     def CreateLiveRadio(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
@@ -964,10 +890,11 @@ class Channel(chn_class.Channel):
         # first check for the video streams
         for stream in resultSet.get("videostreams", []):
             Logger.Trace(stream)
-            url = stream["url"]
-            if not url.endswith("m3u8"):
+            # url = stream["url"]
+            # if not url.endswith("m3u8"):
+            if not stream["protocol"] == "prid":
                 continue
-            item.url = url
+            item.url = "http://e.omroep.nl/metadata/%(url)s" % stream
             item.complete = False
             return item
 
@@ -980,8 +907,45 @@ class Channel(chn_class.Channel):
             url = stream["url"]
             part.AppendMediaStream(url, bitrate)
             item.complete = True
-
+            # if not stream["protocol"] == "prid":
+            #     continue
+            # item.url = "http://e.omroep.nl/metadata/%(url)s" % stream
+            # item.complete = False
         return item
+
+    def UpdateVideoItem(self, item):
+        """Updates an existing MediaItem with more data.
+
+        Arguments:
+        item : MediaItem - the MediaItem that needs to be updated
+
+        Returns:
+        The original item with more data added to it's properties.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        """
+
+        if "/radio/" in item.url or "/live/" in item.url or "/LI_" in item.url:
+            Logger.Info("Updating Live item: %s", item.url)
+            return self.UpdateVideoItemLive(item)
+
+        whatson_id = item.url
+        return self.__UpdateVideoItem(item, whatson_id)
+
+    def UpdateFromPoms(self, item):
+        poms = item.url.split("/")[-1]
+        return self.__UpdateVideoItem(item, poms)
 
     def UpdateVideoItemLive(self, item):
         """Updates an existing MediaItem with more data.
@@ -1011,33 +975,24 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
 
-        referer = {"referer": self.baseUrlLive}
-        streams = []  # NpoStream.GetLiveStreamsFromNpo(item.url, Config.cacheDir, proxy=self.proxy, headers=referer)
-        if streams:
-            Logger.Debug("Found live stream urls from item url")
-            for s, b in streams:
-                item.complete = True
-                part.AppendMediaStream(s, b)
-        else:
-            # we need to determine radio or live tv
-            Logger.Debug("Fetching live stream data from item url")
-            htmlData = UriHandler.Open(item.url, proxy=self.proxy)
+        # we need to determine radio or live tv
+        Logger.Debug("Fetching live stream data from item url: %s", item.url)
+        htmlData = UriHandler.Open(item.url, proxy=self.proxy)
 
-            mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
-            if len(mp3Urls) > 0:
-                Logger.Debug("Found MP3 URL")
-                part.AppendMediaStream(mp3Urls[0], 192)
-            else:
-                Logger.Debug("Finding the actual metadata url from %s", item.url)
-                jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
-                jsonUrl = None
-                for episodeId in jsonUrls:
-                    return self.__UpdateVideoItem(item, episodeId)
-                Logger.Warning("Cannot update live item: %s", item)
-                return item
+        mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
+        if len(mp3Urls) > 0:
+            Logger.Debug("Found MP3 URL")
+            part.AppendMediaStream(mp3Urls[0], 192)
+        else:
+            Logger.Debug("Finding the actual metadata url from %s", item.url)
+            jsonUrls = Regexer.DoRegex(
+                '<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
+            for episodeId in jsonUrls:
+                return self.__UpdateVideoItem(item, episodeId)
+            Logger.Warning("Cannot update live item: %s", item)
+            return item
 
         item.complete = True
-        # Logger.Trace(item)
         return item
 
     def GetDefaultCachePath(self):
@@ -1104,189 +1059,20 @@ class Channel(chn_class.Channel):
 
         # get the subtitle
         subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (episodeId,)
-        subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, episodeId + ".srt", format='srt', proxy=self.proxy)
-
-        # we need an hash code
-        tokenJsonData = UriHandler.Open("http://ida.omroep.nl/app.php/auth", noCache=True, proxy=self.proxy)
-        tokenJson = JsonHelper(tokenJsonData)
-        token = tokenJson.GetValue("token")
-        
-        url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episodeId, token)
-        streamData = UriHandler.Open(url, proxy=self.proxy)
-        streamJson = JsonHelper(streamData, logger=Logger.Instance())
-        item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
-        part.Subtitle = subTitlePath
-        
-        streamInfos = streamJson.GetValue("items")[0]
-        Logger.Trace(streamInfos)
-        for streamInfo in streamInfos:
-            Logger.Debug("Found stream info: %s", streamInfo)
-            if streamInfo["format"] == "mp3":
-                part.AppendMediaStream(streamInfo["url"], 0)
-                item.complete = True
-                continue
-                
-            elif streamInfo["contentType"] == "live":
-                Logger.Debug("Found live stream")
-                url = streamInfo["url"]
-                url = url.replace("jsonp", "json")
-                liveUrlData = UriHandler.Open(url, proxy=self.proxy)
-                # liveUrl = JsonHelper(liveUrlData, logger=Logger.Instance()).GetValue()
-                liveUrl = liveUrlData.strip("\"").replace("\\", "")
-                Logger.Trace(liveUrl)
-                for s, b in M3u8.GetStreamsFromM3u8(liveUrl, self.proxy):
-                    item.complete = True
-                    # s = self.GetVerifiableVideoUrl(s)
-                    part.AppendMediaStream(s, b)
-                return item
-            
-            elif streamInfo["format"] != "hls":
-                continue
-            
-            m3u8InfoUrl = streamInfo["url"]
-            m3u8InfoData = UriHandler.Open(m3u8InfoUrl, proxy=self.proxy)
-            m3u8InfoJson = JsonHelper(m3u8InfoData, logger=Logger.Instance())
-            m3u8Url = m3u8InfoJson.GetValue("url")
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
-            
-        
-        return item
-        
-        hashCode = NpoStream.GetNpoToken(self.proxy, Config.cacheDir)
+        subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl,
+                                                                      episodeId + ".srt",
+                                                                      format='srt',
+                                                                      proxy=self.proxy)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
         part.Subtitle = subTitlePath
 
-        # then we fetch alternative streams locations and start with the non-adapative ones
-        streamsUrls = []
-        directStreamVideos = AddonSettings.GetUzgCacheDuration() == 0
-        streamSource = [
-            "http://ida.omroep.nl/odi/?prid=%s&puboptions=h264_bb,h264_sb,h264_std&adaptive=no&part=1&token=%s" % (
-                episodeId, hashCode,)]
-        if directStreamVideos:
-            # if we stream, then we first look for adaptive streams
-            Logger.Debug("UZG is configured to streams, so also check for the adaptive streams")
-            streamSource.insert(0,
-                                "http://ida.omroep.nl/odi/?prid=%s&puboptions=adaptive&adaptive=yes&part=1&token=%s" % (
-                                    episodeId, hashCode,))
-        else:
-            Logger.Debug("UZG is configured to download. Not going to fetch the adaptive streams")
+        for s, b in NpoStream.GetStreamsFromNpo(None, episodeId, proxy=self.proxy):
+            item.complete = True
+            # s = self.GetVerifiableVideoUrl(s)
+            part.AppendMediaStream(s, b)
 
-        # get the actual stream locations streams:
-        for streamSourceUrl in streamSource:
-            streamUrlData = UriHandler.Open(streamSourceUrl, proxy=self.proxy, noCache=True)
-            streamJson = JsonHelper(streamUrlData, logger=Logger.Instance())
-            for url in streamJson.GetValue('streams'):
-                Logger.Trace("Going to look for streams in: %s", url)
-                streamsUrls.append(url)
-
-        # should we cache before playback
-        if not directStreamVideos:
-            part.CanStream = False
-
-        # now we should now actually go and fetch urls
-        for url in streamsUrls:
-            data = UriHandler.Open(url, proxy=self.proxy)
-            jsonData = JsonHelper(data, logger=Logger.Instance())
-
-            # check for errors
-            streamData = jsonData.GetValue()
-            if "errorstring" in streamData:
-                Logger.Warning("Found error response: %s", streamData["errorstring"])
-                continue
-
-            # either do m3u8 or hls
-            if "m3u8" in url.lower():
-                Logger.Trace("Processing M3U8 Json: %s", url)
-                m3u8url = jsonData.GetValue("url")
-                if m3u8url is None:
-                    Logger.Warning("Could not find stream in: %s", m3u8url)
-                    continue
-                Logger.Trace("Processing M3U8 Streams: %s", m3u8url)
-
-                for s, b in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy):
-                    item.complete = True
-                    part.AppendMediaStream(s, b)
-
-                # if we found an adaptive m3u8, we take that one as it's better
-                Logger.Info("Found M3u8 streams and using those. Stop looking further for non-adaptive ones.")
-                break
-            else:
-                Logger.Trace("Processing HLS: %s", url)
-                if "h264_bb" in url:
-                    bitrate = 500
-                elif "h264_sb" in url:
-                    bitrate = 220
-                elif "h264_std" in url:
-                    bitrate = 1000
-                else:
-                    bitrate = None
-
-                protocol = jsonData.GetValue('protocol')
-                if protocol:
-                    url = "%s://%s%s" % (protocol, jsonData.GetValue('server'), jsonData.GetValue('path'))
-                    part.AppendMediaStream(url, bitrate=bitrate)
-                else:
-                    Logger.Warning("Found UZG Stream without a protocol. Probably a expired page.")
-
-        if not item.HasMediaItemParts():
-            Logger.Warning("Apparently no streams were present in the normal places. Trying streams in metadata")
-
-            # fetch the meta data to get more streams
-            metaUrl = "http://e.omroep.nl/metadata/%s" % (episodeId,)
-            metaData = UriHandler.Open(metaUrl, proxy=self.proxy)
-            metaJson = JsonHelper(metaData, logger=Logger.Instance())
-
-            # sometimes there are streams direct in the meta data file
-            directStreams = metaJson.GetValue("streams", fallback=[])
-            for stream in directStreams:
-                quality = stream.get("kwaliteit", 0)
-                if quality == 1:
-                    bitrate = 180
-                elif quality == 2:
-                    bitrate = 1000
-                elif quality == 3:
-                    bitrate = 1500
-                else:
-                    bitrate = 0
-
-                if "formaat" in stream and stream["formaat"] == "h264":
-                    bitrate += 1
-                part.AppendMediaStream(stream["url"], bitrate)
-
-            # now we can get extra info from the data
-            item.description = metaJson.GetValue("info")
-            item.title = metaJson.GetValue('aflevering_titel')
-            station = metaJson.GetValue('streamSense', 'station')
-
-            if station is None:
-                item.icon = self.icon
-            elif station.startswith('nederland_1'):
-                item.icon = self.GetImageLocation("1large.png")
-            elif station.startswith('nederland_2'):
-                item.icon = self.GetImageLocation("2large.png")
-            elif station.startswith('nederland_3'):
-                item.icon = self.GetImageLocation("3large.png")
-            Logger.Trace("Icon for station %s = %s", station, item.icon)
-
-            # <image size="380x285" ratio="4:3">http://u.omroep.nl/n/a/2010-12/380x285_boerzoektvrouw_yvon.png</image>
-            thumbUrls = metaJson.GetValue('images')  # , {"size": "380x285"}, {"ratio":"4:3"})
-            Logger.Trace(thumbUrls)
-            if thumbUrls:
-                thumbUrl = thumbUrls[-1]['url']
-                if "http" not in thumbUrl:
-                    thumbUrl = "http://u.omroep.nl/n/a/%s" % (thumbUrl,)
-            else:
-                thumbUrl = self.noImage
-
-            item.thumb = thumbUrl
-
-        item.complete = True
         return item
 
     def __GetThumbUrl(self, thumbnails):
@@ -1304,8 +1090,9 @@ class Channel(chn_class.Channel):
         if len(thumbnails) > 0:
             thumbnails = thumbnails.split(';')
             # Logger.Trace(thumbnails)
-            thumbUrl = thumbnails[1].replace('140x79', '280x158').replace('60x34', '280x158').replace("&quot", "")
-            # Logger.Trace(thumbUrl)
+            thumbUrl = thumbnails[1].replace('140x79', '280x158').\
+                replace('60x34', '280x158').\
+                replace("&quot", "")
         else:
             thumbUrl = ""
 
@@ -1316,7 +1103,8 @@ class Channel(chn_class.Channel):
 
         Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.www.uitzendinggemist.nl')
+        UriHandler.SetCookie(name='site_cookie_consent', value='yes',
+                             domain='.www.uitzendinggemist.nl')
         UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
 
         UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
