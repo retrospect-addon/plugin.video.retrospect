@@ -47,7 +47,7 @@ class M3u8:
             Logger.Info("Going to append QS: %s", qs)
 
         Logger.Debug("Processing M3U8 Streams: %s", url)
-        needle = "BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
+        needle = "(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
         needles = Regexer.DoRegex(needle, data)
 
         baseUrlLogged = False
@@ -55,17 +55,21 @@ class M3u8:
         for n in needles:
             # see if we need to append a server path
             Logger.Trace(n)
-            if "://" not in n[1]:
+
+            if "#EXT-X-I-FRAME" in n[0]:
+                continue
+
+            if "://" not in n[2]:
                 if not baseUrlLogged:
                     Logger.Debug("Using baseUrl %s for M3u8", baseUrl)
                     baseUrlLogged = True
-                stream = "%s/%s" % (baseUrl, n[1])
+                stream = "%s/%s" % (baseUrl, n[2])
             else:
                 if not baseUrlLogged:
                     Logger.Debug("Full url found in M3u8")
                     baseUrlLogged = True
-                stream = n[1]
-            bitrate = n[0]
+                stream = n[2]
+            bitrate = n[1]
 
             if qs is not None and stream.endswith("?null="):
                 stream = stream.replace("?null=", "?%s" % (qs, ))
@@ -82,8 +86,11 @@ if __name__ == "__main__":
 
     # url = "http://tv4play-i.akamaihd.net/i/mp4root/2014-01-27/Bingolotto2601_2534830_,T6MP43,T6MP48,T6MP415,_.mp4.csmil/master.m3u8"
     # url = "http://iphone.streampower.be/een_nogeo/_definst_/2013/08/1000_130830_placetobe_marjolein_Website_Een_M4V.m4v/playlist.m3u8"
-    # url = "http://iphone.cdn.viasat.tv/iphone/001/00104/V10427_16andpregnant_xn7qthrkj0heoqgq_iphone.m3u8"  # has only a bitrate
-    url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"  # appendQueryString
+    # url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"  # appendQueryString
+    # url = "https://smoote1a.omroep.nl/urishieldv2/l2cm221c27e6ca0058c1adda000000.e6592cb04974c5ff/live/npo/tvlive/npo3/npo3.isml/npo3.m3u8"
+    # url = "http://embed.kijk.nl/api/playlist/9JKFARNrJEz_dbzyr6.m3u8?user_token=S0nHgrI3Sh16XSxOpLm7m2Xt7&app_token=CgZzYW5vbWESEjlKS0ZBUk5ySkV6X2RienlyNhoOMTkzLjExMC4yMzQuMjIiGVMwbkhnckkzU2gxNlhTeE9wTG03bTJYdDcotIDZpKsrMgJoADoERlZPREIDU0JTShI5SktGQVJOckpFel9kYnp5cjY%3D%7CmGGy/TM5eOmoSCNwG2I4bGKvMBOvBD9YsadprKSVqv4%3D&base_url=http%3A//emp-prod-acc-we.ebsd.ericsson.net/sbsgroup"
+    # url = "http://manifest.us.rtl.nl/rtlxl/v166/network/pc/adaptive/components/soaps/theboldandthebeautiful/338644/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.ssm/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.m3u8"
+    url = "http://svtplay2r-f.akamaihd.net/i/world/open/20170307/1377039-008A/PG-1377039-008A-AGENDA2017-03_,988,240,348,456,636,1680,2796,.mp4.csmil/master.m3u8"
     results = M3u8.GetStreamsFromM3u8(url, DebugInitializer.Proxy, appendQueryString=True)
     results.sort(lambda x, y: cmp(int(x[1]), int(y[1])))
     for s, b in results:
