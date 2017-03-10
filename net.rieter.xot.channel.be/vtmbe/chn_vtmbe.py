@@ -515,6 +515,7 @@ class Channel(chn_class.Channel):
     def __ExtractSessionData(self, logonData, signatureSettings):
         logonJson = JsonHelper(logonData)
         resultCode = logonJson.GetValue("statusCode")
+        Logger.Trace("Logging in returned: %s", resultCode)
         if resultCode != 200:
             Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
                          logonJson.GetValue("errorDetails"))
