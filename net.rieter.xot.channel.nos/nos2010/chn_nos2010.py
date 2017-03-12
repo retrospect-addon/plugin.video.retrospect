@@ -985,8 +985,11 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(mp3Urls[0], 192)
         else:
             Logger.Debug("Finding the actual metadata url from %s", item.url)
-            jsonUrls = Regexer.DoRegex(
-                '<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
+            if "npo-3" in item.url:
+                # NPO3 has apparently switched the normal and hearing impaired streams?
+                jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', htmlData)
+            else:
+                jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-prid="([^"]+)"', htmlData)
             for episodeId in jsonUrls:
                 return self.__UpdateVideoItem(item, episodeId)
             Logger.Warning("Cannot update live item: %s", item)
