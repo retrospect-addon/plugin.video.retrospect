@@ -190,4 +190,10 @@
     <string id="30595">Input Retrospect PIN</string>
     <string id="30596">Incorrect Retrospect PIN specified</string>
     <string id="30597">Resetting the vault will invalidate all existing encrypted values. Are you sure?</string>
+
+    <string id="30598">Send retrospect.log</string>
+    <string id="30599">Logfile posted:\n\n%s\n\nIt will be available for 1 month.</string>
+    <string id="30600">Logfile successfully posted</string>
+    <string id="30601">Error posting logfile: %s</string>
+    <string id="30602">Error posting logfile</string>
 </strings>

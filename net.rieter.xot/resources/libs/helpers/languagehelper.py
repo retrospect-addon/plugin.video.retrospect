@@ -92,6 +92,12 @@ class LanguageHelper:
     VaultResetConfirm = 30597
     VaultReset = 30092
 
+    PasteBinSetting = 30598
+    PasteBinLogUrl = 30599
+    PasteBinSuccessTitle = 30600
+    PasteBinError = 30601
+    PasteBinErrorTitle = 30602
+
     __Categories = {"None": 30100,
                     "Regional": 30101,
                     "National": 30102,

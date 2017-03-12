@@ -22,11 +22,10 @@
 
         <setting type="lsep" label="30089" />
         <setting id="pin_label" type="text" label="30090" enable="false" />
-        <!-- we need the option="close" here to make sure we don't overwrite settings that were already done
-             while updating the settings from the script -->
+        <!-- we need the option="close" here to make sure we don't overwrite settings that were
+             already done while updating the settings from the script -->
         <setting id="set_pin" label="30091" type="action" action="RunScript(net.rieter.xot, 0, ?action=changepin&amp;tabfocus=100&amp;settingfocus=209)" option="close" />
         <setting id="reset_vault" label="30092" type="action" action="RunScript(net.rieter.xot, 0, ?action=resetvault&amp;tabfocus=100&amp;settingfocus=210)" option="close" />
-        <!--<setting label="Set test encryption" type="action" action="RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=test_encryption&amp;settingname=Set test encryption)"/>-->
 
         <setting type="lsep" label="30046" />
         <setting id="show_drm_warning" type="bool" label="30019" enable="true" default="true" />
@@ -39,6 +38,7 @@
         <setting type="lsep" label="30055" />
         <setting id="send_statistics" type="bool" label="30052" default="true" />
         <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
+        <setting id="send_log" type="action" label="30598" action="RunScript(net.rieter.xot, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />
         <setting id="http_cache" type="bool" label="30031" default="true" />
     </category>
 

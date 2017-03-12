@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2017-02-09 21:31+0000\n"
+"POT-Creation-Date: 2017-03-12 21:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -762,4 +762,24 @@ msgstr ""
 
 msgctxt "#30597"
 msgid "Resetting the vault will invalidate all existing encrypted values. Are you sure?"
+msgstr ""
+
+msgctxt "#30598"
+msgid "Send retrospect.log"
+msgstr ""
+
+msgctxt "#30599"
+msgid "Logfile posted:\n\n%s\n\nIt will be available for 1 month."
+msgstr ""
+
+msgctxt "#30600"
+msgid "Logfile successfully posted"
+msgstr ""
+
+msgctxt "#30601"
+msgid "Error posting logfile: %s"
+msgstr ""
+
+msgctxt "#30602"
+msgid "Error posting logfile"
 msgstr ""

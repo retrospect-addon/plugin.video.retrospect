@@ -79,6 +79,7 @@ class Plugin:
         self.actionResetVault = "resetvault"                            # : Action used for resetting the vault
         self.actionCloak = "cloak"                                      # : Action used for cloaking
         self.actionUnCloak = "uncloak"                                  # : Action used for uncloaking
+        self.actionPostLog = "postlog"                                  # : Action used for sending log files to pastebin.com
 
         self.keywordPickle = "pickle".lower()                           # : Keyword used for the pickle item
         self.keywordAction = "action".lower()                           # : Keyword used for the action item
@@ -234,6 +235,11 @@ class Plugin:
                             AddonSettings.ShowSettings(self.params[self.keywordSettingTabFocus],
                                                        self.params.get(
                                                            self.keywordSettingSettingFocus, None))
+                    return
+
+                elif self.keywordAction in self.params and \
+                        self.actionPostLog in self.params[self.keywordAction]:
+                    self.__SendLog()
                     return
 
                 else:
@@ -1030,6 +1036,24 @@ class Plugin:
         XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
                                      title, XbmcWrapper.Error, 2500)
         return ok
+
+    @LockWithDialog(logger=Logger.Instance())
+    def __SendLog(self):
+        from helpers.logsender import LogSender
+        l = LogSender(Config.PasteBinApiKey, logger=Logger.Instance(), mode='pastebin')
+        try:
+            title = LanguageHelper.GetLocalizedString(LanguageHelper.PasteBinSuccessTitle)
+            urlText = LanguageHelper.GetLocalizedString(LanguageHelper.PasteBinLogUrl)
+            pasteUrl = l.SendFile(Config.logFileNameAddon, Logger.Instance().logFileName)
+            XbmcWrapper.ShowDialog(title, urlText % (pasteUrl,))
+        except Exception, e:
+            Logger.Error("Error sending %s", Config.logFileNameAddon, exc_info=True)
+
+            title = LanguageHelper.GetLocalizedString(LanguageHelper.PasteBinErrorTitle)
+            errorText = LanguageHelper.GetLocalizedString(LanguageHelper.PasteBinError)
+            error = errorText % (e.message,)
+            XbmcWrapper.ShowDialog(title, error.strip(": "))
+        return
 
     def __CloakItem(self):
         from cloaker import Cloaker

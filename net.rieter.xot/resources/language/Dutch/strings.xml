@@ -190,4 +190,10 @@
     <string id="30595">Voer de Retrospect PIN in</string>
     <string id="30596">Foutieve Retrospect PIN ingevoerd</string>
     <string id="30597">Het resetten van de kluis zal alle bestaande versleutelde instellingen onleesbaar maken. Doorgaan met resetten?</string>
+
+    <string id="30598">Stuur retrospect.log</string>
+    <string id="30599">Logfile verstuurd:\n\n%s\n\nDeze zal beschikbaar zijn voor 1 maand.</string>
+    <string id="30600">Logfile succesvol verstuurd</string>
+    <string id="30601">Fout bij het vesturen van de logfile: %s</string>
+    <string id="30602">Fout bij het vesturen</string>
 </strings>
