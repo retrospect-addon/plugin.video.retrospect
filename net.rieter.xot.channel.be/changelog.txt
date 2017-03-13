@@ -1,8 +1,10 @@
 ﻿[B]Changelog[/B]
-Added: A bit more logging to the VTM.be channel (See #839)
-Fixed: Proper error in logging if VRT log in fails (See #818)
+Fixed: VRT.nu regex was causing performance issues (Fixes #842)
+Removed: Canvas as they are now 100% on VRT.nu
 
 [I]Previous Changes[/I]
+Added: A bit more logging to the VTM.be channel (See #839)
+Fixed: Proper error in logging if VRT log in fails (See #818)
 Fixed: VTM and Q2 streams now always start at the beginning (Fixes #820)
 Added: VRT NU art for all included channels (See #823)
 Fixed: Vier/Vijf.be would also have the audio only streams (Fixes #822)

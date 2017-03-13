@@ -39,7 +39,7 @@ class Channel(chn_class.Channel):
         episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
                        '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[\w\W]{0,2000}?' \
                        '<h3[^>]+>(?<title>[^<]+)(?:<span[^>]+>&lt;p&gt;(?<description>[^<]+)' \
-                       '&lt;/p&gt;<)?[\w\W]{0,5000}?<use xlink:href="#logo-(?<channel>[^"]+)'
+                       '&lt;/p&gt;<)[\w\W]{0,5000}?<use xlink:href="[^"]*#logo-(?<channel>[^"]+)'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
