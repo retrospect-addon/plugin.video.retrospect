@@ -192,7 +192,7 @@
     <string id="30597">Om du återställer koden går alla sparade inloggningar förlorade. Är du säker?</string>
 
     <string id="30598">Skicka retrospect.log</string>
-    <string id="30599">Loggfil uppskickad:\n\n%s\n\nDen kommer att vara tillgänglig i en månad.</string>
+    <string id="30599">Loggfil uppskickad: %s\n\nDen kommer att vara tillgänglig i en månad.</string>
     <string id="30600">Loggfilen uppskickad</string>
     <string id="30601">Misslyckades skicka loggfil: %s</string>
     <string id="30602">Misslyckades skicka loggfilen</string>

@@ -8,13 +8,12 @@ from helpers.jsonhelper import JsonHelper
 class LogSender:
     def __init__(self, apiKey, logger=None, proxy=None, mode='gist'):
         """
-
-        @param apiKey: the API key for pastebin or gist 
+        @param apiKey: the API key for pastebin or gist
         @param logger: a possible Logger object
         @param proxy:  a possible proxy to use
-        @param mode:   either 'gist' or 'pastebin'
-        
+        @param mode:   either 'gist' or 'pastebin'        
         """
+
         if not apiKey:
             raise ValueError("API key missing")
 
@@ -31,33 +30,33 @@ class LogSender:
             raise ValueError("Invalid mode: %s" % (mode, ))
         return
 
-    def Login(self, username, password):
-        if not username:
-            raise ValueError("Username missing")
-        if not password:
-            raise ValueError("Password missing")
-
-        params = {
-            'api_user_name': username,
-            'api_user_password': password,
-            'api_dev_key': self.__apiKey
-        }
-
-        postParams = reduce(lambda x, y: "%s&%s=%s" % (
-            x,
-            y,
-            HtmlEntityHelper.UrlEncode(str(params[y]))), params.keys(), "").lstrip("&")
-
-        data = UriHandler.Open("http://pastebin.com/api/api_login.php", params=postParams,
-                               proxy=self.__proxy)
-
-        if len(data) != 32:
-            raise IOError(data)
-
-        if self.__logger:
-            self.__logger.Trace("User Key: %s", data)
-
-        return data
+    # def Login(self, username, password):
+    #     if not username:
+    #         raise ValueError("Username missing")
+    #     if not password:
+    #         raise ValueError("Password missing")
+    #
+    #     params = {
+    #         'api_user_name': username,
+    #         'api_user_password': password,
+    #         'api_dev_key': self.__apiKey
+    #     }
+    #
+    #     postParams = reduce(lambda x, y: "%s&%s=%s" % (
+    #         x,
+    #         y,
+    #         HtmlEntityHelper.UrlEncode(str(params[y]))), params.keys(), "").lstrip("&")
+    #
+    #     data = UriHandler.Open("http://pastebin.com/api/api_login.php", params=postParams,
+    #                            proxy=self.__proxy)
+    #
+    #     if len(data) != 32:
+    #         raise IOError(data)
+    #
+    #     if self.__logger:
+    #         self.__logger.Trace("User Key: %s", data)
+    #
+    #     return data
 
     def SendFile(self, name, filePath, expire='1M', pasteFormat=None, userKey=None):
         if not filePath:
@@ -66,24 +65,60 @@ class LogSender:
         if self.__logger:
             self.__logger.Info("Sending log at: %s", filePath)
 
-        code = ""
-        with open(filePath) as fp:
-            fp.seek(0, os.SEEK_END)
-            size = fp.tell()
-            fp.seek(0, os.SEEK_SET)
-            if size > self.__maxSize:
-                if self.__logger:
-                    self.__logger.Warning("Filesize too large: %s, posting last %s kB",
-                                          size, self.__maxSize / 1024)
+        if self.__mode == 'gist':
+            return self.SendFiles(name, [filePath])
 
-                # post the top so wwe have all the required data, and the bottom
-                topBytes = 20
-                code += fp.read(topBytes * 1024)
-                code += "\n%s\n" % ("*" * 100)
-                fp.seek(-(self.__maxSize - (topBytes * 1024)), os.SEEK_END)
+        code = self.__ReadFileBytes(filePath)
+        return self.Send(name, code, expire, pasteFormat, userKey)
 
-            code += fp.read()
-            return self.Send(name, code, expire, pasteFormat, userKey)
+    def SendFiles(self, name, filePaths):
+        if self.__mode != "gist":
+            raise ValueError("Invalid mode for multiple files")
+
+        params = {
+            "description": name,
+            "public": True,
+            "files": {
+                # name: {
+                #     "content": code
+                # }
+            }
+        }
+
+        for filePath in filePaths:
+            if not os.path.isfile(filePath):
+                continue
+            code = self.__ReadFileBytes(filePath)
+            fileName = os.path.split(filePath)
+            params["files"][fileName[-1]] = {"content": code}
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+        postData = JsonHelper.Dump(params, prettyPrint=False)
+        data = UriHandler.Open("https://api.github.com/gists", params=postData,
+                               proxy=self.__proxy, additionalHeaders=headers)
+        if not data:
+            raise IOError("Error posting Gist to GitHub")
+
+        jsonData = JsonHelper(data)
+        url = jsonData.GetValue("html_url")
+        if self.__logger:
+            self.__logger.Info("Gist: %s", url)
+
+        # minify with google
+        # POST https://www.googleapis.com/urlshortener/v1/url
+        # Content-Type: application/json
+        shortener = {"longUrl": url}
+        google = "https://www.googleapis.com/urlshortener/v1/url?key=%s" % (self.__apiKey,)
+        googleData = UriHandler.Open(google, params=JsonHelper.Dump(shortener, False),
+                                     proxy=self.__proxy,
+                                     additionalHeaders={"Content-Type": "application/json"})
+
+        googleUrl = JsonHelper(googleData).GetValue("id")
+        if self.__logger:
+            self.__logger.Info("Goo.gl: %s", googleUrl)
+        return googleUrl
 
     def Send(self, name, code, expire='1M', pasteFormat=None, userKey=None):
         if not name:
@@ -120,7 +155,16 @@ class LogSender:
         if self.__logger:
             self.__logger.Info("Gist: %s", url)
 
-        return url
+        # minify with google
+        # POST https://www.googleapis.com/urlshortener/v1/url
+        # Content-Type: application/json
+        shortener = {"longUrl": url}
+        google = "https://www.googleapis.com/urlshortener/v1/url?key=%s" % (self.__apiKey, )
+        googleData = UriHandler.Open(google, params=JsonHelper.Dump(shortener, False),
+                                     proxy=self.__proxy,
+                                     additionalHeaders={"Content-Type": "application/json"})
+
+        return JsonHelper(googleData).GetValue("id")
 
     def __SendPasteBin(self, name, code, expire='1M', pasteFormat=None, userKey=None):
         if not name:
@@ -161,3 +205,23 @@ class LogSender:
             self.__logger.Info("PasteBin: %s", data)
 
         return data
+
+    def __ReadFileBytes(self, filePath):
+        code = ""
+        with open(filePath) as fp:
+            fp.seek(0, os.SEEK_END)
+            size = fp.tell()
+            fp.seek(0, os.SEEK_SET)
+            if size > self.__maxSize:
+                if self.__logger:
+                    self.__logger.Warning("Filesize too large: %s, posting last %s kB",
+                                          size, self.__maxSize / 1024)
+
+                # post the top so wwe have all the required data, and the bottom
+                topBytes = 20
+                code += fp.read(topBytes * 1024)
+                code += "\n%s\n" % ("*" * 100)
+                fp.seek(-(self.__maxSize - (topBytes * 1024)), os.SEEK_END)
+
+            code += fp.read()
+        return code

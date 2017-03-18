@@ -92,11 +92,11 @@ class LanguageHelper:
     VaultResetConfirm = 30597
     VaultReset = 30092
 
-    PasteBinSetting = 30598
-    PasteBinLogUrl = 30599
-    PasteBinSuccessTitle = 30600
-    PasteBinError = 30601
-    PasteBinErrorTitle = 30602
+    LogPostSetting = 30598
+    LogPostLogUrl = 30599
+    LogPostSuccessTitle = 30600
+    LogPostError = 30601
+    LogPostErrorTitle = 30602
 
     __Categories = {"None": 30100,
                     "Regional": 30101,

@@ -78,4 +78,4 @@ class Config:
     TextureMode = "Cached"                                   # : The mode for the textures: Local, Remote or Cached
     TextureUrl = "http://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
 
-    PasteBinApiKey = "1786d25d01392d572659bba76f95174f"      # : The Retrospect Pastebin key
+    GooglApi = "AIzaSyCvcSU8ljnJ4_MKuFsR3nGW9B9Y1ymzWWQ"     # : The Retrospect Google Shortener key
