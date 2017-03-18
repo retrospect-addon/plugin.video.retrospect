@@ -25,7 +25,7 @@ class LogSender:
         if mode == 'pastebin':
             self.__maxSize = 475 * 1024  # max is 500 kB but we play it safe
         elif mode == 'gist':
-            self.__maxSize = 995 * 1024  # max is 1000 kB but we play it safe
+            self.__maxSize = 25 * 1024 * 1024  # max is 1000 kB for displaying, none for raw
         else:
             raise ValueError("Invalid mode: %s" % (mode, ))
         return
@@ -77,7 +77,7 @@ class LogSender:
 
         params = {
             "description": name,
-            "public": True,
+            "public": False,
             "files": {
                 # name: {
                 #     "content": code
@@ -134,7 +134,7 @@ class LogSender:
     def __SendGitHubGist(self, name, code):
         params = {
             "description": name,
-            "public": True,
+            "public": False,
             "files": {
                 name: {
                     "content": code
