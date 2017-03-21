@@ -5,7 +5,6 @@ import mediaitem
 import chn_class
 # import proxyinfo
 
-from helpers import subtitlehelper
 from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
@@ -13,6 +12,7 @@ from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.datehelper import DateHelper
+from helpers.subtitlehelper import SubtitleHelper
 from parserdata import ParserData
 from addonsettings import AddonSettings
 from streams.m3u8 import M3u8
@@ -650,9 +650,9 @@ class Channel(chn_class.Channel):
         if item.MediaItemParts:
             part = item.MediaItemParts[0]
             if part.Subtitle and part.Subtitle.endswith(".vtt"):
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
             else:
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
         else:
             part = item.CreateNewEmptyMediaPart()
 
@@ -675,6 +675,23 @@ class Channel(chn_class.Channel):
                     url = url.replace("manifest.m3u8", "master.m3u8")
                     for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
                         part.AppendMediaStream(s, b)
+
+                # check for subs
+                # https://mtgxse01-vh.akamaihd.net/i/201703/13/DCjOLN_1489416462884_427ff3d3_,48,260,460,900,1800,2800,.mp4.csmil/master.m3u8?__b__=300&hdnts=st=1489687185~exp=3637170832~acl=/*~hmac=d0e12e62c219d96798e5b5ef31b11fa848724516b255897efe9808c8a499308b&cc1=name=Svenska%20f%C3%B6r%20h%C3%B6rselskadade~default=no~forced=no~lang=sv~uri=https%3A%2F%2Fsubstitch.play.mtgx.tv%2Fsubtitle%2Fconvert%2Fxml%3Fsource%3Dhttps%3A%2F%2Fcdn-subtitles-mtgx-tv.akamaized.net%2Fpitcher%2F20xxxxxx%2F2039xxxx%2F203969xx%2F20396967%2F20396967-swt.xml%26output%3Dm3u8
+                # https://cdn-subtitles-mtgx-tv.akamaized.net/pitcher/20xxxxxx/2039xxxx/203969xx/20396967/20396967-swt.xml&output=m3u8
+                if "uri=" in url and not part.Subtitle:
+                    Logger.Debug("Extracting subs from M3u8")
+                    subUrl = url.rsplit("uri=")[-1]
+                    subUrl = HtmlEntityHelper.UrlDecode(subUrl)
+                    subData = UriHandler.Open(subUrl, proxy=self.proxy)
+                    # subUrl = None
+                    subs = filter(lambda line: line.startswith("http"), subData.split("\n"))
+                    # for line in subData.split("\n"):
+                    #     if line.startswith("http"):
+                    #         subUrl = line
+                    #         break
+                    if subs:
+                        part.Subtitle = SubtitleHelper.DownloadSubtitle(subs[0], format='webvtt', proxy=self.proxy)
 
             elif url.startswith("rtmp"):
                 # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4
