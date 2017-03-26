@@ -9,7 +9,8 @@
       "channelcode": "se3",
       "sortorder": 3,
       "language": "se",
-      "fanart": "tv3sefanart.png"
+      "fanart": "tv3sefanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "45527F0C-91FE-11E1-942B-5AB5BBE59B18",
@@ -42,7 +43,8 @@
       "channelcode": "se6",
       "sortorder": 6,
       "language": "se",
-      "fanart": "tv6viasatfanart.png"
+      "fanart": "tv6viasatfanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "BDC1A5C5-2777-4D05-BB5B-742A88B89CC5",
@@ -53,7 +55,8 @@
       "channelcode": "se8",
       "sortorder": 8,
       "language": "se",
-      "fanart": "tv8sefanart.jpg"
+      "fanart": "tv8sefanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "584E7420-2867-11E3-AA01-F2806188709B",
@@ -64,7 +67,8 @@
       "channelcode": "se10",
       "sortorder": 10,
       "language": "se",
-      "fanart": "tv10sefanart.png"
+      "fanart": "tv10sefanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "7FEDC7EA-2281-11E0-8F30-67B5DFD72085",
@@ -146,10 +150,5 @@
     }
   ],
   "settings": [
-    {
-      "order": 1,
-      "id": "spoof_ip",
-      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
-    }
   ]
 }

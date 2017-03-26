@@ -283,9 +283,8 @@ class Channel(chn_class.Channel):
         videoData = json.GetValue("video")
         if videoData:
             part = item.CreateNewEmptyMediaPart()
-            spoofIp = self._GetSetting("spoof_ip", valueForNone="0.0.0.0")
-            if spoofIp:
-                part.HttpHeaders["X-Forwarded-For"] = spoofIp
+            if self.localIP:
+                part.HttpHeaders.update(self.localIP)
 
             # get the videos
             videoUrls = videoData.get("videoReferences")

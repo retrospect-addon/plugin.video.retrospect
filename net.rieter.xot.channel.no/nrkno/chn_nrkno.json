@@ -10,14 +10,10 @@
       "sortorder": 1,
       "language": "no",
       "compatible": "Environments.All",
-      "fanart": "nrkfanart.jpg"
+      "fanart": "nrkfanart.jpg",
+      "localIPSupported": true
     }
   ],
   "settings": [
-    {
-      "order": 1,
-      "id": "spoof_ip",
-      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
-    }
   ]
 }

@@ -10,14 +10,10 @@
       "sortorder": 1,
       "language": "se",
       "compatible": "Environments.All",
-      "fanart": "oppetarkivfanart.jpg"
+      "fanart": "oppetarkivfanart.jpg",
+      "localIPSupported": true
     }
   ],
   "settings": [
-    {
-      "order": 1,
-      "id": "spoof_ip",
-      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
-    }
   ]
 }

@@ -9,7 +9,8 @@
       "channelcode": "tv4se",
       "sortorder": 4,
       "language": "se",
-      "fanart": "tv4playsefanart.jpg"
+      "fanart": "tv4playsefanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "66174057-D5E3-4102-AF46-B2D8E800E0D9",
@@ -20,7 +21,8 @@
       "channelcode": "tv7se",
       "sortorder": 7,
       "language": "se",
-      "fanart": "tv7fanart.png"
+      "fanart": "tv7fanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E",
@@ -31,32 +33,28 @@
       "channelcode": "tv12se",
       "sortorder": 12,
       "language": "se",
-      "fanart": "tv12playfanart.jpg"
+      "fanart": "tv12playfanart.jpg",
+      "localIPSupported": true
     }
   ],
   "settings": [
     {
       "order": 1,
-      "id": "spoof_ip",
-      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
-    },
-    {
-      "order": 2,
       "id": "username",
       "value": "id=\"channel_tv4play_se_username\" label=\"30094\" type=\"hidden\" default=\"\""
     },
     {
-      "order": 3,
+      "order": 2,
       "id": "password_set",
       "value": "id=\"channel_tv4play_se_password_set\" label=\"30093\" type=\"hidden\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_tv4play_se_password&amp;settingname=TV4Play.se password&amp;tabfocus=102)\" option=\"close\""
     },
     {
-      "order": 4,
+      "order": 3,
       "id": "password",
       "value": "id=\"channel_tv4play_se_password\" type=\"hidden\" default=\"\""
     },
     {
-      "order": 5,
+      "order": 4,
       "id": "cookie",
       "value": "id=\"channel_tv4play_se_token\" type=\"hidden\" default=\"\""
     }

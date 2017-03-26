@@ -606,13 +606,7 @@ class Channel(chn_class.Channel):
                 """
 
         # retrieve the mediaurl
-        # data = UriHandler.Open(item.url, proxy=self.proxy)
-        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
-        if spoofIp:
-            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders={"X-Forwarded-For": spoofIp})
-        else:
-            data = UriHandler.Open(item.url, proxy=self.proxy)
-
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
         urlRegex = "<bitrate>(\d+)</bitrate>\W+(?:<[^>]+>[^>]+>\W+)*<mediaFormat>([^<]+)</mediaFormat>\W+(?:<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+){0,1}<base>([^<]+)</base>\W+<url>([^<]+)</url>"
         # urlRegex = "<bitrate>(\d+)</bitrate>\W+<mediaFormat>([^<]+)</mediaFormat>\W+<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+<base>([^<]+)</base>\W+<url>([^<]+)</url>"
 
@@ -691,11 +685,9 @@ class Channel(chn_class.Channel):
         if spoofIp:
             for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
                 part.AppendMediaStream(s, b)
-            # data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders={"X-Forwarded-For": spoofIp})
         else:
             for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
                 part.AppendMediaStream(s, b)
-            # data = UriHandler.Open(item.url, proxy=self.proxy)
 
         item.complete = True
         return item

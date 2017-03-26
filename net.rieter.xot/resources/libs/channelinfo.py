@@ -70,6 +70,7 @@ class ChannelInfo:
         self.firstTimeMessage = None
 
         self.settings = []
+        self.localIPSupported = False
 
         self.icon = icon
         self.fanart = fanart
@@ -241,6 +242,7 @@ class ChannelInfo:
                                       eval(channel.get("compatible", "Environments.All")),
                                       channel.get("fanart", None))
             channelInfo.firstTimeMessage = channel.get("message", None)
+            channelInfo.localIPSupported = channel.get("localIPSupported", False)
             channelInfo.settings = settings
             channelInfo.version = version
 

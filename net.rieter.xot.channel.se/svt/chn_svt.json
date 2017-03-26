@@ -10,14 +10,10 @@
       "sortorder": 0,
       "language": "se",
       "compatible": "Environments.All",
-      "fanart": "svtfanart.jpg"
+      "fanart": "svtfanart.jpg",
+      "localIPSupported": true
     }
   ],
   "settings": [
-    {
-      "order": 1,
-      "id": "spoof_ip",
-      "value": "label=\"30079\" type=\"ipaddress\" default=\"0.0.0.0\""
-    }
   ]
 }

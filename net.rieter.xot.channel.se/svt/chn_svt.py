@@ -747,9 +747,8 @@ class Channel(chn_class.Channel):
     def __UpdateItemFromVideoReferences(self, item, videos, subtitles=None):
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
-        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
-        if spoofIp is not None:
-            part.HttpHeaders["X-Forwarded-For"] = spoofIp
+        if self.localIP:
+            part.HttpHeaders.update(self.localIP)
 
         for video in videos:
             videoFormat = video.get("format", "")

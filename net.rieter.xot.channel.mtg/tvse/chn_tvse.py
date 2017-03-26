@@ -635,11 +635,7 @@ class Channel(chn_class.Channel):
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         if True:
-            spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
-            if spoofIp:
-                data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders={"X-Forwarded-For": spoofIp})
-            else:
-                data = UriHandler.Open(item.url, proxy=self.proxy)
+            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP or None)
         else:
             from debug.router import Router
             data = Router.GetVia("se", item.url, self.proxy)

@@ -360,9 +360,8 @@ class Channel(chn_class.Channel):
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         url = item.url
 
-        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
-        if spoofIp is not None:
-            item.HttpHeaders["X-Forwarded-For"] = spoofIp
+        if self.localIP:
+            item.HttpHeaders.update(self.localIP)
 
         if ".m3u8" not in item.url:
             data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
@@ -392,8 +391,8 @@ class Channel(chn_class.Channel):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
-            if spoofIp is not None:
-                part.HttpHeaders["X-Forwarded-For"] = spoofIp
+            if self.localIP:
+                part.HttpHeaders.update(self.localIP)
 
         return item
 

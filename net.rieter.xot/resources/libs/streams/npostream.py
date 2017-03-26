@@ -58,12 +58,12 @@ class NpoStream:
 
         # we need an hash code
         tokenJsonData = UriHandler.Open("http://ida.omroep.nl/app.php/auth",
-                                        noCache=True, proxy=proxy)
+                                        noCache=True, proxy=proxy, additionalHeaders=headers)
         tokenJson = JsonHelper(tokenJsonData)
         token = tokenJson.GetValue("token")
 
         url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episodeId, token)
-        streamData = UriHandler.Open(url, proxy=proxy)
+        streamData = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
         streamJson = JsonHelper(streamData, logger=Logger.Instance())
 
         streamInfos = streamJson.GetValue("items")[0]
@@ -79,17 +79,17 @@ class NpoStream:
                 Logger.Debug("Found live stream")
                 url = streamInfo["url"]
                 url = url.replace("jsonp", "json")
-                liveUrlData = UriHandler.Open(url, proxy=proxy)
+                liveUrlData = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
                 liveUrl = liveUrlData.strip("\"").replace("\\", "")
                 Logger.Trace(liveUrl)
-                streams += M3u8.GetStreamsFromM3u8(liveUrl, proxy)
+                streams += M3u8.GetStreamsFromM3u8(liveUrl, proxy, headers=headers)
 
             elif streamInfo["format"] == "hls":
                 m3u8InfoUrl = streamInfo["url"]
-                m3u8InfoData = UriHandler.Open(m3u8InfoUrl, proxy=proxy)
+                m3u8InfoData = UriHandler.Open(m3u8InfoUrl, proxy=proxy, additionalHeaders=headers)
                 m3u8InfoJson = JsonHelper(m3u8InfoData, logger=Logger.Instance())
                 m3u8Url = m3u8InfoJson.GetValue("url")
-                streams += M3u8.GetStreamsFromM3u8(m3u8Url, proxy)
+                streams += M3u8.GetStreamsFromM3u8(m3u8Url, proxy, headers=headers)
 
             elif streamInfo["format"] == "mp4":
                 bitrates = {"hoog": 1000, "normaal": 500}
@@ -98,7 +98,7 @@ class NpoStream:
                     mp4Url = url
                 else:
                     url = url.replace("jsonp", "json")
-                    mp4UrlData = UriHandler.Open(url, proxy=proxy)
+                    mp4UrlData = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
                     mp4InfoJson = JsonHelper(mp4UrlData, logger=Logger.Instance())
                     mp4Url = mp4InfoJson.GetValue("url")
                 bitrate = bitrates.get(streamInfo["label"].lower(), 0)

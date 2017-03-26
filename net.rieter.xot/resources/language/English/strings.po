@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2017-03-18 22:37+0000\n"
+"POT-Creation-Date: 2017-03-26 20:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -130,11 +130,11 @@ msgid "Proxy"
 msgstr ""
 
 msgctxt "#30029"
-msgid "- Proxy server"
+msgid "Server"
 msgstr ""
 
 msgctxt "#30030"
-msgid "- Proxy port"
+msgid "Port"
 msgstr ""
 
 msgctxt "#30031"
@@ -146,7 +146,7 @@ msgid "Channel Settings"
 msgstr ""
 
 msgctxt "#30033"
-msgid "Background - Programs"
+msgid "-- not used --"
 msgstr ""
 
 msgctxt "#30034"
@@ -154,18 +154,24 @@ msgid "No channel selected"
 msgstr ""
 
 msgctxt "#30035"
-msgid "- Proxy Username"
+msgid "Username"
 msgstr ""
 
 msgctxt "#30036"
-msgid "- Proxy Password"
+msgid "Password"
 msgstr ""
 
 msgctxt "#30037"
-msgid "BBC iPlayer Settings"
+msgid "Norway"
 msgstr ""
 
-#empty strings from id 30038 to 30039
+msgctxt "#30038"
+msgid "-- not used --"
+msgstr ""
+
+msgctxt "#30039"
+msgid "-- not used --"
+msgstr ""
 
 msgctxt "#30040"
 msgid "Channels"
@@ -232,19 +238,19 @@ msgid "Advanced"
 msgstr ""
 
 msgctxt "#30056"
-msgid "Dutch Proxy"
+msgid "The Netherlands"
 msgstr ""
 
 msgctxt "#30057"
-msgid "British Proxy"
+msgid "United Kingdom"
 msgstr ""
 
 msgctxt "#30058"
-msgid "Swedish Proxy"
+msgid "Sweden"
 msgstr ""
 
 msgctxt "#30059"
-msgid "Custom Proxy"
+msgid "Other Countries"
 msgstr ""
 
 msgctxt "#30060"
@@ -256,7 +262,7 @@ msgid "Channel Language"
 msgstr ""
 
 msgctxt "#30062"
-msgid "Proxy Channel Selection"
+msgid "HTTP"
 msgstr ""
 
 msgctxt "#30063"
@@ -268,11 +274,11 @@ msgid "Proxy Group"
 msgstr ""
 
 msgctxt "#30065"
-msgid "Proxy Group Configuration"
+msgid "Country Settings"
 msgstr ""
 
 msgctxt "#30066"
-msgid "Select a proxy group to configure"
+msgid "DNS"
 msgstr ""
 
 msgctxt "#30067"
@@ -292,11 +298,11 @@ msgid "Let Kodi determine bitrate if possible"
 msgstr ""
 
 msgctxt "#30071"
-msgid "Proxy Configuration"
+msgid "-- not used --"
 msgstr ""
 
 msgctxt "#30072"
-msgid "- Type"
+msgid "Proxy Type"
 msgstr ""
 
 msgctxt "#30073"
@@ -391,7 +397,15 @@ msgctxt "#30095"
 msgid "Show Cloaked Items"
 msgstr ""
 
-#empty strings from id 30096 to 30099
+msgctxt "#30096"
+msgid "Country"
+msgstr ""
+
+msgctxt "#30097"
+msgid "Local IP"
+msgstr ""
+
+#empty strings from id 30098 to 30099
 
 msgctxt "#30100"
 msgid "None"
