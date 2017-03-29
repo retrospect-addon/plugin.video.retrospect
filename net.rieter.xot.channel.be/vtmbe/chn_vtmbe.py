@@ -43,8 +43,8 @@ class Channel(chn_class.Channel):
         if self.channelCode == "vtm":
             self.noImage = "vtmbeimage.jpg"
             # self.mainListUri = "http://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
-            self.mainListUri = "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
-            self.baseUrl = "http://vtm.be"
+            self.mainListUri = "https://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
+            self.baseUrl = "https://vtm.be"
             self.__app = "vtm_watch"
             self.__sso = "vtm-sso"
             self.__apiKey = "vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY"
@@ -57,15 +57,15 @@ class Channel(chn_class.Channel):
             htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
             self._AddDataParser(
-                "http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
+                "https://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for VTM",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
         elif self.channelCode == "q2":
             self.noImage = "q2beimage.jpg"
             # self.mainListUri = "http://www.q2.be/feed/programs?format=json&type=all&only_with_video=true"
-            self.mainListUri = "http://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
-            self.baseUrl = "http://www.q2.be"
+            self.mainListUri = "https://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
+            self.baseUrl = "https://www.q2.be"
             self.__app = "q2"
             self.__sso = "q2-sso"
             self.__apiKey = "q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk"
@@ -73,14 +73,14 @@ class Channel(chn_class.Channel):
             htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
             self._AddDataParser(
-                "http://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
+                "https://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
         else:
             raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
 
         # generic to all channels
-        htmlEpisodeRegex = '<a[^>]+href="(?<url>http[^"]+im_field_program[^"]+)"[^>]*>(?<title>[^(<]+)'
+        htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
         htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
         self._AddDataParser(
             "sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
             creator=self.CreateEpisodeItemHtml)
 
         self._AddDataParser(
-            "http://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
+            "https://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
             matchType=ParserData.MatchRegex,
             name="HTML Page Video Updater",
             updater=self.UpdateVideoItem, requiresLogon=True)
@@ -333,6 +333,8 @@ class Channel(chn_class.Channel):
 
         title = resultSet['title']
         url = resultSet['url']
+        if not url.startswith("http"):
+            url = "%s%s" % (self.baseUrl, url)
         # Try to mix the Medialaan API with HTML is not working
         # programId = resultSet['url'].split('%3A')[-1]
         # url = "http://vod.medialaan.io/api/1.0/list?" \
