@@ -1080,13 +1080,29 @@ class AddonSettings:
         value = pattern % (value, "UZG Cache Time", AddonSettings.GetUzgCacheDuration())
 
         try:
-            proxies = ["NL", "UK", "SE", "Other"]
-            for proxy in proxies:
-                value = pattern % (value, "%s Proxy" % (proxy, ),
-                                   AddonSettings.GetSetting("%s_proxy_server" % (proxy.lower(),)) or "Not Set")
+            proxies = AddonSettings.GetAvailableCountries(asCountryCodes=True)
+            # proxies = ["NL", "UK", "SE", "Other"]
+            for country in proxies:
+                if country is None:
+                    continue
+                elif country == "other":
+                    country = country.title()
+                else:
+                    country = country.upper()
 
-                value = pattern % (value, "%s Proxy Port" % (proxy, ),
-                                   AddonSettings.GetSetting("%s_proxy_port" % (proxy.lower(),)) or 0)
+                value = pattern % (
+                    value, "%s Proxy" % (country, ),
+                    "%s (%s)" % (
+                        AddonSettings.GetSetting("%s_proxy_server" % (country.lower(),)) or "Not Set",
+                        AddonSettings.GetSetting("%s_proxy_type" % (country.lower(),)) or "Not Set"
+                    )
+                )
+
+                value = pattern % (value, "%s Proxy Port" % (country, ),
+                                   AddonSettings.GetSetting("%s_proxy_port" % (country.lower(),)) or 0)
+
+                value = pattern % (value, "%s Local IP" % (country, ),
+                                   AddonSettings.GetSetting("%s_local_ip" % (country.lower(),)) or 0)
         except:
             Logger.Error("Error", exc_info=True)
         return value
