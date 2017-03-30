@@ -80,6 +80,7 @@ class Plugin:
         self.actionCloak = "cloak"                                      # : Action used for cloaking
         self.actionUnCloak = "uncloak"                                  # : Action used for uncloaking
         self.actionPostLog = "postlog"                                  # : Action used for sending log files to pastebin.com
+        self.actionProxy = "setproxy"                                   # : Action used for setting a proxy
 
         self.keywordPickle = "pickle".lower()                           # : Keyword used for the pickle item
         self.keywordAction = "action".lower()                           # : Keyword used for the action item
@@ -92,6 +93,8 @@ class Plugin:
         self.keywordSettingName = "settingname"                         # : Keyword used for setting an encrypted settings display name
         self.keywordSettingTabFocus = "tabfocus"                        # : Keyword used for setting the tabcontrol to focus after changing a setting
         self.keywordSettingSettingFocus = "settingfocus"                # : Keyword used for setting the setting control to focus after changing a setting
+        self.keywordLanguage = "lang"                                   # : Keyword used for the 2 char language information
+        self.keywordProxy = "proxy"                                     # : Keyword used so set the proxy index
 
         self.pluginName = pluginName
         self.handle = int(handle)
@@ -240,6 +243,13 @@ class Plugin:
                 elif self.keywordAction in self.params and \
                         self.actionPostLog in self.params[self.keywordAction]:
                     self.__SendLog()
+                    return
+
+                elif self.keywordAction in self.params and \
+                        self.actionProxy in self.params[self.keywordAction]:
+                    language = self.params.get(self.keywordLanguage, None)
+                    proxyId = self.params.get(self.keywordProxy, None)
+                    self.__SetProxy(language, proxyId)
                     return
 
                 else:
@@ -1055,6 +1065,29 @@ class Plugin:
             error = errorText % (e.message,)
             XbmcWrapper.ShowDialog(title, error.strip(": "))
         return
+
+    @LockWithDialog(logger=Logger.Instance())
+    def __SetProxy(self, language, proxyId):
+        languages = AddonSettings.GetAvailableCountries(asCountryCodes=True)
+
+        if language is not None and language not in languages:
+            Logger.Warning("Missing language: %s", language)
+            return
+
+        if proxyId is None:
+            proxyId = languages.index(language)
+        else:
+            proxyId = int(proxyId)
+
+        channels = ChannelIndex.GetRegister().GetChannels()
+        Logger.Info("Setting proxy for country '%s' to proxyId '%s'", language, proxyId)
+        channelsInCountry = filter(lambda c: c.language == language or language is None, channels)
+        for channel in channelsInCountry:
+            Logger.Debug("Setting proxy for: %s", channel)
+            AddonSettings.SetProxyIdForChannel(channel, proxyId)
+            if channel.localIPSupported:
+                AddonSettings.SetLocalIPForChannel(channel, proxyId)
+        pass
 
     def __CloakItem(self):
         from cloaker import Cloaker

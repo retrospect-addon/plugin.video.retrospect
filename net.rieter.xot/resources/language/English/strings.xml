@@ -71,7 +71,7 @@
     <string id="30068">Active</string>
     <string id="30069">Channel Settings</string>
     <string id="30070">Let Kodi determine bitrate if possible</string>
-    <string id="30071">-- not used --</string>
+    <string id="30071">Set this proxy to all channels for this country</string>
     <string id="30072">Proxy Type</string>
     <string id="30073">- Geo-Locked = º, DRM protected = ^ and Premium = ª.</string>
     <string id="30074">Disabled</string>
@@ -196,7 +196,7 @@
     <string id="30597">Resetting the vault will invalidate all existing encrypted values. Are you sure?</string>
 
     <string id="30598">Send retrospect.log</string>
-    <string id="30599">Logfile posted: %s\n\nIt will be available for 1 month.</string>
+    <string id="30599">Logfile posted to: %s\n\nNote the URL (especially the last six characters) and use them to refer to these log files in posts.</string>
     <string id="30600">Logfile successfully posted</string>
     <string id="30601">Error posting logfile: %s</string>
     <string id="30602">Error posting logfile</string>

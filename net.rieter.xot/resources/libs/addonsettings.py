@@ -588,6 +588,24 @@ class AddonSettings:
         return {"X-Forwarded-For": server}
 
     @staticmethod
+    def SetLocalIPForChannel(channelInfo, proxyIndex):
+        """ Sets the ProxyId for a channel
+
+        Arguments:
+        channelInfo : ChannelInfo - The channel
+        proxyIndex  : Integer     - The Proxy Index
+
+        """
+
+        if proxyIndex < 2:
+            Logger.Warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
+            proxyIndex = 0
+
+        settingId = AddonSettings.__LOCAL_IP_SETTING_PATTERN % (channelInfo.guid,)
+        AddonSettings.SetSetting(settingId, str(proxyIndex))
+        return
+
+    @staticmethod
     def GetProxyForChannel(channelInfo):
         """ returns the proxy for a specific channel
 
@@ -830,6 +848,7 @@ class AddonSettings:
             Logger.Error("No '<!-- start of proxy selection -->' found in settings.xml. Stopping updating.")
             return
 
+        countryIds = AddonSettings.GetAvailableCountries(asCountryCodes=True)
         proxyIds = "|".join(AddonSettings.GetAvailableCountries(asString=True))
         # settingOffset = int(Regexer.DoRegex("<!-- settings offset = (\d+)", contents)[-1])
         # Logger.Debug("Settings offset = %s", settingOffset)
@@ -838,17 +857,23 @@ class AddonSettings:
         channelProxyXml = '        <!-- start of proxy selection -->\n'
         for channel in channels:
             settingsOffsetForVisibility += 1
+            countryId = 0
+            # Try to set the default countryId for a channel proxy (let's not do this at the moment)
+            # if channel.language in countryIds:
+            #     countryId = countryIds.index(channel.language)
+            #     Logger.Trace("Found country index %d for language: %s", countryId, channel.language)
+
             # we need to make sure we don't have any ( or ) in the names, as it won't work with the eq(,) in the XML
             channelName = channel.safeName
-            channelProxyXml = '%s        <setting id="%s" type="select" label="%s" lvalues="%s" default="0" visible="eq(-%s,%s)" />\n' \
+            channelProxyXml = '%s        <setting id="%s" type="select" label="%s" lvalues="%s" default="%s" visible="eq(-%s,%s)" />\n' \
                               % (channelProxyXml, AddonSettings.__PROXY_SETTING_PATTERN % (channel.guid,),
-                                 30064, proxyIds, settingsOffsetForVisibility, channelName)
+                                 30064, proxyIds, countryId, settingsOffsetForVisibility, channelName)
 
             if channel.localIPSupported:
                 settingsOffsetForVisibility += 1
-                channelProxyXml = '%s        <setting id="%s" type="select" label="%s" lvalues="%s" default="0" visible="eq(-%s,%s)" />\n' \
+                channelProxyXml = '%s        <setting id="%s" type="select" label="%s" lvalues="%s" default="%s" visible="eq(-%s,%s)" />\n' \
                                   % (channelProxyXml, AddonSettings.__LOCAL_IP_SETTING_PATTERN % (channel.guid,),
-                                     30097, proxyIds, settingsOffsetForVisibility, channelName)
+                                     30097, proxyIds, countryId, settingsOffsetForVisibility, channelName)
 
         # replace proxy selection
         begin = contents[:contents.find('<!-- start of proxy selection -->')].strip()

@@ -134,7 +134,7 @@ class ChannelIndex:
         return channelInfos[0].GetChannel()
 
     # noinspection PyUnusedLocal
-    def GetChannels(self, **kwargs):
+    def GetChannels(self, includeDisabled=False, **kwargs):
         # type: (object) -> list
         """ Retrieves all enabled channels within Retrospect.
 
@@ -234,6 +234,8 @@ class ChannelIndex:
                     len(self.__enabledChannels))
 
         sw.Stop()
+        if includeDisabled:
+            return self.__validChannels
         return self.__enabledChannels
 
     def GetCategories(self):
