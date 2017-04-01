@@ -38,8 +38,8 @@
     <string id="30035">Username</string>
     <string id="30036">Password</string>
     <string id="30037">Norway</string>
-    <string id="30038">-- not used --</string>
-    <string id="30039">-- not used --</string>
+    <string id="30038">Confirm proxy changes</string>
+    <string id="30039">Are you sure you want to update all channels for this country with this proxy?</string>
     <string id="30040">Channels</string>
     <string id="30041">Available after running Retrospect for the first time.</string>
     <string id="30042">Enabled</string>
@@ -71,7 +71,7 @@
     <string id="30068">Active</string>
     <string id="30069">Channel Settings</string>
     <string id="30070">Let Kodi determine bitrate if possible</string>
-    <string id="30071">Set this proxy to all channels for this country</string>
+    <string id="30071">Set the proxy and local IP to all channels related to this country</string>
     <string id="30072">Proxy Type</string>
     <string id="30073">- Geo-Locked = º, DRM protected = ^ and Premium = ª.</string>
     <string id="30074">Disabled</string>

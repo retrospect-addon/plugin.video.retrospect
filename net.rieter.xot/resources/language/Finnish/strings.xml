@@ -38,6 +38,8 @@
     <string id="30035">Käyttäjänimi</string>
     <string id="30036">Salasana</string>
     <string id="30037">Norwegia</string>
+    <string id="30038">Vahvista välityspalvelimen muutokset</string>
+    <string id="30039">Oletko varma, että haluat päivittää kaikki kanavat tässä maassa tämän proxy?</string>
     <string id="30040">Kanavat</string>
     <string id="30041">Käytössä Retrospectin ensimmäisen käynnistyksen jälkeen.</string>
     <string id="30042">Käytössä</string>
@@ -69,7 +71,7 @@
     <string id="30068">Aktiivi</string>
     <string id="30069">Kanava-asetukset</string>
     <string id="30070">Anna Kodin määrätä bittinopeus, jos mahdollista</string>
-    <string id="30071">-- not used --</string>
+    <string id="30071">Asettaa tämän proksi paikallinen IP kaikille kanaville tämän maan</string>
     <string id="30072">Proxy Tyyppi</string>
     <string id="30073">- Geolukittu = º, DRM-suojattu = ^ ja Maksullinen = ª.</string>
     <string id="30074">Pois käytöstä</string>

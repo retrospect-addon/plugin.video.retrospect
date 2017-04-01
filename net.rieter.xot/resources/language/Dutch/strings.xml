@@ -38,6 +38,8 @@
     <string id="30035">Gebruikersnaam</string>
     <string id="30036">Wachtwoord</string>
     <string id="30037">Norwegen</string>
+    <string id="30038">Bevestig proxy wijzigingen</string>
+    <string id="30039">Weet je zeker dat je alle kanalen van dit land wilt updaten met de geselecteerde proxy?</string>
     <string id="30040">Kanalen</string>
     <string id="30041">Komt pas beschikbaar na de eerste keer opstarten van Retrospect.</string>
     <string id="30042">Ingeschakeld</string>
@@ -69,7 +71,7 @@
     <string id="30068">Active</string>
     <string id="30069">Kanaal instellingen</string>
     <string id="30070">Laat Kodi de beste bitrate selecteren</string>
-    <string id="30071">-- not used --</string>
+    <string id="30071">Configureer deze proxy en lokale IP voor alle kanalen van dit land</string>
     <string id="30072">Proxy type</string>
     <string id="30073">- Geo-geblokkeerde = º, DRM beschermd = ^ en betaald = ª.</string>
     <string id="30074">Uitgeschakeld</string>

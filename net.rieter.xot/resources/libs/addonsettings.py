@@ -597,7 +597,7 @@ class AddonSettings:
 
         """
 
-        if proxyIndex < 2:
+        if proxyIndex == 1:
             Logger.Warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
             proxyIndex = 0
 
@@ -848,7 +848,7 @@ class AddonSettings:
             Logger.Error("No '<!-- start of proxy selection -->' found in settings.xml. Stopping updating.")
             return
 
-        countryIds = AddonSettings.GetAvailableCountries(asCountryCodes=True)
+        # countryIds = AddonSettings.GetAvailableCountries(asCountryCodes=True)
         proxyIds = "|".join(AddonSettings.GetAvailableCountries(asString=True))
         # settingOffset = int(Regexer.DoRegex("<!-- settings offset = (\d+)", contents)[-1])
         # Logger.Debug("Settings offset = %s", settingOffset)

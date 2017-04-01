@@ -95,6 +95,7 @@ class Plugin:
         self.keywordSettingSettingFocus = "settingfocus"                # : Keyword used for setting the setting control to focus after changing a setting
         self.keywordLanguage = "lang"                                   # : Keyword used for the 2 char language information
         self.keywordProxy = "proxy"                                     # : Keyword used so set the proxy index
+        self.keywordLocalIP = "localip"                                 # : Keyword used to set the local ip index
 
         self.pluginName = pluginName
         self.handle = int(handle)
@@ -247,9 +248,19 @@ class Plugin:
 
                 elif self.keywordAction in self.params and \
                         self.actionProxy in self.params[self.keywordAction]:
+
+                    # do this here to not close the busy dialog on the SetProxy when
+                    # a confirm box is shown
+                    title = LanguageHelper.GetLocalizedString(LanguageHelper.ProxyChangeConfirmTitle)
+                    content = LanguageHelper.GetLocalizedString(LanguageHelper.ProxyChangeConfirm)
+                    if not XbmcWrapper.ShowYesNo(title, content):
+                        Logger.Warning("Stopping proxy update due to user intervention")
+                        return
+
                     language = self.params.get(self.keywordLanguage, None)
                     proxyId = self.params.get(self.keywordProxy, None)
-                    self.__SetProxy(language, proxyId)
+                    localIp = self.params.get(self.keywordLocalIP, None)
+                    self.__SetProxy(language, proxyId, localIp)
                     return
 
                 else:
@@ -1067,7 +1078,18 @@ class Plugin:
         return
 
     @LockWithDialog(logger=Logger.Instance())
-    def __SetProxy(self, language, proxyId):
+    def __SetProxy(self, language, proxyId, localIP):
+        """ Sets the proxy and local IP configuration for channels.
+
+        @param language: the language for what channels to update
+        @param proxyId:  the proxy index to use
+        @param localIP:  the localIP index to use.
+        
+        If no proxyId is specified (None) then the proxyId will be determined based on language
+        If no localIP is specified (None) then the localIP will be determined based on language
+        
+        """
+
         languages = AddonSettings.GetAvailableCountries(asCountryCodes=True)
 
         if language is not None and language not in languages:
@@ -1079,14 +1101,20 @@ class Plugin:
         else:
             proxyId = int(proxyId)
 
+        if localIP is None:
+            localIP = languages.index(language)
+        else:
+            localIP = int(localIP)
+
         channels = ChannelIndex.GetRegister().GetChannels()
-        Logger.Info("Setting proxy for country '%s' to proxyId '%s'", language, proxyId)
+        Logger.Info("Setting proxy='%s' and localIP='%s' for country '%s'", proxyId, localIP, language)
         channelsInCountry = filter(lambda c: c.language == language or language is None, channels)
         for channel in channelsInCountry:
             Logger.Debug("Setting proxy for: %s", channel)
             AddonSettings.SetProxyIdForChannel(channel, proxyId)
             if channel.localIPSupported:
-                AddonSettings.SetLocalIPForChannel(channel, proxyId)
+                Logger.Debug("Setting Local IP for: %s", channel)
+                AddonSettings.SetLocalIPForChannel(channel, localIP)
         pass
 
     def __CloakItem(self):

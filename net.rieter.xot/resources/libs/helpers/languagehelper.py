@@ -40,6 +40,8 @@ class LanguageHelper:
     NoStreamsId = 30525
     ProxyOkId = 30526
     ProxyNokId = 30527
+    ProxyChangeConfirmTitle = 30038
+    ProxyChangeConfirm = 30039
     AddOnSettingsId = 30528
     RefreshListId = 30529
     CheckUpdatesId = 30530
