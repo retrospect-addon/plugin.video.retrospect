@@ -13,8 +13,8 @@
     <string id="30010">Kanaler</string>
     <string id="30011">Omstart av Retrospect krävs</string>
     <string id="30012">Andra</string>
-    <string id="30013">Fransk-Kanadensiska</string>
-    <string id="30014">Engelsk-Kanadensiska</string>
+    <string id="30013">Fransk-kanadensiska</string>
+    <string id="30014">Engelsk-kanadensiska</string>
     <string id="30015">Norska</string>
     <string id="30016">Sortera efter</string>
     <string id="30017">Namn</string>
@@ -34,7 +34,7 @@
     <string id="30031">Buffra HTTP-förfrågningar (experiment)</string>
     <string id="30032">Inställningar för kanaler</string>
     <string id="30033">-- not used --</string>
-    <string id="30034">Ingen vald kanal</string>
+    <string id="30034">Ingen kanal vald</string>
     <string id="30035">Användarnamn</string>
     <string id="30036">Lösenord</string>
     <string id="30037">Norge</string>
@@ -47,7 +47,7 @@
     <string id="30043">Mapp-prefix</string>
     <string id="30044">Estniska</string>
     <string id="30045">Danska</string>
-    <string id="30046">DRM/Geo Plats/Premium-filter</string>
+    <string id="30046">DRM-/GEO-/Premium-filter</string>
     <string id="30047">Tyska</string>
     <string id="30048">Loggnivå</string>
     <string id="30049">Uitzendinggemist.nl-inställningar</string>
@@ -189,8 +189,8 @@
 
     <string id="30590">Ange en ny kod för Retrospect</string>
     <string id="30591">Ingen kod angiven för Retrospect</string>
-    <string id="30592">Repetera den nya koden för Retrospect</string>
-    <string id="30593">Koderna matchade inte</string>
+    <string id="30592">Upprepa den nya koden för Retrospect</string>
+    <string id="30593">KKoderna matchade inte varandra</string>
     <string id="30594">Ange ett värde för inställning: '%s'</string>
     <string id="30595">Ange koden för Retrospect</string>
     <string id="30596">Felaktig kod angiven för Retrospect</string>
@@ -198,7 +198,7 @@
 
     <string id="30598">Skicka retrospect.log</string>
     <string id="30599">Loggfilen uppladdad: %s\n\n Notera de sex sista bokstäverna/siffrorna i URL: en och posta dem i supporttråden.</string>
-    <string id="30600">Loggfilen uppskickad</string>
-    <string id="30601">Misslyckades skicka loggfilen: %s</string>
-    <string id="30602">Misslyckades skicka loggfilen</string>
+    <string id="30600">Loggfilen uppladdad</string>
+    <string id="30601">Misslyckades att ladda upp loggfilen: %s</string>
+    <string id="30602">Misslyckades att ladda upp loggfilen</string>
 </strings>

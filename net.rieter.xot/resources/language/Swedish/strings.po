@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2017-04-02 21:45+0000\n"
+"POT-Creation-Date: 2017-04-03 19:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -67,11 +67,11 @@ msgstr "Andra"
 
 msgctxt "#30013"
 msgid "French Canadian"
-msgstr "Fransk-Kanadensiska"
+msgstr "Fransk-kanadensiska"
 
 msgctxt "#30014"
 msgid "English Canadian"
-msgstr "Engelsk-Kanadensiska"
+msgstr "Engelsk-kanadensiska"
 
 msgctxt "#30015"
 msgid "Norwegian"
@@ -151,7 +151,7 @@ msgstr "-- not used --"
 
 msgctxt "#30034"
 msgid "No channel selected"
-msgstr "Ingen vald kanal"
+msgstr "Ingen kanal vald"
 
 msgctxt "#30035"
 msgid "Username"
@@ -199,7 +199,7 @@ msgstr "Danska"
 
 msgctxt "#30046"
 msgid "DRM/Geo Location/Premium filters"
-msgstr "DRM/Geo Plats/Premium-filter"
+msgstr "DRM-/GEO-/Premium-filter"
 
 msgctxt "#30047"
 msgid "German"
@@ -230,7 +230,7 @@ msgid "Appearance"
 msgstr "Utseende"
 
 msgctxt "#30054"
-msgid "Change display name (requires Kodi restart)"
+msgid "-- not used --"
 msgstr "Ändra visningsnamn (omstart av Kodi krävs)"
 
 msgctxt "#30055"
@@ -747,11 +747,11 @@ msgstr "Ingen kod angiven för Retrospect"
 
 msgctxt "#30592"
 msgid "Repeat the new Retrospect PIN"
-msgstr "Repetera den nya koden för Retrospect"
+msgstr "Upprepa den nya koden för Retrospect"
 
 msgctxt "#30593"
 msgid "PINs don't match"
-msgstr "Koderna matchade inte"
+msgstr "KKoderna matchade inte varandra"
 
 msgctxt "#30594"
 msgid "Specify value for setting: '%s'"
@@ -779,12 +779,12 @@ msgstr "Loggfilen uppladdad: %s\n\n Notera de sex sista bokstäverna/siffrorna i
 
 msgctxt "#30600"
 msgid "Logfile successfully posted"
-msgstr "Loggfilen uppskickad"
+msgstr "Loggfilen uppladdad"
 
 msgctxt "#30601"
 msgid "Error posting logfile: %s"
-msgstr "Misslyckades skicka loggfilen: %s"
+msgstr "Misslyckades att ladda upp loggfilen: %s"
 
 msgctxt "#30602"
 msgid "Error posting logfile"
-msgstr "Misslyckades skicka loggfilen"
+msgstr "Misslyckades att ladda upp loggfilen"
