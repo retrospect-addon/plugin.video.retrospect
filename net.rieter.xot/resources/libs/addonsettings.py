@@ -679,6 +679,12 @@ class AddonSettings:
             AddonSettings.__UpdateAddOnSettingsWithChannelSettings(newContents, channels)
         newContents = AddonSettings.__UpdateAddOnSettingsWithProxies(newContents, channels, settingsOffsetForVisibility)
 
+        # Now fill the templates, we only import here due to performance penalties of the
+        # large number of imports.
+        from helpers.templatehelper import TemplateHelper
+        th = TemplateHelper(Logger.Instance(), template=newContents)
+        newContents = th.Transform()
+
         # Finally we insert the new XML into the old one
         filename = os.path.join(config.rootDir, "resources", "settings.xml")
         filenameTemp = os.path.join(config.rootDir, "resources", "settings.tmp.xml")
@@ -741,20 +747,17 @@ class AddonSettings:
             Logger.Error("No '<!-- start of active channels -->' found in settings.xml. Stopping updating.")
             return
 
+        # Create new XML
         channelSelectionXml = '        <!-- start of active channels -->\n' \
                               '        <setting id="config_channel" type="select" label="30040" values="'
-        for channel in channels:
-            # we need to make sure we don't have any ( or ) in the names, as it won't work with the eq(,) in the XML
-            channelName = channel.safeName
-            channelSelectionXml = "%s%s|" % (channelSelectionXml, channelName)
-
-        # now finish up the settings
+        channelSafeNames = "|".join(map(lambda c: c.safeName, channels))
+        channelSelectionXml = "%s%s" % (channelSelectionXml, channelSafeNames)
         channelSelectionXml = '%s" />' % (channelSelectionXml.rstrip("|"),)
 
+        # replace the correct parts
         begin = contents[:contents.find('<!-- start of active channels -->')].strip()
         end = contents[contents.find('<!-- end of active channels -->'):].strip()
         contents = "%s\n%s\n        %s" % (begin, channelSelectionXml, end)
-
         return contents
 
     @staticmethod
