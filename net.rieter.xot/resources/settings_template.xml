@@ -474,7 +474,7 @@
     </category>
 
     <category id="proxysettings" label="30065">
-        <setting id="selected_country" label="30096" type="labelenum" lvalues="30059|30056|30057|30058|30037|30054" />
+        <setting id="selected_country" label="30096" type="labelenum" lvalues="30059|30056|30057|30058|30037|30054|30033" />
 
         <setting type="lsep" label="30059" visible="eq(%selected_country%,0)" />
         <setting id="other_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,0)" />
@@ -500,7 +500,7 @@
         <setting subsetting="true" id="uk_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,2)" />
         <setting subsetting="true" id="uk_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(%selected_country%,2)" />
         <setting subsetting="true" id="uk_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(%selected_country%,2)" />
-        <setting id="nl_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,2)" />
+        <setting id="uk_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,2)" />
 
         <setting type="lsep" label="30058" visible="eq(%selected_country%,3)" />
         <setting id="se_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=se)" visible="eq(%selected_country%,3)" />
@@ -519,7 +519,7 @@
         <setting subsetting="true" id="no_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(%selected_country%,4)" />
         <setting id="no_local_ip" type="ipaddress" label="30079" default="" visible="eq(-38,4)" />
 
-        <setting type="lsep" label="30037" visible="eq(%selected_country%,5)" />
+        <setting type="lsep" label="30054" visible="eq(%selected_country%,5)" />
         <setting id="de_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,5)" />
         <setting subsetting="true" id="de_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,5)" />
         <setting subsetting="true" id="de_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,5)" />
@@ -527,6 +527,14 @@
         <setting subsetting="true" id="de_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(%selected_country%,5)" />
         <setting id="de_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,5)" />
 
-        <!-- Germany, Belgium, Estonia, United Kingdom, Lithuania, Latvia -->
+        <setting type="lsep" label="30033" visible="eq(%selected_country%,6)" />
+        <setting id="be_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,6)" />
+        <setting subsetting="true" id="be_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,6)" />
+        <setting subsetting="true" id="be_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,6)" />
+        <setting subsetting="true" id="be_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(%selected_country%,6)" />
+        <setting subsetting="true" id="be_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(%selected_country%,6)" />
+        <setting id="be_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,6)" />
+
+        <!-- Belgium, Estonia, United Kingdom, Lithuania, Latvia -->
     </category>
 </settings>

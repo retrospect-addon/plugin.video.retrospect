@@ -108,8 +108,8 @@ class AddonSettings:
     def GetAvailableCountries(asString=False, asCountryCodes=False):
         """ returns the all available ProxyGroupId's in order """
 
-        proxyIds = [30025, 30059, 30056, 30057, 30058, 30037, 30054]
-        proxyCodes = [None, "other", "nl", "uk", "se", "no", "de"]
+        proxyIds = [30025, 30059, 30056, 30057, 30058, 30037, 30054, 30033]
+        proxyCodes = [None, "other", "nl", "uk", "se", "no", "de", "be"]
 
         if asString:
             return map(lambda i: str(i), proxyIds)
