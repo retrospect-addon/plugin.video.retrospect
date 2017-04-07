@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2017-04-06 20:48+0000\n"
+"POT-Creation-Date: 2017-04-07 21:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -405,7 +405,11 @@ msgctxt "#30097"
 msgid "Local IP"
 msgstr ""
 
-#empty strings from id 30098 to 30099
+msgctxt "#30098"
+msgid "Estonia"
+msgstr ""
+
+#empty string with id 30099
 
 msgctxt "#30100"
 msgid "None"

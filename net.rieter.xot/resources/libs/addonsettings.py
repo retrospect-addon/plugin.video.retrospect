@@ -106,10 +106,24 @@ class AddonSettings:
 
     @staticmethod
     def GetAvailableCountries(asString=False, asCountryCodes=False):
-        """ returns the all available ProxyGroupId's in order """
+        """ returns the all available ProxyGroupId's in order. The countries are:
+        
+             * other - Other languages
+             * uk    - United Kingdom
+             * nl    - The Netherlands
+             * se    - Sweden
+             * no    - Norway
+             * de    - Germany
+             * be    - Belgium
+             * ee    - Estonia
+             * lt    - Lithuani
+             * lv    - Latvia
+             * dk    - Danish
+             
+        """
 
-        proxyIds = [30025, 30059, 30056, 30057, 30058, 30037, 30054, 30033]
-        proxyCodes = [None, "other", "nl", "uk", "se", "no", "de", "be"]
+        proxyIds =   [30025, 30059,  30056, 30057, 30058, 30037, 30054, 30033, 30098]
+        proxyCodes = [None, "other", "nl",  "uk",  "se",  "no",  "de",  "be",  "ee"]
 
         if asString:
             return map(lambda i: str(i), proxyIds)
@@ -548,7 +562,8 @@ class AddonSettings:
                                  * ca-en - English Canadian
                                  * be    - Belgium
                                  * en-gb - British
-                                 * ee    - Estonia
+                                 * ee    - Estoniam
+                                 * no    - Norwegian
                                  * dk    - Danish
                                  * None  - Other languages
 
