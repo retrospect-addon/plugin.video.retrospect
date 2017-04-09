@@ -169,7 +169,7 @@ class Statistics:
                     referer = "http://%s" % (referer,)
                 postData["dr"] = HtmlEntityHelper.UrlEncode(referer)
 
-            url = "http://www.google-analytics.com/collect"
+            url = "https://www.google-analytics.com/collect"
             data = ""
             for k, v in postData.iteritems():
                 data += "%s=%s&" % (k, v)
