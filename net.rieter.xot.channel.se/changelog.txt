@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Removed: TV4 login option as it never really made sense and all premium content is now at cmore.se (See #450)
+Fixed: SVT Live channels (Fixes #853)
 
 [I]Previous changes[/I]N
+Removed: TV4 login option as it never really made sense and all premium content is now at cmore.se (See #450)
 Fixed: Some fanart did now show for SVT
 Fixed: SVT did not play due to API changes (Fixes #828)
 Fixed: Some thumbnails did not show for SVT (Fixes #813)

@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("#kanaler",
                             preprocessor=self.LoadChannelData,
                             json=True,
-                            parser=("channels", ),
+                            parser=("hits", ),
                             creator=self.CreateChannelItem)
 
         # special pages (using JSON) using a generic pre-processor to extract the data
@@ -121,6 +121,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("http://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
         # Update via the new API urls
         self._AddDataParser("http://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
+        self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
 
         # ===============================================================================================================
         # non standard items
@@ -280,7 +281,21 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
+        # data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
+
+        now = datetime.datetime.now()
+        try:
+            serverTime = UriHandler.Open("https://www.svtplay.se/api/server_time",
+                                         proxy=self.proxy, noCache=True)
+            serverTimeJson = JsonHelper(serverTime)
+            serverTime = serverTimeJson.GetValue("time")
+        except:
+            Logger.Error("Error determining server time", exc_info=True)
+            serverTime = "%04d-%02d-%02dT%02d:%02d:%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
+
+        data = UriHandler.Open(
+            "https://www.svtplay.se/api/channel_page?now=%s" % (serverTime, ),
+            proxy=self.proxy)
         return data, items
 
     def ExtractJsonData(self, data):
@@ -638,34 +653,42 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Trace(channel)
-        if "schedule" not in channel or not channel["schedule"]:
-            return None
 
-        title = channel["name"]
+        title = channel["programmeTitle"]
+        episode = channel.get("episodeTitle", None)
         thumb = self.noImage
-        channelId = channel["title"]
-        currentSchedule = channel["schedule"][0]
+        channelId = channel["channel"].lower()
+        if channelId == "svtk":
+            channelTitle = "Kunskapskanalen"
+            channelId = "kunskapskanalen"
+        elif channelId == "svtb":
+            channelTitle = "Barnkanalen"
+            channelId = "barnkanalen"
+        else:
+            channelTitle = channel["channel"]
+        description = channel["longDescription"]
 
-        currentItem = currentSchedule["title"]
-        title = "%s : %s" % (title, currentItem)
-        description = channel["schedule"][0].get("description", None)
-        if "titlePage" in channel["schedule"][0]:
-            thumb = channel["schedule"][0]["titlePage"]["thumbnailMedium"]
-
-        # dateFormat = "2016-03-02T19:55:00+0100"
         dateFormat = "%Y-%m-%dT%H:%M:%S"
-        startTime = DateHelper.GetDateFromString(currentSchedule["broadcastStartTime"][:-5], dateFormat)
-        endTime = DateHelper.GetDateFromString(currentSchedule["broadcastEndTime"][:-5], dateFormat)
-        title = "%s (%02d:%02d - %02d:%02d)" % (title, startTime.tm_hour, startTime.tm_min, endTime.tm_hour, endTime.tm_min)
+        startTime = DateHelper.GetDateFromString(channel["publishingTime"][:19], dateFormat)
+        endTime = DateHelper.GetDateFromString(channel["publishingEndTime"][:19], dateFormat)
 
-        # In theory we could also extract the video URL here.....
-
-        channelItem = mediaitem.MediaItem(title, "http://www.svt.se/videoplayer-api/video/ch-%s" % (channelId, ))
+        if episode:
+            title = "%s: %s - %s (%02d:%02d - %02d:%02d)" \
+                    % (channelTitle, title, episode,
+                       startTime.tm_hour, startTime.tm_min, endTime.tm_hour, endTime.tm_min)
+        else:
+            title = "%s: %s (%02d:%02d - %02d:%02d)" \
+                    % (channelTitle, title,
+                       startTime.tm_hour, startTime.tm_min, endTime.tm_hour, endTime.tm_min)
+        channelItem = mediaitem.MediaItem(title, "http://www.svt.se/videoplayer-api/video/ch-%s" % (channelId.lower(), ))
         channelItem.type = "video"
         channelItem.description = description
         channelItem.isLive = True
-        channelItem.thumb = thumb
         channelItem.isGeoLocked = True
+
+        channelItem.thumb = thumb
+        if "titlePageThumbnailIds" in channel and channel["titlePageThumbnailIds"]:
+            channelItem.thumb = "https://www.svtstatic.se/image/wide/650/%s.jpg" % (channel["titlePageThumbnailIds"][0], )
         return channelItem
 
     def UpdateVideoHtmlItem(self, item):
