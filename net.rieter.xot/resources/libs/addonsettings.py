@@ -122,8 +122,8 @@ class AddonSettings:
              
         """
 
-        proxyIds =   [30025, 30059,  30056, 30057, 30058, 30037, 30054, 30033, 30098]
-        proxyCodes = [None, "other", "nl",  "uk",  "se",  "no",  "de",  "be",  "ee"]
+        proxyIds = [30025, 30059,  30056, 30057, 30058, 30037, 30054, 30033, 30098, 30099]
+        proxyCodes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt"]
 
         if asString:
             return map(lambda i: str(i), proxyIds)
