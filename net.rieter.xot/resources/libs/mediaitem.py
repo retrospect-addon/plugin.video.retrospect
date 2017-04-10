@@ -769,15 +769,16 @@ class MediaItemPart:
         # set properties
         self.Properties = []
         for prop in args:
-            self.Properties.append(prop)
+            self.AddProperty(prop[0], prop[1])
         return
 
-    def AppendMediaStream(self, url, bitrate):
+    def AppendMediaStream(self, url, bitrate, *args):
         """Appends a mediastream item to the current MediaPart
 
         Arguments:
         url     : string  - the url of the MediaStream
         bitrate : integer - the bitrate of the MediaStream
+        args    : tuple   - (name, value) for any stream property 
 
         Returns:
         the newly added MediaStream by reference.
@@ -786,7 +787,7 @@ class MediaItemPart:
 
         """
 
-        stream = MediaStream(url, bitrate)
+        stream = MediaStream(url, bitrate, *args)
         self.MediaStreams.append(stream)
         return stream
 
@@ -843,12 +844,11 @@ class MediaItemPart:
             Logger.Trace("Adding property: %s", prop)
             item.setProperty(prop[0], prop[1])
 
-        # now find the correct quality stream
+        # now find the correct quality stream and set the properties if there are any
         stream = self.GetMediaStreamForBitrate(bitrate)
-
-        # if self.UserAgent and "|User-Agent" not in stream.Url:
-        #     url = "%s|User-Agent=%s" % (stream.Url, htmlentityhelper.HtmlEntityHelper.UrlEncode(self.UserAgent))
-        #     stream.Url = url
+        for prop in stream.Properties:
+            Logger.Trace("Adding stream property: %s", prop)
+            item.setProperty(prop[0], prop[1])
 
         if updateItemUrls:
             Logger.Info("Updating xbmc playlist-item path: %s", stream.Url)
@@ -973,11 +973,12 @@ class MediaItemPart:
 class MediaStream:
     """Class that represents a Mediastream with <url> and a specific <bitrate>"""
 
-    def __init__(self, url, bitrate=0):
+    def __init__(self, url, bitrate=0, *args):
         """Initialises a new MediaStream
 
         Arguments:
-        url : string - the URL of the stream
+        url  : string - the URL of the stream
+        args : tuple  - (name, value) for any stream property
 
         Keyworkd Arguments:
         bitrate : [opt] integer - the bitrate of the stream (defaults to 0)
@@ -988,7 +989,30 @@ class MediaStream:
         self.Url = url
         self.Bitrate = int(bitrate)
         self.Downloaded = False
+        self.Properties = []
+
+        for prop in args:
+            self.AddProperty(prop[0], prop[1])
         return
+
+    def AddProperty(self, name, value):
+        """Adds a property to the MediaStream
+
+        Arguments:
+        name  : string - the name of the property
+        value : stirng - the value of the property
+
+        Appends a new property to the self.Properties dictionary. On playback
+        these properties will be set to the XBMC PlaylistItem as properties.
+
+        Example:    
+        strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
+        strm.AddProperty("inputstream.adaptive.manifest_type", "mpd")
+        
+        """
+
+        Logger.Debug("Adding stream property: %s = %s", name, value)
+        self.Properties.append((name, value))
 
     def __cmp__(self, other):
         """Compares two MediaStream based on the bitrate
@@ -1032,4 +1056,7 @@ class MediaStream:
         """String representation"""
 
         text = "MediaStream: %s [bitrate=%s, downloaded=%s]" % (self.Url, self.Bitrate, self.Downloaded)
+        for prop in self.Properties:
+            text = "%s\n    + Property: %s=%s" % (text, prop[0], prop[1])
+
         return text
