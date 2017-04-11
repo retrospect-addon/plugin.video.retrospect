@@ -42,7 +42,7 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         if self.channelCode == "uzgjson":
-            self.baseUrl = "http://apps-api.uitzendinggemist.nl"
+            self.baseUrl = "https://apps-api.uitzendinggemist.nl"
             self.mainListUri = "#mainlist"
             # self.mainListUri = "%s/series.json" % (self.baseUrl,)
             self.noImage = "nosimage.png"
@@ -65,7 +65,7 @@ class Channel(chn_class.Channel):
                             updater=self.UpdateFromPoms)
 
         # live stuff
-        self.baseUrlLive = "http://www.npo.nl"
+        self.baseUrlLive = "https://www.npo.nl"
 
         # live radio, the folders and items
         self._AddDataParser("http://radio-app.omroep.nl/player/script/",
@@ -80,7 +80,7 @@ class Channel(chn_class.Channel):
                             creator=self.CreateLiveTv,
                             updater=self.UpdateVideoItemLive)
 
-        self._AddDataParser("http://www.npo.nl/live/", name="Live Video Updater from HTML",
+        self._AddDataParser("https://www.npo.nl/live/", name="Live Video Updater from HTML",
                             updater=self.UpdateVideoItemLive)
 
         # recent and popular stuff and other Json data
@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
                             json=True, matchType=ParserData.MatchContains)
 
         # genres
-        self._AddDataParser("http://www.npo.nl/uitzending-gemist", matchType=ParserData.MatchExact,
+        self._AddDataParser("https://www.npo.nl", matchType=ParserData.MatchExact,
                             parser='<li><a[^>]*\.genre\.[^>]*href="[^"]+=(\d+)">([^>]+)</a></li>',
                             creator=self.CreateGenreItem)
 
@@ -116,7 +116,7 @@ class Channel(chn_class.Channel):
                                        '[^<]*)'.replace('(?<', '(?P<')
 
         # Pages based on searching
-        self._AddDataParser("http://www.npo.nl/zoeken?",
+        self._AddDataParser("https://www.npo.nl/zoeken?",
                             preprocessor=self.AddNextPageItem,
                             parser=self.nonMobileVideoItemRegex,
                             creator=self.CreateVideoItemNonMobile,
@@ -127,11 +127,11 @@ class Channel(chn_class.Channel):
             '<div[^>]+strip-item[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)/(?<WhatsOnId>[^"]+)"[^>]*>'
             '[^<]*</a>\W*<div[^>]*>\W*<img[^>]+data-img-src="(?<Image>[^"]+)"[\w\W]{0,1000}?'
             '<h3[^>]*>[\n\r]*(?<Title>[^<]+)[\n\r]*<')
-        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?",
+        self._AddDataParser("^https://www.npo.nl/programmas/a-z(/[a-z])?",
                             matchType=ParserData.MatchRegex,
                             name="The A-Z Page 'video' items",
                             parser=programRegex, creator=self.CreateFolderItemAlpha)
-        self._AddDataParser("^http://www.npo.nl/programmas/a-z(/[a-z])?",
+        self._AddDataParser("^https://www.npo.nl/programmas/a-z(/[a-z])?",
                             matchType=ParserData.MatchRegex,
                             name="The A-Z Page 'page' items",
                             parser=self.nonMobilePageRegex, creator=self.CreatePageItemNonMobile)
@@ -343,7 +343,7 @@ class Channel(chn_class.Channel):
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Genres", "http://www.npo.nl/uitzending-gemist")
+        extra = mediaitem.MediaItem("Genres", "https://www.npo.nl")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -377,7 +377,7 @@ class Channel(chn_class.Channel):
                 day = "Eergisteren"
             title = "%04d-%02d-%02d - %s" % (airDate.year, airDate.month, airDate.day, day)
 
-            url = "http://www.npo.nl/zoeken?utf8=%%E2%%9C%%93&sort_date=%02d-%02d-%04d&page=1" % \
+            url = "https://www.npo.nl/zoeken?utf8=%%E2%%9C%%93&sort_date=%02d-%02d-%04d&page=1" % \
                   (airDate.day, airDate.month, airDate.year)
             extra = mediaitem.MediaItem(title, url)
             extra.complete = True
@@ -434,10 +434,10 @@ class Channel(chn_class.Channel):
             if char == "0":
                 char = "0-9"
                 subItem = mediaitem.MediaItem(titleFormat % (char,),
-                                              "http://www.npo.nl/programmas/a-z")
+                                              "https://www.npo.nl/programmas/a-z")
             else:
                 subItem = mediaitem.MediaItem(titleFormat % (char,),
-                                              "http://www.npo.nl/programmas/a-z/%s" % (
+                                              "https://www.npo.nl/programmas/a-z/%s" % (
                                               char.lower(),))
             subItem.complete = True
             subItem.icon = self.icon
@@ -469,7 +469,7 @@ class Channel(chn_class.Channel):
 
         item = self.CreateVideoItemNonMobile(resultSet)
         item.type = 'folder'
-        item.url = "http://www.npo.nl%(Url)s/%(WhatsOnId)s/search?end_date=&media_type=broadcast&rows=%%s&start=0&start_date=" % resultSet
+        item.url = "https://www.npo.nl%(Url)s/%(WhatsOnId)s/search?end_date=&media_type=broadcast&rows=%%s&start=0&start_date=" % resultSet
         item.url %= self.nonMobilePageSize,
 
         return item
@@ -613,7 +613,7 @@ class Channel(chn_class.Channel):
 
         """
         Logger.Trace(resultSet)
-        item = mediaitem.MediaItem(resultSet[1], "http://www.npo.nl/zoeken?main_genre=%s&page=1" % (resultSet[0],))
+        item = mediaitem.MediaItem(resultSet[1], "https://www.npo.nl/zoeken?main_genre=%s&page=1" % (resultSet[0],))
         item.thumb = self.parentItem.thumb
         item.icon = self.parentItem.icon
         item.type = 'folder'
@@ -1025,7 +1025,7 @@ class Channel(chn_class.Channel):
 
         """
         # url = "%s/episodes/search/%s.json" % (self.baseUrl, "%s")
-        url = "http://www.npo.nl/zoeken?av_type=video&document_type=program&q=%s&page=1"
+        url = "https://www.npo.nl/zoeken?av_type=video&document_type=program&q=%s&page=1"
         return chn_class.Channel.SearchSite(self, url)
 
     def CtMnDownload(self, item):

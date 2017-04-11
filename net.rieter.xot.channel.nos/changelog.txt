@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: NPO 3 had voice-over subs (See #831)
+Changed: updated NPO urls to https
 
 [I]Previous Changes[/I]
+Fixed: NPO 3 had voice-over subs (See #831)
 Fixed: Cleaned up NPO (See #831)
 Fixed: NPO loginFixed: NPO live streams (See #831)
 Fixed: NPO changed their API (Fixes #831)
