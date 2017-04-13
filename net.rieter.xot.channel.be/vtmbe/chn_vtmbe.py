@@ -1,6 +1,7 @@
 # coding=utf-8
 import time
 import re
+import datetime
 
 import chn_class
 from logger import Logger
@@ -59,6 +60,16 @@ class Channel(chn_class.Channel):
                 # preprocessor=self.AddMoreRecentVideos,
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
+            # recentRegex = '<a[^>]+href="/(?<url>video\?aid=\d+)"[^>]*>\W*<div[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,500}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
+            # # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
+            # recentRegex = Regexer.FromExpresso(recentRegex)
+            # self._AddDataParser(
+            #     "https://vtm.be/block/responsive/medialaan_vod/vtm_watch_recent_videozone",
+            #     name="Recent Items HTML Video Parser",
+            #     parser=recentRegex,
+            #     creator=self.CreateVideoItemHtml
+            # )
+
         elif self.channelCode == "q2":
             self.noImage = "q2beimage.jpg"
             self.mainListUri = "https://www.q2.be/feed/programs?format=json&type=all&only_with_video=true"
@@ -115,6 +126,9 @@ class Channel(chn_class.Channel):
                             matchType=ParserData.MatchRegex,
                             name="JSON Video Updater for Medialaan",
                             updater=self.UpdateVideoItemJson, requiresLogon=True)
+
+        # self._AddDataParser("https://vtm.be/video?aid=", name="HTML Stream Updater",
+        #                     requiresLogon=True, updater=self.UpdateVideoItem)
 
         self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
                             updater=self.UpdateLiveStream)
@@ -367,7 +381,7 @@ class Channel(chn_class.Channel):
             # add next page items
             newOffset = currentOffset + itemsOnThisPage
             seriesId = json.GetValue("request", "parentSeriesOID")[0]
-            url = "https://vod.medialaan.io/api/1.0/list?app_id=q2&parentSeriesOID=%s&offset=%s" % (seriesId, newOffset)
+            url = "https://vod.medialaan.io/api/1.0/list?app_id=%s&parentSeriesOID=%s&offset=%s" % (self.__app, seriesId, newOffset)
             more = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
             item = MediaItem(more, url)
             item.thumb = self.noImage
@@ -460,7 +474,16 @@ class Channel(chn_class.Channel):
         item.isLive = True
         item.fanart = self.fanart
         item.thumb = self.noImage
+        now = datetime.datetime.now()
+        item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
+
+        # if self.channelCode == "vtm":
+        #     recent = MediaItem("\a.: Recent :.", "https://vtm.be/block/responsive/medialaan_vod/vtm_watch_recent_videozone?offset=0&limit=100")
+        #     item.fanart = self.fanart
+        #     item.thumb = self.noImage
+        #     item.dontGroup = True
+        #     items.append(recent)
 
         Logger.Debug("Pre-Processing finished")
         return data, items
@@ -653,10 +676,9 @@ class Channel(chn_class.Channel):
         # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
 
         part = item.CreateNewEmptyMediaPart()
-        # 'Range=' is causing an issue with the new VTM servers
         # Remove the Range header to make all streams start at the beginning.
-        # Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
-        # part.HttpHeaders["Range"] = ''
+        Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
+        part.HttpHeaders["Range"] = ''
 
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             item.complete = True

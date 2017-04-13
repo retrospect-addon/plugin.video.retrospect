@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-Fixed: VTM.be do no longer accept an empty range= header (Fixes #854)
+Fixed: Some streams would start in the middle of a stream (Reverted #854) as it seems to be OK now
+Fixed: Paging for VTM would not work (only Q2)
 
 [I]Previous Changes[/I]
+Fixed: VTM.be do no longer accept an empty range= header (Fixes #854)
 Changed: Combine HTML site (which only lists shows that have episode available) with the JSON API that has more recent videos per show (Fixes #848)
 Fixed: VTM and Q2 updated their sites which broke the channel (Fixes #846)
 Fixed: VRT.nu regex was causing performance issues (Fixes #842)
