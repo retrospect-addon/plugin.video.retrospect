@@ -122,7 +122,7 @@ class ChannelInfo:
                                # "Count": self.sortOrderPerCountry,
                                # "TrackNumber": self.sortOrder,
                                "Genre": LanguageHelper.GetFullLanguage(self.language),
-                               "Tagline": description,
+                               # "Tagline": description,
                                "Plot": description})
 
         if AddonSettings.HideFanart():
