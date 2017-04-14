@@ -121,6 +121,12 @@
     <string id="30204">200</string>
     <string id="30205">1000</string>
 
+    <!-- language and countries -->
+    <string id="30301">Nederländerna</string>
+    <string id="30302">Nederländska</string>
+    <string id="30303">Latvia</string>
+    <string id="30304">Latvian</string>
+
     <string id="30500">Alla favoriter</string>
     <string id="30501">Favorit</string>
     <string id="30502">Favoriter</string>
