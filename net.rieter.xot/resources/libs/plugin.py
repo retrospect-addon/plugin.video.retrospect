@@ -1107,10 +1107,13 @@ class Plugin:
             localIP = int(localIP)
 
         channels = ChannelIndex.GetRegister().GetChannels()
-        Logger.Info("Setting proxy='%s' and localIP='%s' for country '%s'", proxyId, localIP, language)
+        Logger.Info("Setting proxy='%s' (%s) and localIP='%s' (%s) for country '%s'",
+                    proxyId, languages[proxyId],
+                    localIP, languages[localIP],
+                    language)
         channelsInCountry = filter(lambda c: c.language == language or language is None, channels)
         for channel in channelsInCountry:
-            Logger.Debug("Setting proxy for: %s", channel)
+            Logger.Debug("Setting Proxy for: %s", channel)
             AddonSettings.SetProxyIdForChannel(channel, proxyId)
             if channel.localIPSupported:
                 Logger.Debug("Setting Local IP for: %s", channel)

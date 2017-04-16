@@ -512,6 +512,7 @@
         <setting id="se_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,3)" />
 
         <setting type="lsep" label="30037" visible="eq(%selected_country%,4)" />
+        <setting id="no_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=no)" visible="eq(%selected_country%,4)" />
         <setting id="no_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,4)" />
         <setting subsetting="true" id="no_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,4)" />
         <setting subsetting="true" id="no_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,4)" />
@@ -520,6 +521,7 @@
         <setting id="no_local_ip" type="ipaddress" label="30079" default="" visible="eq(-38,4)" />
 
         <setting type="lsep" label="30054" visible="eq(%selected_country%,5)" />
+        <setting id="de_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=de)" visible="eq(%selected_country%,5)" />
         <setting id="de_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,5)" />
         <setting subsetting="true" id="de_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,5)" />
         <setting subsetting="true" id="de_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,5)" />
@@ -528,6 +530,7 @@
         <setting id="de_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,5)" />
 
         <setting type="lsep" label="30033" visible="eq(%selected_country%,6)" />
+        <setting id="be_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=be)" visible="eq(%selected_country%,6)" />
         <setting id="be_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,6)" />
         <setting subsetting="true" id="be_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,6)" />
         <setting subsetting="true" id="be_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,6)" />
@@ -536,6 +539,7 @@
         <setting id="be_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,6)" />
 
         <setting type="lsep" label="30098" visible="eq(%selected_country%,7)" />
+        <setting id="ee_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=ee)" visible="eq(%selected_country%,7)" />
         <setting id="ee_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,7)" />
         <setting subsetting="true" id="ee_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,7)" />
         <setting subsetting="true" id="ee_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,7)" />
@@ -544,6 +548,7 @@
         <setting id="ee_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,7)" />
 
         <setting type="lsep" label="30099" visible="eq(%selected_country%,8)" />
+        <setting id="lt_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=lt)" visible="eq(%selected_country%,8)" />
         <setting id="lt_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,8)" />
         <setting subsetting="true" id="lt_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,8)" />
         <setting subsetting="true" id="lt_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,8)" />
@@ -552,6 +557,7 @@
         <setting id="lt_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,8)" />
 
         <setting type="lsep" label="30303" visible="eq(%selected_country%,9)" />
+        <setting id="lv_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=lv)" visible="eq(%selected_country%,9)" />
         <setting id="lv_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,9)" />
         <setting subsetting="true" id="lv_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(%selected_country%,9)" />
         <setting subsetting="true" id="lv_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,9)" />

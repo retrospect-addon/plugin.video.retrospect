@@ -509,51 +509,57 @@
         <setting id="se_local_ip" type="ipaddress" label="30079" default="" visible="eq(-31,3)" />
 
         <setting type="lsep" label="30037" visible="eq(-32,4)" />
-        <setting id="no_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-33,4)" />
-        <setting subsetting="true" id="no_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-34,4)" />
-        <setting subsetting="true" id="no_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-35,4)" />
-        <setting subsetting="true" id="no_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-36,4)" />
-        <setting subsetting="true" id="no_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-37,4)+!eq(-1,)" />
+        <setting id="no_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=no)" visible="eq(-33,4)" />
+        <setting id="no_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-34,4)" />
+        <setting subsetting="true" id="no_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-35,4)" />
+        <setting subsetting="true" id="no_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-36,4)" />
+        <setting subsetting="true" id="no_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-37,4)" />
+        <setting subsetting="true" id="no_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-38,4)+!eq(-1,)" />
         <setting id="no_local_ip" type="ipaddress" label="30079" default="" visible="eq(-38,4)" />
 
-        <setting type="lsep" label="30054" visible="eq(-39,5)" />
-        <setting id="de_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-40,5)" />
-        <setting subsetting="true" id="de_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-41,5)" />
-        <setting subsetting="true" id="de_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-42,5)" />
-        <setting subsetting="true" id="de_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-43,5)" />
-        <setting subsetting="true" id="de_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-44,5)+!eq(-1,)" />
-        <setting id="de_local_ip" type="ipaddress" label="30079" default="" visible="eq(-45,5)" />
+        <setting type="lsep" label="30054" visible="eq(-40,5)" />
+        <setting id="de_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=de)" visible="eq(-41,5)" />
+        <setting id="de_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-42,5)" />
+        <setting subsetting="true" id="de_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-43,5)" />
+        <setting subsetting="true" id="de_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-44,5)" />
+        <setting subsetting="true" id="de_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-45,5)" />
+        <setting subsetting="true" id="de_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-46,5)+!eq(-1,)" />
+        <setting id="de_local_ip" type="ipaddress" label="30079" default="" visible="eq(-47,5)" />
 
-        <setting type="lsep" label="30033" visible="eq(-46,6)" />
-        <setting id="be_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-47,6)" />
-        <setting subsetting="true" id="be_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-48,6)" />
-        <setting subsetting="true" id="be_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-49,6)" />
-        <setting subsetting="true" id="be_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-50,6)" />
-        <setting subsetting="true" id="be_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-51,6)+!eq(-1, )" />
-        <setting id="be_local_ip" type="ipaddress" label="30079" default="" visible="eq(-52,6)" />
+        <setting type="lsep" label="30033" visible="eq(-48,6)" />
+        <setting id="be_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=be)" visible="eq(-49,6)" />
+        <setting id="be_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-50,6)" />
+        <setting subsetting="true" id="be_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-51,6)" />
+        <setting subsetting="true" id="be_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-52,6)" />
+        <setting subsetting="true" id="be_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-53,6)" />
+        <setting subsetting="true" id="be_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-54,6)+!eq(-1, )" />
+        <setting id="be_local_ip" type="ipaddress" label="30079" default="" visible="eq(-55,6)" />
 
-        <setting type="lsep" label="30098" visible="eq(-53,7)" />
-        <setting id="ee_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-54,7)" />
-        <setting subsetting="true" id="ee_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-55,7)" />
-        <setting subsetting="true" id="ee_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-56,7)" />
-        <setting subsetting="true" id="ee_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-57,7)" />
-        <setting subsetting="true" id="ee_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-58,7)+!eq(-1,)" />
-        <setting id="ee_local_ip" type="ipaddress" label="30079" default="" visible="eq(-59,7)" />
+        <setting type="lsep" label="30098" visible="eq(-56,7)" />
+        <setting id="ee_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=ee)" visible="eq(-57,7)" />
+        <setting id="ee_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-58,7)" />
+        <setting subsetting="true" id="ee_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-59,7)" />
+        <setting subsetting="true" id="ee_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-60,7)" />
+        <setting subsetting="true" id="ee_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-61,7)" />
+        <setting subsetting="true" id="ee_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-62,7)+!eq(-1,)" />
+        <setting id="ee_local_ip" type="ipaddress" label="30079" default="" visible="eq(-63,7)" />
 
-        <setting type="lsep" label="30099" visible="eq(-60,8)" />
-        <setting id="lt_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-61,8)" />
-        <setting subsetting="true" id="lt_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-62,8)" />
-        <setting subsetting="true" id="lt_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-63,8)" />
-        <setting subsetting="true" id="lt_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-64,8)" />
-        <setting subsetting="true" id="lt_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-65,8)+!eq(-1,)" />
-        <setting id="lt_local_ip" type="ipaddress" label="30079" default="" visible="eq(-66,8)" />
+        <setting type="lsep" label="30099" visible="eq(-64,8)" />
+        <setting id="lt_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=lt)" visible="eq(-65,8)" />
+        <setting id="lt_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-66,8)" />
+        <setting subsetting="true" id="lt_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-67,8)" />
+        <setting subsetting="true" id="lt_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-68,8)" />
+        <setting subsetting="true" id="lt_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-69,8)" />
+        <setting subsetting="true" id="lt_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-70,8)+!eq(-1,)" />
+        <setting id="lt_local_ip" type="ipaddress" label="30079" default="" visible="eq(-71,8)" />
 
-        <setting type="lsep" label="30303" visible="eq(-67,9)" />
-        <setting id="lv_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-68,9)" />
-        <setting subsetting="true" id="lv_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-69,9)" />
-        <setting subsetting="true" id="lv_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-70,9)" />
-        <setting subsetting="true" id="lv_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-71,9)" />
-        <setting subsetting="true" id="lv_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-72,9)+!eq(-1,)" />
-        <setting id="lv_local_ip" type="ipaddress" label="30079" default="" visible="eq(-73,9)" />
+        <setting type="lsep" label="30303" visible="eq(-72,9)" />
+        <setting id="lv_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=lv)" visible="eq(-73,9)" />
+        <setting id="lv_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-74,9)" />
+        <setting subsetting="true" id="lv_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-75,9)" />
+        <setting subsetting="true" id="lv_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-76,9)" />
+        <setting subsetting="true" id="lv_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-77,9)" />
+        <setting subsetting="true" id="lv_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-78,9)+!eq(-1,)" />
+        <setting id="lv_local_ip" type="ipaddress" label="30079" default="" visible="eq(-79,9)" />
     </category>
 </settings>
