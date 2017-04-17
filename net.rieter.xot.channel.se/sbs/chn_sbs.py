@@ -144,14 +144,14 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(url, proxy=self.proxy)
         json = JsonHelper(data)
         pages = json.GetValue("total_pages")
-        programs = json.GetValue("data")
+        programs = json.GetValue("data") or []
 
         for p in range(1, pages, 1):
             url = self.mainListFormat % (self.baseUrl, self.programPageSize, p)
             Logger.Debug("Loading: %s", url)
             data = UriHandler.Open(url, proxy=self.proxy)
             json = JsonHelper(data)
-            programs += json.GetValue("data")
+            programs += json.GetValue("data") or []
         Logger.Debug("Found a total of %s items over %s pages", len(programs), pages)
 
         for p in programs:
