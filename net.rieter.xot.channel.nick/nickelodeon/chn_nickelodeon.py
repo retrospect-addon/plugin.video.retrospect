@@ -48,7 +48,9 @@ class Channel(chn_class.Channel):
         episodeItemRegex = """<a[^>]+href="(?<url>/[^"]+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'[^>]*>\W*<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
         episodeItemRegex = Regexer.FromExpresso(episodeItemRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            preprocessor=self.NoNickJr,
                             parser=episodeItemRegex, creator=self.CreateEpisodeItem)
+        # <h2 class='row-title'>Nick Jr
 
         videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
         videoItemRegex = Regexer.FromExpresso(videoItemRegex)
@@ -70,6 +72,36 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
+
+    def NoNickJr(self, data):
+        """Performs pre-process actions for data processing/
+
+        Arguments:
+        data : string - the retrieve data that was loaded for the current item and URL.
+
+        Returns:
+        A tuple of the data and a list of MediaItems that were generated.
+
+
+        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        """
+
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        end = data.find("<h2 class='row-title'>Nick Jr")
+
+        Logger.Debug("Pre-Processing finished")
+        if end > 0:
+            Logger.Debug("Nick Jr content found starting at %d", end)
+            return data[:end], items
+        return data, items
 
     def PreProcessFolderList(self, data):
         """Performs pre-process actions for data processing/
