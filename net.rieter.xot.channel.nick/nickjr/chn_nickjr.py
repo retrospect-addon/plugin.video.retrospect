@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the main parsing data
-        self.noImage = "nickjrimage.png"
+        self.noImage = "nickjrimage.jpg"
         self.__mgid = "arc:video:nickjr.tv"
 
         if self.channelCode == 'nickjrnl':
