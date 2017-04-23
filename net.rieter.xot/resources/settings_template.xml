@@ -60,82 +60,84 @@
         <setting id="show_dutch" type="bool" label="30042" default="true" visible="eq(-9,8)" /><!-- 30005 -->
         <setting id="show_norwegian" type="bool" label="30042" default="true" visible="eq(-10,9)" /><!-- 30015 -->
         <setting id="show_swedish" type="bool" label="30042" default="true" visible="eq(-11,10)" /><!-- 30006 -->
-        <setting id="channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_visible" type="bool" label="- Uitzendinggemist (NPO.nl)" default="true" visible="eq(-12,8)" enable="eq(-3,True)" />
+                <setting id="channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_visible" type="bool" label="- Uitzendinggemist (NPO.nl)" default="true" visible="eq(-12,8)" enable="eq(-3,True)" />
         <setting id="channel_15D92364-42F4-11DD-AF9B-7BFF55D89593_visible" type="bool" label="- RTL XL (RTL 4,5,7 &amp; 8)" default="true" visible="eq(-13,8)" enable="eq(-4,True)" />
         <setting id="channel_658A5A36-60A4-11E2-A236-8CE36188709B_visible" type="bool" label="- Net 5" default="true" visible="eq(-14,8)" enable="eq(-5,True)" />
         <setting id="channel_60948038-60A4-11E2-B01B-8BE36188709B_visible" type="bool" label="- SBS 6" default="true" visible="eq(-15,8)" enable="eq(-6,True)" />
         <setting id="channel_C77710DE-21B6-467A-A547-0F64C6C6186E_visible" type="bool" label="- SBS 9" default="true" visible="eq(-16,8)" enable="eq(-7,True)" />
         <setting id="channel_6B32718A-60A4-11E2-87B1-A6E36188709B_visible" type="bool" label="- Veronica" default="true" visible="eq(-17,8)" enable="eq(-8,True)" />
         <setting id="channel_7C52452A-F2F9-11DD-BE3F-3F7356D89593_visible" type="bool" label="- MTV.nl" default="true" visible="eq(-18,8)" enable="eq(-9,True)" />
-        <setting id="channel_8D4EBAE8-F3C6-11DD-92EE-F2FE55D89593_visible" type="bool" label="- Nickelodeon" default="true" visible="eq(-19,8)" enable="eq(-10,True)" />
-        <setting id="channel_19B126B1-4896-4378-A345-A0ABA313CB75_visible" type="bool" label="- NTR: School TV" default="true" visible="eq(-20,8)" enable="eq(-11,True)" />
-        <setting id="channel_66252BE4-E952-4AE5-B8EB-43E6271C688B_visible" type="bool" label="- Pathé Nederland" default="true" visible="eq(-21,8)" enable="eq(-12,True)" />
-        <setting id="channel_870EAD32-F2F9-11DD-B0E7-747356D89593_visible" type="bool" label="- AT5" default="true" visible="eq(-22,8)" enable="eq(-13,True)" />
-        <setting id="channel_05E10B8F-4BC5-47F9-8C34-3C378962082B_visible" type="bool" label="- ATV" default="true" visible="eq(-23,8)" enable="eq(-14,True)" />
-        <setting id="channel_29D36E00-730B-11E2-AD39-B0F06188709B_visible" type="bool" label="- L1" default="true" visible="eq(-24,8)" enable="eq(-15,True)" />
-        <setting id="channel_770D3385-2EC9-4B87-9BC8-3A7190248A9C_visible" type="bool" label="- Omroep Brabant" default="true" visible="eq(-25,8)" enable="eq(-16,True)" />
-        <setting id="channel_D74952F3-B72B-4AF9-83E6-9394D37D786E_visible" type="bool" label="- Omroep Flevoland" default="true" visible="eq(-26,8)" enable="eq(-17,True)" />
-        <setting id="channel_B2AF5744-4697-44CD-9A54-CFD6A4273207_visible" type="bool" label="- Omroep Gelderland" default="true" visible="eq(-27,8)" enable="eq(-18,True)" />
-        <setting id="channel_EFE57022-9F52-41F9-8775-13CCD001FA56_visible" type="bool" label="- Omroep West" default="true" visible="eq(-28,8)" enable="eq(-19,True)" />
-        <setting id="channel_8B4A56C7-44D5-40C2-A890-2287C4C1D74B_visible" type="bool" label="- Omroep Zeeland" default="true" visible="eq(-29,8)" enable="eq(-20,True)" />
-        <setting id="channel_81CD5339-0D59-4019-9171-12A98815311C_visible" type="bool" label="- Omrop Fryslân" default="true" visible="eq(-30,8)" enable="eq(-21,True)" />
-        <setting id="channel_B7EB69DF-18C4-4935-BA83-0B2A89295178_visible" type="bool" label="- RTV Drenthe" default="true" visible="eq(-31,8)" enable="eq(-22,True)" />
-        <setting id="channel_7C40EEE7-40F4-40ED-8A70-FAAB42B7A2B1_visible" type="bool" label="- RTV Noord" default="true" visible="eq(-32,8)" enable="eq(-23,True)" />
-        <setting id="channel_EF46E726-92F4-42FC-A6D4-68A888E23E96_visible" type="bool" label="- RTV Noord-Holland" default="true" visible="eq(-33,8)" enable="eq(-24,True)" />
-        <setting id="channel_B099990E-5749-44FC-A5C5-A40427A9A5C9_visible" type="bool" label="- RTV Oost" default="true" visible="eq(-34,8)" enable="eq(-25,True)" />
-        <setting id="channel_AF2B907D-D437-46DB-B802-F946850098FB_visible" type="bool" label="- RTV Rijnmond" default="true" visible="eq(-35,8)" enable="eq(-26,True)" />
-        <setting id="channel_BD113683-233A-46EB-962D-98B3C02EB738_visible" type="bool" label="- RTV Utrecht" default="true" visible="eq(-36,8)" enable="eq(-27,True)" />
-        <setting id="channel_EE33E7EC-FDAB-11E0-AA09-1EED4724019B_visible" type="bool" label="- NOS.nl" default="true" visible="eq(-37,8)" enable="eq(-28,True)" />
-        <setting id="channel_CC524DC0-C846-11E0-871B-984F4824019B_visible" type="bool" label="- Fox Sports" default="true" visible="eq(-38,8)" enable="eq(-29,True)" />
-        <setting id="channel_0C59FF4A-8E07-11E1-B2D2-8071BBE59B18_visible" type="bool" label="- Radio 538" default="true" visible="eq(-39,8)" enable="eq(-30,True)" />
-        <setting id="channel_80726A74-42F3-11DD-BBA6-A1F055D89593_visible" type="bool" label="- Dumpert.nl" default="true" visible="eq(-40,8)" enable="eq(-31,True)" />
-        <setting id="channel_DB6A5104-30B0-11E1-A995-AF324924019B_visible" type="bool" label="- Hardware.info" default="true" visible="eq(-41,8)" enable="eq(-32,True)" />
-        <setting id="channel_341BFEA0-2312-11DF-B6B1-B7B256D89593_visible" type="bool" label="- RadionNL" default="true" visible="eq(-42,8)" enable="eq(-33,True)" />
-        <setting id="channel_1D6063B8-4BCF-11E0-AD8F-5533DFD72085_visible" type="bool" label="- TV.NL" default="true" visible="eq(-43,8)" enable="eq(-34,True)" />
-        <setting id="channel_16A5C86D-52C5-48C1-B894-1CC23EBF1CD8_visible" type="bool" label="- Eén" default="true" visible="eq(-44,2)" enable="eq(-41,True)" />
-        <setting id="channel_50E04907-8983-4552-A775-E70F3D91FB99_visible" type="bool" label="- Vier" default="true" visible="eq(-45,2)" enable="eq(-42,True)" />
-        <setting id="channel_9F44A86D-D62F-4775-A5BC-B99D1AE038FE_visible" type="bool" label="- Vijf" default="true" visible="eq(-46,2)" enable="eq(-43,True)" />
-        <setting id="channel_79C799AE-B6BA-11E0-87FD-20434824019B_visible" type="bool" label="- De Redactie" default="true" visible="eq(-47,2)" enable="eq(-44,True)" />
-        <setting id="channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_visible" type="bool" label="- VTM.be" default="true" visible="eq(-48,2)" enable="eq(-45,True)" />
-        <setting id="channel_01C7064B-7E7A-4742-A042-E6F2F4EC5966_visible" type="bool" label="- Q2.be" default="true" visible="eq(-49,2)" enable="eq(-46,True)" />
-        <setting id="channel_F530A9EC-3C0D-49B6-96C2-480273417460_visible" type="bool" label="- VRT NU" default="true" visible="eq(-50,2)" enable="eq(-47,True)" />
-        <setting id="channel_66756700-6255-4973-AFFB-A1DE4FAF8678_visible" type="bool" label="- VTM Nieuws" default="true" visible="eq(-51,2)" enable="eq(-48,True)" />
-        <setting id="channel_756FFEC8-B6BA-11E0-898D-1F434824019B_visible" type="bool" label="- Ketnet" default="true" visible="eq(-52,2)" enable="eq(-49,True)" />
-        <setting id="channel_71128378-B6BA-11E0-A68A-1B434824019B_visible" type="bool" label="- Sporza" default="true" visible="eq(-53,2)" enable="eq(-50,True)" />
-        <setting id="channel_79569D55-6298-402A-8AF0-A16955EA052F_visible" type="bool" label="- RTBF" default="true" visible="eq(-54,2)" enable="eq(-51,True)" />
-        <setting id="channel_55635AAA-183C-11E2-ABEC-36706188709B_visible" type="bool" label="- MTV.de" default="true" visible="eq(-55,3)" enable="eq(-51,True)" />
-        <setting id="channel_A9BE95B0-2ED6-4E75-B5DF-C3ECAF0441E6_visible" type="bool" label="- SRF.ch Play" default="true" visible="eq(-56,3)" enable="eq(-52,True)" />
-        <setting id="channel_45527F0C-91FE-11E1-942B-5AB5BBE59B18_visible" type="bool" label="- TV3 Play (Eesti)" default="true" visible="eq(-57,4)" enable="eq(-52,True)" />
-        <setting id="channel_82D73241-284B-4326-9E32-AFEF3C439951_visible" type="bool" label="- TV6 Play (Eesti)" default="true" visible="eq(-58,4)" enable="eq(-53,True)" />
-        <setting id="channel_F1E2E7DA-5710-4455-8EEF-CEAF16AF1121_visible" type="bool" label="- BBC iPlayer" default="true" visible="eq(-59,5)" enable="eq(-53,True)" />
-        <setting id="channel_8BFC5538-FB78-11E2-9D7C-61DE6088709B_visible" type="bool" label="- TWiT.TV" default="true" visible="eq(-60,5)" enable="eq(-54,True)" />
-        <setting id="channel_7FEDC7EA-2281-11E0-8F30-67B5DFD72085_visible" type="bool" label="- TV3 Play (Lietuva)" default="true" visible="eq(-61,6)" enable="eq(-54,True)" />
-        <setting id="channel_49A02D20-2283-11E0-8771-2AB7DFD72085_visible" type="bool" label="- TV6 Play (Lietuva)" default="true" visible="eq(-62,6)" enable="eq(-55,True)" />
-        <setting id="channel_1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD_visible" type="bool" label="- TV8 Play (Lietuva)" default="true" visible="eq(-63,6)" enable="eq(-56,True)" />
-        <setting id="channel_8D9FBD00-2284-11E0-8957-55B8DFD72085_visible" type="bool" label="- TV3 Play (Latvija)" default="true" visible="eq(-64,7)" enable="eq(-56,True)" />
-        <setting id="channel_2FB36241-5BB1-4D38-AD36-F48EAE91CDB5_visible" type="bool" label="- NRK.no" default="true" visible="eq(-65,9)" enable="eq(-55,True)" />
-        <setting id="channel_89673FF0-5EF3-11E0-8CC9-494DDFD72085_visible" type="bool" label="- TV3 Play (Norge)" default="true" visible="eq(-66,9)" enable="eq(-56,True)" />
-        <setting id="channel_90DD5C88-5EF3-11E0-93A2-4D4DDFD72085_visible" type="bool" label="- Viasat4 (Norge)" default="true" visible="eq(-67,9)" enable="eq(-57,True)" />
-        <setting id="channel_3CD2662C-3C7A-4217-8375-079B2D850F27_visible" type="bool" label="- TV6 Play (Norge)" default="true" visible="eq(-68,9)" enable="eq(-58,True)" />
-        <setting id="channel_47AA717E-F919-11E1-977F-0DEC6188709B_visible" type="bool" label="- Nickelodeon (Norge)" default="true" visible="eq(-69,9)" enable="eq(-59,True)" />
-        <setting id="channel_3AF9C61E-88B2-11E1-A03F-08F6BAE59B18_visible" type="bool" label="- SVT Play" default="true" visible="eq(-70,10)" enable="eq(-59,True)" />
-        <setting id="channel_F638A42C-E419-11E2-AB44-9E636188709B_visible" type="bool" label="- SVT Öppet arkiv" default="true" visible="eq(-71,10)" enable="eq(-60,True)" />
-        <setting id="channel_9F0F57D6-B897-11E0-AF2E-92314924019B_visible" type="bool" label="- UR Play" default="true" visible="eq(-72,10)" enable="eq(-61,True)" />
-        <setting id="channel_9EC8F612-2EA4-11DE-867C-B84656D89593_visible" type="bool" label="- TV3 Play (Sverige)" default="true" visible="eq(-73,10)" enable="eq(-62,True)" />
-        <setting id="channel_98506F58-CD6F-11DE-99BA-187F55D89593_visible" type="bool" label="- TV4 Play" default="true" visible="eq(-74,10)" enable="eq(-63,True)" />
-        <setting id="channel_C72D24F6-5FAE-11E0-9935-5F41E0D72085_visible" type="bool" label="- Kanal 5 Play" default="true" visible="eq(-75,10)" enable="eq(-64,True)" />
-        <setting id="channel_FB34E1F0-2930-11DE-A339-255856D89593_visible" type="bool" label="- TV6 Play (Sverige)" default="true" visible="eq(-76,10)" enable="eq(-65,True)" />
-        <setting id="channel_66174057-D5E3-4102-AF46-B2D8E800E0D9_visible" type="bool" label="- Sjuan (TV7)" default="true" visible="eq(-77,10)" enable="eq(-66,True)" />
-        <setting id="channel_BDC1A5C5-2777-4D05-BB5B-742A88B89CC5_visible" type="bool" label="- TV8 Play (Sverige)" default="true" visible="eq(-78,10)" enable="eq(-67,True)" />
-        <setting id="channel_32B4A9AB-583C-4F78-A057-6D79C797B45C_visible" type="bool" label="- Kanal 9 Play" default="true" visible="eq(-79,10)" enable="eq(-68,True)" />
-        <setting id="channel_584E7420-2867-11E3-AA01-F2806188709B_visible" type="bool" label="- TV10 Play" default="true" visible="eq(-80,10)" enable="eq(-69,True)" />
-        <setting id="channel_64E1CA5E-BC3C-4763-9A63-02BE76754BD3_visible" type="bool" label="- Kanal 11 Play" default="true" visible="eq(-81,10)" enable="eq(-70,True)" />
-        <setting id="channel_F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E_visible" type="bool" label="- TV12 Play" default="true" visible="eq(-82,10)" enable="eq(-71,True)" />
-        <setting id="channel_8D1E5858-F926-11E1-BE1C-90F66188709B_visible" type="bool" label="- Nickelodeon (Sverige)" default="true" visible="eq(-83,10)" enable="eq(-72,True)" />
-        <setting id="channel_F9AE6336-74BD-4FDF-B453-3BE23187D201_visible" type="bool" label="- 24 Classics" default="true" visible="eq(-84,1)" enable="eq(-82,True)" />
-        <setting id="channel_887F773F-E4E5-4E80-AD7D-65F627D1CA44_visible" type="bool" label="- Apple Movie Trailers" default="true" visible="eq(-85,1)" enable="eq(-83,True)" />
-        <setting id="channel_52230AF6-FBA9-11DD-87D4-15B656D89593_visible" type="bool" label="- Extreme.com" default="true" visible="eq(-86,1)" enable="eq(-84,True)" />
-        <setting id="channel_21D74788-8084-11E0-9A28-39E64824019B_visible" type="bool" label="- MSDN Channel 9" default="true" visible="eq(-87,1)" enable="eq(-85,True)" />
+        <setting id="channel_48DDDDCB-5500-4422-8AFC-8312B72E1ABA_visible" type="bool" label="- Nick Jr." default="true" visible="eq(-19,8)" enable="eq(-10,True)" />
+        <setting id="channel_8D4EBAE8-F3C6-11DD-92EE-F2FE55D89593_visible" type="bool" label="- Nickelodeon" default="true" visible="eq(-20,8)" enable="eq(-11,True)" />
+        <setting id="channel_19B126B1-4896-4378-A345-A0ABA313CB75_visible" type="bool" label="- NTR: School TV" default="true" visible="eq(-21,8)" enable="eq(-12,True)" />
+        <setting id="channel_66252BE4-E952-4AE5-B8EB-43E6271C688B_visible" type="bool" label="- Pathé Nederland" default="true" visible="eq(-22,8)" enable="eq(-13,True)" />
+        <setting id="channel_870EAD32-F2F9-11DD-B0E7-747356D89593_visible" type="bool" label="- AT5" default="true" visible="eq(-23,8)" enable="eq(-14,True)" />
+        <setting id="channel_05E10B8F-4BC5-47F9-8C34-3C378962082B_visible" type="bool" label="- ATV" default="true" visible="eq(-24,8)" enable="eq(-15,True)" />
+        <setting id="channel_29D36E00-730B-11E2-AD39-B0F06188709B_visible" type="bool" label="- L1" default="true" visible="eq(-25,8)" enable="eq(-16,True)" />
+        <setting id="channel_770D3385-2EC9-4B87-9BC8-3A7190248A9C_visible" type="bool" label="- Omroep Brabant" default="true" visible="eq(-26,8)" enable="eq(-17,True)" />
+        <setting id="channel_D74952F3-B72B-4AF9-83E6-9394D37D786E_visible" type="bool" label="- Omroep Flevoland" default="true" visible="eq(-27,8)" enable="eq(-18,True)" />
+        <setting id="channel_B2AF5744-4697-44CD-9A54-CFD6A4273207_visible" type="bool" label="- Omroep Gelderland" default="true" visible="eq(-28,8)" enable="eq(-19,True)" />
+        <setting id="channel_EFE57022-9F52-41F9-8775-13CCD001FA56_visible" type="bool" label="- Omroep West" default="true" visible="eq(-29,8)" enable="eq(-20,True)" />
+        <setting id="channel_8B4A56C7-44D5-40C2-A890-2287C4C1D74B_visible" type="bool" label="- Omroep Zeeland" default="true" visible="eq(-30,8)" enable="eq(-21,True)" />
+        <setting id="channel_81CD5339-0D59-4019-9171-12A98815311C_visible" type="bool" label="- Omrop Fryslân" default="true" visible="eq(-31,8)" enable="eq(-22,True)" />
+        <setting id="channel_B7EB69DF-18C4-4935-BA83-0B2A89295178_visible" type="bool" label="- RTV Drenthe" default="true" visible="eq(-32,8)" enable="eq(-23,True)" />
+        <setting id="channel_7C40EEE7-40F4-40ED-8A70-FAAB42B7A2B1_visible" type="bool" label="- RTV Noord" default="true" visible="eq(-33,8)" enable="eq(-24,True)" />
+        <setting id="channel_EF46E726-92F4-42FC-A6D4-68A888E23E96_visible" type="bool" label="- RTV Noord-Holland" default="true" visible="eq(-34,8)" enable="eq(-25,True)" />
+        <setting id="channel_B099990E-5749-44FC-A5C5-A40427A9A5C9_visible" type="bool" label="- RTV Oost" default="true" visible="eq(-35,8)" enable="eq(-26,True)" />
+        <setting id="channel_AF2B907D-D437-46DB-B802-F946850098FB_visible" type="bool" label="- RTV Rijnmond" default="true" visible="eq(-36,8)" enable="eq(-27,True)" />
+        <setting id="channel_BD113683-233A-46EB-962D-98B3C02EB738_visible" type="bool" label="- RTV Utrecht" default="true" visible="eq(-37,8)" enable="eq(-28,True)" />
+        <setting id="channel_EE33E7EC-FDAB-11E0-AA09-1EED4724019B_visible" type="bool" label="- NOS.nl" default="true" visible="eq(-38,8)" enable="eq(-29,True)" />
+        <setting id="channel_CC524DC0-C846-11E0-871B-984F4824019B_visible" type="bool" label="- Fox Sports" default="true" visible="eq(-39,8)" enable="eq(-30,True)" />
+        <setting id="channel_0C59FF4A-8E07-11E1-B2D2-8071BBE59B18_visible" type="bool" label="- Radio 538" default="true" visible="eq(-40,8)" enable="eq(-31,True)" />
+        <setting id="channel_80726A74-42F3-11DD-BBA6-A1F055D89593_visible" type="bool" label="- Dumpert.nl" default="true" visible="eq(-41,8)" enable="eq(-32,True)" />
+        <setting id="channel_DB6A5104-30B0-11E1-A995-AF324924019B_visible" type="bool" label="- Hardware.info" default="true" visible="eq(-42,8)" enable="eq(-33,True)" />
+        <setting id="channel_341BFEA0-2312-11DF-B6B1-B7B256D89593_visible" type="bool" label="- RadionNL" default="true" visible="eq(-43,8)" enable="eq(-34,True)" />
+        <setting id="channel_1D6063B8-4BCF-11E0-AD8F-5533DFD72085_visible" type="bool" label="- TV.NL" default="true" visible="eq(-44,8)" enable="eq(-35,True)" />
+        <setting id="channel_16A5C86D-52C5-48C1-B894-1CC23EBF1CD8_visible" type="bool" label="- Eén" default="true" visible="eq(-45,2)" enable="eq(-42,True)" />
+        <setting id="channel_50E04907-8983-4552-A775-E70F3D91FB99_visible" type="bool" label="- Vier" default="true" visible="eq(-46,2)" enable="eq(-43,True)" />
+        <setting id="channel_9F44A86D-D62F-4775-A5BC-B99D1AE038FE_visible" type="bool" label="- Vijf" default="true" visible="eq(-47,2)" enable="eq(-44,True)" />
+        <setting id="channel_79C799AE-B6BA-11E0-87FD-20434824019B_visible" type="bool" label="- De Redactie" default="true" visible="eq(-48,2)" enable="eq(-45,True)" />
+        <setting id="channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_visible" type="bool" label="- VTM.be" default="true" visible="eq(-49,2)" enable="eq(-46,True)" />
+        <setting id="channel_01C7064B-7E7A-4742-A042-E6F2F4EC5966_visible" type="bool" label="- Q2.be" default="true" visible="eq(-50,2)" enable="eq(-47,True)" />
+        <setting id="channel_F530A9EC-3C0D-49B6-96C2-480273417460_visible" type="bool" label="- VRT NU" default="true" visible="eq(-51,2)" enable="eq(-48,True)" />
+        <setting id="channel_66756700-6255-4973-AFFB-A1DE4FAF8678_visible" type="bool" label="- VTM Nieuws" default="true" visible="eq(-52,2)" enable="eq(-49,True)" />
+        <setting id="channel_756FFEC8-B6BA-11E0-898D-1F434824019B_visible" type="bool" label="- Ketnet" default="true" visible="eq(-53,2)" enable="eq(-50,True)" />
+        <setting id="channel_71128378-B6BA-11E0-A68A-1B434824019B_visible" type="bool" label="- Sporza" default="true" visible="eq(-54,2)" enable="eq(-51,True)" />
+        <setting id="channel_79569D55-6298-402A-8AF0-A16955EA052F_visible" type="bool" label="- RTBF" default="true" visible="eq(-55,2)" enable="eq(-52,True)" />
+        <setting id="channel_55635AAA-183C-11E2-ABEC-36706188709B_visible" type="bool" label="- MTV.de" default="true" visible="eq(-56,3)" enable="eq(-52,True)" />
+        <setting id="channel_A9BE95B0-2ED6-4E75-B5DF-C3ECAF0441E6_visible" type="bool" label="- SRF.ch Play" default="true" visible="eq(-57,3)" enable="eq(-53,True)" />
+        <setting id="channel_45527F0C-91FE-11E1-942B-5AB5BBE59B18_visible" type="bool" label="- TV3 Play (Eesti)" default="true" visible="eq(-58,4)" enable="eq(-53,True)" />
+        <setting id="channel_82D73241-284B-4326-9E32-AFEF3C439951_visible" type="bool" label="- TV6 Play (Eesti)" default="true" visible="eq(-59,4)" enable="eq(-54,True)" />
+        <setting id="channel_F1E2E7DA-5710-4455-8EEF-CEAF16AF1121_visible" type="bool" label="- BBC iPlayer" default="true" visible="eq(-60,5)" enable="eq(-54,True)" />
+        <setting id="channel_8BFC5538-FB78-11E2-9D7C-61DE6088709B_visible" type="bool" label="- TWiT.TV" default="true" visible="eq(-61,5)" enable="eq(-55,True)" />
+        <setting id="channel_7FEDC7EA-2281-11E0-8F30-67B5DFD72085_visible" type="bool" label="- TV3 Play (Lietuva)" default="true" visible="eq(-62,6)" enable="eq(-55,True)" />
+        <setting id="channel_49A02D20-2283-11E0-8771-2AB7DFD72085_visible" type="bool" label="- TV6 Play (Lietuva)" default="true" visible="eq(-63,6)" enable="eq(-56,True)" />
+        <setting id="channel_1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD_visible" type="bool" label="- TV8 Play (Lietuva)" default="true" visible="eq(-64,6)" enable="eq(-57,True)" />
+        <setting id="channel_8D9FBD00-2284-11E0-8957-55B8DFD72085_visible" type="bool" label="- TV3 Play (Latvija)" default="true" visible="eq(-65,7)" enable="eq(-57,True)" />
+        <setting id="channel_2FB36241-5BB1-4D38-AD36-F48EAE91CDB5_visible" type="bool" label="- NRK.no" default="true" visible="eq(-66,9)" enable="eq(-56,True)" />
+        <setting id="channel_89673FF0-5EF3-11E0-8CC9-494DDFD72085_visible" type="bool" label="- TV3 Play (Norge)" default="true" visible="eq(-67,9)" enable="eq(-57,True)" />
+        <setting id="channel_90DD5C88-5EF3-11E0-93A2-4D4DDFD72085_visible" type="bool" label="- Viasat4 (Norge)" default="true" visible="eq(-68,9)" enable="eq(-58,True)" />
+        <setting id="channel_3CD2662C-3C7A-4217-8375-079B2D850F27_visible" type="bool" label="- TV6 Play (Norge)" default="true" visible="eq(-69,9)" enable="eq(-59,True)" />
+        <setting id="channel_47AA717E-F919-11E1-977F-0DEC6188709B_visible" type="bool" label="- Nickelodeon (Norge)" default="true" visible="eq(-70,9)" enable="eq(-60,True)" />
+        <setting id="channel_3AF9C61E-88B2-11E1-A03F-08F6BAE59B18_visible" type="bool" label="- SVT Play" default="true" visible="eq(-71,10)" enable="eq(-60,True)" />
+        <setting id="channel_F638A42C-E419-11E2-AB44-9E636188709B_visible" type="bool" label="- SVT Öppet arkiv" default="true" visible="eq(-72,10)" enable="eq(-61,True)" />
+        <setting id="channel_9F0F57D6-B897-11E0-AF2E-92314924019B_visible" type="bool" label="- UR Play" default="true" visible="eq(-73,10)" enable="eq(-62,True)" />
+        <setting id="channel_9EC8F612-2EA4-11DE-867C-B84656D89593_visible" type="bool" label="- TV3 Play (Sverige)" default="true" visible="eq(-74,10)" enable="eq(-63,True)" />
+        <setting id="channel_98506F58-CD6F-11DE-99BA-187F55D89593_visible" type="bool" label="- TV4 Play" default="true" visible="eq(-75,10)" enable="eq(-64,True)" />
+        <setting id="channel_C72D24F6-5FAE-11E0-9935-5F41E0D72085_visible" type="bool" label="- Kanal 5 Play" default="true" visible="eq(-76,10)" enable="eq(-65,True)" />
+        <setting id="channel_FB34E1F0-2930-11DE-A339-255856D89593_visible" type="bool" label="- TV6 Play (Sverige)" default="true" visible="eq(-77,10)" enable="eq(-66,True)" />
+        <setting id="channel_66174057-D5E3-4102-AF46-B2D8E800E0D9_visible" type="bool" label="- Sjuan (TV7)" default="true" visible="eq(-78,10)" enable="eq(-67,True)" />
+        <setting id="channel_BDC1A5C5-2777-4D05-BB5B-742A88B89CC5_visible" type="bool" label="- TV8 Play (Sverige)" default="true" visible="eq(-79,10)" enable="eq(-68,True)" />
+        <setting id="channel_32B4A9AB-583C-4F78-A057-6D79C797B45C_visible" type="bool" label="- Kanal 9 Play" default="true" visible="eq(-80,10)" enable="eq(-69,True)" />
+        <setting id="channel_584E7420-2867-11E3-AA01-F2806188709B_visible" type="bool" label="- TV10 Play" default="true" visible="eq(-81,10)" enable="eq(-70,True)" />
+        <setting id="channel_64E1CA5E-BC3C-4763-9A63-02BE76754BD3_visible" type="bool" label="- Kanal 11 Play" default="true" visible="eq(-82,10)" enable="eq(-71,True)" />
+        <setting id="channel_F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E_visible" type="bool" label="- TV12 Play" default="true" visible="eq(-83,10)" enable="eq(-72,True)" />
+        <setting id="channel_8D1E5858-F926-11E1-BE1C-90F66188709B_visible" type="bool" label="- Nickelodeon (Sverige)" default="true" visible="eq(-84,10)" enable="eq(-73,True)" />
+        <setting id="channel_27A74E50-838B-4F0D-98DE-82E7403567C8_visible" type="bool" label="- Nick Jr. International" default="true" visible="eq(-85,1)" enable="eq(-83,True)" />
+        <setting id="channel_F9AE6336-74BD-4FDF-B453-3BE23187D201_visible" type="bool" label="- 24 Classics" default="true" visible="eq(-86,1)" enable="eq(-84,True)" />
+        <setting id="channel_887F773F-E4E5-4E80-AD7D-65F627D1CA44_visible" type="bool" label="- Apple Movie Trailers" default="true" visible="eq(-87,1)" enable="eq(-85,True)" />
+        <setting id="channel_52230AF6-FBA9-11DD-87D4-15B656D89593_visible" type="bool" label="- Extreme.com" default="true" visible="eq(-88,1)" enable="eq(-86,True)" />
+        <setting id="channel_21D74788-8084-11E0-9A28-39E64824019B_visible" type="bool" label="- MSDN Channel 9" default="true" visible="eq(-89,1)" enable="eq(-87,True)" />
         <!-- end of channel selection -->
     </category>
 
@@ -143,7 +145,7 @@
         <setting type="lsep" label="30063" />
         <!-- start of active channels -->
         <!-- This is just a template and should be replaced after the first run -->
-        <setting id="config_channel" type="select" label="30040" values="Uitzendinggemist [NPO.nl]|RTL XL [RTL 4,5,7 &amp; 8]|Net 5|SBS 6|SBS 9|Veronica|MTV.nl|Nickelodeon|NTR: School TV|Pathé Nederland|AT5|ATV|L1|Omroep Brabant|Omroep Flevoland|Omroep Gelderland|Omroep West|Omroep Zeeland|Omrop Fryslân|RTV Drenthe|RTV Noord|RTV Noord-Holland|RTV Oost|RTV Rijnmond|RTV Utrecht|NOS.nl|Fox Sports|Radio 538|Dumpert.nl|Hardware.info|RadionNL|TV.NL|Eén|Vier|Vijf|De Redactie|VTM.be|Q2.be|VRT NU|VTM Nieuws|Ketnet|Sporza|RTBF|MTV.de|SRF.ch Play|TV3 Play [Eesti]|TV6 Play [Eesti]|BBC iPlayer|TWiT.TV|TV3 Play [Lietuva]|TV6 Play [Lietuva]|TV8 Play [Lietuva]|TV3 Play [Latvija]|NRK.no|TV3 Play [Norge]|Viasat4 [Norge]|TV6 Play [Norge]|Nickelodeon [Norge]|SVT Play|SVT Öppet arkiv|UR Play|TV3 Play [Sverige]|TV4 Play|Kanal 5 Play|TV6 Play [Sverige]|Sjuan [TV7]|TV8 Play [Sverige]|Kanal 9 Play|TV10 Play|Kanal 11 Play|TV12 Play|Nickelodeon [Sverige]|24 Classics|Apple Movie Trailers|Extreme.com|MSDN Channel 9" />
+        <setting id="config_channel" type="select" label="30040" values="Uitzendinggemist [NPO.nl]|RTL XL [RTL 4,5,7 &amp; 8]|Net 5|SBS 6|SBS 9|Veronica|MTV.nl|Nick Jr.|Nickelodeon|NTR: School TV|Pathé Nederland|AT5|ATV|L1|Omroep Brabant|Omroep Flevoland|Omroep Gelderland|Omroep West|Omroep Zeeland|Omrop Fryslân|RTV Drenthe|RTV Noord|RTV Noord-Holland|RTV Oost|RTV Rijnmond|RTV Utrecht|NOS.nl|Fox Sports|Radio 538|Dumpert.nl|Hardware.info|RadionNL|TV.NL|Eén|Vier|Vijf|De Redactie|VTM.be|Q2.be|VRT NU|VTM Nieuws|Ketnet|Sporza|RTBF|MTV.de|SRF.ch Play|TV3 Play [Eesti]|TV6 Play [Eesti]|BBC iPlayer|TWiT.TV|TV3 Play [Lietuva]|TV6 Play [Lietuva]|TV8 Play [Lietuva]|TV3 Play [Latvija]|NRK.no|TV3 Play [Norge]|Viasat4 [Norge]|TV6 Play [Norge]|Nickelodeon [Norge]|SVT Play|SVT Öppet arkiv|UR Play|TV3 Play [Sverige]|TV4 Play|Kanal 5 Play|TV6 Play [Sverige]|Sjuan [TV7]|TV8 Play [Sverige]|Kanal 9 Play|TV10 Play|Kanal 11 Play|TV12 Play|Nickelodeon [Sverige]|Nick Jr. International|24 Classics|Apple Movie Trailers|Extreme.com|MSDN Channel 9" />
         <!-- end of active channels -->
 
         <setting type="lsep" label="30032" />
@@ -237,6 +239,11 @@
         <setting id="channel_47AA717E-F919-11E1-977F-0DEC6188709B_bitrate" type="select" label="30020" values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" default="Retrospect" visible="eq(%config_channel%,Nickelodeon [Norge])" />
         <setting id="channel_8D1E5858-F926-11E1-BE1C-90F66188709B_visible" type="bool" label="30042" default="true" visible="eq(%config_channel%,Nickelodeon [Sverige])" />
         <setting id="channel_8D1E5858-F926-11E1-BE1C-90F66188709B_bitrate" type="select" label="30020" values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" default="Retrospect" visible="eq(%config_channel%,Nickelodeon [Sverige])" />
+        <!-- chn_nickjr.py -->
+        <setting id="channel_48DDDDCB-5500-4422-8AFC-8312B72E1ABA_visible" type="bool" label="30042" default="true" visible="eq(%config_channel%,Nick Jr.)" />
+        <setting id="channel_48DDDDCB-5500-4422-8AFC-8312B72E1ABA_bitrate" type="select" label="30020" values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" default="Retrospect" visible="eq(%config_channel%,Nick Jr.)" />
+        <setting id="channel_27A74E50-838B-4F0D-98DE-82E7403567C8_visible" type="bool" label="30042" default="true" visible="eq(%config_channel%,Nick Jr. International)" />
+        <setting id="channel_27A74E50-838B-4F0D-98DE-82E7403567C8_bitrate" type="select" label="30020" values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" default="Retrospect" visible="eq(%config_channel%,Nick Jr. International)" />
         <!-- chn_nos2010.py -->
         <setting id="channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_visible" type="bool" label="30042" default="true" visible="eq(%config_channel%,Uitzendinggemist [NPO.nl])" />
         <setting id="channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_bitrate" type="select" label="30020" values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" default="Retrospect" visible="eq(%config_channel%,Uitzendinggemist [NPO.nl])" />
@@ -384,92 +391,93 @@
         <setting type="lsep" label="30065" />
 
         <!-- start of proxy selection -->
-        <setting id="channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Uitzendinggemist [NPO.nl])" />
-        <setting id="channel_15D92364-42F4-11DD-AF9B-7BFF55D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTL XL [RTL 4,5,7 &amp; 8])" />
-        <setting id="channel_658A5A36-60A4-11E2-A236-8CE36188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Net 5)" />
-        <setting id="channel_60948038-60A4-11E2-B01B-8BE36188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SBS 6)" />
-        <setting id="channel_C77710DE-21B6-467A-A547-0F64C6C6186E_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SBS 9)" />
-        <setting id="channel_6B32718A-60A4-11E2-87B1-A6E36188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Veronica)" />
-        <setting id="channel_7C52452A-F2F9-11DD-BE3F-3F7356D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,MTV.nl)" />
-        <setting id="channel_8D4EBAE8-F3C6-11DD-92EE-F2FE55D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Nickelodeon)" />
-        <setting id="channel_19B126B1-4896-4378-A345-A0ABA313CB75_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,NTR: School TV)" />
-        <setting id="channel_66252BE4-E952-4AE5-B8EB-43E6271C688B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Pathé Nederland)" />
-        <setting id="channel_870EAD32-F2F9-11DD-B0E7-747356D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,AT5)" />
-        <setting id="channel_05E10B8F-4BC5-47F9-8C34-3C378962082B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,ATV)" />
-        <setting id="channel_29D36E00-730B-11E2-AD39-B0F06188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,L1)" />
-        <setting id="channel_770D3385-2EC9-4B87-9BC8-3A7190248A9C_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Omroep Brabant)" />
-        <setting id="channel_D74952F3-B72B-4AF9-83E6-9394D37D786E_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Omroep Flevoland)" />
-        <setting id="channel_B2AF5744-4697-44CD-9A54-CFD6A4273207_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Omroep Gelderland)" />
-        <setting id="channel_EFE57022-9F52-41F9-8775-13CCD001FA56_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Omroep West)" />
-        <setting id="channel_8B4A56C7-44D5-40C2-A890-2287C4C1D74B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Omroep Zeeland)" />
-        <setting id="channel_81CD5339-0D59-4019-9171-12A98815311C_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Omrop Fryslân)" />
-        <setting id="channel_B7EB69DF-18C4-4935-BA83-0B2A89295178_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTV Drenthe)" />
-        <setting id="channel_7C40EEE7-40F4-40ED-8A70-FAAB42B7A2B1_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTV Noord)" />
-        <setting id="channel_EF46E726-92F4-42FC-A6D4-68A888E23E96_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTV Noord-Holland)" />
-        <setting id="channel_B099990E-5749-44FC-A5C5-A40427A9A5C9_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTV Oost)" />
-        <setting id="channel_AF2B907D-D437-46DB-B802-F946850098FB_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTV Rijnmond)" />
-        <setting id="channel_BD113683-233A-46EB-962D-98B3C02EB738_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTV Utrecht)" />
-        <setting id="channel_EE33E7EC-FDAB-11E0-AA09-1EED4724019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,NOS.nl)" />
-        <setting id="channel_CC524DC0-C846-11E0-871B-984F4824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Fox Sports)" />
-        <setting id="channel_0C59FF4A-8E07-11E1-B2D2-8071BBE59B18_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Radio 538)" />
-        <setting id="channel_80726A74-42F3-11DD-BBA6-A1F055D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Dumpert.nl)" />
-        <setting id="channel_DB6A5104-30B0-11E1-A995-AF324924019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Hardware.info)" />
-        <setting id="channel_341BFEA0-2312-11DF-B6B1-B7B256D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RadionNL)" />
-        <setting id="channel_1D6063B8-4BCF-11E0-AD8F-5533DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV.NL)" />
-        <setting id="channel_16A5C86D-52C5-48C1-B894-1CC23EBF1CD8_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Eén)" />
-        <setting id="channel_50E04907-8983-4552-A775-E70F3D91FB99_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Vier)" />
-        <setting id="channel_9F44A86D-D62F-4775-A5BC-B99D1AE038FE_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Vijf)" />
-        <setting id="channel_79C799AE-B6BA-11E0-87FD-20434824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,De Redactie)" />
-        <setting id="channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,VTM.be)" />
-        <setting id="channel_01C7064B-7E7A-4742-A042-E6F2F4EC5966_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Q2.be)" />
-        <setting id="channel_F530A9EC-3C0D-49B6-96C2-480273417460_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,VRT NU)" />
-        <setting id="channel_66756700-6255-4973-AFFB-A1DE4FAF8678_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,VTM Nieuws)" />
-        <setting id="channel_756FFEC8-B6BA-11E0-898D-1F434824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Ketnet)" />
-        <setting id="channel_71128378-B6BA-11E0-A68A-1B434824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Sporza)" />
-        <setting id="channel_79569D55-6298-402A-8AF0-A16955EA052F_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,RTBF)" />
-        <setting id="channel_55635AAA-183C-11E2-ABEC-36706188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,MTV.de)" />
-        <setting id="channel_A9BE95B0-2ED6-4E75-B5DF-C3ECAF0441E6_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SRF.ch Play)" />
-        <setting id="channel_45527F0C-91FE-11E1-942B-5AB5BBE59B18_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV3 Play [Eesti])" />
-        <setting id="channel_82D73241-284B-4326-9E32-AFEF3C439951_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV6 Play [Eesti])" />
-        <setting id="channel_F1E2E7DA-5710-4455-8EEF-CEAF16AF1121_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,BBC iPlayer)" />
-        <setting id="channel_8BFC5538-FB78-11E2-9D7C-61DE6088709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TWiT.TV)" />
-        <setting id="channel_7FEDC7EA-2281-11E0-8F30-67B5DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV3 Play [Lietuva])" />
-        <setting id="channel_49A02D20-2283-11E0-8771-2AB7DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV6 Play [Lietuva])" />
-        <setting id="channel_1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV8 Play [Lietuva])" />
-        <setting id="channel_8D9FBD00-2284-11E0-8957-55B8DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV3 Play [Latvija])" />
-        <setting id="channel_2FB36241-5BB1-4D38-AD36-F48EAE91CDB5_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,NRK.no)" />
-        <setting id="channel_2FB36241-5BB1-4D38-AD36-F48EAE91CDB5_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,NRK.no)" />
-        <setting id="channel_89673FF0-5EF3-11E0-8CC9-494DDFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV3 Play [Norge])" />
-        <setting id="channel_90DD5C88-5EF3-11E0-93A2-4D4DDFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Viasat4 [Norge])" />
-        <setting id="channel_3CD2662C-3C7A-4217-8375-079B2D850F27_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV6 Play [Norge])" />
-        <setting id="channel_47AA717E-F919-11E1-977F-0DEC6188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Nickelodeon [Norge])" />
-        <setting id="channel_3AF9C61E-88B2-11E1-A03F-08F6BAE59B18_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SVT Play)" />
-        <setting id="channel_3AF9C61E-88B2-11E1-A03F-08F6BAE59B18_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SVT Play)" />
-        <setting id="channel_F638A42C-E419-11E2-AB44-9E636188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SVT Öppet arkiv)" />
-        <setting id="channel_F638A42C-E419-11E2-AB44-9E636188709B_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,SVT Öppet arkiv)" />
-        <setting id="channel_9F0F57D6-B897-11E0-AF2E-92314924019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,UR Play)" />
-        <setting id="channel_9EC8F612-2EA4-11DE-867C-B84656D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV3 Play [Sverige])" />
-        <setting id="channel_9EC8F612-2EA4-11DE-867C-B84656D89593_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV3 Play [Sverige])" />
-        <setting id="channel_98506F58-CD6F-11DE-99BA-187F55D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV4 Play)" />
-        <setting id="channel_98506F58-CD6F-11DE-99BA-187F55D89593_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV4 Play)" />
-        <setting id="channel_C72D24F6-5FAE-11E0-9935-5F41E0D72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Kanal 5 Play)" />
-        <setting id="channel_FB34E1F0-2930-11DE-A339-255856D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV6 Play [Sverige])" />
-        <setting id="channel_FB34E1F0-2930-11DE-A339-255856D89593_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV6 Play [Sverige])" />
-        <setting id="channel_66174057-D5E3-4102-AF46-B2D8E800E0D9_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Sjuan [TV7])" />
-        <setting id="channel_66174057-D5E3-4102-AF46-B2D8E800E0D9_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Sjuan [TV7])" />
-        <setting id="channel_BDC1A5C5-2777-4D05-BB5B-742A88B89CC5_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV8 Play [Sverige])" />
-        <setting id="channel_BDC1A5C5-2777-4D05-BB5B-742A88B89CC5_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV8 Play [Sverige])" />
-        <setting id="channel_32B4A9AB-583C-4F78-A057-6D79C797B45C_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Kanal 9 Play)" />
-        <setting id="channel_584E7420-2867-11E3-AA01-F2806188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV10 Play)" />
-        <setting id="channel_584E7420-2867-11E3-AA01-F2806188709B_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV10 Play)" />
-        <setting id="channel_64E1CA5E-BC3C-4763-9A63-02BE76754BD3_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Kanal 11 Play)" />
-        <setting id="channel_F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV12 Play)" />
-        <setting id="channel_F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,TV12 Play)" />
-        <setting id="channel_8D1E5858-F926-11E1-BE1C-90F66188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Nickelodeon [Sverige])" />
-        <setting id="channel_F9AE6336-74BD-4FDF-B453-3BE23187D201_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,24 Classics)" />
-        <setting id="channel_887F773F-E4E5-4E80-AD7D-65F627D1CA44_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Apple Movie Trailers)" />
-        <setting id="channel_52230AF6-FBA9-11DD-87D4-15B656D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,Extreme.com)" />
-        <setting id="channel_21D74788-8084-11E0-9A28-39E64824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054" default="0" visible="eq(%config_channel%,MSDN Channel 9)" />
+        <setting id="channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Uitzendinggemist [NPO.nl])" />
+        <setting id="channel_15D92364-42F4-11DD-AF9B-7BFF55D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTL XL [RTL 4,5,7 &amp; 8])" />
+        <setting id="channel_658A5A36-60A4-11E2-A236-8CE36188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Net 5)" />
+        <setting id="channel_60948038-60A4-11E2-B01B-8BE36188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SBS 6)" />
+        <setting id="channel_C77710DE-21B6-467A-A547-0F64C6C6186E_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SBS 9)" />
+        <setting id="channel_6B32718A-60A4-11E2-87B1-A6E36188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Veronica)" />
+        <setting id="channel_7C52452A-F2F9-11DD-BE3F-3F7356D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,MTV.nl)" />
+        <setting id="channel_8D4EBAE8-F3C6-11DD-92EE-F2FE55D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Nickelodeon)" />
+        <setting id="channel_19B126B1-4896-4378-A345-A0ABA313CB75_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,NTR: School TV)" />
+        <setting id="channel_66252BE4-E952-4AE5-B8EB-43E6271C688B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Pathé Nederland)" />
+        <setting id="channel_870EAD32-F2F9-11DD-B0E7-747356D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,AT5)" />
+        <setting id="channel_05E10B8F-4BC5-47F9-8C34-3C378962082B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,ATV)" />
+        <setting id="channel_29D36E00-730B-11E2-AD39-B0F06188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,L1)" />
+        <setting id="channel_770D3385-2EC9-4B87-9BC8-3A7190248A9C_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Omroep Brabant)" />
+        <setting id="channel_D74952F3-B72B-4AF9-83E6-9394D37D786E_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Omroep Flevoland)" />
+        <setting id="channel_B2AF5744-4697-44CD-9A54-CFD6A4273207_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Omroep Gelderland)" />
+        <setting id="channel_EFE57022-9F52-41F9-8775-13CCD001FA56_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Omroep West)" />
+        <setting id="channel_8B4A56C7-44D5-40C2-A890-2287C4C1D74B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Omroep Zeeland)" />
+        <setting id="channel_81CD5339-0D59-4019-9171-12A98815311C_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Omrop Fryslân)" />
+        <setting id="channel_B7EB69DF-18C4-4935-BA83-0B2A89295178_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTV Drenthe)" />
+        <setting id="channel_7C40EEE7-40F4-40ED-8A70-FAAB42B7A2B1_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTV Noord)" />
+        <setting id="channel_EF46E726-92F4-42FC-A6D4-68A888E23E96_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTV Noord-Holland)" />
+        <setting id="channel_B099990E-5749-44FC-A5C5-A40427A9A5C9_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTV Oost)" />
+        <setting id="channel_AF2B907D-D437-46DB-B802-F946850098FB_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTV Rijnmond)" />
+        <setting id="channel_BD113683-233A-46EB-962D-98B3C02EB738_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTV Utrecht)" />
+        <setting id="channel_EE33E7EC-FDAB-11E0-AA09-1EED4724019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,NOS.nl)" />
+        <setting id="channel_CC524DC0-C846-11E0-871B-984F4824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Fox Sports)" />
+        <setting id="channel_0C59FF4A-8E07-11E1-B2D2-8071BBE59B18_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Radio 538)" />
+        <setting id="channel_80726A74-42F3-11DD-BBA6-A1F055D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Dumpert.nl)" />
+        <setting id="channel_DB6A5104-30B0-11E1-A995-AF324924019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Hardware.info)" />
+        <setting id="channel_341BFEA0-2312-11DF-B6B1-B7B256D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RadionNL)" />
+        <setting id="channel_1D6063B8-4BCF-11E0-AD8F-5533DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV.NL)" />
+        <setting id="channel_16A5C86D-52C5-48C1-B894-1CC23EBF1CD8_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Eén)" />
+        <setting id="channel_50E04907-8983-4552-A775-E70F3D91FB99_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Vier)" />
+        <setting id="channel_9F44A86D-D62F-4775-A5BC-B99D1AE038FE_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Vijf)" />
+        <setting id="channel_79C799AE-B6BA-11E0-87FD-20434824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,De Redactie)" />
+        <setting id="channel_7F92EAEE-6066-4ED5-911A-2C3DCF964D19_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,VTM.be)" />
+        <setting id="channel_01C7064B-7E7A-4742-A042-E6F2F4EC5966_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Q2.be)" />
+        <setting id="channel_F530A9EC-3C0D-49B6-96C2-480273417460_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,VRT NU)" />
+        <setting id="channel_66756700-6255-4973-AFFB-A1DE4FAF8678_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,VTM Nieuws)" />
+        <setting id="channel_756FFEC8-B6BA-11E0-898D-1F434824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Ketnet)" />
+        <setting id="channel_71128378-B6BA-11E0-A68A-1B434824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Sporza)" />
+        <setting id="channel_79569D55-6298-402A-8AF0-A16955EA052F_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,RTBF)" />
+        <setting id="channel_55635AAA-183C-11E2-ABEC-36706188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,MTV.de)" />
+        <setting id="channel_A9BE95B0-2ED6-4E75-B5DF-C3ECAF0441E6_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SRF.ch Play)" />
+        <setting id="channel_45527F0C-91FE-11E1-942B-5AB5BBE59B18_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV3 Play [Eesti])" />
+        <setting id="channel_82D73241-284B-4326-9E32-AFEF3C439951_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV6 Play [Eesti])" />
+        <setting id="channel_F1E2E7DA-5710-4455-8EEF-CEAF16AF1121_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,BBC iPlayer)" />
+        <setting id="channel_8BFC5538-FB78-11E2-9D7C-61DE6088709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TWiT.TV)" />
+        <setting id="channel_7FEDC7EA-2281-11E0-8F30-67B5DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV3 Play [Lietuva])" />
+        <setting id="channel_49A02D20-2283-11E0-8771-2AB7DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV6 Play [Lietuva])" />
+        <setting id="channel_1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV8 Play [Lietuva])" />
+        <setting id="channel_8D9FBD00-2284-11E0-8957-55B8DFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV3 Play [Latvija])" />
+        <setting id="channel_2FB36241-5BB1-4D38-AD36-F48EAE91CDB5_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,NRK.no)" />
+        <setting id="channel_2FB36241-5BB1-4D38-AD36-F48EAE91CDB5_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,NRK.no)" />
+        <setting id="channel_89673FF0-5EF3-11E0-8CC9-494DDFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV3 Play [Norge])" />
+        <setting id="channel_90DD5C88-5EF3-11E0-93A2-4D4DDFD72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Viasat4 [Norge])" />
+        <setting id="channel_3CD2662C-3C7A-4217-8375-079B2D850F27_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV6 Play [Norge])" />
+        <setting id="channel_47AA717E-F919-11E1-977F-0DEC6188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Nickelodeon [Norge])" />
+        <setting id="channel_3AF9C61E-88B2-11E1-A03F-08F6BAE59B18_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SVT Play)" />
+        <setting id="channel_3AF9C61E-88B2-11E1-A03F-08F6BAE59B18_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SVT Play)" />
+        <setting id="channel_F638A42C-E419-11E2-AB44-9E636188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SVT Öppet arkiv)" />
+        <setting id="channel_F638A42C-E419-11E2-AB44-9E636188709B_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,SVT Öppet arkiv)" />
+        <setting id="channel_9F0F57D6-B897-11E0-AF2E-92314924019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,UR Play)" />
+        <setting id="channel_9EC8F612-2EA4-11DE-867C-B84656D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV3 Play [Sverige])" />
+        <setting id="channel_9EC8F612-2EA4-11DE-867C-B84656D89593_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV3 Play [Sverige])" />
+        <setting id="channel_98506F58-CD6F-11DE-99BA-187F55D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV4 Play)" />
+        <setting id="channel_98506F58-CD6F-11DE-99BA-187F55D89593_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV4 Play)" />
+        <setting id="channel_C72D24F6-5FAE-11E0-9935-5F41E0D72085_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Kanal 5 Play)" />
+        <setting id="channel_FB34E1F0-2930-11DE-A339-255856D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV6 Play [Sverige])" />
+        <setting id="channel_FB34E1F0-2930-11DE-A339-255856D89593_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV6 Play [Sverige])" />
+        <setting id="channel_66174057-D5E3-4102-AF46-B2D8E800E0D9_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Sjuan [TV7])" />
+        <setting id="channel_66174057-D5E3-4102-AF46-B2D8E800E0D9_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Sjuan [TV7])" />
+        <setting id="channel_BDC1A5C5-2777-4D05-BB5B-742A88B89CC5_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV8 Play [Sverige])" />
+        <setting id="channel_BDC1A5C5-2777-4D05-BB5B-742A88B89CC5_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV8 Play [Sverige])" />
+        <setting id="channel_32B4A9AB-583C-4F78-A057-6D79C797B45C_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Kanal 9 Play)" />
+        <setting id="channel_584E7420-2867-11E3-AA01-F2806188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV10 Play)" />
+        <setting id="channel_584E7420-2867-11E3-AA01-F2806188709B_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV10 Play)" />
+        <setting id="channel_64E1CA5E-BC3C-4763-9A63-02BE76754BD3_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Kanal 11 Play)" />
+        <setting id="channel_F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV12 Play)" />
+        <setting id="channel_F2D31759-71BD-4DD1-A1FB-FF8FD99CE03E_localip" type="select" label="30097" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,TV12 Play)" />
+        <setting id="channel_8D1E5858-F926-11E1-BE1C-90F66188709B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Nickelodeon [Sverige])" />
+        <setting id="channel_27A74E50-838B-4F0D-98DE-82E7403567C8_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Nick Jr. International)" />
+        <setting id="channel_F9AE6336-74BD-4FDF-B453-3BE23187D201_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,24 Classics)" />
+        <setting id="channel_887F773F-E4E5-4E80-AD7D-65F627D1CA44_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Apple Movie Trailers)" />
+        <setting id="channel_52230AF6-FBA9-11DD-87D4-15B656D89593_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,Extreme.com)" />
+        <setting id="channel_21D74788-8084-11E0-9A28-39E64824019B_proxy" type="select" label="30064" lvalues="30025|30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" default="0" visible="eq(%config_channel%,MSDN Channel 9)" />
         <!-- end of proxy selection -->
     </category>
 
