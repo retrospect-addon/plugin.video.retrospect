@@ -60,15 +60,16 @@ class Channel(chn_class.Channel):
                 # preprocessor=self.AddMoreRecentVideos,
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
-            # recentRegex = '<a[^>]+href="/(?<url>video\?aid=\d+)"[^>]*>\W*<div[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,500}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
-            # # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
-            # recentRegex = Regexer.FromExpresso(recentRegex)
-            # self._AddDataParser(
-            #     "https://vtm.be/block/responsive/medialaan_vod/vtm_watch_recent_videozone",
-            #     name="Recent Items HTML Video Parser",
-            #     parser=recentRegex,
-            #     creator=self.CreateVideoItemHtml
-            # )
+            recentRegex = '<a href="/(?<url>[^"]+)"[^>]*>\W+(?:<div[^>]+>\W+)+<img[^>]+src="(?<thumburl>[^"]+)"[^>]+>\W*<span[^>]*>\W*(?<subtitle>[^<]+)[\w\W]{0,300}?(?:<div[^>]+class="item-caption-program"[^>]*>(?<title>[^<]+)</div>\W*)</div>\W*</div>\W*</div>\W*</a'
+            # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
+            recentRegex = Regexer.FromExpresso(recentRegex)
+            self._AddDataParser(
+                "https://vtm.be/video/volledige-afleveringen/id",
+                matchType=ParserData.MatchExact,
+                name="Recent Items HTML Video Parser",
+                parser=recentRegex,
+                creator=self.CreateVideoItemHtml
+            )
 
         elif self.channelCode == "q2":
             self.noImage = "q2beimage.jpg"
@@ -478,12 +479,12 @@ class Channel(chn_class.Channel):
         item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
 
-        # if self.channelCode == "vtm":
-        #     recent = MediaItem("\a.: Recent :.", "https://vtm.be/block/responsive/medialaan_vod/vtm_watch_recent_videozone?offset=0&limit=100")
-        #     item.fanart = self.fanart
-        #     item.thumb = self.noImage
-        #     item.dontGroup = True
-        #     items.append(recent)
+        if self.channelCode == "vtm":
+            recent = MediaItem("\a.: Recent :.", "https://vtm.be/video/volledige-afleveringen/id")
+            item.fanart = self.fanart
+            item.thumb = self.noImage
+            item.dontGroup = True
+            items.append(recent)
 
         Logger.Debug("Pre-Processing finished")
         return data, items
@@ -571,6 +572,18 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet['title']
+        if title:
+            title = title.strip()
+
+        if 'subtitle' in resultSet and title:
+            title = "%s - %s" % (title, resultSet['subtitle'].strip())
+        elif 'subtitle' in resultSet:
+            title = resultSet['subtitle'].strip()
+
+        if not title:
+            Logger.Warning("Item without title found: %s", resultSet)
+            return None
+
         url = resultSet["url"].replace('  ', ' ')
         if not resultSet["url"].startswith("http"):
             url = "%s/%s" % (self.baseUrl, resultSet["url"])
