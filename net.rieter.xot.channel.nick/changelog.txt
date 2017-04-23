@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+Added: NickJr NL and International
 Fixed: Remove NickJR content from the main Nickelodeon channels as that content moved
 
 [I]Previous changes[/I]
