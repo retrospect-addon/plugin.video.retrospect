@@ -430,7 +430,7 @@ class ChannelIndex:
         addonXml = f.read()
         f.close()
 
-        packVersion = Regexer.DoRegex('id="([^"]+)"\W+version="([^"]{5,10})"', addonXml)
+        packVersion = Regexer.DoRegex('id="([^"]+)"\W+version="([^"]+)"', addonXml)
         if len(packVersion) > 0:
             # Get the first match
             packVersion = packVersion[0]
