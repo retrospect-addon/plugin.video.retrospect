@@ -204,6 +204,8 @@ class XbmcWrapper:
             if logger:
                 logger.Trace("Sending command: %s", command)
             response = xbmc.executeJSONRPC(command)
+            if logger:
+                logger.Trace("Response: %s", response)
             return response
         except:
             if fallback:

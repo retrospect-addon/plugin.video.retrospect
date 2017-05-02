@@ -187,7 +187,7 @@ class ChannelIndex:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
                     title = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)
                     text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText)
-                    XbmcWrapper.ShowNotification(title, text, displayTime=15000)
+                    XbmcWrapper.ShowNotification(title, text, displayTime=15000, logger=Logger.Instance())
                 channelsUpdated |= True
 
                 # Initialise the channelset.
@@ -408,6 +408,8 @@ class ChannelIndex:
                     len(index[self.__CHANNEL_INDEX_CHANNEL_KEY]),
                     len(index[self.__CHANNEL_INDEX_ADD_ONS_KEY]),
                     index)
+
+        envcontroller.EnvController.UpdateLocalAddons()
         return index
 
     def __ValidateAddOnVersion(self, path):

@@ -52,6 +52,43 @@ class EnvController:
         build = sys.version_info[2]
         return "%s.%s.%s" % (major, minor, build)
 
+    @staticmethod
+    def UpdateLocalAddons():
+        """ Ask Kodi to update the list of local add-ons. """
+        Logger.Info("Asking Kodi to update the local add-ons")
+        xbmc.executebuiltin("UpdateLocalAddons")
+
+    def AreAddonsEnabled(self, config):
+        """ Checks if all Retrospect channel add-ons are enabled.
+
+        @param config: The config object
+        @return: True or False
+        
+        If channel add-ons are not enabled in Kodi, they will not be auto updated.        
+        """
+
+        addonDir = os.path.join(config.rootDir, "..")
+        for directory in os.listdir(addonDir):
+            if not directory.startswith("%s.channel" % (config.addonId, )):
+                continue
+
+            installed = xbmc.getCondVisibility('System.HasAddon("%s")' % (directory,)) == 1
+            if not installed:
+                if not os.path.isfile(os.path.join(addonDir, directory, "addon.xml")):
+                    # no add-on, continue
+                    continue
+
+                Logger.Warning("Add-on '%s' is not enabled in Kodi and will not be updated automatically", directory)
+
+                XbmcWrapper.ShowDialog(
+                    LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledTitle),
+                    LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledText))
+                xbmc.executebuiltin("ActivateWindow(AddonBrowser, addons://user/all/, return)")
+                return False
+
+            Logger.Debug("Add-on '%s' is enabled in Kodi", directory)
+        return True
+
     def IsInstallMethodValid(self, config):
         """ Validates that Retrospect is installed using the repository. If not
         it will popup a dialog box.

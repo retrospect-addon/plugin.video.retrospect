@@ -144,6 +144,7 @@ class Plugin:
 
             # check if the repository is available
             envCtrl.IsInstallMethodValid(Config)
+            envCtrl.AreAddonsEnabled(Config)
 
             # check for cache folder
             envCtrl.CacheCheck()

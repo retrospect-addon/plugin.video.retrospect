@@ -193,6 +193,8 @@
     <string id="30564">Maak item zichtbaar</string>
     <string id="30565">Items verbergen/tonen</string>
     <string id="30566">Om een item weer te tonen zal Retrospect eerst geconfigureerd moeten worden om verborgen items te tonen. Daarna kan het context menu gebruikt worden om een item weer te tonen.</string>
+    <string id="30567">Add-on(s) uitgeschakeld</string>
+    <string id="30568">Een aantal van de Retrospect add-ons zijn niet ingeschakeld. Hierdoor kunnen ze niet automatisch worden geupdate. De Kodi addon-verkenner zal worden geopend. Hierin kunt u de Retrospect gerelateerde add-ons activeren.</string>
 
     <string id="30590">Stel een nieuwe Retrospect PIN in</string>
     <string id="30591">Geen Retrospect PIN ingevoerd</string>

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2017-04-14 08:04+0000\n"
+"POT-Creation-Date: 2017-05-02 21:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -769,7 +769,15 @@ msgctxt "#30566"
 msgid "To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu."
 msgstr ""
 
-#empty strings from id 30567 to 30589
+msgctxt "#30567"
+msgid "Add-on(s) disabled"
+msgstr ""
+
+msgctxt "#30568"
+msgid "Some of the Retrospect add-ons are not enabled within Kodi. This will prevent them from being automatically updated. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons."
+msgstr ""
+
+#empty strings from id 30569 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

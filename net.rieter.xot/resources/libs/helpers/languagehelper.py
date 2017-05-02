@@ -76,6 +76,8 @@ class LanguageHelper:
     UnCloakItem = 30564
     CloakFirstTime = 30565
     CloakMessage = 30566
+    AddonsNotEnabledTitle = 30567
+    AddonsNotEnabledText = 30568
 
     Active = 30068
     ShowChannelSettings = 30069
