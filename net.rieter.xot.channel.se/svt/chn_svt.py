@@ -35,20 +35,15 @@ class Channel(chn_class.Channel):
         self.noImage = "svtimage.png"
 
         # setup the urls
-        self.mainListUri = "http://www.svtplay.se/ajax/sok/forslag.json"
-        self.mainListUri = "http://www.svtplay.se/api/all_titles_and_singles"
-        self.baseUrl = "http://www.svtplay.se"
-        self.swfUrl = "http://media.svt.se/swf/video/svtplayer-2016.01.swf"
+        self.mainListUri = "https://www.svtplay.se/api/all_titles_and_singles"
+        self.baseUrl = "https://www.svtplay.se"
+        self.swfUrl = "https://media.svt.se/swf/video/svtplayer-2016.01.swf"
 
         # setup the intial listing based on Alphabeth and specials
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.AddLiveItemsAndGenres)
-        # in case we use the forslag.json
-        self._AddDataParser("http://www.svtplay.se/ajax/sok/forslag.json",
-                            matchType=ParserData.MatchExact, json=True,
-                            parser=(), creator=self.CreateJsonEpisodeItemSok)
         # in case we use the All Titles and Singles
-        self._AddDataParser("http://www.svtplay.se/api/all_titles_and_singles",
+        self._AddDataParser("https://www.svtplay.se/api/all_titles_and_singles",
                             matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.FetchThumbData,
                             parser=(), creator=self.MergeJsonEpisodeItem)
@@ -74,25 +69,25 @@ class Channel(chn_class.Channel):
                             creator=self.CreateJsonPageItem)
 
         # genres (using JSON)
-        self._AddDataParser("http://www.svtplay.se/genre",
+        self._AddDataParser("https://www.svtplay.se/genre",
                             preprocessor=self.ExtractJsonData, json=True,
                             name="Parser for dynamically parsing tags/genres from overview",
                             matchType=ParserData.MatchExact,
                             parser=("clusters", "alphabetical"),
                             creator=self.CreateJsonGenre)
 
-        self._AddDataParser("http://www.svtplay.se/genre/",
+        self._AddDataParser("https://www.svtplay.se/genre/",
                             preprocessor=self.ExtractJsonData, json=True,
                             name="Video/Folder parsers for items in a Genre/Tag",
                             parser=("clusterPage", "titlesAndEpisodes"),
                             creator=self.CreateJsonItem)
 
-        self._AddDataParser("http://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
-        self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
+        self._AddDataParser("https://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
+        self._AddDataParser("https://www.svtplay.se/sok?q=", json=True,
                             parser=("searchPage", "episodes"),
                             creator=self.CreateJsonItem)
-        self._AddDataParser("http://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchPage", "titles"),
+        self._AddDataParser("https://www.svtplay.se/sok?q=", json=True,
+                            parser=("searchPage", "videosAndTitles"),
                             creator=self.CreateJsonItem)
 
         # slugged items for which we need to filter tab items
@@ -106,21 +101,21 @@ class Channel(chn_class.Channel):
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
         self._AddDataParser("*", json=True,
                             preprocessor=self.ListSomeVideos,
-                            parser=("videoTitlePage", "relatedVideosTabs"),
+                            parser=("relatedVideoContent", "relatedVideosTabs"),
                             creator=self.CreateJsonFolderItem)
 
         # And the old stuff
         catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
-        self._AddDataParser("http://www.svtplay.se/barn",
+        self._AddDataParser("https://www.svtplay.se/barn",
                             matchType=ParserData.MatchExact,
                             preprocessor=self.StripNonCategories, parser=catRegex,
                             creator=self.CreateCategoryItem)
 
         # Update via HTML pages
-        self._AddDataParser("http://www.svtplay.se/video/", updater=self.UpdateVideoHtmlItem)
-        self._AddDataParser("http://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
+        self._AddDataParser("https://www.svtplay.se/video/", updater=self.UpdateVideoHtmlItem)
+        self._AddDataParser("https://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
         # Update via the new API urls
-        self._AddDataParser("http://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
+        self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
         self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
 
         # ===============================================================================================================
@@ -146,7 +141,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "http://www.svtplay.se/sok?q=%s"
+        url = "https://www.svtplay.se/sok?q=%s"
         return chn_class.Channel.SearchSite(self, url)
 
     def AddLiveItemsAndGenres(self, data):
@@ -162,58 +157,58 @@ class Channel(chn_class.Channel):
 
         extraItems = {
             "Kanaler": "#kanaler",
-            "Livesändningar": "http://www.svtplay.se/live?sida=1",
+            "Livesändningar": "https://www.svtplay.se/live?sida=1",
 
             "S&ouml;k": "searchSite",
-            "Senaste program": "http://www.svtplay.se/senaste?sida=1",
-            "Sista chansen": "http://www.svtplay.se/sista-chansen?sida=1",
-            "Populära": "http://www.svtplay.se/populara?sida=1",
+            "Senaste program": "https://www.svtplay.se/senaste?sida=1",
+            "Sista chansen": "https://www.svtplay.se/sista-chansen?sida=1",
+            "Populära": "https://www.svtplay.se/populara?sida=1",
         }
 
-        # http://www.svtplay.se/ajax/dokumentar/titlar?filterAccessibility=&filterRights=
+        # https://www.svtplay.se/ajax/dokumentar/titlar?filterAccessibility=&filterRights=
         categoryItems = {
             "Drama": (
-                "http://www.svtplay.se/genre/drama",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/drama-d75cd2da2eecde36b3d60fad6b92ad42.jpg"
+                "https://www.svtplay.se/genre/drama",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/drama-d75cd2da2eecde36b3d60fad6b92ad42.jpg"
             ),
             "Dokumentär": (
-                "http://www.svtplay.se/genre/dokumentar",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/dokumentar-00599af62aa8009dbc13577eff894b8e.jpg"
+                "https://www.svtplay.se/genre/dokumentar",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/dokumentar-00599af62aa8009dbc13577eff894b8e.jpg"
             ),
             "Humor": (
-                "http://www.svtplay.se/genre/humor",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/humor-abc329317eedf789d2cca76151213188.jpg"
+                "https://www.svtplay.se/genre/humor",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/humor-abc329317eedf789d2cca76151213188.jpg"
             ),
             "Livsstil": (
-                "http://www.svtplay.se/genre/livsstil",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/livsstil-2d9cd77d86c086fb8908ce4905b488b7.jpg"
+                "https://www.svtplay.se/genre/livsstil",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/livsstil-2d9cd77d86c086fb8908ce4905b488b7.jpg"
             ),
             "Underhållning": (
-                "http://www.svtplay.se/genre/underhallning",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/underhallning-a60da5125e715d74500a200bd4416841.jpg"
+                "https://www.svtplay.se/genre/underhallning",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/underhallning-a60da5125e715d74500a200bd4416841.jpg"
             ),
             "Kultur": (
-                "http://www.svtplay.se/genre/kultur",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/kultur-93dca50ed1d6f25d316ac1621393851a.jpg"
+                "https://www.svtplay.se/genre/kultur",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/kultur-93dca50ed1d6f25d316ac1621393851a.jpg"
             ),
             "Samhälle & Fakta": (
-                "http://www.svtplay.se/genre/samhalle-och-fakta",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/samhalle-och-fakta-3750657f72529a572f3698e01452f348.jpg"
+                "https://www.svtplay.se/genre/samhalle-och-fakta",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/samhalle-och-fakta-3750657f72529a572f3698e01452f348.jpg"
             ),
             "Film": (
-                "http://www.svtplay.se/genre/film",
-                "http://www.svtstatic.se/image-cms/svtse/1436202866/svtplay/article2952281.svt/ALTERNATES/large/film1280-jpg"
+                "https://www.svtplay.se/genre/film",
+                "https://www.svtstatic.se/image-cms/svtse/1436202866/svtplay/article2952281.svt/ALTERNATES/large/film1280-jpg"
             ),
             "Barn": (
-                "http://www.svtplay.se/genre/barn",
-                "http://www.svtstatic.se/play/play5/images/categories/posters/barn-c17302a6f7a9a458e0043b58bbe8ab79.jpg"
+                "https://www.svtplay.se/genre/barn",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/barn-c17302a6f7a9a458e0043b58bbe8ab79.jpg"
             ),
             "Nyheter": (
-                "http://www.svtplay.se/genre/nyheter",
+                "https://www.svtplay.se/genre/nyheter",
                 "https://www.svtstatic.se/play/play6/images/categories/posters/nyheter.e67ff1b5770152af4690ad188546f9e9.jpg"
             ),
             "Sport": (
-                "http://www.svtplay.se/genre/sport",
+                "https://www.svtplay.se/genre/sport",
                 "https://www.svtstatic.se/play/play6/images/categories/posters/sport.98b65f6627e4addbc4177542035ea504.jpg"
             )
         }
@@ -226,7 +221,7 @@ class Channel(chn_class.Channel):
             newItem.SetDate(2099, 1, 1, text="")
             items.append(newItem)
 
-        newItem = mediaitem.MediaItem("\a.: Kategorier :.", "http://www.svtplay.se/genre")
+        newItem = mediaitem.MediaItem("\a.: Kategorier :.", "https://www.svtplay.se/genre")
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
@@ -240,7 +235,7 @@ class Channel(chn_class.Channel):
             newItem.items.append(catItem)
         items.append(newItem)
 
-        newItem = mediaitem.MediaItem("\a.: Genrer/Tags :.", "http://www.svtplay.se/genre")
+        newItem = mediaitem.MediaItem("\a.: Genrer/Tags :.", "https://www.svtplay.se/genre")
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
@@ -252,7 +247,7 @@ class Channel(chn_class.Channel):
     def FetchThumbData(self, data):
         items = []
 
-        thumbData = UriHandler.Open("http://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
+        thumbData = UriHandler.Open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
         json = JsonHelper(thumbData)
         for jsonData in json.GetValue():
             if "thumbnail" not in jsonData:
@@ -281,7 +276,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        # data = UriHandler.Open("http://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
+        # data = UriHandler.Open("https://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
 
         now = datetime.datetime.now()
         try:
@@ -309,7 +304,7 @@ class Channel(chn_class.Channel):
         # data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
-        slugs = json.GetValue("videoTitlePage", "relatedVideosTabs")
+        slugs = json.GetValue("relatedVideoContent", "relatedVideosTabs")
         for slugData in slugs:
             tabSlug = "?tab=%s" % (slugData["slug"], )
             if not self.parentItem.url.endswith(tabSlug):
@@ -383,7 +378,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.thumb = resultSet.get("thumbnail", self.noImage)
         if item.thumb.startswith("//"):
-            item.thumb = "http:%s" % (item.thumb, )
+            item.thumb = "https:%s" % (item.thumb, )
         item.thumb = item.thumb.replace("/small/", "/large/")
 
         item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)
@@ -425,7 +420,7 @@ class Channel(chn_class.Channel):
             return data, items
 
         jsonData = JsonHelper(data)
-        sections = jsonData.GetValue("videoTitlePage", "relatedVideosTabs")
+        sections = jsonData.GetValue("relatedVideoContent", "relatedVideosTabs")
 
         Logger.Debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:
@@ -533,7 +528,7 @@ class Channel(chn_class.Channel):
                 return None
             itemType = "video"
             if "programVersionId" in resultSet:
-                url = "http://www.svt.se/videoplayer-api/video/%s" % (resultSet["programVersionId"], )
+                url = "https://www.svt.se/videoplayer-api/video/%s" % (resultSet["programVersionId"],)
             else:
                 url = "%s%s" % (self.baseUrl, url)
         else:
@@ -589,12 +584,12 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         url = resultSet["Url"]
-        if "http://" not in url:
+        if "http://" not in url and "https://" not in url:
             url = "%s%s" % (self.baseUrl, url)
 
         thumb = resultSet["Thumb"]
         if thumb.startswith("//"):
-            thumb = "http:%s" % (thumb,)
+            thumb = "https:%s" % (thumb,)
 
         item = mediaitem.MediaItem(resultSet['Title'], url)
         item.icon = self.icon
@@ -608,7 +603,7 @@ class Channel(chn_class.Channel):
         if "/video/" in url:
             item.type = "video"
             videoId = url.split("/")[4]
-            item.url = "http://www.svtplay.se/video/%s?type=embed&output=json" % (videoId, )
+            item.url = "https://www.svtplay.se/video/%s?type=embed&output=json" % (videoId,)
         # else:
         #     # make sure we get the right tab for displaying
         #     item.url = "%s?tab=program" % (item.url, )
@@ -680,7 +675,7 @@ class Channel(chn_class.Channel):
             title = "%s: %s (%02d:%02d - %02d:%02d)" \
                     % (channelTitle, title,
                        startTime.tm_hour, startTime.tm_min, endTime.tm_hour, endTime.tm_min)
-        channelItem = mediaitem.MediaItem(title, "http://www.svt.se/videoplayer-api/video/ch-%s" % (channelId.lower(), ))
+        channelItem = mediaitem.MediaItem(title, "https://www.svt.se/videoplayer-api/video/ch-%s" % (channelId.lower(), ))
         channelItem.type = "video"
         channelItem.description = description
         channelItem.isLive = True
@@ -726,12 +721,13 @@ class Channel(chn_class.Channel):
             Logger.Info("Found stream information within HTML data")
             return self.__UpdateItemFromVideoReferences(item, streams, subtitles)
 
-        videoId = json.GetValue("videoTitlePage", "video", "id")
+        videoId = json.GetValue("videoPage", "video", "id")
         # in case that did not work, try the old version.
         if not videoId:
-            videoId = json.GetValue("videoTitlePage", "video", "programVersionId")
+            videoId = json.GetValue("videoPage", "video", "programVersionId")
         if videoId:
-            item.url = "http://www.svt.se/videoplayer-api/video/%s" % (videoId, )
+            # item.url = "https://www.svt.se/videoplayer-api/video/%s" % (videoId, )
+            item.url = "https://api.svt.se/videoplayer-api/video/%s" % (videoId, )
         return self.UpdateVideoApiItem(item)
 
     def UpdateVideoApiItem(self, item):
@@ -888,18 +884,18 @@ class Channel(chn_class.Channel):
         if "<>" in thumb:
             thumbParts = thumb.split("<>")
             thumbIndex = int(thumbParts[1])
-            thumbStores = ["http://www.svtstatic.se/image-cms-stage/svtse",
+            thumbStores = ["https://www.svtstatic.se/image-cms-stage/svtse",
                            "//www.svtstatic.se/image-cms-stage/svtse",
-                           "http://www.svtstatic.se/image-cms/svtse",
+                           "https://www.svtstatic.se/image-cms/svtse",
                            "//www.svtstatic.se/image-cms/svtse",
-                           "http://www.svtstatic.se/image-cms-stage/barn",
+                           "https://www.svtstatic.se/image-cms-stage/barn",
                            "//www.svtstatic.se/image-cms-stage/barn",
-                           "http://www.svtstatic.se/image-cms/barn",
+                           "https://www.svtstatic.se/image-cms/barn",
                            "//www.svtstatic.se/image-cms/barn"]
             thumb = "%s%s" % (thumbStores[thumbIndex], thumbParts[-1])
 
         if thumb.startswith("//"):
-            thumb = "http:%s" % (thumb,)
+            thumb = "https:%s" % (thumb,)
 
         thumb = thumb.replace("/{format}/", thumbSize)\
             .replace("/medium/", thumbSize)\
