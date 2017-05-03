@@ -194,6 +194,8 @@
     <string id="30564">Visa dolt objekt</string>
     <string id="30565">Dolda objekt</string>
     <string id="30566">För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn för att visa dolda objekt.</string>
+    <string id="30567">Tillägg inaktiverad</string>
+    <string id="30568">Några av Retrospects kanaltillägg är inte aktiverade i Kodi. Detta hindrar dem från att bli automatiskt uppdaterade. Du ska nu aktivera de tillägg som tillhör Retrospect.</string>
 
     <string id="30590">Ange en ny kod för Retrospect</string>
     <string id="30591">Ingen kod angiven för Retrospect</string>
