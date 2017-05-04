@@ -23,6 +23,18 @@
       "language": "be",
       "fanart": "q2befanart.jpg",
       "message": "Streams from VTM.be require a Mediaan account. It can be configured via the Channel settings."
+    },
+    {
+      "guid": "61AA2559-7D64-40A2-A3BE-56DD3F6BBD4A",
+      "name": "Stievie",
+      "description": "Online uitzendingen van Stievie.",
+      "icon": "stievielogo.png",
+      "category": "National",
+      "channelcode": "stievie",
+      "sortorder": 11,
+      "language": "be",
+      "fanart": "stieviefanart2.jpg",
+      "message": "Streams from Stievie.be require a Mediaan account. It can be configured via the Channel settings."
     }
   ],
   "settings": [

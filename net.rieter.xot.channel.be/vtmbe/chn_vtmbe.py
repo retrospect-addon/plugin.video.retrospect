@@ -2,6 +2,7 @@
 import time
 import re
 import datetime
+import uuid
 
 import chn_class
 from logger import Logger
@@ -86,6 +87,31 @@ class Channel(chn_class.Channel):
                 "https://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
+
+        elif self.channelCode == "stievie":
+            self.__app = "stievie"
+            self.__sso = "stievie-sso"
+            self.__apiKey = "stievie-web-2.2-hNPNEbmKbhCcQzTLr8HVkYZc9AcXheOi"
+            self.noImage = "stievieimage.jpg"
+            self.httpHeaders["Authorization"] = "apikey=%s" % (self.__apiKey, )
+
+            # self.mainListUri = "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0"
+            self.mainListUri = "#stieviemenu"
+            self._AddDataParser("#stieviemenu", preprocessor=self.StievieGetMenu)
+
+            # main list parsing
+            self._AddDataParser("https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0",
+                                json=True,
+                                name="Main program list parsing for Stievie",
+                                # preprocessor=self.AddLiveChannel,
+                                creator=self.StievieCreateEpisode,
+                                parser=("response", "videos"))
+
+            self._AddDataParser("https://epg.medialaan.io/epg/v2/", json=True,
+                                name="EPG Stievie parser",
+                                creator=self.StievieCreateEpgItems,
+                                parser=("channels", ))
+
         else:
             raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
 
@@ -128,11 +154,21 @@ class Channel(chn_class.Channel):
                             name="JSON Video Updater for Medialaan",
                             updater=self.UpdateVideoItemJson, requiresLogon=True)
 
+        self._AddDataParser("https://vod.medialaan.io/vod/v2/videos?",
+                            name="JSON Video Updater for Medialaan with programOID",
+                            updater=self.UpdateVideoEpgItemJson, requiresLogon=True)
+
         # self._AddDataParser("https://vtm.be/video?aid=", name="HTML Stream Updater",
         #                     requiresLogon=True, updater=self.UpdateVideoItem)
 
         self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
                             updater=self.UpdateLiveStream)
+
+        self._AddDataParser("https://channels.medialaan.io/channels/v1/channels?preview=false",
+                            json=True,
+                            name="JSON Channel overview",
+                            parser=("response", "channels"),
+                            creator=self.StievieCreateLiveChannel)
 
         # ===============================================================================================================
         # non standard items
@@ -273,11 +309,13 @@ class Channel(chn_class.Channel):
     def LogOn(self):
         signatureSettings = "mediaan_signature"
         signatureSetting = AddonSettings.GetSetting(signatureSettings)
+        apiKey = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
+        # apiKey = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
         if signatureSetting and "|" not in signatureSetting:
             url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
-            data = "APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
+            data = "APIKey=%s" \
                    "&sdk=js_6.5.23" \
-                   "&login_token=%s" % (signatureSetting, )
+                   "&login_token=%s" % (apiKey, signatureSetting, )
             logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
             if self.__ExtractSessionData(logonData, signatureSettings):
                 return True
@@ -301,10 +339,10 @@ class Channel(chn_class.Channel):
         data = "loginID=%s" \
                "&password=%s" \
                "&targetEnv=jssdk" \
-               "&APIKey=3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-" \
+               "&APIKey=%s" \
                "&includeSSOToken=true" \
                "&authMode=cookie" % \
-               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password))
+               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password), apiKey)
 
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
         return self.__ExtractSessionData(logonData, signatureSettings)
@@ -328,6 +366,119 @@ class Channel(chn_class.Channel):
                 jsonItems += moreItems
 
         return json, items
+
+    def StievieGetMenu(self, data):
+        """ Creates the main Stievie menu """
+
+        items = []
+        programs = MediaItem("Programma's", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
+        programs.dontGroup = True
+        items.append(programs)
+
+        live = MediaItem("Live", "https://channels.medialaan.io/channels/v1/channels?preview=false")
+        live.dontGroup = True
+        items.append(live)
+
+        # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels%5B%5D=vtm&channels%5B%5D=2be&channels%5B%5D=vitaya&channels%5B%5D=caz&channels%5B%5D=kzoom&channels%5B%5D=kadet&channels%5B%5D=qmusic
+        # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
+        # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
+        channels = ("vtm", "2be", "vitaya", "caz", "kzoom", "kadet", "qmusic")
+        query = "&channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
+
+        today = datetime.datetime.now()
+        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        for i in range(0, 7, 1):
+            airDate = today - datetime.timedelta(i)
+            Logger.Trace("Adding item for: %s", airDate)
+
+            day = days[airDate.weekday()]
+            if i == 0:
+                day = "Vandaag"
+            elif i == 1:
+                day = "Gisteren"
+            elif i == 2:
+                day = "Eergisteren"
+            title = "%04d-%02d-%02d - %s" % (airDate.year, airDate.month, airDate.day, day)
+            url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (airDate.year, airDate.month, airDate.day, query)
+
+            extra = MediaItem(title, url)
+            extra.complete = True
+            extra.icon = self.icon
+            extra.thumb = self.noImage
+            extra.dontGroup = True
+            extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+            extra.metaData["airDate"] = airDate
+            items.append(extra)
+
+        # UriHandler.Open(url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+
+        return data, items
+
+    def StievieCreateEpisode(self, resultSet):
+        Logger.Trace(resultSet)
+        title = resultSet['title']
+        url = "https://vod.medialaan.io/api/1.0/list?" \
+              "app_id=%s&parentSeriesOID=%s" % (self.__app, resultSet['id'])
+        item = MediaItem(title, url)
+        item.fanart = self.fanart
+        item.thumb = self.noImage
+
+        # Find the first image available
+        if "images" in resultSet and resultSet["images"]:
+            firstKey = resultSet["images"].keys()[0]
+            images = resultSet["images"][firstKey]
+            images = images.get("16_9_Landscape", images.get("default", {}))
+            if "styles" in images and "large" in images["styles"]:
+                image = images["styles"]["large"]
+                item.thumb = image
+        return item
+
+    def StievieCreateLiveChannel(self, resultSet):
+        Logger.Trace(resultSet)
+
+        item = MediaItem(resultSet["name"], "#livestream")
+        item.isLive = True
+        item.type = "video"
+        item.description = resultSet.get("slogan", None)
+        item.metaData["channelId"] = resultSet["id"]
+
+        if "icons" in resultSet:
+            item.thumb = resultSet["icons"]["default"]
+            if not item.thumb:
+                item.thumb = resultSet["icons"]["white"]
+        return item
+
+    def StievieCreateEpgItems(self, epg):
+        Logger.Trace(epg)
+        Logger.Debug("Processing EPG for channel %s", epg["id"])
+        # if epg["id"] not in ("vtm", ):
+        #     return None
+
+        items = []
+        for resultSet in epg["items"]:
+            if not resultSet["parentSeriesOID"]:
+                continue
+
+            # Does not always work
+            # videoId = resultSet["epgId"].replace("-", "_")
+            # url = "https://vod.medialaan.io/vod/v2/videos/%s_Stievie_free" % (videoId, )
+            videoId = resultSet["programOID"]
+            url = "https://vod.medialaan.io/vod/v2/videos?episodeIds=%s&limit=10&offset=0&sort=broadcastDate&sortDirection=asc" % (videoId, )
+            title = resultSet["title"]
+            if resultSet["episode"] and resultSet["season"]:
+                title = "%s - s%02de%02d" % (title, resultSet["season"], resultSet["episode"])
+
+            item = MediaItem(title, url)
+            item.type = "video"
+            item.isGeoLocked = resultSet["geoblock"]
+            item.description = resultSet["shortDescription"]
+
+            airDate = self.parentItem.metaData["airDate"]
+            item.SetDate(airDate.year, airDate.month, airDate.day)
+
+            items.append(item)
+
+        return items
 
     def CreateEpisodeItemJson(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -400,6 +551,7 @@ class Channel(chn_class.Channel):
         url = "https://vod.medialaan.io/vod/v2/videos/%(id)s" % resultSet
         item = MediaItem(title, url, type="video")
         item.description = resultSet.get('text')
+        item.thumb = self.parentItem.thumb
 
         if 'image' in resultSet:
             item.thumb = resultSet['image'].get("full", None)
@@ -412,6 +564,12 @@ class Channel(chn_class.Channel):
 
     def UpdateVideoItemJson(self, item):
         videoId = item.url.rsplit("/", 1)[-1]
+        return self.__UpdateVideoItem(item, videoId)
+
+    def UpdateVideoEpgItemJson(self, item):
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        jsonData = JsonHelper(data)
+        videoId = jsonData.GetValue("response", "videos", 0, "id")
         return self.__UpdateVideoItem(item, videoId)
 
     # Used for video's only
@@ -469,14 +627,20 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "vtm":
             item = MediaItem("Live VTM", "#livestream")
+        # elif self.channelCode == "stievie":
+        #     item = MediaItem("\a .: Live :.", "https://channels.medialaan.io/channels/v1/channels?preview=false")
+        #     item.dontGroup = True
         else:
             item = MediaItem("Live Q2", "#livestream")
-        item.type = "video"
-        item.isLive = True
+
+        if self.channelCode != "stievie":
+            item.isLive = True
+            item.type = "video"
+            now = datetime.datetime.now()
+            item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
+
         item.fanart = self.fanart
         item.thumb = self.noImage
-        now = datetime.datetime.now()
-        item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
 
         if self.channelCode == "vtm":
@@ -648,6 +812,8 @@ class Channel(chn_class.Channel):
         channel = self.channelCode
         if self.channelCode == "q2":
             channel = "2be"
+        elif self.channelCode == "stievie":
+            channel = item.metaData["channelId"]
 
         url = "https://stream-live.medialaan.io/stream-live/v1/channels/%s/episodes/current/video?access_token=%s&_=%s" % (
             channel,
@@ -668,25 +834,44 @@ class Channel(chn_class.Channel):
         return item
 
     def __UpdateVideoItem(self, item, videoId):
+        # we need a token:
+        # https://user.medialaan.io/user/v1/gigya/request_token?database=stievie-sso&uid=897b786c46e3462eac81549453680c0d&signature=BZCuW1%2FWZ6bMV4jPwyJEMfR%2BLn0%3D&timestamp=1493815113
+
+        # Using the v1.0 API
         # https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=Lfz8qNv9oeVst7I%2B8pHytr02QLU%3D&timestamp=1484682292&apikey=q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk&database=q2-sso&_=1484682287800
-        mediaUrl = "https://vod.medialaan.io/api/1.0/item/" \
+        # mediaUrl = "https://vod.medialaan.io/api/1.0/item/" \
+        #            "%s" \
+        #            "/video?app_id=%s&user_network=%s" \
+        #            "&UID=%s" \
+        #            "&UIDSignature=%s" \
+        #            "&signatureTimestamp=%s" % (
+        #                videoId,
+        #                self.__app,
+        #                self.__sso,
+        #                self.__userId,
+        #                HtmlEntityHelper.UrlEncode(self.__signature),
+        #                self.__signatureTimeStamp
+        #            )
+        # data = UriHandler.Open(mediaUrl, proxy=self.proxy)
+
+        # https://vod.medialaan.io/vod/v2/videos/2be_20170430_VM0684A04_Stievie_free/watch?deviceId=0eeb27538e714527c2bab956f20d6757
+        token = self.__GetToken()
+        mediaUrl = "https://vod.medialaan.io/vod/v2/videos/" \
                    "%s" \
-                   "/video?app_id=%s&user_network=%s" \
-                   "&UID=%s" \
-                   "&UIDSignature=%s" \
-                   "&signatureTimestamp=%s" % (
+                   "/watch?deviceId=%s" % (
                        videoId,
-                       self.__app,
-                       self.__sso,
-                       self.__userId,
-                       HtmlEntityHelper.UrlEncode(self.__signature),
-                       self.__signatureTimeStamp
+                       uuid.uuid4()
                    )
 
-        data = UriHandler.Open(mediaUrl, proxy=self.proxy)
+        auth = "apikey=%s&access_token=%s" % (self.__apiKey, token)
+        headers = {"Authorization": auth}
+        data = UriHandler.Open(mediaUrl, proxy=self.proxy, additionalHeaders=headers)
+
         jsonData = JsonHelper(data)
-        m3u8Url = jsonData.GetValue("response", "uri")
-        # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
+        m3u8Url = jsonData.GetValue("response", "hls-encrypted", "url")
+        if not m3u8Url:
+            m3u8Url = jsonData.GetValue("response", "uri")
+            # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
 
         part = item.CreateNewEmptyMediaPart()
         # Remove the Range header to make all streams start at the beginning.
