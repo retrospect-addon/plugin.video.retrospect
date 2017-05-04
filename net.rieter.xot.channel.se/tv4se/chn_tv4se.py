@@ -494,7 +494,9 @@ class Channel(chn_class.Channel):
 
         # let's use the mobile streams, as they are still m3u8.
         # https://prima.tv4play.se/api/web/asset/224181/play?protocol=hls3&videoFormat=MP4+WEBVTTS+WEBVTT&_=1478631069593
-        url = "https://prima.tv4play.se/api/web/asset/%s/play?protocol=hls3" % (programId,)
+        # url = "https://prima.tv4play.se/api/web/asset/%s/play?protocol=hls3" % (programId,)
+        # The HTTP version also works.
+        url = "http://prima.tv4play.se/api/web/asset/%s/play?protocol=hls3" % (programId,)
         name = resultSet["title"]
 
         item = mediaitem.MediaItem(name, url)
