@@ -120,6 +120,11 @@ class Channel(chn_class.Channel):
                                 creator=self.StievieCreateEpgItems,
                                 parser=("channels", ))
 
+            self._AddDataParser("https://vod.medialaan.io/vod/v2/programs?query=",
+                                name="Stievie Search Parser", json=True,
+                                creator=self.StievieCreateEpisode,
+                                parser=("response", "videos"))
+
         else:
             raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
 
@@ -357,6 +362,13 @@ class Channel(chn_class.Channel):
         programs.dontGroup = True
         items.append(programs)
 
+        search = MediaItem("Zoeken", "searchSite")
+        search.complete = True
+        search.icon = self.icon
+        search.thumb = self.noImage
+        search.dontGroup = True
+        search.SetDate(2200, 1, 1, text="")
+        items.append(search)
         return data, items
 
     def StievieChannelMenu(self, data):
@@ -422,8 +434,8 @@ class Channel(chn_class.Channel):
 
         items = []
         for resultSet in epg["items"]:
-            if not resultSet["parentSeriesOID"]:
-                continue
+            # if not resultSet["parentSeriesOID"]:
+            #     continue
 
             # Does not always work
             # videoId = resultSet["epgId"].replace("-", "_")
@@ -471,6 +483,22 @@ class Channel(chn_class.Channel):
                 image = images["styles"]["large"]
                 item.thumb = image
         return item
+
+    def SearchSite(self, url=None):  # @UnusedVariable
+        """Creates an list of items by searching the site
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        """
+
+        # nieuws
+        url = "https://vod.medialaan.io/vod/v2/programs?query=%s"
+        return chn_class.Channel.SearchSite(self, url)
 
     def AddLiveChannelAndFetchAllData(self, data):
         data, items = self.AddLiveChannel(data)
