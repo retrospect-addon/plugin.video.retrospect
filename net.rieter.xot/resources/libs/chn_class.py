@@ -228,17 +228,21 @@ class Channel:
         else:
             headers = self.httpHeaders
 
+        # Let's retrieve the required data. Main url's
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
             noCache = item is not None and not item.IsPlayable() and item.isLive
             if noCache:
                 Logger.Debug("Disabling cache for '%s'", item)
             data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=noCache)
-        elif url.startswith("#"):
-            data = ""
-        elif url == "searchSite":
+        # Searching a site using SearchSite()
+        elif url == "searchSite" or url == "#searchSite":
             Logger.Debug("Starting to search")
             return self.SearchSite()
+        # Labels instead of url's
+        elif url.startswith("#"):
+            data = ""
+        # Others
         else:
             Logger.Debug("Unknown URL format. Setting data to ''")
             data = ""
@@ -1138,6 +1142,9 @@ class Channel:
         @return:        A list of parsers to use.
 
         """
+
+        if url == "searchSite" or url == "#searchSite":
+            return []
 
         # For now we need to be backwards compatible:
         if not self.dataParsers:
