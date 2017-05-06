@@ -11,7 +11,6 @@ from helpers import subtitlehelper
 from logger import Logger
 from streams.npostream import NpoStream
 from urihandler import UriHandler
-from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from parserdata import ParserData
 from helpers.languagehelper import LanguageHelper
@@ -997,20 +996,6 @@ class Channel(chn_class.Channel):
 
         item.complete = True
         return item
-
-    def GetDefaultCachePath(self):
-        """ returns the default cache path for this channel"""
-
-        # set the UZG path
-        if AddonSettings.GetUzgCacheDuration() > 0:
-            cachPath = AddonSettings.GetUzgCachePath()
-            if cachPath:
-                Logger.Trace("UZG Cache path resolved to: %s", cachPath)
-                return cachPath
-
-        cachePath = chn_class.Channel.GetDefaultCachePath(self)
-        Logger.Trace("UZG Cache path resolved chn_class default: %s", cachePath)
-        return cachePath
 
     # noinspection PyUnusedLocal
     def SearchSite(self, url=None):  # @UnusedVariable

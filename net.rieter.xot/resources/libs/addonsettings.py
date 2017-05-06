@@ -41,8 +41,6 @@ class AddonSettings:
     __EMPTY_FOLDER = "empty_folder"
     __GEO_REGION = "geo_region"
     __LOG_LEVEL = "log_level"
-    __UZG_CACHE = "uzg_cache_new"
-    __UZG_CACHE_PATH = "uzg_cache_path"
     __SEND_STATISTICS = "send_statistics"
     __SHOW_CATEGORIES = "show_categories"
     __USER_AGENT_SETTING = "user_agent"
@@ -430,31 +428,6 @@ class AddonSettings:
             return True
         else:
             return False
-
-    @staticmethod
-    def GetUzgCacheDuration():
-        """ Returns the UZG cache duration """
-
-        cacheTime = AddonSettings.GetSetting(AddonSettings.__UZG_CACHE)
-        if cacheTime.lower() == "true":
-            # kept for backwards compatibility
-            cacheTime = 5
-        elif cacheTime.lower() == "false":
-            # kept for backwards compatibility
-            cacheTime = 0
-        else:
-            cacheTime = int(cacheTime or 0)
-
-        return cacheTime
-
-    @staticmethod
-    def GetUzgCachePath():
-        """ returns the cachepath for UZG or None if not set """
-
-        path = AddonSettings.GetSetting(AddonSettings.__UZG_CACHE_PATH)
-        if path.startswith("smb://"):
-            path = path.replace("smb://", "\\\\").replace("/", "\\")
-        return path
 
     @staticmethod
     def GetListLimit():
@@ -1119,8 +1092,6 @@ class AddonSettings:
         value = pattern % (value, "Show Finnish", AddonSettings.ShowChannelWithLanguage("fi"))
         # noinspection PyTypeChecker
         value = pattern % (value, "Show Other languages", AddonSettings.ShowChannelWithLanguage(None))
-        value = pattern % (value, "UZG Cache Path", AddonSettings.GetUzgCachePath())
-        value = pattern % (value, "UZG Cache Time", AddonSettings.GetUzgCacheDuration())
 
         try:
             proxies = AddonSettings.GetAvailableCountries(asCountryCodes=True)

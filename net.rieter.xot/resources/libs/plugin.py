@@ -151,8 +151,6 @@ class Plugin:
 
             # do some cache cleanup
             envCtrl.CacheCleanUp(Config.cacheDir, Config.cacheValidTime)
-            envCtrl.CacheCleanUp(AddonSettings.GetUzgCachePath(), AddonSettings.GetUzgCacheDuration() * 24 * 3600,
-                                 "xot.*")
 
         # create a session
         SessionHelper.CreateSession(Logger.Instance())
