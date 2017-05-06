@@ -96,8 +96,16 @@ class Channel(chn_class.Channel):
             self.httpHeaders["Authorization"] = "apikey=%s" % (self.__apiKey, )
 
             # self.mainListUri = "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0"
-            self.mainListUri = "#stieviemenu"
-            self._AddDataParser("#stieviemenu", preprocessor=self.StievieGetMenu)
+            self.mainListUri = "https://channels.medialaan.io/channels/v1/channels?preview=false"
+            self._AddDataParser("https://channels.medialaan.io/channels/v1/channels?preview=false",
+                                json=True,
+                                preprocessor=self.StievieMenu,
+                                name="JSON Channel overview",
+                                parser=("response", "channels"),
+                                creator=self.StievieCreateChannelItem)
+
+            self._AddDataParser("#channel", name="Channel menu parser",
+                                preprocessor=self.StievieChannelMenu)
 
             # main list parsing
             self._AddDataParser("https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0",
@@ -161,14 +169,8 @@ class Channel(chn_class.Channel):
         # self._AddDataParser("https://vtm.be/video?aid=", name="HTML Stream Updater",
         #                     requiresLogon=True, updater=self.UpdateVideoItem)
 
-        self._AddDataParser("#livestream", name="Live Stream Updater", requiresLogon=True,
-                            updater=self.UpdateLiveStream)
-
-        self._AddDataParser("https://channels.medialaan.io/channels/v1/channels?preview=false",
-                            json=True,
-                            name="JSON Channel overview",
-                            parser=("response", "channels"),
-                            creator=self.StievieCreateLiveChannel)
+        self._AddDataParser("#livestream", name="Live Stream Updater for Q2, VTM and Stievie",
+                            requiresLogon=True, updater=self.UpdateLiveStream)
 
         # ===============================================================================================================
         # non standard items
@@ -309,8 +311,8 @@ class Channel(chn_class.Channel):
     def LogOn(self):
         signatureSettings = "mediaan_signature"
         signatureSetting = AddonSettings.GetSetting(signatureSettings)
-        apiKey = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
-        # apiKey = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
+        # apiKey = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
+        apiKey = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
         if signatureSetting and "|" not in signatureSetting:
             url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
             data = "APIKey=%s" \
@@ -347,42 +349,31 @@ class Channel(chn_class.Channel):
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
         return self.__ExtractSessionData(logonData, signatureSettings)
 
-    def AddLiveChannelAndFetchAllData(self, data):
-        data, items = self.AddLiveChannel(data)
-
-        # The current issue with this is that the API is providing only the videos and not
-        # the full episodes.
-
-        json = JsonHelper(data)
-        jsonItems = json.GetValue("response", "items")
-        count = json.GetValue("response", "total")
-        for i in range(100, count, 100):
-            url = "%s&from=%s" % (self.mainListUri, i)
-            Logger.Debug("Retrieving more items from: %s", url)
-            moreData = UriHandler.Open(url, proxy=self.proxy)
-            moreJson = JsonHelper(moreData)
-            moreItems = moreJson.GetValue("response", "items")
-            if moreItems:
-                jsonItems += moreItems
-
-        return json, items
-
-    def StievieGetMenu(self, data):
+    def StievieMenu(self, data):
         """ Creates the main Stievie menu """
 
         items = []
-        programs = MediaItem("Programma's", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
+        programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
         programs.dontGroup = True
         items.append(programs)
 
-        live = MediaItem("Live", "https://channels.medialaan.io/channels/v1/channels?preview=false")
-        live.dontGroup = True
+        return data, items
+
+    def StievieChannelMenu(self, data):
+        items = []
+        channelId = self.parentItem.metaData["channelId"]
+        live = MediaItem("Live %s" % (self.parentItem.name, ), "#livestream")
+        live.isLive = True
+        live.type = "video"
+        live.description = self.parentItem.description
+        live.metaData = self.parentItem.metaData
+        live.thumb = self.parentItem.thumb
         items.append(live)
 
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels%5B%5D=vtm&channels%5B%5D=2be&channels%5B%5D=vitaya&channels%5B%5D=caz&channels%5B%5D=kzoom&channels%5B%5D=kadet&channels%5B%5D=qmusic
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
-        channels = ("vtm", "2be", "vitaya", "caz", "kzoom", "kadet", "qmusic")
+        channels = (channelId, )
         query = "&channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
 
         today = datetime.datetime.now()
@@ -410,35 +401,12 @@ class Channel(chn_class.Channel):
             extra.metaData["airDate"] = airDate
             items.append(extra)
 
-        # UriHandler.Open(url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
-
         return data, items
 
-    def StievieCreateEpisode(self, resultSet):
-        Logger.Trace(resultSet)
-        title = resultSet['title']
-        url = "https://vod.medialaan.io/api/1.0/list?" \
-              "app_id=%s&parentSeriesOID=%s" % (self.__app, resultSet['id'])
-        item = MediaItem(title, url)
-        item.fanart = self.fanart
-        item.thumb = self.noImage
-
-        # Find the first image available
-        if "images" in resultSet and resultSet["images"]:
-            firstKey = resultSet["images"].keys()[0]
-            images = resultSet["images"][firstKey]
-            images = images.get("16_9_Landscape", images.get("default", {}))
-            if "styles" in images and "large" in images["styles"]:
-                image = images["styles"]["large"]
-                item.thumb = image
-        return item
-
-    def StievieCreateLiveChannel(self, resultSet):
+    def StievieCreateChannelItem(self, resultSet):
         Logger.Trace(resultSet)
 
-        item = MediaItem(resultSet["name"], "#livestream")
-        item.isLive = True
-        item.type = "video"
+        item = MediaItem(resultSet["name"], "#channel")
         item.description = resultSet.get("slogan", None)
         item.metaData["channelId"] = resultSet["id"]
 
@@ -451,8 +419,6 @@ class Channel(chn_class.Channel):
     def StievieCreateEpgItems(self, epg):
         Logger.Trace(epg)
         Logger.Debug("Processing EPG for channel %s", epg["id"])
-        # if epg["id"] not in ("vtm", ):
-        #     return None
 
         items = []
         for resultSet in epg["items"]:
@@ -476,9 +442,55 @@ class Channel(chn_class.Channel):
             airDate = self.parentItem.metaData["airDate"]
             item.SetDate(airDate.year, airDate.month, airDate.day)
 
+            if "images" in resultSet and resultSet["images"] and "styles" in resultSet["images"][0]:
+                images = resultSet["images"][0]["styles"]
+                # if "1520x855" in images:
+                #     item.fanart = images["1520x855"]
+                if "400x225" in images:
+                    item.thumb = images["400x225"]
+
             items.append(item)
 
         return items
+
+    def StievieCreateEpisode(self, resultSet):
+        Logger.Trace(resultSet)
+        title = resultSet['title']
+        url = "https://vod.medialaan.io/api/1.0/list?" \
+              "app_id=%s&parentSeriesOID=%s" % (self.__app, resultSet['id'])
+        item = MediaItem(title, url)
+        item.fanart = self.fanart
+        item.thumb = self.noImage
+
+        # Find the first image available
+        if "images" in resultSet and resultSet["images"]:
+            firstKey = resultSet["images"].keys()[0]
+            images = resultSet["images"][firstKey]
+            images = images.get("16_9_Landscape", images.get("default", {}))
+            if "styles" in images and "large" in images["styles"]:
+                image = images["styles"]["large"]
+                item.thumb = image
+        return item
+
+    def AddLiveChannelAndFetchAllData(self, data):
+        data, items = self.AddLiveChannel(data)
+
+        # The current issue with this is that the API is providing only the videos and not
+        # the full episodes.
+
+        json = JsonHelper(data)
+        jsonItems = json.GetValue("response", "items")
+        count = json.GetValue("response", "total")
+        for i in range(100, count, 100):
+            url = "%s&from=%s" % (self.mainListUri, i)
+            Logger.Debug("Retrieving more items from: %s", url)
+            moreData = UriHandler.Open(url, proxy=self.proxy)
+            moreJson = JsonHelper(moreData)
+            moreItems = moreJson.GetValue("response", "items")
+            if moreItems:
+                jsonItems += moreItems
+
+        return json, items
 
     def CreateEpisodeItemJson(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -572,48 +584,6 @@ class Channel(chn_class.Channel):
         videoId = jsonData.GetValue("response", "videos", 0, "id")
         return self.__UpdateVideoItem(item, videoId)
 
-    # Used for video's only
-    # def CreateVideoItem(self, resultSet):
-    #     """Creates a MediaItem of type 'video' using the resultSet from the regex.
-    #
-    #     Arguments:
-    #     resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-    #
-    #     Returns:
-    #     A new MediaItem of type 'video' or 'audio' (despite the method's name)
-    #
-    #     This method creates a new MediaItem from the Regular Expression or Json
-    #     results <resultSet>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     If the item is completely processed an no further data needs to be fetched
-    #     the self.complete property should be set to True. If not set to True, the
-    #     self.UpdateVideoItem method is called if the item is focussed or selected
-    #     for playback.
-    #
-    #     """
-    #
-    #     Logger.Trace(resultSet)
-    #
-    #     title = resultSet['title']
-    #     item = MediaItem(title, "", type="video")
-    #     item.description = resultSet.get('text')
-    #
-    #     if 'image' in resultSet:
-    #         item.thumb = resultSet['image'].get("full", None)
-    #
-    #     created = Channel.GetDateFromPosix(resultSet['created']['timestamp'])
-    #     item.SetDate(created.year, created.month, created.day, created.hour, created.minute,
-    #                  created.second)
-    #
-    #     if 'video' not in resultSet:
-    #         Logger.Warning("Found item without video: %s", item)
-    #         return None
-    #
-    #     item.AppendSingleStream(resultSet['video']['url']['default'], 0)
-    #     item.complete = True
-    #     return item
-
     def AddLiveChannel(self, data):
         Logger.Info("Performing Pre-Processing")
         # if self.channelCode != "vtm":
@@ -627,20 +597,14 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "vtm":
             item = MediaItem("Live VTM", "#livestream")
-        # elif self.channelCode == "stievie":
-        #     item = MediaItem("\a .: Live :.", "https://channels.medialaan.io/channels/v1/channels?preview=false")
-        #     item.dontGroup = True
         else:
             item = MediaItem("Live Q2", "#livestream")
-
-        if self.channelCode != "stievie":
-            item.isLive = True
-            item.type = "video"
-            now = datetime.datetime.now()
-            item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
-
+        item.type = "video"
+        item.isLive = True
         item.fanart = self.fanart
         item.thumb = self.noImage
+        now = datetime.datetime.now()
+        item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
 
         if self.channelCode == "vtm":
