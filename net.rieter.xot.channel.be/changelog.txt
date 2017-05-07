@@ -1,4 +1,5 @@
 ﻿[B]Changelog[/B]
+Added: Stievie.be (Fixes #763)
 Added: Recent items to VTM (Fixes #827)
 
 [I]Previous Changes[/I]

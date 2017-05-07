@@ -870,6 +870,7 @@ class Channel(chn_class.Channel):
 
         # https://vod.medialaan.io/vod/v2/videos/2be_20170430_VM0684A04_Stievie_free/watch?deviceId=0eeb27538e714527c2bab956f20d6757
         token = self.__GetToken()
+        # deviceId = AddonSettings.GetClientId()
         mediaUrl = "https://vod.medialaan.io/vod/v2/videos/" \
                    "%s" \
                    "/watch?deviceId=%s" % (
@@ -888,9 +889,12 @@ class Channel(chn_class.Channel):
             # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
 
         part = item.CreateNewEmptyMediaPart()
-        # Remove the Range header to make all streams start at the beginning.
-        Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
-        part.HttpHeaders["Range"] = ''
+        # Set the Range header to a proper value to make all streams start at the beginning. Make
+        # sure that a complete TS part comes in a single call otherwise we get stuttering.
+        byteRange = 10 * 1024 * 1024
+        Logger.Debug("Setting an 'Range' http header of bytes=0-%d to force playback at the start "
+                     "of a stream and to include a full .ts part.", byteRange)
+        part.HttpHeaders["Range"] = 'bytes=0-%d' % (byteRange, )
 
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             item.complete = True
