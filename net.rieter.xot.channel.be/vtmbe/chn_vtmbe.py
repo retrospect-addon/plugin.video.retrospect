@@ -433,6 +433,9 @@ class Channel(chn_class.Channel):
         Logger.Debug("Processing EPG for channel %s", epg["id"])
 
         items = []
+        summerTime = time.localtime().tm_isdst
+        now = datetime.datetime.now()
+
         for resultSet in epg["items"]:
             # if not resultSet["parentSeriesOID"]:
             #     continue
@@ -446,13 +449,32 @@ class Channel(chn_class.Channel):
             if resultSet["episode"] and resultSet["season"]:
                 title = "%s - s%02de%02d" % (title, resultSet["season"], resultSet["episode"])
 
+            if "startTime" in resultSet and resultSet["startTime"]:
+                dateTime = resultSet["startTime"]
+                dateValue = DateHelper.GetDateFromString(dateTime, dateFormat="%Y-%m-%dT%H:%M:%S.000Z")
+                # Convert to Belgium posix time stamp
+                dateValue2 = time.mktime(dateValue) + (1 + summerTime) * 60 * 60
+                # Conver the posix to a time stamp
+                startTime = DateHelper.GetDateFromPosix(dateValue2)
+
+                title = "%02d:%02d - %s" % (startTime.hour, startTime.minute, title)
+
+                # Check for items in their black-out period
+                if "blackout" in resultSet and resultSet["blackout"]["enabled"]:
+                    blackoutDuration = resultSet["blackout"]["duration"]
+                    blackoutStart = startTime + datetime.timedelta(seconds=blackoutDuration)
+                    if blackoutStart < now:
+                        Logger.Debug("Found item in Black-out period: %s (started at %s)", title, blackoutStart)
+                        continue
+
+            # else:
+            #     startTime = self.parentItem.metaData["airDate"]
+
             item = MediaItem(title, url)
             item.type = "video"
             item.isGeoLocked = resultSet["geoblock"]
             item.description = resultSet["shortDescription"]
-
-            airDate = self.parentItem.metaData["airDate"]
-            item.SetDate(airDate.year, airDate.month, airDate.day)
+            # item.SetDate(startTime.year, startTime.month, startTime.day)
 
             if "images" in resultSet and resultSet["images"] and "styles" in resultSet["images"][0]:
                 images = resultSet["images"][0]["styles"]
