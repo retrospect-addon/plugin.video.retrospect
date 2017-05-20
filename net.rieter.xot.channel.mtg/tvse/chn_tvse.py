@@ -633,9 +633,17 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        # User-agent (and possible other headers), should be consistent over all M3u8 requests (See #864)
+        headers = {
+            # "User-Agent": AddonSettings.GetUserAgent(),
+            "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
+            # "Origin": "https://www.viafree.se"
+        }
+        if self.localIP:
+            headers.update(self.localIP)
 
         if True:
-            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP or None)
+            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers or None)
         else:
             from debug.router import Router
             data = Router.GetVia("se", item.url, self.proxy)
@@ -663,13 +671,13 @@ class Channel(chn_class.Channel):
                 continue
 
             if url.startswith("http") and ".m3u8" in url:
-                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
                     part.AppendMediaStream(s, b)
 
                 if not part.MediaStreams and "manifest.m3u8":
                     Logger.Warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
                     url = url.replace("manifest.m3u8", "master.m3u8")
-                    for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                    for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
                         part.AppendMediaStream(s, b)
 
                 # check for subs
@@ -710,6 +718,7 @@ class Channel(chn_class.Channel):
             else:
                 part.AppendMediaStream(url, q[1])
 
+        part.HttpHeaders.update(headers)
         if part.MediaStreams:
             item.complete = True
         Logger.Trace("Found mediaurl: %s", item)

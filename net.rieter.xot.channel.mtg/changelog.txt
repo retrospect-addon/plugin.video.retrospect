@@ -1,17 +1,18 @@
 ﻿[B]Changelog[/B]
-Fixed: not all ViaSat streams would have subtitles (Fixes #843)
+* Fixed: ViaSat streams would not play (Fixes #864)
 
 [I]Previous changes[/I]
-Fixed: ViaSat changed subtitle formats (Fixes #784)
-Fixed: ViaFree parsing (Fixes #765)
-Fixed: ViaFree Search will move to 'Titles with other chars' when enable 'Group list if exceeds # of folders' (Fixes #753)
-Fixed: MTG update their sites to a new standard and broke the Swedish and Norwegian channels (See #750)
-Fixed: more TV6 (MTG) stream issues
-Fixed: ViaSat channels sometimes won't work with manifest.m3u8 but do with master.m3u8 (See #598)
-Fixed: MTG channels did not select streams properly (Fixes #590)
-Fixed: MTG streams would not always play (Issue #558)
-Fixed: MTG channels could not open next pages (Fixes 556)
-Fixed: ViaSat channels did not show any shows due to site changes (Fixes #521)
-Removed: some logging in the MTG channel
-Fixed: Klipp instead of Clips in mtg channel
-Fixed: VIASAT changed their player and layouts (Issue 505)
+* Fixed: not all ViaSat streams would have subtitles (Fixes #843)
+* Fixed: ViaSat changed subtitle formats (Fixes #784)
+* Fixed: ViaFree parsing (Fixes #765)
+* Fixed: ViaFree Search will move to 'Titles with other chars' when enable 'Group list if exceeds # of folders' (Fixes #753)
+* Fixed: MTG update their sites to a new standard and broke the Swedish and Norwegian channels (See #750)
+* Fixed: more TV6 (MTG) stream issues
+* Fixed: ViaSat channels sometimes won't work with manifest.m3u8 but do with master.m3u8 (See #598)
+* Fixed: MTG channels did not select streams properly (Fixes #590)
+* Fixed: MTG streams would not always play (Issue #558)
+* Fixed: MTG channels could not open next pages (Fixes 556)
+* Fixed: ViaSat channels did not show any shows due to site changes (Fixes #521)
+* Removed: some logging in the MTG channel
+* Fixed: Klipp instead of Clips in mtg channel
+* Fixed: VIASAT changed their player and layouts (Issue 505)
