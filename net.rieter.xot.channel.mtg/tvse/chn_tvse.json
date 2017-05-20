@@ -21,7 +21,8 @@
       "channelcode": "tv3ee",
       "sortorder": 3,
       "language": "ee",
-      "fanart": "tv3eefanart.png"
+      "fanart": "tv3eefanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "82D73241-284B-4326-9E32-AFEF3C439951",
@@ -32,7 +33,8 @@
       "channelcode": "tv6ee",
       "sortorder": 6,
       "language": "ee",
-      "fanart": "tv6eefanart.png"
+      "fanart": "tv6eefanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "FB34E1F0-2930-11DE-A339-255856D89593",
@@ -79,7 +81,8 @@
       "channelcode": "tv3lt",
       "sortorder": 3,
       "language": "lt",
-      "fanart": "tv3ltfanart.jpg"
+      "fanart": "tv3ltfanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "49A02D20-2283-11E0-8771-2AB7DFD72085",
@@ -91,7 +94,8 @@
       "sortorder": 6,
       "language": "lt",
       "compatible": "Environments.All",
-      "fanart": "tv6viasatfanart.png"
+      "fanart": "tv6viasatfanart.png",
+      "localIPSupported": true
     },
     {
       "guid": "1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD",
@@ -102,7 +106,8 @@
       "channelcode": "tv8lt",
       "sortorder": 8,
       "language": "lt",
-      "fanart": "tv8ltfanart.jpg"
+      "fanart": "tv8ltfanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "8D9FBD00-2284-11E0-8957-55B8DFD72085",
@@ -113,7 +118,8 @@
       "channelcode": "se3lv",
       "sortorder": 3,
       "language": "lv",
-      "fanart": "tv3lvfanart.jpg"
+      "fanart": "tv3lvfanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "89673FF0-5EF3-11E0-8CC9-494DDFD72085",
@@ -124,7 +130,8 @@
       "channelcode": "no3",
       "sortorder": 3,
       "language": "no",
-      "fanart": "tv3fanart.jpg"
+      "fanart": "tv3fanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "90DD5C88-5EF3-11E0-93A2-4D4DDFD72085",
@@ -135,7 +142,8 @@
       "channelcode": "no4",
       "sortorder": 4,
       "language": "no",
-      "fanart": "viasat4fanart.jpg"
+      "fanart": "viasat4fanart.jpg",
+      "localIPSupported": true
     },
     {
       "guid": "3CD2662C-3C7A-4217-8375-079B2D850F27",
@@ -146,7 +154,8 @@
       "channelcode": "no6",
       "sortorder": 6,
       "language": "no",
-      "fanart": "tv6viasatfanart.png"
+      "fanart": "tv6viasatfanart.png",
+      "localIPSupported": true
     }
   ],
   "settings": [
