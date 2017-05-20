@@ -439,3 +439,23 @@ sorted chronologically):
 - Olivier De Groote
 - Robin Lövgren
 - Koen Bekaert (second donation!)
+- Mahamed Zishan Khan
+- Tom Mertens
+- Stian Ringstad
+- Per Arne Jonsson
+- Niels Van den Put
+- Jan Tiels
+- Theo Schoen
+- Anton Driesprong
+- Bart Coninckx
+- Rogier Versluis
+- Bo Johansson
+- Ola Stensson
+- Mathijs Groothuis
+- Sune Filipsson
+- Leif Ohlsson
+- Benjamin Jacobs
+- Koen De Buck
+- Hans Filipsson
+- Dejan Dozic
+- Roeland Vanraepenbusch
