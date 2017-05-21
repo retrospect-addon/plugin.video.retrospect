@@ -514,6 +514,9 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.complete = True
         item.description = description
+        # This should always be a full list as we already have a default alphabet listing available
+        # from NPO
+        item.dontGroup = True
 
         if thumbUrl:
             item.thumb = thumbUrl
