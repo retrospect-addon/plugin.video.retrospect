@@ -59,6 +59,9 @@ class Channel(chn_class.Channel):
         self._AddDataParser("http://live.stream.vrt.be/",
                             name="Live streams updater",
                             updater=self.UpdateLiveVideo)
+        self._AddDataParser("https://live-w.lwc.vrtcdn.be",
+                            name="Live streams updater",
+                            updater=self.UpdateLiveVideo)
 
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
                    '*>\W*){2}<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)' \
@@ -102,42 +105,42 @@ class Channel(chn_class.Channel):
         self.__currentChannel = None
         # The key is the channel live stream key
         self.__channelData = {
-            "mnm": {
+            "vualto_mnm": {
                 "title": "MNM",
                 "metaCode": "mnm",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "mnmfanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "mnmimage.jpg"),
                 "icon": TextureHandler.Instance().GetTextureUri(self, "mnmicon.png"),
             },
-            "stubru": {
+            "vualto_stubru": {
                 "title": "Studio Brussel",
                 "metaCode": "stubru",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "stubrufanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "stubruimage.jpg"),
                 "icon": TextureHandler.Instance().GetTextureUri(self, "stubruicon.png"),
             },
-            "vrtvideo1": {
+            "vualto_een": {
                 "title": "E&eacute;n",
                 "metaCode": "een",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "eenfanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "eenimage.png"),
                 "icon": TextureHandler.Instance().GetTextureUri(self, "eenlarge.png")
             },
-            "vrtvideo2": {
+            "vualto_canvas": {
                 "title": "Canvas",
                 "metaCode": "canvas",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "canvasfanart.png"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "canvasimage.png"),
                 "icon": TextureHandler.Instance().GetTextureUri(self, "canvaslarge.png")
             },
-            "events3": {
+            "vualto_ketnet": {
                 "title": "KetNet",
                 "metaCode": "ketnet",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.png"),
                 "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
             },
-            "sporza": {  # not in the channel filter maps, so no metaCode
+            "vualto_sporza": {  # not in the channel filter maps, so no metaCode
                 "title": "Sporza",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "sporzafanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "sporzaimage.png"),
@@ -345,7 +348,9 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # apparently they split up M3u8 streams and audio streams, so we need to fix that here
+            # this is an ugly fix, but it will work!
+            s = s.replace(".m3u8", "-audio_track=96000.m3u8")
             part.AppendMediaStream(s, b)
         return item
 

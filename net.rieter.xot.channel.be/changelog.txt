@@ -1,52 +1,54 @@
 ﻿[B]Changelog[/B]
-Added: Stievie.be (Fixes #763)
-Added: Recent items to VTM (Fixes #827)
+* Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865)
+* Fixed: KetNet listing broke (Fixes #866)
 
 [I]Previous Changes[/I]
-Fixed: Some streams would start in the middle of a stream (Reverted #854) as it seems to be OK now
-Fixed: Paging for VTM would not work (only Q2)
-Fixed: VTM.be do no longer accept an empty range= header (Fixes #854)
-Changed: Combine HTML site (which only lists shows that have episode available) with the JSON API that has more recent videos per show (Fixes #848)
-Fixed: VTM and Q2 updated their sites which broke the channel (Fixes #846)
-Fixed: VRT.nu regex was causing performance issues (Fixes #842)
-Removed: Canvas as they are now 100% on VRT.nu
-Added: A bit more logging to the VTM.be channel (See #839)
-Fixed: Proper error in logging if VRT log in fails (See #818)
-Fixed: VTM and Q2 streams now always start at the beginning (Fixes #820)
-Added: VRT NU art for all included channels (See #823)
-Fixed: Vier/Vijf.be would also have the audio only streams (Fixes #822)
-Added: VRTnu.be now has listings per channels (Fixes #823)
-Added: VRT.NU dates and Live channels (See #810)
-Fixed: JSON parsing of VTM.be
-Fixed: Vijf.be did not show all episodes (Fixes #815)
-Added: Vijf.be (Fixes #760)
-Changed: no more login required for Vier.be (See #809)
-Added: Q2.be (Fixes #759)
-Added: More VTM programs (See #795)1
-Fixed: VTM has some strange escapes in the JSON
-Fixed: VTM.be streams did not play (Fixes #795)
-Fixed: De Redactie did not show most recent shows (Fixes #439 again)
-Added: VTM.be live TV and full episodes (See #758)
-Added: Initial VTM.be channel (Fixes #758)
-Fixed: Ketnet is switching stream provider (Fixes #780)
-Fixed: Eén updated their site again (Fixes #773)
-Fixed: no longer required to log on for playback (See #736)
-Fixed: Eén updated their site (Fixes #762)
-Fixed: Canvas updated their site (Fixes #747)
-Fixed: RTBF live streams broke due to HLS switch (Fixes #742)
-Fixed: De Redactie did not retrieve media url
-Fixed: De Redactie did not show all items
-Fixed: Sporza.be broke (Fixes #740)
-Fixed: Filter out the audio only streams for Vier.be (See #674)
-Added: RTBF.be (Fixes #725)
-Added: Vier.be (Fixes #674)
-Fixed: Eén stream selection issue
-Fixed: Ketnet updated their website
-Fixed: Canvas.be update their layout (Fixes 702)
-Added: Ketnet (VRT) was added again (Fixes #686)
-Fixed: Canvas updated their site (Fixes #677)
-Fixed: VTM site update broke listings (Fixes #656)
-Fixed: Eén stream selection issue (Fixes #557)
-Fixed: VTM Nieuws playback issues
-Fixed: Belgium Een channel did not stream (Issue 508)
-Removed: Cobra.be for now due to incompatible site layout (Issue 508)
+* Added: Stievie.be (Fixes #763)
+* Added: Recent items to VTM (Fixes #827)
+* Fixed: Some streams would start in the middle of a stream (Reverted #854) as it seems to be OK now
+* Fixed: Paging for VTM would not work (only Q2)
+* Fixed: VTM.be do no longer accept an empty range= header (Fixes #854)
+* Changed: Combine HTML site (which only lists shows that have episode available) with the JSON API that has more recent videos per show (Fixes #848)
+* Fixed: VTM and Q2 updated their sites which broke the channel (Fixes #846)
+* Fixed: VRT.nu regex was causing performance issues (Fixes #842)
+* Removed: Canvas as they are now 100% on VRT.nu
+* Added: A bit more logging to the VTM.be channel (See #839)
+* Fixed: Proper error in logging if VRT log in fails (See #818)
+* Fixed: VTM and Q2 streams now always start at the beginning (Fixes #820)
+* Added: VRT NU art for all included channels (See #823)
+* Fixed: Vier/Vijf.be would also have the audio only streams (Fixes #822)
+* Added: VRTnu.be now has listings per channels (Fixes #823)
+* Added: VRT.NU dates and Live channels (See #810)
+* Fixed: JSON parsing of VTM.be
+* Fixed: Vijf.be did not show all episodes (Fixes #815)
+* Added: Vijf.be (Fixes #760)
+* Changed: no more login required for Vier.be (See #809)
+* Added: Q2.be (Fixes #759)
+* Added: More VTM programs (See #795)1
+* Fixed: VTM has some strange escapes in the JSON
+* Fixed: VTM.be streams did not play (Fixes #795)
+* Fixed: De Redactie did not show most recent shows (Fixes #439 again)
+* Added: VTM.be live TV and full episodes (See #758)
+* Added: Initial VTM.be channel (Fixes #758)
+* Fixed: Ketnet is switching stream provider (Fixes #780)
+* Fixed: Eén updated their site again (Fixes #773)
+* Fixed: no longer required to log on for playback (See #736)
+* Fixed: Eén updated their site (Fixes #762)
+* Fixed: Canvas updated their site (Fixes #747)
+* Fixed: RTBF live streams broke due to HLS switch (Fixes #742)
+* Fixed: De Redactie did not retrieve media url
+* Fixed: De Redactie did not show all items
+* Fixed: Sporza.be broke (Fixes #740)
+* Fixed: Filter out the audio only streams for Vier.be (See #674)
+* Added: RTBF.be (Fixes #725)
+* Added: Vier.be (Fixes #674)
+* Fixed: Eén stream selection issue
+* Fixed: Ketnet updated their website
+* Fixed: Canvas.be update their layout (Fixes 702)
+* Added: Ketnet (VRT) was added again (Fixes #686)
+* Fixed: Canvas updated their site (Fixes #677)
+* Fixed: VTM site update broke listings (Fixes #656)
+* Fixed: Eén stream selection issue (Fixes #557)
+* Fixed: VTM Nieuws playback issues
+* Fixed: Belgium Een channel did not stream (Issue 508)
+* Removed: Cobra.be for now due to incompatible site layout (Issue 508)

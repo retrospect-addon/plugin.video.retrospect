@@ -33,8 +33,8 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "ketnet":
             self.noImage = "ketnetimage.png"
-            self.mainListUri = "http://www.ketnet.be/kijken"
-            self.baseUrl = "http://www.ketnet.be"
+            self.mainListUri = "https://www.ketnet.be/kijken"
+            self.baseUrl = "https://www.ketnet.be"
             self.mediaUrlRegex = 'playerConfig\W*=\W*(\{[\w\W]{0,2000}?);.vamp'
 
         elif self.channelCode == "cobra":
@@ -44,9 +44,8 @@ class Channel(chn_class.Channel):
 
         self.swfUrl = "%s/html/flash/common/player.swf" % (self.baseUrl,)
 
-        episodeRegex = Regexer.FromExpresso('<li><a[^>]+href="(?<url>[^"]+)"[^>]+title="(?<title>'
-                                            '[^"]+)"[^<]+<span[^<]+<img[^>]+src='
-                                            '"(?<thumburl>[^"]+)')
+        episodeRegex = '<a[^>]+href="(?<url>/kijken[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"'
+        episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeRegex, creator=self.CreateEpisodeItem)
 
