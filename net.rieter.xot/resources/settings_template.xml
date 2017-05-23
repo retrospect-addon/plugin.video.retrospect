@@ -115,7 +115,7 @@
         <setting subsetting="true" id="no_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(%selected_country%,4)" />
         <setting subsetting="true" id="no_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(%selected_country%,4)" />
         <setting subsetting="true" id="no_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(%selected_country%,4)+!eq(-1,)" />
-        <setting id="no_local_ip" type="ipaddress" label="30079" default="" visible="eq(-38,4)" />
+        <setting id="no_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,4)" />
 
         <setting type="lsep" label="30054" visible="eq(%selected_country%,5)" />
         <setting id="de_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=de)" visible="eq(%selected_country%,5)" />
