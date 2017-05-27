@@ -10,7 +10,7 @@
       "sortorder": 10,
       "language": "be",
       "fanart": "vtmbefanart.jpg",
-      "message": "Streams from VTM.be require a Mediaan account. It can be configured via the Channel settings."
+      "message": "Streams from VTM.be require a Medialaan account. It can be configured via the Channel settings."
     },
     {
       "guid": "01C7064B-7E7A-4742-A042-E6F2F4EC5966",
@@ -22,7 +22,7 @@
       "sortorder": 11,
       "language": "be",
       "fanart": "q2befanart.jpg",
-      "message": "Streams from VTM.be require a Mediaan account. It can be configured via the Channel settings."
+      "message": "Streams from VTM.be require a Medialaan account. It can be configured via the Channel settings."
     },
     {
       "guid": "61AA2559-7D64-40A2-A3BE-56DD3F6BBD4A",
@@ -34,7 +34,7 @@
       "sortorder": 11,
       "language": "be",
       "fanart": "stieviefanart2.jpg",
-      "message": "Streams from Stievie.be require a Mediaan account. It can be configured via the Channel settings."
+      "message": "Streams from Stievie.be require a Medialaan account. It can be configured via the Channel settings."
     }
   ],
   "settings": [
