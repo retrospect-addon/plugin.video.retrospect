@@ -404,7 +404,7 @@ class Channel(chn_class.Channel):
         if "nextPageUrl" not in resultSet:
             return None
 
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        title = "\b.: %s :." % (LanguageHelper.GetLocalizedString(LanguageHelper.MorePages), )
         url = "%s%s" % (self.baseUrl, resultSet["nextPageUrl"])
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
