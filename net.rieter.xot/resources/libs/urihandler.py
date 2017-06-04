@@ -35,7 +35,7 @@ class UriHandler:
 
     @staticmethod
     def CreateUriHandler(cacheDir=None, useCompression=True, webTimeOut=30, maxFileNameLength=None,
-                         blockSize=4096, cookieJar=None):
+                         blockSize=4096, cookieJar=None, ignoreSslErrors=False):
         """Initialises the UriHandler class
 
         Keyword Arguments:
@@ -50,7 +50,8 @@ class UriHandler:
 
         if UriHandler.__handler is None:
             UriHandler.__handler = UriHandler.CustomUriHandler(cacheDir, useCompression, webTimeOut,
-                                                               maxFileNameLength, blockSize, cookieJar)
+                                                               maxFileNameLength, blockSize,
+                                                               cookieJar, ignoreSslErrors)
 
             # hook up all the methods to pass to the actual UriHandler
             UriHandler.Download = UriHandler.__handler.Download
@@ -188,7 +189,7 @@ class UriHandler:
         """Class that handles all the URL downloads"""
 
         def __init__(self, cacheDir=None, useCompression=True, webTimeOut=30,
-                     maxFileNameLength=None, blockSize=4096, cookieJar=None):
+                     maxFileNameLength=None, blockSize=4096, cookieJar=None, ignoreSslErrors=False):
             """Initialises the UriHandler class
 
             Keyword Arguments:
@@ -230,6 +231,10 @@ class UriHandler:
             self.webTimeOutInterval = webTimeOut            # max duration of request
             self.pollInterval = 0.1                         # time between polling of activity
             self.dnsCache = {"localhost": "127.0.0.1"}      # init with localhost
+
+            self.ignoreSslErrors = ignoreSslErrors  # ignore SSL errors
+            if self.ignoreSslErrors:
+                Logger.Warning("Ignoring all SSL errors in Python")
 
         def Download(self, uri, filename, folder, progressCallback, proxy=None, params="", referer=None, additionalHeaders=None):
             """Downloads an file
@@ -419,7 +424,6 @@ class UriHandler:
 
         # noinspection PyProtectedMember,PyTypeChecker
         def GetCookie(self, name, domain, path="/", matchStart=False):
-            # type: (str, str, str, bool) -> Optional[cookielib.Cookie]
             if domain not in self.cookieJar._cookies or path not in self.cookieJar._cookies[domain]:
                 return None
 
@@ -728,6 +732,12 @@ class UriHandler:
                     cacheHandler = cachehttphandler.CacheHttpHandler(self.cacheStore, logger=Logger.Instance())
 
             urlHandlers = [urllib2.HTTPCookieProcessor(self.cookieJar)]
+
+            if self.ignoreSslErrors:
+                Logger.Warning("Disabling SSL Verification for %s", url)
+                # urlHandlers = [urllib2.HTTPCookieProcessor(self.cookieJar), HTTPSHandlerV3]
+                # noinspection PyProtectedMember,PyTypeChecker
+                urlHandlers.append(urllib2.HTTPSHandler(context=ssl._create_unverified_context()))
 
             if proxy is None:
                 pass

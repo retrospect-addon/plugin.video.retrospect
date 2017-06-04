@@ -56,8 +56,10 @@ def RunPlugin():
         if EnvController.IsPlatform(Environments.Xbox):
             maxFileNameLength = 42
 
+        ignoreSslErrors = AddonSettings.IgnoreSslErrors()
         UriHandler.CreateUriHandler(cacheDir=cacheDir, maxFileNameLength=maxFileNameLength,
-                                    cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"))
+                                    cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"),
+                                    ignoreSslErrors=ignoreSslErrors)
 
         # start texture handler
         TextureHandler.SetTextureHandler(Config, Logger.Instance(), UriHandler.Instance())

@@ -34,6 +34,7 @@ class AddonSettings:
     __STREAM_AUTOBITRATE = "stream_autobitrate"
     __SUBTITLE_MODE = "subtitle_mode"
     __CACHE_ENABLED = "http_cache"
+    __IGNORE_SSL_ERRORS = "ignore_ssl_errors"
     __CHANNEL_SETTINGS_PATTERN = "channel_%s_visible"
     __PROXY_SETTING_PATTERN = "channel_%s_proxy"
     __LOCAL_IP_SETTING_PATTERN = "channel_%s_localip"
@@ -362,6 +363,12 @@ class AddonSettings:
         """ Returns True if the HTTP responses need to be cached """
 
         return AddonSettings.GetBooleanSetting(AddonSettings.__CACHE_ENABLED)
+
+    @staticmethod
+    def IgnoreSslErrors():
+        """ Returns True if SSL errors should be ignored from Python
+        """
+        return AddonSettings.GetBooleanSetting(AddonSettings.__IGNORE_SSL_ERRORS)
 
     @staticmethod
     def GetMaxStreamBitrate(channel=None):
@@ -1075,6 +1082,7 @@ class AddonSettings:
         value = pattern % (value, "Empty List Behaviour", AddonSettings.GetEmptyListBehaviour())
         value = pattern % (value, "ListLimit", AddonSettings.GetListLimit())
         value = pattern % (value, "Loglevel", AddonSettings.GetLogLevel())
+        value = pattern % (value, "Ignore SSL Errors", AddonSettings.IgnoreSslErrors())
         value = pattern % (value, "Geo Location", AddonSettings.HideGeoLockedItemsForLocation(None, valueOnly=True))
         value = pattern % (value, "Filter Folders", AddonSettings.HideRestrictedFolders())
         value = pattern % (value, "DRM/Paid Warning", AddonSettings.ShowDrmPaidWarning())
