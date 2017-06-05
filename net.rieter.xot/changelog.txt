@@ -1,85 +1,13 @@
-﻿[B]Retrospect v4.1.4 - Changelog - 2017-05-21[/B]
+﻿[B]Retrospect v4.1.5 - Changelog - 2017-06-05[/B]
 
 [B]Framework related[/B]
-* Fixed: No dataparsers are required for a searchSite or #searchSite url
-* Fixed: in Kodi 17+ add-ons are disabled by default and disabled add-ons don't get update. This breaks Retrospect initial deployment mechanism. For now we only warn the users.
-* Fixed: ChannelImporter does not support ~alpha or ~beta
-* Updated: more template fields in settings_template.xml
-* Added: Reset proxy option for all countries
-* Added: Proxy settings for Latvian channels
-* Added: Stream properties to allow using InputStream add-ons
-* Added: Lithuanian proxy
-* Changed: move GA url to https version
-* Added: Estonian proxy
-* Changed: hide proxy password if no username is specified
-* Added: Belgium proxy settings
-* Added: template parser with templating for relative visibility
-* Added: proxy for Germany
-* Added: Setting all channels of a specific language
-* Changed: default channel proxies to the corresponding country settings (See #844)
-* Updated: more logging for Local IP and Proxy (See #844)
-* Added: Country Settings and refactored the Local IP functionality (See #844)
-* Added: Sending Retrospect.log via github.com/gists
-* Fixed: Don't include #EXT-X-I-FRAME in the M3u8 streams
-* Fixed: Typoo in logging
-* Fixed: exclude Updater-only parsers from folder parsing to prevent unwanted logons
-* Fixed: Only call ListItem.setArt once per item to safe performance (See #817)
-* Fixed: Error while updating user-agent
+* Added: option to disable SSL verification in Python (Fixes many SSL Verification errors, but is a security risk. So use at own risk)
+* Fixed: More pages should sort at the top (if sorted by name)
 
 [B]GUI/Settings/Language related[/B]
-* Added: Swedish translations
-* Fixed: Swedish translation (Thanks to Snah)
-* Fixed: duplicate channel description in Estuary skin (See #844)
-* Fixed: Swedish translation (Fixes #851)
-* Updated: Proxy Translations
-* Fixed: English translation should be Belgian, not Belgium (Thanks Snaah)
+* Fixed: missed the Norwegian Local IP (Fixes #868)
 
 [B]Channel related[/B]
-* Fixed: Better Range Header handling for Q2, VTM and Stievie
-* Added: timestamps to the EPG overview of Stievie.be and exclude items in black-out period
-* Added: search to Stievie channel (See #763)
-* Changed: Show all EPG items regardeless of parentSeriesOID
-* Changed: Stievie folder structure updated (See #763)
-* Added: Stievie.be (Fixes #763)
-* Removed: NPO cache path, as it cannot be used anymore with M3u8 streams
-* Fixed: TV4Play can work without HTTPS and thus without SSL errors (See #859)
-* Fixed: SVT API update (Fixes #857)
-* Updated: settings.xml for Nick Jr.
-* Added: NickJr Artwork
-* Added: Recent items to VTM (Fixes #827)
-* Added: NickJr NL and International
-* Fixed: Remove NickJR content from the main Nickelodeon channels as that content moved
-* Fixed: Paging issue with Kanal 5
-* Fixed: Some streams would start in the middle of a stream (Reverted #854) as it seems to be OK now
-* Fixed: Paging for VTM would not work (only Q2)
-* Changed: updated NPO urls to https
-* Fixed: SVT Live channels (Fixes #853)
-* Fixed: VTM.be do no longer accept an empty range= header (Fixes #854)
-* Changed: Combine HTML site (which only lists shows that have episode available) with the JSON API that has more recent videos per show (Fixes #848)
-* Fixed: VTM and Q2 updated their sites which broke the channel (Fixes #846)
-* Fixed: not all ViaSat streams would have subtitles (Fixes #843)
-* Fixed: VRT.nu regex was causing performance issues (Fixes #842)
-* Removed: Canvas as they are now 100% on VRT.nu
-* Fixed: NPO 3 had voice-over subs (See #831)
-* Updated: changelogs for channel.be, channel.nos and channel.se
-* Added: A bit more logging to the VTM.be channel (See #839)
-* Fixed: cleaned up NPO (See #831)
-* Fixed: NPO login
-* Removed: TV4 login option as it never really made sense and all premium content is now at cmore.se (See #450)
-* Fixed: Proper error in logging if VRT log in fails (See #818)
-* Fixed: NPO stream helper
-* Fixed: NPO live streams (See #831)
-* Fixed: NPO changed their API (Fixes #831)
-* Fixed: sometimes a stream would not start at the beginning. Applying the VTM fix (See #820)
-* Fixed: VTM and Q2 streams now always start at the beginning (Fixes #820)
-* Fixed: Some fanart did now show for SVT
-* Fixed: SVT did not play due to API changes (Fixes #828)
-* Updated: VTM can now use the Medialaan API but the results include many videoless episode items (See #827)
-* Added: VRT NU art for all included channels (See #823)
-* Fixed: Vier/Vijf.be would also have the audio only streams (Fixes #822)
-* Added: VRTnu.be now has listings per channels (Fixes #823)
-* Fixed: NPO moved the subtitle (TT888) urls
-* Fixed: NPO moved subtitle URL. Updating NPO stream parser
-* Added: VRT.NU dates and Live channels (See #810)
-* Fixed: JSON parsing of VTM.be
-* Added: Login required for VRT NU, Q2 and VTM
+* Fixed: perhaps not group the "Hele Lijst" listing from NPO to distinguish it better from the NPO native alphabet listing
+* Fixed: Typoo in VTM/Stievie/Q2 channel message (See #869)
+* Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865) Fixed: KetNet listing broke (Fixes #866)
