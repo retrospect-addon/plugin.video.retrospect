@@ -27,17 +27,17 @@
     {
       "order": 1,
       "id": "username",
-      "value": "label=\"30094\" type=\"hidden\" default=\"\""
+      "value": "label=\"30094\" default=\"\""
     },
     {
       "order": 2,
       "id": "password_set",
-      "value": "label=\"30093\" type=\"hidden\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Vier.be password&amp;tabfocus=102)\" option=\"close\""
+      "value": "label=\"30093\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Vier.be password&amp;tabfocus=102)\" option=\"close\""
     },
     {
       "order": 3,
       "id": "password",
-      "value": "type=\"hidden\" default=\"\""
+      "value": "default=\"\""
     }
   ]
 }

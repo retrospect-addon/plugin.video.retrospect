@@ -45,7 +45,7 @@
     },
     {
       "order": 2,
-      "value": "id=\"mediaan_password\" type=\"hidden\" default=\"\"",
+      "value": "id=\"mediaan_password\" default=\"\"",
       "id": "mediaan_password"
     },
     {
@@ -55,7 +55,7 @@
     },
     {
       "order": 4,
-      "value": "id=\"mediaan_signature\" type=\"hidden\" default=\"\"",
+      "value": "id=\"mediaan_signature\" default=\"\"",
       "id": "mediaan_signature"
     }
   ]

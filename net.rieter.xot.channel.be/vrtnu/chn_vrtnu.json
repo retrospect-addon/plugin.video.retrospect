@@ -27,7 +27,7 @@
     {
       "order": 3,
       "id": "password",
-      "value": "type=\"hidden\" default=\"\""
+      "value": "default=\"\""
     }
   ]
 }
