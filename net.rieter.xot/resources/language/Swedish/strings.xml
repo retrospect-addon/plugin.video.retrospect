@@ -197,6 +197,7 @@
     <string id="30567">Tillägg inaktiverad</string>
     <string id="30568">Några av Retrospects kanaltillägg är inte aktiverade i Kodi. Detta hindrar dem från att bli automatiskt uppdaterade. Du ska nu aktivera de tillägg som tillhör Retrospect.</string>
     <string id="30569">Ignorera fel i SSL-verifieringen (Säkerhetsrisk!)</string>
+    <string id="30570">Dölj kanalinitieringsmeddelanden</string>
 
     <string id="30590">Ange en ny kod för Retrospect</string>
     <string id="30591">Ingen kod angiven för Retrospect</string>

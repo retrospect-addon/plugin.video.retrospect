@@ -196,6 +196,7 @@
     <string id="30567">Add-on(s) disabled</string>
     <string id="30568">Some of the Retrospect Channel Add-ons are not enabled within Kodi. This will prevent them from being automatically updated. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons.</string>
     <string id="30569">Ignore SSL verification errors (Security Risk!)</string>
+    <string id="30570">Hide channel initialisation messages</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>

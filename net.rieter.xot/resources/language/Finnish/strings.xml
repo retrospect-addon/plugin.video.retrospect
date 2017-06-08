@@ -194,6 +194,7 @@
     <string id="30565">(Un-)Cloaking items</string>
     <string id="30566">To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu.</string>
     <string id="30569">Ohita SSL vahvistusvirheet (turvallisuusriski!)</string>
+    <string id="30570">Piilota kanavan alustusviestejä</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>

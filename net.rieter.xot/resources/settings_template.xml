@@ -37,6 +37,7 @@
 
         <setting type="lsep" label="30055" />
         <setting id="ignore_ssl_errors" type="bool" label="30569" default="false" />
+        <setting id="hide_first_time_message" type="bool" label="30570" default="false" />
         <setting id="send_statistics" type="bool" label="30052" default="true" />
         <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
         <setting id="send_log" type="action" label="30598" action="RunScript(net.rieter.xot, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />

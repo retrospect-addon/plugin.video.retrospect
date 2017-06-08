@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2017-06-04 22:03+0000\n"
+"POT-Creation-Date: 2017-06-08 21:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -781,7 +781,11 @@ msgctxt "#30569"
 msgid "Ignore SSL verification errors (Security Risk!)"
 msgstr ""
 
-#empty strings from id 30570 to 30589
+msgctxt "#30570"
+msgid "Hide channel initialisation messages"
+msgstr ""
+
+#empty strings from id 30571 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

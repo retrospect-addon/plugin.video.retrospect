@@ -196,6 +196,7 @@
     <string id="30567">Add-on(s) uitgeschakeld</string>
     <string id="30568">Een aantal van de Retrospect kanaal add-ons zijn niet ingeschakeld. Hierdoor kunnen ze niet automatisch worden geupdate. De Kodi addon-verkenner zal worden geopend. Hierin kunt u de Retrospect gerelateerde add-ons activeren.</string>
     <string id="30569">SSL verificatie fouten negeren (Veiligheids risico!)</string>
+    <string id="30570">Verberg kanaal initializatie meldingen</string>
 
     <string id="30590">Stel een nieuwe Retrospect PIN in</string>
     <string id="30591">Geen Retrospect PIN ingevoerd</string>
