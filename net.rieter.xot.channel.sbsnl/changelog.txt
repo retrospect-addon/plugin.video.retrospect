@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: Kijk.nl updated to the new BrightCove API (Fixes #799)
+Fixed: Kijk.nl moved to a JSON API (Fixes #875)
 
 [I]Previous changes[/I]
+Fixed: Kijk.nl updated to the new BrightCove API (Fixes #799)
 Fixed: Some kijk.nl shows were missing (Fixes #794)
 Fixed: Missing thumbs on the site cause missing items (Fixes #791)
 Fixed: Not all kijk.nl shows were displayed

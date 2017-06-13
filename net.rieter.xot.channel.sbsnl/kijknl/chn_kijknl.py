@@ -1,11 +1,10 @@
 import mediaitem
 import chn_class
 
-from regexer import Regexer
 from streams.m3u8 import M3u8
+from regexer import Regexer
 from helpers.jsonhelper import JsonHelper
-
-from parserdata import ParserData
+from helpers.datehelper import DateHelper
 from logger import Logger
 from urihandler import UriHandler
 
@@ -31,17 +30,17 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the urls
         self.baseUrl = "http://www.kijk.nl"
-        # Just retrieve a single page with 200 items (should be all)
-        self.mainListUri = "http://www.kijk.nl/ajax/section/overview/programs-abc-ABCDEFGHIJKLMNOPQRSTUVWXYZ/1/400"
+        # Just retrieve a single page with 500 items (should be all)
+        self.mainListUri = "http://api.kijk.nl/v1/default/sections/programs-abc-0123456789abcdefghijklmnopqrstuvwxyz?limit=350&offset=0"
 
-        channelId = None
+        self.__channelId = self.channelCode
         if self.channelCode == 'veronica':
             self.noImage = "veronicaimage.png"
-            channelId = "veronicatv"
+            self.__channelId = "veronicatv"
 
         elif self.channelCode == 'sbs':
             self.noImage = "sbs6image.png"
-            channelId = "sbs6"
+            self.__channelId = "sbs6"
 
         elif self.channelCode == 'sbs9':
             self.noImage = "sbs9image.png"
@@ -50,49 +49,24 @@ class Channel(chn_class.Channel):
             self.noImage = "net5image.png"
 
         # setup the main parsing data
-        self.episodeItemRegex = '(?:data-srchd="(?<thumburl>[^"]+)"[^>]*>\W*<noscript>\W*<img[^>]*>\W*</noscript>[\w\W]' \
-                                '{0,750}?){0,1}data-itemid="[^"]+\.%s"[^>]*data-title="(?<title>[^"]+)"></div>\W+</div>' \
-                                '\W+</a>\W+<a href="(?<url>[^"]+)"[^>]+>\W+<div class="info[^>]*>\W+'\
-                                .replace("(?<", "(?P<") \
-                                % (channelId or self.channelCode,)
-        self._AddDataParser(self.mainListUri, name="Mainlist Parsing", matchType=ParserData.MatchExact,
+        self._AddDataParser("http://api.kijk.nl/v1/default/sections/programs-abc",
+                            name="Mainlist Json", json=True,
                             preprocessor=self.AddOthers,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=("items", ), creator=self.CreateJsonEpisodeItem)
 
-        # normal video items
-        self.videoItemRegex = '(?:data-srchd="(?<thumburl>[^"]+)"[\w\W]{0,2000}?){0,1}itemprop="datePublished" content="(?<date>[^"]+)[\w\W]{0,800}?<div class="title">(?<title>[^<]+)<[\w\W]{0,800}?<a href="(?<url>[^"]+)/[^"]+"' \
-                              .replace("(?<", "(?P<")
-        self._AddDataParser("*", name="Standard Videos",
-                            parser=self.videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._AddDataParser("http://api.kijk.nl/v1/default/sections/series",
+                            name="VideoItems Json", json=True,
+                            parser=("items", ), creator=self.CreateJsonVideoItem)
 
-        # ajax video items
-        self.ajaxItemRegex = '(?:<img src="(?<thumburl>[^"]+)"[^>]* itemprop="thumbnailUrl"[^>]*>' \
-                             '\W*</noscript>[\w\W]{0,1000}?){0,1}data-title="(?<title>[^"]+)">\W*' \
-                             '</div>\W*</div>\W*</a>\W*<a[^>]+href="(?<url>[^"]+)/[^"]+"[^>]+\W+' \
-                             '<div[^>]+>\W+<(?:div class="desc[^>]+|h3[^>]*)>' \
-                             '(?<description>[^<]+)[\W\w]{0,1000}?<div class="airdate[^>]+?' \
-                             '(?:content="(?<date>[^"]+)"|>)'.replace("(?<", "(?P<")
-        self._AddDataParser("http://www.kijk.nl/ajax/section/series/", name="Ajax Videos",
-                            parser=self.ajaxItemRegex, creator=self.CreateVideoItem)
+        self._AddDataParser("http://api.kijk.nl/v2/default/sections/popular",
+                            name="Popular items Json", json=True,
+                            parser=("items", ), creator=self.CreateJsonPopularItem)
 
-        # folders
-        self.folderItemRegex = ['(?<type>\w+)</h2>\W*<div[^>]+class="showcase sidescroll[^>]+'
-                                'data-id="(?<url>[^"]+)" [^>]*data-hasmore="1"'
-                                .replace("(?<", "(?P<"),
-                                '<li[^>]+data-filter="(?<url>[^"]+)">(?<title>[^<]+)</li>'
-                                .replace("(?<", "(?P<")]
-
-        # we both need folders in the normal and ajax pages.
-        self._AddDataParser("*", name="Default Folder", parser=self.folderItemRegex, creator=self.CreateFolderItem)
-        self._AddDataParser("http://www.kijk.nl/ajax/section/series/", name="Ajax Folders",
-                            parser=self.folderItemRegex, creator=self.CreateFolderItem)
+        self._AddDataParser("https://embed.kijk.nl/",
+                            updater=self.UpdateJsonVideoItem)
 
         #===============================================================================================================
         # non standard items
-        # The main page has 10 items per call, so we need to keep this the same to make sure that
-        # we continue at the right number
-        self.pageSize = 10
 
         #===============================================================================================================
         # Test cases:
@@ -126,169 +100,82 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        others = "http://www.kijk.nl/ajax/section/overview/popular_PopularFormats/1/100"
-        otherData = UriHandler.Open(others, proxy=self.proxy)
-        data += otherData
-
+        others = mediaitem.MediaItem("\b.: Populair :.", "http://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
+        items.append(others)
         Logger.Debug("Pre-Processing finished")
         return data, items
 
-    def CreateFolderItem(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
+    def CreateJsonEpisodeItem(self, resultSet):
         Logger.Trace(resultSet)
-        matchedRegex = resultSet[0]
-        resultSet = resultSet[1]
 
-        if matchedRegex == 0:
-            #  Main regex match for the More Clips/Episodes
-            folderId = resultSet["url"]
-            folderType = resultSet["type"]
-
-            # http://www.kijk.nl/ajax/qw/moreepisodes?format=wegmisbruikers&page=1&season=0&station=sbs6
-            if "ajax" in self.parentItem.url:
-                # for ajax pages determine the next one and it's always a clip list or episode list
-                folderNumber = int(self.parentItem.url.split("/")[-2])
-                folderNumber += 1
-                if "clip" in self.parentItem.url.lower():
-                    title = "\bMeer clips"
-                else:
-                    title = "\bMeer afleveringen"
-
-            elif "clip" in folderType.lower():
-                # default clip start page = 1
-                title = "\bClips"
-                folderNumber = 1
-            else:
-                # default more episode page = 2
-                title = "\bMeer afleveringen"
-                folderNumber = 2
-
-            url = "http://www.kijk.nl/ajax/section/series/%s/%s/%s" % (folderId, folderNumber, self.pageSize)
-
-        elif matchedRegex == 1:
-            # match for the Seasons on the main pages.
-            if "ajax" in self.parentItem.url:
-                # don't add then om Ajax call backs, only on main listing
-                return None
-
-            title = resultSet["title"]
-            url = resultSet["url"]
-            url = "http://www.kijk.nl/ajax/section/series/%s/1/%s" % (url, self.pageSize)
-        else:
-            Logger.Error("Unmatched multi regex match")
+        channelId = resultSet["channel"]
+        if channelId != self.__channelId:
             return None
 
+        title = resultSet["title"]
+        url = "http://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % resultSet
         item = mediaitem.MediaItem(title, url)
-        item.thumb = self.noImage
-        item.icon = self.icon
-        item.type = 'folder'
-        item.complete = True
-        Logger.Trace(item)
+        item.description = resultSet.get("synopsis", None)
+
+        if "retina_image_pdp_header" in resultSet["images"]:
+            item.fanart = resultSet["images"]["retina_image_pdp_header"]
+        if "retina_image" in resultSet["images"]:
+            item.thumb = resultSet["images"]["retina_image"]
+
         return item
 
-    def CreateVideoItem(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+    def CreateJsonPopularItem(self, resultSet):
+        item = self.CreateJsonVideoItem(resultSet)
+        if item is None:
+            return None
 
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
+        item.name = "%s - %s" % (resultSet["seriesTitle"], item.name)
+        return item
 
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-
-        """
-
+    def CreateJsonVideoItem(self, resultSet):
         Logger.Trace(resultSet)
 
-        # {
-        # 	'url': u'/sbs6/wegmisbruikers/videos/3dvYeP523cBh/aflevering-291',
-        # 	'date': u'2014-09-28T20: 30: 00+02: 00',
-        # 	'thumburl': u'http: //img.kijk.nl/media/cache/computer_retina_series_image/imgsrc01/data/image/50/sbs_media_image/2014.09/2715946859---20140928230130--0a58093311238a3cbbc49917bde98fab.jpg',
-        # 	'description': u'Aflevering291',
-        # 	'title': u'Aflevering291'
-        # }
+        if not resultSet["available"]:
+            Logger.Warning("Item not available: %s", resultSet)
+            return None
 
-        url = resultSet['url']
-        if "http://" not in url:
-            url = "%s%s" % (self.baseUrl, url)
-        Logger.Trace(url)
+        item = self.CreateJsonEpisodeItem(resultSet)
+        if item is None:
+            return None
 
-        item = mediaitem.MediaItem(resultSet['title'], url)
-        item.type = 'video'
-        if "description" in resultSet:
-            item.description = resultSet['description']
+        item.type = "video"
+        item.url = "https://embed.kijk.nl/api/video/%(id)s?id=kijkapp" % resultSet
 
-        item.icon = self.icon
-        item.thumb = self.noImage
-        if resultSet['thumburl']:
-            item.thumb = resultSet['thumburl']
+        if "date" in resultSet:
+            date = resultSet["date"].split("+")[0]
+            # 2016-12-25T17:58:00+01:00
+            timeStamp = DateHelper.GetDateFromString(date, "%Y-%m-%dT%H:%M:%S")
+            item.SetDate(*timeStamp[0:6])
 
-        date = resultSet["date"]
-        if date:
-            dateStamp = date.split("T")
-            Logger.Trace(dateStamp)
-            datePart = dateStamp[0]
-            timePart = dateStamp[1].split("+")[0]
-            (year, month, day) = datePart.split("-")
-            (hour, minute, seconds) = timePart.split(":")
-            Logger.Trace((year, month, day, hour, minute, seconds))
-            item.SetDate(year, month, day, hour, minute, seconds)
-
-        item.complete = False
-        Logger.Trace(item)
         return item
 
-    def UpdateVideoItem(self, item):
-        """Updates an existing MediaItem with more data.
+    def UpdateJsonVideoItem(self, item):
+        data = UriHandler.Open(item.url, proxy=self.proxy)
+        json = JsonHelper(data)
+        m3u8Url = json.GetValue("playlist")
 
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
+        if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8":
+            part = item.CreateNewEmptyMediaPart()
+            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
+                if "_enc_" in s:
+                    Logger.Warning("Found encrypted stream. Skipping %s", s)
+                    continue
 
-        Returns:
-        The original item with more data added to it's properties.
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
+            return item
 
-        Used to update none complete MediaItems (self.complete = False). This
-        could include opening the item's URL to fetch more data and then process that
-        data or retrieve it's real media-URL.
-
-        The method should at least:
-        * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
-        * set self.complete = True.
-
-        if the returned item does not have a MediaItemPart then the self.complete flag
-        will automatically be set back to False.
-
-        """
-
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
-
-        videoId = item.url[item.url.rfind("/") + 1:]
-
-        # url = "http://embed.kijk.nl/?width=868&height=491&video=%s" % (videoId,)
-        url = "http://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
-        referer = "http://embed.kijk.nl/video/%s" % (videoId,)
+        Logger.Warning("No M3u8 data found. Falling back to BrightCove")
+        videoId = json.GetValue("vpakey")
+        # videoId = json.GetValue("videoId") -> Not all items have a videoId
+        url = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
+        referer = "https://embed.kijk.nl/video/%s" % (videoId,)
         part = item.CreateNewEmptyMediaPart()
 
         # First try the new BrightCove JSON
@@ -297,9 +184,12 @@ class Channel(chn_class.Channel):
         brightCoveData = Regexer.DoRegex(Regexer.FromExpresso(brightCoveRegex), data)
         if brightCoveData:
             Logger.Info("Found new BrightCove JSON data")
-            brightCoveUrl = 'https://edge.api.brightcove.com/playback/v1/accounts/%(videoAccount)s/videos/%(videoId)s' % brightCoveData[0]
-            headers = {"Accept": "application/json;pk=BCpkADawqM3ve1c3k3HcmzaxBvD8lXCl89K7XEHiKutxZArg2c5RhwJHJANOwPwS_4o7UsC4RhIzXG8Y69mrwKCPlRkIxNgPQVY9qG78SJ1TJop4JoDDcgdsNrg"}
-            brightCoveData = UriHandler.Open(brightCoveUrl, proxy=self.proxy, additionalHeaders=headers)
+            brightCoveUrl = 'https://edge.api.brightcove.com/playback/v1/accounts/%(videoAccount)s/videos/%(videoId)s' % \
+                            brightCoveData[0]
+            headers = {
+                "Accept": "application/json;pk=BCpkADawqM3ve1c3k3HcmzaxBvD8lXCl89K7XEHiKutxZArg2c5RhwJHJANOwPwS_4o7UsC4RhIzXG8Y69mrwKCPlRkIxNgPQVY9qG78SJ1TJop4JoDDcgdsNrg"}
+            brightCoveData = UriHandler.Open(brightCoveUrl, proxy=self.proxy,
+                                             additionalHeaders=headers)
             brightCoveJson = JsonHelper(brightCoveData)
             streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.GetValue("sources"))
             if streams:
@@ -309,19 +199,3 @@ class Channel(chn_class.Channel):
                     item.complete = True
                     part.AppendMediaStream(s, b)
                 return item
-
-        # fallback to the Ericson Streams
-        Logger.Info("No BrightCove JSON data found. Trying other API")
-        url = "http://embed.kijk.nl/api/video/%s" % (videoId,)
-        data = UriHandler.Open(url, proxy=self.proxy, referer=referer)
-        videoJson = JsonHelper(data)
-        m3u8Url = videoJson.GetValue("playlist")
-        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
-            if "_enc_" in s:
-                Logger.Warning("Found encrypted stream. Skipping %s", s)
-                continue
-
-            item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
-        return item
