@@ -1,22 +1,22 @@
 ﻿[B]Changelog[/B]
-Fixed: Kijk.nl moved to a JSON API (Fixes #875)
+* Fixed: Kijk.nl moved to a JSON API (Fixes #875)
 
 [I]Previous changes[/I]
-Fixed: Kijk.nl updated to the new BrightCove API (Fixes #799)
-Fixed: Some kijk.nl shows were missing (Fixes #794)
-Fixed: Missing thumbs on the site cause missing items (Fixes #791)
-Fixed: Not all kijk.nl shows were displayed
-Fixed: Kijk.nl removed their descriptions, which broke the channels (Fixes #737)
-Fixed: clips of Kijk.nl would not play
-Fixed: most videos of Kijk.nl (SBS6/NET5/SBS9/Veronica) did not play (Fixes #723)
-Fixed: some Kijk.nl (SBS6/NET5/SBS9/Veronica) shows had some missing episodes (Fixes #716)
-Fixed: paging and clips were not shown for kijk.nl (Fixes #609)
-Fixed: Kijk.nl changed their URL scheme (Fixes #642)
-Fixed: pages in kijk.nl did not show videos (Fixes #609)
-Fixed: SBS 6, SBS 9, NET 5 and Veronica broke (Fixes #603)
-Added: SBS 9.nl channel
-Updated: SBS logo's
-Fixed: Kijk.nl changed site layout (Fixes #564)
-Fixed: In some cases not related videos were shown.
-Fixed: Kijk.nl changed layout (again) (Fixes #531)
-Fixed: Kijk.nl changed layout (Fixes #523)
+* Fixed: Kijk.nl updated to the new BrightCove API (Fixes #799)
+* Fixed: Some kijk.nl shows were missing (Fixes #794)
+* Fixed: Missing thumbs on the site cause missing items (Fixes #791)
+* Fixed: Not all kijk.nl shows were displayed
+* Fixed: Kijk.nl removed their descriptions, which broke the channels (Fixes #737)
+* Fixed: clips of Kijk.nl would not play
+* Fixed: most videos of Kijk.nl (SBS6/NET5/SBS9/Veronica) did not play (Fixes #723)
+* Fixed: some Kijk.nl (SBS6/NET5/SBS9/Veronica) shows had some missing episodes (Fixes #716)
+* Fixed: paging and clips were not shown for kijk.nl (Fixes #609)
+* Fixed: Kijk.nl changed their URL scheme (Fixes #642)
+* Fixed: pages in kijk.nl did not show videos (Fixes #609)
+* Fixed: SBS 6, SBS 9, NET 5 and Veronica broke (Fixes #603)
+* Added: SBS 9.nl channel
+* Updated: SBS logo's
+* Fixed: Kijk.nl changed site layout (Fixes #564)
+* Fixed: In some cases not related videos were shown.
+* Fixed: Kijk.nl changed layout (again) (Fixes #531)
+* Fixed: Kijk.nl changed layout (Fixes #523)
