@@ -1,11 +1,13 @@
 import mediaitem
-#import contextmenu
+# import contextmenu
 import chn_class
 
 from logger import Logger
+from parserdata import ParserData
 from urihandler import UriHandler
 from regexer import Regexer
 from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.datehelper import DateHelper
 
 
 class Channel(chn_class.Channel):
@@ -30,64 +32,168 @@ class Channel(chn_class.Channel):
         self.noImage = "mtvnlimage.png"
 
         # setup the urls
+        self.__backgroundServiceEp = None
+        self.__region = None
         if self.channelCode == "mtvnl":
-            self.mainListUri = "http://api.mtvnn.com/v2/site/m79obhheh2/nl/franchises.json?per=2147483647"
+            # self.mainListUri = "http://api.mtvnn.com/v2/site/m79obhheh2/nl/franchises.json?per=2147483647"
+            # Configuration on: http://api.playplex.viacom.com/feeds/networkapp/intl/main/1.5?key=networkapp1.0&brand=mtv&platform=android&region=NL&version=2.2
+            # Main screens: http://api.playplex.viacom.com/feeds/networkapp/intl/screen/1.5/mgid:arc:page:mtv.nl:aec18556-7dbb-4ac4-a1f7-90e17fa2e069?key=networkapp1.0&brand=mtv&platform=android&region=NL&version=2.2&region=NL&mvpd=
+            self.mainListUri = "http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/" \
+                               "mgid:arc:promotion:mtv.nl:0b8e68bb-8477-4eee-940f-6caa86e01960?" \
+                               "key=networkapp1.0&" \
+                               "brand=mtv&" \
+                               "platform=android&" \
+                               "region=NL&" \
+                               "version=2.2&" \
+                               "mvpd="
             self.baseUrl = "http://www.mtv.nl"
+            self.__backgroundServiceEp = "1b5b03c4"
+            self.__region = "NL"
 
         elif self.channelCode == "mtvde":
-            self.mainListUri = "http://api.mtvnn.com/v2/site/va7rcfymx4/de/franchises.json?per=2147483647"
+            # self.mainListUri = "http://api.mtvnn.com/v2/site/va7rcfymx4/de/franchises.json?per=2147483647"
+            # http://api.playplex.viacom.com/feeds/networkapp/intl/main/1.5?key=networkapp1.0&
+            # brand=mtv&platform=android&region=DE&version=2.2
+            self.mainListUri = "http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/" \
+                               "mgid:arc:promotion:mtv.de:0af488a0-6610-4e25-8483-25e3039b19d3?" \
+                               "key=networkapp1.0&" \
+                               "brand=mtv&" \
+                               "platform=android&" \
+                               "region=DE&" \
+                               "version=2.2&" \
+                               "mvpd="
             self.baseUrl = "http://www.mtv.de"
+            self.__backgroundServiceEp = "e6bfc4ca"
+            self.__region = "DE"
 
-        self.swfUrl = "http://media.mtvnservices.com/player/prime/mediaplayerprime.1.8.1.swf"
+        self.swfUrl = "http://media.mtvnservices.com/player/prime/mediaplayerprime.2.11.4.swf"
 
-        # setup the main parsing data
-        if "json" in self.mainListUri:
-            Logger.Debug("Doing a JSON version of MTV")
-            self.episodeItemJson = ()
-            # self.videoItemRegex = '("original_title"[\w\W]+?\}\}(?:,\{|]))'
-            self.videoItemJson = ()
-            self.CreateEpisodeItem = self.CreateEpisodeItemJson
-            self.CreateVideoItem = self.CreateVideoItemJson
-        else:
-            Logger.Debug("Doing a HTML version of MTV")
-            self.episodeItemRegex = '<a href="/(shows/[^"]+)" title="([^"]+)"><img [^>]+src="([^"]+)"'  # used for the ParseMainList
-            self.videoItemRegex = '<a href="([^"]+)" title="([^"]+)">(?:<span class=\Wepisode_number\W>(\d+)</span>){0,1}[\w\W]{0,100}?<img[^>]+src="([^"]+)"[^>]+\W+</a>'
-            self.folderItemRegex = '<li>\W+<a href="/(seizoen/[^"]+)">([^<]+)</a>'
+        self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/",
+                            name="Main show listing PlayPlay API", json=True,
+                            parser=("data", "items"), creator=self.CreateEpisodeItem)
+
+        self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/series/items",
+                            name="Main video listing PlayPlay API", json=True,
+                            parser=("data", "items"), creator=self.CreateVideoItem)
+
+        # Old API
+        self._AddDataParser("http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
+                            matchType=ParserData.MatchRegex,
+                            name="V2 API show listing", json=True,
+                            parser=(), creator=self.CreateEpisodeItemJson)
+        self._AddDataParser("http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
+                            matchType=ParserData.MatchRegex,
+                            name="V2 API video listing", json=True,
+                            parser=(), creator=self.CreateVideoItemJson)
+
+        self._AddDataParser("*", updater=self.UpdateVideoItem)
+
+        # # setup the main parsing data
+        # if "json" in self.mainListUri:
+        #     Logger.Debug("Doing a JSON version of MTV")
+        #     self.episodeItemJson = ()
+        #     self.videoItemJson = ()
+        #     self.CreateEpisodeItem = self.CreateEpisodeItemJson
+        #     self.CreateVideoItem = self.CreateVideoItemJson
+        # else:
+        #     Logger.Debug("Doing a HTML version of MTV")
+        #     self.episodeItemRegex = '<a href="/(shows/[^"]+)" title="([^"]+)"><img [^>]+src="([^"]+)"'  # used for the ParseMainList
+        #     self.videoItemRegex = '<a href="([^"]+)" title="([^"]+)">(?:<span class=\Wepisode_number\W>(\d+)</span>){0,1}[\w\W]{0,100}?<img[^>]+src="([^"]+)"[^>]+\W+</a>'
+        #     self.folderItemRegex = '<li>\W+<a href="/(seizoen/[^"]+)">([^<]+)</a>'
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
     def CreateEpisodeItem(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item.
-        """
+        Logger.Trace(resultSet)
 
-        # http://www.mtv.nl/shows/195-16-pregnant
-        url = "%s/%s" % (self.baseUrl, resultSet[0])
-        item = mediaitem.MediaItem(resultSet[1], url)
+        title = resultSet["title"]
+        # id = resultSet["id"]
+        url = "http://api.playplex.viacom.com/feeds/networkapp/intl/series/items/1.5/%s" \
+              "?key=networkapp1.0&brand=mtv&platform=android&region=%s&version=2.2" % \
+              (resultSet["id"], self.__region)
+        # url = "http://api.playplex.viacom.com/feeds/networkapp/intl/series/clips/1.5/%(id)s" \
+        #       "?key=networkapp1.0&brand=mtv&platform=android&region=NL&version=2.2" % resultSet
+        item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
-        item.thumb = resultSet[2]
+        item.description = resultSet.get("description", None)
         item.complete = True
+
+        images = resultSet.get("images", [])
+        if images:
+            #  mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
+            # http://playplex.mtvnimages.com/uri/mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
+            for image in images:
+                if image["width"] > 500:
+                    item.fanart = "http://playplex.mtvnimages.com/uri/%(url)s" % image
+                else:
+                    item.thumb = "http://playplex.mtvnimages.com/uri/%(url)s" % image
+
+        return item
+
+    def CreateVideoItem(self, resultSet):
+        Logger.Trace(resultSet)
+
+        title = resultSet["title"]
+        if "subTitle" in resultSet:
+            title = "%s - %s" % (title, resultSet["subTitle"])
+        mgid = resultSet["id"].split(":")[-1]
+        url = "http://feeds.mtvnservices.com/od/feed/intl-mrss-player-feed" \
+              "?mgid=mgid:arc:episode:mtvplay.com:%s" \
+              "&ep=%s" \
+              "&episodeType=segmented" \
+              "&imageEp=android.playplex.mtv.%s" \
+              "&arcEp=android.playplex.mtv.%s" \
+              % (mgid, self.__backgroundServiceEp, self.__region.lower(), self.__region.lower())
+
+        item = mediaitem.MediaItem(title, url)
+        item.type = "video"
+        item.icon = self.icon
+        item.description = resultSet.get("description", None)
+
+        item.thumb = self.parentItem.thumb
+        item.fanart = self.parentItem.fanart
+        item.isGeoLocked = True
+        images = resultSet.get("images", [])
+        if images:
+            # mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
+            # http://playplex.mtvnimages.com/uri/mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
+            for image in images:
+                if image["width"] > 500:
+                    pass  # no fanart here
+                else:
+                    item.thumb = "http://playplex.mtvnimages.com/uri/%(url)s" % image
+
+        date = resultSet.get("originalAirDate", None)
+        if not date:
+            date = resultSet.get("originalPublishDate", None)
+        if date:
+            timeStamp = date["timestamp"]
+            dateTime = DateHelper.GetDateFromPosix(timeStamp)
+            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                         dateTime.minute,
+                         dateTime.second)
+
         return item
 
     def CreateEpisodeItemJson(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
-        
+
         Arguments:
         resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-        
+
         Returns:
         A new MediaItem of type 'video' or 'audio' (despite the method's name)
-        
+
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes 
+        results <resultSet>. The method should be implemented by derived classes
         and are specific to the channel.
-        
+
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
         self.UpdateVideoItem method is called if the item is focussed or selected
         for playback.
-         
+
         """
 
         Logger.Trace(resultSet)
@@ -109,7 +215,7 @@ class Channel(chn_class.Channel):
         # the URL
         serieId = resultSet["id"]
         url = "%sepisodes.json?per=2147483647&franchise_id=%s" % (self.mainListUri[0:43], serieId)
-        
+
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
         item.complete = True
@@ -124,66 +230,6 @@ class Channel(chn_class.Channel):
         item.description = resultSet["local_long_description"]
 
         # http://www.mtv.nl/shows/195-16-pregnant
-        return item
-
-    def CreateFolderItem(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-        
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-        
-        Returns:
-        A new MediaItem of type 'folder'
-        
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes 
-        and are specific to the channel.
-         
-        """
-        
-        name = resultSet[1].capitalize()
-        item = mediaitem.MediaItem(name, "%s/%s" % (self.baseUrl, resultSet[0]))
-        item.icon = self.icon
-        item.type = 'folder'
-        item.complete = True
-        return item
-
-    def CreateVideoItem(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-        
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-        
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-        
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes 
-        and are specific to the channel.
-        
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-         
-        """
-
-        url = resultSet[0]
-        title = resultSet[1]
-        part = resultSet[2]
-
-        # retrieve the Full quality thumb
-        thumb = resultSet[3]
-        thumb = "%s/original" % (thumb[:thumb.rfind("/")],)
-
-        if not (part == ""):
-            title = "%s - %s" % (part, title)
-
-        item = mediaitem.MediaItem(title, url)
-        item.thumb = thumb
-        item.icon = self.icon
-        item.type = 'video'
-        item.complete = False
         return item
 
     def CreateVideoItemJson(self, resultSet):
@@ -211,7 +257,7 @@ class Channel(chn_class.Channel):
         # get the title
         originalTitle = resultSet.get("original_title")
         localTitle = resultSet.get("local_title")
-        #Logger.Trace("%s - %s", originalTitle, localTitle)
+        # Logger.Trace("%s - %s", originalTitle, localTitle)
         if originalTitle == "":
             title = localTitle
         else:
@@ -279,24 +325,17 @@ class Channel(chn_class.Channel):
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         url = item.url
-        data = UriHandler.Open(url)
+        data = UriHandler.Open(url, proxy=self.proxy)
 
-        if "json" in self.mainListUri:
-            metaData = data
-        else:
-            mgid = Regexer.DoRegex("mgid:[^ ]+playlist-[abcdef0-9]+", data)[0]
-            mgidUrlEncoded = HtmlEntityHelper.UrlEncode(mgid)
-            metaData = UriHandler.Open("http://api.mtvnn.com/v2/mrss.xml?uri=%s" % (mgidUrlEncoded,))
-
-        videoUrl = Regexer.DoRegex("<media:content[^>]+url='([^']+)'>", metaData)[0]
-        Logger.Trace(videoUrl)
-        videoData = UriHandler.Open(videoUrl)
-        videoItems = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', videoData)
+        renditionsUrl = Regexer.DoRegex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
+        renditionsUrl = HtmlEntityHelper.StripAmp(renditionsUrl)
+        renditionData = UriHandler.Open(renditionsUrl, proxy=self.proxy)
+        videoItems = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
         for videoItem in videoItems:
-            mediaUrl = self.GetVerifiableVideoUrl(videoItem[1])
+            mediaUrl = self.GetVerifiableVideoUrl(videoItem[1].replace("rtmpe", "rtmp"))
             part.AppendMediaStream(mediaUrl, videoItem[0])
 
         item.complete = True
