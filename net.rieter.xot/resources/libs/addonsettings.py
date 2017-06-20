@@ -690,7 +690,10 @@ class AddonSettings:
             userSettings = os.path.join(Config.profileDir, "settings.xml")
             userSettingsBackup = os.path.join(Config.profileDir, "settings.old.xml")
             Logger.Debug("Backing-up user settings: %s", userSettingsBackup)
-            shutil.copy(userSettings, userSettingsBackup)
+            if os.path.isfile(userSettings):
+                shutil.copy(userSettings, userSettingsBackup)
+            else:
+                Logger.Warning("No user settings found at: %s", userSettings)
 
             # Update the addonsettings.xml by first updating a temp xml file.
             Logger.Debug("Creating new settings.xml file: %s", filenameTemp)
@@ -702,7 +705,7 @@ class AddonSettings:
             shutil.move(filenameTemp, filename)
 
             # restore the user profile settings.xml file when needed
-            if os.stat(userSettings).st_size != os.stat(userSettingsBackup).st_size:
+            if os.path.isfile(userSettings) and os.stat(userSettings).st_size != os.stat(userSettingsBackup).st_size:
                 Logger.Critical("User settings.xml was overwritten during setttings update. Restoring from %s", userSettingsBackup)
                 shutil.copy(userSettingsBackup, userSettings)
         except:

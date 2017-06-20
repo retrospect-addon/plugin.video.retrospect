@@ -227,6 +227,7 @@ class ChannelIndex:
             AddonSettings.UpdateUserAgent()
         else:
             Logger.Debug("No channel changes found. Skipping add-on configuration for channels.")
+            # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
         self.__enabledChannels.sort()
         Logger.Info("Fetch a total of %d channels of which %d are enabled.",
