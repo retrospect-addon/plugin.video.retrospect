@@ -235,7 +235,7 @@ class Channel(chn_class.Channel):
             newItem.items.append(catItem)
         items.append(newItem)
 
-        newItem = mediaitem.MediaItem("\a.: Genrer/Tags :.", "https://www.svtplay.se/genre")
+        newItem = mediaitem.MediaItem("\a.: Genrer/Taggar :.", "https://www.svtplay.se/genre")
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True

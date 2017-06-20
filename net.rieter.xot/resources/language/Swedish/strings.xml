@@ -40,7 +40,7 @@
     <string id="30037">Norge</string>
     <string id="30037">Norge</string>
     <string id="30038">Bekräfta proxy-ändringar</string>
-    <string id="30039">Är det säkert du vill uppdatera alla kanaler för detta landet med denna proxy?</string>
+    <string id="30039">Är det säkert att du vill uppdatera alla kanaler för detta landet med denna proxy?</string>
     <string id="30040">Kanaler</string>
     <string id="30041">Tillgängligt efter att du startat Retrospect för första gången.</string>
     <string id="30042">Aktiverad</string>
@@ -82,7 +82,7 @@
     <string id="30078">visa ett meddelande</string>
     <string id="30079">Lokalt IP (0.0.0.0=inaktiverad)</string>
     <string id="30080">Filtrera DRM-skyddade objekt</string>
-    <string id="30081">Filtrera premium/betalda objekt</string>
+    <string id="30081">Filtrera premium-/betalda objekt</string>
     <string id="30082">Tilldela filter till</string>
     <string id="30083">Mappar &amp; strömmar</string>
     <string id="30084">Endast strömmar</string>
@@ -148,7 +148,7 @@
     <string id="30518">Det finns ingen ny version av Retrospect Framework.</string>
     <string id="30519">Det fanns inga uppdateringar för de|installerade kanalerna.</string>
     <string id="30520">Tilläggsförråds-varning</string>
-    <string id="30521">Retrospect tilläggsförråd är inte installerat.|Installera detta för framtida uppdateringar.</string>
+    <string id="30521">Retrospects tilläggsförråd är inte installerat.|Installera detta för framtida uppdateringar.</string>
     <string id="30522">Kanalmeddelande</string>
     <string id="30523">Fel</string>
     <string id="30524">Det fanns ingen video att visa för det valda objektet.</string>
@@ -184,7 +184,7 @@
     <string id="30554">DRM-skydd</string>
     <string id="30555">Valt objekt är DRM-skyddat och|kanske inte går att spela upp|i Kodi.</string>
     <string id="30556">Initierar kanal(er)</string>
-    <string id="30557">Kanaler har blivit uppdaterade eller installerade. Utför|förstagångsåtgärder. Detta kan ta en stund.</string>
+    <string id="30557">Kanaler har blivit uppdaterade eller installerade. Utför förstagångsåtgärder. Detta kan ta en stund.</string>
     <string id="30558">Hämtar texturer</string>
     <string id="30559">Hämtar saknade texturer. Detta kan ta en stund beroende på internet och systemets hastighet.</string>
     <string id="30560">Betalvideo</string>
@@ -195,7 +195,7 @@
     <string id="30565">Dolda objekt</string>
     <string id="30566">För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn för att visa dolda objekt.</string>
     <string id="30567">Tillägg inaktiverad</string>
-    <string id="30568">Några av Retrospects kanaltillägg är inte aktiverade i Kodi. Detta hindrar dem från att bli automatiskt uppdaterade. Du ska nu aktivera de tillägg som tillhör Retrospect.</string>
+    <string id="30568">Några av Retrospects kanaltillägg är inte aktiverade i Kodi. Detta hindrar dem från att uppdateras automatiskt. Du ska nu aktivera de tillägg som tillhör Retrospect.</string>
     <string id="30569">Ignorera fel i SSL-verifieringen (Säkerhetsrisk!)</string>
     <string id="30570">Dölj kanalinitieringsmeddelanden</string>
 
@@ -209,7 +209,7 @@
     <string id="30597">Om du återställer koden går alla sparade inloggningar förlorade. Är du säker?</string>
 
     <string id="30598">Skicka retrospect.log</string>
-    <string id="30599">Loggfilen uppladdad: %s\n\n Notera de sex sista bokstäverna/siffrorna i URL: en och posta dem i supporttråden.</string>
+    <string id="30599">Loggfilen uppladdad: %s\n\nNotera de sex sista bokstäverna/siffrorna i URL:en och posta dem i supporttråden.</string>
     <string id="30600">Loggfilen uppladdad</string>
     <string id="30601">Misslyckades att ladda upp loggfilen: %s</string>
     <string id="30602">Misslyckades att ladda upp loggfilen</string>

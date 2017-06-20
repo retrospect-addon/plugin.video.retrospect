@@ -194,7 +194,8 @@
     <string id="30565">Items verbergen/tonen</string>
     <string id="30566">Om een item weer te tonen zal Retrospect eerst geconfigureerd moeten worden om verborgen items te tonen. Daarna kan het context menu gebruikt worden om een item weer te tonen.</string>
     <string id="30567">Add-on(s) uitgeschakeld</string>
-    <string id="30568">Een aantal van de Retrospect kanaal add-ons zijn niet ingeschakeld. Hierdoor kunnen ze niet automatisch worden geupdate. De Kodi addon-verkenner zal worden geopend. Hierin kunt u de Retrospect gerelateerde add-ons activeren.</string>
+    <string id="30568">Enkele Retrospect kanaal add-ons zijn uitgeschakeld waardoor ze niet auto-updaten. De Kodi addon-verkenner zal worden geopend waarin de Retrospect gerelateerde add-ons kunen worden geactiveerd. Zie http://kodi.wiki/view/add-on_manager.</string>
+    <string id="30568">Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">SSL verificatie fouten negeren (Veiligheids risico!)</string>
     <string id="30570">Verberg kanaal initializatie meldingen</string>
 

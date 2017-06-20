@@ -194,7 +194,7 @@
     <string id="30565">(Un-)Cloaking items</string>
     <string id="30566">To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu.</string>
     <string id="30567">Add-on(s) disabled</string>
-    <string id="30568">Some of the Retrospect Channel Add-ons are not enabled within Kodi. This will prevent them from being automatically updated. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons.</string>
+    <string id="30568">Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">Ignore SSL verification errors (Security Risk!)</string>
     <string id="30570">Hide channel initialisation messages</string>
 
