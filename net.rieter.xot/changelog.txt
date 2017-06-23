@@ -1,13 +1,17 @@
-﻿[B]Retrospect v4.1.5 - Changelog - 2017-06-05[/B]
+﻿[B]Retrospect v4.1.6 - Changelog - 2017-06-23[/B]
 
 [B]Framework related[/B]
-* Added: option to disable SSL verification in Python (Fixes many SSL Verification errors, but is a security risk. So use at own risk)
-* Fixed: More pages should sort at the top (if sorted by name)
+* Added: Option to get audio streams from M3u8 (See #880)
+* Fixed: initial deployments failed due to missing user settings.xml
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: missed the Norwegian Local IP (Fixes #868)
+* Fixed: settings of type="hidden" do not exist
+* Updated: Swedish language (Fixes #874)
+* Added: option to hide channel initialisation messages
 
 [B]Channel related[/B]
-* Fixed: perhaps not group the "Hele Lijst" listing from NPO to distinguish it better from the NPO native alphabet listing
-* Fixed: Typoo in VTM/Stievie/Q2 channel message (See #869)
-* Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865) Fixed: KetNet listing broke (Fixes #866)
+* Fixed: no audio on VRT.nu streams (Fixes #880)
+* Fixed: MTV moved to new API (Fixes #876)
+* Fixed: Kijk.nl moved to a JSON API (Fixes #875)
+
+
