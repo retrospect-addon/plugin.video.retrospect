@@ -17,7 +17,7 @@ class M3u8:
         pass
 
     @staticmethod
-    def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False):
+    def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False, mapAudio=False):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
@@ -47,35 +47,60 @@ class M3u8:
             Logger.Info("Going to append QS: %s", qs)
 
         Logger.Debug("Processing M3U8 Streams: %s", url)
-        needle = "(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
-        needles = Regexer.DoRegex(needle, data)
 
+        # If we need audio
+        if mapAudio:
+            audioNeedle = '(#\w[^:]+):TYPE=AUDIO()[^\r\n]+ID="([^"]+)"[^\n\r]+URI="([^"]+.m3u8[^"]*)"'
+            needles = Regexer.DoRegex(audioNeedle, data)
+            needle = '(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}(?:[^\r\n]*AUDIO="([^"]+)"){0,1}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)'
+            needles += Regexer.DoRegex(needle, data)
+            TYPE_INDEX = 0
+            BITRATE_INDEX = 1
+            ID_INDEX = 2
+            URL_INDEX = 3
+        else:
+            needle = "(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
+            needles = Regexer.DoRegex(needle, data)
+            TYPE_INDEX = 0
+            BITRATE_INDEX = 1
+            URL_INDEX = 2
+
+        audioStreams = {}
         baseUrlLogged = False
         baseUrl = url[:url.rindex("/")]
         for n in needles:
             # see if we need to append a server path
             Logger.Trace(n)
 
-            if "#EXT-X-I-FRAME" in n[0]:
+            if "#EXT-X-I-FRAME" in n[TYPE_INDEX]:
                 continue
 
-            if "://" not in n[2]:
+            if "://" not in n[URL_INDEX]:
                 if not baseUrlLogged:
                     Logger.Debug("Using baseUrl %s for M3u8", baseUrl)
                     baseUrlLogged = True
-                stream = "%s/%s" % (baseUrl, n[2])
+                stream = "%s/%s" % (baseUrl, n[URL_INDEX])
             else:
                 if not baseUrlLogged:
                     Logger.Debug("Full url found in M3u8")
                     baseUrlLogged = True
-                stream = n[2]
-            bitrate = n[1]
+                stream = n[URL_INDEX]
+            bitrate = n[BITRATE_INDEX]
 
             if qs is not None and stream.endswith("?null="):
                 stream = stream.replace("?null=", "?%s" % (qs, ))
             elif qs is not None:
                 stream = "%s?%s" % (stream, qs)
-            streams.append((stream, bitrate))
+
+            if mapAudio and "#EXT-X-MEDIA" in n[TYPE_INDEX]:
+                Logger.Debug("Found audio stream: %s -> %s", n[ID_INDEX], stream)
+                audioStreams[n[ID_INDEX]] = stream
+                continue
+
+            if mapAudio:
+                streams.append((stream, bitrate, audioStreams.get(n[ID_INDEX]) or None))
+            else:
+                streams.append((stream, bitrate))
 
         Logger.Debug("Found %s substreams in M3U8", len(streams))
         return streams
@@ -91,12 +116,15 @@ if __name__ == "__main__":
     # url = "http://embed.kijk.nl/api/playlist/9JKFARNrJEz_dbzyr6.m3u8?user_token=S0nHgrI3Sh16XSxOpLm7m2Xt7&app_token=CgZzYW5vbWESEjlKS0ZBUk5ySkV6X2RienlyNhoOMTkzLjExMC4yMzQuMjIiGVMwbkhnckkzU2gxNlhTeE9wTG03bTJYdDcotIDZpKsrMgJoADoERlZPREIDU0JTShI5SktGQVJOckpFel9kYnp5cjY%3D%7CmGGy/TM5eOmoSCNwG2I4bGKvMBOvBD9YsadprKSVqv4%3D&base_url=http%3A//emp-prod-acc-we.ebsd.ericsson.net/sbsgroup"
     # url = "http://manifest.us.rtl.nl/rtlxl/v166/network/pc/adaptive/components/soaps/theboldandthebeautiful/338644/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.ssm/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.m3u8"
     url = "http://svtplay2r-f.akamaihd.net/i/world/open/20170307/1377039-008A/PG-1377039-008A-AGENDA2017-03_,988,240,348,456,636,1680,2796,.mp4.csmil/master.m3u8"
-    results = M3u8.GetStreamsFromM3u8(url, DebugInitializer.Proxy, appendQueryString=True)
+    url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"
+    url = "https://ondemand-w.lwc.vrtcdn.be/content/vod/vid-dd0ddbe5-7a83-477a-80d0-6e9c75369c1e-CDN_2/vid-dd0ddbe5-7a83-477a-80d0-6e9c75369c1e-CDN_2_nodrm_a635917e-abe5-49d4-a202-e81b6cfa08a0.ism/.m3u8?test=1"  # audio streams
+    results = M3u8.GetStreamsFromM3u8(url, DebugInitializer.Proxy, appendQueryString=True, mapAudio=True)
     results.sort(lambda x, y: cmp(int(x[1]), int(y[1])))
-    for s, b in results:
+    a = None
+    for s, b, a in results:
         if s.count("://") > 1:
             raise Exception("Duplicate protocol in url: %s", s)
-        print "%s - %s" % (b, s)
-        Logger.Info("%s - %s", b, s)
+        print "%s - %s (%s)" % (b, s, a)
+        Logger.Info("%s - %s (%s)", b, s, a)
 
     Logger.Instance().CloseLog()
