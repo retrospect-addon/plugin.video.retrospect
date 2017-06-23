@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865)
-* Fixed: KetNet listing broke (Fixes #866)
+* Fixed: no audio on VRT.nu streams (Fixes #880)
 
 [I]Previous Changes[/I]
+* Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865)
+* Fixed: KetNet listing broke (Fixes #866)
 * Added: Stievie.be (Fixes #763)
 * Added: Recent items to VTM (Fixes #827)
 * Fixed: Some streams would start in the middle of a stream (Reverted #854) as it seems to be OK now

@@ -374,8 +374,12 @@ class Channel(chn_class.Channel):
                 continue
 
             part = item.CreateNewEmptyMediaPart()
-            for s, b in M3u8.GetStreamsFromM3u8(streamData["url"], self.proxy):
+            for s, b, a in M3u8.GetStreamsFromM3u8(streamData["url"], self.proxy, mapAudio=True):
                 item.complete = True
+                if a:
+                    audioPart = a.rsplit("-", 1)[-1]
+                    audioPart = "-%s" % (audioPart, )
+                    s = s.replace(".m3u8", audioPart)
                 # s = self.GetVerifiableVideoUrl(s)
                 part.AppendMediaStream(s, b)
         return item
