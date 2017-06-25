@@ -45,7 +45,7 @@ class Channel(chn_class.Channel):
         # in case we use the All Titles and Singles
         self._AddDataParser("https://www.svtplay.se/api/all_titles_and_singles",
                             matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.FetchThumbData,
+                            # preprocessor=self.FetchThumbData,
                             parser=(), creator=self.MergeJsonEpisodeItem)
 
         # setup channel listing based on JSON data
@@ -99,6 +99,7 @@ class Channel(chn_class.Channel):
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
+        self.__excludedTabs = ["RELATED_VIDEO_TABS_UPCOMING", ]
         self._AddDataParser("*", json=True,
                             preprocessor=self.ListSomeVideos,
                             parser=("relatedVideoContent", "relatedVideosTabs"),
@@ -244,17 +245,17 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def FetchThumbData(self, data):
-        items = []
-
-        thumbData = UriHandler.Open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
-        json = JsonHelper(thumbData)
-        for jsonData in json.GetValue():
-            if "thumbnail" not in jsonData:
-                continue
-            self.__thumbLookup[jsonData["url"]] = jsonData["thumbnail"]
-
-        return data, items
+    # def FetchThumbData(self, data):
+    #     items = []
+    #
+    #     thumbData = UriHandler.Open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
+    #     json = JsonHelper(thumbData)
+    #     for jsonData in json.GetValue():
+    #         if "thumbnail" not in jsonData:
+    #             continue
+    #         self.__thumbLookup[jsonData["url"]] = jsonData["thumbnail"]
+    #
+    #     return data, items
 
     def MergeJsonEpisodeItem(self, resultSet):
 
@@ -311,7 +312,9 @@ class Channel(chn_class.Channel):
                 continue
 
             for item in slugData["videos"]:
-                items.append(self.CreateJsonItem(item))
+                i = self.CreateJsonItem(item)
+                if i:
+                    items.append(i)
 
         return data, items
 
@@ -440,6 +443,8 @@ class Channel(chn_class.Channel):
     def CreateJsonFolderItem(self, resultSet):
         Logger.Trace(resultSet),
         if resultSet["type"] == self.__listedRelatedTab and self.__showSomeVideosInListing:
+            return None
+        if resultSet["type"] in self.__excludedTabs:
             return None
 
         slug = resultSet["slug"]
