@@ -59,7 +59,8 @@ class Channel(chn_class.Channel):
         self._AddDataParser("http://live.stream.vrt.be/",
                             name="Live streams updater",
                             updater=self.UpdateLiveVideo)
-        self._AddDataParser("https://live-w.lwc.vrtcdn.be",
+        self._AddDataParser("https://live-[^/]+\.vrtcdn\.be",
+                            matchType=ParserData.MatchRegex,
                             name="Live streams updater",
                             updater=self.UpdateLiveVideo)
 
