@@ -1,14 +1,16 @@
 import chn_class
-
+from helpers.jsonhelper import JsonHelper
 from logger import Logger
 from regexer import Regexer
 from urihandler import UriHandler
 from parserdata import ParserData
 from streams.m3u8 import M3u8
-# from vault import Vault
-# from helpers.htmlentityhelper import HtmlEntityHelper
-# from xbmcwrapper import XbmcWrapper
-# from helpers.languagehelper import LanguageHelper
+from helpers.datehelper import DateHelper
+from addonsettings import AddonSettings
+from xbmcwrapper import XbmcWrapper
+from helpers.languagehelper import LanguageHelper
+from awsidp import AwsIdp
+from vault import Vault
 
 
 class Channel(chn_class.Channel):
@@ -32,25 +34,37 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         if self.channelCode == "vijfbe":
             self.noImage = "vijfimage.png"
-            self.mainListUri = "http://www.vijf.be/volledige-afleveringen"
-            self.baseUrl = "http://www.vijf.be"
-            videoRegex = 'data-video-title="(?<title>[^"]+)[^>]+data-video-link="(?<url>[^"]+)[^>]+data-video-description="(?<description>[^"]+)"[^>]*>(?:<div[^>]*>){2}<a[^>]+><img[^>]*src="(?<thumburl>[^"]+)[\w\W]{0,2000}?<div class="[^"]+date[^"]+">(?:<div[^>]*>){2}\W*(?<date>\d+/\d+/\d+)\W*</div>'
+            self.mainListUri = "https://www.vijf.be/programmas"
+            self.baseUrl = "https://www.vijf.be"
+        # elif self.channelCode == "zesbe":
+        #     self.noImage = "zesimage.png"
+        #     self.mainListUri = "https://www.zestv.be/programmas"
+        #     self.baseUrl = "https://www.zestv.be"
         else:
             self.noImage = "vierimage.png"
-            self.mainListUri = "http://www.vier.be/volledige-afleveringen"
-            self.baseUrl = "http://www.vier.be"
-            videoRegex = '<img[^>]*src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<div class="[^"]+date[^"]+">\W*(?<date>\d+/\d+/\d+)\W*</div>[\w\W]{0,1000}?<h3>\W*<a[^<]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
+            self.mainListUri = "https://www.vier.be/programmas"
+            self.baseUrl = "https://www.vier.be"
 
-        episodeRegex = '<h1 class="brick-title">(?<title>[^<]+)</h1>\W*<div[^>]*>\W*<a href="(?<url>[^"]+)">A'
+        episodeRegex = '<a class="program-overview__link" href="(?<url>[^"]+)">(?<title>[^<]+)</a>'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeRegex,
                             creator=self.CreateEpisodeItem)
 
+        videoRegex = '<a[^>]+href="(?<url>/video/[^"]+)"[^<]+<div[^<]+<div class="card-teaser__image"[^>]+url\((?<thumburl>[^)]+)[\w\W]{500,2000}?<div[^>]+data-videoid="(?<videoid>[^"]+)"[\w\W]{0,2000}?<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>[^<]*</div>\W+<div[^>]+timestamp="(?<timestamp>\d+)'
         videoRegex = Regexer.FromExpresso(videoRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             parser=videoRegex,
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+                            creator=self.CreateVideoItem)
+
+        # Generic updater with login
+        self._AddDataParser("*",
+                            # requiresLogon=True,
+                            updater=self.UpdateVideoItem)
+
+        # ==========================================================================================
+        # Channel specific stuff
+        self.__idToken = None
 
         # ==========================================================================================
         # Test cases:
@@ -59,6 +73,44 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here ===================
         return
+
+    def LogOn(self):
+        if self.__idToken:
+            return True
+
+        # check if there is a refresh token
+        # refresh token: viervijfzes_refresh_token
+        refreshToken = AddonSettings.GetSetting("viervijfzes_refresh_token")
+        client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
+                        proxy=self.proxy, logger=Logger.Instance())
+        if refreshToken:
+            idToken = client.RenewToken(refreshToken)
+            if idToken:
+                self.__idToken = idToken
+                return True
+            else:
+                Logger.Info("Extending token for VierVijfZes failed.")
+
+        # username: viervijfzes_username
+        username = AddonSettings.GetSetting("viervijfzes_username")
+        # password: viervijfzes_password
+        v = Vault()
+        password = v.GetSetting("viervijfzes_password")
+        if not username or not password:
+            XbmcWrapper.ShowDialog(
+                title=None,
+                lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+            )
+            return False
+
+        idToken, refreshToken = client.Authenticate(username, password)
+        if not idToken or not refreshToken:
+            Logger.Error("Error getting a new token. Wrong password?")
+            return False
+
+        self.__idToken = idToken
+        AddonSettings.SetSetting("viervijfzes_refresh_token", refreshToken)
+        return True
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -112,6 +164,14 @@ class Channel(chn_class.Channel):
 
         # All of vier.be video's seem GEO locked.
         item.isGeoLocked = True
+
+        # Set the correct url
+        # videoId = resultSet["videoid"]
+        # item.url = "https://api.viervijfzes.be/content/%s" % (videoId, )
+        dateTime = DateHelper.GetDateFromPosix(int(resultSet["timestamp"]))
+        item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                     dateTime.minute,
+                     dateTime.second)
         return item
 
     def UpdateVideoItem(self, item):
@@ -139,52 +199,36 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        videoId = item.url.split("/")[-1]
-        url = "%s/video/v3/embed/%s" % (self.baseUrl, videoId,)
+        # https://api.viervijfzes.be/content/c58996a6-9e3d-4195-9ecf-9931194c00bf
+        # videoId = item.url.split("/")[-1]
+        # url = "%s/video/v3/embed/%s" % (self.baseUrl, videoId,)
+        url = item.url
         data = UriHandler.Open(url, proxy=self.proxy)
         return self.__UpdateVideo(item, data)
 
-        # we don't need a username and password for now (See #809)
-        # cookie = UriHandler.GetCookie("SESS", ".vier.be", matchStart=True)
-        # if cookie is not None:
-        #     Logger.Info("Found Vier.be cookie in add-on settings: %s", cookie.value)
-        #     data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-        # else:
-        #     Logger.Info("No valid Vier.be cookie found. Getting one")
-        #     v = Vault()
-        #     password = v.GetChannelSetting(self.guid, "password")
-        #     if not username or not password:
-        #         XbmcWrapper.ShowDialog(
-        #             title=None,
-        #             lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
-        #             # notificationType=XbmcWrapper.Error,
-        #             # displayTime=5000
-        #         )
-        #         return item
-        #     password = HtmlEntityHelper.UrlEncode(password)
-        #     username = HtmlEntityHelper.UrlEncode(username)
-        #
-        #     # Let's log in, get the cookie and the data
-        #     destination = item.url.rsplit("/")[-1]
-        #     loginUrl = "http://www.vier.be/achterderug/user?destination=node/%s" % (destination,)
-        #     data = UriHandler.Open(loginUrl, proxy=self.proxy,
-        #                            params="name=%s"
-        #                                   "&pass=%s"
-        #                                   "&op=Inloggen"
-        #                                   "&form_id=user_login_block" % (username, password))
-        #
-        # return self.__UpdateVideo(item, data)
-
     def __UpdateVideo(self, item, data):
-        # data-filename="achterderug/s2/160503_aflevering7"
-        # data-application="vier_vod_geo"
-        regex = 'data-filename="([^"]+)\W+data-application="([^"]+)"'
-        streamData = Regexer.DoRegex(regex, data)[-1]
-        # http://vod.streamcloud.be/vier_vod_geo/mp4:_definst_/achterderug/s2/160503_aflevering7.mp4/playlist.m3u8
-        m3u8Url = "http://vod.streamcloud.be/%s/mp4:_definst_/%s.mp4/playlist.m3u8" % (streamData[1], streamData[0])
+        regex = 'data-file="([^"]+)'
+        m3u8Url = Regexer.DoRegex(regex, data)[-1]
+
+        if ".m3u8" not in m3u8Url:
+            Logger.Info("Not a direct M3u8 file. Need to log in")
+            url = "https://api.viervijfzes.be/content/%s" % (m3u8Url, )
+
+            # We need to log in
+            if not self.loggedOn:
+                self.LogOn()
+
+            # add authorization header
+            authenticationHeader = {
+                "authorization": self.__idToken,
+                "content-type": "application/json"
+            }
+            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=authenticationHeader)
+            jsonData = JsonHelper(data)
+            m3u8Url = jsonData.GetValue("video", "S")
 
         # Geo Locked?
-        if "geo" in streamData[1].lower():
+        if "geo" in m3u8Url.lower():
             # set it for the error statistics
             item.isGeoLocked = True
 

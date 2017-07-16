@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: vrt.nu live streams were broken (Fixes #884)
+* Fixed: Vier/Vijf.be moved to new API and requires logging in (Fixes #888)
 
 [I]Previous Changes[/I]
+* Fixed: vrt.nu live streams were broken (Fixes #884)
 * Fixed: no audio on VRT.nu streams (Fixes #880)
 * Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865)
 * Fixed: KetNet listing broke (Fixes #866)

@@ -26,18 +26,23 @@
   "settings": [
     {
       "order": 1,
-      "id": "username",
-      "value": "label=\"30094\" default=\"\""
+      "id": "viervijfzes_username",
+      "value": "id=\"viervijfzes_username\" type=\"text\" label=\"30094\" default=\"\""
     },
     {
       "order": 2,
-      "id": "password_set",
-      "value": "label=\"30093\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_50E04907-8983-4552-A775-E70F3D91FB99_password&amp;settingname=Vier.be password&amp;tabfocus=102)\" option=\"close\""
+      "id": "viervijfzes_password_set",
+      "value": "id=\"viervijfzes_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=viervijfzes_password&amp;settingname=Vier/Vijf/Zes.be password&amp;tabfocus=102)\" option=\"close\""
     },
     {
       "order": 3,
-      "id": "password",
-      "value": "default=\"\""
+      "id": "viervijfzes_password",
+      "value": "id=\"viervijfzes_password\" default=\"\""
+    },
+    {
+      "order": 4,
+      "id": "viervijfzes_refresh_token",
+      "value": "id=\"viervijfzes_refresh_token\" default=\"\""
     }
   ]
 }
