@@ -97,9 +97,10 @@ class Channel(chn_class.Channel):
 
             # self.mainListUri = "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0"
             self.mainListUri = "https://channels.medialaan.io/channels/v1/channels?preview=false"
-            self._AddDataParser("https://channels.medialaan.io/channels/v1/channels?preview=false",
+            self._AddDataParser(self.mainListUri,
                                 json=True,
-                                preprocessor=self.StievieMenu,
+                                # No videos are showing, so let's hide it all (See #878)
+                                # preprocessor=self.StievieMenu,
                                 name="JSON Channel overview",
                                 parser=("response", "channels"),
                                 creator=self.StievieCreateChannelItem)
@@ -354,26 +355,25 @@ class Channel(chn_class.Channel):
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
         return self.__ExtractSessionData(logonData, signatureSettings)
 
-    def StievieMenu(self, data):
-        """ Creates the main Stievie menu """
-
-        items = []
-        programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
-        programs.dontGroup = True
-        items.append(programs)
-
-        search = MediaItem("Zoeken", "searchSite")
-        search.complete = True
-        search.icon = self.icon
-        search.thumb = self.noImage
-        search.dontGroup = True
-        search.SetDate(2200, 1, 1, text="")
-        items.append(search)
-        return data, items
+    # def StievieMenu(self, data):
+    #     """ Creates the main Stievie menu """
+    #
+    #     items = []
+    #     programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
+    #     programs.dontGroup = True
+    #     items.append(programs)
+    #
+    #     search = MediaItem("Zoeken", "searchSite")
+    #     search.complete = True
+    #     search.icon = self.icon
+    #     search.thumb = self.noImage
+    #     search.dontGroup = True
+    #     search.SetDate(2200, 1, 1, text="")
+    #     items.append(search)
+    #     return data, items
 
     def StievieChannelMenu(self, data):
         items = []
-        channelId = self.parentItem.metaData["channelId"]
         live = MediaItem("Live %s" % (self.parentItem.name, ), "#livestream")
         live.isLive = True
         live.type = "video"
@@ -381,39 +381,42 @@ class Channel(chn_class.Channel):
         live.metaData = self.parentItem.metaData
         live.thumb = self.parentItem.thumb
         items.append(live)
-
-        # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels%5B%5D=vtm&channels%5B%5D=2be&channels%5B%5D=vitaya&channels%5B%5D=caz&channels%5B%5D=kzoom&channels%5B%5D=kadet&channels%5B%5D=qmusic
-        # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
-        # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
-        channels = (channelId, )
-        query = "&channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
-
-        today = datetime.datetime.now()
-        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
-        for i in range(0, 7, 1):
-            airDate = today - datetime.timedelta(i)
-            Logger.Trace("Adding item for: %s", airDate)
-
-            day = days[airDate.weekday()]
-            if i == 0:
-                day = "Vandaag"
-            elif i == 1:
-                day = "Gisteren"
-            elif i == 2:
-                day = "Eergisteren"
-            title = "%04d-%02d-%02d - %s" % (airDate.year, airDate.month, airDate.day, day)
-            url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (airDate.year, airDate.month, airDate.day, query)
-
-            extra = MediaItem(title, url)
-            extra.complete = True
-            extra.icon = self.icon
-            extra.thumb = self.noImage
-            extra.dontGroup = True
-            extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
-            extra.metaData["airDate"] = airDate
-            items.append(extra)
-
+        # As not items are playing, we return here (See #878)
         return data, items
+
+        # # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels%5B%5D=vtm&channels%5B%5D=2be&channels%5B%5D=vitaya&channels%5B%5D=caz&channels%5B%5D=kzoom&channels%5B%5D=kadet&channels%5B%5D=qmusic
+        # # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
+        # # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
+        # channelId = self.parentItem.metaData["channelId"]
+        # channels = (channelId, )
+        # query = "&channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
+        #
+        # today = datetime.datetime.now()
+        # days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        # for i in range(0, 7, 1):
+        #     airDate = today - datetime.timedelta(i)
+        #     Logger.Trace("Adding item for: %s", airDate)
+        #
+        #     day = days[airDate.weekday()]
+        #     if i == 0:
+        #         day = "Vandaag"
+        #     elif i == 1:
+        #         day = "Gisteren"
+        #     elif i == 2:
+        #         day = "Eergisteren"
+        #     title = "%04d-%02d-%02d - %s" % (airDate.year, airDate.month, airDate.day, day)
+        #     url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (airDate.year, airDate.month, airDate.day, query)
+        #
+        #     extra = MediaItem(title, url)
+        #     extra.complete = True
+        #     extra.icon = self.icon
+        #     extra.thumb = self.noImage
+        #     extra.dontGroup = True
+        #     extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+        #     extra.metaData["airDate"] = airDate
+        #     items.append(extra)
+        #
+        # return data, items
 
     def StievieCreateChannelItem(self, resultSet):
         Logger.Trace(resultSet)
