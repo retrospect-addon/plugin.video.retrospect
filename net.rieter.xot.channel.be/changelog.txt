@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: Vier/Vijf.be moved to new API and requires logging in (Fixes #888)
+* Fixed: VRT.nu was missing those shows without a channel logo (Fixes #894)
+* Fixed: Vier/vijf.be were missing some videos that appeared as highlighted on the pages (Fixes #892)
 
 [I]Previous Changes[/I]
+* Fixed: Vier/Vijf.be moved to new API and requires logging in (Fixes #888)
 * Fixed: vrt.nu live streams were broken (Fixes #884)
 * Fixed: no audio on VRT.nu streams (Fixes #880)
 * Fixed: VRT.nu streams moved to Vualto plaform (Fixes #865)

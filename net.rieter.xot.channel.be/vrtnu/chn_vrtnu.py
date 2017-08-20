@@ -38,8 +38,11 @@ class Channel(chn_class.Channel):
 
         episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
                        '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[\w\W]{0,2000}?' \
-                       '<h3[^>]+>(?<title>[^<]+)(?:<span[^>]+>&lt;p&gt;(?<description>[^<]+)' \
-                       '&lt;/p&gt;<)[\w\W]{0,5000}?<use xlink:href="[^"]*#logo-(?<channel>[^"]+)'
+                       '<h3[^>]+>(?<title>[^<]+)<span[^>]+>[^>]+>\W*</h3>\W*<hr[^>]*>\W*<div[^>]' \
+                       '*>\W*<p>(?<description>[^<]+)(?:<span[^>]*>|<br ?/>)?(?<descriptionMore>' \
+                       '[^<]*)(?:</span>)?</p>(?:\W*</div>){2}\W+(?:<div class="tile__brand"' \
+                       '[^>]+>\W+<svg[^>]+>\W+<title[^<]+</title>\W+<use xlink:href="[^"]*' \
+                       '#logo-(?<channel>[^"]+)"><.use>\W+</svg>\W+</div>){0,1}\W+</a>'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
@@ -301,6 +304,9 @@ class Channel(chn_class.Channel):
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
         if item is None:
             return None
+
+        if resultSet["descriptionMore"]:
+            item.description += resultSet["descriptionMore"]
 
         # update artswork
         if item.thumb and item.thumb.startswith("//"):

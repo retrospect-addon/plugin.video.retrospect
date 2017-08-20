@@ -57,6 +57,12 @@ class Channel(chn_class.Channel):
                             parser=videoRegex,
                             creator=self.CreateVideoItem)
 
+        imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)</div>\W*<div[^>]*>\W*<div[^>]+data-videoid="(?<videoid>[^"]+)"'
+        imageVideoRegex = Regexer.FromExpresso(imageVideoRegex)
+        self._AddDataParser("*", matchType=ParserData.MatchExact,
+                            parser=imageVideoRegex,
+                            creator=self.CreateVideoItem)
+
         # Generic updater with login
         self._AddDataParser("*",
                             # requiresLogon=True,
@@ -168,10 +174,11 @@ class Channel(chn_class.Channel):
         # Set the correct url
         # videoId = resultSet["videoid"]
         # item.url = "https://api.viervijfzes.be/content/%s" % (videoId, )
-        dateTime = DateHelper.GetDateFromPosix(int(resultSet["timestamp"]))
-        item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
-                     dateTime.minute,
-                     dateTime.second)
+        if "timestamp" in resultSet:
+            dateTime = DateHelper.GetDateFromPosix(int(resultSet["timestamp"]))
+            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                         dateTime.minute,
+                         dateTime.second)
         return item
 
     def UpdateVideoItem(self, item):
