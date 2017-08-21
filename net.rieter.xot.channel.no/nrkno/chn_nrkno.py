@@ -78,6 +78,7 @@ class Channel(chn_class.Channel):
 
         # ==============================================================================================================
         # non standard items
+        self.__metaDataIndexCategory = "category_id"
 
         # ==============================================================================================================
         # Test cases:
@@ -188,12 +189,14 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet["displayValue"]
-        url = "%s/categories/%s/programs" % (self.baseUrl, resultSet["categoryId"], )
+        # url = "%s/categories/%s/programs" % (self.baseUrl, resultSet["categoryId"], )
+        url = "https://tvapi.nrk.no/v1/search/indexelements"
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
         item.HttpHeaders = self.httpHeaders
+        item.metaData[self.__metaDataIndexCategory] = resultSet["categoryId"]
 
         item.thumb = self.noImage
         item.fanart = self.fanart
@@ -234,6 +237,11 @@ class Channel(chn_class.Channel):
         title = resultSet["title"]
         seriesId = resultSet.get("seriesId")
         if seriesId is None:
+            return None
+
+        categoryId = resultSet.get("categoryId", None)
+        parentCategoryId = self.parentItem.metaData.get(self.__metaDataIndexCategory, None)
+        if parentCategoryId is not None and parentCategoryId != categoryId:
             return None
 
         item = mediaitem.MediaItem(title, "%s/series/%s" % (self.baseUrl, seriesId))
