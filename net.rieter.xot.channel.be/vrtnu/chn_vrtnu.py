@@ -37,12 +37,13 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.vrt.be"
 
         episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
-                       '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[\w\W]{0,2000}?' \
-                       '<h3[^>]+>(?<title>[^<]+)<span[^>]+>[^>]+>\W*</h3>\W*<hr[^>]*>\W*<div[^>]' \
-                       '*>\W*<p>(?<description>[^<]+)(?:<span[^>]*>|<br ?/>)?(?<descriptionMore>' \
-                       '[^<]*)(?:</span>)?</p>(?:\W*</div>){2}\W+(?:<div class="tile__brand"' \
-                       '[^>]+>\W+<svg[^>]+>\W+<title[^<]+</title>\W+<use xlink:href="[^"]*' \
-                       '#logo-(?<channel>[^"]+)"><.use>\W+</svg>\W+</div>){0,1}\W+</a>'
+                       '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>[^ ]+)' \
+                       '[\w\W]{0,2000}?<h3[^>]+>(?<title>[^<]+)<span[^>]+>[^>]+>\W*</h3>\W*' \
+                       '<hr[^>]*>\W*<div[^>]*>\W*<p>(?<description>[^<]+)(?:<span[^>]*>|<br ?/>)?' \
+                       '(?<descriptionMore>[^<]*)(?:</span>)?</p>(?:\W*</div>){2}\W+' \
+                       '(?:<div class="tile__brand"[^>]+>\W+<svg[^>]+>\W+<title[^<]+</title>\W+' \
+                       '<use xlink:href="[^"]*#logo-(?<channel>[^"]+)"><.use>\W+</svg>\W+' \
+                       '</div>){0,1}\W+</a>'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
@@ -68,8 +69,8 @@ class Channel(chn_class.Channel):
                             updater=self.UpdateLiveVideo)
 
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
-                   '*>\W*){2}<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)' \
-                   '[\w\W]{0,2000}?<h3[^>]+>(?<title>[^<]+)'
+                   '*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
+                   '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h3[^>]+>(?<title>[^<]+)'
         catregex = Regexer.FromExpresso(catregex)
         self._AddDataParser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
                             matchType=ParserData.MatchExact,
@@ -81,11 +82,11 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", name="Folder/Season parser",
                             parser=folderRegex, creator=self.CreateFolderItem)
 
-        videoRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
-                     '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[^>]*>\W*' \
-                     '<img[^>]+>\W*(?:</\w+>\W*)+<div[^>]+>\W*<h3[^>]+>(?<title>[^<]+)</h3>' \
-                     '[\w\W]{0,1000}?(?:<span[^>]+class="tile__broadcastdate--mobile[^>]*>' \
-                     '(?<day>\d+)/(?<month>\d+)/?(?<year>\d+)?</span><span[^>]+' \
+        videoRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}<picture[^>]' \
+                     '*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>[^ ]+)[^>]*>\W*' \
+                     '(?:<[^>]+>\W*){3}<img[^>]+>\W*(?:</\w+>\W*)+<div[^>]+>\W*<h3[^>]+>' \
+                     '(?<title>[^<]+)</h3>[\w\W]{0,1000}?(?:<span[^>]+class="tile__broadcastdate' \
+                     '--mobile[^>]*>(?<day>\d+)/(?<month>\d+)/?(?<year>\d+)?</span><span[^>]+' \
                      'tile__broadcastdate--other[^>]+>(?<subtitle_>[^<]+)</span></div>\W*<div>)?' \
                      '[^<]*<abbr[^>]+title'
         # No need for a subtitle for now as it only includes the textual date
@@ -94,9 +95,9 @@ class Channel(chn_class.Channel):
                             parser=videoRegex, creator=self.CreateVideoItem)
 
         # needs to be after the standard video item regex
-        singleVideoRegex = '<picture[^>]*>\W+<source[^>]+srcset="(?<thumburl>[^ ]+)[\w\W]{0,4000}' \
-                           '<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>\W*<span[^>]+>' \
-                           '(?<description>[^<]+)'
+        singleVideoRegex = '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>' \
+                           '[^ ]+)[\w\W]{0,4000}<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>' \
+                           '\W*<span[^>]+>(?<description>[^<]+)'
         singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
         self._AddDataParser("*", name="Single video item parser",
                             parser=singleVideoRegex, creator=self.CreateVideoItem)
