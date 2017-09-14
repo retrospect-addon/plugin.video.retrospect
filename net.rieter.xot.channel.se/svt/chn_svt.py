@@ -99,10 +99,10 @@ class Channel(chn_class.Channel):
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
-        self.__excludedTabs = ["RELATED_VIDEO_TABS_UPCOMING", ]
+        self.__excludedTabs = ["RELATED_VIDEOS_ACCORDION_UPCOMING", ]
         self._AddDataParser("*", json=True,
                             preprocessor=self.ListSomeVideos,
-                            parser=("relatedVideoContent", "relatedVideosTabs"),
+                            parser=("relatedVideoContent", "relatedVideosAccordion"),
                             creator=self.CreateJsonFolderItem)
 
         # And the old stuff
@@ -305,7 +305,7 @@ class Channel(chn_class.Channel):
         # data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
-        slugs = json.GetValue("relatedVideoContent", "relatedVideosTabs")
+        slugs = json.GetValue("relatedVideoContent", "relatedVideosAccordion")
         for slugData in slugs:
             tabSlug = "?tab=%s" % (slugData["slug"], )
             if not self.parentItem.url.endswith(tabSlug):
@@ -423,7 +423,8 @@ class Channel(chn_class.Channel):
             return data, items
 
         jsonData = JsonHelper(data)
-        sections = jsonData.GetValue("relatedVideoContent", "relatedVideosTabs")
+        sections = jsonData.GetValue("relatedVideoContent", "relatedVideosAccordion")
+        sections = filter(lambda s: s['type'] not in self.__excludedTabs, sections)
 
         Logger.Debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:

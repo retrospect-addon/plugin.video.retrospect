@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Exclude "Kommande" folders (Fixes #881)
+* Fixed: SVT listing broke (Fixes #899)
 
 [I]Previous changes[/I]
+* Fixed: Exclude "Kommande" folders (Fixes #881)
 * Fixed: TV4Play can work without HTTPS and thus without SSL errors (See #859)
 * Fixed: SVT API update (Fixes #857)
 * Fixed: Paging issue with Kanal 5
