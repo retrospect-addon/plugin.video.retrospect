@@ -16,6 +16,7 @@ from parserdata import ParserData
 from helpers.languagehelper import LanguageHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 from vault import Vault
+from addonsettings import AddonSettings
 
 
 class Channel(chn_class.Channel):
@@ -917,6 +918,14 @@ class Channel(chn_class.Channel):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
+
+        if AddonSettings.IsMinVersion(18):
+            for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId, proxy=self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                stream = part.AppendMediaStream(s, b)
+                for k, v in p.iteritems():
+                    stream.AddProperty(k, v)
 
         return item
 
