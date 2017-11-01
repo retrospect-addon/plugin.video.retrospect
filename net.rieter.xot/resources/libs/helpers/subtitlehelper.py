@@ -96,6 +96,11 @@ class SubtitleHelper:
             try:
                 raw = raw.decode()
             except:
+                # fix some weird chars
+                try:
+                    raw = raw.replace("\x96", "-")
+                except:
+                    Logger.Error("Error replacing some weird chars.")
                 Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
                 raw = raw.decode('unicode_escape')
 
