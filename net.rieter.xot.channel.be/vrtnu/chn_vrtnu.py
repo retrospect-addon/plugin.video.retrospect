@@ -38,9 +38,9 @@ class Channel(chn_class.Channel):
 
         episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
                        '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>[^ ]+)' \
-                       '[\w\W]{0,2000}?<h3[^>]+>(?<title>[^<]+)<span[^>]+>[^>]+>\W*</h3>\W*' \
-                       '<hr[^>]*>\W*<div[^>]*>\W*<p>(?<description>[^<]+)(?:<span[^>]*>|<br ?/>)?' \
-                       '(?<descriptionMore>[^<]*)(?:</span>)?</p>(?:\W*</div>){2}\W+' \
+                       '[\w\W]{0,1000}?<h3[^>]+>(?<title>[^<]+)</h3>\W*<hr[^>]*>\W*' \
+                       '(?:<div[^>]*>|<div[^>]*><p>)(?<description>[^<]+)(?:<br[^>]*>)?' \
+                       '(?<descriptionMore>[^<]*)?(?:</div>|</p></div>)(?:\W*</div>){1}\W+' \
                        '(?:<div class="tile__brand"[^>]+>\W+<svg[^>]+>\W+<title[^<]+</title>\W+' \
                        '<use xlink:href="[^"]*#logo-(?<channel>[^"]+)"><.use>\W+</svg>\W+' \
                        '</div>){0,1}\W+</a>'
@@ -369,10 +369,10 @@ class Channel(chn_class.Channel):
         data, secureUrl = UriHandler.Header(item.url, proxy=self.proxy)
 
         secureUrl = secureUrl.rstrip("/")
-        secureUrl = "%s.securevideo.json" % (secureUrl, )
+        secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
         data = UriHandler.Open(secureUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         secureData = JsonHelper(data, logger=Logger.Instance())
-        mzid = secureData.GetValue(secureData.json.keys()[0], "mzid")
+        mzid = secureData.GetValue(secureData.json.keys()[0], "videoid")
         assetUrl = "https://mediazone.vrt.be/api/v1/vrtvideo/assets/%s" % (mzid, )
         data = UriHandler.Open(assetUrl, proxy=self.proxy)
         assetData = JsonHelper(data, logger=Logger.Instance())
