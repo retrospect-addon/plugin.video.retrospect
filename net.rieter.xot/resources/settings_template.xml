@@ -65,13 +65,16 @@
         <!-- This is just a template and should be replaced after the first run -->
         <!-- end of channel settings -->
 
+        <!-- No more proxy settings
         <setting type="lsep" label="30065" />
+        -->
 
         <!-- start of proxy selection -->
         <!-- This is just a template and should be replaced after the first run -->
         <!-- end of proxy selection -->
     </category>
 
+    <!-- start of proxy settings -->
     <category id="proxysettings" label="30065">
         <setting id="selected_country" label="30096" type="labelenum" lvalues="30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" />
 
@@ -164,4 +167,5 @@
         <setting subsetting="true" id="lv_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(%selected_country%,9)+!eq(-1,)" />
         <setting id="lv_local_ip" type="ipaddress" label="30079" default="" visible="eq(%selected_country%,9)" />
     </category>
+    <!-- end of proxy settings -->
 </settings>

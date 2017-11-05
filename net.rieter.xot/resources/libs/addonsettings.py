@@ -609,28 +609,30 @@ class AddonSettings:
 
         """
 
-        countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
-        settingId = AddonSettings.__PROXY_SETTING_PATTERN % (channelInfo.guid,)
-        countryId = int(AddonSettings.GetSetting(settingId) or 0)
-        if countryId == 0:
-            Logger.Debug("No proxy configured for %s", channelInfo)
-            return None
+        return None
 
-        prefix = countries[countryId]
-        Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
-
-        server = AddonSettings.GetSetting("%s_proxy_server" % (prefix,))
-        port = int(AddonSettings.GetSetting("%s_proxy_port" % (prefix,)) or 0)
-        proxyType = AddonSettings.GetSetting("%s_proxy_type" % (prefix,))
-        if not proxyType or proxyType.lower() not in ('dns', 'http'):
-            Logger.Debug("No proxy found for country '%s'", prefix)
-            return None
-
-        username = AddonSettings.GetSetting("%s_proxy_username" % (prefix,))
-        password = AddonSettings.GetSetting("%s_proxy_password" % (prefix,))
-        pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
-        Logger.Debug("Found proxy for channel %s:\n%s", channelInfo, pInfo)
-        return pInfo
+        # countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
+        # settingId = AddonSettings.__PROXY_SETTING_PATTERN % (channelInfo.guid,)
+        # countryId = int(AddonSettings.GetSetting(settingId) or 0)
+        # if countryId == 0:
+        #     Logger.Debug("No proxy configured for %s", channelInfo)
+        #     return None
+        #
+        # prefix = countries[countryId]
+        # Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
+        #
+        # server = AddonSettings.GetSetting("%s_proxy_server" % (prefix,))
+        # port = int(AddonSettings.GetSetting("%s_proxy_port" % (prefix,)) or 0)
+        # proxyType = AddonSettings.GetSetting("%s_proxy_type" % (prefix,))
+        # if not proxyType or proxyType.lower() not in ('dns', 'http'):
+        #     Logger.Debug("No proxy found for country '%s'", prefix)
+        #     return None
+        #
+        # username = AddonSettings.GetSetting("%s_proxy_username" % (prefix,))
+        # password = AddonSettings.GetSetting("%s_proxy_password" % (prefix,))
+        # pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
+        # Logger.Debug("Found proxy for channel %s:\n%s", channelInfo, pInfo)
+        # return pInfo
 
     @staticmethod
     def SetProxyIdForChannel(channelInfo, proxyIndex):
@@ -679,6 +681,12 @@ class AddonSettings:
         from helpers.templatehelper import TemplateHelper
         th = TemplateHelper(Logger.Instance(), template=newContents)
         newContents = th.Transform()
+
+        # No more spoofing or proxies
+        newContents = newContents.replace('<!-- start of proxy selection -->', '<!-- start of proxy selection')
+        newContents = newContents.replace('<!-- end of proxy selection -->', 'end of proxy selection -->')
+        newContents = newContents.replace('<!-- start of proxy settings -->', '<!-- start of proxy settings')
+        newContents = newContents.replace('<!-- end of proxy settings -->', 'end of proxy settings -->')
 
         # Finally we insert the new XML into the old one
         filename = os.path.join(config.rootDir, "resources", "settings.xml")
