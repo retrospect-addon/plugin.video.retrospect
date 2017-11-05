@@ -242,7 +242,8 @@ class ChannelInfo:
                                       eval(channel.get("compatible", "Environments.All")),
                                       channel.get("fanart", None))
             channelInfo.firstTimeMessage = channel.get("message", None)
-            channelInfo.localIPSupported = channel.get("localIPSupported", False)
+            # Disable spoofing for the moment
+            # channelInfo.localIPSupported = channel.get("localIPSupported", False)
             channelInfo.settings = settings
             channelInfo.version = version
 
