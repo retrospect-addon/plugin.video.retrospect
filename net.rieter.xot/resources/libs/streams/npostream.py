@@ -26,6 +26,21 @@ class NpoStream:
 
     @staticmethod
     def GetMpdStreamFromNpo(url, episodeId, proxy=None, headers=None):
+        """ Extracts the Dash streams for the given url or episode id
+
+        @param url:               (String) The url to download
+        @param episodeId:         (String) The NPO episode ID
+        @param headers:           (dict) Possible HTTP Headers
+        @param proxy:             (Proxy) The proxy to use for opening
+
+        for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId, proxy=self.proxy):
+            item.complete = True
+            stream = part.AppendMediaStream(s, b)
+            for k, v in p.iteritems():
+                stream.AddProperty(k, v)
+
+        """
+
         if url:
             Logger.Info("Determining MPD streams for url: %s", url)
             episodeId = url.split("/")[-1]
@@ -80,19 +95,20 @@ class NpoStream:
     def GetStreamsFromNpo(url, episodeId, proxy=None, headers=None):
         """ Retrieve NPO Player Live streams from a different number of stream urls.
 
-                @param url:               (String) The url to download
-                @param headers:           (dict) Possible HTTP Headers
-                @param proxy:             (Proxy) The proxy to use for opening
+        @param url:               (String) The url to download
+        @param episodeId:         (String) The NPO episode ID
+        @param headers:           (dict) Possible HTTP Headers
+        @param proxy:             (Proxy) The proxy to use for opening
 
-                Can be used like this:
+        Can be used like this:
 
-                    part = item.CreateNewEmptyMediaPart()
-                    for s, b in NpoStream.GetStreamsFromNpo(m3u8Url, self.proxy):
-                        item.complete = True
-                        # s = self.GetVerifiableVideoUrl(s)
-                        part.AppendMediaStream(s, b)
+            part = item.CreateNewEmptyMediaPart()
+            for s, b in NpoStream.GetStreamsFromNpo(m3u8Url, self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
 
-                """
+        """
 
         if url:
             Logger.Info("Determining streams for url: %s", url)
