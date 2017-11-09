@@ -13,12 +13,12 @@ import time
 
 import xbmc
 
-from xbmcwrapper import XbmcWrapper
+# from xbmcwrapper import XbmcWrapper
 from logger import Logger, DEBUG
 from environments import Environments
 from config import Config
 
-from helpers.languagehelper import LanguageHelper
+# from helpers.languagehelper import LanguageHelper
 
 
 class EnvController:

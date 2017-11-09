@@ -105,6 +105,7 @@ class M3u8:
         Logger.Debug("Found %s substreams in M3U8", len(streams))
         return streams
 
+
 if __name__ == "__main__":
     from debug.initdebug import DebugInitializer
     DebugInitializer()

@@ -134,7 +134,6 @@ class Vault:
         return self.GetSetting(fullSettingId)
 
     def GetSetting(self, settingId):
-        # type: (str) -> Optional[str]
         """ Retrieves an encrypted setting from the Kodi Add-on Settings.
 
         @param settingId: the ID for the setting to retrieve
@@ -198,7 +197,6 @@ class Vault:
         return
 
     def __GetApplicationKey(self):
-        # type: () -> Optional[str]
         """ Gets the decrypted application key that is used for all the encryption
 
         @return: the decrypted application key that is used for all the encryption

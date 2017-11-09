@@ -149,7 +149,6 @@ class JsonHelper:
 
     @staticmethod
     def Loads(jsonData):
-        # type: (str) -> Any
         """ Loads a JSON object to a valid object
 
         @param jsonData:   (string) the JSON data to load

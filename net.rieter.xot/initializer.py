@@ -46,5 +46,6 @@ class Initializer:
         sys.path.insert(0, os.path.join(path.replace(";", ""), 'resources', 'libs'))
         return path
 
+
 if __name__ == "__main__":
     init = Initializer.SetupPythonPaths()

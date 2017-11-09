@@ -1,7 +1,7 @@
 import chn_class
 import mediaitem
 
-from config import Config
+# from config import Config
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
 from urihandler import UriHandler
@@ -102,7 +102,6 @@ class Channel(chn_class.Channel):
         return item
 
     def AddCategories(self, data):
-        # type: (str) -> Tuple[str, List[mediaitem.MediaItem]]
         """ Add categories to the main listing
 
         @param data:    the Parsed Data
@@ -159,7 +158,6 @@ class Channel(chn_class.Channel):
         return data, items
 
     def CreateCategory(self, resultSet):
-        # type: (Dict[str, Any]) -> mediaitem.MediaItem
         """ Creates a Category Media Item
 
         @param resultSet:
@@ -176,7 +174,6 @@ class Channel(chn_class.Channel):
         return item
 
     def AddPageItems(self, data):
-        # type: (str) -> Tuple[str, List[mediaitem.MediaItem]]
         """ Adds page items to the main listing
 
         @param data:    the Parsed Data
@@ -272,7 +269,7 @@ class Channel(chn_class.Channel):
         if item.HasMediaItemParts():
             return item
 
-        for s, b in NpoStream.GetStreamsFromNpo(None, json.GetValue("mid"), cacheDir=Config.cacheDir, proxy=self.proxy):
+        for s, b in NpoStream.GetStreamsFromNpo(None, json.GetValue("mid"), proxy=self.proxy):
             item.complete = True
             part.AppendMediaStream(s, b)
 

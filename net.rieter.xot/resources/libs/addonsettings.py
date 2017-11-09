@@ -16,7 +16,7 @@ import xbmc
 # Make global object available
 #===============================================================================
 from logger import Logger                               # this has not further references
-from proxyinfo import ProxyInfo                         # this has not further references
+# from proxyinfo import ProxyInfo                         # this has not further references
 from config import Config                               # this has not further references
 # from regexer import Regexer                             # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
@@ -600,6 +600,7 @@ class AddonSettings:
         AddonSettings.SetSetting(settingId, str(proxyIndex))
         return
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def GetProxyForChannel(channelInfo):
         """ returns the proxy for a specific channel

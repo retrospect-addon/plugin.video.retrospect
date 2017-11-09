@@ -64,6 +64,7 @@ class Environments:
         else:
             return "Unknown"
 
+
 if __name__ == "__main__":
     printFormat = "%-10s - %s"
     print printFormat % ("NoPlatform", Environments.Name(Environments.NoPlatform))

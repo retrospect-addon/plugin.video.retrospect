@@ -79,7 +79,6 @@ class ChannelIndex:
         return
 
     def GetChannel(self, className, channelCode):
-        # type: (str, str) -> Optional[ChannelInfo]
         """ Fetches a single channel for a given className and channelCode
 
         If updated channels are found, the those channels are indexed and the
@@ -414,7 +413,6 @@ class ChannelIndex:
         return index
 
     def __ValidateAddOnVersion(self, path):
-        # type: (str) -> Tuple[str, Version]
         """ Parses the addon.xml file and checks if all is OK.
 
         @param path: path to load the addon from
@@ -582,7 +580,6 @@ class ChannelIndex:
         return
 
     def __IsIndexConsistent(self, index):
-        # type: (dict) -> boolean
         """ A quick check if a given Channel Index is correct.
 
         @param index: a index with Channel information

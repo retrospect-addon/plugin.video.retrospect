@@ -140,6 +140,7 @@ class Regexer:
 
         return compiledRegex
 
+
 # testing facilities
 if __name__ == "__main__":
     # noinspection PyUnusedLocal

@@ -255,7 +255,7 @@ class Channel(chn_class.Channel):
             streamData = UriHandler.Open(streamUrl, proxy=self.proxy)
             stream = JsonHelper(streamData)
 
-            subUrls = stream.GetValue("package", "video", "item", 0, "transcript", 0, "typographic")
+            # subUrls = stream.GetValue("package", "video", "item", 0, "transcript", 0, "typographic")
             part = item.CreateNewEmptyMediaPart()
 
             # m3u8Url = stream.GetValue("package", "video", "item", 0, "rendition", 0, "src")
