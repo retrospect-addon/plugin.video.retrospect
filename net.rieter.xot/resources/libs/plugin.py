@@ -142,9 +142,9 @@ class Plugin:
                 from updater import Updater
                 Updater().AutoUpdate()
 
-            # check if the repository is available
-            envCtrl.IsInstallMethodValid(Config)
-            envCtrl.AreAddonsEnabled(Config)
+            # check if the repository is available -> We don't need this now.
+            # envCtrl.IsInstallMethodValid(Config)
+            # envCtrl.AreAddonsEnabled(Config)
 
             # check for cache folder
             envCtrl.CacheCheck()

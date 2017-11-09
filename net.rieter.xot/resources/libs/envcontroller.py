@@ -58,56 +58,56 @@ class EnvController:
         Logger.Info("Asking Kodi to update the local add-ons")
         xbmc.executebuiltin("UpdateLocalAddons")
 
-    def AreAddonsEnabled(self, config):
-        """ Checks if all Retrospect channel add-ons are enabled.
+    # def AreAddonsEnabled(self, config):
+    #     """ Checks if all Retrospect channel add-ons are enabled.
+    #
+    #     @param config: The config object
+    #     @return: True or False
+    #
+    #     If channel add-ons are not enabled in Kodi, they will not be auto updated.
+    #     """
+    #
+    #     addonDir = os.path.join(config.rootDir, "..")
+    #     for directory in os.listdir(addonDir):
+    #         if not directory.startswith("%s.channel" % (config.addonId, )):
+    #             continue
+    #
+    #         installed = xbmc.getCondVisibility('System.HasAddon("%s")' % (directory,)) == 1
+    #         if not installed:
+    #             if not os.path.isfile(os.path.join(addonDir, directory, "addon.xml")):
+    #                 # no add-on, continue
+    #                 continue
+    #
+    #             Logger.Warning("Add-on '%s' is not enabled in Kodi and will not be updated automatically", directory)
+    #
+    #             XbmcWrapper.ShowDialog(
+    #                 LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledTitle),
+    #                 LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledText))
+    #             xbmc.executebuiltin("ActivateWindow(AddonBrowser, addons://user/all/, return)")
+    #             return False
+    #
+    #         Logger.Debug("Add-on '%s' is enabled in Kodi", directory)
+    #     return True
 
-        @param config: The config object
-        @return: True or False
-        
-        If channel add-ons are not enabled in Kodi, they will not be auto updated.        
-        """
-
-        addonDir = os.path.join(config.rootDir, "..")
-        for directory in os.listdir(addonDir):
-            if not directory.startswith("%s.channel" % (config.addonId, )):
-                continue
-
-            installed = xbmc.getCondVisibility('System.HasAddon("%s")' % (directory,)) == 1
-            if not installed:
-                if not os.path.isfile(os.path.join(addonDir, directory, "addon.xml")):
-                    # no add-on, continue
-                    continue
-
-                Logger.Warning("Add-on '%s' is not enabled in Kodi and will not be updated automatically", directory)
-
-                XbmcWrapper.ShowDialog(
-                    LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledTitle),
-                    LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledText))
-                xbmc.executebuiltin("ActivateWindow(AddonBrowser, addons://user/all/, return)")
-                return False
-
-            Logger.Debug("Add-on '%s' is enabled in Kodi", directory)
-        return True
-
-    def IsInstallMethodValid(self, config):
-        """ Validates that Retrospect is installed using the repository. If not
-        it will popup a dialog box.
-
-        Arguments:
-        config : Config - The Retrospect config object.
-
-        """
-
-        repoAvailable = self.__IsRepoAvailable(config)
-
-        if not repoAvailable:
-            # show alert
-            if self.logger:
-                self.logger.Warning("No Respository installed. Reminding user to install it.")
-
-            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.RepoWarningId), LanguageHelper.GetLocalizedString(LanguageHelper.RepoWarningDetailId))
-
-        return repoAvailable
+    # def IsInstallMethodValid(self, config):
+    #     """ Validates that Retrospect is installed using the repository. If not
+    #     it will popup a dialog box.
+    #
+    #     Arguments:
+    #     config : Config - The Retrospect config object.
+    #
+    #     """
+    #
+    #     repoAvailable = self.__IsRepoAvailable(config)
+    #
+    #     if not repoAvailable:
+    #         # show alert
+    #         if self.logger:
+    #             self.logger.Warning("No Respository installed. Reminding user to install it.")
+    #
+    #         XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.RepoWarningId), LanguageHelper.GetLocalizedString(LanguageHelper.RepoWarningDetailId))
+    #
+    #     return repoAvailable
 
     def DirectoryPrinter(self, config, settingInfo):
         """Prints out all the XOT related directories to the logFile.
