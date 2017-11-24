@@ -102,12 +102,16 @@ class Channel(chn_class.Channel):
                             preprocessor=self.ExtractTiles,
                             parser=videoParser,
                             creator=self.CreateVideoItem)
-
+        self._AddDataParser("https://www.npo.nl/media/collections/",
+                            name="Parser for shows on the genres pages",
+                            preprocessor=self.ExtractTiles,
+                            parser=videoParser,
+                            creator=self.CreateVideoItem)
         # Genres
         self._AddDataParser("https://www.npo.nl/programmas",
                             matchType=ParserData.MatchExact,
                             name="Genres",
-                            parser='<a class="close-dropdown" title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+data-argument="genreId',
+                            parser='<a\W+class="close-dropdown"\W+href="/collectie/([^"]+)"\W+title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+data-argument="genreId',
                             creator=self.CreateGenreItem)
 
         # Favourites
@@ -667,8 +671,10 @@ class Channel(chn_class.Channel):
         """
         Logger.Trace(resultSet)
 
-        url = "https://www.npo.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tilemapping=normal&tiletype=teaser" % (resultSet[1],)
-        item = mediaitem.MediaItem(resultSet[0], url)
+        # url = "https://www.npo.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tilemapping=normal&tiletype=teaser" % (resultSet[1],)
+        # url = "https://www.npo.nl/media/%s/lanes/234?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
+        url = "https://www.npo.nl/media/collections/%s?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
+        item = mediaitem.MediaItem(resultSet[1], url)
         item.thumb = self.parentItem.thumb
         item.icon = self.parentItem.icon
         item.type = 'folder'
