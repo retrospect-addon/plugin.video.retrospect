@@ -89,24 +89,20 @@ class Channel(chn_class.Channel):
         self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
 
         episodeParser = Regexer.FromExpresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+(?:image:\s?url\(.(?<thumburl>[^)]+).\))?[^)>]*>')
-        self._AddDataParsers(["https://www.npo.nl/media/series?page=", "https://www.npo.nl/search/extended"],
-                             name="Parser for main series overview pages & searching",
+        self._AddDataParsers(["https://www.npo.nl/media/series?page=", ],
+                             name="Parser for main series overview pages",
                              preprocessor=self.ExtractTiles,
                              parser=episodeParser,
                              creator=self.CreateEpisodeItem)
 
         # very similar parser as the Live Channels!
         videoParser = Regexer.FromExpresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>(?<date2>[^<]*)</p>')
-        self._AddDataParser("https://www.npo.nl/media/series/",
-                            name="Parser for shows on the main series sub pages",
-                            preprocessor=self.ExtractTiles,
-                            parser=videoParser,
-                            creator=self.CreateVideoItem)
-        self._AddDataParser("https://www.npo.nl/media/collections/",
-                            name="Parser for shows on the genres pages",
-                            preprocessor=self.ExtractTiles,
-                            parser=videoParser,
-                            creator=self.CreateVideoItem)
+        self._AddDataParsers(["https://www.npo.nl/media/series/", "https://www.npo.nl/search/extended", "https://www.npo.nl/media/collections/"],
+                             name="Parser for shows on the main series sub pages, the search and the genres",
+                             preprocessor=self.ExtractTiles,
+                             parser=videoParser,
+                             creator=self.CreateVideoItem)
+
         # Genres
         self._AddDataParser("https://www.npo.nl/programmas",
                             matchType=ParserData.MatchExact,
@@ -225,7 +221,10 @@ class Channel(chn_class.Channel):
         while nextPage and currentCount < maxCount:
             currentCount += 1
             Logger.Debug("Found next page: %s", nextPage)
-            if not nextPage.startswith("http"):
+            if nextPage.startswith("/search/extended") or nextPage.startswith("/media/series"):
+                nextPage = nextPage.split("&", 1)[0]
+                nextPage = "%s%s&%s" % (self.baseUrlLive, nextPage, queryString)
+            elif not nextPage.startswith("http"):
                 nextPage = "%s%s&%s" % (self.baseUrlLive, nextPage, queryString)
             else:
                 nextPage = "%s&%s" % (nextPage, queryString)
@@ -244,7 +243,10 @@ class Channel(chn_class.Channel):
 
         if nextPage and currentCount == maxCount:
             # There are more pages
-            if not nextPage.startswith("http"):
+            if nextPage.startswith("/search/extended") or nextPage.startswith("/media/series"):
+                nextPage = nextPage.split("&", 1)[0]
+                nextPage = "%s%s&%s" % (self.baseUrlLive, nextPage, queryString)
+            elif not nextPage.startswith("http"):
                 nextPage = "%s%s&%s" % (self.baseUrlLive, nextPage, queryString)
             else:
                 nextPage = "%s&%s" % (nextPage, queryString)
@@ -531,9 +533,11 @@ class Channel(chn_class.Channel):
         showing of an input keyboard and following actions.
 
         """
-        # url = "%s/episodes/search/%s.json" % (self.baseUrl, "%s")
-        # url = "https://www.npo.nl/search?query=%s"
-        url = "https://www.npo.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser"
+        # Videos
+        url = "https://www.npo.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tilemapping=search&tiletype=asset&pageType=search"
+
+        # Shows
+        # url = "https://www.npo.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser&pageType=search"
         self.httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         return chn_class.Channel.SearchSite(self, url)
 
@@ -552,6 +556,19 @@ class Channel(chn_class.Channel):
             if dateTime[0].lower() == "gisteren":
                 dateTime = datetime.datetime.now() + datetime.timedelta(days=-1)
                 item.SetDate(dateTime.year, dateTime.month, dateTime.day)
+            elif ":" in dateTime[-1]:
+                if dateTime[-2].isalpha():
+                    year = datetime.datetime.now().year
+                    dateTime.insert(-1, year)
+                year = int(dateTime[-2])
+
+                month = DateHelper.GetMonthFromName(dateTime[-3], language="nl")
+                day = int(dateTime[-4])
+
+                stamp = datetime.datetime(year, month, day)
+                if stamp > datetime.datetime.now():
+                    year -= 1
+                item.SetDate(year, month, day)
             else:
                 # there is an actual date present
                 if dateTime[0].isalpha():
