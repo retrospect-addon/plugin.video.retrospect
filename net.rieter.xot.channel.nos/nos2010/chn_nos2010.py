@@ -556,6 +556,9 @@ class Channel(chn_class.Channel):
             if dateTime[0].lower() == "gisteren":
                 dateTime = datetime.datetime.now() + datetime.timedelta(days=-1)
                 item.SetDate(dateTime.year, dateTime.month, dateTime.day)
+            elif dateTime[0].lower() == "vandaag":
+                dateTime = datetime.datetime.now()
+                item.SetDate(dateTime.year, dateTime.month, dateTime.day)
             elif ":" in dateTime[-1]:
                 if dateTime[-2].isalpha():
                     year = datetime.datetime.now().year
