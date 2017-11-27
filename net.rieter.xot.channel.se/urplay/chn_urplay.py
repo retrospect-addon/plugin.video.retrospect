@@ -34,9 +34,9 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
 
         # programs
-        programReg = 'href="/(?<url>[^"]+)"[^>]*>[^<]+</a>\W+<div[^>]+data-id="(?<id>\d+)"[^>]*>' \
-                     '[\w\W]{0,2000}?<span class="(?<class>\w+)">[\w\W]{0,500}?<h3>' \
-                     '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<description>[^<]+)<'
+        programReg = 'href="/program/(?<url>(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
+                     '{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>(?<description>[^<]+)' \
+                     '<span class="usp">(?<description2>[^<]+)'
         programReg = Regexer.FromExpresso(programReg)
         self._AddDataParser(self.mainListUri,
                             name="Show parser with categories",
@@ -44,15 +44,10 @@ class Channel(chn_class.Channel):
                             preprocessor=self.AddCategories,
                             parser=programReg, creator=self.CreateEpisodeItem)
 
-        categoryProgramReg = '<article class="program">\W*<a[^>]*href="/(?<url>[^"]+/' \
-                             '(?<id>\d+)-[^"]+)"[^>]*>[\w\W]{0,2000}?<span class="(?<class>\w+)">' \
-                             '[\w\W]{0,500}?<h3>(?<title>[^<]+)</h3>\W+<p[^>]*>(?<subtitle>[^<]*)' \
-                             '</p>\W*<p[^>]*>(?<description>[^<]*)</p>'
-        categoryProgramReg = Regexer.FromExpresso(categoryProgramReg)
-        self._AddDataParser("http://urplay.se/sok?play_category=",
+        self._AddDataParser("http://urplay.se/bladdra/",
                             name="Category show parser",
                             matchType=ParserData.MatchStart,
-                            parser=categoryProgramReg,
+                            parser=programReg,
                             creator=self.CreateEpisodeItem)
 
         # Categories
@@ -65,27 +60,27 @@ class Channel(chn_class.Channel):
                             creator=self.CreateCategory)
 
         # videos
-        videoItemRegex = 'href="/(?<url>\w+/(?<id>\d+)[^"]+)[^>]*>[^<]+</a>\W*<div[^>]*>\W*' \
-                         '<figure[^>]*>\W+<span[^<]+[^>]*>\W+<img[^>]+data-src="(?<thumb>[^"]+)"' \
-                         '\W+<span[^>]*class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>' \
-                         '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^>]+>' \
-                         '(?<description>[^<]+)'
-        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
-        singleVideoRegex = '<figure[^>]*>\W+<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
-                           '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
-                           '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
-                           '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
-                           'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
-                           'content="(?<date>[^"]+)"'
-        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
+        # videoItemRegex = 'href="/(?<url>\w+/(?<id>\d+)[^"]+)[^>]*>[^<]+</a>\W*<div[^>]*>\W*' \
+        #                  '<figure[^>]*>\W+<span[^<]+[^>]*>\W+<img[^>]+data-src="(?<thumb>[^"]+)"' \
+        #                  '\W+<span[^>]*class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>' \
+        #                  '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^>]+>' \
+        #                  '(?<description>[^<]+)'
+        # videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        # singleVideoRegex = '<figure[^>]*>\W+<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
+        #                    '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
+        #                    '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
+        #                    '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
+        #                    'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
+        #                    'content="(?<date>[^"]+)"'
+        # singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
         self._AddDataParser("http://urplay.se/sok?product_type=program",
-                            parser=videoItemRegex, preprocessor=self.GetVideoSection,
-                            creator=self.CreateVideoItemWithSerie, updater=self.UpdateVideoItem)
-
-        self._AddDataParser("*", parser=videoItemRegex, preprocessor=self.GetVideoSection,
+                            parser=programReg, preprocessor=self.GetVideoSection,
                             creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
-                            creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
+
+        self._AddDataParser("*", parser=programReg, preprocessor=self.GetVideoSection,
+                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        # self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
+        #                     creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
 
         self.mediaUrlRegex = "urPlayer.init\(([^<]+)\);"
 
@@ -104,7 +99,7 @@ class Channel(chn_class.Channel):
         if not resultSet['thumburl'].startswith("http"):
             resultSet['thumburl'] = "%s/%s" % (self.baseUrl, resultSet["thumburl"])
 
-        resultSet["url"] = "%s&rows=1000&start=0" % (resultSet["url"],)
+        resultSet["url"] = "%s?rows=1000&start=0" % (resultSet["url"],)
         return self.CreateFolderItem(resultSet)
 
     def AddCategories(self, data):
@@ -163,15 +158,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        title = "%(title)s (%(class)s)" % resultSet
-        url = "%s/%s" % (self.baseUrl, resultSet["url"])
-        # thumb = "http://assets.ur.se/id/192227/images/1_t.jpg"
-        # thumb = "http://assets.ur.se/id/192227/images/1.jpg"
+        title = "%(title)s" % resultSet
+        url = "%s/serie/%s" % (self.baseUrl, resultSet["url"])
         fanart = "http://assets.ur.se/id/%(id)s/images/1_hd.jpg" % resultSet
         thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
         item = mediaitem.MediaItem(title, url)
         item.thumb = thumb
-        item.description = resultSet["description"]
+        item.description = "%(description)s\n%(description2)s" % resultSet
         item.fanart = fanart
         item.icon = self.icon
         return item
