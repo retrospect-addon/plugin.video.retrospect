@@ -34,7 +34,7 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
 
         # programs
-        programReg = 'href="/program/(?<url>(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
+        programReg = 'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
                      '{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>(?<description>[^<]+)' \
                      '<span class="usp">(?<description2>[^<]+)'
         programReg = Regexer.FromExpresso(programReg)
@@ -66,21 +66,21 @@ class Channel(chn_class.Channel):
         #                  '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^>]+>' \
         #                  '(?<description>[^<]+)'
         # videoItemRegex = Regexer.FromExpresso(videoItemRegex)
-        # singleVideoRegex = '<figure[^>]*>\W+<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
-        #                    '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
-        #                    '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
-        #                    '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
-        #                    'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
-        #                    'content="(?<date>[^"]+)"'
-        # singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
+        singleVideoRegex = '<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
+                           '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
+                           '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
+                           '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
+                           'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
+                           'content="(?<date>[^"]+)"'
+        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
         self._AddDataParser("http://urplay.se/sok?product_type=program",
                             parser=programReg, preprocessor=self.GetVideoSection,
                             creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         self._AddDataParser("*", parser=programReg, preprocessor=self.GetVideoSection,
                             creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        # self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
-        #                     creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
+        self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
+                            creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
 
         self.mediaUrlRegex = "urPlayer.init\(([^<]+)\);"
 
@@ -159,7 +159,7 @@ class Channel(chn_class.Channel):
         """
 
         title = "%(title)s" % resultSet
-        url = "%s/serie/%s" % (self.baseUrl, resultSet["url"])
+        url = "%s/%s" % (self.baseUrl, resultSet["url"])
         fanart = "http://assets.ur.se/id/%(id)s/images/1_hd.jpg" % resultSet
         thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
         item = mediaitem.MediaItem(title, url)

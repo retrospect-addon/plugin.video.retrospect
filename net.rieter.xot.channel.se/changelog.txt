@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-Fixed: UR Play (Fixes #907)
+* Fixed: UR Play again (Fixes #910)
 
 [I]Previous changes[/I]
+* Fixed: UR Play (Fixes #907)
 * Fixed: SVT listing broke (Fixes #899)
 * Fixed: Exclude "Kommande" folders (Fixes #881)
 * Fixed: TV4Play can work without HTTPS and thus without SSL errors (See #859)
