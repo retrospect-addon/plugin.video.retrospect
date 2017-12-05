@@ -54,7 +54,9 @@ class Channel(chn_class.Channel):
 
         videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
         videoItemRegex = Regexer.FromExpresso(videoItemRegex)
-        self._AddDataParser("*", parser=videoItemRegex, creator=self.CreateVideoItem,
+        self._AddDataParser("*",
+                            preprocessor=self.PreProcessFolderList,
+                            parser=videoItemRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
         self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
@@ -125,9 +127,11 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        end = data.find("<p>Liknande videos</p>")
+        end = data.find('<li class="divider playlist-item">')
         if end < 0:
-            end = data.find("<p>Andere leuke video’s</p>")
+            end = data.find("<p>Liknande videos</p>")
+        if end < 0:
+            end = data.find("<p>Lignende videoer</p>")
         if end < 0:
             end = data.find("<p>Andere leuke video’s</p>")
 
@@ -180,7 +184,7 @@ class Channel(chn_class.Channel):
         playListData = UriHandler.Open(playListUrl, proxy=self.proxy)
 
         # now get the real RTMP data
-        rtmpMetaData = Regexer.DoRegex("<media:content [^>]+url='([^']+)'", playListData)[0]
+        rtmpMetaData = Regexer.DoRegex('<media:content[^>]+[^>]+url="([^"]+)&amp;force_country=', playListData)[0]
         rtmpData = UriHandler.Open(rtmpMetaData, proxy=self.proxy)
 
         rtmpUrls = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
