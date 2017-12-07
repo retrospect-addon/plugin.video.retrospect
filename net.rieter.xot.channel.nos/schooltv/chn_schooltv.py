@@ -226,6 +226,10 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         title = resultSet["title"]
+        if title is None:
+            Logger.Warning("Found item with all <null> items. Skipping")
+            return None
+
         if "subtitle" in resultSet and resultSet['subtitle'].lower() not in title.lower():
             title = "%(title)s - %(subtitle)s" % resultSet
 

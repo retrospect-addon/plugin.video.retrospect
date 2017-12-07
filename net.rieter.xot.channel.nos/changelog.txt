@@ -1,9 +1,10 @@
 ﻿[B]Changelog[/B]
+* Fixed: NTR School TV had some weird <null> items (Fixes #913)
+
+[I]Previous Changes[/I]
 * Fixed: NPO Search and paging
 * Fixed: NPO Genres (Fixes #906)
 * Fixed: NPO listing (Fixes #906)
-
-[I]Previous Changes[/I]
 * Fixed: NPO released a new site (Fixes #887)
 * Fixed: perhaps not group the "Hele Lijst" listing from NPO to distinguish it better from the NPO native alphabet listing
 * Changed: updated NPO urls to https
