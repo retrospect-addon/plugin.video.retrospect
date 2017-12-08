@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NTR School TV had some weird <null> items (Fixes #913)
+* Fixed: NOS.nl only showed old videos (Fixes #912)
 
 [I]Previous Changes[/I]
+* Fixed: NTR School TV had some weird <null> items (Fixes #913)
 * Fixed: NPO Search and paging
 * Fixed: NPO Genres (Fixes #906)
 * Fixed: NPO listing (Fixes #906)

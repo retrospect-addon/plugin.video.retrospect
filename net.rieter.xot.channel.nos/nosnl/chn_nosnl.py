@@ -1,9 +1,12 @@
 import mediaitem
 import chn_class
 import time
+import base64
 
 from helpers.jsonhelper import JsonHelper
 from helpers.encodinghelper import EncodingHelper
+from helpers.datehelper import DateHelper
+from helpers.languagehelper import LanguageHelper
 
 from logger import Logger
 from urihandler import UriHandler
@@ -36,63 +39,40 @@ class Channel(chn_class.Channel):
 
         # we need specific headers: APK:NosHttpClientHelper.java
         salt = int(time.time())
-        key = "%sRM%%j%%l@g@w_A%%" % (salt,)
-        Logger.Trace("Found Salt: %s and Key: %s", salt, key)
-        key = EncodingHelper.EncodeMD5(key, toUpper=False)
-        self.httpHeaders = {"X-NOS-App": "Google/x86;Android/4.4.4;nl.nos.app/3.1",
-                            "X-NOS-Salt": salt,
-                            "X-NOS-Key": key}
+        # key = "%sRM%%j%%l@g@w_A%%" % (salt,)
+        # Logger.Trace("Found Salt: %s and Key: %s", salt, key)
+        # key = EncodingHelper.EncodeMD5(key, toUpper=False)
+        # self.httpHeaders = {"X-NOS-App": "Google/x86;Android/4.4.4;nl.nos.app/3.1",
+        #                     "X-NOS-Salt": salt,
+        #                     "X-NOS-Key": key}
+
+        userAgent = "%s;%d;%s/%s;Android/%s;nl.nos.app/%s" % ("nos", salt, "Google", "Nexus", "6.0", "5.1.1")
+        string = ";UB}7Gaji==JPHtjX3@c%s" % (userAgent, )
+        string = EncodingHelper.EncodeMD5(string, toUpper=False).zfill(32)
+        xnos = string + base64.b64encode(userAgent)
+        self.httpHeaders = {"X-Nos": xnos}
 
         self.baseUrl = "http://nos.nl"
 
         # setup the main parsing data
         self._AddDataParser(self.mainListUri, preprocessor=self.GetCategories)
-        self._AddDataParser("*", preprocessor=self.AddNextPage, json=True,
-                            parser=(), creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
-
-        self._AddDataParser("http://content.nos.nl/apps/feeds/most-watched-video/", json=True,
-                            preprocessor=self.AddNextPage,
-                            parser=('items',), creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
+        self._AddDataParser("*",
+                            # preprocessor=self.AddNextPage,
+                            json=True,
+                            parser=('items', ),
+                            creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
+        self._AddDataParser("*",
+                            json=True,
+                            parser=('links',),
+                            creator=self.CreatePageItem)
 
         #===============================================================================================================
         # non standard items
         # self.__IgnoreCookieLaw()
+        self.__pageSize = 50
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
-
-    def AddNextPage(self, data):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        """
-        items = []
-
-        # we need to add a "more" item
-        url = self.parentItem.url
-        url, page = url.rsplit("/", 1)
-        url = "%s/%s" % (url, int(page) + 1)
-        moreItem = mediaitem.MediaItem("Meer", url)
-        moreItem.HttpHeaders = self.httpHeaders
-        moreItem.thumb = self.parentItem.thumb
-        moreItem.dontGroup = True
-        moreItem.complete = True
-        items.append(moreItem)
-
-        return data, items
 
     def GetCategories(self, data):
         """Performs pre-process actions for data processing
@@ -116,21 +96,34 @@ class Channel(chn_class.Channel):
         Logger.Info("Creating categories")
         items = []
 
-        cats = {"Meest Bekeken": "http://content.nos.nl/apps/feeds/most-watched-video/page/1",
-                "Nieuws": "http://content.nos.nl/apps/feeds/video/maincategory/nieuws/page/1",
-                "Sport": "http://content.nos.nl/apps/feeds/video/maincategory/sport/page/1",
-                "Alles": "http://content.nos.nl/apps/feeds/video/page/1", }
+        cats = {
+            "Meest Bekeken": "https://api.nos.nl/mobile/videos/most-viewed/phone.json",
+            "Nieuws": "https://api.nos.nl/nosapp/v3/items?mainCategories=nieuws&types=video&limit={0}".format(self.__pageSize),
+            "Sport": "https://api.nos.nl/nosapp/v3/items?mainCategories=sport&types=video&limit={0}".format(self.__pageSize),
+            "Alles": "https://api.nos.nl/nosapp/v3/items?types=video&limit={0}".format(self.__pageSize),
+        }
 
         for cat in cats:
             item = mediaitem.MediaItem(cat, cats[cat])
             item.thumb = self.noImage
             item.icon = self.icon
             item.complete = True
-            item.HttpHeaders = self.httpHeaders
             items.append(item)
 
         Logger.Debug("Creating categories finished")
         return data, items
+
+    def CreatePageItem(self, resultSet):
+        items = []
+        if 'next' in resultSet:
+            title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            url = resultSet['next']
+            item = mediaitem.MediaItem(title, url)
+            item.fanart = self.parentItem.fanart
+            item.thumb = self.parentItem.thumb
+            items.append(item)
+
+        return items
 
     def CreateJsonVideo(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
@@ -158,23 +151,26 @@ class Channel(chn_class.Channel):
         # category = resultSet["maincategory"].title()
         # subcategory = resultSet["subcategory"].title()
 
-        url = "http://content.nos.nl/apps/video/%s/format/mp4-web01" % (videoId, )
-        if "http:" not in url:
-            url = "%s/%s" % (self.baseUrl, url)
-
+        url = "https://api.nos.nl/mobile/video/%s/phone.json" % (videoId, )
         item = mediaitem.MediaItem(resultSet['title'], url, type="video")
         item.icon = self.icon
-        item.thumb = resultSet['image'].replace("*size*", "xl")
+        if 'image' in resultSet:
+            images = resultSet['image']["formats"]
+            matchedImage = images[-1]
+            for image in images:
+                if image["width"] >= 720:
+                    matchedImage = image
+                    break
+            item.thumb = matchedImage["url"].values()[0]
+
         item.description = resultSet["description"]
-        item.HttpHeaders = self.httpHeaders
         item.complete = False
+        item.isGeoLocked = resultSet.get("geoprotection", False)
 
         # set the date and time
-        date = resultSet["pub_date"]
-        date, time, ignore = date.split(" ", 2)
-        day, month, year = date.split("-")
-        hour, minutes, seconds = time.split(":")
-        item.SetDate(year, month, day, hour, minutes, seconds)
+        date = resultSet["published_at"]
+        timeStamp = DateHelper.GetDateFromString(date, dateFormat="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
+        item.SetDate(*timeStamp[0:6])
         return item
 
     def UpdateJsonVideo(self, item):
@@ -202,17 +198,20 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem: %s', item.name)
 
-        qualities = {"mp4-web03": 1200, "mp4-web01": 500}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        jsonData = JsonHelper(data)
+        streams = jsonData.GetValue("formats")
+        if not streams:
+            return item
+
+        qualities = {"480p": 1200, "360p": 500, "other": 0}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
         part = item.CreateNewEmptyMediaPart()
-        for q in qualities:
-            url = item.url.replace("mp4-web01", q)
-            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-            if not data:
-                Logger.Warning("No data found for: %s", q)
-                continue
-            json = JsonHelper(data, logger=Logger.Instance())
-            url = json.GetValue("url")
-            part.AppendMediaStream(url, qualities[q])
+        for stream in streams:
+            part.AppendMediaStream(
+                url=stream["url"].values()[-1],
+                bitrate=qualities[stream.get("name", "other")]
+            )
+
         item.complete = True
         return item
 
