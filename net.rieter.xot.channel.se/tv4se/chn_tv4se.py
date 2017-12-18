@@ -342,14 +342,14 @@ class Channel(chn_class.Channel):
         if not self.channelCode == "tv4se":
             return data, items
 
-        live = mediaitem.MediaItem("\a.: Live-TV :.",
-                                   "http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1@324055/master.m3u8",
-                                   type="video")
-        live.dontGroup = True
-        # live.isDrmProtected = True
-        live.isGeoLocked = True
-        live.isLive = True
-        items.append(live)
+        # live = mediaitem.MediaItem("\a.: Live-TV :.",
+        #                            "http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1@324055/master.m3u8",
+        #                            type="video")
+        # live.dontGroup = True
+        # # live.isDrmProtected = True
+        # live.isGeoLocked = True
+        # live.isLive = True
+        # items.append(live)
 
         Logger.Debug("Pre-Processing finished")
         return data, items

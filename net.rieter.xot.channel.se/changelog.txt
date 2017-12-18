@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: UR Play again (Fixes #910)
+* Removed: TV4 Live, as it moved to cmore.se (Closes #914)
 
 [I]Previous changes[/I]
+* Fixed: UR Play again (Fixes #910)
 * Fixed: UR Play (Fixes #907)
 * Fixed: SVT listing broke (Fixes #899)
 * Fixed: Exclude "Kommande" folders (Fixes #881)
