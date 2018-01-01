@@ -93,7 +93,7 @@ class Channel(chn_class.Channel):
         elif self.channelCode == "stievie":
             self.__app = "stievie"
             self.__sso = "stievie-sso"
-            self.__apiKey = "stievie-web-2.2-hNPNEbmKbhCcQzTLr8HVkYZc9AcXheOi"
+            self.__apiKey = "stievie-web-2.8-yz4DSTPshescHUytkWwU9jDxQ28PKTGn"
             self.noImage = "stievieimage.jpg"
             self.httpHeaders["Authorization"] = "apikey=%s" % (self.__apiKey, )
 
@@ -324,7 +324,7 @@ class Channel(chn_class.Channel):
         if signatureSetting and "|" not in signatureSetting:
             url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
             data = "APIKey=%s" \
-                   "&sdk=js_6.5.23" \
+                   "&sdk=js_7.4.30" \
                    "&login_token=%s" % (apiKey, signatureSetting, )
             logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
             if self.__ExtractSessionData(logonData, signatureSettings):
@@ -842,12 +842,13 @@ class Channel(chn_class.Channel):
         elif self.channelCode == "stievie":
             channel = item.metaData["channelId"]
 
-        url = "https://stream-live.medialaan.io/stream-live/v1/channels/%s/episodes/current/video?access_token=%s&_=%s" % (
+        url = "https://stream-live.medialaan.io/stream-live/v1/channels/%s/broadcasts/current/video/?deviceId=%s" % (
             channel,
-            HtmlEntityHelper.UrlEncode(token),
-            int(time.time())  # Could be a random int
+            uuid.uuid4()  # Could be a random int
         )
-        data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
+
+        auth = {"Authorization": "apikey=%s&access_token=%s" % (self.__apiKey, token)}
+        data = UriHandler.Open(url, proxy=self.proxy, noCache=True, additionalHeaders=auth)
         jsonData = JsonHelper(data)
         hls = jsonData.GetValue("response", "url", "hls")
         if not hls:
@@ -902,6 +903,7 @@ class Channel(chn_class.Channel):
 
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(streamUrl, 0)
+            # noinspection PyTypeChecker
             for k, v in kodiProps.iteritems():
                 stream.AddProperty(k, v)
         else:
