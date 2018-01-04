@@ -794,47 +794,74 @@ class AddonSettings:
             if channel.moduleName not in settings:
                 settings[channel.moduleName] = []
 
+            # First any specific settings
+            if channel.settings:
+                # Sort the settings so they are really in the correct order, because this is not guaranteed by the
+                # json parser
+                channel.settings.sort(lambda a, b: cmp(a["order"], b["order"]))
+                for channelSettings in channel.settings:
+                    settingId = channelSettings["id"]
+                    settingValue = channelSettings["value"]
+                    Logger.Debug("Adding setting: '%s' with value '%s'", settingId,
+                                 settingValue)
+
+                    if settingValue.startswith("id="):
+                        settingXmlId = settingValue[4:settingValue.index('"', 4)]
+                        settingXml = "<setting %s visible=\"eq(-{0},%s)\" />" % \
+                                     (settingValue, channel.safeName)
+                    else:
+                        settingXmlId = "channel_{0}_{1}".format(channel.guid, settingId)
+                        settingXml = '<setting id="%s" %s visible=\"eq(-{0},%s)\" />' % \
+                                     (settingXmlId, settingValue, channel.safeName)
+
+                    # existingSettingXmlIndex = []
+                    # for i, elem in enumerate(settings[channel.moduleName]):
+                    #     if 'aa' in elem:
+                    #         existingSettingXmlIndex.append(i)
+                    #
+                    # Alternatively, as a list comprehension:
+                    #
+                    # indices = [i for i, elem in enumerate(settings[channel.moduleName]) if 'aa' in elem]
+
+                    existingSettingXmlIndex = [i for i, s in
+                                               enumerate(settings[channel.moduleName]) if
+                                               settingXmlId in s]
+                    if not existingSettingXmlIndex:
+                        settings[channel.moduleName].append((settingXmlId, settingXml))
+                    else:
+                        xmlIndex = existingSettingXmlIndex[0]
+                        # we need to OR the visibility
+                        settingTuple = settings[channel.moduleName][xmlIndex]
+                        setting = settingTuple[1].replace(
+                            'visible="', 'visible="eq(-{0},%s)|' % (channel.safeName,))
+                        settings[channel.moduleName][xmlIndex] = (settingTuple[0], setting)
+
             # add channel visibility
-            settingXml = '<setting id="channel_%s_visible" type="bool" label="30042" ' \
-                         'default="true" visible="eq(-%%s,%s)" />' % \
-                         (channel.guid, channel.safeName)
+            visibilityId = "channel_{0}_visible".format(channel.guid)
+            settingXml = '<setting id="%s" type="bool" label="30042" ' \
+                         'default="true" visible="eq(-{0},%s)" />' % \
+                         (visibilityId, channel.safeName)
             Logger.Trace(settingXml)
-            settings[channel.moduleName].append(settingXml)
-            settingXml = '<setting id="channel_%s_bitrate" type="select" label="30020" ' \
+            settings[channel.moduleName].append((visibilityId,  settingXml))
+
+            bitrateId = "channel_{0}_bitrate".format(channel.guid)
+            settingXml = '<setting id="%s" type="select" label="30020" ' \
                          'values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" ' \
-                         'default="Retrospect" visible="eq(-%%s,%s)" />' % \
-                         (channel.guid, channel.safeName)
+                         'default="Retrospect" visible="eq(-{0},%s)" />' % \
+                         (bitrateId, channel.safeName)
             Logger.Trace(settingXml)
-            settings[channel.moduleName].append(settingXml)
-
-            if not channel.settings:
-                continue
-
-            # Sort the settings so they are really in the correct order, because this is not guaranteed by the
-            # json parser
-            channel.settings.sort(lambda a, b: cmp(a["order"], b["order"]))
-            for channelSettings in channel.settings:
-                settingId = channelSettings["id"]
-                settingValue = channelSettings["value"]
-                Logger.Debug("Adding setting: '%s' with value '%s'", settingId, settingValue)
-
-                if settingValue.startswith("id="):
-                    settingXml = "<setting %s visible=\"eq(-%%s,%s)\" />" % \
-                                 (settingValue, channel.safeName)
-                else:
-                    settingXml = '<setting id="channel_%s_%s" %s visible=\"eq(-%%s,%s)\" />' % \
-                                 (channel.guid, settingId, settingValue, channel.safeName)
-                settings[channel.moduleName].append(settingXml)
+            settings[channel.moduleName].append((bitrateId, settingXml))
 
         xmlContent = '\n        <!-- begin of channel settings -->\n'
         # Sort them to make the result more consistent
+        # noinspection PyUnresolvedReferences
         settingKeys = settings.keys()
         settingKeys.sort()
         for pyModule in settingKeys:
             xmlContent = '%s        <!-- %s.py -->\n' % (xmlContent, pyModule)
-            for setting in settings[pyModule]:
+            for settingXmlId, setting in settings[pyModule]:
                 settingOffsetForVisibility += 1
-                xmlContent = "%s        %s\n" % (xmlContent, setting % settingOffsetForVisibility)
+                xmlContent = "%s        %s\n" % (xmlContent, setting.format(settingOffsetForVisibility))
 
         begin = contents[:contents.find('<!-- begin of channel settings -->')].strip()
         end = contents[contents.find('<!-- end of channel settings -->'):]
@@ -919,6 +946,7 @@ class AddonSettings:
         for language in languages:
             languageLookup[language] = AddonSettings.__GetLanguageSettingsIdAndLabel(language)
 
+        # noinspection PyUnresolvedReferences
         languageLookupSortedKeys = languageLookup.keys()
         languageLookupSortedKeys.sort()
 
@@ -1020,6 +1048,7 @@ class AddonSettings:
         except:
             Logger.Error("Settings :: Cannot use xbmcaddon.Addon() as settings. Falling back to xbmc.Settings(path)", exc_info=True)
             import xbmc  # @Reimport
+            # noinspection PyUnresolvedReferences
             AddonSettings.__settings = xbmc.Settings(path=Config.rootDir)
 
     @staticmethod
