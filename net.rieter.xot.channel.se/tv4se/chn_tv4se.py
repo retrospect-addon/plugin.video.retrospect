@@ -224,7 +224,7 @@ class Channel(chn_class.Channel):
         url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&is_live=false&type=episode&" \
               "page=1&node_nids=%s&start=0" % (self.maxPageSize, programId, )
 
-        if "channel" in json:
+        if "channel" in json and json["channel"]:
             channelId = json["channel"]["nid"]
             Logger.Trace("ChannelId found: %s", channelId)
         else:
