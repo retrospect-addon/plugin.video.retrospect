@@ -1,10 +1,15 @@
 # Retrospect - Public GIT Repository #
-*Use at own risk*
 
-This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or http://www.rieter.net/content/.
+This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or https://www.rieter.net/content/.
 
-## Installation of the Nightly versions ##
-The installation comes down to putting the folders from the GIT repo in the Kodi add-on folder (very often: /home/<user>/.kodi/addons or c:\users\<user>\AppData\Roaming\Kodi\addons). The result should be that the *addons* folder now contains at least these folders:
+# Installing Retrospect #
+There are a couple of ways to install and/or update Retrospect using this GIT repository:
+
+## 1 - Installation of Retrospect the 'Easy way' ##
+If a `net.rieter.xot-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date. 
+
+## 2 - Installation of Retrospect the 'Advanced way' ##
+The installation comes down to putting the folders from the GIT repo (either via a _'GIT Clone'_ or _'Full Zip Download'_)in the Kodi add-on folder (very often: /home/<user>/.kodi/addons or c:\users\<user>\AppData\Roaming\Kodi\addons). The result should be that the *addons* folder now contains at least these folders:
 
 ```
  net.rieter.xot
@@ -23,30 +28,29 @@ The installation comes down to putting the folders from the GIT repo in the Kodi
  net.rieter.xot.channel.videos
 ```
 
-### Via GIT ###
+### 2.A - ....via 'GIT Clone' ###
 Clone the Nightly GIT repository directly into the Kodi Add-on folder. So don't put it in a subfolder:
 
 ```
 git clone https://bitbucket.org/basrieter/xbmc-online-tv.git .
 ```
 
-### Via Download ###
-Download the complete Nightly GIT repo and extract it into the Kodi Add-on folder.
+### 2.B - ....via 'Full Zip Download' ###
+Download the complete GIT repo and extract it into the Kodi Add-on folder.
 
-# Updating the Nightly Repo #
-### Via GIT ###
+## 3 - Updating Retrospect ##
+
+### 3.A - ....via 'GIT Clone' ###
 Pull latest changes into your clone (located in the Kodi Add-on folder). After that remove all existing `*.pyc` and `*.pyo` files within the Retrospect folders.
 
-### Via Download ###
-Download the complete Nightly GIT repo. Remove all existing Retrospect folders and extract the new ones it into the Kodi Add-on folder.
+### 3.B - ....via 'Full Zip Download' ###
+Download the complete GIT repo. Remove all existing Retrospect folders (**don't skip this**) and extract the new ones it into the Kodi Add-on folder.
 
+### Finalizing the update ###
 In both situation run Retrospect at least once before accessing the Retrospect add-on settings. The initial run might take longer than usual, as Retrospect is initialising some stuff and downloads artwork.
 
 # ! Be advised ! #
-Depending on what branch you are on, Kodi will or will not attempt to auto-update the Retrospect Add-on as soon as there is an official update available:
-
-* Master: this branch contains the most recent Retrospect code files. It will always be one version ahead of the current release and will thus not update. You need to ```git pull``` the changes.
-* Patch-x.x.x: this branch contains the most recent stable and officially release Retrospect code files. It is the same version as can be found online and it will auto update via Kodi if an update is available.
+Retrospect will NOT auto-upate. So new version need to be installed manually. 
 
 # Copyrights and Licenses #
 *See also: http://www.rieter.net/content/xot/license/.*
