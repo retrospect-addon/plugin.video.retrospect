@@ -41,7 +41,7 @@ Download the complete GIT repo and extract it into the Kodi Add-on folder.
 ## 3 - Updating Retrospect ##
 
 ### 3.A - ....via 'GIT Clone' ###
-Pull latest changes into your clone (located in the Kodi Add-on folder). After that remove all existing `*.pyc` and `*.pyo` files within the Retrospect folders.
+Pull latest changes into your clone (located in the Kodi Add-on folder). After that remove all existing `*.pyc` and `*.pyo` files within the Retrospect folders (**don't skip this**).
 
 ### 3.B - ....via 'Full Zip Download' ###
 Download the complete GIT repo. Remove all existing Retrospect folders (**don't skip this**) and extract the new ones it into the Kodi Add-on folder.
