@@ -1,3 +1,5 @@
+import datetime
+
 import mediaitem
 import chn_class
 
@@ -7,6 +9,7 @@ from helpers.jsonhelper import JsonHelper
 from helpers.datehelper import DateHelper
 from logger import Logger
 from urihandler import UriHandler
+# from helpers.languagehelper import LanguageHelper
 
 
 class Channel(chn_class.Channel):
@@ -29,9 +32,9 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the urls
-        self.baseUrl = "http://www.kijk.nl"
+        self.baseUrl = "https://www.kijk.nl"
         # Just retrieve a single page with 500 items (should be all)
-        self.mainListUri = "http://api.kijk.nl/v1/default/sections/programs-abc-0123456789abcdefghijklmnopqrstuvwxyz?limit=350&offset=0"
+        self.mainListUri = "https://api.kijk.nl/v1/default/sections/programs-abc-0123456789abcdefghijklmnopqrstuvwxyz?limit=350&offset=0"
 
         self.__channelId = self.channelCode
         if self.channelCode == 'veronica':
@@ -49,16 +52,27 @@ class Channel(chn_class.Channel):
             self.noImage = "net5image.png"
 
         # setup the main parsing data
-        self._AddDataParser("http://api.kijk.nl/v1/default/sections/programs-abc",
+        self._AddDataParser("https://api.kijk.nl/v1/default/sections/programs-abc",
                             name="Mainlist Json", json=True,
                             preprocessor=self.AddOthers,
                             parser=("items", ), creator=self.CreateJsonEpisodeItem)
 
-        self._AddDataParser("http://api.kijk.nl/v1/default/sections/series",
+        self._AddDataParser("#lastweek",
+                            name="Last week listing", json=True,
+                            preprocessor=self.ListDates)
+
+        self._AddDataParser("https://api.kijk.nl/v2/templates/page/missed/all/",
+                            name="Day listing", json=True, preprocessor=self.ExtractDayItems)
+
+        self._AddDataParser("https://api.kijk.nl/v1/default/searchresultsgrouped",
+                            name="VideoItems Json", json=True,
+                            parser=(), creator=self.CreateJsonSearchItem)
+
+        self._AddDataParser("https://api.kijk.nl/v1/default/sections/series",
                             name="VideoItems Json", json=True,
                             parser=("items", ), creator=self.CreateJsonVideoItem)
 
-        self._AddDataParser("http://api.kijk.nl/v2/default/sections/popular",
+        self._AddDataParser("https://api.kijk.nl/v2/default/sections/popular",
                             name="Popular items Json", json=True,
                             parser=("items", ), creator=self.CreateJsonPopularItem)
 
@@ -100,10 +114,93 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        others = mediaitem.MediaItem("\b.: Populair :.", "http://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
+        others = mediaitem.MediaItem("\b.: Populair :.", "https://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
         items.append(others)
+
+        days = mediaitem.MediaItem("\b.: Deze week :.", "#lastweek")
+        items.append(days)
+
+        search = mediaitem.MediaItem("\b.: Zoeken :.", "searchSite")
+        search.complete = True
+        search.icon = self.icon
+        search.thumb = self.noImage
+        search.dontGroup = True
+        search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        items.append(search)
+
         Logger.Debug("Pre-Processing finished")
         return data, items
+
+    # noinspection PyUnusedLocal
+    def SearchSite(self, url=None):  # @UnusedVariable
+        """Creates an list of items by searching the site
+
+        Returns:
+        A list of MediaItems that should be displayed.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        """
+
+        url = "https://api.kijk.nl/v1/default/searchresultsgrouped?search=%s"
+        return chn_class.Channel.SearchSite(self, url)
+
+    def ListDates(self, data):
+        items = []
+
+        # https://api.kijk.nl/v2/templates/page/missed/all/20180201
+        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        for i in range(0, 7):
+            date = datetime.datetime.now() - datetime.timedelta(days=i)
+            url = "https://api.kijk.nl/v2/templates/page/missed/all/{0}{1:02d}{2:02d}".format(date.year, date.month, date.day)
+            if i == 0:
+                # title = LanguageHelper.GetLocalizedString(LanguageHelper.Today)
+                title = "Vandaag"
+            elif i == 1:
+                # title = LanguageHelper.GetLocalizedString(LanguageHelper.Yesterday)
+                title = "Gisteren"
+            elif i == 2:
+                # title = LanguageHelper.GetLocalizedString(LanguageHelper.DayBeforeYesterday)
+                title = "Eergisteren"
+            else:
+                day_name = days[date.weekday()]
+                title = day_name
+
+            date_item = mediaitem.MediaItem(title, url)
+            date_item.SetDate(date.year, date.month, date.day)
+            items.append(date_item)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
+
+    def ExtractDayItems(self, data):
+        items = []
+        json = JsonHelper(data)
+        page_data = json.GetValue('components', fallback={})
+        for page_item in page_data:
+            if page_item['type'] != 'video_list':
+                continue
+
+            page_items = page_item['data']['items']
+            for item in page_items:
+                video_item = self.CreateJsonVideoItem(item, prepend_serie=True)
+                if video_item:
+                    items.append(video_item)
+                else:
+                    pass
+
+        return data, items
+
+    def CreateJsonSearchItem(self, resultSet):
+        if 'type' in resultSet:
+            item_type = resultSet['type']
+            if item_type == 'series':
+                return self.CreateJsonEpisodeItem(resultSet)
+            elif item_type == 'episode' or item_type == 'clip':
+                return self.CreateJsonVideoItem(resultSet, prepend_serie=True)
+        return None
 
     def CreateJsonEpisodeItem(self, resultSet):
         Logger.Trace(resultSet)
@@ -113,7 +210,7 @@ class Channel(chn_class.Channel):
             return None
 
         title = resultSet["title"]
-        url = "http://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % resultSet
+        url = "https://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % resultSet
         item = mediaitem.MediaItem(title, url)
         item.description = resultSet.get("synopsis", None)
 
@@ -125,17 +222,17 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonPopularItem(self, resultSet):
-        item = self.CreateJsonVideoItem(resultSet)
+        item = self.CreateJsonVideoItem(resultSet, prepend_serie=True)
         if item is None:
             return None
 
-        item.name = "%s - %s" % (resultSet["seriesTitle"], item.name)
+        item.name = "%s - %s" % (item.name, resultSet["seriesTitle"])
         return item
 
-    def CreateJsonVideoItem(self, resultSet):
+    def CreateJsonVideoItem(self, resultSet, prepend_serie=False):
         Logger.Trace(resultSet)
 
-        if not resultSet["available"]:
+        if not resultSet.get("available", True):
             Logger.Warning("Item not available: %s", resultSet)
             return None
 
@@ -143,8 +240,16 @@ class Channel(chn_class.Channel):
         if item is None:
             return None
 
+        if prepend_serie and 'seriesTitle' in resultSet:
+            item.name = "{0} - {1}".format(item.name, resultSet['seriesTitle'])
+        elif 'seriesTitle' in resultSet:
+            item.name = resultSet['seriesTitle']
+
         item.type = "video"
         item.url = "https://embed.kijk.nl/api/video/%(id)s?id=kijkapp" % resultSet
+
+        if 'subtitle' in resultSet:
+            item.name = "{0} - {1}".format(item.name, resultSet['subtitle'])
 
         if "date" in resultSet:
             date = resultSet["date"].split("+")[0]
