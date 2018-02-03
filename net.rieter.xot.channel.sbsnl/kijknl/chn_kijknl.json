@@ -47,6 +47,18 @@
       "language": "nl",
       "compatible": "Environments.All",
       "fanart": "sbs9fanart.png"
+    },
+    {
+      "guid": "271456ED-6E84-4FAB-A7AF-77A1C669F942",
+      "name": "Kijk.nl",
+      "description": "Alle uitzendingen van kijk.nl.",
+      "icon": "kijklarge.png",
+      "category": "National",
+      "channelcode": null,
+      "sortorder": 5,
+      "language": "nl",
+      "compatible": "Environments.All",
+      "fanart": "kijkfanart.png"
     }
   ]
 }

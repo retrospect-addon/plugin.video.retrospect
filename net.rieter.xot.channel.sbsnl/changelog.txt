@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
 * Added: Kijk.nl day selection (Fixes #897)
+* Added: Seperate Kijk.nl channel
 
 [I]Previous changes[/I]
 * Fixed: Kijk.nl moved to a JSON API (Fixes #875)

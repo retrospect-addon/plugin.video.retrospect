@@ -51,6 +51,9 @@ class Channel(chn_class.Channel):
         elif self.channelCode == 'net5':
             self.noImage = "net5image.png"
 
+        else:
+            self.noImage = "kijkimage.png"
+
         # setup the main parsing data
         self._AddDataParser("https://api.kijk.nl/v1/default/sections/programs-abc",
                             name="Mainlist Json", json=True,
@@ -206,7 +209,7 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         channelId = resultSet["channel"]
-        if channelId != self.__channelId:
+        if self.__channelId and channelId != self.__channelId:
             return None
 
         title = resultSet["title"]
