@@ -102,6 +102,10 @@ class LanguageHelper:
     LogPostError = 30601
     LogPostErrorTitle = 30602
 
+    Today = 30551
+    Yesterday = 30552
+    DayBeforeYesterday = 30553
+
     __Categories = {"None": 30100,
                     "Regional": 30101,
                     "National": 30102,
