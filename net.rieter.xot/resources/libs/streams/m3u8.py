@@ -45,6 +45,12 @@ class M3u8:
         if appendQueryString and "?" in url:
             base, qs = url.split("?", 1)
             Logger.Info("Going to append QS: %s", qs)
+        elif "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.Info("Ignoring QS: %s", qs)
+            qs = None
+        else:
+            base = url
 
         Logger.Debug("Processing M3U8 Streams: %s", url)
 
@@ -67,7 +73,7 @@ class M3u8:
 
         audioStreams = {}
         baseUrlLogged = False
-        baseUrl = url[:url.rindex("/")]
+        baseUrl = base[:base.rindex("/")]
         for n in needles:
             # see if we need to append a server path
             Logger.Trace(n)
@@ -89,6 +95,8 @@ class M3u8:
 
             if qs is not None and stream.endswith("?null="):
                 stream = stream.replace("?null=", "?%s" % (qs, ))
+            elif qs is not None and "?" in stream:
+                stream = "%s&%s" % (stream, qs)
             elif qs is not None:
                 stream = "%s?%s" % (stream, qs)
 
