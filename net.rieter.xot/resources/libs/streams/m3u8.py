@@ -17,7 +17,50 @@ class M3u8:
         pass
 
     @staticmethod
-    def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False, mapAudio=False):
+    def GetSubtitle(url, proxy=None, playListData=None, appendQueryString=True):
+        data = playListData or UriHandler.Open(url, proxy)
+        regex = '(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
+        sub = ""
+
+        qs = None
+        if appendQueryString and "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.Info("Going to append QS: %s", qs)
+        elif "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.Info("Ignoring QS: %s", qs)
+            qs = None
+        else:
+            base = url
+
+        needles = Regexer.DoRegex(regex, data)
+        URL_INDEX = 1
+        baseUrlLogged = False
+        baseUrl = base[:base.rindex("/")]
+        for n in needles:
+            if "://" not in n[URL_INDEX]:
+                if not baseUrlLogged:
+                    Logger.Debug("Using baseUrl %s for M3u8", baseUrl)
+                    baseUrlLogged = True
+                sub = "%s/%s" % (baseUrl, n[URL_INDEX])
+            else:
+                if not baseUrlLogged:
+                    Logger.Debug("Full url found in M3u8")
+                    baseUrlLogged = True
+                sub = n[URL_INDEX]
+
+            if qs is not None and sub.endswith("?null="):
+                sub = sub.replace("?null=", "?%s" % (qs, ))
+            elif qs is not None and "?" in sub:
+                sub = "%s&%s" % (sub, qs)
+            elif qs is not None:
+                sub = "%s?%s" % (sub, qs)
+
+        return sub
+
+    @staticmethod
+    def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False, mapAudio=False,
+                           playListData=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
@@ -25,6 +68,8 @@ class M3u8:
         @param proxy:             (Proxy) The proxy to use for opening
         @param url:               (String) The url to download
         @param appendQueryString: (boolean) should the existing query string be appended?
+        @param mapAudio:          (boolean) map audio streams
+        @param playListData:      (string) data of an already retrieved M3u8
 
         Can be used like this:
 
@@ -38,7 +83,7 @@ class M3u8:
 
         streams = []
 
-        data = UriHandler.Open(url, proxy, additionalHeaders=headers)
+        data = playListData or UriHandler.Open(url, proxy, additionalHeaders=headers)
         Logger.Trace(data)
 
         qs = None
