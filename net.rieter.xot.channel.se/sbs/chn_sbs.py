@@ -1,12 +1,11 @@
 # coding:UTF-8
 
+import uuid
 
 import mediaitem
 import chn_class
 
 from helpers.jsonhelper import JsonHelper
-from helpers.languagehelper import LanguageHelper
-from helpers.datehelper import DateHelper
 from helpers.subtitlehelper import SubtitleHelper
 from urihandler import UriHandler
 from streams.m3u8 import M3u8
@@ -34,7 +33,7 @@ class Channel(chn_class.Channel):
 
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.mainListUri = "#programs"
-        self.programPageSize = 50
+        self.programPageSize = 100
         self.videoPageSize = 25
         self.swfUrl = "http://player.dplay.se/4.0.6/swf/AkamaiAdvancedFlowplayerProvider_v3.8.swf"
         self.subtitleKey = "subtitles_se_srt"
@@ -49,12 +48,7 @@ class Channel(chn_class.Channel):
             # self.fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/Kanal5-channel-large_kxf7fn.jpg"
             # Recent URL changes over time. See the 'website -> channel' page
             self.recentUrl = "%s/modules?page_id=132040&module_id=7556&items=%s&page=0"
-
-            # - From the /program/ page (requires slugs for filtering)
-            # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
-            # self.channelSlugs = ("kanal-5", "kanal-5-home")
-            # - From the /kanal??/ recommended -> fastest and does not require filtering on slugs
-            self.mainListFormat = "%s/shows/?items=%s&homechannel_id=48&page=%s&sort=title_asc"
+            self.primaryChannelId = 21
 
         elif self.channelCode == "tv9json":
             self.noImage = "tv9seimage.png"
@@ -62,11 +56,7 @@ class Channel(chn_class.Channel):
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132043"
             # self.fanart = "http://a2.res.cloudinary.com/dumrsasw1/image/upload/Thewalkingdead_hqwfz1.jpg"
             self.recentUrl = "%s/modules?page_id=132043&module_id=466&items=%s&page=0"
-            # - From the /program/ page (requires slugs for filtering)
-            # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
-            # self.channelSlugs = ("kanal-9", "kanal-9-home")
-            # - From the /kanal??/ recommended -> fastest and does not require filtering on slugs
-            self.mainListFormat = "%s/shows/?items=%s&homechannel_id=52&page=%s&sort=title_asc"
+            self.primaryChannelId = 26
 
         elif self.channelCode == "tv11json":
             self.noImage = "tv11seimage.jpg"
@@ -74,16 +64,8 @@ class Channel(chn_class.Channel):
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
             # self.fanart = "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
             self.recentUrl = "%s/modules?page_id=132039&module_id=470&items=%s&page=0"
-            # - From the /program/ page (requires slugs for filtering)
-            # self.mainListFormat = "%s/modules?page_id=23&module_id=19&items=%s&page=%s"
-            # self.channelSlugs = ("kanal-11", "kanal-11-home")
-            # - From the /kanal??/ recommended -> fastest and does not require filtering on slugs
-            self.mainListFormat = "%s/shows/?items=%s&homechannel_id=46&page=%s&sort=title_asc"
+            self.primaryChannelId = 22
 
-        # elif self.channelCode == "dplaydk":
-        #     self.noImage = ""
-        #     self.baseUrl = "http://www.dplay.dk/api/v2/ajax"
-        #     self.mainListFormat = "%s/modules?page_id=227&module_id=99&items=%s&page=%s"
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
 
@@ -95,20 +77,34 @@ class Channel(chn_class.Channel):
                             matchType=ParserData.MatchRegex,
                             updater=self.UpdateChannelItem)
 
+        # TODO: Search
         self._AddDataParser("http://www.dplay.se/api/v2/ajax/search/?types=show&items=", json=True,
                             parser=("data", ), creator=self.CreateProgramItem)
 
         self._AddDataParser("http://www.dplay.se/api/v2/ajax/modules", json=True,
                             parser=("data",), creator=self.CreateVideoItemWithShowTitle,
                             updater=self.UpdateVideoItem)
+
         self._AddDataParser("*", json=True,
+                            preprocessor=self.__GetImagesFromMetaData,
                             parser=("data",), creator=self.CreateVideoItem,
+
                             updater=self.UpdateVideoItem)
+        # TODO: Video paging
         self._AddDataParser("*", json=True,
                             parser=(), creator=self.CreatePageItem)
 
         #===========================================================================================
         # non standard items
+        if not UriHandler.GetCookie("st", "disco-api.dplay.se"):
+            guid = uuid.uuid4()
+            guid = str(guid).replace("-", "")
+            # https://disco-api.dplay.se/token?realm=dplayse&deviceId
+            # =aa9ef0ed760df76d184b262d739299a75ccae7b67eec923fe3fcd861f97bcc7f&shortlived=true
+            url = "https://disco-api.dplay.se/token?realm=dplayse&deviceId={0}&shortlived=true".format(guid)
+            JsonHelper(UriHandler.Open(url, proxy=self.proxy))
+
+        self.imageLookup = {}
 
         #===========================================================================================
         # Test cases:
@@ -139,19 +135,35 @@ class Channel(chn_class.Channel):
         items = []
 
         # fetch al pages
-        currentPage = 0
-        url = self.mainListFormat % (self.baseUrl, self.programPageSize, currentPage)
+        p = 1
+        urlFormat = "https://disco-api.dplay.se/content/shows?" \
+                    "include=images" \
+                    "&page%5Bsize%5D=100&page%5Bnumber%5D={0}"
+        # "include=images%2CprimaryChannel" \
+        url = urlFormat.format(p)
         data = UriHandler.Open(url, proxy=self.proxy)
         json = JsonHelper(data)
-        pages = json.GetValue("total_pages")
+        pages = json.GetValue("meta", "totalPages")
         programs = json.GetValue("data") or []
 
-        for p in range(1, pages, 1):
-            url = self.mainListFormat % (self.baseUrl, self.programPageSize, p)
+        # extract the images
+        self.__UpdateImageLookup(json)
+
+        # https://disco-api.dplay.se/content/shows?include=genres%2Cimages%2CprimaryChannel.images
+        # &page%5Bsize%5D=100&page%5Bnumber%5D=1
+        # https://disco-api.dplay.se/content/shows?page%5Bsize%5D=100&page%5Bnumber%5D=1
+
+        for p in range(2, pages + 1, 1):
+            url = urlFormat.format(p)
             Logger.Debug("Loading: %s", url)
+
             data = UriHandler.Open(url, proxy=self.proxy)
             json = JsonHelper(data)
             programs += json.GetValue("data") or []
+
+            # extract the images
+            self.__UpdateImageLookup(json)
+
         Logger.Debug("Found a total of %s items over %s pages", len(programs), pages)
 
         for p in programs:
@@ -184,7 +196,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateProgramItem(self, p):
+    def CreateProgramItem(self, resultSet):
         """Creates a new MediaItem for a program
 
         Arguments:
@@ -199,59 +211,25 @@ class Channel(chn_class.Channel):
 
         """
 
-        # Logger.Trace(p)
-        name = p["title"]
-        # showName = p.get("video_metadata_show", None)
-        videoId = None
-        channelSlug = None
-        homeChannelSlug = None
-
-        # get some meta data
-        videoInfos = p["taxonomy_items"]
-        for videoInfo in videoInfos:
-            if videoInfo["type"] == "show":
-                videoId = videoInfo["term_id"]
-            elif videoInfo["type"] == "channel":
-                channelSlug = videoInfo["slug"]
-            elif videoInfo["type"] == "home-channel":
-                homeChannelSlug = videoInfo["slug"]
-
-        if videoId is None:
-            Logger.Warning("Found '%s' without 'term_id'", name)
+        Logger.Trace(resultSet)
+        urlFormat = "https://disco-api.dplay.se/content/videos?decorators=viewingHistory&" \
+                    "include=images%2CprimaryChannel%2Cshow&" \
+                    "filter%5BvideoType%5D=EPISODE%2CLIVE&" \
+                    "filter%5Bshow.id%5D={0}&" \
+                    "page%5Bsize%5D=100&" \
+                    "sort=-seasonNumber%2C-episodeNumber%2CearliestPlayableStart"
+        item = self.__CreateGenericItem(resultSet, "show", urlFormat)
+        if item is None:
             return None
-
-        # Logger.Trace("Found '%s/%s' with id='%s'", showName or "<noShowName>", name, videoId)
-
-        if len(self.channelSlugs) > 0 \
-                and channelSlug not in self.channelSlugs \
-                and homeChannelSlug not in self.channelSlugs:
-            Logger.Debug("Found show '%s' for channel '%s' needed '%s'",
-                         name, channelSlug, self.channelSlugs)
-            return None
-
-        # now get the items
-        url = "%s/shows/%s/seasons/?show_id=%s&items=%s&sort=episode_number_desc&page=0" \
-              % (self.baseUrl, videoId, videoId, self.videoPageSize)
-        item = mediaitem.MediaItem(name, url)
-        item.description = p.get("secondary_title")
 
         # set the date
-        date = p["modified"]
-        datePart, timePart = date.split(" ")
-        year, month, day = datePart.split("-")
-        # hours, minutes, seconds = timePart.split(":")
-        # item.SetDate(year, month, day, hours, minutes, seconds)
-        item.SetDate(year, month, day)
+        videoInfo = resultSet["attributes"]
+        if "newestEpisodePublishStart" in videoInfo:
+            date = videoInfo["newestEpisodePublishStart"]
+            datePart, timePart = date[0:-3].split("T")
+            year, month, day = datePart.split("-")
+            item.SetDate(year, month, day)
 
-        # set the images
-        thumbId = p["image_data"].get("file", None)
-        if thumbId is not None:
-            thumb = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/c_crop,h_901,w_1352,x_72,y_1/c_fill,h_245,w_368/%s" % (thumbId, )
-            fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/%s" % (thumbId, )
-            item.thumb = thumb
-            item.fanart = fanart
-
-        item.isPaid = p["content_info"]["package_label"]["value"] != "Free"
         return item
 
     def CreatePageItem(self, resultSet):
@@ -268,23 +246,24 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
+        return None
 
         Logger.Debug("Starting CreatePageItem")
 
-        # current page?
-        baseUrl, page = self.parentItem.url.rsplit("=", 1)
-        page = int(page)
-        maxPages = resultSet.get("total_pages", 0)
-        Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, baseUrl)
-        if page + 1 >= maxPages:
-            return None
-
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
-        url = "%s=%s" % (baseUrl, page + 1)
-        item = mediaitem.MediaItem(title, url)
-        item.fanart = self.parentItem.fanart
-        item.thumb = self.parentItem.thumb
-        return item
+        # # current page?
+        # baseUrl, page = self.parentItem.url.rsplit("=", 1)
+        # page = int(page)
+        # maxPages = resultSet.get("total_pages", 0)
+        # Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, baseUrl)
+        # if page + 1 >= maxPages:
+        #     return None
+        #
+        # title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        # url = "%s=%s" % (baseUrl, page + 1)
+        # item = mediaitem.MediaItem(title, url)
+        # item.fanart = self.parentItem.fanart
+        # item.thumb = self.parentItem.thumb
+        # return item
 
     def SearchSite(self, url=None):
         """Creates an list of items by searching the site
@@ -364,41 +343,18 @@ class Channel(chn_class.Channel):
         if not resultSet:
             return None
 
-        title = resultSet["title"]
-        subtitle = resultSet.get("secondary_title", None)
-        season = resultSet.get("season", None)
-        episode = resultSet.get("episode", None)
-        if not subtitle and season and episode:
-            Logger.Debug("Found season (%s) and episode (%s) data", season, episode)
-
-            subtitle = "s%02de%02d" % (int(season), int(episode))
-        if subtitle:
-            title = "%s - %s" % (title, subtitle)
-
-        # url = resultSet["hls"]
-        url = "%s/videos?video_id=%s&page=0&items=500" % (self.baseUrl, resultSet["id"])
-        item = mediaitem.MediaItem(title, url)
+        urlFormat = "https://disco-api.dplay.se/playback/videoPlaybackInfo/{0}"
+        item = self.__CreateGenericItem(resultSet, "video", urlFormat)
         item.type = "video"
+        if item is None:
+            return None
 
-        item.description = resultSet.get("video_metadata_longDescription", None)
-        if not item.description:
-            item.description = resultSet.get("description", None)
-
-        item.fanart = self.parentItem.fanart
-        item.thumb = resultSet.get("video_metadata_videoStillURL", self.parentItem.thumb)
-
-        # timeStamp = resultSet.get("video_metadata_first_startTime", None)
-        timeStamp = resultSet.get("video_metadata_svod_start_time", None)
-        if timeStamp:
-            timeStamp = int(timeStamp)
-            date = DateHelper.GetDateFromPosix(timeStamp)
-            item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
-
-        item.isPaid = "Packages-Free" not in resultSet["video_metadata_package"]
-
-        # not sure if this catches all, but it is a start
-        if "open-drm" in resultSet.get("hls", ""):
-            item.isGeoLocked = True
+        videoInfo = resultSet["attributes"]
+        if "publishStart" in videoInfo:
+            date = videoInfo["publishStart"]
+            datePart, timePart = date[0:-3].split("T")
+            year, month, day = datePart.split("-")
+            item.SetDate(year, month, day)
         return item
 
     def UpdateChannelItem(self, item):
@@ -458,32 +414,37 @@ class Channel(chn_class.Channel):
             return item
 
         videoData = JsonHelper(videoData)
-        videoInfo = videoData.GetValue("data", 0)
+        videoInfo = videoData.GetValue("data", "attributes")
 
         part = item.CreateNewEmptyMediaPart()
-        item.complete = self.__GetVideoStreams(videoInfo["id"], part)
+        m3u8url = videoInfo["streaming"]["hls"]["url"]
+        m3u8data = UriHandler.Open(m3u8url, self.proxy)
 
-        if len(item.MediaItemParts) > 0:
-            part = item.MediaItemParts[0]
-            subtitle = None
-            # check for the main key and otherwise just fall back.
-            if self.subtitleKey in videoInfo and videoInfo[self.subtitleKey]:
-                subtitle = videoInfo[self.subtitleKey]
-            else:
-                for key in videoInfo.keys():
-                    if not key.startswith("subtitles_") or not key.endswith("_srt"):
-                        continue
-                    if not videoInfo[key]:
-                        continue
+        for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=True,
+                                               mapAudio=True, playListData=m3u8data):
+            item.complete = True
+            if a:
+                audioPart = a.split("-prog_index.m3u8", 1)[0]
+                audioId = audioPart.rsplit("/", 1)[-1]
+                s = s.replace("-prog_index.m3u8", "-{0}-prog_index.m3u8".format(audioId))
+            part.AppendMediaStream(s, b)
 
-                    subtitle = videoInfo[key]
-                    break
-
-            if subtitle is not None and subtitle.startswith("http"):
-                Logger.Trace("Fetching subtitle from %s", subtitle)
-                part.Subtitle = SubtitleHelper.DownloadSubtitle(subtitle, format="srt", proxy=self.proxy)
-
+        vttUrl = M3u8.GetSubtitle(m3u8url, self.proxy, m3u8data)
+        # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
+        vttUrl = vttUrl.replace("-prog_index.m3u8", "-0.vtt")
+        part.Subtitle = SubtitleHelper.DownloadSubtitle(vttUrl, format='srt', proxy=self.proxy)
         return item
+
+    def __GetImagesFromMetaData(self, data):
+        items = []
+        data = JsonHelper(data)
+        self.__UpdateImageLookup(data)
+        return data, items
+
+    def __UpdateImageLookup(self, jsonData):
+        images = filter(lambda a: a["type"] == "image", jsonData.GetValue("included"))
+        images = {str(image["id"]): image["attributes"]["src"] for image in images}
+        self.imageLookup.update(images)
 
     def __GetVideoStreams(self, videoId, part):
         """ Fetches the video stream for a given videoId
@@ -531,3 +492,43 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(s, b)
 
         return streamsFound
+
+    def __CreateGenericItem(self, resultSet, expectedItemType, urlFormat):
+        videoInfo = resultSet["attributes"]
+        name = videoInfo["name"]
+
+        if expectedItemType != resultSet["type"]:
+            Logger.Warning("Not %s, excluding %s", expectedItemType, name)
+            return None
+
+        channelId = int(resultSet["relationships"]["primaryChannel"]["data"]["id"])
+        if channelId != self.primaryChannelId:
+            return None
+
+        itemId = resultSet["id"]
+        # showSlug = videoInfo["alternateId"]
+
+        url = urlFormat.format(itemId)
+        item = mediaitem.MediaItem(name, url)
+        item.description = videoInfo.get("description")
+
+        geoInfo = videoInfo.get("geoRestrictions", {"countries": ["world"]})
+        item.isGeoLocked = "world" not in geoInfo.get("countries")
+
+        # set the images
+        thumbId = resultSet["relationships"]["images"]["data"][0]["id"]
+        item.thumb = self.imageLookup.get(thumbId, self.noImage)
+        if item.thumb == self.noImage:
+            Logger.Warning("No thumb found for %s", thumbId)
+
+        # paid or not?
+        if "contentPackages" in resultSet["relationships"]:
+            item.isPaid = len(
+                filter(
+                    lambda p: p["id"].lower() == "free", resultSet["relationships"]["contentPackages"]["data"]
+                )
+            ) <= 0
+        else:
+            item.isPaid = False
+
+        return item
