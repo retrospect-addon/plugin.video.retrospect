@@ -6,11 +6,11 @@ import mediaitem
 import chn_class
 
 from helpers.jsonhelper import JsonHelper
+from helpers.languagehelper import LanguageHelper
 from helpers.subtitlehelper import SubtitleHelper
 from urihandler import UriHandler
 from streams.m3u8 import M3u8
 from helpers.htmlentityhelper import HtmlEntityHelper
-from parserdata import ParserData
 from logger import Logger
 from xbmcwrapper import XbmcWrapper
 
@@ -34,7 +34,7 @@ class Channel(chn_class.Channel):
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.mainListUri = "#programs"
         self.programPageSize = 100
-        self.videoPageSize = 25
+        self.videoPageSize = 100
         self.swfUrl = "http://player.dplay.se/4.0.6/swf/AkamaiAdvancedFlowplayerProvider_v3.8.swf"
         self.subtitleKey = "subtitles_se_srt"
         self.channelSlugs = ()
@@ -73,26 +73,26 @@ class Channel(chn_class.Channel):
         # THIS CHANNEL DOES NOT SEEM TO WORK WITH PROXIES VERY WELL!
         #===========================================================================================
         self._AddDataParser("#programs", preprocessor=self.LoadPrograms)
-        self._AddDataParser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
-                            matchType=ParserData.MatchRegex,
-                            updater=self.UpdateChannelItem)
+        # self._AddDataParser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
+        #                     matchType=ParserData.MatchRegex,
+        #                     updater=self.UpdateChannelItem)
 
         # TODO: Search
-        self._AddDataParser("http://www.dplay.se/api/v2/ajax/search/?types=show&items=", json=True,
-                            parser=("data", ), creator=self.CreateProgramItem)
-
-        self._AddDataParser("http://www.dplay.se/api/v2/ajax/modules", json=True,
-                            parser=("data",), creator=self.CreateVideoItemWithShowTitle,
-                            updater=self.UpdateVideoItem)
+        # self._AddDataParser("http://www.dplay.se/api/v2/ajax/search/?types=show&items=", json=True,
+        #                     parser=("data", ), creator=self.CreateProgramItem)
+        #
+        # self._AddDataParser("http://www.dplay.se/api/v2/ajax/modules", json=True,
+        #                     parser=("data",), creator=self.CreateVideoItemWithShowTitle,
+        #                     updater=self.UpdateVideoItem)
 
         self._AddDataParser("*", json=True,
                             preprocessor=self.__GetImagesFromMetaData,
                             parser=("data",), creator=self.CreateVideoItem,
-
                             updater=self.UpdateVideoItem)
+
         # TODO: Video paging
         self._AddDataParser("*", json=True,
-                            parser=(), creator=self.CreatePageItem)
+                            parser=("meta", ), creator=self.CreatePageItem)
 
         #===========================================================================================
         # non standard items
@@ -215,9 +215,10 @@ class Channel(chn_class.Channel):
         urlFormat = "https://disco-api.dplay.se/content/videos?decorators=viewingHistory&" \
                     "include=images%2CprimaryChannel%2Cshow&" \
                     "filter%5BvideoType%5D=EPISODE%2CLIVE&" \
-                    "filter%5Bshow.id%5D={0}&" \
-                    "page%5Bsize%5D=100&" \
-                    "sort=-seasonNumber%2C-episodeNumber%2CearliestPlayableStart"
+                    "filter%5Bshow.id%5D={{0}}&" \
+                    "page%5Bsize%5D={0}&" \
+                    "sort=-seasonNumber%2C-episodeNumber%2CearliestPlayableStart".\
+            format(self.videoPageSize)
         item = self.__CreateGenericItem(resultSet, "show", urlFormat)
         if item is None:
             return None
@@ -246,24 +247,40 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        return None
+
+        if "totalPages" not in resultSet:
+            return None
 
         Logger.Debug("Starting CreatePageItem")
 
-        # # current page?
-        # baseUrl, page = self.parentItem.url.rsplit("=", 1)
-        # page = int(page)
-        # maxPages = resultSet.get("total_pages", 0)
-        # Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, baseUrl)
-        # if page + 1 >= maxPages:
-        #     return None
-        #
-        # title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
-        # url = "%s=%s" % (baseUrl, page + 1)
-        # item = mediaitem.MediaItem(title, url)
-        # item.fanart = self.parentItem.fanart
-        # item.thumb = self.parentItem.thumb
-        # return item
+        # current page?
+        pageUriPart = "page%5Bnumber%5D="
+        if pageUriPart not in self.parentItem.url:
+            page = 1
+            urlFormat = "{0}&page%5Bnumber%5D={{0:d}}".format(self.parentItem.url)
+        else:
+            baseUrl, pagePart = self.parentItem.url.rsplit(pageUriPart, 1)
+            nextPart = pagePart.find("&")
+            if nextPart < 0:
+                # end
+                page = int(pagePart)
+                urlFormat = "{0}&page%5Bnumber%5D={{0:d}}".format(baseUrl)
+            else:
+                page = int(pagePart[0:nextPart])
+                urlFormat = "{0}&page%5Bnumber%5D={{0:d}}&{1}".format(baseUrl, pagePart[nextPart:])
+
+        maxPages = resultSet.get("totalPages", 0)
+        Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, self.parentItem.url)
+
+        if page + 1 > maxPages:
+            return None
+
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        url = urlFormat.format(page + 1)
+        item = mediaitem.MediaItem(title, url)
+        item.fanart = self.parentItem.fanart
+        item.thumb = self.parentItem.thumb
+        return item
 
     def SearchSite(self, url=None):
         """Creates an list of items by searching the site
