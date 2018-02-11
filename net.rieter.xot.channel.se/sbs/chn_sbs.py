@@ -355,6 +355,12 @@ class Channel(chn_class.Channel):
             datePart, timePart = date[0:-3].split("T")
             year, month, day = datePart.split("-")
             item.SetDate(year, month, day)
+
+        episode = videoInfo.get("episodeNumber", 0)
+        season = videoInfo.get("seasonNumber", 0)
+        if episode > 0 and season > 0:
+            item.name = "s{0:02d}e{1:02d} - {2}".format(season, episode, item.name)
+            item.SetSeasonInfo(season, episode)
         return item
 
     def UpdateChannelItem(self, item):
