@@ -5,7 +5,7 @@
        provider-name="Bas Rieter">
 
     <requires>
-        <!--import addon="net.rieter.xot" version="x.x.x" optional="false" /-->
+        <!--import  addon="net.rieter.xot" version="x.x.x" optional="false" /-->
     </requires>
     
     <extension point="xbmc.python.pluginsource"
