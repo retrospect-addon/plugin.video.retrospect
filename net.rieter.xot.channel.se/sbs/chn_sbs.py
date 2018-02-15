@@ -46,36 +46,34 @@ class Channel(chn_class.Channel):
             self.noImage = "tv5seimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132040"
-            # self.fanart = "http://a1.res.cloudinary.com/dumrsasw1/image/upload/Kanal5-channel-large_kxf7fn.jpg"
-            # Recent URL changes over time. See the 'website -> channel' page
-            self.recentUrl = "%s/modules?page_id=132040&module_id=7556&items=%s&page=0"
             self.primaryChannelId = 21
 
         elif self.channelCode == "tv9json":
             self.noImage = "tv9seimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132043"
-            # self.fanart = "http://a2.res.cloudinary.com/dumrsasw1/image/upload/Thewalkingdead_hqwfz1.jpg"
-            self.recentUrl = "%s/modules?page_id=132043&module_id=466&items=%s&page=0"
             self.primaryChannelId = 26
 
         elif self.channelCode == "tv11json":
             self.noImage = "tv11seimage.jpg"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
-            # self.fanart = "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
-            self.recentUrl = "%s/modules?page_id=132039&module_id=470&items=%s&page=0"
             self.primaryChannelId = 22
 
         elif self.channelCode == "dplayse":
             self.noImage = "tv11seimage.jpg"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
-            # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
-            # self.fanart = "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
-            self.recentUrl = "%s/modules?page_id=132039&module_id=470&items=%s&page=0"
 
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
+
+        if self.primaryChannelId:
+            self.recentUrl = "https://disco-api.dplay.se/content/videos?decorators=viewingHistory&" \
+                             "include=images%2CprimaryChannel%2Cshow&" \
+                             "filter%5BvideoType%5D=EPISODE&" \
+                             "filter%5BprimaryChannel.id%5D={0}&" \
+                             "page%5Bsize%5D={1}&" \
+                             "sort=-publishStart".format(self.primaryChannelId, self.videoPageSize)
 
         #===========================================================================================
         # THIS CHANNEL DOES NOT SEEM TO WORK WITH PROXIES VERY WELL!
@@ -93,12 +91,27 @@ class Channel(chn_class.Channel):
         #                     parser=("data",), creator=self.CreateVideoItemWithShowTitle,
         #                     updater=self.UpdateVideoItem)
 
+        # Recent
+        self._AddDataParser("https://disco-api.dplay.se/content/videos?decorators=viewingHistory&"
+                            "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
+                            "filter%5BprimaryChannel.id%5D=",
+                            name="Recent video items", json=True,
+                            preprocessor=self.__GetImagesFromMetaData,
+                            parser=("data", ), creator=self.CreateVideoItemWithShowTitle)
+
+        self._AddDataParser("https://disco-api.dplay.se/content/videos?decorators=viewingHistory&"
+                            "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
+                            "filter%5BprimaryChannel.id%5D=",
+                            name="Recent more pages", json=True,
+                            preprocessor=self.__GetImagesFromMetaData,
+                            parser=("data", ), creator=self.CreateVideoItem)
+
+        # Others
         self._AddDataParser("*", json=True,
                             preprocessor=self.__GetImagesFromMetaData,
                             parser=("data",), creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
-        # TODO: Video paging
         self._AddDataParser("*", json=True,
                             parser=("meta", ), creator=self.CreatePageItem)
 
@@ -113,6 +126,7 @@ class Channel(chn_class.Channel):
             JsonHelper(UriHandler.Open(url, proxy=self.proxy))
 
         self.imageLookup = {}
+        self.showLookup = {}
 
         #===========================================================================================
         # Test cases:
@@ -180,8 +194,7 @@ class Channel(chn_class.Channel):
                 items.append(item)
 
         if self.recentUrl:
-            url = self.recentUrl % (self.baseUrl, self.videoPageSize)
-            recent = mediaitem.MediaItem("\b.: Recent :.", url)
+            recent = mediaitem.MediaItem("\b.: Recent :.", self.recentUrl)
             recent.dontGroup = True
             recent.fanart = self.fanart
             items.append(recent)
@@ -334,19 +347,9 @@ class Channel(chn_class.Channel):
         return []
 
     def CreateVideoItemWithShowTitle(self, resultSet):
-        """Creates a MediaItem with ShowTitle """
+        return self.CreateVideoItem(resultSet, include_show_title=True)
 
-        # Logger.Trace(resultSet)
-        if not resultSet:
-            return None
-
-        title = resultSet["title"]
-        showTitle = resultSet.get("video_metadata_show", None)
-        if showTitle:
-            resultSet["title"] = "%s - %s" % (showTitle, title)
-        return self.CreateVideoItem(resultSet)
-
-    def CreateVideoItem(self, resultSet):
+    def CreateVideoItem(self, resultSet, include_show_title=False):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -388,6 +391,12 @@ class Channel(chn_class.Channel):
         if episode > 0 and season > 0:
             item.name = "s{0:02d}e{1:02d} - {2}".format(season, episode, item.name)
             item.SetSeasonInfo(season, episode)
+
+        if include_show_title:
+            show_id = resultSet["relationships"].get("show", {}).get("data", {}).get("id")
+            if show_id:
+                show = self.showLookup[show_id]
+                item.name = "{0} - {1}".format(show, item.name)
         return item
 
     def UpdateChannelItem(self, item):
@@ -477,6 +486,10 @@ class Channel(chn_class.Channel):
     def __UpdateImageLookup(self, jsonData):
         images = filter(lambda a: a["type"] == "image", jsonData.GetValue("included"))
         images = {str(image["id"]): image["attributes"]["src"] for image in images}
+
+        shows = filter(lambda a: a["type"] == "show", jsonData.GetValue("included"))
+        shows = {str(show["id"]): show["attributes"]["name"] for show in shows}
+        self.showLookup.update(shows)
         self.imageLookup.update(images)
 
     def __GetVideoStreams(self, videoId, part):
