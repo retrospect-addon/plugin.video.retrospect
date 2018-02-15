@@ -32,6 +32,17 @@
       "sortorder": 11,
       "language": "se",
       "fanart": "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
+    },
+    {
+      "guid": "230A2F56-572B-470B-AD53-AFD20A768D54",
+      "name": "Dplay",
+      "description": "Sändningar från dplay.se",
+      "icon": "dplaylarge.png",
+      "category": "National",
+      "channelcode": "dplayse",
+      "sortorder": 5,
+      "language": "se",
+      "fanart": "dplayfanart.jpg"
     }
   ]
 }

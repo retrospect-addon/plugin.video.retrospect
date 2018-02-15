@@ -40,6 +40,7 @@ class Channel(chn_class.Channel):
         self.channelSlugs = ()
         self.liveUrl = None
         self.recentUrl = None
+        self.primaryChannelId = None
 
         if self.channelCode == "tv5json":
             self.noImage = "tv5seimage.png"
@@ -65,6 +66,13 @@ class Channel(chn_class.Channel):
             # self.fanart = "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
             self.recentUrl = "%s/modules?page_id=132039&module_id=470&items=%s&page=0"
             self.primaryChannelId = 22
+
+        elif self.channelCode == "dplayse":
+            self.noImage = "tv11seimage.jpg"
+            self.baseUrl = "http://www.dplay.se/api/v2/ajax"
+            # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
+            # self.fanart = "http://a3.res.cloudinary.com/dumrsasw1/image/upload/unnamed_v3u5zt.jpg"
+            self.recentUrl = "%s/modules?page_id=132039&module_id=470&items=%s&page=0"
 
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
@@ -231,6 +239,8 @@ class Channel(chn_class.Channel):
             year, month, day = datePart.split("-")
             item.SetDate(year, month, day)
 
+        if item.thumb != self.noImage:
+            item.fanart = item.thumb
         return item
 
     def CreatePageItem(self, resultSet):
@@ -525,7 +535,7 @@ class Channel(chn_class.Channel):
             return None
 
         channelId = int(resultSet["relationships"]["primaryChannel"]["data"]["id"])
-        if channelId != self.primaryChannelId:
+        if self.primaryChannelId is not None and channelId != self.primaryChannelId:
             return None
 
         itemId = resultSet["id"]

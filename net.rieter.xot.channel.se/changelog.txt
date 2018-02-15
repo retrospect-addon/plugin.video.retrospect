@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: TV4 Play json parsing issue (Fixes #919)
+* Added: separate Dplay.se channel (Fixes #921)
 
 [I]Previous changes[/I]
+* Fixed: TV4 Play json parsing issue (Fixes #919)
 * Added: TV4Play.se Live Livesändningar (Fixes #915)
 * Removed: TV4 Live, as it moved to cmore.se (Closes #914)
 * Fixed: UR Play again (Fixes #910)
