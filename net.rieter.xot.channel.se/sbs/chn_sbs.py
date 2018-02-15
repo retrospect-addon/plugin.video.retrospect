@@ -8,6 +8,7 @@ import chn_class
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.subtitlehelper import SubtitleHelper
+from parserdata import ParserData
 from urihandler import UriHandler
 from streams.m3u8 import M3u8
 from helpers.htmlentityhelper import HtmlEntityHelper
@@ -83,14 +84,6 @@ class Channel(chn_class.Channel):
         #                     matchType=ParserData.MatchRegex,
         #                     updater=self.UpdateChannelItem)
 
-        # TODO: Search
-        # self._AddDataParser("http://www.dplay.se/api/v2/ajax/search/?types=show&items=", json=True,
-        #                     parser=("data", ), creator=self.CreateProgramItem)
-        #
-        # self._AddDataParser("http://www.dplay.se/api/v2/ajax/modules", json=True,
-        #                     parser=("data",), creator=self.CreateVideoItemWithShowTitle,
-        #                     updater=self.UpdateVideoItem)
-
         # Recent
         self._AddDataParser("https://disco-api.dplay.se/content/videos?decorators=viewingHistory&"
                             "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
@@ -105,6 +98,21 @@ class Channel(chn_class.Channel):
                             name="Recent more pages", json=True,
                             preprocessor=self.__GetImagesFromMetaData,
                             parser=("data", ), creator=self.CreateVideoItem)
+
+        # Search
+        self._AddDataParser("http.+content/shows\?.+query=.+", matchType=ParserData.MatchRegex,
+                            name="Search shows", json=True,
+                            preprocessor=self.__GetImagesFromMetaData,
+                            parser=("data",), creator=self.CreateProgramItem)
+
+        self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
+                            name="Search videos", json=True,
+                            preprocessor=self.__GetImagesFromMetaData,
+                            parser=("data",), creator=self.CreateVideoItemWithShowTitle)
+
+        self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
+                            name="Search Pages", json=True,
+                            parser=("meta", ), creator=self.CreatePageItem)
 
         # Others
         self._AddDataParser("*", json=True,
@@ -323,23 +331,40 @@ class Channel(chn_class.Channel):
 
         """
 
-        # http://www.dplay.se/api/v2/ajax/search/?q=test&items=12&types=video&video_types=episode,live
-        # http://www.dplay.se/api/v2/ajax/search/?q=test&items=6&types=show
+
+        if self.primaryChannelId:
+            shows_url = "https://disco-api.dplay.se/content/shows?" \
+                        "include=genres%%2Cimages%%2CprimaryChannel.images&" \
+                        "filter%%5BprimaryChannel.id%%5D={0}&" \
+                        "page%%5Bsize%%5D={1}&query=%s"\
+                .format(self.primaryChannelId or "", self.programPageSize)
+
+            videos_url = "https://disco-api.dplay.se/content/videos?decorators=viewingHistory&" \
+                         "include=images%%2CprimaryChannel%%2Cshow&" \
+                         "filter%%5BprimaryChannel.id%%5D={0}&" \
+                         "page%%5Bsize%%5D={1}&query=%s"\
+                .format(self.primaryChannelId or "", self.videoPageSize)
+        else:
+            shows_url = "https://disco-api.dplay.se/content/shows?" \
+                        "include=genres%%2Cimages%%2CprimaryChannel.images&" \
+                        "page%%5Bsize%%5D={0}&query=%s" \
+                .format(self.programPageSize)
+
+            videos_url = "https://disco-api.dplay.se/content/videos?decorators=viewingHistory&" \
+                         "include=images%%2CprimaryChannel%%2Cshow&" \
+                         "page%%5Bsize%%5D={0}&query=%s" \
+                .format(self.videoPageSize)
 
         needle = XbmcWrapper.ShowKeyBoard()
         if needle:
             Logger.Debug("Searching for '%s'", needle)
             needle = HtmlEntityHelper.UrlEncode(needle)
 
-            url = "http://www.dplay.se/api/v2/ajax/search/?types=video&items=%s" \
-                  "&video_types=episode,live&q=%%s&page=0" % (self.videoPageSize, )
-            searchUrl = url % (needle, )
+            searchUrl = videos_url % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
             episodes = self.ProcessFolderList(temp)
 
-            url = "http://www.dplay.se/api/v2/ajax/search/?types=show&items=%s" \
-                  "&q=%%s&page=0" % (self.programPageSize, )
-            searchUrl = url % (needle, )
+            searchUrl = shows_url % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
             shows = self.ProcessFolderList(temp)
             return shows + episodes
@@ -375,10 +400,10 @@ class Channel(chn_class.Channel):
 
         urlFormat = "https://disco-api.dplay.se/playback/videoPlaybackInfo/{0}"
         item = self.__CreateGenericItem(resultSet, "video", urlFormat)
-        item.type = "video"
         if item is None:
             return None
 
+        item.type = "video"
         videoInfo = resultSet["attributes"]
         if "publishStart" in videoInfo:
             date = videoInfo["publishStart"]
