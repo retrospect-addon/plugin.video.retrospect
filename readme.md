@@ -29,11 +29,13 @@ The installation comes down to putting the folders from the GIT repo (either via
 ```
 
 ### 2.A - ....via 'GIT Clone' ###
-Clone the Nightly GIT repository directly into the Kodi Add-on folder. So don't put it in a subfolder:
+Clone the Nightly GIT repository into a folder of your choice:
 
 ```
-git clone https://bitbucket.org/basrieter/xbmc-online-tv.git .
+git clone https://bitbucket.org/basrieter/xbmc-online-tv.git
 ```
+
+The cloned GIT repository should contain the folders mentioned above. Now either `copy` or `symlink` (`junction` on Windows) each those folders into the Kodi Add-ons folder. I would suggest using symlinks or junctions so changes from a `git pull` are automatically available in Kodi. 
 
 ### 2.B - ....via 'Full Zip Download' ###
 Download the complete GIT repo and extract it into the Kodi Add-on folder.
