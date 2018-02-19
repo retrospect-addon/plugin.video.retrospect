@@ -816,19 +816,9 @@ class Channel(chn_class.Channel):
             return None
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        dataRegex = "JSON\.parse\('([\w\W]+?)'\);\W+window\.media"
-        videoData = Regexer.DoRegex(dataRegex, data)[0]
-        # VTM has some strange escapes
-        videoData = videoData.replace("\\\"", "\"")
-        videoData = videoData.replace("\\\\", "\\")
-        videoData = videoData.replace("\\'", "'")
-        videoJson = JsonHelper(videoData, logger=Logger.Instance())
-
-        # duration is not calculated correctly
-        duration = videoJson.GetValue("videoConfig", "duration")
-        item.SetInfoLabel("Duration", duration)
-
-        return self.__UpdateVideoItem(item, videoJson.json["vodId"])
+        videoIdRegex = '"vodId":"([^"]+)"'
+        videoId = Regexer.DoRegex(videoIdRegex, data)[0]
+        return self.__UpdateVideoItem(item, videoId)
 
     def UpdateLiveStream(self, item):
         Logger.Debug("Updating Live stream")
