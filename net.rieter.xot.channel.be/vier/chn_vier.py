@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
                             parser=videoRegex,
                             creator=self.CreateVideoItem)
 
-        imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)</div>\W*<div[^>]*>\W*<div[^>]+data-videoid="(?<videoid>[^"]+)"'
+        imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)(?:</div>\W*<div[^>]*>\W*)?<div[^>]+data-videoid="(?<videoid>[^"]+)"'
         imageVideoRegex = Regexer.FromExpresso(imageVideoRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             parser=imageVideoRegex,

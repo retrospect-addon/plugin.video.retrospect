@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Some VTM streams would not play (Fixes #924)
+* Fixed: Vier.be 'big'-teaser-card videos were not parsed (Fixes #925)
 
 [I]Previous Changes[/I]
+* Fixed: Some VTM streams would not play (Fixes #924)
 * Fixed: Stievie.be (requires Kodi 18.x) (See #917)
 * Fixed: VRT.nu updated the site again (Fixes #898)
 * Fixed: VRT.nu updated the site (Fixes #898)
