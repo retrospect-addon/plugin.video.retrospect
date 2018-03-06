@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: single videos did not play in genres (Fixes #932)
+* Fixed: Playback of Kanal5/9 (Fixes #936)
 
 [I]Previous changes[/I]
+* Fixed: single videos did not play in genres (Fixes #932)
 * Added: separate Dplay.se channel (Fixes #921)
 * Fixed: TV4 Play json parsing issue (Fixes #919)
 * Added: TV4Play.se Live Livesändningar (Fixes #915)

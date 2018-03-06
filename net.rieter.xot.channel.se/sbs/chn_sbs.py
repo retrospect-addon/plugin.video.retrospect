@@ -484,10 +484,13 @@ class Channel(chn_class.Channel):
         videoInfo = videoData.GetValue("data", "attributes")
 
         part = item.CreateNewEmptyMediaPart()
+        # Somehow only this specific user-agent works (dunno why)!
+        part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
+
         m3u8url = videoInfo["streaming"]["hls"]["url"]
         m3u8data = UriHandler.Open(m3u8url, self.proxy)
 
-        for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=True,
+        for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=False,
                                                mapAudio=True, playListData=m3u8data):
             item.complete = True
             if a:
