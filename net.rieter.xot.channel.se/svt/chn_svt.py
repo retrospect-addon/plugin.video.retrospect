@@ -528,7 +528,7 @@ class Channel(chn_class.Channel):
             url = resultSet["url"]
         broadCastDate = resultSet.get("broadcastDate", None)
 
-        if itemType in ("videoEpisod", "videoKlipp"):
+        if itemType in ("videoEpisod", "videoKlipp", "singel"):
             if not url.startswith("/video/") and not url.startswith("/klipp/"):
                 Logger.Warning("Found video item without a /video/ or /klipp/ url.")
                 return None

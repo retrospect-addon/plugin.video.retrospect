@@ -552,6 +552,11 @@ class Channel(chn_class.Channel):
 
         try:
             dateTime = resultSet["date2"].strip().replace("  ", " ").split(" ")
+
+            # For #933 we check for NOS Journaal
+            if ":" in dateTime[-1] and item.name == "NOS Journaal":
+                item.name = "{0} - {1}".format(item.name, dateTime[-1])
+
             Logger.Trace(dateTime)
             if dateTime[0].lower() == "gisteren":
                 dateTime = datetime.datetime.now() + datetime.timedelta(days=-1)
@@ -563,6 +568,8 @@ class Channel(chn_class.Channel):
                 if dateTime[-2].isalpha():
                     year = datetime.datetime.now().year
                     dateTime.insert(-1, year)
+                if item.name == "NOS Journaal":
+                    item.name = "{0} - {1}".format(item.name, dateTime[-1])
                 year = int(dateTime[-2])
 
                 month = DateHelper.GetMonthFromName(dateTime[-3], language="nl")
@@ -590,6 +597,7 @@ class Channel(chn_class.Channel):
                         dateTime[2] -= 1
 
                 item.SetDate(dateTime[2], month, dateTime[0])
+
         except:
             Logger.Warning("Cannot set date from label: %s", resultSet["date2"], exc_info=True)
             # 2016-07-05T00:00:00Z

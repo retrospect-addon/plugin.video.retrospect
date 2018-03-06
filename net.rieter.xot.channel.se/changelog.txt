@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: separate Dplay.se channel (Fixes #921)
+* Fixed: single videos did not play in genres (Fixes #932)
 
 [I]Previous changes[/I]
+* Added: separate Dplay.se channel (Fixes #921)
 * Fixed: TV4 Play json parsing issue (Fixes #919)
 * Added: TV4Play.se Live Livesändningar (Fixes #915)
 * Removed: TV4 Live, as it moved to cmore.se (Closes #914)
