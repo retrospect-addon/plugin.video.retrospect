@@ -1,5 +1,7 @@
 import chn_class
+from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
+from mediaitem import MediaItem
 from logger import Logger
 from regexer import Regexer
 from urihandler import UriHandler
@@ -54,6 +56,19 @@ class Channel(chn_class.Channel):
         videoRegex = '<a[^>]+href="(?<url>/video/[^"]+)"[^<]+<div[^<]+<div class="card-teaser__image"[^>]+url\((?<thumburl>[^)]+)[\w\W]{500,2000}?<div[^>]+data-videoid="(?<videoid>[^"]+)"[\w\W]{0,2000}?<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>[^<]*</div>\W+<div[^>]+timestamp="(?<timestamp>\d+)'
         videoRegex = Regexer.FromExpresso(videoRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
+                            parser=videoRegex,
+                            creator=self.CreateVideoItem)
+
+        pageRegex = '<button class="button button--default js-load-more-button"\W+data-url="(?<url>[^"]+)"\W+data-page="(?<title>\d+)"'
+        pageRegex = Regexer.FromExpresso(pageRegex)
+        self._AddDataParser("*", matchType=ParserData.MatchExact,
+                            parser=pageRegex,
+                            creator=self.CreatePageItem)
+
+        self._AddDataParser("/api/program/fixed/", name="API paging",
+                            matchType=ParserData.MatchContains,
+                            # json=False,
+                            preprocessor=self.ExtractPageData,
                             parser=videoRegex,
                             creator=self.CreateVideoItem)
 
@@ -142,6 +157,28 @@ class Channel(chn_class.Channel):
         item.thumb = item.thumb or self.noImage
         return item
 
+    def CreatePageItem(self, resultSet):
+        resultSet["url"] = "{0}/{1}".format(resultSet["url"], resultSet["title"])
+        resultSet["title"] = str(int(resultSet["title"]) + 1)
+
+        item = self.CreateFolderItem(resultSet)
+        item.type = "page"
+        return item
+
+    def ExtractPageData(self, data):
+        items = []
+        json = JsonHelper(data)
+        data = json.GetValue("data")
+        Logger.Trace(data)
+
+        if json.GetValue("loadMore", fallback=False):
+            url, page = self.parentItem.url.rsplit("/", 1)
+            url = "{0}/{1}".format(url, int(page) + 1)
+            pageItem = MediaItem("{0}".format(int(page) + 2), url)
+            pageItem.type = "page"
+            items.append(pageItem)
+        return data, items
+
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
@@ -179,6 +216,9 @@ class Channel(chn_class.Channel):
             item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
                          dateTime.minute,
                          dateTime.second)
+
+        if item.thumb and item.thumb != self.noImage:
+            item.thumb = HtmlEntityHelper.StripAmp(item.thumb)
         return item
 
     def UpdateVideoItem(self, item):

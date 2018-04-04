@@ -48,7 +48,7 @@ class Channel(chn_class.Channel):
         if self.channelCode == "vtm":
             self.noImage = "vtmbeimage.jpg"
             self.mainListUri = "https://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
-            self.mainListUri = "https://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
+            self.mainListUri = "https://vtm.be/video?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
             self.baseUrl = "https://vtm.be"
             self.__app = "vtm_watch"
             self.__sso = "vtm-sso"
@@ -58,7 +58,7 @@ class Channel(chn_class.Channel):
             htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
             self._AddDataParser(
-                "https://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
+                "https://vtm.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for VTM",
                 # preprocessor=self.AddMoreRecentVideos,
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
@@ -77,7 +77,7 @@ class Channel(chn_class.Channel):
         elif self.channelCode == "q2":
             self.noImage = "q2beimage.jpg"
             self.mainListUri = "https://www.q2.be/feed/programs?format=json&type=all&only_with_video=true"
-            self.mainListUri = "https://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
+            self.mainListUri = "https://www.q2.be/video?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
             self.baseUrl = "https://www.q2.be"
             self.__app = "q2"
             self.__sso = "q2-sso"
@@ -86,7 +86,7 @@ class Channel(chn_class.Channel):
             htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
             self._AddDataParser(
-                "https://www.q2.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
+                "https://www.q2.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
