@@ -209,7 +209,7 @@
     <string id="30597">Het resetten van de kluis zal alle bestaande versleutelde instellingen onleesbaar maken. Doorgaan met resetten?</string>
 
     <string id="30598">Stuur retrospect.log</string>
-    <string id="30599">Logfile verstuurd naar: %s\n\nNoteer deze URL (vooral de laatste 6 karakters) en gebruik deze om naar de logbestanden te verwijzen.</string>
+    <string id="30599">Logfile verstuurd naar: %s\n\nNoteer deze URL (vooral de laatste karakters) en gebruik deze om naar de logbestanden te verwijzen.</string>
     <string id="30600">Logfile succesvol verstuurd</string>
     <string id="30601">Fout bij het vesturen van de logfile: %s</string>
     <string id="30602">Fout bij het vesturen</string>

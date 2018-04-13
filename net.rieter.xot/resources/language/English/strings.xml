@@ -208,7 +208,7 @@
     <string id="30597">Resetting the vault will invalidate all existing encrypted values. Are you sure?</string>
 
     <string id="30598">Send retrospect.log</string>
-    <string id="30599">Logfile posted to: %s\n\nNote the URL (especially the last six characters) and use them to refer to these log files in posts.</string>
+    <string id="30599">Logfile posted to: %s\n\nNote the URL (especially the last characters) and use them to refer to these log files in posts.</string>
     <string id="30600">Logfile successfully posted</string>
     <string id="30601">Error posting logfile: %s</string>
     <string id="30602">Error posting logfile</string>

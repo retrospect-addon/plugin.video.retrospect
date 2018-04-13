@@ -209,7 +209,7 @@
     <string id="30597">Om du återställer koden går alla sparade inloggningar förlorade. Är du säker?</string>
 
     <string id="30598">Skicka retrospect.log</string>
-    <string id="30599">Loggfilen uppladdad: %s\n\nNotera de sex sista bokstäverna/siffrorna i URL:en och posta dem i supporttråden.</string>
+    <string id="30599">Loggfilen uppladdad: %s\n\nNotera de sista bokstäverna/siffrorna i URL:en och posta dem i supporttråden.</string>
     <string id="30600">Loggfilen uppladdad</string>
     <string id="30601">Misslyckades att ladda upp loggfilen: %s</string>
     <string id="30602">Misslyckades att ladda upp loggfilen</string>

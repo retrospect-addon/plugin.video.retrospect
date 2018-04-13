@@ -1060,12 +1060,16 @@ class Plugin:
     @LockWithDialog(logger=Logger.Instance())
     def __SendLog(self):
         from helpers.logsender import LogSender
-        logSender = LogSender(Config.GooglApi, logger=Logger.Instance(), mode='gist')
+        senderMode = 'pastebin'
+        logSender = LogSender(Config.LogSenderApi, logger=Logger.Instance(), mode=senderMode)
         try:
             title = LanguageHelper.GetLocalizedString(LanguageHelper.LogPostSuccessTitle)
             urlText = LanguageHelper.GetLocalizedString(LanguageHelper.LogPostLogUrl)
             filesToSend = [Logger.Instance().logFileName, Logger.Instance().logFileName.replace(".log", ".old.log")]
-            pasteUrl = logSender.SendFiles(Config.logFileNameAddon, filesToSend)
+            if senderMode != "gist":
+                pasteUrl = logSender.SendFile(Config.logFileNameAddon, filesToSend[0])
+            else:
+                pasteUrl = logSender.SendFiles(Config.logFileNameAddon, filesToSend)
             XbmcWrapper.ShowDialog(title, urlText % (pasteUrl,))
         except Exception, e:
             Logger.Error("Error sending %s", Config.logFileNameAddon, exc_info=True)
