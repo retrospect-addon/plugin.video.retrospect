@@ -1,10 +1,14 @@
 import datetime
+import time
+from xml.dom.minidom import parseString
+
 import mediaitem
 import chn_class
 
 from logger import Logger
+from helpers.jsonhelper import JsonHelper
 from helpers.datehelper import DateHelper
-# from urihandler import UriHandler
+from urihandler import UriHandler
 # from helpers.jsonhelper import JsonHelper
 from parserdata import ParserData
 from streams.m3u8 import M3u8
@@ -37,6 +41,11 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://api.538.nl/api/v1/tags"
             self.baseUrl = "http://www.538.nl"
             self.swfUrl = "http://www.538.nl/jwplayer/player.swf"
+            self.__authenticationHeaders = {
+                "Authorization": "Bearer f422ea7226fff7f2e734a746a57e004f8ba6d65b50c80ee1f2d19df70d0503e9"
+            }
+            self.__liveUrl = "https://content.talparad.io/spaces/uf8zxj1wm72o/entries?content_type=brand&fields.slug=radio-538&limit=1&include=3"
+            self.__liveData = {}
 
         # setup the main parsing data
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
@@ -47,26 +56,22 @@ class Channel(chn_class.Channel):
         self._AddDataParser("https://api.538.nl/api/v1/schedule/station/", json=True,
                             parser=("data",), creator=self.CreateShowItem)
 
-        self._AddDataParser("http://scripts.538.nl/app/jsonChannelData.json", json=True,
+        self._AddDataParser(self.__liveUrl, json=True,
                             preprocessor=self.AddMissingLiveStreams,
-                            parser=(), creator=self.CreateLiveChannel)
-
-        # self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-        #                     preprocessor=self.AddLiveStreams,
-        #                     parser=("data",), creator=self.CreateTagItem)
-
-        # self._AddDataParser("*", json=True,
-        #                     preprocessor=self.FetchSearchData)
+                            parser=("includes", "Entry"), creator=self.CreateLiveChannel)
 
         # updater for live streams
-        self._AddDataParsers(("^http://538-?hls.lswcdn.triple-it.nl/content.+", "^http://hls2.slamfm.nl/content.+"),
-                             matchType=ParserData.MatchRegex, updater=self.UpdateLiveStream)
-
-        self.mediaUrlRegex = '<media:content url="([^"]+)"'
+        self._AddDataParsers(("https://talparadiohls-i.akamaihd.net/hls/live/",
+                              "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/",
+                              "https://hls.slam.nl/streaming/hls/"),
+                             # matchType=ParserData.MatchRegex,
+                             updater=self.UpdateLiveStreamM3u8)
+        self._AddDataParsers("https://playerservices.streamtheworld.com/api/livestream",
+                             # matchType=ParserData.MatchRegex,
+                             updater=self.UpdateLiveStreamXml)
 
         #===============================================================================================================
         # non standard items
-        self.EndOfProgramsFound = True  # should be done in the pre-processor
 
         #===============================================================================================================
         # Test cases:
@@ -133,10 +138,11 @@ class Channel(chn_class.Channel):
         """
 
         # add live stuff
-        live = mediaitem.MediaItem("\bLive streams", "http://scripts.538.nl/app/jsonChannelData.json")
+        live = mediaitem.MediaItem("\bLive streams", self.__liveUrl)
         live.icon = self.icon
         live.thumb = self.noImage
         live.complete = True
+        live.HttpHeaders = self.__authenticationHeaders
         items = [live]
         return data, items
 
@@ -160,45 +166,29 @@ class Channel(chn_class.Channel):
         """
         items = []
 
-        tv538 = mediaitem.MediaItem("TV 538", "http://538hls.lswcdn.triple-it.nl/content/538tv/538tv.m3u8")
-        tv538.icon = self.icon
-        tv538.thumb = self.noImage
-        tv538.type = "video"
-        tv538.complete = False
-        tv538.isLive = True
-        items.append(tv538)
-
-        # cam538 = mediaitem.MediaItem("Radio 538 - Webcam", "http://538hls.lswcdn.triple-it.nl/content/538webcam/538webcam.m3u8")
-        # cam538.icon = self.icon
-        # cam538.thumb = self.noImage
-        # cam538.type = "video"
-        # cam538.isLive = True
-        # items.append(cam538)
-
-        # radio538 = mediaitem.MediaItem("Radio 538", "http://vip-icecast.538.lw.triple-it.nl/RADIO538_MP3")
-        # radio538.icon = self.icon
-        # radio538.thumb = self.noImage
-        # radio538.type = "audio"
-        # radio538.isLive = True
-        # radio538.complete = True
-        # radio538.AppendSingleStream(radio538.url)
-        # live.items.append(radio538)
-
-        slam = mediaitem.MediaItem("Slam! FM Webcam", "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/slamwebcam.m3u8")
+        # tv538 = mediaitem.MediaItem("TV 538", "http://538hls.lswcdn.triple-it.nl/content/538tv/538tv.m3u8")
+        # tv538.icon = self.icon
+        # tv538.thumb = self.noImage
+        # tv538.type = "video"
+        # tv538.complete = False
+        # tv538.isLive = True
+        # items.append(tv538)
+        #
+        # slam = mediaitem.MediaItem("Slam! FM Webcam", "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/slamwebcam.m3u8")
+        # slam.icon = self.icon
+        # slam.thumb = self.noImage
+        # slam.type = "video"
+        # slam.isLive = True
+        # items.append(slam)
+#
+        slam = mediaitem.MediaItem("Slam! TV", "https://hls.slam.nl/streaming/hls/SLAM!/playlist.m3u8")
         slam.icon = self.icon
         slam.thumb = self.noImage
         slam.type = "video"
         slam.isLive = True
         items.append(slam)
 
-        slam = mediaitem.MediaItem("Slam! TV", "http://hls2.slamfm.nl/content/slamtv/slamtv.m3u8")
-        slam.icon = self.icon
-        slam.thumb = self.noImage
-        slam.type = "video"
-        slam.isLive = True
-        items.append(slam)
-
-        slamFm = mediaitem.MediaItem("Slam! FM", "http://edge2-icecast.538.lw.triple-it.nl/SLAMFM_MP3")
+        slamFm = mediaitem.MediaItem("Slam! FM", "https://18973.live.streamtheworld.com/SLAM_AAC.aac?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9&pname=TDSdk&pversion=2.9&banners=none")
         slamFm.icon = self.icon
         slamFm.thumb = self.noImage
         slamFm.type = "audio"
@@ -207,27 +197,53 @@ class Channel(chn_class.Channel):
         slamFm.complete = True
         items.append(slamFm)
 
+        data = JsonHelper(data)
+        for e in data.GetValue("includes", "Entry"):
+            self.__liveData[e["sys"]["id"]] = e
+        for e in data.GetValue("includes", "Asset"):
+            self.__liveData[e["sys"]["id"]] = e
         return data, items
 
     def CreateLiveChannel(self, resultSet):
-        Logger.Trace(resultSet)
-        streams = {}
+        itemType = resultSet["sys"]["contentType"]["sys"]["id"]
+        if itemType.lower() != "station":
+            return None
 
-        if "audio" in resultSet and resultSet["audio"]["hls"]:
-            streams["Radio"] = resultSet["audio"]["hls"]
-        if "video" in resultSet and resultSet["video"]["hls"]:
-            streams["WebCam"] = resultSet["video"]["hls"]
+        Logger.Trace(resultSet)
+        fields = resultSet["fields"]
+        # title = fields["title"]
+        streamTypes = fields["streamType"]
+
+        # We need to do some fuzzy looking-up
+        thumbId = fields["backgroundGallery"][0]["sys"]["id"]
+        if "file" not in self.__liveData[thumbId]["fields"]:
+            thumbId = self.__liveData[thumbId]["fields"]["media"]["sys"]["id"]
+        thumb = self.__liveData[thumbId]["fields"]["file"]["url"]
+        if thumb.startswith("//"):
+            thumb = "https:{0}".format(thumb)
 
         items = []
-        for titlePart, stream in streams.iteritems():
-            item = mediaitem.MediaItem("%s - %s" % (resultSet['title'], titlePart), stream)
+        for streamType in streamTypes:
+            if streamType == "video":
+                streamId = fields["videoStream"]["sys"]["id"]
+                streamFields = self.__liveData[streamId]["fields"]
+                url = streamFields["source"]
+                title = streamFields["title"]
+            else:
+                streamId = fields["tritonStream"]["sys"]["id"]
+                streamFields = self.__liveData[streamId]["fields"]
+                streamId = streamFields["mountPoint"]
+                title = streamFields["title"]
+                rnd = int(time.time())
+                url = "https://playerservices.streamtheworld.com/api/livestream?station={0}&" \
+                      "transports=http%2Chls%2Chlsts&version=1.9&request.preventCache={1}"\
+                    .format(streamId, rnd)
+
+            item = mediaitem.MediaItem(title, url)
             item.type = 'video'
             item.isLive = True
-            # streamThumb=http://538prodvinson.lswcdn.triple-it.nl/thumbnails1/<timestamp>.jpg
-            # timestamp=1467788048000
-            # item.thumb = resultSet["appImage"]
-            # if resultSet["streamThumb"]:
-            #     item.thumb = resultSet['streamThumb'].replace("<timestamp>", str(resultSet["timestamp"]))
+            item.thumb = thumb
+            item.metaData["streamType"] = streamType
             items.append(item)
         return items
 
@@ -278,61 +294,54 @@ class Channel(chn_class.Channel):
                 part.Name = titleFormat % (hour, startTimeStamp.tm_min)
                 part.AppendMediaStream(stream, 0)
                 hour += 1
+        elif "showUrl" in resultSet and resultSet["showUrl"]:
+            titleFormat = "%%02d:%%02d - %s" % (resultSet['title'],)
+            stream = resultSet["showUrl"]
+            item.complete = True
+            hour = startTimeStamp.tm_hour
+            if stream.startswith("//"):
+                stream = "https:%s" % (stream,)
+            part = item.CreateNewEmptyMediaPart()
+            part.Name = titleFormat % (hour, startTimeStamp.tm_min)
+            part.AppendMediaStream(stream, 0)
+            hour += 1
         else:
             Logger.Warning("Found item without streams: %s", item)
             return None
         return item
 
-    # def CreateTagItem(self, resultSet):
-    #     """Creates a new MediaItem for a tag
-    #
-    #     Arguments:
-    #     resultSet : list[string] - the resultSet of the self.episodeItemRegex
-    #
-    #     Returns:
-    #     A new MediaItem of type 'folder'
-    #
-    #     This method creates a new MediaItem from the Regular Expression or Json
-    #     results <resultSet>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     """
-    #
-    #     if not resultSet['type'] in ('HeroTag', ):
-    #         return None
-    #     Logger.Trace(resultSet)
-    #
-    #     item = mediaitem.MediaItem(resultSet['title'], "#tags.id=%s" % (resultSet['id'], ))
-    #     item.icon = self.icon
-    #     item.thumb = self.noImage
-    #     if resultSet['meta']['image']:
-    #         item.thumb = "https://static.538.nl/%s" % (resultSet['meta']['image']['src'], )
-    #     item.description = resultSet['meta'].get('description')
-    #     return item
-    #
-    # def FetchSearchData(self, data):
-    #     items = []
-    #     data = ""
-    #
-    #     # We need to do a POST to get the search data for a tag:
-    #     # https://80a2048bfc45a3cad426e335b9a70490.eu-west-1.aws.found.io/538_prod_main/_search
-    #     # {"query":{"bool":{"must":[{"term":{"tags.id":26}}]}},"from":0,"size":1000,"sort":{"onlineDate":"desc"}}
-    #     # Authorization: Basic cmVhZG9ubHk6aDRscTJscjU0NTE2ZDdtdjU2
-    #
-    #     params = '{"query":{"bool":{"must":[{"term":{"tags.id": %s}}]}},' \
-    #              '"from":0,"size":1000, "sort":{"onlineDate":"desc"}}' \
-    #              % (self.parentItem.url.replace("#tags.id=", ""), )
-    #     headers = {"Authorization": "Basic cmVhZG9ubHk6aDRscTJscjU0NTE2ZDdtdjU2"}
-    #     data = UriHandler.Open("https://80a2048bfc45a3cad426e335b9a70490.eu-west-1.aws.found.io/538_prod_main/_search",
-    #                            proxy=self.proxy, params=params, additionalHeaders=headers)
-    #
-    #     json = JsonHelper(data)
-    #     hits = json.GetValue("hits", "hits", fallback=[])
-    #     for hit in hits:
-    #         Logger.Trace(hit['_source'])
-    #     return data, items
+    def UpdateLiveStreamXml(self, item):
+        data = UriHandler.Open(item.url, proxy=self.proxy)
+        xml = parseString(data)
+        streamXmls = xml.getElementsByTagName("mountpoint")
+        Logger.Debug("Found %d streams", len(streamXmls))
+        part = item.CreateNewEmptyMediaPart()
+        for streamXml in streamXmls:
+            serverXml = streamXml.getElementsByTagName("server")[0]
+            server = serverXml.getElementsByTagName("ip")[0].firstChild.nodeValue
+            portNode = serverXml.getElementsByTagName("port")[0]
+            port = portNode.firstChild.nodeValue
+            protocol = portNode.attributes["type"].firstChild.nodeValue
+            entry = streamXml.getElementsByTagName("mount")[0].firstChild.nodeValue
+            bitrate = int(streamXml.getElementsByTagName("bitrate")[0].firstChild.nodeValue)
 
-    def UpdateLiveStream(self, item):
+            transports = streamXml.getElementsByTagName("transport")
+            for transport in transports:
+                transportType = transport.firstChild.nodeValue
+                if transportType == "http":
+                    url = "{0}://{1}:{2}/{3}".format(protocol, server, port, entry)
+                elif transportType == "hls":
+                    suffix = transport.attributes["mountSuffix"].firstChild.nodeValue
+                    url = "{0}://{1}:{2}/{3}{4}".format(protocol, server, port, entry, suffix)
+                else:
+                    Logger.Debug("Ignoring transport type: %s", transportType)
+                    continue
+
+                part.AppendMediaStream(url, bitrate)
+                item.complete = True
+        return item
+
+    def UpdateLiveStreamM3u8(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
