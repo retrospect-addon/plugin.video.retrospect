@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: ViaSat streams would not play (Fixes #864)
+Added: ViaFree.se channel (See #945)
+Fixed: ViaFree.se channels broke (Fixes #945)
 
 [I]Previous changes[/I]
+* Fixed: ViaSat streams would not play (Fixes #864)
 * Fixed: not all ViaSat streams would have subtitles (Fixes #843)
 * Fixed: ViaSat changed subtitle formats (Fixes #784)
 * Fixed: ViaFree parsing (Fixes #765)

@@ -73,6 +73,18 @@
       "localIPSupported": true
     },
     {
+      "guid": "FF998410-CAD5-4FDC-9E48-E28BC4E51BC4",
+      "name": "ViaFree.se",
+      "description": "Sändningar från ViaFree.se",
+      "icon": "viafreese.png",
+      "category": "National",
+      "channelcode": "viafreese",
+      "sortorder": 10,
+      "language": "se",
+      "fanart": "viafreesefanart.png",
+      "localIPSupported": true
+    },
+    {
       "guid": "7FEDC7EA-2281-11E0-8F30-67B5DFD72085",
       "name": "TV3 Play (Lietuva)",
       "description": "TV3Play.lt web.tv",

@@ -61,6 +61,11 @@ class Channel(chn_class.Channel):
             self.noImage = "tv10seimage.png"
             self.channelId = (5462, )
 
+        elif self.channelCode == "viafreese":
+            self.mainListUri = "https://www.viafree.se/program/"
+            self.noImage = "viafreeseimage.png"
+            self.channelId = None
+
         elif self.channelCode == "sesport":
             raise NotImplementedError('ViaSat sport is not in this channel anymore.')
 
