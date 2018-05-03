@@ -222,8 +222,8 @@ class Channel(chn_class.Channel):
         Logger.Info("Extracting Category Information")
         dummyData, items = self.AddSearch(data)
 
-        json = JsonHelper(data, logger=Logger.Instance())
-        categories = json.GetValue("context", "dispatcher", "stores", "ApplicationStore", "categories")
+        # The data was already in a JsonHelper
+        categories = data.GetValue("categories")
         for category in categories:
             self.__categories[category["id"]] = category
 
@@ -240,14 +240,22 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        jsonData = Regexer.DoRegex('window.App=({[^<]+);', data)[0]
+        jsonData = Regexer.DoRegex('window.App=({.*?);\W*window\.', data)[0]
         # the "RouteStore" has some weird functions, removing it.
         start = jsonData.index('"RouteStore"')
         # the need at least the 'ApplicationStore'
         end = jsonData.index('"ApplicationStore"')
-        data = jsonData[0:start] + jsonData[end:]
-        Logger.Trace("Found Json:\n%s", data)
-        return data, items
+        returnData = jsonData[0:start] + jsonData[end:]
+        Logger.Trace("Found Json:\n%s", returnData)
+
+        # append categorie data
+        catData = Regexer.DoRegex('"categories":(\[.*?),"allProgramsPage', data)
+        if catData:
+            catData = catData[0]
+            returnData = returnData[:-1] + ', "categories": ' + catData + '}'
+
+        # file('c:\\temp\\json.txt', 'w+').write(returnData)
+        return JsonHelper(returnData), items
 
     def CreateJsonEpisodeItem(self, resultSet):
         Logger.Trace(resultSet)
