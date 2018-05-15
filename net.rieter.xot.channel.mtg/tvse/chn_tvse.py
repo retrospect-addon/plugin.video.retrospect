@@ -683,15 +683,36 @@ class Channel(chn_class.Channel):
                 # Kodi does not like the f4m streams
                 continue
 
-            if url.startswith("http") and ".m3u8" in url:
-                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
-                    part.AppendMediaStream(s, b)
+            useKodiHls = AddonSettings.IsMinVersion(18)
 
-                if not part.MediaStreams and "manifest.m3u8":
+            if url.startswith("http") and ".m3u8" in url:
+                # first see if there are streams in this file, else check the second location.
+                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+                    if useKodiHls:
+                        strm = part.AppendMediaStream(url, 0)
+                        strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
+                        strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+                        strm.AddProperty("inputstream.adaptive.stream_headers",
+                                         "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)")
+                        # Only the main M3u8 is needed
+                        break
+                    else:
+                        part.AppendMediaStream(s, b)
+
+                if not part.MediaStreams and "manifest.m3u8" in url:
                     Logger.Warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
                     url = url.replace("manifest.m3u8", "master.m3u8")
                     for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
-                        part.AppendMediaStream(s, b)
+                        if useKodiHls:
+                            strm = part.AppendMediaStream(url, 0)
+                            strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
+                            strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+                            strm.AddProperty("inputstream.adaptive.stream_headers",
+                                             "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)")
+                            # Only the main M3u8 is needed
+                            break
+                        else:
+                            part.AppendMediaStream(s, b)
 
                 # check for subs
                 # https://mtgxse01-vh.akamaihd.net/i/201703/13/DCjOLN_1489416462884_427ff3d3_,48,260,460,900,1800,2800,.mp4.csmil/master.m3u8?__b__=300&hdnts=st=1489687185~exp=3637170832~acl=/*~hmac=d0e12e62c219d96798e5b5ef31b11fa848724516b255897efe9808c8a499308b&cc1=name=Svenska%20f%C3%B6r%20h%C3%B6rselskadade~default=no~forced=no~lang=sv~uri=https%3A%2F%2Fsubstitch.play.mtgx.tv%2Fsubtitle%2Fconvert%2Fxml%3Fsource%3Dhttps%3A%2F%2Fcdn-subtitles-mtgx-tv.akamaized.net%2Fpitcher%2F20xxxxxx%2F2039xxxx%2F203969xx%2F20396967%2F20396967-swt.xml%26output%3Dm3u8

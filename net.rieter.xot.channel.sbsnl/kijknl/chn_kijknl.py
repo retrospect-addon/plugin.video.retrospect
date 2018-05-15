@@ -9,6 +9,7 @@ from helpers.jsonhelper import JsonHelper
 from helpers.datehelper import DateHelper
 from logger import Logger
 from urihandler import UriHandler
+from addonsettings import AddonSettings
 # from helpers.languagehelper import LanguageHelper
 
 
@@ -266,9 +267,19 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
         json = JsonHelper(data)
         m3u8Url = json.GetValue("playlist")
+        useKodiHls = AddonSettings.IsMinVersion(18)
 
         if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8":
             part = item.CreateNewEmptyMediaPart()
+
+            # if useKodiHls:
+            #     Logger.Error("Using InputStreamAddon")
+            #     strm = part.AppendMediaStream(m3u8Url, 0)
+            #     strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
+            #     strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+            #     item.complete = True
+            #     return item
+
             for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
                 if "_enc_" in s:
                     Logger.Warning("Found encrypted stream. Skipping %s", s)
@@ -303,6 +314,17 @@ class Channel(chn_class.Channel):
             if streams:
                 # noinspection PyTypeChecker
                 streamUrl = streams[0]["src"]
+
+                # these streams work better with the the InputStreamAddon because it removes the
+                # "range" http header
+                if useKodiHls:
+                    Logger.Info("Using InputStreamAddon for playback of HLS stream")
+                    strm = part.AppendMediaStream(streamUrl, 0)
+                    strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
+                    strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+                    item.complete = True
+                    return item
+
                 for s, b in M3u8.GetStreamsFromM3u8(streamUrl, self.proxy):
                     item.complete = True
                     part.AppendMediaStream(s, b)
