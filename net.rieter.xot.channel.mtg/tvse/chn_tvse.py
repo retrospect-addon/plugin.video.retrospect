@@ -646,21 +646,18 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        useKodiHls = AddonSettings.IsMinVersion(18)
+
         # User-agent (and possible other headers), should be consistent over all M3u8 requests (See #864)
-        headers = {
-            # "User-Agent": AddonSettings.GetUserAgent(),
-            "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
-            # "Origin": "https://www.viafree.se"
-        }
+        headers = {}
+        if not useKodiHls:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
+            }
         if self.localIP:
             headers.update(self.localIP)
 
-        if True:
-            data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers or None)
-        else:
-            from debug.router import Router
-            data = Router.GetVia("se", item.url, self.proxy)
-
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers or None)
         json = JsonHelper(data)
 
         # see if there was an srt already
@@ -683,17 +680,12 @@ class Channel(chn_class.Channel):
                 # Kodi does not like the f4m streams
                 continue
 
-            useKodiHls = AddonSettings.IsMinVersion(18)
-
             if url.startswith("http") and ".m3u8" in url:
                 # first see if there are streams in this file, else check the second location.
                 for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
                     if useKodiHls:
                         strm = part.AppendMediaStream(url, 0)
-                        strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
-                        strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
-                        strm.AddProperty("inputstream.adaptive.stream_headers",
-                                         "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)")
+                        M3u8.SetInputStreamAddonInput(strm,  headers=headers)
                         # Only the main M3u8 is needed
                         break
                     else:
@@ -705,10 +697,7 @@ class Channel(chn_class.Channel):
                     for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
                         if useKodiHls:
                             strm = part.AppendMediaStream(url, 0)
-                            strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
-                            strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
-                            strm.AddProperty("inputstream.adaptive.stream_headers",
-                                             "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)")
+                            M3u8.SetInputStreamAddonInput(strm, headers=headers)
                             # Only the main M3u8 is needed
                             break
                         else:
@@ -724,10 +713,6 @@ class Channel(chn_class.Channel):
                     subData = UriHandler.Open(subUrl, proxy=self.proxy)
                     # subUrl = None
                     subs = filter(lambda line: line.startswith("http"), subData.split("\n"))
-                    # for line in subData.split("\n"):
-                    #     if line.startswith("http"):
-                    #         subUrl = line
-                    #         break
                     if subs:
                         part.Subtitle = SubtitleHelper.DownloadSubtitle(subs[0], format='webvtt', proxy=self.proxy)
 
@@ -752,7 +737,9 @@ class Channel(chn_class.Channel):
             else:
                 part.AppendMediaStream(url, q[1])
 
-        part.HttpHeaders.update(headers)
+        if not useKodiHls:
+            part.HttpHeaders.update(headers)
+
         if part.MediaStreams:
             item.complete = True
         Logger.Trace("Found mediaurl: %s", item)
