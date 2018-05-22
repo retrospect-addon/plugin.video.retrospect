@@ -721,6 +721,8 @@ class UriHandler:
             # http://pythonconquerstheuniverse.wordpress.com/category/python-gotchas/
             if not additionalHeaders:
                 additionalHeaders = dict()
+            else:
+                additionalHeaders = dict(additionalHeaders)
 
             headHandler = HttpHeadHandler()
 
