@@ -10,6 +10,7 @@
 from urihandler import UriHandler
 from logger import Logger
 from regexer import Regexer
+from helpers.htmlentityhelper import HtmlEntityHelper
 
 
 class M3u8:
@@ -57,6 +58,34 @@ class M3u8:
                 sub = "%s?%s" % (sub, qs)
 
         return sub
+
+    @staticmethod
+    def SetInputStreamAddonInput(strm, proxy=None, headers=None):
+        """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
+        can be used by other methods.
+
+        @param headers:           (dict) Possible HTTP Headers
+        @param proxy:             (Proxy) The proxy to use for opening
+        @param strm:              (MediaStream) the MediaStream to update
+
+        Can be used like this:
+
+            part = item.CreateNewEmptyMediaPart()
+            stream = part.AppendMediaStream(m3u8url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy, self.headers):
+
+        """
+
+        strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
+        strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+
+        if headers:
+            header = ""
+            for k, v in list(headers.items()):
+                header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.UrlEncode(v))
+            strm.AddProperty("inputstream.adaptive.stream_headers", header.strip("&"))
+
+        return strm
 
     @staticmethod
     def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False, mapAudio=False,
