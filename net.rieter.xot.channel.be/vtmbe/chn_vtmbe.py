@@ -8,6 +8,7 @@ import uuid
 import chn_class
 from logger import Logger
 from mediaitem import MediaItem
+from streams.mpd import Mpd
 from vault import Vault
 from urihandler import UriHandler
 from addonsettings import AddonSettings
@@ -284,7 +285,7 @@ class Channel(chn_class.Channel):
                 "Liefde voor Sterren tegen de Muziek op": "256597815326527",
                 "LouisLouise": "256598003727527", "Jonas & Van Geel": "256595778045527",
                 "Project K": "256611396531527", "Hollywood in 't echt": "256594308987527",
-                "Maya de Bij": "256547919980527", "Zone Stad ": "15777992529",
+                "Maya de Bij_": "256547919980527", "Zone Stad ": "15777992529",
                 "Jill": "256853912126527", "Moerkerke en de mannen": "256676855221527",
                 "Met Vier in Bed": "256547903459527", "Vinger Aan De Poot": "256547852448527",
                 "Mijn Pop-uprestaurant!": "256477480591527", "Pak Ace": "256729926613527",
@@ -310,11 +311,19 @@ class Channel(chn_class.Channel):
             }
         }
 
+        self.SetCookie()
+
         # ===============================================================================================================
         # Test cases:
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
+
+    def SetCookie(self):
+        # Cookie: pwv=1; pws=functional|analytics|content_recommendation|targeted_advertising|social_media
+        domain = self.mainListUri.replace("https://", "").split("/", 1)[0]
+        UriHandler.SetCookie(name="pwv", value="1", domain=domain)
+        UriHandler.SetCookie(name="pws", value="functional|analytics|content_recommendation|targeted_advertising|social_media", domain=domain)
 
     def LogOn(self):
         signatureSettings = "mediaan_signature"
@@ -883,19 +892,11 @@ class Channel(chn_class.Channel):
             }
             licenseHeader = JsonHelper.Dump(licenseHeader, False)
             licenseHeaders = "x-dt-custom-data={0}&Content-Type=application/octstream".format(base64.b64encode(licenseHeader))
-
-            kodiProps = {
-                "inputstreamaddon": "inputstream.adaptive",
-                "inputstream.adaptive.manifest_type": "mpd",
-                "inputstream.adaptive.license_type": "com.widevine.alpha",
-                "inputstream.adaptive.license_key": "{0}?specConform=true|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
-            }
+            licenseKey = "{0}?specConform=true|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
 
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(streamUrl, 0)
-            # noinspection PyTypeChecker
-            for k, v in kodiProps.iteritems():
-                stream.AddProperty(k, v)
+            Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=licenseKey, licenseType="com.widevine.alpha")
         else:
             Logger.Debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
 
