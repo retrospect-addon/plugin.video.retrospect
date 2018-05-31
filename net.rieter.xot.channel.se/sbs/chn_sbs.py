@@ -4,6 +4,7 @@ import uuid
 
 import mediaitem
 import chn_class
+from addonsettings import AddonSettings
 
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
@@ -488,16 +489,21 @@ class Channel(chn_class.Channel):
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
 
         m3u8url = videoInfo["streaming"]["hls"]["url"]
-        m3u8data = UriHandler.Open(m3u8url, self.proxy)
 
-        for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=False,
-                                               mapAudio=True, playListData=m3u8data):
+        m3u8data = UriHandler.Open(m3u8url, self.proxy)
+        if AddonSettings.IsMinVersion(18):
+            stream = part.AppendMediaStream(m3u8url, 0)
             item.complete = True
-            if a:
-                audioPart = a.split("-prog_index.m3u8", 1)[0]
-                audioId = audioPart.rsplit("/", 1)[-1]
-                s = s.replace("-prog_index.m3u8", "-{0}-prog_index.m3u8".format(audioId))
-            part.AppendMediaStream(s, b)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy, part.HttpHeaders)
+        else:
+            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=False,
+                                                   mapAudio=True, playListData=m3u8data):
+                item.complete = True
+                if a:
+                    audioPart = a.split("-prog_index.m3u8", 1)[0]
+                    audioId = audioPart.rsplit("/", 1)[-1]
+                    s = s.replace("-prog_index.m3u8", "-{0}-prog_index.m3u8".format(audioId))
+                part.AppendMediaStream(s, b)
 
         vttUrl = M3u8.GetSubtitle(m3u8url, self.proxy, m3u8data)
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
