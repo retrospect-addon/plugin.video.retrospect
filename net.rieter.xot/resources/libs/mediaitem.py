@@ -369,7 +369,6 @@ class MediaItem:
 
         # Get all the info labels starting with the ones set and then add the specific ones
         infoLabels = self.__infoLabels.copy()
-        infoLabels["Label"] = name
         infoLabels["Title"] = name
         if xbmcDate:
             infoLabels["Date"] = xbmcDate
