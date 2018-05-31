@@ -485,8 +485,6 @@ class Channel(chn_class.Channel):
         videoInfo = videoData.GetValue("data", "attributes")
 
         part = item.CreateNewEmptyMediaPart()
-        # Somehow only this specific user-agent works (dunno why)!
-        part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
 
         m3u8url = videoInfo["streaming"]["hls"]["url"]
 
@@ -494,8 +492,10 @@ class Channel(chn_class.Channel):
         if AddonSettings.IsMinVersion(18):
             stream = part.AppendMediaStream(m3u8url, 0)
             item.complete = True
-            M3u8.SetInputStreamAddonInput(stream, self.proxy, part.HttpHeaders)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy)
         else:
+            # user agent for all sub m3u8 and ts requests needs to be the same
+            part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
             for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=False,
                                                    mapAudio=True, playListData=m3u8data):
                 item.complete = True
