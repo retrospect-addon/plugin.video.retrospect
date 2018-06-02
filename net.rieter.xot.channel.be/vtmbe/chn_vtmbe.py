@@ -183,7 +183,7 @@ class Channel(chn_class.Channel):
         self.__signatureTimeStamp = None
         self.__userId = None
         self.__cleanRegex = re.compile("<[^>]+>")
-        self.__dashStreamsSupported = AddonSettings.IsMinVersion(18)
+        self.__adaptiveStreamingAvailable = AddonSettings.IsMinVersion(18)
 
         # Mappings from the normal URL (which has all shows with actual videos and very little
         # video-less shows) to the JSON ids. Loading can be done using:
@@ -330,7 +330,7 @@ class Channel(chn_class.Channel):
         """ Creates the main Stievie menu """
 
         items = []
-        if not self.__dashStreamsSupported:
+        if not self.__adaptiveStreamingAvailable:
             return data, items
 
         programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
@@ -356,7 +356,7 @@ class Channel(chn_class.Channel):
         live.thumb = self.parentItem.thumb
         items.append(live)
 
-        if not self.__dashStreamsSupported:
+        if not self.__adaptiveStreamingAvailable:
             # Only list the channel content if DASH is supported
             return data, items
 
@@ -820,10 +820,15 @@ class Channel(chn_class.Channel):
             return item
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(hls, self.proxy):
-            item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+
+        if self.__adaptiveStreamingAvailable:
+            stream = part.AppendMediaStream(hls, 0)
+            M3u8.SetInputStreamAddonInput(stream)
+        else:
+            for s, b in M3u8.GetStreamsFromM3u8(hls, self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
         return item
 
     def __FindImage(self, resultSet, fallback=None):
@@ -853,7 +858,7 @@ class Channel(chn_class.Channel):
 
         jsonData = JsonHelper(data)
         dashInfo = jsonData.GetValue("response", "dash-cenc")
-        if self.__dashStreamsSupported and dashInfo:
+        if self.__adaptiveStreamingAvailable and dashInfo:
             Logger.Debug("Using Dash streams to playback")
             dashInfo = jsonData.GetValue("response", "dash-cenc")
             licenseUrl = dashInfo["widevineLicenseServerURL"]
