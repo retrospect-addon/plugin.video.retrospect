@@ -877,6 +877,7 @@ class Channel(chn_class.Channel):
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(streamUrl, 0)
             Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=licenseKey, licenseType="com.widevine.alpha")
+            item.complete = True
         else:
             Logger.Debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
 
