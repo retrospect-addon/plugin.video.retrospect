@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Added: Kijk.nl day selection (Fixes #897)
-* Added: Seperate Kijk.nl channel
+* Changed: Use the 'inputstream.adaptive' add-on for some Leia streams to solve some playback and header issues
 
 [I]Previous changes[/I]
+* Added: Kijk.nl day selection (Fixes #897)
+* Added: Seperate Kijk.nl channel
 * Fixed: Kijk.nl moved to a JSON API (Fixes #875)
 * Fixed: Kijk.nl updated to the new BrightCove API (Fixes #799)
 * Fixed: Some kijk.nl shows were missing (Fixes #794)

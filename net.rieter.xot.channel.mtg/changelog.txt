@@ -1,8 +1,10 @@
 ﻿[B]Changelog[/B]
-Added: ViaFree.se channel (See #945)
-Fixed: ViaFree.se channels broke (Fixes #945)
+* Fixed: clean-up some code in the Swedish channels
+* Changed: Use the 'inputstream.adaptive' add-on for some Leia streams to solve some playback and header issues
 
 [I]Previous changes[/I]
+* Added: ViaFree.se channel (See #945)
+* Fixed: ViaFree.se channels broke (Fixes #945)
 * Fixed: ViaSat streams would not play (Fixes #864)
 * Fixed: not all ViaSat streams would have subtitles (Fixes #843)
 * Fixed: ViaSat changed subtitle formats (Fixes #784)

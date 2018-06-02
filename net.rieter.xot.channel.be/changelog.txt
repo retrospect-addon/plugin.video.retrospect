@@ -1,8 +1,11 @@
 ﻿[B]Changelog[/B]
-* Fixed: added paging to Vier.be (Fixes #940)
-* Fixed: VTM and Q2 listing (Fixes #939)
+* Updated: VTM/Q2/Stievie can use Adaptive Streaming for live items (See #953)
+* Fixed: Stieve, VTM and Q2 listings and playback (Fixes #953)
+* Fixed: VTM.be broke due to cookie wall (Fixes #953)
 
 [I]Previous Changes[/I]
+* Fixed: added paging to Vier.be (Fixes #940)
+* Fixed: VTM and Q2 listing (Fixes #939)
 * Fixed: Vier.be 'big'-teaser-card videos were not parsed (Fixes #925)
 * Fixed: Some VTM streams would not play (Fixes #924)
 * Fixed: Stievie.be (requires Kodi 18.x) (See #917)
