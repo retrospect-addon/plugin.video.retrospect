@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: Dplay HTTP header issue (See #947)
-* Fixed: Dplay (and others) now uses Adaptive add-on under Kodi Leia (Fixes #947)
+* Fixed: TV4Play updated their API for TV4 and Sjuan (Fixes #954)
 
 [I]Previous changes[/I]
+* Fixed: Dplay HTTP header issue (See #947)
+* Fixed: Dplay (and others) now uses Adaptive add-on under Kodi Leia (Fixes #947)
 * Fixed: Playback of Kanal5/9 (Fixes #936)
 * Fixed: single videos did not play in genres (Fixes #932)
 * Added: separate Dplay.se channel (Fixes #921)

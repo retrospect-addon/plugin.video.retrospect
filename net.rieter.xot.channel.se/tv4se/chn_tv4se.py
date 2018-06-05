@@ -1,25 +1,20 @@
 # coding:UTF-8
-import string
 import math
 import datetime
 
 import mediaitem
 import chn_class
-# from addonsettings import AddonSettings
-# from helpers.encodinghelper import EncodingHelper
-# from helpers.jsonhelper import JsonHelper
+from addonsettings import AddonSettings
+from helpers.jsonhelper import JsonHelper
+# from helpers.subtitlehelper import SubtitleHelper
 
 from parserdata import ParserData
 from regexer import Regexer
-from helpers import subtitlehelper
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
-# from helpers.datehelper import DateHelper
 from logger import Logger
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
-# from vault import Vault
-# from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -496,11 +491,7 @@ class Channel(chn_class.Channel):
         programId = resultSet["id"]
         # Logger.Debug("ProgId = %s", programId)
 
-        # let's use the mobile streams, as they are still m3u8.
-        # https://prima.tv4play.se/api/web/asset/224181/play?protocol=hls3&videoFormat=MP4+WEBVTTS+WEBVTT&_=1478631069593
-        # url = "https://prima.tv4play.se/api/web/asset/%s/play?protocol=hls3" % (programId,)
-        # The HTTP version also works.
-        url = "http://prima.tv4play.se/api/web/asset/%s/play?protocol=hls3" % (programId,)
+        url = "https://playback-api.b17g.net/media/%s?service=tv4&device=browser&protocol=hls" % (programId,)
         name = resultSet["title"]
 
         item = mediaitem.MediaItem(name, url)
@@ -614,50 +605,34 @@ class Channel(chn_class.Channel):
 
         # retrieve the mediaurl
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
-        urlRegex = "<bitrate>(\d+)</bitrate>\W+(?:<[^>]+>[^>]+>\W+)*<mediaFormat>([^<]+)</mediaFormat>\W+(?:<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+){0,1}<base>([^<]+)</base>\W+<url>([^<]+)</url>"
-        # urlRegex = "<bitrate>(\d+)</bitrate>\W+<mediaFormat>([^<]+)</mediaFormat>\W+<scheme>([^<]+)</scheme>\W+<server>([^<]+)</server>\W+<base>([^<]+)</base>\W+<url>([^<]+)</url>"
+        streamInfo = JsonHelper(data)
+        m3u8Url = streamInfo.GetValue("playbackItem", "manifestUrl")
 
-        item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
 
-        for result in Regexer.DoRegex(urlRegex, data):
-            Logger.Trace(result)
-
-            if "smi" in result[1]:
-                subTitleUrl = result[5]
-                if not part.Subtitle:
-                    part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, proxy=self.proxy)
-            if result[1] == "webvtt":
-                subTitleUrl = result[5]
-                if not part.Subtitle:
-                    part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl, proxy=self.proxy, format="webvtt")
-            elif result[1] in ("webvtts",):
-                Logger.Debug("Found '%s' subtitle stream. Ignoring.", result[1])
-            else:
-                if "rtmp" in result[-1]:
-                    Logger.Trace("RTMP Stream found")
-                    bitrate = result[0]
-                    # get the actual path
-                    pos = string.find(result[5], '/')
-                    path = result[5][pos:]
-
-                    url = "%s%s" % (result[4], path)
-                    url = self.GetVerifiableVideoUrl(url)
-                    part.AppendMediaStream(url, bitrate)
-
-                elif result[-1].endswith("master.m3u8"):
-                    Logger.Trace("M3U8 Stream found")
-                    for s, b in M3u8.GetStreamsFromM3u8(result[-1], self.proxy):
-                        part.AppendMediaStream(s, b)
-
-                else:
-                    Logger.Trace("Other Stream found")
-                    bitrate = result[0]
-                    url = result[5]
-                    part.AppendMediaStream(url, bitrate)
-
+        if AddonSettings.IsMinVersion(18):
+            stream = part.AppendMediaStream(m3u8Url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            item.complete = True
+        else:
+            m3u8Data = UriHandler.Open(m3u8Url, proxy=self.proxy, additionalHeaders=self.localIP)
+            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, playListData=m3u8Data, mapAudio=True):
                 item.complete = True
+                if "-video" not in s:
+                    continue
 
+                if a and "-audio" not in s:
+                    videoPart = s.rsplit("-", 1)[-1]
+                    videoPart = "-%s" % (videoPart,)
+                    s = a.replace(".m3u8", videoPart)
+                part.AppendMediaStream(s, b)
+
+        # subtitle = M3u8.GetSubtitle(m3u8Url, playListData=m3u8Data)
+        # Not working due to VTT format.
+        # if subtitle:
+        #     part.Subtitle = SubtitleHelper.DownloadSubtitle(subtitle,
+        #                                                     format="m3u8srt",
+        #                                                     proxy=self.proxy)
         return item
 
     def UpdateLiveItem(self, item):
