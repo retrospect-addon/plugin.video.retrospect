@@ -17,6 +17,7 @@ import xbmcgui
 import xbmc
 
 from config import Config
+from locker import LockWithDialog
 
 
 class XbmcDialogProgressWrapper:
@@ -136,7 +137,7 @@ class XbmcWrapper:
         """
 
         # let's just unlock the interface, in case it's locked.
-        xbmc.executebuiltin("Dialog.Close(busydialog)")
+        LockWithDialog.CloseBusyDialog()
 
         keyboard = xbmc.Keyboard(default, heading, hidden)
         keyboard.doModal()
@@ -229,7 +230,7 @@ class XbmcWrapper:
         """
 
         # let's just unlock the interface, in case it's locked.
-        xbmc.executebuiltin("Dialog.Close(busydialog)")
+        LockWithDialog.CloseBusyDialog()
 
         msgBox = xbmcgui.Dialog()
         if title == "":
@@ -257,7 +258,7 @@ class XbmcWrapper:
         """
 
         # let's just unlock the interface, in case it's locked.
-        xbmc.executebuiltin("Dialog.Close(busydialog)")
+        LockWithDialog.CloseBusyDialog()
 
         msgBox = xbmcgui.Dialog()
         if title == "":

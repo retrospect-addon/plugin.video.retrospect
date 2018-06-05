@@ -570,7 +570,7 @@ class Plugin:
         # we are finished, so just return
         return self.ShowFavourites(self.channelObject)
 
-    @LockWithDialog(logger=Logger.Instance())
+    # @LockWithDialog(logger=Logger.Instance())  No longer needed as Kodi will do this automatically
     def PlayVideoItem(self):
         """Starts the videoitem using a playlist. """
 
@@ -623,7 +623,7 @@ class Plugin:
 
             # now we force the busy dialog to close, else the video will not play and the
             # setResolved will not work.
-            xbmc.executebuiltin("Dialog.Close(busydialog)")
+            LockWithDialog.CloseBusyDialog()
 
             resolvedUrl = None
             if item.IsResolvable():

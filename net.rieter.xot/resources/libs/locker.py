@@ -17,6 +17,11 @@ class LockWithDialog(object):
 
     BusyDialog = "busydialognocancel" if int(xbmc.getInfoLabel("system.buildversion").split(".")[0]) >= 18 else "busydialog"
 
+    @staticmethod
+    def CloseBusyDialog():
+        xbmc.executebuiltin("Dialog.Close({0})".format(LockWithDialog.BusyDialog))
+        return
+
     def __init__(self, logger=None):
         """ Initializes the decorator with a specific method.
 
@@ -36,18 +41,13 @@ class LockWithDialog(object):
 
             # show the busy dialog
             if self.logger:
-                self.logger.Debug("Locking interface and showing BusyDialog")
+                self.logger.Debug("Locking interface and showing '%s'", LockWithDialog.BusyDialog)
 
             xbmc.executebuiltin("ActivateWindow({0})".format(LockWithDialog.BusyDialog))
             try:
                 response = wrappedFunction(*args, **kwargs)
                 # time.sleep(2)
             except Exception:
-                # Hide the busy Dialog
-                if self.logger:
-                    self.logger.Debug("Un-locking interface and hiding BusyDialog")
-                xbmc.executebuiltin("Dialog.Close({0})".format(LockWithDialog.BusyDialog))
-
                 # re-raise the exception with the original traceback info
                 # see http://nedbatchelder.com/blog/200711/rethrowing_exceptions_in_python.html
                 errorInfo = sys.exc_info()
@@ -55,9 +55,10 @@ class LockWithDialog(object):
 
             finally:
                 # Hide the busy Dialog
-                xbmc.executebuiltin("Dialog.Close({0})".format(LockWithDialog.BusyDialog))
+                LockWithDialog.CloseBusyDialog()
                 if self.logger:
-                    self.logger.Debug("Un-locking interface and hiding BusyDialog")
+                    self.logger.Debug("Un-locking interface and hiding '%s'",
+                                      LockWithDialog.BusyDialog)
             return response
 
         return __InnerWrappedFunction

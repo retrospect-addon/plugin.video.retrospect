@@ -12,8 +12,8 @@
 import urlparse
 from datetime import datetime
 
-import xbmc
 import mediaitem
+from locker import LockWithDialog
 
 from regexer import Regexer
 from cloaker import Cloaker
@@ -965,7 +965,7 @@ class Channel:
 
                     # now we force the busy dialog to close, else we cannot cancel the download
                     # setResolved will not work.
-                    xbmc.executebuiltin("Dialog.Close(busydialog)")
+                    LockWithDialog.CloseBusyDialog()
 
                     # headers = item.HttpHeaders + part.HttpHeaders
                     headers = item.HttpHeaders.copy()
