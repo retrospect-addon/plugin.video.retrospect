@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-04-13 22:47+0000\n"
+"POT-Creation-Date: 2018-06-06 20:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -785,7 +785,11 @@ msgctxt "#30570"
 msgid "Hide channel initialisation messages"
 msgstr ""
 
-#empty strings from id 30571 to 30589
+msgctxt "#30571"
+msgid "Use Kodi Adaptive Stream Add-on when possible"
+msgstr ""
+
+#empty strings from id 30572 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

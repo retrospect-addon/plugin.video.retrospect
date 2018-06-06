@@ -274,6 +274,39 @@ class AddonSettings:
         return version >= minValue
 
     @staticmethod
+    def UseAdaptiveStreamAddOn(withEncryption=False):
+        """ Should we use the Adaptive Stream add-on?
+
+        @param withEncryption: do we need to decrypte script
+        @return: boolean
+
+        """
+
+        # check the Retrospect add-on setting perhaps?
+        useAddOn = AddonSettings.GetBooleanSetting("use_adaptive_addon")
+        if not useAddOn:
+            Logger.Info("Adaptive Stream add-on disabled from Retrospect settings")
+            return useAddOn
+
+        # we should use it, so if we can't find it, it is not so OK.
+        adaptiveAddOnId = "inputstream.adaptive"
+        adaptiveAddOnInstalled = \
+            xbmc.getCondVisibility('System.HasAddon("{0}")'.format(adaptiveAddOnId)) == 1
+
+        if not adaptiveAddOnInstalled:
+            Logger.Warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptiveAddOnId)
+            return False
+
+        kodiLeia = AddonSettings.IsMinVersion(18)
+        Logger.Info("Adaptive Stream add-on '%s' %s decryption support was found.",
+                    adaptiveAddOnId, "with" if kodiLeia else "without")
+
+        if withEncryption:
+            return kodiLeia
+
+        return adaptiveAddOnInstalled
+
+    @staticmethod
     def UpdateUserAgent():
         """ Creates a user agent for this instance of XOT
 
