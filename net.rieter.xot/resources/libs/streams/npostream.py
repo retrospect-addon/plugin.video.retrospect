@@ -10,6 +10,7 @@
 
 from helpers.jsonhelper import JsonHelper
 from streams.m3u8 import M3u8
+from streams.mpd import Mpd
 from helpers.subtitlehelper import SubtitleHelper
 from urihandler import UriHandler
 from logger import Logger
@@ -25,7 +26,7 @@ class NpoStream:
         return SubtitleHelper.DownloadSubtitle(subTitleUrl, streamId + ".srt", format='srt', proxy=proxy)
 
     @staticmethod
-    def GetMpdStreamFromNpo(url, episodeId, proxy=None, headers=None):
+    def AddMpdStreamFromNpo(url, episodeId, part, proxy=None, headers=None):
         """ Extracts the Dash streams for the given url or episode id
 
         @param url:               (String) The url to download
@@ -48,20 +49,24 @@ class NpoStream:
             Logger.Info("Determining MPD streams for VideoId: %s", episodeId)
         else:
             Logger.Error("No url or streamId specified!")
-            return []
-
-        streams = []
+            return
 
         # https://www.npo.nl/player/KN_1693703 -> token
-        data = UriHandler.Open("https://www.npo.nl/player/{}".format(episodeId),
+        data = UriHandler.Open("https://www.npostart.nl/player/{0}".format(episodeId),
                                params="autoplay=1",
-                               proxy=proxy, additionalHeaders=headers)
+                               proxy=proxy,
+                               additionalHeaders=headers)
         token = JsonHelper(data).GetValue("token")
         Logger.Trace("Found token %s", token)
 
-        streamDataUrl = "https://start-player.npo.nl/video/{0}/streams?profile=dash-widevine&" \
-                        "quality=npo&tokenId={1}&streamType=broadcast&mobile=0&isChromecast=0"\
-            .format(episodeId, token)
+        streamDataUrl = "https://start-player.npo.nl/video/{0}/streams?" \
+                        "profile=dash-widevine" \
+                        "&quality=npo" \
+                        "&tokenId={1}" \
+                        "&streamType=broadcast" \
+                        "&mobile=0" \
+                        "&isChromecast=0".format(episodeId, token)
+
         data = UriHandler.Open(streamDataUrl, proxy=proxy, additionalHeaders=headers)
         streamData = JsonHelper(data)
         licenseUrl = streamData.GetValue("stream", "keySystemOptions", 0, "options", "licenseUrl")
@@ -69,27 +74,17 @@ class NpoStream:
         if licenseHeaders:
             licenseHeaders = '&'.join(["{}={}".format(k, v) for k, v in licenseHeaders.items()])
 
-        kodiProps = {
-            "inputstreamaddon": "inputstream.adaptive",
-            "inputstream.adaptive.manifest_type": "mpd",
-            "inputstream.adaptive.license_type": streamData.GetValue("stream", "keySystemOptions", 0, "name"),
-            "inputstream.adaptive.license_key": "{0}|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
-
-        }
         streamUrl = streamData.GetValue("stream", "src")
-        streams.append((streamUrl, 0, kodiProps))
+        licenseType = streamData.GetValue("stream", "keySystemOptions", 0, "name")
+        licenseKey = "{0}|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
 
-        # A{SSM} -> not implemented
-        # R{SSM} -> raw
-        # B{SSM} -> base64
-
-        # #KODIPROP:inputstreamaddon=inputstream.adaptive
-        # #KODIPROP:inputstream.adaptive.manifest_type=mpd
-        # #KODIPROP:inputstream.adaptive.license_type=com.widevine.alpha
-        # #KODIPROP:inputstream.adaptive.license_key=https://npo-drm-gateway.samgcloud.nepworldwide.nl/authentication|x-custom-data=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJucG8iLCJpYXQiOjE1MDkzOTEwOTgsImRybV90eXBlIjoid2lkZXZpbmUiLCJsaWNlbnNlX3Byb2ZpbGUiOiJ3ZWIiLCJjbGllbnRfaXAiOiI5NC4yMDkuMTQ0LjIxOCJ9.foBtJX082PkmQjpbfxBvYkcj2hyNapFFo313kx3PNfw|R{SSM}|
-        # https://nl-ams-p6-am3.cdn.streamgate.nl/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDk0MzQzMDgsImNsaWVudF9pcCI6Ijk0LjIwOS4xNDQuMjE4IiwidXJpIjoiXC92b2RcL25wb1wvdXNwXC9URVNUXC9ucG9cL2Rhc2hcL0tOXzE2OTM3MDNcL0tOXzE2OTM3MDMuaXNtIn0.0SYaj3Dk1rezGneelgHsbi70zNAprrbmH88NuKRc5BY/vod/npo/usp/TEST/npo/dash/KN_1693703/KN_1693703.ism/stream.mpd
-
-        return streams
+        # Actually set the stream
+        stream = part.AppendMediaStream(streamUrl, 0)
+        M3u8.SetInputStreamAddonInput(stream, proxy, headers)
+        Mpd.SetInputStreamAddonInput(stream, proxy, headers,
+                                     licenseKey=licenseKey,
+                                     licenseType=licenseType)
+        return
 
     @staticmethod
     def GetStreamsFromNpo(url, episodeId, proxy=None, headers=None):

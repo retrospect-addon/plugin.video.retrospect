@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: times to NOS Journaal (Fixes #933)
+* Fixed: NPO Live streams
 
 [I]Previous Changes[/I]
+* Added: times to NOS Journaal (Fixes #933)
 * Fixed: NOS.nl only showed old videos (Fixes #912)
 * Fixed: NTR School TV had some weird <null> items (Fixes #913)
 * Fixed: NPO Search and paging

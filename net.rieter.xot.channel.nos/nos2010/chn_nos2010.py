@@ -953,13 +953,8 @@ class Channel(chn_class.Channel):
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
 
-        if AddonSettings.IsMinVersion(18):
-            for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId, proxy=self.proxy):
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                stream = part.AppendMediaStream(s, b)
-                for k, v in p.iteritems():
-                    stream.AddProperty(k, v)
+        if False and AddonSettings.IsMinVersion(18):
+            NpoStream.AddMpdStreamFromNpo(None, episodeId, part, proxy=self.proxy)
 
         return item
 
