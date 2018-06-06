@@ -183,7 +183,8 @@ class Channel(chn_class.Channel):
         self.__signatureTimeStamp = None
         self.__userId = None
         self.__cleanRegex = re.compile("<[^>]+>")
-        self.__adaptiveStreamingAvailable = AddonSettings.IsMinVersion(18)
+        self.__adaptiveStreamingAvailable = \
+            AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
 
         # Mappings from the normal URL (which has all shows with actual videos and very little
         # video-less shows) to the JSON ids. Loading can be done using:

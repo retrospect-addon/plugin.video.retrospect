@@ -953,7 +953,7 @@ class Channel(chn_class.Channel):
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
 
-        if False and AddonSettings.IsMinVersion(18):
+        if False and AddonSettings.UseAdaptiveStreamAddOn():
             NpoStream.AddMpdStreamFromNpo(None, episodeId, part, proxy=self.proxy)
 
         return item

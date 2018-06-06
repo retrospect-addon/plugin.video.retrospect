@@ -267,22 +267,20 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
         json = JsonHelper(data)
         m3u8Url = json.GetValue("playlist")
-        useKodiHls = AddonSettings.IsMinVersion(18)
+        useKodiHls = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
 
         if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8":
             part = item.CreateNewEmptyMediaPart()
 
-            # if useKodiHls:
-            #     Logger.Error("Using InputStreamAddon")
-            #     strm = part.AppendMediaStream(m3u8Url, 0)
-            #     strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
-            #     strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
-            #     item.complete = True
-            #     return item
+            if useKodiHls:
+                Logger.Error("Using InputStreamAddon")
+                strm = part.AppendMediaStream(m3u8Url, 0)
+                M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+                item.complete = True
+                return item
 
             for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
                 if "_enc_" in s:
-                    Logger.Warning("Found encrypted stream. Skipping %s", s)
                     continue
 
                 item.complete = True
