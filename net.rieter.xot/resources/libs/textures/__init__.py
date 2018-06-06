@@ -11,7 +11,7 @@ import os
 from xbmcwrapper import XbmcWrapper
 from helpers.jsonhelper import JsonHelper
 
-__all__ = ["local", "remote", "package"]
+__all__ = ["local", "remote", "cached", "TextureHandler"]
 
 Local = "local"
 Remote = "remote"

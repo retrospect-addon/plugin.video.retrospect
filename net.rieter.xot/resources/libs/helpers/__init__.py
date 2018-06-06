@@ -7,6 +7,6 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-__all__ = ["encodinghelper", "database", "htmlentityhelper", "stopwatch", "xmlhelper", "jsonhelper", "htmlhelper",
+__all__ = ["encodinghelper", "htmlentityhelper", "stopwatch", "xmlhelper", "jsonhelper", "htmlhelper",
            "channelimporter", "jsonhelper", "datehelper", "taghelperbase", "languagehelper", "statistics",
            "sessionhelper", "ziphelper", "logsender", "templatehelper"]

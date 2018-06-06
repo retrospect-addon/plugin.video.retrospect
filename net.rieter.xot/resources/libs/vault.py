@@ -26,7 +26,7 @@ class Vault:
     __APPLICATION_KEY_SETTING = "application_key"
 
     def __init__(self):
-        # type: (str) -> None
+        # type: (Vault) -> None
         self.__newKeyGeneratedInConstructor = False    # : This was the very first time a key was generated
 
         # ask for PIN of no key is present

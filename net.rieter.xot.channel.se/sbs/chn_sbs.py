@@ -332,7 +332,6 @@ class Channel(chn_class.Channel):
 
         """
 
-
         if self.primaryChannelId:
             shows_url = "https://disco-api.dplay.se/content/shows?" \
                         "include=genres%%2Cimages%%2CprimaryChannel.images&" \

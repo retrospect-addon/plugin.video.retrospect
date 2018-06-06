@@ -7,8 +7,8 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300, 
 # San Francisco, California 94105, USA.
 #===============================================================================
-__all__ = ["cachedhttpresponse", "cachehandler", "cachehttphandler"
-           "filecache", "memeorycache", "cachebase"]
+__all__ = ["cachedhttpresponse", "cachehandler", "cachehttphandler",
+           "filecache", "memorycache", "cachebase"]
 
 if __name__ == "__main__":
     import urllib2
