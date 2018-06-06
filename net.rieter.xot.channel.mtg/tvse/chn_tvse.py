@@ -646,7 +646,7 @@ class Channel(chn_class.Channel):
         """
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
-        useKodiHls = AddonSettings.IsMinVersion(18)
+        useKodiHls = AddonSettings.UseAdaptiveStreamAddOn()
 
         # User-agent (and possible other headers), should be consistent over all M3u8 requests (See #864)
         headers = {}

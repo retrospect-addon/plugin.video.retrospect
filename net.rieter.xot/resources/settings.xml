@@ -20,6 +20,7 @@
         <setting id="folders_as_video" type="bool" label="30087" default="false" />
         <setting id="folder_prefix" type="text" label="30043" default="" />
         <setting id="show_cloaked_items" type="bool" label="30095" default="false" />
+        <setting id="use_adaptive_addon" type="bool" label="30571" default="true" enable="System.HasAddon(inputstream.adaptive)" />
 
         <setting type="lsep" label="30089" />
         <setting id="pin_label" type="text" label="30090" enable="false" />
