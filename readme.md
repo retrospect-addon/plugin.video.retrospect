@@ -6,7 +6,9 @@ This repository holds the main code for Retrospect. For more information of bug 
 There are a couple of ways to install and/or update Retrospect using this GIT repository:
 
 ## 1 - Installation of Retrospect the 'Easy way' ##
-If a `net.rieter.xot-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date. 
+If a `net.rieter.xot-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date.
+
+This method can also be used to install new versions of Retrospect and thus upgrading older installs.  
 
 ## 2 - Installation of Retrospect the 'Advanced way' ##
 The installation comes down to putting the folders from the GIT repo (either via a _'GIT Clone'_ or _'Full Zip Download'_)in the Kodi add-on folder (very often: /home/<user>/.kodi/addons or c:\users\<user>\AppData\Roaming\Kodi\addons). The result should be that the *addons* folder now contains at least these folders:
