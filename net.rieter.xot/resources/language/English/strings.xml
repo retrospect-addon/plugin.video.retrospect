@@ -5,7 +5,6 @@
     <string id="30002">Medium</string>
     <string id="30003">High</string>
     <string id="30004">Maximum number of pages to load</string>
-
     <string id="30009">General</string>
     <string id="30010">Channels</string>
     <string id="30011">Requires restart of Retrospect to take effect.</string>
@@ -101,37 +100,37 @@
 
     <!-- language and countries -->
     <string id="30300">Other Countries</string>
-
+    <!-- nl -->
     <string id="30301">The Netherlands</string>
     <string id="30401">Dutch</string>
-
+    <!-- se -->
     <string id="30302">Sweden</string>
     <string id="30402">Swedish</string>
-
+    <!-- lt -->
     <string id="30303">Lithuania</string>
     <string id="30403">Lithuanian</string>
-
+    <!-- lv -->
     <string id="30304">Latvia</string>
     <string id="30404">Latvian</string>
-
+    <!-- no -->
     <string id="30305">Norway</string>
     <string id="30405">Norwegian</string>
-
+    <!-- be -->
     <string id="30306">Belgium</string>
     <string id="30406">Belgium</string>
-
+    <!-- en-gb -->
     <string id="30307">United Kingdom</string>
     <string id="30407">British</string>
-
+    <!-- ee -->
     <string id="30308">Estonia</string>
     <string id="30408">Estonian</string>
-
+    <!-- de -->
     <string id="30309">Germany</string>
     <string id="30409">German</string>
-
+    <!-- dk -->
     <string id="30310">Denmark</string>
     <string id="30410">Danish</string>
-
+    <!-- fi -->
     <string id="30311">Finland</string>
     <string id="30411">Finnish</string>
 

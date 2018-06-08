@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-08 19:07+0000\n"
+"POT-Creation-Date: 2018-06-08 20:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -421,6 +421,8 @@ msgctxt "#30300"
 msgid "Other Countries"
 msgstr ""
 
+#nl
+
 msgctxt "#30301"
 msgid "The Netherlands"
 msgstr ""
@@ -471,41 +473,61 @@ msgctxt "#30401"
 msgid "Dutch"
 msgstr ""
 
+#se
+
 msgctxt "#30402"
 msgid "Swedish"
 msgstr ""
+
+#lt
 
 msgctxt "#30403"
 msgid "Lithuanian"
 msgstr ""
 
+#lv
+
 msgctxt "#30404"
 msgid "Latvian"
 msgstr ""
+
+#no
 
 msgctxt "#30405"
 msgid "Norwegian"
 msgstr ""
 
+#be
+
 msgctxt "#30406"
 msgid "Belgium"
 msgstr ""
+
+#en-gb
 
 msgctxt "#30407"
 msgid "British"
 msgstr ""
 
+#ee
+
 msgctxt "#30408"
 msgid "Estonian"
 msgstr ""
+
+#de
 
 msgctxt "#30409"
 msgid "German"
 msgstr ""
 
+#dk
+
 msgctxt "#30410"
 msgid "Danish"
 msgstr ""
+
+#fi
 
 msgctxt "#30411"
 msgid "Finnish"
