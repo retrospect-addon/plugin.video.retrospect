@@ -5,17 +5,10 @@
     <string id="30002">Medium</string>
     <string id="30003">High</string>
     <string id="30004">Maximum number of pages to load</string>
-    <string id="30005">Dutch</string>
-    <string id="30006">Swedish</string>
-    <string id="30007">Lithuanian</string>
-    <string id="30008">Latvian</string>
+
     <string id="30009">General</string>
     <string id="30010">Channels</string>
     <string id="30011">Requires restart of Retrospect to take effect.</string>
-    <string id="30012">Other</string>
-    <string id="30013">French Canadian</string>
-    <string id="30014">English Canadian</string>
-    <string id="30015">Norwegian</string>
     <string id="30016">Sort by</string>
     <string id="30017">Name</string>
     <string id="30018">Date</string>
@@ -24,44 +17,32 @@
     <string id="30021">Subtitle mode</string>
     <string id="30022">If available</string>
     <string id="30023">Never show</string>
-    <string id="30024">Belgian</string>
     <string id="30025">None</string>
     <string id="30026">Group list if exceeds # folders</string>
-    <string id="30027">British</string>
     <string id="30028">Proxy</string>
     <string id="30029">Server</string>
     <string id="30030">Port</string>
     <string id="30031">Cache HTTP requests (experimental)</string>
     <string id="30032">Channel Settings</string>
-    <string id="30033">Belgium</string>
     <string id="30034">No channel selected</string>
     <string id="30035">Username</string>
     <string id="30036">Password</string>
-    <string id="30037">Norway</string>
     <string id="30038">Confirm proxy changes</string>
     <string id="30039">Are you sure you want to update all channels for this country with this proxy?</string>
     <string id="30040">Channels</string>
     <string id="30041">Available after running Retrospect for the first time.</string>
     <string id="30042">Enabled</string>
     <string id="30043">Folder prefix</string>
-    <string id="30044">Estonian</string>
-    <string id="30045">Danish</string>
     <string id="30046">DRM/Geo Location/Premium filters</string>
-    <string id="30047">German</string>
     <string id="30048">Log level</string>
     <string id="30049">Uitzendinggemist.nl Settings</string>
     <string id="30050">Cache path</string>
     <string id="30051">Cleanup cache after # days (0=Streaming Playback)</string>
     <string id="30052">Send usage statistics</string>
     <string id="30053">Appearance</string>
-    <string id="30054">Germany</string>
     <string id="30055">Advanced</string>
-    <string id="30056">The Netherlands</string>
-    <string id="30057">United Kingdom</string>
-    <string id="30058">Sweden</string>
-    <string id="30059">Other Countries</string>
     <string id="30060">Select a language to manage its channels</string>
-    <string id="30061">Channel Language</string>
+    <string id="30061">Channel Origin</string>
     <string id="30062">HTTP</string>
     <string id="30063">Channel to configure</string>
     <string id="30064">Proxy Group</string>
@@ -98,8 +79,6 @@
     <string id="30095">Show Cloaked Items</string>
     <string id="30096">Country</string>
     <string id="30097">Local IP</string>
-    <string id="30098">Estonia</string>
-    <string id="30099">Lithuania</string>
 
     <string id="30100">None</string>
     <string id="30101">Regional</string>
@@ -121,10 +100,40 @@
     <string id="30205">1000</string>
 
     <!-- language and countries -->
+    <string id="30300">Other Countries</string>
+
     <string id="30301">The Netherlands</string>
-    <string id="30302">Dutch</string>
-    <string id="30303">Latvia</string>
-    <string id="30304">Latvian</string>
+    <string id="30401">Dutch</string>
+
+    <string id="30302">Sweden</string>
+    <string id="30402">Swedish</string>
+
+    <string id="30303">Lithuania</string>
+    <string id="30403">Lithuanian</string>
+
+    <string id="30304">Latvia</string>
+    <string id="30404">Latvian</string>
+
+    <string id="30305">Norway</string>
+    <string id="30405">Norwegian</string>
+
+    <string id="30306">Belgium</string>
+    <string id="30406">Belgium</string>
+
+    <string id="30307">United Kingdom</string>
+    <string id="30407">British</string>
+
+    <string id="30308">Estonia</string>
+    <string id="30408">Estonian</string>
+
+    <string id="30309">Germany</string>
+    <string id="30409">German</string>
+
+    <string id="30310">Denmark</string>
+    <string id="30410">Danish</string>
+
+    <string id="30311">Finland</string>
+    <string id="30411">Finnish</string>
 
     <string id="30500">All Favourites</string>
     <string id="30501">Favourite</string>

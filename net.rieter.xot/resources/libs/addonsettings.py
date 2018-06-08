@@ -121,7 +121,7 @@ class AddonSettings:
              
         """
 
-        proxyIds = [30025, 30059,  30056, 30057, 30058, 30037, 30054, 30033, 30098, 30099, 30303]
+        proxyIds = [30025, 30300, 30301, 30307, 30302, 30305, 30305, 30306, 30308, 30303, 30304]
         proxyCodes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt", "lv"]
 
         if asString:
@@ -193,7 +193,8 @@ class AddonSettings:
 
         """
 
-        # 30074    |30024|30047|30044|30027|30007|30008|30005|30015|30006
+        # This list is taken from the settings_templates.xml: geo_region
+        # 30074    |30306|30309|30308|30307|30303|30304|30301|30305|30302
         # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se
         values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se"]
         valueIndex = int(AddonSettings.GetSetting(AddonSettings.__GEO_REGION) or 0)
@@ -571,8 +572,6 @@ class AddonSettings:
                                  * se    - Swedish
                                  * lt    - Lithuanian
                                  * lv    - Latvian
-                                 * ca-fr - French Canadian
-                                 * ca-en - English Canadian
                                  * be    - Belgium
                                  * en-gb - British
                                  * ee    - Estoniam
@@ -1036,33 +1035,29 @@ class AddonSettings:
         """
 
         if languageCode == "nl":
-            return "show_dutch", 30005
+            return "show_dutch", 30301
         elif languageCode == "fi":
-            return "show_finnish", 30088
+            return "show_finnish", 30302
         elif languageCode == "se":
-            return "show_swedish", 30006
+            return "show_swedish", 30302
         elif languageCode == "lt":
-            return "show_lithuanian", 30007
+            return "show_lithuanian", 30303
         elif languageCode == "lv":
-            return "show_latvian", 30008
-        elif languageCode == "ca-fr":
-            return "show_cafr", 30013
-        elif languageCode == "ca-en":
-            return "show_caen", 30014
+            return "show_latvian", 30304
         elif languageCode == "en-gb":
-            return "show_engb", 30027
+            return "show_engb", 30307
         elif languageCode == "no":
-            return "show_norwegian", 30015
+            return "show_norwegian", 30305
         elif languageCode == "be":
-            return "show_belgium", 30024
+            return "show_belgium", 30306
         elif languageCode == "ee":
-            return "show_estonia", 30044
+            return "show_estonia", 30308
         elif languageCode == "dk":
-            return "show_danish", 30045
+            return "show_danish", 30310
         elif languageCode == "de":
-            return "show_german", 30047
+            return "show_german", 30309
         elif languageCode is None:
-            return "show_other", 30012
+            return "show_other", 30300
         else:
             raise NotImplementedError("Language code not supported: '%s'" % (languageCode, ))
 

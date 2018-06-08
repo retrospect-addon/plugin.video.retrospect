@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-06 20:21+0000\n"
+"POT-Creation-Date: 2018-06-08 19:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -33,21 +33,7 @@ msgctxt "#30004"
 msgid "Maximum number of pages to load"
 msgstr ""
 
-msgctxt "#30005"
-msgid "Dutch"
-msgstr ""
-
-msgctxt "#30006"
-msgid "Swedish"
-msgstr ""
-
-msgctxt "#30007"
-msgid "Lithuanian"
-msgstr ""
-
-msgctxt "#30008"
-msgid "Latvian"
-msgstr ""
+#empty strings from id 30005 to 30008
 
 msgctxt "#30009"
 msgid "General"
@@ -61,21 +47,7 @@ msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
 msgstr ""
 
-msgctxt "#30012"
-msgid "Other"
-msgstr ""
-
-msgctxt "#30013"
-msgid "French Canadian"
-msgstr ""
-
-msgctxt "#30014"
-msgid "English Canadian"
-msgstr ""
-
-msgctxt "#30015"
-msgid "Norwegian"
-msgstr ""
+#empty strings from id 30012 to 30015
 
 msgctxt "#30016"
 msgid "Sort by"
@@ -109,9 +81,7 @@ msgctxt "#30023"
 msgid "Never show"
 msgstr ""
 
-msgctxt "#30024"
-msgid "Belgian"
-msgstr ""
+#empty string with id 30024
 
 msgctxt "#30025"
 msgid "None"
@@ -121,9 +91,7 @@ msgctxt "#30026"
 msgid "Group list if exceeds # folders"
 msgstr ""
 
-msgctxt "#30027"
-msgid "British"
-msgstr ""
+#empty string with id 30027
 
 msgctxt "#30028"
 msgid "Proxy"
@@ -145,9 +113,7 @@ msgctxt "#30032"
 msgid "Channel Settings"
 msgstr ""
 
-msgctxt "#30033"
-msgid "Belgium"
-msgstr ""
+#empty string with id 30033
 
 msgctxt "#30034"
 msgid "No channel selected"
@@ -161,9 +127,7 @@ msgctxt "#30036"
 msgid "Password"
 msgstr ""
 
-msgctxt "#30037"
-msgid "Norway"
-msgstr ""
+#empty string with id 30037
 
 msgctxt "#30038"
 msgid "Confirm proxy changes"
@@ -189,21 +153,13 @@ msgctxt "#30043"
 msgid "Folder prefix"
 msgstr ""
 
-msgctxt "#30044"
-msgid "Estonian"
-msgstr ""
-
-msgctxt "#30045"
-msgid "Danish"
-msgstr ""
+#empty strings from id 30044 to 30045
 
 msgctxt "#30046"
 msgid "DRM/Geo Location/Premium filters"
 msgstr ""
 
-msgctxt "#30047"
-msgid "German"
-msgstr ""
+#empty string with id 30047
 
 msgctxt "#30048"
 msgid "Log level"
@@ -229,36 +185,20 @@ msgctxt "#30053"
 msgid "Appearance"
 msgstr ""
 
-msgctxt "#30054"
-msgid "Germany"
-msgstr ""
+#empty string with id 30054
 
 msgctxt "#30055"
 msgid "Advanced"
 msgstr ""
 
-msgctxt "#30056"
-msgid "The Netherlands"
-msgstr ""
-
-msgctxt "#30057"
-msgid "United Kingdom"
-msgstr ""
-
-msgctxt "#30058"
-msgid "Sweden"
-msgstr ""
-
-msgctxt "#30059"
-msgid "Other Countries"
-msgstr ""
+#empty strings from id 30056 to 30059
 
 msgctxt "#30060"
 msgid "Select a language to manage its channels"
 msgstr ""
 
 msgctxt "#30061"
-msgid "Channel Language"
+msgid "Channel Origin"
 msgstr ""
 
 msgctxt "#30062"
@@ -405,13 +345,7 @@ msgctxt "#30097"
 msgid "Local IP"
 msgstr ""
 
-msgctxt "#30098"
-msgid "Estonia"
-msgstr ""
-
-msgctxt "#30099"
-msgid "Lithuania"
-msgstr ""
+#empty strings from id 30098 to 30099
 
 msgctxt "#30100"
 msgid "None"
@@ -481,25 +415,103 @@ msgid "1000"
 msgstr ""
 
 #language and countries
-#empty strings from id 30206 to 30300
+#empty strings from id 30206 to 30299
+
+msgctxt "#30300"
+msgid "Other Countries"
+msgstr ""
 
 msgctxt "#30301"
 msgid "The Netherlands"
 msgstr ""
 
 msgctxt "#30302"
-msgid "Dutch"
+msgid "Sweden"
 msgstr ""
 
 msgctxt "#30303"
-msgid "Latvia"
+msgid "Lithuania"
 msgstr ""
 
 msgctxt "#30304"
+msgid "Latvia"
+msgstr ""
+
+msgctxt "#30305"
+msgid "Norway"
+msgstr ""
+
+msgctxt "#30306"
+msgid "Belgium"
+msgstr ""
+
+msgctxt "#30307"
+msgid "United Kingdom"
+msgstr ""
+
+msgctxt "#30308"
+msgid "Estonia"
+msgstr ""
+
+msgctxt "#30309"
+msgid "Germany"
+msgstr ""
+
+msgctxt "#30310"
+msgid "Denmark"
+msgstr ""
+
+msgctxt "#30311"
+msgid "Finland"
+msgstr ""
+
+#empty strings from id 30312 to 30400
+
+msgctxt "#30401"
+msgid "Dutch"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Swedish"
+msgstr ""
+
+msgctxt "#30403"
+msgid "Lithuanian"
+msgstr ""
+
+msgctxt "#30404"
 msgid "Latvian"
 msgstr ""
 
-#empty strings from id 30305 to 30499
+msgctxt "#30405"
+msgid "Norwegian"
+msgstr ""
+
+msgctxt "#30406"
+msgid "Belgium"
+msgstr ""
+
+msgctxt "#30407"
+msgid "British"
+msgstr ""
+
+msgctxt "#30408"
+msgid "Estonian"
+msgstr ""
+
+msgctxt "#30409"
+msgid "German"
+msgstr ""
+
+msgctxt "#30410"
+msgid "Danish"
+msgstr ""
+
+msgctxt "#30411"
+msgid "Finnish"
+msgstr ""
+
+#empty strings from id 30412 to 30499
 
 msgctxt "#30500"
 msgid "All Favourites"
