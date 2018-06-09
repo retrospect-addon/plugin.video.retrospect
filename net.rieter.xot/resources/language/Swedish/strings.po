@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-06 20:21+0000\n"
+"POT-Creation-Date: 2018-06-09 11:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -33,22 +33,6 @@ msgctxt "#30004"
 msgid "Maximum number of pages to load"
 msgstr "Maximalt antal sidor att ladda"
 
-msgctxt "#30005"
-msgid "Dutch"
-msgstr "Nederländska"
-
-msgctxt "#30006"
-msgid "Swedish"
-msgstr "Svenska"
-
-msgctxt "#30007"
-msgid "Lithuanian"
-msgstr "Litauiska"
-
-msgctxt "#30008"
-msgid "Latvian"
-msgstr "Lettiska"
-
 msgctxt "#30009"
 msgid "General"
 msgstr "Allmän"
@@ -60,22 +44,6 @@ msgstr "Kanaler"
 msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
 msgstr "Omstart av Retrospect krävs"
-
-msgctxt "#30012"
-msgid "Other"
-msgstr "Andra"
-
-msgctxt "#30013"
-msgid "French Canadian"
-msgstr "Fransk-kanadensiska"
-
-msgctxt "#30014"
-msgid "English Canadian"
-msgstr "Engelsk-kanadensiska"
-
-msgctxt "#30015"
-msgid "Norwegian"
-msgstr "Norska"
 
 msgctxt "#30016"
 msgid "Sort by"
@@ -109,10 +77,6 @@ msgctxt "#30023"
 msgid "Never show"
 msgstr "Aldrig"
 
-msgctxt "#30024"
-msgid "Belgian"
-msgstr "Belgiska"
-
 msgctxt "#30025"
 msgid "None"
 msgstr "Ingen"
@@ -120,10 +84,6 @@ msgstr "Ingen"
 msgctxt "#30026"
 msgid "Group list if exceeds # folders"
 msgstr "Gruppera listan om den överskrider"
-
-msgctxt "#30027"
-msgid "British"
-msgstr "Brittiska"
 
 msgctxt "#30028"
 msgid "Proxy"
@@ -145,10 +105,6 @@ msgctxt "#30032"
 msgid "Channel Settings"
 msgstr "Inställningar för kanaler"
 
-msgctxt "#30033"
-msgid "Belgium"
-msgstr "Belgien"
-
 msgctxt "#30034"
 msgid "No channel selected"
 msgstr "Ingen kanal vald"
@@ -160,10 +116,6 @@ msgstr "Användarnamn"
 msgctxt "#30036"
 msgid "Password"
 msgstr "Lösenord"
-
-msgctxt "#30037"
-msgid "Norway"
-msgstr "Norge"
 
 msgctxt "#30038"
 msgid "Confirm proxy changes"
@@ -189,21 +141,9 @@ msgctxt "#30043"
 msgid "Folder prefix"
 msgstr "Mapp-prefix"
 
-msgctxt "#30044"
-msgid "Estonian"
-msgstr "Estniska"
-
-msgctxt "#30045"
-msgid "Danish"
-msgstr "Danska"
-
 msgctxt "#30046"
 msgid "DRM/Geo Location/Premium filters"
 msgstr "DRM-/GEO-/Premium-filter"
-
-msgctxt "#30047"
-msgid "German"
-msgstr "Tyska"
 
 msgctxt "#30048"
 msgid "Log level"
@@ -229,37 +169,17 @@ msgctxt "#30053"
 msgid "Appearance"
 msgstr "Utseende"
 
-msgctxt "#30054"
-msgid "Germany"
-msgstr "Tyskland"
-
 msgctxt "#30055"
 msgid "Advanced"
 msgstr "Avancerat"
 
-msgctxt "#30056"
-msgid "The Netherlands"
-msgstr "Nederländerna"
-
-msgctxt "#30057"
-msgid "United Kingdom"
-msgstr "Storbritannien"
-
-msgctxt "#30058"
-msgid "Sweden"
-msgstr "Sverige"
-
-msgctxt "#30059"
-msgid "Other Countries"
-msgstr "Andra länder"
-
 msgctxt "#30060"
-msgid "Select a language to manage its channels"
-msgstr "Välj det språk du vill hantera kanaler för"
+msgid "Select country of origin to manage its channels"
+msgstr "Välj ursprungsland att hantera kanaler för"
 
 msgctxt "#30061"
-msgid "Channel Language"
-msgstr "Kanalspråk"
+msgid "Channel Origin"
+msgstr "Ursprungsland för kanaler"
 
 msgctxt "#30062"
 msgid "HTTP"
@@ -405,14 +325,6 @@ msgctxt "#30097"
 msgid "Local IP"
 msgstr "Lokalt IP"
 
-msgctxt "#30098"
-msgid "Estonia"
-msgstr "Estland"
-
-msgctxt "#30099"
-msgid "Lithuania"
-msgstr "Litauen"
-
 msgctxt "#30100"
 msgid "None"
 msgstr "Ingen"
@@ -477,21 +389,97 @@ msgctxt "#30205"
 msgid "1000"
 msgstr "1000"
 
+msgctxt "#30300"
+msgid "Other Countries"
+msgstr "Andra länder"
+
 msgctxt "#30301"
 msgid "The Netherlands"
 msgstr "Nederländerna"
 
 msgctxt "#30302"
-msgid "Dutch"
-msgstr "Nederländska"
+msgid "Sweden"
+msgstr "Sverige"
 
 msgctxt "#30303"
+msgid "Lithuania"
+msgstr "Litauen"
+
+msgctxt "#30304"
 msgid "Latvia"
 msgstr "Lettland"
 
-msgctxt "#30304"
+msgctxt "#30305"
+msgid "Norway"
+msgstr "Norge"
+
+msgctxt "#30306"
+msgid "Belgium"
+msgstr "Belgien"
+
+msgctxt "#30307"
+msgid "United Kingdom"
+msgstr "Storbritannien"
+
+msgctxt "#30308"
+msgid "Estonia"
+msgstr "Estland"
+
+msgctxt "#30309"
+msgid "Germany"
+msgstr "Tyskland"
+
+msgctxt "#30310"
+msgid "Denmark"
+msgstr "Danmark"
+
+msgctxt "#30311"
+msgid "Finland"
+msgstr "Finland"
+
+msgctxt "#30401"
+msgid "Dutch"
+msgstr "Nederländska"
+
+msgctxt "#30402"
+msgid "Swedish"
+msgstr "Svenska"
+
+msgctxt "#30403"
+msgid "Lithuanian"
+msgstr "Litauiska"
+
+msgctxt "#30404"
 msgid "Latvian"
 msgstr "Lettiska"
+
+msgctxt "#30405"
+msgid "Norwegian"
+msgstr "Norska"
+
+msgctxt "#30406"
+msgid "Belgium"
+msgstr "Belgiska"
+
+msgctxt "#30407"
+msgid "British"
+msgstr "Brittiska"
+
+msgctxt "#30408"
+msgid "Estonian"
+msgstr "Estniska"
+
+msgctxt "#30409"
+msgid "German"
+msgstr "Tyska"
+
+msgctxt "#30410"
+msgid "Danish"
+msgstr "Danska"
+
+msgctxt "#30411"
+msgid "Finnish"
+msgstr "Finska"
 
 msgctxt "#30500"
 msgid "All Favourites"
