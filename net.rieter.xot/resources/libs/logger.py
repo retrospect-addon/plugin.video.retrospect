@@ -86,8 +86,10 @@ class Logger:
             Logger.Warning = Logger.__logger.Warning
             Logger.Error = Logger.__logger.Error
             Logger.Critical = Logger.__logger.Critical
+            # Logger.__logger.dualLog("CREATING LOGGER: {0}".format(Logger.__logger.id))
         else:
             Logger.Warning("Cannot create a second logger instance!")
+            # Logger.__logger.dualLog("EXISTING LOGGER: {0}".format(Logger.__logger.id))
         return Logger.__logger
 
     @staticmethod
@@ -315,6 +317,10 @@ class CustomLogger:
 
         if logClosing:
             self.Info("%s :: Flushing and closing logfile.", self.applicationName)
+            # self.dualLog("CURRENT LOGGER before: {0}".format(Logger.Instance() or "none"))
+            Logger._Logger__logger = None
+            # self.dualLog("CURRENT LOGGER after: {0}".format(Logger.Instance() or "none"))
+            # self.dualLog("CLOSING LOGGER: {0}".format(self.id))
 
         self.logHandle.flush()
         self.logHandle.close()
@@ -348,6 +354,12 @@ class CustomLogger:
         if wasOpen:
             self.__OpenLog()
         return
+
+    def __str__(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return str(self.id)
 
     def __Write(self, msg, *args, **kwargs):
         """Writes the message to the log file taking into account
