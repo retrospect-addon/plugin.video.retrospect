@@ -60,9 +60,9 @@ class Channel(chn_class.Channel):
         self._AddDataParser("https://services.vrt.be/videoplayer/r/live.json", json=True,
                             name="Live streams parser",
                             parser=(), creator=self.CreateLiveStream)
-        self._AddDataParser("http://live.stream.vrt.be/",
-                            name="Live streams updater",
-                            updater=self.UpdateLiveVideo)
+        self._AddDataParsers(["http://live.stream.vrt.be/", "https://live-vrt.akamaized.net"],
+                             name="Live streams updater",
+                             updater=self.UpdateLiveVideo)
         self._AddDataParser("https://live-[^/]+\.vrtcdn\.be",
                             matchType=ParserData.MatchRegex,
                             name="Live streams updater",
@@ -115,21 +115,22 @@ class Channel(chn_class.Channel):
                 "metaCode": "mnm",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "mnmfanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "mnmimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "mnmicon.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "mnmicon.png")
             },
             "vualto_stubru": {
                 "title": "Studio Brussel",
                 "metaCode": "stubru",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "stubrufanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "stubruimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "stubruicon.png"),
+                "icon": TextureHandler.Instance().GetTextureUri(self, "stubruicon.png")
             },
             "vualto_een": {
                 "title": "E&eacute;n",
                 "metaCode": "een",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "eenfanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "eenimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "eenlarge.png")
+                "icon": TextureHandler.Instance().GetTextureUri(self, "eenlarge.png"),
+                "url": "https://live-vrt.akamaized.net/groupc/live/8edf3bdf-7db3-41c3-a318-72cb7f82de66/live_aes.isml/.m3u8"
             },
             "vualto_canvas": {
                 "title": "Canvas",
@@ -278,7 +279,8 @@ class Channel(chn_class.Channel):
             if not channelData:
                 continue
 
-            liveItem = mediaitem.MediaItem(channelData["title"], streamValue["hls"])
+            url = channelData["url"] if "url" in channelData else streamValue["hls"]
+            liveItem = mediaitem.MediaItem(channelData["title"], url)
             liveItem.isLive = True
             liveItem.type = 'video'
             liveItem.fanart = channelData.get("fanart", self.fanart)
