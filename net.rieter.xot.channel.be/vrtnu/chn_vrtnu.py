@@ -137,16 +137,18 @@ class Channel(chn_class.Channel):
                 "metaCode": "canvas",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "canvasfanart.png"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "canvasimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "canvaslarge.png")
+                "icon": TextureHandler.Instance().GetTextureUri(self, "canvaslarge.png"),
+                "url": "https://live-vrt.akamaized.net/groupc/live/14a2c0f6-3043-4850-88a5-7fb062fe7f05/live_aes.isml/.m3u8"
             },
             "vualto_ketnet": {
                 "title": "KetNet",
                 "metaCode": "ketnet",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
+                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png"),
+                "url": "https://live-vrt.akamaized.net/groupc/live/f132f1b8-d04d-404e-90e0-6da1abb4f4fc/live_aes.isml/.m3u8"
             },
-            "vualto_sporza": {  # not in the channel filter maps, so no metaCode
+            "vualto_sporza--": {  # not in the channel filter maps, so no metaCode
                 "title": "Sporza",
                 "fanart": TextureHandler.Instance().GetTextureUri(self, "sporzafanart.jpg"),
                 "thumb": TextureHandler.Instance().GetTextureUri(self, "sporzaimage.png"),
@@ -160,6 +162,11 @@ class Channel(chn_class.Channel):
                 "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
             }
         }
+
+        # To get the tokens:
+        # POST
+        # Content-Type:application/json
+        # https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/external/v1/tokens
 
         # ===============================================================================================================
         # Test cases:
