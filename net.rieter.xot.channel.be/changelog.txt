@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: Canvas & KetNet live streams (Fixes #955)
-* Fixed: Een live streams (See #955)
+* Added: Sporza Live stream (See #955)
 
 [I]Previous Changes[/I]
+* Fixed: Canvas & KetNet live streams (Fixes #955)
+* Fixed: Een live streams (See #955)
 * Updated: VTM/Q2/Stievie can use Adaptive Streaming for live items (See #953)
 * Fixed: Stieve, VTM and Q2 listings and playback (Fixes #953)
 * Fixed: VTM.be broke due to cookie wall (Fixes #953)
