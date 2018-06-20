@@ -48,23 +48,27 @@ class UriHandler:
 
         """
 
-        if UriHandler.__handler is None:
-            UriHandler.__handler = UriHandler.CustomUriHandler(cacheDir, useCompression, webTimeOut,
+        # Only create a new handler if we did not have, or if the user options changed
+        if UriHandler.__handler is None \
+                or UriHandler.Instance().ignoreSslErrors != ignoreSslErrors:
+            handler = UriHandler.CustomUriHandler(cacheDir, useCompression, webTimeOut,
                                                                maxFileNameLength, blockSize,
                                                                cookieJar, ignoreSslErrors)
 
             # hook up all the methods to pass to the actual UriHandler
-            UriHandler.Download = UriHandler.__handler.Download
-            UriHandler.Open = UriHandler.__handler.Open
-            UriHandler.Header = UriHandler.__handler.Header
-            UriHandler.CookieCheck = UriHandler.__handler.CookieCheck
-            UriHandler.CookiePrint = UriHandler.__handler.CookiePrint
-            UriHandler.CorrectFileName = UriHandler.__handler.CorrectFileName
-            UriHandler.GetCookie = UriHandler.__handler.GetCookie
-            UriHandler.SetCookie = UriHandler.__handler.SetCookie
+            UriHandler.Download = handler.Download
+            UriHandler.Open = handler.Open
+            UriHandler.Header = handler.Header
+            UriHandler.CookieCheck = handler.CookieCheck
+            UriHandler.CookiePrint = handler.CookiePrint
+            UriHandler.CorrectFileName = handler.CorrectFileName
+            UriHandler.GetCookie = handler.GetCookie
+            UriHandler.SetCookie = handler.SetCookie
+            UriHandler.__handler = handler
 
+            Logger.Info("Initialised: %s", handler)
         else:
-            Logger.Warning("Cannot create a second UriHandler instance!")
+            Logger.Info("Re-using existing UriHandler: %s", UriHandler.__handler)
         return UriHandler.__handler
 
     # In order for the PyDev errors to disappear, we create some fake methods here.
@@ -201,6 +205,9 @@ class UriHandler:
             @param cookieJar:         string  - the path to the cookie jar (in case of file storage)
 
             """
+
+            self.id = int(time.time())
+
             if cookieJar:
                 self.cookieJar = cookielib.MozillaCookieJar(cookieJar)
                 if not os.path.isfile(cookieJar):
@@ -224,8 +231,6 @@ class UriHandler:
             self.blockSize = blockSize
             self.__bytesToMB = 1048576
             self.inValidCharacters = "[^a-zA-Z0-9!#$%&'()-.@\[\]^_`{}]"
-            Logger.Info("UriHandler initialised [useCompression=%s, useCaching=%s]", self.useCompression, self.useCaching)
-
             # self.timerTimeOut = 2.0                       # used for the emergency canceler
 
             self.webTimeOutInterval = webTimeOut            # max duration of request
@@ -820,6 +825,10 @@ class UriHandler:
             uriOpener.addheaders = headers
 
             return uriOpener
+
+        def __str__(self):
+            return "UriHandler [id={0}, useCompression={1}, useCaching={2}, ignoreSslErrors={3}]"\
+                .format(self.id, self.useCompression, self.useCaching, self.ignoreSslErrors)
 
 
 class DnsHTTPConnection(httplib.HTTPConnection):
