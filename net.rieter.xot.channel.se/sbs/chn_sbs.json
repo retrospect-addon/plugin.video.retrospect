@@ -44,5 +44,18 @@
       "language": "se",
       "fanart": "dplayfanart.jpg"
     }
+    ,
+    {
+      "guid": "90C8695D-23AE-45B5-BD51-CEA780A770B0",
+      "name": "Dplay Norges",
+      "description": "Sendninger fra dplay.no",
+      "icon": "dplaylarge.png",
+      "category": "National",
+      "channelcode": "dplayno",
+      "sortorder": 5,
+      "language": "no",
+      "fanart": "dplayfanart.jpg"
+    }
+  ]
   ]
 }
