@@ -536,6 +536,9 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = resultSet["is_geo_restricted"]
         item.isDrmProtected = resultSet["is_drm_protected"]
         item.isLive = resultSet.get("is_live", False)
+        if item.isLive:
+            item.url = "{0}&is_live=true".format(item.url)
+
         return item
 
     def CreateCategoryItem(self, resultSet):
@@ -618,7 +621,7 @@ class Channel(chn_class.Channel):
             m3u8Data = UriHandler.Open(m3u8Url, proxy=self.proxy, additionalHeaders=self.localIP)
             for s, b, a in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, playListData=m3u8Data, mapAudio=True):
                 item.complete = True
-                if "-video" not in s:
+                if not item.isLive and "-video" not in s:
                     continue
 
                 if a and "-audio" not in s:
