@@ -35,7 +35,7 @@
     },
     {
       "guid": "230A2F56-572B-470B-AD53-AFD20A768D54",
-      "name": "Dplay",
+      "name": "Dplay (Sverige)",
       "description": "Sändningar från dplay.se",
       "icon": "dplaylarge.png",
       "category": "National",
@@ -43,11 +43,10 @@
       "sortorder": 5,
       "language": "se",
       "fanart": "dplayfanart.jpg"
-    }
-    ,
+    },
     {
       "guid": "90C8695D-23AE-45B5-BD51-CEA780A770B0",
-      "name": "Dplay Norges",
+      "name": "Dplay (Norges)",
       "description": "Sendninger fra dplay.no",
       "icon": "dplaylarge.png",
       "category": "National",
@@ -56,6 +55,5 @@
       "language": "no",
       "fanart": "dplayfanart.jpg"
     }
-  ]
   ]
 }
