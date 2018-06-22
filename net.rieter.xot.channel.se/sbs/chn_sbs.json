@@ -54,6 +54,17 @@
       "sortorder": 5,
       "language": "no",
       "fanart": "dplayfanart.jpg"
+    },
+    {
+      "guid": "E0D572B5-D992-4F90-960E-F0D82A8C9E51",
+      "name": "TVNorge",
+      "description": "TVNorge Sendninger fra dplay.no",
+      "icon": "tvnorgelarge.png",
+      "category": "National",
+      "channelcode": "tvnorge",
+      "sortorder": 5,
+      "language": "no",
+      "fanart": "tvnorgefanart.jpg"
     }
   ]
 }
