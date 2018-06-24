@@ -5,17 +5,9 @@
     <string id="30002">Mellan</string>
     <string id="30003">Hög</string>
     <string id="30004">Maximalt antal sidor att ladda</string>
-    <string id="30005">Nederländska</string>
-    <string id="30006">Svenska</string>
-    <string id="30007">Litauiska</string>
-    <string id="30008">Lettiska</string>
     <string id="30009">Allmän</string>
     <string id="30010">Kanaler</string>
     <string id="30011">Omstart av Retrospect krävs</string>
-    <string id="30012">Andra</string>
-    <string id="30013">Fransk-kanadensiska</string>
-    <string id="30014">Engelsk-kanadensiska</string>
-    <string id="30015">Norska</string>
     <string id="30016">Sortera efter</string>
     <string id="30017">Namn</string>
     <string id="30018">Datum</string>
@@ -24,45 +16,32 @@
     <string id="30021">Visa undertexter</string>
     <string id="30022">Om det finns</string>
     <string id="30023">Aldrig</string>
-    <string id="30024">Belgiska</string>
     <string id="30025">Ingen</string>
     <string id="30026">Gruppera listan om den överskrider</string>
-    <string id="30027">Brittiska</string>
     <string id="30028">Proxy</string>
     <string id="30029">Serveradress</string>
     <string id="30030">Portnummer</string>
     <string id="30031">Buffra HTTP-förfrågningar (experiment)</string>
     <string id="30032">Inställningar för kanaler</string>
-    <string id="30033">Belgien</string>
     <string id="30034">Ingen kanal vald</string>
     <string id="30035">Användarnamn</string>
     <string id="30036">Lösenord</string>
-    <string id="30037">Norge</string>
-    <string id="30037">Norge</string>
     <string id="30038">Bekräfta proxy-ändringar</string>
     <string id="30039">Är det säkert att du vill uppdatera alla kanaler för detta landet med denna proxy?</string>
     <string id="30040">Kanaler</string>
     <string id="30041">Tillgängligt efter att du startat Retrospect för första gången.</string>
     <string id="30042">Aktiverad</string>
     <string id="30043">Mapp-prefix</string>
-    <string id="30044">Estniska</string>
-    <string id="30045">Danska</string>
     <string id="30046">DRM-/GEO-/Premium-filter</string>
-    <string id="30047">Tyska</string>
     <string id="30048">Loggnivå</string>
     <string id="30049">Uitzendinggemist.nl-inställningar</string>
     <string id="30050">Sökväg för buffert</string>
     <string id="30051">Töm bufferten efter # dagar (0=ingen buffert)</string>
     <string id="30052">Skicka användningsstatistik</string>
     <string id="30053">Utseende</string>
-    <string id="30054">Tyskland</string>
     <string id="30055">Avancerat</string>
-    <string id="30056">Nederländerna</string>
-    <string id="30057">Storbritannien</string>
-    <string id="30058">Sverige</string>
-    <string id="30059">Andra länder</string>
-    <string id="30060">Välj det språk du vill hantera kanaler för</string>
-    <string id="30061">Kanalspråk</string>
+    <string id="30060">Välj ursprungsland att hantera kanaler för</string>
+    <string id="30061">Ursprungsland för kanaler</string>
     <string id="30062">HTTP</string>
     <string id="30063">Kanal du vill konfigurera</string>
     <string id="30064">Proxy-grupp</string>
@@ -99,8 +78,6 @@
     <string id="30095">Visa dolda objekt</string>
     <string id="30096">Land</string>
     <string id="30097">Lokalt IP</string>
-    <string id="30098">Estland</string>
-    <string id="30099">Litauen</string>
 
     <string id="30100">Ingen</string>
     <string id="30101">Regionala</string>
@@ -122,10 +99,40 @@
     <string id="30205">1000</string>
 
     <!-- language and countries -->
+    <string id="30300">Andra länder</string>
+    <!-- nl -->
     <string id="30301">Nederländerna</string>
-    <string id="30302">Nederländska</string>
-    <string id="30303">Lettland</string>
-    <string id="30304">Lettiska</string>
+    <string id="30401">Nederländska</string>
+    <!-- se -->
+    <string id="30302">Sverige</string>
+    <string id="30402">Svenska</string>
+    <!-- lt -->
+    <string id="30303">Litauen</string>
+    <string id="30403">Litauiska</string>
+    <!-- lv -->
+    <string id="30304">Lettland</string>
+    <string id="30404">Lettiska</string>
+    <!-- no -->
+    <string id="30305">Norge</string>
+    <string id="30405">Norska</string>
+    <!-- be -->
+    <string id="30306">Belgien</string>
+    <string id="30406">Belgiska</string>
+    <!-- en-gb -->
+    <string id="30307">Storbritannien</string>
+    <string id="30407">Brittiska</string>
+    <!-- ee -->
+    <string id="30308">Estland</string>
+    <string id="30408">Estniska</string>
+    <!-- de -->
+    <string id="30309">Tyskland</string>
+    <string id="30409">Tyska</string>
+    <!-- dk -->
+    <string id="30310">Danmark</string>
+    <string id="30410">Danska</string>
+    <!-- fi -->
+    <string id="30311">Finland</string>
+    <string id="30411">Finska</string>
 
     <string id="30500">Alla favoriter</string>
     <string id="30501">Favorit</string>

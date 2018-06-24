@@ -5,17 +5,9 @@
     <string id="30002">Gemiddeld</string>
     <string id="30003">Hoog</string>
     <string id="30004">Maximaal aantal pagina's om te laden</string>
-    <string id="30005">Nederlands</string>
-    <string id="30006">Zweeds</string>
-    <string id="30007">Litouws</string>
-    <string id="30008">Lets</string>
-    <string id="30009">Algemeen</string>    
+    <string id="30009">Algemeen</string>
     <string id="30010">Kanalen</string> 
     <string id="30011">Herstart van Retrospect nodig om te activeren.</string>
-    <string id="30012">Overige talen</string>
-    <string id="30013">Frans-Canadees</string>
-    <string id="30014">Engels-Canadees</string>
-    <string id="30015">Norweegs</string>
     <string id="30016">Sorteren op</string>
     <string id="30017">Naam</string>
     <string id="30018">Datum</string>
@@ -24,43 +16,31 @@
     <string id="30021">Subtitle modus</string>
     <string id="30022">Tonen indien beschikbaar</string>
     <string id="30023">Nooit tonen</string>
-    <string id="30024">Belgisch</string>
     <string id="30025">Geen</string>
     <string id="30026">Groepeer lijst met meer dan # mappen</string>
-    <string id="30027">Brits</string>
     <string id="30028">Proxy</string>
     <string id="30029">Server</string>
     <string id="30030">Poort</string>
     <string id="30031">Cache HTTP berichten (experimenteel)</string>
     <string id="30032">Kanaal instellingen</string>
-    <string id="30033">België</string>
     <string id="30034">Geen kanaal geselecteerd</string>
     <string id="30035">Gebruikersnaam</string>
     <string id="30036">Wachtwoord</string>
-    <string id="30037">Norwegen</string>
     <string id="30038">Bevestig proxy wijzigingen</string>
     <string id="30039">Weet je zeker dat je alle kanalen van dit land wilt updaten met de geselecteerde proxy?</string>
     <string id="30040">Kanalen</string>
     <string id="30041">Komt pas beschikbaar na de eerste keer opstarten van Retrospect.</string>
     <string id="30042">Ingeschakeld</string>
     <string id="30043">Folder voorvoegsel</string>
-    <string id="30044">Estlands</string>
-    <string id="30045">Deens</string>
     <string id="30046">DRM/GEO-locatie/Premium filters</string>
-    <string id="30047">Duits</string>
     <string id="30048">Log level</string>
     <string id="30049">Uitzendinggemist.nl instellingen</string>
     <string id="30050">Cache pad</string>
     <string id="30051">Cache opschonen na # dagen (0=cache niet gebruiken)</string>
     <string id="30052">Verzend gebruiksstatistieken</string>
     <string id="30053">Weergaven</string>
-    <string id="30054">Duitsland</string>
     <string id="30055">Geadvanceerd</string>
-    <string id="30056">Nederland</string>
-    <string id="30057">Verenigd Koninkrijk</string>
-    <string id="30058">Zweden</string>
-    <string id="30059">Overige landen</string>
-    <string id="30060">Selecteer een taal om kanalen voor te beheren</string>
+    <string id="30060">Selecteer een land om kanalen voor te beheren</string>
     <string id="30061">Kanaal taal</string>
     <string id="30062">HTTP</string>
     <string id="30063">Kanaal om te configureren</string>
@@ -98,8 +78,6 @@
     <string id="30095">Verborgen items weergeven</string>
     <string id="30096">Land</string>
     <string id="30097">Lokaal IP</string>
-    <string id="30098">Estland</string>
-    <string id="30099">Litouwen</string>
 
     <string id="30100">Geen</string>
     <string id="30101">Regionaal</string>
@@ -121,10 +99,40 @@
     <string id="30205">1000</string>
 
     <!-- language and countries -->
+    <string id="30300">Andere landen</string>
+    <!-- nl -->
     <string id="30301">Nederland</string>
-    <string id="30302">Nederlands</string>
-    <string id="30303">Letland</string>
-    <string id="30304">Lets</string>
+    <string id="30401">Nederlands</string>
+    <!-- se -->
+    <string id="30302">Zweden</string>
+    <string id="30402">Zweeds</string>
+    <!-- lt -->
+    <string id="30303">Litouwen</string>
+    <string id="30403">Litouws</string>
+    <!-- lv -->
+    <string id="30304">Letland</string>
+    <string id="30404">Lets</string>
+    <!-- no -->
+    <string id="30305">Norwegen</string>
+    <string id="30405">Norweegs</string>
+    <!-- be -->
+    <string id="30306">België</string>
+    <string id="30406">Belgium</string>
+    <!-- en-gb -->
+    <string id="30307">Verenigd Koninkrijk</string>
+    <string id="30407">Brits</string>
+    <!-- ee -->
+    <string id="30308">Estland</string>
+    <string id="30408">Estisch</string>
+    <!-- de -->
+    <string id="30309">Duitsland</string>
+    <string id="30409">Duits</string>
+    <!-- dk -->
+    <string id="30310">Denemarken</string>
+    <string id="30410">Deens</string>
+    <!-- fi -->
+    <string id="30311">Finland</string>
+    <string id="30411">Fins</string>
 
     <string id="30500">Alle Favorieten</string>
     <string id="30501">Favoriet</string>

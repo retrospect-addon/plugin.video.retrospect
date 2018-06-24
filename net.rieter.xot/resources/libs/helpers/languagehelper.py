@@ -116,16 +116,16 @@ class LanguageHelper:
                     "Tech": 30107,
                     "Other": 30108}
 
-    __LanguageMapping = {None: 30025,
-                         "be": 30024,
-                         "de": 30047,
-                         "ee": 30044,
-                         "en-gb": 30027,
-                         "lt": 30007,
-                         "lv": 30008,
-                         "nl": 30005,
-                         "no": 30015,
-                         "se": 30006}
+    __LanguageMapping = {None:      30025,
+                         "be":      30406,
+                         "de":      30409,
+                         "ee":      30408,
+                         "en-gb":   30407,
+                         "lt":      30403,
+                         "lv":      30404,
+                         "nl":      30401,
+                         "no":      30405,
+                         "se":      30402}
 
     def __init__(self):
         pass

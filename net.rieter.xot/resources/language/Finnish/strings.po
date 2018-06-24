@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-06 20:21+0000\n"
+"POT-Creation-Date: 2018-06-16 17:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -33,22 +33,6 @@ msgctxt "#30004"
 msgid "Maximum number of pages to load"
 msgstr "Ladattavien sivujen maksimimäärä"
 
-msgctxt "#30005"
-msgid "Dutch"
-msgstr "Hollanti"
-
-msgctxt "#30006"
-msgid "Swedish"
-msgstr "Ruotsi"
-
-msgctxt "#30007"
-msgid "Lithuanian"
-msgstr "Liettua"
-
-msgctxt "#30008"
-msgid "Latvian"
-msgstr "Latvia"
-
 msgctxt "#30009"
 msgid "General"
 msgstr "Yleinen"
@@ -60,22 +44,6 @@ msgstr "Kanavat"
 msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
 msgstr "Vaatii Retrospectin uudelleenkäynnistyksen."
-
-msgctxt "#30012"
-msgid "Other"
-msgstr "Muut"
-
-msgctxt "#30013"
-msgid "French Canadian"
-msgstr "Kanadanranska"
-
-msgctxt "#30014"
-msgid "English Canadian"
-msgstr "Kanadan englanti"
-
-msgctxt "#30015"
-msgid "Norwegian"
-msgstr "Norja"
 
 msgctxt "#30016"
 msgid "Sort by"
@@ -109,10 +77,6 @@ msgctxt "#30023"
 msgid "Never show"
 msgstr "Älä näytä koskaan"
 
-msgctxt "#30024"
-msgid "Belgian"
-msgstr "Belgia"
-
 msgctxt "#30025"
 msgid "None"
 msgstr "Ei mitään"
@@ -120,10 +84,6 @@ msgstr "Ei mitään"
 msgctxt "#30026"
 msgid "Group list if exceeds # folders"
 msgstr "Ryhmitä listaus jos # määrä kansioita ylittyy"
-
-msgctxt "#30027"
-msgid "British"
-msgstr "Englanti"
 
 msgctxt "#30028"
 msgid "Proxy"
@@ -145,10 +105,6 @@ msgctxt "#30032"
 msgid "Channel Settings"
 msgstr "Kanavan Asetukset"
 
-msgctxt "#30033"
-msgid "Belgium"
-msgstr "Belgia"
-
 msgctxt "#30034"
 msgid "No channel selected"
 msgstr "Kanavaa ei ole valittu"
@@ -160,10 +116,6 @@ msgstr "Käyttäjänimi"
 msgctxt "#30036"
 msgid "Password"
 msgstr "Salasana"
-
-msgctxt "#30037"
-msgid "Norway"
-msgstr "Norwegia"
 
 msgctxt "#30038"
 msgid "Confirm proxy changes"
@@ -189,21 +141,9 @@ msgctxt "#30043"
 msgid "Folder prefix"
 msgstr "Kansion etuliite"
 
-msgctxt "#30044"
-msgid "Estonian"
-msgstr "Eesti"
-
-msgctxt "#30045"
-msgid "Danish"
-msgstr "Tanska"
-
 msgctxt "#30046"
 msgid "DRM/Geo Location/Premium filters"
 msgstr "DRM/Geolokaatio/Maksullinen suodattimet"
-
-msgctxt "#30047"
-msgid "German"
-msgstr "Saksa"
 
 msgctxt "#30048"
 msgid "Log level"
@@ -229,36 +169,16 @@ msgctxt "#30053"
 msgid "Appearance"
 msgstr "Ulkonäkö"
 
-msgctxt "#30054"
-msgid "Germany"
-msgstr "Saksa"
-
 msgctxt "#30055"
 msgid "Advanced"
 msgstr "Kehittyneet"
 
-msgctxt "#30056"
-msgid "The Netherlands"
-msgstr "Alankomaat"
-
-msgctxt "#30057"
-msgid "United Kingdom"
-msgstr "Yhdistynyt kuningaskunta"
-
-msgctxt "#30058"
-msgid "Sweden"
-msgstr "Ruotsi"
-
-msgctxt "#30059"
-msgid "Other Countries"
-msgstr "Muut maat"
-
 msgctxt "#30060"
-msgid "Select a language to manage its channels"
+msgid "Select country of origin to manage its channels"
 msgstr "Valitse kieli ja muokkaa sen kanavia"
 
 msgctxt "#30061"
-msgid "Channel Language"
+msgid "Channel Origin"
 msgstr "Kanavan Kieli"
 
 msgctxt "#30062"
@@ -405,14 +325,6 @@ msgctxt "#30097"
 msgid "Local IP"
 msgstr "Paikallinen IP"
 
-msgctxt "#30098"
-msgid "Estonia"
-msgstr "Viro"
-
-msgctxt "#30099"
-msgid "Lithuania"
-msgstr "Liettua"
-
 msgctxt "#30100"
 msgid "None"
 msgstr "Ei mitään"
@@ -477,21 +389,97 @@ msgctxt "#30205"
 msgid "1000"
 msgstr "1000"
 
+msgctxt "#30300"
+msgid "Other Countries"
+msgstr "Other Countries"
+
 msgctxt "#30301"
 msgid "The Netherlands"
-msgstr "Alankomaat"
+msgstr "The Netherlands"
 
 msgctxt "#30302"
-msgid "Dutch"
-msgstr "Hollanti"
+msgid "Sweden"
+msgstr "Sweden"
 
 msgctxt "#30303"
+msgid "Lithuania"
+msgstr "Lithuania"
+
+msgctxt "#30304"
 msgid "Latvia"
 msgstr "Latvia"
 
-msgctxt "#30304"
+msgctxt "#30305"
+msgid "Norway"
+msgstr "Norway"
+
+msgctxt "#30306"
+msgid "Belgium"
+msgstr "Belgium"
+
+msgctxt "#30307"
+msgid "United Kingdom"
+msgstr "United Kingdom"
+
+msgctxt "#30308"
+msgid "Estonia"
+msgstr "Estonia"
+
+msgctxt "#30309"
+msgid "Germany"
+msgstr "Germany"
+
+msgctxt "#30310"
+msgid "Denmark"
+msgstr "Denmark"
+
+msgctxt "#30311"
+msgid "Finland"
+msgstr "Finland"
+
+msgctxt "#30401"
+msgid "Dutch"
+msgstr "Dutch"
+
+msgctxt "#30402"
+msgid "Swedish"
+msgstr "Swedish"
+
+msgctxt "#30403"
+msgid "Lithuanian"
+msgstr "Lithuanian"
+
+msgctxt "#30404"
 msgid "Latvian"
-msgstr "Latvialainen"
+msgstr "Latvian"
+
+msgctxt "#30405"
+msgid "Norwegian"
+msgstr "Norwegian"
+
+msgctxt "#30406"
+msgid "Belgium"
+msgstr "Belgium"
+
+msgctxt "#30407"
+msgid "British"
+msgstr "British"
+
+msgctxt "#30408"
+msgid "Estonian"
+msgstr "Estonian"
+
+msgctxt "#30409"
+msgid "German"
+msgstr "German"
+
+msgctxt "#30410"
+msgid "Danish"
+msgstr "Danish"
+
+msgctxt "#30411"
+msgid "Finnish"
+msgstr "Finnish"
 
 msgctxt "#30500"
 msgid "All Favourites"
@@ -763,11 +751,11 @@ msgstr "To un-cloak an item, configure Retrospect to show cloaked items first. T
 
 msgctxt "#30567"
 msgid "Add-on(s) disabled"
-msgstr ""
+msgstr "Add-on(s) disabled"
 
 msgctxt "#30568"
 msgid "Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager."
-msgstr ""
+msgstr "Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager."
 
 msgctxt "#30569"
 msgid "Ignore SSL verification errors (Security Risk!)"

@@ -34,7 +34,7 @@
         <setting id="hide_drm" type="bool" label="30080" enable="true" default="false" />
         <setting id="hide_premium" type="bool" label="30081" enable="true" default="false" />
         <setting id="hide_types" type="enum" label="30082" lvalues="30083|30084" default="1" />
-        <setting id="geo_region" type="select" label="30085" lvalues="30074|30024|30047|30044|30027|30007|30008|30005|30015|30006" />
+        <setting id="geo_region" type="select" label="30085" lvalues="30074|30306|30309|30308|30307|30303|30304|30301|30305|30302" />
         <setting id="geo_label" type="text" label="30073" enable="false" />
 
         <setting type="lsep" label="30055" />
@@ -78,7 +78,7 @@
 
     <!-- start of proxy settings -->
     <category id="proxysettings" label="30065">
-        <setting id="selected_country" label="30096" type="labelenum" lvalues="30059|30056|30057|30058|30037|30054|30033|30098|30099|30303" />
+        <setting id="selected_country" label="30096" type="labelenum" lvalues="30059|30301|30307|30302|30305|30309|30306|30308|30303|30304" />
         <setting type="sep" />
 
         <setting id="other_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,0)" />
