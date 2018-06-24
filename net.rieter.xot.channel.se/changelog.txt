@@ -1,7 +1,13 @@
 ﻿[B]Changelog[/B]
-* Fixed: TV4Play updated their API for TV4 and Sjuan (Fixes #954)
+* Added: Animal Planet, Discovery, Discovery World, Discovery Science, Investigative Discovery and VOX via dplay.no (Fixes #959)
+* Added: Dplay.no FEM, MAX and TLC seperate channels (See #959)
+* Added: Dplay.no fanart and seperate TVNorge channel (See #959)
+* Fixed: renamed Dplay.se channel
+* Fixed: TV4Play live items (Fixes #956)
+* Added: Dplay.no (See #959)
 
 [I]Previous changes[/I]
+* Fixed: TV4Play updated their API for TV4 and Sjuan (Fixes #954)
 * Fixed: Dplay HTTP header issue (See #947)
 * Fixed: Dplay (and others) now uses Adaptive add-on under Kodi Leia (Fixes #947)
 * Fixed: Playback of Kanal5/9 (Fixes #936)

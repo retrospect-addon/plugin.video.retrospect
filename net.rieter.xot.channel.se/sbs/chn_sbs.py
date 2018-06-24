@@ -44,7 +44,6 @@ class Channel(chn_class.Channel):
         self.recentUrl = None
         self.primaryChannelId = None
         self.baseUrlApi = "disco-api.dplay.{0}".format(self.language)
-        self.noImage = "dplayimage.png"
 
         if self.channelCode == "tv5json":
             self.noImage = "tv5seimage.png"
@@ -59,31 +58,68 @@ class Channel(chn_class.Channel):
             self.primaryChannelId = 26
 
         elif self.channelCode == "tv11json":
+            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
             self.primaryChannelId = 22
 
         elif self.channelCode == "dplayse":
+            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
 
         elif self.channelCode == "dplayno":
+            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
 
+        elif self.channelCode == "tlcnorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 15
+
         elif self.channelCode == "tvnorge":
+            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
             self.primaryChannelId = 28
 
         elif self.channelCode == "femnorge":
-            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
-            self.primaryChannelId = 29
-
-        elif self.channelCode == "tlcnorge":
+            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
             self.primaryChannelId = 29
 
         elif self.channelCode == "maxnorge":
+            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
-            self.primaryChannelId = 15
+            self.primaryChannelId = 30
+
+        elif self.channelCode == "voxnorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 31
+
+        elif self.channelCode == "animalplanetnorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 35
+
+        elif self.channelCode == "discoverynorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 45
+
+        elif self.channelCode == "discoverysciencenorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 71
+
+        elif self.channelCode == "discoveryworldnorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 72
+
+        elif self.channelCode == "investigationdiscoverynorge":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 73
 
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
