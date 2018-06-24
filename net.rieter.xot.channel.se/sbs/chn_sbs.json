@@ -65,6 +65,39 @@
       "sortorder": 5,
       "language": "no",
       "fanart": "tvnorgefanart.jpg"
+    },
+    {
+      "guid": "214E3395-E467-4B1F-87E9-C19FABB5C983",
+      "name": "TLC Norge",
+      "description": "TVNorge Sendninger fra dplay.no",
+      "icon": "tlcnorgelarge.png",
+      "category": "National",
+      "channelcode": "tlcnorge",
+      "sortorder": 5,
+      "language": "no",
+      "fanart": "dplayfanart.jpg"
+    },
+    {
+      "guid": "AA14585A-F519-42FF-824B-7ABAC76F18FD",
+      "name": "Max Norge",
+      "description": "TVNorge Sendninger fra dplay.no",
+      "icon": "maxnorgelarge.png",
+      "category": "National",
+      "channelcode": "maxnorge",
+      "sortorder": 5,
+      "language": "no",
+      "fanart": "dplayfanart.jpg"
+    },
+    {
+      "guid": "94951B96-77FD-4519-8AE2-55C6133CB9EC",
+      "name": "FEM Norge",
+      "description": "TVNorge Sendninger fra dplay.no",
+      "icon": "femnorgelarge.png",
+      "category": "National",
+      "channelcode": "femnorge",
+      "sortorder": 5,
+      "language": "no",
+      "fanart": "dplayfanart.jpg"
     }
   ]
 }

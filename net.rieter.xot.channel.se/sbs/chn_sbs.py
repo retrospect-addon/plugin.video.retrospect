@@ -44,6 +44,7 @@ class Channel(chn_class.Channel):
         self.recentUrl = None
         self.primaryChannelId = None
         self.baseUrlApi = "disco-api.dplay.{0}".format(self.language)
+        self.noImage = "dplayimage.png"
 
         if self.channelCode == "tv5json":
             self.noImage = "tv5seimage.png"
@@ -58,23 +59,31 @@ class Channel(chn_class.Channel):
             self.primaryChannelId = 26
 
         elif self.channelCode == "tv11json":
-            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
             # self.liveUrl = "https://secure.dplay.se/secure/api/v2/user/authorization/stream/132039"
             self.primaryChannelId = 22
 
         elif self.channelCode == "dplayse":
-            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
 
         elif self.channelCode == "dplayno":
-            self.noImage = "dplayimage.png"
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
 
         elif self.channelCode == "tvnorge":
-            self.noImage = "tvnorgeimage.png"
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
             self.primaryChannelId = 28
+
+        elif self.channelCode == "femnorge":
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 29
+
+        elif self.channelCode == "tlcnorge":
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 29
+
+        elif self.channelCode == "maxnorge":
+            self.baseUrl = "http://www.dplay.no/api/v2/ajax"
+            self.primaryChannelId = 15
 
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
@@ -486,7 +495,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        videoData = UriHandler.Open(item.url, proxy=self.proxy)
+        videoData = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
 
         if not videoData:
             return item
