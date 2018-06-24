@@ -814,6 +814,9 @@ class Channel(chn_class.Channel):
         )
 
         auth = {"Authorization": "apikey=%s&access_token=%s" % (self.__apiKey, token)}
+        if self.localIP:
+            auth.update(self.localIP)
+
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True, additionalHeaders=auth)
         jsonData = JsonHelper(data)
         hls = jsonData.GetValue("response", "url", "hls")

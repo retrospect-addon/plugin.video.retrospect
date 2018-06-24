@@ -34,7 +34,8 @@
       "sortorder": 11,
       "language": "be",
       "fanart": "stieviefanart2.jpg",
-      "message": "Streams from Stievie.be require a Medialaan account. It can be configured via the Channel settings."
+      "message": "Streams from Stievie.be require a Medialaan account. It can be configured via the Channel settings.",
+      "localIPSupported": true
     }
   ],
   "settings": [
