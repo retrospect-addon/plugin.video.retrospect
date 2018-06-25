@@ -2,8 +2,10 @@ import datetime
 
 import mediaitem
 import chn_class
+from helpers.subtitlehelper import SubtitleHelper
 
 from streams.m3u8 import M3u8
+from streams.mpd import Mpd
 from regexer import Regexer
 from helpers.jsonhelper import JsonHelper
 from helpers.datehelper import DateHelper
@@ -250,7 +252,7 @@ class Channel(chn_class.Channel):
             item.name = resultSet['seriesTitle']
 
         item.type = "video"
-        item.url = "https://embed.kijk.nl/api/video/%(id)s?id=kijkapp" % resultSet
+        item.url = "https://embed.kijk.nl/api/video/%(id)s?id=kijkapp&format=DASH&drm=CENC" % resultSet
 
         if 'subtitle' in resultSet:
             item.name = "{0} - {1}".format(item.name, resultSet['subtitle'])
@@ -264,39 +266,69 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateJsonVideoItem(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.Open(item.url, proxy=self.proxy,
+                               additionalHeaders={
+                                   "accept": "application/vnd.sbs.ovp+json; version=2.0"
+                               })
         json = JsonHelper(data)
-        m3u8Url = json.GetValue("playlist")
-        useKodiHls = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
 
-        if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8":
-            part = item.CreateNewEmptyMediaPart()
+        # useAdaptiveWithEncryption = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+        useAdaptiveWithEncryption = False
+        mpdInfo = json.GetValue("entitlements", "play")
+        part = item.CreateNewEmptyMediaPart()
 
-            if useKodiHls:
-                Logger.Error("Using InputStreamAddon")
-                strm = part.AppendMediaStream(m3u8Url, 0)
-                M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+        # is there MPD information in the API response?
+        if mpdInfo is not None:
+            mpdManifestUrl = "https:{0}".format(mpdInfo["mediaLocator"])
+            mpdData = UriHandler.Open(mpdManifestUrl, proxy=self.proxy)
+            subtitles = Regexer.DoRegex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
+            if subtitles:
+                subtitle = SubtitleHelper.DownloadSubtitle(subtitles[0],
+                                                           proxy=self.proxy,
+                                                           format="webvtt")
+                part.Subtitle = subtitle
+
+            if useAdaptiveWithEncryption:
+                # We can use the adaptive add-on with encryption
+                Logger.Info("Using MPD InputStreamAddon")
+                licenseUrl = Regexer.DoRegex('licenseUrl="([^"]+)"', mpdData)[0]
+                token = "Bearer {0}".format(mpdInfo["playToken"])
+                keyHeaders = {"Authorization": token}
+                licenseKey = Mpd.GetLicenseKey(licenseUrl, keyHeaders=keyHeaders)
+
+                stream = part.AppendMediaStream(mpdManifestUrl, 0)
+                Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=licenseKey)
                 item.complete = True
                 return item
 
+        m3u8Url = json.GetValue("playlist")
+        useAdaptive = AddonSettings.UseAdaptiveStreamAddOn()
+        if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8":
             for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
                 if "_enc_" in s:
                     continue
 
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                if useAdaptive:
+                    # we have at least 1 none encrypted streams
+                    Logger.Info("Using HLS InputStreamAddon")
+                    strm = part.AppendMediaStream(m3u8Url, 0)
+                    M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+                    item.complete = True
+                    return item
+
                 part.AppendMediaStream(s, b)
+                item.complete = True
             return item
 
         Logger.Warning("No M3u8 data found. Falling back to BrightCove")
         videoId = json.GetValue("vpakey")
         # videoId = json.GetValue("videoId") -> Not all items have a videoId
-        url = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
+        mpdManifestUrl = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
         referer = "https://embed.kijk.nl/video/%s" % (videoId,)
         part = item.CreateNewEmptyMediaPart()
 
         # First try the new BrightCove JSON
-        data = UriHandler.Open(url, proxy=self.proxy, referer=referer)
+        data = UriHandler.Open(mpdManifestUrl, proxy=self.proxy, referer=referer)
         brightCoveRegex = '<video[^>]+data-video-id="(?<videoId>[^"]+)[^>]+data-account="(?<videoAccount>[^"]+)'
         brightCoveData = Regexer.DoRegex(Regexer.FromExpresso(brightCoveRegex), data)
         if brightCoveData:
@@ -315,7 +347,7 @@ class Channel(chn_class.Channel):
 
                 # these streams work better with the the InputStreamAddon because it removes the
                 # "range" http header
-                if useKodiHls:
+                if useAdaptiveWithEncryption:
                     Logger.Info("Using InputStreamAddon for playback of HLS stream")
                     strm = part.AppendMediaStream(streamUrl, 0)
                     strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
