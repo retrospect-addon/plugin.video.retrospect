@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-16 17:29+0000\n"
+"POT-Creation-Date: 2018-06-26 21:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -500,7 +500,7 @@ msgstr ""
 #be
 
 msgctxt "#30406"
-msgid "Belgium"
+msgid "Belgian"
 msgstr ""
 
 #en-gb
