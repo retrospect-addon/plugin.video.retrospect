@@ -272,8 +272,8 @@ class Channel(chn_class.Channel):
                                })
         json = JsonHelper(data)
 
-        # useAdaptiveWithEncryption = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
-        useAdaptiveWithEncryption = False
+        useAdaptiveWithEncryption = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+        # useAdaptiveWithEncryption = False
         mpdInfo = json.GetValue("entitlements", "play")
         part = item.CreateNewEmptyMediaPart()
 
@@ -303,7 +303,10 @@ class Channel(chn_class.Channel):
 
         m3u8Url = json.GetValue("playlist")
         useAdaptive = AddonSettings.UseAdaptiveStreamAddOn()
-        if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8":
+        # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
+        # are brightcove based have an url paramter instead of an empty m3u8 file
+        if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8" \
+                and "hostingervice=brightcove" not in m3u8Url:
             for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
                 if "_enc_" in s:
                     continue
