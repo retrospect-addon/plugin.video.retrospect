@@ -95,6 +95,7 @@ class Channel(chn_class.Channel):
         #  Achter gesloten deuren: seizoenen
         #  Wegmisbruikers: episodes and clips and both pages
         #  Utopia: no clips
+        #  Grand Designs has almost all encrypted/non-encrypted/brigthcove streams
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -282,6 +283,7 @@ class Channel(chn_class.Channel):
             mpdData = UriHandler.Open(mpdManifestUrl, proxy=self.proxy)
             subtitles = Regexer.DoRegex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
             if subtitles:
+                Logger.Debug("Found subtitle: %s", subtitles[0])
                 subtitle = SubtitleHelper.DownloadSubtitle(subtitles[0],
                                                            proxy=self.proxy,
                                                            format="webvtt")
@@ -305,6 +307,7 @@ class Channel(chn_class.Channel):
         useAdaptive = AddonSettings.UseAdaptiveStreamAddOn()
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url paramter instead of an empty m3u8 file
+        Logger.Debug("Trying standard M3u8 streams.")
         if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8" \
                 and "hostingervice=brightcove" not in m3u8Url:
             for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
