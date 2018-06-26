@@ -564,7 +564,6 @@
         <setting id="de_local_ip" type="ipaddress" label="30079" default="" visible="eq(-42,5)" />
 
         <setting id="be_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=be)" visible="eq(-43,6)" />
-        <setting id="be_proxy_set_all" type="action" label="30071" action="RunScript(net.rieter.xot, 0, ?action=setproxy&amp;lang=be)" visible="eq(-43,6)" />
         <setting id="be_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-44,6)" />
         <setting subsetting="true" id="be_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-45,6)" />
         <setting subsetting="true" id="be_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-46,6)" />
