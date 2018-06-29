@@ -53,7 +53,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("#mainlist", preprocessor=self.GetInitialFolderItems)
 
         # live stuff
-        self.baseUrlLive = "https://www.npo.nl"
+        self.baseUrlLive = "https://www.npostart.nl"
 
         # live radio, the folders and items
         self._AddDataParser("http://radio-app.omroep.nl/player/script/",
@@ -69,7 +69,7 @@ class Channel(chn_class.Channel):
                             creator=self.CreateLiveTv,
                             updater=self.UpdateVideoItemLive)
 
-        self._AddDataParser("https://www.npo.nl/live/", name="Live Video Updater from HTML",
+        self._AddDataParser("https://www.npostart.nl/live/", name="Live Video Updater from HTML",
                             updater=self.UpdateVideoItemLive)
 
         # Use old urls with new Updater
@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
 
         episodeParser = Regexer.FromExpresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+(?:image:\s?url\(.(?<thumburl>[^)]+).\))?[^)>]*>')
-        self._AddDataParsers(["https://www.npo.nl/media/series?page=", ],
+        self._AddDataParsers(["https://www.npostart.nl/media/series?page=", ],
                              name="Parser for main series overview pages",
                              preprocessor=self.ExtractTiles,
                              parser=episodeParser,
@@ -97,21 +97,21 @@ class Channel(chn_class.Channel):
 
         # very similar parser as the Live Channels!
         videoParser = Regexer.FromExpresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>(?<date2>[^<]*)</p>')
-        self._AddDataParsers(["https://www.npo.nl/media/series/", "https://www.npo.nl/search/extended", "https://www.npo.nl/media/collections/"],
+        self._AddDataParsers(["https://www.npostart.nl/media/series/", "https://www.npostart.nl/search/extended", "https://www.npostart.nl/media/collections/"],
                              name="Parser for shows on the main series sub pages, the search and the genres",
                              preprocessor=self.ExtractTiles,
                              parser=videoParser,
                              creator=self.CreateVideoItem)
 
         # Genres
-        self._AddDataParser("https://www.npo.nl/programmas",
+        self._AddDataParser("https://www.npostart.nl/programmas",
                             matchType=ParserData.MatchExact,
                             name="Genres",
                             parser='<a\W+class="close-dropdown"\W+href="/collectie/([^"]+)"\W+title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+data-argument="genreId',
                             creator=self.CreateGenreItem)
 
         # Favourites
-        self._AddDataParser("https://www.npo.nl/ums/accounts/@me/favourites",
+        self._AddDataParser("https://www.npostart.nl/ums/accounts/@me/favourites",
                             preprocessor=self.ExtractTiles,
                             parser=episodeParser,
                             creator=self.CreateEpisodeItem,
@@ -140,7 +140,7 @@ class Channel(chn_class.Channel):
             return False
 
         # cookieValue = self._GetSetting("cookie")
-        cookie = UriHandler.GetCookie("isAuthenticatedUser", "www.npo.nl")
+        cookie = UriHandler.GetCookie("isAuthenticatedUser", "www.npostart.nl")
         if cookie:
             expireDate = DateHelper.GetDateFromPosix(float(cookie.expires))
             Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
@@ -150,19 +150,19 @@ class Channel(chn_class.Channel):
         password = v.GetChannelSetting(self.guid, "password")
 
         # get a token (why?), cookies and an xsrf token
-        token = UriHandler.Open("https://www.npo.nl/api/token", proxy=self.proxy, noCache=True,
+        token = UriHandler.Open("https://www.npostart.nl/api/token", proxy=self.proxy, noCache=True,
                                 additionalHeaders={"X-Requested-With": "XMLHttpRequest"})
 
         jsonToken = JsonHelper(token)
         token = jsonToken.GetValue("token")
         if not token:
             return False
-        xsrfToken = UriHandler.GetCookie("XSRF-TOKEN", "www.npo.nl").value
+        xsrfToken = UriHandler.GetCookie("XSRF-TOKEN", "www.npostart.nl").value
         xsrfToken = HtmlEntityHelper.UrlDecode(xsrfToken)
 
         data = "username=%s&password=%s" % (HtmlEntityHelper.UrlEncode(username),
                                             HtmlEntityHelper.UrlEncode(password))
-        UriHandler.Open("https://www.npo.nl/api/login", proxy=self.proxy, noCache=True,
+        UriHandler.Open("https://www.npostart.nl/api/login", proxy=self.proxy, noCache=True,
                         additionalHeaders={
                             "X-Requested-With": "XMLHttpRequest",
                             "X-XSRF-TOKEN": xsrfToken
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
 
-        # favs = mediaitem.MediaItem("Favorieten", "https://www.npo.nl/ums/accounts/@me/favourites?page=1&type=series&tilemapping=normal&tiletype=teaser")
+        # favs = mediaitem.MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tilemapping=normal&tiletype=teaser")
         # favs.complete = True
         # favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
         #                    "wordt nog niet ondersteund."
@@ -334,7 +334,7 @@ class Channel(chn_class.Channel):
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Genres", "https://www.npo.nl/programmas")
+        extra = mediaitem.MediaItem("Genres", "https://www.npostart.nl/programmas")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -445,12 +445,12 @@ class Channel(chn_class.Channel):
         Logger.Info("Generating an Alpha list for NPO")
 
         items = []
-        # https://www.npo.nl/media/series?page=1&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser
-        # https://www.npo.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tilemapping=normal&tiletype=teaser
-        # https://www.npo.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tilemapping=normal&tiletype=teaser
+        # https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser
+        # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tilemapping=normal&tiletype=teaser
+        # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tilemapping=normal&tiletype=teaser
 
         titleFormat = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith)
-        urlFormat = "https://www.npo.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tilemapping=normal&tiletype=teaser&pageType=catalogue"
+        urlFormat = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tilemapping=normal&tiletype=teaser&pageType=catalogue"
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
@@ -468,8 +468,8 @@ class Channel(chn_class.Channel):
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
 
         # Update the URL
-        # https://www.npo.nl/media/series/POW_03094258/episodes?page=2&tilemapping=dedicated&tiletype=asset
-        url = "https://www.npo.nl/media/series/%(powid)s/episodes?page=1&tilemapping=dedicated&tiletype=asset&pageType=franchise" % resultSet
+        # https://www.npostart.nl/media/series/POW_03094258/episodes?page=2&tilemapping=dedicated&tiletype=asset
+        url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tilemapping=dedicated&tiletype=asset&pageType=franchise" % resultSet
         item.url = url
         item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         item.dontGroup = True
@@ -496,7 +496,7 @@ class Channel(chn_class.Channel):
 
         # if we should not use the mobile listing and we have a non-mobile ID)
         if 'mid' in resultSet:
-            url = "https://www.npo.nl/media/series/%(mid)s/episodes?page=1&tilemapping=dedicated&tiletype=asset&pageType=franchise" % resultSet
+            url = "https://www.npostart.nl/media/series/%(mid)s/episodes?page=1&tilemapping=dedicated&tiletype=asset&pageType=franchise" % resultSet
         else:
             Logger.Warning("Skipping (no 'mid' ID): %(name)s", resultSet)
             return None
@@ -534,10 +534,10 @@ class Channel(chn_class.Channel):
 
         """
         # Videos
-        url = "https://www.npo.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tilemapping=search&tiletype=asset&pageType=search"
+        url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tilemapping=search&tiletype=asset&pageType=search"
 
         # Shows
-        # url = "https://www.npo.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser&pageType=search"
+        # url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser&pageType=search"
         self.httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         return chn_class.Channel.SearchSite(self, url)
 
@@ -699,9 +699,9 @@ class Channel(chn_class.Channel):
         """
         Logger.Trace(resultSet)
 
-        # url = "https://www.npo.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tilemapping=normal&tiletype=teaser" % (resultSet[1],)
-        # url = "https://www.npo.nl/media/%s/lanes/234?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
-        url = "https://www.npo.nl/media/collections/%s?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
+        # url = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tilemapping=normal&tiletype=teaser" % (resultSet[1],)
+        # url = "https://www.npostart.nl/media/%s/lanes/234?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
+        url = "https://www.npostart.nl/media/collections/%s?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
         item = mediaitem.MediaItem(resultSet[1], url)
         item.thumb = self.parentItem.thumb
         item.icon = self.parentItem.icon
@@ -969,4 +969,7 @@ class Channel(chn_class.Channel):
 
         UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
         UriHandler.SetCookie(name='npo_cc', value='30', domain='.npo.nl')
+
+        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
+        UriHandler.SetCookie(name='npo_cc', value='30', domain='.npostart.nl')
         return
