@@ -532,7 +532,10 @@ class AddonSettings:
         AddonSettings.SetSetting("config_channel", channelName)
 
         # show settings and focus on the channel settings tab
-        return AddonSettings.ShowSettings(102)
+        if AddonSettings.IsMinVersion(18):
+            return AddonSettings.ShowSettings(-98)
+        else:
+            return AddonSettings.ShowSettings(102)
 
     @staticmethod
     def ShowSettings(tabId=None, settingId=None):
