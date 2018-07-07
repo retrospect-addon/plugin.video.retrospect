@@ -17,6 +17,29 @@
         <provides>video</provides>
     </extension>
 
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <menu>
+                <label>Retrospect</label>
+
+                <item library="menu_enable.py">
+                    <label>Select Channels</label>
+                    <visible>ListItem.Property(Retrospect)</visible>
+                </item>
+
+                <item library="menu_channelsettings.py">
+                    <label>Channel Settings</label>
+                    <visible>ListItem.Property(Retrospect)</visible>
+                </item>
+
+                <item library="menu_settings.py">
+                    <label>Add-on Settings</label>
+                    <visible>ListItem.Property(Retrospect)</visible>
+                </item>
+            </menu>
+        </menu>
+    </extension>
+
     <extension point="xbmc.addon.metadata">
         <!--<reuselanguageinvoker>false</reuselanguageinvoker>-->
         <platform>all</platform>
