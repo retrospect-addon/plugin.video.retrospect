@@ -68,8 +68,6 @@ class ChannelIndex:
         self.__CHANNEL_INDEX = os.path.join(Config.profileDir, "channelindex.json")
 
         # initialise the collections
-        self.__enabledChannels = []  # list of all loaded channels (after checking languages and so)
-        self.__validChannels = []  # list of all channels that are available on the current platform and thus are loadable
         self.__allChannels = []  # list of all available channels
 
         self.__reindexed = False
@@ -134,7 +132,6 @@ class ChannelIndex:
 
     # noinspection PyUnusedLocal
     def GetChannels(self, includeDisabled=False, **kwargs):
-        # type: (object) -> list
         """ Retrieves all enabled channels within Retrospect.
 
         If updated channels are found, the those channels are indexed and the
@@ -149,9 +146,8 @@ class ChannelIndex:
         sw = StopWatch("ChannelIndex.GetChannels Importer", Logger.Instance())
         Logger.Info("Fetching all enabled channels.")
 
-        self.__enabledChannels = []
         self.__allChannels = []
-        self.__validChannels = []
+        validChannels = []
 
         # What platform are we
         platform = envcontroller.EnvController.GetPlatform()
@@ -207,7 +203,7 @@ class ChannelIndex:
                     Logger.Warning("Not loading: %s -> platform '%s' is not compatible.",
                                    channelInfo, Environments.Name(platform))
                     continue
-                self.__validChannels.append(channelInfo)
+                validChannels.append(channelInfo)
 
                 # was the channel disabled?
                 if not (AddonSettings.ShowChannel(
@@ -216,27 +212,30 @@ class ChannelIndex:
                     Logger.Warning("Not loading: %s -> Channel was disabled from settings.",
                                    channelInfo)
                     continue
-                self.__enabledChannels.append(channelInfo)
 
+                channelInfo.enabled = True
                 Logger.Debug("Loading: %s", channelInfo)
 
         if channelsUpdated:
             Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
-            AddonSettings.UpdateAddOnSettingsWithChannels(self.__validChannels, Config)
+            AddonSettings.UpdateAddOnSettingsWithChannels(validChannels, Config)
             AddonSettings.UpdateUserAgent()
         else:
             Logger.Debug("No channel changes found. Skipping add-on configuration for channels.")
             # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
-        self.__enabledChannels.sort()
+        validChannels.sort()
+        enabledChannels = filter(lambda c: c.enabled, validChannels)
         Logger.Info("Fetch a total of %d channels of which %d are enabled.",
-                    len(self.__allChannels),
-                    len(self.__enabledChannels))
+                    len(validChannels),
+                    len(enabledChannels))
 
         sw.Stop()
+
         if includeDisabled:
-            return self.__validChannels
-        return self.__enabledChannels
+            return validChannels
+
+        return enabledChannels
 
     def GetCategories(self):
         # type: () -> set

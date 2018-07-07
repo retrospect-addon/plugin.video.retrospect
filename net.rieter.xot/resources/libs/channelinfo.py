@@ -75,6 +75,7 @@ class ChannelInfo:
         self.icon = icon
         self.fanart = fanart
         self.version = "x.x.x.x"
+        self.enabled = False
         return
 
     def GetChannel(self):
