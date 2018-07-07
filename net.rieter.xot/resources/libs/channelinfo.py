@@ -134,7 +134,7 @@ class ChannelInfo:
         else:
             self.fanart = os.path.join(Config.rootDir, "fanart.jpg")
         item.setArt({'fanart': self.fanart})
-        item.setProperty("Retrospect", self.guid)
+        item.setProperty("Retrospect", "{0}|{1}".format(self.moduleName, self.channelCode or ""))
         return item
 
     def __str__(self):

@@ -30,6 +30,7 @@ Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                     Config.appName,
                     append=appendLogFile,
                     dualLogger=lambda x, y=4: xbmc.log(x, y))
+Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
 
 
 class Menu(object):
@@ -51,12 +52,20 @@ class Menu(object):
 
     @staticmethod
     def ChannelSettings():
-        item = sys.listitem
-        guid = item.getProperty("Retrospect")
-        Logger.Debug("Fetching channel %s", guid)
-        channel = ChannelIndex.GetRegister().GetChannel()
-
-        from addonsettings import AddonSettings
+        channel = Menu.__GetChannel()
         AddonSettings.ShowChannelSettings(channel)
         pass
+
+    @staticmethod
+    def __GetChannel():
+        # noinspection PyUnresolvedReferences
+        item = sys.listitem
+        chn, code = item.getProperty("Retrospect").split("|")
+        # chn = "chn_nos2010"
+        # code = "uzgjson"
+        code = code or None
+        Logger.Debug("Fetching channel %s - %s", chn, code)
+        channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
+        return channel
+
 

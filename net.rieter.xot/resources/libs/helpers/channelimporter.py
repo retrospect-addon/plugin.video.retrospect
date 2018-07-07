@@ -76,7 +76,7 @@ class ChannelIndex:
 
         return
 
-    def GetChannel(self, className, channelCode):
+    def GetChannel(self, className, channelCode, infoOnly=False):
         """ Fetches a single channel for a given className and channelCode
 
         If updated channels are found, the those channels are indexed and the
@@ -84,7 +84,8 @@ class ChannelIndex:
 
         @param className:       the chn_<name> class name
         @param channelCode:     a possible channel code within the channel set
-        @return:                a ChannelInfo object
+        @param infoOnly:        only return the ChannelInfo
+        @return:                a Channel object
 
         """
 
@@ -127,6 +128,9 @@ class ChannelIndex:
             Logger.Debug("Going to fetching all channels to init them all.")
             self.GetChannels()
             return self.GetChannel(className, channelCode)
+
+        if infoOnly:
+            return channelInfos[0]
 
         return channelInfos[0].GetChannel()
 

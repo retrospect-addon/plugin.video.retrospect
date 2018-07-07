@@ -481,6 +481,13 @@ class Plugin:
 
             xbmcItems = []
             for episodeItem in episodeItems:
+                # Get the XBMC item
+                item = episodeItem.GetXBMCItem()
+                # Set the properties for the context menu add-on
+                item.setProperty("Retrospect", "{0}|{1}".format(
+                                 self.channelObject.moduleName,
+                                 self.channelObject.channelCode or ""))
+
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
                 if episodeItem.fanart == "":
@@ -496,8 +503,6 @@ class Plugin:
                     Logger.Critical("Plugin::ProcessFolderList: Cannot determine what to add")
                     continue
 
-                # Get the XBMC item
-                item = episodeItem.GetXBMCItem()
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(self.channelObject, item=episodeItem)
                 item.addContextMenuItems(contextMenuItems)
@@ -870,12 +875,6 @@ class Plugin:
             cmd = "XBMC.Action(Queue)"
             enqueue = LanguageHelper.GetLocalizedString(LanguageHelper.QueueItemId)
             contextMenuItems.append(("%s" % (enqueue,), cmd))
-
-        cmdUrl = self.__CreateActionUrl(channel, action=self.actionConfigureChannel)
-        cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
-        Logger.Trace("Adding command: %s", cmd)
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.ShowChannelSettings)
-        contextMenuItems.append(("Retro: %s" % (title, ), cmd))
 
         if item is None:
             if self.FavouritesEnabled:
