@@ -13,4 +13,4 @@ Initializer.SetUnicode()
 Initializer.SetupPythonPaths()
 
 import menu
-menu.Menu.ChannelSettings()
+menu.Menu().ChannelSettings()
