@@ -18,6 +18,11 @@ from logger import Logger
 from helpers.sessionhelper import SessionHelper
 from helpers.channelimporter import ChannelIndex
 from addonsettings import AddonSettings
+from paramparser import ParameterParser
+from helpers.languagehelper import LanguageHelper
+from pickler import Pickler
+from cloaker import Cloaker
+from xbmcwrapper import XbmcWrapper
 
 # only append if there are no active sessions
 if not SessionHelper.IsSessionActive():
@@ -26,17 +31,47 @@ if not SessionHelper.IsSessionActive():
 else:
     appendLogFile = True
 
-Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                    Config.appName,
-                    append=appendLogFile,
-                    dualLogger=lambda x, y=4: xbmc.log(x, y))
-Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
 
+class Menu(ParameterParser):
+    def __enter__(self):
+        Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                            Config.appName,
+                            append=appendLogFile,
+                            dualLogger=lambda x, y=4: xbmc.log(x, y))
+        Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
 
-class Menu(object):
+        return Menu()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val:
+            Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
+
+        # make sure we leave no references behind
+        Logger.Instance().CloseLog()
+        AddonSettings.ClearCachedAddonSettingsObject()
+        return False
+
     def __init__(self):
+
         # noinspection PyUnresolvedReferences
-        self.item = sys.listitem
+        self.kodiItem = sys.listitem
+        self.channelObject = self.__GetChannel()
+
+        params = self.kodiItem.getPath()
+        name, params = params.split("?", 1)
+        params = "?{0}".format(params)
+
+        # Main constructor parses
+        super(Menu, self).__init__(name, params)
+
+        Logger.Debug("Plugin Params: %s (%s)\n"
+                     "Name:        %s\n"
+                     "Query:       %s", self.params, len(self.params), self.pluginName, params)
+
+        if self.keywordPickle in self.params:
+            self.mediaItem = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        else:
+            self.mediaItem = None
 
     def SelectChannels(self):
         multiSelectValues = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
@@ -56,15 +91,36 @@ class Menu(object):
         AddonSettings.ShowSettings()
 
     def ChannelSettings(self):
-        channel = self.__GetChannel()
-        AddonSettings.ShowChannelSettings(channel)
+        AddonSettings.ShowChannelSettings(self.channelObject)
         pass
+
+    def Refresh(self):
+        xbmc.executebuiltin("XBMC.Container.Refresh()")
+        return
+
+    def ToggleCloak(self):
+        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        Logger.Info("Cloaking current item: %s", item)
+        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
+        if c.IsCloaked(item.url):
+            c.UnCloak(item.url)
+            self.Refresh()
+            return
+
+        firstTime = c.Cloak(item.url)
+        if firstTime:
+            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
+                                   LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
+
+        self.Refresh()
 
     def __GetChannel(self):
         # noinspection PyUnresolvedReferences
-        chn, code = self.item.getProperty("Retrospect").split("|")
+        chn, code = self.kodiItem.getProperty("Retrospect").split("|")
         # chn = "chn_nos2010"
         # code = "uzgjson"
+        if not chn:
+            return None
         code = code or None
         Logger.Debug("Fetching channel %s - %s", chn, code)
         channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)

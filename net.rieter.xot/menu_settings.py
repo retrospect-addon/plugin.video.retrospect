@@ -13,4 +13,6 @@ Initializer.SetUnicode()
 Initializer.SetupPythonPaths()
 
 import menu
-menu.Menu().ShowSettings()
+
+with menu.Menu() as m:
+    m.ShowSettings()

@@ -43,6 +43,7 @@ try:
     from helpers.statistics import Statistics
     from helpers.sessionhelper import SessionHelper
     from textures import TextureHandler
+    from paramparser import ParameterParser
     # from streams.youtube import YouTube
     from pickler import Pickler
 except:
@@ -52,7 +53,7 @@ except:
 #===============================================================================
 # Main Plugin Class
 #===============================================================================
-class Plugin:
+class Plugin(ParameterParser):
     """Main Plugin Class
 
     This class makes it possible to access all the XOT channels as a Kodi Add-on
@@ -62,6 +63,16 @@ class Plugin:
 
     def __init__(self, pluginName, params, handle=0):
         """Initialises the plugin with given arguments."""
+
+        Logger.Info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
+        self.handle = int(handle)
+
+        super(Plugin, self).__init__(pluginName, params)
+        Logger.Debug("Plugin Params: %s (%s)\n"
+                     "Handle:      %s\n"
+                     "Name:        %s\n"
+                     "Query:       %s", self.params, len(self.params),
+                     self.handle, self.pluginName, params)
 
         # some constants
         self.actionDownloadVideo = "downloadVideo".lower()              # : Action used to download a video item
@@ -77,33 +88,15 @@ class Plugin:
         self.actionSetEncryptionPin = "changepin"                       # : Action used for setting an application pin
         self.actionSetEncryptedValue = "encryptsetting"                 # : Action used for setting an application pin
         self.actionResetVault = "resetvault"                            # : Action used for resetting the vault
-        self.actionCloak = "cloak"                                      # : Action used for cloaking
-        self.actionUnCloak = "uncloak"                                  # : Action used for uncloaking
         self.actionPostLog = "postlog"                                  # : Action used for sending log files to pastebin.com
         self.actionProxy = "setproxy"                                   # : Action used for setting a proxy
-
-        self.keywordPickle = "pickle".lower()                           # : Keyword used for the pickle item
-        self.keywordAction = "action".lower()                           # : Keyword used for the action item
-        self.keywordChannel = "channel".lower()                         # : Keyword used for the channel
-        self.keywordChannelCode = "channelcode".lower()                 # : Keyword used for the channelcode
-        self.keywordCategory = "category"                               # : Keyword used for the category
-        self.keywordRandomLive = "rnd"                                  # : Keyword used for randomizing live items
-        self.keywordSettingId = "settingid"                             # : Keyword used for setting an encrypted setting
-        self.keywordSettingActionId = "settingactionid"                 # : Keyword used for passing the actionid for the encryption
-        self.keywordSettingName = "settingname"                         # : Keyword used for setting an encrypted settings display name
-        self.keywordSettingTabFocus = "tabfocus"                        # : Keyword used for setting the tabcontrol to focus after changing a setting
-        self.keywordSettingSettingFocus = "settingfocus"                # : Keyword used for setting the setting control to focus after changing a setting
-        self.keywordLanguage = "lang"                                   # : Keyword used for the 2 char language information
-        self.keywordProxy = "proxy"                                     # : Keyword used so set the proxy index
-        self.keywordLocalIP = "localip"                                 # : Keyword used to set the local ip index
 
         self.propertyRetrospect = "Retrospect"
         self.propertyRetrospectChannel = "RetrospectChannel"
         self.propertyRetrospectFolder = "RetrospectFolder"
         self.propertyRetrospectVideo = "RetrospectVideo"
-
-        self.pluginName = pluginName
-        self.handle = int(handle)
+        self.propertyRetrospectCloaked = "RetrospectCloaked"
+        self.propertyRetrospectCategory = "RetrospectCategory"
 
         # channel objects
         self.channelObject = None
@@ -112,16 +105,6 @@ class Plugin:
 
         self.contentType = "episodes"
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
-
-        # determine the query parameters
-        self.params = self.__GetParameters(params)
-
-        Logger.Info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
-        Logger.Debug("Plugin Params: %s (%s)\n"
-                     "Handle:      %s\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params),
-                     self.handle, self.pluginName, params)
 
         # are we in session?
         sessionActive = SessionHelper.IsSessionActive(Logger.Instance())
@@ -278,12 +261,6 @@ class Plugin:
                     Logger.Critical("Action parameters missing from request. Parameters=%s", self.params)
                     return
 
-                if self.params[self.keywordAction] == self.actionCloak:
-                    self.__CloakItem()
-
-                elif self.params[self.keywordAction] == self.actionUnCloak:
-                    self.__UnCloakItem()
-
                 elif self.params[self.keywordAction] == self.actionListCategory:
                     self.ShowChannelList(self.params[self.keywordCategory])
 
@@ -348,6 +325,9 @@ class Plugin:
                 # it was deprecated
                 pass
             xbmcItem.setArt({'thumb': icon, 'icon': icon})
+            xbmcItem.setProperty(self.propertyRetrospect, "|")
+            xbmcItem.setProperty(self.propertyRetrospectCategory, "1")
+
             if not AddonSettings.HideFanart():
                 xbmcItem.setArt({'fanart': fanart})
 
@@ -492,12 +472,6 @@ class Plugin:
             for episodeItem in episodeItems:
                 # Get the XBMC item
                 item = episodeItem.GetXBMCItem()
-                # Set the properties for the context menu add-on
-                propertyValue = "{0}|{1}".format(self.channelObject.moduleName, self.channelObject.channelCode or "")
-                item.setProperty(self.propertyRetrospect, propertyValue)
-                item.setProperty(self.propertyRetrospectVideo if episodeItem.IsPlayable()
-                                 else self.propertyRetrospectFolder, propertyValue)
-
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
                 if episodeItem.fanart == "":
@@ -512,6 +486,16 @@ class Plugin:
                 else:
                     Logger.Critical("Plugin::ProcessFolderList: Cannot determine what to add")
                     continue
+
+                # Set the properties for the context menu add-on
+                propertyValue = "{0}|{1}".format(self.channelObject.moduleName,
+                                                 self.channelObject.channelCode or "")
+                item.setProperty(self.propertyRetrospect, propertyValue)
+                item.setProperty(self.propertyRetrospectFolder
+                                 if folder
+                                 else self.propertyRetrospectVideo, propertyValue)
+                if episodeItem.isCloaked:
+                    item.setProperty(self.propertyRetrospectCloaked, "true")
 
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(self.channelObject, item=episodeItem)
@@ -895,11 +879,6 @@ class Plugin:
 
             return contextMenuItems
 
-        # # add a default refresh list
-        # cmd = "XBMC.Container.Refresh()"
-        # refresh = LanguageHelper.GetLocalizedString(LanguageHelper.RefreshListId)
-        # contextMenuItems.append(("Retro: %s" % (refresh,), cmd))
-
         # we have an item
         if favouritesList:
             # we have list of favourites
@@ -920,20 +899,6 @@ class Plugin:
             Logger.Trace("Adding command: %s", cmd)
             addTo = LanguageHelper.GetLocalizedString(LanguageHelper.AddToId)
             contextMenuItems.append(("Retro: %s %s" % (addTo, favs), cmd))
-
-        # Cloaking?
-        if item.type == "folder" and item.url is not None and item.url.startswith("http"):
-            if item.isCloaked:
-                cmdUrl = self.__CreateActionUrl(channel, action=self.actionUnCloak, item=item)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                Logger.Trace("Adding command: %s", cmd)
-                title = LanguageHelper.GetLocalizedString(LanguageHelper.UnCloakItem)
-            else:
-                cmdUrl = self.__CreateActionUrl(channel, action=self.actionCloak, item=item)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                Logger.Trace("Adding command: %s", cmd)
-                title = LanguageHelper.GetLocalizedString(LanguageHelper.CloakItem)
-            contextMenuItems.append(("Retro: %s" % (title,), cmd))
 
         # if it was a favourites list, don't add the channel methods as they might be from a different channel
         if channel is None:
@@ -981,35 +946,6 @@ class Plugin:
             self.methodContainer[channel.guid] = dir(channel)
 
         return self.methodContainer[channel.guid]
-
-    def __GetParameters(self, queryString):
-        """ Extracts the actual parameters as a dictionary from the passed in
-        querystring. This method takes the self.quotedPlus into account.
-
-        Arguments:
-        queryString : String - The querystring
-
-        Returns:
-        dict() of keywords and values.
-
-        """
-        result = dict()
-        queryString = queryString.strip('?')
-        if queryString != '':
-            try:
-                for pair in queryString.split("&"):
-                    (k, v) = pair.split("=")
-                    result[k] = v
-
-                # if the channelcode was empty, it was stripped, add it again.
-                if self.keywordChannelCode not in result:
-                    Logger.Debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
-                    result[self.keywordChannelCode] = None
-            except:
-                Logger.Critical("Cannot determine query strings from %s", queryString, exc_info=True)
-                raise
-
-        return result
 
     def __ShowEmptyInformation(self, items, favs=False):
         """ Adds an empty item to a list or just shows a message.
@@ -1124,22 +1060,3 @@ class Plugin:
                 Logger.Debug("Setting Local IP for: %s", channel)
                 AddonSettings.SetLocalIPForChannel(channel, localIP)
         pass
-
-    def __CloakItem(self):
-        from cloaker import Cloaker
-
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
-        firstTime = c.Cloak(item.url)
-        if firstTime:
-            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
-                                   LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
-
-    def __UnCloakItem(self):
-        from cloaker import Cloaker
-
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Info("Un-Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
-        c.UnCloak(item.url)

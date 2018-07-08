@@ -15,4 +15,4 @@ Initializer.SetupPythonPaths()
 import menu
 
 with menu.Menu() as m:
-    m.ChannelSettings()
+    m.ToggleCloak()

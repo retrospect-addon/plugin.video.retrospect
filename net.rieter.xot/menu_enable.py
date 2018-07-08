@@ -13,4 +13,6 @@ Initializer.SetUnicode()
 Initializer.SetupPythonPaths()
 
 import menu
-menu.Menu().SelectChannels()
+
+with menu.Menu() as m:
+    m.SelectChannels()
