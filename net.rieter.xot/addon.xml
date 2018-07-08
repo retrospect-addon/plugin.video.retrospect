@@ -29,6 +29,11 @@
                 <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
             </item>
 
+            <item library="menu_refresh.py">
+                <label>30529</label>
+                <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
+            </item>
+
             <menu>
                 <label>Retrospect Menu</label>
 

@@ -895,10 +895,10 @@ class Plugin:
 
             return contextMenuItems
 
-        # add a default refresh list
-        cmd = "XBMC.Container.Refresh()"
-        refresh = LanguageHelper.GetLocalizedString(LanguageHelper.RefreshListId)
-        contextMenuItems.append(("Retro: %s" % (refresh,), cmd))
+        # # add a default refresh list
+        # cmd = "XBMC.Container.Refresh()"
+        # refresh = LanguageHelper.GetLocalizedString(LanguageHelper.RefreshListId)
+        # contextMenuItems.append(("Retro: %s" % (refresh,), cmd))
 
         # we have an item
         if favouritesList:
