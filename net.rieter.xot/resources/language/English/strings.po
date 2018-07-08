@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-26 21:03+0000\n"
+"POT-Creation-Date: 2018-07-08 19:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -823,7 +823,15 @@ msgctxt "#30571"
 msgid "Use Kodi Adaptive Stream Add-on when possible"
 msgstr ""
 
-#empty strings from id 30572 to 30589
+msgctxt "#30572"
+msgid "Retrospect Settings »"
+msgstr ""
+
+msgctxt "#30573"
+msgid "(Un-)Cloak item »"
+msgstr ""
+
+#empty strings from id 30574 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

@@ -15,10 +15,11 @@ import xbmcgui
 
 from config import Config
 from logger import Logger
-from helpers.sessionhelper import SessionHelper
-from helpers.channelimporter import ChannelIndex
 from addonsettings import AddonSettings
 from paramparser import ParameterParser
+from helpers.sessionhelper import SessionHelper
+from helpers.channelimporter import ChannelIndex
+from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
 from pickler import Pickler
 from cloaker import Cloaker
@@ -77,7 +78,7 @@ class Menu(ParameterParser):
         multiSelectValues = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
         enabledChannels = filter(lambda c: c.enabled, multiSelectValues)
 
-        enabledListItems = map(lambda c: c.safeName, enabledChannels)
+        enabledListItems = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName), enabledChannels)
         selectedIndices = map(lambda c: multiSelectValues.index(c), enabledChannels)
 
         dialog = xbmcgui.Dialog()
