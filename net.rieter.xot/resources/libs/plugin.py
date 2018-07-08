@@ -97,6 +97,11 @@ class Plugin:
         self.keywordProxy = "proxy"                                     # : Keyword used so set the proxy index
         self.keywordLocalIP = "localip"                                 # : Keyword used to set the local ip index
 
+        self.propertyRetrospect = "Retrospect"
+        self.propertyRetrospectChannel = "RetrospectChannel"
+        self.propertyRetrospectFolder = "RetrospectFolder"
+        self.propertyRetrospectVideo = "RetrospectVideo"
+
         self.pluginName = pluginName
         self.handle = int(handle)
 
@@ -380,7 +385,11 @@ class Plugin:
                     continue
 
                 # Get the XBMC item
+                propertyValue = "{0}|{1}".format(channel.moduleName, channel.channelCode or "")
                 item = channel.GetXBMCItem()
+                item.setProperty(self.propertyRetrospect, propertyValue)
+                item.setProperty(self.propertyRetrospectChannel, propertyValue)
+
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(channel)
                 item.addContextMenuItems(contextMenuItems)
@@ -484,9 +493,10 @@ class Plugin:
                 # Get the XBMC item
                 item = episodeItem.GetXBMCItem()
                 # Set the properties for the context menu add-on
-                item.setProperty("Retrospect", "{0}|{1}".format(
-                                 self.channelObject.moduleName,
-                                 self.channelObject.channelCode or ""))
+                propertyValue = "{0}|{1}".format(self.channelObject.moduleName, self.channelObject.channelCode or "")
+                item.setProperty(self.propertyRetrospect, propertyValue)
+                item.setProperty(self.propertyRetrospectVideo if episodeItem.IsPlayable()
+                                 else self.propertyRetrospectFolder, propertyValue)
 
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
@@ -868,13 +878,6 @@ class Plugin:
 
         favs = LanguageHelper.GetLocalizedString(LanguageHelper.FavouritesId)
         allFavs = LanguageHelper.GetLocalizedString(LanguageHelper.AllFavouritesId)
-
-        # let's put this one on top
-        if item is not None:
-            # add a default enqueue list
-            cmd = "XBMC.Action(Queue)"
-            enqueue = LanguageHelper.GetLocalizedString(LanguageHelper.QueueItemId)
-            contextMenuItems.append(("%s" % (enqueue,), cmd))
 
         if item is None:
             if self.FavouritesEnabled:

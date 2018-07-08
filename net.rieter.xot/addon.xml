@@ -24,6 +24,11 @@
                 <visible>ListItem.Property(Retrospect)</visible>
             </item>
 
+            <item library="menu_queue.py">
+                <label>30541</label>
+                <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
+            </item>
+
             <menu>
                 <label>Retrospect Menu</label>
 
@@ -32,10 +37,10 @@
                     <visible>ListItem.Property(Retrospect)</visible>
                 </item>
 
-                <!--<item library="menu_channelsettings.py">-->
-                    <!--<label>30069</label>-->
-                    <!--<visible>ListItem.Property(Retrospect)</visible>-->
-                <!--</item>-->
+                <item library="menu_channelsettings.py">
+                    <label>30069</label>
+                    <visible>ListItem.Property(Retrospect)</visible>
+                </item>
 
                 <item library="menu_settings.py">
                     <label>30528</label>

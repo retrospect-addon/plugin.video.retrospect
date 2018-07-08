@@ -34,8 +34,11 @@ Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appN
 
 
 class Menu(object):
-    @staticmethod
-    def SelectChannels():
+    def __init__(self):
+        # noinspection PyUnresolvedReferences
+        self.item = sys.listitem
+
+    def SelectChannels(self):
         multiSelectValues = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
         enabledChannels = filter(lambda c: c.enabled, multiSelectValues)
 
@@ -46,26 +49,23 @@ class Menu(object):
         selectedChannels = dialog.multiselect("Select Enabled Channels", enabledListItems,
                                               preselect=selectedIndices)
 
-    @staticmethod
-    def ShowSettings():
+        # TODO: we actually need to do something with them
+        return selectedChannels
+
+    def ShowSettings(self):
         AddonSettings.ShowSettings()
 
-    @staticmethod
-    def ChannelSettings():
-        channel = Menu.__GetChannel()
+    def ChannelSettings(self):
+        channel = self.__GetChannel()
         AddonSettings.ShowChannelSettings(channel)
         pass
 
-    @staticmethod
-    def __GetChannel():
+    def __GetChannel(self):
         # noinspection PyUnresolvedReferences
-        item = sys.listitem
-        chn, code = item.getProperty("Retrospect").split("|")
+        chn, code = self.item.getProperty("Retrospect").split("|")
         # chn = "chn_nos2010"
         # code = "uzgjson"
         code = code or None
         Logger.Debug("Fetching channel %s - %s", chn, code)
         channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
         return channel
-
-
