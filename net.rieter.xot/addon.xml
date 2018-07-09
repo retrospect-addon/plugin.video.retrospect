@@ -29,6 +29,10 @@
                 <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
             </item>
 
+            <item library="menu_hide_channel.py">
+                <label>30574</label>
+                <visible>ListItem.Property(RetrospectChannel)</visible>
+            </item>
 
             <!-- Cloaking menu -->
             <menu>
@@ -50,7 +54,7 @@
                 <label>30572</label>
 
                 <item library="menu_enable.py">
-                    <label>30040</label>
+                    <label>30507</label>
                     <visible>ListItem.Property(Retrospect)</visible>
                 </item>
 

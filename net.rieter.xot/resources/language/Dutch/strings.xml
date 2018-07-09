@@ -141,7 +141,7 @@
     <string id="30504">Toevoegen aan</string>
     <string id="30505">Verberg</string>
     <string id="30506">Verwijder</string>
-    <string id="30507">Kanalen</string>
+    <string id="30507">Kanalen Selecteren</string>
     <string id="30508">Geen favorieten gevonden</string>
     <string id="30509">Afspelen kan niet worden gestart</string>
     <string id="30510">Nieuwe versie beschikbaar</string>
@@ -209,6 +209,7 @@
     <string id="30571">Gebruik de Kodi Adaptive Stream Add-on wanneer mogelijk</string>
     <string id="30572">Retrospect Instellingen &#187;</string>
     <string id="30573">Item verbergen/tonen &#187;</string>
+    <string id="30574">Kanaal verbergen</string>
 
     <string id="30590">Stel een nieuwe Retrospect PIN in</string>
     <string id="30591">Geen Retrospect PIN ingevoerd</string>

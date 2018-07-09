@@ -59,6 +59,9 @@ class Menu(ParameterParser):
         self.channelObject = self.__GetChannel()
 
         params = self.kodiItem.getPath()
+        if not params:
+            return
+
         name, params = params.split("?", 1)
         params = "?{0}".format(params)
 
@@ -74,19 +77,43 @@ class Menu(ParameterParser):
         else:
             self.mediaItem = None
 
-    def SelectChannels(self):
-        multiSelectValues = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
-        enabledChannels = filter(lambda c: c.enabled, multiSelectValues)
+    def HideChannel(self):
+        Logger.Info("Hiding channel: %s", self.channelObject)
+        AddonSettings.SetChannelVisiblity( self.channelObject, False)
+        self.Refresh()
 
-        enabledListItems = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName), enabledChannels)
-        selectedIndices = map(lambda c: multiSelectValues.index(c), enabledChannels)
+    def SelectChannels(self):
+        validChannels = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
+        selectedChannels = filter(lambda c: c.enabled, validChannels)
+        selectedIndices = map(lambda c: validChannels.index(c), selectedChannels)
+        Logger.Debug("Currently selected channels: %s", selectedIndices)
+
+        validChannelNames = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName),
+                                validChannels)
 
         dialog = xbmcgui.Dialog()
-        selectedChannels = dialog.multiselect("Select Enabled Channels", enabledListItems,
+        selectedChannels = dialog.multiselect("Select Enabled Channels", validChannelNames,
                                               preselect=selectedIndices)
+        if selectedChannels is None:
+            return
+
+        selectedChannels = list(selectedChannels)
+        Logger.Debug("New selected channels:       %s", selectedChannels)
 
         # TODO: we actually need to do something with them
-        return selectedChannels
+        indicesToRemove = filter(lambda i: i not in selectedChannels, selectedIndices)
+        indicesToAdd = filter(lambda i: i not in selectedIndices, selectedChannels)
+        for i in indicesToRemove:
+            Logger.Info("Hiding channel: %s", validChannels[i])
+            AddonSettings.SetChannelVisiblity(validChannels[i], False)
+            pass
+
+        for i in indicesToAdd:
+            Logger.Info("Showing channel: %s", validChannels[i])
+            AddonSettings.SetChannelVisiblity(validChannels[i], True)
+
+        self.Refresh()
+        return
 
     def ShowSettings(self):
         AddonSettings.ShowSettings()

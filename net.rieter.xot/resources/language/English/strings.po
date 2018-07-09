@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-08 19:15+0000\n"
+"POT-Creation-Date: 2018-07-09 18:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -564,7 +564,7 @@ msgid "Remove"
 msgstr ""
 
 msgctxt "#30507"
-msgid "Channels"
+msgid "Select Channels"
 msgstr ""
 
 msgctxt "#30508"
@@ -831,7 +831,11 @@ msgctxt "#30573"
 msgid "(Un-)Cloak item »"
 msgstr ""
 
-#empty strings from id 30574 to 30589
+msgctxt "#30574"
+msgid "Hide Channel"
+msgstr ""
+
+#empty strings from id 30575 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

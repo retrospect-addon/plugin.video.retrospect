@@ -498,6 +498,12 @@ class AddonSettings:
         return int(level) * 10
 
     @staticmethod
+    def SetChannelVisiblity(channel, visible):
+        settingId = AddonSettings.__CHANNEL_SETTINGS_PATTERN % (channel.guid,)
+        AddonSettings.SetSetting(settingId, "true" if visible else "false")
+        return
+
+    @staticmethod
     def ShowChannel(channel):
         """Check if the channel should be shown
 

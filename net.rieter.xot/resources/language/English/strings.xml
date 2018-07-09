@@ -141,7 +141,7 @@
     <string id="30504">Add to</string>
     <string id="30505">Hide</string>
     <string id="30506">Remove</string>
-    <string id="30507">Channels</string>
+    <string id="30507">Select Channels</string>
     <string id="30508">No favourites available</string>
     <string id="30509">Cannot start playback</string>
     <string id="30510">New version available</string>
@@ -208,6 +208,7 @@
     <string id="30571">Use Kodi Adaptive Stream Add-on when possible</string>
     <string id="30572">Retrospect Settings &#187;</string>
     <string id="30573">(Un-)Cloak item &#187;</string>
+    <string id="30574">Hide Channel</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>
