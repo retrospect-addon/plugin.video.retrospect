@@ -79,7 +79,7 @@ class Menu(ParameterParser):
 
     def HideChannel(self):
         Logger.Info("Hiding channel: %s", self.channelObject)
-        AddonSettings.SetChannelVisiblity( self.channelObject, False)
+        AddonSettings.SetChannelVisiblity(self.channelObject, False)
         self.Refresh()
 
     def SelectChannels(self):
@@ -120,7 +120,14 @@ class Menu(ParameterParser):
 
     def ChannelSettings(self):
         AddonSettings.ShowChannelSettings(self.channelObject)
-        pass
+
+    def Favorites(self, allFavorites=False):
+        # it's just the channel, so only add the favourites
+        cmdUrl = self._CreateActionUrl(
+            self.channelObject,
+            action=self.actionAllFavourites if allFavorites else self.actionFavourites)
+
+        xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmdUrl))
 
     def Refresh(self):
         xbmc.executebuiltin("XBMC.Container.Refresh()")
