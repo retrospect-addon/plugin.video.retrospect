@@ -55,7 +55,7 @@
 
                 <item library="menu_cloak.py">
                     <label>30563</label>
-                    <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)</visible>
+                    <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
                 <item library="menu_uncloak.py">
