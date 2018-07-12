@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
 
-        # favs = mediaitem.MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tilemapping=normal&tiletype=teaser")
+        # favs = mediaitem.MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
         # favs.complete = True
         # favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
         #                    "wordt nog niet ondersteund."
@@ -445,12 +445,12 @@ class Channel(chn_class.Channel):
         Logger.Info("Generating an Alpha list for NPO")
 
         items = []
-        # https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser
-        # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tilemapping=normal&tiletype=teaser
-        # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tilemapping=normal&tiletype=teaser
+        # https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser
+        # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tileMapping=normal&tileType=teaser
+        # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tileMapping=normal&tileType=teaser
 
         titleFormat = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith)
-        urlFormat = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tilemapping=normal&tiletype=teaser&pageType=catalogue"
+        urlFormat = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tileMapping=normal&tileType=teaser&pageType=catalogue"
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
@@ -468,8 +468,8 @@ class Channel(chn_class.Channel):
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
 
         # Update the URL
-        # https://www.npostart.nl/media/series/POW_03094258/episodes?page=2&tilemapping=dedicated&tiletype=asset
-        url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tilemapping=dedicated&tiletype=asset&pageType=franchise" % resultSet
+        # https://www.npostart.nl/media/series/POW_03094258/episodes?page=2&tileMapping=dedicated&tileType=asset
+        url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % resultSet
         item.url = url
         item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         item.dontGroup = True
@@ -496,7 +496,7 @@ class Channel(chn_class.Channel):
 
         # if we should not use the mobile listing and we have a non-mobile ID)
         if 'mid' in resultSet:
-            url = "https://www.npostart.nl/media/series/%(mid)s/episodes?page=1&tilemapping=dedicated&tiletype=asset&pageType=franchise" % resultSet
+            url = "https://www.npostart.nl/media/series/{mid}/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise".format(**resultSet)
         else:
             Logger.Warning("Skipping (no 'mid' ID): %(name)s", resultSet)
             return None
@@ -534,10 +534,10 @@ class Channel(chn_class.Channel):
 
         """
         # Videos
-        url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tilemapping=search&tiletype=asset&pageType=search"
+        url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tileMapping=search&tileType=asset&pageType=search"
 
         # Shows
-        # url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tilemapping=normal&tiletype=teaser&pageType=search"
+        # url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser&pageType=search"
         self.httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         return chn_class.Channel.SearchSite(self, url)
 
@@ -699,9 +699,9 @@ class Channel(chn_class.Channel):
         """
         Logger.Trace(resultSet)
 
-        # url = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tilemapping=normal&tiletype=teaser" % (resultSet[1],)
-        # url = "https://www.npostart.nl/media/%s/lanes/234?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
-        url = "https://www.npostart.nl/media/collections/%s?page=1&tilemapping=normal&tiletype=asset&pageType=collection" % (resultSet[0],)
+        # url = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tileMapping=normal&tileType=teaser" % (resultSet[1],)
+        # url = "https://www.npostart.nl/media/%s/lanes/234?page=1&tileMapping=normal&tileType=asset&pageType=collection" % (resultSet[0],)
+        url = "https://www.npostart.nl/media/collections/%s?page=1&tileMapping=normal&tileType=asset&pageType=collection" % (resultSet[0],)
         item = mediaitem.MediaItem(resultSet[1], url)
         item.thumb = self.parentItem.thumb
         item.icon = self.parentItem.icon
