@@ -63,7 +63,7 @@ class Channel(chn_class.Channel):
 
         elif self.channelCode == "viafreese":
             self.mainListUri = "https://www.viafree.se/program/"
-            self.noImage = "viafreeseimage.png"
+            self.noImage = "viafreeimage.png"
             self.channelId = None
 
         elif self.channelCode == "sesport":
@@ -164,7 +164,7 @@ class Channel(chn_class.Channel):
                                 matchType=ParserData.MatchExact)
             self._AddDataParser(self.mainListUri, preprocessor=self.ExtractCategoriesAndAddSearch, json=True,
                                 matchType=ParserData.MatchExact,
-                                parser=("context", "dispatcher", "stores", "ApplicationStore", "programs"),
+                                parser=("allProgramsPage", "programs"),
                                 creator=self.CreateJsonEpisodeItem)
 
         # This is the new way, but more complex and some channels have items with missing
@@ -245,19 +245,20 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        jsonData = Regexer.DoRegex('window.App=({.*?);\W*window\.', data)[0]
+        jsonData = Regexer.DoRegex('__initialState__=([^<]+);\W+window.__config__', data)[0]
         # the "RouteStore" has some weird functions, removing it.
-        start = jsonData.index('"RouteStore"')
+        # start = jsonData.index('"RouteStore"')
         # the need at least the 'ApplicationStore'
-        end = jsonData.index('"ApplicationStore"')
-        returnData = jsonData[0:start] + jsonData[end:]
+        # end = jsonData.index('"ApplicationStore"')
+        # returnData = jsonData[0:start] + jsonData[end:]
+        returnData = jsonData
         Logger.Trace("Found Json:\n%s", returnData)
 
         # append categorie data
-        catData = Regexer.DoRegex('"categories":(\[.*?),"allProgramsPage', data)
-        if catData:
-            catData = catData[0]
-            returnData = returnData[:-1] + ', "categories": ' + catData + '}'
+        # catData = Regexer.DoRegex('"categories":(\[.*?),"allProgramsPage', data)
+        # if catData:
+        #     catData = catData[0]
+        #     returnData = returnData[:-1] + ', "categories": ' + catData + '}'
 
         # file('c:\\temp\\json.txt', 'w+').write(returnData)
         return JsonHelper(returnData), items

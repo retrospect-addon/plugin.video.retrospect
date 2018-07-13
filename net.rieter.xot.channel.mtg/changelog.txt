@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: clean-up some code in the Swedish channels
-* Changed: Use the 'inputstream.adaptive' add-on for some Leia streams to solve some playback and header issues
+* Fixed: MTG changed their API again (Fixes #973)
 
 [I]Previous changes[/I]
+* Fixed: clean-up some code in the Swedish channels
+* Changed: Use the 'inputstream.adaptive' add-on for some Leia streams to solve some playback and header issues
 * Added: ViaFree.se channel (See #945)
 * Fixed: ViaFree.se channels broke (Fixes #945)
 * Fixed: ViaSat streams would not play (Fixes #864)
