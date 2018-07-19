@@ -8,10 +8,6 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-from initializer import Initializer
-Initializer.SetUnicode()
-Initializer.SetupPythonPaths()
-
 import menu
 
 with menu.Menu() as m:

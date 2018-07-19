@@ -19,17 +19,17 @@
 
     <extension point="kodi.context.item">
         <menu id="kodi.core.main">
-            <item library="menu_queue.py">
+            <item library="resources\menus\menu_queue.py">
                 <label>30541</label>
                 <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
             </item>
 
-            <item library="menu_refresh.py">
+            <item library="resources\menus\menu_refresh.py">
                 <label>30529</label>
                 <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
             </item>
 
-            <item library="menu_hide_channel.py">
+            <item library="resources\menus\menu_hide_channel.py">
                 <label>30574</label>
                 <visible>ListItem.Property(RetrospectChannel)</visible>
             </item>
@@ -38,22 +38,22 @@
             <menu>
                 <label>30575</label>
 
-                <item library="menu_channel_favs.py">
+                <item library="resources\menus\menu_channel_favs.py">
                     <label>30503</label>
                     <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
-                <item library="menu_all_favs.py">
+                <item library="resources\menus\menu_all_favs.py">
                     <label>30500</label>
                     <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
-                <item library="menu_add_fav.py">
+                <item library="resources\menus\menu_add_fav.py">
                     <label>30504</label>
                     <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
-                <item library="menu_remove_fav.py">
+                <item library="resources\menus\menu_remove_fav.py">
                     <label>30506</label>
                     <visible>ListItem.Property(RetrospectFavorite)</visible>
                 </item>
@@ -63,12 +63,12 @@
             <menu>
                 <label>30573</label>
 
-                <item library="menu_cloak.py">
+                <item library="resources\menus\menu_cloak.py">
                     <label>30563</label>
                     <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
-                <item library="menu_uncloak.py">
+                <item library="resources\menus\menu_uncloak.py">
                     <label>30564</label>
                     <visible>ListItem.Property(RetrospectCloaked)</visible>
                 </item>
@@ -78,17 +78,17 @@
             <menu>
                 <label>30572</label>
 
-                <item library="menu_enable.py">
+                <item library="resources\menus\menu_enable.py">
                     <label>30507</label>
                     <visible>ListItem.Property(Retrospect)</visible>
                 </item>
 
-                <item library="menu_channelsettings.py">
+                <item library="resources\menus\menu_channelsettings.py">
                     <label>30069</label>
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
                 </item>
 
-                <item library="menu_settings.py">
+                <item library="resources\menus\menu_settings.py">
                     <label>30528</label>
                     <visible>ListItem.Property(Retrospect)</visible>
                 </item>

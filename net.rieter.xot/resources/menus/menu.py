@@ -10,15 +10,25 @@
 
 import os
 import sys
+
 import xbmc
 import xbmcgui
+
+# we need to import the initializer
+addOnPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(addOnPath)
+
+# setup some initial stuff
+from initializer import Initializer
+Initializer.SetUnicode()
+Initializer.SetupPythonPaths()
+sys.path.remove(addOnPath)
 
 from config import Config
 from favourites import Favourites
 from logger import Logger
 from addonsettings import AddonSettings
 from paramparser import ParameterParser
-from helpers.sessionhelper import SessionHelper
 from helpers.channelimporter import ChannelIndex
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
@@ -29,24 +39,6 @@ from xbmcwrapper import XbmcWrapper
 
 
 class Menu(ParameterParser):
-    def __enter__(self):
-        Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                            Config.appName,
-                            minLogLevel=AddonSettings.GetLogLevel(),
-                            append=True,
-                            dualLogger=lambda x, y=4: xbmc.log(x, y))
-        Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
-
-        return Menu()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_val:
-            Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
-
-        # make sure we leave no references behind
-        Logger.Instance().CloseLog()
-        AddonSettings.ClearCachedAddonSettingsObject()
-        return False
 
     def __init__(self):
         # noinspection PyUnresolvedReferences
@@ -188,3 +180,22 @@ class Menu(ParameterParser):
         channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
         Logger.Debug("Created channel: %s", channel)
         return channel
+
+    def __enter__(self):
+        Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                            Config.appName,
+                            minLogLevel=AddonSettings.GetLogLevel(),
+                            append=True,
+                            dualLogger=lambda x, y=4: xbmc.log(x, y))
+        Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
+
+        return Menu()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val:
+            Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
+
+        # make sure we leave no references behind
+        Logger.Instance().CloseLog()
+        AddonSettings.ClearCachedAddonSettingsObject()
+        return False
