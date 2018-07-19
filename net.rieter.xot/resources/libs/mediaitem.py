@@ -45,6 +45,7 @@ class MediaItem:
         """ Required in order for the Pickler.Validate to work! """
         return ["name",
                 "url",
+                "actionUrl",
                 "MediaItemParts",
                 "description",
                 "thumb",
@@ -52,13 +53,13 @@ class MediaItem:
                 "icon",
                 "__date",
                 "__timestamp",
-                "__infoLabels",
                 "type",
                 "dontGroup",
                 "isLive",
                 "isGeoLocked",
                 "isDrmProtected",
                 "isPaid",
+                "__infoLabels",
                 "complete",
                 "downloaded",
                 "downloadable",
@@ -66,8 +67,7 @@ class MediaItem:
                 "HttpHeaders",
                 "rating",
                 "guid",
-                "guidValue",
-                "channels"]
+                "guidValue"]
 
     #noinspection PyShadowingBuiltins
     def __init__(self, title, url, type="folder"):
@@ -97,6 +97,7 @@ class MediaItem:
 
         self.name = name
         self.url = url
+        self.actionUrl = None
         self.MediaItemParts = []
         self.description = ""
         self.thumb = ""                           # : The local or remote image for the thumbnail of episode
@@ -134,8 +135,6 @@ class MediaItem:
             Logger.Error("Error setting GUID for title:'%s' and url:'%s'. Falling back to UUID", title, url, exc_info=True)
             self.guid = self.__GetUUID()
         self.guidValue = int("0x%s" % (self.guid,), 0)
-
-        self.channels = []    # only needed for Kanalenkiezer
 
     def AppendSingleStream(self, url, bitrate=0, subtitle=None):
         """Appends a single stream to a new MediaPart of this MediaItem

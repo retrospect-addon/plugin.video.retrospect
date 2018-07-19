@@ -55,10 +55,8 @@ class Menu(ParameterParser):
         return False
 
     def __init__(self):
-
         # noinspection PyUnresolvedReferences
         self.kodiItem = sys.listitem
-        self.channelObject = self.__GetChannel()
 
         params = self.kodiItem.getPath()
         if not params:
@@ -70,6 +68,7 @@ class Menu(ParameterParser):
         # Main constructor parses
         super(Menu, self).__init__(name, params)
 
+        self.channelObject = self.__GetChannel()
         Logger.Debug("Plugin Params: %s (%s)\n"
                      "Name:        %s\n"
                      "Query:       %s", self.params, len(self.params), self.pluginName, params)
@@ -126,8 +125,9 @@ class Menu(ParameterParser):
     def Favorites(self, allFavorites=False):
         # it's just the channel, so only add the favourites
         cmdUrl = self._CreateActionUrl(
-            self.channelObject,
-            action=self.actionAllFavourites if allFavorites else self.actionFavourites)
+            None if allFavorites else self.channelObject,
+            action=self.actionAllFavourites if allFavorites else self.actionFavourites
+        )
 
         xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmdUrl))
 
@@ -159,7 +159,7 @@ class Menu(ParameterParser):
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
-        f.Remove(self.channelObject, item)
+        f.Remove(item)
 
         # refresh the list
         self.Refresh()
@@ -185,8 +185,10 @@ class Menu(ParameterParser):
         self.Refresh()
 
     def __GetChannel(self):
-        # noinspection PyUnresolvedReferences
-        chn, code = self.kodiItem.getProperty("Retrospect").split("|")
+        if self.kodiItem.getProperty(self.propertyRetrospectFavorite):
+            return None
+
+        chn, code = self.kodiItem.getProperty(self.propertyRetrospect).split("|")
         # chn = "chn_nos2010"
         # code = "uzgjson"
         if not chn:
@@ -194,4 +196,5 @@ class Menu(ParameterParser):
         code = code or None
         Logger.Debug("Fetching channel %s - %s", chn, code)
         channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
+        Logger.Debug("Created channel: %s", channel)
         return channel

@@ -247,8 +247,6 @@ class Plugin(ParameterParser):
                     self.ShowFavourites(self.channelObject)
 
                 elif self.params[self.keywordAction] == self.actionAllFavourites:
-                    if self.channelObject is not None:
-                        Logger.Warning("We have a self.channelObject with self.actionAllFavourites")
                     self.ShowFavourites(None)
 
                 elif self.params[self.keywordAction] == self.actionListFolder:
@@ -379,7 +377,7 @@ class Plugin(ParameterParser):
             Logger.Info("Showing favourites for: %s", channel)
 
         f = Favourites(Config.favouriteDir)
-        favs = map(lambda i: i[1], f.List(channel))
+        favs = f.List(channel)
         return self.ProcessFolderList(favs)
 
     def ProcessFolderList(self, favorites=None):
@@ -442,8 +440,12 @@ class Plugin(ParameterParser):
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(self.channelObject, item=episodeItem)
                 item.addContextMenuItems(contextMenuItems)
+
                 # Get the action URL
-                url = self._CreateActionUrl(self.channelObject, action=action, item=episodeItem)
+                url = episodeItem.actionUrl
+                if url is None:
+                    url = self._CreateActionUrl(self.channelObject, action=action, item=episodeItem)
+
                 # Add them to the list of XBMC items
                 xbmcItems.append((url, item, folder))
 
