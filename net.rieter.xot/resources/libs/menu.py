@@ -185,15 +185,11 @@ class Menu(ParameterParser):
         self.Refresh()
 
     def __GetChannel(self):
-        if self.kodiItem.getProperty(self.propertyRetrospectFavorite):
-            return None
-
-        chn, code = self.kodiItem.getProperty(self.propertyRetrospect).split("|")
-        # chn = "chn_nos2010"
-        # code = "uzgjson"
+        chn = self.params.get(self.keywordChannel, None)
+        code = self.params.get(self.keywordChannelCode, None)
         if not chn:
             return None
-        code = code or None
+
         Logger.Debug("Fetching channel %s - %s", chn, code)
         channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
         Logger.Debug("Created channel: %s", channel)

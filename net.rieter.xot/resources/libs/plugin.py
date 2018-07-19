@@ -292,8 +292,8 @@ class Plugin(ParameterParser):
                 # it was deprecated
                 pass
             xbmcItem.setArt({'thumb': icon, 'icon': icon})
-            xbmcItem.setProperty(self.propertyRetrospect, "|")
-            xbmcItem.setProperty(self.propertyRetrospectCategory, "1")
+            xbmcItem.setProperty(self.propertyRetrospect, "true")
+            xbmcItem.setProperty(self.propertyRetrospectCategory, "true")
 
             if not AddonSettings.HideFanart():
                 xbmcItem.setArt({'fanart': fanart})
@@ -332,10 +332,9 @@ class Plugin(ParameterParser):
                     continue
 
                 # Get the XBMC item
-                propertyValue = "{0}|{1}".format(channel.moduleName, channel.channelCode or "")
                 item = channel.GetXBMCItem()
-                item.setProperty(self.propertyRetrospect, propertyValue)
-                item.setProperty(self.propertyRetrospectChannel, propertyValue)
+                item.setProperty(self.propertyRetrospect, "true")
+                item.setProperty(self.propertyRetrospectChannel, "true")
 
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(channel)
@@ -425,12 +424,10 @@ class Plugin(ParameterParser):
                     continue
 
                 # Set the properties for the context menu add-on
-                propertyValue = "{0}|{1}".format(self.channelObject.moduleName,
-                                                 self.channelObject.channelCode or "")
-                item.setProperty(self.propertyRetrospect, propertyValue)
+                item.setProperty(self.propertyRetrospect, "true")
                 item.setProperty(self.propertyRetrospectFolder
                                  if folder
-                                 else self.propertyRetrospectVideo, propertyValue)
+                                 else self.propertyRetrospectVideo, "true")
 
                 if favorites is not None:
                     item.setProperty(self.propertyRetrospectFavorite, "true")
@@ -454,7 +451,7 @@ class Plugin(ParameterParser):
             ok = ok and xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
             watcher.Lap("items send to Kodi")
 
-            if selectedItem is None:
+            if selectedItem is None and self.channelObject is not None:
                 # mainlist item register channel.
                 Statistics.RegisterChannelOpen(self.channelObject, Initializer.StartTime)
                 watcher.Lap("Statistics send")
