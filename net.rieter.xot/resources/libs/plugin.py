@@ -358,7 +358,7 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, False)
             Logger.Critical("Error fetching channels for plugin", exc_info=True)
 
-    def ShowFavourites(self, channel, **kwargs):
+    def ShowFavourites(self, channel):
         """ Show the favourites
 
         Arguments:

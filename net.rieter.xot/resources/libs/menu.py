@@ -27,19 +27,13 @@ from pickler import Pickler
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
 
-# only append if there are no active sessions
-if not SessionHelper.IsSessionActive():
-    # first call in the session, so do not append the log
-    appendLogFile = False
-else:
-    appendLogFile = True
-
 
 class Menu(ParameterParser):
     def __enter__(self):
         Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                             Config.appName,
-                            append=appendLogFile,
+                            minLogLevel=AddonSettings.GetLogLevel(),
+                            append=True,
                             dualLogger=lambda x, y=4: xbmc.log(x, y))
         Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
 
