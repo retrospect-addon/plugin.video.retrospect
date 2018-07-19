@@ -17,9 +17,7 @@ class LanguageHelper:
     FavouriteId = 30501
     FavouritesId = 30502
     ChannelFavourites = 30503
-    AddToId = 30504
     HideId = 30505
-    RemoveId = 30506
     ChannelsId = 30507
     NoFavsId = 30508
     NoPlaybackId = 30509

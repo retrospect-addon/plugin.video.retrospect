@@ -251,12 +251,6 @@ class Plugin(ParameterParser):
                         Logger.Warning("We have a self.channelObject with self.actionAllFavourites")
                     self.ShowFavourites(None)
 
-                elif self.params[self.keywordAction] == self.actionRemoveFavourite:
-                    self.RemoveFavourite()
-
-                elif self.params[self.keywordAction] == self.actionAddFavourite:
-                    self.AddFavourite()
-
                 elif self.params[self.keywordAction] == self.actionListFolder:
                     # channelName and URL is present, Parse the folder
                     self.ProcessFolderList()
@@ -479,44 +473,6 @@ class Plugin(ParameterParser):
             Logger.Error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
 
-    @LockWithDialog(logger=Logger.Instance())
-    def RemoveFavourite(self):
-        """Removes an item from the favourites"""
-
-        # remove the item
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Debug("Removing favourite: %s", item)
-        f = Favourites(Config.favouriteDir)
-        f.Remove(self.channelObject, item)
-
-        # refresh the list
-        self.ShowFavourites(self.channelObject, replaceExisting=True)
-        pass
-
-    @LockWithDialog(logger=Logger.Instance())
-    def AddFavourite(self):
-        """Adds an item to the favourites"""
-
-        # remove the item
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        # no need for dates in the favourites
-        # item.ClearDate()
-        Logger.Debug("Adding favourite: %s", item)
-
-        f = Favourites(Config.favouriteDir)
-        if item.IsPlayable():
-            action = self.actionPlayVideo
-        else:
-            action = self.actionListFolder
-
-        # add the favourite
-        f.Add(self.channelObject,
-              item,
-              self._CreateActionUrl(self.channelObject, action, item))
-
-        # we are finished, so just return
-        return self.ShowFavourites(self.channelObject)
-
     # @LockWithDialog(logger=Logger.Instance())  No longer needed as Kodi will do this automatically
     def PlayVideoItem(self):
         """Starts the videoitem using a playlist. """
@@ -679,40 +635,6 @@ class Plugin(ParameterParser):
         AddonSettings.ShowChannelSettings(channelInfo)
         return
 
-    def __ConvertMainlistItemToXbmcItem(self, channel, episodeItem, showFavourites, actionUrl=""):
-        Logger.Trace("Converting a mainlist item to XbmcItem with:\nChannel: %s\nItem: %s\nShowFavourites: %s\n"
-                     "Actionurl: %s", channel, episodeItem, showFavourites, actionUrl)
-
-        if actionUrl == "" and showFavourites:
-            raise Exception("Cannot create favourites XbmcItem without actionUrl")
-
-        item = episodeItem.GetXBMCItem()
-
-        # add the remove from favourites item:
-        if showFavourites:
-            # XBMC.Container.Refresh refreshes the container and replaces the last history
-            # XBMC.Container.Update updates the container and but appends the new list to the history
-            contextMenuItems = self.__GetContextMenuItems(channel, item=episodeItem, favouritesList=True)
-        else:
-            contextMenuItems = self.__GetContextMenuItems(channel, item=episodeItem)
-
-            if self.FavouritesEnabled:
-                # add the show favourites here
-                cmdUrl = self._CreateActionUrl(channel, action=self.actionFavourites)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                favs = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelFavourites)
-                contextMenuItems.append(('Retro: %s' % (favs, ), cmd))
-
-        item.addContextMenuItems(contextMenuItems)
-
-        if actionUrl == "":
-            url = self._CreateActionUrl(channel, self.actionListFolder, item=episodeItem)
-        else:
-            Logger.Trace("Using predefined actionUrl")
-            url = actionUrl
-
-        return url, item, True
-
     def __AddSortMethodToHandle(self, handle, items=None):
         """ Add a sort method to the plugin output. It takes the Add-On settings into
         account. But if none of the items have a date, it is forced to sort by name.
@@ -754,7 +676,7 @@ class Plugin(ParameterParser):
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
         return
 
-    def __GetContextMenuItems(self, channel, item=None, favouritesList=False):
+    def __GetContextMenuItems(self, channel, item=None):
         """Retrieves the context menu items to display
 
         Arguments:
@@ -767,31 +689,9 @@ class Plugin(ParameterParser):
         """
 
         contextMenuItems = []
-        favs = LanguageHelper.GetLocalizedString(LanguageHelper.FavouritesId)
 
         if item is None:
             return contextMenuItems
-
-        # we have an item
-        if favouritesList:
-            # we have list of favourites
-            cmdUrl = self._CreateActionUrl(channel, action=self.actionRemoveFavourite, item=item)
-            cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-            # Logger.Trace("Adding command: %s", cmd)
-
-            remove = LanguageHelper.GetLocalizedString(LanguageHelper.RemoveId)
-            fav = LanguageHelper.GetLocalizedString(LanguageHelper.FavouriteId)
-            contextMenuItems.append(("Retro: %s %s" % (remove, fav), cmd))
-
-        elif item.type == "folder" and self.FavouritesEnabled:
-            # we need to run RunPlugin here instead of Refresh as we don't want to refresh any lists
-            # the refreshing results in empty lists in XBMC4Xbox.
-            cmdUrl = self._CreateActionUrl(channel, action=self.actionAddFavourite, item=item)
-            # cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
-            cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-            Logger.Trace("Adding command: %s", cmd)
-            addTo = LanguageHelper.GetLocalizedString(LanguageHelper.AddToId)
-            contextMenuItems.append(("Retro: %s %s" % (addTo, favs), cmd))
 
         # if it was a favourites list, don't add the channel methods as they might be from a different channel
         if channel is None:

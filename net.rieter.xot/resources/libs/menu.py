@@ -14,6 +14,7 @@ import xbmc
 import xbmcgui
 
 from config import Config
+from favourites import Favourites
 from logger import Logger
 from addonsettings import AddonSettings
 from paramparser import ParameterParser
@@ -21,6 +22,7 @@ from helpers.sessionhelper import SessionHelper
 from helpers.channelimporter import ChannelIndex
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
+from locker import LockWithDialog
 from pickler import Pickler
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
@@ -128,6 +130,39 @@ class Menu(ParameterParser):
             action=self.actionAllFavourites if allFavorites else self.actionFavourites)
 
         xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmdUrl))
+
+    @LockWithDialog(logger=Logger.Instance())
+    def AddFavorite(self):
+        # remove the item
+        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        # no need for dates in the favourites
+        # item.ClearDate()
+        Logger.Debug("Adding favourite: %s", item)
+
+        f = Favourites(Config.favouriteDir)
+        if item.IsPlayable():
+            action = self.actionPlayVideo
+        else:
+            action = self.actionListFolder
+
+        # add the favourite
+        f.Add(self.channelObject,
+              item,
+              self._CreateActionUrl(self.channelObject, action, item))
+
+        # we are finished, so just open the Favorites
+        self.Favorites()
+
+    @LockWithDialog(logger=Logger.Instance())
+    def RemoveFavorite(self):
+        # remove the item
+        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        Logger.Debug("Removing favourite: %s", item)
+        f = Favourites(Config.favouriteDir)
+        f.Remove(self.channelObject, item)
+
+        # refresh the list
+        self.Refresh()
 
     def Refresh(self):
         xbmc.executebuiltin("XBMC.Container.Refresh()")
