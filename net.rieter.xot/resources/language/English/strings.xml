@@ -12,7 +12,7 @@
     <string id="30017">Name</string>
     <string id="30018">Date</string>
     <string id="30019">Show DRM/Paid warning before playback</string>
-    <string id="30020">Maximum stream bitrate</string>
+    <string id="30020">Channel Bitrate &#187;</string> <!-- &#9632; -->
     <string id="30021">Subtitle mode</string>
     <string id="30022">If available</string>
     <string id="30023">Never show</string>
@@ -141,7 +141,7 @@
     <string id="30504">Add to Favourites</string>
     <string id="30505">Hide</string>
     <string id="30506">Remove Favourite</string>
-    <string id="30507">Select Channels</string>
+    <string id="30507">Select Channels &#187;</string>
     <string id="30508">No favourites available</string>
     <string id="30509">Cannot start playback</string>
     <string id="30510">New version available</string>

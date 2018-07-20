@@ -43,7 +43,9 @@ class LanguageHelper:
     AddOnSettingsId = 30528
     RefreshListId = 30529
     CheckUpdatesId = 30530
+    BitrateSelection = 30020
 
+    ChannelSelection = 30507
     InitializingId = 30531
     ImportCommonId = 30532
     DeterminSkinId = 30533

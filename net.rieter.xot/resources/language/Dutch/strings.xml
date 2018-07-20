@@ -12,7 +12,7 @@
     <string id="30017">Naam</string>
     <string id="30018">Datum</string>
     <string id="30019">Toon DRM waarschuwing voor afspelen</string>
-    <string id="30020">Maximale stream bitrate</string>
+    <string id="30020">Kanaal bitrate &#187;</string>
     <string id="30021">Subtitle modus</string>
     <string id="30022">Tonen indien beschikbaar</string>
     <string id="30023">Nooit tonen</string>
@@ -141,7 +141,7 @@
     <string id="30504">Toevoegen aan favorieten</string>
     <string id="30505">Verberg</string>
     <string id="30506">Verwijder uit favorieten</string>
-    <string id="30507">Kanalen Selecteren</string>
+    <string id="30507">Kanalen Selecteren &#187;</string>
     <string id="30508">Geen favorieten gevonden</string>
     <string id="30509">Afspelen kan niet worden gestart</string>
     <string id="30510">Nieuwe versie beschikbaar</string>

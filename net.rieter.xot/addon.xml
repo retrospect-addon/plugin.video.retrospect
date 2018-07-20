@@ -80,11 +80,16 @@
 
                 <item library="resources\menus\menu_enable.py">
                     <label>30507</label>
-                    <visible>ListItem.Property(Retrospect)</visible>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
                 <item library="resources\menus\menu_channelsettings.py">
                     <label>30069</label>
+                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                </item>
+
+                <item library="resources\menus\menu_bitrate.py">
+                    <label>30020</label>
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
                 </item>
 

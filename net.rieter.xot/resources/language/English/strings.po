@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-19 12:09+0000\n"
+"POT-Creation-Date: 2018-07-20 21:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -65,8 +65,9 @@ msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
 msgstr ""
 
+#. &#9632;
 msgctxt "#30020"
-msgid "Maximum stream bitrate"
+msgid "Channel Bitrate »"
 msgstr ""
 
 msgctxt "#30021"
@@ -564,7 +565,7 @@ msgid "Remove Favourite"
 msgstr ""
 
 msgctxt "#30507"
-msgid "Select Channels"
+msgid "Select Channels »"
 msgstr ""
 
 msgctxt "#30508"

@@ -79,7 +79,8 @@ class Menu(ParameterParser):
                                 validChannels)
 
         dialog = xbmcgui.Dialog()
-        selectedChannels = dialog.multiselect("Select Enabled Channels", validChannelNames,
+        heading = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelSelection)[:-1]
+        selectedChannels = dialog.multiselect(heading, validChannelNames,
                                               preselect=selectedIndices)
         if selectedChannels is None:
             return
@@ -199,3 +200,31 @@ class Menu(ParameterParser):
         Logger.Instance().CloseLog()
         AddonSettings.ClearCachedAddonSettingsObject()
         return False
+
+    def SetBitrate(self):
+        if self.channelObject is None:
+            raise ValueError("Missing channel")
+
+        # taken from the settings.xml
+        bitrateOptions = "Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000".split("|")
+        currentBitrate = AddonSettings.GetChannelSetting(self.channelObject.guid, "bitrate")
+        Logger.Debug("Found bitrate for %s: %s", self.channelObject, currentBitrate)
+        currentBitrateIndex = 0 if currentBitrate not in bitrateOptions \
+            else bitrateOptions.index(currentBitrate)
+
+        dialog = xbmcgui.Dialog()
+        heading = LanguageHelper.GetLocalizedString(LanguageHelper.BitrateSelection)[:-1]
+        Logger.Warning(heading)
+        selectedBitrate = dialog.select(heading, bitrateOptions,
+                                        preselect=currentBitrateIndex)
+        if selectedBitrate < 0:
+            return
+
+        Logger.Info("Changing bitrate for %s from %s to %s",
+                    self.channelObject,
+                    bitrateOptions[currentBitrateIndex],
+                    bitrateOptions[selectedBitrate])
+
+        AddonSettings.SetChannelSetting(self.channelObject.guid, "bitrate",
+                                        bitrateOptions[selectedBitrate])
+        return
