@@ -49,6 +49,8 @@
     <category id="channels" label="30040">
         <setting id="show_categories" type="bool" label="30067" default="true" />
 
+        <setting type="lsep" label="30060" />
+        <!--<setting type="action" label="30598" action="RunScript(special://home/addons/net.rieter.xot/resources/menus/menu_enable.py)" option="close" />-->
         <!-- start of channel selection -->
         <!-- This is just a template and should be replaced after the first run -->
         <!-- end of channel selection -->

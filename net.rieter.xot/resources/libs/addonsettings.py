@@ -995,33 +995,12 @@ class AddonSettings:
         for language in languages:
             languageLookup[language] = AddonSettings.__GetLanguageSettingsIdAndLabel(language)
 
-        # noinspection PyUnresolvedReferences
         languageLookupSortedKeys = languageLookup.keys()
         languageLookupSortedKeys.sort()
 
-        # create a list of labels
-        languageLabels = map(lambda l: str(languageLookup[l][1]), languageLookupSortedKeys)
-        channelXml = '%s        <setting type="lsep" label="30060" />\n' % (channelXml,)
-        channelXml = '%s        <setting id="channel_selected" label="30061" type="labelenum" lvalues="30025|%s" />\n' % (channelXml, "|".join(languageLabels),)
-
-        # we need to keep track of the number of lines, because we have
-        # relative visible and enable settings.
-        currentLine = 0  # the current line we are writing
-        channelXml = '%s        <setting type="sep" />\n' % (channelXml,)
-        currentLine += 1
-
-        # first add the overall language settings
         for language in languageLookupSortedKeys:
-            currentLine += 1
-            languageIndex = languageLookupSortedKeys.index(language) + 1  # correct of the None label
-            channelXml = '%s        <setting id="%s" type="bool" label="30042" default="true" visible="eq(-%s,%s)" /><!-- %s -->\n' % (channelXml, languageLookup[language][0], currentLine, languageIndex, languageLookup[language][1])
-
-        # then the channels
-        # for channel in channels:
-        #     currentLine += 1
-        #     name = channel.channelName
-        #     languageIndex = languageLookupSortedKeys.index(channel.language) + 1  # correct of the None label
-        #     channelXml = '%s        <setting id="%s" type="bool" label="- %s" default="true" visible="eq(-%s,%s)" enable="eq(-%s,True)" />\n' % (channelXml, AddonSettings.__CHANNEL_SETTINGS_PATTERN % (channel.guid,), name, currentLine, languageIndex, currentLine - languageIndex - 1)
+            channelXml = '%s        <setting id="%s" type="bool" label="%s" subsetting="false" default="true" />\n' \
+                         % (channelXml, languageLookup[language][0], languageLookup[language][1])
 
         begin = contents[:contents.find('<!-- start of channel selection -->')].strip()
         end = contents[contents.find('<!-- end of channel selection -->'):].strip()

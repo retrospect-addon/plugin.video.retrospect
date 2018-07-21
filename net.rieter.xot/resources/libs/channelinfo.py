@@ -75,7 +75,8 @@ class ChannelInfo:
         self.icon = icon
         self.fanart = fanart
         self.version = "x.x.x.x"
-        self.enabled = False
+        self.enabled = False                # enabled from the settings
+        self.visible = False                # hidden/visible due to country settings
         return
 
     def GetChannel(self):

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-20 21:38+0000\n"
+"POT-Creation-Date: 2018-07-21 21:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -195,7 +195,7 @@ msgstr ""
 #empty strings from id 30056 to 30059
 
 msgctxt "#30060"
-msgid "Select country of origin to manage its channels"
+msgid "Enable/Disable channels by country of origin"
 msgstr ""
 
 msgctxt "#30061"

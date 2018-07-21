@@ -105,9 +105,11 @@ class Menu(ParameterParser):
 
     def ShowSettings(self):
         AddonSettings.ShowSettings()
+        self.Refresh()
 
     def ChannelSettings(self):
         AddonSettings.ShowChannelSettings(self.channelObject)
+        self.Refresh()
 
     def Favorites(self, allFavorites=False):
         # it's just the channel, so only add the favourites

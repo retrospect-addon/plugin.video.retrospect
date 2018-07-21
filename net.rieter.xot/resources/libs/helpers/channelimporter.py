@@ -141,6 +141,9 @@ class ChannelIndex:
         If updated channels are found, the those channels are indexed and the
         channel index is rebuild.
 
+        @type includeDisabled: boolean to indicate if we should include those channels that are
+                               explicitly disabled from the settings
+
         @type kwargs: here for backward compatibility
 
         @return: a list of ChannelInfo objects of enabled channels.
@@ -210,14 +213,18 @@ class ChannelIndex:
                 validChannels.append(channelInfo)
 
                 # was the channel disabled?
-                if not (AddonSettings.ShowChannel(
-                        channelInfo) and AddonSettings.ShowChannelWithLanguage(
-                        channelInfo.language)):
-                    Logger.Warning("Not loading: %s -> Channel was disabled from settings.",
-                                   channelInfo)
+                if not AddonSettings.ShowChannel(channelInfo):
+                    Logger.Warning("Not loading: %s -> Channel was explicitly disabled from settings.", channelInfo)
                     continue
 
+                # from this point on the channel was enabled, but it could be hidden due to country
+                # of origin settings.
                 channelInfo.enabled = True
+                if not AddonSettings.ShowChannelWithLanguage(channelInfo.language):
+                    Logger.Warning("Not loading: %s -> Channel country of origin was disabled from settings.", channelInfo)
+                    continue
+
+                channelInfo.visible = True
                 Logger.Debug("Loading: %s", channelInfo)
 
         if channelsUpdated:
@@ -229,17 +236,17 @@ class ChannelIndex:
             # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
         validChannels.sort()
-        enabledChannels = filter(lambda c: c.enabled, validChannels)
-        Logger.Info("Fetch a total of %d channels of which %d are enabled.",
+        visibleChannels = filter(lambda c: c.visible, validChannels)
+        Logger.Info("Fetch a total of %d channels of which %d are visible.",
                     len(validChannels),
-                    len(enabledChannels))
+                    len(visibleChannels))
 
         sw.Stop()
 
         if includeDisabled:
             return validChannels
 
-        return enabledChannels
+        return visibleChannels
 
     def GetCategories(self):
         # type: () -> set
