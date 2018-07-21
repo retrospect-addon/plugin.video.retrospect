@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: Sporza Live stream (See #955)
+* Fixed: VRT.nu changed site layout (Fixes #974)
 
 [I]Previous Changes[/I]
+* Added: Sporza Live stream (See #955)
 * Fixed: Canvas & KetNet live streams (Fixes #955)
 * Fixed: Een live streams (See #955)
 * Updated: VTM/Q2/Stievie can use Adaptive Streaming for live items (See #953)
