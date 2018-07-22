@@ -40,9 +40,9 @@ from xbmcwrapper import XbmcWrapper
 # We need a logger
 Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                     Config.appName,
-                    minLogLevel=AddonSettings.GetLogLevel(),
                     append=True,
                     dualLogger=lambda x, y=4: xbmc.log(x, y))
+Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
 Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
 
 
