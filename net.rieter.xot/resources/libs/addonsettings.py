@@ -16,7 +16,7 @@ import xbmc
 # Make global object available
 #===============================================================================
 from logger import Logger                               # this has not further references
-# from proxyinfo import ProxyInfo                         # this has not further references
+from proxyinfo import ProxyInfo                         # this has not further references
 from config import Config                               # this has not further references
 # from regexer import Regexer                             # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
@@ -24,6 +24,8 @@ from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as ref
 
 class AddonSettings:
     """ Static Class for retrieving XBMC Addon settings """
+
+    __NoProxy = True
 
     # these are static properties that store the settings. Creating them each time is causing major slow-down
     __settings = None
@@ -605,6 +607,9 @@ class AddonSettings:
 
                 """
 
+        if AddonSettings.__NoProxy:
+            return None
+
         countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
         settingId = AddonSettings.__LOCAL_IP_SETTING_PATTERN % (channelInfo.guid,)
         countryId = int(AddonSettings.GetSetting(settingId) or 0)
@@ -651,30 +656,39 @@ class AddonSettings:
 
         """
 
-        return None
+        if AddonSettings.__NoProxy:
+            return None
 
-        # countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
-        # settingId = AddonSettings.__PROXY_SETTING_PATTERN % (channelInfo.guid,)
-        # countryId = int(AddonSettings.GetSetting(settingId) or 0)
-        # if countryId == 0:
-        #     Logger.Debug("No proxy configured for %s", channelInfo)
-        #     return None
-        #
-        # prefix = countries[countryId]
-        # Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
-        #
-        # server = AddonSettings.GetSetting("%s_proxy_server" % (prefix,))
-        # port = int(AddonSettings.GetSetting("%s_proxy_port" % (prefix,)) or 0)
-        # proxyType = AddonSettings.GetSetting("%s_proxy_type" % (prefix,))
-        # if not proxyType or proxyType.lower() not in ('dns', 'http'):
-        #     Logger.Debug("No proxy found for country '%s'", prefix)
-        #     return None
-        #
-        # username = AddonSettings.GetSetting("%s_proxy_username" % (prefix,))
-        # password = AddonSettings.GetSetting("%s_proxy_password" % (prefix,))
-        # pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
-        # Logger.Debug("Found proxy for channel %s:\n%s", channelInfo, pInfo)
-        # return pInfo
+        countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
+        countryId = AddonSettings.GetProxyIdForChannel(channelInfo)
+        if countryId == 0:
+            Logger.Debug("No proxy configured for %s", channelInfo)
+            return None
+
+        prefix = countries[countryId]
+        Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
+
+        server = AddonSettings.GetSetting("%s_proxy_server" % (prefix,))
+        port = int(AddonSettings.GetSetting("%s_proxy_port" % (prefix,)) or 0)
+        proxyType = AddonSettings.GetSetting("%s_proxy_type" % (prefix,))
+        if not proxyType or proxyType.lower() not in ('dns', 'http'):
+            Logger.Debug("No proxy found for country '%s'", prefix)
+            return None
+
+        username = AddonSettings.GetSetting("%s_proxy_username" % (prefix,))
+        password = AddonSettings.GetSetting("%s_proxy_password" % (prefix,))
+        pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
+        Logger.Debug("Found proxy for channel %s:\n%s", channelInfo, pInfo)
+        return pInfo
+
+    @staticmethod
+    def GetProxyIdForChannel(channelInfo):
+        if AddonSettings.__NoProxy:
+            return 0
+
+        settingId = AddonSettings.__PROXY_SETTING_PATTERN % (channelInfo.guid,)
+        countryId = int(AddonSettings.GetSetting(settingId) or 0)
+        return countryId
 
     @staticmethod
     def SetProxyIdForChannel(channelInfo, proxyIndex):
@@ -716,19 +730,12 @@ class AddonSettings:
         newContents, settingsOffsetForVisibility, channelsWithSettings = \
             AddonSettings.__UpdateAddOnSettingsWithChannelSettings(newContents, channels)
         newContents = AddonSettings.__UpdateAddOnSettingsWithChannelSelection(newContents, channelsWithSettings)
-        newContents = AddonSettings.__UpdateAddOnSettingsWithProxies(newContents, channels, settingsOffsetForVisibility)
 
         # Now fill the templates, we only import here due to performance penalties of the
         # large number of imports.
         from helpers.templatehelper import TemplateHelper
         th = TemplateHelper(Logger.Instance(), template=newContents)
         newContents = th.Transform()
-
-        # No more spoofing or proxies
-        newContents = newContents.replace('<!-- start of proxy selection -->', '<!-- start of proxy selection')
-        newContents = newContents.replace('<!-- end of proxy selection -->', 'end of proxy selection -->')
-        newContents = newContents.replace('<!-- start of proxy settings -->', '<!-- start of proxy settings')
-        newContents = newContents.replace('<!-- end of proxy settings -->', 'end of proxy settings -->')
 
         # Finally we insert the new XML into the old one
         filename = os.path.join(config.rootDir, "resources", "settings.xml")
@@ -918,54 +925,6 @@ class AddonSettings:
         Logger.Trace("Generated channel settings:\n%s", xmlContent)
         contents = "%s\n%s\n        %s" % (begin, xmlContent.rstrip(), end)
         return contents, settingOffsetForVisibility, channelsWithSettings
-
-    @staticmethod
-    def __UpdateAddOnSettingsWithProxies(contents, channels, settingsOffsetForVisibility):
-        """ Updates the settings.xml with the proxy settings for each channel.
-
-        @param contents: The current settings
-        @param channels: The available channels
-        @param settingsOffsetForVisibility: the offset used to determine the visibility setting.
-        @return: updated contents and the offset in visibility
-
-        """
-
-        if "<!-- start of proxy selection -->" not in contents:
-            Logger.Error("No '<!-- start of proxy selection -->' found in settings.xml. Stopping updating.")
-            return
-
-        # countryIds = AddonSettings.GetAvailableCountries(asCountryCodes=True)
-        proxyIds = "|".join(AddonSettings.GetAvailableCountries(asString=True))
-        # settingOffset = int(Regexer.DoRegex("<!-- settings offset = (\d+)", contents)[-1])
-        # Logger.Debug("Settings offset = %s", settingOffset)
-        settingsOffsetForVisibility += 1  # there is a seperator in the settings file.
-
-        channelProxyXml = '        <!-- start of proxy selection -->\n'
-        for channel in channels:
-            settingsOffsetForVisibility += 1
-            countryId = 0
-            # Try to set the default countryId for a channel proxy (let's not do this at the moment)
-            # if channel.language in countryIds:
-            #     countryId = countryIds.index(channel.language)
-            #     Logger.Trace("Found country index %d for language: %s", countryId, channel.language)
-
-            # we need to make sure we don't have any ( or ) in the names, as it won't work with the eq(,) in the XML
-            channelName = channel.safeName
-            channelProxyXml = '%s        <setting id="%s" type="select" label="%s" lvalues="%s" default="%s" visible="eq(-%s,%s)" />\n' \
-                              % (channelProxyXml, AddonSettings.__PROXY_SETTING_PATTERN % (channel.guid,),
-                                 30064, proxyIds, countryId, settingsOffsetForVisibility, channelName)
-
-            if channel.localIPSupported:
-                settingsOffsetForVisibility += 1
-                channelProxyXml = '%s        <setting id="%s" type="select" label="%s" lvalues="%s" default="%s" visible="eq(-%s,%s)" />\n' \
-                                  % (channelProxyXml, AddonSettings.__LOCAL_IP_SETTING_PATTERN % (channel.guid,),
-                                     30097, proxyIds, countryId, settingsOffsetForVisibility, channelName)
-
-        # replace proxy selection
-        begin = contents[:contents.find('<!-- start of proxy selection -->')].strip()
-        end = contents[contents.find('<!-- end of proxy selection -->'):].strip()
-        contents = "%s\n    \n%s        %s" % (begin, channelProxyXml, end)
-        return contents
 
     @staticmethod
     def __UpdateAddOnSettingsWithLanguages(contents, channels):
