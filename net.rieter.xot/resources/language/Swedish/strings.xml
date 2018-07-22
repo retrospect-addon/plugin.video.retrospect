@@ -40,6 +40,7 @@
     <string id="30052">Skicka användningsstatistik</string>
     <string id="30053">Utseende</string>
     <string id="30055">Avancerat</string>
+    <string id="30059">Andra länder</string>
     <string id="30060">Välj ursprungsland att hantera kanaler för</string>
     <string id="30061">Ursprungsland för kanaler</string>
     <string id="30062">HTTP</string>
@@ -206,6 +207,11 @@
     <string id="30569">Ignorera fel i SSL-verifieringen (Säkerhetsrisk!)</string>
     <string id="30570">Dölj kanalinitieringsmeddelanden</string>
     <string id="30571">Använd Kodi-tillägget Adaptive Stream när det är möjligt</string>
+    <string id="30572">Retrospect Inställningar &#187;</string>
+    <string id="30573">Dolda objekt &#187;</string>
+    <string id="30574">Hide Channel</string>
+    <string id="30575">Retrospect Favourites &#187;</string>
+    <string id="30576">Select Countries</string>
 
     <string id="30590">Ange en ny kod för Retrospect</string>
     <string id="30591">Ingen kod angiven för Retrospect</string>

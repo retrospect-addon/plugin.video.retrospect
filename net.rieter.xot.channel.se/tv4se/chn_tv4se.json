@@ -37,7 +37,7 @@
       "localIPSupported": true
     }
   ],
-  "settings": [
+  "settings_old": [
     {
       "order": 1,
       "id": "username",

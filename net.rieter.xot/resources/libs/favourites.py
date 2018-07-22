@@ -61,10 +61,9 @@ class Favourites:
         return
 
     # noinspection PyUnusedLocal
-    def Remove(self, channel, item):
+    def Remove(self, item):
         """ Adds a favourite for a specific channel
 
-        @param channel:       The channel
         @param item:          The mediaitem
 
         Returns nothing
@@ -143,5 +142,6 @@ class Favourites:
 
             item.ClearDate()
 
-            favs.append((actionUrl % (pickle,), item))
+            item.actionUrl = actionUrl % (pickle,)
+            favs.append(item)
         return favs

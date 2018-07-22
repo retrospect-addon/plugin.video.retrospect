@@ -17,9 +17,7 @@ class LanguageHelper:
     FavouriteId = 30501
     FavouritesId = 30502
     ChannelFavourites = 30503
-    AddToId = 30504
     HideId = 30505
-    RemoveId = 30506
     ChannelsId = 30507
     NoFavsId = 30508
     NoPlaybackId = 30509
@@ -45,7 +43,9 @@ class LanguageHelper:
     AddOnSettingsId = 30528
     RefreshListId = 30529
     CheckUpdatesId = 30530
+    BitrateSelection = 30020
 
+    ChannelSelection = 30507
     InitializingId = 30531
     ImportCommonId = 30532
     DeterminSkinId = 30533

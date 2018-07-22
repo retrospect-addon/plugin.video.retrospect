@@ -9,7 +9,6 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import os
-import random
 
 #import inspect
 
@@ -43,6 +42,7 @@ try:
     from helpers.statistics import Statistics
     from helpers.sessionhelper import SessionHelper
     from textures import TextureHandler
+    from paramparser import ParameterParser
     # from streams.youtube import YouTube
     from pickler import Pickler
 except:
@@ -52,7 +52,7 @@ except:
 #===============================================================================
 # Main Plugin Class
 #===============================================================================
-class Plugin:
+class Plugin(ParameterParser):
     """Main Plugin Class
 
     This class makes it possible to access all the XOT channels as a Kodi Add-on
@@ -63,42 +63,15 @@ class Plugin:
     def __init__(self, pluginName, params, handle=0):
         """Initialises the plugin with given arguments."""
 
-        # some constants
-        self.actionDownloadVideo = "downloadVideo".lower()              # : Action used to download a video item
-        self.actionFavourites = "favourites".lower()                    # : Action used to show favorites for a channel
-        self.actionAllFavourites = "allfavourites".lower()              # : Action used to show all favorites
-        self.actionRemoveFavourite = "removefromfavourites".lower()     # : Action used to remove items from favorites
-        self.actionAddFavourite = "addtofavourites".lower()             # : Action used to add items to favorites
-        self.actionPlayVideo = "playvideo".lower()                      # : Action used to play a video item
-        self.actionUpdateChannels = "updatechannels".lower()            # : Action used to update channels
-        self.actionListFolder = "listfolder".lower()                    # : Action used to list a folder
-        self.actionListCategory = "listcategory"                        # : Action used to show the channels from a category
-        self.actionConfigureChannel = "configurechannel"                # : Action used to configure a channel
-        self.actionSetEncryptionPin = "changepin"                       # : Action used for setting an application pin
-        self.actionSetEncryptedValue = "encryptsetting"                 # : Action used for setting an application pin
-        self.actionResetVault = "resetvault"                            # : Action used for resetting the vault
-        self.actionCloak = "cloak"                                      # : Action used for cloaking
-        self.actionUnCloak = "uncloak"                                  # : Action used for uncloaking
-        self.actionPostLog = "postlog"                                  # : Action used for sending log files to pastebin.com
-        self.actionProxy = "setproxy"                                   # : Action used for setting a proxy
-
-        self.keywordPickle = "pickle".lower()                           # : Keyword used for the pickle item
-        self.keywordAction = "action".lower()                           # : Keyword used for the action item
-        self.keywordChannel = "channel".lower()                         # : Keyword used for the channel
-        self.keywordChannelCode = "channelcode".lower()                 # : Keyword used for the channelcode
-        self.keywordCategory = "category"                               # : Keyword used for the category
-        self.keywordRandomLive = "rnd"                                  # : Keyword used for randomizing live items
-        self.keywordSettingId = "settingid"                             # : Keyword used for setting an encrypted setting
-        self.keywordSettingActionId = "settingactionid"                 # : Keyword used for passing the actionid for the encryption
-        self.keywordSettingName = "settingname"                         # : Keyword used for setting an encrypted settings display name
-        self.keywordSettingTabFocus = "tabfocus"                        # : Keyword used for setting the tabcontrol to focus after changing a setting
-        self.keywordSettingSettingFocus = "settingfocus"                # : Keyword used for setting the setting control to focus after changing a setting
-        self.keywordLanguage = "lang"                                   # : Keyword used for the 2 char language information
-        self.keywordProxy = "proxy"                                     # : Keyword used so set the proxy index
-        self.keywordLocalIP = "localip"                                 # : Keyword used to set the local ip index
-
-        self.pluginName = pluginName
+        Logger.Info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
         self.handle = int(handle)
+
+        super(Plugin, self).__init__(pluginName, params)
+        Logger.Debug("Plugin Params: %s (%s)\n"
+                     "Handle:      %s\n"
+                     "Name:        %s\n"
+                     "Query:       %s", self.params, len(self.params),
+                     self.handle, self.pluginName, params)
 
         # channel objects
         self.channelObject = None
@@ -107,16 +80,6 @@ class Plugin:
 
         self.contentType = "episodes"
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
-
-        # determine the query parameters
-        self.params = self.__GetParameters(params)
-
-        Logger.Info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
-        Logger.Debug("Plugin Params: %s (%s)\n"
-                     "Handle:      %s\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params),
-                     self.handle, self.pluginName, params)
 
         # are we in session?
         sessionActive = SessionHelper.IsSessionActive(Logger.Instance())
@@ -273,12 +236,6 @@ class Plugin:
                     Logger.Critical("Action parameters missing from request. Parameters=%s", self.params)
                     return
 
-                if self.params[self.keywordAction] == self.actionCloak:
-                    self.__CloakItem()
-
-                elif self.params[self.keywordAction] == self.actionUnCloak:
-                    self.__UnCloakItem()
-
                 elif self.params[self.keywordAction] == self.actionListCategory:
                     self.ShowChannelList(self.params[self.keywordCategory])
 
@@ -290,15 +247,7 @@ class Plugin:
                     self.ShowFavourites(self.channelObject)
 
                 elif self.params[self.keywordAction] == self.actionAllFavourites:
-                    if self.channelObject is not None:
-                        Logger.Warning("We have a self.channelObject with self.actionAllFavourites")
                     self.ShowFavourites(None)
-
-                elif self.params[self.keywordAction] == self.actionRemoveFavourite:
-                    self.RemoveFavourite()
-
-                elif self.params[self.keywordAction] == self.actionAddFavourite:
-                    self.AddFavourite()
 
                 elif self.params[self.keywordAction] == self.actionListFolder:
                     # channelName and URL is present, Parse the folder
@@ -343,10 +292,13 @@ class Plugin:
                 # it was deprecated
                 pass
             xbmcItem.setArt({'thumb': icon, 'icon': icon})
+            xbmcItem.setProperty(self.propertyRetrospect, "true")
+            xbmcItem.setProperty(self.propertyRetrospectCategory, "true")
+
             if not AddonSettings.HideFanart():
                 xbmcItem.setArt({'fanart': fanart})
 
-            url = self.__CreateActionUrl(None, action=self.actionListCategory, category=category)
+            url = self._CreateActionUrl(None, action=self.actionListCategory, category=category)
             xbmcItems.append((url, xbmcItem, True))
 
         # Logger.Trace(xbmcItems)
@@ -381,11 +333,14 @@ class Plugin:
 
                 # Get the XBMC item
                 item = channel.GetXBMCItem()
+                item.setProperty(self.propertyRetrospect, "true")
+                item.setProperty(self.propertyRetrospectChannel, "true")
+
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(channel)
                 item.addContextMenuItems(contextMenuItems)
                 # Get the URL for the item
-                url = self.__CreateActionUrl(channel, action=self.actionListFolder)
+                url = self._CreateActionUrl(channel, action=self.actionListFolder)
 
                 # Append to the list of XBMC Items
                 xbmcItems.append((url, item, True))
@@ -403,7 +358,7 @@ class Plugin:
             xbmcplugin.endOfDirectory(self.handle, False)
             Logger.Critical("Error fetching channels for plugin", exc_info=True)
 
-    def ShowFavourites(self, channel, replaceExisting=False):
+    def ShowFavourites(self, channel):
         """ Show the favourites
 
         Arguments:
@@ -419,46 +374,12 @@ class Plugin:
             Logger.Info("Showing all favourites")
         else:
             Logger.Info("Showing favourites for: %s", channel)
-        stopWatch = StopWatch("Plugin Favourites timer", Logger.Instance())
 
-        try:
-            ok = True
-            f = Favourites(Config.favouriteDir)
-            favs = f.List(channel)
+        f = Favourites(Config.favouriteDir)
+        favs = f.List(channel)
+        return self.ProcessFolderList(favs)
 
-            # get (actionUrl, pickle) tuples
-            # favs = map(lambda (a, p): (a, Pickler.DePickleMediaItem(p)), favs)
-            if len(favs) == 0:
-                ok = self.__ShowEmptyInformation(favs, favs=True)
-
-            stopWatch.Lap("Items retrieved")
-
-            # create the XBMC items
-            xbmcItems = map(lambda item: self.__ConvertMainlistItemToXbmcItem(channel, item[1],
-                                                                              True, item[0]), favs)
-            stopWatch.Lap("%s items for Kodi generated" % (len(xbmcItems),))
-
-            # add them to XBMC
-            ok = ok and xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
-            # add sort handle, but don't use any dates as they make no sense for favourites
-            self.__AddSortMethodToHandle(self.handle)
-
-            # set the content
-            xbmcplugin.setContent(handle=self.handle, content=self.contentType)
-            # make sure we do not cache this one to disc!
-            xbmcplugin.endOfDirectory(self.handle, succeeded=ok, updateListing=replaceExisting, cacheToDisc=False)
-            stopWatch.Lap("items send to Kodi")
-
-            Logger.Debug("Plugin::Favourites completed. Returned %s item(s)", len(favs))
-            stopWatch.Stop()
-        except:
-            XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
-                                         LanguageHelper.GetLocalizedString(LanguageHelper.ErrorList),
-                                         XbmcWrapper.Error, 4000)
-            Logger.Error("Plugin::Error parsing favourites", exc_info=True)
-            xbmcplugin.endOfDirectory(self.handle, False)
-
-    def ProcessFolderList(self):
+    def ProcessFolderList(self, favorites=None):
         """Wraps the channel.ProcessFolderList"""
 
         Logger.Info("Plugin::ProcessFolderList Doing ProcessFolderList")
@@ -469,9 +390,13 @@ class Plugin:
             if self.keywordPickle in self.params:
                 selectedItem = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
-            watcher = StopWatch("Plugin ProcessFolderList", Logger.Instance())
-            episodeItems = self.channelObject.ProcessFolderList(selectedItem)
-            watcher.Lap("Class ProcessFolderList finished")
+            if favorites is None:
+                watcher = StopWatch("Plugin ProcessFolderList", Logger.Instance())
+                episodeItems = self.channelObject.ProcessFolderList(selectedItem)
+                watcher.Lap("Class ProcessFolderList finished")
+            else:
+                watcher = StopWatch("Plugin ProcessFolderList With Items", Logger.Instance())
+                episodeItems = favorites
 
             if len(episodeItems) == 0:
                 Logger.Warning("ProcessFolderList returned %s items", len(episodeItems))
@@ -481,6 +406,8 @@ class Plugin:
 
             xbmcItems = []
             for episodeItem in episodeItems:
+                # Get the XBMC item
+                item = episodeItem.GetXBMCItem()
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
                 if episodeItem.fanart == "":
@@ -496,13 +423,26 @@ class Plugin:
                     Logger.Critical("Plugin::ProcessFolderList: Cannot determine what to add")
                     continue
 
-                # Get the XBMC item
-                item = episodeItem.GetXBMCItem()
+                # Set the properties for the context menu add-on
+                item.setProperty(self.propertyRetrospect, "true")
+                item.setProperty(self.propertyRetrospectFolder
+                                 if folder
+                                 else self.propertyRetrospectVideo, "true")
+
+                if favorites is not None:
+                    item.setProperty(self.propertyRetrospectFavorite, "true")
+                elif episodeItem.isCloaked:
+                    item.setProperty(self.propertyRetrospectCloaked, "true")
+
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(self.channelObject, item=episodeItem)
                 item.addContextMenuItems(contextMenuItems)
+
                 # Get the action URL
-                url = self.__CreateActionUrl(self.channelObject, action=action, item=episodeItem)
+                url = episodeItem.actionUrl
+                if url is None:
+                    url = self._CreateActionUrl(self.channelObject, action=action, item=episodeItem)
+
                 # Add them to the list of XBMC items
                 xbmcItems.append((url, item, folder))
 
@@ -511,7 +451,7 @@ class Plugin:
             ok = ok and xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
             watcher.Lap("items send to Kodi")
 
-            if selectedItem is None:
+            if selectedItem is None and self.channelObject is not None:
                 # mainlist item register channel.
                 Statistics.RegisterChannelOpen(self.channelObject, Initializer.StartTime)
                 watcher.Lap("Statistics send")
@@ -531,44 +471,6 @@ class Plugin:
                                          XbmcWrapper.Error, 4000)
             Logger.Error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
-
-    @LockWithDialog(logger=Logger.Instance())
-    def RemoveFavourite(self):
-        """Removes an item from the favourites"""
-
-        # remove the item
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Debug("Removing favourite: %s", item)
-        f = Favourites(Config.favouriteDir)
-        f.Remove(self.channelObject, item)
-
-        # refresh the list
-        self.ShowFavourites(self.channelObject, replaceExisting=True)
-        pass
-
-    @LockWithDialog(logger=Logger.Instance())
-    def AddFavourite(self):
-        """Adds an item to the favourites"""
-
-        # remove the item
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        # no need for dates in the favourites
-        # item.ClearDate()
-        Logger.Debug("Adding favourite: %s", item)
-
-        f = Favourites(Config.favouriteDir)
-        if item.IsPlayable():
-            action = self.actionPlayVideo
-        else:
-            action = self.actionListFolder
-
-        # add the favourite
-        f.Add(self.channelObject,
-              item,
-              self.__CreateActionUrl(self.channelObject, action, item))
-
-        # we are finished, so just return
-        return self.ShowFavourites(self.channelObject)
 
     # @LockWithDialog(logger=Logger.Instance())  No longer needed as Kodi will do this automatically
     def PlayVideoItem(self):
@@ -732,40 +634,6 @@ class Plugin:
         AddonSettings.ShowChannelSettings(channelInfo)
         return
 
-    def __ConvertMainlistItemToXbmcItem(self, channel, episodeItem, showFavourites, actionUrl=""):
-        Logger.Trace("Converting a mainlist item to XbmcItem with:\nChannel: %s\nItem: %s\nShowFavourites: %s\n"
-                     "Actionurl: %s", channel, episodeItem, showFavourites, actionUrl)
-
-        if actionUrl == "" and showFavourites:
-            raise Exception("Cannot create favourites XbmcItem without actionUrl")
-
-        item = episodeItem.GetXBMCItem()
-
-        # add the remove from favourites item:
-        if showFavourites:
-            # XBMC.Container.Refresh refreshes the container and replaces the last history
-            # XBMC.Container.Update updates the container and but appends the new list to the history
-            contextMenuItems = self.__GetContextMenuItems(channel, item=episodeItem, favouritesList=True)
-        else:
-            contextMenuItems = self.__GetContextMenuItems(channel, item=episodeItem)
-
-            if self.FavouritesEnabled:
-                # add the show favourites here
-                cmdUrl = self.__CreateActionUrl(channel, action=self.actionFavourites)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                favs = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelFavourites)
-                contextMenuItems.append(('Retro: %s' % (favs, ), cmd))
-
-        item.addContextMenuItems(contextMenuItems)
-
-        if actionUrl == "":
-            url = self.__CreateActionUrl(channel, self.actionListFolder, item=episodeItem)
-        else:
-            Logger.Trace("Using predefined actionUrl")
-            url = actionUrl
-
-        return url, item, True
-
     def __AddSortMethodToHandle(self, handle, items=None):
         """ Add a sort method to the plugin output. It takes the Add-On settings into
         account. But if none of the items have a date, it is forced to sort by name.
@@ -807,47 +675,7 @@ class Plugin:
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
         return
 
-    def __CreateActionUrl(self, channel, action, item=None, category=None):
-        """Creates an URL that includes an action
-
-        Arguments:
-        channel : Channel - The channel object to use for the URL
-        action  : string  - Action to create an url for
-
-        Keyword Arguments:
-        item : MediaItem - The media item to add
-
-        """
-        if action is None:
-            raise Exception("action is required")
-
-        params = dict()
-        if channel:
-            params[self.keywordChannel] = channel.moduleName
-            if channel.channelCode:
-                params[self.keywordChannelCode] = channel.channelCode
-
-        params[self.keywordAction] = action
-
-        # it might have an item or not
-        if item is not None:
-            params[self.keywordPickle] = Pickler.PickleMediaItem(item)
-
-            if action == self.actionPlayVideo and item.isLive:
-                params[self.keywordRandomLive] = random.randint(10000, 99999)
-
-        if category:
-            params[self.keywordCategory] = category
-
-        url = "%s?" % (self.pluginName, )
-        for k in params.keys():
-            url = "%s%s=%s&" % (url, k, params[k])
-
-        url = url.strip('&')
-        # Logger.Trace("Created url: '%s'", url)
-        return url
-
-    def __GetContextMenuItems(self, channel, item=None, favouritesList=False):
+    def __GetContextMenuItems(self, channel, item=None):
         """Retrieves the context menu items to display
 
         Arguments:
@@ -861,77 +689,8 @@ class Plugin:
 
         contextMenuItems = []
 
-        favs = LanguageHelper.GetLocalizedString(LanguageHelper.FavouritesId)
-        allFavs = LanguageHelper.GetLocalizedString(LanguageHelper.AllFavouritesId)
-
-        # let's put this one on top
-        if item is not None:
-            # add a default enqueue list
-            cmd = "XBMC.Action(Queue)"
-            enqueue = LanguageHelper.GetLocalizedString(LanguageHelper.QueueItemId)
-            contextMenuItems.append(("%s" % (enqueue,), cmd))
-
-        cmdUrl = self.__CreateActionUrl(channel, action=self.actionConfigureChannel)
-        cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
-        Logger.Trace("Adding command: %s", cmd)
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.ShowChannelSettings)
-        contextMenuItems.append(("Retro: %s" % (title, ), cmd))
-
         if item is None:
-            if self.FavouritesEnabled:
-                # it's just the channel, so only add the favourites
-                cmdUrl = self.__CreateActionUrl(channel, action=self.actionFavourites)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                # Logger.Trace("Adding command: %s", cmd)
-                channelFavs = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelFavourites)
-                contextMenuItems.append(("Retro: %s" % (channelFavs,), cmd))
-
-                cmdUrl = self.__CreateActionUrl(None, action=self.actionAllFavourites)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                Logger.Trace("Adding command: %s", cmd)
-                contextMenuItems.append(("Retro: %s" % (allFavs, ), cmd))
-
             return contextMenuItems
-
-        # add a default refresh list
-        cmd = "XBMC.Container.Refresh()"
-        refresh = LanguageHelper.GetLocalizedString(LanguageHelper.RefreshListId)
-        contextMenuItems.append(("Retro: %s" % (refresh,), cmd))
-
-        # we have an item
-        if favouritesList:
-            # we have list of favourites
-            cmdUrl = self.__CreateActionUrl(channel, action=self.actionRemoveFavourite, item=item)
-            cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-            # Logger.Trace("Adding command: %s", cmd)
-
-            remove = LanguageHelper.GetLocalizedString(LanguageHelper.RemoveId)
-            fav = LanguageHelper.GetLocalizedString(LanguageHelper.FavouriteId)
-            contextMenuItems.append(("Retro: %s %s" % (remove, fav), cmd))
-
-        elif item.type == "folder" and self.FavouritesEnabled:
-            # we need to run RunPlugin here instead of Refresh as we don't want to refresh any lists
-            # the refreshing results in empty lists in XBMC4Xbox.
-            cmdUrl = self.__CreateActionUrl(channel, action=self.actionAddFavourite, item=item)
-            # cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
-            cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-            Logger.Trace("Adding command: %s", cmd)
-            addTo = LanguageHelper.GetLocalizedString(LanguageHelper.AddToId)
-            contextMenuItems.append(("Retro: %s %s" % (addTo, favs), cmd))
-
-        # Cloaking?
-        if item.type == "folder" and item.url is not None and item.url.startswith("http"):
-            if item.isCloaked:
-                cmdUrl = self.__CreateActionUrl(channel, action=self.actionUnCloak, item=item)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                Logger.Trace("Adding command: %s", cmd)
-                title = LanguageHelper.GetLocalizedString(LanguageHelper.UnCloakItem)
-            else:
-                cmdUrl = self.__CreateActionUrl(channel, action=self.actionCloak, item=item)
-                cmd = "XBMC.Container.Update(%s)" % (cmdUrl,)
-                Logger.Trace("Adding command: %s", cmd)
-                title = LanguageHelper.GetLocalizedString(LanguageHelper.CloakItem)
-            contextMenuItems.append(("Retro: %s" % (title,), cmd))
 
         # if it was a favourites list, don't add the channel methods as they might be from a different channel
         if channel is None:
@@ -960,7 +719,7 @@ class Plugin:
                     Logger.Warning("No method for: %s", menuItem)
                     continue
 
-                cmdUrl = self.__CreateActionUrl(channel, action=menuItem.functionName, item=item)
+                cmdUrl = self._CreateActionUrl(channel, action=menuItem.functionName, item=item)
                 cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
                 title = "Retro: %s" % (menuItem.label,)
                 Logger.Trace("Adding command: %s | %s", title, cmd)
@@ -979,35 +738,6 @@ class Plugin:
             self.methodContainer[channel.guid] = dir(channel)
 
         return self.methodContainer[channel.guid]
-
-    def __GetParameters(self, queryString):
-        """ Extracts the actual parameters as a dictionary from the passed in
-        querystring. This method takes the self.quotedPlus into account.
-
-        Arguments:
-        queryString : String - The querystring
-
-        Returns:
-        dict() of keywords and values.
-
-        """
-        result = dict()
-        queryString = queryString.strip('?')
-        if queryString != '':
-            try:
-                for pair in queryString.split("&"):
-                    (k, v) = pair.split("=")
-                    result[k] = v
-
-                # if the channelcode was empty, it was stripped, add it again.
-                if self.keywordChannelCode not in result:
-                    Logger.Debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
-                    result[self.keywordChannelCode] = None
-            except:
-                Logger.Critical("Cannot determine query strings from %s", queryString, exc_info=True)
-                raise
-
-        return result
 
     def __ShowEmptyInformation(self, items, favs=False):
         """ Adds an empty item to a list or just shows a message.
@@ -1122,22 +852,3 @@ class Plugin:
                 Logger.Debug("Setting Local IP for: %s", channel)
                 AddonSettings.SetLocalIPForChannel(channel, localIP)
         pass
-
-    def __CloakItem(self):
-        from cloaker import Cloaker
-
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
-        firstTime = c.Cloak(item.url)
-        if firstTime:
-            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
-                                   LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
-
-    def __UnCloakItem(self):
-        from cloaker import Cloaker
-
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Info("Un-Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
-        c.UnCloak(item.url)

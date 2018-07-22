@@ -12,7 +12,7 @@
     <string id="30017">Name</string>
     <string id="30018">Date</string>
     <string id="30019">Show DRM/Paid warning before playback</string>
-    <string id="30020">Maximum stream bitrate</string>
+    <string id="30020">Channel Bitrate &#187;</string> <!-- &#9632; -->
     <string id="30021">Subtitle mode</string>
     <string id="30022">If available</string>
     <string id="30023">Never show</string>
@@ -40,7 +40,8 @@
     <string id="30052">Send usage statistics</string>
     <string id="30053">Appearance</string>
     <string id="30055">Advanced</string>
-    <string id="30060">Select country of origin to manage its channels</string>
+    <string id="30059">Other Countries</string>
+    <string id="30060">Enable/Disable channels by country of origin</string>
     <string id="30061">Channel Origin</string>
     <string id="30062">HTTP</string>
     <string id="30063">Channel to configure</string>
@@ -138,10 +139,10 @@
     <string id="30501">Favourite</string>
     <string id="30502">Favourites</string>
     <string id="30503">Channel Favourites</string>
-    <string id="30504">Add to</string>
+    <string id="30504">Add to Favourites</string>
     <string id="30505">Hide</string>
-    <string id="30506">Remove</string>
-    <string id="30507">Channels</string>
+    <string id="30506">Remove Favourite</string>
+    <string id="30507">Select Channels &#187;</string>
     <string id="30508">No favourites available</string>
     <string id="30509">Cannot start playback</string>
     <string id="30510">New version available</string>
@@ -206,6 +207,11 @@
     <string id="30569">Ignore SSL verification errors (Security Risk!)</string>
     <string id="30570">Hide channel initialisation messages</string>
     <string id="30571">Use Kodi Adaptive Stream Add-on when possible</string>
+    <string id="30572">Retrospect Settings &#187;</string>
+    <string id="30573">(Un-)Cloak item &#187;</string>
+    <string id="30574">Hide Channel</string>
+    <string id="30575">Retrospect Favourites &#187;</string>
+    <string id="30576">Select Countries</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>

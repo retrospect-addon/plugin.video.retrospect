@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-06-29 07:01+0000\n"
+"POT-Creation-Date: 2018-07-22 12:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -62,7 +62,7 @@ msgid "Show DRM/Paid warning before playback"
 msgstr "Visa DRM-varningar"
 
 msgctxt "#30020"
-msgid "Maximum stream bitrate"
+msgid "Channel Bitrate »"
 msgstr "Högsta strömbitshastighet"
 
 msgctxt "#30021"
@@ -173,8 +173,12 @@ msgctxt "#30055"
 msgid "Advanced"
 msgstr "Avancerat"
 
+msgctxt "#30059"
+msgid "Other Countries"
+msgstr "Andra länder"
+
 msgctxt "#30060"
-msgid "Select country of origin to manage its channels"
+msgid "Enable/Disable channels by country of origin"
 msgstr "Välj ursprungsland att hantera kanaler för"
 
 msgctxt "#30061"
@@ -498,7 +502,7 @@ msgid "Channel Favourites"
 msgstr "Kanalfavoriter"
 
 msgctxt "#30504"
-msgid "Add to"
+msgid "Add to Favourites"
 msgstr "Lägg till"
 
 msgctxt "#30505"
@@ -506,11 +510,11 @@ msgid "Hide"
 msgstr "Dölj"
 
 msgctxt "#30506"
-msgid "Remove"
+msgid "Remove Favourite"
 msgstr "Ta bort"
 
 msgctxt "#30507"
-msgid "Channels"
+msgid "Select Channels »"
 msgstr "Kanaler"
 
 msgctxt "#30508"
@@ -768,6 +772,26 @@ msgstr "Dölj kanalinitieringsmeddelanden"
 msgctxt "#30571"
 msgid "Use Kodi Adaptive Stream Add-on when possible"
 msgstr "Använd Kodi-tillägget Adaptive Stream när det är möjligt"
+
+msgctxt "#30572"
+msgid "Retrospect Settings »"
+msgstr "Retrospect Inställningar »"
+
+msgctxt "#30573"
+msgid "(Un-)Cloak item »"
+msgstr "Dolda objekt »"
+
+msgctxt "#30574"
+msgid "Hide Channel"
+msgstr "Hide Channel"
+
+msgctxt "#30575"
+msgid "Retrospect Favourites »"
+msgstr "Retrospect Favourites »"
+
+msgctxt "#30576"
+msgid "Select Countries"
+msgstr "Select Countries"
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

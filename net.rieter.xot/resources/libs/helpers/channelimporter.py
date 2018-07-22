@@ -76,7 +76,7 @@ class ChannelIndex:
 
         return
 
-    def GetChannel(self, className, channelCode):
+    def GetChannel(self, className, channelCode, infoOnly=False):
         """ Fetches a single channel for a given className and channelCode
 
         If updated channels are found, the those channels are indexed and the
@@ -84,7 +84,8 @@ class ChannelIndex:
 
         @param className:       the chn_<name> class name
         @param channelCode:     a possible channel code within the channel set
-        @return:                a ChannelInfo object
+        @param infoOnly:        only return the ChannelInfo
+        @return:                a Channel object
 
         """
 
@@ -128,6 +129,9 @@ class ChannelIndex:
             self.GetChannels()
             return self.GetChannel(className, channelCode)
 
+        if infoOnly:
+            return channelInfos[0]
+
         return channelInfos[0].GetChannel()
 
     # noinspection PyUnusedLocal
@@ -136,6 +140,9 @@ class ChannelIndex:
 
         If updated channels are found, the those channels are indexed and the
         channel index is rebuild.
+
+        @type includeDisabled: boolean to indicate if we should include those channels that are
+                               explicitly disabled from the settings
 
         @type kwargs: here for backward compatibility
 
@@ -206,14 +213,18 @@ class ChannelIndex:
                 validChannels.append(channelInfo)
 
                 # was the channel disabled?
-                if not (AddonSettings.ShowChannel(
-                        channelInfo) and AddonSettings.ShowChannelWithLanguage(
-                        channelInfo.language)):
-                    Logger.Warning("Not loading: %s -> Channel was disabled from settings.",
-                                   channelInfo)
+                if not AddonSettings.ShowChannel(channelInfo):
+                    Logger.Warning("Not loading: %s -> Channel was explicitly disabled from settings.", channelInfo)
                     continue
 
+                # from this point on the channel was enabled, but it could be hidden due to country
+                # of origin settings.
                 channelInfo.enabled = True
+                if not AddonSettings.ShowChannelWithLanguage(channelInfo.language):
+                    Logger.Warning("Not loading: %s -> Channel country of origin was disabled from settings.", channelInfo)
+                    continue
+
+                channelInfo.visible = True
                 Logger.Debug("Loading: %s", channelInfo)
 
         if channelsUpdated:
@@ -225,17 +236,17 @@ class ChannelIndex:
             # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
         validChannels.sort()
-        enabledChannels = filter(lambda c: c.enabled, validChannels)
-        Logger.Info("Fetch a total of %d channels of which %d are enabled.",
+        visibleChannels = filter(lambda c: c.visible, validChannels)
+        Logger.Info("Fetch a total of %d channels of which %d are visible.",
                     len(validChannels),
-                    len(enabledChannels))
+                    len(visibleChannels))
 
         sw.Stop()
 
         if includeDisabled:
             return validChannels
 
-        return enabledChannels
+        return visibleChannels
 
     def GetCategories(self):
         # type: () -> set
@@ -534,7 +545,10 @@ class ChannelIndex:
         py_compile.compile(os.path.join(channelInfo.path, "%s.py" % (channelInfo.moduleName,)))
 
         # purge the texture cache.
-        TextureHandler.Instance().PurgeTextureCache(channelInfo)
+        if TextureHandler.Instance():
+            TextureHandler.Instance().PurgeTextureCache(channelInfo)
+        else:
+            Logger.Warning("Could not PurgeTextureCache: no TextureHandler available")
         return
 
     def __InitialiseChannel(self, channelInfo):

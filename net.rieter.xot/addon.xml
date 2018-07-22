@@ -6,7 +6,7 @@
 
     <requires>
         <import addon="xbmc.metadata" version="1.0"/>
-        <import addon="xbmc.python" version="2.14.0"/>
+        <import addon="xbmc.python" version="2.23.0"/>
         <import addon="script.module.simplejson" version="3.3.0"/>
         <import addon="inputstream.adaptive" version="2.0.19" optional="true" />
     </requires>
@@ -17,8 +17,97 @@
         <provides>video</provides>
     </extension>
 
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <item library="resources\menus\menu_queue.py">
+                <label>30541</label>
+                <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
+            </item>
+
+            <item library="resources\menus\menu_refresh.py">
+                <label>30529</label>
+                <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
+            </item>
+
+            <item library="resources\menus\menu_hide_channel.py">
+                <label>30574</label>
+                <visible>ListItem.Property(RetrospectChannel)</visible>
+            </item>
+
+            <!-- Favorites menu -->
+            <menu>
+                <label>30575</label>
+
+                <item library="resources\menus\menu_channel_favs.py">
+                    <label>30503</label>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
+                </item>
+
+                <item library="resources\menus\menu_all_favs.py">
+                    <label>30500</label>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
+                </item>
+
+                <item library="resources\menus\menu_add_fav.py">
+                    <label>30504</label>
+                    <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectFavorite)</visible>
+                </item>
+
+                <item library="resources\menus\menu_remove_fav.py">
+                    <label>30506</label>
+                    <visible>ListItem.Property(RetrospectFavorite)</visible>
+                </item>
+            </menu>
+
+            <!-- Cloaking menu -->
+            <menu>
+                <label>30573</label>
+
+                <item library="resources\menus\menu_cloak.py">
+                    <label>30563</label>
+                    <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)+!ListItem.Property(RetrospectFavorite)</visible>
+                </item>
+
+                <item library="resources\menus\menu_uncloak.py">
+                    <label>30564</label>
+                    <visible>ListItem.Property(RetrospectCloaked)</visible>
+                </item>
+            </menu>
+
+            <!-- Retrospect Menu -->
+            <menu>
+                <label>30572</label>
+
+                <item library="resources\menus\menu_bitrate.py">
+                    <label>30020</label>
+                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                </item>
+
+                <item library="resources\menus\menu_channelsettings.py">
+                    <label>30069</label>
+                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                </item>
+
+                <item library="resources\menus\menu_channel_selection.py">
+                    <label>30507</label>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
+                </item>
+
+                <item library="resources\menus\menu_country_selection.py">
+                    <label>30576</label>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
+                </item>
+
+                <item library="resources\menus\menu_settings.py">
+                    <label>30528</label>
+                    <visible>ListItem.Property(Retrospect)</visible>
+                </item>
+            </menu>
+        </menu>
+    </extension>
+
     <extension point="xbmc.addon.metadata">
-        <!--<reuselanguageinvoker>false</reuselanguageinvoker>-->
+        <reuselanguageinvoker>false</reuselanguageinvoker>
         <platform>all</platform>
         <minversion>29000</minversion>
         <summary>Retrospect (previously XBMC Online TV) is a plugin that allows the playback of a lot of TV shows that are available (legally) via the broadcasters websites.</summary>
