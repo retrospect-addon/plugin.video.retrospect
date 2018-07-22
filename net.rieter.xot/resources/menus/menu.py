@@ -116,6 +116,7 @@ class Menu(ParameterParser):
             AddonSettings.ShowSettings(-99)
         else:
             AddonSettings.ShowSettings(101)
+        self.Refresh()
 
     def ShowSettings(self):
         AddonSettings.ShowSettings()
