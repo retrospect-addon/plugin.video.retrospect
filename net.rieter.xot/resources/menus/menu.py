@@ -103,6 +103,12 @@ class Menu(ParameterParser):
         self.Refresh()
         return
 
+    def ShowCountrySettings(self):
+        if AddonSettings.IsMinVersion(18):
+            AddonSettings.ShowSettings(-99)
+        else:
+            AddonSettings.ShowSettings(101)
+
     def ShowSettings(self):
         AddonSettings.ShowSettings()
         self.Refresh()
@@ -216,7 +222,6 @@ class Menu(ParameterParser):
 
         dialog = xbmcgui.Dialog()
         heading = LanguageHelper.GetLocalizedString(LanguageHelper.BitrateSelection)[:-1]
-        Logger.Warning(heading)
         selectedBitrate = dialog.select(heading, bitrateOptions,
                                         preselect=currentBitrateIndex)
         if selectedBitrate < 0:

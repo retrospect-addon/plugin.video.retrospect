@@ -78,11 +78,6 @@
             <menu>
                 <label>30572</label>
 
-                <item library="resources\menus\menu_enable.py">
-                    <label>30507</label>
-                    <visible>ListItem.Property(RetrospectChannel)</visible>
-                </item>
-
                 <item library="resources\menus\menu_bitrate.py">
                     <label>30020</label>
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
@@ -91,6 +86,16 @@
                 <item library="resources\menus\menu_channelsettings.py">
                     <label>30069</label>
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                </item>
+
+                <item library="resources\menus\menu_channel_selection.py">
+                    <label>30507</label>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
+                </item>
+
+                <item library="resources\menus\menu_country_selection.py">
+                    <label>30576</label>
+                    <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
                 <item library="resources\menus\menu_settings.py">
