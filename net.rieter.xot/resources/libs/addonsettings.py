@@ -734,7 +734,7 @@ class AddonSettings:
         contents = settingsXml.read()
         settingsXml.close()
 
-        newContents = AddonSettings.__UpdateAddOnSettingsWithLanguages(contents, channels)
+        newContents = AddonSettings.__UpdateAddOnSettingsWithCountrySettings(contents, channels)
         newContents, settingsOffsetForVisibility, channelsWithSettings = \
             AddonSettings.__UpdateAddOnSettingsWithChannelSettings(newContents, channels)
         newContents = AddonSettings.__UpdateAddOnSettingsWithChannelSelection(newContents, channelsWithSettings)
@@ -893,23 +893,6 @@ class AddonSettings:
                             'visible="', 'visible="eq(-{0},%s)|' % (channel.safeName,))
                         settings[channel.moduleName][xmlIndex] = (settingTuple[0], setting)
 
-            # add channel visibility -> we can't do this because we will exceed the 80 settings
-            # per category.
-            # visibilityId = "channel_{0}_visible".format(channel.guid)
-            # settingXml = '<setting id="%s" type="bool" label="30042" ' \
-            #              'default="true" visible="eq(-{0},%s)" />' % \
-            #              (visibilityId, channel.safeName)
-            # Logger.Trace(settingXml)
-            # settings[channel.moduleName].append((visibilityId,  settingXml))
-
-            # bitrateId = "channel_{0}_bitrate".format(channel.guid)
-            # settingXml = '<setting id="%s" type="select" label="30020" ' \
-            #              'values="Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000" ' \
-            #              'default="Retrospect" visible="eq(-{0},%s)" />' % \
-            #              (bitrateId, channel.safeName)
-            # Logger.Trace(settingXml)
-            # settings[channel.moduleName].append((bitrateId, settingXml))
-
             # remove if no settings else, add them to the list with settings
             if len(settings[channel.moduleName]) == 0:
                 settings.pop(channel.moduleName)
@@ -935,7 +918,7 @@ class AddonSettings:
         return contents, settingOffsetForVisibility, channelsWithSettings
 
     @staticmethod
-    def __UpdateAddOnSettingsWithLanguages(contents, channels):
+    def __UpdateAddOnSettingsWithCountrySettings(contents, channels):
         """ Adds the channel showing/hiding to the settings.xml
 
         @param contents: The current settings
