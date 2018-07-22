@@ -37,6 +37,14 @@ from pickler import Pickler
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
 
+# We need a logger
+Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                    Config.appName,
+                    minLogLevel=AddonSettings.GetLogLevel(),
+                    append=True,
+                    dualLogger=lambda x, y=4: xbmc.log(x, y))
+Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
+
 
 class Menu(ParameterParser):
 
@@ -191,14 +199,7 @@ class Menu(ParameterParser):
         return channel
 
     def __enter__(self):
-        Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                            Config.appName,
-                            minLogLevel=AddonSettings.GetLogLevel(),
-                            append=True,
-                            dualLogger=lambda x, y=4: xbmc.log(x, y))
-        Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
-
-        return Menu()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
