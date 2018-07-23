@@ -12,7 +12,7 @@
     <string id="30017">Name</string>
     <string id="30018">Date</string>
     <string id="30019">Show DRM/Paid warning before playback</string>
-    <string id="30020">Channel Bitrate &#187;</string> <!-- &#9632; -->
+    <string id="30020">Maximum stream bitrate</string>
     <string id="30021">Subtitle mode</string>
     <string id="30022">If available</string>
     <string id="30023">Never show</string>
@@ -76,7 +76,7 @@
     <string id="30092">Reset Vault</string>
     <string id="30093">Password</string>
     <string id="30094">Username</string>
-    <string id="30095">Show Cloaked Items</string>
+    <string id="30095">Show Hidden Items</string>
     <string id="30096">Country</string>
     <string id="30097">Local IP</string>
 
@@ -198,20 +198,21 @@
     <string id="30560">Paid video</string>
     <string id="30561">The selected item is not free and might not play on Kodi.</string>
     <string id="30562">Username and/or password not set in Add-on settings</string>
-    <string id="30563">Cloak Item</string>
-    <string id="30564">Un-Cloak Item</string>
-    <string id="30565">(Un-)Cloaking items</string>
-    <string id="30566">To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu.</string>
+    <string id="30563">Hide Item</string>
+    <string id="30564">Show Item</string>
+    <string id="30565">(Un-)Hiding items</string>
+    <string id="30566">To un-hide an item, configure Retrospect to show hidden items first. Then un-hide them via the context menu.</string>
     <string id="30567">Add-on(s) disabled</string>
     <string id="30568">Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">Ignore SSL verification errors (Security Risk!)</string>
     <string id="30570">Hide channel initialisation messages</string>
     <string id="30571">Use Kodi Adaptive Stream Add-on when possible</string>
     <string id="30572">Retrospect Settings &#187;</string>
-    <string id="30573">(Un-)Cloak item &#187;</string>
+    <string id="30573">(Un-)Hide item &#187;</string>
     <string id="30574">Hide Channel</string>
     <string id="30575">Retrospect Favourites &#187;</string>
     <string id="30576">Select Countries</string>
+    <string id="30577">Channel Bitrate &#187;</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>

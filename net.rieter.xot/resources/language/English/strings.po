@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-22 12:43+0000\n"
+"POT-Creation-Date: 2018-07-23 23:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -65,9 +65,8 @@ msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
 msgstr ""
 
-#. &#9632;
 msgctxt "#30020"
-msgid "Channel Bitrate »"
+msgid "Maximum stream bitrate"
 msgstr ""
 
 msgctxt "#30021"
@@ -339,7 +338,7 @@ msgid "Username"
 msgstr ""
 
 msgctxt "#30095"
-msgid "Show Cloaked Items"
+msgid "Show Hidden Items"
 msgstr ""
 
 msgctxt "#30096"
@@ -793,19 +792,19 @@ msgid "Username and/or password not set in Add-on settings"
 msgstr ""
 
 msgctxt "#30563"
-msgid "Cloak Item"
+msgid "Hide Item"
 msgstr ""
 
 msgctxt "#30564"
-msgid "Un-Cloak Item"
+msgid "Show Item"
 msgstr ""
 
 msgctxt "#30565"
-msgid "(Un-)Cloaking items"
+msgid "(Un-)Hiding items"
 msgstr ""
 
 msgctxt "#30566"
-msgid "To un-cloak an item, configure Retrospect to show cloaked items first. Then un-cloak them via the context menu."
+msgid "To un-hide an item, configure Retrospect to show hidden items first. Then un-hide them via the context menu."
 msgstr ""
 
 msgctxt "#30567"
@@ -833,7 +832,7 @@ msgid "Retrospect Settings »"
 msgstr ""
 
 msgctxt "#30573"
-msgid "(Un-)Cloak item »"
+msgid "(Un-)Hide item »"
 msgstr ""
 
 msgctxt "#30574"
@@ -848,7 +847,11 @@ msgctxt "#30576"
 msgid "Select Countries"
 msgstr ""
 
-#empty strings from id 30577 to 30589
+msgctxt "#30577"
+msgid "Channel Bitrate »"
+msgstr ""
+
+#empty strings from id 30578 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"
