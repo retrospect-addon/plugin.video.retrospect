@@ -10,5 +10,5 @@
 
 import menu
 
-with menu.Menu() as m:
-    m.RemoveFavorite()
+with menu.Menu("Remove Favourite") as m:
+    m.RemoveFavourite()

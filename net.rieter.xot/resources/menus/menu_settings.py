@@ -10,5 +10,5 @@
 
 import menu
 
-with menu.Menu() as m:
+with menu.Menu("Show Add-on Settings") as m:
     m.ShowSettings()

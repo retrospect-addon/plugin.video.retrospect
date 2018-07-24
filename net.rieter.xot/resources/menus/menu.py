@@ -43,12 +43,14 @@ Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                     append=True,
                     dualLogger=lambda x, y=4: xbmc.log(x, y))
 Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
-Logger.Info("****** Starting menu for %s add-on version %s *******", Config.appName, Config.version)
 
 
 class Menu(ParameterParser):
 
-    def __init__(self):
+    def __init__(self, action):
+        Logger.Info("**** Starting menu '%s' for %s add-on version %s ****",
+                    action, Config.appName, Config.version)
+
         # noinspection PyUnresolvedReferences
         self.kodiItem = sys.listitem
 
@@ -126,7 +128,7 @@ class Menu(ParameterParser):
         AddonSettings.ShowChannelSettings(self.channelObject)
         self.Refresh()
 
-    def Favorites(self, allFavorites=False):
+    def Favourites(self, allFavorites=False):
         # it's just the channel, so only add the favourites
         cmdUrl = self._CreateActionUrl(
             None if allFavorites else self.channelObject,
@@ -136,7 +138,7 @@ class Menu(ParameterParser):
         xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmdUrl))
 
     @LockWithDialog(logger=Logger.Instance())
-    def AddFavorite(self):
+    def AddFavourite(self):
         # remove the item
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         # no need for dates in the favourites
@@ -155,10 +157,10 @@ class Menu(ParameterParser):
               self._CreateActionUrl(self.channelObject, action, item))
 
         # we are finished, so just open the Favorites
-        self.Favorites()
+        self.Favourites()
 
     @LockWithDialog(logger=Logger.Instance())
-    def RemoveFavorite(self):
+    def RemoveFavourite(self):
         # remove the item
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Debug("Removing favourite: %s", item)

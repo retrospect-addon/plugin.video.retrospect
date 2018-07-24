@@ -10,5 +10,5 @@
 
 import menu
 
-with menu.Menu() as m:
+with menu.Menu("Select Channels") as m:
     m.SelectChannels()

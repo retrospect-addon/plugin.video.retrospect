@@ -10,5 +10,5 @@
 
 import menu
 
-with menu.Menu() as c:
+with menu.Menu("Country Selection") as c:
     c.ShowCountrySettings()

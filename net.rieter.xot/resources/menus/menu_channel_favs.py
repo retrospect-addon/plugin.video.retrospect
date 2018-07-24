@@ -10,5 +10,5 @@
 
 import menu
 
-with menu.Menu() as m:
-    m.Favorites()
+with menu.Menu("Channel Favourites") as m:
+    m.Favourites()
