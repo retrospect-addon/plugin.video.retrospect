@@ -25,23 +25,22 @@ Initializer.SetupPythonPaths()
 sys.path.remove(addOnPath)
 
 from config import Config
-from favourites import Favourites
 from logger import Logger
+Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                    Config.appName,
+                    append=True,
+                    dualLogger=lambda x, y=4: xbmc.log(x, y))
+
+from helpers.htmlentityhelper import HtmlEntityHelper
 from addonsettings import AddonSettings
+from favourites import Favourites
 from paramparser import ParameterParser
 from helpers.channelimporter import ChannelIndex
-from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.languagehelper import LanguageHelper
 from locker import LockWithDialog
 from pickler import Pickler
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
-
-# We need a logger
-Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                    Config.appName,
-                    append=True,
-                    dualLogger=lambda x, y=4: xbmc.log(x, y))
 Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
 
 
