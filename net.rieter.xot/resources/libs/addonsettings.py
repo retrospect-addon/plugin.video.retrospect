@@ -20,9 +20,10 @@ from proxyinfo import ProxyInfo                         # this has not further r
 from config import Config                               # this has not further references
 # from regexer import Regexer                             # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
+from settings import localsettings, kodisettings
 
 
-class AddonSettings:
+class AddonSettings(object):
     """ Static Class for retrieving XBMC Addon settings """
 
     __NoProxy = True
@@ -59,6 +60,9 @@ class AddonSettings:
     __FOLDERS_AS_VIDEOS = "folders_as_video"
     __SHOW_CLOAKED_ITEMS = "show_cloaked_items"
 
+    __local_settings = localsettings.LocalSettings(Config.profileDir, Logger.Instance())
+    __kodi_settings = kodisettings.KodiSettings(Logger.Instance())
+
     def __init__(self):
         """Initialisation of the AddonSettings class. """
 
@@ -69,7 +73,11 @@ class AddonSettings:
         """ Clears the cached add-on settings. This will force a reload for the next INSTANCE
         of an AddonSettings class. """
 
-        AddonSettings.__settings = None
+        if AddonSettings.__local_settings is not None:
+            AddonSettings.__local_settings.clear_settings()
+
+        if AddonSettings.__kodi_settings is not None:
+            AddonSettings.__kodi_settings.clear_settings()
 
     @staticmethod
     def GetChannelSetting(channelGuid, settingId, valueForNone=None):
@@ -501,9 +509,14 @@ class AddonSettings:
 
     @staticmethod
     def SetChannelVisiblity(channel, visible):
-        settingId = AddonSettings.__CHANNEL_SETTINGS_PATTERN % (channel.guid,)
-        AddonSettings.SetSetting(settingId, "true" if visible else "false")
-        return
+        """ Sets the visibility for the give channel.
+
+        @param channel: the ChannelInfo object
+        @param visible: indication for visibility
+
+        """
+
+        AddonSettings.__local_settings.set_setting("visible", visible, channel)
 
     @staticmethod
     def ShowChannel(channel):
@@ -514,13 +527,7 @@ class AddonSettings:
 
         """
 
-        settingId = AddonSettings.__CHANNEL_SETTINGS_PATTERN % (channel.guid, )
-        setting = AddonSettings.GetSetting(settingId)
-
-        if setting == "":
-            return True
-        else:
-            return setting == "true"
+        return AddonSettings.__local_settings.get_boolean_setting("visible", channel, True)
 
     @staticmethod
     def ShowChannelSettings(channel):
