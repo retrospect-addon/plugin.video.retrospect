@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-25 19:57+0000\n"
+"POT-Creation-Date: 2018-07-25 20:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -28,10 +28,6 @@ msgstr "Keski"
 msgctxt "#30003"
 msgid "High"
 msgstr "Korkea"
-
-msgctxt "#30004"
-msgid "Maximum number of pages to load"
-msgstr "Ladattavien sivujen maksimimäärä"
 
 msgctxt "#30009"
 msgid "General"
@@ -129,10 +125,6 @@ msgctxt "#30040"
 msgid "Channels"
 msgstr "Kanavat"
 
-msgctxt "#30041"
-msgid "Available after running Retrospect for the first time."
-msgstr "Käytössä Retrospectin ensimmäisen käynnistyksen jälkeen."
-
 msgctxt "#30042"
 msgid "Enabled"
 msgstr "Käytössä"
@@ -148,18 +140,6 @@ msgstr "DRM/Geolokaatio/Maksullinen suodattimet"
 msgctxt "#30048"
 msgid "Log level"
 msgstr "Login taso"
-
-msgctxt "#30049"
-msgid "Uitzendinggemist.nl Settings"
-msgstr "Uitzendinggemist.nl Asetukset"
-
-msgctxt "#30050"
-msgid "Cache path"
-msgstr "Välimuistin polku"
-
-msgctxt "#30051"
-msgid "Cleanup cache after # days (0=Streaming Playback)"
-msgstr "Puhdista välimuisti # päivän jälkeen (0=Suoratoisto)"
 
 msgctxt "#30052"
 msgid "Send usage statistics"
@@ -533,26 +513,6 @@ msgctxt "#30510"
 msgid "New version available"
 msgstr "Uusi versio saatavilla"
 
-msgctxt "#30511"
-msgid "No updates"
-msgstr "Päivityksiä ei saatavilla"
-
-msgctxt "#30512"
-msgid "Restart Retrospect"
-msgstr "Uudelleenkäynnistä Retrospect"
-
-msgctxt "#30513"
-msgid "The update of '%s'|was complete."
-msgstr "'%s' päivitys|on valmis."
-
-msgctxt "#30514"
-msgid "Update Failed"
-msgstr "Päivitys Epäonnistui"
-
-msgctxt "#30515"
-msgid "The update of '%s' failed. Please|retry or manualy update the channel."
-msgstr "'%s' päivitys epäonnistui. Yritä|uudelleen tai päivitä kanava manuaalisesti."
-
 msgctxt "#30516"
 msgid "New Version Available."
 msgstr "Uusi Versio Saatavilla."
@@ -560,14 +520,6 @@ msgstr "Uusi Versio Saatavilla."
 msgctxt "#30517"
 msgid "A new version of %s is available: %s. Please visit the website to download it."
 msgstr "%s Uusi versio saatavilla: %s. Ole hyvä ja käy verkkosivustolla lataaksesi."
-
-msgctxt "#30518"
-msgid "There is no new version of the Retrospect|Framework."
-msgstr "Retrospectista ei ole saatavilla uutta|Versiota."
-
-msgctxt "#30519"
-msgid "There were no updates found for the|installed channels."
-msgstr "Asennetuille kanaville ei ole saatavilla|päivityksiä."
 
 msgctxt "#30520"
 msgid "Repository Warning"
@@ -593,14 +545,6 @@ msgctxt "#30525"
 msgid "The selected item does not have|any streams associated."
 msgstr "Valitussa kohteessa|ei ole liitettyjä striimejä."
 
-msgctxt "#30526"
-msgid "Proxyserver '%s' is working."
-msgstr "Proxypalvelin '%s' toimii."
-
-msgctxt "#30527"
-msgid "Proxyserver '%s' is not working as expected or is offline."
-msgstr "Proxypalvelin '%s' ei toimi tai ole tavoitettavissa."
-
 msgctxt "#30528"
 msgid "Add-on Settings"
 msgstr "Lisäosan Asetukset"
@@ -612,34 +556,6 @@ msgstr "Päivitä lista"
 msgctxt "#30530"
 msgid "Check for Retrospect updates"
 msgstr "Tarkista Retrospectin päivitykset"
-
-msgctxt "#30531"
-msgid "Initializing"
-msgstr "Valmistelee"
-
-msgctxt "#30532"
-msgid "Importing common libraries"
-msgstr "Tuodaan yleisiä kirjastoja"
-
-msgctxt "#30533"
-msgid "Determining SkinFolder"
-msgstr "Määritetään Skinin Kansio"
-
-msgctxt "#30534"
-msgid "Checking for updates"
-msgstr "Tarkastetaan päivityksiä"
-
-msgctxt "#30535"
-msgid "Verifying the Repository"
-msgstr "Tarkastetaan Ohjelmakirjasto"
-
-msgctxt "#30536"
-msgid "Checking for Cache folder"
-msgstr "Tarkastetaan Välimuistikansio"
-
-msgctxt "#30537"
-msgid "Cleaning up Cachefolder"
-msgstr "Puhdistetaan Välimuistikansio"
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-25 19:57+0000\n"
+"POT-Creation-Date: 2018-07-25 20:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -28,10 +28,6 @@ msgstr "Mellan"
 msgctxt "#30003"
 msgid "High"
 msgstr "Hög"
-
-msgctxt "#30004"
-msgid "Maximum number of pages to load"
-msgstr "Maximalt antal sidor att ladda"
 
 msgctxt "#30009"
 msgid "General"
@@ -129,10 +125,6 @@ msgctxt "#30040"
 msgid "Channels"
 msgstr "Kanaler"
 
-msgctxt "#30041"
-msgid "Available after running Retrospect for the first time."
-msgstr "Tillgängligt efter att du startat Retrospect för första gången."
-
 msgctxt "#30042"
 msgid "Enabled"
 msgstr "Aktiverad"
@@ -148,18 +140,6 @@ msgstr "DRM-/GEO-/Premium-filter"
 msgctxt "#30048"
 msgid "Log level"
 msgstr "Loggnivå"
-
-msgctxt "#30049"
-msgid "Uitzendinggemist.nl Settings"
-msgstr "Uitzendinggemist.nl-inställningar"
-
-msgctxt "#30050"
-msgid "Cache path"
-msgstr "Sökväg för buffert"
-
-msgctxt "#30051"
-msgid "Cleanup cache after # days (0=Streaming Playback)"
-msgstr "Töm bufferten efter # dagar (0=ingen buffert)"
 
 msgctxt "#30052"
 msgid "Send usage statistics"
@@ -533,26 +513,6 @@ msgctxt "#30510"
 msgid "New version available"
 msgstr "Ny version tillgänglig"
 
-msgctxt "#30511"
-msgid "No updates"
-msgstr "Inga uppdateringar"
-
-msgctxt "#30512"
-msgid "Restart Retrospect"
-msgstr "Starta om Retrospect"
-
-msgctxt "#30513"
-msgid "The update of '%s'|was complete."
-msgstr "Uppdateringen av '%s'|är klar."
-
-msgctxt "#30514"
-msgid "Update Failed"
-msgstr "Uppdateringen misslyckades."
-
-msgctxt "#30515"
-msgid "The update of '%s' failed. Please|retry or manualy update the channel."
-msgstr "Uppdateringen av '%s' misslyckades.|Försök igen eller gör en manuell uppdatering."
-
 msgctxt "#30516"
 msgid "New Version Available."
 msgstr "Ny version tillgänglig."
@@ -560,14 +520,6 @@ msgstr "Ny version tillgänglig."
 msgctxt "#30517"
 msgid "A new version of %s is available: %s. Please visit the website to download it."
 msgstr "En ny version av %s är tillgänglig: %s. Besök hemsidan för att ladda ner version."
-
-msgctxt "#30518"
-msgid "There is no new version of the Retrospect|Framework."
-msgstr "Det finns ingen ny version av Retrospect Framework."
-
-msgctxt "#30519"
-msgid "There were no updates found for the|installed channels."
-msgstr "Det fanns inga uppdateringar för de|installerade kanalerna."
 
 msgctxt "#30520"
 msgid "Repository Warning"
@@ -593,14 +545,6 @@ msgctxt "#30525"
 msgid "The selected item does not have|any streams associated."
 msgstr "Det valda objektet har ingen video att spela upp."
 
-msgctxt "#30526"
-msgid "Proxyserver '%s' is working."
-msgstr "Proxyn '%s'|fungerar."
-
-msgctxt "#30527"
-msgid "Proxyserver '%s' is not working as expected or is offline."
-msgstr "Proxyn '%s'|fungerar inte som förväntat eller så är den|bortkopplad."
-
 msgctxt "#30528"
 msgid "Add-on Settings"
 msgstr "Tilläggsinställningar"
@@ -612,34 +556,6 @@ msgstr "Uppdatera listan"
 msgctxt "#30530"
 msgid "Check for Retrospect updates"
 msgstr "Uppdatera Retrospect"
-
-msgctxt "#30531"
-msgid "Initializing"
-msgstr "Initialiserar"
-
-msgctxt "#30532"
-msgid "Importing common libraries"
-msgstr "Importerar gemensamma bibliotek"
-
-msgctxt "#30533"
-msgid "Determining SkinFolder"
-msgstr "Bestämmer skalmapp"
-
-msgctxt "#30534"
-msgid "Checking for updates"
-msgstr "Letar efter uppdateringar"
-
-msgctxt "#30535"
-msgid "Verifying the Repository"
-msgstr "Verifierar tilläggsförråd"
-
-msgctxt "#30536"
-msgid "Checking for Cache folder"
-msgstr "Letar efter buffertmapp"
-
-msgctxt "#30537"
-msgid "Cleaning up Cachefolder"
-msgstr "Rensar buffertmappen"
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."

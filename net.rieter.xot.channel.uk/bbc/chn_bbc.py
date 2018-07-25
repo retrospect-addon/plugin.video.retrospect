@@ -36,9 +36,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.liveUrl = None
 
-        # set context menu items
-        # self.contextMenuItems.append(contextmenu.ContextMenuItem("Test Proxy Server", "CtMnTestProxy"))
-
         # setup the urls
         self.baseUrl = "http://www.bbc.co.uk/"
         self.swfUrl = "http://emp.bbci.co.uk/emp/SMPf/1.13.13/StandardMediaPlayerChromelessFlash.swf"
@@ -89,27 +86,6 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
-
-    # noinspection PyUnusedLocal
-    @LockWithDialog(logger=Logger.Instance())
-    def CtMnTestProxy(self, item):  # :@UnusedVariable
-        """ Checks if the proxy is OK"""
-
-        if not self.proxy:
-            message = "Proxy not configured: %s" % (self.proxy,)
-        else:
-            url = Config.UpdateUrl + "proxy"
-            data = UriHandler.Open(url, proxy=self.proxy)
-            # Logger.Trace(data)
-            if data == "1":
-                message = LanguageHelper.GetLocalizedString(LanguageHelper.ProxyOkId) % (self.proxy,)
-            else:
-                message = LanguageHelper.GetLocalizedString(LanguageHelper.ProxyNokId) % (self.proxy,)
-
-        Logger.Debug(message)
-
-        XbmcWrapper.ShowDialog("", message)
-        pass
 
     def CreateEpisodeItem(self, resultSet):
         """Creates a new MediaItem for an episode

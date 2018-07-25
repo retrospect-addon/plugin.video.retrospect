@@ -21,23 +21,14 @@ class LanguageHelper:
     ChannelsId = 30507
     NoFavsId = 30508
     NoPlaybackId = 30509
-    NoUpdatesId = 30511
-    RestartId = 30512
-    UpdateCompleteId = 30513
-    UpdateFailedId = 30514
-    UpdateFailed2Id = 30515
     NewVersionId = 30516
     NewVersion2Id = 30517
-    NewFrameworkId = 30518
-    NoUpdatedChannelsId = 30519
     RepoWarningId = 30520
     RepoWarningDetailId = 30521
     ChannelMessageId = 30522
     ErrorId = 30523
     NoVideosId = 30524
     NoStreamsId = 30525
-    ProxyOkId = 30526
-    ProxyNokId = 30527
     ProxyChangeConfirmTitle = 30038
     ProxyChangeConfirm = 30039
     AddOnSettingsId = 30528
@@ -46,13 +37,13 @@ class LanguageHelper:
     BitrateSelection = 30020
 
     ChannelSelection = 30507
-    InitializingId = 30531
-    ImportCommonId = 30532
-    DeterminSkinId = 30533
-    CheckForUpdatesId = 30534
-    RepoVerificationId = 30535
-    CacheCheckId = 30536
-    CacheCleanupId = 30537
+    # InitializingId = 30531
+    # ImportCommonId = 30532
+    # DeterminSkinId = 30533
+    # CheckForUpdatesId = 30534
+    # RepoVerificationId = 30535
+    # CacheCheckId = 30536
+    # CacheCleanupId = 30537
 
     NoLiveStreamId = 30538
     NoLiveStreamTitleId = 30539
