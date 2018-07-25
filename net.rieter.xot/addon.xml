@@ -34,6 +34,16 @@
                 <visible>ListItem.Property(RetrospectChannel)</visible>
             </item>
 
+            <item library="resources\menus\menu_cloak.py">
+                <label>30563</label>
+                <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)+!ListItem.Property(RetrospectFavorite)</visible>
+            </item>
+
+            <item library="resources\menus\menu_uncloak.py">
+                <label>30564</label>
+                <visible>ListItem.Property(RetrospectCloaked)</visible>
+            </item>
+
             <!-- Favorites menu -->
             <menu>
                 <label>30575</label>
@@ -59,27 +69,12 @@
                 </item>
             </menu>
 
-            <!-- Cloaking menu -->
-            <menu>
-                <label>30573</label>
-
-                <item library="resources\menus\menu_cloak.py">
-                    <label>30563</label>
-                    <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)+!ListItem.Property(RetrospectFavorite)</visible>
-                </item>
-
-                <item library="resources\menus\menu_uncloak.py">
-                    <label>30564</label>
-                    <visible>ListItem.Property(RetrospectCloaked)</visible>
-                </item>
-            </menu>
-
             <!-- Retrospect Menu -->
             <menu>
                 <label>30572</label>
 
                 <item library="resources\menus\menu_bitrate.py">
-                    <label>30020</label>
+                    <label>30577</label>
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
                 </item>
 
