@@ -206,13 +206,14 @@
     <string id="30568">Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">Ignore SSL verification errors (Security Risk!)</string>
     <string id="30570">Hide channel initialisation messages</string>
-    <string id="30571">Use Kodi Adaptive Stream Add-on when possible</string>
+    <string id="30571">Use Kodi Adaptive Stream add-on when possible</string>
     <string id="30572">Retrospect Settings &#187;</string>
     <string id="30573">(Un-)Hide item &#187;</string>
     <string id="30574">Hide Channel</string>
     <string id="30575">Retrospect Favourites &#187;</string>
     <string id="30576">Select Countries</string>
     <string id="30577">Channel Bitrate &#187;</string>
+    <string id="30578">Adaptive stream add-on settings</string>
 
     <string id="30590">Set a new Retrospect PIN</string>
     <string id="30591">No Retrospect PIN specified</string>
