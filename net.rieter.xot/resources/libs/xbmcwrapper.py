@@ -200,19 +200,15 @@ class XbmcWrapper:
         if logger:
             logger.Debug("Showing notification: %s - %s", notificationTitle, notificationContent)
 
-        command = '{"id": 1,"jsonrpc":"2.0","method":"GUI.ShowNotification","params":{"title":"%s","message":"%s", "image":"%s", "displaytime": %s}}' % (notificationTitle, notificationContent, notificationIcon, displayTime)
         try:
-            if logger:
-                logger.Trace("Sending command: %s", command)
-            response = xbmc.executeJSONRPC(command)
-            if logger:
-                logger.Trace("Response: %s", response)
-            return response
+            xbmcgui.Dialog().notification(
+                notificationTitle, notificationContent, icon=notificationIcon, time=displayTime)
+            return
         except:
             if fallback:
                 XbmcWrapper.ShowDialog(title or "", lines or "")
             # no reason to worry if this does not work on older XBMC's
-            return False
+            return
 
     @staticmethod
     def ShowSelectionDialog(title, options):
