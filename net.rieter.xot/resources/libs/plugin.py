@@ -16,15 +16,9 @@ import xbmcplugin
 import xbmc
 import xbmcgui
 
-#===============================================================================
-# Import XOT stuff
-#===============================================================================
 try:
     import envcontroller
 
-    #===========================================================================
-    # Make global object available
-    #===========================================================================
     from logger import Logger
     from addonsettings import AddonSettings
     from locker import LockWithDialog
@@ -43,8 +37,9 @@ try:
     from helpers.sessionhelper import SessionHelper
     from textures import TextureHandler
     from paramparser import ParameterParser
-    # from streams.youtube import YouTube
     from pickler import Pickler
+    from updater import Updater
+    from urihandler import UriHandler
 except:
     Logger.Critical("Error initializing %s", Config.appName, exc_info=True)
 
@@ -101,9 +96,11 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
-            if envCtrl.IsPlatform(Environments.Xbox):
-                from updater import Updater
-                Updater().AutoUpdate()
+            up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance())
+            if up.IsNewVersionAvailable():
+                notification = LanguageHelper.GetLocalizedString(LanguageHelper.NewVersion2Id)
+                notification = notification % (Config.appName, up.onlineVersion)
+                XbmcWrapper.ShowNotification(None, lines=notification, displayTime=20000)
 
             # check if the repository is available -> We don't need this now.
             # envCtrl.IsInstallMethodValid(Config)

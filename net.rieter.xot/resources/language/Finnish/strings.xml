@@ -152,7 +152,7 @@
     <string id="30514">Päivitys Epäonnistui</string>
     <string id="30515">'%s' päivitys epäonnistui. Yritä|uudelleen tai päivitä kanava manuaalisesti.</string>
     <string id="30516">Uusi Versio Saatavilla.</string>
-    <string id="30517">%s Uusi versio saatavilla.|Ole hyvä ja käy verkkosivustolla lataaksesi|versio %s.</string>
+    <string id="30517">%s Uusi versio saatavilla: %s. Ole hyvä ja käy verkkosivustolla lataaksesi.</string>
     <string id="30518">Retrospectista ei ole saatavilla uutta|Versiota.</string>
     <string id="30519">Asennetuille kanaville ei ole saatavilla|päivityksiä.</string>
     <string id="30520">Ohjelmavaraston Varoitus</string>

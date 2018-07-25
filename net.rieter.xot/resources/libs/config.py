@@ -55,7 +55,7 @@ class Config:
     webTimeOut = 30                                          # : Maximum wait time for HTTP requests.
 
     logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
-    logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin version
+    logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin
 
     retroDb = os.path.join(profileDir, "retrospect.db")     # : Filename of the XOT DB file
     googleAnalyticsId = "UA-3902785-11"                     # : Google Analytics ID for statistics
@@ -65,15 +65,12 @@ class Config:
     __addonXmlcontents = xml.dom.minidom.parse(__addonXmlPath)
     for addonentry in __addonXmlcontents.getElementsByTagName("addon"):
         addonId = str(addonentry.getAttribute("id"))         # : The ID the addon has in XBMC (from addon.xml)
-        __version = addonentry.getAttribute("version")       # : The Version of the addon (from addon.xml)
+        __version = addonentry.getAttribute("version")       # : The Version of the addon (from addon.xml) in text
         version = Version(version=__version)                 # : The Version of the addon (from addon.xml)
         #noinspection PyRedeclaration
         appName = str(addonentry.getAttribute("name"))       # : The name from the addon (from addon.xml)
 
-    # The URL that is called to check for updates. Should return "" if no update is available
-    UpdateUrl = "http://www.rieter.net" \
-                "/net.rieter.xot.repository" \
-                "/addons.xml.md5"
+    UpdateUrl = "https://api.bitbucket.org/2.0/repositories/basrieter/xbmc-online-tv/downloads/"
 
     TextureMode = "Cached"                                   # : The mode for the textures: Local, Remote or Cached
     TextureUrl = "http://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location

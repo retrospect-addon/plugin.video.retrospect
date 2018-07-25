@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-25 12:09+0000\n"
+"POT-Creation-Date: 2018-07-25 19:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -349,7 +349,11 @@ msgctxt "#30097"
 msgid "Local IP"
 msgstr ""
 
-#empty strings from id 30098 to 30099
+msgctxt "#30098"
+msgid "Logging & Diagnostics"
+msgstr ""
+
+#empty string with id 30099
 
 msgctxt "#30100"
 msgid "None"
@@ -608,7 +612,7 @@ msgid "New Version Available."
 msgstr ""
 
 msgctxt "#30517"
-msgid "A new version of %s is available.|Please visit the website to download|version %s."
+msgid "A new version of %s is available: %s. Please visit the website to download it."
 msgstr ""
 
 msgctxt "#30518"

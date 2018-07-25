@@ -152,7 +152,7 @@
     <string id="30514">Oppdatering mislyktes</string>
     <string id="30515">Oppdateringen av '% s' mislyktes. Vennligst|prøv på nytt eller manuelt oppdater kanalen.</string>
     <string id="30516">Ny versjon tilgjengelig.</string>
-    <string id="30517">En ny versjon av %s is available.|Vennligst besøk nettstedet for å laste ned|versjon %s.</string>
+    <string id="30517">En ny versjon av %s is available: %s. Vennligst besøk nettstedet for å laste ned denne versjonen.</string>
     <string id="30518">Det er ingen ny versjon av Retrospect|Framework.</string>
     <string id="30519">Det var ingen oppdateringer funnet for installerte kanaler.</string>
     <string id="30520">Pakkelager advarsel</string>

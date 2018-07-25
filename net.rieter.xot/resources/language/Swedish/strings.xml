@@ -152,7 +152,7 @@
     <string id="30514">Uppdateringen misslyckades.</string>
     <string id="30515">Uppdateringen av '%s' misslyckades.|Försök igen eller gör en manuell uppdatering.</string>
     <string id="30516">Ny version tillgänglig.</string>
-    <string id="30517">En ny version av %s|är tillgänglig. Besök hemsidan för att ladda ner|version %s.</string>
+    <string id="30517">En ny version av %s är tillgänglig: %s. Besök hemsidan för att ladda ner version.</string>
     <string id="30518">Det finns ingen ny version av Retrospect Framework.</string>
     <string id="30519">Det fanns inga uppdateringar för de|installerade kanalerna.</string>
     <string id="30520">Tilläggsförråds-varning</string>

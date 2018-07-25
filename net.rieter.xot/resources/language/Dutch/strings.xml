@@ -79,6 +79,7 @@
     <string id="30095">Verborgen items weergeven</string>
     <string id="30096">Land</string>
     <string id="30097">Lokaal IP</string>
+    <string id="30098">Logbestanden &amp; Diagnostiek</string>
 
     <string id="30100">Geen</string>
     <string id="30101">Regionaal</string>
@@ -152,7 +153,7 @@
     <string id="30514">Updaten mislukt.</string>
     <string id="30515">Het updaten van '%s' is mislukt. Probeer|het nog eens of update handmatig.</string>
     <string id="30516">Nieuwe versie beschikbaar.</string>
-    <string id="30517">Een nieuwe versie van %s is beschikbaar.|Bezoek de website om versie %s te downloaden.</string>
+    <string id="30517">Een nieuwe versie van %s is beschikbaar: %s. Bezoek de website om deze te downloaden.</string>
     <string id="30518">Er is geen nieuwe versie van het Retrospect Framework|beschikbaar.</string>
     <string id="30519">Er zijn geen updates voor de geinstalleerde|kanalen gevonden.</string>
     <string id="30520">Repository waarschuwing</string>

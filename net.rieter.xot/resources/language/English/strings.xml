@@ -79,6 +79,7 @@
     <string id="30095">Show Hidden Items</string>
     <string id="30096">Country</string>
     <string id="30097">Local IP</string>
+    <string id="30098">Logging &amp; Diagnostics</string>
 
     <string id="30100">None</string>
     <string id="30101">Regional</string>
@@ -152,7 +153,7 @@
     <string id="30514">Update Failed</string>
     <string id="30515">The update of '%s' failed. Please|retry or manualy update the channel.</string>
     <string id="30516">New Version Available.</string>
-    <string id="30517">A new version of %s is available.|Please visit the website to download|version %s.</string>
+    <string id="30517">A new version of %s is available: %s. Please visit the website to download it.</string>
     <string id="30518">There is no new version of the Retrospect|Framework.</string>
     <string id="30519">There were no updates found for the|installed channels.</string>
     <string id="30520">Repository Warning</string>
