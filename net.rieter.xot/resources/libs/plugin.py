@@ -96,7 +96,7 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
-            up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance())
+            up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.Instance())
             if up.IsNewVersionAvailable():
                 notification = LanguageHelper.GetLocalizedString(LanguageHelper.NewVersion2Id)
                 notification = notification % (Config.appName, up.onlineVersion)

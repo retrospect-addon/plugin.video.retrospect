@@ -13,7 +13,7 @@ from version import Version
 
 
 class Updater:
-    def __init__(self, updateUrl, currentVersion, uriHandler):
+    def __init__(self, updateUrl, currentVersion, uriHandler, logger):
         """ Initiates a Updater class """
 
         if not updateUrl:
@@ -27,11 +27,16 @@ class Updater:
         self.currentVersion = currentVersion
         self.onlineVersion = None
 
+        self.__logger = logger
         self.__uriHandler = uriHandler
 
     def IsNewVersionAvailable(self):
-        self.onlineVersion = self.__getOnlineVersion()
-        return self.currentVersion < self.onlineVersion
+        try:
+            self.onlineVersion = self.__getOnlineVersion()
+            return self.currentVersion < self.onlineVersion
+        except:
+            self.__logger.Error("Error checking for updates", exc_info=True)
+            return False
 
     def __getOnlineVersion(self):
         data = self.__uriHandler.Open(self.updateUrl)
