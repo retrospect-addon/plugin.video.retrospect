@@ -10,6 +10,7 @@
 import os
 import uuid
 import shutil
+import threading
 import xbmc
 
 #===============================================================================
@@ -23,8 +24,14 @@ from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as ref
 from settings import localsettings, kodisettings
 
 
+KODI = "kodi"
+LOCAL = "local"
+
+
 class AddonSettings(object):
     """ Static Class for retrieving XBMC Addon settings """
+
+    __instance = None
 
     __NoProxy = True
 
@@ -60,8 +67,32 @@ class AddonSettings(object):
     __FOLDERS_AS_VIDEOS = "folders_as_video"
     __SHOW_CLOAKED_ITEMS = "show_cloaked_items"
 
-    __local_settings = localsettings.LocalSettings(Config.profileDir, Logger.Instance())
-    __kodi_settings = kodisettings.KodiSettings(Logger.Instance())
+    #region Setting-stores properties and intialization
+    __setting_stores = {}
+    __settings_lock = threading.Lock()
+
+    @staticmethod
+    def __store(location):
+        store = AddonSettings.__setting_stores.get(location, None)
+        if store is not None:
+            return store
+
+        with AddonSettings.__settings_lock:
+            # Just a double check in case there was a race condition??
+            store = AddonSettings.__setting_stores.get(location, None)
+            if store is not None:
+                return store
+
+            if location == KODI:
+                store = kodisettings.KodiSettings(Logger.Instance())
+            elif location == LOCAL:
+                store = localsettings.LocalSettings(Config.profileDir, Logger.Instance())
+            else:
+                raise IndexError("Cannot find Setting store type: {0}".format(location))
+
+            AddonSettings.__setting_stores[location] = store
+            return store
+    #endregion
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -73,11 +104,10 @@ class AddonSettings(object):
         """ Clears the cached add-on settings. This will force a reload for the next INSTANCE
         of an AddonSettings class. """
 
-        if AddonSettings.__local_settings is not None:
-            AddonSettings.__local_settings.clear_settings()
-
-        if AddonSettings.__kodi_settings is not None:
-            AddonSettings.__kodi_settings.clear_settings()
+        for storeType in (KODI, LOCAL):
+            store = AddonSettings.__setting_stores.pop(storeType, None)
+            if store:
+                del store
 
     @staticmethod
     def GetChannelSetting(channelGuid, settingId, valueForNone=None):
@@ -516,7 +546,7 @@ class AddonSettings(object):
 
         """
 
-        AddonSettings.__local_settings.set_setting("visible", visible, channel)
+        AddonSettings.__store(LOCAL).set_setting("visible", visible, channel)
 
     @staticmethod
     def ShowChannel(channel):
@@ -527,7 +557,7 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.__local_settings.get_boolean_setting("visible", channel, True)
+        return AddonSettings.__store(LOCAL).get_boolean_setting("visible", channel, True)
 
     @staticmethod
     def ShowChannelSettings(channel):

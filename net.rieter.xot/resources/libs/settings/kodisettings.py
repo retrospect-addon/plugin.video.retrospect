@@ -8,26 +8,46 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+import xbmcaddon
+
 import settingsstore
 
 
 class KodiSettings(settingsstore.SettingsStore):
-    __settings = None
-
-    def __init__(self, logger):
+    def __init__(self, logger, addon_id=None):
         super(KodiSettings, self).__init__(logger)
+
+        self.__channel_setting_format = "channel_{0}_{1}"
+        self.__addon_settings = xbmcaddon.Addon() if addon_id is None else xbmcaddon.Addon(addon_id)
 
     def set_setting(self, setting_id, setting_value, channel=None):
         pass
 
-    def get_boolean_setting(self, setting_id, channel=None, default=None):
-        pass
+    def get_boolean_setting(self, setting_id, channel=None, default=True):
+        bool_value = self.get_setting(setting_id, channel)
+        if bool_value is None:
+            return default
+
+        return bool_value == "true"
 
     def get_integer_setting(self, setting_id, channel=None, default=None):
         pass
 
     def get_setting(self, setting_id, channel=None, default=None):
-        pass
+        if channel:
+            channel_setting_id = self.__channel_setting_format.format(channel.guid, setting_id)
+            setting_value = self.__addon_settings.getSetting(channel_setting_id)
+            self._logger.Trace("Kodi Channel Setting '%s.%s'='%s'",
+                               channel.id, setting_id, setting_value)
+        else:
+            setting_value = self.__addon_settings.getSetting(setting_id)
+            self._logger.Trace("Kodi Setting '%s'='%s'", setting_id, setting_value)
+
+        return setting_value or default
 
     def clear_settings(self):
         KodiSettings.__settings = None
+
+    def __del__(self):
+        self.__addon_settings = None
+        self._logger.Debug("Removed Kodi settings-store")

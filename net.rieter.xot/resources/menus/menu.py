@@ -208,8 +208,9 @@ class Menu(ParameterParser):
             Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
 
         # make sure we leave no references behind
-        Logger.Instance().CloseLog()
         AddonSettings.ClearCachedAddonSettingsObject()
+        # close the log to prevent locking on next call
+        Logger.Instance().CloseLog()
         return False
 
     def SetBitrate(self):

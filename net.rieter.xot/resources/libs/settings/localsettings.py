@@ -12,7 +12,6 @@ import os
 import io
 import json
 import shutil
-import time
 
 import settingsstore
 
@@ -61,13 +60,22 @@ class LocalSettings(settingsstore.SettingsStore):
 
     def get_setting(self, setting_id, channel=None, default=None):
         if channel is None:
-            return LocalSettings.__settings["settings"].get(setting_id, default)
+            setting_value = LocalSettings.__settings["settings"].get(setting_id, default)
+            self._logger.Trace("Local Setting '%s'='%s'", setting_id, setting_value)
+        else:
+            channel_settings = LocalSettings.__settings["channels"].get(channel.id, {})
+            setting_value = channel_settings.get(setting_id, default)
+            self._logger.Trace("Local Channel Setting '%s.%s'='%s'",
+                               channel.id, setting_id, setting_value)
 
-        channel_settings = LocalSettings.__settings["channels"].get(channel.id, {})
-        return channel_settings.get(setting_id, default)
+        return setting_value
 
     def clear_settings(self):
         LocalSettings.__settings = None
+
+    def __del__(self):
+        LocalSettings.__settings = None
+        self._logger.Debug("Removed Local settings-store")
 
     def __load_settings(self):
         if not os.path.isfile(self.local_settings_file):
