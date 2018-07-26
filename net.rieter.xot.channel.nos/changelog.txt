@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO regex issue (Fixes #975)
+* Fixed: NPO live channels (Fixes #978)
 
 [I]Previous Changes[/I]
+* Fixed: NPO regex issue (Fixes #975)
 * Fixed: npostart.nl url parameters are case sensitive (Fixes #971)
 * Fixed: renamed npo.nl -> npostart.nl (Fixes #968)
 * Fixed: NPO Live streams
