@@ -27,7 +27,7 @@ class KodiSettings(settingsstore.SettingsStore):
             self._logger.Trace("Kodi Channel Setting Updated: %s.%s(%s)='%s'",
                                channel.id, setting_id, channel_setting_id, setting_value)
         else:
-            self.__addon_settings.setSetting(setting_value, str(setting_value))
+            self.__addon_settings.setSetting(setting_id, str(setting_value))
             self._logger.Trace("Kodi Setting Updated: %s='%s'", setting_id, setting_value)
 
         return setting_value
