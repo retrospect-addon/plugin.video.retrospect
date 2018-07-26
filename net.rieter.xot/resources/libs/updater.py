@@ -33,16 +33,17 @@ class Updater:
     def IsNewVersionAvailable(self):
         try:
             self.onlineVersion = self.__getOnlineVersion()
+            self.__logger.Debug("Found online version: %s", self.onlineVersion)
             return self.currentVersion < self.onlineVersion
         except:
             self.__logger.Error("Error checking for updates", exc_info=True)
             return False
 
     def __getOnlineVersion(self):
-        data = self.__uriHandler.Open(self.updateUrl)
+        data = self.__uriHandler.Open(self.updateUrl, noCache=True)
         jsonData = JsonHelper(data)
         onlineDownload = jsonData.GetValue("values", 0)
-        onlineParts = onlineDownload['name'].split("-")
+        onlineParts = onlineDownload['name'].rsplit(".", 1)[0].split("-")
         if len(onlineParts) < 2:
             return None
 

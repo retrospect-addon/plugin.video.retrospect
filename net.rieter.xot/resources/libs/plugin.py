@@ -98,6 +98,7 @@ class Plugin(ParameterParser):
             # check for updates
             up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.Instance())
             if up.IsNewVersionAvailable():
+                Logger.Info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.GetLocalizedString(LanguageHelper.NewVersion2Id)
                 notification = notification % (Config.appName, up.onlineVersion)
                 XbmcWrapper.ShowNotification(None, lines=notification, displayTime=20000)
