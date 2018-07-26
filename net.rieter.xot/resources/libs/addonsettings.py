@@ -53,7 +53,6 @@ class AddonSettings(object):
     __GEO_REGION = "geo_region"
     __LOG_LEVEL = "log_level"
     __SEND_STATISTICS = "send_statistics"
-    __SHOW_CATEGORIES = "show_categories"
     __USER_AGENT_SETTING = "user_agent"
     __MD5_HASH_VALUE = "md_hash_value"
     __HIDE_FIRST_TIME_MESSAGE = "hide_first_time_message"
@@ -65,7 +64,6 @@ class AddonSettings(object):
     __HIDE_TYPES = "hide_types"
     __HIDE_FANART = "hide_fanart"
     __FOLDERS_AS_VIDEOS = "folders_as_video"
-    __SHOW_CLOAKED_ITEMS = "show_cloaked_items"
 
     #region Setting-stores properties and intialization
     __setting_stores = {}
@@ -175,13 +173,14 @@ class AddonSettings(object):
     @staticmethod
     def ShowCloakedItems():
         """ Should we show cloaked items? """
-        return AddonSettings.GetBooleanSetting(AddonSettings.__SHOW_CLOAKED_ITEMS)
+
+        return AddonSettings.__store(KODI).get_boolean_setting("show_cloaked_items")
 
     @staticmethod
     def ShowCategories():
         """ Returns the localized category names. """
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__SHOW_CATEGORIES)
+        return AddonSettings.__store(KODI).get_boolean_setting("show_categories")
 
     @staticmethod
     def ShowDrmPaidWarning():
