@@ -30,3 +30,6 @@ class SettingsStore(object):
 
     def clear_settings(self):
         pass
+
+    def get_localized_string(self, string_id):
+        pass

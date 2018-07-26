@@ -1090,7 +1090,7 @@ class Channel:
 
         """
 
-        setting = AddonSettings.GetChannelSetting(self.guid, settingId, valueForNone)
+        setting = AddonSettings.GetChannelSetting(self, settingId, valueForNone)
         return setting
 
     # noinspection PyPropertyAccess

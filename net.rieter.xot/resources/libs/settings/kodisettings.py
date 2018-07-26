@@ -21,7 +21,16 @@ class KodiSettings(settingsstore.SettingsStore):
         self.__addon_settings = xbmcaddon.Addon() if addon_id is None else xbmcaddon.Addon(addon_id)
 
     def set_setting(self, setting_id, setting_value, channel=None):
-        pass
+        if channel:
+            channel_setting_id = self.__channel_setting_format.format(channel.guid, setting_id)
+            self.__addon_settings.setSetting(channel_setting_id, str(setting_value))
+            self._logger.Trace("Kodi Channel Setting Updated: '%s.%s(%s)'='%s'",
+                               channel.id, setting_id, channel_setting_id, setting_value)
+        else:
+            self.__addon_settings.setSetting(setting_value, str(setting_value))
+            self._logger.Trace("Kodi Setting Updated: '%s'='%s'", setting_id, setting_value)
+
+        return setting_value
 
     def get_boolean_setting(self, setting_id, channel=None, default=True):
         bool_value = self.get_setting(setting_id, channel)
@@ -31,23 +40,31 @@ class KodiSettings(settingsstore.SettingsStore):
         return bool_value == "true"
 
     def get_integer_setting(self, setting_id, channel=None, default=None):
-        pass
+        int_value = self.get_setting(setting_id, channel)
+        if int_value is None:
+            return default
+
+        return int(int_value)
 
     def get_setting(self, setting_id, channel=None, default=None):
         if channel:
             channel_setting_id = self.__channel_setting_format.format(channel.guid, setting_id)
             setting_value = self.__addon_settings.getSetting(channel_setting_id)
-            self._logger.Trace("Kodi Channel Setting '%s.%s'='%s'",
-                               channel.id, setting_id, setting_value)
+            self._logger.Trace("Kodi Channel Setting: '%s.%s(%s)'='%s'",
+                               channel.id, setting_id, channel_setting_id, setting_value)
         else:
             setting_value = self.__addon_settings.getSetting(setting_id)
-            self._logger.Trace("Kodi Setting '%s'='%s'", setting_id, setting_value)
+            self._logger.Trace("Kodi Setting: '%s'='%s'", setting_id, setting_value)
 
         return setting_value or default
+
+    def get_localized_string(self, string_id):
+        return self.__addon_settings.getLocalizedString(string_id)
 
     def clear_settings(self):
         KodiSettings.__settings = None
 
     def __del__(self):
+        del self.__addon_settings
         self.__addon_settings = None
         self._logger.Debug("Removed Kodi settings-store")

@@ -37,10 +37,10 @@ class LocalSettings(settingsstore.SettingsStore):
 
     def set_setting(self, setting_id, setting_value, channel=None):
         if channel is None:
-            self._logger.Debug("Setting Local Setting '%s': '%s'", setting_id, setting_value)
+            self._logger.Debug("Local Setting  Updated: '%s': '%s'", setting_id, setting_value)
             LocalSettings.__settings[LocalSettings.__SETTINGS_KEY][setting_id] = setting_value
         else:
-            self._logger.Debug("Setting Local Setting '%s:%s': '%s'",
+            self._logger.Debug("Local Channel Setting Updated: '%s:%s': '%s'",
                                channel.id, setting_id, setting_value)
 
             if channel.id not in LocalSettings.__settings[LocalSettings.__CHANNELS_KEY]:
@@ -51,6 +51,7 @@ class LocalSettings(settingsstore.SettingsStore):
 
         # store the file
         self.__store_settings()
+        return setting_value
 
     def get_boolean_setting(self, setting_id, channel=None, default=None):
         return self.get_setting(setting_id, channel, default)
@@ -61,19 +62,23 @@ class LocalSettings(settingsstore.SettingsStore):
     def get_setting(self, setting_id, channel=None, default=None):
         if channel is None:
             setting_value = LocalSettings.__settings["settings"].get(setting_id, default)
-            self._logger.Trace("Local Setting '%s'='%s'", setting_id, setting_value)
+            self._logger.Trace("Local Setting: '%s'='%s'", setting_id, setting_value)
         else:
             channel_settings = LocalSettings.__settings["channels"].get(channel.id, {})
             setting_value = channel_settings.get(setting_id, default)
-            self._logger.Trace("Local Channel Setting '%s.%s'='%s'",
+            self._logger.Trace("Local Channel Setting: '%s.%s'='%s'",
                                channel.id, setting_id, setting_value)
 
-        return setting_value
+        return setting_value or default
 
     def clear_settings(self):
         LocalSettings.__settings = None
 
+    def get_localized_string(self, string_id):
+        raise NotImplementedError("No localization for Local Settings")
+
     def __del__(self):
+        del LocalSettings.__settings
         LocalSettings.__settings = None
         self._logger.Debug("Removed Local settings-store")
 

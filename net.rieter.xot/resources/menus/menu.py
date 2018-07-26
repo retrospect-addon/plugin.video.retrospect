@@ -219,7 +219,7 @@ class Menu(ParameterParser):
 
         # taken from the settings.xml
         bitrateOptions = "Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000".split("|")
-        currentBitrate = AddonSettings.GetChannelSetting(self.channelObject.guid, "bitrate")
+        currentBitrate = AddonSettings.GetChannelSetting(self.channelObject, "bitrate")
         Logger.Debug("Found bitrate for %s: %s", self.channelObject, currentBitrate)
         currentBitrateIndex = 0 if currentBitrate not in bitrateOptions \
             else bitrateOptions.index(currentBitrate)
@@ -236,6 +236,6 @@ class Menu(ParameterParser):
                     bitrateOptions[currentBitrateIndex],
                     bitrateOptions[selectedBitrate])
 
-        AddonSettings.SetChannelSetting(self.channelObject.guid, "bitrate",
+        AddonSettings.SetChannelSetting(self.channelObject, "bitrate",
                                         bitrateOptions[selectedBitrate])
         return

@@ -19,7 +19,7 @@ import xbmc
 from logger import Logger                               # this has not further references
 from proxyinfo import ProxyInfo                         # this has not further references
 from config import Config                               # this has not further references
-# from regexer import Regexer                             # this has not further references
+# from regexer import Regexer                           # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
 from settings import localsettings, kodisettings
 
@@ -50,19 +50,10 @@ class AddonSettings(object):
     __LOCAL_IP_SETTING_PATTERN = "channel_%s_localip"
     __FOLDER_PREFIX = "folder_prefix"
     __EMPTY_FOLDER = "empty_folder"
-    __GEO_REGION = "geo_region"
     __LOG_LEVEL = "log_level"
-    __SEND_STATISTICS = "send_statistics"
     __USER_AGENT_SETTING = "user_agent"
     __MD5_HASH_VALUE = "md_hash_value"
-    __HIDE_FIRST_TIME_MESSAGE = "hide_first_time_message"
     __LIST_LIMIT = "list_limit"
-    __CLIENT_ID = "client_id"
-    __DRM_PAID_WARNING = "show_drm_warning"
-    __DRM_HIDE_ITEMS = "hide_drm"
-    __PREMIUM_HIDE_ITEMS = "hide_premium"
-    __HIDE_TYPES = "hide_types"
-    __HIDE_FANART = "hide_fanart"
     __FOLDERS_AS_VIDEOS = "folders_as_video"
 
     #region Setting-stores properties and intialization
@@ -90,7 +81,6 @@ class AddonSettings(object):
 
             AddonSettings.__setting_stores[location] = store
             return store
-    #endregion
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -107,39 +97,32 @@ class AddonSettings(object):
             if store:
                 del store
 
+        del AddonSettings.__settings
+    # endregion
+
     @staticmethod
-    def GetChannelSetting(channelGuid, settingId, valueForNone=None):
+    def GetChannelSetting(channel, settingId, valueForNone=None):
         """ Retrieves channel settings for the given channel
 
-        @param channelGuid: The channel object to get the channels for
+        @param channel:     The channel object to get the channels for
         @param settingId:   The setting to retrieve
         @type valueForNone: Value that is considered as None
         @rtype : the configured value
         """
 
-        fullSettingId = "channel_%s_%s" % (channelGuid, settingId)
-        setting = AddonSettings.GetSetting(fullSettingId)
-
-        if setting == "":
-            setting = None
-        elif setting == valueForNone:
-            setting = None
-
-        Logger.Trace("Found channel [%s] setting '%s'='%s'", channelGuid, settingId, setting or "<none>")
-        return setting
+        return AddonSettings.__store(KODI).get_setting(settingId, channel, valueForNone)
 
     @staticmethod
-    def SetChannelSetting(channelGuid, settingId, value):
+    def SetChannelSetting(channel, settingId, value):
         """ Retrieves channel settings for the given channel
 
-        @param channelGuid: The channel object to get the channels for
+        @param channel:     The channel object to get the channels for
         @param settingId:   The setting to retrieve
-        @type value: Value to set
-        @rtype : the configured value
+        @type value:        Value to set
+        @rtype :            The configured value
         """
 
-        fullSettingId = "channel_%s_%s" % (channelGuid, settingId)
-        return AddonSettings.SetSetting(fullSettingId, value)
+        return AddonSettings.__store(KODI).set_setting(settingId, value, channel)
 
     @staticmethod
     def GetAvailableCountries(asString=False, asCountryCodes=False):
@@ -190,7 +173,7 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__DRM_PAID_WARNING)
+        return AddonSettings.__store(KODI).get_boolean_setting("show_drm_warning")
 
     @staticmethod
     def HideFanart():
@@ -198,7 +181,8 @@ class AddonSettings(object):
 
         @return: Yes or No
         """
-        return AddonSettings.GetBooleanSetting(AddonSettings.__HIDE_FANART)
+
+        return AddonSettings.__store(KODI).get_boolean_setting("hide_fanart")
 
     @staticmethod
     def HideDrmItems():
@@ -206,7 +190,7 @@ class AddonSettings(object):
 
         @return: True/False
         """
-        return AddonSettings.GetBooleanSetting(AddonSettings.__DRM_HIDE_ITEMS)
+        return AddonSettings.__store(KODI).get_boolean_setting("hide_drm")
 
     @staticmethod
     def HidePremiumItems():
@@ -214,12 +198,12 @@ class AddonSettings(object):
 
         @return: True/False
         """
-        return AddonSettings.GetBooleanSetting(AddonSettings.__PREMIUM_HIDE_ITEMS)
+        return AddonSettings.__store(KODI).get_boolean_setting("hide_premium")
 
     @staticmethod
     def HideRestrictedFolders():
         values = [True, False]
-        value = int(AddonSettings.GetSetting(AddonSettings.__HIDE_TYPES) or 0)
+        value = AddonSettings.__store(KODI).get_integer_setting("hide_types", 0)
         return values[value]
 
     @staticmethod
@@ -236,7 +220,7 @@ class AddonSettings(object):
         # 30074    |30306|30309|30308|30307|30303|30304|30301|30305|30302
         # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se
         values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se"]
-        valueIndex = int(AddonSettings.GetSetting(AddonSettings.__GEO_REGION) or 0)
+        valueIndex = AddonSettings.__store(KODI).get_integer_setting("geo_region", 0)
         currentGeografficalRegion = values[valueIndex]
 
         if valueOnly:
@@ -256,13 +240,13 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.__CachedSettings().getLocalizedString(stringId)
+        return AddonSettings.__store(KODI).get_localized_string(stringId)
 
     @staticmethod
     def SendUsageStatistics():
         """ returns true if the user allows usage statistics sending """
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__SEND_STATISTICS)
+        return AddonSettings.__store(KODI).get_boolean_setting("send_statistics", True)
 
     @staticmethod
     def HideFirstTimeMessages():
@@ -270,23 +254,24 @@ class AddonSettings(object):
         @return: returns true if the first time messages should be shown.
         """
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__HIDE_FIRST_TIME_MESSAGE)
+        return AddonSettings.__store(KODI).get_boolean_setting("hide_first_time_message", False)
 
     @staticmethod
     def GetCurrentAddonXmlMd5():
-        return AddonSettings.GetSetting(AddonSettings.__MD5_HASH_VALUE)
+        return AddonSettings.__store(LOCAL).get_setting(AddonSettings.__MD5_HASH_VALUE)
 
     @staticmethod
     def UpdateCurrentAddonXmlMd5(hashValue):
-        AddonSettings.SetSetting(AddonSettings.__MD5_HASH_VALUE, hashValue)
+        AddonSettings.__store(LOCAL).set_setting(AddonSettings.__MD5_HASH_VALUE, hashValue)
 
     @staticmethod
     def GetClientId():
-        clientId = AddonSettings.GetSetting(AddonSettings.__CLIENT_ID)
+        CLIENT_ID = "client_id"
+        clientId = AddonSettings.__store(LOCAL).get_setting(CLIENT_ID)
         if not clientId:
             clientId = str(uuid.uuid1())
             Logger.Debug("Generating new ClientID: %s", clientId)
-            AddonSettings.SetSetting(AddonSettings.__CLIENT_ID, clientId)
+            AddonSettings.__store(LOCAL).set_setting(CLIENT_ID, clientId)
         return clientId
 
     @staticmethod
@@ -451,7 +436,7 @@ class AddonSettings(object):
 
         setting = "Retrospect"
         if channel is not None:
-            setting = AddonSettings.GetChannelSetting(channel.guid, "bitrate")
+            setting = AddonSettings.GetChannelSetting(channel, "bitrate")
 
         if setting == "Retrospect":
             setting = AddonSettings.GetSetting(AddonSettings.__STREAM_BITRATE)
