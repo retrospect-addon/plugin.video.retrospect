@@ -72,12 +72,6 @@ class LocalSettings(settingsstore.SettingsStore):
         # the default was already retrieved by the dict.get(key, default)
         return setting_value
 
-    def clear_settings(self):
-        LocalSettings.__settings = None
-
-    def get_localized_string(self, string_id):
-        raise NotImplementedError("No localization for Local Settings")
-
     def __del__(self):
         del LocalSettings.__settings
         LocalSettings.__settings = None

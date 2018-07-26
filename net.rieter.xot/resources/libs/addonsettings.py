@@ -41,43 +41,51 @@ class AddonSettings(object):
     __UserAgent = None
     __KodiVersion = None
 
-    __SUBTITLE_MODE = "subtitle_mode"
     __CHANNEL_SETTINGS_PATTERN = "channel_%s_visible"
     __PROXY_SETTING_PATTERN = "channel_%s_proxy"
     __LOCAL_IP_SETTING_PATTERN = "channel_%s_localip"
-    __FOLDER_PREFIX = "folder_prefix"
-    __EMPTY_FOLDER = "empty_folder"
-    __LOG_LEVEL = "log_level"
     __USER_AGENT_SETTING = "user_agent"
     __MD5_HASH_VALUE = "md_hash_value"
-    __LIST_LIMIT = "list_limit"
-    __FOLDERS_AS_VIDEOS = "folders_as_video"
 
     #region Setting-stores properties and intialization
     __setting_stores = {}
     __settings_lock = threading.Lock()
 
     @staticmethod
-    def __store(location):
-        store = AddonSettings.__setting_stores.get(location, None)
+    def __store(storeLocation):
+        store = AddonSettings.__setting_stores.get(storeLocation, None)
         if store is not None:
             return store
 
         with AddonSettings.__settings_lock:
             # Just a double check in case there was a race condition??
-            store = AddonSettings.__setting_stores.get(location, None)
+            store = AddonSettings.__setting_stores.get(storeLocation, None)
             if store is not None:
                 return store
 
-            if location == KODI:
+            if storeLocation == KODI:
                 store = kodisettings.KodiSettings(Logger.Instance())
-            elif location == LOCAL:
+            elif storeLocation == LOCAL:
                 store = localsettings.LocalSettings(Config.profileDir, Logger.Instance())
             else:
-                raise IndexError("Cannot find Setting store type: {0}".format(location))
+                raise IndexError("Cannot find Setting store type: {0}".format(storeLocation))
 
-            AddonSettings.__setting_stores[location] = store
+            AddonSettings.__setting_stores[storeLocation] = store
             return store
+
+    @staticmethod
+    def __refresh(storeLocation):
+        """ Removes the instance of the settings store causing a reload.
+
+        @param  storeLocation: What store to refresh
+
+        """
+
+        store = AddonSettings.__setting_stores.pop(storeLocation, None)
+        if store is None:
+            return
+
+        del store
 
     def __init__(self):
         """Initialisation of the AddonSettings class. """
@@ -471,14 +479,14 @@ class AddonSettings(object):
     def GetFolderPrefix():
         """ returns the folder prefix """
 
-        setting = AddonSettings.GetSetting(AddonSettings.__FOLDER_PREFIX)
+        setting = AddonSettings.__store(KODI).get_setting("folder_prefix", default="")
         return setting
 
     @staticmethod
     def MixFoldersAndVideos():
         """ Should we treat Folders and Videos alike """
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__FOLDERS_AS_VIDEOS)
+        return AddonSettings.__store(KODI).get_boolean_setting("folders_as_video", default=False)
 
     @staticmethod
     def GetEmptyListBehaviour():
@@ -491,7 +499,9 @@ class AddonSettings(object):
 
         """
 
-        setting = int(AddonSettings.GetSetting(AddonSettings.__EMPTY_FOLDER) or 1)
+        setting = AddonSettings.__store(KODI).\
+            get_integer_setting("empty_folder", default=2)
+
         if setting == 0:
             return "error"
         elif setting == 1:
@@ -503,7 +513,7 @@ class AddonSettings(object):
     def UseSubtitle():
         """Returns whether to show subtitles or not"""
 
-        setting = AddonSettings.GetSetting(AddonSettings.__SUBTITLE_MODE)
+        setting = AddonSettings.__store(KODI).get_setting("subtitle_mode", default="0")
 
         if setting == "0":
             return True
@@ -518,21 +528,14 @@ class AddonSettings(object):
         @return: an integer with the limit
         """
 
-        limit = AddonSettings.GetSetting(AddonSettings.__LIST_LIMIT)
-        if limit == "":
-            limit = -1
-        else:
-            limit = int(limit)
-
+        limit = AddonSettings.__store(KODI).get_integer_setting("list_limit", default=5)
         return [-1, 10, 50, 75, 100, 150, 200, 1000][limit]
 
     @staticmethod
     def GetLogLevel():
         """ Returns True if the add-on should do trace logging """
 
-        level = AddonSettings.GetSetting(AddonSettings.__LOG_LEVEL)
-        if level == "":
-            return 10
+        level = AddonSettings.__store(KODI).get_integer_setting("log_level", default=2)
 
         # the return value is zero based. 0 -> Trace , 1=Debug (10), 2 -> Info (20)
         return int(level) * 10
@@ -574,7 +577,7 @@ class AddonSettings(object):
         Logger.Debug("Showing channel settings for channel: %s (%s)", channelName, channel.channelName)
 
         # Set the channel to be the preselected one
-        AddonSettings.SetSetting("config_channel", channelName)
+        AddonSettings.__store(KODI).set_setting("config_channel", channelName)
 
         # show settings and focus on the channel settings tab
         if AddonSettings.IsMinVersion(18):
@@ -592,10 +595,11 @@ class AddonSettings(object):
 
         if tabId is None:
             # shows the settings and blocks:
-            AddonSettings.__CachedSettings().openSettings()  # this will open settings window
+            AddonSettings.__store(KODI).open_settings()  # this will open settings window
             # reload the cache because stuff might have changed
-            AddonSettings.__LoadSettings()
+
             Logger.Info("Clearing Settings cache because settings dialog was shown.")
+            AddonSettings.__refresh(KODI)
         else:
             # show settings and focus on a tab
             xbmc.executebuiltin('Addon.OpenSettings(%s)' % (Config.addonId,))

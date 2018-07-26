@@ -28,8 +28,8 @@ class SettingsStore(object):
     def get_setting(self, setting_id, channel=None, default=None):
         pass
 
-    def clear_settings(self):
-        pass
-
     def get_localized_string(self, string_id):
-        pass
+        raise NotImplementedError()
+
+    def open_settings(self):
+        raise NotImplementedError()

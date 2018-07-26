@@ -61,8 +61,8 @@ class KodiSettings(settingsstore.SettingsStore):
     def get_localized_string(self, string_id):
         return self.__addon_settings.getLocalizedString(string_id)
 
-    def clear_settings(self):
-        KodiSettings.__settings = None
+    def open_settings(self):
+        self.__addon_settings.openSettings()
 
     def __del__(self):
         del self.__addon_settings
