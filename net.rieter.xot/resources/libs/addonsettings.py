@@ -836,7 +836,7 @@ class AddonSettings(object):
             return
 
         Logger.Info("Settings.xml updated succesfully. Reloading settings.")
-        AddonSettings.__LoadSettings()
+        AddonSettings.__refresh(KODI)
         return
 
     @staticmethod
@@ -1174,8 +1174,8 @@ class AddonSettings(object):
                 value = pattern % (
                     value, "%s Proxy" % (country, ),
                     "%s (%s)" % (
-                        AddonSettings.GetSetting("%s_proxy_server" % (country.lower(),)) or "Not Set",
-                        AddonSettings.GetSetting("%s_proxy_type" % (country.lower(),)) or "Not Set"
+                        AddonSettings.__store(KODI).get_setting("{0}_proxy_server".format(country.lower()), default="Not Set"),
+                        AddonSettings.__store(KODI).get_setting("{0}_proxy_type".format(country.lower()), default="Not Set")
                     )
                 )
 
