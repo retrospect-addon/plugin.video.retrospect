@@ -80,7 +80,7 @@
 
                 <item library="resources\menus\menu_channelsettings.py">
                     <label>30069</label>
-                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                    <visible>ListItem.Property(RetrospectChannelSettings)+!ListItem.Property(RetrospectCategory)</visible>
                 </item>
 
                 <item library="resources\menus\menu_channel_selection.py">
