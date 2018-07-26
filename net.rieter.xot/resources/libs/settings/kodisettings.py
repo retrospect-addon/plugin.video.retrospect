@@ -21,6 +21,8 @@ class KodiSettings(settingsstore.SettingsStore):
         self.__addon_settings = xbmcaddon.Addon() if addon_id is None else xbmcaddon.Addon(addon_id)
 
     def set_setting(self, setting_id, setting_value, channel=None):
+        setting_value = str(setting_value)
+
         if channel:
             channel_setting_id = self.__channel_setting_format.format(channel.guid, setting_id)
             self.__addon_settings.setSetting(channel_setting_id, str(setting_value))
