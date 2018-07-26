@@ -213,7 +213,7 @@ class ChannelIndex:
                 validChannels.append(channelInfo)
 
                 # was the channel disabled?
-                if not AddonSettings.ShowChannel(channelInfo):
+                if not AddonSettings.GetChannelVisibility(channelInfo):
                     Logger.Warning("Not loading: %s -> Channel was explicitly disabled from settings.", channelInfo)
                     continue
 

@@ -37,10 +37,10 @@ class LocalSettings(settingsstore.SettingsStore):
 
     def set_setting(self, setting_id, setting_value, channel=None):
         if channel is None:
-            self._logger.Debug("Local Setting  Updated: '%s': '%s'", setting_id, setting_value)
+            self._logger.Debug("Local Setting  Updated: %s: '%s'", setting_id, setting_value)
             LocalSettings.__settings[LocalSettings.__SETTINGS_KEY][setting_id] = setting_value
         else:
-            self._logger.Debug("Local Channel Setting Updated: '%s:%s': '%s'",
+            self._logger.Debug("Local Channel Setting Updated: %s:%s: '%s'",
                                channel.id, setting_id, setting_value)
 
             if channel.id not in LocalSettings.__settings[LocalSettings.__CHANNELS_KEY]:
@@ -62,14 +62,15 @@ class LocalSettings(settingsstore.SettingsStore):
     def get_setting(self, setting_id, channel=None, default=None):
         if channel is None:
             setting_value = LocalSettings.__settings["settings"].get(setting_id, default)
-            self._logger.Trace("Local Setting: '%s'='%s'", setting_id, setting_value)
+            self._logger.Trace("Local Setting: %s='%s'", setting_id, setting_value)
         else:
             channel_settings = LocalSettings.__settings["channels"].get(channel.id, {})
             setting_value = channel_settings.get(setting_id, default)
-            self._logger.Trace("Local Channel Setting: '%s.%s'='%s'",
+            self._logger.Trace("Local Channel Setting: %s.%s='%s'",
                                channel.id, setting_id, setting_value)
 
-        return setting_value or default
+        # the default was already retrieved by the dict.get(key, default)
+        return setting_value
 
     def clear_settings(self):
         LocalSettings.__settings = None
@@ -96,7 +97,7 @@ class LocalSettings(settingsstore.SettingsStore):
                     self._logger.Warning("Empty local settings file found: %s", self.local_settings_file)
                     return
 
-                self._logger.Debug("Loading settings: %s", content)
+                self._logger.Trace("Loading settings: %s", content)
                 LocalSettings.__settings = json.loads(content, encoding='utf-8')
         except:
             self._logger.Error("Error loading JSON settings. Resetting all settings.", exc_info=True)

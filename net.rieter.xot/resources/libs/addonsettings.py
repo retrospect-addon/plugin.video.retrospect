@@ -26,6 +26,7 @@ from settings import localsettings, kodisettings
 
 KODI = "kodi"
 LOCAL = "local"
+# Theoretically we could add a remote settings store too!
 
 
 class AddonSettings(object):
@@ -40,11 +41,7 @@ class AddonSettings(object):
     __UserAgent = None
     __KodiVersion = None
 
-    __STREAM_BITRATE = "stream_bitrate"
-    __STREAM_AUTOBITRATE = "stream_autobitrate"
     __SUBTITLE_MODE = "subtitle_mode"
-    __CACHE_ENABLED = "http_cache"
-    __IGNORE_SSL_ERRORS = "ignore_ssl_errors"
     __CHANNEL_SETTINGS_PATTERN = "channel_%s_visible"
     __PROXY_SETTING_PATTERN = "channel_%s_proxy"
     __LOCAL_IP_SETTING_PATTERN = "channel_%s_localip"
@@ -99,6 +96,32 @@ class AddonSettings(object):
 
         del AddonSettings.__settings
     # endregion
+
+    #region Kodi version stuff
+    @staticmethod
+    def GetKodiVersion():
+        """ Retrieves the Kodi version we are running on.
+
+        @return: the full string of the Kodi version. E.g.: 16.1 Git:20160424-c327c53
+
+        """
+
+        if AddonSettings.__KodiVersion is None:
+            AddonSettings.__KodiVersion = xbmc.getInfoLabel("system.buildversion")
+
+        return AddonSettings.__KodiVersion
+
+    @staticmethod
+    def IsMinVersion(minValue):
+        """ Checks whether the version of Kodi is higher or equal to the given version.
+
+        @param minValue: the minimum Kodi version
+        @return: True if higher or equal, False otherwise.
+        """
+
+        version = int(AddonSettings.GetKodiVersion().split(".")[0])
+        return version >= minValue
+    #endregion
 
     @staticmethod
     def GetChannelSetting(channel, settingId, valueForNone=None):
@@ -246,7 +269,7 @@ class AddonSettings(object):
     def SendUsageStatistics():
         """ returns true if the user allows usage statistics sending """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("send_statistics", True)
+        return AddonSettings.__store(KODI).get_boolean_setting("send_statistics", default=True)
 
     @staticmethod
     def HideFirstTimeMessages():
@@ -254,7 +277,8 @@ class AddonSettings(object):
         @return: returns true if the first time messages should be shown.
         """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("hide_first_time_message", False)
+        return AddonSettings.__store(KODI).\
+            get_boolean_setting("hide_first_time_message", default=False)
 
     @staticmethod
     def GetCurrentAddonXmlMd5():
@@ -275,30 +299,6 @@ class AddonSettings(object):
         return clientId
 
     @staticmethod
-    def GetKodiVersion():
-        """ Retrieves the Kodi version we are running on.
-
-        @return: the full string of the Kodi version. E.g.: 16.1 Git:20160424-c327c53
-
-        """
-
-        if AddonSettings.__KodiVersion is None:
-            AddonSettings.__KodiVersion = xbmc.getInfoLabel("system.buildversion")
-
-        return AddonSettings.__KodiVersion
-
-    @staticmethod
-    def IsMinVersion(minValue):
-        """ Checks whether the version of Kodi is higher or equal to the given version.
-
-        @param minValue: the minimum Kodi version
-        @return: True if higher or equal, False otherwise.
-        """
-
-        version = int(AddonSettings.GetKodiVersion().split(".")[0])
-        return version >= minValue
-
-    @staticmethod
     def UseAdaptiveStreamAddOn(withEncryption=False):
         """ Should we use the Adaptive Stream add-on?
 
@@ -308,7 +308,8 @@ class AddonSettings(object):
         """
 
         # check the Retrospect add-on setting perhaps?
-        useAddOn = AddonSettings.GetBooleanSetting("use_adaptive_addon")
+        useAddOn = \
+            AddonSettings.__store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
         if not useAddOn:
             Logger.Info("Adaptive Stream add-on disabled from Retrospect settings")
             return useAddOn
@@ -372,7 +373,7 @@ class AddonSettings(object):
             uname = platform.uname()
             Logger.Trace(uname)
             if git:
-                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s-Git:%s" % (version, uname[0], uname[2], uname[4], version, git)
+                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s Git:%s" % (version, uname[0], uname[2], uname[4], version, git)
             else:
                 userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % (version, uname[0], uname[2], uname[4], version)
         except:
@@ -382,7 +383,7 @@ class AddonSettings(object):
             userAgent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, currentEnv)
 
         # now we store it
-        AddonSettings.SetSetting(AddonSettings.__USER_AGENT_SETTING, userAgent)
+        AddonSettings.__store(LOCAL).set_setting(AddonSettings.__USER_AGENT_SETTING, userAgent)
         AddonSettings.__UserAgent = userAgent
         Logger.Info("User agent set to: %s", userAgent)
         return
@@ -396,7 +397,8 @@ class AddonSettings(object):
 
         if not AddonSettings.__UserAgent:
             # load and cache
-            AddonSettings.__UserAgent = AddonSettings.GetSetting(AddonSettings.__USER_AGENT_SETTING) or None
+            userAgent = AddonSettings.__store(LOCAL).get_setting(AddonSettings.__USER_AGENT_SETTING)
+            AddonSettings.__UserAgent = userAgent
 
             # double check if the version of XBMC is still OK
             if AddonSettings.__UserAgent:
@@ -420,36 +422,50 @@ class AddonSettings(object):
     def CacheHttpResponses():
         """ Returns True if the HTTP responses need to be cached """
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__CACHE_ENABLED)
+        return AddonSettings.__store(KODI).get_boolean_setting("http_cache", default=True)
 
     @staticmethod
     def IgnoreSslErrors():
-        """ Returns True if SSL errors should be ignored from Python
-        """
-        return AddonSettings.GetBooleanSetting(AddonSettings.__IGNORE_SSL_ERRORS)
+        """ Returns True if SSL errors should be ignored from Python """
+
+        return AddonSettings.__store(KODI).get_boolean_setting("ignore_ssl_errors", default=False)
 
     @staticmethod
     def GetMaxStreamBitrate(channel=None):
         """Returns the maximum bitrate (kbps) for streams specified by the user
-        @type channel: Channel
+        @type channel: Channel for which the stream needs to play.
         """
 
         setting = "Retrospect"
         if channel is not None:
-            setting = AddonSettings.GetChannelSetting(channel, "bitrate")
+            setting = AddonSettings.GetMaxChannelBitrate(channel)
 
         if setting == "Retrospect":
-            setting = AddonSettings.GetSetting(AddonSettings.__STREAM_BITRATE)
+            setting = AddonSettings.__store(KODI).get_setting("stream_bitrate")
             Logger.Debug("Using the Retrospect Default Bitrate: %s", setting)
         else:
             Logger.Debug("Using the Channel Specific Bitrate: %s", setting)
         return int(setting or 8000)
 
     @staticmethod
-    def GetStreamAutoBitrate():
-        """ Returns true if XBMC should determine the bitrate if possible. """
+    def GetMaxChannelBitrate(channel):
+        """ Get the maximum channel bitrate configured for the channel. Keep in mind that if
+        'Retrospect' was selected, the actual maximum stream bitrate is set by the overall settings.
 
-        return AddonSettings.GetBooleanSetting(AddonSettings.__STREAM_AUTOBITRATE)
+        @param channel:     The channel to set the bitrate for
+        @return:            The bitrate for the channel as a string!
+        """
+        return AddonSettings.__store(LOCAL).get_setting("bitrate", channel, default="Retrospect")
+
+    @staticmethod
+    def SetMaxChannelBitrate(channel, bitrate):
+        """ Set the maximum channel bitrate
+
+        @param channel:     The channel to set the bitrate for
+        @param bitrate:     the maximum bitrate
+
+        """
+        AddonSettings.__store(LOCAL).set_setting("bitrate", bitrate, channel=channel)
 
     @staticmethod
     def GetFolderPrefix():
@@ -533,7 +549,7 @@ class AddonSettings(object):
         AddonSettings.__store(LOCAL).set_setting("visible", visible, channel)
 
     @staticmethod
-    def ShowChannel(channel):
+    def GetChannelVisibility(channel):
         """Check if the channel should be shown
 
         Arguments:
@@ -541,7 +557,7 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.__store(LOCAL).get_boolean_setting("visible", channel, True)
+        return AddonSettings.__store(LOCAL).get_boolean_setting("visible", channel, default=True)
 
     @staticmethod
     def ShowChannelSettings(channel):
@@ -1129,12 +1145,9 @@ class AddonSettings(object):
         value = pattern % (value, "Show Swedish", AddonSettings.ShowChannelWithLanguage("se"))
         value = pattern % (value, "Show Lithuanian", AddonSettings.ShowChannelWithLanguage("lt"))
         value = pattern % (value, "Show Latvian", AddonSettings.ShowChannelWithLanguage("lv"))
-        # value = pattern % (value, "Show French Canadian", AddonSettings.ShowChannelWithLanguage("ca-fr"))
-        # value = pattern % (value, "Show English Canadian", AddonSettings.ShowChannelWithLanguage("ca-en"))
         value = pattern % (value, "Show British", AddonSettings.ShowChannelWithLanguage("en-gb"))
         value = pattern % (value, "Show German", AddonSettings.ShowChannelWithLanguage("de"))
         value = pattern % (value, "Show Finnish", AddonSettings.ShowChannelWithLanguage("fi"))
-        # noinspection PyTypeChecker
         value = pattern % (value, "Show Other languages", AddonSettings.ShowChannelWithLanguage(None))
 
         if AddonSettings.__NoProxy:
