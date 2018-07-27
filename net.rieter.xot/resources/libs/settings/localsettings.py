@@ -31,13 +31,14 @@ class LocalSettings(settingsstore.SettingsStore):
         self.addon_data_folder = addon_data_folder
         self.local_settings_file = os.path.join(self.addon_data_folder, "settings.json")
 
-        # init the settings
-        if LocalSettings.__settings is None:
-            self.__load_settings()
+        # load the settings each time. A new instance will use the same __settings object, but
+        # each new install will cause a reload of the settings from disk. In theory there should
+        # only be a single store active
+        self.__load_settings()
 
     def set_setting(self, setting_id, setting_value, channel=None):
         if channel is None:
-            self._logger.Debug("Local Setting  Updated: %s: '%s'", setting_id, setting_value)
+            self._logger.Debug("Local Setting Updated: %s: '%s'", setting_id, setting_value)
             LocalSettings.__settings[LocalSettings.__SETTINGS_KEY][setting_id] = setting_value
         else:
             self._logger.Debug("Local Channel Setting Updated: %s:%s: '%s'",
@@ -78,10 +79,15 @@ class LocalSettings(settingsstore.SettingsStore):
     def get_localized_string(self, string_id):
         raise NotImplementedError()
 
+    # this really only works if no reference to the <store> object is kept somewhere.
     def __del__(self):
-        del LocalSettings.__settings
-        LocalSettings.__settings = None
+        if LocalSettings.__settings is not None:
+            del LocalSettings.__settings
+            LocalSettings.__settings = None
         self._logger.Debug("Removed Local settings-store")
+
+    def __str__(self):
+        return "LocalSettings store: {0}".format(self.local_settings_file)
 
     def __load_settings(self):
         if not os.path.isfile(self.local_settings_file):

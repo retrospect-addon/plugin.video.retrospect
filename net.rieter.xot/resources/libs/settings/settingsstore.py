@@ -29,7 +29,10 @@ class SettingsStore(object):
         pass
 
     def get_localized_string(self, string_id):
-        raise NotImplementedError()
+        pass
 
     def open_settings(self):
-        raise NotImplementedError()
+        pass
+
+    def __del__(self):
+        pass

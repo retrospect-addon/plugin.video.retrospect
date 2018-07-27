@@ -66,7 +66,9 @@ class KodiSettings(settingsstore.SettingsStore):
     def open_settings(self):
         self.__addon_settings.openSettings()
 
+    # this really only works if no reference to the <store> object is kept somewhere.
     def __del__(self):
-        del self.__addon_settings
-        self.__addon_settings = None
-        self._logger.Debug("Removed Kodi settings-store")
+        if self.__addon_settings is not None:
+            del self.__addon_settings
+            self.__addon_settings = None
+            self._logger.Debug("Removed Kodi settings-store")
