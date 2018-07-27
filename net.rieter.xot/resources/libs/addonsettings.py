@@ -258,7 +258,7 @@ class AddonSettings(object):
     @staticmethod
     def HideRestrictedFolders():
         values = [True, False]
-        value = AddonSettings.store(KODI).get_integer_setting("hide_types", 0)
+        value = AddonSettings.store(KODI).get_integer_setting("hide_types", default=0)
         return values[value]
 
     @staticmethod
@@ -275,7 +275,7 @@ class AddonSettings(object):
         # 30074    |30306|30309|30308|30307|30303|30304|30301|30305|30302
         # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se
         values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se"]
-        valueIndex = AddonSettings.store(KODI).get_integer_setting("geo_region", 0)
+        valueIndex = AddonSettings.store(KODI).get_integer_setting("geo_region", default=0)
         currentGeografficalRegion = values[valueIndex]
 
         if valueOnly:

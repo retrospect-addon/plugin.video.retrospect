@@ -108,9 +108,11 @@ class LocalSettings(settingsstore.SettingsStore):
         except:
             self._logger.Error("Error loading JSON settings. Resetting all settings.", exc_info=True)
             LocalSettings.__settings = self.__empty_settings()
+            backup = self.local_settings_file.replace(".json", ".error.json")
+            self._logger.Warning("Creating backup of settings file: %s", backup)
             shutil.copy(
                 self.local_settings_file,
-                self.local_settings_file.replace(".json", ".error.json")
+                backup
             )
             self.__store_settings()
             return
