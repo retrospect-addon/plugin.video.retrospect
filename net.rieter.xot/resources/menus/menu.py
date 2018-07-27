@@ -32,7 +32,7 @@ Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                     dualLogger=lambda x, y=4: xbmc.log(x, y))
 
 from helpers.htmlentityhelper import HtmlEntityHelper
-from addonsettings import AddonSettings
+from addonsettings import AddonSettings, LOCAL
 from favourites import Favourites
 from paramparser import ParameterParser
 from helpers.channelimporter import ChannelIndex
@@ -177,7 +177,8 @@ class Menu(ParameterParser):
     def ToggleCloak(self):
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
+        c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.Instance())
+
         if c.IsCloaked(item.url):
             c.UnCloak(item.url)
             self.Refresh()
@@ -188,6 +189,7 @@ class Menu(ParameterParser):
             XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
                                    LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
 
+        del c
         self.Refresh()
 
     def __GetChannel(self):

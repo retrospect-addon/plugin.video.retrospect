@@ -43,7 +43,7 @@ class AddonSettings(object):
     __settings_lock = threading.Lock()
 
     @staticmethod
-    def __store(storeLocation):
+    def store(storeLocation):
         store = AddonSettings.__setting_stores.get(storeLocation, None)
         if store is not None:
             return store
@@ -76,6 +76,7 @@ class AddonSettings(object):
         if store is None:
             return
 
+        # this really only works if no reference to the <store> object is kept somewhere.
         del store
 
     def __init__(self):
@@ -134,7 +135,7 @@ class AddonSettings(object):
 
         """
 
-        value = AddonSettings.__store(store).get_setting(settingId)
+        value = AddonSettings.store(store).get_setting(settingId)
         return value
 
     @staticmethod
@@ -150,7 +151,7 @@ class AddonSettings(object):
 
         """
 
-        AddonSettings.__store(store).set_setting(settingId, value)
+        AddonSettings.store(store).set_setting(settingId, value)
         return value
 
     @staticmethod
@@ -163,7 +164,7 @@ class AddonSettings(object):
         @rtype : the configured value
         """
 
-        return AddonSettings.__store(store).get_setting(settingId, channel, valueForNone)
+        return AddonSettings.store(store).get_setting(settingId, channel, valueForNone)
 
     @staticmethod
     def SetChannelSetting(channel, settingId, value, store=KODI):
@@ -175,7 +176,7 @@ class AddonSettings(object):
         @rtype :            The configured value
         """
 
-        return AddonSettings.__store(store).set_setting(settingId, value, channel)
+        return AddonSettings.store(store).set_setting(settingId, value, channel)
     #endregion
 
     @staticmethod
@@ -211,13 +212,13 @@ class AddonSettings(object):
     def ShowCloakedItems():
         """ Should we show cloaked items? """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("show_cloaked_items")
+        return AddonSettings.store(KODI).get_boolean_setting("show_cloaked_items")
 
     @staticmethod
     def ShowCategories():
         """ Returns the localized category names. """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("show_categories")
+        return AddonSettings.store(KODI).get_boolean_setting("show_categories")
 
     @staticmethod
     def ShowDrmPaidWarning():
@@ -227,7 +228,7 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("show_drm_warning")
+        return AddonSettings.store(KODI).get_boolean_setting("show_drm_warning")
 
     @staticmethod
     def HideFanart():
@@ -236,7 +237,7 @@ class AddonSettings(object):
         @return: Yes or No
         """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("hide_fanart")
+        return AddonSettings.store(KODI).get_boolean_setting("hide_fanart")
 
     @staticmethod
     def HideDrmItems():
@@ -244,7 +245,7 @@ class AddonSettings(object):
 
         @return: True/False
         """
-        return AddonSettings.__store(KODI).get_boolean_setting("hide_drm")
+        return AddonSettings.store(KODI).get_boolean_setting("hide_drm")
 
     @staticmethod
     def HidePremiumItems():
@@ -252,12 +253,12 @@ class AddonSettings(object):
 
         @return: True/False
         """
-        return AddonSettings.__store(KODI).get_boolean_setting("hide_premium")
+        return AddonSettings.store(KODI).get_boolean_setting("hide_premium")
 
     @staticmethod
     def HideRestrictedFolders():
         values = [True, False]
-        value = AddonSettings.__store(KODI).get_integer_setting("hide_types", 0)
+        value = AddonSettings.store(KODI).get_integer_setting("hide_types", 0)
         return values[value]
 
     @staticmethod
@@ -274,7 +275,7 @@ class AddonSettings(object):
         # 30074    |30306|30309|30308|30307|30303|30304|30301|30305|30302
         # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se
         values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se"]
-        valueIndex = AddonSettings.__store(KODI).get_integer_setting("geo_region", 0)
+        valueIndex = AddonSettings.store(KODI).get_integer_setting("geo_region", 0)
         currentGeografficalRegion = values[valueIndex]
 
         if valueOnly:
@@ -294,13 +295,13 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.__store(KODI).get_localized_string(stringId)
+        return AddonSettings.store(KODI).get_localized_string(stringId)
 
     @staticmethod
     def SendUsageStatistics():
         """ returns true if the user allows usage statistics sending """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("send_statistics", default=True)
+        return AddonSettings.store(KODI).get_boolean_setting("send_statistics", default=True)
 
     @staticmethod
     def HideFirstTimeMessages():
@@ -308,25 +309,25 @@ class AddonSettings(object):
         @return: returns true if the first time messages should be shown.
         """
 
-        return AddonSettings.__store(KODI).\
+        return AddonSettings.store(KODI).\
             get_boolean_setting("hide_first_time_message", default=False)
 
     @staticmethod
     def GetCurrentAddonXmlMd5():
-        return AddonSettings.__store(LOCAL).get_setting(AddonSettings.__MD5_HASH_VALUE)
+        return AddonSettings.store(LOCAL).get_setting(AddonSettings.__MD5_HASH_VALUE)
 
     @staticmethod
     def UpdateCurrentAddonXmlMd5(hashValue):
-        AddonSettings.__store(LOCAL).set_setting(AddonSettings.__MD5_HASH_VALUE, hashValue)
+        AddonSettings.store(LOCAL).set_setting(AddonSettings.__MD5_HASH_VALUE, hashValue)
 
     @staticmethod
     def GetClientId():
         CLIENT_ID = "client_id"
-        clientId = AddonSettings.__store(LOCAL).get_setting(CLIENT_ID)
+        clientId = AddonSettings.store(LOCAL).get_setting(CLIENT_ID)
         if not clientId:
             clientId = str(uuid.uuid1())
             Logger.Debug("Generating new ClientID: %s", clientId)
-            AddonSettings.__store(LOCAL).set_setting(CLIENT_ID, clientId)
+            AddonSettings.store(LOCAL).set_setting(CLIENT_ID, clientId)
         return clientId
 
     @staticmethod
@@ -340,7 +341,7 @@ class AddonSettings(object):
 
         # check the Retrospect add-on setting perhaps?
         useAddOn = \
-            AddonSettings.__store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
+            AddonSettings.store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
         if not useAddOn:
             Logger.Info("Adaptive Stream add-on disabled from Retrospect settings")
             return useAddOn
@@ -416,7 +417,7 @@ class AddonSettings(object):
             userAgent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, currentEnv)
 
         # now we store it
-        AddonSettings.__store(LOCAL).set_setting(AddonSettings.__USER_AGENT_SETTING, userAgent)
+        AddonSettings.store(LOCAL).set_setting(AddonSettings.__USER_AGENT_SETTING, userAgent)
         AddonSettings.__UserAgent = userAgent
         Logger.Info("User agent set to: %s", userAgent)
         return
@@ -430,7 +431,7 @@ class AddonSettings(object):
 
         if not AddonSettings.__UserAgent:
             # load and cache
-            userAgent = AddonSettings.__store(LOCAL).get_setting(AddonSettings.__USER_AGENT_SETTING)
+            userAgent = AddonSettings.store(LOCAL).get_setting(AddonSettings.__USER_AGENT_SETTING)
             AddonSettings.__UserAgent = userAgent
 
             # double check if the version of XBMC is still OK
@@ -455,13 +456,13 @@ class AddonSettings(object):
     def CacheHttpResponses():
         """ Returns True if the HTTP responses need to be cached """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("http_cache", default=True)
+        return AddonSettings.store(KODI).get_boolean_setting("http_cache", default=True)
 
     @staticmethod
     def IgnoreSslErrors():
         """ Returns True if SSL errors should be ignored from Python """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("ignore_ssl_errors", default=False)
+        return AddonSettings.store(KODI).get_boolean_setting("ignore_ssl_errors", default=False)
 
     @staticmethod
     def GetMaxStreamBitrate(channel=None):
@@ -474,7 +475,7 @@ class AddonSettings(object):
             setting = AddonSettings.GetMaxChannelBitrate(channel)
 
         if setting == "Retrospect":
-            setting = AddonSettings.__store(KODI).get_setting("stream_bitrate")
+            setting = AddonSettings.store(KODI).get_setting("stream_bitrate")
             Logger.Debug("Using the Retrospect Default Bitrate: %s", setting)
         else:
             Logger.Debug("Using the Channel Specific Bitrate: %s", setting)
@@ -488,7 +489,7 @@ class AddonSettings(object):
         @param channel:     The channel to set the bitrate for
         @return:            The bitrate for the channel as a string!
         """
-        return AddonSettings.__store(LOCAL).get_setting("bitrate", channel, default="Retrospect")
+        return AddonSettings.store(LOCAL).get_setting("bitrate", channel, default="Retrospect")
 
     @staticmethod
     def SetMaxChannelBitrate(channel, bitrate):
@@ -498,20 +499,20 @@ class AddonSettings(object):
         @param bitrate:     the maximum bitrate
 
         """
-        AddonSettings.__store(LOCAL).set_setting("bitrate", bitrate, channel=channel)
+        AddonSettings.store(LOCAL).set_setting("bitrate", bitrate, channel=channel)
 
     @staticmethod
     def GetFolderPrefix():
         """ returns the folder prefix """
 
-        setting = AddonSettings.__store(KODI).get_setting("folder_prefix", default="")
+        setting = AddonSettings.store(KODI).get_setting("folder_prefix", default="")
         return setting
 
     @staticmethod
     def MixFoldersAndVideos():
         """ Should we treat Folders and Videos alike """
 
-        return AddonSettings.__store(KODI).get_boolean_setting("folders_as_video", default=False)
+        return AddonSettings.store(KODI).get_boolean_setting("folders_as_video", default=False)
 
     @staticmethod
     def GetEmptyListBehaviour():
@@ -524,7 +525,7 @@ class AddonSettings(object):
 
         """
 
-        setting = AddonSettings.__store(KODI).\
+        setting = AddonSettings.store(KODI).\
             get_integer_setting("empty_folder", default=2)
 
         if setting == 0:
@@ -538,7 +539,7 @@ class AddonSettings(object):
     def UseSubtitle():
         """Returns whether to show subtitles or not"""
 
-        setting = AddonSettings.__store(KODI).get_setting("subtitle_mode", default="0")
+        setting = AddonSettings.store(KODI).get_setting("subtitle_mode", default="0")
 
         if setting == "0":
             return True
@@ -553,14 +554,14 @@ class AddonSettings(object):
         @return: an integer with the limit
         """
 
-        limit = AddonSettings.__store(KODI).get_integer_setting("list_limit", default=5)
+        limit = AddonSettings.store(KODI).get_integer_setting("list_limit", default=5)
         return [-1, 10, 50, 75, 100, 150, 200, 1000][limit]
 
     @staticmethod
     def GetLogLevel():
         """ Returns True if the add-on should do trace logging """
 
-        level = AddonSettings.__store(KODI).get_integer_setting("log_level", default=2)
+        level = AddonSettings.store(KODI).get_integer_setting("log_level", default=2)
 
         # the return value is zero based. 0 -> Trace , 1=Debug (10), 2 -> Info (20)
         return int(level) * 10
@@ -574,7 +575,7 @@ class AddonSettings(object):
 
         """
 
-        AddonSettings.__store(LOCAL).set_setting("visible", visible, channel)
+        AddonSettings.store(LOCAL).set_setting("visible", visible, channel)
 
     @staticmethod
     def GetChannelVisibility(channel):
@@ -585,7 +586,7 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.__store(LOCAL).get_boolean_setting("visible", channel, default=True)
+        return AddonSettings.store(LOCAL).get_boolean_setting("visible", channel, default=True)
 
     @staticmethod
     def ShowChannelSettings(channel):
@@ -602,7 +603,7 @@ class AddonSettings(object):
         Logger.Debug("Showing channel settings for channel: %s (%s)", channelName, channel.channelName)
 
         # Set the channel to be the preselected one
-        AddonSettings.__store(KODI).set_setting("config_channel", channelName)
+        AddonSettings.store(KODI).set_setting("config_channel", channelName)
 
         # show settings and focus on the channel settings tab
         if AddonSettings.IsMinVersion(18):
@@ -620,7 +621,7 @@ class AddonSettings(object):
 
         if tabId is None:
             # shows the settings and blocks:
-            AddonSettings.__store(KODI).open_settings()  # this will open settings window
+            AddonSettings.store(KODI).open_settings()  # this will open settings window
             # reload the cache because stuff might have changed
 
             Logger.Info("Clearing Settings cache because settings dialog was shown.")
@@ -662,7 +663,7 @@ class AddonSettings(object):
 
         """
         (settingsId, settingsLabel) = AddonSettings.__GetLanguageSettingsIdAndLabel(languageCode)
-        return AddonSettings.__store(KODI).get_boolean_setting(settingsId, default=True)
+        return AddonSettings.store(KODI).get_boolean_setting(settingsId, default=True)
 
     @staticmethod
     def GetLocalIPHeaderForChannel(channelInfo):
@@ -683,7 +684,7 @@ class AddonSettings(object):
 
         Logger.Debug("Country settings '%s' configured for Local IP for %s", prefix, channelInfo)
 
-        server = AddonSettings.__store(KODI).get_setting("%s_local_ip" % (prefix,), default=None)
+        server = AddonSettings.store(KODI).get_setting("%s_local_ip" % (prefix,), default=None)
         if not server:
             Logger.Debug("No Local IP found for country '%s'", prefix)
             return None
@@ -702,7 +703,7 @@ class AddonSettings(object):
         if AddonSettings.__NoProxy:
             return None
 
-        countryCode = AddonSettings.__store(LOCAL).\
+        countryCode = AddonSettings.store(LOCAL).\
             get_setting(AddonSettings.__LOCAL_IP_SETTING, channelInfo)
         return countryCode
 
@@ -720,7 +721,7 @@ class AddonSettings(object):
             Logger.Warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
             countryCode = None
 
-        AddonSettings.__store(LOCAL).\
+        AddonSettings.store(LOCAL).\
             set_setting(AddonSettings.__LOCAL_IP_SETTING, countryCode, channel=channelInfo)
         return
 
@@ -744,17 +745,17 @@ class AddonSettings(object):
 
         Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
 
-        server = AddonSettings.__store(KODI).get_setting("%s_proxy_server" % (prefix,))
-        port = AddonSettings.__store(KODI).get_integer_setting("%s_proxy_port" % (prefix,), default=0)
-        proxyType = AddonSettings.__store(KODI).get_setting("%s_proxy_type" % (prefix,))
+        server = AddonSettings.store(KODI).get_setting("%s_proxy_server" % (prefix,))
+        port = AddonSettings.store(KODI).get_integer_setting("%s_proxy_port" % (prefix,), default=0)
+        proxyType = AddonSettings.store(KODI).get_setting("%s_proxy_type" % (prefix,))
 
         if not proxyType or proxyType.lower() not in ('dns', 'http') or not server:
             Logger.Debug("No proxy found for country '%s'", prefix)
             return None
 
-        username = AddonSettings.__store(KODI).\
+        username = AddonSettings.store(KODI).\
             get_setting("%s_proxy_username" % (prefix,), default="")
-        password = AddonSettings.__store(KODI).\
+        password = AddonSettings.store(KODI).\
             get_setting("%s_proxy_password" % (prefix,), default="")
 
         pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
@@ -773,7 +774,7 @@ class AddonSettings(object):
         if AddonSettings.__NoProxy:
             return None
 
-        countryCode = AddonSettings.__store(LOCAL).\
+        countryCode = AddonSettings.store(LOCAL).\
             get_setting(AddonSettings.__PROXY_SETTING, channelInfo)
         return countryCode
 
@@ -787,7 +788,7 @@ class AddonSettings(object):
 
         """
 
-        AddonSettings.__store(LOCAL).\
+        AddonSettings.store(LOCAL).\
             set_setting(AddonSettings.__PROXY_SETTING, countryCode, channelInfo)
         return
 
@@ -1130,20 +1131,20 @@ class AddonSettings(object):
 
                 proxyTitle = "{0} Proxy".format(country)
                 proxyValue = "{0} ({1})".format(
-                    AddonSettings.__store(KODI).get_setting(
+                    AddonSettings.store(KODI).get_setting(
                         "{0}_proxy_server".format(country.lower()), default="Not Set"),
-                    AddonSettings.__store(KODI).get_setting(
+                    AddonSettings.store(KODI).get_setting(
                         "{0}_proxy_type".format(country.lower()), default="Not Set"))
                 value = pattern % (value, proxyTitle, proxyValue)
 
                 proxyPortTitle = "{0} Proxy Port".format(country)
                 proxyPortValue = \
-                    AddonSettings.__store(KODI).get_integer_setting(
+                    AddonSettings.store(KODI).get_integer_setting(
                         "{0}_proxy_port".format(country.lower()), default=0)
                 value = pattern % (value, proxyPortTitle, proxyPortValue)
 
                 localIpTitle = "{0} Local IP".format(country)
-                localIpValue = AddonSettings.__store(KODI). \
+                localIpValue = AddonSettings.store(KODI). \
                     get_setting("{0}_local_ip".format(country.lower()), default="Not Set")
                 value = pattern % (value, localIpTitle, localIpValue)
         except:
