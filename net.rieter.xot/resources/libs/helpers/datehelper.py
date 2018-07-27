@@ -128,7 +128,7 @@ class DateHelper:
 
     @staticmethod
     def GetDateFromPosix(posix, tz=None):
-        # type: (float) -> datetime.datetime
+        # type: (float, datetime.tzinfo) -> datetime.datetime
         """ Creates a datetime from a Posix Time stamp
 
         @param posix:   the posix time stamp integer

@@ -178,7 +178,9 @@ class EnvController:
                         # if directory.count(excludePattern) == 0:
                         if directory.count("BUILD") == 0:
                             for fileName in files:
-                                if not fileName.startswith(".") and not fileName.endswith(".pyo"):
+                                if not fileName.startswith(".") \
+                                        and not fileName.endswith(".pyo") \
+                                        and not fileName.endswith(".pyc"):
                                     dirPrint = "%s\n%s" % (dirPrint, ospathjoin(directory, fileName))
             self.logger.Debug("%s" % (dirPrint, ))
         except:

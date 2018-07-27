@@ -391,9 +391,9 @@ class MediaItem:
         # specific items
         Logger.Trace("Setting InfoLabels: %s", infoLabels)
         if self.type == "audio":
-            item.setInfo(type="Audio", infoLabels=infoLabels)
+            item.setInfo(type="music", infoLabels=infoLabels)
         else:
-            item.setInfo(type="Video", infoLabels=infoLabels)
+            item.setInfo(type="video", infoLabels=infoLabels)
 
         try:
             item.setIconImage(self.icon)

@@ -160,7 +160,7 @@ class Vault:
         return decryptedValue
 
     def SetSetting(self, settingId, settingName=None, settingActionId=None):
-        # type: (str, str) -> None
+        # type: (str, str, str) -> None
         """ Reads a value for a setting from the keyboard and encryptes it in the Kodi
         Add-on settings
 

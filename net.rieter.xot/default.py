@@ -68,12 +68,12 @@ def RunPlugin():
         import plugin
         plugin.Plugin(sys.argv[0], sys.argv[2], sys.argv[1])
 
+        # make sure we leave no references behind
+        AddonSettings.ClearCachedAddonSettingsObject()
         # close the log to prevent locking on next call
         Logger.Instance().CloseLog()
         logFile = None
 
-        # make sure we leave no references behind
-        AddonSettings.ClearCachedAddonSettingsObject()
     except:
         if logFile:
             logFile.Critical("Error running plugin", exc_info=True)

@@ -55,6 +55,7 @@ class ParameterParser(object):
 
         self.propertyRetrospect = "Retrospect"
         self.propertyRetrospectChannel = "RetrospectChannel"
+        self.propertyRetrospectChannelSetting = "RetrospectChannelSettings"
         self.propertyRetrospectFolder = "RetrospectFolder"
         self.propertyRetrospectVideo = "RetrospectVideo"
         self.propertyRetrospectCloaked = "RetrospectCloaked"

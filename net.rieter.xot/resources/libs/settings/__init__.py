@@ -8,11 +8,4 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-import menu
-
-# import sys
-# import xbmcgui
-# sys.listitem = xbmcgui.ListItem("Test", path="plugin://net.rieter.xot/?action=listfolder&channelcode=uzgjson&channel=chn_nos2010")
-
-with menu.Menu("Set Bitrate") as m:
-    m.SetBitrate()
+__all__ = ["localsettings", "kodisettings"]

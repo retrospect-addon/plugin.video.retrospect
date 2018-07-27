@@ -32,7 +32,7 @@ Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                     dualLogger=lambda x, y=4: xbmc.log(x, y))
 
 from helpers.htmlentityhelper import HtmlEntityHelper
-from addonsettings import AddonSettings
+from addonsettings import AddonSettings, LOCAL
 from favourites import Favourites
 from paramparser import ParameterParser
 from helpers.channelimporter import ChannelIndex
@@ -55,6 +55,7 @@ class Menu(ParameterParser):
 
         params = self.kodiItem.getPath()
         if not params:
+            self.channelObject = None
             return
 
         name, params = params.split("?", 1)
@@ -176,7 +177,8 @@ class Menu(ParameterParser):
     def ToggleCloak(self):
         item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(Config.profileDir, self.channelObject.guid, logger=Logger.Instance())
+        c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.Instance())
+
         if c.IsCloaked(item.url):
             c.UnCloak(item.url)
             self.Refresh()
@@ -187,6 +189,7 @@ class Menu(ParameterParser):
             XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
                                    LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
 
+        del c
         self.Refresh()
 
     def __GetChannel(self):
@@ -208,8 +211,9 @@ class Menu(ParameterParser):
             Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
 
         # make sure we leave no references behind
-        Logger.Instance().CloseLog()
         AddonSettings.ClearCachedAddonSettingsObject()
+        # close the log to prevent locking on next call
+        Logger.Instance().CloseLog()
         return False
 
     def SetBitrate(self):
@@ -218,7 +222,7 @@ class Menu(ParameterParser):
 
         # taken from the settings.xml
         bitrateOptions = "Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000".split("|")
-        currentBitrate = AddonSettings.GetChannelSetting(self.channelObject.guid, "bitrate")
+        currentBitrate = AddonSettings.GetMaxChannelBitrate(self.channelObject)
         Logger.Debug("Found bitrate for %s: %s", self.channelObject, currentBitrate)
         currentBitrateIndex = 0 if currentBitrate not in bitrateOptions \
             else bitrateOptions.index(currentBitrate)
@@ -235,6 +239,5 @@ class Menu(ParameterParser):
                     bitrateOptions[currentBitrateIndex],
                     bitrateOptions[selectedBitrate])
 
-        AddonSettings.SetChannelSetting(self.channelObject.guid, "bitrate",
-                                        bitrateOptions[selectedBitrate])
+        AddonSettings.SetMaxChannelBitrate(self.channelObject, bitrateOptions[selectedBitrate])
         return

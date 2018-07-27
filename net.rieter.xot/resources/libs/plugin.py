@@ -333,6 +333,8 @@ class Plugin(ParameterParser):
                 item = channel.GetXBMCItem()
                 item.setProperty(self.propertyRetrospect, "true")
                 item.setProperty(self.propertyRetrospectChannel, "true")
+                if channel.settings:
+                    item.setProperty(self.propertyRetrospectChannelSetting, "true")
 
                 # Get the context menu items
                 contextMenuItems = self.__GetContextMenuItems(channel)

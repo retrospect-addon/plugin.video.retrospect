@@ -7,43 +7,34 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-import os
+
 from helpers.jsonhelper import JsonHelper
 
 
-class Cloaker:
-    __MESSAGE_SHOWN = "messageShown"
+class Cloaker(object):
+    CLOAKED_KEY = "cloaked"
+    FIRST_TIME_SHOWN = "cloak_message_shown"
 
-    def __init__(self, profilePath, channelId, logger=None):
+    def __init__(self, channel, settingsStore, logger=None):
         """ Creates a Cloaker object that helps with cloaking objects
 
-        @param profilePath: the path to the Kodi profile settings folder.
-        @param channelId:   the GUID of the channel for which we need cloak information.
+        @param channel:     the ChannelInfo of the channel for which we need cloak information.
         @param logger:      a Logger object for logging purposes.
 
         """
 
-        self.__cloakedSettings = os.path.join(profilePath, "cloaked.json")
         self.__logger = logger
-        self.__channelId = channelId
+        self.__channel = channel
+        self.__channelId = channel.guid
+        self.__settingsStore = settingsStore
 
         if self.__logger:
-            self.__logger.Debug("Setting up a Cloaker based on '%s'", self.__cloakedSettings)
+            self.__logger.Debug("Setting up a Cloaker based on '%s'", self.__settingsStore)
 
         # Create a new file if none existed
-        if not os.path.exists(self.__cloakedSettings):
-            self.__cloaked = {Cloaker.__MESSAGE_SHOWN: False}
-            if self.__logger:
-                self.__logger.Info("Creating a new cloaked settings file at '%s'", self.__cloakedSettings)
-            # store but keep the first time message
-            self.__Store(False)
-
-        with file(self.__cloakedSettings, mode='r') as fp:
-            self.__cloaked = JsonHelper.Loads(fp.read())
-
-        if self.__channelId not in self.__cloaked:
-            self.__cloaked[self.__channelId] = {}
-            # store but keep the first time message
+        self.__cloaked = self.__settingsStore.get_setting("cloaked", channel=channel, default=None)
+        if self.__cloaked is None:
+            self.__cloaked = {}
             self.__Store(False)
 
         if self.__logger:
@@ -58,7 +49,7 @@ class Cloaker:
 
         """
 
-        if url in self.__cloaked[self.__channelId]:
+        if url in self.__cloaked:
             if self.__logger:
                 self.__logger.Debug("'%s' in channel '%s' was already cloaked.", url, self.__channelId)
             return False
@@ -66,7 +57,7 @@ class Cloaker:
         if self.__logger:
             self.__logger.Debug("Cloaking '%s' in channel '%s'", url, self.__channelId)
 
-        self.__cloaked[self.__channelId][url] = {}
+        self.__cloaked[url] = {}
         return self.__Store()
 
     def UnCloak(self, url):
@@ -76,7 +67,7 @@ class Cloaker:
         @param url: the URL to uncloak.
         """
 
-        if url not in self.__cloaked[self.__channelId]:
+        if url not in self.__cloaked:
             if self.__logger:
                 self.__logger.Debug("'%s' in channel '%s' was not cloaked.", url, self.__channelId)
             return
@@ -84,7 +75,7 @@ class Cloaker:
         if self.__logger:
             self.__logger.Debug("Un-cloaking '%s' in channel '%s'", url, self.__channelId)
 
-        self.__cloaked[self.__channelId].pop(url, None)
+        self.__cloaked.pop(url, None)
         self.__Store()
         return
 
@@ -96,10 +87,10 @@ class Cloaker:
         @return:    a boolean value indicating whether the url is cloaked (True) or not (False)
         """
 
-        return url in self.__cloaked[self.__channelId]
+        return url in self.__cloaked
 
     def __Store(self, updateFirstTimeMessage=True):
-        # type: () -> bool
+        # type: (bool) -> bool
         """ Store the current cloak information to the profile folder.
 
         @type updateFirstTimeMessage: bool
@@ -107,17 +98,21 @@ class Cloaker:
 
         """
 
-        firstTime = not self.__cloaked.get(Cloaker.__MESSAGE_SHOWN, False)
+        firstTime = not self.__settingsStore.get_boolean_setting(Cloaker.FIRST_TIME_SHOWN,
+                                                                 default=False)
 
         # update the first time message setting unless we should not.
         if updateFirstTimeMessage:
-            self.__cloaked[Cloaker.__MESSAGE_SHOWN] = updateFirstTimeMessage
+            self.__settingsStore.set_setting(Cloaker.FIRST_TIME_SHOWN, updateFirstTimeMessage)
 
-        with file(self.__cloakedSettings, mode='w') as fp:
-            if self.__logger:
-                self.__logger.Info("Storing Cloaking information to cloak file '%s'.", self.__cloakedSettings)
-            fp.write(JsonHelper.Dump(self.__cloaked, prettyPrint=True))
+        self.__settingsStore.\
+            set_setting(Cloaker.CLOAKED_KEY, self.__cloaked, channel=self.__channel)
 
-        if self.__logger:
+        if firstTime and self.__logger and updateFirstTimeMessage:
             self.__logger.Debug("First time cloak found.")
         return firstTime
+
+    def __del__(self):
+        # just release the reference here
+        self.__settingsStore = None
+        self.__logger.Trace("Removing Cloaker object")

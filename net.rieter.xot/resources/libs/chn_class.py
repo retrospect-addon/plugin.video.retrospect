@@ -31,7 +31,7 @@ from helpers.encodinghelper import EncodingHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.statistics import Statistics
-from addonsettings import AddonSettings
+from addonsettings import AddonSettings, LOCAL
 
 
 class Channel:
@@ -339,7 +339,7 @@ class Channel:
             items = filter(lambda i: not i.isPaid or i.type == typeToExclude, items)
             # items = filter(lambda i: not i.isPaid or i.type == "folder", items)
 
-        cloaker = Cloaker(Config.profileDir, self.guid, logger=Logger.Instance())
+        cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.Instance())
         if not AddonSettings.ShowCloakedItems():
             Logger.Debug("Hiding Cloaked items")
             items = filter(lambda i: not cloaker.IsCloaked(i.url), items)
@@ -1090,7 +1090,7 @@ class Channel:
 
         """
 
-        setting = AddonSettings.GetChannelSetting(self.guid, settingId, valueForNone)
+        setting = AddonSettings.GetChannelSetting(self, settingId, valueForNone)
         return setting
 
     # noinspection PyPropertyAccess
