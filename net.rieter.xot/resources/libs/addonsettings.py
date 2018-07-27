@@ -13,31 +13,23 @@ import shutil
 import threading
 import xbmc
 
-#===============================================================================
-# Make global object available
-#===============================================================================
 from logger import Logger                               # this has not further references
 from proxyinfo import ProxyInfo                         # this has not further references
 from config import Config                               # this has not further references
-# from regexer import Regexer                           # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
 from settings import localsettings, kodisettings
 
-
+# Theoretically we could add a remote settings store too!
 KODI = "kodi"
 LOCAL = "local"
-# Theoretically we could add a remote settings store too!
 
 
 class AddonSettings(object):
     """ Static Class for retrieving XBMC Addon settings """
 
-    __instance = None
-
     __NoProxy = True
 
     # these are static properties that store the settings. Creating them each time is causing major slow-down
-    __settings = None
     __UserAgent = None
     __KodiVersion = None
 
@@ -101,8 +93,7 @@ class AddonSettings(object):
             if store:
                 del store
 
-        del AddonSettings.__settings
-    # endregion
+    #endregion
 
     #region Kodi version stuff
     @staticmethod
@@ -130,6 +121,40 @@ class AddonSettings(object):
         return version >= minValue
     #endregion
 
+    #region Generic Access to Settings from other modules
+    @staticmethod
+    def GetSetting(settingId):
+        """Returns the setting for the requested ID, from the cached settings.
+
+        Arguments:
+        settingId - string - the ID of the settings
+
+        Returns:
+        The configured XBMC add-on values for that <id>.
+
+        """
+
+        # For now this will always be the KODI store
+        value = AddonSettings.__store(KODI).get_setting(settingId)
+        return value
+
+    @staticmethod
+    def SetSetting(settingId, value):
+        """Sets the value for the setting with requested ID, from the cached settings.
+
+        Arguments:
+        settingId - string - the ID of the settings
+        value     - string - the value
+
+        Returns:
+        The configured XBMC add-on values for that <id>.
+
+        """
+
+        # For now this will always be the KODI store
+        AddonSettings.__store(KODI).set_setting(settingId, value)
+        return value
+
     @staticmethod
     def GetChannelSetting(channel, settingId, valueForNone=None):
         """ Retrieves channel settings for the given channel
@@ -153,11 +178,12 @@ class AddonSettings(object):
         """
 
         return AddonSettings.__store(KODI).set_setting(settingId, value, channel)
+    #endregion
 
     @staticmethod
     def GetAvailableCountries(asString=False, asCountryCodes=False):
         """ returns the all available ProxyGroupId's in order. The countries are:
-        
+
              * other - Other languages
              * uk    - United Kingdom
              * nl    - The Netherlands
@@ -169,7 +195,7 @@ class AddonSettings(object):
              * lt    - Lithuani
              * lv    - Latvia
              * dk    - Danish
-             
+
         """
 
         proxyIds = [30025, 30300, 30301, 30307, 30302, 30305, 30305, 30306, 30308, 30303, 30304]
@@ -380,9 +406,11 @@ class AddonSettings(object):
             uname = platform.uname()
             Logger.Trace(uname)
             if git:
-                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s Git:%s" % (version, uname[0], uname[2], uname[4], version, git)
+                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s Git:%s" % \
+                            (version, uname[0], uname[2], uname[4], version, git)
             else:
-                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % (version, uname[0], uname[2], uname[4], version)
+                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % \
+                            (version, uname[0], uname[2], uname[4], version)
         except:
             Logger.Warning("Error setting user agent", exc_info=True)
             currentEnv = EnvController.GetPlatform(True)
@@ -635,7 +663,7 @@ class AddonSettings(object):
         a NotImplementedError is thrown.
 
         """
-        (settingsId, settingsLabel) = AddonSettings.__GetLanguageSettingsIdAndLabel(languageCode)  # @UnusedVariables
+        (settingsId, settingsLabel) = AddonSettings.__GetLanguageSettingsIdAndLabel(languageCode)
         return AddonSettings.__store(KODI).get_boolean_setting(settingsId, default=True)
 
     @staticmethod
@@ -1002,17 +1030,6 @@ class AddonSettings(object):
         return contents
 
     @staticmethod
-    def __CachedSettings():
-        """
-        @return: a cached XBMC settings object
-        """
-
-        if not AddonSettings.__settings:
-            AddonSettings.__LoadSettings()
-
-        return AddonSettings.__settings
-
-    @staticmethod
     def __GetLanguageSettingsIdAndLabel(languageCode):
         """ returns the settings xml part for this language
 
@@ -1052,24 +1069,6 @@ class AddonSettings(object):
             raise NotImplementedError("Language code not supported: '%s'" % (languageCode, ))
 
     @staticmethod
-    def __LoadSettings():
-        # the settings object
-        Logger.Info("Loading Settings into static object")
-        try:
-            import xbmcaddon  # @Reimport
-            try:
-                # first try the version without the ID
-                AddonSettings.__settings = xbmcaddon.Addon()
-            except:
-                Logger.Warning("Settings :: Cannot use xbmcaddon.Addon() as settings. Falling back to  xbmcaddon.Addon(id)")
-                AddonSettings.__settings = xbmcaddon.Addon(id=Config.addonId)
-        except:
-            Logger.Error("Settings :: Cannot use xbmcaddon.Addon() as settings. Falling back to xbmc.Settings(path)", exc_info=True)
-            import xbmc  # @Reimport
-            # noinspection PyUnresolvedReferences
-            AddonSettings.__settings = xbmc.Settings(path=Config.rootDir)
-
-    @staticmethod
     def __SortChannels(x, y):
         """ compares 2 channels based on language and then sortorder """
 
@@ -1078,54 +1077,6 @@ class AddonSettings(object):
             return cmp(x.sortOrder, y.sortOrder)
         else:
             return value
-
-    @staticmethod
-    def GetSetting(settingId):
-        """Returns the setting for the requested ID, from the cached settings.
-
-        Arguments:
-        settingId - string - the ID of the settings
-
-        Returns:
-        The configured XBMC add-on values for that <id>.
-
-        """
-
-        value = AddonSettings.__CachedSettings().getSetting(settingId)
-
-        # Logger.Trace("Settings: %s = %s", settingId, value)
-        return value
-
-    @staticmethod
-    def SetSetting(settingId, value):
-        """Sets the value for the setting with requested ID, from the cached settings.
-
-        Arguments:
-        settingId - string - the ID of the settings
-        value     - string - the value
-
-        Returns:
-        The configured XBMC add-on values for that <id>.
-
-        """
-
-        AddonSettings.__CachedSettings().setSetting(settingId, value)
-        # Logger.Trace("Settings: %s = %s", settingId, value)
-        return value
-
-    @staticmethod
-    def GetBooleanSetting(settingId, trueValue="true"):
-        """ Arguments:
-        id - string - the ID of the settings
-        trueValue - string - the value to consider True
-
-        Returns:
-        The configured XBMC add-on values for that <id>.
-
-        """
-
-        setting = AddonSettings.GetSetting(settingId)
-        return setting == trueValue
 
     @staticmethod
     def PrintSettingValues():
@@ -1162,7 +1113,6 @@ class AddonSettings(object):
 
         try:
             proxies = AddonSettings.GetAvailableCountries(asCountryCodes=True)
-            # proxies = ["NL", "UK", "SE", "Other"]
             for country in proxies:
                 if country is None:
                     continue
@@ -1171,19 +1121,24 @@ class AddonSettings(object):
                 else:
                     country = country.upper()
 
-                value = pattern % (
-                    value, "%s Proxy" % (country, ),
-                    "%s (%s)" % (
-                        AddonSettings.__store(KODI).get_setting("{0}_proxy_server".format(country.lower()), default="Not Set"),
-                        AddonSettings.__store(KODI).get_setting("{0}_proxy_type".format(country.lower()), default="Not Set")
-                    )
-                )
+                proxyTitle = "{0} Proxy".format(country)
+                proxyValue = "{0} ({1})".format(
+                    AddonSettings.__store(KODI).get_setting(
+                        "{0}_proxy_server".format(country.lower()), default="Not Set"),
+                    AddonSettings.__store(KODI).get_setting(
+                        "{0}_proxy_type".format(country.lower()), default="Not Set"))
+                value = pattern % (value, proxyTitle, proxyValue)
 
-                value = pattern % (value, "%s Proxy Port" % (country, ),
-                                   AddonSettings.GetSetting("%s_proxy_port" % (country.lower(),)) or 0)
+                proxyPortTitle = "{0} Proxy Port".format(country)
+                proxyPortValue = \
+                    AddonSettings.__store(KODI).get_integer_setting(
+                        "{0}_proxy_port".format(country.lower()), default=0)
+                value = pattern % (value, proxyPortTitle, proxyPortValue)
 
-                value = pattern % (value, "%s Local IP" % (country, ),
-                                   AddonSettings.GetSetting("%s_local_ip" % (country.lower(),)) or 0)
+                localIpTitle = "{0} Local IP".format(country)
+                localIpValue = AddonSettings.__store(KODI). \
+                    get_setting("{0}_local_ip".format(country.lower()), default="Not Set")
+                value = pattern % (value, localIpTitle, localIpValue)
         except:
             Logger.Error("Error", exc_info=True)
         return value
