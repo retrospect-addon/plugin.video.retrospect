@@ -3,20 +3,15 @@
 # ===============================================================================
 import chn_class
 import mediaitem
-# from parserdata import ParserData
-from locker import LockWithDialog
-from config import Config
 from helpers.xmlhelper import XmlHelper
 from helpers import subtitlehelper
 from helpers.jsonhelper import JsonHelper
-from helpers.languagehelper import LanguageHelper
 from helpers.datehelper import DateHelper
 from streams.f4m import F4m
 from logger import Logger
 from parserdata import ParserData
 from regexer import Regexer
 from urihandler import UriHandler
-from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -227,11 +222,9 @@ class Channel(chn_class.Channel):
 
         part = item.CreateNewEmptyMediaPart()
 
-        if True:
-            streamData = UriHandler.Open(streamDataUrl, proxy=self.proxy)
-        else:
-            from debug.router import Router
-            streamData = Router.GetVia("uk", streamDataUrl, self.proxy)
+        streamData = UriHandler.Open(streamDataUrl, proxy=self.proxy)
+        # from debug.router import Router
+        # streamData = Router.GetVia("uk", streamDataUrl, self.proxy)
 
         connectionDatas = Regexer.DoRegex(
             '<media bitrate="(\d+)"[^>]+>\W*'
