@@ -123,7 +123,7 @@ class AddonSettings(object):
 
     #region Generic Access to Settings from other modules
     @staticmethod
-    def GetSetting(settingId):
+    def GetSetting(settingId, store=KODI):
         """Returns the setting for the requested ID, from the cached settings.
 
         Arguments:
@@ -134,12 +134,11 @@ class AddonSettings(object):
 
         """
 
-        # For now this will always be the KODI store
-        value = AddonSettings.__store(KODI).get_setting(settingId)
+        value = AddonSettings.__store(store).get_setting(settingId)
         return value
 
     @staticmethod
-    def SetSetting(settingId, value):
+    def SetSetting(settingId, value, store=KODI):
         """Sets the value for the setting with requested ID, from the cached settings.
 
         Arguments:
@@ -151,12 +150,11 @@ class AddonSettings(object):
 
         """
 
-        # For now this will always be the KODI store
-        AddonSettings.__store(KODI).set_setting(settingId, value)
+        AddonSettings.__store(store).set_setting(settingId, value)
         return value
 
     @staticmethod
-    def GetChannelSetting(channel, settingId, valueForNone=None):
+    def GetChannelSetting(channel, settingId, valueForNone=None, store=KODI):
         """ Retrieves channel settings for the given channel
 
         @param channel:     The channel object to get the channels for
@@ -165,10 +163,10 @@ class AddonSettings(object):
         @rtype : the configured value
         """
 
-        return AddonSettings.__store(KODI).get_setting(settingId, channel, valueForNone)
+        return AddonSettings.__store(store).get_setting(settingId, channel, valueForNone)
 
     @staticmethod
-    def SetChannelSetting(channel, settingId, value):
+    def SetChannelSetting(channel, settingId, value, store=KODI):
         """ Retrieves channel settings for the given channel
 
         @param channel:     The channel object to get the channels for
@@ -177,7 +175,7 @@ class AddonSettings(object):
         @rtype :            The configured value
         """
 
-        return AddonSettings.__store(KODI).set_setting(settingId, value, channel)
+        return AddonSettings.__store(store).set_setting(settingId, value, channel)
     #endregion
 
     @staticmethod
