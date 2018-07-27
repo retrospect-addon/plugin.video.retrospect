@@ -676,13 +676,11 @@ class AddonSettings(object):
         if AddonSettings.__NoProxy:
             return None
 
-        countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
-        countryId = AddonSettings.GetLocalIPHeaderIdForChannel(channelInfo)
-        if countryId == 0:
+        prefix = AddonSettings.GetLocalIPHeaderCountryCodeForChannel(channelInfo)
+        if prefix is None:
             Logger.Debug("No Local IP configured for %s", channelInfo)
             return None
 
-        prefix = countries[countryId]
         Logger.Debug("Country settings '%s' configured for Local IP for %s", prefix, channelInfo)
 
         server = AddonSettings.__store(KODI).get_setting("%s_local_ip" % (prefix,), default=None)
@@ -694,17 +692,23 @@ class AddonSettings(object):
         return {"X-Forwarded-For": server}
 
     @staticmethod
-    def GetLocalIPHeaderIdForChannel(channelInfo):
-        if AddonSettings.__NoProxy:
-            return 0
+    def GetLocalIPHeaderCountryCodeForChannel(channelInfo):
+        """ Returns the Country code for the LocalIP that is configured for this channel
 
-        countryId = AddonSettings.__store(LOCAL).\
-            get_integer_setting(AddonSettings.__LOCAL_IP_SETTING, channelInfo, default=0)
-        return countryId
+        @param channelInfo:  The ChannelInfo object
+        @return:             2 character ISO country code
+
+        """
+        if AddonSettings.__NoProxy:
+            return None
+
+        countryCode = AddonSettings.__store(LOCAL).\
+            get_setting(AddonSettings.__LOCAL_IP_SETTING, channelInfo)
+        return countryCode
 
     @staticmethod
-    def SetLocalIPForChannel(channelInfo, localIpIndex):
-        """ Sets the ProxyId for a channel
+    def SetLocalIPForChannel(channelInfo, countryCode):
+        """ Sets the country code for the local IP for a channel
 
         Arguments:
         channelInfo : ChannelInfo - The channel
@@ -712,12 +716,12 @@ class AddonSettings(object):
 
         """
 
-        if localIpIndex == 1:
+        if countryCode == "other":
             Logger.Warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
-            localIpIndex = 0
+            countryCode = None
 
         AddonSettings.__store(LOCAL).\
-            set_setting(AddonSettings.__LOCAL_IP_SETTING, localIpIndex, channel=channelInfo)
+            set_setting(AddonSettings.__LOCAL_IP_SETTING, countryCode, channel=channelInfo)
         return
 
     # noinspection PyUnusedLocal
@@ -733,13 +737,11 @@ class AddonSettings(object):
         if AddonSettings.__NoProxy:
             return None
 
-        countries = AddonSettings.GetAvailableCountries(asCountryCodes=True)
-        countryId = AddonSettings.GetProxyIdForChannel(channelInfo)
-        if countryId == 0:
+        prefix = AddonSettings.GetProxyCountryCodeForChannel(channelInfo)
+        if prefix is None:
             Logger.Debug("No proxy configured for %s", channelInfo)
             return None
 
-        prefix = countries[countryId]
         Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
 
         server = AddonSettings.__store(KODI).get_setting("%s_proxy_server" % (prefix,))
@@ -760,17 +762,24 @@ class AddonSettings(object):
         return pInfo
 
     @staticmethod
-    def GetProxyIdForChannel(channelInfo):
-        if AddonSettings.__NoProxy:
-            return 0
+    def GetProxyCountryCodeForChannel(channelInfo):
+        """ Returns the Country code for the proxy that is configured for this channel
 
-        countryId = AddonSettings.__store(LOCAL).\
-            get_integer_setting(AddonSettings.__PROXY_SETTING, channelInfo, default=0)
-        return countryId
+        @param channelInfo:  The ChannelInfo object
+        @return:             2 character ISO country code
+
+        """
+
+        if AddonSettings.__NoProxy:
+            return None
+
+        countryCode = AddonSettings.__store(LOCAL).\
+            get_setting(AddonSettings.__PROXY_SETTING, channelInfo)
+        return countryCode
 
     @staticmethod
-    def SetProxyIdForChannel(channelInfo, proxyIndex):
-        """ Sets the ProxyId for a channel
+    def SetProxyIdForChannel(channelInfo, countryCode):
+        """ Sets the country code for the proxy for a channel
 
         Arguments:
         channelInfo : ChannelInfo - The channel
@@ -779,7 +788,7 @@ class AddonSettings(object):
         """
 
         AddonSettings.__store(LOCAL).\
-            set_setting(AddonSettings.__PROXY_SETTING, proxyIndex, channelInfo)
+            set_setting(AddonSettings.__PROXY_SETTING, countryCode, channelInfo)
         return
 
     #noinspection PyUnresolvedReferences
