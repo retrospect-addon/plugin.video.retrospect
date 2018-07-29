@@ -37,7 +37,10 @@ class MemoryCache:
         # Set the maximum expiration time.
         self.__Log("Setting ExpireTimeout to '%s'", maxExpiredTime)
         self.maxExpiredTime = maxExpiredTime
-         
+
+        # Store the cache hit count
+        self.cacheHits = 0
+
     def Set(self, key, value):
         """ Sets a cache value
         
@@ -132,7 +135,7 @@ class MemoryCache:
         if self.__logger:
             self.__logger.Debug(message, *args, **kwargs)
         else:
-            print message % args
+            print(message % args)
 
     def __str__(self):
         """ Returns a string representation of the cache object and it's 

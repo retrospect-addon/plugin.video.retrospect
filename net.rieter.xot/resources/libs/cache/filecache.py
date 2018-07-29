@@ -68,6 +68,9 @@ class FileCache:
         self.__Log("Setting ExpireTimeout to '%s'", maxExpiredTime)
         self.maxExpiredTime = maxExpiredTime
 
+        # Store the cache hit count
+        self.cacheHits = 0
+
         # Create the path were the cache files are stored.
         self.__Log("Setting CachePath to '%s'", cachePath)
         if not os.path.exists(cachePath):
@@ -87,9 +90,8 @@ class FileCache:
 
         """
 
-        fileHandle = file(self.__GetFilePath(key), "wb")
-        fileHandle.write(str(value))
-        fileHandle.close()
+        with file(self.__GetFilePath(key), "wb") as fileHandle:
+            fileHandle.write(str(value))
         return
 
     @LockedReadWrite
@@ -104,9 +106,8 @@ class FileCache:
         """
 
         if self.HasKey(key):
-            fileHandle = file(self.__GetFilePath(key), "rb")
-            content = fileHandle.read()
-            fileHandle.close()
+            with file(self.__GetFilePath(key), "rb") as fileHandle:
+                content = fileHandle.read()
         else:
             content = None
         return content
@@ -200,7 +201,7 @@ class FileCache:
         if self.__logger:
             self.__logger.Debug(message, *args, **kwargs)
         else:
-            print message % args
+            print(message % args)
 
     def __GetFilePath(self, key):
         """ Converts a cache Key into a filepath value."""

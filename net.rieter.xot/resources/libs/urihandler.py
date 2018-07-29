@@ -18,12 +18,19 @@ import time
 import gzip
 import zlib
 import ssl
+from collections import namedtuple
 from cStringIO import StringIO
 from httplib import IncompleteRead
 
 from cache import filecache
 from cache import cachehttphandler
 from logger import Logger
+
+UriStatus = namedtuple('UriStatus', [
+    'code',
+    'url',
+    'error'
+])
 
 
 # noinspection PyClassHasNoInit
@@ -52,8 +59,8 @@ class UriHandler:
         if UriHandler.__handler is None \
                 or UriHandler.Instance().ignoreSslErrors != ignoreSslErrors:
             handler = UriHandler.CustomUriHandler(cacheDir, useCompression, webTimeOut,
-                                                               maxFileNameLength, blockSize,
-                                                               cookieJar, ignoreSslErrors)
+                                                  maxFileNameLength, blockSize,
+                                                  cookieJar, ignoreSslErrors)
 
             # hook up all the methods to pass to the actual UriHandler
             UriHandler.Download = handler.Download
@@ -241,6 +248,9 @@ class UriHandler:
             if self.ignoreSslErrors:
                 Logger.Warning("Ignoring all SSL errors in Python")
 
+            # status of the most recent call
+            self.status = UriStatus(code=0, url=None, error=False)
+
         def Download(self, uri, filename, folder, progressCallback, proxy=None, params="", referer=None, additionalHeaders=None):
             """Downloads an file
 
@@ -368,13 +378,20 @@ class UriHandler:
                     uriHandle = self.__GetOpener(uri, proxy, disableCaching=noCache, headOnly=True, referer=referer,
                                                  additionalHeaders=additionalHeaders).open(uri, params)
 
+                self.status = UriStatus(code=uriHandle.code, url=uri, error=False)
+
                 data = uriHandle.info()
                 realUrl = uriHandle.geturl()
                 data = data.get('Content-Type')
                 uriHandle.close()
                 Logger.Debug("Header info retreived: %s for realUrl %s", data, realUrl)
                 return data, realUrl
-            except:
+            except Exception as e:
+                code = 0
+                if isinstance(e, urllib2.HTTPError):
+                    code = e.code
+                self.status = UriStatus(code=code, url=uri, error=True)
+
                 Logger.Critical("Header info not retreived", exc_info=True)
                 return "", ""
 
@@ -583,6 +600,8 @@ class UriHandler:
                 else:
                     srcHandle = opener.open(uri, params)
 
+                self.status = UriStatus(code=srcHandle.code, url=uri, error=False)
+
                 # get some metadata
                 Logger.Debug("Determining number of bytes to fetch")
                 data = srcHandle.info()
@@ -643,9 +662,14 @@ class UriHandler:
                         srcHandle.close()
                 except UnboundLocalError:
                     pass
-
-            except:
+            except Exception as e:
                 Logger.Critical("Error Opening url %s", uri, exc_info=True)
+
+                code = 0
+                if isinstance(e, urllib2.HTTPError):
+                    code = e.code
+                self.status = UriStatus(code=code, url=uri, error=True)
+
                 error = True
                 try:
                     if srcHandle:
@@ -1105,62 +1129,3 @@ class DnsQuery:
 
         def __ByteToInt(self, byteString):
             return int(byteString.encode('hex'), 16)
-
-
-if __name__ == "__main__":
-    logger = Logger.CreateLogger("c:\\temp\\www.log", "UriHandler Test", 0)
-
-    # noinspection PyUnusedLocal
-    def CallBack(retrievedsizeMB, totalsizeMB, perc, completed, status):
-        """
-        @param retrievedsizeMB:
-        @param totalsizeMB:
-        @param perc:
-        @param completed:
-        @param status:
-        """
-        print "%s - %s %s %s" % (status, totalsizeMB, retrievedsizeMB, perc)
-        #if perc > 2:
-        #    return True
-        return False
-
-    from proxyinfo import ProxyInfo
-    p = ProxyInfo("8.8.8.8", 8888, "dns")
-    p = ProxyInfo("185.37.37.37", 8888, "dns")    # http://unlocator.com/
-    p = ProxyInfo("204.12.225.226", 8888, "dns")  # http://proxydns.co/
-    p = ProxyInfo("127.0.0.1", 8888, "http")  # http://proxydns.co/
-
-    from helpers.stopwatch import StopWatch
-    s = StopWatch("Downloader", logger)
-
-    d = DnsQuery("8.8.8.8")
-    print d.GetHost("http://www.rieter.net/niks")
-
-    # noinspection PyArgumentEqualDefault
-    # handler = UriHandler.CreateUriHandler(cacheDir="c:\\temp\\cache\\", useCompression=True, webTimeOut=30, maxFileNameLength=None)
-    handler = UriHandler.CreateUriHandler(useCompression=True, webTimeOut=30, maxFileNameLength=None)
-    handler.SetCookie(name="test", domain=".google.com", value="test")
-    handler.SetCookie(name="test2", domain=".google.com", value="test")
-    s.Lap("Created")
-    url = "https://www.google.com"
-    # url = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/b043bpcn"
-    # data = handler.Open("http://download.thinkbroadband.com/5MB.zip", progressCallback=CallBack, proxy=None, bytes=0, params="", referer=None, additionalHeaders=None, noCache=False)
-    # data = handler.Download("http://www.google.nl/", "google.html", "c:\\temp", CallBack, proxy=p, params="", referer=None, additionalHeaders=None)
-    # print data
-    s.Lap("Downloaded")
-    data = handler.Open(url, progressCallback=CallBack, proxy=p, maxBytes=0, params="", referer=None, additionalHeaders=None, noCache=False)
-    s.Lap("Opened")
-    cs = handler.GetCookie("test", ".google.com")
-    if cs is None:
-        raise Exception("Should not be null")
-    cs = handler.GetCookie("test", ".google.com", matchStart=True)
-    if cs is None:
-        raise Exception("Should not be null")
-    cs = handler.GetCookie("test", ".google.com", path='/test/')
-    if cs is not None:
-        raise Exception("Should not null")
-    cs = handler.GetCookie("test3", ".google.com")
-    if cs is not None:
-        raise Exception("Should be null")
-    print data
-    logger.CloseLog()

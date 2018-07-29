@@ -125,6 +125,7 @@ class CacheHttpHandler(urllib2.BaseHandler, CacheBase):
                 # check if the response has the marker and is thus an already cached response.
                 if self.__cacheMarker in info:
                     self.__Log("This response came from the cache! No further processing needed.")
+                    self.__cacheObject.cacheHits += 1
                     return response
 
                 url = request.get_full_url()
@@ -141,6 +142,7 @@ class CacheHttpHandler(urllib2.BaseHandler, CacheBase):
 
                     # no need to continue, just return the value from the cache as
                     # it was still valid
+                    self.__cacheObject.cacheHits += 1
                     return response
                 else:
                     bodyValue = response.read()
