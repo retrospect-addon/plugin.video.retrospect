@@ -1,4 +1,4 @@
-﻿# coding:UTF-8
+﻿# coding=utf-8
 import chn_class
 import mediaitem
 
@@ -44,6 +44,13 @@ class Channel(chn_class.Channel):
             self.mainListUri = "http://www.nickjr.tv/"
             self.baseUrl = "http://www.nickjr.tv"
             self.__apiKey = "global_Nickjr_web"
+
+        elif self.channelCode == "nickse":
+            self.noImage = "nickelodeonimage.png"
+            self.mainListUri = "http://www.nickelodeon.se/"
+            self.baseUrl = "http://www.nickelodeon.se"
+            self.__apiKey = "sv_SE_Nick_Web"
+            self.__mgid = "arc:video:nick.intl"
 
         else:
             raise NotImplementedError("Unknown channel code")

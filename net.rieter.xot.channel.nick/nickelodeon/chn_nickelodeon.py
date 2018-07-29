@@ -1,4 +1,4 @@
-﻿# coding:UTF-8
+﻿# coding=utf-8
 import chn_class
 
 from regexer import Regexer
@@ -36,11 +36,6 @@ class Channel(chn_class.Channel):
             self.noImage = "nickelodeonimage.png"
             self.mainListUri = "http://www.nickelodeon.no/program/"
             self.baseUrl = "http://www.nickelodeon.no"
-
-        elif self.channelCode == "nickse":
-            self.noImage = "nickelodeonimage.png"
-            self.mainListUri = "http://www.nickelodeon.se/serier/"
-            self.baseUrl = "http://www.nickelodeon.se"
 
         else:
             raise NotImplementedError("Unknown channel code")
