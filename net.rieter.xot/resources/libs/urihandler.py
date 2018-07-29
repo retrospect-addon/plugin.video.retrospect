@@ -314,6 +314,10 @@ class UriHandler(object):
                        referer=None, additionalHeaders=None, noCache=False,
                        progressCallback=None, stream=False):
 
+            # TODO: add a bit more logging
+            # TODO: add changing stuff
+            # TODO: add DNS proxy
+
             s = requests.session()
             s.cookies = self.cookieJar
 
