@@ -7,6 +7,7 @@ from helpers.datehelper import DateHelper
 from parserdata import ParserData
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
+from helpers.htmlhelper import HtmlHelper
 from streams.m3u8 import M3u8
 
 
@@ -382,7 +383,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.type = 'video'
 
-        item.description = resultSet.get("text")
+        item.description = HtmlHelper.ToText(resultSet.get("text"))
         #if item.description:
         #    item.description = item.description.replace("<br />", "\n")
 
