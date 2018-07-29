@@ -40,42 +40,6 @@ class RequestsHandler(object):
     __handler = None
     __error = "UriHandler not initialized. Use UriHandler.CreateUriHandler ======="
 
-    def __init__(self, cacheDir=None, useCompression=True, webTimeOut=30,
-                 blockSize=4096, cookieJar=None, ignoreSslErrors=False):
-        """Initialises the UriHandler class
-
-        Keyword Arguments:
-        @param blockSize:         integer - the size of download blocks.
-        @param cacheDir:          string  - a path for http caching. If specified, caching will be used.
-        @param useCompression:    boolean - Indicates whether compression is supported or not.
-        @param webTimeOut:        integer - timeout for requests in seconds
-        @param cookieJar:         string  - the path to the cookie jar (in case of file storage)
-
-        """
-
-        self.id = int(time.time())
-
-        if cookieJar:
-            self.cookieJar = cookielib.MozillaCookieJar(cookieJar)
-            if not os.path.isfile(cookieJar):
-                # noinspection PyUnresolvedReferences
-                self.cookieJar.save()
-            # noinspection PyUnresolvedReferences
-            self.cookieJar.load()
-            self.cookieJarFile = True
-        else:
-            self.cookieJar = cookielib.CookieJar()
-            self.cookieJarFile = False
-
-        self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
-        self.webTimeOutInterval = webTimeOut  # max duration of request
-        self.ignoreSslErrors = ignoreSslErrors  # ignore SSL errors
-        if self.ignoreSslErrors:
-            Logger.Warning("Ignoring all SSL errors in Python")
-
-        # status of the most recent call
-        self.status = UriStatus(code=0, url=None, error=False)
-
     @staticmethod
     def CreateUriHandler(cacheDir=None, useCompression=True, webTimeOut=30,
                          blockSize=4096, cookieJar=None, ignoreSslErrors=False):
@@ -93,11 +57,11 @@ class RequestsHandler(object):
         # Only create a new handler if we did not have, or if the user options changed
         if RequestsHandler.__handler is None or \
                 RequestsHandler.Instance().ignoreSslErrors != ignoreSslErrors:
-            handler = RequestsHandler(cacheDir, useCompression, webTimeOut,
-                                      blockSize, cookieJar, ignoreSslErrors)
+
+            handler = RequestsHandler.__RequestsHandler(
+                cacheDir, useCompression, webTimeOut, blockSize, cookieJar, ignoreSslErrors)
 
             RequestsHandler.__handler = handler
-
             Logger.Info("Initialised: %s", handler)
         else:
             Logger.Info("Re-using existing UriHandler: %s", RequestsHandler.__handler)
@@ -108,69 +72,122 @@ class RequestsHandler(object):
         """ return the logger instance """
         return RequestsHandler.__handler
 
-    def Open(self, uri, proxy=None,
-             params="", data="", raw="", json="",
-             referer=None, additionalHeaders=None,
-             noCache=False, progressCallback=None):
-        """Open an URL Async using a thread
+    @staticmethod
+    def Open(uri, proxy=None, params="", data="", json="",
+             referer=None, additionalHeaders=None, noCache=False, progressCallback=None):
+        """ Open an URL Async using a thread
 
         Arguments:
         uri      : string - the URI to download
 
         Arguments
-        @param uri:                 - String        - the URI to download
+        @param uri:                 - String          - the URI to download
 
         Keyword Arguments:
-        @param progressCallback:    - Function      - the callback for progress update. The format is
-                                                      function(retrievedSize, totalSize, perc, completed, status)
-        @param proxy:               - [opt] string  - The address and port (proxy.address.ext:port) of
-                                                      a proxy server that should be used.
-        @param params:              - [opt] string  - data to send with the request (open(uri, params))
-        @param referer:             - [opt] string  - the http referer to use
-        @param additionalHeaders:   - [opt] dict    - the optional headers
-        @param noCache:             - [opt] boolean - disables the cache
+        @param progressCallback:    - Function        - the callback for progress update. The format is
+                                                        function(retrievedSize, totalSize, perc, completed, status)
+        @param params:              - [opt] string    - data to send with the request (open(uri, params))
+        @param data:                - [opt] string    - data to send with the request (open(uri, data))
+        @param json:                - [opt] dict      - json to send with the request (open(uri, params))
+        @param proxy:               - [opt] ProxyInfo - The address and port (proxy.address.ext:port) of
+                                                        a proxy server that should be used.
+        @param referer:             - [opt] string    - the http referer to use
+        @param additionalHeaders:   - [opt] dict      - the optional headers
+        @param noCache:             - [opt] boolean   - disables the cache
 
-        @rtype : The data that was retrieved from the URI.
+        @return: The data that was retrieved from the URI.
 
         """
 
-        proxies = self.__GetProxies(proxy, uri)
-        headers = {}
-        if additionalHeaders:
-            for k, v in additionalHeaders.iteritems():
-                headers[k.lower()] = v
+        return RequestsHandler.Instance().Open(uri, proxy, params, data, json,
+                                               referer, additionalHeaders, noCache,
+                                               progressCallback)
 
-        if "user-agent" not in headers:
-            headers["user-agent"] = self.userAgent
-        if referer and "referer" not in headers:
-            headers["referer"] = referer
+    @staticmethod
+    def Header(uri, proxy=None, referer=None, additionalHeaders=None, noCache=False):
+        # type: (str, object, str, dict, bool) -> (object, str)
+        """ Retrieves header information only
 
-        s = requests.session()
-        s.cookies = self.cookieJar
+        Arguments:
+        uri      : string - the URI to download
 
-        if params:
-            # Old UriHandler behaviour. Set form header to keep compatible
-            if "Content-Type" not in headers:
-                headers["content-type"] = "application/x-www-form-urlencoded"
-            r = s.post(uri, data=params, proxies=proxies, headers=headers)
-        elif data:
-            # Normal Requests compatible data object
-            r = s.post(uri, data=data, proxies=proxies, headers=headers)
-        elif json:
-            r = s.post(uri, json=json, proxies=proxies, headers=headers)
-        else:
-            r = s.get(uri, proxies=proxies, headers=headers)
+        Arguments
+        @param uri:                 - String          - the URI to download
 
-        self.status = UriStatus(code=r.status_code, url=uri, error=False)
-        data = r.content
-        return data
+        Keyword Arguments:
+        @param proxy:               - [opt] ProxyInfo - The address and port (proxy.address.ext:port) of
+                                                        a proxy server that should be used.
+        @param referer:             - [opt] string    - the http referer to use
+        @param additionalHeaders:   - [opt] dict      - the optional headers
+        @param noCache:             - [opt] boolean   - disables the cache
+
+        Returns:
+        Data and the URL to which a redirect could have occurred.
+
+        """
+
+        return RequestsHandler.Instance().Header(uri, proxy, referer,
+                                                 additionalHeaders, noCache)
+
+    @staticmethod
+    def SetCookie(version=0, name='', value='',
+                  port=None,  # port_specified=False,
+                  domain='',  # domain_specified=True,
+                  domain_initial_dot=False,
+                  path='/',  # path_specified=True,
+                  secure=False,
+                  expires=4102444555,
+                  # discard=False,
+                  # comment=None,
+                  # comment_url=None,
+                  # rest=None,
+                  # rfc2109=False
+                  ):
+        # type: (int, str, str, str, str, bool, str, bool, int) -> cookielib.Cookie
+
+        """ Sets a cookie in the UriHandler cookie jar
+
+        @param version:             the cookie version
+        @param name:                the name of the cookie
+        @param value:               the value of the cookie
+        @param port:                String representing a port or a set of ports (eg. '80', or '80,8080'), or None
+        @param domain:              the domain for which the cookie should be valid
+        @param domain_initial_dot:  if the domain explicitly specified by the server began with a dot ('.').
+        @param path:                the path the cookie is valid for
+        @param secure:              if cookie should only be returned over a secure connection
+        @param expires:             Integer expiry date in seconds since epoch, or None.
+        """
+
+        Logger.Debug("Setting a cookie with this data:\n"
+                     "name:   '%s'\n"
+                     "value:  '%s'\n"
+                     "domain: '%s'\n"
+                     "path:   '%s'",
+                     name, value, domain, path)
+        c = cookielib.Cookie(version=version, name=name, value=value,
+                             port=port, port_specified=port is not None,
+                             domain=domain, domain_specified=domain is not None,
+                             domain_initial_dot=domain_initial_dot,
+                             path=path, path_specified=path is not None,
+                             secure=secure,
+                             expires=expires,
+                             discard=False,
+                             comment=None,
+                             comment_url=None,
+                             rest={'HttpOnly': None})  # rfc2109=False)
+        # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
+        RequestsHandler.Instance().cookieJar.set_cookie(c)
+        return c
 
     # noinspection PyProtectedMember,PyTypeChecker
-    def GetCookie(self, name, domain, path="/", matchStart=False):
-        if domain not in self.cookieJar._cookies or path not in self.cookieJar._cookies[domain]:
+    @staticmethod
+    def GetCookie(name, domain, path="/", matchStart=False):
+        # type: (str, str, str, bool) -> cookielib.Cookie
+        if domain not in RequestsHandler.Instance().cookieJar._cookies or \
+                path not in RequestsHandler.Instance().cookieJar._cookies[domain]:
             return None
 
-        cookies = self.cookieJar._cookies[domain][path]
+        cookies = RequestsHandler.Instance().cookieJar._cookies[domain][path]
         if not matchStart:
             if name in cookies:
                 return cookies[name]
@@ -183,7 +200,8 @@ class RequestsHandler(object):
         else:
             return cookies[0]
 
-    def CookieCheck(self, cookieName):
+    @staticmethod
+    def CookieCheck(cookieName):
         """Checks if a cookie exists in the CookieJar
 
         Arguments:
@@ -196,7 +214,7 @@ class RequestsHandler(object):
 
         retVal = False
 
-        for cookie in self.cookieJar:
+        for cookie in RequestsHandler.Instance().cookieJar:
             if cookie.name == cookieName:
                 Logger.Debug("Found cookie: %s", cookie.name)
                 retVal = True
@@ -204,20 +222,118 @@ class RequestsHandler(object):
 
         return retVal
 
-    def __GetProxies(self, proxy, url):
-        if proxy is None:
+    class __RequestsHandler(object):
+
+        def __init__(self, cacheDir=None, useCompression=True, webTimeOut=30,
+                     blockSize=4096, cookieJar=None, ignoreSslErrors=False):
+            """Initialises the UriHandler class
+
+            Keyword Arguments:
+            @param blockSize:         integer - the size of download blocks.
+            @param cacheDir:          string  - a path for http caching. If specified, caching will be used.
+            @param useCompression:    boolean - Indicates whether compression is supported or not.
+            @param webTimeOut:        integer - timeout for requests in seconds
+            @param cookieJar:         string  - the path to the cookie jar (in case of file storage)
+
+            """
+
+            self.id = int(time.time())
+
+            if cookieJar:
+                self.cookieJar = cookielib.MozillaCookieJar(cookieJar)
+                if not os.path.isfile(cookieJar):
+                    # noinspection PyUnresolvedReferences
+                    self.cookieJar.save()
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.load()
+                self.cookieJarFile = True
+            else:
+                self.cookieJar = cookielib.CookieJar()
+                self.cookieJarFile = False
+
+            self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
+            self.webTimeOutInterval = webTimeOut  # max duration of request
+            self.ignoreSslErrors = ignoreSslErrors  # ignore SSL errors
+            if self.ignoreSslErrors:
+                Logger.Warning("Ignoring all SSL errors in Python")
+
+            # status of the most recent call
+            self.status = UriStatus(code=0, url=None, error=False)
+
+        def Open(self, uri, proxy=None, params="", data="", json="",
+                 referer=None, additionalHeaders=None, noCache=False, progressCallback=None):
+
+            s = requests.session()
+            s.cookies = self.cookieJar
+
+            proxies = self.__GetProxies(proxy, uri)
+            headers = self.__GetHeaders(referer, additionalHeaders)
+
+            if params:
+                # Old UriHandler behaviour. Set form header to keep compatible
+                if "Content-Type" not in headers:
+                    headers["content-type"] = "application/x-www-form-urlencoded"
+                r = s.post(uri, data=params, proxies=proxies, headers=headers)
+            elif data:
+                # Normal Requests compatible data object
+                r = s.post(uri, data=data, proxies=proxies, headers=headers)
+            elif json:
+                r = s.post(uri, json=json, proxies=proxies, headers=headers)
+            else:
+                r = s.get(uri, proxies=proxies, headers=headers)
+
+            self.status = UriStatus(code=r.status_code, url=uri, error=False)
+
+            return r.text if r.encoding else r.content
+
+        def Header(self, uri, proxy=None, referer=None,
+                   additionalHeaders=None, noCache=False):
+
+            s = requests.session()
+            s.cookies = self.cookieJar
+
+            proxies = self.__GetProxies(proxy, uri)
+            headers = self.__GetHeaders(referer, additionalHeaders)
+
+            r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True)
+
+            contentType = r.headers.get("Content-Type", "")
+            realUrl = r.url
+
+            self.status = UriStatus(code=r.status_code, url=uri, error=False)
+            return contentType, realUrl
+
+        def __Requests(self, method, uri, proxy=None, params="", data="", json="",
+                       referer=None, additionalHeaders=None, noCache=False, progressCallback=None):
             pass
 
-        elif not proxy.UseProxyForUrl(url):
-            Logger.Debug("Not using proxy due to filter mismatch")
+        def __GetHeaders(self, referer, additionalHeaders):
+            headers = {}
+            if additionalHeaders:
+                for k, v in additionalHeaders.iteritems():
+                    headers[k.lower()] = v
 
-        elif proxy.Scheme == "http":
-            Logger.Debug("Using a http(s) %s", proxy)
-            proxyAddress = proxy.GetProxyAddress()
-            return {"http": proxyAddress, "https": proxyAddress}
+            if "user-agent" not in headers:
+                headers["user-agent"] = self.userAgent
+            if referer and "referer" not in headers:
+                headers["referer"] = referer
 
-        Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
-        return None
+            return headers
+
+        def __GetProxies(self, proxy, url):
+            if proxy is None:
+                pass
+
+            elif not proxy.UseProxyForUrl(url):
+                Logger.Debug("Not using proxy due to filter mismatch")
+
+            elif proxy.Scheme == "http":
+                Logger.Debug("Using a http(s) %s", proxy)
+                proxyAddress = proxy.GetProxyAddress()
+                return {"http": proxyAddress, "https": proxyAddress}
+
+            Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
+            return None
 
 
 # noinspection PyClassHasNoInit
