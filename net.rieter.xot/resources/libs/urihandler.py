@@ -359,7 +359,7 @@ class UriHandler(object):
 
         def __GetProxies(self, proxy, url):
             if proxy is None:
-                pass
+                return None
 
             elif not proxy.UseProxyForUrl(url):
                 Logger.Debug("Not using proxy due to filter mismatch")
