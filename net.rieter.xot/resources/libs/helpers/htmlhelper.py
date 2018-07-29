@@ -8,6 +8,8 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+import re
+
 from regexer import Regexer
 from helpers import taghelperbase
 #from logger import Logger
@@ -15,6 +17,8 @@ from helpers import taghelperbase
 
 class HtmlHelper(taghelperbase.TagHelperBase):
     """Class that could help with parsing of simple HTML"""
+
+    __ToTextRegex = None
     
     def GetTagContent(self, tag, *args, **kwargs):        
         """Gets the content of an HTML <tag> 
@@ -68,3 +72,29 @@ class HtmlHelper(taghelperbase.TagHelperBase):
                 return result
         else:
             return ""
+
+    @staticmethod
+    def ToText(html):
+        # type: (str) -> object
+        """ Converts HTML to text by replacing the HTML tags.
+
+        @param html: HTML text input
+        @return:     Plain text
+
+        """
+
+        if html is None:
+            return html
+
+        if not HtmlHelper.__ToTextRegex:
+            HtmlHelper.__ToTextRegex = re.compile('</?([^ >]+)(?: [^>]+)?>', re.DOTALL + re.IGNORECASE)
+
+        text = HtmlHelper.__ToTextRegex.sub(HtmlHelper.__HtmlReplace, html)
+        return text.replace("  ", " ")
+
+    @staticmethod
+    def __HtmlReplace(match):
+        tag = match.group(1).lower()
+        if tag == 'br':
+            return '\n'
+        return ''
