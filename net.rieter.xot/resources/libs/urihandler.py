@@ -297,6 +297,7 @@ class UriHandler(object):
 
             s = requests.session()
             s.cookies = self.cookieJar
+            s.verify = not self.ignoreSslErrors
 
             proxies = self.__GetProxies(proxy, uri)
             headers = self.__GetHeaders(referer, additionalHeaders)
@@ -320,6 +321,7 @@ class UriHandler(object):
 
             s = requests.session()
             s.cookies = self.cookieJar
+            s.verify = not self.ignoreSslErrors
 
             proxies = self.__GetProxies(proxy, uri)
             headers = self.__GetHeaders(referer, additionalHeaders)
