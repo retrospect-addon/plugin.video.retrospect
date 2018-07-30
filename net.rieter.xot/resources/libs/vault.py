@@ -16,7 +16,7 @@ import string
 import hashlib
 
 from logger import Logger
-from addonsettings import AddonSettings
+from addonsettings import AddonSettings, LOCAL, KODI
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
 
@@ -97,7 +97,7 @@ class Vault:
         # let's generate a pin using the scrypt password-based key derivation
         pinKey = self.__GetPBK(pin)
         encryptedKey = self.__Encrypt(encryptedKey, pinKey)
-        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, encryptedKey)
+        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, encryptedKey, store=LOCAL)
         Logger.Info("Successfully updated the Retrospect PIN")
         return True
 
@@ -115,7 +115,7 @@ class Vault:
             return
 
         Logger.Info("Resetting the vault to a new initial state.")
-        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, "")
+        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, "", store=LOCAL)
 
         # create a vault instance so we initialize a new one with a new PIN.
         Vault()
@@ -202,9 +202,14 @@ class Vault:
         @return: the decrypted application key that is used for all the encryption
         """
 
-        applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING)
+        applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING, store=LOCAL)
         if not applicationKeyEncrypted:
-            return None
+            applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING, store=KODI)
+            if not applicationKeyEncrypted:
+                return None
+
+            Logger.Info("Moved ApplicationKey to local storage")
+            AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, applicationKeyEncrypted, store=LOCAL)
 
         vaultIncorrectPin = LanguageHelper.GetLocalizedString(LanguageHelper.VaultIncorrectPin)
         pin = XbmcWrapper.ShowKeyBoard(

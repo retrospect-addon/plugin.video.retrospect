@@ -325,6 +325,12 @@ class AddonSettings(object):
         CLIENT_ID = "client_id"
         clientId = AddonSettings.store(LOCAL).get_setting(CLIENT_ID)
         if not clientId:
+            clientId = AddonSettings.store(KODI).get_setting(CLIENT_ID)
+            if clientId:
+                Logger.Info("Moved ClientID to local storage")
+                AddonSettings.store(LOCAL).set_setting(CLIENT_ID, clientId)
+                return clientId
+
             clientId = str(uuid.uuid1())
             Logger.Debug("Generating new ClientID: %s", clientId)
             AddonSettings.store(LOCAL).set_setting(CLIENT_ID, clientId)
