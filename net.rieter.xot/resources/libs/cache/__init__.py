@@ -8,7 +8,7 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 __all__ = ["cachedhttpresponse", "cachehandler", "cachehttphandler",
-           "filecache", "memorycache", "cachebase"]
+           "filecache", "memorycache", "cachebase", "streamcache", "cachehttpadapter"]
 
 if __name__ == "__main__":
     import urllib2

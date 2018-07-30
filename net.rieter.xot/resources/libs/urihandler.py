@@ -8,13 +8,18 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-import requests
-import requests.cookies
-
 import os
 import cookielib
 import time
 from collections import namedtuple
+
+import requests
+import requests.cookies
+import requests.utils
+from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
+
+from cache.cachehttpadapter import CacheHTTPAdapter
+from cache.streamcache import StreamCache
 from logger import Logger
 
 UriStatus = namedtuple('UriStatus', [
@@ -61,7 +66,7 @@ class UriHandler(object):
 
     @staticmethod
     def Download(uri, filename, folder, progressCallback=None, proxy=None,
-                 params="", data="", json="", referer=None, additionalHeaders=None, noCache=False):
+                 params="", data="", json="", referer=None, additionalHeaders=None):
         """Downloads a remote file
 
         Arguments
@@ -76,7 +81,6 @@ class UriHandler(object):
                                                         a proxy server that should be used.
         @param referer:             - [opt] string    - the http referer to use
         @param additionalHeaders:   - [opt] dict      - the optional headers
-        @param noCache:             - [opt] boolean   - disables the cache
         @param progressCallback:    - Function        - the callback for progress update. The format is
 
         @rtype : The full path of the downloaded file.
@@ -84,8 +88,7 @@ class UriHandler(object):
         """
 
         return UriHandler.Instance().Download(uri, filename, folder, progressCallback, proxy,
-                                              params, data, json, referer, additionalHeaders,
-                                              noCache)
+                                              params, data, json, referer, additionalHeaders)
 
     @staticmethod
     def Open(uri, proxy=None, params="", data="", json="",
@@ -116,8 +119,8 @@ class UriHandler(object):
                                           referer, additionalHeaders, noCache)
 
     @staticmethod
-    def Header(uri, proxy=None, referer=None, additionalHeaders=None, noCache=False):
-        # type: (str, object, str, dict, bool) -> (object, str)
+    def Header(uri, proxy=None, referer=None, additionalHeaders=None):
+        # type: (str, object, str, dict) -> (object, str)
         """ Retrieves header information only
 
         Arguments:
@@ -131,7 +134,6 @@ class UriHandler(object):
                                                         a proxy server that should be used.
         @param referer:             - [opt] string    - the http referer to use
         @param additionalHeaders:   - [opt] dict      - the optional headers
-        @param noCache:             - [opt] boolean   - disables the cache
 
         Returns:
         Data and the URL to which a redirect could have occurred.
@@ -139,7 +141,7 @@ class UriHandler(object):
         """
 
         return UriHandler.Instance().Header(uri, proxy, referer,
-                                            additionalHeaders, noCache)
+                                            additionalHeaders)
 
     @staticmethod
     def SetCookie(version=0, name='', value='',
@@ -237,6 +239,8 @@ class UriHandler(object):
                 self.cookieJarFile = False
 
             self.cacheDir = cacheDir
+            self.cacheStore = StreamCache(cacheDir) if cacheDir else None
+
             self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
             self.webTimeOut = webTimeOut                # max duration of request
             self.ignoreSslErrors = ignoreSslErrors      # ignore SSL errors
@@ -247,7 +251,7 @@ class UriHandler(object):
             self.status = UriStatus(code=0, url=None, error=False)
 
         def Download(self, uri, filename, folder, progressCallback=None, proxy=None, params="",
-                     data="", json="", referer=None, additionalHeaders=None, noCache=False):
+                     data="", json="", referer=None, additionalHeaders=None):
             """Downloads a remote file
 
             Arguments
@@ -262,7 +266,6 @@ class UriHandler(object):
                                                             a proxy server that should be used.
             @param referer:             - [opt] string    - the http referer to use
             @param additionalHeaders:   - [opt] dict      - the optional headers
-            @param noCache:             - [opt] boolean   - disables the cache
             @param progressCallback:    - Function        - the callback for progress update. The format is
 
             @rtype : The full path of the downloaded file.
@@ -278,7 +281,7 @@ class UriHandler(object):
 
             r = self.__Requests(uri, proxy=proxy, params=params, data=data, json=json,
                                 referer=referer, additionalHeaders=additionalHeaders,
-                                noCache=noCache, stream=True)
+                                noCache=True, stream=True)
 
             downloadPath = os.path.join(folder, filename)
             with open(downloadPath, 'wb') as fd:
@@ -293,7 +296,7 @@ class UriHandler(object):
             return r.text if r.encoding else r.content
 
         def Header(self, uri, proxy=None, referer=None,
-                   additionalHeaders=None, noCache=False):
+                   additionalHeaders=None):
 
             s = requests.session()
             s.cookies = self.cookieJar
@@ -322,6 +325,10 @@ class UriHandler(object):
             s = requests.session()
             s.cookies = self.cookieJar
             s.verify = not self.ignoreSslErrors
+            if self.cacheStore and not noCache:
+                Logger.Debug("Adding the %s to the request", self.cacheStore)
+                s.mount("https://", CacheHTTPAdapter(self.cacheStore))
+                s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
             proxies = self.__GetProxies(proxy, uri)
             headers = self.__GetHeaders(referer, additionalHeaders)
@@ -373,3 +380,24 @@ class UriHandler(object):
 
             Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
             return None
+
+
+class CustomDnsHTTPAdapter(HTTPAdapter):
+    def __init__(self, host_name, ip_address, port, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
+                 max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
+
+        self.port = port
+        self.ip_address = ip_address
+        self.host_name = host_name
+
+        super(CustomDnsHTTPAdapter, self).__init__(pool_connections, pool_maxsize, max_retries,
+                                                   pool_block)
+
+    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
+        pool_kwargs['assert_hostname'] = self.host_name
+        super(CustomDnsHTTPAdapter, self).init_poolmanager(connections, maxsize, block,
+                                                           **pool_kwargs)
+
+    def get_connection(self, url, proxies=None):
+        data = requests.utils.urlparse(url)
+        return super(CustomDnsHTTPAdapter, self).get_connection(url, proxies)
