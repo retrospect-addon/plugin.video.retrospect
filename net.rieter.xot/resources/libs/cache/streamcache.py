@@ -45,7 +45,7 @@ class StreamCache(object):
 
         return False
 
-    def has_key(self, key):
+    def has_cache_key(self, key):
         """ Returns if a key is present (expired or not) in the cache.
 
         Arguments:

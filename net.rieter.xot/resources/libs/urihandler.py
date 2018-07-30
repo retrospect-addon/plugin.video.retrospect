@@ -381,6 +381,10 @@ class UriHandler(object):
             Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
             return None
 
+        def __str__(self):
+            return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
+                .format(self.id, self.cacheStore is not None, self.ignoreSslErrors)
+
 
 class CustomDnsHTTPAdapter(HTTPAdapter):
     def __init__(self, host_name, ip_address, port, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
