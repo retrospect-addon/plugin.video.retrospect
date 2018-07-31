@@ -360,7 +360,7 @@ class UriHandler(object):
 
             if params:
                 # Old UriHandler behaviour. Set form header to keep compatible
-                if "Content-Type" not in headers:
+                if "content-type" not in headers:
                     headers["content-type"] = "application/x-www-form-urlencoded"
                 r = s.post(uri, data=params, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
