@@ -30,10 +30,11 @@ class CacheHTTPAdapter(HTTPAdapter):
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         try:
-            response = self.__get_cached_response(request)
-            if response:
-                self.cacheStore.cacheHits += 1
-                return response
+            if request.method == "GET":
+                response = self.__get_cached_response(request)
+                if response:
+                    self.cacheStore.cacheHits += 1
+                    return response
         except:
             Logger.Error("Error retrieving cache for %s", request.url, exc_info=True)
 
@@ -41,11 +42,12 @@ class CacheHTTPAdapter(HTTPAdapter):
         response = super(CacheHTTPAdapter, self).send(request, stream, timeout, verify, cert, proxies)
 
         try:
-            # Cache it if it was a valid response for a GET.
-            if request.method == "GET" and (200 <= response.status_code < 300):
-                self.__store_response(request, response)
+            # Cache it if it was a cacheable response
+            cache_data = self.__extract_cache_data(response.headers)
+            if self.__should_cache(response, cache_data):
+                self.__store_response(request, response, cache_data)
 
-            elif response.status_code == 304:
+            if response.status_code == 304:
                 Logger.Debug("304 Response found. Pro-Longing the %s", response.url)
                 self.cacheStore.cacheHits += 1
                 response = self.__get_cached_response(request, no_check=True)
@@ -71,6 +73,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         resp.status_code = meta["status"]
         resp.headers = headers
         resp.encoding = meta["encoding"]
+        resp.request = req
 
         if no_check:
             return resp
@@ -90,39 +93,6 @@ class CacheHTTPAdapter(HTTPAdapter):
 
         Logger.Debug("Cache-Hit: %s", req.url)
         return resp
-
-    def __store_response(self, req, res):
-        if res.status_code != 200 or req.method != "GET":
-            return
-
-        Logger.Debug("Storing cache for: %s", res.url)
-        bodyKey, metaKey = self.__get_cache_keys(req)
-
-        # Store the body as a binary file and reset the raw and _content_consumed attributes
-        # of the response so we can reuse it again
-        with self.cacheStore.set(bodyKey) as fp:
-            for chunk in res.iter_content(chunk_size=128):
-                fp.write(chunk)
-
-        res.raw = self.cacheStore.get(bodyKey)
-        res._content_consumed = False
-
-        # extract cache related data and store it in a json file
-        cache_data = self.__extract_cache_data(res.headers)
-        data = {
-            "body": bodyKey,
-            "headers": dict(
-                (k, v) for k, v in res.headers.items()
-            ),
-            "status": res.status_code,
-            "encoding": res.encoding,
-            "cache_data": cache_data
-        }
-        with self.cacheStore.set(metaKey) as fp:
-            json.dump(data, fp, encoding='utf-8', indent=2)
-        Logger.Trace(data)
-
-        return
 
     def __extract_cache_data(self, headers):
         cache_data = {}
@@ -146,8 +116,109 @@ class CacheHTTPAdapter(HTTPAdapter):
             #     cache_data['must-revalidate'] = True
             cache_data['etag'] = headers['etag']
 
-        Logger.Debug("Found cache-control and etag data: %s", cache_data)
+        if cache_data:
+            Logger.Debug("Found cache-control and etag data: %s", cache_data)
         return cache_data
+
+    def __should_cache(self, res, cache_data):
+        # type: (requests.Response, dict) -> bool
+        """ Returns whether a response should be cached for further use. It uses
+        the "cache-control" header value and the type of response (https/2xx status)
+        to determine if a response should be cached.
+
+        Arguments:
+        cache_data     : dict      - Cached data from the request
+
+        Returns True or False
+
+        These Cache-Control parameters are used:
+
+        * max-age=[seconds] - specifies the maximum amount of time that an
+        representation will be considered fresh. Similar to Expires, this
+        directive is relative to the time of the request, rather than absolute.
+        [seconds] is the number of seconds from the time of the request you wish
+        the representation to be fresh for.
+
+        * public - marks authenticated responses as cacheable; normally, if HTTP
+        authentication is required, responses are automatically private.
+
+        * private - allows caches that are specific to one user (e.g., in a
+        browser) to store the response; shared caches (e.g., in a proxy) may
+        not.
+
+        * no-cache - forces caches to submit the request to the origin server for
+        validation before releasing a cached copy, every time. This is useful to
+        assure that authentication is respected (in combination with public), or
+        to maintain rigid freshness, without sacrificing all of the benefits of
+        caching.
+
+        * no-store - instructs caches not to keep a copy of the representation
+        under any conditions.
+
+        * must-revalidate - tells caches that they must obey any freshness
+        information you give them about a representation. HTTP allows caches to
+        serve stale representations under special conditions; by specifying this
+        header, you're telling the cache that you want it to strictly follow
+        your rules.
+
+        * proxy-revalidate - similar to must-revalidate, except that it only
+        applies to proxy caches.
+
+        """
+
+        if res.request.method != "GET":
+            Logger.Trace("Not a GET method. Not caching.")
+            return False
+
+        if res.status_code < 200 or res.status_code >= 300:
+            Logger.Trace("No 2xx response code. Not caching.")
+            return False
+
+        if "no-cache" in cache_data or "no-store" in cache_data:
+            Logger.Trace("CacheKey No-Cache or No-Store found. Not caching")
+            return False
+
+        # must revalidate means that you must revalidate after the cache became
+        # stale. So after the cache expired.
+        if "must-revalidate" in cache_data or "proxy-revalidate" in cache_data:
+            Logger.Trace("CacheKey Must-Revalidate or proxy-revalidate found. Caching")
+            return True
+
+        if "max-age" in cache_data:
+            Logger.Trace("Max-Age found (%s). Caching", cache_data['max-age'])
+            return True
+
+        Logger.Trace("Unknown cache parameters. Let's just cache")
+        return True
+
+    def __store_response(self, req, res, cache_data):
+        Logger.Debug("Storing cache for: %s", res.url)
+        bodyKey, metaKey = self.__get_cache_keys(req)
+
+        # Store the body as a binary file and reset the raw and _content_consumed attributes
+        # of the response so we can reuse it again
+        with self.cacheStore.set(bodyKey) as fp:
+            for chunk in res.iter_content(chunk_size=128):
+                fp.write(chunk)
+
+        res.raw = self.cacheStore.get(bodyKey)
+        res._content_consumed = False
+
+        # store all headers and cache-data and store it in a json file
+        data = {
+            "body": bodyKey,
+            "headers": dict(
+                (k, v) for k, v in res.headers.items()
+            ),
+            "status": res.status_code,
+            "encoding": res.encoding,
+            "cache_data": cache_data
+        }
+        with self.cacheStore.set(metaKey) as fp:
+            json.dump(data, fp, encoding='utf-8', indent=2)
+        Logger.Trace(data)
+
+        return
 
     def __must_revalidate(self, cache_data):
         """ Checks if a cached response should be revalidated

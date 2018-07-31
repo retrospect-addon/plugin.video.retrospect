@@ -376,9 +376,11 @@ class UriHandler(object):
                           stream=stream, timeout=self.webTimeOut)
 
             if r.ok:
-                Logger.Info("Opened %s: %s %s (%s)", r.url, r.status_code, r.reason, r.elapsed)
+                Logger.Info("Opened %s %s: %s %s (%s)",
+                            r.request.method, r.url, r.status_code, r.reason, r.elapsed)
             else:
-                Logger.Error("Error opening %s: %s %s (%s)", r.url, r.status_code, r.reason, r.elapsed)
+                Logger.Error("Error opening %s %s: %s %s (%s)",
+                             r.request.method, r.url, r.status_code, r.reason, r.elapsed)
 
             self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
             return r
