@@ -29,22 +29,28 @@ class CacheHTTPAdapter(HTTPAdapter):
                                                pool_block)
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
-        response = self.__get_cached_response(request)
-        if response:
-            self.cacheStore.cacheHits += 1
-            return response
+        try:
+            response = self.__get_cached_response(request)
+            if response:
+                self.cacheStore.cacheHits += 1
+                return response
+        except:
+            Logger.Error("Error retrieving cache for %s", request.url, exc_info=True)
 
         # Actually send a request
         response = super(CacheHTTPAdapter, self).send(request, stream, timeout, verify, cert, proxies)
 
-        # Cache it if it was a valid response for a GET.
-        if request.method == "GET" and (200 <= response.status_code < 300):
-            self.__store_response(request, response)
+        try:
+            # Cache it if it was a valid response for a GET.
+            if request.method == "GET" and (200 <= response.status_code < 300):
+                self.__store_response(request, response)
 
-        elif response.status_code == 304:
-            Logger.Debug("304 Response found. Pro-Longing the %s", response.url)
-            self.cacheStore.cacheHits += 1
-            response = self.__get_cached_response(request, no_check=True)
+            elif response.status_code == 304:
+                Logger.Debug("304 Response found. Pro-Longing the %s", response.url)
+                self.cacheStore.cacheHits += 1
+                response = self.__get_cached_response(request, no_check=True)
+        except:
+            Logger.Error("Error storing cache for %s", request.url, exc_info=True)
 
         return response
 
@@ -89,6 +95,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         if res.status_code != 200 or req.method != "GET":
             return
 
+        Logger.Debug("Storing cache for: %s", res.url)
         bodyKey, metaKey = self.__get_cache_keys(req)
 
         # Store the body as a binary file and reset the raw and _content_consumed attributes
@@ -113,6 +120,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         }
         with self.cacheStore.set(metaKey) as fp:
             json.dump(data, fp, encoding='utf-8', indent=2)
+        Logger.Trace(data)
 
         return
 
@@ -138,7 +146,7 @@ class CacheHTTPAdapter(HTTPAdapter):
             #     cache_data['must-revalidate'] = True
             cache_data['etag'] = headers['etag']
 
-        Logger.Trace("Found cache-control and etag data: %s", cache_data)
+        Logger.Debug("Found cache-control and etag data: %s", cache_data)
         return cache_data
 
     def __must_revalidate(self, cache_data):

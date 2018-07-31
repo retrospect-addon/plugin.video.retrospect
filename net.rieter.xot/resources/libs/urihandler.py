@@ -245,6 +245,8 @@ class UriHandler(object):
             if cacheDir:
                 self.cacheStore = StreamCache(cacheDir)
                 Logger.Debug("Opened %s", self.cacheStore)
+            else:
+                Logger.Debug("No cache-store provided. Cached disabled.")
 
             self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
             self.webTimeOut = webTimeOut                # max duration of request
@@ -411,7 +413,7 @@ class UriHandler(object):
 
         def __str__(self):
             return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
-                .format(self.id, self.cacheStore is not None, self.ignoreSslErrors)
+                .format(self.id, self.cacheStore, self.ignoreSslErrors)
 
 
 # class CustomDnsHTTPAdapter(HTTPAdapter):
