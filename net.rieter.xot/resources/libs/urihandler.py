@@ -16,7 +16,7 @@ from collections import namedtuple
 import requests
 import requests.cookies
 import requests.utils
-from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
+# from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
 
 from cache.cachehttpadapter import CacheHTTPAdapter
 from cache.streamcache import StreamCache
@@ -24,6 +24,7 @@ from logger import Logger
 
 UriStatus = namedtuple('UriStatus', [
     'code',
+    'reason',
     'url',
     'error'
 ])
@@ -212,6 +213,7 @@ class UriHandler(object):
         if not cookies:
             return None
         else:
+            Logger.Trace("Found cookie '%s'", cookies[0].name)
             return cookies[0]
 
     class __RequestsHandler(object):
@@ -239,7 +241,10 @@ class UriHandler(object):
                 self.cookieJarFile = False
 
             self.cacheDir = cacheDir
-            self.cacheStore = StreamCache(cacheDir) if cacheDir else None
+            self.cacheStore = None
+            if cacheDir:
+                self.cacheStore = StreamCache(cacheDir)
+                Logger.Debug("Opened %s", self.cacheStore)
 
             self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
             self.webTimeOut = webTimeOut                # max duration of request
@@ -248,7 +253,7 @@ class UriHandler(object):
                 Logger.Warning("Ignoring all SSL errors in Python")
 
             # status of the most recent call
-            self.status = UriStatus(code=0, url=None, error=False)
+            self.status = UriStatus(code=0, url=None, error=False, reason=None)
 
         def Download(self, uri, filename, folder, progressCallback=None, proxy=None, params="",
                      data="", json="", referer=None, additionalHeaders=None):
@@ -279,11 +284,18 @@ class UriHandler(object):
             if not progressCallback:
                 raise ValueError("A callback must be specified")
 
+            downloadPath = os.path.join(folder, filename)
+            if os.path.isfile(downloadPath):
+                Logger.Info("Url already downloaded to: %s", downloadPath)
+                return downloadPath
+
+            Logger.Info("Creating Downloader for url '%s' to filename '%s'", uri, downloadPath)
             r = self.__Requests(uri, proxy=proxy, params=params, data=data, json=json,
                                 referer=referer, additionalHeaders=additionalHeaders,
                                 noCache=True, stream=True)
+            if r is None:
+                return ""
 
-            downloadPath = os.path.join(folder, filename)
             with open(downloadPath, 'wb') as fd:
                 for chunk in r.iter_content(chunk_size=128):
                     fd.write(chunk)
@@ -293,11 +305,12 @@ class UriHandler(object):
                  referer=None, additionalHeaders=None, noCache=False):
 
             r = self.__Requests(uri, proxy, params, data, json, referer, additionalHeaders, noCache)
+            if r is None:
+                return ""
+
             return r.text if r.encoding else r.content
 
-        def Header(self, uri, proxy=None, referer=None,
-                   additionalHeaders=None):
-
+        def Header(self, uri, proxy=None, referer=None, additionalHeaders=None):
             s = requests.session()
             s.cookies = self.cookieJar
             s.verify = not self.ignoreSslErrors
@@ -305,28 +318,38 @@ class UriHandler(object):
             proxies = self.__GetProxies(proxy, uri)
             headers = self.__GetHeaders(referer, additionalHeaders)
 
+            Logger.Info("Retreiving Header info for %s", uri)
             r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
                        timeout=self.webTimeOut)
 
             contentType = r.headers.get("Content-Type", "")
             realUrl = r.url
 
-            self.status = UriStatus(code=r.status_code, url=uri, error=False)
-            return contentType, realUrl
+            self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
+            if r.ok:
+                Logger.Debug("Header info retreived for %s: %s %s (%s)",
+                             r.url, r.status_code, r.reason, r.elapsed)
+                return contentType, realUrl
+            else:
+                Logger.Error("Error retrieving header %s: %s %s (%s)",
+                             r.url, r.status_code, r.reason, r.elapsed)
+                return "", ""
 
+        # noinspection PyUnusedLocal
         def __Requests(self, uri, proxy=None, params="", data="", json="",
                        referer=None, additionalHeaders=None, noCache=False,
                        progressCallback=None, stream=False):
 
-            # TODO: add a bit more logging
-            # TODO: add changing stuff
             # TODO: add DNS proxy
+            # TODO: callback
+
+            Logger.Info("Opening requested uri: %s", uri)
 
             s = requests.session()
             s.cookies = self.cookieJar
             s.verify = not self.ignoreSslErrors
             if self.cacheStore and not noCache:
-                Logger.Debug("Adding the %s to the request", self.cacheStore)
+                Logger.Trace("Adding the %s to the request", self.cacheStore)
                 s.mount("https://", CacheHTTPAdapter(self.cacheStore))
                 s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
@@ -350,7 +373,12 @@ class UriHandler(object):
                 r = s.get(uri, proxies=proxies, headers=headers,
                           stream=stream, timeout=self.webTimeOut)
 
-            self.status = UriStatus(code=r.status_code, url=uri, error=False)
+            if r.ok:
+                Logger.Info("Opened %s: %s %s (%s)", r.url, r.status_code, r.reason, r.elapsed)
+            else:
+                Logger.Error("Error opening %s: %s %s (%s)", r.url, r.status_code, r.reason, r.elapsed)
+
+            self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
             return r
 
         def __GetHeaders(self, referer, additionalHeaders):
@@ -386,22 +414,22 @@ class UriHandler(object):
                 .format(self.id, self.cacheStore is not None, self.ignoreSslErrors)
 
 
-class CustomDnsHTTPAdapter(HTTPAdapter):
-    def __init__(self, host_name, ip_address, port, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
-                 max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
-
-        self.port = port
-        self.ip_address = ip_address
-        self.host_name = host_name
-
-        super(CustomDnsHTTPAdapter, self).__init__(pool_connections, pool_maxsize, max_retries,
-                                                   pool_block)
-
-    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
-        pool_kwargs['assert_hostname'] = self.host_name
-        super(CustomDnsHTTPAdapter, self).init_poolmanager(connections, maxsize, block,
-                                                           **pool_kwargs)
-
-    def get_connection(self, url, proxies=None):
-        data = requests.utils.urlparse(url)
-        return super(CustomDnsHTTPAdapter, self).get_connection(url, proxies)
+# class CustomDnsHTTPAdapter(HTTPAdapter):
+#     def __init__(self, host_name, ip_address, port, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
+#                  max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
+#
+#         self.port = port
+#         self.ip_address = ip_address
+#         self.host_name = host_name
+#
+#         super(CustomDnsHTTPAdapter, self).__init__(pool_connections, pool_maxsize, max_retries,
+#                                                    pool_block)
+#
+#     def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
+#         pool_kwargs['assert_hostname'] = self.host_name
+#         super(CustomDnsHTTPAdapter, self).init_poolmanager(connections, maxsize, block,
+#                                                            **pool_kwargs)
+#
+#     def get_connection(self, url, proxies=None):
+#         data = requests.utils.urlparse(url)
+#         return super(CustomDnsHTTPAdapter, self).get_connection(url, proxies)

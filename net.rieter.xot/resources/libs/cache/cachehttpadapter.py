@@ -37,13 +37,15 @@ class CacheHTTPAdapter(HTTPAdapter):
         # Actually send a request
         response = super(CacheHTTPAdapter, self).send(request, stream, timeout, verify, cert, proxies)
 
+        # Cache it if it was a valid response for a GET.
         if request.method == "GET" and (200 <= response.status_code < 300):
-            self.__cache_response(request, response)
+            self.__store_response(request, response)
 
         elif response.status_code == 304:
             Logger.Debug("304 Response found. Pro-Longing the %s", response.url)
             self.cacheStore.cacheHits += 1
             response = self.__get_cached_response(request, no_check=True)
+
         return response
 
     def __get_cached_response(self, req, no_check=False):
@@ -56,6 +58,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         with self.cacheStore.get(metaKey) as fd:
             meta = json.load(fd)
         headers = CaseInsensitiveDict(data=meta["headers"])
+        cache_data = meta.get("cache_data")
 
         resp = requests.Response()
         resp.raw = self.cacheStore.get(bodyKey)
@@ -68,13 +71,13 @@ class CacheHTTPAdapter(HTTPAdapter):
 
         # Determine the maximum age and then check if the cache if valid or not.
         valid_in_seconds = 3600
-        if 'max-age' in headers:
-            valid_in_seconds = self.cacheStore.is_expired(metaKey, headers['max-age'])
+        if 'max-age' in cache_data:
+            valid_in_seconds = cache_data['max-age']
         if self.cacheStore.is_expired(metaKey, valid_in_seconds):
             Logger.Debug("Expired Cache-Hit: %s", req.url)
             return None
 
-        if self.__must_revalidate(headers):
+        if self.__must_revalidate(cache_data):
             Logger.Debug("Stale-Cache hit found. Revalidating")
             req.headers["If-None-Match"] = headers["etag"]
             return None
@@ -82,7 +85,63 @@ class CacheHTTPAdapter(HTTPAdapter):
         Logger.Debug("Cache-Hit: %s", req.url)
         return resp
 
-    def __must_revalidate(self, headers):
+    def __store_response(self, req, res):
+        if res.status_code != 200 or req.method != "GET":
+            return
+
+        bodyKey, metaKey = self.__get_cache_keys(req)
+
+        # Store the body as a binary file and reset the raw and _content_consumed attributes
+        # of the response so we can reuse it again
+        with self.cacheStore.set(bodyKey) as fp:
+            for chunk in res.iter_content(chunk_size=128):
+                fp.write(chunk)
+
+        res.raw = self.cacheStore.get(bodyKey)
+        res._content_consumed = False
+
+        # extract cache related data and store it in a json file
+        cache_data = self.__extract_cache_data(res.headers)
+        data = {
+            "body": bodyKey,
+            "headers": dict(
+                (k, v) for k, v in res.headers.items()
+            ),
+            "status": res.status_code,
+            "encoding": res.encoding,
+            "cache_data": cache_data
+        }
+        with self.cacheStore.set(metaKey) as fp:
+            json.dump(data, fp, encoding='utf-8', indent=2)
+
+        return
+
+    def __extract_cache_data(self, headers):
+        cache_data = {}
+
+        if "cache-control" in headers:
+            cache_control = headers['cache-control']
+            for entry in cache_control.strip().split(","):
+                if entry.find("=") > 0:
+                    (key, value) = entry.split("=")
+                    try:
+                        cache_data[key.strip().lower()] = int(value.strip())
+                    except ValueError:
+                        cache_data[key.strip().lower()] = True
+                else:
+                    cache_data[entry.strip().lower()] = True
+
+        if "etag" in headers:
+            # if len(cache_data) == 0:
+            #     # only an e-tag is present, we should make it stale after some time, less then the 3600 seconds
+            #     cache_data['max-age'] = 60
+            #     cache_data['must-revalidate'] = True
+            cache_data['etag'] = headers['etag']
+
+        Logger.Trace("Found cache-control and etag data: %s", cache_data)
+        return cache_data
+
+    def __must_revalidate(self, cache_data):
         """ Checks if a cached response should be revalidated
 
         Arguments:
@@ -93,45 +152,22 @@ class CacheHTTPAdapter(HTTPAdapter):
 
         """
 
-        if "etag" in headers:
-            return True
+        # No cache data present, so no need to revalidate the thing.
+        if not cache_data:
+            Logger.Trace("No cache data found for a cached request. No "
+                         "need to revalidate as it's either expired or not.")
+            return False
 
-        # TODO: read about the eTag and the Cache-Control
-        # cache_control = headers.get("cache-control")
-        # if cache_control is None:
-        #     return False
-        #
-        # if cache_control == "must-revalidate" or cache_control ==  "proxy-revalidate":
-        #     if "etag" in headers:
+        # Only revalidate if we were told and if we have an etag
+        # if "must-revalidate" in cache_data or "proxy-revalidate" in cache_data:
+        #     if "etag" in cache_data:
         #         return True
 
+        # always revalidate a etag as many sites don't provide the ....-revalidate option.
+        if "etag" in cache_data:
+            return True
+
         return False
-
-    def __cache_response(self, req, res):
-        if res.status_code != 200 or req.method != "GET":
-            return
-
-        bodyKey, metaKey = self.__get_cache_keys(req)
-
-        with self.cacheStore.set(bodyKey) as fp:
-            for chunk in res.iter_content(chunk_size=128):
-                fp.write(chunk)
-
-        # reset the raw and _content_consumed attributes
-        res.raw = self.cacheStore.get(bodyKey)
-        res._content_consumed = False
-
-        data = {
-            "body": bodyKey,
-            "headers": dict(
-                (k, v) for k, v in res.headers.items()
-            ),
-            "status": res.status_code,
-            "encoding": res.encoding
-        }
-
-        with self.cacheStore.set(metaKey) as fp:
-            json.dump(data, fp, encoding='utf-8', indent=2)
 
     def __get_cache_keys(self, req):
         hashTool = hashlib.md5()
