@@ -320,7 +320,7 @@ class UriHandler(object):
             proxies = self.__GetProxies(proxy, uri)
             headers = self.__GetHeaders(referer, additionalHeaders)
 
-            Logger.Info("Retreiving Header info for %s", uri)
+            Logger.Info("Performing a HEAD for %s", uri)
             r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
                        timeout=self.webTimeOut)
 
@@ -329,12 +329,12 @@ class UriHandler(object):
 
             self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
             if r.ok:
-                Logger.Debug("Header info retreived for %s: %s %s (%s)",
-                             r.url, r.status_code, r.reason, r.elapsed)
+                Logger.Info("%s resulted in '%s %s' (%s) for %s",
+                            r.request.method, r.status_code, r.reason, r.elapsed, r.url)
                 return contentType, realUrl
             else:
-                Logger.Error("Error retrieving header %s: %s %s (%s)",
-                             r.url, r.status_code, r.reason, r.elapsed)
+                Logger.Error("%s failed with in '%s %s' (%s) for %s",
+                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
                 return "", ""
 
         # noinspection PyUnusedLocal
@@ -344,8 +344,6 @@ class UriHandler(object):
 
             # TODO: add DNS proxy
             # TODO: callback
-
-            Logger.Info("Opening requested uri: %s", uri)
 
             s = requests.session()
             s.cookies = self.cookieJar
@@ -362,25 +360,30 @@ class UriHandler(object):
                 # Old UriHandler behaviour. Set form header to keep compatible
                 if "content-type" not in headers:
                     headers["content-type"] = "application/x-www-form-urlencoded"
+
+                Logger.Info("Performing a POST with '%s' for %s", headers["content-type"], uri)
                 r = s.post(uri, data=params, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
             elif data:
                 # Normal Requests compatible data object
+                Logger.Info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
                 r = s.post(uri, data=data, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
             elif json:
+                Logger.Info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
                 r = s.post(uri, json=json, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
             else:
+                Logger.Info("Performing a GET for %s", uri)
                 r = s.get(uri, proxies=proxies, headers=headers,
                           stream=stream, timeout=self.webTimeOut)
 
             if r.ok:
-                Logger.Info("Opened %s %s: %s %s (%s)",
-                            r.request.method, r.url, r.status_code, r.reason, r.elapsed)
+                Logger.Info("%s resulted in '%s %s' (%s) for %s",
+                            r.request.method, r.status_code, r.reason, r.elapsed, r.url)
             else:
-                Logger.Error("Error opening %s %s: %s %s (%s)",
-                             r.request.method, r.url, r.status_code, r.reason, r.elapsed)
+                Logger.Error("%s failed with in '%s %s' (%s) for %s",
+                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
 
             self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
             return r
