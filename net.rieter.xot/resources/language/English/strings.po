@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-25 20:38+0000\n"
+"POT-Creation-Date: 2018-08-01 21:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -63,7 +63,7 @@ msgid "Show DRM/Paid warning before playback"
 msgstr ""
 
 msgctxt "#30020"
-msgid "Maximum stream bitrate"
+msgid "Maximum Stream Bitrate"
 msgstr ""
 
 msgctxt "#30021"
@@ -152,7 +152,7 @@ msgstr ""
 #empty strings from id 30044 to 30045
 
 msgctxt "#30046"
-msgid "DRM/Geo Location/Premium filters"
+msgid "DRM/Geo-blocked/Premium filters"
 msgstr ""
 
 #empty string with id 30047
@@ -239,7 +239,7 @@ msgid "Proxy Type"
 msgstr ""
 
 msgctxt "#30073"
-msgid "- Geo-Locked = º, DRM protected = ^ and Premium = ª."
+msgid "- Geo-blocked = º, DRM protected = ^ and Premium = ª."
 msgstr ""
 
 msgctxt "#30074"
@@ -279,7 +279,7 @@ msgid "Apply filter to"
 msgstr ""
 
 msgctxt "#30083"
-msgid "Folders & Streams"
+msgid "Folders &amp; Streams"
 msgstr ""
 
 msgctxt "#30084"
@@ -654,7 +654,7 @@ msgid "Live stream"
 msgstr ""
 
 msgctxt "#30540"
-msgid "Geo-Locked"
+msgid "Geo-blocked"
 msgstr ""
 
 msgctxt "#30541"
@@ -750,15 +750,15 @@ msgid "Hide Item"
 msgstr ""
 
 msgctxt "#30564"
-msgid "Show Item"
+msgid "Show Hidden Item"
 msgstr ""
 
 msgctxt "#30565"
-msgid "(Un-)Hiding items"
+msgid "Hidden items"
 msgstr ""
 
 msgctxt "#30566"
-msgid "To un-hide an item, configure Retrospect to show hidden items first. Then un-hide them via the context menu."
+msgid "To show a hidden item, first configure Retrospect to show hidden items. Then use the context menu's \"Show hidden item\"."
 msgstr ""
 
 msgctxt "#30567"
@@ -778,7 +778,7 @@ msgid "Hide channel initialisation messages"
 msgstr ""
 
 msgctxt "#30571"
-msgid "Use Kodi Adaptive Stream add-on when possible"
+msgid "Use Kodi InputStream Adaptive add-on when possible"
 msgstr ""
 
 msgctxt "#30572"
@@ -806,7 +806,7 @@ msgid "Channel Bitrate »"
 msgstr ""
 
 msgctxt "#30578"
-msgid "Adaptive stream add-on settings"
+msgid "InputStream Adaptive add-on settings"
 msgstr ""
 
 #empty strings from id 30579 to 30589

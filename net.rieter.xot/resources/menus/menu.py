@@ -228,7 +228,7 @@ class Menu(ParameterParser):
             else bitrateOptions.index(currentBitrate)
 
         dialog = xbmcgui.Dialog()
-        heading = LanguageHelper.GetLocalizedString(LanguageHelper.BitrateSelection)[:-1]
+        heading = LanguageHelper.GetLocalizedString(LanguageHelper.BitrateSelection)
         selectedBitrate = dialog.select(heading, bitrateOptions,
                                         preselect=currentBitrateIndex)
         if selectedBitrate < 0:
