@@ -404,14 +404,16 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         for streamData in assetData.GetValue("targetUrls"):
             url = streamData["url"]
-            # replace the host with the akamized ones
-            url = "%s/%s" % ("https://ondemand-vrt.akamaized.net", url.split("/", 3)[-1])
+            if url.startswith("https://ondemand-"):
+                # replace the ondemand-.....vrtcdn.be host with generic the akamized ones
+                url = "%s/%s" % ("https://ondemand-vrt.akamaized.net", url.split("/", 3)[-1])
 
             if adaptiveAvailable:
                 if streamData["type"] != "MPEG_DASH":
                     continue
                 stream = part.AppendMediaStream(url, 0)
                 Mpd.SetInputStreamAddonInput(stream, self.proxy)
+                item.complete = True
 
             if streamData["type"] != "HLS":
                 continue

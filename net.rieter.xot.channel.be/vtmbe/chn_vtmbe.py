@@ -819,20 +819,40 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True, additionalHeaders=auth)
         jsonData = JsonHelper(data)
-        hls = jsonData.GetValue("response", "url", "hls")
+        hls = jsonData.GetValue("response", "url", "hls-aes-linear")
         if not hls:
             return item
 
-        part = item.CreateNewEmptyMediaPart()
+        # We can do this without DRM apparently.
+        if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False) or True:
+            # get the cookies
+            licenseServerUrl = jsonData.GetValue("response", "drm", "format", "hls-aes", "licenseServerUrl")
+            UriHandler.Open(licenseServerUrl, proxy=self.proxy, noCache=True)
+            domain = ".license.medialaan.io"
+            channelPath = jsonData.GetValue("response", "broadcast", "channel")
 
-        if self.__adaptiveStreamingAvailable:
+            # we need to fetch the specific cookies to pass on to the Adaptive add-on
+            if channelPath == "2be":
+                channelPath = "q2"
+            path = '/keys/{0}/aes'.format(channelPath)
+            cookies = ["CloudFront-Key-Pair-Id", "CloudFront-Policy", "CloudFront-Signature"]
+            licenseKey = ""
+            for c in cookies:
+                cookie = UriHandler.GetCookie(c, domain, path=path)
+                if cookie is None:
+                    Logger.Error("Missing cookie: %s", c)
+                    return item
+
+                value = cookie.value
+                licenseKey = "{0}; {1}={2}".format(licenseKey, c, value)
+
+            licenseKey = licenseKey[2:]
+            licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.UrlEncode(licenseKey))
+            part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(hls, 0)
-            M3u8.SetInputStreamAddonInput(stream)
+            M3u8.SetInputStreamAddonInput(stream, licenseKey=licenseKey)
         else:
-            for s, b in M3u8.GetStreamsFromM3u8(hls, self.proxy):
-                item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+            Logger.Error("Cannot play live-stream without encryption support.")
         return item
 
     def __FindImage(self, resultSet, fallback=None):

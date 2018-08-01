@@ -60,8 +60,10 @@ class M3u8:
         return sub
 
     @staticmethod
-    def SetInputStreamAddonInput(strm, proxy=None, headers=None):
-        return Adaptive.SetInputStreamAddonInput(strm, proxy, headers, manifestType="hls")
+    def SetInputStreamAddonInput(strm, proxy=None, headers=None,
+                                 licenseKey=None, licenseType=None):
+        return Adaptive.SetInputStreamAddonInput(strm, proxy, headers, manifestType="hls",
+                                                 licenseKey=licenseKey, licenseType=licenseType)
 
     @staticmethod
     def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False, mapAudio=False,
