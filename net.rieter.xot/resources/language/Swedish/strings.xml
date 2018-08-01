@@ -27,12 +27,12 @@
     <string id="30035">Användarnamn</string>
     <string id="30036">Lösenord</string>
     <string id="30038">Bekräfta proxy-ändringar</string>
-    <string id="30039">Är det säkert att du vill uppdatera alla kanaler för detta landet med denna proxy?</string>
+    <string id="30039">Vill du verkligen uppdatera alla kanaler för detta land med denna proxy?</string>
     <string id="30040">Kanaler</string>
     <!--<string id="30041"></string>-->
     <string id="30042">Aktiverad</string>
-    <string id="30043">Mapp-prefix</string>
-    <string id="30046">DRM-/GEO-/Premium-filter</string>
+    <string id="30043">Mapprefix</string>
+    <string id="30046">DRM-/geoblockerings-/premiumfilter</string>
     <string id="30048">Loggnivå</string>
     <!--<string id="30049"></string>-->
     <!--<string id="30050"></string>-->
@@ -41,7 +41,7 @@
     <string id="30053">Utseende</string>
     <string id="30055">Avancerat</string>
     <string id="30059">Andra länder</string>
-    <string id="30060">Välj ursprungsland att hantera kanaler för</string>
+    <string id="30060">Aktivera/inaktivera kanaler utifrån ursprungsland</string>
     <string id="30061">Ursprungsland för kanaler</string>
     <string id="30062">HTTP</string>
     <string id="30063">Kanal du vill konfigurera</string>
@@ -54,7 +54,7 @@
     <string id="30070">Låt Kodi välja bästa strömbitshastighet</string>
     <string id="30071">Ställ in denna proxy och lokalt IP för alla kanaler för det här landet</string>
     <string id="30072">Proxy Typ</string>
-    <string id="30073">- Geo-låsta = º, DRM-skyddade = ^ och Premium = ª.</string>
+    <string id="30073">- Geoblockerade = º, DRM-skyddade = ^ och premium = ª.</string>
     <string id="30074">Inaktiverad</string>
     <string id="30075">Vid tom lista</string>
     <string id="30076">visa felet</string>
@@ -66,7 +66,7 @@
     <string id="30082">Tilldela filter till</string>
     <string id="30083">Mappar &amp; strömmar</string>
     <string id="30084">Endast strömmar</string>
-    <string id="30085">GEO-låsta</string>
+    <string id="30085">Geoblockerade</string>
     <string id="30086">Dölj fanart</string>
     <string id="30087">Blanda mappar och strömmar vid sorteringen</string>
     <string id="30088">Finska</string>
@@ -79,7 +79,9 @@
     <string id="30095">Visa dolda objekt</string>
     <string id="30096">Land</string>
     <string id="30097">Lokalt IP</string>
+    <string id="30098">Loggning &amp; diagnostik</string>
 
+    <!-- Categories -->
     <string id="30100">Ingen</string>
     <string id="30101">Regionala</string>
     <string id="30102">Nationella</string>
@@ -139,10 +141,10 @@
     <string id="30501">Favorit</string>
     <string id="30502">Favoriter</string>
     <string id="30503">Kanalfavoriter</string>
-    <string id="30504">Lägg till</string>
+    <string id="30504">Lägg till som favorit</string>
     <string id="30505">Dölj</string>
-    <string id="30506">Ta bort</string>
-    <string id="30507">Kanaler</string>
+    <string id="30506">Ta bort favorit</string>
+    <string id="30507">Välj kanaler &#187;</string>
     <string id="30508">Inga favoriter tillgängliga</string>
     <string id="30509">Kan inte starta uppspelningen</string>
     <string id="30510">Ny version tillgänglig</string>
@@ -152,7 +154,7 @@
     <!--<string id="30514"></string>-->
     <!--<string id="30515"></string>-->
     <string id="30516">Ny version tillgänglig.</string>
-    <string id="30517">En ny version av %s är tillgänglig: %s. Besök hemsidan för att ladda ner version.</string>
+    <string id="30517">En ny version av %s är tillgänglig: %s. Besök hemsidan för att ladda ner den.</string>
     <!--<string id="30518"></string>-->
     <!--<string id="30519"></string>-->
     <string id="30520">Tilläggsförråds-varning</string>
@@ -175,7 +177,7 @@
     <!--<string id="30537"></string>-->
     <string id="30538">Den valda live-strömmen gick inte|att spela upp.</string>
     <string id="30539">Live-sändning</string>
-    <string id="30540">GEO-låsta</string>
+    <string id="30540">Geoblockerade</string>
     <string id="30541">Köa objekt</string>
     <string id="30542">Startar %s.</string>
     <string id="30543">Säsong</string>
@@ -200,18 +202,20 @@
     <string id="30562">Användarnamn och/eller lösenord har inte angivits i tilläggsinställningarna</string>
     <string id="30563">Dölj objekt</string>
     <string id="30564">Visa dolt objekt</string>
-    <string id="30565">Dolda objekt</string>
-    <string id="30566">För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn för att visa dolda objekt.</string>
-    <string id="30567">Tillägg inaktiverad</string>
+	<string id="30565">Dolda objekt</string>
+    <string id="30566">För att visa ett dolt objekt igen, ställ först in Retrospect att visa dolda objekt. Använd sedan innehållsmenyns "Visa dolt objekt".</string>
+    <string id="30567">Tillägg inaktiverat</string>
     <string id="30568">Några av Retrospects kanaltillägg är inte aktiverade vilket gör att de inte uppdateras automatiskt. Kodis tilläggsvisare öppnas nu och du bör aktivera alla tillägg som hör till Retrospect. Se http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">Ignorera fel i SSL-verifieringen (Säkerhetsrisk!)</string>
     <string id="30570">Dölj kanalinitieringsmeddelanden</string>
-    <string id="30571">Använd Kodi-tillägget Adaptive Stream när det är möjligt</string>
-    <string id="30572">Retrospect Inställningar &#187;</string>
-    <string id="30573">Dolda objekt &#187;</string>
-    <string id="30574">Hide Channel</string>
-    <string id="30575">Retrospect Favourites &#187;</string>
-    <string id="30576">Select Countries</string>
+    <string id="30571">Använd Kodi-tillägget Adaptive Stream när det är möjligt.</string>
+    <string id="30572">Retrospect-inställningar &#187;</string>
+    <string id="30573">Dölj/visa objekt &#187;</string>
+    <string id="30574">Dölj kanal</string>
+    <string id="30575">Retrospect-favoriter &#187;</string>
+    <string id="30576">Välj länder</string>
+    <string id="30577">Strömbitshastighet för kanal &#187;</string>
+    <string id="30578">Inställningar för Adaptive Stream-tillägget</string>
 
     <string id="30590">Ange en ny kod för Retrospect</string>
     <string id="30591">Ingen kod angiven för Retrospect</string>

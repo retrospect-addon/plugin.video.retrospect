@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-07-25 20:38+0000\n"
+"POT-Creation-Date: 2018-08-01 18:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -119,7 +119,7 @@ msgstr "Bekräfta proxy-ändringar"
 
 msgctxt "#30039"
 msgid "Are you sure you want to update all channels for this country with this proxy?"
-msgstr "Är det säkert att du vill uppdatera alla kanaler för detta landet med denna proxy?"
+msgstr "Är det säkert att du vill uppdatera alla kanaler för detta land med denna proxy?"
 
 msgctxt "#30040"
 msgid "Channels"
@@ -159,7 +159,7 @@ msgstr "Andra länder"
 
 msgctxt "#30060"
 msgid "Enable/Disable channels by country of origin"
-msgstr "Välj ursprungsland att hantera kanaler för"
+msgstr "Aktivera/inaktivera kanaler utifrån ursprungsland"
 
 msgctxt "#30061"
 msgid "Channel Origin"
@@ -211,7 +211,7 @@ msgstr "Proxy Typ"
 
 msgctxt "#30073"
 msgid "- Geo-Locked = º, DRM protected = ^ and Premium = ª."
-msgstr "- Geo-låsta = º, DRM-skyddade = ^ och Premium = ª."
+msgstr "- Geoblockerade = º, DRM-skyddade = ^ och Premium = ª."
 
 msgctxt "#30074"
 msgid "Disabled"
@@ -250,7 +250,7 @@ msgid "Apply filter to"
 msgstr "Tilldela filter till"
 
 msgctxt "#30083"
-msgid "Folders & Streams"
+msgid "Folders &amp; Streams"
 msgstr "Mappar & strömmar"
 
 msgctxt "#30084"
@@ -259,7 +259,7 @@ msgstr "Endast strömmar"
 
 msgctxt "#30085"
 msgid "Geo Location"
-msgstr "GEO-låsta"
+msgstr "Geoblockerade"
 
 msgctxt "#30086"
 msgid "Hide Fanart"
@@ -311,7 +311,7 @@ msgstr "Lokalt IP"
 
 msgctxt "#30098"
 msgid "Logging & Diagnostics"
-msgstr ""
+msgstr "Loggning & diagnostik"
 
 msgctxt "#30100"
 msgid "None"
@@ -487,7 +487,7 @@ msgstr "Kanalfavoriter"
 
 msgctxt "#30504"
 msgid "Add to Favourites"
-msgstr "Lägg till"
+msgstr "Lägg till som favorit"
 
 msgctxt "#30505"
 msgid "Hide"
@@ -495,11 +495,11 @@ msgstr "Dölj"
 
 msgctxt "#30506"
 msgid "Remove Favourite"
-msgstr "Ta bort"
+msgstr "Ta bort favorit"
 
 msgctxt "#30507"
 msgid "Select Channels »"
-msgstr "Kanaler"
+msgstr "Välj kanaler »"
 
 msgctxt "#30508"
 msgid "No favourites available"
@@ -519,7 +519,7 @@ msgstr "Ny version tillgänglig."
 
 msgctxt "#30517"
 msgid "A new version of %s is available: %s. Please visit the website to download it."
-msgstr "En ny version av %s är tillgänglig: %s. Besök hemsidan för att ladda ner version."
+msgstr "En ny version av %s är tillgänglig: %s. Besök hemsidan för att ladda ner den."
 
 msgctxt "#30520"
 msgid "Repository Warning"
@@ -567,7 +567,7 @@ msgstr "Live-sändning"
 
 msgctxt "#30540"
 msgid "Geo-Locked"
-msgstr "GEO-låsta"
+msgstr "Geoblockerade"
 
 msgctxt "#30541"
 msgid "Queue item"
@@ -671,11 +671,11 @@ msgstr "Dolda objekt"
 
 msgctxt "#30566"
 msgid "To un-hide an item, configure Retrospect to show hidden items first. Then un-hide them via the context menu."
-msgstr "För att visa dolda objekt igen, ställ in Retrospect att först visa dolda objekt. Använd sedan innehållsmenyn för att visa dolda objekt."
+msgstr "För att visa ett dolt objekt igen, ställ först in Retrospect att visa dolda objekt. Använd sedan innehållsmenyns \"Visa dolt objekt\"."
 
 msgctxt "#30567"
 msgid "Add-on(s) disabled"
-msgstr "Tillägg inaktiverad"
+msgstr "Tillägg inaktiverat"
 
 msgctxt "#30568"
 msgid "Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager."
@@ -691,35 +691,35 @@ msgstr "Dölj kanalinitieringsmeddelanden"
 
 msgctxt "#30571"
 msgid "Use Kodi Adaptive Stream add-on when possible"
-msgstr "Använd Kodi-tillägget Adaptive Stream när det är möjligt"
+msgstr "Använd Kodi-tillägget Adaptive Stream när det är möjligt."
 
 msgctxt "#30572"
 msgid "Retrospect Settings »"
-msgstr "Retrospect Inställningar »"
+msgstr "Retrospect-inställningar »"
 
 msgctxt "#30573"
 msgid "(Un-)Hide item »"
-msgstr "Dolda objekt »"
+msgstr "Dölj/visa objekt »"
 
 msgctxt "#30574"
 msgid "Hide Channel"
-msgstr "Hide Channel"
+msgstr "Dölj kanal"
 
 msgctxt "#30575"
 msgid "Retrospect Favourites »"
-msgstr "Retrospect Favourites »"
+msgstr "Retrospect-favoriter »"
 
 msgctxt "#30576"
 msgid "Select Countries"
-msgstr "Select Countries"
+msgstr "Välj länder"
 
 msgctxt "#30577"
 msgid "Channel Bitrate »"
-msgstr ""
+msgstr "Strömbitshastighet för kanal »"
 
 msgctxt "#30578"
 msgid "Adaptive stream add-on settings"
-msgstr ""
+msgstr "Inställningar för Adaptive Stream-tillägget"
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"
