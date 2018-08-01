@@ -16,10 +16,9 @@ from collections import namedtuple
 import requests
 import requests.cookies
 import requests.utils
-# from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
 
-from cache.cachehttpadapter import CacheHTTPAdapter
-from cache.streamcache import StreamCache
+from connectivity.cachehttpadapter import CacheHTTPAdapter
+from connectivity.streamcache import StreamCache
 from logger import Logger
 
 UriStatus = namedtuple('UriStatus', [
@@ -354,6 +353,8 @@ class UriHandler(object):
                 s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
             proxies = self.__GetProxies(proxy, uri)
+            if "dns" in proxies:
+                s.mount("https://", DnsResolverHTTPAdapter(uri))
             headers = self.__GetHeaders(referer, additionalHeaders)
 
             if params:
@@ -419,24 +420,3 @@ class UriHandler(object):
         def __str__(self):
             return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
                 .format(self.id, self.cacheStore, self.ignoreSslErrors)
-
-
-# class CustomDnsHTTPAdapter(HTTPAdapter):
-#     def __init__(self, host_name, ip_address, port, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
-#                  max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
-#
-#         self.port = port
-#         self.ip_address = ip_address
-#         self.host_name = host_name
-#
-#         super(CustomDnsHTTPAdapter, self).__init__(pool_connections, pool_maxsize, max_retries,
-#                                                    pool_block)
-#
-#     def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
-#         pool_kwargs['assert_hostname'] = self.host_name
-#         super(CustomDnsHTTPAdapter, self).init_poolmanager(connections, maxsize, block,
-#                                                            **pool_kwargs)
-#
-#     def get_connection(self, url, proxies=None):
-#         data = requests.utils.urlparse(url)
-#         return super(CustomDnsHTTPAdapter, self).get_connection(url, proxies)
