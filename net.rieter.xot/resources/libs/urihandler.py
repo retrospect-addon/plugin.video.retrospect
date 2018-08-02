@@ -18,6 +18,7 @@ import requests.cookies
 import requests.utils
 
 from connectivity.cachehttpadapter import CacheHTTPAdapter
+from connectivity.dnshttpadapter import DnsResolverHTTPAdapter
 from connectivity.streamcache import StreamCache
 from logger import Logger
 
@@ -354,7 +355,9 @@ class UriHandler(object):
 
             proxies = self.__GetProxies(proxy, uri)
             if "dns" in proxies:
-                s.mount("https://", DnsResolverHTTPAdapter(uri))
+                s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
+                                                           logger=Logger.Instance()))
+
             headers = self.__GetHeaders(referer, additionalHeaders)
 
             if params:
@@ -413,6 +416,10 @@ class UriHandler(object):
                 Logger.Debug("Using a http(s) %s", proxy)
                 proxyAddress = proxy.GetProxyAddress()
                 return {"http": proxyAddress, "https": proxyAddress}
+
+            elif proxy.Scheme == "dns":
+                Logger.Debug("Using a DNS %s", proxy)
+                return {"dns": proxy.Proxy}
 
             Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
             return None

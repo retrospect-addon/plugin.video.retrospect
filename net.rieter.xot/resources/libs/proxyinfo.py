@@ -8,8 +8,6 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-import urllib2
-
 
 class ProxyInfo:
     def __init__(self, proxy, port, scheme="http", username="", password=""):
@@ -33,22 +31,6 @@ class ProxyInfo:
         self.Username = username
         self.Password = password
         self.Filter = []            # : If specified, only URLs that contain these parts will be routed via the proxy.
-
-    def GetSmartProxyHandler(self, scheme=None):
-        """ Gets a Proxy Handler  based on the settings
-
-        Keyword Arguments:
-        scheme : String - Can be used to override the scheme
-
-        """
-
-        if self.Proxy == "":
-            proxyHandler = urllib2.ProxyHandler({})
-        else:
-            address = self.GetProxyAddress()
-            proxyHandler = urllib2.ProxyHandler({scheme or self.Scheme: address})
-
-        return proxyHandler
 
     def GetProxyAddress(self, hidePassword=False):
         """ Returns the proxy address for this proxy
