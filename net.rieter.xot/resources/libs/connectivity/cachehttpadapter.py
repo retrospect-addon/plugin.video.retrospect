@@ -39,6 +39,7 @@ class CacheHTTPAdapter(HTTPAdapter):
             Logger.Error("Error retrieving cache for %s", request.url, exc_info=True)
 
         # Actually send a request
+        Logger.Debug("Retrieving data from: %s", request.url)
         response = super(CacheHTTPAdapter, self).send(request, stream, timeout, verify, cert, proxies)
 
         try:

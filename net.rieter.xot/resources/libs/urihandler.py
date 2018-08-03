@@ -354,7 +354,7 @@ class UriHandler(object):
                 s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
             proxies = self.__GetProxies(proxy, uri)
-            if "dns" in proxies:
+            if proxies is not None and "dns" in proxies:
                 s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
                                                            logger=Logger.Instance()))
 
