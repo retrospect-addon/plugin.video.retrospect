@@ -109,7 +109,7 @@ class SubtitleHelper:
             elif format.lower() == 'srt':
                 srt = raw
             elif format.lower() == 'webvtt':
-                srt = SubtitleHelper.__ConvertWebVttToSrt(raw)
+                srt = SubtitleHelper.__ConvertWebVttToSrt(raw)  # With Krypton and Leia VTT is supported natively
             elif format.lower() == 'ttml':
                 srt = SubtitleHelper.__ConvertTtmlToSrt(raw)
             elif format.lower() == 'dcsubtitle':
@@ -270,7 +270,7 @@ class SubtitleHelper:
         result = ""
         for line in webvvt.split("\n"):
             line = line.strip()
-            if line.endswith("WEBVTT"):
+            if line.endswith("WEBVTT") or line.startswith("X-TIMESTAMP"):
                 continue
             if not line:
                 continue
