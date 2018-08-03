@@ -13,6 +13,7 @@ from vault import Vault
 from helpers.datehelper import DateHelper
 from helpers.languagehelper import LanguageHelper
 from textures import TextureHandler
+from helpers.subtitlehelper import SubtitleHelper
 
 
 class Channel(chn_class.Channel):
@@ -409,8 +410,17 @@ class Channel(chn_class.Channel):
                 url = "%s/%s" % ("https://ondemand-vrt.akamaized.net", url.split("/", 3)[-1])
 
             if adaptiveAvailable:
+                if not AddonSettings.IsMinVersion(18) and streamData["type"] == "HLS":
+                    # Get the subs from HLS
+                    Logger.Debug("Using subs from HLS for Kodi <18")
+                    srt = M3u8.GetSubtitle(url, proxy=self.proxy)
+                    if srt:
+                        srt = srt.replace(".m3u8", ".vtt")
+                        part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+
                 if streamData["type"] != "MPEG_DASH":
                     continue
+
                 stream = part.AppendMediaStream(url, 0)
                 Mpd.SetInputStreamAddonInput(stream, self.proxy)
                 item.complete = True
@@ -418,7 +428,9 @@ class Channel(chn_class.Channel):
             if streamData["type"] != "HLS":
                 continue
 
-            for s, b, a in M3u8.GetStreamsFromM3u8(url, self.proxy, mapAudio=True):
+            m3u8Data = UriHandler.Open(url, self.proxy)
+            for s, b, a in \
+                    M3u8.GetStreamsFromM3u8(url, self.proxy, playListData=m3u8Data, mapAudio=True):
                 item.complete = True
                 if a:
                     audioPart = a.rsplit("-", 1)[-1]
@@ -426,6 +438,13 @@ class Channel(chn_class.Channel):
                     s = s.replace(".m3u8", audioPart)
                 # s = self.GetVerifiableVideoUrl(s)
                 part.AppendMediaStream(s, b)
+
+            srt = M3u8.GetSubtitle(url, playListData=m3u8Data, proxy=self.proxy)
+            if not srt:
+                continue
+
+            srt = srt.replace(".m3u8", ".vtt")
+            part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
         return item
 
     def __ExtractSessionData(self, logonData):

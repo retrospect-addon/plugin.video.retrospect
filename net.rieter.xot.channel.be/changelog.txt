@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: VRT.nu 'remix-aka' streams (See #981)
-* Fixed: Stievie and VTM Live streams. These require Kodi Leia or higher (Fixes #981)
+* Added: Subs for VRT.nu if the Adaptive Add-on is not used.
 
 [I]Previous Changes[/I]
+* Fixed: VRT.nu 'remix-aka' streams (See #981)
+* Fixed: Stievie and VTM Live streams. These require Kodi Leia or higher (Fixes #981)
 * Fixed: VRT.nu changed site layout (Fixes #974)
 * Added: Sporza Live stream (See #955)
 * Fixed: Canvas & KetNet live streams (Fixes #955)
