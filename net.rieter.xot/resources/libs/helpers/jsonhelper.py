@@ -178,17 +178,3 @@ class JsonHelper:
 
     def __str__(self):
         return self.data
-
-    class MyJson:
-        def __init__(self, logger=None):
-
-            self.Logger = logger
-
-            # initialize some variables
-            self.quotes = "'\""
-            self.keyValueEnd = ",}]"
-            self.keyEnd = ":"
-            self.numeric = "-01234567890."
-            self.data = None
-            self.__pointer = 0
-            self.__maxPointer = 0
