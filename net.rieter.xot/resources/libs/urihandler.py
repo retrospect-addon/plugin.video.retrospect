@@ -386,7 +386,7 @@ class UriHandler(object):
                 Logger.Info("%s resulted in '%s %s' (%s) for %s",
                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
             else:
-                Logger.Error("%s failed with in '%s %s' (%s) for %s",
+                Logger.Error("%s failed with '%s %s' (%s) for %s",
                              r.request.method, r.status_code, r.reason, r.elapsed, r.url)
 
             self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
