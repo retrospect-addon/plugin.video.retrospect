@@ -8,11 +8,15 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+import re
+
 from helpers.jsonhelper import JsonHelper
 from version import Version
 
 
 class Updater:
+    __regex = None
+
     def __init__(self, updateUrl, currentVersion, uriHandler, logger):
         """ Initiates a Updater class """
 
@@ -33,6 +37,9 @@ class Updater:
     def IsNewVersionAvailable(self):
         try:
             self.onlineVersion = self.__getOnlineVersion()
+            if self.onlineVersion is None:
+                return False
+
             self.__logger.Debug("Found online version: %s", self.onlineVersion)
             return self.currentVersion < self.onlineVersion
         except:
@@ -42,7 +49,11 @@ class Updater:
     def __getOnlineVersion(self):
         data = self.__uriHandler.Open(self.updateUrl, noCache=True)
         jsonData = JsonHelper(data)
-        onlineDownload = jsonData.GetValue("values", 0)
+        onlineDownloads = list(filter(lambda d: self.__isValidUpdate(d), jsonData.GetValue("values")))
+        if len(onlineDownloads) == 0:
+            return None
+
+        onlineDownload = onlineDownloads[0]
         onlineParts = onlineDownload['name'].rsplit(".", 1)[0].split("-")
         if len(onlineParts) < 2:
             return None
@@ -51,3 +62,15 @@ class Updater:
         onlineVersionData = onlineParts[1].replace("alpha", "~alpha").replace("beta", "~beta")
         onlineVersion = Version(onlineVersionData)
         return onlineVersion
+
+    def __isValidUpdate(self, download):
+        name = download.get("name")
+        if name is None:
+            return False
+
+        if Updater.__regex is None:
+            Updater.__regex = re.compile(
+                "^net\.rieter\.xot-\d+\.\d+\.\d+(\.\d+)?(~?(alpha|beta)\d+)?\.zip",
+                re.IGNORECASE)
+
+        return Updater.__regex.match(name) is not None
