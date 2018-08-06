@@ -27,10 +27,12 @@ class KodiSettings(settingsstore.SettingsStore):
             channel_setting_id = self.__channel_setting_format.format(channel.guid, setting_id)
             self.__addon_settings.setSetting(channel_setting_id, str(setting_value))
             self._logger.Trace("Kodi Channel Setting Updated: %s.%s(%s)='%s'",
-                               channel.id, setting_id, channel_setting_id, setting_value)
+                               channel.id, setting_id, channel_setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
         else:
             self.__addon_settings.setSetting(setting_id, str(setting_value))
-            self._logger.Trace("Kodi Setting Updated: %s='%s'", setting_id, setting_value)
+            self._logger.Trace("Kodi Setting Updated: %s='%s'", setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
 
         return setting_value
 
@@ -53,10 +55,12 @@ class KodiSettings(settingsstore.SettingsStore):
             channel_setting_id = self.__channel_setting_format.format(channel.guid, setting_id)
             setting_value = self.__addon_settings.getSetting(channel_setting_id)
             self._logger.Trace("Kodi Channel Setting: %s.%s(%s)='%s'",
-                               channel.id, setting_id, channel_setting_id, setting_value)
+                               channel.id, setting_id, channel_setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
         else:
             setting_value = self.__addon_settings.getSetting(setting_id)
-            self._logger.Trace("Kodi Setting: %s='%s'", setting_id, setting_value)
+            self._logger.Trace("Kodi Setting: %s='%s'", setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
 
         return setting_value or default
 

@@ -15,6 +15,8 @@ class SettingsStore(object):
             raise ValueError("Missing logger")
 
         self._logger = logger
+        # What settings should we not expose via the logger?
+        self._secure_setting_ids = ["application_key", "client_id"]
 
     def set_setting(self, setting_id, setting_value, channel=None):
         pass
@@ -33,6 +35,11 @@ class SettingsStore(object):
 
     def open_settings(self):
         pass
+
+    def _get_safe_print_value(self, setting_id, setting_value):
+        if setting_id in self._secure_setting_ids:
+            return "<no of your business>"
+        return setting_value
 
     def __del__(self):
         pass

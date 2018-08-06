@@ -38,17 +38,20 @@ class LocalSettings(settingsstore.SettingsStore):
 
     def set_setting(self, setting_id, setting_value, channel=None):
         if channel is None:
-            self._logger.Debug("Local Setting Updated: %s: '%s'", setting_id, setting_value)
             LocalSettings.__settings[LocalSettings.__SETTINGS_KEY][setting_id] = setting_value
+            self._logger.Debug("Local Setting Updated: %s: '%s'",
+                               setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
         else:
-            self._logger.Debug("Local Channel Setting Updated: %s:%s: '%s'",
-                               channel.id, setting_id, setting_value)
-
             if channel.id not in LocalSettings.__settings[LocalSettings.__CHANNELS_KEY]:
                 LocalSettings.__settings[LocalSettings.__CHANNELS_KEY][channel.id] = {}
 
             LocalSettings.__settings[LocalSettings.__CHANNELS_KEY][channel.id][setting_id] = \
                 setting_value
+
+            self._logger.Debug("Local Channel Setting Updated: %s:%s: '%s'",
+                               channel.id, setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
 
         # store the file
         self.__store_settings()
@@ -63,12 +66,14 @@ class LocalSettings(settingsstore.SettingsStore):
     def get_setting(self, setting_id, channel=None, default=None):
         if channel is None:
             setting_value = LocalSettings.__settings["settings"].get(setting_id, default)
-            self._logger.Trace("Local Setting: %s='%s'", setting_id, setting_value)
+
+            self._logger.Trace("Local Setting: %s='%s'", setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
         else:
             channel_settings = LocalSettings.__settings["channels"].get(channel.id, {})
             setting_value = channel_settings.get(setting_id, default)
-            self._logger.Trace("Local Channel Setting: %s.%s='%s'",
-                               channel.id, setting_id, setting_value)
+            self._logger.Trace("Local Channel Setting: %s.%s='%s'", channel.id, setting_id,
+                               self._get_safe_print_value(setting_id, setting_value))
 
         # the default was already retrieved by the dict.get(key, default)
         return setting_value
@@ -103,7 +108,8 @@ class LocalSettings(settingsstore.SettingsStore):
                     self._logger.Warning("Empty local settings file found: %s", self.local_settings_file)
                     return
 
-                self._logger.Trace("Loading settings: %s", content)
+                # Print the content might expose secret settings. See self._secure_setting_ids
+                # self._logger.Trace("Loading settings: %s", content)
                 LocalSettings.__settings = json.loads(content, encoding='utf-8')
         except:
             self._logger.Error("Error loading JSON settings. Resetting all settings.", exc_info=True)
@@ -124,8 +130,10 @@ class LocalSettings(settingsstore.SettingsStore):
         # open the file as binary file, as json.dumps will already encode as utf-8 bytes
         with io.open(self.local_settings_file, mode='w+b') as fp:
             content = json.dumps(LocalSettings.__settings, indent=4, encoding='utf-8')
-            self._logger.Debug("Storing settings: %s", content)
             fp.write(content)
+
+            # Print the content might expose secret settings. See self._secure_setting_ids
+            # self._logger.Debug("Storing settings: %s", content)
 
     def __empty_settings(self):
         return {
