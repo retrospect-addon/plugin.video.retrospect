@@ -86,10 +86,10 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", name="Folder/Season parser",
                             parser=folderRegex, creator=self.CreateFolderItem)
 
-        videoRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>\W*<div[^>]*>\W*<h2[^>]*>\s*' \
-                     '(?<subtitle>[^<]+)\s*</h2>\W*<p[^>]*>\W*(?:<span[^>]*>\s*' \
-                     '(?<title>[^|]+) \|\s*</span>\W*<span[^>]+>[^<]*</span>){0,1}\s*' \
-                     '(?<description>[^|]+) \|\W+\d+ ?<abbr[\w\W]{0,500}<source srcset="[^"]+' \
+        videoRegex = '<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
+                     '<div[^>]*>\W*<h2[^>]*>\s*(?<title>[^<]+)\s*</h2>\W*<p[^>]*>\W*(?:<span[^>]*' \
+                     'class="vrtnu-list--item-meta[^>]*>\W*(?<day>\d+)/(?<month>\d+)[^<]*</span>' \
+                     '\W*<span[^>]+>[^<]*</span>|)[^<]*<abbr[\w\W]{0,1000}?<source srcset="[^"]+' \
                      '(?<thumburl>//[^ ]+)'
         # No need for a subtitle for now as it only includes the textual date
         videoRegex = Regexer.FromExpresso(videoRegex)
@@ -362,7 +362,7 @@ class Channel(chn_class.Channel):
         if item is None:
             return None
 
-        if "day" in resultSet and resultSet["day"]:
+        if "day" in resultSet and resultSet["day"] and len(resultSet.get("year", "")) == 4:
             item.SetDate(resultSet["year"] or DateHelper.ThisYear(), resultSet["month"], resultSet["day"])
 
         if item.thumb.startswith("//"):
