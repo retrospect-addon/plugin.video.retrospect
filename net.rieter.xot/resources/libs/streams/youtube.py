@@ -90,11 +90,15 @@ class YouTube:
 
         elif "get_video_info" not in url:
             Logger.Error("Invalid Youtube URL specified: '%s'", url)
-            return url
+            return []
 
         data = UriHandler.Open(url, proxy=proxy)
         # get the stream data from the page
+
+        # Up to 720p with audio and video combined.
         urlEncodedFmtStreamMap = Regexer.DoRegex("url_encoded_fmt_stream_map=([^&]+)", data)
+        # Up to 4K with audio and video split.
+        # urlEncodedFmtStreamMap = Regexer.DoRegex("adaptive_fmts=([^&]+)", data)
         urlEncodedFmtStreamMapData = HtmlEntityHelper.UrlDecode(urlEncodedFmtStreamMap[0])
         # split per stream
         streams = urlEncodedFmtStreamMapData.split(',')
@@ -104,22 +108,29 @@ class YouTube:
             qsData = dict([x.split("=") for x in stream.split("&")])
             Logger.Trace(qsData)
 
-            # get the stream encoding information from the iTag
-            iTag = int(qsData.get('itag', -1))
-            streamEncoding = YouTube.__YouTubeEncodings.get(iTag, None)
-            if streamEncoding is None:
-                # if the iTag was not in the list, skip it.
-                Logger.Debug("Not using iTag %s as it is not in the list of supported encodings.", iTag)
+            if "itag" in qsData and "bitrate" not in qsData:
+                iTag = int(qsData.get('itag', -1))
+                streamEncoding = YouTube.__YouTubeEncodings.get(iTag, None)
+                if streamEncoding is None:
+                    # if the iTag was not in the list, skip it.
+                    Logger.Debug(
+                        "Not using iTag %s as it is not in the list of supported encodings.", iTag)
+                    continue
+                bitrate = streamEncoding[0]
+            else:
+                bitrate = int(qsData['bitrate'])/1000
+
+            signature = qsData.get('s', None)
+            quality = qsData.get('quality_label', qsData.get('quality'))
+            if not quality:
+                Logger.Debug("Missing 'quality_label', skipping: %s", qsData)
                 continue
 
-            bitrate = streamEncoding[0]
-            signature = qsData.get('sig', None)
-            quality = qsData['quality']
             videoUrl = HtmlEntityHelper.UrlDecode(qsData['url'])
             if signature is None:
-                url = "%s&&quality=%s&ext=.%s" % (videoUrl, quality, streamEncoding[1])
+                url = videoUrl
             else:
-                url = "%s&signature=%s&quality=%s&ext=.%s" % (videoUrl, signature, quality, streamEncoding[1])
+                url = "%s&signature=%s" % (videoUrl, signature)
 
             youTubeStreams.append((url, bitrate))
 

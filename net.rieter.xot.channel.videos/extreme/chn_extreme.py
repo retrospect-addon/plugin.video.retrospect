@@ -71,12 +71,23 @@ class Channel(chn_class.Channel):
         
         # get additional info
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        guid = Regexer.DoRegex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
 
         #<param name="flashvars" value="id=dj0xMDEzNzQyJmM9MTAwMDAwNA&amp;tags=source%253Dfreecaster&amp;autoplay=1" />
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> playlist with bitrate
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> info (not needed, get description from main page.
 
+        youTubeUrl = Regexer.DoRegex('"(https://www.youtube.com/embed/[^\"]+)', data)
+        if youTubeUrl:
+            Logger.Debug("Using Youtube video")
+            part = item.CreateNewEmptyMediaPart()
+            youTubeUrl = youTubeUrl[0].replace("embed/", "watch?v=")
+            for s, b in YouTube.GetStreamsFromYouTube(youTubeUrl, self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
+            return item
+
+        guid = Regexer.DoRegex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
         if len(guid) > 0:
             url = '%s/player/smil/%s' % (self.baseUrl, guid[0],) 
             data = UriHandler.Open(url)
@@ -114,6 +125,7 @@ class Channel(chn_class.Channel):
             amfHelper = BrightCove(Logger.Instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
             for stream, bitrate in amfHelper.GetStreamInfo(renditions="IOSRenditions"):
                 part.AppendMediaStream(stream, bitrate)
+                item.complete = True
 
         # Logger.Error("Cannot find GUID in url: %s", item.url)
         return item
