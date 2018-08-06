@@ -328,6 +328,10 @@ class UriHandler(object):
             realUrl = r.url
 
             self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
+            if self.cookieJarFile:
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.save()
+
             if r.ok:
                 Logger.Info("%s resulted in '%s %s' (%s) for %s",
                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
@@ -390,6 +394,9 @@ class UriHandler(object):
                              r.request.method, r.status_code, r.reason, r.elapsed, r.url)
 
             self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
+            if self.cookieJarFile:
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.save()
             return r
 
         def __GetHeaders(self, referer, additionalHeaders):
