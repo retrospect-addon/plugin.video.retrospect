@@ -216,6 +216,29 @@ class UriHandler(object):
             Logger.Trace("Found cookie '%s'", cookies[0].name)
             return cookies[0]
 
+    @staticmethod
+    def GetExtensionFromUrl(url):
+        """ determines the file extension for a certain URL
+
+        Arguments:
+        url: String - The URL to search
+
+        Returns an extension or "" if not was found.
+
+        """
+
+        extensions = {".divx": "divx",
+                      ".flv": "flv",
+                      ".mp4": "mp4",
+                      ".m4v": "mp4",
+                      ".avi": "avi",
+                      "h264": "mp4"}
+        for ext in extensions:
+            if url.find(ext) > 0:
+                return extensions[ext]
+
+        return ""
+
     class __RequestsHandler(object):
 
         def __init__(self, cacheDir=None, webTimeOut=30, cookieJar=None, ignoreSslErrors=False):
