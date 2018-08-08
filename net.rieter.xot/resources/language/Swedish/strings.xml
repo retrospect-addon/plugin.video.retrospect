@@ -208,14 +208,14 @@
     <string id="30568">Några av Retrospects kanaltillägg är inte aktiverade vilket gör att de inte uppdateras automatiskt. Kodis tilläggsvisare öppnas nu och du bör aktivera alla tillägg som hör till Retrospect. Se http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">Ignorera fel i SSL-verifieringen (Säkerhetsrisk!)</string>
     <string id="30570">Dölj kanalinitieringsmeddelanden</string>
-    <string id="30571">Använd Kodi-tillägget Adaptive Stream när det är möjligt.</string>
+    <string id="30571">Använd Kodi-tillägget InputStream Adaptive när det är möjligt</string>
     <string id="30572">Retrospect-inställningar &#187;</string>
     <string id="30573">Dölj/visa objekt &#187;</string>
     <string id="30574">Dölj kanal</string>
     <string id="30575">Retrospect-favoriter &#187;</string>
     <string id="30576">Välj länder</string>
     <string id="30577">Strömbitshastighet för kanal &#187;</string>
-    <string id="30578">Inställningar för Adaptive Stream-tillägget</string>
+    <string id="30578">Inställningar för InputStream Adaptive-tillägget</string>
 
     <string id="30590">Ange en ny kod för Retrospect</string>
     <string id="30591">Ingen kod angiven för Retrospect</string>
