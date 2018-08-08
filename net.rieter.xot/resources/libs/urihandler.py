@@ -83,7 +83,7 @@ class UriHandler(object):
         @param referer:             - [opt] string    - the http referer to use
         @param additionalHeaders:   - [opt] dict      - the optional headers
         @param progressCallback:    - Function        - the callback for progress update. The format is
-
+                                                        function(retrievedSize, totalSize, perc, completed, status)
         @rtype : The full path of the downloaded file.
 
         """
@@ -280,6 +280,9 @@ class UriHandler(object):
             # status of the most recent call
             self.status = UriStatus(code=0, url=None, error=False, reason=None)
 
+            # for download animation
+            self.__animationIndex = -1
+
         def Download(self, uri, filename, folder, progressCallback=None, proxy=None, params="",
                      data="", json="", referer=None, additionalHeaders=None):
             """Downloads a remote file
@@ -297,6 +300,7 @@ class UriHandler(object):
             @param referer:             - [opt] string    - the http referer to use
             @param additionalHeaders:   - [opt] dict      - the optional headers
             @param progressCallback:    - Function        - the callback for progress update. The format is
+                                                            function(retrievedSize, totalSize, perc, completed, status)
 
             @rtype : The full path of the downloaded file.
 
@@ -321,9 +325,29 @@ class UriHandler(object):
             if r is None:
                 return ""
 
+            retrievedBytes = 0
+            totalSize = int(r.headers.get('Content-Length', '0').strip())
+            chunkSize = 1024 if totalSize == 0 else totalSize / 100
+            cancel = False
             with open(downloadPath, 'wb') as fd:
-                for chunk in r.iter_content(chunk_size=128):
+                for chunk in r.iter_content(chunk_size=chunkSize):
                     fd.write(chunk)
+                    retrievedBytes += len(chunk)
+
+                    if progressCallback:
+                        cancel = self.__DoProgressCallback(progressCallback, retrievedBytes, totalSize, False)
+                    if cancel:
+                        Logger.Warning("Download of %s aborted", uri)
+                        break
+
+            if cancel:
+                if os.path.isfile(downloadPath):
+                    Logger.Info("Removing partial download: %s", downloadPath)
+                    os.remove(downloadPath)
+                return ""
+
+            if progressCallback:
+                self.__DoProgressCallback(progressCallback, retrievedBytes, totalSize, True)
             return downloadPath
 
         def Open(self, uri, proxy=None, params="", data="", json="",
@@ -366,11 +390,7 @@ class UriHandler(object):
 
         # noinspection PyUnusedLocal
         def __Requests(self, uri, proxy=None, params="", data="", json="",
-                       referer=None, additionalHeaders=None, noCache=False,
-                       progressCallback=None, stream=False):
-
-            # TODO: add DNS proxy
-            # TODO: callback
+                       referer=None, additionalHeaders=None, noCache=False, stream=False):
 
             s = requests.session()
             s.cookies = self.cookieJar
@@ -453,6 +473,40 @@ class UriHandler(object):
 
             Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
             return None
+
+        def __DoProgressCallback(self, progressCallback, retrievedSize, totalSize, completed):
+            """ Performs a callback, if the progressCallback was specified.
+
+            @param progressCallback:        The callback method
+            @param retrievedSize:           Number of bytes retrieved
+            @param totalSize:               Total number of bytes
+            @param completed:               Are we done?
+            @rtype : Boolean                Should we cancel the download?
+
+            """
+
+            if progressCallback is None:
+                # no callback so it was not cancelled
+                return False
+
+            # calculated some stuff
+            self.__animationIndex = (self.__animationIndex + 1) % 4
+            bytesToMB = 1048576
+            animationFrames = ["-", "\\", "|", "/"]
+            animation = animationFrames[self.__animationIndex]
+            retrievedsizeMB = 1.0 * retrievedSize / bytesToMB
+            totalsizeMB = 1.0 * totalSize / bytesToMB
+            if totalSize > 0:
+                percentage = 100.0 * retrievedSize / totalSize
+            else:
+                percentage = 0
+            status = '%s - %i%% (%.1f of %.1f MB)' % (animation, percentage, retrievedsizeMB, totalsizeMB)
+            try:
+                return progressCallback(retrievedSize, totalSize, percentage, completed, status)
+            except:
+                Logger.Error("Error in Progress Callback", exc_info=True)
+                # cancel the download
+                return True
 
         def __str__(self):
             return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
