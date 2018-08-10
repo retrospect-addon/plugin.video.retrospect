@@ -23,7 +23,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         @param max_retries:
         @param pool_block:
         """
-        self.cacheStore = cache_store        # type: StreamCache
+        self.cache_store = cache_store        # type: StreamCache
 
         super(CacheHTTPAdapter, self).__init__(pool_connections, pool_maxsize, max_retries,
                                                pool_block)
@@ -33,7 +33,7 @@ class CacheHTTPAdapter(HTTPAdapter):
             if request.method == "GET":
                 response = self.__get_cached_response(request)
                 if response:
-                    self.cacheStore.cacheHits += 1
+                    self.cache_store.cacheHits += 1
                     return response
         except:
             Logger.Error("Error retrieving cache for %s", request.url, exc_info=True)
@@ -50,7 +50,7 @@ class CacheHTTPAdapter(HTTPAdapter):
 
             if response.status_code == 304:
                 Logger.Debug("304 Response found. Pro-Longing the %s", response.url)
-                self.cacheStore.cacheHits += 1
+                self.cache_store.cacheHits += 1
                 response = self.__get_cached_response(request, no_check=True)
         except:
             Logger.Error("Error storing cache for %s", request.url, exc_info=True)
@@ -58,19 +58,19 @@ class CacheHTTPAdapter(HTTPAdapter):
         return response
 
     def __get_cached_response(self, req, no_check=False):
-        bodyKey, metaKey = self.__get_cache_keys(req)
-        if not self.cacheStore.has_cache_key(metaKey) or not \
-                self.cacheStore.has_cache_key(bodyKey):
+        body_key, meta_key = self.__get_cache_keys(req)
+        if not self.cache_store.has_cache_key(meta_key) or not \
+                self.cache_store.has_cache_key(body_key):
             Logger.Debug("No-Cache-Hit: %s", req.url)
             return None
 
-        with self.cacheStore.get(metaKey) as fd:
+        with self.cache_store.get(meta_key) as fd:
             meta = json.load(fd)
         headers = CaseInsensitiveDict(data=meta["headers"])
         cache_data = meta.get("cache_data")
 
         resp = requests.Response()
-        resp.raw = self.cacheStore.get(bodyKey)
+        resp.raw = self.cache_store.get(body_key)
         resp.status_code = meta["status"]
         resp.headers = headers
         resp.encoding = meta["encoding"]
@@ -83,7 +83,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         valid_in_seconds = 3600
         if 'max-age' in cache_data:
             valid_in_seconds = cache_data['max-age']
-        if self.cacheStore.is_expired(metaKey, valid_in_seconds):
+        if self.cache_store.is_expired(meta_key, valid_in_seconds):
             Logger.Debug("Expired Cache-Hit: %s", req.url)
             return None
 
@@ -194,20 +194,20 @@ class CacheHTTPAdapter(HTTPAdapter):
 
     def __store_response(self, req, res, cache_data):
         Logger.Debug("Storing cache for: %s", res.url)
-        bodyKey, metaKey = self.__get_cache_keys(req)
+        body_key, meta_key = self.__get_cache_keys(req)
 
         # Store the body as a binary file and reset the raw and _content_consumed attributes
         # of the response so we can reuse it again
-        with self.cacheStore.set(bodyKey) as fp:
+        with self.cache_store.set(body_key) as fp:
             for chunk in res.iter_content(chunk_size=128):
                 fp.write(chunk)
 
-        res.raw = self.cacheStore.get(bodyKey)
+        res.raw = self.cache_store.get(body_key)
         res._content_consumed = False
 
         # store all headers and cache-data and store it in a json file
         data = {
-            "body": bodyKey,
+            "body": body_key,
             "headers": dict(
                 (k, v) for k, v in res.headers.items()
             ),
@@ -215,7 +215,7 @@ class CacheHTTPAdapter(HTTPAdapter):
             "encoding": res.encoding,
             "cache_data": cache_data
         }
-        with self.cacheStore.set(metaKey) as fp:
+        with self.cache_store.set(meta_key) as fp:
             json.dump(data, fp, encoding='utf-8', indent=2)
         Logger.Trace(data)
 
@@ -250,12 +250,12 @@ class CacheHTTPAdapter(HTTPAdapter):
         return False
 
     def __get_cache_keys(self, req):
-        hashTool = hashlib.md5()
-        hashTool.update(req.url)
-        key = hashTool.hexdigest()
-        bodyFile = "{0}.body".format(key)
-        metaFile = "{0}.meta".format(key)
-        return bodyFile, metaFile
+        hash_tool = hashlib.md5()
+        hash_tool.update(req.url)
+        key = hash_tool.hexdigest()
+        body_file = "{0}.body".format(key)
+        meta_file = "{0}.meta".format(key)
+        return body_file, meta_file
 
     # def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
     #     Logger.Info("init_poolmanager")

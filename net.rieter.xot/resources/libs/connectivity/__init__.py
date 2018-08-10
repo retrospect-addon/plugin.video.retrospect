@@ -7,6 +7,4 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300, 
 # San Francisco, California 94105, USA.
 #===============================================================================
-__all__ = ["cachedhttpresponse", "cachehandler", "cachehttphandler",
-           "filecache", "memorycache", "cachebase",
-           "streamcache", "cachehttpadapter", "dnshttpadapter", "dnsresolver"]
+__all__ = ["streamcache", "cachehttpadapter", "dnshttpadapter", "dnsresolver"]

@@ -37,7 +37,7 @@ class DnsResolverHTTPAdapter(HTTPAdapter):
         resolved_ip = DnsResolverHTTPAdapter.__dns_cache[dns_server].get(self.__original_host_name)
         if resolved_ip is None:
             self.__dns_resolver = DnsResolver(self.__dns_server)
-            resolved_ips = self.__dns_resolver.ResolveAddress(self.__original_host_name)
+            resolved_ips = self.__dns_resolver.resolve_address(self.__original_host_name)
             logger.Debug("Resolved DNS %s to %s", self.__original_host_name, resolved_ips)
             resolved_ip = resolved_ips[0][-1]
             DnsResolverHTTPAdapter.__dns_cache[dns_server][self.__original_host_name] = resolved_ip
