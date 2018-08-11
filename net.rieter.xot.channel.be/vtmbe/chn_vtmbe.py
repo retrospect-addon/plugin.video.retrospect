@@ -851,6 +851,7 @@ class Channel(chn_class.Channel):
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(hls, 0)
             M3u8.SetInputStreamAddonInput(stream, licenseKey=licenseKey)
+            item.complete = True
         else:
             Logger.Error("Cannot play live-stream without encryption support.")
         return item
