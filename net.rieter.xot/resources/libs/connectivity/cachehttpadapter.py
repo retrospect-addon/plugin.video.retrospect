@@ -70,8 +70,10 @@ class CacheHTTPAdapter(HTTPAdapter):
         cache_data = meta.get("cache_data")
 
         resp = requests.Response()
+        resp.url = meta.get("url", req.url)
         resp.raw = self.cache_store.get(body_key)
         resp.status_code = meta["status"]
+        resp.reason = meta.get("reason")
         resp.headers = headers
         resp.encoding = meta["encoding"]
         resp.request = req
@@ -208,10 +210,12 @@ class CacheHTTPAdapter(HTTPAdapter):
         # store all headers and cache-data and store it in a json file
         data = {
             "body": body_key,
+            "url": res.url,
             "headers": dict(
                 (k, v) for k, v in res.headers.items()
             ),
             "status": res.status_code,
+            "reason": res.reason,
             "encoding": res.encoding,
             "cache_data": cache_data
         }
