@@ -9,56 +9,38 @@
 #===============================================================================
 
 import os
+import io
 import sys
 import traceback
 import time
 import datetime
 
-#===============================================================================
-# Define levels (same as Python's loglevels)
-#===============================================================================
-CRITICAL = 50
-FATAL = CRITICAL
-ERROR = 40
-WARNING = 30
-WARN = WARNING
-INFO = 20
-DEBUG = 10
-TRACE = 0
-
 
 class Logger:
-    """Logger class that is used for logging to a certain file. It's faster
-    than the normal Python logging class and has more custom options.
-
-    It appears as a default Python logger and has these log methods:
-    * trace    : In depth variable information, timing information and other development
-                 related information. Usually too many lines to be meaningfull for a
-                 non-developer.
-    * debug    : Detailed information on the state of the script including trouble
-                 shooting information. Should now be spawned too often.
-    * info     : Generic information on the state of the script.
-    * warning  : Log line that indicates a error that was recovered.
-    * error    : Log line that indicates a error that should not have occurred but
-                 did not break the execution of the script.
-    * critical : Log line that indicates a problem that prevent correct execution
-                 of the script.
-
-    Has a subclass __Write that
-    does the work!
-
-    """
-    # [.](info|warning|error|debug|critical)\([^)]
-
-    def __init__(self):
-        pass
+    CRITICAL = 50
+    FATAL = CRITICAL
+    ERROR = 40
+    WARNING = 30
+    WARN = WARNING
+    INFO = 20
+    DEBUG = 10
+    TRACE = 0
 
     # the actual logger
     __logger = None
-    __error = "ERROR: ======= Logger not initialized. Use Logger.CreateLogger ======="
 
     @staticmethod
-    def CreateLogger(logFileName, applicationName, minLogLevel=10, append=False, memoryInfoProvider=None, dualLogger=None):
+    def Instance():
+        """ return the logger instance """
+        return Logger.__logger
+
+    @staticmethod
+    def Exists():
+        """ returns a boolean indicating that a logger was created """
+        return Logger.__logger is not None
+
+    @staticmethod
+    def CreateLogger(logFileName, applicationName, minLogLevel=10, append=False, dualLogger=None):
         """Intialises the Logger Instance and opens it for writing
 
         Arguments:
@@ -77,60 +59,14 @@ class Logger:
         """
 
         if Logger.__logger is None:
-            Logger.__logger = CustomLogger(logFileName, applicationName, minLogLevel, append, memoryInfoProvider, dualLogger)
-
-            # hook up all the methods to pass to the actual logger
-            Logger.Trace = Logger.__logger.Trace
-            Logger.Debug = Logger.__logger.Debug
-            Logger.Info = Logger.__logger.Info
-            Logger.Warning = Logger.__logger.Warning
-            Logger.Error = Logger.__logger.Error
-            Logger.Critical = Logger.__logger.Critical
+            Logger.__logger = Logger(logFileName, applicationName, minLogLevel, append, dualLogger)
             # Logger.__logger.dualLog("CREATING LOGGER: {0}".format(Logger.__logger.id))
         else:
             Logger.Warning("Cannot create a second logger instance!")
             # Logger.__logger.dualLog("EXISTING LOGGER: {0}".format(Logger.__logger.id))
         return Logger.__logger
 
-    @staticmethod
-    def Instance():
-        """ return the logger instance """
-        return Logger.__logger
-
-    @staticmethod
-    def Exists():
-        """ returns a boolean indicating that a logger was created """
-        return Logger.__logger is not None
-
-    # In order for the PyDev errors to disappear, we create some fake methods here.
-
-    @staticmethod
-    def Trace(msg, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def Debug(msg, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def Info(msg, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def Warning(msg, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def Error(msg, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def Critical(msg, *args, **kwargs):
-        pass
-
-
-class CustomLogger:
-    def __init__(self, logFileName, applicationName, minLogLevel=10, append=False, memoryInfoProvider=None, dualLogger=None):
+    def __init__(self, logFileName, applicationName, minLogLevel=10, append=False, dualLogger=None):
         """Intialises the Logger Instance and opens it for writing
 
         Arguments:
@@ -143,47 +79,33 @@ class CustomLogger:
                                      Default value is False.
         minLogLeve : [opt] integer - Minimum log level to log. Levels equal or higher
                                      are logged.
-        logFreeMemory : [opt] bool - If true, memory is logged as first parameter
 
         """
 
         self.logFileName = logFileName
         self.fileMode = "a"
         self.fileFlags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
-        self.memoryInfoProvider = memoryInfoProvider
 
         self.minLogLevel = minLogLevel
         self.dualLog = dualLogger
         self.logDual = dualLogger is not None
         self.logEntryCount = 0
-        self.flushInterval = 5
+        self.flushInterval = 5 if logFileName is not None else 1
         self.encoding = 'cp1252'
         self.applicationName = applicationName
 
         # self.logHandle = -1
         self.id = int(time.time())
         self.timeFormat = "%Y%m%d %H:%M:%S"
-
-        if self.memoryInfoProvider:
-            self.logFormat = "%s - [%4sMB] %-8s - %-20s - %-4d - %s\n"
-        else:
-            # self.logFormat = "%s%s, %-4s%s" % ('%s - [', self.id, xbmc.getFreeMem(), 'MB] %-8s - %-20s - %-4d - %s\n')
-            self.logFormat = '%s - [%-8s] - %-20s - %-4d - %s\n'
+        self.logFormat = '%s - [%-8s] - %-20s - %-4d - %s\n'
 
         self.logLevelNames = {
-            CRITICAL: 'CRITICAL',
-            ERROR: 'ERROR',
-            WARNING: 'WARNING',
-            INFO: 'INFO',
-            DEBUG: 'DEBUG',
-            TRACE: 'TRACE',
-            'CRITICAL': CRITICAL,
-            'ERROR': ERROR,
-            'WARN': WARNING,
-            'WARNING': WARNING,
-            'INFO': INFO,
-            'DEBUG': DEBUG,
-            'TRACE': TRACE,
+            Logger.CRITICAL: 'CRITICAL',
+            Logger.ERROR: 'ERROR',
+            Logger.WARNING: 'WARNING',
+            Logger.INFO: 'INFO',
+            Logger.DEBUG: 'DEBUG',
+            Logger.TRACE: 'TRACE'
         }
 
         if not append:
@@ -197,7 +119,8 @@ class CustomLogger:
             dualLogger("%s :: Additional logging can be found in '%s'" % (self.applicationName, self.logFileName,), 1)
         return
 
-    def Trace(self, msg, *args, **kwargs):
+    @staticmethod
+    def Trace(msg, *args, **kwargs):
         """Logs an trace message (with loglevel 0)
 
         Arguments:
@@ -212,10 +135,11 @@ class CustomLogger:
 
         """
 
-        self.__Write(msg, level=TRACE, *args, **kwargs)
+        Logger.__logger.__Write(msg, level=Logger.TRACE, *args, **kwargs)
         return
 
-    def Debug(self, msg, *args, **kwargs):
+    @staticmethod
+    def Debug(msg, *args, **kwargs):
         """Logs an debug message (with loglevel 10)
 
         Arguments:
@@ -230,10 +154,11 @@ class CustomLogger:
 
         """
 
-        self.__Write(msg, level=DEBUG, *args, **kwargs)
+        Logger.__logger.__Write(msg, level=Logger.DEBUG, *args, **kwargs)
         return
 
-    def Info(self, msg, *args, **kwargs):
+    @staticmethod
+    def Info(msg, *args, **kwargs):
         """Logs an informational message (with loglevel 20)
 
         Arguments:
@@ -248,10 +173,11 @@ class CustomLogger:
 
         """
 
-        self.__Write(msg, level=INFO, *args, **kwargs)
+        Logger.__logger.__Write(msg, level=Logger.INFO, *args, **kwargs)
         return
 
-    def Error(self, msg, *args, **kwargs):
+    @staticmethod
+    def Error(msg, *args, **kwargs):
         """Logs an error message (with loglevel 40)
 
         Arguments:
@@ -266,10 +192,11 @@ class CustomLogger:
 
         """
 
-        self.__Write(msg, level=ERROR, *args, **kwargs)
+        Logger.__logger.__Write(msg, level=Logger.ERROR, *args, **kwargs)
         return
 
-    def Warning(self, msg, *args, **kwargs):
+    @staticmethod
+    def Warning(msg, *args, **kwargs):
         """Logs an warning message (with loglevel 30)
 
         Arguments:
@@ -284,10 +211,11 @@ class CustomLogger:
 
         """
 
-        self.__Write(msg, level=WARNING, *args, **kwargs)
+        Logger.__logger.__Write(msg, level=Logger.WARNING, *args, **kwargs)
         return
 
-    def Critical(self, msg, *args, **kwargs):
+    @staticmethod
+    def Critical(msg, *args, **kwargs):
         """Logs an critical message (with loglevel 50)
 
         Arguments:
@@ -302,7 +230,7 @@ class CustomLogger:
 
         """
 
-        self.__Write(msg, level=CRITICAL, *args, **kwargs)
+        Logger.__logger.__Write(msg, level=Logger.CRITICAL, *args, **kwargs)
         return
 
     def CloseLog(self, logClosing=True):
@@ -323,7 +251,8 @@ class CustomLogger:
             # self.dualLog("CLOSING LOGGER: {0}".format(self.id))
 
         self.logHandle.flush()
-        self.logHandle.close()
+        if self.logHandle is not sys.stdout:
+            self.logHandle.close()
 
     def CleanUpLog(self):
         """Closes an old log file and creates a new one.
@@ -336,8 +265,11 @@ class CustomLogger:
 
         """
 
+        if self.logFileName is None:
+            return
+
         # create old.log file
-        print "%s :: Cleaning up logfile: %s" % (self.applicationName, self.logFileName)
+        print("%s :: Cleaning up logfile: %s" % (self.applicationName, self.logFileName))
         try:
             wasOpen = True
             self.CloseLog(logClosing=False)
@@ -419,28 +351,34 @@ class CustomLogger:
                     for i in range(0, len(lines)):
                         # for line in lines:
                         line = lines[i]
-                        if len(line) > 0:
-                            # if last line:
-                            if i == 0:
-                                line = line
-                            elif i == len(lines) - 1:
-                                line = '+ %s' % (line, )
-                            else:
-                                line = '| %s' % (line, )
-                            if self.memoryInfoProvider:
-                                formattedMessage = self.logFormat % (timestamp, self.memoryInfoProvider(), self.logLevelNames.get(logLevel), sourceFile, sourceLineNumber, line)
-                            else:
-                                formattedMessage = self.logFormat % (timestamp, self.logLevelNames.get(logLevel), sourceFile, sourceLineNumber, line)
-                            self.logHandle.write(formattedMessage)
+                        if len(line) <= 0:
+                            continue
+
+                        # if last line:
+                        if i == 0:
+                            line = line
+                        elif i == len(lines) - 1:
+                            line = '+ %s' % (line, )
+                        else:
+                            line = '| %s' % (line, )
+                        formattedMessage = self.logFormat % (
+                            timestamp,
+                            self.logLevelNames.get(logLevel),
+                            sourceFile,
+                            sourceLineNumber,
+                            line)
+                        self.logHandle.write(formattedMessage)
                 else:
-                    if self.memoryInfoProvider:
-                        formattedMessage = self.logFormat % (timestamp, self.memoryInfoProvider(), self.logLevelNames.get(logLevel), sourceFile, sourceLineNumber, msg)
-                    else:
-                        formattedMessage = self.logFormat % (timestamp, self.logLevelNames.get(logLevel), sourceFile, sourceLineNumber, msg)
+                    formattedMessage = self.logFormat % (
+                        timestamp,
+                        self.logLevelNames.get(logLevel),
+                        sourceFile,
+                        sourceLineNumber,
+                        msg)
                     self.logHandle.write(formattedMessage)
             except UnicodeEncodeError:
                 # self.Error("Unicode logging error", exc_info=True)
-                formattedMessage = formattedMessage.encode('raw_unicode_escape')
+                # formattedMessage = formattedMessage.encode('raw_unicode_escape')
                 self.logHandle.write(formattedMessage)
                 raise
 
@@ -483,7 +421,10 @@ class CustomLogger:
             methodName = co.co_name
             # if currentFrame belongs to this logger.py, equals <string> or equals a private log
             # method (_log or __Log) continue searching.
-            if sourceFile == "<string>" or sourceFile in os.path.normcase(__file__) or "stopwatch.py" in sourceFile or methodName in ("_Log", "__Log"):
+            if sourceFile == "<string>" \
+                    or sourceFile in os.path.normcase(__file__) \
+                    or "stopwatch.py" in sourceFile \
+                    or methodName in ("_Log", "__Log"):
                 currentFrame = currentFrame.f_back
                 continue
             else:
@@ -520,70 +461,22 @@ class CustomLogger:
 
         """
 
+        if self.logFileName is None:
+            self.logHandle = sys.stdout
+            return
+
         if os.path.exists(self.logFileName):
             # the file already exists. Now to prevent errors in Linux
             # we will open a file in Read + (Read and Update) mode
             # and set the pointer to the end.
-            self.logHandle = open(self.logFileName, "r+")
+            self.logHandle = io.open(self.logFileName, "r+b")
             self.logHandle.seek(0, 2)
-            self.Info("XOT Logger :: Appending Existing logFile")
+            self.__Write("XOT Logger :: Appending Existing logFile", level=Logger.INFO)
         else:
             logDir = os.path.dirname(self.logFileName)
             if not os.path.isdir(logDir):
                 os.makedirs(logDir)
             # no file exists, so just create a new one for writing
-            self.logHandle = open(self.logFileName, "w")
+            self.logHandle = io.open(self.logFileName, "wb")
 
         return
-
-
-if __name__ == "__main__":
-    import random
-
-    class MemoryInfoDummy:
-        def __init__(self):
-            pass
-
-        def getFreeMem(self):
-            return random.randint(10, 2000)
-
-    memInfo = MemoryInfoDummy()
-    logFile = "c:\\temp\\testlog.txt"
-    print logFile
-    logger = Logger.CreateLogger(logFile, "Logger Unittest", TRACE, memoryInfoProvider=memInfo.getFreeMem)
-    Logger.Warning("Test")
-    Logger.Warning("Test with parameters: '%s'", "OK")
-    Logger.Warning("Test with parameters: '%-5s'", 3)
-    Logger.Warning("Test with parameters: '%-5s'", 3)
-    Logger.Warning("Test with multiline\nLine1\nLine2\nTest with multiline\nLine3\nparameters: '%-5s'", 3)
-    Logger.Instance().minLogLevel = CRITICAL
-    Logger.Warning("Should not be shown")
-    Logger.Instance().minLogLevel = TRACE
-    Logger.Trace("Should not shown")
-    Logger.Instance().CloseLog()
-
-    print "\nResult written:\n-----------------------------------------------"
-    handle = open(logFile)
-    print handle.read()
-    handle.close()
-
-    def DualLog(msg):
-        print msg
-
-    Logger._Logger__logger = None
-    logger = Logger.CreateLogger(logFile, "Logger Unittest", TRACE, dualLogger=DualLog)
-    Logger.Warning("Test")
-    Logger.Warning("Test with parameters: '%s'", "OK")
-    Logger.Warning("Test with parameters: '%-5s'", 3)
-    Logger.Warning("Test with parameters: '%-5s'", 3)
-    Logger.Warning("Test with multiline\nLine1\nLine2\nTest with multiline\nLine3\nparameters: '%-5s'", 3)
-    Logger.Instance().minLogLevel = CRITICAL
-    Logger.Warning("Should not be shown")
-    Logger.Instance().minLogLevel = TRACE
-    Logger.Trace("Should not shown")
-    Logger.Instance().CloseLog()
-
-    print "\nResult written:\n-----------------------------------------------"
-    handle = open(logFile)
-    print handle.read()
-    handle.close()

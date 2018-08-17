@@ -52,12 +52,9 @@ def RunPlugin():
         # determine the platform
         from envcontroller import EnvController
         from environments import Environments
-        maxFileNameLength = None
-        if EnvController.IsPlatform(Environments.Xbox):
-            maxFileNameLength = 42
 
         ignoreSslErrors = AddonSettings.IgnoreSslErrors()
-        UriHandler.CreateUriHandler(cacheDir=cacheDir, maxFileNameLength=maxFileNameLength,
+        UriHandler.CreateUriHandler(cacheDir=cacheDir,
                                     cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"),
                                     ignoreSslErrors=ignoreSslErrors)
 

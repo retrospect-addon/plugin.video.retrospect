@@ -14,7 +14,7 @@ import time
 import xbmc
 
 # from xbmcwrapper import XbmcWrapper
-from logger import Logger, DEBUG
+from logger import Logger
 from environments import Environments
 from config import Config
 
@@ -118,7 +118,7 @@ class EnvController:
         """
 
         # if we have a log level higher then debug, there is no need to do this
-        if Logger.Instance().minLogLevel > DEBUG:
+        if Logger.Instance().minLogLevel > Logger.DEBUG:
             Logger.Info("Not walking directory structure because the loglevel is set to INFO or higher")
             return
 
