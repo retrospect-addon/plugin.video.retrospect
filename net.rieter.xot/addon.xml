@@ -9,6 +9,7 @@
         <import addon="xbmc.python" version="2.23.0"/>
         <import addon="script.module.requests" version="2.18.0"/>
         <import addon="inputstream.adaptive" version="2.0.19" optional="true" />
+        <import addon="plugin.video.youtube" version="6.0.0" optional="true" />
     </requires>
     
     <extension  point="xbmc.python.pluginsource" 
