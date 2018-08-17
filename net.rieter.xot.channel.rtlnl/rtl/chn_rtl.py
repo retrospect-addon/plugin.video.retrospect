@@ -10,6 +10,7 @@ from helpers.jsonhelper import JsonHelper
 from streams.m3u8 import M3u8
 from parserdata import ParserData
 from helpers.datehelper import DateHelper
+from addonsettings import AddonSettings
 
 
 class Channel(chn_class.Channel):
@@ -389,6 +390,12 @@ class Channel(chn_class.Channel):
         # Remove the Range header to make all streams start at the beginning.
         Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
         part.HttpHeaders["Range"] = ''
+
+        if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
+            stream = part.AppendMediaStream(m3u8Url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy, part.HttpHeaders)
+            item.complete = True
+            return item
 
         for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             item.complete = True
