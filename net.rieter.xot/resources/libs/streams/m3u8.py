@@ -66,6 +66,10 @@ class M3u8:
                                                  licenseKey=licenseKey, licenseType=licenseType)
 
     @staticmethod
+    def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None):
+        return Adaptive.GetLicenseKey(keyUrl, keyType=keyType, keyHeaders=keyHeaders)
+
+    @staticmethod
     def GetStreamsFromM3u8(url, proxy=None, headers=None, appendQueryString=False, mapAudio=False,
                            playListData=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that

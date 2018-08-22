@@ -17,6 +17,20 @@ class Adaptive:
         pass
 
     @staticmethod
+    def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None):
+
+        # A{SSM} -> not implemented
+        # R{SSM} -> raw
+        # B{SSM} -> base64
+
+        header = ""
+        if keyHeaders:
+            for k, v in list(keyHeaders.items()):
+                header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.UrlEncode(v))
+
+        return "{0}|{1}|{2}{{SSM}}|".format(keyUrl, header.strip("&"), keyType)
+
+    @staticmethod
     def SetInputStreamAddonInput(strm, proxy=None, headers=None, addon="inputstream.adaptive",
                                  manifestType=None,
                                  licenseKey=None,

@@ -1,4 +1,3 @@
-from helpers.htmlentityhelper import HtmlEntityHelper
 from streams.adaptive import Adaptive
 
 
@@ -17,13 +16,4 @@ class Mpd:
 
     @staticmethod
     def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None):
-
-        # A{SSM} -> not implemented
-        # R{SSM} -> raw
-        # B{SSM} -> base64
-
-        header = ""
-        for k, v in list(keyHeaders.items() or {}):
-            header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.UrlEncode(v))
-
-        return "{0}|{1}|{2}{{SSM}}|".format(keyUrl, header.strip("&"), keyType)
+        return Adaptive.GetLicenseKey(keyUrl, keyType=keyType, keyHeaders=keyHeaders)
