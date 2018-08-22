@@ -71,6 +71,8 @@ Starting with Kodi Leia (Kodi 18) the playback of DRM protected streams is suppo
 
 The kodi.log will tell you if you did not put them in the correct place or if you have copied the wrong version.
 
+_NOTE: for Kodi Krypton it seems that version 1.4.8.1008 is the last version that is compatible._
+
 # Copyrights and Licenses #
 *See also: http://www.rieter.net/content/xot/license/.*
 
