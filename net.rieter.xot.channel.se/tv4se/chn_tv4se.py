@@ -610,10 +610,12 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
         streamInfo = JsonHelper(data)
         m3u8Url = streamInfo.GetValue("playbackItem", "manifestUrl")
+        if m3u8Url is None:
+            return item
 
         part = item.CreateNewEmptyMediaPart()
 
-        if AddonSettings.UseAdaptiveStreamAddOn():
+        if AddonSettings.UseAdaptiveStreamAddOn() and False:
             stream = part.AppendMediaStream(m3u8Url, 0)
             M3u8.SetInputStreamAddonInput(stream, self.proxy)
             item.complete = True
@@ -625,7 +627,9 @@ class Channel(chn_class.Channel):
                     continue
 
                 if a and "-audio" not in s:
-                    videoPart = s.rsplit("-", 1)[-1]
+                    # remove any query parameters
+                    videoPart = s.rsplit("?", 1)[0]
+                    videoPart = videoPart.rsplit("-", 1)[-1]
                     videoPart = "-%s" % (videoPart,)
                     s = a.replace(".m3u8", videoPart)
                 part.AppendMediaStream(s, b)
