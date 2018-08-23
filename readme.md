@@ -62,12 +62,15 @@ Retrospect will NOT auto-upate. So new version need to be installed manually.
 Starting with Kodi Leia (Kodi 18) the playback of DRM protected streams is supported using the `input.adaptive` add-on. Kodi comes with this pre-installed, but by default it is disabled. So make sure that you **enable** it first. In order to play Widevine DRM files you will need to have the Google Widevine libraries installed. Android based devices have this as a native component, for Windows and Linux you will need to install them:
 
 1. Determine the last version of the Widevine libraries: [https://dl.google.com/widevine-cdm/current.txt](https://dl.google.com/widevine-cdm/current.txt)
-1. Download the appropriate version for your OS/Kodi combination:
+1. Download the appropriate version for your OS/Kodi combination (replace the {version} with the most recent version):
     * 32-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-ia32.zip](https://dl.google.com/widevine-cdm/{version}-win-ia32.zip)
     * 64-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-x64.zip](https://dl.google.com/widevine-cdm/{version}-win-x64.zip)
     * 32-bit kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip](https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip)
     * 32-bit kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-x64.zip](https://dl.google.com/widevine-cdm/{version}-linux-x64.zip)
 1. For Windows installation copy these files into your `<kodi-profile>\cdm` folder. Linux users need to install them manually (or they can use this [gist](https://gist.github.com/ruario/3c873d43eb20553d5014bd4d29fe37f1) ([Fork](https://gist.github.com/basrieter/44a463a97a60958c36435d54d50debb4)) to install it automatically).
+
+_Example:_
+> If the most recent version obtained via https://dl.google.com/widevine-cdm/current.txt is `1.4.9.1088`, then the download url for 64-bit windows is https://dl.google.com/widevine-cdm/1.4.9.1088-win-x64.zip.
 
 The kodi.log will tell you if you did not put them in the correct place or if you have copied the wrong version.
 
