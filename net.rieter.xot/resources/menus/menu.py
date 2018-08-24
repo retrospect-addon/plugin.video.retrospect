@@ -20,8 +20,8 @@ sys.path.append(addOnPath)
 
 # setup some initial stuff
 from initializer import Initializer
-Initializer.SetUnicode()
-Initializer.SetupPythonPaths()
+Initializer.set_unicode()
+Initializer.setup_python_paths()
 sys.path.remove(addOnPath)
 
 from config import Config

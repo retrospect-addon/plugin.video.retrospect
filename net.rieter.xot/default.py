@@ -13,10 +13,10 @@ import sys
 import xbmc
 
 
-def RunPlugin():
+def run_plugin():
     """ Runs Retrospect as a Video Add-On """
 
-    logFile = None
+    log_file = None
 
     try:
         from config import Config
@@ -28,14 +28,14 @@ def RunPlugin():
         # only append if there are no active sessions
         if not SessionHelper.IsSessionActive():
             # first call in the session, so do not append the log
-            appendLogFile = False
+            append_log_file = False
         else:
-            appendLogFile = True
+            append_log_file = True
 
-        logFile = Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                                      Config.appName,
-                                      append=appendLogFile,
-                                      dualLogger=lambda x, y=4: xbmc.log(x, y))
+        log_file = Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                                       Config.appName,
+                                       append=append_log_file,
+                                       dualLogger=lambda x, y=4: xbmc.log(x, y))
 
         from urihandler import UriHandler
 
@@ -47,19 +47,19 @@ def RunPlugin():
         # update the loglevel
         Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
 
-        useCaching = AddonSettings.CacheHttpResponses()
-        cacheDir = None
-        if useCaching:
-            cacheDir = Config.cacheDir
+        use_caching = AddonSettings.CacheHttpResponses()
+        cache_dir = None
+        if use_caching:
+            cache_dir = Config.cacheDir
 
         # determine the platform
         from envcontroller import EnvController
         from environments import Environments
 
-        ignoreSslErrors = AddonSettings.IgnoreSslErrors()
-        UriHandler.CreateUriHandler(cacheDir=cacheDir,
+        ignore_ssl_errors = AddonSettings.IgnoreSslErrors()
+        UriHandler.CreateUriHandler(cacheDir=cache_dir,
                                     cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"),
-                                    ignoreSslErrors=ignoreSslErrors)
+                                    ignoreSslErrors=ignore_ssl_errors)
 
         # start texture handler
         TextureHandler.SetTextureHandler(Config, Logger.Instance(), UriHandler.Instance())
@@ -72,18 +72,18 @@ def RunPlugin():
         AddonSettings.ClearCachedAddonSettingsObject()
         # close the log to prevent locking on next call
         Logger.Instance().CloseLog()
-        logFile = None
+        log_file = None
 
     except:
-        if logFile:
-            logFile.Critical("Error running plugin", exc_info=True)
+        if log_file:
+            log_file.Critical("Error running plugin", exc_info=True)
         raise
 
 
 # setup the paths in Python
 from initializer import Initializer  # nopep8
-Initializer.SetUnicode()
-currentPath = Initializer.SetupPythonPaths()
+Initializer.set_unicode()
+currentPath = Initializer.setup_python_paths()
 
 # ANY OF THESE SETTINGS SHOULD ONLY BE ENABLED FOR DEBUGGING PURPOSES
 # from debug import remotedebugger
@@ -103,4 +103,4 @@ currentPath = Initializer.SetupPythonPaths()
 # Profiled run
 # cProfile.run("RunPlugin()", statsPath)
 # Normal run
-RunPlugin()
+run_plugin()

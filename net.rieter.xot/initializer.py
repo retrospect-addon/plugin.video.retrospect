@@ -20,7 +20,7 @@ class Initializer:
         raise NotImplementedError("Static class only")
 
     @staticmethod
-    def SetUnicode():
+    def set_unicode():
         """Forces the environment to UTF-8"""
 
         reload(sys)
@@ -29,7 +29,7 @@ class Initializer:
         return
 
     @staticmethod
-    def SetupPythonPaths():
+    def setup_python_paths():
 
         # Get the path we are in
         try:
@@ -48,4 +48,4 @@ class Initializer:
 
 
 if __name__ == "__main__":
-    init = Initializer.SetupPythonPaths()
+    init = Initializer.setup_python_paths()
