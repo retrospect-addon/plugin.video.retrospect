@@ -11,4 +11,4 @@
 import menu
 
 with menu.Menu("Select Channels") as m:
-    m.SelectChannels()
+    m.select_channels()

@@ -11,4 +11,4 @@
 import menu
 
 with menu.Menu("Cloak Item") as m:
-    m.ToggleCloak()
+    m.toggle_cloak()

@@ -15,4 +15,4 @@ import menu
 # sys.listitem = xbmcgui.ListItem("Test", path="plugin://net.rieter.xot/?action=listfolder&channelcode=uzgjson&channel=chn_nos2010")
 
 with menu.Menu("Set Bitrate") as m:
-    m.SetBitrate()
+    m.set_bitrate()
