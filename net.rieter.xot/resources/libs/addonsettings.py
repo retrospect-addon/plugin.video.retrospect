@@ -197,7 +197,7 @@ class AddonSettings(object):
 
         """
 
-        proxyIds = [30025, 30300, 30301, 30307, 30302, 30305, 30305, 30306, 30308, 30303, 30304]
+        proxyIds = [30025, 30300, 30301, 30307, 30302, 30305, 30309, 30306, 30308, 30303, 30304]
         proxyCodes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt", "lv"]
 
         if asString:
