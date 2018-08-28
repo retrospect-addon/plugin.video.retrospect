@@ -82,6 +82,7 @@ class CacheHTTPAdapter(HTTPAdapter):
             return resp
 
         # Determine the maximum age and then check if the cache if valid or not.
+        Logger.Trace("Cache-Data: %s", cache_data)
         valid_in_seconds = 3600
         if 'max-age' in cache_data:
             valid_in_seconds = cache_data['max-age']
