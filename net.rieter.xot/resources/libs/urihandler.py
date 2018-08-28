@@ -93,7 +93,7 @@ class UriHandler(object):
 
     @staticmethod
     def Open(uri, proxy=None, params="", data="", json="",
-             referer=None, additionalHeaders=None, noCache=False):
+             referer=None, additionalHeaders=None, noCache=False, encoding=None):
         """ Open an URL Async using a thread
 
         Arguments:
@@ -111,13 +111,14 @@ class UriHandler(object):
         @param referer:             - [opt] string    - the http referer to use
         @param additionalHeaders:   - [opt] dict      - the optional headers
         @param noCache:             - [opt] boolean   - disables the cache
+        @param encoding:            - [opt] string    - if specified this encoding is used as fallback
 
         @return: The data that was retrieved from the URI.
 
         """
 
-        return UriHandler.Instance().Open(uri, proxy, params, data, json,
-                                          referer, additionalHeaders, noCache)
+        return UriHandler.Instance().open(uri, proxy, params, data, json,
+                                          referer, additionalHeaders, noCache, encoding)
 
     @staticmethod
     def Header(uri, proxy=None, referer=None, additionalHeaders=None):
@@ -351,8 +352,8 @@ class UriHandler(object):
                 self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, True)
             return download_path
 
-        def Open(self, uri, proxy=None, params="", data="", json="",
-                 referer=None, additionalHeaders=None, noCache=False):
+        def open(self, uri, proxy=None, params="", data="", json="",
+                 referer=None, additionalHeaders=None, noCache=False, encoding=None):
 
             r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
                                 referer=referer, additional_headers=additionalHeaders,
@@ -360,6 +361,8 @@ class UriHandler(object):
             if r is None:
                 return ""
 
+            if encoding is not None:
+                r.encoding = encoding
             return r.text if r.encoding else r.content
 
         def header(self, uri, proxy=None, referer=None, additional_headers=None):
