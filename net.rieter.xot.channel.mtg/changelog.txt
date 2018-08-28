@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: ViaSat channels split into Viasat.se/.no and non-api channels
+* Fixed: subtitle issue with some Swedish channels (Fixes #993)
 
 [I]Previous changes[/I]
+* Fixed: ViaSat channels split into Viasat.se/.no and non-api channels
 * Fixed: MTG changed their API again (Fixes #973)
 * Fixed: clean-up some code in the Swedish channels
 * Changed: Use the 'inputstream.adaptive' add-on for some Leia streams to solve some playback and header issues

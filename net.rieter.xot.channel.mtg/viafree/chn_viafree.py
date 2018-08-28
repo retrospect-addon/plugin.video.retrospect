@@ -567,7 +567,7 @@ class Channel(chn_class.Channel):
         if item.MediaItemParts:
             part = item.MediaItemParts[0]
             if part.Subtitle and part.Subtitle.endswith(".vtt"):
-                part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="webvtt", proxy=self.proxy, encoding='utf-8')
             else:
                 part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
         else:
