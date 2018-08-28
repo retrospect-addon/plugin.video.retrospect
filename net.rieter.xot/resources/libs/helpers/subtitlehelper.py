@@ -53,20 +53,22 @@ class SubtitleHelper:
 
     # noinspection PyShadowingBuiltins
     @staticmethod
-    def DownloadSubtitle(url, fileName="", format='sami', proxy=None, replace=None):
+    def DownloadSubtitle(url, fileName="", format='sami', proxy=None, replace=None, encoding=None):
         """Downloads a SAMI and stores the SRT in the cache folder
 
         Arguments:
-        url      : string - URL location of the SAMI file
+        @param url:         string - URL location of the SAMI file
+        @param fileName:    string - [opt] Filename to use to store the subtitle in SRT format.
+                                     if not specified, an MD5 hash of the URL with .xml
+                                     extension will be used
+        @param format:      string - Defines the source format. Defaults to Sami.
+        @param proxy:       Proxy  - If specified, a proxy will be used
+        @param replace:     dict   - Dictionary with key to will be replaced with their values
+        @param encoding:    string - If specified, it will be used as the encoding for data that
+                                     will be retrieved.
 
-        Keyword Arguments:
-        fileName : string - Filename to use to store the subtitle in SRT format.
-                            if not specified, an MD5 hash of the URL with .xml
-                            extension will be used
-        format : string   - defines the source format. Defaults to Sami.
+        @return: The full patch of the cached SRT file.
 
-        Returns:
-        The full patch of the cached SRT file.
 
         """
 
@@ -86,7 +88,7 @@ class SubtitleHelper:
                 return localCompletePath
 
             Logger.Trace("Opening Subtitle URL")
-            raw = UriHandler.Open(url, proxy=proxy)
+            raw = UriHandler.Open(url, proxy=proxy, encoding=encoding)
 
             if raw == "":
                 Logger.Warning("Empty Subtitle path found. Not setting subtitles.")
