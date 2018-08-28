@@ -159,7 +159,13 @@ class Channel(chn_class.Channel):
             return None
 
         # url = resultSet["mediaUrl"]
-        url = "https://psapi-ne.nrk.no/mediaelement/%s" % (channelId, )
+        if "mediaUrl" in resultSet and channelId in ("nrk1", "nrksuper"):
+            url = resultSet["mediaUrl"]
+        else:
+            # Geo-locked url:
+            # https://psapi-ne.nrk.no/playback/manifest/channel/%s?insuperuniverse=false
+            url = "https://psapi-ne.nrk.no/mediaelement/%s" % (channelId, )
+
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'
         item.isLive = True
@@ -377,7 +383,7 @@ class Channel(chn_class.Channel):
             url = json.GetValue("mediaUrl")
             if url is None:
                 Logger.Warning("Could not find mediaUrl in %s", item.url)
-                return
+                return item
             f4mNeedle = "/manifest.f4m"
             if f4mNeedle in url:
                 Logger.Info("Found F4m stream. Converting to M3u8.")
