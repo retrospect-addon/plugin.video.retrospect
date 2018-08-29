@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: VRT.nu changed site layout again.... (Fixes #984)
+* Fixed: Vier & Vijf.be had no videos (Fixes #992)
 
 [I]Previous Changes[/I]
+* Fixed: VRT.nu changed site layout again.... (Fixes #984)
 * Added: Subs for VRT.nu if the Adaptive Add-on is not used.
 * Fixed: VRT.nu 'remix-aka' streams (See #981)
 * Fixed: Stievie and VTM Live streams. These require Kodi Leia or higher (Fixes #981)
