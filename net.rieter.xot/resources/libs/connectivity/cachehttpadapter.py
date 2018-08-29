@@ -205,8 +205,18 @@ class CacheHTTPAdapter(HTTPAdapter):
             for chunk in res.iter_content(chunk_size=128):
                 fp.write(chunk)
 
+        # we need to restore some original response protected members and the raw content. The
+        # latter is an urllib3 response, but we can use an BytesIO as long as we add some required
+        # stuff such as _original_response.
+        original_response = None
+        if hasattr(res.raw, '_original_response'):
+            original_response = res.raw._original_response
+
+        # set the raw content so we can use it again
         res.raw = self.cache_store.get(body_key)
         res._content_consumed = False
+        if original_response:
+            res.raw._original_response = original_response
 
         # store all headers and cache-data and store it in a json file
         data = {
