@@ -93,7 +93,7 @@ class UriHandler(object):
 
     @staticmethod
     def Open(uri, proxy=None, params="", data="", json="",
-             referer=None, additionalHeaders=None, noCache=False, encoding=None):
+             referer=None, additionalHeaders=None, noCache=False):
         """ Open an URL Async using a thread
 
         Arguments:
@@ -111,14 +111,13 @@ class UriHandler(object):
         @param referer:             - [opt] string    - the http referer to use
         @param additionalHeaders:   - [opt] dict      - the optional headers
         @param noCache:             - [opt] boolean   - disables the cache
-        @param encoding:            - [opt] string    - if specified this encoding is used as fallback
 
         @return: The data that was retrieved from the URI.
 
         """
 
         return UriHandler.Instance().open(uri, proxy, params, data, json,
-                                          referer, additionalHeaders, noCache, encoding)
+                                          referer, additionalHeaders, noCache)
 
     @staticmethod
     def Header(uri, proxy=None, referer=None, additionalHeaders=None):
@@ -353,7 +352,7 @@ class UriHandler(object):
             return download_path
 
         def open(self, uri, proxy=None, params="", data="", json="",
-                 referer=None, additionalHeaders=None, noCache=False, encoding=None):
+                 referer=None, additionalHeaders=None, noCache=False):
 
             r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
                                 referer=referer, additional_headers=additionalHeaders,
@@ -361,8 +360,11 @@ class UriHandler(object):
             if r is None:
                 return ""
 
-            if encoding is not None:
-                r.encoding = encoding
+            if r.encoding == 'ISO-8859-1' and "text" in r.headers.get("content-type", ""):
+                # Requests defaults to ISO-8859-1 for all text content that does not specify an encoding
+                Logger.Debug("Found 'ISO-8859-1' for 'text' content-type. Using UTF-8 instead.")
+                r.encoding = 'utf-8'
+
             return r.text if r.encoding else r.content
 
         def header(self, uri, proxy=None, referer=None, additional_headers=None):
