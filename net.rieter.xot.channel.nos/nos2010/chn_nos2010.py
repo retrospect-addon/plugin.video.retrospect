@@ -122,6 +122,11 @@ class Channel(chn_class.Channel):
                             parser=(), creator=self.CreateJsonEpisodeItem,
                             json=True)
 
+        tvGuideRegex = 'data-channel="(?<channel>[^"]+)"[^>]+data-title="(?<title>[^"]+)"[^>]+data-id=\'(?<url>[^\']+)\'[^>]*>\W*<div[^>]*>\W+<p>\W+<span[^>]+time"[^>]*>(?<hours>\d+):(?<minutes>\d+)</span>\W+<span[^<]+</span>\W+<span class="npo-epg-active"></span>\W+<span class="npo-epg-play"></span>'
+        tvGuideRegex = Regexer.FromExpresso(tvGuideRegex)
+        self._AddDataParser("https://www.npostart.nl/gids?date=",
+                            parser=tvGuideRegex, creator=self.CreateTvGuideItem)
+
         self.__IgnoreCookieLaw()
 
         # ===============================================================================================================
@@ -352,6 +357,36 @@ class Channel(chn_class.Channel):
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
+        today = datetime.datetime.now()
+        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        for i in range(0, 7, 1):
+            airDate = today - datetime.timedelta(i)
+            Logger.Trace("Adding item for: %s", airDate)
+
+            # Determine a nice display date
+            day = days[airDate.weekday()]
+            if i == 0:
+                day = "Vandaag"
+            elif i == 1:
+                day = "Gisteren"
+            elif i == 2:
+                day = "Eergisteren"
+            title = "%04d-%02d-%02d - %s" % (airDate.year, airDate.month, airDate.day, day)
+
+            # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
+            url = "https://www.npostart.nl/gids?date=%04d-%02d-%02d&type=tv" % \
+                  (airDate.year, airDate.month, airDate.day)
+            extra = mediaitem.MediaItem(title, url)
+            extra.complete = True
+            extra.icon = self.icon
+            extra.thumb = self.noImage
+            extra.dontGroup = True
+            extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+            extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
+
+            extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+            items.append(extra)
+
         return data, items
 
     def GetAdditionalLiveItems(self, data):
@@ -540,6 +575,19 @@ class Channel(chn_class.Channel):
         # url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser&pageType=search"
         self.httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         return chn_class.Channel.SearchSite(self, url)
+
+    def CreateTvGuideItem(self, resultSet):
+        Logger.Trace(resultSet)
+        channel = resultSet["channel"].replace("NED", "NPO ")
+        title = "{0[hours]}:{0[minutes]} - {1} - {0[title]}".format(resultSet, channel)
+        item = mediaitem.MediaItem(title, resultSet["url"])
+        item.icon = self.icon
+        item.description = resultSet["channel"]
+        item.type = 'video'
+        item.fanart = self.fanart
+        item.HttpHeaders = self.httpHeaders
+        item.complete = False
+        return item
 
     def CreateVideoItem(self, resultSet):
         """ Call base method and then do some more stuff """

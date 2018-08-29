@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO live channels (Fixes #978)
+* Added: recent shows for the past days to the NPO channel (Fixes #990)
 
 [I]Previous Changes[/I]
+* Fixed: NPO live channels (Fixes #978)
 * Fixed: NPO regex issue (Fixes #975)
 * Fixed: npostart.nl url parameters are case sensitive (Fixes #971)
 * Fixed: renamed npo.nl -> npostart.nl (Fixes #968)
