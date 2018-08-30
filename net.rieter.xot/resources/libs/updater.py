@@ -47,7 +47,7 @@ class Updater:
             return False
 
     def __getOnlineVersion(self):
-        data = self.__uriHandler.Open(self.updateUrl, noCache=True)
+        data = self.__uriHandler.open(self.updateUrl, noCache=True)
         jsonData = JsonHelper(data)
         onlineDownloads = list(filter(lambda d: self.__isValidUpdate(d), jsonData.GetValue("values")))
         if len(onlineDownloads) == 0:
