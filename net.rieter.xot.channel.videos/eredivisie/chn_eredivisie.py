@@ -9,6 +9,7 @@ from regexer import Regexer
 from helpers.jsonhelper import JsonHelper
 from urihandler import UriHandler
 from helpers.languagehelper import LanguageHelper
+from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -236,6 +237,11 @@ class Channel(chn_class.Channel):
                                json=postData, noCache=True, proxy=self.proxy)
         streamInfo = JsonHelper(data)
         streamUrl = streamInfo.GetValue("ContentUrl")
+        if not streamUrl:
+            message = "Protected stream: {0}".format(streamInfo.GetValue("Message"))
+            XbmcWrapper.ShowNotification(None, message,
+                                         notificationType=XbmcWrapper.Error, displayTime=5000)
+
         licenseUrl = streamInfo.GetValue("LicenseURL")
         part = item.CreateNewEmptyMediaPart()
         stream = part.AppendMediaStream(streamUrl, 0)
