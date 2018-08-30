@@ -460,7 +460,7 @@ class Channel(chn_class.Channel):
         elif resultSet["format_position"]["is_episodic"]:  # and resultSet["format_position"]["episode"] != "0":
             # make sure we show the episodes and seaso
             # season = int(resultSet["format_position"]["season"])
-            episode = int(resultSet["format_position"]["episode"])
+            episode = int(resultSet["format_position"]["episode"] or "0")
             # name = "s%02de%02d" % (season, episode)
             webisode = resultSet.get("webisode", False)
 
