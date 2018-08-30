@@ -258,11 +258,11 @@ class Version(Comparable):
 
         # we have 2 build types
         selfBuildName = self.buildType.rstrip("0123456789")
-        selfBuildNameNumber = self.buildType.lstrip("".join(versionTypes))
+        selfBuildNameNumber = self.buildType.lstrip("".join(versionTypes)) or "0"
         otherBuildName = other.buildType.rstrip("0123456789")
-        otherBuildNameNumber = other.buildType.lstrip("".join(versionTypes))
+        otherBuildNameNumber = other.buildType.lstrip("".join(versionTypes)) or "0"
 
         if selfBuildName == otherBuildName:
-            return selfBuildNameNumber < otherBuildNameNumber
+            return int(selfBuildNameNumber) < int(otherBuildNameNumber)
 
-        return versionTypes.index(selfBuildName) < versionTypes.index(otherBuildName)
+        return versionTypes.index(selfBuildName) < versionTypes.inex(otherBuildName)
