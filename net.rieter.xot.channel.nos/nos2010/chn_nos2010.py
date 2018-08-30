@@ -10,6 +10,7 @@ from helpers import subtitlehelper
 
 from logger import Logger
 from streams.npostream import NpoStream
+from streams.mpd import Mpd
 from urihandler import UriHandler
 from helpers.datehelper import DateHelper
 from parserdata import ParserData
@@ -84,6 +85,9 @@ class Channel(chn_class.Channel):
         self._AddDataParser(".json", name="JSON List Parser for the recent/tips/populair",
                             parser=(), creator=self.CreateVideoItemJson,
                             json=True, matchType=ParserData.MatchEnd)
+
+        self._AddDataParser("#recent", name="Recent items list",
+                            preprocessor=self.AddRecentItems)
 
         # Alpha listing and paging for that list
         self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
@@ -305,14 +309,6 @@ class Channel(chn_class.Channel):
         # extra.SetDate(2200, 1, 1, text="")
         # items.append(extra)
 
-        extra = mediaitem.MediaItem("Recent", "%s/broadcasts/recent.json" % (self.baseUrl,))
-        extra.complete = True
-        extra.icon = self.icon
-        extra.thumb = self.noImage
-        extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
-        items.append(extra)
-
         extra = mediaitem.MediaItem("Live Radio",
                                     "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
@@ -357,6 +353,18 @@ class Channel(chn_class.Channel):
         extra.SetDate(2200, 1, 1, text="")
         items.append(extra)
 
+        recent = mediaitem.MediaItem("Recent", "#recent")
+        recent.complete = True
+        recent.icon = self.icon
+        recent.thumb = self.noImage
+        recent.dontGroup = True
+        recent.SetDate(2200, 1, 1, text="")
+        items.append(recent)
+
+        return data, items
+
+    def AddRecentItems(self, data):
+        items = []
         today = datetime.datetime.now()
         days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
         for i in range(0, 7, 1):
@@ -383,10 +391,18 @@ class Channel(chn_class.Channel):
             extra.dontGroup = True
             extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
             extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
-
             extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+
             items.append(extra)
 
+        extra = mediaitem.MediaItem("Recent", "%s/broadcasts/recent.json" % (self.baseUrl,))
+        extra.complete = True
+        extra.icon = self.icon
+        extra.thumb = self.noImage
+        extra.dontGroup = True
+        extra.SetDate(2200, 1, 1, text="")
+
+        items.append(extra)
         return data, items
 
     def GetAdditionalLiveItems(self, data):
@@ -951,11 +967,32 @@ class Channel(chn_class.Channel):
                 jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', htmlData)
             else:
                 jsonUrls = Regexer.DoRegex('<npo-player media-id="([^"]+)"', htmlData)
+
             for episodeId in jsonUrls:
+                if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True):
+                    return self.__UpdateDashItem(item, episodeId)
                 return self.__UpdateVideoItem(item, episodeId)
+
             Logger.Warning("Cannot update live item: %s", item)
             return item
 
+        item.complete = True
+        return item
+
+    def __UpdateDashItem(self, item, episodeId):
+        url = "https://start-player.npo.nl/video/{0}/streams?profile=dash-widevine&" \
+              "quality=npo&streamType=livetv&mobile=0&ios=0&isChromecast=0".format(episodeId)
+        dashData = UriHandler.Open(url, proxy=self.proxy)
+        dashJson = JsonHelper(dashData)
+        dashUrl = dashJson.GetValue("stream", "src")
+        dashLicenseUrl = dashJson.GetValue("stream", "keySystemOptions", 0, "options", "licenseUrl")
+        dashHeaders = dashJson.GetValue("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
+        dashHeaders[u"Referer"] = unicode(url)
+        dashLicense = Mpd.GetLicenseKey(dashLicenseUrl, keyHeaders=dashHeaders, keyType="R")
+
+        part = item.CreateNewEmptyMediaPart()
+        stream = part.AppendMediaStream(dashUrl, 0)
+        Mpd.SetInputStreamAddonInput(stream, self.proxy, dashHeaders, licenseKey=dashLicense)
         item.complete = True
         return item
 
