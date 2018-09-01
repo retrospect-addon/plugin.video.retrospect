@@ -86,7 +86,7 @@ class Menu(ParameterParser):
         @return: None
         """
 
-        valid_channels = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
+        valid_channels = ChannelIndex.get_register().GetChannels(includeDisabled=True)
         channels_to_show = filter(lambda c: c.visible, valid_channels)
 
         selected_channels = filter(lambda c: c.enabled, channels_to_show)
@@ -258,7 +258,7 @@ class Menu(ParameterParser):
             return None
 
         Logger.Debug("Fetching channel %s - %s", chn, code)
-        channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
+        channel = ChannelIndex.get_register().get_channel(chn, code, info_only=True)
         Logger.Debug("Created channel: %s", channel)
         return channel
 

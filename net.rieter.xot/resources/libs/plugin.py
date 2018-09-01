@@ -141,8 +141,8 @@ class Plugin(ParameterParser):
                                  self.channelCode)
 
                     # import the channel
-                    channelRegister = ChannelIndex.GetRegister()
-                    channel = channelRegister.GetChannel(self.channelFile, self.channelCode)
+                    channelRegister = ChannelIndex.get_register()
+                    channel = channelRegister.get_channel(self.channelFile, self.channelCode)
 
                     if channel is not None:
                         self.channelObject = channel
@@ -272,8 +272,8 @@ class Plugin(ParameterParser):
         """
 
         Logger.Info("Plugin::ShowCategories")
-        channelRegister = ChannelIndex.GetRegister()
-        categories = channelRegister.GetCategories()
+        channelRegister = ChannelIndex.get_register()
+        categories = channelRegister.get_categories()
 
         xbmcItems = []
         icon = os.path.join(Config.rootDir, "icon.png")
@@ -319,8 +319,8 @@ class Plugin(ParameterParser):
             Logger.Info("Plugin::ShowChannelList")
         try:
             # only display channels
-            channelRegister = ChannelIndex.GetRegister()
-            channels = channelRegister.GetChannels(infoOnly=True)
+            channelRegister = ChannelIndex.get_register()
+            channels = channelRegister.get_channels()
 
             xbmcItems = []
             for channel in channels:
@@ -839,7 +839,7 @@ class Plugin(ParameterParser):
         else:
             localIP = int(localIP)
 
-        channels = ChannelIndex.GetRegister().GetChannels()
+        channels = ChannelIndex.get_register().get_channels()
         Logger.Info("Setting proxy='%s' (%s) and localIP='%s' (%s) for country '%s'",
                     proxyId, languages[proxyId],
                     localIP, languages[localIP],
