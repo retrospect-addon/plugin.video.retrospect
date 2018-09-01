@@ -169,7 +169,7 @@ class Channel(chn_class.Channel):
             date = resultSet.get("originalPublishDate", None)
         if date:
             timeStamp = date["timestamp"]
-            dateTime = DateHelper.GetDateFromPosix(timeStamp)
+            dateTime = DateHelper.get_date_from_posix(timeStamp)
             item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
                          dateTime.minute,
                          dateTime.second)

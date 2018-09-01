@@ -170,7 +170,7 @@ class Channel(chn_class.Channel):
 
         # set the date and time
         date = resultSet["published_at"]
-        timeStamp = DateHelper.GetDateFromString(date, dateFormat="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
+        timeStamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
         item.SetDate(*timeStamp[0:6])
         return item
 

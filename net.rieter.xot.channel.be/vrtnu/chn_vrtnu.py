@@ -408,7 +408,7 @@ class Channel(chn_class.Channel):
             return None
 
         if "day" in resultSet and resultSet["day"] and len(resultSet.get("year", "")) == 4:
-            item.SetDate(resultSet["year"] or DateHelper.ThisYear(), resultSet["month"], resultSet["day"])
+            item.SetDate(resultSet["year"] or DateHelper.this_year(), resultSet["month"], resultSet["day"])
 
         if item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )

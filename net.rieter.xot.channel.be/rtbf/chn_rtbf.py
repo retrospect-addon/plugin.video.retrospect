@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
 
         if "date" in resultSet:
             # 2016-05-14T20:00:00+02:00 -> strip the hours
-            timeStamp = DateHelper.GetDateFromString(resultSet["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
+            timeStamp = DateHelper.get_date_from_string(resultSet["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
 
         return item

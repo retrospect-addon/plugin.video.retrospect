@@ -569,7 +569,7 @@ class Channel(chn_class.Channel):
         if broadCastDate is not None:
             if "+" in broadCastDate:
                 broadCastDate = broadCastDate.rsplit("+")[0]
-            timeStamp = DateHelper.GetDateFromString(broadCastDate, "%Y-%m-%dT%H:%M:%S")
+            timeStamp = DateHelper.get_date_from_string(broadCastDate, "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
         return item
 
@@ -670,8 +670,8 @@ class Channel(chn_class.Channel):
         description = channel.get("longDescription")
 
         dateFormat = "%Y-%m-%dT%H:%M:%S"
-        startTime = DateHelper.GetDateFromString(channel["publishingTime"][:19], dateFormat)
-        endTime = DateHelper.GetDateFromString(channel["publishingEndTime"][:19], dateFormat)
+        startTime = DateHelper.get_date_from_string(channel["publishingTime"][:19], dateFormat)
+        endTime = DateHelper.get_date_from_string(channel["publishingEndTime"][:19], dateFormat)
 
         if episode:
             title = "%s: %s - %s (%02d:%02d - %02d:%02d)" \
@@ -841,7 +841,7 @@ class Channel(chn_class.Channel):
         Logger.Trace("Determining date for: ('%s', '%s', '%s')", first, second, third)
         hour = minutes = 0
 
-        year = DateHelper.ThisYear()
+        year = DateHelper.this_year()
         if first.lower() == "idag" or first.lower() == "ikv&auml;ll":  # Today or Tonight
             date = datetime.datetime.now()
             month = date.month
@@ -858,8 +858,8 @@ class Channel(chn_class.Channel):
 
         elif second.isdigit():
             day = int(second)
-            month = DateHelper.GetMonthFromName(third, "se")
-            year = DateHelper.ThisYear()
+            month = DateHelper.get_month_from_name(third, "se")
+            year = DateHelper.this_year()
 
             # if the date was in the future, it must have been last year.
             result = datetime.datetime(year, month, day)
@@ -869,7 +869,7 @@ class Channel(chn_class.Channel):
 
         elif first.isdigit() and third.isdigit() and not second.isdigit():
             day = int(first)
-            month = DateHelper.GetMonthFromName(second, "se")
+            month = DateHelper.get_month_from_name(second, "se")
             year = int(third)
 
         else:

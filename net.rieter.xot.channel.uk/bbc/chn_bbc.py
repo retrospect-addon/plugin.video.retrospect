@@ -186,7 +186,7 @@ class Channel(chn_class.Channel):
         # item.thumb = item.thumb.replace("192x108", "%sx%s" % (192 * 2, 108 * 2))
         item.url = "http://www.bbc.co.uk/iplayer/episode/%s" % (vid,)
         if "year" in resultSet and resultSet["year"]:
-            month = DateHelper.GetMonthFromName(resultSet["month"], "en", short=True)
+            month = DateHelper.get_month_from_name(resultSet["month"], "en", short=True)
             item.SetDate(resultSet["year"], month, resultSet["day"])
 
         item.isGeoLocked = True

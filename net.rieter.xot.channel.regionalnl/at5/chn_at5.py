@@ -135,7 +135,7 @@ class Channel(chn_class.Channel):
 
         day = resultSet[4]
         month = resultSet[5]
-        month = DateHelper.GetMonthFromName(month, language="nl")
+        month = DateHelper.get_month_from_name(month, language="nl")
         year = resultSet[6]
         hour = resultSet[7]
         minute = resultSet[8]

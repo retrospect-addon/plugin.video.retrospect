@@ -216,7 +216,7 @@ class Channel(chn_class.Channel):
         item.complete = False
 
         if "datePosted" in resultSet:
-            date = DateHelper.GetDateFromPosix(float(resultSet["datePosted"]["unixOffset"])/1000)
+            date = DateHelper.get_date_from_posix(float(resultSet["datePosted"]["unixOffset"]) / 1000)
             item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
         if "images" in resultSet:

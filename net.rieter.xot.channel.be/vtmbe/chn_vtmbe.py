@@ -432,11 +432,11 @@ class Channel(chn_class.Channel):
 
             if "startTime" in resultSet and resultSet["startTime"]:
                 dateTime = resultSet["startTime"]
-                dateValue = DateHelper.GetDateFromString(dateTime, dateFormat="%Y-%m-%dT%H:%M:%S.000Z")
+                dateValue = DateHelper.get_date_from_string(dateTime, date_format="%Y-%m-%dT%H:%M:%S.000Z")
                 # Convert to Belgium posix time stamp
                 dateValue2 = time.mktime(dateValue) + (1 + summerTime) * 60 * 60
                 # Conver the posix to a time stamp
-                startTime = DateHelper.GetDateFromPosix(dateValue2)
+                startTime = DateHelper.get_date_from_posix(dateValue2)
 
                 title = "%02d:%02d - %s" % (startTime.hour, startTime.minute, title)
 
@@ -614,7 +614,7 @@ class Channel(chn_class.Channel):
         item.thumb = self.__FindImage(resultSet.get('episode', {}), self.parentItem.thumb)
 
         # broadcastDate=2018-05-31T18:39:36.840Z
-        created = DateHelper.GetDateFromString(resultSet['broadcastDate'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
+        created = DateHelper.get_date_from_string(resultSet['broadcastDate'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
         item.SetDate(*created[0:6])
 
         return item

@@ -394,7 +394,7 @@ class Channel(chn_class.Channel):
 
         posix = resultSet.get("timestamp", None)
         if posix:
-            broadcastDate = DateHelper.GetDateFromPosix(int(posix))
+            broadcastDate = DateHelper.get_date_from_posix(int(posix))
             item.SetDate(broadcastDate.year,
                          broadcastDate.month,
                          broadcastDate.day,

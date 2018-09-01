@@ -265,9 +265,9 @@ class Channel(chn_class.Channel):
         Logger.Trace(resultSet)
 
         startDate = resultSet['start']  # 2017-01-01T00:00:00+01:00
-        startTimeStamp = DateHelper.GetDateFromString(startDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
+        startTimeStamp = DateHelper.get_date_from_string(startDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
         endDate = resultSet['end']
-        endTimeStamp = DateHelper.GetDateFromString(endDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
+        endTimeStamp = DateHelper.get_date_from_string(endDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
         title = "%02d:%02d - %02d:%02d: %s" % (startTimeStamp.tm_hour, startTimeStamp.tm_min,
                                                endTimeStamp.tm_hour, endTimeStamp.tm_min,
                                                resultSet['title'])

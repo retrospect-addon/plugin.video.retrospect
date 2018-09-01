@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
 
         month = resultSet["month"]
-        month = DateHelper.GetMonthFromName(month, "en", False)
+        month = DateHelper.get_month_from_name(month, "en", False)
         day = resultSet["day"]
         year = resultSet["year"]
         item.SetDate(year, month, day)

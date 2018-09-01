@@ -206,7 +206,7 @@ class Channel(chn_class.Channel):
         # date stuff
         date = xmlData.GetSingleNodeContent("pubDate")
         dayname, day, month, year, time, zone = date.split(' ', 6)
-        month = DateHelper.GetMonthFromName(month, language="en")
+        month = DateHelper.get_month_from_name(month, language="en")
         hour, minute, seconds = time.split(":")
         Logger.Trace("%s-%s-%s %s:%s", year, month, day, hour, minute)
         item.SetDate(year, month, day, hour, minute, 0)

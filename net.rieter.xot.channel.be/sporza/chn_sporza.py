@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
         item.type = "video"
         item.isGeoLocked = resultSet[3].lower() == "true"
 
-        dateTime = DateHelper.GetDateFromPosix(int(resultSet[2]) * 1 / 1000)
+        dateTime = DateHelper.get_date_from_posix(int(resultSet[2]) * 1 / 1000)
         item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute,
                      dateTime.second)
 

@@ -247,7 +247,7 @@ class Channel(chn_class.Channel):
         item.SetInfoLabel("duration", resultSet['duration'])
 
         if "publicationDate" in resultSet:
-            broadcastDate = DateHelper.GetDateFromPosix(int(resultSet['publicationDate']))
+            broadcastDate = DateHelper.get_date_from_posix(int(resultSet['publicationDate']))
             item.SetDate(broadcastDate.year,
                          broadcastDate.month,
                          broadcastDate.day,

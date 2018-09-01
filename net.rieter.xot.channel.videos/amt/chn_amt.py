@@ -70,7 +70,7 @@ class Channel(chn_class.Channel):
         dates = date.split(" ")
         # Logger.Trace(dates)
         day = dates[1]
-        month = datehelper.DateHelper.GetMonthFromName(dates[2], "en")
+        month = datehelper.DateHelper.get_month_from_name(dates[2], "en")
         year = dates[3]
 
         # dummy class

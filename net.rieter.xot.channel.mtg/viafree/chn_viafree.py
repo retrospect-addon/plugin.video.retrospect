@@ -236,7 +236,7 @@ class Channel(chn_class.Channel):
         if airedAt is not None:
             # 2016-05-20T15:05:00+00:00
             airedAt = airedAt.split("+")[0].rstrip('Z')
-            timeStamp = DateHelper.GetDateFromString(airedAt, "%Y-%m-%dT%H:%M:%S")
+            timeStamp = DateHelper.get_date_from_string(airedAt, "%Y-%m-%dT%H:%M:%S")
             item.SetDate(*timeStamp[0:6])
 
         item.thumb = self.__GetThumbImage(resultSet.get("image"))
@@ -486,7 +486,7 @@ class Channel(chn_class.Channel):
 
             if "playable_from" in resultSet["broadcasts"][0]:
                 startDate = resultSet["broadcasts"][0]["playable_from"]
-                playableFrom = DateHelper.GetDateFromString(startDate[0:-6], dateFormat)
+                playableFrom = DateHelper.get_date_from_string(startDate[0:-6], dateFormat)
                 playableFrom = datetime.datetime(*playableFrom[0:6])
                 if playableFrom > datetime.datetime.now():
                     drmLocked = True

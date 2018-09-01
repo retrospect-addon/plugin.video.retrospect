@@ -156,7 +156,7 @@ class Channel(chn_class.Channel):
         # cookieValue = self._GetSetting("cookie")
         cookie = UriHandler.GetCookie("isAuthenticatedUser", "www.npostart.nl")
         if cookie:
-            expireDate = DateHelper.GetDateFromPosix(float(cookie.expires))
+            expireDate = DateHelper.get_date_from_posix(float(cookie.expires))
             Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
             return True
 
@@ -645,7 +645,7 @@ class Channel(chn_class.Channel):
                     item.name = "{0} - {1}".format(item.name, dateTime[-1])
                 year = int(dateTime[-2])
 
-                month = DateHelper.GetMonthFromName(dateTime[-3], language="nl")
+                month = DateHelper.get_month_from_name(dateTime[-3], language="nl")
                 day = int(dateTime[-4])
 
                 stamp = datetime.datetime(year, month, day)
@@ -659,7 +659,7 @@ class Channel(chn_class.Channel):
                     dateTime.pop(0)
 
                 # translate the month
-                month = DateHelper.GetMonthFromName(dateTime[1], language="nl")
+                month = DateHelper.get_month_from_name(dateTime[1], language="nl")
 
                 # if the year is missing, let's assume it is this year
                 if ":" in dateTime[2]:
@@ -676,7 +676,7 @@ class Channel(chn_class.Channel):
             # 2016-07-05T00:00:00Z
             dateValue = resultSet.get("date", None)
             if dateValue:
-                timeStamp = DateHelper.GetDateFromString(dateValue, "%Y-%m-%dT%H:%M:%SZ")
+                timeStamp = DateHelper.get_date_from_string(dateValue, "%Y-%m-%dT%H:%M:%SZ")
                 item.SetDate(*timeStamp[0:6])
             else:
                 Logger.Warning("Cannot set date from 'data-from': %s", resultSet["date"], exc_info=True)
@@ -721,7 +721,7 @@ class Channel(chn_class.Channel):
 
         # look for better values
         posix = data.get('broadcasted_at', posix)
-        broadcasted = DateHelper.GetDateFromPosix(posix)
+        broadcasted = DateHelper.get_date_from_posix(posix)
         description = resultSet.get('description', description)
         videoId = data.get('whatson_id', None)
 

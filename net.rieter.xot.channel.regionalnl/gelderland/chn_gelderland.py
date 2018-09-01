@@ -109,7 +109,7 @@ class Channel(chn_class.Channel):
         item.AppendSingleStream(videoUrl)
         
         # set date
-        month = datehelper.DateHelper.GetMonthFromName(resultSet[3], "nl", False)
+        month = datehelper.DateHelper.get_month_from_name(resultSet[3], "nl", False)
         day = resultSet[2]
         year = resultSet[4]
         item.SetDate(year, month, day)

@@ -205,7 +205,7 @@ class Channel(chn_class.Channel):
         item.description = resultSet.get("description", "")
 
         dateValue = str(resultSet["time_published"])
-        dateTime = DateHelper.GetDateFromString(dateValue, "%Y-%m-%d %H:%M:%S")  # 2015-01-20 22:17:59"
+        dateTime = DateHelper.get_date_from_string(dateValue, "%Y-%m-%d %H:%M:%S")  # 2015-01-20 22:17:59"
         item.SetDate(*dateTime[0:6])
 
         item.icon = self.icon
@@ -257,7 +257,7 @@ class Channel(chn_class.Channel):
 
         dateValue = str(resultSet["publishedDate"])
         dateValue = dateValue[0:-6]
-        dateTime = DateHelper.GetDateFromString(dateValue, "%Y-%m-%dT%H:%M:%S")  # 2015-01-20T22:17:59"
+        dateTime = DateHelper.get_date_from_string(dateValue, "%Y-%m-%dT%H:%M:%S")  # 2015-01-20T22:17:59"
         item.SetDate(*dateTime[0:6])
 
         item.icon = self.icon

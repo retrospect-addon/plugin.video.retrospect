@@ -112,7 +112,7 @@ class Channel(chn_class.Channel):
         item.thumb = resultSet[1]
 
         try:
-            month = datehelper.DateHelper.GetMonthFromName(resultSet[4], "nl")
+            month = datehelper.DateHelper.get_month_from_name(resultSet[4], "nl")
             item.SetDate(resultSet[5], month, resultSet[3], resultSet[6], resultSet[7], 0)
         except:
             Logger.Error("Error matching month: %s", resultSet[4].lower(), exc_info=True)

@@ -210,7 +210,7 @@ class Channel(chn_class.Channel):
         # item.url = "https://api.viervijfzes.be/content/%s" % (videoId, )
         time_stamp = resultSet.get("timestamp")
         if time_stamp:
-            dateTime = DateHelper.GetDateFromPosix(int(resultSet["timestamp"]))
+            dateTime = DateHelper.get_date_from_posix(int(resultSet["timestamp"]))
             item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
                          dateTime.minute,
                          dateTime.second)

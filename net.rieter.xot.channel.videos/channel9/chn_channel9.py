@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
                 yearPart = dateParts[2]
 
                 try:
-                    month = DateHelper.GetMonthFromName(monthPart, "en")
+                    month = DateHelper.get_month_from_name(monthPart, "en")
                     item.SetDate(yearPart, month, dayPart)
                 except:
                     Logger.Error("Error matching month: %s", monthPart, exc_info=True)

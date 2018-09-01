@@ -333,7 +333,7 @@ class Channel(chn_class.Channel):
         elif "usageRights" in result_set and "from" in result_set["usageRights"] and result_set["usageRights"]["from"] is not None:
             Logger.Trace("Using 'usageRights.from.date' for date")
             date_value = result_set["usageRights"]["from"]["date"].split("+")[0]
-            time_stamp = DateHelper.GetDateFromString(date_value, dateFormat="%Y-%m-%dT%H:%M:%S")
+            time_stamp = DateHelper.get_date_from_string(date_value, date_format="%Y-%m-%dT%H:%M:%S")
             item.SetDate(*time_stamp[0:6])
 
         return item
@@ -445,7 +445,7 @@ class Channel(chn_class.Channel):
             Logger.Trace("Using 'usageRights.availableFrom' for date")
             # availableFrom=/Date(1540612800000+0200)/
             epoch_stamp = result_set["usageRights"]["availableFrom"][6:16]
-            available_from = DateHelper.GetDateFromPosix(int(epoch_stamp))
+            available_from = DateHelper.get_date_from_posix(int(epoch_stamp))
             item.SetDate(available_from.year, available_from.month, available_from.day)
 
         elif "episodeNumberOrDate" in result_set and result_set["episodeNumberOrDate"] is not None:

@@ -164,7 +164,7 @@ class Channel(chn_class.Channel):
             month = resultSet[4]
             year = resultSet[5]
             Logger.Trace("%s-%s-%s", year, month, day)
-            month = datehelper.DateHelper.GetMonthFromName(month, "nl", True)
+            month = datehelper.DateHelper.get_month_from_name(month, "nl", True)
             item.SetDate(year, month, day)
 
         item.complete = False

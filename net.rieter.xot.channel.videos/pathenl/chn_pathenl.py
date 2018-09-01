@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        if self.parentItem.url.endswith(str(DateHelper.ThisYear())):
+        if self.parentItem.url.endswith(str(DateHelper.this_year())):
             return None
 
         url = "%s%s" % (self.baseUrl, resultSet[3])
@@ -268,7 +268,7 @@ class Channel(chn_class.Channel):
 
         day = resultSet[0]
         month = resultSet[1]
-        month = DateHelper.GetMonthFromName(month, "nl", short=False)
+        month = DateHelper.get_month_from_name(month, "nl", short=False)
         year = resultSet[2]
 
         item.SetDate(year, month, day)

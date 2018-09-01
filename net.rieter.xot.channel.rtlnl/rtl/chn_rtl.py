@@ -322,8 +322,8 @@ class Channel(chn_class.Channel):
                 if tariff["tariff"] > 0:
                     start = tariff.get("start", 0)
                     end = tariff.get("stop", 2147483647)
-                    start = DateHelper.GetDateFromPosix(start)
-                    end = DateHelper.GetDateFromPosix(end)
+                    start = DateHelper.get_date_from_posix(start)
+                    end = DateHelper.get_date_from_posix(end)
                     now = datetime.datetime.now()
                     if start < now < end:
                         premiumItem = True
@@ -350,7 +350,7 @@ class Channel(chn_class.Channel):
 
         dateTime = resultSet.get("display_date", None)
         if dateTime:
-            dateTime = DateHelper.GetDateFromPosix(int(dateTime))
+            dateTime = DateHelper.get_date_from_posix(int(dateTime))
             item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
 
         return item

@@ -25,12 +25,12 @@ class DateHelper:
         raise NotImplementedError("Just statics")
 
     @staticmethod
-    def ThisYear():
+    def this_year():
         now = datetime.datetime.now()
         return now.year
 
     @staticmethod
-    def GetDateForNextDay(day, possibilities=None, tomorrow="Morgen", today="Vandaag"):
+    def get_date_for_next_day(day, possibilities=None, tomorrow="Morgen", today="Vandaag"):
         """ Gets the date for the next Weekday (default ["ma", "di", "wo", "do", "vr", "za", "zo"]).
 
         Arguments:
@@ -49,7 +49,7 @@ class DateHelper:
             possibilities = ["ma", "di", "wo", "do", "vr", "za", "zo"]
 
         date = datetime.datetime.now()
-        dayNow = date.weekday()
+        day_now = date.weekday()
 
         if day.lower() == today.lower():
             return date
@@ -57,18 +57,18 @@ class DateHelper:
         if day.lower() == tomorrow.lower():
             return date + datetime.timedelta(days=1)
 
-        dayOfWeekToFind = possibilities.index(day)
+        day_of_week_to_find = possibilities.index(day)
 
-        if dayNow < dayOfWeekToFind:
-            dateToFind = date + datetime.timedelta(days=dayOfWeekToFind - dayNow)
+        if day_now < day_of_week_to_find:
+            date_to_find = date + datetime.timedelta(days=day_of_week_to_find - day_now)
         else:
             # Now: Su (6), Need Mo (0)
-            dateToFind = date + datetime.timedelta(days=dayOfWeekToFind + 7 - dayNow)
+            date_to_find = date + datetime.timedelta(days=day_of_week_to_find + 7 - day_now)
 
-        return dateToFind
+        return date_to_find
 
     @staticmethod
-    def GetDateForPreviousDay(day, possibilities=None, yesterday="Gisteren"):
+    def get_date_for_previous_day(day, possibilities=None, yesterday="Gisteren"):
         """ Gets the date for the previous Weekday (default ["ma", "di", "wo", "do", "vr", "za", "zo"]).
 
         Arguments:
@@ -85,23 +85,23 @@ class DateHelper:
             possibilities = ["ma", "di", "wo", "do", "vr", "za", "zo"]
 
         date = datetime.datetime.now()
-        dayNow = date.weekday()
+        day_now = date.weekday()
 
         if day.lower() == yesterday.lower():
             return date + datetime.timedelta(days=-1)
 
-        dayOfWeekToFind = possibilities.index(day)
+        day_of_week_to_find = possibilities.index(day)
 
-        if dayNow >= dayOfWeekToFind:
-            dateToFind = date - datetime.timedelta(days=dayNow - dayOfWeekToFind)
+        if day_now >= day_of_week_to_find:
+            date_to_find = date - datetime.timedelta(days=day_now - day_of_week_to_find)
         else:
             # Now: Su (6), Need Mo (0)
-            dateToFind = date - datetime.timedelta(days=dayNow + 7 - dayOfWeekToFind)
+            date_to_find = date - datetime.timedelta(days=day_now + 7 - day_of_week_to_find)
 
-        return dateToFind
+        return date_to_find
 
     @staticmethod
-    def GetMonthFromName(month, language, short=None):
+    def get_month_from_name(month, language, short=None):
         """Gets the month number from the name.
 
         Arguments:
@@ -120,14 +120,14 @@ class DateHelper:
 
         if short is None:
             try:
-                return DateHelper.__GetMonthFromName(month, language)
+                return DateHelper.__get_month_from_name(month, language)
             except:
-                return DateHelper.__GetMonthFromName(month, language, False)
+                return DateHelper.__get_month_from_name(month, language, False)
         else:
-            return DateHelper.__GetMonthFromName(month, language, short)
+            return DateHelper.__get_month_from_name(month, language, short)
 
     @staticmethod
-    def GetDateFromPosix(posix, tz=None):
+    def get_date_from_posix(posix, tz=None):
         # type: (float, datetime.tzinfo) -> datetime.datetime
         """ Creates a datetime from a Posix Time stamp
 
@@ -138,12 +138,12 @@ class DateHelper:
         return datetime.datetime.fromtimestamp(posix, tz)
 
     @staticmethod
-    def GetDateFromString(value, dateFormat="%Y-%m-%dT%H:%M:%S+00:00"):
+    def get_date_from_string(value, date_format="%Y-%m-%dT%H:%M:%S+00:00"):
         # type: (str, str) -> time.struct_time
         """ Converts a formatted date-time string to a time struct.
 
         @param value:       the string value to parse
-        @param dateFormat:  the format to use
+        @param date_format:  the format to use
         @return:            a time.struct_time
 
         time.struct_time values:
@@ -162,10 +162,10 @@ class DateHelper:
 
         """
 
-        return time.strptime(value, dateFormat)
+        return time.strptime(value, date_format)
 
     @staticmethod
-    def __GetMonthFromName(month, language, short=True):
+    def __get_month_from_name(month, language, short=True):
         """Gets the month number from the name.
 
         Arguments:
@@ -181,32 +181,32 @@ class DateHelper:
         """
 
         if language == "nl" and short:
-            monthLookup = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
+            month_lookup = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
         elif language == "nl":
-            monthLookup = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"]
+            month_lookup = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"]
 
         elif language == "no" and short:
-            monthLookup = ["jan", "feb", "mar", "apr", "mai", "jun", "jul", "aug", "sep", "okt", "nov", "des"]
+            month_lookup = ["jan", "feb", "mar", "apr", "mai", "jun", "jul", "aug", "sep", "okt", "nov", "des"]
         elif language == "no":
-            monthLookup = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"]
+            month_lookup = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"]
 
         elif language == "en" and short:
-            monthLookup = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+            month_lookup = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
         elif language == "en":
-            monthLookup = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+            month_lookup = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
 
         elif language == "se" and short:
-            monthLookup = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
+            month_lookup = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
         elif language == "se":
-            monthLookup = ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"]
+            month_lookup = ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"]
 
         else:
             error = "Language code '%s' not implemented" % (language, )
             raise NotImplementedError(error)
 
-        if monthLookup.count(month.lower()) > 0:
-            monthValue = monthLookup.index(month.lower()) + 1
+        if month_lookup.count(month.lower()) > 0:
+            month_value = month_lookup.index(month.lower()) + 1
         else:
             error = "Month '%s' not found for language '%s'" % (month, language)
             raise ValueError(error)
-        return monthValue
+        return month_value
