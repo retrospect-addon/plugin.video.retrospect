@@ -14,6 +14,8 @@
 import sys
 import os
 import shutil
+import datetime
+import time
 
 import envcontroller
 
@@ -44,11 +46,21 @@ class ChannelIndex:
 
         """
 
+        valid_for = datetime.timedelta(minutes=1)
+        # In Kodi Leia the Python instance is not killed and the ChannelRegister stays alive.
+        # This might cause some issues. So better to let it expire after some time. But to make it
+        # not happen during a user's browsing session, we use sliding expiration of 1 minute.
+
         if not ChannelIndex.__channelIndexer:
             Logger.Debug("Creating a new ChannelIndex-er.")
             ChannelIndex.__channelIndexer = ChannelIndex()
+        elif ChannelIndex.__channelIndexer.validAt + valid_for < datetime.datetime.now():
+            Logger.Debug("Existing ChannelIndex-er expired. Creating a new ChannelIndex-er.")
+            ChannelIndex.__channelIndexer = ChannelIndex()
         else:
-            Logger.Debug("Fetching an existing %s.", ChannelIndex.__channelIndexer)
+            Logger.Debug("Using an existing %s.", ChannelIndex.__channelIndexer)
+            # We are using a sliding expiration, so we should let the expiration slide.
+            ChannelIndex.__channelIndexer.validAt = datetime.datetime.now()
 
         return ChannelIndex.__channelIndexer
 
@@ -74,6 +86,8 @@ class ChannelIndex:
         self.__reindex = self.__DeployNewChannels()
         self.__channelIndex = self.__GetIndex()
 
+        self.validAt = datetime.datetime.now()
+        self.id = int(time.time())
         return
 
     def GetChannel(self, className, channelCode, infoOnly=False):
@@ -636,4 +650,4 @@ class ChannelIndex:
 
     def __str__(self):
         # type: () -> str
-        return "ChannelIndex for %s" % (Config.profileDir, )
+        return "ChannelIndex for %s (id=%s)" % (Config.profileDir, self.id)
