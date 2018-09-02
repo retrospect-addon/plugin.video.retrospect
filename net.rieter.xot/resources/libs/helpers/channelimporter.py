@@ -349,7 +349,7 @@ class ChannelIndex:
             return self.__rebuild_index()
 
         try:
-            with io.open(self.__CHANNEL_INDEX) as fd:
+            with io.open(self.__CHANNEL_INDEX, 'r', encoding='utf-8') as fd:
                 data = fd.read()
 
             index_json = JsonHelper(data, logger=Logger.Instance())
@@ -442,7 +442,7 @@ class ChannelIndex:
             Logger.Info("No addon.xml found at %s.", addon_file)
             return None, None
 
-        with io.open(addon_file, 'r+') as f:
+        with io.open(addon_file, 'r+', encoding='utf-8') as f:
             addon_xml = f.read()
 
         pack_version = Regexer.DoRegex('id="([^"]+)"\W+version="([^"]+)"', addon_xml)
