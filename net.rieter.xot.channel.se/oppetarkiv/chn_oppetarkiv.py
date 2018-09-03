@@ -310,7 +310,7 @@ class Channel(chn_class.Channel):
             if subtitles:
                 Logger.Trace(subtitles)
                 subUrl = subtitles[0]["url"]
-                fileName = "%s.srt" % (EncodingHelper.EncodeMD5(subUrl),)
+                fileName = "%s.srt" % (EncodingHelper.encode_md5(subUrl),)
                 subData = UriHandler.Open(subUrl, proxy=self.proxy)
 
                 # correct the subs

@@ -134,7 +134,7 @@ class Channel(chn_class.Channel):
         if baseEncode:
             Logger.Debug("Loading video from BASE64 encoded JSON data")
             baseEncode = baseEncode[-1]
-            jsonData = EncodingHelper.DecodeBase64(baseEncode)
+            jsonData = EncodingHelper.decode_base64(baseEncode)
             json = JsonHelper(jsonData, logger=Logger.Instance())
             Logger.Trace(json)
 

@@ -72,7 +72,7 @@ class SubtitleHelper:
 
         if fileName == "":
             Logger.Debug("No filename present, generating filename using MD5 hash of url.")
-            fileName = "%s.srt" % (EncodingHelper.EncodeMD5(url),)
+            fileName = "%s.srt" % (EncodingHelper.encode_md5(url),)
         elif not fileName.endswith(".srt"):
             Logger.Debug("No SRT extension present, appending it.")
             fileName = "%s.srt" % (fileName, )

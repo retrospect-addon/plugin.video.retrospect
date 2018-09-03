@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
     #     data, expires, other = token.split('.')
     #     expires += "=" * (4 - len(expires) % 4)
     #     Logger.Debug("Found data: \n%s\n%s\n%s", data, expires, other)
-    #     tokenData = EncodingHelper.DecodeBase64(expires)
+    #     tokenData = EncodingHelper.decode_base64(expires)
     #     tokenData = JsonHelper(tokenData)
     #     expiresAt = tokenData.GetValue("exp")
     #

@@ -42,14 +42,14 @@ class Channel(chn_class.Channel):
         salt = int(time.time())
         # key = "%sRM%%j%%l@g@w_A%%" % (salt,)
         # Logger.Trace("Found Salt: %s and Key: %s", salt, key)
-        # key = EncodingHelper.EncodeMD5(key, toUpper=False)
+        # key = EncodingHelper.encode_md5(key, toUpper=False)
         # self.httpHeaders = {"X-NOS-App": "Google/x86;Android/4.4.4;nl.nos.app/3.1",
         #                     "X-NOS-Salt": salt,
         #                     "X-NOS-Key": key}
 
         userAgent = "%s;%d;%s/%s;Android/%s;nl.nos.app/%s" % ("nos", salt, "Google", "Nexus", "6.0", "5.1.1")
         string = ";UB}7Gaji==JPHtjX3@c%s" % (userAgent, )
-        string = EncodingHelper.EncodeMD5(string, toUpper=False).zfill(32)
+        string = EncodingHelper.encode_md5(string, to_upper=False).zfill(32)
         xnos = string + base64.b64encode(userAgent)
         self.httpHeaders = {"X-Nos": xnos}
 

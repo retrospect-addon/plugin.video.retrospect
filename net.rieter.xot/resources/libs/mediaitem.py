@@ -131,8 +131,8 @@ class MediaItem:
         # GUID used for identifcation of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues
         try:
-            self.guid = "%s%s" % (EncodingHelper.EncodeMD5(title), EncodingHelper.EncodeMD5(url or ""))
-            # self.guid = ("%s-%s" % (encodinghelper.EncodingHelper.EncodeMD5(title), url)).replace(" ", "")
+            self.guid = "%s%s" % (EncodingHelper.encode_md5(title), EncodingHelper.encode_md5(url or ""))
+            # self.guid = ("%s-%s" % (encodinghelper.EncodingHelper.encode_md5(title), url)).replace(" ", "")
         except:
             Logger.Error("Error setting GUID for title:'%s' and url:'%s'. Falling back to UUID", title, url, exc_info=True)
             self.guid = self.__GetUUID()
@@ -547,7 +547,7 @@ class MediaItem:
         r = long(random.random() * 100000000000000000L)
         a = random.random() * 100000000000000000L
         data = str(t) + ' ' + str(r) + ' ' + str(a)
-        data = EncodingHelper.EncodeMD5(data)
+        data = EncodingHelper.encode_md5(data)
         return data
 
     def __FullDecodeText(self, stringValue):

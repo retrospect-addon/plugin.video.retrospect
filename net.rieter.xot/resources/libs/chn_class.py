@@ -963,7 +963,7 @@ class Channel:
                     Logger.Debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
 
                     # we need a unique filename
-                    fileName = EncodingHelper.EncodeMD5(stream.Url)
+                    fileName = EncodingHelper.encode_md5(stream.Url)
                     extension = UriHandler.GetExtensionFromUrl(stream.Url)
 
                     # now we force the busy dialog to close, else we cannot cancel the download
