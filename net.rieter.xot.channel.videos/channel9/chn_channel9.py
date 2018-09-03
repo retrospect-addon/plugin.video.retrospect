@@ -157,16 +157,16 @@ class Channel(chn_class.Channel):
         name = HtmlEntityHelper.ConvertHTMLEntities(resultSet[1])
 
         helper = HtmlHelper(resultSet[2])
-        description = helper.GetTagContent("div", {'class': 'description'})
+        description = helper.get_tag_content("div", {'class': 'description'})
 
         item = mediaitem.MediaItem(name, "%s/RSS" % (url,))
         item.thumb = self.noImage
         item.type = 'folder'
         item.description = description.strip()
 
-        date = helper.GetTagContent("div", {'class': 'date'})
+        date = helper.get_tag_content("div", {'class': 'date'})
         if date == "":
-            date = helper.GetTagContent("span", {'class': 'lastPublishedDate'})
+            date = helper.get_tag_content("span", {'class': 'lastPublishedDate'})
 
         if not date == "":
             dateParts = Regexer.DoRegex("(\w+) (\d+)[^<]+, (\d+)", date)

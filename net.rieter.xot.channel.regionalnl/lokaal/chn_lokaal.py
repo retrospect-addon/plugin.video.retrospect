@@ -388,7 +388,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.type = 'video'
 
-        item.description = HtmlHelper.ToText(resultSet.get("text"))
+        item.description = HtmlHelper.to_text(resultSet.get("text"))
         #if item.description:
         #    item.description = item.description.replace("<br />", "\n")
 
