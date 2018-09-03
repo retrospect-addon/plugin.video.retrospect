@@ -63,10 +63,10 @@ class Channel(chn_class.Channel):
 
         elif self.channelCode == "rtvnoord":
             self.noImage = "rtvnoordimage.png"
-            self.mainListUri = "http://noord.storage.regiogrid.nl/apps/v520/programs.json"
-            self.baseUrl = "http://noord.storage.regiogrid.nl"
+            self.mainListUri = "http://noord.api.regiogrid.nl/apps/v520/programs.json"
+            self.baseUrl = "http://noord.api.regiogrid.nl"
             # Uses NPO stream with smshield cookie
-            self.liveUrl = "http://noord.storage.regiogrid.nl/apps/v520/tv-live-kiezer.json"
+            self.liveUrl = "http://noord.api.regiogrid.nl/apps/v520/tv-live-kiezer.json"
             self.channelBitrate = 1350
 
         elif self.channelCode == "rtvoost":
@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
 
         elif self.channelCode == "omroepwest":
             self.noImage = "omroepwestimage.png"
-            self.mainListUri = "http://west.storage.regiogrid.nl/apps/v520/programs.json"
+            self.mainListUri = "http://west.api.regiogrid.nl/apps/v520/programs.json"
             self.baseUrl = "http://www.omroepwest.nl"
             self.liveUrl = "http://feeds.omroepwest.nl/v520/tv.json"
             self.channelBitrate = 1500
