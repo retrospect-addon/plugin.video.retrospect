@@ -394,7 +394,7 @@ class Channel(chn_class.Channel):
 
         if "timedTextSubtitlesUrl" in stream_data and stream_data["timedTextSubtitlesUrl"]:
             sub_url = stream_data["timedTextSubtitlesUrl"].replace(".ttml", ".vtt")
-            sub_url = HtmlEntityHelper.UrlDecode(sub_url)
+            sub_url = HtmlEntityHelper.url_decode(sub_url)
             part.Subtitle = SubtitleHelper.DownloadSubtitle(sub_url, format="webvtt")
         return item
 

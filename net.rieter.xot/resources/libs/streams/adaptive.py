@@ -47,7 +47,7 @@ class Adaptive:
         header = ""
         if keyHeaders:
             for k, v in list(keyHeaders.items()):
-                header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.UrlEncode(v))
+                header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.url_encode(v))
 
         if keyType in ("A", "R", "B"):
             keyValue = "{0}{{SSM}}".format(keyType)
@@ -107,7 +107,7 @@ class Adaptive:
         if headers:
             header = ""
             for k, v in list(headers.items()):
-                header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.UrlEncode(v))
+                header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.url_encode(v))
             strm.AddProperty("inputstream.adaptive.stream_headers", header.strip("&"))
 
         return strm

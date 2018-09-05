@@ -172,10 +172,10 @@ class Channel(chn_class.Channel):
         if not token:
             return False
         xsrfToken = UriHandler.GetCookie("XSRF-TOKEN", "www.npostart.nl").value
-        xsrfToken = HtmlEntityHelper.UrlDecode(xsrfToken)
+        xsrfToken = HtmlEntityHelper.url_decode(xsrfToken)
 
-        data = "username=%s&password=%s" % (HtmlEntityHelper.UrlEncode(username),
-                                            HtmlEntityHelper.UrlEncode(password))
+        data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
+                                            HtmlEntityHelper.url_encode(password))
         UriHandler.Open("https://www.npostart.nl/api/login", proxy=self.proxy, noCache=True,
                         additionalHeaders={
                             "X-Requested-With": "XMLHttpRequest",
@@ -188,9 +188,9 @@ class Channel(chn_class.Channel):
         # # login: https://mijn.npo.nl/sessions POST
         # # utf8=%E2%9C%93&authenticity_token=<token>&email=<username>&password=<password>&remember_me=1&commit=Inloggen
         # postData = {
-        #     "token": HtmlEntityHelper.UrlEncode(token),
-        #     "email": HtmlEntityHelper.UrlEncode(username),
-        #     "password": HtmlEntityHelper.UrlEncode(password)
+        #     "token": HtmlEntityHelper.url_encode(token),
+        #     "email": HtmlEntityHelper.url_encode(username),
+        #     "password": HtmlEntityHelper.url_encode(password)
         # }
         # postData = "utf8=%%E2%%9C%%93&authenticity_token=%(token)s&email=%(email)s&" \
         #            "password=%(password)s&remember_me=1&commit=Inloggen" % postData

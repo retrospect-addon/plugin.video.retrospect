@@ -526,7 +526,7 @@ class Channel:
             if needle:
                 Logger.Debug("Searching for '%s'", needle)
                 # convert to HTML
-                needle = HtmlEntityHelper.UrlEncode(needle)
+                needle = HtmlEntityHelper.url_encode(needle)
                 searchUrl = url % (needle, )
                 temp = mediaitem.MediaItem("Search", searchUrl)
                 return self.ProcessFolderList(temp)

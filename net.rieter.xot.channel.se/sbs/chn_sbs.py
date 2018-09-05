@@ -419,7 +419,7 @@ class Channel(chn_class.Channel):
         needle = XbmcWrapper.ShowKeyBoard()
         if needle:
             Logger.Debug("Searching for '%s'", needle)
-            needle = HtmlEntityHelper.UrlEncode(needle)
+            needle = HtmlEntityHelper.url_encode(needle)
 
             searchUrl = videos_url % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
@@ -602,7 +602,7 @@ class Channel(chn_class.Channel):
 
         # hardcoded for now as it does not seem top matter
         dscgeo = '{"countryCode":"%s","expiry":1446917369986}' % (self.language.upper(),)
-        dscgeo = HtmlEntityHelper.UrlEncode(dscgeo)
+        dscgeo = HtmlEntityHelper.url_encode(dscgeo)
         headers = {"Cookie": "dsc-geo=%s" % (dscgeo, )}
 
         # send the data

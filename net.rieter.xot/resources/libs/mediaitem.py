@@ -508,7 +508,7 @@ class MediaItem:
 
             # Now add the actual HTTP headers
             for k in part.HttpHeaders:
-                xbmcParams[k] = HtmlEntityHelper.UrlEncode(part.HttpHeaders[k])
+                xbmcParams[k] = HtmlEntityHelper.url_encode(part.HttpHeaders[k])
 
             if xbmcParams:
                 xbmcQueryString = reduce(lambda x, y: "%s&%s=%s" %

@@ -45,7 +45,7 @@ class LogSender:
     #     postParams = reduce(lambda x, y: "%s&%s=%s" % (
     #         x,
     #         y,
-    #         HtmlEntityHelper.UrlEncode(str(params[y]))), params.keys(), "").lstrip("&")
+    #         HtmlEntityHelper.url_encode(str(params[y]))), params.keys(), "").lstrip("&")
     #
     #     data = UriHandler.Open("http://pastebin.com/api/api_login.php", params=postParams,
     #                            proxy=self.__proxy)
@@ -189,7 +189,7 @@ class LogSender:
         postParams = reduce(lambda x, y: "%s&%s=%s" % (
             x,
             y,
-            HtmlEntityHelper.UrlEncode(str(params[y]))), params.keys(), "").lstrip("&")
+            HtmlEntityHelper.url_encode(str(params[y]))), params.keys(), "").lstrip("&")
 
         if self.__logger:
             self.__logger.Debug("Posting %d chars to pastebin.com", len(code))

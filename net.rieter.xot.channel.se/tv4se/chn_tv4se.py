@@ -122,7 +122,7 @@ class Channel(chn_class.Channel):
     #         Logger.Info("Reauthenticating based on the old TV4Play token")
     #         params = "session_token=%s&" \
     #                  "client=tv4play-web" % (
-    #                      HtmlEntityHelper.UrlEncode(sessionToken)
+    #                      HtmlEntityHelper.url_encode(sessionToken)
     #                  )
     #         data = UriHandler.Open("https://account.services.tv4play.se/session/reauthenticate",
     #                                noCache=True, proxy=self.proxy, params=params)
@@ -148,8 +148,8 @@ class Channel(chn_class.Channel):
     #                  "password=%s&" \
     #                  "remember_me=true&" \
     #                  "client=tv4play-web" % (
-    #                      HtmlEntityHelper.UrlEncode(username),
-    #                      HtmlEntityHelper.UrlEncode(password),
+    #                      HtmlEntityHelper.url_encode(username),
+    #                      HtmlEntityHelper.url_encode(password),
     #                  )
     #         data = UriHandler.Open("https://account.services.tv4play.se/session/authenticate",
     #                                noCache=True, proxy=self.proxy, params=params)
@@ -215,7 +215,7 @@ class Channel(chn_class.Channel):
         title = json["name"]
 
         programId = json["nid"]
-        programId = HtmlEntityHelper.UrlEncode(programId)
+        programId = HtmlEntityHelper.url_encode(programId)
         url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&is_live=false&type=episode&" \
               "page=1&node_nids=%s&start=0" % (self.maxPageSize, programId, )
 
@@ -558,7 +558,7 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        cat = HtmlEntityHelper.UrlEncode(resultSet['nid'])
+        cat = HtmlEntityHelper.url_encode(resultSet['nid'])
         url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
               "&fl=nid,name,program_image,category,logo,is_premium" \
               "&per_page=1000&is_active=true&start=0" % (cat, )

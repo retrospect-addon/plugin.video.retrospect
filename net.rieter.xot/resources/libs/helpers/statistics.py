@@ -151,10 +151,10 @@ class Statistics:
                 "t": "event",
                 "tid": Config.googleAnalyticsId,
                 "cid": AddonSettings.GetClientId(),
-                "ec": HtmlEntityHelper.UrlEncode(category),
-                # "ec": HtmlEntityHelper.UrlEncode("Test"),
-                "ea": HtmlEntityHelper.UrlEncode(HtmlEntityHelper.ConvertHTMLEntities(action)),
-                "el": HtmlEntityHelper.UrlEncode(HtmlEntityHelper.ConvertHTMLEntities(label)),
+                "ec": HtmlEntityHelper.url_encode(category),
+                # "ec": HtmlEntityHelper.url_encode("Test"),
+                "ea": HtmlEntityHelper.url_encode(HtmlEntityHelper.ConvertHTMLEntities(action)),
+                "el": HtmlEntityHelper.url_encode(HtmlEntityHelper.ConvertHTMLEntities(label)),
                 "an": Config.appName
             }
 
@@ -167,7 +167,7 @@ class Statistics:
             if referer is not None:
                 if "://" not in referer:
                     referer = "http://%s" % (referer,)
-                postData["dr"] = HtmlEntityHelper.UrlEncode(referer)
+                postData["dr"] = HtmlEntityHelper.url_encode(referer)
 
             url = "https://www.google-analytics.com/collect"
             data = ""

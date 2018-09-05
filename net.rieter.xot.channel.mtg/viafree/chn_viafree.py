@@ -343,7 +343,7 @@ class Channel(chn_class.Channel):
 
         # # we need to do some ugly stuff to get the %s in the URL-Encoded query.
         # query = '{"term":"tttt","limit":2000,"columns":"formats,episodes,clips","with":"format"}'
-        # query = HtmlEntityHelper.UrlEncode(query).replace("%", "%%").replace("tttt", "%s")
+        # query = HtmlEntityHelper.url_encode(query).replace("%", "%%").replace("tttt", "%s")
         # baseUrl = self.baseUrl.rsplit('/', 1)[0]
         # url = "%s/api/playClient;isColumn=true;query=%s;resource=search?returnMeta=true" % (baseUrl, query)
 
@@ -612,7 +612,7 @@ class Channel(chn_class.Channel):
                 if "uri=" in url and not part.Subtitle:
                     Logger.Debug("Extracting subs from M3u8")
                     subUrl = url.rsplit("uri=")[-1]
-                    subUrl = HtmlEntityHelper.UrlDecode(subUrl)
+                    subUrl = HtmlEntityHelper.url_decode(subUrl)
                     subData = UriHandler.Open(subUrl, proxy=self.proxy)
                     # subUrl = None
                     subs = filter(lambda line: line.startswith("http"), subData.split("\n"))

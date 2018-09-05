@@ -165,7 +165,7 @@ class Channel(chn_class.Channel):
         """
         Logger.Trace(resultSet)
 
-        title = HtmlEntityHelper.UrlEncode(resultSet['title'])
+        title = HtmlEntityHelper.url_encode(resultSet['title'])
         url = "http://m.schooltv.nl/api/v1/categorieen/%s/afleveringen.json?sort=Nieuwste&age_filter=&size=%s" % (title, self.__PageSize)
         item = mediaitem.MediaItem(resultSet['title'], url)
         item.thumb = resultSet.get('image', self.noImage)

@@ -309,7 +309,7 @@ class Channel(chn_class.Channel):
                      "&targetEnv=jssdk" \
                      "&sessionExpiration=-2" \
                      "&%s" % \
-                     (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password),
+                     (HtmlEntityHelper.url_encode(username), HtmlEntityHelper.url_encode(password),
                       context_id, common_data)
         UriHandler.Open(login_url, params=login_data, proxy=self.proxy, noCache=True)
 
@@ -556,7 +556,7 @@ class Channel(chn_class.Channel):
         if item.description:
             # Clean HTML
             item.description = item.description.replace("<br />", "\n\n")
-            item.description = HtmlHelper.ToText(item.description)
+            item.description = HtmlHelper.to_text(item.description)
 
         if 'images' in resultSet and 'image' in resultSet['images']:
             item.thumb = resultSet['images']['image'].get('full', self.noImage)
@@ -855,7 +855,7 @@ class Channel(chn_class.Channel):
                 licenseKey = "{0}; {1}={2}".format(licenseKey, c, value)
 
             licenseKey = licenseKey[2:]
-            licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.UrlEncode(licenseKey))
+            licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.url_encode(licenseKey))
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(hls, 0)
             M3u8.SetInputStreamAddonInput(stream, licenseKey=licenseKey)
@@ -962,9 +962,9 @@ class Channel(chn_class.Channel):
 
         url = "https://user.medialaan.io/user/v1/gigya/request_token?uid=%s&signature=%s&timestamp=%s&apikey=%s&database=%s" % (
             self.__userId,
-            HtmlEntityHelper.UrlEncode(self.__signature),
+            HtmlEntityHelper.url_encode(self.__signature),
             self.__signatureTimeStamp,
-            HtmlEntityHelper.UrlEncode(self.__apiKey),
+            HtmlEntityHelper.url_encode(self.__apiKey),
             self.__sso)
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         jsonData = JsonHelper(data)

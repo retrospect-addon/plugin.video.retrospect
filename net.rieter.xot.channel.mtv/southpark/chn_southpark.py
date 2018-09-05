@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
             part = None
 
             # http://www.southpark.nl/feeds/video-player/mediagen?uri=mgid%3Aarc%3Aepisode%3Acomedycentral.com%3Aeb2a53f7-e370-4049-a6a9-57c195367a92&suppressRegisterBeacon=true
-            guid = HtmlEntityHelper.UrlEncode("mgid:arc:episode:comedycentral.com:%s" % (guid,))
+            guid = HtmlEntityHelper.url_encode("mgid:arc:episode:comedycentral.com:%s" % (guid,))
             infoUrl = "%s/feeds/video-player/mediagen?uri=%s&suppressRegisterBeacon=true" % (self.baseUrl, guid)
 
             # 2- Get the GUIDS for the different ACTS

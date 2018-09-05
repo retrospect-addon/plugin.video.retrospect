@@ -99,7 +99,7 @@ class YouTube:
         urlEncodedFmtStreamMap = Regexer.DoRegex("url_encoded_fmt_stream_map=([^&]+)", data)
         # Up to 4K with audio and video split.
         # urlEncodedFmtStreamMap = Regexer.DoRegex("adaptive_fmts=([^&]+)", data)
-        urlEncodedFmtStreamMapData = HtmlEntityHelper.UrlDecode(urlEncodedFmtStreamMap[0])
+        urlEncodedFmtStreamMapData = HtmlEntityHelper.url_decode(urlEncodedFmtStreamMap[0])
         # split per stream
         streams = urlEncodedFmtStreamMapData.split(',')
 
@@ -126,7 +126,7 @@ class YouTube:
                 Logger.Debug("Missing 'quality_label', skipping: %s", qsData)
                 continue
 
-            videoUrl = HtmlEntityHelper.UrlDecode(qsData['url'])
+            videoUrl = HtmlEntityHelper.url_decode(qsData['url'])
             if signature is None:
                 url = videoUrl
             else:
