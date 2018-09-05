@@ -265,4 +265,4 @@ class Version(Comparable):
         if selfBuildName == otherBuildName:
             return int(selfBuildNameNumber) < int(otherBuildNameNumber)
 
-        return versionTypes.index(selfBuildName) < versionTypes.inex(otherBuildName)
+        return versionTypes.index(selfBuildName) < versionTypes.index(otherBuildName)
