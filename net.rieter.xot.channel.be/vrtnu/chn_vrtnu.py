@@ -1,6 +1,7 @@
 import chn_class
 import mediaitem
-from addonsettings import AddonSettings
+from addonsettings import AddonSettings, LOCAL
+from helpers.htmlhelper import HtmlHelper
 from regexer import Regexer
 from parserdata import ParserData
 from logger import Logger
@@ -97,7 +98,7 @@ class Channel(chn_class.Channel):
                             parser=videoRegex, creator=self.CreateVideoItem)
 
         # needs to be after the standard video item regex
-        singleVideoRegex = '<script type="application/ld\+json">\W+({[^<]+})\W+</script'
+        singleVideoRegex = '<script type="application/ld\+json">\W+({[\w\W]+?})\s*</script'
         # singleVideoRegex = '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>' \
         #                    '[^ ]+)[\w\W]{0,4000}<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>' \
         #                    '\W*<span[^>]+>(?<description>[^<]+)'
@@ -111,6 +112,12 @@ class Channel(chn_class.Channel):
         # non standard items
         self.__hasAlreadyVideoItems = False
         self.__currentChannel = None
+
+        self.__SIGNATURE_SETTING_ID = "gigya_signature"
+        self.__signature = None
+        self.__signatureTimeStamp = None
+        self.__userId = None
+
         # The key is the channel live stream key
         self.__channelData = {
             "vualto_mnm": {
@@ -179,10 +186,27 @@ class Channel(chn_class.Channel):
         return
 
     def LogOn(self):
+        apiKey = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
+        signatureSetting = AddonSettings.GetChannelSetting(self, self.__SIGNATURE_SETTING_ID, store=LOCAL)
+
+        # Do we still have a valid token? If so, try to extend the session. We need the
+        # original UIDSignature value for that. The X-VRT-Token and all other related cookies
+        # are valid for a same period.
         tokenCookie = UriHandler.GetCookie("X-VRT-Token", ".vrt.be")
         if tokenCookie is not None:
-            return True
+            # if we stored a valid user signature, we can use it, together with the 'gmid' and
+            # 'ucid' cookies to extend the session and get new token data
+            if signatureSetting and "|" not in signatureSetting:
+                url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
+                data = "APIKey=%s" \
+                       "&sdk=js_7.4.30" \
+                       "&login_token=%s" % (apiKey, signatureSetting,)
+                logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
+                if self.__ExtractSessionData(logonData):
+                    Logger.Debug("Gigya.com session extended.")
+                    return True
 
+        Logger.Warning("Failed to extend the gigya.com session.")
         username = self._GetSetting("username")
         if not username:
             return None
@@ -192,27 +216,29 @@ class Channel(chn_class.Channel):
         if not password:
             Logger.Warning("Found empty password for VRT user")
 
+        # Get a 'gmid' and 'ucid' cookie by logging in. Valid for 10 years
         Logger.Debug("Using: %s / %s", username, "*" * len(password))
         url = "https://accounts.eu1.gigya.com/accounts.login"
         data = "loginID=%s" \
                "&password=%s" \
                "&targetEnv=jssdk" \
-               "&APIKey=3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG" \
+               "&APIKey=%s" \
                "&includeSSOToken=true" \
                "&authMode=cookie" % \
-               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password))
+               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password), apiKey)
 
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-        sig, uid, timestamp = self.__ExtractSessionData(logonData)
-        if sig is None and uid is None and timestamp is None:
+        if not self.__ExtractSessionData(logonData):
             return False
 
+        # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 year
         url = "https://token.vrt.be/"
         tokenData = '{"uid": "%s", ' \
                     '"uidsig": "%s", ' \
                     '"ts": "%s", ' \
                     '"fn": "VRT", "ln": "NU", ' \
-                    '"email": "%s"}' % (uid, sig, timestamp, username)
+                    '"email": "%s"}' % (self.__userId, self.__signature,
+                                        self.__signatureTimeStamp, username)
 
         headers = {"Content-Type": "application/json", "Referer": "https://www.vrt.be/vrtnu/"}
         UriHandler.Open(url, params=tokenData, proxy=self.proxy, additionalHeaders=headers)
@@ -346,7 +372,7 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(resultSet)
         url = self.parentItem.url
         title = jsonData.GetValue("name")
-        description = jsonData.GetValue("description")
+        description = HtmlHelper.ToText(jsonData.GetValue("description"))
         item = mediaitem.MediaItem(title, url, type="video")
         item.description = description
         item.thumb = self.parentItem.thumb
@@ -391,11 +417,63 @@ class Channel(chn_class.Channel):
         # we need to fetch the actual url as it might differ for single video items
         data, secureUrl = UriHandler.Header(item.url, proxy=self.proxy)
 
+        # Get the MZID
         secureUrl = secureUrl.rstrip("/")
         secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
         data = UriHandler.Open(secureUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         secureData = JsonHelper(data, logger=Logger.Instance())
         mzid = secureData.GetValue(secureData.json.keys()[0], "videoid")
+
+        # region New URL retrieval with DRM protection
+        # # We need more cookies from VRT specific
+        # UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy,
+        #                 data={"UID": self.__userId,
+        #                       "UIDSignature": self.__signature,
+        #                       "signatureTimestamp": self.__signatureTimeStamp,
+        #                       "client_id": "vrtnu-site", "submit": "submit"})
+        #
+        # # And a player token
+        # tokenData = UriHandler.Open("https://media-services-public.vrt.be/"
+        #                             "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
+        #                             additionalHeaders={"Content-Type": "application/json"})
+        #
+        # token = JsonHelper(tokenData).GetValue("vrtPlayerToken")
+        #
+        # assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
+        #            "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
+        #     .format(HtmlEntityHelper.UrlEncode(mzid), HtmlEntityHelper.UrlEncode(token))
+        # assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
+        # assetData = JsonHelper(assetData)
+        #
+        # drmKey = assetData.GetValue("drm")
+        # drmProtected = drmKey is not None
+        # adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=drmProtected)
+        # part = item.CreateNewEmptyMediaPart()
+        # for targetUrl in assetData.GetValue("targetUrls"):
+        #     videoType = targetUrl["type"]
+        #     videoUrl = targetUrl["url"]
+        #
+        #     if videoType == "hls" and adaptiveAvailable:
+        #         stream = part.AppendMediaStream(videoUrl, 0)
+        #         if not drmProtected:
+        #             M3u8.SetInputStreamAddonInput(stream, self.proxy)
+        #         else:
+        #             Logger.Error("Encryption not yet implemented")
+        #
+        #     elif videoType == "hls":
+        #         # Extract the subtitle
+        #         pass
+        #
+        #     elif videoType == "mpeg_dash" and adaptiveAvailable:
+        #         stream = part.AppendMediaStream(videoUrl, 1)
+        #         if not drmProtected:
+        #             Mpd.SetInputStreamAddonInput(stream, self.proxy)
+        #         else:
+        #             Logger.Error("Encryption not yet implemented")
+        #
+        #     item.complete = True
+        # endregion
+
         assetUrl = "https://mediazone.vrt.be/api/v1/vrtvideo/assets/%s" % (mzid, )
         data = UriHandler.Open(assetUrl, proxy=self.proxy)
         assetData = JsonHelper(data, logger=Logger.Instance())
@@ -408,6 +486,10 @@ class Channel(chn_class.Channel):
             if url.startswith("https://ondemand-"):
                 # replace the ondemand-.....vrtcdn.be host with generic the akamized ones
                 url = "%s/%s" % ("https://ondemand-vrt.akamaized.net", url.split("/", 3)[-1])
+
+            if url.startswith("https://remix.aka.vrtcdn.be/"):
+                # apparently the remix.aka.vrtcdn.be if a fake
+                url = url.replace("https://remix.aka.vrtcdn.be/", "https://remix-vrt.akamaized.net/")
 
             if adaptiveAvailable:
                 if not AddonSettings.IsMinVersion(18) and streamData["type"] == "HLS":
@@ -453,9 +535,16 @@ class Channel(chn_class.Channel):
         if resultCode != 200:
             Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
                          logonJson.GetValue("errorDetails"))
-            return None, None, None
+            return False
 
-        return \
-            logonJson.GetValue("UIDSignature"), \
-            logonJson.GetValue("UID"), \
-            logonJson.GetValue("signatureTimestamp")
+        signatureSetting = logonJson.GetValue("sessionInfo", "login_token")
+        if signatureSetting:
+            Logger.Info("Found 'login_token'. Saving it.")
+            AddonSettings.SetChannelSetting(self, self.__SIGNATURE_SETTING_ID,
+                                            signatureSetting.split("|")[0], store=LOCAL)
+
+        self.__signature = logonJson.GetValue("UIDSignature")
+        self.__userId = logonJson.GetValue("UID")
+        self.__signatureTimeStamp = logonJson.GetValue("signatureTimestamp")
+
+        return True
