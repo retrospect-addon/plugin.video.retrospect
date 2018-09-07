@@ -67,7 +67,7 @@ class UriHandler(object):
 
     @staticmethod
     def Download(uri, filename, folder, progressCallback=None, proxy=None,
-                 params="", data="", json="", referer=None, additionalHeaders=None):
+                 params=None, data=None, json=None, referer=None, additionalHeaders=None):
         """Downloads a remote file
 
         Arguments
@@ -92,7 +92,7 @@ class UriHandler(object):
                                               params, data, json, referer, additionalHeaders)
 
     @staticmethod
-    def Open(uri, proxy=None, params="", data="", json="",
+    def Open(uri, proxy=None, params=None, data=None, json=None,
              referer=None, additionalHeaders=None, noCache=False):
         """ Open an URL Async using a thread
 
@@ -351,12 +351,12 @@ class UriHandler(object):
                 self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, True)
             return download_path
 
-        def open(self, uri, proxy=None, params="", data="", json="",
+        def open(self, uri, proxy=None, params=None, data=None, json=None,
                  referer=None, additionalHeaders=None, noCache=False):
 
             r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
                                 referer=referer, additional_headers=additionalHeaders,
-                                no_cache=noCache)
+                                no_cache=noCache, stream=False)
             if r is None:
                 return ""
 
@@ -397,8 +397,8 @@ class UriHandler(object):
                 return "", ""
 
         # noinspection PyUnusedLocal
-        def __requests(self, uri, proxy=None, params="", data="", json="",
-                       referer=None, additional_headers=None, no_cache=False, stream=False):
+        def __requests(self, uri, proxy, params, data, json, referer,
+                       additional_headers, no_cache, stream):
 
             s = requests.session()
             s.cookies = self.cookieJar
@@ -415,7 +415,7 @@ class UriHandler(object):
 
             headers = self.__get_headers(referer, additional_headers)
 
-            if params:
+            if params is not None:
                 # Old UriHandler behaviour. Set form header to keep compatible
                 if "content-type" not in headers:
                     headers["content-type"] = "application/x-www-form-urlencoded"
@@ -423,12 +423,12 @@ class UriHandler(object):
                 Logger.Info("Performing a POST with '%s' for %s", headers["content-type"], uri)
                 r = s.post(uri, data=params, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
-            elif data:
+            elif data is not None:
                 # Normal Requests compatible data object
                 Logger.Info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
                 r = s.post(uri, data=data, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
-            elif json:
+            elif json is not None:
                 Logger.Info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
                 r = s.post(uri, json=json, proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
