@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: Vier & Vijf.be had no videos (Fixes #992)
+* Fixed: Single video items were not parsed for VRT.nu (Fixes #1002)
+* Fixed: VTM.be updated their site (Fixes #1003)
 
 [I]Previous Changes[/I]
+* Fixed: Vier & Vijf.be had no videos (Fixes #992)
 * Fixed: VRT.nu changed site layout again.... (Fixes #984)
 * Added: Subs for VRT.nu if the Adaptive Add-on is not used.
 * Fixed: VRT.nu 'remix-aka' streams (See #981)

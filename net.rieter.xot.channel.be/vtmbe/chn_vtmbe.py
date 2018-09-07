@@ -1,11 +1,11 @@
 # coding=utf-8
 import base64
 import time
-import re
 import datetime
 import uuid
 
 import chn_class
+from helpers.htmlhelper import HtmlHelper
 from logger import Logger
 from mediaitem import MediaItem
 from streams.mpd import Mpd
@@ -42,49 +42,56 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-
-        # setup the urls
         self.__api = None
         self.__sso = None
+
         if self.channelCode == "vtm":
-            self.noImage = "vtmbeimage.jpg"
-            self.mainListUri = "https://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
-            # Uncomment the line below for full JSON listing, but it will contain many empty shows!
-            self.mainListUri = "https://vtm.be/video?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
-            self.baseUrl = "https://vtm.be"
             self.__app = "vtm_watch"
             self.__sso = "vtm-sso"
             self.__apiKey = "vtm-b7sJGrKwMJj0VhdZvqLDFvgkJF5NLjNY"
+            self.baseUrl = "https://vtm.be"
+
+            self.noImage = "vtmbeimage.jpg"
+            self.mainListUri = "https://vtm.be/programmas/az"
+            # Uncomment the line below for full JSON listing, but it will contain many empty shows!
+            # self.mainListUri = "https://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
 
             # setup the main parsing data in case of HTML
-            htmlVideoRegex = '<img[^>]+class="media-object"[^>]+src="(?<thumburl>[^"]+)[^>]*>[\w\W]{0,1000}?<a[^>]+href="/(?<url>[^"]+)"[^>]*>(?<title>[^<]+)'
-            htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
-            self._AddDataParser(
-                "https://vtm.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
-                name="HTML Page Video Parser for VTM",
-                # preprocessor=self.AddMoreRecentVideos,
-                parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
-
             recentRegex = '<a href="/(?<url>[^"]+)"[^>]*>\W+(?:<div[^>]+>\W+)+<img[^>]+src="(?<thumburl>[^"]+)"[^>]+>\W*<span[^>]*>\W*(?<subtitle>[^<]+)[\w\W]{0,300}?(?:<div[^>]+class="item-caption-program"[^>]*>(?<title>[^<]+)</div>\W*)</div>\W*</div>\W*</div>\W*</a'
             # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
             recentRegex = Regexer.FromExpresso(recentRegex)
-            self._AddDataParser(
-                "https://vtm.be/video/volledige-afleveringen/id",
-                matchType=ParserData.MatchExact,
-                name="Recent Items HTML Video Parser",
-                parser=recentRegex,
-                creator=self.CreateVideoItemHtml
-            )
+            self._AddDataParser("https://vtm.be/video/volledige-afleveringen/id",
+                                matchType=ParserData.MatchExact,
+                                name="Recent Items HTML Video Parser",
+                                parser=recentRegex, creator=self.CreateVideoItemHtml)
+
+            episodeRegex = '<li>\s*<a[^>]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>\s*</li>'
+            episodeRegex = Regexer.FromExpresso(episodeRegex)
+            self._AddDataParser("https://vtm.be/programmas/az",
+                                name="New VTM parser",
+                                preprocessor=self.AddLiveChannel,
+                                parser=episodeRegex, creator=self.CreateEpisodeItemHtml)
+
+            clip_regex = '<a[^>]+href="/(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
+            clip_regex = Regexer.FromExpresso(clip_regex)
+            self._AddDataParser("*", name="New Video parser for VTM Clips",
+                                parser=clip_regex, creator=self.CreateVideoItemHtml,
+                                updater=self.UpdateHtmlClipItem)
+
+            self._AddDataParser("*", name="New Video parser for VTM Videos", json=True,
+                                preprocessor=self.ExtractVtmIdFromJson,
+                                parser=("response", "videos"), creator=self.CreateVideoItemJson)
 
         elif self.channelCode == "q2":
+            self.__app = "q2"
+            self.__sso = "q2-sso"
+            self.__apiKey = "q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk"
+            self.baseUrl = "https://www.q2.be"
+
             self.noImage = "q2beimage.jpg"
             self.mainListUri = "https://www.q2.be/feed/programs?format=json&type=all&only_with_video=true"
             # Uncomment the line below for full JSON listing, but it will contain many empty shows!
             self.mainListUri = "https://www.q2.be/video?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
-            self.baseUrl = "https://www.q2.be"
-            self.__app = "q2"
-            self.__sso = "q2-sso"
-            self.__apiKey = "q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk"
 
             htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
@@ -92,6 +99,15 @@ class Channel(chn_class.Channel):
                 "https://www.q2.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
+
+            htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
+            htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
+            self._AddDataParser("sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
+                                matchType=ParserData.MatchEnd,
+                                name="HTML Page Show Parser",
+                                preprocessor=self.AddLiveChannel,
+                                parser=htmlEpisodeRegex,
+                                creator=self.CreateEpisodeItemHtml)
 
         elif self.channelCode == "stievie":
             self.__app = "stievie"
@@ -133,16 +149,6 @@ class Channel(chn_class.Channel):
         else:
             raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
 
-        # generic to all channels
-        htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
-        htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
-        self._AddDataParser("sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
-                            matchType=ParserData.MatchEnd,
-                            name="HTML Page Show Parser",
-                            preprocessor=self.AddLiveChannel,
-                            parser=htmlEpisodeRegex,
-                            creator=self.CreateEpisodeItemHtml)
-
         self._AddDataParser(
             "https://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
             matchType=ParserData.MatchRegex,
@@ -153,7 +159,7 @@ class Channel(chn_class.Channel):
                             name="HTML Page Video Updater New Style (AddMoreRecentVideos)",
                             updater=self.UpdateVideoItem, requiresLogon=True)
 
-        # setup the main parsing data in case of JSON of the V2 API
+        # setup the main parsing data in case of JSON mainlist of the V2 API
         self._AddDataParser("/feed/programs?format=json&type=all&only_with_video=true",
                             matchType=ParserData.MatchEnd,
                             name="JSON Feed Show Parser for Medialaan",
@@ -182,7 +188,6 @@ class Channel(chn_class.Channel):
         self.__signature = None
         self.__signatureTimeStamp = None
         self.__userId = None
-        self.__cleanRegex = re.compile("<[^>]+>")
         self.__adaptiveStreamingAvailable = \
             AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
 
@@ -221,61 +226,10 @@ class Channel(chn_class.Channel):
                 "UEFA Champions League": "256584896142527", "Bones": "256404132799527",
                 "Married with Children": "256576831734527", "Peking Express": "257101660737527"
             },
-            "vtm": {
-                "Chicago Fire": "256496104767527", "Aspe": "256382495645527",
-                "De Kavijaks": "256468337539527", "Alloo bij ...": "256943106645527",
-                "De Zonen van Van As": "256407562265527", "De Uitverkorenen": "257117740269527",
-                "Coppers": "256685693714527", "Chicago Med": "256722572301527",
-                "Altijd Prijs": "256544288119527", "De Vetste Vakantie": "256676855101527",
-                "Alloo en de Liefde": "257343320135527", "EHBL": "256588155275527",
-                "Familie": "256383171504527", "F-16": "257462716033527",
-                "Binnenstebuiten": "256575685561527",
-                "Boer zkt Vrouw - De Wereld Rond": "256402065620527",
-                "Code 37": "256407560206527", "De Bunker": "256587035116527",
-                "De Drone School": "256850916997527", "Connie & Clyde": "256575756117527",
-                "Films": "257521255357751", "Axel Opgelicht": "256544304920527",
-                "Boxing Stars": "257360331594527",
-                "America's Funniest Home Videos": "256547897482527",
-                "De Laatste 24 Uur": "257286190319527", "Cordon": "256407560819527",
-                "Alloo in de Buitenlandse Gevangenis": "256454773025527",
-                "De Wensboom": "256725880042527", "FAROEK": "256575897637527",
-                "Cath\u00e9rine": "256856277380527", "De Avonturen van K3": "256595788573527",
-                "Ella": "256588631982527", "De Funnie Show": "256587019478527",
-                "Cycling Cup": "256778013268527", "Dubbelspel": "256920728612527",
-                "Expeditie Paira Daiza": "256574614075527", "Allemaal Chris": "256936077540527",
-                "Baas in Huis": "256463013040527", "De Keuken van Sofie": "256382503977527",
-                "Dossier X": "257353252590527", "De Gouden Schoen": "257093076727000",
-                "Brandweerman Sam": "256475467798527", "Blind Getrouwd": "256589828137527",
-                "Clan": "256407588081527", "De Waarzeggers": "256431811242527",
-                "Alloo bij de Lokale Politie ": "256544207094527",
-                "All Saints ": "256468326509527",
-                "Dynamo: Magician Impossible": "256676855209527",
-                "Alloo bij de Wegpolitie": "256676855317527",
-                "De Buurtpolitie": "256403648640527", "Amigo's": "256544290999527",
-                "David": "256586890385527", "De Kroongetuigen": "256407561421527",
-                "Alloo in de Nacht": "257124109905527", "Border Security": "256472727848527",
-                "Alloo in de Psychiatrie": "256544231522527",
-                "Danni Lowinski": "256404119004527", "Dansdate": "256365178468527",
-                "De Disco Dans Show": "256798376480527",
-                "2 Meisjes op het Strand": "256899660339527", "De 25": "256454876662527",
-                "2 Sterren Restaurant": "257381262541527",
-                "Belgium's Got Talent": "256462951774527", "De Kotmadam": "256403656559527",
-                "BK Sumo 2016": "256577054292527", "Beat da Bompaz": "256433651880527",
-                "Cr\u00e8me de la Cr\u00e8me": "256407561270527",
-                "Beste Kijkers": "256407593035527", "Benidorm Bastards USA": "256472726922527",
-                "Benidorm Bastards": "256575677508527", "De Kliniek": "256547901203527",
-                "De Rodenburgs": "256407561643527", "Deze Is Voor Jou": "256728833164527",
-                "De Parenclub": "256106233009527", "Alloo bij Jambers": "256595573889527",
-                "Bones": "256404132799527", "Echte Mensen: Nieuw Leven": "257111624211527",
-                "De Infiltrant": "257357594695527", "Amateurs": "256403567370527",
-                "Comedy Toppers": "256403657663527"
-            }
+            "vtm": {}
         }
 
         self.SetCookie()
-
-        # ===============================================================================================================
-        # Test cases:
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -327,6 +281,7 @@ class Channel(chn_class.Channel):
         logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
         return self.__ExtractSessionData(logonData, signatureSettings)
 
+    # region Stievie listings/menus
     def StievieMenu(self, data):
         """ Creates the main Stievie menu """
 
@@ -481,6 +436,7 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         item.thumb = self.__FindImage(resultSet,  self.noImage)
         return item
+    # endregion
 
     def SearchSite(self, url=None):  # @UnusedVariable
         """Creates an list of items by searching the site
@@ -557,7 +513,7 @@ class Channel(chn_class.Channel):
         if item.description:
             # Clean HTML
             item.description = item.description.replace("<br />", "\n\n")
-            item.description = self.__cleanRegex.sub("", item.description)
+            item.description = HtmlHelper.ToText(item.description)
 
         if 'images' in resultSet and 'image' in resultSet['images']:
             item.thumb = resultSet['images']['image'].get('full', self.noImage)
@@ -591,6 +547,15 @@ class Channel(chn_class.Channel):
             items.append(item)
 
         return json, items
+
+    def ExtractVtmIdFromJson(self, data):
+        showId = Regexer.DoRegex('\["(\d{15})"', data)[0]
+        url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
+              "&apikey=%s" \
+              "&sort=broadcastDate&sortDirection=desc" \
+              "&programIds=%s" % (self.__apiKey, showId)
+        data = UriHandler.Open(url, proxy=self.proxy)
+        return data, []
 
     def CreateVideoItemJson(self, resultSet):
         Logger.Trace(resultSet)
@@ -854,6 +819,21 @@ class Channel(chn_class.Channel):
             item.complete = True
         else:
             Logger.Error("Cannot play live-stream without encryption support.")
+        return item
+
+    def UpdateHtmlClipItem(self, item):
+        data = UriHandler.Open(item.url)
+        jsonData = Regexer.DoRegex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
+        jsonData = JsonHelper(jsonData[-1])
+        videoInfo = jsonData.GetValue('medialaan_player',)
+        videoConfig = videoInfo[videoInfo.keys()[-1]]['videoConfig']['video']
+        streams = videoConfig['formats']
+        for stream in streams:
+            streamUrl = stream['url']
+            if stream['type'] == "mp4":
+                item.AppendSingleStream(streamUrl, 0)
+                item.complete = True
+
         return item
 
     def __FindImage(self, resultSet, fallback=None):
