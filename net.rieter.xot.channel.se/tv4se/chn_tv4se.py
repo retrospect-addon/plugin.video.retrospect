@@ -500,7 +500,7 @@ class Channel(chn_class.Channel):
             item.description = item.name
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
-        date = resultSet["published_date_time"]
+        date = resultSet["broadcast_date_time"]
         (datePart, timePart) = date.split("T")
         (year, month, day) = datePart.split("-")
         (hour, minutes, rest1, zone) = timePart.split(":")

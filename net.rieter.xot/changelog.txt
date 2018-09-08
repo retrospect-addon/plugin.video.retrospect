@@ -1,12 +1,10 @@
-﻿[B]Retrospect v4.1.7~beta13 - Changelog - 2018-09-08[/B]
+[B]Retrospect v4.1.7~beta14 - Changelog - 2018-09-08[/B]
 
 [B]Framework related[/B]
-* Fixed: better checks for POST vs GET Bas Rieter 8-9-2018 01:15
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Single video items were not parsed for VRT.nu (Fixes #1002)
-* Fixed: VTM.be updated their site (Fixes #1003)
-* Updated: Belgium logo's and images (See #1005)
+* Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
