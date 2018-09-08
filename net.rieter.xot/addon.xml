@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="net.rieter.xot"
-        version="4.1.7~beta14"
+        version="4.1.7~beta15"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -108,15 +108,18 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v4.1.7~beta14 - Changelog - 2018-09-08[/B]
+        <news>[B]Retrospect v4.1.7~beta15 - Changelog - 2018-09-09[/B]
 
 [B]Framework related[/B]
--
+Added: Decimal license key support for Widevine and the Adaptive Stream add-on
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)</news>
+* Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
+* Added: new login to VRT.nu and DRM support (Fixes #1002)
+
+</news>
     </extension>
 </addon>
