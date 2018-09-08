@@ -391,7 +391,7 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(resultSet)
         url = self.parentItem.url
         title = jsonData.GetValue("name")
-        description = HtmlHelper.ToText(jsonData.GetValue("description"))
+        description = HtmlHelper.to_text(jsonData.GetValue("description"))
         item = mediaitem.MediaItem(title, url, type="video")
         item.description = description
         item.thumb = self.parentItem.thumb
