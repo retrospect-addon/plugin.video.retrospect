@@ -1,10 +1,12 @@
-[B]Retrospect v4.1.7~beta14 - Changelog - 2018-09-08[/B]
+[B]Retrospect v4.1.7~beta15 - Changelog - 2018-09-09[/B]
 
 [B]Framework related[/B]
--
+Added: Decimal license key support for Widevine and the Adaptive Stream add-on
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
 * Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
+* Added: new login to VRT.nu and DRM support (Fixes #1002)
+

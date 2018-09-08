@@ -1,6 +1,8 @@
+import datetime
+
 import chn_class
 import mediaitem
-from addonsettings import AddonSettings, LOCAL
+from addonsettings import AddonSettings
 from helpers.htmlhelper import HtmlHelper
 from regexer import Regexer
 from parserdata import ParserData
@@ -113,11 +115,6 @@ class Channel(chn_class.Channel):
         self.__hasAlreadyVideoItems = False
         self.__currentChannel = None
 
-        self.__SIGNATURE_SETTING_ID = "gigya_signature"
-        self.__signature = None
-        self.__signatureTimeStamp = None
-        self.__userId = None
-
         # The key is the channel live stream key
         self.__channelData = {
             "vualto_mnm": {
@@ -187,26 +184,29 @@ class Channel(chn_class.Channel):
 
     def LogOn(self):
         apiKey = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
-        signatureSetting = AddonSettings.GetChannelSetting(self, self.__SIGNATURE_SETTING_ID, store=LOCAL)
 
-        # Do we still have a valid token? If so, try to extend the session. We need the
-        # original UIDSignature value for that. The X-VRT-Token and all other related cookies
-        # are valid for a same period.
-        tokenCookie = UriHandler.GetCookie("X-VRT-Token", ".vrt.be")
-        if tokenCookie is not None:
+        # Do we still have a valid short living token (1 hour)? If so, we have an active session.
+        shortLoginCookie = UriHandler.GetCookie("X-VRT-Token", ".vrt.be")
+        if shortLoginCookie is not None:
+            # The old X-VRT-Token expired after 1 year. We don't want that old cookie
+            shortLoginCookieCanLiveTooLong = DateHelper.GetDateFromPosix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
+            if not shortLoginCookieCanLiveTooLong:
+                Logger.Debug("Using existing VRT.be session.")
+                return True
+
+        # Do we still have a valid long living token? If so, try to extend the session. We need the
+        # original UIDSignature value for that. The 'vrtlogin-rt' and all other related cookies
+        # are valid for a same period (1 year).
+        longLoginCookie = UriHandler.GetCookie("vrtlogin-rt", ".vrt.be")
+        if longLoginCookie is not None:
             # if we stored a valid user signature, we can use it, together with the 'gmid' and
             # 'ucid' cookies to extend the session and get new token data
-            if signatureSetting and "|" not in signatureSetting:
-                url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
-                data = "APIKey=%s" \
-                       "&sdk=js_7.4.30" \
-                       "&login_token=%s" % (apiKey, signatureSetting,)
-                logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-                if self.__ExtractSessionData(logonData):
-                    Logger.Debug("Gigya.com session extended.")
-                    return True
+            data = UriHandler.Open("https://token.vrt.be/refreshtoken", proxy=self.proxy)
+            if "vrtnutoken" in data:
+                Logger.Debug("Refreshed the VRT.be session.")
+                return True
 
-        Logger.Warning("Failed to extend the gigya.com session.")
+        Logger.Warning("Failed to extend the VRT.be session.")
         username = self._GetSetting("username")
         if not username:
             return None
@@ -218,30 +218,41 @@ class Channel(chn_class.Channel):
 
         # Get a 'gmid' and 'ucid' cookie by logging in. Valid for 10 years
         Logger.Debug("Using: %s / %s", username, "*" * len(password))
-        url = "https://accounts.eu1.gigya.com/accounts.login"
-        data = "loginID=%s" \
-               "&password=%s" \
-               "&targetEnv=jssdk" \
-               "&APIKey=%s" \
-               "&includeSSOToken=true" \
-               "&authMode=cookie" % \
-               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password), apiKey)
-
-        logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-        if not self.__ExtractSessionData(logonData):
+        url = "https://accounts.vrt.be/accounts.login"
+        data = {
+            "loginID": username,
+            "password": password,
+            "sessionExpiration": "-1",
+            "targetEnv": "jssdk",
+            "include": "profile,data,emails,subscriptions,preferences,",
+            "includeUserInfo": "true",
+            "loginMode": "standard",
+            "lang": "nl-inf",
+            "APIKey": apiKey,
+            "source": "showScreenSet",
+            "sdk": "js_latest",
+            "authMode": "cookie",
+            "format": "json"
+        }
+        logonData = UriHandler.Open(url, data=data, proxy=self.proxy)
+        userId, signature, signatureTimeStamp = self.__ExtractSessionData(logonData)
+        if userId is None or signature is None or signatureTimeStamp is None:
             return False
 
-        # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 year
-        url = "https://token.vrt.be/"
-        tokenData = '{"uid": "%s", ' \
-                    '"uidsig": "%s", ' \
-                    '"ts": "%s", ' \
-                    '"fn": "VRT", "ln": "NU", ' \
-                    '"email": "%s"}' % (self.__userId, self.__signature,
-                                        self.__signatureTimeStamp, username)
+        # We need to initialize the token retrieval which will redirect to the actual token
+        UriHandler.Open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
+                        proxy=self.proxy)
 
-        headers = {"Content-Type": "application/json", "Referer": "https://www.vrt.be/vrtnu/"}
-        UriHandler.Open(url, params=tokenData, proxy=self.proxy, additionalHeaders=headers)
+        # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 hour. So we call the actual
+        # perform_login url which will redirect and get cookies.
+        tokenData = {
+            "UID": userId,
+            "UIDSignature": signature,
+            "signatureTimestamp": signatureTimeStamp,
+            "client_id": "vrtnu-site",
+            "submit": "submit"
+        }
+        UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData)
         return True
 
     def AddCategories(self, data):
@@ -425,108 +436,83 @@ class Channel(chn_class.Channel):
         mzid = secureData.GetValue(secureData.json.keys()[0], "videoid")
 
         # region New URL retrieval with DRM protection
-        # # We need more cookies from VRT specific
-        # UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy,
-        #                 data={"UID": self.__userId,
-        #                       "UIDSignature": self.__signature,
-        #                       "signatureTimestamp": self.__signatureTimeStamp,
-        #                       "client_id": "vrtnu-site", "submit": "submit"})
-        #
-        # # And a player token
-        # tokenData = UriHandler.Open("https://media-services-public.vrt.be/"
-        #                             "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
-        #                             additionalHeaders={"Content-Type": "application/json"})
-        #
-        # token = JsonHelper(tokenData).GetValue("vrtPlayerToken")
-        #
-        # assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
-        #            "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
-        #     .format(HtmlEntityHelper.UrlEncode(mzid), HtmlEntityHelper.UrlEncode(token))
-        # assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
-        # assetData = JsonHelper(assetData)
-        #
-        # drmKey = assetData.GetValue("drm")
-        # drmProtected = drmKey is not None
-        # adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=drmProtected)
-        # part = item.CreateNewEmptyMediaPart()
-        # for targetUrl in assetData.GetValue("targetUrls"):
-        #     videoType = targetUrl["type"]
-        #     videoUrl = targetUrl["url"]
-        #
-        #     if videoType == "hls" and adaptiveAvailable:
-        #         stream = part.AppendMediaStream(videoUrl, 0)
-        #         if not drmProtected:
-        #             M3u8.SetInputStreamAddonInput(stream, self.proxy)
-        #         else:
-        #             Logger.Error("Encryption not yet implemented")
-        #
-        #     elif videoType == "hls":
-        #         # Extract the subtitle
-        #         pass
-        #
-        #     elif videoType == "mpeg_dash" and adaptiveAvailable:
-        #         stream = part.AppendMediaStream(videoUrl, 1)
-        #         if not drmProtected:
-        #             Mpd.SetInputStreamAddonInput(stream, self.proxy)
-        #         else:
-        #             Logger.Error("Encryption not yet implemented")
-        #
-        #     item.complete = True
-        # endregion
+        # We need a player token
+        tokenData = UriHandler.Open("https://media-services-public.vrt.be/"
+                                    "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
+                                    additionalHeaders={"Content-Type": "application/json"})
 
-        assetUrl = "https://mediazone.vrt.be/api/v1/vrtvideo/assets/%s" % (mzid, )
-        data = UriHandler.Open(assetUrl, proxy=self.proxy)
-        assetData = JsonHelper(data, logger=Logger.Instance())
+        token = JsonHelper(tokenData).GetValue("vrtPlayerToken")
 
-        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
+        assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
+                   "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
+            .format(HtmlEntityHelper.UrlEncode(mzid), HtmlEntityHelper.UrlEncode(token))
+        assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
+        assetData = JsonHelper(assetData)
 
+        drmKey = assetData.GetValue("drm")
+        drmProtected = drmKey is not None
+        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=drmProtected)
         part = item.CreateNewEmptyMediaPart()
-        for streamData in assetData.GetValue("targetUrls"):
-            url = streamData["url"]
-            if url.startswith("https://ondemand-"):
-                # replace the ondemand-.....vrtcdn.be host with generic the akamized ones
-                url = "%s/%s" % ("https://ondemand-vrt.akamaized.net", url.split("/", 3)[-1])
+        srt = None
+        for targetUrl in assetData.GetValue("targetUrls"):
+            videoType = targetUrl["type"]
+            videoUrl = targetUrl["url"]
 
-            if url.startswith("https://remix.aka.vrtcdn.be/"):
-                # apparently the remix.aka.vrtcdn.be if a fake
-                url = url.replace("https://remix.aka.vrtcdn.be/", "https://remix-vrt.akamaized.net/")
+            if videoType == "hls_aes" and drmProtected and adaptiveAvailable:
+                # no difference in encrypted or not.
+                Logger.Debug("Found HLS AES encrypted stream and a DRM key")
+                stream = part.AppendMediaStream(videoUrl, 0)
+                M3u8.SetInputStreamAddonInput(stream, self.proxy)
 
-            if adaptiveAvailable:
-                if not AddonSettings.IsMinVersion(18) and streamData["type"] == "HLS":
-                    # Get the subs from HLS
-                    Logger.Debug("Using subs from HLS for Kodi <18")
-                    srt = M3u8.GetSubtitle(url, proxy=self.proxy)
-                    if srt:
-                        srt = srt.replace(".m3u8", ".vtt")
-                        part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+            elif videoType == "hls" and not drmProtected:
+                # no difference in encrypted or not.
+                if adaptiveAvailable:
+                    Logger.Debug("Found standard HLS stream and without DRM protection")
+                    stream = part.AppendMediaStream(videoUrl, 0)
+                    M3u8.SetInputStreamAddonInput(stream, self.proxy)
+                else:
+                    m3u8Data = UriHandler.Open(videoUrl, self.proxy)
+                    for s, b, a in M3u8.GetStreamsFromM3u8(videoUrl, self.proxy,
+                                                           playListData=m3u8Data, mapAudio=True):
+                        item.complete = True
+                        if a:
+                            audioPart = a.rsplit("-", 1)[-1]
+                            audioPart = "-%s" % (audioPart, )
+                            s = s.replace(".m3u8", audioPart)
+                        part.AppendMediaStream(s, b)
 
-                if streamData["type"] != "MPEG_DASH":
-                    continue
+                    srt = M3u8.GetSubtitle(videoUrl, playListData=m3u8Data, proxy=self.proxy)
+                    if not srt:
+                        continue
 
-                stream = part.AppendMediaStream(url, 0)
-                Mpd.SetInputStreamAddonInput(stream, self.proxy)
-                item.complete = True
+                    srt = srt.replace(".m3u8", ".vtt")
+                    part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
 
-            if streamData["type"] != "HLS":
-                continue
+            elif videoType == "mpeg_dash" and adaptiveAvailable:
+                if not drmProtected:
+                    Logger.Debug("Found standard MPD stream and without DRM protection")
+                    stream = part.AppendMediaStream(videoUrl, 1)
+                    Mpd.SetInputStreamAddonInput(stream, self.proxy)
+                else:
+                    stream = part.AppendMediaStream(videoUrl, 1)
+                    encryptionJson = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'\
+                        .format(drmKey)
+                    encryptionKey = Mpd.GetLicenseKey(
+                        keyUrl="https://widevine-proxy.drm.technology/proxy",
+                        keyType="D",
+                        keyValue=encryptionJson,
+                        keyHeaders={"Content-Type": "text/plain;charset=UTF-8"}
+                    )
+                    Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=encryptionKey)
 
-            m3u8Data = UriHandler.Open(url, self.proxy)
-            for s, b, a in \
-                    M3u8.GetStreamsFromM3u8(url, self.proxy, playListData=m3u8Data, mapAudio=True):
-                item.complete = True
-                if a:
-                    audioPart = a.rsplit("-", 1)[-1]
-                    audioPart = "-%s" % (audioPart, )
-                    s = s.replace(".m3u8", audioPart)
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+            if videoType.startswith("hls") and srt is None:
+                srt = M3u8.GetSubtitle(videoUrl, proxy=self.proxy)
+                if srt:
+                    srt = srt.replace(".m3u8", ".vtt")
+                    part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
 
-            srt = M3u8.GetSubtitle(url, playListData=m3u8Data, proxy=self.proxy)
-            if not srt:
-                continue
-
-            srt = srt.replace(".m3u8", ".vtt")
-            part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+            item.complete = True
+        # endregion
         return item
 
     def __ExtractSessionData(self, logonData):
@@ -535,16 +521,8 @@ class Channel(chn_class.Channel):
         if resultCode != 200:
             Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
                          logonJson.GetValue("errorDetails"))
-            return False
+            return None, None, None
 
-        signatureSetting = logonJson.GetValue("sessionInfo", "login_token")
-        if signatureSetting:
-            Logger.Info("Found 'login_token'. Saving it.")
-            AddonSettings.SetChannelSetting(self, self.__SIGNATURE_SETTING_ID,
-                                            signatureSetting.split("|")[0], store=LOCAL)
-
-        self.__signature = logonJson.GetValue("UIDSignature")
-        self.__userId = logonJson.GetValue("UID")
-        self.__signatureTimeStamp = logonJson.GetValue("signatureTimestamp")
-
-        return True
+        return logonJson.GetValue("UID"), \
+            logonJson.GetValue("UIDSignature"), \
+            logonJson.GetValue("signatureTimestamp")
