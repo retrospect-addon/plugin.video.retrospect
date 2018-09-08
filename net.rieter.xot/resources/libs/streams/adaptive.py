@@ -17,18 +17,46 @@ class Adaptive:
         pass
 
     @staticmethod
-    def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None):
+    def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None, keyValue=None):
+        """ Generates a propery license key value
 
         # A{SSM} -> not implemented
-        # R{SSM} -> raw
-        # B{SSM} -> base64
+        # R{SSM} -> raw format
+        # B{SSM} -> base64 format
+        # D{SSM} -> decimal format
+
+        The generic format for a LicenseKey is:
+        |<url>|<headers>|<key with placeholders|
+
+        The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
+
+        @type keyUrl: str
+        @param keyUrl: the URL where the license key can be obtained
+
+        @type keyType: str
+        @param keyType: the key type (A, R, B or D)
+
+        @type keyHeaders: dict
+        @param keyHeaders: A dictionary that contains the HTTP headers to pass
+
+        @type keyValue: str
+        @param keyValue: i
+        @return:
+        """
 
         header = ""
         if keyHeaders:
             for k, v in list(keyHeaders.items()):
                 header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.UrlEncode(v))
 
-        return "{0}|{1}|{2}{{SSM}}|".format(keyUrl, header.strip("&"), keyType)
+        if keyType in ("A", "R", "B"):
+            keyValue = "{0}{{SSM}}".format(keyType)
+        elif keyType == "D":
+            if "D{SSM}" not in keyValue:
+                raise ValueError("Missing D{SSM} placeholder")
+            keyValue = HtmlEntityHelper.UrlEncode(keyValue)
+
+        return "{0}|{1}|{2}|".format(keyUrl, header.strip("&"), keyValue)
 
     @staticmethod
     def SetInputStreamAddonInput(strm, proxy=None, headers=None, addon="inputstream.adaptive",
