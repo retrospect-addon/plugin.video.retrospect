@@ -30,7 +30,7 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         if self.channelCode == "redactie":
-            self.noImage = "redactieimage.png"
+            self.noImage = "redactieimage.jpg"
             self.mainListUri = "http://deredactie.be/cm/vrtnieuws/videozone"
             self.baseUrl = "http://deredactie.be"
 

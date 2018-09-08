@@ -1,6 +1,7 @@
 ﻿[B]Changelog[/B]
 * Fixed: Single video items were not parsed for VRT.nu (Fixes #1002)
 * Fixed: VTM.be updated their site (Fixes #1003)
+* Updated: Belgium logo's and images (See #1005)
 
 [I]Previous Changes[/I]
 * Fixed: Vier & Vijf.be had no videos (Fixes #992)

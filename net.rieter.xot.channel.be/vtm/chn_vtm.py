@@ -24,7 +24,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.noImage = "vtmimage.png"
+        self.noImage = "vtmimage.jpg"
 
         # setup the urls
         self.mainListUri = "http://nieuws.vtm.be/herbekijk"

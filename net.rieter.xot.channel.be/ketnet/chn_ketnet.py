@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
 
         if self.channelCode == "ketnet":
-            self.noImage = "ketnetimage.png"
+            self.noImage = "ketnetimage.jpg"
             self.mainListUri = "https://www.ketnet.be/kijken"
             self.baseUrl = "https://www.ketnet.be"
             self.mediaUrlRegex = 'playerConfig\W*=\W*(\{[\w\W]{0,2000}?);.vamp'

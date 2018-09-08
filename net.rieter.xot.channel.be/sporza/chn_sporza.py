@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         if self.channelCode == "sporza":
-            self.noImage = "sporzaimage.png"
+            self.noImage = "sporzaimage.jpg"
             self.mainListUri = "http://sporza.be/cm/sporza/videozone"
             self.baseUrl = "http://sporza.be"
         else:
