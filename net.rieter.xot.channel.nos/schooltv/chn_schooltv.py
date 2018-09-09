@@ -188,7 +188,7 @@ class Channel(chn_class.Channel):
         sizeValue = json.get_value("size")
 
         if fromValue + sizeValue < totalResults:
-            morePages = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            morePages = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             url = self.parentItem.url.split('?')[0]
             url = "%s?size=%s&from=%s&sort=Nieuwste" % (url, sizeValue, fromValue+sizeValue)
             Logger.Debug("Adding next-page item from %s to %s", fromValue+sizeValue, fromValue+sizeValue+sizeValue)

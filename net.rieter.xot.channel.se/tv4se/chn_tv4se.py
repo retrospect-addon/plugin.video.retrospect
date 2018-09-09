@@ -137,7 +137,7 @@ class Channel(chn_class.Channel):
     #         if not password:
     #             XbmcWrapper.ShowDialog(
     #                 title=None,
-    #                 lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+    #                 lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
     #                 # notificationType=XbmcWrapper.Error,
     #                 # displayTime=5000
     #             )
@@ -418,7 +418,7 @@ class Channel(chn_class.Channel):
 
             url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&" \
                   "type=clip&page=1&node_nids=%s&start=0" % (self.maxPageSize, catId,)
-            clipsTitle = LanguageHelper.GetLocalizedString(LanguageHelper.Clips)
+            clipsTitle = LanguageHelper.get_localized_string(LanguageHelper.Clips)
             clips = mediaitem.MediaItem(clipsTitle, url)
             clips.icon = self.icon
             clips.thumb = self.noImage
@@ -430,7 +430,7 @@ class Channel(chn_class.Channel):
         Logger.Debug("Found total of %s items. Only showing %s.", totalItems, self.maxPageSize)
         if totalItems > self.maxPageSize and "&page=1&" in self.parentItem.url:
             # create a group item
-            moreTitle = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            moreTitle = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             more = mediaitem.MediaItem(moreTitle, "")
             more.icon = self.icon
             more.thumb = self.noImage

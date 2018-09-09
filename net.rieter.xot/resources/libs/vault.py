@@ -73,22 +73,22 @@ class Vault:
         # Now we get a new PIN and (re)encrypt
 
         pin = XbmcWrapper.ShowKeyBoard(
-            heading=LanguageHelper.GetLocalizedString(LanguageHelper.VaultNewPin),
+            heading=LanguageHelper.get_localized_string(LanguageHelper.VaultNewPin),
             hidden=True)
         if not pin:
             XbmcWrapper.ShowNotification(
-                "", LanguageHelper.GetLocalizedString(LanguageHelper.VaultNoPin),
+                "", LanguageHelper.get_localized_string(LanguageHelper.VaultNoPin),
                 XbmcWrapper.Error)
             return False
 
         pin2 = XbmcWrapper.ShowKeyBoard(
-            heading=LanguageHelper.GetLocalizedString(LanguageHelper.VaultRepeatPin),
+            heading=LanguageHelper.get_localized_string(LanguageHelper.VaultRepeatPin),
             hidden=True)
         if pin != pin2:
             Logger.Critical("Mismatch in PINs")
             XbmcWrapper.ShowNotification(
                 "",
-                LanguageHelper.GetLocalizedString(LanguageHelper.VaultPinsDontMatch),
+                LanguageHelper.get_localized_string(LanguageHelper.VaultPinsDontMatch),
                 XbmcWrapper.Error)
             return False
 
@@ -108,8 +108,8 @@ class Vault:
 
         """
 
-        ok = XbmcWrapper.ShowYesNo(LanguageHelper.GetLocalizedString(LanguageHelper.VaultReset),
-                                   LanguageHelper.GetLocalizedString(LanguageHelper.VaultResetConfirm))
+        ok = XbmcWrapper.ShowYesNo(LanguageHelper.get_localized_string(LanguageHelper.VaultReset),
+                                   LanguageHelper.get_localized_string(LanguageHelper.VaultResetConfirm))
         if not ok:
             Logger.Debug("Aborting Reset Vault")
             return
@@ -175,7 +175,7 @@ class Vault:
         Logger.Info("Encrypting value for setting '%s'", settingId)
         inputValue = XbmcWrapper.ShowKeyBoard(
             "",
-            LanguageHelper.GetLocalizedString(LanguageHelper.VaultSpecifySetting) % (settingName or settingId, ))
+            LanguageHelper.get_localized_string(LanguageHelper.VaultSpecifySetting) % (settingName or settingId,))
 
         if inputValue is None:
             Logger.Debug("Setting of encrypted value cancelled.")
@@ -216,9 +216,9 @@ class Vault:
         if applicationKeyEncrypted == "" or applicationKeyEncrypted is None:
             return None
 
-        vaultIncorrectPin = LanguageHelper.GetLocalizedString(LanguageHelper.VaultIncorrectPin)
+        vaultIncorrectPin = LanguageHelper.get_localized_string(LanguageHelper.VaultIncorrectPin)
         pin = XbmcWrapper.ShowKeyBoard(
-            heading=LanguageHelper.GetLocalizedString(LanguageHelper.VaultInputPin),
+            heading=LanguageHelper.get_localized_string(LanguageHelper.VaultInputPin),
             hidden=True)
         if not pin:
             XbmcWrapper.ShowNotification("", vaultIncorrectPin, XbmcWrapper.Error)

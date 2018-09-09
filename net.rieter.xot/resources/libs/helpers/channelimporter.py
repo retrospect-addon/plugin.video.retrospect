@@ -204,8 +204,8 @@ class ChannelIndex:
 
                 if not channels_updated:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
-                    title = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)
-                    text = LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelText)
+                    title = LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)
+                    text = LanguageHelper.get_localized_string(LanguageHelper.InitChannelText)
                     XbmcWrapper.ShowNotification(title, text, displayTime=15000, logger=Logger.Instance())
                 channels_updated |= True
 
@@ -589,7 +589,7 @@ class ChannelIndex:
                 Logger.Info("Showing first time message '%s' for channel chn_%s.",
                             channel_info.firstTimeMessage, channel_info.moduleName)
 
-                title = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelMessageId)
+                title = LanguageHelper.get_localized_string(LanguageHelper.ChannelMessageId)
                 XbmcWrapper.ShowDialog(title, channel_info.firstTimeMessage.split("|"))
             else:
                 Logger.Debug("Not showing first time message due to add-on setting set to '%s'.",

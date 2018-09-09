@@ -287,7 +287,7 @@ class Channel(chn_class.Channel):
         live.isLive = True
         items.append(live)
 
-        channelText = LanguageHelper.GetLocalizedString(30010)
+        channelText = LanguageHelper.get_localized_string(30010)
         channels = mediaitem.MediaItem(".: %s :." % (channelText, ), "#channels")
         channels.fanart = self.fanart
         channels.thumb = self.noImage

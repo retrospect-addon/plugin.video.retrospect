@@ -200,13 +200,13 @@ class Channel(chn_class.Channel):
             # https://api.kijk.nl/v1/default/sections/missed-all-20180619
             url = "https://api.kijk.nl/v1/default/sections/missed-all-{0}{1:02d}{2:02d}".format(date.year, date.month, date.day)
             if i == 0:
-                # title = LanguageHelper.GetLocalizedString(LanguageHelper.Today)
+                # title = LanguageHelper.get_localized_string(LanguageHelper.Today)
                 title = "Vandaag"
             elif i == 1:
-                # title = LanguageHelper.GetLocalizedString(LanguageHelper.Yesterday)
+                # title = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
                 title = "Gisteren"
             elif i == 2:
-                # title = LanguageHelper.GetLocalizedString(LanguageHelper.DayBeforeYesterday)
+                # title = LanguageHelper.get_localized_string(LanguageHelper.DayBeforeYesterday)
                 title = "Eergisteren"
             else:
                 day_name = days[date.weekday()]

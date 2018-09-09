@@ -133,7 +133,7 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(resultSet)
 
-        resultSet["title"] = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        resultSet["title"] = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         return chn_class.Channel.CreateFolderItem(self, resultSet)
 
     def UpdateVideoItem(self, item):

@@ -277,7 +277,7 @@ class Channel(chn_class.Channel):
         if not username or not password:
             XbmcWrapper.ShowDialog(
                 title=None,
-                lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+                lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
                 # notificationType=XbmcWrapper.Error,
                 # displayTime=5000
             )
@@ -581,7 +581,7 @@ class Channel(chn_class.Channel):
                   "&programIds=%s" % (newOffset, self.__apiKey, seriesId,)
 
             # url = "https://vod.medialaan.io/api/1.0/list?app_id=%s&parentSeriesOID=%s&offset=%s" % (self.__app, seriesId, newOffset)
-            more = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             item = MediaItem(more, url)
             item.thumb = self.noImage
             item.icon = self.icon

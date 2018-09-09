@@ -91,14 +91,14 @@ class Plugin(ParameterParser):
             envCtrl.DirectoryPrinter(Config, AddonSettings)
 
             # show notification
-            XbmcWrapper.ShowNotification(None, LanguageHelper.GetLocalizedString(LanguageHelper.StartingAddonId) % (
+            XbmcWrapper.ShowNotification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
             up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.Instance())
             if up.IsNewVersionAvailable():
                 Logger.Info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
-                notification = LanguageHelper.GetLocalizedString(LanguageHelper.NewVersion2Id)
+                notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
                 notification = notification % (Config.appName, up.onlineVersion)
                 XbmcWrapper.ShowNotification(None, lines=notification, displayTime=20000)
 
@@ -210,8 +210,8 @@ class Plugin(ParameterParser):
 
                     # do this here to not close the busy dialog on the SetProxy when
                     # a confirm box is shown
-                    title = LanguageHelper.GetLocalizedString(LanguageHelper.ProxyChangeConfirmTitle)
-                    content = LanguageHelper.GetLocalizedString(LanguageHelper.ProxyChangeConfirm)
+                    title = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirmTitle)
+                    content = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirm)
                     if not XbmcWrapper.ShowYesNo(title, content):
                         Logger.Warning("Stopping proxy update due to user intervention")
                         return
@@ -279,7 +279,7 @@ class Plugin(ParameterParser):
         icon = os.path.join(Config.rootDir, "icon.png")
         fanart = os.path.join(Config.rootDir, "fanart.jpg")
         for category in categories:
-            name = LanguageHelper.GetLocalizedCategory(category)
+            name = LanguageHelper.get_localized_category(category)
             xbmcItem = xbmcgui.ListItem(name, name)
 
             # set art
@@ -466,8 +466,8 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:
             Statistics.RegisterError(self.channelObject)
-            XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
-                                         LanguageHelper.GetLocalizedString(LanguageHelper.ErrorList),
+            XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                         LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                                          XbmcWrapper.Error, 4000)
             Logger.Error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
@@ -485,13 +485,13 @@ class Plugin(ParameterParser):
             if (item.isDrmProtected or item.isPaid) and AddonSettings.ShowDrmPaidWarning():
                 if item.isDrmProtected:
                     Logger.Debug("Showing DRM Warning message")
-                    title = LanguageHelper.GetLocalizedString(LanguageHelper.DrmTitle)
-                    message = LanguageHelper.GetLocalizedString(LanguageHelper.DrmText)
+                    title = LanguageHelper.get_localized_string(LanguageHelper.DrmTitle)
+                    message = LanguageHelper.get_localized_string(LanguageHelper.DrmText)
                     XbmcWrapper.ShowDialog(title, message)
                 elif item.isPaid:
                     Logger.Debug("Showing Paid Warning message")
-                    title = LanguageHelper.GetLocalizedString(LanguageHelper.PaidTitle)
-                    message = LanguageHelper.GetLocalizedString(LanguageHelper.PaidText)
+                    title = LanguageHelper.get_localized_string(LanguageHelper.PaidTitle)
+                    message = LanguageHelper.get_localized_string(LanguageHelper.PaidText)
                     XbmcWrapper.ShowDialog(title, message)
 
             if not item.complete:
@@ -504,8 +504,8 @@ class Plugin(ParameterParser):
 
             if not item.HasMediaItemParts():
                 # the update failed or no items where found. Don't play
-                XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
-                                             LanguageHelper.GetLocalizedString(LanguageHelper.NoStreamsId),
+                XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                             LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
                                              XbmcWrapper.Error)
                 Logger.Warning("Could not start playback due to missing streams. Item:\n%s", item)
                 return
@@ -556,8 +556,8 @@ class Plugin(ParameterParser):
             else:
                 Statistics.RegisterError(self.channelObject)
 
-            XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
-                                         LanguageHelper.GetLocalizedString(LanguageHelper.NoPlaybackId),
+            XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                         LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
                                          XbmcWrapper.Error)
             Logger.Critical("Could not playback the url", exc_info=True)
 
@@ -598,13 +598,13 @@ class Plugin(ParameterParser):
                 # show a blocking or background progress bar
                 if texturesToRetrieve > 4:
                     w = XbmcDialogProgressWrapper(
-                        "%s: %s" % (Config.appName, LanguageHelper.GetLocalizedString(LanguageHelper.InitChannelTitle)),
-                        LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesTitle),
+                        "%s: %s" % (Config.appName, LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)),
+                        LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle),
                         # Config.TextureUrl
                     )
                 else:
                     w = XbmcDialogProgressBgWrapper(
-                        "%s: %s" % (Config.appName, LanguageHelper.GetLocalizedString(LanguageHelper.FetchTexturesTitle)),
+                        "%s: %s" % (Config.appName, LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle)),
                         Config.TextureUrl
                     )
 
@@ -752,9 +752,9 @@ class Plugin(ParameterParser):
             Statistics.RegisterError(self.channelObject)
 
         if favs:
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.NoFavsId)
+            title = LanguageHelper.get_localized_string(LanguageHelper.NoFavsId)
         else:
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.ErrorNoEpisodes)
+            title = LanguageHelper.get_localized_string(LanguageHelper.ErrorNoEpisodes)
 
         behaviour = AddonSettings.GetEmptyListBehaviour()
 
@@ -783,7 +783,7 @@ class Plugin(ParameterParser):
         else:
             ok = True
 
-        XbmcWrapper.ShowNotification(LanguageHelper.GetLocalizedString(LanguageHelper.ErrorId),
+        XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                      title, XbmcWrapper.Error, 2500)
         return ok
 
@@ -793,8 +793,8 @@ class Plugin(ParameterParser):
         senderMode = 'pastebin'
         logSender = LogSender(Config.LogSenderApi, logger=Logger.Instance(), mode=senderMode)
         try:
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.LogPostSuccessTitle)
-            urlText = LanguageHelper.GetLocalizedString(LanguageHelper.LogPostLogUrl)
+            title = LanguageHelper.get_localized_string(LanguageHelper.LogPostSuccessTitle)
+            urlText = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
             filesToSend = [Logger.Instance().logFileName, Logger.Instance().logFileName.replace(".log", ".old.log")]
             if senderMode != "gist":
                 pasteUrl = logSender.SendFile(Config.logFileNameAddon, filesToSend[0])
@@ -804,8 +804,8 @@ class Plugin(ParameterParser):
         except Exception, e:
             Logger.Error("Error sending %s", Config.logFileNameAddon, exc_info=True)
 
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.LogPostErrorTitle)
-            errorText = LanguageHelper.GetLocalizedString(LanguageHelper.LogPostError)
+            title = LanguageHelper.get_localized_string(LanguageHelper.LogPostErrorTitle)
+            errorText = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
             error = errorText % (e.message,)
             XbmcWrapper.ShowDialog(title, error.strip(": "))
         return

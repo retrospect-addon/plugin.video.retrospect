@@ -117,7 +117,7 @@ class Channel(chn_class.Channel):
     def CreatePageItem(self, resultSet):
         items = []
         if 'next' in resultSet:
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             url = resultSet['next']
             item = mediaitem.MediaItem(title, url)
             item.fanart = self.parentItem.fanart

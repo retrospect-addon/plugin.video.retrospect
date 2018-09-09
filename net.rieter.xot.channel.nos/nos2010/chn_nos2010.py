@@ -265,7 +265,7 @@ class Channel(chn_class.Channel):
             else:
                 nextPage = "%s&%s" % (nextPage, queryString)
 
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             title = "\a.: %s :." % (title, )
             more = mediaitem.MediaItem(title, nextPage)
             more.thumb = self.parentItem.thumb
@@ -505,7 +505,7 @@ class Channel(chn_class.Channel):
         # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tileMapping=normal&tileType=teaser
         # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tileMapping=normal&tileType=teaser
 
-        titleFormat = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith)
+        titleFormat = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
         urlFormat = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tileMapping=normal&tileType=teaser&pageType=catalogue"
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":

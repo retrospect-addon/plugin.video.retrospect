@@ -168,7 +168,7 @@ class XbmcWrapper:
             notificationTitle = Config.appName
 
         # check for content and merge multiple lines. This is to stay compatible
-        # with the LanguageHelper.GetLocalizedString that returns strings as arrays
+        # with the LanguageHelper.get_localized_string that returns strings as arrays
         # if they are multiple lines (this is because XbmcWrapper.ShowDialog needs
         # this for multi-line dialog boxes.
         if not lines:

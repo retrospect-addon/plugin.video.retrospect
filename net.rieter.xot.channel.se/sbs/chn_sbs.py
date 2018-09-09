@@ -368,7 +368,7 @@ class Channel(chn_class.Channel):
         if page + 1 > maxPages:
             return None
 
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         url = urlFormat.format(page + 1)
         item = mediaitem.MediaItem(title, url)
         item.fanart = self.parentItem.fanart

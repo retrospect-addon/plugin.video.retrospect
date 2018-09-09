@@ -124,7 +124,7 @@ class ChannelInfo:
         item.setInfo("video", {"Title": name,
                                # "Count": self.sortOrderPerCountry,
                                # "TrackNumber": self.sortOrder,
-                               "Genre": LanguageHelper.GetFullLanguage(self.language),
+                               "Genre": LanguageHelper.get_full_language(self.language),
                                # "Tagline": description,
                                "Plot": description})
 

@@ -103,7 +103,7 @@ class Channel(chn_class.Channel):
         items = []
 
         url = "%s/%s/%s" % (currentPage[0], int(currentPage[1]) + 1, currentPage[2])
-        pageItem = mediaitem.MediaItem(LanguageHelper.GetLocalizedString(LanguageHelper.MorePages), url)
+        pageItem = mediaitem.MediaItem(LanguageHelper.get_localized_string(LanguageHelper.MorePages), url)
         pageItem.fanart = self.parentItem.fanart
         pageItem.thumb = self.parentItem.thumb
         pageItem.dontGroup = True

@@ -97,7 +97,7 @@ class Menu(ParameterParser):
                                     channels_to_show)
 
         dialog = xbmcgui.Dialog()
-        heading = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelSelection)[:-1]
+        heading = LanguageHelper.get_localized_string(LanguageHelper.ChannelSelection)[:-1]
         selected_channels = dialog.multiselect(heading, channel_to_show_names,
                                                preselect=selected_indices)
         if selected_channels is None:
@@ -214,8 +214,8 @@ class Menu(ParameterParser):
 
         first_time = c.Cloak(item.url)
         if first_time:
-            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
-                                   LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
+            XbmcWrapper.ShowDialog(LanguageHelper.get_localized_string(LanguageHelper.CloakFirstTime),
+                                   LanguageHelper.get_localized_string(LanguageHelper.CloakMessage))
 
         del c
         self.refresh()
@@ -236,7 +236,7 @@ class Menu(ParameterParser):
             else bitrate_options.index(current_bitrate)
 
         dialog = xbmcgui.Dialog()
-        heading = LanguageHelper.GetLocalizedString(LanguageHelper.BitrateSelection)
+        heading = LanguageHelper.get_localized_string(LanguageHelper.BitrateSelection)
         selected_bitrate = dialog.select(heading, bitrate_options,
                                          preselect=current_bitrate_index)
         if selected_bitrate < 0:

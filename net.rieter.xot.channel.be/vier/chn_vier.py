@@ -121,7 +121,7 @@ class Channel(chn_class.Channel):
         if not username or not password:
             XbmcWrapper.ShowDialog(
                 title=None,
-                lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+                lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
             )
             return False
 

@@ -151,7 +151,7 @@ class Channel(chn_class.Channel):
             Logger.Debug("No more items available")
             return None
 
-        more = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         url = "%s=%s" % (self.parentItem.url.rsplit("=", 1)[0], nextPage)
         item = mediaitem.MediaItem(more, url)
         item.thumb = self.parentItem.thumb

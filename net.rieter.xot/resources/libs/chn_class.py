@@ -364,8 +364,8 @@ class Channel:
             # let's filter them by alphabet if the number is exceeded
             Logger.Debug("Creating Groups for list exceeding '%s' folder items. Total folders found '%s'.",
                          limit, folders)
-            other = LanguageHelper.GetLocalizedString(LanguageHelper.OtherChars)
-            titleFormat = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith)
+            other = LanguageHelper.get_localized_string(LanguageHelper.OtherChars)
+            titleFormat = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
             result = dict()
             nonGrouped = []
             # prefixes = ("de", "het", "the", "een", "a", "an")

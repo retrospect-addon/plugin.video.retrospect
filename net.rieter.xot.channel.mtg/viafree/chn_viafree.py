@@ -144,8 +144,8 @@ class Channel(chn_class.Channel):
                             parser=("data", "episodes"), creator=self.CreateJsonVideoItem)
         # ===============================================================================================================
         # non standard items
-        self.episodeLabel = LanguageHelper.GetLocalizedString(LanguageHelper.EpisodeId)
-        self.seasonLabel = LanguageHelper.GetLocalizedString(LanguageHelper.SeasonId)
+        self.episodeLabel = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
+        self.seasonLabel = LanguageHelper.get_localized_string(LanguageHelper.SeasonId)
         self.__categories = {}
 
         # ===============================================================================================================
@@ -278,7 +278,7 @@ class Channel(chn_class.Channel):
             clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
 
         if clipUrl is not None:
-            clipTitle = LanguageHelper.GetLocalizedString(LanguageHelper.Clips)
+            clipTitle = LanguageHelper.get_localized_string(LanguageHelper.Clips)
             clipItem = mediaitem.MediaItem("\a.: %s :." % (clipTitle,), clipUrl)
             clipItem.thumb = self.noImage
             items.append(clipItem)
