@@ -49,7 +49,7 @@ class UriHandler(object):
         if UriHandler.__handler is None or \
                 UriHandler.Instance().ignoreSslErrors != ignoreSslErrors:
 
-            handler = UriHandler.__RequestsHandler(
+            handler = _RequestsHandler(
                 cache_dir=cacheDir, web_time_out=webTimeOut, cookie_jar=cookieJar,
                 ignore_ssl_errors=ignoreSslErrors
             )
@@ -255,284 +255,285 @@ class UriHandler(object):
 
         return ""
 
-    class __RequestsHandler(object):
 
-        def __init__(self, cache_dir=None, web_time_out=30, cookie_jar=None,
-                     ignore_ssl_errors=False):
-            """Initialises the UriHandler class
+class _RequestsHandler(object):
 
-            Keyword Arguments:
-            @param cache_dir:         string  - a path for http caching. If specified, caching will be used.
-            @param web_time_out:      integer - timeout for requests in seconds
-            @param cookie_jar:        string  - the path to the cookie jar (in case of file storage)
+    def __init__(self, cache_dir=None, web_time_out=30, cookie_jar=None,
+                 ignore_ssl_errors=False):
+        """Initialises the UriHandler class
 
-            """
+        Keyword Arguments:
+        @param cache_dir:         string  - a path for http caching. If specified, caching will be used.
+        @param web_time_out:      integer - timeout for requests in seconds
+        @param cookie_jar:        string  - the path to the cookie jar (in case of file storage)
 
-            self.id = int(time.time())
+        """
 
-            if cookie_jar:
-                self.cookieJar = cookielib.MozillaCookieJar(cookie_jar)
-                if not os.path.isfile(cookie_jar):
-                    self.cookieJar.save()
-                self.cookieJar.load()
-                self.cookieJarFile = True
-            else:
-                self.cookieJar = cookielib.CookieJar()
-                self.cookieJarFile = False
+        self.id = int(time.time())
 
-            self.cacheDir = cache_dir
-            self.cacheStore = None
-            if cache_dir:
-                self.cacheStore = StreamCache(cache_dir)
-                Logger.Debug("Opened %s", self.cacheStore)
-            else:
-                Logger.Debug("No cache-store provided. Cached disabled.")
+        if cookie_jar:
+            self.cookieJar = cookielib.MozillaCookieJar(cookie_jar)
+            if not os.path.isfile(cookie_jar):
+                self.cookieJar.save()
+            self.cookieJar.load()
+            self.cookieJarFile = True
+        else:
+            self.cookieJar = cookielib.CookieJar()
+            self.cookieJarFile = False
 
-            self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
-            self.webTimeOut = web_time_out                # max duration of request
-            self.ignoreSslErrors = ignore_ssl_errors      # ignore SSL errors
-            if self.ignoreSslErrors:
-                Logger.Warning("Ignoring all SSL errors in Python")
+        self.cacheDir = cache_dir
+        self.cacheStore = None
+        if cache_dir:
+            self.cacheStore = StreamCache(cache_dir)
+            Logger.Debug("Opened %s", self.cacheStore)
+        else:
+            Logger.Debug("No cache-store provided. Cached disabled.")
 
-            # status of the most recent call
-            self.status = UriStatus(code=0, url=None, error=False, reason=None)
+        self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
+        self.webTimeOut = web_time_out                # max duration of request
+        self.ignoreSslErrors = ignore_ssl_errors      # ignore SSL errors
+        if self.ignoreSslErrors:
+            Logger.Warning("Ignoring all SSL errors in Python")
 
-            # for download animation
-            self.__animationIndex = -1
+        # status of the most recent call
+        self.status = UriStatus(code=0, url=None, error=False, reason=None)
 
-        def download(self, uri, filename, folder, progress_callback=None, proxy=None, params="",
-                     data="", json="", referer=None, additional_headers=None):
-            """Downloads a remote file
+        # for download animation
+        self.__animationIndex = -1
 
-            Arguments
-            @param uri:                 - String        - the URI to download
-            @param filename:            - String        - the filename that should be used to store the file.
+    def download(self, uri, filename, folder, progress_callback=None, proxy=None, params="",
+                 data="", json="", referer=None, additional_headers=None):
+        """Downloads a remote file
 
-            Keyword Arguments:
-            @param params:              - [opt] string    - data to send with the request (open(uri, params))
-            @param data:                - [opt] string    - data to send with the request (open(uri, data))
-            @param json:                - [opt] dict      - json to send with the request (open(uri, params))
-            @param proxy:               - [opt] ProxyInfo - The address and port (proxy.address.ext:port) of
-                                                            a proxy server that should be used.
-            @param referer:             - [opt] string    - the http referer to use
-            @param additional_headers:  - [opt] dict      - the optional headers
-            @param progress_callback:   - Function        - the callback for progress update. The format is
-                                                            function(retrievedSize, totalSize, perc, completed, status)
+        Arguments
+        @param uri:                 - String        - the URI to download
+        @param filename:            - String        - the filename that should be used to store the file.
 
-            @rtype : The full path of the downloaded file.
+        Keyword Arguments:
+        @param params:              - [opt] string    - data to send with the request (open(uri, params))
+        @param data:                - [opt] string    - data to send with the request (open(uri, data))
+        @param json:                - [opt] dict      - json to send with the request (open(uri, params))
+        @param proxy:               - [opt] ProxyInfo - The address and port (proxy.address.ext:port) of
+                                                        a proxy server that should be used.
+        @param referer:             - [opt] string    - the http referer to use
+        @param additional_headers:  - [opt] dict      - the optional headers
+        @param progress_callback:   - Function        - the callback for progress update. The format is
+                                                        function(retrievedSize, totalSize, perc, completed, status)
 
-            """
+        @rtype : The full path of the downloaded file.
 
-            if not folder or not filename:
-                raise ValueError("Destination folder and filename should be specified")
-            if not os.path.isdir(folder):
-                raise ValueError("Destination folder is not a valid location")
-            if not progress_callback:
-                raise ValueError("A callback must be specified")
+        """
 
-            download_path = os.path.join(folder, filename)
-            if os.path.isfile(download_path):
-                Logger.Info("Url already downloaded to: %s", download_path)
-                return download_path
+        if not folder or not filename:
+            raise ValueError("Destination folder and filename should be specified")
+        if not os.path.isdir(folder):
+            raise ValueError("Destination folder is not a valid location")
+        if not progress_callback:
+            raise ValueError("A callback must be specified")
 
-            Logger.Info("Creating Downloader for url '%s' to filename '%s'", uri, download_path)
-            r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
-                                referer=referer, additional_headers=additional_headers,
-                                no_cache=True, stream=True)
-            if r is None:
-                return ""
-
-            retrieved_bytes = 0
-            total_size = int(r.headers.get('Content-Length', '0').strip())
-            chunk_size = 1024 if total_size == 0 else total_size / 100
-            cancel = False
-            with open(download_path, 'wb') as fd:
-                for chunk in r.iter_content(chunk_size=chunk_size):
-                    fd.write(chunk)
-                    retrieved_bytes += len(chunk)
-
-                    if progress_callback:
-                        cancel = self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, False)
-                    if cancel:
-                        Logger.Warning("Download of %s aborted", uri)
-                        break
-
-            if cancel:
-                if os.path.isfile(download_path):
-                    Logger.Info("Removing partial download: %s", download_path)
-                    os.remove(download_path)
-                return ""
-
-            if progress_callback:
-                self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, True)
+        download_path = os.path.join(folder, filename)
+        if os.path.isfile(download_path):
+            Logger.Info("Url already downloaded to: %s", download_path)
             return download_path
 
-        def open(self, uri, proxy=None, params=None, data=None, json=None,
-                 referer=None, additionalHeaders=None, noCache=False):
+        Logger.Info("Creating Downloader for url '%s' to filename '%s'", uri, download_path)
+        r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
+                            referer=referer, additional_headers=additional_headers,
+                            no_cache=True, stream=True)
+        if r is None:
+            return ""
 
-            r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
-                                referer=referer, additional_headers=additionalHeaders,
-                                no_cache=noCache, stream=False)
-            if r is None:
-                return ""
+        retrieved_bytes = 0
+        total_size = int(r.headers.get('Content-Length', '0').strip())
+        chunk_size = 1024 if total_size == 0 else total_size / 100
+        cancel = False
+        with open(download_path, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=chunk_size):
+                fd.write(chunk)
+                retrieved_bytes += len(chunk)
 
-            if r.encoding == 'ISO-8859-1' and "text" in r.headers.get("content-type", ""):
-                # Requests defaults to ISO-8859-1 for all text content that does not specify an encoding
-                Logger.Debug("Found 'ISO-8859-1' for 'text' content-type. Using UTF-8 instead.")
-                r.encoding = 'utf-8'
+                if progress_callback:
+                    cancel = self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, False)
+                if cancel:
+                    Logger.Warning("Download of %s aborted", uri)
+                    break
 
-            return r.text if r.encoding else r.content
+        if cancel:
+            if os.path.isfile(download_path):
+                Logger.Info("Removing partial download: %s", download_path)
+                os.remove(download_path)
+            return ""
 
-        def header(self, uri, proxy=None, referer=None, additional_headers=None):
-            s = requests.session()
-            s.cookies = self.cookieJar
-            s.verify = not self.ignoreSslErrors
+        if progress_callback:
+            self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, True)
+        return download_path
 
-            proxies = self.__get_proxies(proxy, uri)
-            headers = self.__get_headers(referer, additional_headers)
+    def open(self, uri, proxy=None, params=None, data=None, json=None,
+             referer=None, additionalHeaders=None, noCache=False):
 
-            Logger.Info("Performing a HEAD for %s", uri)
-            r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
-                       timeout=self.webTimeOut)
+        r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
+                            referer=referer, additional_headers=additionalHeaders,
+                            no_cache=noCache, stream=False)
+        if r is None:
+            return ""
 
-            content_type = r.headers.get("Content-Type", "")
-            real_url = r.url
+        if r.encoding == 'ISO-8859-1' and "text" in r.headers.get("content-type", ""):
+            # Requests defaults to ISO-8859-1 for all text content that does not specify an encoding
+            Logger.Debug("Found 'ISO-8859-1' for 'text' content-type. Using UTF-8 instead.")
+            r.encoding = 'utf-8'
 
-            self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
-            if self.cookieJarFile:
-                # noinspection PyUnresolvedReferences
-                self.cookieJar.save()
+        return r.text if r.encoding else r.content
 
-            if r.ok:
-                Logger.Info("%s resulted in '%s %s' (%s) for %s",
-                            r.request.method, r.status_code, r.reason, r.elapsed, r.url)
-                return content_type, real_url
-            else:
-                Logger.Error("%s failed with in '%s %s' (%s) for %s",
-                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
-                return "", ""
+    def header(self, uri, proxy=None, referer=None, additional_headers=None):
+        s = requests.session()
+        s.cookies = self.cookieJar
+        s.verify = not self.ignoreSslErrors
 
-        # noinspection PyUnusedLocal
-        def __requests(self, uri, proxy, params, data, json, referer,
-                       additional_headers, no_cache, stream):
+        proxies = self.__get_proxies(proxy, uri)
+        headers = self.__get_headers(referer, additional_headers)
 
-            s = requests.session()
-            s.cookies = self.cookieJar
-            s.verify = not self.ignoreSslErrors
-            if self.cacheStore and not no_cache:
-                Logger.Trace("Adding the %s to the request", self.cacheStore)
-                s.mount("https://", CacheHTTPAdapter(self.cacheStore))
-                s.mount("http://", CacheHTTPAdapter(self.cacheStore))
+        Logger.Info("Performing a HEAD for %s", uri)
+        r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
+                   timeout=self.webTimeOut)
 
-            proxies = self.__get_proxies(proxy, uri)
-            if proxies is not None and "dns" in proxies:
-                s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
-                                                           logger=Logger.Instance()))
+        content_type = r.headers.get("Content-Type", "")
+        real_url = r.url
 
-            headers = self.__get_headers(referer, additional_headers)
+        self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
+        if self.cookieJarFile:
+            # noinspection PyUnresolvedReferences
+            self.cookieJar.save()
 
-            if params is not None:
-                # Old UriHandler behaviour. Set form header to keep compatible
-                if "content-type" not in headers:
-                    headers["content-type"] = "application/x-www-form-urlencoded"
+        if r.ok:
+            Logger.Info("%s resulted in '%s %s' (%s) for %s",
+                        r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+            return content_type, real_url
+        else:
+            Logger.Error("%s failed with in '%s %s' (%s) for %s",
+                         r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+            return "", ""
 
-                Logger.Info("Performing a POST with '%s' for %s", headers["content-type"], uri)
-                r = s.post(uri, data=params, proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
-            elif data is not None:
-                # Normal Requests compatible data object
-                Logger.Info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-                r = s.post(uri, data=data, proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
-            elif json is not None:
-                Logger.Info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-                r = s.post(uri, json=json, proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
-            else:
-                Logger.Info("Performing a GET for %s", uri)
-                r = s.get(uri, proxies=proxies, headers=headers,
-                          stream=stream, timeout=self.webTimeOut)
+    # noinspection PyUnusedLocal
+    def __requests(self, uri, proxy, params, data, json, referer,
+                   additional_headers, no_cache, stream):
 
-            if r.ok:
-                Logger.Info("%s resulted in '%s %s' (%s) for %s",
-                            r.request.method, r.status_code, r.reason, r.elapsed, r.url)
-            else:
-                Logger.Error("%s failed with '%s %s' (%s) for %s",
-                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+        s = requests.session()
+        s.cookies = self.cookieJar
+        s.verify = not self.ignoreSslErrors
+        if self.cacheStore and not no_cache:
+            Logger.Trace("Adding the %s to the request", self.cacheStore)
+            s.mount("https://", CacheHTTPAdapter(self.cacheStore))
+            s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
-            self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
-            if self.cookieJarFile:
-                # noinspection PyUnresolvedReferences
-                self.cookieJar.save()
-            return r
+        proxies = self.__get_proxies(proxy, uri)
+        if proxies is not None and "dns" in proxies:
+            s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
+                                                       logger=Logger.Instance()))
 
-        def __get_headers(self, referer, additional_headers):
-            headers = {}
-            if additional_headers:
-                for k, v in additional_headers.iteritems():
-                    headers[k.lower()] = v
+        headers = self.__get_headers(referer, additional_headers)
 
-            if "user-agent" not in headers:
-                headers["user-agent"] = self.userAgent
-            if referer and "referer" not in headers:
-                headers["referer"] = referer
+        if params is not None:
+            # Old UriHandler behaviour. Set form header to keep compatible
+            if "content-type" not in headers:
+                headers["content-type"] = "application/x-www-form-urlencoded"
 
-            return headers
+            Logger.Info("Performing a POST with '%s' for %s", headers["content-type"], uri)
+            r = s.post(uri, data=params, proxies=proxies, headers=headers,
+                       stream=stream, timeout=self.webTimeOut)
+        elif data is not None:
+            # Normal Requests compatible data object
+            Logger.Info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
+            r = s.post(uri, data=data, proxies=proxies, headers=headers,
+                       stream=stream, timeout=self.webTimeOut)
+        elif json is not None:
+            Logger.Info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
+            r = s.post(uri, json=json, proxies=proxies, headers=headers,
+                       stream=stream, timeout=self.webTimeOut)
+        else:
+            Logger.Info("Performing a GET for %s", uri)
+            r = s.get(uri, proxies=proxies, headers=headers,
+                      stream=stream, timeout=self.webTimeOut)
 
-        def __get_proxies(self, proxy, url):
-            if proxy is None:
-                return None
+        if r.ok:
+            Logger.Info("%s resulted in '%s %s' (%s) for %s",
+                        r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+        else:
+            Logger.Error("%s failed with '%s %s' (%s) for %s",
+                         r.request.method, r.status_code, r.reason, r.elapsed, r.url)
 
-            elif not proxy.UseProxyForUrl(url):
-                Logger.Debug("Not using proxy due to filter mismatch")
+        self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
+        if self.cookieJarFile:
+            # noinspection PyUnresolvedReferences
+            self.cookieJar.save()
+        return r
 
-            elif proxy.Scheme == "http":
-                Logger.Debug("Using a http(s) %s", proxy)
-                proxy_address = proxy.GetProxyAddress()
-                return {"http": proxy_address, "https": proxy_address}
+    def __get_headers(self, referer, additional_headers):
+        headers = {}
+        if additional_headers:
+            for k, v in additional_headers.iteritems():
+                headers[k.lower()] = v
 
-            elif proxy.Scheme == "dns":
-                Logger.Debug("Using a DNS %s", proxy)
-                return {"dns": proxy.Proxy}
+        if "user-agent" not in headers:
+            headers["user-agent"] = self.userAgent
+        if referer and "referer" not in headers:
+            headers["referer"] = referer
 
-            Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
+        return headers
+
+    def __get_proxies(self, proxy, url):
+        if proxy is None:
             return None
 
-        def __do_progress_callback(self, progress_callback, retrieved_size, total_size, completed):
-            """ Performs a callback, if the progressCallback was specified.
+        elif not proxy.UseProxyForUrl(url):
+            Logger.Debug("Not using proxy due to filter mismatch")
 
-            @param progress_callback:        The callback method
-            @param retrieved_size:           Number of bytes retrieved
-            @param total_size:               Total number of bytes
-            @param completed:               Are we done?
-            @rtype : Boolean                Should we cancel the download?
+        elif proxy.Scheme == "http":
+            Logger.Debug("Using a http(s) %s", proxy)
+            proxy_address = proxy.GetProxyAddress()
+            return {"http": proxy_address, "https": proxy_address}
 
-            """
+        elif proxy.Scheme == "dns":
+            Logger.Debug("Using a DNS %s", proxy)
+            return {"dns": proxy.Proxy}
 
-            if progress_callback is None:
-                # no callback so it was not cancelled
-                return False
+        Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
+        return None
 
-            # calculated some stuff
-            self.__animationIndex = (self.__animationIndex + 1) % 4
-            bytes_to_mb = 1048576
-            animation_frames = ["-", "\\", "|", "/"]
-            animation = animation_frames[self.__animationIndex]
-            retrievedsize_mb = 1.0 * retrieved_size / bytes_to_mb
-            totalsize_mb = 1.0 * total_size / bytes_to_mb
-            if total_size > 0:
-                percentage = 100.0 * retrieved_size / total_size
-            else:
-                percentage = 0
-            status = '%s - %i%% (%.1f of %.1f MB)' % \
-                     (animation, percentage, retrievedsize_mb, totalsize_mb)
-            try:
-                return progress_callback(retrieved_size, total_size, percentage, completed, status)
-            except:
-                Logger.Error("Error in Progress Callback", exc_info=True)
-                # cancel the download
-                return True
+    def __do_progress_callback(self, progress_callback, retrieved_size, total_size, completed):
+        """ Performs a callback, if the progressCallback was specified.
 
-        def __str__(self):
-            return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
-                .format(self.id, self.cacheStore, self.ignoreSslErrors)
+        @param progress_callback:        The callback method
+        @param retrieved_size:           Number of bytes retrieved
+        @param total_size:               Total number of bytes
+        @param completed:               Are we done?
+        @rtype : Boolean                Should we cancel the download?
+
+        """
+
+        if progress_callback is None:
+            # no callback so it was not cancelled
+            return False
+
+        # calculated some stuff
+        self.__animationIndex = (self.__animationIndex + 1) % 4
+        bytes_to_mb = 1048576
+        animation_frames = ["-", "\\", "|", "/"]
+        animation = animation_frames[self.__animationIndex]
+        retrievedsize_mb = 1.0 * retrieved_size / bytes_to_mb
+        totalsize_mb = 1.0 * total_size / bytes_to_mb
+        if total_size > 0:
+            percentage = 100.0 * retrieved_size / total_size
+        else:
+            percentage = 0
+        status = '%s - %i%% (%.1f of %.1f MB)' % \
+                 (animation, percentage, retrievedsize_mb, totalsize_mb)
+        try:
+            return progress_callback(retrieved_size, total_size, percentage, completed, status)
+        except:
+            Logger.Error("Error in Progress Callback", exc_info=True)
+            # cancel the download
+            return True
+
+    def __str__(self):
+        return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
+            .format(self.id, self.cacheStore, self.ignoreSslErrors)

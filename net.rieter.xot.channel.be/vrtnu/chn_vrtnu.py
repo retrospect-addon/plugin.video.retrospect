@@ -197,7 +197,7 @@ class Channel(chn_class.Channel):
         shortLoginCookie = UriHandler.GetCookie("X-VRT-Token", ".vrt.be")
         if shortLoginCookie is not None:
             # The old X-VRT-Token expired after 1 year. We don't want that old cookie
-            shortLoginCookieCanLiveTooLong = DateHelper.GetDateFromPosix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
+            shortLoginCookieCanLiveTooLong = DateHelper.get_date_from_posix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
             if not shortLoginCookieCanLiveTooLong:
                 Logger.Debug("Using existing VRT.be session.")
                 return True
@@ -460,7 +460,7 @@ class Channel(chn_class.Channel):
 
         assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
                    "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
-            .format(HtmlEntityHelper.UrlEncode(mzid), HtmlEntityHelper.UrlEncode(token))
+            .format(HtmlEntityHelper.url_encode(mzid), HtmlEntityHelper.url_encode(token))
         assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
         assetData = JsonHelper(assetData)
 
