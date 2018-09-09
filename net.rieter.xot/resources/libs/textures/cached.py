@@ -203,7 +203,7 @@ class Cached(TextureHandler):
 
         """
 
-        imageBytes = self.__uriHandler.Open(uri, noCache=True)
+        imageBytes = self.__uriHandler.open(uri, noCache=True)
         if imageBytes:
             fs = open(texturePath, mode='wb')
             fs.write(imageBytes)
