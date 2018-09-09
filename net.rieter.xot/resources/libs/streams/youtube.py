@@ -105,6 +105,7 @@ class YouTube:
 
         for stream in streams:
             # let's create a new part
+            # noinspection PyTypeChecker
             qsData = dict([x.split("=") for x in stream.split("&")])
             Logger.Trace(qsData)
 

@@ -281,6 +281,7 @@ class Channel(chn_class.Channel):
                 else:
                     Logger.Warning("No url found for type '%s'", stream)
 
+                # noinspection PyUnboundLocalVariable
                 if "livestreams.omroep.nl/live/" in url and url.endswith("m3u8"):
                     Logger.Info("Found NPO Stream, adding ?protection=url")
                     url = "%s?protection=url" % (url, )

@@ -93,7 +93,7 @@ class Menu(ParameterParser):
         selected_indices = map(lambda c: channels_to_show.index(c), selected_channels)
         Logger.Debug("Currently selected channels: %s", selected_indices)
 
-        channel_to_show_names = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName),
+        channel_to_show_names = map(lambda c: HtmlEntityHelper.convert_html_entities(c.channelName),
                                     channels_to_show)
 
         dialog = xbmcgui.Dialog()

@@ -163,6 +163,7 @@ class M3u8:
                 stream = "%s?%s" % (stream, qs)
 
             if mapAudio and "#EXT-X-MEDIA" in n[TYPE_INDEX]:
+                # noinspection PyUnboundLocalVariable
                 Logger.Debug("Found audio stream: %s -> %s", n[ID_INDEX], stream)
                 audioStreams[n[ID_INDEX]] = stream
                 continue
@@ -175,27 +176,28 @@ class M3u8:
         Logger.Debug("Found %s substreams in M3U8", len(streams))
         return streams
 
-
-if __name__ == "__main__":
-    from debug.initdebug import DebugInitializer
-    DebugInitializer()
-
-    # url = "http://tv4play-i.akamaihd.net/i/mp4root/2014-01-27/Bingolotto2601_2534830_,T6MP43,T6MP48,T6MP415,_.mp4.csmil/master.m3u8"
-    # url = "http://iphone.streampower.be/een_nogeo/_definst_/2013/08/1000_130830_placetobe_marjolein_Website_Een_M4V.m4v/playlist.m3u8"
-    # url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"  # appendQueryString
-    # url = "https://smoote1a.omroep.nl/urishieldv2/l2cm221c27e6ca0058c1adda000000.e6592cb04974c5ff/live/npo/tvlive/npo3/npo3.isml/npo3.m3u8"
-    # url = "http://embed.kijk.nl/api/playlist/9JKFARNrJEz_dbzyr6.m3u8?user_token=S0nHgrI3Sh16XSxOpLm7m2Xt7&app_token=CgZzYW5vbWESEjlKS0ZBUk5ySkV6X2RienlyNhoOMTkzLjExMC4yMzQuMjIiGVMwbkhnckkzU2gxNlhTeE9wTG03bTJYdDcotIDZpKsrMgJoADoERlZPREIDU0JTShI5SktGQVJOckpFel9kYnp5cjY%3D%7CmGGy/TM5eOmoSCNwG2I4bGKvMBOvBD9YsadprKSVqv4%3D&base_url=http%3A//emp-prod-acc-we.ebsd.ericsson.net/sbsgroup"
-    # url = "http://manifest.us.rtl.nl/rtlxl/v166/network/pc/adaptive/components/soaps/theboldandthebeautiful/338644/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.ssm/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.m3u8"
-    url = "http://svtplay2r-f.akamaihd.net/i/world/open/20170307/1377039-008A/PG-1377039-008A-AGENDA2017-03_,988,240,348,456,636,1680,2796,.mp4.csmil/master.m3u8"
-    url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"
-    url = "https://ondemand-w.lwc.vrtcdn.be/content/vod/vid-dd0ddbe5-7a83-477a-80d0-6e9c75369c1e-CDN_2/vid-dd0ddbe5-7a83-477a-80d0-6e9c75369c1e-CDN_2_nodrm_a635917e-abe5-49d4-a202-e81b6cfa08a0.ism/.m3u8?test=1"  # audio streams
-    results = M3u8.GetStreamsFromM3u8(url, DebugInitializer.Proxy, appendQueryString=True, mapAudio=True)
-    results.sort(lambda x, y: cmp(int(x[1]), int(y[1])))
-    a = None
-    for s, b, a in results:
-        if s.count("://") > 1:
-            raise Exception("Duplicate protocol in url: %s", s)
-        print "%s - %s (%s)" % (b, s, a)
-        Logger.Info("%s - %s (%s)", b, s, a)
-
-    Logger.Instance().CloseLog()
+#
+#
+# if __name__ == "__main__":
+#     from debug.initdebug import DebugInitializer
+#     DebugInitializer()
+#
+#     # url = "http://tv4play-i.akamaihd.net/i/mp4root/2014-01-27/Bingolotto2601_2534830_,T6MP43,T6MP48,T6MP415,_.mp4.csmil/master.m3u8"
+#     # url = "http://iphone.streampower.be/een_nogeo/_definst_/2013/08/1000_130830_placetobe_marjolein_Website_Een_M4V.m4v/playlist.m3u8"
+#     # url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"  # appendQueryString
+#     # url = "https://smoote1a.omroep.nl/urishieldv2/l2cm221c27e6ca0058c1adda000000.e6592cb04974c5ff/live/npo/tvlive/npo3/npo3.isml/npo3.m3u8"
+#     # url = "http://embed.kijk.nl/api/playlist/9JKFARNrJEz_dbzyr6.m3u8?user_token=S0nHgrI3Sh16XSxOpLm7m2Xt7&app_token=CgZzYW5vbWESEjlKS0ZBUk5ySkV6X2RienlyNhoOMTkzLjExMC4yMzQuMjIiGVMwbkhnckkzU2gxNlhTeE9wTG03bTJYdDcotIDZpKsrMgJoADoERlZPREIDU0JTShI5SktGQVJOckpFel9kYnp5cjY%3D%7CmGGy/TM5eOmoSCNwG2I4bGKvMBOvBD9YsadprKSVqv4%3D&base_url=http%3A//emp-prod-acc-we.ebsd.ericsson.net/sbsgroup"
+#     # url = "http://manifest.us.rtl.nl/rtlxl/v166/network/pc/adaptive/components/soaps/theboldandthebeautiful/338644/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.ssm/4c1b51b9-864d-31fe-ba53-7ea6da0b614a.m3u8"
+#     url = "http://svtplay2r-f.akamaihd.net/i/world/open/20170307/1377039-008A/PG-1377039-008A-AGENDA2017-03_,988,240,348,456,636,1680,2796,.mp4.csmil/master.m3u8"
+#     url = "http://livestreams.omroep.nl/live/npo/regionaal/rtvnoord2/rtvnoord2.isml/rtvnoord2.m3u8?protection=url"
+#     url = "https://ondemand-w.lwc.vrtcdn.be/content/vod/vid-dd0ddbe5-7a83-477a-80d0-6e9c75369c1e-CDN_2/vid-dd0ddbe5-7a83-477a-80d0-6e9c75369c1e-CDN_2_nodrm_a635917e-abe5-49d4-a202-e81b6cfa08a0.ism/.m3u8?test=1"  # audio streams
+#     results = M3u8.GetStreamsFromM3u8(url, DebugInitializer.Proxy, appendQueryString=True, mapAudio=True)
+#     results.sort(lambda x, y: cmp(int(x[1]), int(y[1])))
+#     a = None
+#     for s, b, a in results:
+#         if s.count("://") > 1:
+#             raise Exception("Duplicate protocol in url: %s", s)
+#         print "%s - %s (%s)" % (b, s, a)
+#         Logger.Info("%s - %s (%s)", b, s, a)
+#
+#     Logger.Instance().CloseLog()

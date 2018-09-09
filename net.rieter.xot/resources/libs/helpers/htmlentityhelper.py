@@ -27,7 +27,7 @@ class HtmlEntityHelper:
         raise NotImplementedError("Just statics")
 
     @staticmethod
-    def StripAmp(data):
+    def strip_amp(data):
         """Replaces the "&amp;" with "&"
 
         Arguments:
@@ -41,7 +41,7 @@ class HtmlEntityHelper:
         return string.replace(data, "&amp;", "&")
 
     @staticmethod
-    def ConvertHTMLEntities(html):
+    def convert_html_entities(html):
         """Convert the HTML entities into their real characters
 
         Arguments:

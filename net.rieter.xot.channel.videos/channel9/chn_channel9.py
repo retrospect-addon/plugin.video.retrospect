@@ -54,7 +54,7 @@ class Channel(chn_class.Channel):
         Accepts an arraylist of results. It returns an item.
         """
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[0]))
         name = resultSet[1]
 
         if name == "Tags":
@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[0]))
         item = mediaitem.MediaItem(resultSet[self.pageNavigationRegexIndex], url)
         item.type = "page"
         item.complete = True
@@ -145,7 +145,7 @@ class Channel(chn_class.Channel):
 
         if len(resultSet) > 3 and resultSet[3] != "":
             Logger.Debug("Sub category folder found.")
-            url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[3]))
+            url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[3]))
             name = "\a.: %s :." % (resultSet[4],)
             item = mediaitem.MediaItem(name, url)
             item.thumb = self.noImage
@@ -153,8 +153,8 @@ class Channel(chn_class.Channel):
             item.type = "folder"
             return item
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
-        name = HtmlEntityHelper.ConvertHTMLEntities(resultSet[1])
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[0]))
+        name = HtmlEntityHelper.convert_html_entities(resultSet[1])
 
         helper = HtmlHelper(resultSet[2])
         description = helper.get_tag_content("div", {'class': 'description'})
@@ -256,13 +256,13 @@ class Channel(chn_class.Channel):
                 bitrate = 200
             else:
                 bitrate = 0
-            mediaPart.AppendMediaStream(HtmlEntityHelper.ConvertHTMLEntities(url[0]), bitrate)
+            mediaPart.AppendMediaStream(HtmlEntityHelper.convert_html_entities(url[0]), bitrate)
 
         item.MediaItemParts.append(mediaPart)
 
         #images = Regexer.DoRegex('<link type="image/jpeg" rel="videothumbnail" href="([^"]+)"/>', data)
         #for image in images:
-        #    thumbUrl = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(image)
+        #    thumbUrl = htmlentityhelper.HtmlEntityHelper.convert_html_entities(image)
         #    break
 
         item.complete = True

@@ -328,7 +328,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(url, proxy=self.proxy)
 
         renditionsUrl = Regexer.DoRegex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
-        renditionsUrl = HtmlEntityHelper.StripAmp(renditionsUrl)
+        renditionsUrl = HtmlEntityHelper.strip_amp(renditionsUrl)
         renditionData = UriHandler.Open(renditionsUrl, proxy=self.proxy)
         videoItems = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
 

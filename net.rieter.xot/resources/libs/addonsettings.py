@@ -623,7 +623,7 @@ class AddonSettings(object):
         channelName = channel.safeName
 
         # remove some HTML chars
-        channelName = HtmlEntityHelper.ConvertHTMLEntities(channelName)
+        channelName = HtmlEntityHelper.convert_html_entities(channelName)
         Logger.Debug("Showing channel settings for channel: %s (%s)", channelName, channel.channelName)
 
         # Set the channel to be the preselected one

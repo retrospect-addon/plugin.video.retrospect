@@ -153,8 +153,8 @@ class Statistics:
                 "cid": AddonSettings.GetClientId(),
                 "ec": HtmlEntityHelper.url_encode(category),
                 # "ec": HtmlEntityHelper.url_encode("Test"),
-                "ea": HtmlEntityHelper.url_encode(HtmlEntityHelper.ConvertHTMLEntities(action)),
-                "el": HtmlEntityHelper.url_encode(HtmlEntityHelper.ConvertHTMLEntities(label)),
+                "ea": HtmlEntityHelper.url_encode(HtmlEntityHelper.convert_html_entities(action)),
+                "el": HtmlEntityHelper.url_encode(HtmlEntityHelper.convert_html_entities(label)),
                 "an": Config.appName
             }
 

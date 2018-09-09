@@ -179,7 +179,7 @@ class SubtitleHelper:
 
                 text = sub[2].replace('\"', '"')
                 text = JsonHelper.convert_special_chars(text)
-                text = HtmlEntityHelper.ConvertHTMLEntities(text)
+                text = HtmlEntityHelper.convert_html_entities(text)
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
             except:
@@ -242,7 +242,7 @@ class SubtitleHelper:
                     # new start of a sub
                     if text and start and end:
                         # if we have a complete old one, save it
-                        text = HtmlEntityHelper.ConvertHTMLEntities(text)
+                        text = HtmlEntityHelper.convert_html_entities(text)
                         srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                         i += 1
                     start = "%s,%03d" % (sub[1], int(sub[2]))
@@ -326,7 +326,7 @@ class SubtitleHelper:
                 end = "%s,%03d" % (sub[2], int(sub[3]))
                 text = sub[4].replace("<br />", "\n")
                 # text = sub[4].replace("<br />", "\n")
-                text = HtmlEntityHelper.ConvertHTMLEntities(text)
+                text = HtmlEntityHelper.convert_html_entities(text)
                 text = text.replace("\r\n", "")
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
@@ -367,7 +367,7 @@ class SubtitleHelper:
                 start = SubtitleHelper.__ConvertToTime(sub[0])
                 end = SubtitleHelper.__ConvertToTime(sub[2])
                 text = sub[1]
-                text = HtmlEntityHelper.ConvertHTMLEntities(text)
+                text = HtmlEntityHelper.convert_html_entities(text)
                 # text = sub[1]
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text)
                 i += 1

@@ -182,7 +182,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
         mediaInfo = Regexer.DoRegex(mediaRegex, data)[0]
-        mediaInfo = HtmlEntityHelper.ConvertHTMLEntities(mediaInfo)
+        mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
         Logger.Trace(mediaInfo)
 
@@ -211,7 +211,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
         mediaInfo = Regexer.DoRegex(mediaRegex, data)[0]
-        mediaInfo = HtmlEntityHelper.ConvertHTMLEntities(mediaInfo)
+        mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
         Logger.Trace(mediaInfo)
         part = item.CreateNewEmptyMediaPart()

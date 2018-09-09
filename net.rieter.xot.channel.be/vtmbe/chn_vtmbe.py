@@ -694,7 +694,7 @@ class Channel(chn_class.Channel):
                   "&sort=broadcastDate&sortDirection=desc" \
                   "&programIds=%s" % (self.__apiKey, seriesId, )
         else:
-            url = HtmlEntityHelper.StripAmp(url)
+            url = HtmlEntityHelper.strip_amp(url)
         # We need to convert the URL
         # http://vtm.be/video/?f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&amp;f[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie
         # http://vtm.be/video/?amp%3Bf[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie&f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie

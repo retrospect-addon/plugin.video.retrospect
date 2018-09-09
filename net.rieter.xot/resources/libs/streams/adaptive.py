@@ -54,7 +54,7 @@ class Adaptive:
         elif keyType == "D":
             if "D{SSM}" not in keyValue:
                 raise ValueError("Missing D{SSM} placeholder")
-            keyValue = HtmlEntityHelper.UrlEncode(keyValue)
+            keyValue = HtmlEntityHelper.url_encode(keyValue)
 
         return "{0}|{1}|{2}|".format(keyUrl, header.strip("&"), keyValue)
 

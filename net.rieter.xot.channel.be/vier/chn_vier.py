@@ -219,7 +219,7 @@ class Channel(chn_class.Channel):
             item.thumb = resultSet["thumburl2"]
 
         if item.thumb and item.thumb != self.noImage:
-            item.thumb = HtmlEntityHelper.StripAmp(item.thumb)
+            item.thumb = HtmlEntityHelper.strip_amp(item.thumb)
         return item
 
     def UpdateVideoItem(self, item):

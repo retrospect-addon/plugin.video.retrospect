@@ -571,7 +571,7 @@ class MediaItem:
             return ""
 
         # then get rid of the HTML entities
-        stringValue = HtmlEntityHelper.ConvertHTMLEntities(stringValue)
+        stringValue = HtmlEntityHelper.convert_html_entities(stringValue)
         return stringValue
 
     def __str__(self):

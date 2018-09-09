@@ -139,7 +139,7 @@ class Channel(chn_class.Channel):
         
         #<a class='nArrow' href='([^']+)' title='[^']*'>([^<]+)</a>
         #                            0                     1                                
-        item = mediaitem.MediaItem(resultSet[1], HtmlEntityHelper.StripAmp("%s%s" % (self.baseUrl, resultSet[0])))
+        item = mediaitem.MediaItem(resultSet[1], HtmlEntityHelper.strip_amp("%s%s" % (self.baseUrl, resultSet[0])))
         item.icon = self.icon
         Logger.Trace("%s (%s)", item.name, item.url)
         return item
@@ -168,7 +168,7 @@ class Channel(chn_class.Channel):
         #<img id='([^']+)' src='([^']+)' class='vThumb' alt='[^']*'/></a></div></div><div class='sCenter vTitle'><span class='title'><a[^>]+title='([^']+)'>
         #            0            1                                                                                                                    2
         name = resultSet[2]
-        item = mediaitem.MediaItem(name, HtmlEntityHelper.StripAmp("%s%s" % (self.baseUrl, resultSet[0])))
+        item = mediaitem.MediaItem(name, HtmlEntityHelper.strip_amp("%s%s" % (self.baseUrl, resultSet[0])))
         
         item.description = "%s\n%s" % (self.categoryName, resultSet[2])
         item.icon = self.icon

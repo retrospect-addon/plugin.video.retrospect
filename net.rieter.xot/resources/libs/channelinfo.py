@@ -108,8 +108,8 @@ class ChannelInfo:
     def GetXBMCItem(self):
         """ Creates an Xbmc ListItem object for this channel """
 
-        name = HtmlEntityHelper.ConvertHTMLEntities(self.channelName)
-        description = HtmlEntityHelper.ConvertHTMLEntities(self.channelDescription)
+        name = HtmlEntityHelper.convert_html_entities(self.channelName)
+        description = HtmlEntityHelper.convert_html_entities(self.channelDescription)
 
         self.icon = self.__GetImagePath(self.icon)
         item = xbmcgui.ListItem(name, description)

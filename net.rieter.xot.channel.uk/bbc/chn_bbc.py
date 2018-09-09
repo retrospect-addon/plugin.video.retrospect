@@ -289,7 +289,7 @@ class Channel(chn_class.Channel):
                 # Logger.Debug("Found application   : %s", application)
                 #
                 # authentication = connectionXml.GetTagAttribute("connection", {"authString": None})
-                # authentication = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(authentication)
+                # authentication = htmlentityhelper.HtmlEntityHelper.convert_html_entities(authentication)
                 # Logger.Debug("Found authentication: %s", authentication)
                 #
                 # server = connectionXml.GetTagAttribute("connection", {"server": None})

@@ -676,7 +676,7 @@ class Channel:
         for result in resultSet:
             total = "%s%s" % (total, result)
 
-        total = HtmlEntityHelper.StripAmp(total)
+        total = HtmlEntityHelper.strip_amp(total)
 
         if not self.pageNavigationRegexIndex == '':
             item = mediaitem.MediaItem(resultSet[self.pageNavigationRegexIndex], urlparse.urljoin(self.baseUrl, total))

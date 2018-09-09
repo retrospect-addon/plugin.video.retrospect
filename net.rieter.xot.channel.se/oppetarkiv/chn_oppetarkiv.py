@@ -181,7 +181,7 @@ class Channel(chn_class.Channel):
 
         url = resultSet[1]
         if "&" in url:
-            url = HtmlEntityHelper.ConvertHTMLEntities(url)
+            url = HtmlEntityHelper.convert_html_entities(url)
 
         if not url.startswith("http:"):
             url = "%s%s" % (self.baseUrl, url)
