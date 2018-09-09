@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
         data = data[data.index('{'):]
         json = JsonHelper(data)
 
-        sid = json.GetValue("sid")
+        sid = json.get_value("sid")
         # The i= is the same as the one from the RTMP stream at the page of ATV.sr:
         # http://edge1.tikilive.com:1935/rtmp_tikilive/34967/amlst:mainstream/jwplayer.smil?id=dIzAVAVL2dirCfJgAPEb&i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcmtzJm9JRD0xMzY1NTUmb05hbWU9YXR2bmV0d29ya3Mmc0lkPWJwaHR2bXR2OXI4M2N1Mm9sZ2Q5dWx1aWs2JnVJRD0wJnVOYW1lPUd1ZXN0OWFmYTE=
 

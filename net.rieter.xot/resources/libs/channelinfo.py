@@ -222,10 +222,10 @@ class ChannelInfo:
         jsonFile.close()
 
         json = JsonHelper(jsonData, logger=Logger.Instance())
-        channels = json.GetValue("channels")
+        channels = json.get_value("channels")
 
         if "settings" in json.json:
-            settings = json.GetValue("settings")
+            settings = json.get_value("settings")
         else:
             settings = []
         Logger.Debug("Found %s channels and %s settings in %s", len(channels), len(settings), path)

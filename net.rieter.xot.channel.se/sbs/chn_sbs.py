@@ -238,8 +238,8 @@ class Channel(chn_class.Channel):
         url = urlFormat.format(p)
         data = UriHandler.Open(url, proxy=self.proxy)
         json = JsonHelper(data)
-        pages = json.GetValue("meta", "totalPages")
-        programs = json.GetValue("data") or []
+        pages = json.get_value("meta", "totalPages")
+        programs = json.get_value("data") or []
 
         # extract the images
         self.__UpdateImageLookup(json)
@@ -250,7 +250,7 @@ class Channel(chn_class.Channel):
 
             data = UriHandler.Open(url, proxy=self.proxy)
             json = JsonHelper(data)
-            programs += json.GetValue("data") or []
+            programs += json.get_value("data") or []
 
             # extract the images
             self.__UpdateImageLookup(json)
@@ -547,7 +547,7 @@ class Channel(chn_class.Channel):
             return item
 
         videoData = JsonHelper(videoData)
-        videoInfo = videoData.GetValue("data", "attributes")
+        videoInfo = videoData.get_value("data", "attributes")
 
         part = item.CreateNewEmptyMediaPart()
 
@@ -583,10 +583,10 @@ class Channel(chn_class.Channel):
         return data, items
 
     def __UpdateImageLookup(self, jsonData):
-        images = filter(lambda a: a["type"] == "image", jsonData.GetValue("included"))
+        images = filter(lambda a: a["type"] == "image", jsonData.get_value("included"))
         images = {str(image["id"]): image["attributes"]["src"] for image in images}
 
-        shows = filter(lambda a: a["type"] == "show", jsonData.GetValue("included"))
+        shows = filter(lambda a: a["type"] == "show", jsonData.get_value("included"))
         shows = {str(show["id"]): show["attributes"]["name"] for show in shows}
         self.showLookup.update(shows)
         self.imageLookup.update(images)
@@ -612,7 +612,7 @@ class Channel(chn_class.Channel):
               % (domain, videoId,)
         data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=True)
         json = JsonHelper(data)
-        url = json.GetValue("hls")
+        url = json.get_value("hls")
 
         if url is None:
             return False

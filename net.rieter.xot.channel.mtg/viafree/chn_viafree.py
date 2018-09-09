@@ -168,7 +168,7 @@ class Channel(chn_class.Channel):
         dummyData, items = self.AddSearch(data)
 
         # The data was already in a JsonHelper
-        categories = data.GetValue("categories")
+        categories = data.get_value("categories")
         for category in categories:
             self.__categories[category["id"]] = category
 
@@ -213,7 +213,7 @@ class Channel(chn_class.Channel):
         items = []
 
         jsonData = JsonHelper(data)
-        seasonFolders = jsonData.GetValue("context", "dispatcher", "stores",
+        seasonFolders = jsonData.get_value("context", "dispatcher", "stores",
                                           "ContentPageProgramStore", "format", "videos")
         for season in seasonFolders:
             for video in seasonFolders[season]['program']:
@@ -574,7 +574,7 @@ class Channel(chn_class.Channel):
             part = item.CreateNewEmptyMediaPart()
 
         for q in ("high", 3500), ("hls", 2700), ("medium", 2100):
-            url = json.GetValue("streams", q[0])
+            url = json.get_value("streams", q[0])
             Logger.Trace(url)
             if not url:
                 continue

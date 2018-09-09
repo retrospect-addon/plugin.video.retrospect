@@ -66,7 +66,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
         jsonData = JsonHelper(data)
-        dictItems = jsonData.GetValue("items", fallback=[])
+        dictItems = jsonData.get_value("items", fallback=[])
         for item in dictItems:
             if item == "banners" or item == "curators":
                 continue
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(url, proxy=self.proxy, params=data, additionalHeaders=item.HttpHeaders)
         Logger.Trace(data)
         jsonData = JsonHelper(data)
-        url = jsonData.GetValue("url", fallback=None)
+        url = jsonData.get_value("url", fallback=None)
 
         if url:
             item.AppendSingleStream(url)

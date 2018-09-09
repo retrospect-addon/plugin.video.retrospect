@@ -236,13 +236,13 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open("https://d3api.foxsports.nl/api/V2/entitlement/tokenize",
                                json=postData, noCache=True, proxy=self.proxy)
         streamInfo = JsonHelper(data)
-        streamUrl = streamInfo.GetValue("ContentUrl")
+        streamUrl = streamInfo.get_value("ContentUrl")
         if not streamUrl:
-            message = "Protected stream: {0}".format(streamInfo.GetValue("Message"))
+            message = "Protected stream: {0}".format(streamInfo.get_value("Message"))
             XbmcWrapper.ShowNotification(None, message,
                                          notificationType=XbmcWrapper.Error, displayTime=5000)
 
-        licenseUrl = streamInfo.GetValue("LicenseURL")
+        licenseUrl = streamInfo.get_value("LicenseURL")
         part = item.CreateNewEmptyMediaPart()
         stream = part.AppendMediaStream(streamUrl, 0)
         licenseKey = Mpd.GetLicenseKey(licenseUrl)

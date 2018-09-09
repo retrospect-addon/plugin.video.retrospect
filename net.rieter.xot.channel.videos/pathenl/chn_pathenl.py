@@ -224,7 +224,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
         json = JsonHelper(data)
-        self.scheduleData = json.GetValue("schedules")
+        self.scheduleData = json.get_value("schedules")
         Logger.Debug("Pre-Processing finished")
         return data, items
 

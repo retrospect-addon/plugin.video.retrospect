@@ -159,9 +159,9 @@ class Channel(chn_class.Channel):
     #
     #     # Extract the data we need
     #     data = JsonHelper(data)
-    #     vimondSessionToken = data.GetValue('vimond_session_token')
-    #     # vimondRememberMe = data.GetValue('vimond_remember_me')
-    #     sessionToken = data.GetValue('session_token')
+    #     vimondSessionToken = data.get_value('vimond_session_token')
+    #     # vimondRememberMe = data.get_value('vimond_remember_me')
+    #     sessionToken = data.get_value('session_token')
     #
     #     # 2c: alternative: POST https://account.services.tv4play.se/session/keep_alive
     #     # vimond_session_token=<vimondSessionToken>&session_token=<sessionToken>&client=tv4play-web
@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
     #     Logger.Debug("Found data: \n%s\n%s\n%s", data, expires, other)
     #     tokenData = EncodingHelper.decode_base64(expires)
     #     tokenData = JsonHelper(tokenData)
-    #     expiresAt = tokenData.GetValue("exp")
+    #     expiresAt = tokenData.get_value("exp")
     #
     #     Logger.Debug("Token expires at: %s (%s)", DateHelper.get_date_from_posix(float(expiresAt)), expiresAt)
     #     # AddonSettings.SetSetting(tokenSettingId, "%s|%s" % (expiresAt, token))
@@ -609,7 +609,7 @@ class Channel(chn_class.Channel):
         # retrieve the mediaurl
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
         streamInfo = JsonHelper(data)
-        m3u8Url = streamInfo.GetValue("playbackItem", "manifestUrl")
+        m3u8Url = streamInfo.get_value("playbackItem", "manifestUrl")
         if m3u8Url is None:
             return item
 

@@ -390,8 +390,8 @@ class Channel(chn_class.Channel):
 
         jsonData = JsonHelper(resultSet)
         url = self.parentItem.url
-        title = jsonData.GetValue("name")
-        description = HtmlHelper.to_text(jsonData.GetValue("description"))
+        title = jsonData.get_value("name")
+        description = HtmlHelper.to_text(jsonData.get_value("description"))
         item = mediaitem.MediaItem(title, url, type="video")
         item.description = description
         item.thumb = self.parentItem.thumb
@@ -448,7 +448,7 @@ class Channel(chn_class.Channel):
         secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
         data = UriHandler.Open(secureUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         secureData = JsonHelper(data, logger=Logger.Instance())
-        mzid = secureData.GetValue(secureData.json.keys()[0], "videoid")
+        mzid = secureData.get_value(secureData.json.keys()[0], "videoid")
 
         # region New URL retrieval with DRM protection
         # We need a player token
@@ -456,7 +456,7 @@ class Channel(chn_class.Channel):
                                     "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
                                     additionalHeaders={"Content-Type": "application/json"})
 
-        token = JsonHelper(tokenData).GetValue("vrtPlayerToken")
+        token = JsonHelper(tokenData).get_value("vrtPlayerToken")
 
         assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
                    "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
@@ -464,12 +464,12 @@ class Channel(chn_class.Channel):
         assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
         assetData = JsonHelper(assetData)
 
-        drmKey = assetData.GetValue("drm")
+        drmKey = assetData.get_value("drm")
         drmProtected = drmKey is not None
         adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=drmProtected)
         part = item.CreateNewEmptyMediaPart()
         srt = None
-        for targetUrl in assetData.GetValue("targetUrls"):
+        for targetUrl in assetData.get_value("targetUrls"):
             videoType = targetUrl["type"]
             videoUrl = targetUrl["url"]
 
@@ -532,12 +532,12 @@ class Channel(chn_class.Channel):
 
     def __ExtractSessionData(self, logonData):
         logonJson = JsonHelper(logonData)
-        resultCode = logonJson.GetValue("statusCode")
+        resultCode = logonJson.get_value("statusCode")
         if resultCode != 200:
-            Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
-                         logonJson.GetValue("errorDetails"))
+            Logger.Error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
+                         logonJson.get_value("errorDetails"))
             return None, None, None
 
-        return logonJson.GetValue("UID"), \
-            logonJson.GetValue("UIDSignature"), \
-            logonJson.GetValue("signatureTimestamp")
+        return logonJson.get_value("UID"), \
+            logonJson.get_value("UIDSignature"), \
+            logonJson.get_value("signatureTimestamp")

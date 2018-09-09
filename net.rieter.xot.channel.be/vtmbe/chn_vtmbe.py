@@ -296,7 +296,7 @@ class Channel(chn_class.Channel):
               "&callback=gigya.callback&context=R{}".format(api_key, context_id)
         init_login = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         init_data = JsonHelper(init_login)
-        if init_data.GetValue("statusCode") != 200:
+        if init_data.get_value("statusCode") != 200:
             Logger.Error("Error initiating login")
 
         # actually do the login request, which requires an async call to retrieve the result
@@ -504,14 +504,14 @@ class Channel(chn_class.Channel):
         # the full episodes.
 
         json = JsonHelper(data)
-        jsonItems = json.GetValue("response", "items")
-        count = json.GetValue("response", "total")
+        jsonItems = json.get_value("response", "items")
+        count = json.get_value("response", "total")
         for i in range(100, count, 100):
             url = "%s&from=%s" % (self.mainListUri, i)
             Logger.Debug("Retrieving more items from: %s", url)
             moreData = UriHandler.Open(url, proxy=self.proxy)
             moreJson = JsonHelper(moreData)
-            moreItems = moreJson.GetValue("response", "items")
+            moreItems = moreJson.get_value("response", "items")
             if moreItems:
                 jsonItems += moreItems
 
@@ -565,14 +565,14 @@ class Channel(chn_class.Channel):
     def AddVideoPageItemsJson(self, data):
         items = []
         json = JsonHelper(data)
-        currentOffset = json.GetValue("request", "offset") or 0
-        itemsOnThisPage = len(json.GetValue("response", "videos") or [])
-        totalItems = json.GetValue("response", "total")
+        currentOffset = json.get_value("request", "offset") or 0
+        itemsOnThisPage = len(json.get_value("response", "videos") or [])
+        totalItems = json.get_value("response", "total")
 
         if totalItems > currentOffset + itemsOnThisPage:
             # add next page items
             newOffset = currentOffset + itemsOnThisPage
-            seriesId = json.GetValue("request", "programIds")[0]
+            seriesId = json.get_value("request", "programIds")[0]
 
             url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
                   "&offset=%s" \
@@ -626,7 +626,7 @@ class Channel(chn_class.Channel):
     def UpdateVideoEpgItemJson(self, item):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
         jsonData = JsonHelper(data)
-        videoId = jsonData.GetValue("response", "videos", 0, "id")
+        videoId = jsonData.get_value("response", "videos", 0, "id")
         return self.__UpdateVideoItem(item, videoId)
 
     def AddLiveChannel(self, data):
@@ -827,17 +827,17 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True, additionalHeaders=auth)
         jsonData = JsonHelper(data)
-        hls = jsonData.GetValue("response", "url", "hls-aes-linear")
+        hls = jsonData.get_value("response", "url", "hls-aes-linear")
         if not hls:
             return item
 
         # We can do this without DRM apparently.
         if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False) or True:
             # get the cookies
-            licenseServerUrl = jsonData.GetValue("response", "drm", "format", "hls-aes", "licenseServerUrl")
+            licenseServerUrl = jsonData.get_value("response", "drm", "format", "hls-aes", "licenseServerUrl")
             UriHandler.Open(licenseServerUrl, proxy=self.proxy, noCache=True)
             domain = ".license.medialaan.io"
-            channelPath = jsonData.GetValue("response", "broadcast", "channel")
+            channelPath = jsonData.get_value("response", "broadcast", "channel")
 
             # we need to fetch the specific cookies to pass on to the Adaptive add-on
             if channelPath == "2be":
@@ -868,7 +868,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url)
         jsonData = Regexer.DoRegex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
         jsonData = JsonHelper(jsonData[-1])
-        videoInfo = jsonData.GetValue('medialaan_player',)
+        videoInfo = jsonData.get_value('medialaan_player', )
         videoConfig = videoInfo[videoInfo.keys()[-1]]['videoConfig']['video']
         streams = videoConfig['formats']
         for stream in streams:
@@ -905,20 +905,20 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(mediaUrl, proxy=self.proxy, additionalHeaders=headers)
 
         jsonData = JsonHelper(data)
-        dashInfo = jsonData.GetValue("response", "dash-cenc")
+        dashInfo = jsonData.get_value("response", "dash-cenc")
         if self.__adaptiveStreamingAvailable and dashInfo:
             Logger.Debug("Using Dash streams to playback")
-            dashInfo = jsonData.GetValue("response", "dash-cenc")
+            dashInfo = jsonData.get_value("response", "dash-cenc")
             licenseUrl = dashInfo["widevineLicenseServerURL"]
             streamUrl = dashInfo["url"]
-            sessionId = jsonData.GetValue("request", "access_token")
+            sessionId = jsonData.get_value("request", "access_token")
 
             licenseHeader = {
                 "merchant": "medialaan",
                 "userId": self.__userId,
                 "sessionId": sessionId
             }
-            licenseHeader = JsonHelper.Dump(licenseHeader, False)
+            licenseHeader = JsonHelper.dump(licenseHeader, False)
             licenseHeaders = "x-dt-custom-data={0}&Content-Type=application/octstream".format(base64.b64encode(licenseHeader))
             licenseKey = "{0}?specConform=true|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
 
@@ -929,10 +929,10 @@ class Channel(chn_class.Channel):
         else:
             Logger.Debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
 
-            m3u8Url = jsonData.GetValue("response", "hls-encrypted", "url")
+            m3u8Url = jsonData.get_value("response", "hls-encrypted", "url")
             if not m3u8Url:
-                m3u8Url = jsonData.GetValue("response", "uri")
-                # m3u8Url = jsonData.GetValue("response", "hls-drm-uri")  # not supported by Kodi
+                m3u8Url = jsonData.get_value("response", "uri")
+                # m3u8Url = jsonData.get_value("response", "hls-drm-uri")  # not supported by Kodi
 
             part = item.CreateNewEmptyMediaPart()
             # Set the Range header to a proper value to make all streams start at the beginning. Make
@@ -968,24 +968,24 @@ class Channel(chn_class.Channel):
             self.__sso)
         data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         jsonData = JsonHelper(data)
-        return jsonData.GetValue("response")
+        return jsonData.get_value("response")
 
     def __ExtractSessionData(self, logonData, signatureSettings):
         logonJson = JsonHelper(logonData)
-        resultCode = logonJson.GetValue("statusCode")
+        resultCode = logonJson.get_value("statusCode")
         Logger.Trace("Logging in returned: %s", resultCode)
         if resultCode != 200:
-            Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
-                         logonJson.GetValue("errorDetails"))
+            Logger.Error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
+                         logonJson.get_value("errorDetails"))
             return False
 
-        signatureSetting = logonJson.GetValue("sessionInfo", "login_token")
+        signatureSetting = logonJson.get_value("sessionInfo", "login_token")
         if signatureSetting:
             Logger.Info("Found 'login_token'. Saving it.")
             AddonSettings.SetSetting(signatureSettings, signatureSetting.split("|")[0], store=LOCAL)
 
-        self.__signature = logonJson.GetValue("UIDSignature")
-        self.__userId = logonJson.GetValue("UID")
-        self.__signatureTimeStamp = logonJson.GetValue("signatureTimestamp")
-        self.__hasPremium = logonJson.GetValue("premium")
+        self.__signature = logonJson.get_value("UIDSignature")
+        self.__userId = logonJson.get_value("UID")
+        self.__signatureTimeStamp = logonJson.get_value("signatureTimestamp")
+        self.__hasPremium = logonJson.get_value("premium")
         return True

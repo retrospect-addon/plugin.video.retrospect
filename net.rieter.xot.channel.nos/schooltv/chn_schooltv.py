@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
             ages.items.append(ageItem)
 
             # We should list programs instead of videos, so just prefill them here.
-            for program in data.GetValue():
+            for program in data.get_value():
                 if age in program['ageGroups']:
                     ageItem.items.append(self.CreateEpisodeItem(program))
         items.append(ages)
@@ -183,9 +183,9 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
         json = JsonHelper(data)
-        totalResults = json.GetValue("totalResults")
-        fromValue = json.GetValue("from")
-        sizeValue = json.GetValue("size")
+        totalResults = json.get_value("totalResults")
+        fromValue = json.get_value("from")
+        sizeValue = json.get_value("size")
 
         if fromValue + sizeValue < totalResults:
             morePages = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
@@ -263,9 +263,9 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
 
         part = item.CreateNewEmptyMediaPart()
-        part.Subtitle = NpoStream.GetSubtitle(json.GetValue("mid"), proxy=self.proxy)
+        part.Subtitle = NpoStream.GetSubtitle(json.get_value("mid"), proxy=self.proxy)
 
-        for stream in json.GetValue("videoStreams"):
+        for stream in json.get_value("videoStreams"):
             if not stream["url"].startswith("odi"):
                 part.AppendMediaStream(stream["url"], stream["bitrate"]/1000)
                 item.complete = True
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
         if item.HasMediaItemParts():
             return item
 
-        for s, b in NpoStream.GetStreamsFromNpo(None, json.GetValue("mid"), proxy=self.proxy):
+        for s, b in NpoStream.GetStreamsFromNpo(None, json.get_value("mid"), proxy=self.proxy):
             item.complete = True
             part.AppendMediaStream(s, b)
 

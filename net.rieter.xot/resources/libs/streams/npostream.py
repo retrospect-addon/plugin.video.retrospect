@@ -56,7 +56,7 @@ class NpoStream:
                                params="autoplay=1",
                                proxy=proxy,
                                additionalHeaders=headers)
-        token = JsonHelper(data).GetValue("token")
+        token = JsonHelper(data).get_value("token")
         Logger.Trace("Found token %s", token)
 
         streamDataUrl = "https://start-player.npo.nl/video/{0}/streams?" \
@@ -69,13 +69,13 @@ class NpoStream:
 
         data = UriHandler.Open(streamDataUrl, proxy=proxy, additionalHeaders=headers)
         streamData = JsonHelper(data)
-        licenseUrl = streamData.GetValue("stream", "keySystemOptions", 0, "options", "licenseUrl")
-        licenseHeaders = streamData.GetValue("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
+        licenseUrl = streamData.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
+        licenseHeaders = streamData.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
         if licenseHeaders:
             licenseHeaders = '&'.join(["{}={}".format(k, v) for k, v in licenseHeaders.items()])
 
-        streamUrl = streamData.GetValue("stream", "src")
-        licenseType = streamData.GetValue("stream", "keySystemOptions", 0, "name")
+        streamUrl = streamData.get_value("stream", "src")
+        licenseType = streamData.get_value("stream", "keySystemOptions", 0, "name")
         licenseKey = "{0}|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
 
         # Actually set the stream
@@ -118,7 +118,7 @@ class NpoStream:
         tokenJsonData = UriHandler.Open("http://ida.omroep.nl/app.php/auth",
                                         noCache=True, proxy=proxy, additionalHeaders=headers)
         tokenJson = JsonHelper(tokenJsonData)
-        token = tokenJson.GetValue("token")
+        token = tokenJson.get_value("token")
 
         url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episodeId, token)
         streamData = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
@@ -126,7 +126,7 @@ class NpoStream:
             return []
 
         streamJson = JsonHelper(streamData, logger=Logger.Instance())
-        streamInfos = streamJson.GetValue("items")[0]
+        streamInfos = streamJson.get_value("items")[0]
         Logger.Trace(streamInfos)
         streams = []
         for streamInfo in streamInfos:
@@ -148,7 +148,7 @@ class NpoStream:
                 m3u8InfoUrl = streamInfo["url"]
                 m3u8InfoData = UriHandler.Open(m3u8InfoUrl, proxy=proxy, additionalHeaders=headers)
                 m3u8InfoJson = JsonHelper(m3u8InfoData, logger=Logger.Instance())
-                m3u8Url = m3u8InfoJson.GetValue("url")
+                m3u8Url = m3u8InfoJson.get_value("url")
                 streams += M3u8.GetStreamsFromM3u8(m3u8Url, proxy, headers=headers)
 
             elif streamInfo["format"] == "mp4":
@@ -160,7 +160,7 @@ class NpoStream:
                     url = url.replace("jsonp", "json")
                     mp4UrlData = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
                     mp4InfoJson = JsonHelper(mp4UrlData, logger=Logger.Instance())
-                    mp4Url = mp4InfoJson.GetValue("url")
+                    mp4Url = mp4InfoJson.get_value("url")
                 bitrate = bitrates.get(streamInfo["label"].lower(), 0)
                 if bitrate == 0 and "/ipod/" in mp4Url:
                     bitrate = 200

@@ -280,7 +280,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         json = JsonHelper(data, Logger.Instance())
-        videoData = json.GetValue("video")
+        videoData = json.get_value("video")
         if videoData:
             part = item.CreateNewEmptyMediaPart()
             if self.localIP:

@@ -198,9 +198,9 @@ class Channel(chn_class.Channel):
         items.append(slamFm)
 
         data = JsonHelper(data)
-        for e in data.GetValue("includes", "Entry"):
+        for e in data.get_value("includes", "Entry"):
             self.__liveData[e["sys"]["id"]] = e
-        for e in data.GetValue("includes", "Asset"):
+        for e in data.get_value("includes", "Asset"):
             self.__liveData[e["sys"]["id"]] = e
         return data, items
 

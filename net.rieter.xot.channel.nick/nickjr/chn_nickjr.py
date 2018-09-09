@@ -253,7 +253,7 @@ class Channel(chn_class.Channel):
 
         metaData = UriHandler.Open(item.url, proxy=self.proxy, referer=self.baseUrl)
         meta = JsonHelper(metaData)
-        streamParts = meta.GetValue("feed", "items")
+        streamParts = meta.get_value("feed", "items")
         for streamPart in streamParts:
             streamUrl = streamPart["group"]["content"]
             # streamUrl = streamUrl.replace("{device}", "ipad")
@@ -262,15 +262,15 @@ class Channel(chn_class.Channel):
             streamData = UriHandler.Open(streamUrl, proxy=self.proxy)
             stream = JsonHelper(streamData)
 
-            # subUrls = stream.GetValue("package", "video", "item", 0, "transcript", 0, "typographic")
+            # subUrls = stream.get_value("package", "video", "item", 0, "transcript", 0, "typographic")
             part = item.CreateNewEmptyMediaPart()
 
-            # m3u8Url = stream.GetValue("package", "video", "item", 0, "rendition", 0, "src")
+            # m3u8Url = stream.get_value("package", "video", "item", 0, "rendition", 0, "src")
             # for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
             #     item.complete = True
             #     part.AppendMediaStream(s, b)
 
-            rtmpDatas = stream.GetValue("package", "video", "item", 0, "rendition")
+            rtmpDatas = stream.get_value("package", "video", "item", 0, "rendition")
             for rtmpData in rtmpDatas:
                 rtmpUrl = rtmpData["src"]
                 rtmpUrl = rtmpUrl.replace("rtmpe://", "rtmp://")

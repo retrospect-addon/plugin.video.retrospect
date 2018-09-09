@@ -292,7 +292,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         json = JsonHelper(data)
-        videoInfo = json.GetValue("content", "videoInfos")
+        videoInfo = json.get_value("content", "videoInfos")
 
         part = item.CreateNewEmptyMediaPart()
         if "HLSurlHD" in videoInfo:
@@ -341,7 +341,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         json = JsonHelper(data)
-        videoPlayLists = json.GetValue("Video", "Playlists", "Playlist")
+        videoPlayLists = json.get_value("Video", "Playlists", "Playlist")
 
         part = item.CreateNewEmptyMediaPart()
         for playList in videoPlayLists:
@@ -357,7 +357,7 @@ class Channel(chn_class.Channel):
                 else:
                     Logger.Debug("Cannot use stream url: %s", streamUrl)
 
-        # videoInfo = json.GetValue("content", "videoInfos")
+        # videoInfo = json.get_value("content", "videoInfos")
         #
         # part = item.CreateNewEmptyMediaPart()
         # if "HLSurlHD" in videoInfo:

@@ -203,7 +203,7 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(url, bitrate)
 
         # geoLocRestriction
-        item.isGeoLocked = not mediaInfo.GetValue("geoLocRestriction", fallback="world") == "world"
+        item.isGeoLocked = not mediaInfo.get_value("geoLocRestriction", fallback="world") == "world"
         item.complete = True
         return item
 
@@ -216,7 +216,7 @@ class Channel(chn_class.Channel):
         Logger.Trace(mediaInfo)
         part = item.CreateNewEmptyMediaPart()
 
-        hlsUrl = mediaInfo.GetValue("streamUrl")
+        hlsUrl = mediaInfo.get_value("streamUrl")
         if hlsUrl is not None and "m3u8" in hlsUrl:
             Logger.Debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
             # from debug.router import Router
@@ -230,7 +230,7 @@ class Channel(chn_class.Channel):
             tokenUrl = "%s/api/media/streaming?streamname=%s" % (self.baseUrl, mediaInfo.json["streamName"])
             tokenData = UriHandler.Open(tokenUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
             tokenData = JsonHelper(tokenData)
-            token = tokenData.GetValue("token")
+            token = tokenData.get_value("token")
             Logger.Debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])
 
             rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
@@ -238,5 +238,5 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(rtmpUrl, 0)
             item.complete = True
 
-        item.isGeoLocked = not mediaInfo.GetValue("geoLocRestriction", fallback="world") == "world"
+        item.isGeoLocked = not mediaInfo.get_value("geoLocRestriction", fallback="world") == "world"
         return item

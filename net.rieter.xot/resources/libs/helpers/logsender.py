@@ -95,14 +95,14 @@ class LogSender:
         headers = {
             "Content-Type": "application/json"
         }
-        postData = JsonHelper.Dump(params, prettyPrint=False)
+        postData = JsonHelper.dump(params, pretty_print=False)
         data = UriHandler.Open("https://api.github.com/gists", params=postData,
                                proxy=self.__proxy, additionalHeaders=headers)
         if not data:
             raise IOError("Error posting Gist to GitHub")
 
         jsonData = JsonHelper(data)
-        url = jsonData.GetValue("html_url")
+        url = jsonData.get_value("html_url")
         if self.__logger:
             self.__logger.Info("Gist: %s", url)
 
@@ -111,11 +111,11 @@ class LogSender:
         # Content-Type: application/json
         shortener = {"longUrl": url}
         google = "https://www.googleapis.com/urlshortener/v1/url?key=%s" % (self.__apiKey,)
-        googleData = UriHandler.Open(google, params=JsonHelper.Dump(shortener, False),
+        googleData = UriHandler.Open(google, params=JsonHelper.dump(shortener, False),
                                      proxy=self.__proxy,
                                      additionalHeaders={"Content-Type": "application/json"})
 
-        googleUrl = JsonHelper(googleData).GetValue("id")
+        googleUrl = JsonHelper(googleData).get_value("id")
         if self.__logger:
             self.__logger.Info("Goo.gl: %s", googleUrl)
         return googleUrl
@@ -144,14 +144,14 @@ class LogSender:
         headers = {
             "Content-Type": "application/json"
         }
-        postData = JsonHelper.Dump(params, prettyPrint=False)
+        postData = JsonHelper.dump(params, pretty_print=False)
         data = UriHandler.Open("https://api.github.com/gists", params=postData,
                                proxy=self.__proxy, additionalHeaders=headers)
         if not data:
             raise IOError("Error posting Gist to GitHub")
 
         jsonData = JsonHelper(data)
-        url = jsonData.GetValue("html_url")
+        url = jsonData.get_value("html_url")
         if self.__logger:
             self.__logger.Info("Gist: %s", url)
 
@@ -160,11 +160,11 @@ class LogSender:
         # Content-Type: application/json
         shortener = {"longUrl": url}
         google = "https://www.googleapis.com/urlshortener/v1/url?key=%s" % (self.__apiKey, )
-        googleData = UriHandler.Open(google, params=JsonHelper.Dump(shortener, False),
+        googleData = UriHandler.Open(google, params=JsonHelper.dump(shortener, False),
                                      proxy=self.__proxy,
                                      additionalHeaders={"Content-Type": "application/json"})
 
-        return JsonHelper(googleData).GetValue("id")
+        return JsonHelper(googleData).get_value("id")
 
     def __SendPasteBin(self, name, code, expire='1M', pasteFormat=None, userKey=None):
         if not name:

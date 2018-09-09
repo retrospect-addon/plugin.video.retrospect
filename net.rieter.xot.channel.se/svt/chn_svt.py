@@ -250,7 +250,7 @@ class Channel(chn_class.Channel):
     #
     #     thumbData = UriHandler.Open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
     #     json = JsonHelper(thumbData)
-    #     for jsonData in json.GetValue():
+    #     for jsonData in json.get_value():
     #         if "thumbnail" not in jsonData:
     #             continue
     #         self.__thumbLookup[jsonData["url"]] = jsonData["thumbnail"]
@@ -284,7 +284,7 @@ class Channel(chn_class.Channel):
             serverTime = UriHandler.Open("https://www.svtplay.se/api/server_time",
                                          proxy=self.proxy, noCache=True)
             serverTimeJson = JsonHelper(serverTime)
-            serverTime = serverTimeJson.GetValue("time")
+            serverTime = serverTimeJson.get_value("time")
         except:
             Logger.Error("Error determining server time", exc_info=True)
             serverTime = "%04d-%02d-%02dT%02d:%02d:%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
@@ -305,7 +305,7 @@ class Channel(chn_class.Channel):
         # data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
-        slugs = json.GetValue("relatedVideoContent", "relatedVideosAccordion")
+        slugs = json.get_value("relatedVideoContent", "relatedVideosAccordion")
         for slugData in slugs:
             tabSlug = "?tab=%s" % (slugData["slug"], )
             if not self.parentItem.url.endswith(tabSlug):
@@ -423,7 +423,7 @@ class Channel(chn_class.Channel):
             return data, items
 
         jsonData = JsonHelper(data)
-        sections = jsonData.GetValue("relatedVideoContent", "relatedVideosAccordion")
+        sections = jsonData.get_value("relatedVideoContent", "relatedVideosAccordion")
         sections = filter(lambda s: s['type'] not in self.__excludedTabs, sections)
 
         Logger.Debug("Found %s folders/tabs", len(sections))
@@ -720,17 +720,17 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data, logger=Logger.Instance())
 
         # check for direct streams:
-        streams = json.GetValue("videoTitlePage", "video", "videoReferences")
-        subtitles = json.GetValue("videoTitlePage", "video", "subtitles")
+        streams = json.get_value("videoTitlePage", "video", "videoReferences")
+        subtitles = json.get_value("videoTitlePage", "video", "subtitles")
 
         if streams:
             Logger.Info("Found stream information within HTML data")
             return self.__UpdateItemFromVideoReferences(item, streams, subtitles)
 
-        videoId = json.GetValue("videoPage", "video", "id")
+        videoId = json.get_value("videoPage", "video", "id")
         # in case that did not work, try the old version.
         if not videoId:
-            videoId = json.GetValue("videoPage", "video", "programVersionId")
+            videoId = json.get_value("videoPage", "video", "programVersionId")
         if videoId:
             # item.url = "https://www.svt.se/videoplayer-api/video/%s" % (videoId, )
             item.url = "https://api.svt.se/videoplayer-api/video/%s" % (videoId, )
@@ -764,8 +764,8 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
         json = JsonHelper(data, logger=Logger.Instance())
-        videos = json.GetValue("videoReferences")
-        subtitles = json.GetValue("subtitleReferences")
+        videos = json.get_value("videoReferences")
+        subtitles = json.get_value("subtitleReferences")
         Logger.Trace(videos)
         return self.__UpdateItemFromVideoReferences(item, videos, subtitles)
 

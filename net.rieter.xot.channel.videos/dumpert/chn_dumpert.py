@@ -142,7 +142,7 @@ class Channel(chn_class.Channel):
             # "tablet": "http://media.dumpert.nl/tablet/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
             # "mobile": "http://media.dumpert.nl/mobile/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
 
-            streams = json.GetValue()
+            streams = json.get_value()
             for key in streams:
                 if key == "flv":
                     part.AppendMediaStream(streams[key], 1000)

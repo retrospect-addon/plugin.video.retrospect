@@ -178,7 +178,7 @@ class SubtitleHelper:
                 end = SubtitleHelper.__ConvertToTime(sub[1])
 
                 text = sub[2].replace('\"', '"')
-                text = JsonHelper.ConvertSpecialChars(text)
+                text = JsonHelper.convert_special_chars(text)
                 text = HtmlEntityHelper.ConvertHTMLEntities(text)
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1

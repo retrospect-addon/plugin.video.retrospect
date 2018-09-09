@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
             data = UriHandler.Open(url, proxy=self.proxy)
 
         json = JsonHelper(data)
-        urls = json.GetValue("targetUrls")
+        urls = json.get_value("targetUrls")
         for urlInfo in urls:
             Logger.Trace(urlInfo)
             if urlInfo["type"].lower() != "hls":

@@ -38,7 +38,7 @@ class Cloaker(object):
             self.__Store(False)
 
         if self.__logger:
-            self.__logger.Trace("Found cloaked data:\n%s", JsonHelper.Dump(self.__cloaked, prettyPrint=True))
+            self.__logger.Trace("Found cloaked data:\n%s", JsonHelper.dump(self.__cloaked, pretty_print=True))
 
     def Cloak(self, url):
         # type: (str) -> bool

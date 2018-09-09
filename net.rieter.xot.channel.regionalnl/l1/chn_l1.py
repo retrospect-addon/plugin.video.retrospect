@@ -210,7 +210,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(jsonData[0], logger=Logger.Instance())
         Logger.Trace(json)
 
-        streams = json.GetValue("assets")
+        streams = json.get_value("assets")
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
         for stream in streams:
@@ -221,8 +221,8 @@ class Channel(chn_class.Channel):
             if url:
                 part.AppendMediaStream(url, bitrate)
 
-        if not item.thumb and json.GetValue("thumbnails"):
-            url = json.GetValue("thumbnails")[0].get("src", None)
+        if not item.thumb and json.get_value("thumbnails"):
+            url = json.get_value("thumbnails")[0].get("src", None)
             if url and "http:/" not in url:
                 url = "%s%s" % (self.baseUrl, url)
             item.thumb = url

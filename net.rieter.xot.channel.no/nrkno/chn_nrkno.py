@@ -360,7 +360,7 @@ class Channel(chn_class.Channel):
             Logger.Error("Cannot update Live: %s", item)
             return item
 
-        source = manifest.GetValue("sourceMedium")
+        source = manifest.get_value("sourceMedium")
         if source == "audio":
             return self.__update_live_audio(item, manifest, headers)
         else:
@@ -373,7 +373,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
         video_data = JsonHelper(data)
-        stream_data = video_data.GetValue("mediaAssetsOnDemand")
+        stream_data = video_data.get_value("mediaAssetsOnDemand")
         if not stream_data:
             return item
 

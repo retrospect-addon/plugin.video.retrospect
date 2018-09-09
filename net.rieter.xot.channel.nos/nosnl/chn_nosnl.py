@@ -146,8 +146,6 @@ class Channel(chn_class.Channel):
 
         """
 
-        # Logger.Trace(JsonHelper.DictionaryToString(resultSet))
-
         videoId = resultSet['id']
         # category = resultSet["maincategory"].title()
         # subcategory = resultSet["subcategory"].title()
@@ -201,7 +199,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
         jsonData = JsonHelper(data)
-        streams = jsonData.GetValue("formats")
+        streams = jsonData.get_value("formats")
         if not streams:
             return item
 

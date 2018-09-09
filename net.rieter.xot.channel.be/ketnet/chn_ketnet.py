@@ -103,12 +103,12 @@ class Channel(chn_class.Channel):
 
         Logger.Trace(jsonData[0])
         json = JsonHelper(jsonData[0])
-        title = json.GetValue("title")
-        url = json.GetValue("source", "hls")
+        title = json.get_value("title")
+        url = json.get_value("source", "hls")
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'
-        item.description = json.GetValue("description", fallback=None)
-        item.thumb = json.GetValue("image", fallback=self.noImage)
+        item.description = json.get_value("description", fallback=None)
+        item.thumb = json.get_value("image", fallback=self.noImage)
         item.fanart = self.parentItem.fanart
         item.complete = False
         items.append(item)
@@ -152,9 +152,9 @@ class Channel(chn_class.Channel):
 
             json = JsonHelper(jsonData[0])
             Logger.Trace(json.json)
-            stream = json.GetValue("source", "hls")
+            stream = json.get_value("source", "hls")
             if stream is None:
-                stream = json.GetValue("mzsource", "hls")
+                stream = json.get_value("mzsource", "hls")
             Logger.Debug("Found HLS: %s", stream)
         else:
             stream = item.url

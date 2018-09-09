@@ -128,7 +128,7 @@ class Channel(chn_class.Channel):
         if "episode.json" in self.parentItem.url:
             Logger.Debug("Fetching Carousel data")
             json = JsonHelper(data)
-            data = json.GetValue("carousel")
+            data = json.get_value("carousel")
 
         Logger.Debug("Pre-Processing finished")
         return data, items

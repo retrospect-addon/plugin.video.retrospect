@@ -49,7 +49,7 @@ class Updater:
     def __getOnlineVersion(self):
         data = self.__uriHandler.open(self.updateUrl, noCache=True)
         jsonData = JsonHelper(data)
-        onlineDownloads = list(filter(lambda d: self.__isValidUpdate(d), jsonData.GetValue("values")))
+        onlineDownloads = list(filter(lambda d: self.__isValidUpdate(d), jsonData.get_value("values")))
         if len(onlineDownloads) == 0:
             return None
 

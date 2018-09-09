@@ -174,7 +174,7 @@ class TextureHandler:
             self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", jsonCmd, results.json)
             return
 
-        results = results.GetValue("result", "textures", fallback=[])
+        results = results.get_value("result", "textures", fallback=[])
         for result in results:
             textureId = result["textureid"]
             textureUrl = result["url"]

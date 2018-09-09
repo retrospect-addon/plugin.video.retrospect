@@ -333,14 +333,14 @@ class Channel(chn_class.Channel):
         # u'file_http_hd': u'urplay/_definst_/mp4: 178000-178999/178963-7.mp4/',
 
         # generic server information
-        proxy = json.GetValue("streaming_config", "streamer", "redirect")
+        proxy = json.get_value("streaming_config", "streamer", "redirect")
         if proxy is None:
             proxyData = UriHandler.Open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, noCache=True)
             proxyJson = JsonHelper(proxyData)
-            proxy = proxyJson.GetValue("redirect")
+            proxy = proxyJson.get_value("redirect")
         Logger.Trace("Found RTMP Proxy: %s", proxy)
 
-        rtmpApplication = json.GetValue("streaming_config", "rtmp", "application")
+        rtmpApplication = json.get_value("streaming_config", "rtmp", "application")
         Logger.Trace("Found RTMP Application: %s", rtmpApplication)
 
         # find all streams
@@ -350,14 +350,14 @@ class Channel(chn_class.Channel):
                 continue
 
             bitrate = streams[streamType]
-            streamUrl = json.GetValue(streamType)
+            streamUrl = json.get_value(streamType)
             Logger.Trace(streamUrl)
             if not streamUrl:
                 Logger.Debug("%s was found but was empty as stream.", streamType)
                 continue
 
             #onlySweden = False
-            if streamUrl.startswith("se/") or ":se/" in streamUrl:  # or json.GetValue("only_in_sweden"): -> will be in the future
+            if streamUrl.startswith("se/") or ":se/" in streamUrl:  # or json.get_value("only_in_sweden"): -> will be in the future
                 onlySweden = True
                 Logger.Warning("Streams are only available in Sweden: onlySweden=%s", onlySweden)
                 # No need to replace the se/ part. Just log.
@@ -376,7 +376,7 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(url.strip("/"), bitrate)
 
         # get the subtitles
-        captions = json.GetValue("subtitles")
+        captions = json.get_value("subtitles")
         subtitle = None
         for caption in captions:
             language = caption["label"]

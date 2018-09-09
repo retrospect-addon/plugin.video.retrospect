@@ -169,7 +169,7 @@ class Channel(chn_class.Channel):
         for s in streams:
             if "anifest" in s or "smil?" in s:
                 continue
-            s = JsonHelper.ConvertSpecialChars(s)
+            s = JsonHelper.convert_special_chars(s)
             if s.startswith("rtmp"):
                 continue
 

@@ -169,10 +169,10 @@ class Channel(chn_class.Channel):
     def ExtractPageData(self, data):
         items = []
         json = JsonHelper(data)
-        data = json.GetValue("data")
+        data = json.get_value("data")
         Logger.Trace(data)
 
-        if json.GetValue("loadMore", fallback=False):
+        if json.get_value("loadMore", fallback=False):
             url, page = self.parentItem.url.rsplit("/", 1)
             url = "{0}/{1}".format(url, int(page) + 1)
             pageItem = MediaItem("{0}".format(int(page) + 2), url)
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
             }
             data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=authenticationHeader)
             jsonData = JsonHelper(data)
-            m3u8Url = jsonData.GetValue("video", "S")
+            m3u8Url = jsonData.get_value("video", "S")
 
         # Geo Locked?
         if "geo" in m3u8Url.lower():

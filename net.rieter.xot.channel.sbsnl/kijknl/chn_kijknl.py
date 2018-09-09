@@ -222,7 +222,7 @@ class Channel(chn_class.Channel):
     def ExtractDayItems(self, data):
         items = []
         json = JsonHelper(data)
-        page_items = json.GetValue('items')
+        page_items = json.get_value('items')
         for item in page_items:
             video_item = self.CreateJsonVideoItem(item, prepend_serie=True)
             if video_item:
@@ -336,7 +336,7 @@ class Channel(chn_class.Channel):
 
         useAdaptiveWithEncryption = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
         # useAdaptiveWithEncryption = False
-        mpdInfo = json.GetValue("entitlements", "play")
+        mpdInfo = json.get_value("entitlements", "play")
         part = item.CreateNewEmptyMediaPart()
 
         # is there MPD information in the API response?
@@ -365,7 +365,7 @@ class Channel(chn_class.Channel):
                 return item
 
         # Try the plain M3u8 streams
-        m3u8Url = json.GetValue("playlist")
+        m3u8Url = json.get_value("playlist")
         useAdaptive = AddonSettings.UseAdaptiveStreamAddOn()
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url paramter instead of an empty m3u8 file
@@ -389,8 +389,8 @@ class Channel(chn_class.Channel):
             return item
 
         Logger.Warning("No M3u8 data found. Falling back to BrightCove")
-        videoId = json.GetValue("vpakey")
-        # videoId = json.GetValue("videoId") -> Not all items have a videoId
+        videoId = json.get_value("vpakey")
+        # videoId = json.get_value("videoId") -> Not all items have a videoId
         mpdManifestUrl = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
         referer = "https://embed.kijk.nl/video/%s" % (videoId,)
 
@@ -426,7 +426,7 @@ class Channel(chn_class.Channel):
             brightCoveData = UriHandler.Open(brightCoveUrl, proxy=self.proxy,
                                              additionalHeaders=headers)
             brightCoveJson = JsonHelper(brightCoveData)
-            streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.GetValue("sources"))
+            streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.get_value("sources"))
             if streams:
                 # noinspection PyTypeChecker
                 streamUrl = streams[0]["src"]

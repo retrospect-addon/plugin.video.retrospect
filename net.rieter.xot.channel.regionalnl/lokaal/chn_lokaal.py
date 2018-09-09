@@ -212,7 +212,7 @@ class Channel(chn_class.Channel):
 
         # we basically will check for live channels
         jsonData = JsonHelper(data, logger=Logger.Instance())
-        liveStreams = jsonData.GetValue()
+        liveStreams = jsonData.get_value()
 
         Logger.Trace(liveStreams)
         if "videos" in liveStreams:

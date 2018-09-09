@@ -168,7 +168,7 @@ class Channel(chn_class.Channel):
                                 additionalHeaders={"X-Requested-With": "XMLHttpRequest"})
 
         jsonToken = JsonHelper(token)
-        token = jsonToken.GetValue("token")
+        token = jsonToken.get_value("token")
         if not token:
             return False
         xsrfToken = UriHandler.GetCookie("XSRF-TOKEN", "www.npostart.nl").value
@@ -214,7 +214,7 @@ class Channel(chn_class.Channel):
         newData = ""
 
         jsonData = JsonHelper(data)
-        tiles = jsonData.GetValue("tiles")
+        tiles = jsonData.get_value("tiles")
         if not isinstance(tiles,  (tuple, list)):
             Logger.Debug("Found single tile data blob")
             newData = tiles
@@ -226,7 +226,7 @@ class Channel(chn_class.Channel):
         # More pages?
         maxCount = 5
         currentCount = 1
-        nextPage = jsonData.GetValue("nextLink")
+        nextPage = jsonData.get_value("nextLink")
         queryString = self.parentItem.url.split("&", 1)[-1]
 
         httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
@@ -245,7 +245,7 @@ class Channel(chn_class.Channel):
 
             pageData = UriHandler.Open(nextPage, proxy=self.proxy, additionalHeaders=httpHeaders)
             jsonData = JsonHelper(pageData)
-            tiles = jsonData.GetValue("tiles")
+            tiles = jsonData.get_value("tiles")
             if not isinstance(tiles, (tuple, list)):
                 Logger.Debug("Found single tile data blob")
                 newData = "%s%s\n" % (newData, tiles)
@@ -253,7 +253,7 @@ class Channel(chn_class.Channel):
                 Logger.Debug("Found multiple tile data blobs")
                 for itemData in tiles:
                     newData = "%s%s\n" % (newData, itemData)
-            nextPage = jsonData.GetValue("nextLink")
+            nextPage = jsonData.get_value("nextLink")
 
         if nextPage and currentCount == maxCount:
             # There are more pages
@@ -993,9 +993,9 @@ class Channel(chn_class.Channel):
               "quality=npo&streamType=livetv&mobile=0&ios=0&isChromecast=0".format(episodeId)
         dashData = UriHandler.Open(url, proxy=self.proxy)
         dashJson = JsonHelper(dashData)
-        dashUrl = dashJson.GetValue("stream", "src")
-        dashLicenseUrl = dashJson.GetValue("stream", "keySystemOptions", 0, "options", "licenseUrl")
-        dashHeaders = dashJson.GetValue("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
+        dashUrl = dashJson.get_value("stream", "src")
+        dashLicenseUrl = dashJson.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
+        dashHeaders = dashJson.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
         dashHeaders[u"Referer"] = unicode(url)
         dashLicense = Mpd.GetLicenseKey(dashLicenseUrl, keyHeaders=dashHeaders, keyType="R")
 

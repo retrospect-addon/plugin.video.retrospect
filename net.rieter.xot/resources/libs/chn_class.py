@@ -298,7 +298,7 @@ class Channel:
                         handlerJson = JsonHelper(handlerData, Logger.Instance())
 
                 Logger.Trace(dataParser.Parser)
-                parserResults = handlerJson.GetValue(fallback=[], *dataParser.Parser)
+                parserResults = handlerJson.get_value(fallback=[], *dataParser.Parser)
 
                 if not isinstance(parserResults, (tuple, list)):
                     # if there is just one match, return that as a list
@@ -475,7 +475,7 @@ class Channel:
         elif self.episodeItemJson is not None:
             Logger.Trace("Using JsonHelper for episodes")
             json = JsonHelper(data, Logger.Instance())
-            episodeItems = json.GetValue(*self.episodeItemJson)
+            episodeItems = json.get_value(*self.episodeItemJson)
             watch.Lap("Mainlist Json complete")
 
         Logger.Debug('Starting CreateEpisodeItem for %s items', len(episodeItems))
@@ -629,7 +629,7 @@ class Channel:
     #
     #     elif not self.pageNavigationJson is None:
     #         pageJson = JsonHelper(data, logger=Logger.Instance())
-    #         pages = pageJson.GetValue(*self.pageNavigationJson)
+    #         pages = pageJson.get_value(*self.pageNavigationJson)
     #
     #         if pages is None:
     #             # no matches, so no pages

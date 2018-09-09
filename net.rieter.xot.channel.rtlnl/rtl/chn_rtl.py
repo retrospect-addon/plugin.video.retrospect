@@ -175,24 +175,24 @@ class Channel(chn_class.Channel):
         # Extract season (called abstracts) information
         self.abstracts = dict()  # : the season
         Logger.Debug("Storing abstract information")
-        for abstract in self.currentJson.GetValue("abstracts"):
+        for abstract in self.currentJson.get_value("abstracts"):
             self.abstracts[abstract["key"]] = abstract
 
         # If we have episodes available, list them
         self.episodes = dict()
-        if "episodes" in self.currentJson.GetValue():
+        if "episodes" in self.currentJson.get_value():
             Logger.Debug("Storing episode information")
-            for episode in self.currentJson.GetValue("episodes"):
+            for episode in self.currentJson.get_value("episodes"):
                 self.episodes[episode["key"]] = episode
 
         # extract some meta data
-        self.posterBase = self.currentJson.GetValue("meta", "poster_base_url")
-        self.thumbBase = self.currentJson.GetValue("meta", "thumb_base_url")
+        self.posterBase = self.currentJson.get_value("meta", "poster_base_url")
+        self.thumbBase = self.currentJson.get_value("meta", "thumb_base_url")
 
         # And create page items
-        itemsOnPage = int(self.currentJson.GetValue("meta", "nr_of_videos_onpage"))
-        totalItems = int(self.currentJson.GetValue("meta", "nr_of_videos_total"))
-        currentPage = self.currentJson.GetValue("meta", "pg")
+        itemsOnPage = int(self.currentJson.get_value("meta", "nr_of_videos_onpage"))
+        totalItems = int(self.currentJson.get_value("meta", "nr_of_videos_total"))
+        currentPage = self.currentJson.get_value("meta", "pg")
         if currentPage == "all":
             currentPage = 1
         else:

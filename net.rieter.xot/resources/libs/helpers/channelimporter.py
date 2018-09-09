@@ -414,7 +414,7 @@ class ChannelIndex:
                 }
 
         with io.open(self.__CHANNEL_INDEX, 'w+b') as f:
-            f.write(JsonHelper.Dump(index))
+            f.write(JsonHelper.dump(index))
 
         # now we marked that we already re-indexed.
         self.__reindexed = True
