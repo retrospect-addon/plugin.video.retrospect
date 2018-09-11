@@ -26,7 +26,7 @@
 
             <item library="resources\menus\menu_refresh.py">
                 <label>30529</label>
-                <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
+                <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)|ListItem.Property(RetrospectChannel)</visible>
             </item>
 
             <item library="resources\menus\menu_hide_channel.py">
