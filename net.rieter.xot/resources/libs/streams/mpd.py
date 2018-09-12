@@ -7,12 +7,15 @@ class Mpd:
 
     @staticmethod
     def SetInputStreamAddonInput(strm, proxy=None, headers=None,
-                                 licenseKey=None, licenseType="com.widevine.alpha"):
+                                 licenseKey=None, licenseType="com.widevine.alpha",
+                                 maxBitRate=None):
 
         return Adaptive.SetInputStreamAddonInput(strm, proxy, headers,
                                                  manifestType="mpd",
                                                  licenseKey=licenseKey,
-                                                 licenseType=licenseType)
+                                                 licenseType=licenseType,
+                                                 maxBitRate=maxBitRate
+                                                 )
 
     @staticmethod
     def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None, keyValue=None):

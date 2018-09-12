@@ -61,9 +61,14 @@ class M3u8:
 
     @staticmethod
     def SetInputStreamAddonInput(strm, proxy=None, headers=None,
-                                 licenseKey=None, licenseType=None):
-        return Adaptive.SetInputStreamAddonInput(strm, proxy, headers, manifestType="hls",
-                                                 licenseKey=licenseKey, licenseType=licenseType)
+                                 licenseKey=None, licenseType=None,
+                                 maxBitRate=None):
+        return Adaptive.SetInputStreamAddonInput(strm, proxy, headers,
+                                                 manifestType="hls",
+                                                 licenseKey=licenseKey,
+                                                 licenseType=licenseType,
+                                                 maxBitRate=maxBitRate
+                                                 )
 
     @staticmethod
     def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None, keyValue=None):

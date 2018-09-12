@@ -20,6 +20,7 @@ from addonsettings import AddonSettings
 from logger import Logger
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.encodinghelper import EncodingHelper
+from streams.adaptive import Adaptive
 
 
 class MediaItem:
@@ -829,10 +830,10 @@ class MediaItemPart:
         """
 
         if self.Name:
-            Logger.Debug("Creating XBMC ListItem '%s'", self.Name)
+            Logger.Debug("Creating Kodi ListItem '%s'", self.Name)
             item = parent.GetXBMCItem(name=self.Name)
         else:
-            Logger.Debug("Creating XBMC ListItem '%s'", parent.name)
+            Logger.Debug("Creating Kodi ListItem '%s'", parent.name)
             item = parent.GetXBMCItem()
 
         if not bitrate:
@@ -844,12 +845,15 @@ class MediaItemPart:
 
         # now find the correct quality stream and set the properties if there are any
         stream = self.GetMediaStreamForBitrate(bitrate)
+        if stream.Adaptive:
+            Adaptive.SetMaxBitrate(stream, maxBitRate=bitrate)
+
         for prop in stream.Properties:
-            Logger.Trace("Adding stream property: %s", prop)
+            Logger.Trace("Adding Kodi property: %s", prop)
             item.setProperty(prop[0], prop[1])
 
         if updateItemUrls:
-            Logger.Info("Updating xbmc playlist-item path: %s", stream.Url)
+            Logger.Info("Updating Kodi playlist-item path: %s", stream.Url)
             item.setProperty("path", stream.Url)
 
         return stream, item
@@ -988,6 +992,7 @@ class MediaStream:
         self.Bitrate = int(bitrate)
         self.Downloaded = False
         self.Properties = []
+        self.Adaptive = False
 
         for prop in args:
             self.AddProperty(prop[0], prop[1])
