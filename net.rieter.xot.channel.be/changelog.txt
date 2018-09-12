@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: VRT.nu DRM support (Fixes #1002)
+* Fixed: VRT.nu changed site layout (Fixes #1008)
 
 [I]Previous Changes[/I]
+* Added: VRT.nu DRM support (Fixes #1002)
 * Fixed: Single video items were not parsed for VRT.nu (Fixes #1002)
 * Fixed: VTM.be updated their site (Fixes #1003)
 * Updated: Belgium logo's and images (See #1005)

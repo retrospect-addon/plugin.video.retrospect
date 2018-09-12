@@ -42,14 +42,21 @@ class Channel(chn_class.Channel):
         self.mainListUri = "https://www.vrt.be/vrtnu/a-z/"
         self.baseUrl = "https://www.vrt.be"
 
-        episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*){2}' \
-                       '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>[^ ]+)' \
-                       '[\w\W]{0,1000}?<h3[^>]+>(?<title>[^<]+)</h3>\W*<hr[^>]*>\W*' \
-                       '(?:<div[^>]*>|<div[^>]*><p>)(?<description>[^<]+)(?:<br[^>]*>)?' \
-                       '(?<descriptionMore>[^<]*)?(?:</div>|</p></div>)(?:\W*</div>){1}\W+' \
-                       '(?:<div class="tile__brand"[^>]+>\W+<svg[^>]+>\W+<title[^<]+</title>\W+' \
-                       '<use xlink:href="[^"]*#logo-(?<channel>[^"]+)"><.use>\W+</svg>\W+' \
-                       '</div>){0,1}\W+</a>'
+        # first regex is a bit tighter than the second one.
+        # episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<picture[^>]*>' \
+        #                '\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="[^"]*(?<thumburl>//[^ ]+) \d+x"' \
+        #                '[\w\W]{0,1000}?(?:<div[^>]*data-brand="(?<channel>[^"]+)">[^>]*>\s*' \
+        #                '<div[^>]*>\s*(?:<div[^>]*>[^>]+>\s*)?)?' \
+        #                '<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
+        #                '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
+        #                '(?:</p>)?\W*</div>'
+        episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<picture[^>]*>' \
+                       '\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="[^"]*(?<thumburl>//[^ ]+) \d+x"' \
+                       '[\w\W]{0,1000}?(?:<div[^>]*data-brand="(?<channel>[^"]+)">' \
+                       '[\w\W]{0,200}?)?' \
+                       '<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
+                       '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
+                       '(?:</p>)?\W*</div>'
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
