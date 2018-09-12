@@ -86,7 +86,7 @@ class Menu(ParameterParser):
         @return: None
         """
 
-        valid_channels = ChannelIndex.get_register().GetChannels(includeDisabled=True)
+        valid_channels = ChannelIndex.get_register().get_channels(include_disabled=True)
         channels_to_show = filter(lambda c: c.visible, valid_channels)
 
         selected_channels = filter(lambda c: c.enabled, channels_to_show)
