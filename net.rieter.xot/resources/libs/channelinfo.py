@@ -142,14 +142,14 @@ class ChannelInfo:
         """Returns a string representation of the current channel."""
 
         if self.channelCode is None:
-            return "%s [%s-%s, %s, %s, %s] (Order: %s)" % (
-                self.channelName, self.id, self.version, self.language, self.category,
-                self.guid, self.sortOrderPerCountry
+            return "%s [%s-%s=%s, %s=%s, %s, %s] (Order: %s)" % (
+                self.channelName, self.id, self.version, self.enabled, self.language,
+                self.visible, self.category, self.guid, self.sortOrderPerCountry
             )
         else:
-            return "%s (%s) [%s-%s, %s, %s, %s] (Order: %s)" % (
-                self.channelName, self.channelCode, self.id, self.version, self.language,
-                self.category, self.guid, self.sortOrderPerCountry
+            return "%s (%s) [%s-%s=%s, %s=%s, %s, %s] (Order: %s)" % (
+                self.channelName, self.channelCode, self.id, self.version, self.enabled,
+                self.language, self.visible, self.category, self.guid, self.sortOrderPerCountry
             )
 
     def __repr__(self):

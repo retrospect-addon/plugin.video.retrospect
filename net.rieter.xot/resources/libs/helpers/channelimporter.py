@@ -174,6 +174,8 @@ class ChannelIndex:
         platform = envcontroller.EnvController.GetPlatform()
 
         channelsUpdated = False
+        countryVisibility = {}
+
         for channelSet in self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY]:
             channelSet = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY][channelSet]
             channelSetInfoPath = channelSet[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
@@ -226,20 +228,16 @@ class ChannelIndex:
                     continue
                 validChannels.append(channelInfo)
 
-                # was the channel disabled?
-                if not AddonSettings.GetChannelVisibility(channelInfo):
-                    Logger.Warning("Not loading: %s -> Channel was explicitly disabled from settings.", channelInfo)
-                    continue
+                # was the channel hidden based on language settings? We do some caching to speed
+                # things up.
+                if channelInfo.language not in countryVisibility:
+                    countryVisibility[channelInfo.language] = AddonSettings.ShowChannelWithLanguage(channelInfo.language)
+                channelInfo.visible = countryVisibility[channelInfo.language]
 
-                # from this point on the channel was enabled, but it could be hidden due to country
-                # of origin settings.
-                channelInfo.enabled = True
-                if not AddonSettings.ShowChannelWithLanguage(channelInfo.language):
-                    Logger.Warning("Not loading: %s -> Channel country of origin was disabled from settings.", channelInfo)
-                    continue
+                # was the channel explicitly disabled from the settings?
+                channelInfo.enabled = AddonSettings.GetChannelVisibility(channelInfo)
 
-                channelInfo.visible = True
-                Logger.Debug("Loading: %s", channelInfo)
+                Logger.Debug("Found channel: %s", channelInfo)
 
         if channelsUpdated:
             Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
@@ -250,7 +248,7 @@ class ChannelIndex:
             # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
         validChannels.sort()
-        visibleChannels = filter(lambda c: c.visible, validChannels)
+        visibleChannels = filter(lambda c: c.visible and c.enabled, validChannels)
         Logger.Info("Fetch a total of %d channels of which %d are visible.",
                     len(validChannels),
                     len(visibleChannels))

@@ -81,16 +81,18 @@ class Menu(ParameterParser):
 
     def SelectChannels(self):
         validChannels = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
-        selectedChannels = filter(lambda c: c.enabled, validChannels)
-        selectedIndices = map(lambda c: validChannels.index(c), selectedChannels)
+        channelsToShow = filter(lambda c: c.visible, validChannels)
+
+        selectedChannels = filter(lambda c: c.enabled, channelsToShow)
+        selectedIndices = map(lambda c: channelsToShow.index(c), selectedChannels)
         Logger.Debug("Currently selected channels: %s", selectedIndices)
 
-        validChannelNames = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName),
-                                validChannels)
+        channelToShowNames = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName),
+                                 channelsToShow)
 
         dialog = xbmcgui.Dialog()
         heading = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelSelection)[:-1]
-        selectedChannels = dialog.multiselect(heading, validChannelNames,
+        selectedChannels = dialog.multiselect(heading, channelToShowNames,
                                               preselect=selectedIndices)
         if selectedChannels is None:
             return
@@ -98,17 +100,16 @@ class Menu(ParameterParser):
         selectedChannels = list(selectedChannels)
         Logger.Debug("New selected channels:       %s", selectedChannels)
 
-        # TODO: we actually need to do something with them
         indicesToRemove = filter(lambda i: i not in selectedChannels, selectedIndices)
         indicesToAdd = filter(lambda i: i not in selectedIndices, selectedChannels)
         for i in indicesToRemove:
-            Logger.Info("Hiding channel: %s", validChannels[i])
-            AddonSettings.SetChannelVisiblity(validChannels[i], False)
+            Logger.Info("Hiding channel: %s", channelsToShow[i])
+            AddonSettings.SetChannelVisiblity(channelsToShow[i], False)
             pass
 
         for i in indicesToAdd:
-            Logger.Info("Showing channel: %s", validChannels[i])
-            AddonSettings.SetChannelVisiblity(validChannels[i], True)
+            Logger.Info("Showing channel: %s", channelsToShow[i])
+            AddonSettings.SetChannelVisiblity(channelsToShow[i], True)
 
         self.Refresh()
         return
