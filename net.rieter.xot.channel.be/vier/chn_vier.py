@@ -53,17 +53,10 @@ class Channel(chn_class.Channel):
                             parser=episodeRegex,
                             creator=self.CreateEpisodeItem)
 
-        videoRegex = '<a[^>]+href="(?<url>/video/[^"]+)"[^<]+<div[^<]+<div class="card-teaser__image[^>]+image=(?<thumburl>[^)]+)[\w\W]{0,2000}?<div[^>]+data-videoid="(?<videoid>[^"]+)"[\w\W]{0,2000}?<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>\W*<div[^>]*>[^<]*</div>\W+<div[^>]+timestamp="(?<timestamp>\d+)'
+        videoRegex = '<a(?:[^>]+data-background-image="(?<thumburl>[^"]+)")?[^>]+href="(?<url>/video/[^"]+)"[^>]*>(?:\s+<div[^>]+>\s+<div [^>]+data-background-image="(?<thumburl2>[^"]+)")?[\w\W]{0,1000}?<h3[^>]*>(?:<span>)?(?<title>[^<]+)(?:</span>)?</h3>(?:\s+(?:<div[^>]*>\s+)?<div[^>]*>[^<]+</div>\s+<div[^>]+data-timestamp="(?<timestamp>\d+)")?'
         videoRegex = Regexer.FromExpresso(videoRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             name="Normal video items",
-                            parser=videoRegex,
-                            creator=self.CreateVideoItem)
-
-        videoRegex = '<a[^>]+image=(?<thumburl>[^)]+)[^<]+href="(?<url>/video/[^"]+)"[^<]+<div[^<]+<h3[^>]*>(?<title>[^<]+)</h3>\W*<div[^>]*>[^<]*</div>\W+<div[^>]+>\W*<div[^<]*data-videoid="(?<videoid>[^"]+)"'
-        videoRegex = Regexer.FromExpresso(videoRegex)
-        self._AddDataParser("*", matchType=ParserData.MatchExact,
-                            name="Big-image video items",
                             parser=videoRegex,
                             creator=self.CreateVideoItem)
 
@@ -80,11 +73,11 @@ class Channel(chn_class.Channel):
                             parser=videoRegex,
                             creator=self.CreateVideoItem)
 
-        imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)(?:</div>\W*<div[^>]*>\W*)?<div[^>]+data-videoid="(?<videoid>[^"]+)"'
-        imageVideoRegex = Regexer.FromExpresso(imageVideoRegex)
-        self._AddDataParser("*", matchType=ParserData.MatchExact,
-                            parser=imageVideoRegex,
-                            creator=self.CreateVideoItem)
+        # imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)(?:</div>\W*<div[^>]*>\W*)?<div[^>]+data-videoid="(?<videoid>[^"]+)"'
+        # imageVideoRegex = Regexer.FromExpresso(imageVideoRegex)
+        # self._AddDataParser("*", matchType=ParserData.MatchExact,
+        #                     parser=imageVideoRegex,
+        #                     creator=self.CreateVideoItem)
 
         # Generic updater with login
         self._AddDataParser("*",
@@ -209,21 +202,21 @@ class Channel(chn_class.Channel):
 
         item = chn_class.Channel.CreateVideoItem(self, resultSet)
 
-        if "date" in resultSet:
-            day, month, year = resultSet["date"].split("/")
-            item.SetDate(year, month, day)
-
         # All of vier.be video's seem GEO locked.
         item.isGeoLocked = True
 
         # Set the correct url
         # videoId = resultSet["videoid"]
         # item.url = "https://api.viervijfzes.be/content/%s" % (videoId, )
-        if "timestamp" in resultSet:
+        time_stamp = resultSet.get("timestamp")
+        if time_stamp:
             dateTime = DateHelper.GetDateFromPosix(int(resultSet["timestamp"]))
             item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
                          dateTime.minute,
                          dateTime.second)
+
+        if not item.thumb and "thumburl2" in resultSet and resultSet["thumburl2"]:
+            item.thumb = resultSet["thumburl2"]
 
         if item.thumb and item.thumb != self.noImage:
             item.thumb = HtmlEntityHelper.StripAmp(item.thumb)

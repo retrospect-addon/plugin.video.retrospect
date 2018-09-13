@@ -1,12 +1,10 @@
-[B]Retrospect v4.1.7~beta17 - Changelog - 2018-09-12[/B]
+[B]Retrospect v4.1.7~beta18 - Changelog - 2018-09-13[/B]
 
 [B]Framework related[/B]
-* Added: max_bitrate for Adaptive Add-on streams (taken from the Retrospect settings)
-* Changed: make selecting channels a bit more easy by not showing those that are hidden due to the country settings (Fixes #1007)
-* Added: Refresh on channel list
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: VRT.nu changed site layout (Fixes #1008)
+* Fixed: Vier.be and vijf.be updated their site (Fixes #1009)

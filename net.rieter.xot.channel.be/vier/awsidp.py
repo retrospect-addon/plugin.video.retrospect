@@ -101,7 +101,8 @@ class AwsIdp:
 
         authResponseJson = JsonHelper(authResponse)
         if "message" in authResponseJson.json:
-            raise ValueError(authResponseJson.GetValue("message"))
+            self.__logger.Error("Error logging in: %s", authResponseJson.GetValue("message"))
+            return None, None
 
         idToken = authResponseJson.GetValue("AuthenticationResult", "IdToken")
         refreshToken = authResponseJson.GetValue("AuthenticationResult", "RefreshToken")
