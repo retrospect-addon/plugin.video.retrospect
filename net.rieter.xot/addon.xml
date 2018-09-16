@@ -10,6 +10,7 @@
         <import addon="script.module.requests" version="2.18.0"/>
         <import addon="inputstream.adaptive" version="2.0.19" optional="true" />
         <import addon="plugin.video.youtube" version="6.0.0" optional="true" />
+        <import addon="script.module.inputstreamhelper" version="0.3.3" optional="true" />
     </requires>
 
     <extension  point="xbmc.python.pluginsource"
@@ -97,12 +98,17 @@
                     <label>30528</label>
                     <visible>ListItem.Property(Retrospect)</visible>
                 </item>
+
+                <!--item library="resources\menus\menu_install_widevine.py">
+                    <label>30532</label>
+                    <visible>ListItem.Property(Retrospect)+System.HasAddon(inputstream.adaptive)+System.HasAddon(script.module.inputstreamhelper)</visible>
+                </item-->
             </menu>
         </menu>
     </extension>
 
     <extension point="xbmc.addon.metadata">
-        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
         <platform>all</platform>
         <summary lang="en">Retrospect (previously XBMC Online TV) is a plugin that allows the playback of a lot of TV shows that are available (legally) via the broadcasters websites.</summary>
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>

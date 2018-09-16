@@ -11,7 +11,8 @@
         <setting id="list_limit" type="enum" label="30026" default="5" lvalues="30074|30199|30200|30201|30202|30203|30204|30205" />
         <setting id="show_cloaked_items" type="bool" label="30095" default="false" />
         <setting id="use_adaptive_addon" type="bool" label="30571" default="true" enable="System.HasAddon(inputstream.adaptive)" />
-        <setting id="adaptive_addon_settings" subsetting="true" type="action" label="30578" action="Addon.OpenSettings(inputstream.adaptive)" option="close" enable="System.HasAddon(inputstream.adaptive)+eq(-1,true)" />
+        <setting id="adaptive_addon_settings" subsetting="true" type="action" label="30578" action="Addon.OpenSettings(inputstream.adaptive)" option="close" enable="System.HasAddon(inputstream.adaptive)" visible="eq(-1,true)" />
+        <setting id="widevine_install" subsetting="true" type="action" label="30532" option="close" action="RunScript(special://home/addons/net.rieter.xot/resources/menus/menu_install_widevine.py,net.rieter.xot)" enable="System.HasAddon(script.module.inputstreamhelper)" visible="eq(-2,true)"/>
 
         <setting type="lsep" label="30089" />
         <!-- we need the option="close" here to make sure we don't overwrite settings that were

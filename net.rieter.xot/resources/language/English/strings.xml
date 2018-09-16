@@ -168,11 +168,11 @@
     <string id="30528">Add-on Settings</string>
     <string id="30529">Refresh list</string>
     <string id="30530">Check for Retrospect updates</string>
-    <!--<string id="30531"></string>-->
-    <!--<string id="30532"></string>-->
-    <!--<string id="30533"></string>-->
-    <!--<string id="30534"></string>-->
-    <!--<string id="30535"></string>-->
+    <string id="30531">Missing 'InputStream Helper' add-on. Cannot install.</string>
+    <string id="30532">Install Widevine using 'InputStream Helper' add-on</string>
+    <string id="30533">Installing Widevine libraries using the 'InputStream Helper' add-on is done at your own risk and Retrospect is not responsible for any results. Nor is it guaranteed that Widevine will be installed correctly.</string>
+    <string id="30534">Installation of WideVine failed!</string>
+    <string id="30535">Installation of WideVine completed!</string>
     <!--<string id="30536"></string>-->
     <!--<string id="30537"></string>-->
     <string id="30538">The selected live stream has not yet|begun.</string>
