@@ -1,10 +1,10 @@
-[B]Retrospect v4.1.7~beta18 - Changelog - 2018-09-13[/B]
+[B]Retrospect v4.1.7~beta19 - Changelog - 2018-09-16[/B]
 
 [B]Framework related[/B]
--
+* Added: a bit smarter subtitle format handling and HTML entity conversion for WebVTT files (Fixes #1011)
 
 [B]GUI/Settings/Language related[/B]
--
+* Fixed: HTML entities in Translation Typoos
 
 [B]Channel related[/B]
-* Fixed: Vier.be and vijf.be updated their site (Fixes #1009)
+* Fixed: no images for A-Z listing (Fixes #1010)

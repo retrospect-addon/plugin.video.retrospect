@@ -104,6 +104,11 @@ class SubtitleHelper:
                 Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
                 raw = raw.decode('unicode_escape')
 
+            # do some auto detection
+            if raw.startswith("WEBVTT") and format != "webvtt":
+                Logger.Info("Discovered subtitle format 'webvtt' instead of '%s'", format)
+                format = "webvtt"
+
             if format.lower() == 'sami':
                 srt = SubtitleHelper.__ConvertSamiToSrt(raw)
             elif format.lower() == 'srt':
@@ -283,8 +288,11 @@ class SubtitleHelper:
                     result = "%s\n00:%s --> 00:%s" % (result, start.replace(".", ","), end.replace(".", ","))
                 else:
                     result = "%s\n%s --> %s" % (result, start.replace(".", ","), end.replace(".", ","))
+            elif line == str(count + 1):
+                # we apparently have built-in numbering using WebVTT cue-numbering
+                continue
             else:
-                result = "%s\n%s" % (result, line)
+                result = "%s\n%s" % (result, HtmlEntityHelper.ConvertHTMLEntities(line))
 
         return result
 
