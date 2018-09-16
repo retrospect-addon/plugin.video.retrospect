@@ -34,9 +34,9 @@
     <string id="30043">Folder prefix</string>
     <string id="30046">DRM/Geo-blocked/Premium filters</string>
     <string id="30048">Log level</string>
-    <!--<string id="30049"></string>-->
-    <!--<string id="30050"></string>-->
-    <!--<string id="30051"></string>-->
+    <string id="30049">Premium/Paid</string>
+    <string id="30050">DRM Protected</string>
+    <string id="30051">Hidden item</string>
     <string id="30052">Send usage statistics</string>
     <string id="30053">Appearance</string>
     <string id="30055">Advanced</string>

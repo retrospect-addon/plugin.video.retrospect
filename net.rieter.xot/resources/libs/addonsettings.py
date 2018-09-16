@@ -42,6 +42,9 @@ class AddonSettings(object):
     __setting_stores = {}
     __settings_lock = threading.Lock()
 
+    __language_strings = {}
+    __language_current = None
+
     @staticmethod
     def store(storeLocation):
         store = AddonSettings.__setting_stores.get(storeLocation, None)
@@ -287,6 +290,16 @@ class AddonSettings(object):
         return not currentGeografficalRegion == channelRegion
 
     @staticmethod
+    def SetLanguage():
+        language = xbmc.getLanguage()
+        if AddonSettings.__language_current != language:
+            AddonSettings.__language_strings = {}
+            Logger.Info("Setting langauge from %s to %s", AddonSettings.__language_current, language)
+            AddonSettings.__language_current = language
+
+        return
+
+    @staticmethod
     def GetLocalizedString(stringId):
         """ returns a localized string for this id
 
@@ -295,7 +308,12 @@ class AddonSettings(object):
 
         """
 
-        return AddonSettings.store(KODI).get_localized_string(stringId)
+        translation = AddonSettings.__language_strings.get(stringId, None)
+        if translation is None:
+            translation = AddonSettings.store(KODI).get_localized_string(stringId)
+            AddonSettings.__language_strings[stringId] = translation
+
+        return translation
 
     @staticmethod
     def SendUsageStatistics():

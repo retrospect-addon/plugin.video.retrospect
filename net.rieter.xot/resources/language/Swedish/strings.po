@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-08-08 14:50+0000\n"
+"POT-Creation-Date: 2018-09-16 22:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -141,6 +141,18 @@ msgctxt "#30048"
 msgid "Log level"
 msgstr "Loggnivå"
 
+msgctxt "#30049"
+msgid "Premium/Paid"
+msgstr "Premium/Betal"
+
+msgctxt "#30050"
+msgid "DRM Protected"
+msgstr "DRM skyddade"
+
+msgctxt "#30051"
+msgid "Hidden item"
+msgstr "Dolt objekt"
+
 msgctxt "#30052"
 msgid "Send usage statistics"
 msgstr "Skicka användningsstatistik"
@@ -250,7 +262,7 @@ msgid "Apply filter to"
 msgstr "Tilldela filter till"
 
 msgctxt "#30083"
-msgid "Folders &amp; Streams"
+msgid "Folders & Streams"
 msgstr "Mappar & strömmar"
 
 msgctxt "#30084"
@@ -556,6 +568,26 @@ msgstr "Uppdatera listan"
 msgctxt "#30530"
 msgid "Check for Retrospect updates"
 msgstr "Uppdatera Retrospect"
+
+msgctxt "#30531"
+msgid "Missing 'InputStream Helper' add-on. Cannot install."
+msgstr ""
+
+msgctxt "#30532"
+msgid "Install Widevine using 'InputStream Helper' add-on"
+msgstr ""
+
+msgctxt "#30533"
+msgid "Installing Widevine libraries using the 'InputStream Helper' add-on is done at your own risk and Retrospect is not responsible for any results. Nor is it guaranteed that Widevine will be installed correctly."
+msgstr ""
+
+msgctxt "#30534"
+msgid "Installation of WideVine failed!"
+msgstr ""
+
+msgctxt "#30535"
+msgid "Installation of WideVine completed!"
+msgstr ""
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."

@@ -38,7 +38,10 @@ def RunPlugin():
                                       dualLogger=lambda x, y=4: xbmc.log(x, y))
 
         from urihandler import UriHandler
+
         from addonsettings import AddonSettings
+        AddonSettings.SetLanguage()
+
         from textures import TextureHandler
 
         # update the loglevel

@@ -48,6 +48,9 @@ class LanguageHelper:
     NoLiveStreamId = 30538
     NoLiveStreamTitleId = 30539
     GeoLockedId = 30540
+    PremiumPaid = 30049
+    DrmProtected = 30050
+    HiddenItem = 30051
     QueueItemId = 30541
     StartingAddonId = 30542
     SeasonId = 30543

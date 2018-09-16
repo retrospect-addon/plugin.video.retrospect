@@ -20,6 +20,7 @@ from addonsettings import AddonSettings
 from logger import Logger
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.encodinghelper import EncodingHelper
+from helpers.languagehelper import LanguageHelper
 from streams.adaptive import Adaptive
 
 
@@ -662,16 +663,24 @@ class MediaItem:
 
         if self.isDrmProtected:
             titlePostfix.append(drmLock)
-            descriptionAddition.append("DRM Protected")
+            descriptionAddition.append(
+                LanguageHelper.GetLocalizedString(LanguageHelper.DrmProtected))
+
         if self.isGeoLocked:
             titlePostfix.append(geoLock)
-            descriptionAddition.append("Geo Locked")
+            descriptionAddition.append(
+                LanguageHelper.GetLocalizedString(LanguageHelper.GeoLockedId))
+
         if self.isPaid:
             titlePostfix.append(paid)
-            descriptionAddition.append("Premium/Paid")
+            descriptionAddition.append(
+                LanguageHelper.GetLocalizedString(LanguageHelper.PremiumPaid))
+
         if self.isCloaked:
             titlePostfix.append(cloaked)
-            descriptionAddition.append("Cloaked")
+            descriptionAddition.append(
+                LanguageHelper.GetLocalizedString(LanguageHelper.HiddenItem))
+
         # actually update it
         if descriptionAddition:
             descriptionAddition = " / ".join(descriptionAddition)

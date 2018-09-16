@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-09-16 20:15+0000\n"
+"POT-Creation-Date: 2018-09-16 22:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -161,10 +161,17 @@ msgctxt "#30048"
 msgid "Log level"
 msgstr ""
 
-#<string id="30049"></string>
-#<string id="30050"></string>
-#<string id="30051"></string>
-#empty strings from id 30049 to 30051
+msgctxt "#30049"
+msgid "Premium/Paid"
+msgstr ""
+
+msgctxt "#30050"
+msgid "DRM Protected"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Hidden item"
+msgstr ""
 
 msgctxt "#30052"
 msgid "Send usage statistics"

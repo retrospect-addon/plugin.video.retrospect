@@ -34,9 +34,9 @@
     <string id="30043">Folder voorvoegsel</string>
     <string id="30046">DRM/GEO-geblokeerd/Premium filters</string>
     <string id="30048">Log level</string>
-    <!--<string id="30049"></string>-->
-    <!--<string id="30050"></string>-->
-    <!--<string id="30051"></string>-->
+    <string id="30049">Premium/Betaald</string>
+    <string id="30050">DRM Beschermd</string>
+    <string id="30051">Verborgen item</string>
     <string id="30052">Verzend gebruiksstatistieken</string>
     <string id="30053">Weergaven</string>
     <string id="30055">Geadvanceerd</string>
@@ -168,11 +168,11 @@
     <string id="30528">Add-on instellingen</string>
     <string id="30529">Ververs lijst</string>
     <string id="30530">Controleer Retrospect updates</string>
-    <!--<string id="30531"></string>-->
-    <!--<string id="30532"></string>-->
-    <!--<string id="30533"></string>-->
-    <!--<string id="30534"></string>-->
-    <!--<string id="30535"></string>-->
+    <string id="30531">'InputStream Helper' add-on ontbreekt. Kan Widevine niet installeren.</string>
+    <string id="30532">Installeer Widevine met de 'InputStream Helper' add-on</string>
+    <string id="30533">Het installeren van de Widevine bestanden met de 'InputStream Helper' add-on is op eigen risico en Retrospect is niet verantwoordelijk voor enig resultaat. Ook wordt het niet gegarandeerd dat Widevine succesvol kan worden geinstalleerd.</string>
+    <string id="30534">Widevine installatie mislukt!</string>
+    <string id="30535">Widevine installatie gelukt</string>
     <!--<string id="30536"></string>-->
     <!--<string id="30537"></string>-->
     <string id="30538">De geselecteerde live stream is nog|niet begonnen.</string>
@@ -206,7 +206,6 @@
     <string id="30566">Om een item weer te tonen zal Retrospect eerst geconfigureerd moeten worden om verborgen items te tonen. Daarna kan het context menu gebruikt worden om een item weer te tonen.</string>
     <string id="30567">Add-on(s) uitgeschakeld</string>
     <string id="30568">Enkele Retrospect kanaal add-ons zijn uitgeschakeld waardoor ze niet auto-updaten. De Kodi addon-verkenner zal worden geopend waarin de Retrospect gerelateerde add-ons kunen worden geactiveerd. Zie http://kodi.wiki/view/add-on_manager.</string>
-    <string id="30568">Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager.</string>
     <string id="30569">SSL verificatie fouten negeren (Veiligheids risico!)</string>
     <string id="30570">Verberg kanaal initializatie meldingen</string>
     <string id="30571">Gebruik de InputStream Adaptive add-on wanneer mogelijk</string>
@@ -215,6 +214,7 @@
     <string id="30574">Kanaal verbergen</string>
     <string id="30575">Retrospect Favorieten &#187;</string>
     <string id="30576">Landen Selecteren</string>
+    <string id="30577">Kanaal Bitrate &#187;</string>
     <string id="30578">InputStream Adaptive stream add-on instellingen</string>
 
     <string id="30590">Stel een nieuwe Retrospect PIN in</string>
