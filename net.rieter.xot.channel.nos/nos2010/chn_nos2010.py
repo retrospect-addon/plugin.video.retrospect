@@ -92,7 +92,7 @@ class Channel(chn_class.Channel):
         # Alpha listing and paging for that list
         self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
 
-        episodeParser = Regexer.FromExpresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+(?:image:\s?url\(.(?<thumburl>[^)]+).\))?[^)>]*>')
+        episodeParser = Regexer.FromExpresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
         self._AddDataParsers(["https://www.npostart.nl/media/series?page=", ],
                              name="Parser for main series overview pages",
                              preprocessor=self.ExtractTiles,
@@ -611,8 +611,6 @@ class Channel(chn_class.Channel):
         # set the POW id
         item.url = resultSet["url"]
         item.isPaid = "premium" in resultSet["class"]
-
-        # TODO: set date
 
         try:
             dateTime = resultSet["date2"].strip().replace("  ", " ").split(" ")

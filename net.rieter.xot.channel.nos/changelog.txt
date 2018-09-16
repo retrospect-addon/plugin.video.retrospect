@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Changed: Moved `recent` items to own folder
-* Added: use Widevine for Live streams if possible (so we have subtitles)
+* Fixed: no images for A-Z listing (Fixes #1010)
 
 [I]Previous Changes[/I]
+* Changed: Moved `recent` items to own folder
+* Added: use Widevine for Live streams if possible (so we have subtitles)
 * Added: recent shows for the past days to the NPO channel (Fixes #990)
 * Fixed: NPO live channels (Fixes #978)
 * Fixed: NPO regex issue (Fixes #975)
