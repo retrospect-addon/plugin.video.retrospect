@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7~beta19 - Changelog - 2018-09-17[/B]
+[B]Retrospect v4.1.7~beta20 - Changelog - 2018-09-17[/B]
 
 [B]Framework related[/B]
 * Added: Caching of translations
