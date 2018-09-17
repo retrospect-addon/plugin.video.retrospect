@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
-"POT-Creation-Date: 2018-09-16 22:14+0000\n"
+"POT-Creation-Date: 2018-09-17 20:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE\n"
@@ -664,8 +664,11 @@ msgid "Installation of WideVine completed!"
 msgstr ""
 
 #<string id="30536"></string>
-#<string id="30537"></string>
-#empty strings from id 30536 to 30537
+#empty string with id 30536
+
+msgctxt "#30537"
+msgid "Page"
+msgstr ""
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."

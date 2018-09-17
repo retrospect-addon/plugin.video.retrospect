@@ -703,7 +703,7 @@ class MediaItem:
 
         if self.type == 'page':
             # We need to add the Page prefix to the item
-            name = "Page %s" % (name,)
+            name = "%s %s" % (LanguageHelper.GetLocalizedString(LanguageHelper.Page), name)
             Logger.Debug("GetXBMCItem :: Adding Page Prefix")
 
         elif self.__date != '' and not self.IsPlayable():

@@ -43,8 +43,8 @@ class LanguageHelper:
     # CheckForUpdatesId = 30534
     # RepoVerificationId = 30535
     # CacheCheckId = 30536
-    # CacheCleanupId = 30537
 
+    Page = 30537
     NoLiveStreamId = 30538
     NoLiveStreamTitleId = 30539
     GeoLockedId = 30540

@@ -1,10 +1,11 @@
-[B]Retrospect v4.1.7~beta19 - Changelog - 2018-09-16[/B]
+[B]Retrospect v4.1.7~beta19 - Changelog - 2018-09-17[/B]
 
 [B]Framework related[/B]
-* Added: a bit smarter subtitle format handling and HTML entity conversion for WebVTT files (Fixes #1011)
+* Added: Caching of translations
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: HTML entities in Translation Typoos
+* Fixed: Translate Geo-Blocked, Paid/Premium and Hidden Item in the item descriptions (Fixes #1013)
+* Fixed: 'Page' translation was missing (Fixes #1013)
 
 [B]Channel related[/B]
 * Fixed: no images for A-Z listing (Fixes #1010)
