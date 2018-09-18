@@ -683,7 +683,7 @@ class MediaItem:
 
         # actually update it
         if descriptionAddition:
-            descriptionAddition = " / ".join(descriptionAddition)
+            descriptionAddition = ", ".join(descriptionAddition)
             description = "\n\n%s" % (descriptionAddition, )
         if titlePostfix:
             title = " %s" % ("".join(titlePostfix), )
