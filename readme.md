@@ -42,6 +42,10 @@ The cloned GIT repository should contain the folders mentioned above. Now either
 #### Option B - ....via 'Full Zip Download' ####
 Download the complete GIT repo and extract it into the Kodi Add-on folder.
 
+#### Caution!
+Be aware that if you install it using *Option A* or *Option B* Kodi will **disable** the add-on by default and it will **not install any of the dependencies**. So you need to enable it manually and install all the dependencies by hand. Starting from Kodi Leia this is easier as it has a "View Dependencies" option of add-ons.   
+
+
 ### 3 - Updating Retrospect ###
 
 #### Option A - ....via 'GIT Clone' ####
