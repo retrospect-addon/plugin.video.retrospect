@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Vier.be and vijf.be updated their site (Fixes #1009)
+* Fixed: missing episodes for VRT.nu (Fixes #1021)
 
 [I]Previous Changes[/I]
+* Fixed: Vier.be and vijf.be updated their site (Fixes #1009)
 * Fixed: VRT.nu changed site layout (Fixes #1008)
 * Added: VRT.nu DRM support (Fixes #1002)
 * Fixed: Single video items were not parsed for VRT.nu (Fixes #1002)
