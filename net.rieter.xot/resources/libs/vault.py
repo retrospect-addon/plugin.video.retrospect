@@ -203,13 +203,18 @@ class Vault:
         """
 
         applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING, store=LOCAL)
-        if not applicationKeyEncrypted:
+        # The key was never in the local store the value was None. It was "" if it was reset.
+        if applicationKeyEncrypted is None:
             applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING, store=KODI)
             if not applicationKeyEncrypted:
                 return None
 
             Logger.Info("Moved ApplicationKey to local storage")
             AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, applicationKeyEncrypted, store=LOCAL)
+
+        # Still no application key? Then there was no key!
+        if applicationKeyEncrypted == "" or applicationKeyEncrypted is None:
+            return None
 
         vaultIncorrectPin = LanguageHelper.GetLocalizedString(LanguageHelper.VaultIncorrectPin)
         pin = XbmcWrapper.ShowKeyBoard(
