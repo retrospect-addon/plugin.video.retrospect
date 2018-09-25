@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="net.rieter.xot"
-        version="4.1.7~beta20"
+        version="4.1.7~beta21"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -114,16 +114,16 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v4.1.7~beta20 - Changelog - 2018-09-17[/B]
+        <news>[B]Retrospect v4.1.7~beta21 - Changelog - 2018-09-26[/B]
 
 [B]Framework related[/B]
-* Added: Caching of translations
+* Fixed: Retrospect Vault could not reset correctly (See #1021)
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Translate Geo-Blocked, Paid/Premium and Hidden Item in the item descriptions (Fixes #1013)
-* Fixed: 'Page' translation was missing (Fixes #1013)
+* Update: minor language things (See #1013)
 
 [B]Channel related[/B]
-* Fixed: no images for A-Z listing (Fixes #1010)</news>
+* Fixed: missing episodes for VRT.nu (Fixes #1021)
+* Fixed: SVT Listing of Live Channels broke (Fixes #1023)</news>
     </extension>
 </addon>

@@ -1,11 +1,11 @@
-[B]Retrospect v4.1.7~beta20 - Changelog - 2018-09-17[/B]
+[B]Retrospect v4.1.7~beta21 - Changelog - 2018-09-26[/B]
 
 [B]Framework related[/B]
-* Added: Caching of translations
+* Fixed: Retrospect Vault could not reset correctly (See #1021)
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Translate Geo-Blocked, Paid/Premium and Hidden Item in the item descriptions (Fixes #1013)
-* Fixed: 'Page' translation was missing (Fixes #1013)
+* Update: minor language things (See #1013)
 
 [B]Channel related[/B]
-* Fixed: no images for A-Z listing (Fixes #1010)
+* Fixed: missing episodes for VRT.nu (Fixes #1021)
+* Fixed: SVT Listing of Live Channels broke (Fixes #1023)
