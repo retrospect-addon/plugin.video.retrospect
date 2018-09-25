@@ -667,7 +667,7 @@ class Channel(chn_class.Channel):
             channelId = "barnkanalen"
         else:
             channelTitle = channel["channel"]
-        description = channel["longDescription"]
+        description = channel.get("longDescription")
 
         dateFormat = "%Y-%m-%dT%H:%M:%S"
         startTime = DateHelper.GetDateFromString(channel["publishingTime"][:19], dateFormat)

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
+* Fixed: SVT Listing of Live Channels broke (Fixes #1023)
 
 [I]Previous changes[/I]
+* Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
 * Fixed: some TV4 stream did not work if the Adaptive Stream add-on was not used (Fixes #988)
 * Added: Animal Planet, Discovery, Discovery World, Discovery Science, Investigative Discovery and VOX via dplay.no (Fixes #959)
 * Added: Dplay.no FEM, MAX and TLC seperate channels (See #959)
