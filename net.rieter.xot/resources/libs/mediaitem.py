@@ -664,22 +664,22 @@ class MediaItem:
         if self.isDrmProtected:
             titlePostfix.append(drmLock)
             descriptionAddition.append(
-                LanguageHelper.GetLocalizedString(LanguageHelper.DrmProtected))
+                LanguageHelper.get_localized_string(LanguageHelper.DrmProtected))
 
         if self.isGeoLocked:
             titlePostfix.append(geoLock)
             descriptionAddition.append(
-                LanguageHelper.GetLocalizedString(LanguageHelper.GeoLockedId))
+                LanguageHelper.get_localized_string(LanguageHelper.GeoLockedId))
 
         if self.isPaid:
             titlePostfix.append(paid)
             descriptionAddition.append(
-                LanguageHelper.GetLocalizedString(LanguageHelper.PremiumPaid))
+                LanguageHelper.get_localized_string(LanguageHelper.PremiumPaid))
 
         if self.isCloaked:
             titlePostfix.append(cloaked)
             descriptionAddition.append(
-                LanguageHelper.GetLocalizedString(LanguageHelper.HiddenItem))
+                LanguageHelper.get_localized_string(LanguageHelper.HiddenItem))
 
         # actually update it
         if descriptionAddition:
@@ -703,7 +703,7 @@ class MediaItem:
 
         if self.type == 'page':
             # We need to add the Page prefix to the item
-            name = "%s %s" % (LanguageHelper.GetLocalizedString(LanguageHelper.Page), name)
+            name = "%s %s" % (LanguageHelper.get_localized_string(LanguageHelper.Page), name)
             Logger.Debug("GetXBMCItem :: Adding Page Prefix")
 
         elif self.__date != '' and not self.IsPlayable():

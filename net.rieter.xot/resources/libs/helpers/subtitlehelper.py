@@ -292,7 +292,7 @@ class SubtitleHelper:
                 # we apparently have built-in numbering using WebVTT cue-numbering
                 continue
             else:
-                result = "%s\n%s" % (result, HtmlEntityHelper.ConvertHTMLEntities(line))
+                result = "%s\n%s" % (result, HtmlEntityHelper.convert_html_entities(line))
 
         return result
 
