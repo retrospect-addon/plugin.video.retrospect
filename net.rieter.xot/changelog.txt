@@ -1,11 +1,10 @@
-[B]Retrospect v4.1.7~beta21 - Changelog - 2018-09-26[/B]
+[B]Retrospect v4.1.7~beta22 - Changelog - 2018-10-01[/B]
 
 [B]Framework related[/B]
-* Fixed: Retrospect Vault could not reset correctly (See #1021)
+-
 
 [B]GUI/Settings/Language related[/B]
-* Update: minor language things (See #1013)
+-
 
 [B]Channel related[/B]
-* Fixed: missing episodes for VRT.nu (Fixes #1021)
-* Fixed: SVT Listing of Live Channels broke (Fixes #1023)
+* Fixed: empty category listings in VRT.nu (Fixes #1024)
