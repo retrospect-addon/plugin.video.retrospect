@@ -83,7 +83,7 @@ class Channel(chn_class.Channel):
 
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
                    '*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
-                   '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<span[^>]+title"[^>]*>(?<title>[^<]+)'
+                   '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
         catregex = Regexer.FromExpresso(catregex)
         self._AddDataParser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
                             matchType=ParserData.MatchExact,
