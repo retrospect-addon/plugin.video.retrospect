@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7~beta22 - Changelog - 2018-10-01[/B]
+[B]Retrospect v4.1.7~beta23 - Changelog - 2018-10-07[/B]
 
 [B]Framework related[/B]
 -
@@ -7,4 +7,4 @@
 -
 
 [B]Channel related[/B]
-* Fixed: empty category listings in VRT.nu (Fixes #1024)
+* Fixed: VRT.nu live streams (Fixes #1028)
