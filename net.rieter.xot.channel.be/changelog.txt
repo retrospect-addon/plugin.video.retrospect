@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: empty category listings in VRT.nu (Fixes #1024)
+* Fixed: VRT.nu live streams (Fixes #1028)
 
 [I]Previous Changes[/I]
+* Fixed: empty category listings in VRT.nu (Fixes #1024)
 * Fixed: missing episodes for VRT.nu (Fixes #1021)
 * Fixed: Vier.be and vijf.be updated their site (Fixes #1009)
 * Fixed: VRT.nu changed site layout (Fixes #1008)

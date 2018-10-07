@@ -422,11 +422,18 @@ class Channel(chn_class.Channel):
             Logger.Error("Cannot update live stream that is not an M3u8: %s", item.url)
 
         part = item.CreateNewEmptyMediaPart()
+        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
+        if adaptiveAvailable:
+            stream = part.AppendMediaStream(item.url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            return item
+
         for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
             item.complete = True
             # apparently they split up M3u8 streams and audio streams, so we need to fix that here
             # this is an ugly fix, but it will work!
-            s = s.replace(".m3u8", "-audio_track=96000.m3u8")
+            if "-audio_" not in s:
+                s = s.replace(".m3u8", "-audio_track=96000.m3u8")
             part.AppendMediaStream(s, b)
         return item
 
