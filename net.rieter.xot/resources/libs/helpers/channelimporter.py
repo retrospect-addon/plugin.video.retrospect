@@ -254,7 +254,7 @@ class ChannelIndex:
                     len(valid_channels),
                     len(visible_channels))
 
-        sw.Stop()
+        sw.stop()
 
         if include_disabled:
             return valid_channels

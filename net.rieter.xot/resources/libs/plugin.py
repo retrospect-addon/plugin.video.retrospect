@@ -392,7 +392,7 @@ class Plugin(ParameterParser):
             if favorites is None:
                 watcher = StopWatch("Plugin ProcessFolderList", Logger.Instance())
                 episodeItems = self.channelObject.ProcessFolderList(selectedItem)
-                watcher.Lap("Class ProcessFolderList finished")
+                watcher.lap("Class ProcessFolderList finished")
             else:
                 watcher = StopWatch("Plugin ProcessFolderList With Items", Logger.Instance())
                 episodeItems = favorites
@@ -446,17 +446,17 @@ class Plugin(ParameterParser):
                 # Add them to the list of XBMC items
                 xbmcItems.append((url, item, folder))
 
-            watcher.Lap("Kodi Items generated")
+            watcher.lap("Kodi Items generated")
             # add items but if OK was False, keep it like that
             ok = ok and xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
-            watcher.Lap("items send to Kodi")
+            watcher.lap("items send to Kodi")
 
             if selectedItem is None and self.channelObject is not None:
                 # mainlist item register channel.
                 Statistics.register_channel_open(self.channelObject, Initializer.StartTime)
-                watcher.Lap("Statistics send")
+                watcher.lap("Statistics send")
 
-            watcher.Stop()
+            watcher.stop()
 
             self.__AddSortMethodToHandle(self.handle, episodeItems)
 

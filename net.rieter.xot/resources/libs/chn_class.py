@@ -470,13 +470,13 @@ class Channel:
         if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
             Logger.Trace("Using Regexer for episodes")
             episodeItems = Regexer.DoRegex(self.episodeItemRegex, data)
-            watch.Lap("Mainlist Regex complete")
+            watch.lap("Mainlist Regex complete")
 
         elif self.episodeItemJson is not None:
             Logger.Trace("Using JsonHelper for episodes")
             json = JsonHelper(data, Logger.Instance())
             episodeItems = json.get_value(*self.episodeItemJson)
-            watch.Lap("Mainlist Json complete")
+            watch.lap("Mainlist Json complete")
 
         Logger.Debug('Starting CreateEpisodeItem for %s items', len(episodeItems))
         for episodeItem in episodeItems:
@@ -489,7 +489,7 @@ class Channel:
         # Filter out the duplicates using the HASH power of a set
         items = list(set(items))
 
-        watch.Lap("MediaItem creation complete")
+        watch.lap("MediaItem creation complete")
         self.mainListItems = items
 
         if returnData:
@@ -1205,7 +1205,7 @@ class Channel:
         else:
             # make sure we sort by keylength and then start with the longest one.
             keys = sorted(self.dataParsers.keys(), key=len, reverse=True)
-            # watch.Lap("DataParsers sorted")
+            # watch.lap("DataParsers sorted")
 
             # filter them in order
             for key in keys:
@@ -1215,14 +1215,14 @@ class Channel:
                 if dataParsers:
                     Logger.Trace("Found %s direct DataParsers matches", len(dataParsers))
                     break
-            # watch.Lap("DataParsers filtered")
+            # watch.lap("DataParsers filtered")
 
         if not dataParsers:
             # Let's use a fallback
             key = "*"
             dataParsers = self.dataParsers.get(key, None)
 
-        # watch.Lap("DataParsers processed")
+        # watch.lap("DataParsers processed")
 
         if not dataParsers:
             Logger.Error("No DataParsers found for '%s'", url)
