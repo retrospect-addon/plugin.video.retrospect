@@ -106,7 +106,7 @@ class Channel(chn_class.Channel):
             items.append(liveItem)
 
         # add "More"
-        more = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         currentUrl = self.parentItem.url if self.parentItem is not None else self.mainListUri
         url, page = currentUrl.rsplit("=", 1)
         url = "{}={}".format(url, int(page) + 1)
@@ -125,7 +125,7 @@ class Channel(chn_class.Channel):
         if item is None:
             return item
 
-        timeStamp = DateHelper.GetDateFromString(resultSet["date"], "%d-%m-%Y %H:%M")
+        timeStamp = DateHelper.get_date_from_string(resultSet["date"], "%d-%m-%Y %H:%M")
         item.SetDate(*timeStamp[0:6])
         return item
 
@@ -135,7 +135,7 @@ class Channel(chn_class.Channel):
         jsonData = jsonData.decode('unicode-escape').encode('ascii')
         jsonData = jsonData.replace("\\\\", "")
         json = JsonHelper(jsonData)
-        stream = json.GetValue("file")
+        stream = json.get_value("file")
         if not stream:
             return item
 

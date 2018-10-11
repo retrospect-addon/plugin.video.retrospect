@@ -85,14 +85,14 @@ class Channel(chn_class.Channel):
         xml = resultSet[0]
         xmlData = xmlhelper.XmlHelper(xml)
 
-        title = xmlData.GetSingleNodeContent("title")
-        eTitle = xmlData.GetSingleNodeContent("episodetitel")
+        title = xmlData.get_single_node_content("title")
+        eTitle = xmlData.get_single_node_content("episodetitel")
         if not eTitle == title:
             title = "%s - %s" % (title, eTitle)
-        thumb = xmlData.GetSingleNodeContent("thumbnail")
-        url = xmlData.GetSingleNodeContent("movie")
-        date = xmlData.GetSingleNodeContent("broadcastdatetime")
-        desc = xmlData.GetSingleNodeContent("samenvattinglang") or title
+        thumb = xmlData.get_single_node_content("thumbnail")
+        url = xmlData.get_single_node_content("movie")
+        date = xmlData.get_single_node_content("broadcastdatetime")
+        desc = xmlData.get_single_node_content("samenvattinglang") or title
 
         item = mediaitem.MediaItem(title, url)
         item.description = desc

@@ -245,9 +245,9 @@ class Channel(chn_class.Channel):
 
                 connectionXml = XmlHelper(connection)
                 Logger.Trace("Analyzing Connection: %s", connection)
-                supplier = connectionXml.GetTagAttribute("connection", {"supplier": None})
-                protocol = connectionXml.GetTagAttribute("connection", {"protocol": None})
-                transferFormat = connectionXml.GetTagAttribute("connection", {"transferFormat": None})
+                supplier = connectionXml.get_tag_attribute("connection", {"supplier": None})
+                protocol = connectionXml.get_tag_attribute("connection", {"protocol": None})
+                transferFormat = connectionXml.get_tag_attribute("connection", {"transferFormat": None})
                 Logger.Debug("Found connection information:\n"
                              "Protocol:       %s\n"
                              "TransferFormat: %s\n"
@@ -262,7 +262,7 @@ class Channel(chn_class.Channel):
                     if "lime" in supplier or "mf_akamai_uk" in supplier:
                         Logger.Debug("Ignoring Supplier: %s", supplier)
                         continue
-                    url = connectionXml.GetTagAttribute("connection", {"href": None})
+                    url = connectionXml.get_tag_attribute("connection", {"href": None})
                 elif protocol.startswith("rtmp"):
                     Logger.Warning("Ignoring RTMP for now")
                     continue
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
                 #
                 # # port: we take the default one
                 # # determine protocol
-                # protocol = connectionXml.GetTagAttribute("connection", {"protocol": None})
+                # protocol = connectionXml.get_tag_attribute("connection", {"protocol": None})
                 # if protocol == "http":
                 #     Logger.Debug("Http stream found, skipping for now.")
                 #     continue
@@ -283,22 +283,22 @@ class Channel(chn_class.Channel):
                 # Logger.Debug("Found protocol      : %s", protocol)
                 #
                 # # now for the non-http version, we need application, authentication, server, file and kind
-                # application = connectionXml.GetTagAttribute("connection", {"application": None})
+                # application = connectionXml.get_tag_attribute("connection", {"application": None})
                 # if application == "":
                 #     application = "ondemand"
                 # Logger.Debug("Found application   : %s", application)
                 #
-                # authentication = connectionXml.GetTagAttribute("connection", {"authString": None})
+                # authentication = connectionXml.get_tag_attribute("connection", {"authString": None})
                 # authentication = htmlentityhelper.HtmlEntityHelper.convert_html_entities(authentication)
                 # Logger.Debug("Found authentication: %s", authentication)
                 #
-                # server = connectionXml.GetTagAttribute("connection", {"server": None})
+                # server = connectionXml.get_tag_attribute("connection", {"server": None})
                 # Logger.Debug("Found server        : %s", server)
                 #
-                # fileName = connectionXml.GetTagAttribute("connection", {"identifier": None})
+                # fileName = connectionXml.get_tag_attribute("connection", {"identifier": None})
                 # Logger.Debug("Found identifier    : %s", fileName)
                 #
-                # kind = connectionXml.GetTagAttribute("connection", {"kind": None})
+                # kind = connectionXml.get_tag_attribute("connection", {"kind": None})
                 # Logger.Debug("Found kind          : %s", kind)
                 #
                 # Logger.Trace("XML: %s\nProtocol: %s, Server: %s, Application: %s, Authentication: %s, File: %s , Kind: %s", connection, protocol, server, application, authentication, fileName, kind)

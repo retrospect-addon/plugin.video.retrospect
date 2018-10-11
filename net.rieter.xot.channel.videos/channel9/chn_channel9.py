@@ -208,9 +208,9 @@ class Channel(chn_class.Channel):
         # Logger.Trace(resultSet)
 
         xmlData = XmlHelper(resultSet)
-        title = xmlData.GetSingleNodeContent("title")
-        url = xmlData.GetSingleNodeContent("link")
-        description = xmlData.GetSingleNodeContent("description")
+        title = xmlData.get_single_node_content("title")
+        url = xmlData.get_single_node_content("link")
+        description = xmlData.get_single_node_content("description")
         description = description.replace("<![CDATA[ ", "").replace("]]>", "").replace("<p>", "").replace("</p>", "\n")
 
         item = mediaitem.MediaItem(title, url)
@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         item.icon = self.icon
 
-        date = xmlData.GetSingleNodeContent("pubDate")
+        date = xmlData.get_single_node_content("pubDate")
         dateResult = Regexer.DoRegex("\w+, (\d+) (\w+) (\d+)", date)[-1]
         day = dateResult[0]
         monthPart = dateResult[1].lower()

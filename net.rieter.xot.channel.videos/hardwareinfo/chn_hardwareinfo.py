@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         itemsPerPage = 50
         data = UriHandler.Open(self.mainListUri, proxy=self.proxy)
         xml = xmlhelper.XmlHelper(data)
-        nrItems = xml.GetSingleNodeContent("openSearch:totalResults")
+        nrItems = xml.get_single_node_content("openSearch:totalResults")
 
         for index in range(1, int(nrItems), itemsPerPage):
             items.append(self.CreateEpisodeItem([index, itemsPerPage]))
@@ -132,10 +132,10 @@ class Channel(chn_class.Channel):
 
         xmlData = xmlhelper.XmlHelper(resultSet)
 
-        title = xmlData.GetSingleNodeContent("title")
+        title = xmlData.get_single_node_content("title")
 
         # Retrieve an ID and create an URL like: http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=OHqu64Qnz9M
-        videoId = xmlData.GetSingleNodeContent("id")
+        videoId = xmlData.get_single_node_content("id")
         lastSlash = videoId.rfind(":") + 1
         videoId = videoId[lastSlash:]
         # url = "http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (videoId,)
@@ -146,7 +146,7 @@ class Channel(chn_class.Channel):
         item.type = 'video'
 
         # date stuff
-        date = xmlData.GetSingleNodeContent("published")
+        date = xmlData.get_single_node_content("published")
         year = date[0:4]
         month = date[5:7]
         day = date[8:10]
@@ -156,11 +156,11 @@ class Channel(chn_class.Channel):
         item.SetDate(year, month, day, hour, minute, 0)
 
         # description stuff
-        description = xmlData.GetSingleNodeContent("media:description")
+        description = xmlData.get_single_node_content("media:description")
         item.description = description
 
         # thumbnail stuff
-        thumbUrl = xmlData.GetTagAttribute("media:thumbnail", {'url': None}, {'height': '360'})
+        thumbUrl = xmlData.get_tag_attribute("media:thumbnail", {'url': None}, {'height': '360'})
         # <media:thumbnail url="http://i.ytimg.com/vi/5sTMRR0_Wo8/0.jpg" height="360" width="480" time="00:09:52.500" xmlns:media="http://search.yahoo.com/mrss/" />
         if thumbUrl != "":
             item.thumb = thumbUrl
@@ -193,10 +193,10 @@ class Channel(chn_class.Channel):
 
         xmlData = xmlhelper.XmlHelper(resultSet)
 
-        title = xmlData.GetSingleNodeContent("title")
+        title = xmlData.get_single_node_content("title")
 
         # Retrieve an ID and create an URL like: http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=OHqu64Qnz9M
-        url = xmlData.GetTagAttribute("enclosure", {'url': None}, {'type': 'video/youtube'})
+        url = xmlData.get_tag_attribute("enclosure", {'url': None}, {'type': 'video/youtube'})
         Logger.Trace(url)
 
         item = mediaitem.MediaItem(title, url)
@@ -204,7 +204,7 @@ class Channel(chn_class.Channel):
         item.type = 'video'
 
         # date stuff
-        date = xmlData.GetSingleNodeContent("pubDate")
+        date = xmlData.get_single_node_content("pubDate")
         dayname, day, month, year, time, zone = date.split(' ', 6)
         month = DateHelper.get_month_from_name(month, language="en")
         hour, minute, seconds = time.split(":")
@@ -212,12 +212,12 @@ class Channel(chn_class.Channel):
         item.SetDate(year, month, day, hour, minute, 0)
 
         # # description stuff
-        description = xmlData.GetSingleNodeContent("description")
+        description = xmlData.get_single_node_content("description")
         item.description = description
 
         # # thumbnail stuff
         item.thumb = self.noImage
-        thumbUrls = xmlData.GetTagAttribute("enclosure", {'url': None}, {'type': 'image/jpg'}, firstOnly=False)
+        thumbUrls = xmlData.get_tag_attribute("enclosure", {'url': None}, {'type': 'image/jpg'}, firstOnly=False)
         for thumbUrl in thumbUrls:
             if thumbUrl != "" and "thumb" not in thumbUrl:
                 item.thumb = thumbUrl
