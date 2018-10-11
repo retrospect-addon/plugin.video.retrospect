@@ -453,7 +453,7 @@ class Plugin(ParameterParser):
 
             if selectedItem is None and self.channelObject is not None:
                 # mainlist item register channel.
-                Statistics.RegisterChannelOpen(self.channelObject, Initializer.StartTime)
+                Statistics.register_channel_open(self.channelObject, Initializer.StartTime)
                 watcher.Lap("Statistics send")
 
             watcher.Stop()
@@ -465,7 +465,7 @@ class Plugin(ParameterParser):
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:
-            Statistics.RegisterError(self.channelObject)
+            Statistics.register_error(self.channelObject)
             XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                          LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                                          XbmcWrapper.Error, 4000)
@@ -500,7 +500,7 @@ class Plugin(ParameterParser):
             # validated the updated item
             if not item.complete or not item.HasMediaItemParts():
                 Logger.Warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
-                Statistics.RegisterError(self.channelObject, item=item)
+                Statistics.register_error(self.channelObject, item=item)
 
             if not item.HasMediaItemParts():
                 # the update failed or no items where found. Don't play
@@ -552,9 +552,9 @@ class Plugin(ParameterParser):
 
         except:
             if item:
-                Statistics.RegisterError(self.channelObject, item=item)
+                Statistics.register_error(self.channelObject, item=item)
             else:
-                Statistics.RegisterError(self.channelObject)
+                Statistics.register_error(self.channelObject)
 
             XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                          LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
@@ -610,7 +610,7 @@ class Plugin(ParameterParser):
 
                 bytesTransfered = TextureHandler.Instance().FetchTextures(w.ProgressUpdate)
                 if bytesTransfered > 0:
-                    Statistics.RegisterCdnBytes(bytesTransfered)
+                    Statistics.register_cdn_bytes(bytesTransfered)
             except:
                 Logger.Error("Error fetching textures", exc_info=True)
             finally:
@@ -749,7 +749,7 @@ class Plugin(ParameterParser):
         """
 
         if self.channelObject:
-            Statistics.RegisterError(self.channelObject)
+            Statistics.register_error(self.channelObject)
 
         if favs:
             title = LanguageHelper.get_localized_string(LanguageHelper.NoFavsId)

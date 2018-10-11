@@ -38,17 +38,17 @@ class Statistics:
         raise ValueError("Cannot and should not create an instance")
 
     @staticmethod
-    def RegisterCdnBytes(totalBytes):
+    def register_cdn_bytes(total_bytes):
         """ Register the bytes transfered via CDN
 
-        @param totalBytes: int - The total bytes transfered
+        @param total_bytes: int - The total bytes transfered
         """
 
-        Statistics.__RegisterHit(Statistics.__STATISTICS,
-                                 "CDN", Config.TextureUrl, value=totalBytes)
+        Statistics.__register_hit(Statistics.__STATISTICS,
+                                  "CDN", Config.TextureUrl, value=total_bytes)
 
     @staticmethod
-    def RegisterError(channel, title="Channel", item=None):
+    def register_error(channel, title="Channel", item=None):
         """ Register an empty list for a specific Channel and Title
 
         @param channel: Channel : The channel that had the error
@@ -71,12 +71,12 @@ class Statistics:
             else:
                 title = "%s: %s" % (Statistics.__ACTION_LIST, title)
 
-        Statistics.__RegisterHit(Statistics.__ERRORS, channel.channelName, title,
-                                 value=1, referer=referer,
-                                 appVersion=channel.version, appId=channel.id)
+        Statistics.__register_hit(Statistics.__ERRORS, channel.channelName, title,
+                                  value=1, referer=referer,
+                                  app_version=channel.version, app_id=channel.id)
 
     @staticmethod
-    def RegisterChannelOpen(channel, startTime=None):
+    def register_channel_open(channel, start_time=None):
         """ Register a Channel loading
 
         Arguments:
@@ -87,17 +87,17 @@ class Statistics:
         """
 
         duration = None
-        if startTime:
-            timeDelta = (datetime.now() - startTime)
-            duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3))
+        if start_time:
+            time_delta = (datetime.now() - start_time)
+            duration = time_delta.seconds * 1000 + (time_delta.microseconds / (10 ** 3))
 
-        Statistics.__RegisterHit(Statistics.__STATISTICS, channel.channelName,
-                                 Statistics.__ACTION_CHANNEL,
-                                 value=duration,
-                                 appVersion=channel.version, appId=channel.id)
+        Statistics.__register_hit(Statistics.__STATISTICS, channel.channelName,
+                                  Statistics.__ACTION_CHANNEL,
+                                  value=duration,
+                                  app_version=channel.version, app_id=channel.id)
 
     @staticmethod
-    def RegisterPlayback(channel, item, startTime=None, offset=0):
+    def register_playback(channel, item, start_time=None, offset=0):
         """ Register a video playback
 
         Arguments:
@@ -112,19 +112,20 @@ class Statistics:
         """
 
         duration = offset
-        timeDelta = None
-        if startTime:
-            timeDelta = (datetime.now() - startTime)
-            duration = timeDelta.seconds * 1000 + (timeDelta.microseconds / (10 ** 3)) + offset
-        Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, timeDelta or "None", offset)
+        time_delta = None
+        if start_time:
+            time_delta = (datetime.now() - start_time)
+            duration = time_delta.seconds * 1000 + (time_delta.microseconds / (10 ** 3)) + offset
+        Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, time_delta or "None", offset)
 
         action = "%s: %s" % (Statistics.__ACTION_PLAY, item.name)
-        Statistics.__RegisterHit(Statistics.__STATISTICS, channel.channelName, action,
-                                 value=duration, referer=item.url,
-                                 appVersion=channel.version, appId=channel.id)
+        Statistics.__register_hit(Statistics.__STATISTICS, channel.channelName, action,
+                                  value=duration, referer=item.url,
+                                  app_version=channel.version, app_id=channel.id)
 
     @staticmethod
-    def __RegisterHit(category, action, label, value=None, referer=None, appVersion=None, appId=None):
+    def __register_hit(category, action, label,
+                       value=None, referer=None, app_version=None, app_id=None):
         """ Register an event with Google Analytics
 
         @param category:    String - Name of category to register
@@ -133,8 +134,8 @@ class Statistics:
         @param label:       String - The label for the event
         @param value:       int    - The value for the event (Defaults to None)
         @param referer:     String - The referer (Defaults to None)
-        @param appVersion:  String - Version of the channel
-        @param appId:       String - ID of the channel
+        @param app_version:  String - Version of the channel
+        @param app_id:       String - ID of the channel
 
         See: https://ga-dev-tools.appspot.com/hit-builder/
         v=1&t=event&tid=UA-3902785-1&cid=3c8961be-6a53-48f6-bded-d136760ab55f&ec=Test&ea=Test%20Action&el=Test%20%5Blabel)&ev=100
@@ -146,7 +147,7 @@ class Statistics:
                 Logger.Debug("Not sending statistics because the configuration does not allow this.")
                 return
 
-            postData = {
+            post_data = {
                 "v": 1,
                 "t": "event",
                 "tid": Config.googleAnalyticsId,
@@ -159,19 +160,19 @@ class Statistics:
             }
 
             if value is not None:
-                postData["ev"] = value
-            if appVersion is not None and appId is not None:
-                postData["av"] = appVersion
-                postData["aid"] = appId
+                post_data["ev"] = value
+            if app_version is not None and app_id is not None:
+                post_data["av"] = app_version
+                post_data["aid"] = app_id
 
             if referer is not None:
                 if "://" not in referer:
                     referer = "http://%s" % (referer,)
-                postData["dr"] = HtmlEntityHelper.url_encode(referer)
+                post_data["dr"] = HtmlEntityHelper.url_encode(referer)
 
             url = "https://www.google-analytics.com/collect"
             data = ""
-            for k, v in postData.iteritems():
+            for k, v in post_data.iteritems():
                 data += "%s=%s&" % (k, v)
             data = data.rstrip("&")
 
@@ -179,9 +180,9 @@ class Statistics:
             Logger.Debug("Sending statistics: %s", data)
 
             # now we need something async without caching
-            userAgent = AddonSettings.GetUserAgent()
-            if userAgent:
-                result = UriHandler.Open(url, additionalHeaders={"User-Agent": userAgent}, params=data, noCache=True)
+            user_agent = AddonSettings.GetUserAgent()
+            if user_agent:
+                result = UriHandler.Open(url, additionalHeaders={"User-Agent": user_agent}, params=data, noCache=True)
             else:
                 result = UriHandler.Open(url, params=data, noCache=True)
             if len(result) > 0:

@@ -1004,7 +1004,7 @@ class Channel:
         (playList, srt) = item.GetXBMCPlayList(bitrate, updateItemUrls=True, proxy=self.proxy)
 
         # call for statistics with timing
-        Statistics.RegisterPlayback(self, item, Initializer.StartTime, -downloadDuration)
+        Statistics.register_playback(self, item, Initializer.StartTime, -downloadDuration)
 
         # if the item urls have been updated, don't start playback, but return
         return playList, srt
