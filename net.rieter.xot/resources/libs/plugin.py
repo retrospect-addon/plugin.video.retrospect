@@ -797,9 +797,9 @@ class Plugin(ParameterParser):
             urlText = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
             filesToSend = [Logger.Instance().logFileName, Logger.Instance().logFileName.replace(".log", ".old.log")]
             if senderMode != "gist":
-                pasteUrl = logSender.SendFile(Config.logFileNameAddon, filesToSend[0])
+                pasteUrl = logSender.send_file(Config.logFileNameAddon, filesToSend[0])
             else:
-                pasteUrl = logSender.SendFiles(Config.logFileNameAddon, filesToSend)
+                pasteUrl = logSender.send_files(Config.logFileNameAddon, filesToSend)
             XbmcWrapper.ShowDialog(title, urlText % (pasteUrl,))
         except Exception, e:
             Logger.Error("Error sending %s", Config.logFileNameAddon, exc_info=True)
