@@ -76,7 +76,7 @@ class Plugin(ParameterParser):
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
 
         # are we in session?
-        sessionActive = SessionHelper.IsSessionActive(Logger.Instance())
+        sessionActive = SessionHelper.is_session_active(Logger.Instance())
 
         # fetch some environment settings
         envCtrl = envcontroller.EnvController(Logger.Instance())
@@ -113,7 +113,7 @@ class Plugin(ParameterParser):
             envCtrl.CacheCleanUp(Config.cacheDir, Config.cacheValidTime)
 
         # create a session
-        SessionHelper.CreateSession(Logger.Instance())
+        SessionHelper.create_session(Logger.Instance())
 
         #===============================================================================
         #        Start the plugin version of progwindow

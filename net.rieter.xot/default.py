@@ -26,7 +26,7 @@ def run_plugin():
         from logger import Logger
 
         # only append if there are no active sessions
-        if not SessionHelper.IsSessionActive():
+        if not SessionHelper.is_session_active():
             # first call in the session, so do not append the log
             append_log_file = False
         else:
