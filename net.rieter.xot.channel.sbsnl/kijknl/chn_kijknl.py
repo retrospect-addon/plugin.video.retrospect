@@ -346,9 +346,9 @@ class Channel(chn_class.Channel):
             subtitles = Regexer.DoRegex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
             if subtitles:
                 Logger.Debug("Found subtitle: %s", subtitles[0])
-                subtitle = SubtitleHelper.DownloadSubtitle(subtitles[0],
-                                                           proxy=self.proxy,
-                                                           format="webvtt")
+                subtitle = SubtitleHelper.download_subtitle(subtitles[0],
+                                                            proxy=self.proxy,
+                                                            format="webvtt")
                 part.Subtitle = subtitle
 
             if useAdaptiveWithEncryption:

@@ -501,7 +501,7 @@ class Channel(chn_class.Channel):
                         continue
 
                     srt = srt.replace(".m3u8", ".vtt")
-                    part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+                    part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             elif videoType == "mpeg_dash" and adaptiveAvailable:
                 if not drmProtected:
@@ -524,7 +524,7 @@ class Channel(chn_class.Channel):
                 srt = M3u8.GetSubtitle(videoUrl, proxy=self.proxy)
                 if srt:
                     srt = srt.replace(".m3u8", ".vtt")
-                    part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+                    part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             item.complete = True
         # endregion

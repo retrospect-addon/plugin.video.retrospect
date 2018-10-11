@@ -53,12 +53,12 @@ class SubtitleHelper:
 
     # noinspection PyShadowingBuiltins
     @staticmethod
-    def DownloadSubtitle(url, fileName="", format='sami', proxy=None, replace=None):
+    def download_subtitle(url, file_name="", format='sami', proxy=None, replace=None):
         """Downloads a SAMI and stores the SRT in the cache folder
 
         Arguments:
         @param url:         string - URL location of the SAMI file
-        @param fileName:    string - [opt] Filename to use to store the subtitle in SRT format.
+        @param file_name:    string - [opt] Filename to use to store the subtitle in SRT format.
                                      if not specified, an MD5 hash of the URL with .xml
                                      extension will be used
         @param format:      string - Defines the source format. Defaults to Sami.
@@ -70,20 +70,20 @@ class SubtitleHelper:
 
         """
 
-        if fileName == "":
+        if file_name == "":
             Logger.Debug("No filename present, generating filename using MD5 hash of url.")
-            fileName = "%s.srt" % (EncodingHelper.encode_md5(url),)
-        elif not fileName.endswith(".srt"):
+            file_name = "%s.srt" % (EncodingHelper.encode_md5(url),)
+        elif not file_name.endswith(".srt"):
             Logger.Debug("No SRT extension present, appending it.")
-            fileName = "%s.srt" % (fileName, )
+            file_name = "%s.srt" % (file_name,)
 
         srt = ""
         try:
-            localCompletePath = os.path.join(Config.cacheDir, fileName)
+            local_complete_path = os.path.join(Config.cacheDir, file_name)
 
             # no need to download it again!
-            if os.path.exists(localCompletePath):
-                return localCompletePath
+            if os.path.exists(local_complete_path):
+                return local_complete_path
 
             Logger.Trace("Opening Subtitle URL")
             raw = UriHandler.Open(url, proxy=proxy)
@@ -110,19 +110,19 @@ class SubtitleHelper:
                 format = "webvtt"
 
             if format.lower() == 'sami':
-                srt = SubtitleHelper.__ConvertSamiToSrt(raw)
+                srt = SubtitleHelper.__convert_sami_to_srt(raw)
             elif format.lower() == 'srt':
                 srt = raw
             elif format.lower() == 'webvtt':
-                srt = SubtitleHelper.__ConvertWebVttToSrt(raw)  # With Krypton and Leia VTT is supported natively
+                srt = SubtitleHelper.__convert_web_vtt_to_srt(raw)  # With Krypton and Leia VTT is supported natively
             elif format.lower() == 'ttml':
-                srt = SubtitleHelper.__ConvertTtmlToSrt(raw)
+                srt = SubtitleHelper.__convert_ttml_to_srt(raw)
             elif format.lower() == 'dcsubtitle':
-                srt = SubtitleHelper.__ConvertDCSubtitleToSrt(raw)
+                srt = SubtitleHelper.__convert_dc_subtitle_to_srt(raw)
             elif format.lower() == 'json':
-                srt = SubtitleHelper.__ConvertJsonSubtitleToSrt(raw)
+                srt = SubtitleHelper.__convert_json_subtitle_to_srt(raw)
             elif format.lower() == 'm3u8srt':
-                srt = SubtitleHelper.__ConvertM3u8SrtToSubtitleToSrt(raw, url, proxy)
+                srt = SubtitleHelper.__convert_m3u8_srt_to_subtitle_to_srt(raw, url, proxy)
             else:
                 error = "Uknown subtitle format: %s" % (format,)
                 raise NotImplementedError(error)
@@ -132,17 +132,17 @@ class SubtitleHelper:
                 for needle in replace:
                     srt = srt.replace(needle, replace[needle])
 
-            f = open(localCompletePath, 'w')
+            f = open(local_complete_path, 'w')
             f.write(srt)
             f.close()
-            Logger.Info("Saved SRT as %s", localCompletePath)
-            return localCompletePath
+            Logger.Info("Saved SRT as %s", local_complete_path)
+            return local_complete_path
         except:
             Logger.Error("Error handling Subtitle file: [%s]", srt, exc_info=True)
             return ""
 
     @staticmethod
-    def __ConvertJsonSubtitleToSrt(jsonSubtitle):
+    def __convert_json_subtitle_to_srt(json_subtitle):
         """Converts Json Subtitle format into SRT format:
 
         Arguments:
@@ -165,7 +165,7 @@ class SubtitleHelper:
         """
 
         regex = '"startMillis":(\d+),"endMillis":(\d+),"text":"(.+?)(?=["] *,)'
-        subs = Regexer.DoRegex(regex, jsonSubtitle)
+        subs = Regexer.DoRegex(regex, json_subtitle)
 
         # Init some stuff
         srt = ""
@@ -174,8 +174,8 @@ class SubtitleHelper:
         for sub in subs:
             try:
                 # print sub
-                start = SubtitleHelper.__ConvertToTime(sub[0])
-                end = SubtitleHelper.__ConvertToTime(sub[1])
+                start = SubtitleHelper.__convert_to_time(sub[0])
+                end = SubtitleHelper.__convert_to_time(sub[1])
 
                 text = sub[2].replace('\"', '"')
                 text = JsonHelper.convert_special_chars(text)
@@ -188,7 +188,7 @@ class SubtitleHelper:
         return srt
 
     @staticmethod
-    def __ConvertDCSubtitleToSrt(dcSubtitle):
+    def __convert_dc_subtitle_to_srt(dc_subtitle):
         """Converts DC Subtitle format into SRT format:
 
         Arguments:
@@ -224,10 +224,10 @@ class SubtitleHelper:
 
         """
 
-        # parseRegex = '<subtitle[^>]+spotnumber="(\d+)" timein="(\d+:\d+:\d+):(\d+)" timeout="(\d+:\d+:\d+):(\d+)"[^>]+>\W+<text[^>]+>([^<]+)</text>\W+(?:<text[^>]+>([^<]+)</text>)*\W+</subtitle>'
-        parseRegex = '<subtitle[^>]+spotnumber="(\d+)" timein="(\d+:\d+:\d+):(\d+)" timeout="(\d+:\d+:\d+):(\d+)"[^>]+>|<text[^>]+>([^<]+)</text>'
-        parseRegex = parseRegex.replace('"', '["\']')
-        subs = Regexer.DoRegex(parseRegex, dcSubtitle)
+        parse_regex = '<subtitle[^>]+spotnumber="(\d+)" timein="(\d+:\d+:\d+):(\d+)" ' \
+                      'timeout="(\d+:\d+:\d+):(\d+)"[^>]+>|<text[^>]+>([^<]+)</text>'
+        parse_regex = parse_regex.replace('"', '["\']')
+        subs = Regexer.DoRegex(parse_regex, dc_subtitle)
 
         srt = ""
         i = 1
@@ -255,7 +255,7 @@ class SubtitleHelper:
         return srt
 
     @staticmethod
-    def __ConvertWebVttToSrt(webvvt):
+    def __convert_web_vtt_to_srt(webvvt):
         """Converts sami format into SRT format:
 
         Arguments:
@@ -297,7 +297,7 @@ class SubtitleHelper:
         return result
 
     @staticmethod
-    def __ConvertTtmlToSrt(ttml):
+    def __convert_ttml_to_srt(ttml):
         """Converts sami format into SRT format:
 
         Arguments:
@@ -313,8 +313,8 @@ class SubtitleHelper:
 
         """
 
-        parsRegex = '<p[^>]+begin="([^"]+)\.(\d+)"[^>]+end="([^"]+)\.(\d+)"[^>]*>([\w\W]+?)</p>'
-        subs = Regexer.DoRegex(parsRegex, ttml)
+        pars_regex = '<p[^>]+begin="([^"]+)\.(\d+)"[^>]+end="([^"]+)\.(\d+)"[^>]*>([\w\W]+?)</p>'
+        subs = Regexer.DoRegex(pars_regex, ttml)
 
         srt = ""
         i = 1
@@ -336,7 +336,7 @@ class SubtitleHelper:
         return srt
 
     @staticmethod
-    def __ConvertSamiToSrt(sami):
+    def __convert_sami_to_srt(sami):
         """Converts sami format into SRT format:
 
         Arguments:
@@ -351,12 +351,12 @@ class SubtitleHelper:
             text
 
         """
-        parsRegex = '<sync start="(\d+)"><p[^>]+>([^<]+)</p></sync>\W+<sync start="(\d+)">'
-        subs = Regexer.DoRegex(parsRegex, sami)
+        pars_regex = '<sync start="(\d+)"><p[^>]+>([^<]+)</p></sync>\W+<sync start="(\d+)">'
+        subs = Regexer.DoRegex(pars_regex, sami)
 
         if len(subs) == 0:
-            parsRegex2 = '<sync start=(\d+)>\W+<p[^>]+>([^\n]+)\W+<sync start=(\d+)>'
-            subs = Regexer.DoRegex(parsRegex2, sami)
+            pars_regex2 = '<sync start=(\d+)>\W+<p[^>]+>([^\n]+)\W+<sync start=(\d+)>'
+            subs = Regexer.DoRegex(pars_regex2, sami)
 
         srt = ""
         i = 1
@@ -364,8 +364,8 @@ class SubtitleHelper:
         for sub in subs:
             try:
                 # print sub
-                start = SubtitleHelper.__ConvertToTime(sub[0])
-                end = SubtitleHelper.__ConvertToTime(sub[2])
+                start = SubtitleHelper.__convert_to_time(sub[0])
+                end = SubtitleHelper.__convert_to_time(sub[2])
                 text = sub[1]
                 text = HtmlEntityHelper.convert_html_entities(text)
                 # text = sub[1]
@@ -378,33 +378,33 @@ class SubtitleHelper:
         return srt
 
     @staticmethod
-    def __ConvertM3u8SrtToSubtitleToSrt(raw, url, proxy):
+    def __convert_m3u8_srt_to_subtitle_to_srt(raw, url, proxy):
         # Find the VTT line in the subtitle
         lines = raw.split("\n")
-        subUrl = None
+        sub_url = None
         for line in lines:
             if ".vtt" in line:
-                subUrl = line
+                sub_url = line
                 break
 
-        if not subUrl:
+        if not sub_url:
             return ""
 
-        if not subUrl.startswith("http"):
-            subUrl = "%s/%s" % (url.rsplit("/", 1)[0], subUrl)
+        if not sub_url.startswith("http"):
+            sub_url = "%s/%s" % (url.rsplit("/", 1)[0], sub_url)
 
         # Now we know the subtitle, it would be wise to just use the existing converters to just
         # convert the data, but now now
         result = ""
-        m3u8Sub = UriHandler.Open(subUrl, proxy=proxy)
+        m3u8_sub = UriHandler.Open(sub_url, proxy=proxy)
         # Again decode the data
         try:
-            m3u8Sub = m3u8Sub.decode()
+            m3u8_sub = m3u8_sub.decode()
         except:
             Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
-            m3u8Sub = m3u8Sub.decode('unicode_escape')
+            m3u8_sub = m3u8_sub.decode('unicode_escape')
 
-        for line in m3u8Sub.split("\n"):
+        for line in m3u8_sub.split("\n"):
             line = line.strip()
             if line.endswith("WEBVTT") or line.startswith("X-TIMESTAMP"):
                 continue
@@ -421,7 +421,7 @@ class SubtitleHelper:
         return result
 
     @staticmethod
-    def __ConvertToTime(timestamp):
+    def __convert_to_time(timestamp):
         """Converts a SAMI (msecs since start) timestamp into a SRT timestamp
 
         Arguments:

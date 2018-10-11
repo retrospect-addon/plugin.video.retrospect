@@ -821,7 +821,7 @@ class Channel(chn_class.Channel):
                     # look for more
                     continue
 
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subUrl, format="srt", proxy=self.proxy)
+                part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(subUrl, format="srt", proxy=self.proxy)
                 # stop when finding one
                 break
 

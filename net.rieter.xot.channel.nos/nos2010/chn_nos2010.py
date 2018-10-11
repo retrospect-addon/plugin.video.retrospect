@@ -1033,10 +1033,10 @@ class Channel(chn_class.Channel):
 
         # get the subtitle
         subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (episodeId,)
-        subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl,
-                                                                      episodeId + ".srt",
-                                                                      format='srt',
-                                                                      proxy=self.proxy)
+        subTitlePath = subtitlehelper.SubtitleHelper.download_subtitle(subTitleUrl,
+                                                                       episodeId + ".srt",
+                                                                       format='srt',
+                                                                       proxy=self.proxy)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()

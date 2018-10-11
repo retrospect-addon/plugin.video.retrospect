@@ -573,7 +573,7 @@ class Channel(chn_class.Channel):
         vttUrl = M3u8.GetSubtitle(m3u8url, self.proxy, m3u8data)
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
         vttUrl = vttUrl.replace("-prog_index.m3u8", "-0.vtt")
-        part.Subtitle = SubtitleHelper.DownloadSubtitle(vttUrl, format='srt', proxy=self.proxy)
+        part.Subtitle = SubtitleHelper.download_subtitle(vttUrl, format='srt', proxy=self.proxy)
         return item
 
     def __GetImagesFromMetaData(self, data):

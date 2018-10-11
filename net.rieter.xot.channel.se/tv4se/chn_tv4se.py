@@ -637,7 +637,7 @@ class Channel(chn_class.Channel):
         # subtitle = M3u8.GetSubtitle(m3u8Url, playListData=m3u8Data)
         # Not working due to VTT format.
         # if subtitle:
-        #     part.Subtitle = SubtitleHelper.DownloadSubtitle(subtitle,
+        #     part.Subtitle = SubtitleHelper.download_subtitle(subtitle,
         #                                                     format="m3u8srt",
         #                                                     proxy=self.proxy)
         return item

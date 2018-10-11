@@ -330,8 +330,8 @@ class Channel(chn_class.Channel):
         if len(subtitles) > 0:
             subtitle = subtitles[0]
             subtitleUrl = "%s%s" % (subtitle[0], subtitle[1])
-            part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subtitleUrl, subtitle[1], "ttml",
-                                                                           proxy=self.proxy)
+            part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(subtitleUrl, subtitle[1], "ttml",
+                                                                            proxy=self.proxy)
 
         item.complete = True
         Logger.Trace('finishing UpdateVideoItem: %s.', item)

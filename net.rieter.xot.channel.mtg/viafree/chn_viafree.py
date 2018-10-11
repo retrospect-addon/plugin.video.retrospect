@@ -567,9 +567,9 @@ class Channel(chn_class.Channel):
         if item.MediaItemParts:
             part = item.MediaItemParts[0]
             if part.Subtitle and part.Subtitle.endswith(".vtt"):
-                part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.download_subtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
             else:
-                part.Subtitle = SubtitleHelper.DownloadSubtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.download_subtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
         else:
             part = item.CreateNewEmptyMediaPart()
 
@@ -617,7 +617,7 @@ class Channel(chn_class.Channel):
                     # subUrl = None
                     subs = filter(lambda line: line.startswith("http"), subData.split("\n"))
                     if subs:
-                        part.Subtitle = SubtitleHelper.DownloadSubtitle(subs[0], format='webvtt', proxy=self.proxy)
+                        part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt', proxy=self.proxy)
 
             elif url.startswith("rtmp"):
                 # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4

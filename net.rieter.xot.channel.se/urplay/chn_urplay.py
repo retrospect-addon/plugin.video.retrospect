@@ -390,9 +390,9 @@ class Channel(chn_class.Channel):
                 fileName = caption["file"]
                 fileName = fileName[fileName.rindex("/") + 1:] + ".srt"
                 if url.endswith("vtt"):
-                    subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "webvtt", proxy=self.proxy)
+                    subtitle = subtitlehelper.SubtitleHelper.download_subtitle(url, fileName, "webvtt", proxy=self.proxy)
                 else:
-                    subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "ttml", proxy=self.proxy)
+                    subtitle = subtitlehelper.SubtitleHelper.download_subtitle(url, fileName, "ttml", proxy=self.proxy)
                 break
         part.Subtitle = subtitle
 

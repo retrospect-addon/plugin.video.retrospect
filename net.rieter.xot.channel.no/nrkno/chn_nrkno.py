@@ -135,7 +135,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        live = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        live = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
         live_tv = "{} - TV".format(live)
         live_radio = "{} - Radio".format(live)
 
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
         url = "https://psapi.nrk.no/medium/tv/letters/{}/indexelements?onlyOnDemandRights=false&" \
               "apiKey={}".format(url_part, self.__api_key)
 
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith) % (title, )
+        title = LanguageHelper.get_localized_string(LanguageHelper.StartWith) % (title, )
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
         item.type = 'folder'
@@ -395,7 +395,7 @@ class Channel(chn_class.Channel):
         if "timedTextSubtitlesUrl" in stream_data and stream_data["timedTextSubtitlesUrl"]:
             sub_url = stream_data["timedTextSubtitlesUrl"].replace(".ttml", ".vtt")
             sub_url = HtmlEntityHelper.url_decode(sub_url)
-            part.Subtitle = SubtitleHelper.DownloadSubtitle(sub_url, format="webvtt")
+            part.Subtitle = SubtitleHelper.download_subtitle(sub_url, format="webvtt")
         return item
 
     def __update_live_audio(self, item, manifest, headers):
