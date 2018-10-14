@@ -1,7 +1,8 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: TV Noord &amp; TV West main listings
+* Added: AT5 live stream (Fixes #1031)
 
 [I]Previous changes[/I]
+* Fixed: TV Noord &amp; TV West main listings
 * Fixed: HTML Tags in descriptions of some Dutch regional channels
 * Fixed: AT5 programs, videos and streams
 * Fixed: L1 channel broke due to site changes

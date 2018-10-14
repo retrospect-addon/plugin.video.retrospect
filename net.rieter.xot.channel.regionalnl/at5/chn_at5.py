@@ -1,9 +1,13 @@
 import mediaitem
 import chn_class
+from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.jsonhelper import JsonHelper
+from helpers.languagehelper import LanguageHelper
 from logger import Logger
+from parserdata import ParserData
 from regexer import Regexer
+from streams.m3u8 import M3u8
 from urihandler import UriHandler
 
 
@@ -34,15 +38,31 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://www.at5.nl/embed/at5player.swf"
 
         # setup the main parsing data
-        self.episodeItemRegex = '<option value="(\d+)"[^>]*>([^<]+)'
-        self.videoItemRegex = 'data-href="/(gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+<div class="uitz_new_desc">(?:\W*<div[^>]*>){1,2}[^-]*-([^<]+)</div>\W+div class="uitz_new_desc_title_time">\W+\w+ (\d+) (\w+) (\d+) (\d+):(\d+)'
-        self.mediaUrlRegex = '.setup([^<]+);\W*</script>'
-        self.pageNavigationRegex = '<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
+        epsideItemRegex = '<option value="(\d+)"[^>]*>([^<]+)'
+        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
+                            parser=epsideItemRegex, creator=self.CreateEpisodeItem,
+                            preprocessor=self.AddLiveChannel)
+
+        # Main video items
+        videoItemRegex = 'data-href="/(gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">' \
+                         '\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+' \
+                         '<div class="uitz_new_desc">(?:\W*<div[^>]*>){1,2}[^-]*-([^<]+)</div>' \
+                         '\W+div class="uitz_new_desc_title_time">\W+\w+ (\d+) (\w+) (\d+) (\d+):(\d+)'
+        self._AddDataParser("*",
+                            parser=videoItemRegex, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
+
+        # Paging
         self.pageNavigationRegexIndex = 1
+        pageNavigationRegex = '<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
+        self._AddDataParser("*",
+                            parser=pageNavigationRegex, creator=self.CreatePageItem)
+
+        self._AddDataParser("#livestream", updater=self.UpdateLiveStream)
 
         #===============================================================================================================
         # non standard items
-        # Live: http://www.at5.nl/video/json?s=live
+        self.mediaUrlRegex = '.setup([^<]+);\W*</script>'
 
         #===============================================================================================================
         # Test cases:
@@ -60,6 +80,23 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         item.complete = True
         return item
+
+    def AddLiveChannel(self, data):
+        Logger.Info("Performing Pre-Processing")
+        items = []
+
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        item = mediaitem.MediaItem("\a.: {} :.".format(title), "")
+        item.type = "folder"
+        items.append(item)
+
+        liveItem = mediaitem.MediaItem(title, "#livestream")
+        liveItem.type = "video"
+        liveItem.isLive = True
+        item.items.append(liveItem)
+
+        Logger.Debug("Pre-Processing finished")
+        return data, items
 
     def CreateVideoItem(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
@@ -103,6 +140,20 @@ class Channel(chn_class.Channel):
         hour = resultSet[7]
         minute = resultSet[8]
         item.SetDate(year, month, day, hour, minute, 0)
+        return item
+
+    def UpdateLiveStream(self, item):
+        Logger.Debug("Updating the live stream")
+        url = "https://rrr.sz.xlcdn.com/?account=atvijf&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
+
+        part = item.CreateNewEmptyMediaPart()
+        if AddonSettings.UseAdaptiveStreamAddOn():
+            stream = part.AppendMediaStream(url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy, item.HttpHeaders)
+        else:
+            for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                item.complete = True
+                part.AppendMediaStream(s, b)
         return item
 
     def UpdateVideoItem(self, item):
