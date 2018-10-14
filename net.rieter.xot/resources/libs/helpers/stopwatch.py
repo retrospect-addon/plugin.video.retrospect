@@ -35,7 +35,7 @@ class StopWatch:
         self.lapTime = None
         self.stopTime = None
         
-        self.Set()        
+        self.set()
         return
     
     def stop(self):
