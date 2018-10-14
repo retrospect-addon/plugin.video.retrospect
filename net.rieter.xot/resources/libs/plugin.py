@@ -406,8 +406,6 @@ class Plugin(ParameterParser):
 
             xbmcItems = []
             for episodeItem in episodeItems:
-                # Get the XBMC item
-                item = episodeItem.GetXBMCItem()
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
                 if episodeItem.fanart == "":
@@ -422,6 +420,9 @@ class Plugin(ParameterParser):
                 else:
                     Logger.Critical("Plugin::ProcessFolderList: Cannot determine what to add")
                     continue
+
+                # Get the XBMC item
+                item = episodeItem.GetXBMCItem()
 
                 # Set the properties for the context menu add-on
                 item.setProperty(self.propertyRetrospect, "true")

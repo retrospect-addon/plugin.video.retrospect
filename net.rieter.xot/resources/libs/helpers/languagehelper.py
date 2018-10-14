@@ -46,7 +46,7 @@ class LanguageHelper:
 
     Page = 30537
     NoLiveStreamId = 30538
-    NoLiveStreamTitleId = 30539
+    LiveStreamTitleId = 30539
     GeoLockedId = 30540
     PremiumPaid = 30049
     DrmProtected = 30050
