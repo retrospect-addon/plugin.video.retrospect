@@ -97,18 +97,6 @@
       "fanart": "omroepgelderlandfanart.jpg"
     },
     {
-      "guid": "8B4A56C7-44D5-40C2-A890-2287C4C1D74B",
-      "name": "Omroep Zeeland",
-      "description": "Omroep Zeeland Uitzendinggemist",
-      "icon": "omroepzeelandlarge.png",
-      "category": "Regional",
-      "channelcode": "omroepzeeland",
-      "sortorder": 100,
-      "language": "nl",
-      "compatible": "Environments.All",
-      "fanart": "omroepzeelandfanart.jpg"
-    },
-    {
       "guid": "770D3385-2EC9-4B87-9BC8-3A7190248A9C",
       "name": "Omroep Brabant",
       "description": "Omroep Brabant Uitzendinggemist",

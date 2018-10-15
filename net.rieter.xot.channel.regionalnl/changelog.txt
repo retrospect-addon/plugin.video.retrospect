@@ -2,6 +2,7 @@
 * Added: AT5 live stream (Fixes #1031)
 * Added: L1 live TV and Radio (See #1032)
 * Fixed: TV Rijnmond live TV (See #1032)
+* Fixed: Omroep Zeeland (See #1032)
 
 [I]Previous changes[/I]
 * Fixed: TV Noord &amp; TV West main listings

@@ -104,13 +104,6 @@ class Channel(chn_class.Channel):
             self.liveUrl = "http://app.gld.nl/data/json/v500/tv_live.json"
             self.channelBitrate = 1500
 
-        elif self.channelCode == "omroepzeeland":
-            self.noImage = "omroepzeelandimage.png"
-            self.mainListUri = "http://www.omroepzeeland.nl/mobile/v520/ug_programmas.json"
-            self.baseUrl = "http://www.omroepzeeland.nl"
-            self.liveUrl = "http://www.omroepzeeland.nl/mobile/v520/live-tv.json"
-            self.channelBitrate = 1500
-
         elif self.channelCode == "omroepbrabant":
             self.noImage = "omroepbrabantimage.png"
             self.mainListUri = "http://feed.omroepbrabant.nl/v520/UGSeries.json"

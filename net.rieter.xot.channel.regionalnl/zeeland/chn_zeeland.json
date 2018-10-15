@@ -1,0 +1,16 @@
+{
+  "channels": [
+    {
+      "guid": "8B4A56C7-44D5-40C2-A890-2287C4C1D74B",
+      "name": "Omroep Zeeland",
+      "description": "Omroep Zeeland Uitzendinggemist",
+      "icon": "omroepzeelandlarge.png",
+      "category": "Regional",
+      "channelcode": "omroepzeeland",
+      "sortorder": 100,
+      "language": "nl",
+      "compatible": "Environments.All",
+      "fanart": "omroepzeelandfanart.jpg"
+    }
+  ]
+}
