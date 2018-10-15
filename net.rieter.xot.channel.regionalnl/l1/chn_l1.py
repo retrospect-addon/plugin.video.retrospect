@@ -1,7 +1,9 @@
 import mediaitem
 import chn_class
 from helpers import datehelper
+from helpers.languagehelper import LanguageHelper
 from logger import Logger
+from streams.npostream import NpoStream
 from urihandler import UriHandler
 from regexer import Regexer
 from helpers.jsonhelper import JsonHelper
@@ -37,6 +39,9 @@ class Channel(chn_class.Channel):
         episodeRegex = Regexer.FromExpresso(episodeRegex)
         self._AddDataParser(self.mainListUri, preprocessor=self.PreProcessFolderList,
                             parser=episodeRegex, creator=self.CreateEpisodeItem)
+
+        # live stuff
+        self._AddDataParsers(("#livetv", "#liveradio"), updater=self.UpdateLiveStream)
 
         videoRegex = '<a[^>]*class="mediaItem"[^>]*href="(?<url>[^"]+)"[^>]*title="(?<title>' \
                      '[^"]+)"[^>]*>[\w\W]{0,500}?<img[^>]+src="/(?<thumburl>[^"]+)'
@@ -87,6 +92,23 @@ class Channel(chn_class.Channel):
             data = data[:data.index('>L1-kanalen<')]
 
         Logger.Debug("Pre-Processing finished")
+
+        # add live items
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        item = mediaitem.MediaItem("\a.: {} :.".format(title), "")
+        item.type = "folder"
+        items.append(item)
+
+        liveItem = mediaitem.MediaItem("L1VE TV".format(title), "#livetv")
+        liveItem.type = "video"
+        liveItem.isLive = True
+        item.items.append(liveItem)
+
+        liveItem = mediaitem.MediaItem("L1VE Radio".format(title), "#liveradio")
+        liveItem.type = "video"
+        liveItem.isLive = True
+        item.items.append(liveItem)
+
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -146,6 +168,22 @@ class Channel(chn_class.Channel):
             item.SetDate(year, month, day)
 
         item.complete = False
+        return item
+
+    def UpdateLiveStream(self, item):
+        if item.url == "#livetv":
+            episodeId = "LI_L1_716599"
+            # url = "https://ida.omroep.nl/app.php/LI_L1_716599?adaptive=yes&token={}"
+        else:
+            episodeId = "LI_L1_716685"
+            # url = "https://ida.omroep.nl/app.php/LI_L1_716685?adaptive=yes&token={}"
+
+        part = item.CreateNewEmptyMediaPart()
+        for s, b in NpoStream.GetStreamsFromNpo(None, episodeId=episodeId, proxy=self.proxy):
+            item.complete = True
+            # s = self.GetVerifiableVideoUrl(s)
+            part.AppendMediaStream(s, b)
+
         return item
 
     def UpdateVideoItem(self, item):
