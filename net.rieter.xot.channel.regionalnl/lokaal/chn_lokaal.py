@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
             # self.mainListUri = "http://www.rtvnh.nl/iphone-app/v500/programmas"
             # self.mainListUri = "http://www.rtvnh.nl/iphone-app/v520/programmas"
             self.baseUrl = "http://www.rtvnh.nl"
-            self.liveUrl = "http://www.rtvnh.nl/iphone-app/v520/tvnh"
+            self.liveUrl = "https://rrr.sz.xlcdn.com/?account=nhnieuws&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
             self.channelBitrate = 1200
 
         elif self.channelCode == "omroepwest":
