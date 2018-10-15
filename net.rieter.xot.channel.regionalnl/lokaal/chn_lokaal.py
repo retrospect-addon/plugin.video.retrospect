@@ -3,7 +3,9 @@ import urlparse
 import contextmenu
 import mediaitem
 import chn_class
+from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
+from helpers.languagehelper import LanguageHelper
 from parserdata import ParserData
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
@@ -51,7 +53,8 @@ class Channel(chn_class.Channel):
             self.noImage = "rtvrijnmondimage.png"
             self.mainListUri = "http://rijnmond.api.regiogrid.nl/apps/v520/programs.json"
             self.baseUrl = "http://rijnmond.api.regiogrid.nl"
-            self.liveUrl = "http://rijnmond.api.regiogrid.nl/apps/v520/tv.json"
+            # self.liveUrl = "http://rijnmond.api.regiogrid.nl/apps/v600/tv.json"
+            self.liveUrl = "https://d3r4bk4fg0k2xi.cloudfront.net/rijnmondTv/index.m3u8"
             self.channelBitrate = 900
 
         elif self.channelCode == "rtvdrenthe":
@@ -134,7 +137,7 @@ class Channel(chn_class.Channel):
                             json=True)
 
         if self.liveUrl:
-            self._AddDataParser(self.liveUrl, preprocessor=self.ProcessLiveItems)
+            self._AddDataParser(self.liveUrl, preprocessor=self.ProcessLiveItems, updater=self.UpdateVideoItem)
 
         self._AddDataParser("*", parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem,
                             json=True)
@@ -204,6 +207,16 @@ class Channel(chn_class.Channel):
         items = []
 
         Logger.Info("Adding Live Streams")
+
+        if self.liveUrl.endswith(".m3u8"):
+            title = "{} - {}".format(self.channelName, LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId))
+            liveItem = mediaitem.MediaItem(title, self.liveUrl)
+            liveItem.type = 'video'
+            liveItem.icon = self.icon
+            liveItem.thumb = self.noImage
+            liveItem.isLive = True
+            items.append(liveItem)
+            return "", items
 
         # we basically will check for live channels
         jsonData = JsonHelper(data, logger=Logger.Instance())
@@ -446,10 +459,16 @@ class Channel(chn_class.Channel):
         Logger.Debug("Updating a (Live) video item")
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, appendQueryString=True):
+        if AddonSettings.UseAdaptiveStreamAddOn():
+            part = item.CreateNewEmptyMediaPart()
+            stream = part.AppendMediaStream(item.url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy, item.HttpHeaders)
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
-        item.complete = True
+        else:
+            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, appendQueryString=True):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
+            item.complete = True
 
         return item
