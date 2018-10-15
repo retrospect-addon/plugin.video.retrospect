@@ -82,6 +82,7 @@ class Adaptive:
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(m3u8url, 0)
             M3u8.SetInputStreamAddonInput(stream, self.proxy, self.headers)
+            item.complete = True
 
         if maxBitRate is not set, the bitrate will be configured via the normal generic Retrospect
         or channel settings.
