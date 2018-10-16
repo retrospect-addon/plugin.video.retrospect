@@ -1,16 +1,11 @@
-import urlparse
-
-import contextmenu
 import mediaitem
 import chn_class
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
-from helpers.encodinghelper import EncodingHelper
 from helpers.languagehelper import LanguageHelper
 from parserdata import ParserData
 from logger import Logger
 from helpers.jsonhelper import JsonHelper
-from helpers.htmlhelper import HtmlHelper
 from regexer import Regexer
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
@@ -35,6 +30,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         self.liveUrl = None        # : the live url if present
+        self.jsonParsing = False
 
         if self.channelCode == "omroepzeeland":
             self.noImage = "omroepzeelandimage.png"
@@ -44,32 +40,52 @@ class Channel(chn_class.Channel):
 
         elif self.channelCode == "rtvutrecht":
             self.noImage = "rtvutrechtimage.png"
-            self.mainListUri = ""
-            self.baseUrl = "http://app.rtvutrecht.nl"
+            self.mainListUri = "https://www.rtvutrecht.nl/gemist/rtvutrecht/"
+            self.baseUrl = "https://www.rtvutrecht.nl"
             # Uses NPO stream with smshield cookie
             self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
 
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 
-        # setup the main parsing data
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveChannelAndExtractData,
+        # JSON Based Main lists
+        self._AddDataParser("https://www.omroepzeeland.nl/tvgemist",
+                            preprocessor=self.AddLiveChannelAndExtractData,
                             matchType=ParserData.MatchExact,
-                            parser=(), creator=self.CreateEpisodeItem,
+                            parser=(), creator=self.CreateJsonEpisodeItem,
                             json=True)
 
-        self._AddDataParser("https://www.omroepzeeland.nl/RadioTv/Results?",
-                            name="Video item parsers", json=True,
-                            parser=("searchResults", ), creator=self.CreateVideoItem)
+        # HTML Based Main lists
+        htmlEpisodeRegex = '<option\s+value="(?<url>/gemist/uitzending/[^"]+)">(?<title>[^<]*)'
+        htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
+        self._AddDataParser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
+                            preprocessor=self.AddLiveChannelAndExtractData,
+                            matchType=ParserData.MatchExact,
+                            parser=htmlEpisodeRegex, creator=self.CreateEpisodeItem,
+                            json=False)
 
+        videoItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*</a>\W*<figcaption(?:[^>]+>\W*){2}<time[^>]+datetime="(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){3}<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
+        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        self._AddDataParser("https://www.rtvutrecht.nl/",
+                            name="HTML Video parsers and updater for JWPlayer embedded JSON",
+                            parser=videoItemRegex, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItemJsonPlayer)
+
+        # Json based stuff
+        self._AddDataParser("https://www.omroepzeeland.nl/RadioTv/Results?",
+                            name="Video item parser", json=True,
+                            parser=("searchResults", ), creator=self.CreateJsonVideoItem)
+
+        self._AddDataParser("https://www.omroepzeeland.nl/",
+                            name="Updater for Javascript file based stream data",
+                            updater=self.UpdateVideoItemJavascript)
+
+        # Live Stuff
         self._AddDataParser(self.liveUrl, name="Live Stream Creator",
                             creator=self.CreateLiveItem, parser=(), json=True)
 
         self._AddDataParser(".+/live/.+", matchType=ParserData.MatchRegex,
                             updater=self.UpdateLiveItem)
-
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
-
         #===============================================================================================================
         # non standard items
 
@@ -92,13 +108,13 @@ class Channel(chn_class.Channel):
         if not data:
             return "[]", items
 
-        data = Regexer.DoRegex("setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
-        if not isinstance(data, (tuple, list)):
-            Logger.Error("Cannot extract JSON data from HTML.")
-            return "[]", items
+        jsonData = Regexer.DoRegex("setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
+        if isinstance(jsonData, (tuple, list)) and len(jsonData) > 0:
+            Logger.Debug("Pre-Processing finished")
+            return jsonData[0], items
 
-        Logger.Debug("Pre-Processing finished")
-        return data[0], items
+        Logger.Info("Cannot extract JSON data from HTML.")
+        return data, items
 
     def CreateLiveItem(self, result):
         url = result["stream"]["highQualityUrl"]
@@ -114,7 +130,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def CreateEpisodeItem(self, result):
+    def CreateJsonEpisodeItem(self, result):
         Logger.Trace(result)
         url = "{}/RadioTv/Results?medium=Tv&query=&category={}&from=&to=&page=1".format(self.baseUrl, result["seriesId"])
         title = result["title"]
@@ -123,7 +139,17 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def CreateVideoItem(self, result):
+    def CreateVideoItem(self, resultSet):
+        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        if item is None:
+            return None
+
+        # 2018-02-24 07:15:00
+        timeStamp = DateHelper.GetDateFromString(resultSet['date'], dateFormat="%Y-%m-%d %H:%M:%S")
+        item.SetDate(*timeStamp[0:6])
+        return item
+
+    def CreateJsonVideoItem(self, result):
         Logger.Trace(result)
         url = result["url"]
         if not url.startswith("http"):
@@ -164,7 +190,19 @@ class Channel(chn_class.Channel):
                 part.AppendMediaStream(s, b)
         return item
 
-    def UpdateVideoItem(self, item):
+    def UpdateVideoItemJsonPlayer(self, item):
+        data = UriHandler.Open(item.url, proxy=self.proxy)
+        streams = Regexer.DoRegex('label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
+
+        part = item.CreateNewEmptyMediaPart()
+        bitrates = { "720p SD": 1200 }
+        for stream in streams:
+            part.AppendMediaStream(stream[1], bitrates.get(stream[0], 0))
+            item.complete = True
+
+        return item
+
+    def UpdateVideoItemJavascript(self, item):
 
         urlParts = item.url.rsplit("/", 3)
         if urlParts[-3] == "aflevering":
