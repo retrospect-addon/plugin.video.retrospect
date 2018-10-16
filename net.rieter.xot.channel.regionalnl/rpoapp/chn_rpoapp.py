@@ -41,7 +41,13 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.omroepzeeland.nl/tvgemist"
             self.baseUrl = "https://www.omroepzeeland.nl"
             self.liveUrl = "https://zeeland.rpoapp.nl/v01/livestreams/AndroidTablet.json"
-            self.channelBitrate = 1500
+
+        elif self.channelCode == "rtvutrecht":
+            self.noImage = "rtvutrechtimage.png"
+            self.mainListUri = ""
+            self.baseUrl = "http://app.rtvutrecht.nl"
+            # Uses NPO stream with smshield cookie
+            self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
 
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
@@ -59,7 +65,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.liveUrl, name="Live Stream Creator",
                             creator=self.CreateLiveItem, parser=(), json=True)
 
-        self._AddDataParser(".+/live/omroepzeeland.+", matchType=ParserData.MatchRegex,
+        self._AddDataParser(".+/live/.+", matchType=ParserData.MatchRegex,
                             updater=self.UpdateLiveItem)
 
         self._AddDataParser("*", updater=self.UpdateVideoItem)
@@ -83,17 +89,21 @@ class Channel(chn_class.Channel):
         item.type = "folder"
         items.append(item)
 
+        if not data:
+            return "[]", items
+
         data = Regexer.DoRegex("setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
         if not isinstance(data, (tuple, list)):
             Logger.Error("Cannot extract JSON data from HTML.")
-            return "", items
+            return "[]", items
 
         Logger.Debug("Pre-Processing finished")
         return data[0], items
 
     def CreateLiveItem(self, result):
         url = result["stream"]["highQualityUrl"]
-        item = mediaitem.MediaItem(result["title"], url)
+        title = result["title"] or result["id"].title()
+        item = mediaitem.MediaItem(title, url)
         item.type = "video"
         item.isLive = True
 

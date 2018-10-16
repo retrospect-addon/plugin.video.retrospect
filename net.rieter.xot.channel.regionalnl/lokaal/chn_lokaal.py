@@ -41,15 +41,7 @@ class Channel(chn_class.Channel):
         self.liveUrl = None        # : the live url if present
         # self.liveSelector = ()     # : what stream keys to use
 
-        if self.channelCode == "rtvutrecht":
-            self.noImage = "rtvutrechtimage.png"
-            self.mainListUri = "http://app.rtvutrecht.nl/ios-android/v520/gemist_rtvutrecht_programlist.json"
-            self.baseUrl = "http://app.rtvutrecht.nl"
-            # Uses NPO stream with smshield cookie
-            self.liveUrl = "http://app.rtvutrecht.nl/ios-android/v520/live_rtvutrecht.json"
-            self.channelBitrate = 780
-
-        elif self.channelCode == "rtvrijnmond":
+        if self.channelCode == "rtvrijnmond":
             self.noImage = "rtvrijnmondimage.png"
             self.mainListUri = "http://rijnmond.api.regiogrid.nl/apps/v520/programs.json"
             self.baseUrl = "http://rijnmond.api.regiogrid.nl"
