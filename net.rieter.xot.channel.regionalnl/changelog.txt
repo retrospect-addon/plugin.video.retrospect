@@ -5,6 +5,7 @@
 * Fixed: RTV Noord Holland live TV (See #1032)
 * Fixed: Omroep Zeeland (See #1032)
 * Fixed: RTV Utrecht (See #1032)
+* Fixed: Omroep Flevoland (Fixes #1032)
 
 [I]Previous changes[/I]
 * Fixed: TV Noord &amp; TV West main listings

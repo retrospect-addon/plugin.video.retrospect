@@ -1,11 +1,14 @@
 import datetime
 import mediaitem
 import chn_class
-from regexer import Regexer
-from urihandler import UriHandler
+from addonsettings import AddonSettings
+from helpers.datehelper import DateHelper
+from helpers.jsonhelper import JsonHelper
+from helpers.languagehelper import LanguageHelper
 from logger import Logger
-from helpers.xmlhelper import XmlHelper
+from regexer import Regexer
 from streams.m3u8 import M3u8
+from urihandler import UriHandler
 
 
 class Channel(chn_class.Channel):
@@ -29,12 +32,22 @@ class Channel(chn_class.Channel):
         # configure login stuff
         # setup the urls
         self.noImage = "flevoimage.png"
-        self.mainListUri = "#parsexml"
-        self.baseUrl = "http://www.omroepflevoland.nl"
+        self.mainListUri = "https://www.omroepflevoland.nl/block/missed/list?category=Gemist&page=1"
+        # self.mainListUri = "https://www.omroepflevoland.nl/block/missed/list?category=Gemist&type=televisie&page=1"
+        self.baseUrl = "https://www.omroepflevoland.nl"
         self.channelBitrate = 780
 
-        self._AddDataParser(self.mainListUri, preprocessor=self.ParseXmlData)
-        self._AddDataParser("http://edge02.streamgate.nl", updater=self.UpdateLiveUrls)
+        videoItemRegex = '<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<div[^>]+background-image: url\(\'(?<thumburl>[^\']+)\'[^>]+>(?:[^>]+>){7}\W*<h5>(?<title>[^<]+)<[^>]*>\s*(?<date>\d+-\d+-\d+\s+\d+:\d+)(?:[^>]+>){11}\W*(?<description>[^<]+)</p>'
+        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+
+        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStreams,
+                            parser=videoItemRegex, creator=self.CreateVideoItem)
+
+        self._AddDataParser("https://lb-omroepflevoland-live.cdn.streamgate.nl", updater=self.UpdateLiveUrls)
+
+        self._AddDataParser("*", preprocessor=self.AddLiveStreams,
+                            parser=videoItemRegex, creator=self.CreateVideoItem,
+                            updater=self.UpdateVideoItem)
 
         #===============================================================================================================
         # non standard items
@@ -45,8 +58,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    # noinspection PyUnusedLocal
-    def ParseXmlData(self, data):
+    def AddLiveStreams(self, data):
         """ Parses the xml data entry of the mainlist
 
         Arguments:
@@ -66,65 +78,61 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = UriHandler.Open("http://www.omroepflevoland.nl/Mobile/FeedV3/programmas.aspx?t=a&wifi=1&v=14",
-                               proxy=self.proxy)
-        programs = Regexer.DoRegex("<item[\w\W]{0,5000}?</item>", data)
+        if self.parentItem is None:
+            liveItem = mediaitem.MediaItem(
+                "\a.: Live TV :.",
+                "https://lb-omroepflevoland-live.cdn.streamgate.nl/omroepflevoland/livestream1.mp4/playlist.m3u8"
+            )
+            liveItem.icon = self.icon
+            liveItem.thumb = self.noImage
+            liveItem.type = 'video'
+            liveItem.dontGroup = True
+            now = datetime.datetime.now()
+            liveItem.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            items.append(liveItem)
 
-        liveItem = mediaitem.MediaItem("\a.: Live TV :.", "http://edge02.streamgate.nl/live/omroepflevoland/"
-                                                          "smil:flevo_livestream.smil/playlist.m3u8")
-        liveItem.icon = self.icon
-        liveItem.thumb = self.noImage
-        liveItem.type = 'video'
-        liveItem.dontGroup = True
-        now = datetime.datetime.now()
-        liveItem.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
-        items.append(liveItem)
+        # add "More"
+        more = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        currentUrl = self.parentItem.url if self.parentItem is not None else self.mainListUri
+        url, page = currentUrl.rsplit("=", 1)
+        url = "{}={}".format(url, int(page) + 1)
 
-        for program in programs:
-            xmlData = XmlHelper(program)
-            name = xmlData.GetTagAttribute("item", {"title": None})
-            Logger.Debug("Processing: '%s'", name)
-
-            thumb = xmlData.GetTagAttribute("thumb", {"url": None})
-            thumb = "http://www.omroepflevoland.nl/SiteFiles/%s" % (thumb, )
-
-            date = xmlData.GetTagAttribute("item", {"date": None})
-            day, month, year = date.split("-")
-
-            showItem = mediaitem.MediaItem(name, None)
-            showItem.thumb = thumb
-            showItem.icon = self.icon
-            showItem.SetDate(year, month, day)
-            items.append(showItem)
-
-            episodes = Regexer.DoRegex("<show[\w\W]{0,1000}?</show>", program)
-            for episode in episodes:
-                xmlData = XmlHelper(episode)
-                url = xmlData.GetTagAttribute("show", {"url": None})
-                description = xmlData.GetSingleNodeContent("content", stripCData=True)
-                name = "%s - %s" % (name, date)
-
-                date = xmlData.GetTagAttribute("show", {"date": None})
-                day, month, year = date.split("-")
-                time = xmlData.GetTagAttribute("show", {"time": None})
-                hours, minutes = time.split(":")
-
-                episodeItem = mediaitem.MediaItem(name, None)
-                episodeItem.type = 'video'
-                episodeItem.thumb = thumb
-                episodeItem.description = description
-                episodeItem.icon = self.icon
-                episodeItem.SetDate(year, month, day, hours, minutes, 0)
-                episodeItem.complete = True
-                showItem.items.append(episodeItem)
-
-                part = episodeItem.CreateNewEmptyMediaPart()
-                part.AppendMediaStream(url, 1225)
-                # we guess the other streams
-                part.AppendMediaStream(url.replace("/middel/", "/hoog/"), 1825)
-                part.AppendMediaStream(url.replace("/middel/", "/laag/"), 630)
+        item = mediaitem.MediaItem(more, url)
+        item.thumb = self.noImage
+        item.icon = self.icon
+        item.fanart = self.fanart
+        item.complete = True
+        items.append(item)
 
         return data, items
+
+    def CreateVideoItem(self, resultSet):
+        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        if item is None:
+            return item
+
+        timeStamp = DateHelper.GetDateFromString(resultSet["date"], "%d-%m-%Y %H:%M")
+        item.SetDate(*timeStamp[0:6])
+        return item
+
+    def UpdateVideoItem(self, item):
+        data = UriHandler.Open(item.url, proxy=self.proxy)
+        jsonData = Regexer.DoRegex("video.createPlayer\(JSON.parse\('([^']+)", data)[0]
+        jsonData = jsonData.decode('unicode-escape').encode('ascii')
+        jsonData = jsonData.replace("\\\\", "")
+        json = JsonHelper(jsonData)
+        stream = json.GetValue("file")
+        if not stream:
+            return item
+
+        part = item.CreateNewEmptyMediaPart()
+        if ".mp3" in stream:
+            item.complete = True
+            part.AppendMediaStream(stream, 0)
+        elif ".m3u8" in stream:
+            item.url = stream
+            return self.UpdateLiveUrls(item)
+        return item
 
     def UpdateLiveUrls(self, item):
         """Updates an existing MediaItem with more data.
@@ -152,9 +160,15 @@ class Channel(chn_class.Channel):
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+        if AddonSettings.UseAdaptiveStreamAddOn():
+            stream = part.AppendMediaStream(item.url, 0)
+            M3u8.SetInputStreamAddonInput(stream, self.proxy)
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
-        item.complete = True
+        else:
+
+            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+                item.complete = True
+                # s = self.GetVerifiableVideoUrl(s)
+                part.AppendMediaStream(s, b)
+            item.complete = True
         return item
