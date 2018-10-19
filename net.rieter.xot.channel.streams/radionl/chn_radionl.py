@@ -60,7 +60,7 @@ class Channel(chn_class.Channel):
                                           self.GetDefaultCachePath(), progressDialog)
 
             # and unzip it
-            ZipHelper.Unzip(zipFile, dataPath)
+            ZipHelper.unzip(zipFile, dataPath)
 
             if os.path.isdir(dataPath):
                 Logger.Info("Data successfully downloaded to: %s", dataPath)
