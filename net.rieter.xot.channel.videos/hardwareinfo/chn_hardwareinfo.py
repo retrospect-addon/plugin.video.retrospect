@@ -232,7 +232,7 @@ class Channel(chn_class.Channel):
         """
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in YouTube.GetStreamsFromYouTube(item.url, self.proxy):
+        for s, b in YouTube.get_streams_from_you_tube(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)

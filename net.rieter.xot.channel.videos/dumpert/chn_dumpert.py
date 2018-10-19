@@ -157,7 +157,7 @@ class Channel(chn_class.Channel):
                 elif key == "embed" and streams[key].startswith("youtube"):
                     embedType, youtubeId = streams[key].split(":")
                     url = "https://www.youtube.com/watch?v=%s" % (youtubeId, )
-                    for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+                    for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                         item.complete = True
                         part.AppendMediaStream(s, b)
                 else:
@@ -170,7 +170,7 @@ class Channel(chn_class.Channel):
         if youtubeId:
             youtubeId = youtubeId[-1]
             url = "https://www.youtube.com/watch?v=%s" % (youtubeId,)
-            for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+            for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                 item.complete = True
                 part.AppendMediaStream(s, b)
         return item

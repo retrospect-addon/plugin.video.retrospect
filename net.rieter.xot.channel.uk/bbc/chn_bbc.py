@@ -412,7 +412,7 @@ class Channel(chn_class.Channel):
         #     part.AppendMediaStream(s, b)
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in F4m.GetStreamsFromF4m(item.url, self.proxy):
+        for s, b in F4m.get_streams_from_f4m(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             s = s.replace(".f4m", ".m3u8")

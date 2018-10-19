@@ -81,7 +81,7 @@ class Channel(chn_class.Channel):
             Logger.Debug("Using Youtube video")
             part = item.CreateNewEmptyMediaPart()
             youTubeUrl = youTubeUrl[0].replace("embed/", "watch?v=")
-            for s, b in YouTube.GetStreamsFromYouTube(youTubeUrl, self.proxy):
+            for s, b in YouTube.get_streams_from_you_tube(youTubeUrl, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
                 part.AppendMediaStream(s, b)
@@ -93,13 +93,13 @@ class Channel(chn_class.Channel):
             data = UriHandler.Open(url)
 
             smiller = Smil(data)
-            baseUrl = smiller.GetBaseUrl()
-            urls = smiller.GetVideosAndBitrates()
+            baseUrl = smiller.get_base_url()
+            urls = smiller.get_videos_and_bitrates()
 
             part = item.CreateNewEmptyMediaPart()
             for url in urls:
                 if "youtube" in url[0]:
-                    for s, b in YouTube.GetStreamsFromYouTube(url[0], self.proxy):
+                    for s, b in YouTube.get_streams_from_you_tube(url[0], self.proxy):
                         item.complete = True
                         part.AppendMediaStream(s, b)
                 else:
@@ -123,7 +123,7 @@ class Channel(chn_class.Channel):
             part = item.CreateNewEmptyMediaPart()
             # But we need the IOS streams!
             amfHelper = BrightCove(Logger.Instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
-            for stream, bitrate in amfHelper.GetStreamInfo(renditions="IOSRenditions"):
+            for stream, bitrate in amfHelper.get_stream_info(renditions="IOSRenditions"):
                 part.AppendMediaStream(stream, bitrate)
                 item.complete = True
 

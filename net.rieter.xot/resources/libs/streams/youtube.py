@@ -55,38 +55,39 @@ class YouTube:
     }
 
     @staticmethod
-    def GetStreamsFromYouTube(url, proxy=None):
+    def get_streams_from_you_tube(url, proxy=None, use_add_on=True):
         """ Parsers standard YouTube videos and returns a list of tuples with streams and bitrates that can be used by
         other methods
 
-        @param proxy:   Proxy  - The proxy to use for opening
-        @param url:     String - The url to download
+        @param proxy:       Proxy   - The proxy to use for opening
+        @param url:         String  - The url to download
+        @param use_add_on:  Boolean - Should we use the Youtube add-on if available
 
         Can be used like this:
 
             part = item.CreateNewEmptyMediaPart()
-            for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+            for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
                 part.AppendMediaStream(s, b)
         """
 
-        youTubeStreams = []
-        youTubeAddOnAvailable = xbmc.getCondVisibility('System.HasAddon("plugin.video.youtube")') == 1
+        you_tube_streams = []
+        you_tube_add_on_available = xbmc.getCondVisibility('System.HasAddon("plugin.video.youtube")') == 1
 
-        if youTubeAddOnAvailable:
+        if you_tube_add_on_available and use_add_on:
             Logger.Info("Found Youtube add-on. Using it")
-            youTubeStreams.append((YouTube.__PlayYouTubeUrl(url), 0))
-            Logger.Trace(youTubeStreams)
-            return youTubeStreams
+            you_tube_streams.append((YouTube.__play_you_tube_url(url), 0))
+            Logger.Trace(you_tube_streams)
+            return you_tube_streams
 
         Logger.Info("No Kodi Youtube Video add-on was found. Falling back.")
 
         if "watch?v=" in url:
-            videoId = url.split("?v=")[-1]
-            Logger.Debug("Using Youtube ID '%s' retrieved from '%s'", videoId, url)
+            video_id = url.split("?v=")[-1]
+            Logger.Debug("Using Youtube ID '%s' retrieved from '%s'", video_id, url)
             # get the meta data url
-            url = "http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (videoId, )
+            url = "http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (video_id, )
 
         elif "get_video_info" not in url:
             Logger.Error("Invalid Youtube URL specified: '%s'", url)
@@ -96,49 +97,49 @@ class YouTube:
         # get the stream data from the page
 
         # Up to 720p with audio and video combined.
-        urlEncodedFmtStreamMap = Regexer.DoRegex("url_encoded_fmt_stream_map=([^&]+)", data)
+        url_encoded_fmt_stream_map = Regexer.DoRegex("url_encoded_fmt_stream_map=([^&]+)", data)
         # Up to 4K with audio and video split.
-        # urlEncodedFmtStreamMap = Regexer.DoRegex("adaptive_fmts=([^&]+)", data)
-        urlEncodedFmtStreamMapData = HtmlEntityHelper.url_decode(urlEncodedFmtStreamMap[0])
+        # url_encoded_fmt_stream_map = Regexer.DoRegex("adaptive_fmts=([^&]+)", data)
+        url_encoded_fmt_stream_map_data = HtmlEntityHelper.url_decode(url_encoded_fmt_stream_map[0])
         # split per stream
-        streams = urlEncodedFmtStreamMapData.split(',')
+        streams = url_encoded_fmt_stream_map_data.split(',')
 
         for stream in streams:
             # let's create a new part
             # noinspection PyTypeChecker
-            qsData = dict([x.split("=") for x in stream.split("&")])
-            Logger.Trace(qsData)
+            qs_data = dict([x.split("=") for x in stream.split("&")])
+            Logger.Trace(qs_data)
 
-            if "itag" in qsData and "bitrate" not in qsData:
-                iTag = int(qsData.get('itag', -1))
-                streamEncoding = YouTube.__YouTubeEncodings.get(iTag, None)
-                if streamEncoding is None:
-                    # if the iTag was not in the list, skip it.
+            if "itag" in qs_data and "bitrate" not in qs_data:
+                i_tag = int(qs_data.get('itag', -1))
+                stream_encoding = YouTube.__YouTubeEncodings.get(i_tag, None)
+                if stream_encoding is None:
+                    # if the i_tag was not in the list, skip it.
                     Logger.Debug(
-                        "Not using iTag %s as it is not in the list of supported encodings.", iTag)
+                        "Not using i_tag %s as it is not in the list of supported encodings.", i_tag)
                     continue
-                bitrate = streamEncoding[0]
+                bitrate = stream_encoding[0]
             else:
-                bitrate = int(qsData['bitrate'])/1000
+                bitrate = int(qs_data['bitrate'])/1000
 
-            signature = qsData.get('s', None)
-            quality = qsData.get('quality_label', qsData.get('quality'))
+            signature = qs_data.get('s', None)
+            quality = qs_data.get('quality_label', qs_data.get('quality'))
             if not quality:
-                Logger.Debug("Missing 'quality_label', skipping: %s", qsData)
+                Logger.Debug("Missing 'quality_label', skipping: %s", qs_data)
                 continue
 
-            videoUrl = HtmlEntityHelper.url_decode(qsData['url'])
+            video_url = HtmlEntityHelper.url_decode(qs_data['url'])
             if signature is None:
-                url = videoUrl
+                url = video_url
             else:
-                url = "%s&signature=%s" % (videoUrl, signature)
+                url = "%s&signature=%s" % (video_url, signature)
 
-            youTubeStreams.append((url, bitrate))
+            you_tube_streams.append((url, bitrate))
 
-        return youTubeStreams
+        return you_tube_streams
 
     @staticmethod
-    def __PlayYouTubeUrl(url):
+    def __play_you_tube_url(url):
         """ Plays a YouTube URL with the YouTube addon from XBMC.
 
         url = YouTube.PlayYouTubeUrl(url[0])
@@ -152,18 +153,3 @@ class YouTube:
             Logger.Debug("Determining Add-on URL for YouTube: %s", url)
             url = "plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=%s" % (url.split("v=")[1], )
         return url
-
-
-if __name__ == "__main__":
-    from debug.initdebug import DebugInitializer
-    DebugInitializer()
-    url = "http://www.youtube.com/watch?v=878-LYQEcPs"
-    results = YouTube.GetStreamsFromYouTube(url, DebugInitializer.Proxy)
-    results.sort(lambda x, y: cmp(int(x[1]), int(y[1])))
-    for s, b in results:
-        if s.count("://") > 1:
-            raise Exception("Duplicate protocol in url: %s", s)
-        print "%s - %s" % (b, s)
-        Logger.Info("%s - %s", b, s)
-
-    Logger.Instance().CloseLog()

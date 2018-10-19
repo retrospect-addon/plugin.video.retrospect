@@ -774,7 +774,7 @@ class Plugin(ParameterParser):
             emptyListItem.fanart = self.channelObject.fanart
             # add funny stream here?
             # part = emptyListItem.CreateNewEmptyMediaPart()
-            # for s, b in YouTube.GetStreamsFromYouTube("", self.channelObject.proxy):
+            # for s, b in YouTube.get_streams_from_you_tube("", self.channelObject.proxy):
             #     part.AppendMediaStream(s, b)
 
             # if we add one, set OK to True
