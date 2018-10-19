@@ -585,10 +585,10 @@ class Channel(chn_class.Channel):
 
             if url.startswith("http") and ".m3u8" in url:
                 # first see if there are streams in this file, else check the second location.
-                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+                for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
                     if useKodiHls:
                         strm = part.AppendMediaStream(url, 0)
-                        M3u8.SetInputStreamAddonInput(strm,  headers=headers)
+                        M3u8.set_input_stream_addon_input(strm, headers=headers)
                         # Only the main M3u8 is needed
                         break
                     else:
@@ -597,10 +597,10 @@ class Channel(chn_class.Channel):
                 if not part.MediaStreams and "manifest.m3u8" in url:
                     Logger.Warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
                     url = url.replace("manifest.m3u8", "master.m3u8")
-                    for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+                    for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
                         if useKodiHls:
                             strm = part.AppendMediaStream(url, 0)
-                            M3u8.SetInputStreamAddonInput(strm, headers=headers)
+                            M3u8.set_input_stream_addon_input(strm, headers=headers)
                             # Only the main M3u8 is needed
                             break
                         else:

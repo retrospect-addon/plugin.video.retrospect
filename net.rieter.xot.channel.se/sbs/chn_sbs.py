@@ -557,12 +557,12 @@ class Channel(chn_class.Channel):
         if AddonSettings.UseAdaptiveStreamAddOn():
             stream = part.AppendMediaStream(m3u8url, 0)
             item.complete = True
-            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            M3u8.set_input_stream_addon_input(stream, self.proxy)
         else:
             # user agent for all sub m3u8 and ts requests needs to be the same
             part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
-            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=False,
-                                                   mapAudio=True, playListData=m3u8data):
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8url, self.proxy, append_query_string=False,
+                                                      map_audio=True, play_list_data=m3u8data):
                 item.complete = True
                 if a:
                     audioPart = a.split("-prog_index.m3u8", 1)[0]
@@ -570,7 +570,7 @@ class Channel(chn_class.Channel):
                     s = s.replace("-prog_index.m3u8", "-{0}-prog_index.m3u8".format(audioId))
                 part.AppendMediaStream(s, b)
 
-        vttUrl = M3u8.GetSubtitle(m3u8url, self.proxy, m3u8data)
+        vttUrl = M3u8.get_subtitle(m3u8url, self.proxy, m3u8data)
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
         vttUrl = vttUrl.replace("-prog_index.m3u8", "-0.vtt")
         part.Subtitle = SubtitleHelper.download_subtitle(vttUrl, format='srt', proxy=self.proxy)
@@ -622,7 +622,7 @@ class Channel(chn_class.Channel):
             qs = url.split("?")[-1]
         else:
             qs = None
-        for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
             # and we need to append the original QueryString
             if "X-I-FRAME-STREAM" in s:
                 continue

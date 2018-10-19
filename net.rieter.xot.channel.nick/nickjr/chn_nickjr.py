@@ -266,7 +266,7 @@ class Channel(chn_class.Channel):
             part = item.CreateNewEmptyMediaPart()
 
             # m3u8Url = stream.get_value("package", "video", "item", 0, "rendition", 0, "src")
-            # for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+            # for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             #     item.complete = True
             #     part.AppendMediaStream(s, b)
 

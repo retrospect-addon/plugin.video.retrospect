@@ -617,11 +617,11 @@ class Channel(chn_class.Channel):
 
         if AddonSettings.UseAdaptiveStreamAddOn() and False:
             stream = part.AppendMediaStream(m3u8Url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True
         else:
             m3u8Data = UriHandler.Open(m3u8Url, proxy=self.proxy, additionalHeaders=self.localIP)
-            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, playListData=m3u8Data, mapAudio=True):
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, play_list_data=m3u8Data, map_audio=True):
                 item.complete = True
                 if not item.isLive and "-video" not in s:
                     continue
@@ -634,7 +634,7 @@ class Channel(chn_class.Channel):
                     s = a.replace(".m3u8", videoPart)
                 part.AppendMediaStream(s, b)
 
-        # subtitle = M3u8.GetSubtitle(m3u8Url, playListData=m3u8Data)
+        # subtitle = M3u8.get_subtitle(m3u8Url, playListData=m3u8Data)
         # Not working due to VTT format.
         # if subtitle:
         #     part.Subtitle = SubtitleHelper.download_subtitle(subtitle,
@@ -672,10 +672,10 @@ class Channel(chn_class.Channel):
 
         spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
         if spoofIp:
-            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
+            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
                 part.AppendMediaStream(s, b)
         else:
-            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
                 part.AppendMediaStream(s, b)
 
         item.complete = True

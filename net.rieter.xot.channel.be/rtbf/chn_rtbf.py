@@ -221,7 +221,7 @@ class Channel(chn_class.Channel):
             Logger.Debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
             # from debug.router import Router
             # data = Router.GetVia("be", hlsUrl, proxy=self.proxy)
-            for s, b in M3u8.GetStreamsFromM3u8(hlsUrl, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
                 part.AppendMediaStream(s, b)
                 item.complete = True
         else:

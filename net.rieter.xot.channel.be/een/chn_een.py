@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
                 continue
 
             hlsUrl = urlInfo["url"]
-            for s, b in M3u8.GetStreamsFromM3u8(hlsUrl, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
                 part.AppendMediaStream(s, b)
 
         # urls = Regexer.DoRegex(self.mediaUrlRegex, data)
@@ -208,7 +208,7 @@ class Channel(chn_class.Channel):
         #     elif mediaurl.startswith("http") and "m3u8" in mediaurl:
         #         # http://iphone.streampower.be/een_nogeo/_definst_/2013/08/1000_130830_placetobe_marjolein_Website_Een_M4V.m4v/playlist.m3u8
         #         mediaurl = mediaurl.rstrip()
-        #         for s, b in M3u8.GetStreamsFromM3u8(mediaurl, self.proxy):
+        #         for s, b in M3u8.get_streams_from_m3u8(mediaurl, self.proxy):
         #             part.AppendMediaStream(s, b)
         #     else:
         #         Logger.Warning("Media url was not recognised: %s", mediaurl)

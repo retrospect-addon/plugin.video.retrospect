@@ -263,7 +263,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
 
         part = item.CreateNewEmptyMediaPart()
-        part.Subtitle = NpoStream.GetSubtitle(json.get_value("mid"), proxy=self.proxy)
+        part.Subtitle = NpoStream.get_subtitle(json.get_value("mid"), proxy=self.proxy)
 
         for stream in json.get_value("videoStreams"):
             if not stream["url"].startswith("odi"):
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
         if item.HasMediaItemParts():
             return item
 
-        for s, b in NpoStream.GetStreamsFromNpo(None, json.get_value("mid"), proxy=self.proxy):
+        for s, b in NpoStream.get_streams_from_npo(None, json.get_value("mid"), proxy=self.proxy):
             item.complete = True
             part.AppendMediaStream(s, b)
 

@@ -17,7 +17,7 @@ class Adaptive:
         pass
 
     @staticmethod
-    def GetLicenseKey(keyUrl, keyType="R", keyHeaders=None, keyValue=None):
+    def get_license_key(key_url, key_type="R", key_headers=None, key_value=None):
         """ Generates a propery license key value
 
         # A{SSM} -> not implemented
@@ -30,58 +30,58 @@ class Adaptive:
 
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
-        @type keyUrl: str
-        @param keyUrl: the URL where the license key can be obtained
+        @type key_url: str
+        @param key_url: the URL where the license key can be obtained
 
-        @type keyType: str
-        @param keyType: the key type (A, R, B or D)
+        @type key_type: str
+        @param key_type: the key type (A, R, B or D)
 
-        @type keyHeaders: dict
-        @param keyHeaders: A dictionary that contains the HTTP headers to pass
+        @type key_headers: dict
+        @param key_headers: A dictionary that contains the HTTP headers to pass
 
-        @type keyValue: str
-        @param keyValue: i
+        @type key_value: str
+        @param key_value: i
         @return:
         """
 
         header = ""
-        if keyHeaders:
-            for k, v in list(keyHeaders.items()):
+        if key_headers:
+            for k, v in list(key_headers.items()):
                 header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.url_encode(v))
 
-        if keyType in ("A", "R", "B"):
-            keyValue = "{0}{{SSM}}".format(keyType)
-        elif keyType == "D":
-            if "D{SSM}" not in keyValue:
+        if key_type in ("A", "R", "B"):
+            key_value = "{0}{{SSM}}".format(key_type)
+        elif key_type == "D":
+            if "D{SSM}" not in key_value:
                 raise ValueError("Missing D{SSM} placeholder")
-            keyValue = HtmlEntityHelper.url_encode(keyValue)
+            key_value = HtmlEntityHelper.url_encode(key_value)
 
-        return "{0}|{1}|{2}|".format(keyUrl, header.strip("&"), keyValue)
+        return "{0}|{1}|{2}|".format(key_url, header.strip("&"), key_value)
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def SetInputStreamAddonInput(strm, proxy=None, headers=None, addon="inputstream.adaptive",
-                                 manifestType=None,
-                                 licenseKey=None,
-                                 licenseType=None,
-                                 maxBitRate=None):
+    def set_input_stream_addon_input(strm, proxy=None, headers=None, addon="inputstream.adaptive",
+                                     manifest_type=None,
+                                     license_key=None,
+                                     license_type=None,
+                                     max_bit_rate=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
-        @param licenseKey:
-        @param licenseType:
+        @param license_key:
+        @param license_type:
         @param addon:             (string) Adaptive add-on to use
-        @param manifestType:      (string) Type of manifest (hls/mpd)
+        @param manifest_type:      (string) Type of manifest (hls/mpd)
         @param headers:           (dict) Possible HTTP Headers
         @param proxy:             (Proxy) The proxy to use for opening
         @param strm:              (MediaStream) the MediaStream to update
-        @param int maxBitRate:    The maximum bitrate to use (optional)
+        @param int max_bit_rate:    The maximum bitrate to use (optional)
 
         Can be used like this:
 
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(m3u8url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy, self.headers)
+            M3u8.set_input_stream_addon_input(stream, self.proxy, self.headers)
             item.complete = True
 
         if maxBitRate is not set, the bitrate will be configured via the normal generic Retrospect
@@ -89,20 +89,20 @@ class Adaptive:
 
         """
 
-        if manifestType is None:
+        if manifest_type is None:
             raise ValueError("No manifest type set")
 
         strm.Adaptive = True
 
         # See https://github.com/peak3d/inputstream.adaptive/blob/master/inputstream.adaptive/addon.xml.in
         strm.AddProperty("inputstreamaddon", addon)
-        strm.AddProperty("inputstream.adaptive.manifest_type", manifestType)
-        if licenseKey:
-            strm.AddProperty("inputstream.adaptive.license_key", licenseKey)
-        if licenseType:
-            strm.AddProperty("inputstream.adaptive.license_type", licenseType)
-        if maxBitRate:
-            strm.AddProperty("inputstream.adaptive.max_bandwidth", maxBitRate * 1000)
+        strm.AddProperty("inputstream.adaptive.manifest_type", manifest_type)
+        if license_key:
+            strm.AddProperty("inputstream.adaptive.license_key", license_key)
+        if license_type:
+            strm.AddProperty("inputstream.adaptive.license_type", license_type)
+        if max_bit_rate:
+            strm.AddProperty("inputstream.adaptive.max_bandwidth", max_bit_rate * 1000)
 
         if headers:
             header = ""
@@ -113,13 +113,13 @@ class Adaptive:
         return strm
 
     @staticmethod
-    def SetMaxBitrate(stream, maxBitRate):
-        if not stream.Adaptive or maxBitRate == 0:
+    def set_max_bitrate(stream, max_bit_rate):
+        if not stream.Adaptive or max_bit_rate == 0:
             return
 
         # Previously defined when creating the stream => We don't override that
         if "inputstream.adaptive.max_bandwidth" in stream.Properties:
             return
 
-        stream.AddProperty("inputstream.adaptive.max_bandwidth", str(maxBitRate * 1000))
+        stream.AddProperty("inputstream.adaptive.max_bandwidth", str(max_bit_rate * 1000))
         return

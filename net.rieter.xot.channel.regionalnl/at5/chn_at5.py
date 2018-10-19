@@ -149,9 +149,9 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         if AddonSettings.UseAdaptiveStreamAddOn():
             stream = part.AppendMediaStream(url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy, item.HttpHeaders)
+            M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)
         else:
-            for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                 item.complete = True
                 part.AppendMediaStream(s, b)
         return item

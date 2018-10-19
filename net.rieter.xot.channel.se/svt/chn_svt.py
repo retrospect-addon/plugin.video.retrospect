@@ -797,7 +797,7 @@ class Channel(chn_class.Channel):
                 if altIndex > 0:
                     url = url[0:altIndex + 4]
 
-                for s, b in M3u8.GetStreamsFromM3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
+                for s, b in M3u8.get_streams_from_m3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
                     part.AppendMediaStream(s, b)
 
             elif video["url"].startswith("rtmp"):

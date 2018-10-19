@@ -357,10 +357,10 @@ class Channel(chn_class.Channel):
                 licenseUrl = Regexer.DoRegex('licenseUrl="([^"]+)"', mpdData)[0]
                 token = "Bearer {0}".format(mpdInfo["playToken"])
                 keyHeaders = {"Authorization": token}
-                licenseKey = Mpd.GetLicenseKey(licenseUrl, keyHeaders=keyHeaders)
+                licenseKey = Mpd.get_license_key(licenseUrl, key_headers=keyHeaders)
 
                 stream = part.AppendMediaStream(mpdManifestUrl, 0)
-                Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=licenseKey)
+                Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey)
                 item.complete = True
                 return item
 
@@ -372,7 +372,7 @@ class Channel(chn_class.Channel):
         Logger.Debug("Trying standard M3u8 streams.")
         if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8" \
                 and "hostingervice=brightcove" not in m3u8Url:
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, append_query_string=True):
                 if "_enc_" in s:
                     continue
 
@@ -380,7 +380,7 @@ class Channel(chn_class.Channel):
                     # we have at least 1 none encrypted streams
                     Logger.Info("Using HLS InputStreamAddon")
                     strm = part.AppendMediaStream(m3u8Url, 0)
-                    M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+                    M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                     item.complete = True
                     return item
 
@@ -404,11 +404,11 @@ class Channel(chn_class.Channel):
                 # we have at least 1 none encrypted streams
                 Logger.Info("Using HLS InputStreamAddon")
                 strm = part.AppendMediaStream(m3u8Url, 0)
-                M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+                M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                 item.complete = True
                 return item
 
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, append_query_string=True):
                 item.complete = True
                 part.AppendMediaStream(s, b)
 
@@ -441,7 +441,7 @@ class Channel(chn_class.Channel):
                     item.complete = True
                     return item
 
-                for s, b in M3u8.GetStreamsFromM3u8(streamUrl, self.proxy):
+                for s, b in M3u8.get_streams_from_m3u8(streamUrl, self.proxy):
                     item.complete = True
                     part.AppendMediaStream(s, b)
                 return item

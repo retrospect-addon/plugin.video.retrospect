@@ -169,11 +169,11 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
             stream = part.AppendMediaStream(m3u8Url, 0)
-            M3u8.SetInputStreamAddonInput(stream, proxy=self.proxy, headers=headers)
+            M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers)
             item.complete = True
         else:
-            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy,
-                                                   headers=headers, mapAudio=True):
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy,
+                                                      headers=headers, map_audio=True):
 
                 if a and "-audio" not in s:
                     videoPart = s.rsplit("-", 1)[-1]

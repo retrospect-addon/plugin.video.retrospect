@@ -384,10 +384,10 @@ class Channel(chn_class.Channel):
             hls_url = stream_data["hlsUrl"]
             if use_adaptive:
                 stream = part.AppendMediaStream(hls_url, 0)
-                M3u8.SetInputStreamAddonInput(stream, self.proxy, headers=headers)
+                M3u8.set_input_stream_addon_input(stream, self.proxy, headers=headers)
                 item.complete = True
             else:
-                for s, b in M3u8.GetStreamsFromM3u8(hls_url, self.proxy, headers=headers):
+                for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy, headers=headers):
                     item.complete = True
                     # s = self.GetVerifiableVideoUrl(s)
                     part.AppendMediaStream(s, b)
@@ -399,20 +399,20 @@ class Channel(chn_class.Channel):
         return item
 
     def __update_live_audio(self, item, manifest, headers):
-        video_info = manifest.GetValue("playable", "assets", 0)
+        video_info = manifest.get_value("playable", "assets", 0)
         url = video_info["url"]
         # encrypted = video_info["encrypted"]
         part = item.CreateNewEmptyMediaPart()
 
         # Adaptive add-on does not work with audio only
-        for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
             item.complete = True
             part.AppendMediaStream(s, b)
 
         return item
 
     def __update_live_video(self, item, manifest, headers):
-        video_info = manifest.GetValue("playable", "assets", 0)
+        video_info = manifest.get_value("playable", "assets", 0)
         url = video_info["url"]
         encrypted = video_info["encrypted"]
         part = item.CreateNewEmptyMediaPart()
@@ -423,17 +423,17 @@ class Channel(chn_class.Channel):
                 Logger.Error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
                 return item
             stream = part.AppendMediaStream(url, 0)
-            key = M3u8.GetLicenseKey("", keyHeaders=headers, keyType="R")
-            M3u8.SetInputStreamAddonInput(stream, proxy=self.proxy, headers=headers, licenseKey=key)
+            key = M3u8.get_license_key("", key_headers=headers, key_type="R")
+            M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers, license_key=key)
             item.complete = True
         else:
             use_adaptive = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
             if use_adaptive:
                 stream = part.AppendMediaStream(url, 0)
-                M3u8.SetInputStreamAddonInput(stream, self.proxy, headers=headers)
+                M3u8.set_input_stream_addon_input(stream, self.proxy, headers=headers)
                 item.complete = True
             else:
-                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+                for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
                     item.complete = True
                     part.AppendMediaStream(s, b)
 

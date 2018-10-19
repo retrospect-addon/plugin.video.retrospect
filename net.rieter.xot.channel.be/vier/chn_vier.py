@@ -281,7 +281,7 @@ class Channel(chn_class.Channel):
             item.isGeoLocked = True
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             if int(b) < 200:
                 Logger.Info("Skipping stream of quality '%s' kbps", b)
                 continue

@@ -425,10 +425,10 @@ class Channel(chn_class.Channel):
         adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
         if adaptiveAvailable:
             stream = part.AppendMediaStream(item.url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            M3u8.set_input_stream_addon_input(stream, self.proxy)
             return item
 
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
             item.complete = True
             # apparently they split up M3u8 streams and audio streams, so we need to fix that here
             # this is an ugly fix, but it will work!
@@ -477,18 +477,18 @@ class Channel(chn_class.Channel):
                 # no difference in encrypted or not.
                 Logger.Debug("Found HLS AES encrypted stream and a DRM key")
                 stream = part.AppendMediaStream(videoUrl, 0)
-                M3u8.SetInputStreamAddonInput(stream, self.proxy)
+                M3u8.set_input_stream_addon_input(stream, self.proxy)
 
             elif videoType == "hls" and not drmProtected:
                 # no difference in encrypted or not.
                 if adaptiveAvailable:
                     Logger.Debug("Found standard HLS stream and without DRM protection")
                     stream = part.AppendMediaStream(videoUrl, 0)
-                    M3u8.SetInputStreamAddonInput(stream, self.proxy)
+                    M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
                     m3u8Data = UriHandler.Open(videoUrl, self.proxy)
-                    for s, b, a in M3u8.GetStreamsFromM3u8(videoUrl, self.proxy,
-                                                           playListData=m3u8Data, mapAudio=True):
+                    for s, b, a in M3u8.get_streams_from_m3u8(videoUrl, self.proxy,
+                                                              play_list_data=m3u8Data, map_audio=True):
                         item.complete = True
                         if a:
                             audioPart = a.rsplit("-", 1)[-1]
@@ -496,7 +496,7 @@ class Channel(chn_class.Channel):
                             s = s.replace(".m3u8", audioPart)
                         part.AppendMediaStream(s, b)
 
-                    srt = M3u8.GetSubtitle(videoUrl, playListData=m3u8Data, proxy=self.proxy)
+                    srt = M3u8.get_subtitle(videoUrl, play_list_data=m3u8Data, proxy=self.proxy)
                     if not srt:
                         continue
 
@@ -507,21 +507,21 @@ class Channel(chn_class.Channel):
                 if not drmProtected:
                     Logger.Debug("Found standard MPD stream and without DRM protection")
                     stream = part.AppendMediaStream(videoUrl, 1)
-                    Mpd.SetInputStreamAddonInput(stream, self.proxy)
+                    Mpd.set_input_stream_addon_input(stream, self.proxy)
                 else:
                     stream = part.AppendMediaStream(videoUrl, 1)
                     encryptionJson = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'\
                         .format(drmKey)
-                    encryptionKey = Mpd.GetLicenseKey(
-                        keyUrl="https://widevine-proxy.drm.technology/proxy",
-                        keyType="D",
-                        keyValue=encryptionJson,
-                        keyHeaders={"Content-Type": "text/plain;charset=UTF-8"}
+                    encryptionKey = Mpd.get_license_key(
+                        key_url="https://widevine-proxy.drm.technology/proxy",
+                        key_type="D",
+                        key_value=encryptionJson,
+                        key_headers={"Content-Type": "text/plain;charset=UTF-8"}
                     )
-                    Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=encryptionKey)
+                    Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=encryptionKey)
 
             if videoType.startswith("hls") and srt is None:
-                srt = M3u8.GetSubtitle(videoUrl, proxy=self.proxy)
+                srt = M3u8.get_subtitle(videoUrl, proxy=self.proxy)
                 if srt:
                     srt = srt.replace(".m3u8", ".vtt")
                     part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")

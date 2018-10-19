@@ -245,6 +245,6 @@ class Channel(chn_class.Channel):
         licenseUrl = streamInfo.get_value("LicenseURL")
         part = item.CreateNewEmptyMediaPart()
         stream = part.AppendMediaStream(streamUrl, 0)
-        licenseKey = Mpd.GetLicenseKey(licenseUrl)
-        Mpd.SetInputStreamAddonInput(stream, proxy=self.proxy, licenseKey=licenseKey)
+        licenseKey = Mpd.get_license_key(licenseUrl)
+        Mpd.set_input_stream_addon_input(stream, proxy=self.proxy, license_key=licenseKey)
         return item

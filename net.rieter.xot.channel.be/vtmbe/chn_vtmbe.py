@@ -858,7 +858,7 @@ class Channel(chn_class.Channel):
             licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.url_encode(licenseKey))
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(hls, 0)
-            M3u8.SetInputStreamAddonInput(stream, licenseKey=licenseKey)
+            M3u8.set_input_stream_addon_input(stream, license_key=licenseKey)
             item.complete = True
         else:
             Logger.Error("Cannot play live-stream without encryption support.")
@@ -924,7 +924,7 @@ class Channel(chn_class.Channel):
 
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(streamUrl, 0)
-            Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=licenseKey, licenseType="com.widevine.alpha")
+            Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey, license_type="com.widevine.alpha")
             item.complete = True
         else:
             Logger.Debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
@@ -942,7 +942,7 @@ class Channel(chn_class.Channel):
                          "of a stream and to include a full .ts part.", byteRange)
             part.HttpHeaders["Range"] = 'bytes=0-%d' % (byteRange, )
 
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
                 part.AppendMediaStream(s, b)

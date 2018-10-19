@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
             # url = "https://ida.omroep.nl/app.php/LI_L1_716685?adaptive=yes&token={}"
 
         part = item.CreateNewEmptyMediaPart()
-        for s, b in NpoStream.GetStreamsFromNpo(None, episodeId=episodeId, proxy=self.proxy):
+        for s, b in NpoStream.get_streams_from_npo(None, episode_id=episodeId, proxy=self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)

@@ -997,11 +997,11 @@ class Channel(chn_class.Channel):
         dashLicenseUrl = dashJson.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
         dashHeaders = dashJson.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
         dashHeaders[u"Referer"] = unicode(url)
-        dashLicense = Mpd.GetLicenseKey(dashLicenseUrl, keyHeaders=dashHeaders, keyType="R")
+        dashLicense = Mpd.get_license_key(dashLicenseUrl, key_headers=dashHeaders, key_type="R")
 
         part = item.CreateNewEmptyMediaPart()
         stream = part.AppendMediaStream(dashUrl, 0)
-        Mpd.SetInputStreamAddonInput(stream, self.proxy, dashHeaders, licenseKey=dashLicense)
+        Mpd.set_input_stream_addon_input(stream, self.proxy, dashHeaders, license_key=dashLicense)
         item.complete = True
         return item
 
@@ -1042,13 +1042,13 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         part.Subtitle = subTitlePath
 
-        for s, b in NpoStream.GetStreamsFromNpo(None, episodeId, proxy=self.proxy):
+        for s, b in NpoStream.get_streams_from_npo(None, episodeId, proxy=self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
 
         if False and AddonSettings.UseAdaptiveStreamAddOn():
-            NpoStream.AddMpdStreamFromNpo(None, episodeId, part, proxy=self.proxy)
+            NpoStream.add_mpd_stream_from_npo(None, episodeId, part, proxy=self.proxy)
 
         return item
 

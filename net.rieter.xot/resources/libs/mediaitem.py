@@ -855,7 +855,7 @@ class MediaItemPart:
         # now find the correct quality stream and set the properties if there are any
         stream = self.GetMediaStreamForBitrate(bitrate)
         if stream.Adaptive:
-            Adaptive.SetMaxBitrate(stream, maxBitRate=bitrate)
+            Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
 
         for prop in stream.Properties:
             Logger.Trace("Adding Kodi property: %s", prop)

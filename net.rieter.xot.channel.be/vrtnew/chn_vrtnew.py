@@ -225,7 +225,7 @@ class Channel(chn_class.Channel):
                     if not flv.endswith("playlist.m3u8"):
                         flv = "%s/playlist.m3u8" % (flv,)
 
-                    for s, b in M3u8.GetStreamsFromM3u8(flv, self.proxy):
+                    for s, b in M3u8.get_streams_from_m3u8(flv, self.proxy):
                         item.complete = True
                         part.AppendMediaStream(s, b)
                     # no need to continue adding the streams

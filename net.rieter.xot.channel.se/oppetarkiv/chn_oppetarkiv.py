@@ -294,7 +294,7 @@ class Channel(chn_class.Channel):
                 if "manifest.f4m" in streamInfo:
                     continue
                 elif "master.m3u8" in streamInfo:
-                    for s, b in M3u8.GetStreamsFromM3u8(streamInfo, self.proxy, headers=part.HttpHeaders):
+                    for s, b in M3u8.get_streams_from_m3u8(streamInfo, self.proxy, headers=part.HttpHeaders):
                         item.complete = True
                         part.AppendMediaStream(s, b)
 
