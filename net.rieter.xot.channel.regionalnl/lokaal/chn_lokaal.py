@@ -196,7 +196,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Adding Live Streams")
 
         if self.liveUrl.endswith(".m3u8"):
-            title = "{} - {}".format(self.channelName, LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId))
+            title = "{} - {}".format(self.channelName, LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId))
             liveItem = mediaitem.MediaItem(title, self.liveUrl)
             liveItem.type = 'video'
             liveItem.icon = self.icon

@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
         item = mediaitem.MediaItem("\a.: {} :.".format(title), self.liveUrl)
         item.type = "folder"
         items.append(item)
@@ -145,7 +145,7 @@ class Channel(chn_class.Channel):
             return None
 
         # 2018-02-24 07:15:00
-        timeStamp = DateHelper.GetDateFromString(resultSet['date'], dateFormat="%Y-%m-%d %H:%M:%S")
+        timeStamp = DateHelper.get_date_from_string(resultSet['date'], date_format="%Y-%m-%d %H:%M:%S")
         item.SetDate(*timeStamp[0:6])
         return item
 
@@ -166,7 +166,7 @@ class Channel(chn_class.Channel):
                 # publicationTimeString=7 jun 2018 17:20 uur
                 dateParts = result["publicationTimeString"].split(" ")
                 day = int(dateParts[0])
-                month = DateHelper.GetMonthFromName(dateParts[1], language="nl", short=True)
+                month = DateHelper.get_month_from_name(dateParts[1], language="nl", short=True)
                 year = int(dateParts[2])
                 hours, minutes = dateParts[3].split(":")
                 hours = int(hours)
@@ -217,8 +217,8 @@ class Channel(chn_class.Channel):
         jsonData = Regexer.DoRegex('var opts\s*=\s*({.+});\W*//window', data)
         Logger.Debug("Found jsondata with size: %s", len(jsonData[0]))
         jsonData = JsonHelper(jsonData[0])
-        clipData = jsonData.GetValue("clipData", "assets")
-        server = jsonData.GetValue("publicationData", "defaultMediaAssetPath")
+        clipData = jsonData.get_value("clipData", "assets")
+        server = jsonData.get_value("publicationData", "defaultMediaAssetPath")
         part = item.CreateNewEmptyMediaPart()
         for clip in clipData:
             part.AppendMediaStream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))

@@ -85,7 +85,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
         item = mediaitem.MediaItem("\a.: {} :.".format(title), "")
         item.type = "folder"
         items.append(item)
