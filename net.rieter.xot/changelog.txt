@@ -1,18 +1,10 @@
-[B]Retrospect v4.1.7~beta24 - Changelog - 2018-10-17[/B]
+[B]Retrospect v4.1.7~beta26 - Changelog - 2018-10-20[/B]
 
 [B]Framework related[/B]
-* Updated: a bit more documentation of the adaptive stream add-on helper
-* Fixed: thumb url with out http(s) fixed
+* Fixed: thumb url updating broke if no thumb was present (Fixes #1035)
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Broke fanart and thumbs in some situations
-* Fixed: Translation for live streams
+-
 
 [B]Channel related[/B]
-* Added: AT5 live stream (Fixes #1031)
-* Added: L1 live TV and Radio (See #1032)
-* Fixed: TV Rijnmond live TV (See #1032)
-* Fixed: RTV Noord Holland live TV (See #1032)
-* Fixed: Omroep Zeeland (See #1032)
-* Fixed: RTV Utrecht (See #1032)
-* Fixed: Omroep Flevoland (Fixes #1032)
+* Removed: NRK.no for now as their API was shut down (See #1033)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="net.rieter.xot"
-        version="4.1.7~beta24"
+        version="4.1.7~beta26"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -114,23 +114,15 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v4.1.7~beta24 - Changelog - 2018-10-17[/B]
+        <news>[B]Retrospect v4.1.7~beta26 - Changelog - 2018-10-20[/B]
 
 [B]Framework related[/B]
-* Updated: a bit more documentation of the adaptive stream add-on helper
-* Fixed: thumb url with out http(s) fixed
+* Fixed: thumb url updating broke if no thumb was present (Fixes #1035)
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Broke fanart and thumbs in some situations
-* Fixed: Translation for live streams
+-
 
 [B]Channel related[/B]
-* Added: AT5 live stream (Fixes #1031)
-* Added: L1 live TV and Radio (See #1032)
-* Fixed: TV Rijnmond live TV (See #1032)
-* Fixed: RTV Noord Holland live TV (See #1032)
-* Fixed: Omroep Zeeland (See #1032)
-* Fixed: RTV Utrecht (See #1032)
-* Fixed: Omroep Flevoland (Fixes #1032)</news>
+* Removed: NRK.no for now as their API was shut down (See #1033)</news>
     </extension>
 </addon>
