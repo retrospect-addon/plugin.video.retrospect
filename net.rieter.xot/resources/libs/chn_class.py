@@ -785,7 +785,7 @@ class Channel:
         item = mediaitem.MediaItem(title, url)
         item.description = resultSet.get("description", "")
         item.thumb = resultSet.get("thumburl", "")
-        if not item.thumb.startswith("http"):
+        if item.thumb and not item.thumb.startswith("http"):
             item.thumb = "{}{}".format(self.baseUrl.rstrip('/'), item.thumb)
 
         item.icon = self.icon
