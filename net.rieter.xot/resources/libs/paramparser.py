@@ -66,6 +66,9 @@ class ParameterParser(object):
         self.params = self.__GetParameters(params)
         self.pluginName = pluginName
 
+        # We need a picker for this instance
+        self._pickler = Pickler()
+
     def _CreateActionUrl(self, channel, action, item=None, category=None):
         """Creates an URL that includes an action
 
@@ -90,7 +93,7 @@ class ParameterParser(object):
 
         # it might have an item or not
         if item is not None:
-            params[self.keywordPickle] = Pickler.PickleMediaItem(item)
+            params[self.keywordPickle] = self._pickler.PickleMediaItem(item)
 
             if action == self.actionPlayVideo and item.isLive:
                 params[self.keywordRandomLive] = random.randint(10000, 99999)

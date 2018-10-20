@@ -38,7 +38,6 @@ from paramparser import ParameterParser
 from helpers.channelimporter import ChannelIndex
 from helpers.languagehelper import LanguageHelper
 from locker import LockWithDialog
-from pickler import Pickler
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
 Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
@@ -70,7 +69,7 @@ class Menu(ParameterParser):
                      "Query:       %s", self.params, len(self.params), self.pluginName, params)
 
         if self.keywordPickle in self.params:
-            self.mediaItem = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+            self.mediaItem = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         else:
             self.mediaItem = None
 
@@ -141,7 +140,7 @@ class Menu(ParameterParser):
     @LockWithDialog(logger=Logger.Instance())
     def AddFavourite(self):
         # remove the item
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         # no need for dates in the favourites
         # item.ClearDate()
         Logger.Debug("Adding favourite: %s", item)
@@ -163,7 +162,7 @@ class Menu(ParameterParser):
     @LockWithDialog(logger=Logger.Instance())
     def RemoveFavourite(self):
         # remove the item
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
         f.Remove(item)
@@ -176,7 +175,7 @@ class Menu(ParameterParser):
         return
 
     def ToggleCloak(self):
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
         c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.Instance())
 

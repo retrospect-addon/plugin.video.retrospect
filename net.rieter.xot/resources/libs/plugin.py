@@ -37,7 +37,6 @@ try:
     from helpers.sessionhelper import SessionHelper
     from textures import TextureHandler
     from paramparser import ParameterParser
-    from pickler import Pickler
     from updater import Updater
     from urihandler import UriHandler
 except:
@@ -388,7 +387,7 @@ class Plugin(ParameterParser):
 
             selectedItem = None
             if self.keywordPickle in self.params:
-                selectedItem = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+                selectedItem = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
             if favorites is None:
                 watcher = StopWatch("Plugin ProcessFolderList", Logger.Instance())
@@ -481,7 +480,7 @@ class Plugin(ParameterParser):
 
         item = None
         try:
-            item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+            item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
             if (item.isDrmProtected or item.isPaid) and AddonSettings.ShowDrmPaidWarning():
                 if item.isDrmProtected:
@@ -573,7 +572,7 @@ class Plugin(ParameterParser):
         """
         Logger.Debug("Performing Custom Contextmenu command: %s", action)
 
-        item = Pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         if not item.complete:
             Logger.Debug("The contextmenu action requires a completed item. Updating %s", item)
             item = self.channelObject.ProcessVideoItem(item)

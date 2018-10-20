@@ -15,8 +15,6 @@ from logger import Logger
 
 
 class Pickler:
-    # store some vars for speed optimization
-    __PickleContainer = dict()        # : storage for pickled items to prevent duplicate pickling
     # hack for Base64 chars that are URL encoded. We only need 3 (or 6 to make it case-insenstive)
     # and then we don't need to use urlencode which is slow in Python.
     __Base64CharsDecode = {
@@ -36,10 +34,10 @@ class Pickler:
     }
 
     def __init__(self):
-        pass
+        # store some vars for speed optimization
+        self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
 
-    @staticmethod
-    def DePickleMediaItem(hexString):
+    def DePickleMediaItem(self, hexString):
         """De-serializes a serialized mediaitem
 
         Arguments:
@@ -63,8 +61,7 @@ class Pickler:
         pickleItem = pickle.loads(pickleString)
         return pickleItem
 
-    @staticmethod
-    def PickleMediaItem(item):
+    def PickleMediaItem(self, item):
         """Serialises a mediaitem
 
         Arguments:
@@ -75,9 +72,9 @@ class Pickler:
 
         """
 
-        if item.guid in Pickler.__PickleContainer:
-            Logger.Trace("Pickle Container cache hit")
-            return Pickler.__PickleContainer[item.guid]
+        if item.guid in self.__pickleContainer:
+            Logger.Trace("Pickle Container cache hit: %s", item.guid)
+            return self.__pickleContainer[item.guid]
 
         pickleString = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)
         # Logger.Trace("Pickle: PickleString: %s", pickleString)
@@ -90,11 +87,10 @@ class Pickler:
 
         # Logger.Trace("Pickle: HexString: %s", hexString)
 
-        Pickler.__PickleContainer[item.guid] = hexString
+        self.__pickleContainer[item.guid] = hexString
         return hexString
 
-    @staticmethod
-    def Validate(test, raiseOnMissing=False, logger=None):
+    def Validate(self, test, raiseOnMissing=False, logger=None):
         """ Validates if in instance has all properties after depickling. The __class__ of the 'test' should
          implement a self.__dir__(self) that returns the required attributes.
 

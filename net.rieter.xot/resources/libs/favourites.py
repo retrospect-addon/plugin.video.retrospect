@@ -23,6 +23,7 @@ class Favourites:
         """
 
         self.__filePattern = "%s-%s.xotfav"
+        self.__pickler = Pickler()
 
         self.FavouriteFolder = path
 
@@ -39,7 +40,7 @@ class Favourites:
         Logger.Debug("Adding item %s\nfor channel %s\n%s", item, channel, actionUrl)
         fileName = self.__filePattern % (channel.guid, item.guid)
         filePath = os.path.join(self.FavouriteFolder, fileName)
-        pickle = Pickler.PickleMediaItem(item)
+        pickle = self.__pickler.PickleMediaItem(item)
 
         # Just double check for folder existence
         if not os.path.isdir(self.FavouriteFolder):
@@ -127,8 +128,8 @@ class Favourites:
                 continue
 
             Logger.Debug("Found favourite: %s", name)
-            item = Pickler.DePickleMediaItem(pickle)
-            validationError = Pickler.Validate(item, logger=Logger.Instance())
+            item = self.__pickler.DePickleMediaItem(pickle)
+            validationError = self.__pickler.Validate(item, logger=Logger.Instance())
             if validationError:
                 Logger.Error("Invalid Pickled Item: %s\nRemoving favourite: %s", validationError, fav)
 

@@ -44,7 +44,7 @@ class MediaItem:
     LabelTrackNumber = "TrackNumber"
 
     def __dir__(self):
-        """ Required in order for the Pickler.Validate to work! """
+        """ Required in order for the Pickler().Validate to work! """
         return ["name",
                 "url",
                 "actionUrl",
