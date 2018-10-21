@@ -1,10 +1,10 @@
-[B]Retrospect v4.1.7~beta26 - Changelog - 2018-10-20[/B]
+[B]Retrospect v4.1.7~beta27 - Changelog - 2018-10-21[/B]
 
 [B]Framework related[/B]
-* Fixed: thumb url updating broke if no thumb was present (Fixes #1035)
+* Fixed: Pickler did not clear cache between calls (Fixes #1034)
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Removed: NRK.no for now as their API was shut down (See #1033)
+* Fixed: NRK.no listings (Fixes #1033)
