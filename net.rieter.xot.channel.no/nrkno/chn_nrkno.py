@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.mainListUri = "#mainlist"
         self.baseUrl = "https://tvapi.nrk.no/v1"
-        self.httpHeaders["app-version-android"] = "999"
+        self.httpHeaders["app-version-android"] = "2500"
 
         #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 

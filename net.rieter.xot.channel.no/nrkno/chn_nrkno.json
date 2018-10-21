@@ -11,7 +11,7 @@
       "language": "no",
       "fanart": "nrkfanart.jpg",
       "localIPSupported": true,
-      "compatible": "Environments.NoPlatform"
+      "compatible": "Environments.All"
     }
   ],
   "settings": [
