@@ -246,6 +246,7 @@ class Channel(chn_class.Channel):
         else:
             Logger.Warning("No full length video found.")
             return None
+        # noinspection PyTypeChecker
         videoId = videoInfo["id"]
 
         url = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play/%s.json" % (videoId,)

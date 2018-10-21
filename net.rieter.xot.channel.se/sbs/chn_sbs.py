@@ -582,6 +582,7 @@ class Channel(chn_class.Channel):
         self.__UpdateImageLookup(data)
         return data, items
 
+    # noinspection PyTypeChecker
     def __UpdateImageLookup(self, jsonData):
         images = filter(lambda a: a["type"] == "image", jsonData.get_value("included"))
         images = {str(image["id"]): image["attributes"]["src"] for image in images}

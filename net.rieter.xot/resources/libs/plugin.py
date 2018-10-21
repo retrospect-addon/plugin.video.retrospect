@@ -590,7 +590,7 @@ class Plugin(ParameterParser):
         return
 
     def __FetchTextures(self):
-        texturesToRetrieve = TextureHandler.Instance().NumberOfMissingTextures()
+        texturesToRetrieve = TextureHandler.instance().number_of_missing_textures()
 
         if texturesToRetrieve > 0:
             w = None
@@ -608,7 +608,7 @@ class Plugin(ParameterParser):
                         Config.TextureUrl
                     )
 
-                bytesTransfered = TextureHandler.Instance().FetchTextures(w.ProgressUpdate)
+                bytesTransfered = TextureHandler.instance().fetch_textures(w.ProgressUpdate)
                 if bytesTransfered > 0:
                     Statistics.register_cdn_bytes(bytesTransfered)
             except:

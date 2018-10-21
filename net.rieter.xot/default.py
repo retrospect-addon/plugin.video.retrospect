@@ -62,7 +62,7 @@ def run_plugin():
                                     ignoreSslErrors=ignore_ssl_errors)
 
         # start texture handler
-        TextureHandler.SetTextureHandler(Config, Logger.Instance(), UriHandler.Instance())
+        TextureHandler.set_texture_handler(Config, Logger.Instance(), UriHandler.Instance())
 
         # run the plugin
         import plugin

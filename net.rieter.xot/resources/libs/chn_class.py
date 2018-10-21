@@ -81,8 +81,8 @@ class Channel:
         self.version = channelInfo.version
 
         # get the textures from the channelinfo and get their full uri's.
-        self.icon = TextureHandler.Instance().GetTextureUri(self, channelInfo.icon)
-        self.fanart = TextureHandler.Instance().GetTextureUri(self, channelInfo.fanart)
+        self.icon = TextureHandler.instance().get_texture_uri(self, channelInfo.icon)
+        self.fanart = TextureHandler.instance().get_texture_uri(self, channelInfo.fanart)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = ""
@@ -147,7 +147,7 @@ class Channel:
         # Make sure all images are from the correct absolute location
         # self.icon = self.GetImageLocation(self.icon) -> already in the __init__
         # self.fanart = self.GetImageLocation(self.fanart) -> already in the __init__
-        self.noImage = TextureHandler.Instance().GetTextureUri(self, self.noImage)
+        self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
         return
 
     #noinspection PyUnusedLocal
@@ -1062,7 +1062,7 @@ class Channel:
         #     return os.path.join(os.path.dirname(sys.modules[self.__module__].__file__), image)
         # return "%s%s" % (Config.CdnUrl, image)
 
-        return TextureHandler.Instance().GetTextureUri(self, image)
+        return TextureHandler.instance().get_texture_uri(self, image)
 
     def _AddDataParsers(self, urls, name=None, preprocessor=None,
                         parser=None, creator=None, updater=None,

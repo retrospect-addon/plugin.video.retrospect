@@ -549,10 +549,10 @@ class ChannelIndex:
         py_compile.compile(os.path.join(channel_info.path, "%s.py" % (channel_info.moduleName,)))
 
         # purge the texture cache.
-        if TextureHandler.Instance():
-            TextureHandler.Instance().PurgeTextureCache(channel_info)
+        if TextureHandler.instance():
+            TextureHandler.instance().purge_texture_cache(channel_info)
         else:
-            Logger.Warning("Could not PurgeTextureCache: no TextureHandler available")
+            Logger.Warning("Could not purge_texture_cache: no TextureHandler available")
         return
 
     def __initialise_channel(self, channel_info):

@@ -415,6 +415,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
+    # noinspection PyTypeChecker
     def ListSomeVideos(self, data):
         """ If there was a Lastest section in the data return those video files """
         items = []

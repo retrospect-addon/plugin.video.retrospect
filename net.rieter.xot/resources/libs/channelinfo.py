@@ -210,7 +210,7 @@ class ChannelInfo:
         #     return os.path.join(self.path, image)
         #
         # return "%s%s" % (Config.CdnUrl, image)
-        return TextureHandler.Instance().GetTextureUri(self, image)
+        return TextureHandler.instance().get_texture_uri(self, image)
 
     @staticmethod
     def FromJson(path, version="x.x.x.x"):

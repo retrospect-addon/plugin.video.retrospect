@@ -128,54 +128,54 @@ class Channel(chn_class.Channel):
             "vualto_mnm": {
                 "title": "MNM",
                 "metaCode": "mnm",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "mnmfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "mnmimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "mnmicon.png")
+                "fanart": TextureHandler.instance().get_texture_uri(self, "mnmfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "mnmimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "mnmicon.png")
             },
             "vualto_stubru": {
                 "title": "Studio Brussel",
                 "metaCode": "stubru",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "stubrufanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "stubruimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "stubruicon.png")
+                "fanart": TextureHandler.instance().get_texture_uri(self, "stubrufanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "stubruimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "stubruicon.png")
             },
             "vualto_een": {
                 "title": "E&eacute;n",
                 "metaCode": "een",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "eenfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "eenimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "eenlarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "eenfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "eenimage.png"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "eenlarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupc/live/8edf3bdf-7db3-41c3-a318-72cb7f82de66/live_aes.isml/.m3u8"
             },
             "vualto_canvas": {
                 "title": "Canvas",
                 "metaCode": "canvas",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "canvasfanart.png"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "canvasimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "canvaslarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "canvasfanart.png"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "canvasimage.png"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "canvaslarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupc/live/14a2c0f6-3043-4850-88a5-7fb062fe7f05/live_aes.isml/.m3u8"
             },
             "vualto_ketnet": {
                 "title": "KetNet",
                 "metaCode": "ketnet",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "ketnetfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "ketnetimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "ketnetlarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupc/live/f132f1b8-d04d-404e-90e0-6da1abb4f4fc/live_aes.isml/.m3u8"
             },
             "vualto_sporza": {  # not in the channel filter maps, so no metaCode
                 "title": "Sporza",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "sporzafanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "sporzaimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "sporzalarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "sporzafanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "sporzaimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "sporzalarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupa/live/7d5f0e4a-3429-4861-91d4-aa3229d7ad7b/live_aes.isml/.m3u8"
             },
             "ketnet-jr": {  # Not in the live channels
                 "title": "KetNet Junior",
                 "metaCode": "ketnet-jr",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
+                "fanart": TextureHandler.instance().get_texture_uri(self, "ketnetfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "ketnetimage.png"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "ketnetlarge.png")
             }
         }
 

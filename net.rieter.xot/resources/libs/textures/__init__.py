@@ -7,6 +7,7 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
+
 import os
 from xbmcwrapper import XbmcWrapper
 from helpers.jsonhelper import JsonHelper
@@ -36,16 +37,16 @@ class TextureHandler:
         self.__addonIds = {}
 
     @staticmethod
-    def Instance():
+    def instance():
         return TextureHandler.__TextureHandler
 
     @staticmethod
-    def SetTextureHandler(config, logger, uriHandler=None):
+    def set_texture_handler(config, logger, uri_handler=None):
         """ Fetches a TextureManager for specific mode and channel.
 
         @param config:              The Retrospect Config object
         @param logger:              An Logger
-        @param uriHandler:          The UriHandler
+        @param uri_handler:          The UriHandler
 
         @return: A TextureHandler object for the requested mode
 
@@ -65,17 +66,17 @@ class TextureHandler:
             import cached
             TextureHandler.__TextureHandler = cached.Cached(config.TextureUrl,
                                                             config.profileDir, config.profileUri,
-                                                            logger, uriHandler)
+                                                            logger, uri_handler)
         else:
             raise Exception("Invalide mode: %s" % (mode,))
 
         return TextureHandler.__TextureHandler
 
-    def GetTextureUri(self, channel, fileName):
+    def get_texture_uri(self, channel, file_name):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
-        @param fileName: the file name
+        @param file_name: the file name
         @param channel:  the channel
 
         """
@@ -83,7 +84,7 @@ class TextureHandler:
         # Should be implemented
         pass
 
-    def NumberOfMissingTextures(self):
+    def number_of_missing_textures(self):
         """ Indication whether or not textures need to be retrieved.
 
         @return: a boolean value
@@ -92,11 +93,11 @@ class TextureHandler:
         # Could be implemented
         return 0
 
-    def FetchTextures(self, dialogCallBack=None):
+    def fetch_textures(self, dialog_call_back=None):
         """ Fetches all the needed textures
 
-        @param dialogCallBack:  Callback method with signature
-                                Function(self, retrievedSize, totalSize, perc, completed, status)
+        @param dialog_call_back:  Callback method with signature
+                                  Function(self, retrievedSize, totalSize, perc, completed, status)
 
         @return: the number of bytes fetched
 
@@ -105,7 +106,7 @@ class TextureHandler:
         # Could be implemented
         return 0
 
-    def PurgeTextureCache(self, channel):
+    def purge_texture_cache(self, channel):
         """ Removes those entries from the textures cache that are no longer required.
 
         @param channel:  the channel
@@ -115,7 +116,7 @@ class TextureHandler:
         # Should be implemented
         pass
 
-    def _GetAddonId(self, channel):
+    def _get_addon_id(self, channel):
         """ Determines the add-on ID from the add-on to which the channel belongs,
         e.g.: net.rieter.xot.channel.be
 
@@ -129,11 +130,11 @@ class TextureHandler:
             return self.__addonIds[channel.path]
 
         parts = channel.path.rsplit(os.sep, 2)[-2:]
-        addonId = parts[0]
-        self.__addonIds[channel.path] = addonId
-        return addonId
+        addon_id = parts[0]
+        self.__addonIds[channel.path] = addon_id
+        return addon_id
 
-    def _GetCdnSubFolder(self, channel):
+    def _get_cdn_sub_folder(self, channel):
         """ Determines the CDN folder, e.g.: net.rieter.xot.channel.be.canvas
 
         @param channel: the channel to determine the CDN folder for.
@@ -150,41 +151,41 @@ class TextureHandler:
         self.__cdnPaths[channel.path] = cdn
         return cdn
 
-    def _PurgeXbmcCache(self, channelTexturePath):
+    def _purge_kodi_cache(self, channel_texture_path):
         """ Class the JSON RPC within Kodi that removes all changed items which paths contain the
         value given in channelTexturePath
 
-        @param channelTexturePath: string - The
+        @param channel_texture_path: string - The
 
         """
 
-        jsonCmd = '{' \
-                  '"jsonrpc": "2.0", ' \
-                  '"method": "Textures.GetTextures", ' \
-                  '"params": {' \
-                  '"filter": {"operator": "contains", "field": "url", "value": "%s"}, ' \
-                  '"properties": ["url"]' \
-                  '}, ' \
-                  '"id": "libTextures"' \
-                  '}' % (channelTexturePath, )
-        jsonResults = XbmcWrapper.ExecuteJsonRpc(jsonCmd, self._logger)
+        json_cmd = '{' \
+                   '"jsonrpc": "2.0", ' \
+                   '"method": "Textures.GetTextures", ' \
+                   '"params": {' \
+                   '"filter": {"operator": "contains", "field": "url", "value": "%s"}, ' \
+                   '"properties": ["url"]' \
+                   '}, ' \
+                   '"id": "libTextures"' \
+                   '}' % (channel_texture_path,)
+        json_results = XbmcWrapper.ExecuteJsonRpc(json_cmd, self._logger)
 
-        results = JsonHelper(jsonResults, logger=self._logger)
+        results = JsonHelper(json_results, logger=self._logger)
         if "error" in results.json or "result" not in results.json:
-            self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", jsonCmd, results.json)
+            self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", json_cmd, results.json)
             return
 
         results = results.get_value("result", "textures", fallback=[])
         for result in results:
-            textureId = result["textureid"]
-            textureUrl = result["url"]
-            self._logger.Debug("Going to remove texture: %d - %s", textureId, textureUrl)
-            jsonCmd = '{' \
-                      '"jsonrpc": "2.0", ' \
-                      '"method": "Textures.RemoveTexture", ' \
-                      '"params": {' \
-                      '"textureid": %s' \
-                      '}' \
-                      '}' % (textureId,)
-            XbmcWrapper.ExecuteJsonRpc(jsonCmd, self._logger)
+            texture_id = result["textureid"]
+            texture_url = result["url"]
+            self._logger.Debug("Going to remove texture: %d - %s", texture_id, texture_url)
+            json_cmd = '{' \
+                       '"jsonrpc": "2.0", ' \
+                       '"method": "Textures.RemoveTexture", ' \
+                       '"params": {' \
+                       '"textureid": %s' \
+                       '}' \
+                       '}' % (texture_id,)
+            XbmcWrapper.ExecuteJsonRpc(json_cmd, self._logger)
         return
