@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: no images for A-Z listing (Fixes #1010)
+* Fixed: NPO shows within `Genres` would not list any items (Fixes #1037)
 
 [I]Previous Changes[/I]
+* Fixed: no images for A-Z listing (Fixes #1010)
 * Changed: Moved `recent` items to own folder
 * Added: use Widevine for Live streams if possible (so we have subtitles)
 * Added: recent shows for the past days to the NPO channel (Fixes #990)

@@ -100,12 +100,17 @@ class Channel(chn_class.Channel):
                              creator=self.CreateEpisodeItem)
 
         # very similar parser as the Live Channels!
-        videoParser = Regexer.FromExpresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>(?<date2>[^<]*)</p>')
+        videoParser = Regexer.FromExpresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)'
+                                           '"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+'
+                                           'data-scorecard=\'(?<videodata>[^\']*)\'[^>]*>\W+<div[^>]+>\W+'
+                                           '<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
+                                           'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)'
+                                           '</h2>\W+<p>(?<subtitle>[^<]*)</p>')
         self._AddDataParsers(["https://www.npostart.nl/media/series/", "https://www.npostart.nl/search/extended", "https://www.npostart.nl/media/collections/"],
                              name="Parser for shows on the main series sub pages, the search and the genres",
                              preprocessor=self.ExtractTiles,
                              parser=videoParser,
-                             creator=self.CreateVideoItem)
+                             creator=self.CreateNpoItem)
 
         # Genres
         self._AddDataParser("https://www.npostart.nl/programmas",
@@ -605,15 +610,21 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def CreateNpoItem(self, resultSet):
         """ Call base method and then do some more stuff """
         item = chn_class.Channel.CreateVideoItem(self, resultSet)
         # set the POW id
-        item.url = resultSet["url"]
+        if resultSet["videodata"]:
+            item.type = "video"
+            item.url = resultSet["powid"]
+        else:
+            item.type = "folder"
+            item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % resultSet
+            item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         item.isPaid = "premium" in resultSet["class"]
 
         try:
-            dateTime = resultSet["date2"].strip().replace("  ", " ").split(" ")
+            dateTime = resultSet["subtitle"].strip().replace("  ", " ").split(" ")
 
             # For #933 we check for NOS Journaal
             if ":" in dateTime[-1] and item.name == "NOS Journaal":
@@ -661,7 +672,7 @@ class Channel(chn_class.Channel):
                 item.SetDate(dateTime[2], month, dateTime[0])
 
         except:
-            Logger.Warning("Cannot set date from label: %s", resultSet["date2"], exc_info=True)
+            Logger.Debug("Cannot set date from label: %s", resultSet["subtitle"], exc_info=True)
             # 2016-07-05T00:00:00Z
             dateValue = resultSet.get("date", None)
             if dateValue:
