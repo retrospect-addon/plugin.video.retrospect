@@ -12,6 +12,7 @@ import os
 
 from logger import Logger
 from pickler import Pickler
+from regexer import Regexer
 
 
 class Favourites:
@@ -47,7 +48,7 @@ class Favourites:
             os.makedirs(self.FavouriteFolder)
 
         # replacing to pickle in the actionUrl to save space
-        actionUrl = actionUrl.replace(pickle, "%s")
+        actionUrl = self.__remove_pickle(actionUrl)
         fileHandle = None
 
         try:
@@ -106,6 +107,11 @@ class Favourites:
                 channelName = fileHandle.readline().rstrip()
                 name = fileHandle.readline().rstrip()
                 actionUrl = fileHandle.readline().rstrip()
+                if "pickle=" in actionUrl and "pickle=%s" not in actionUrl:
+                    # see issue https://bitbucket.org/basrieter/xbmc-online-tv/issues/1037
+                    Logger.Debug("Found favourite with full pickle, removing the pickle as we should use the one from the file.")
+                    actionUrl = self.__remove_pickle(actionUrl)
+
                 pickle = fileHandle.readline()
                 fileHandle.close()
             except:
@@ -146,3 +152,10 @@ class Favourites:
             item.actionUrl = actionUrl % (pickle,)
             favs.append(item)
         return favs
+
+    def __remove_pickle(self, action_url):
+        pickle = Regexer.DoRegex("pickle=([^&]+)", action_url)
+        if not pickle:
+            return action_url
+
+        return action_url.replace(pickle[0], "%s")
