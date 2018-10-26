@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Eredivisie Live moved to Dash streams (Fixes #987)
+* Fixed: Dumpert video's were not playing (Fixes #1039)
 
 [I]Previous changes[/I]
+* Fixed: Eredivisie Live moved to Dash streams (Fixes #987)
 * Fixed: support Youtube streams from Dumpert
 * Fixed: AMT introduced a new JSON API
 * Fixed: Hardwareinfo.tv broke due to Google API deprecation.

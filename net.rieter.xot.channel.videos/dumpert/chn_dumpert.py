@@ -52,8 +52,6 @@ class Channel(chn_class.Channel):
                             parser=self.videoItemRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
-        self.mediaUrlRegex = '<div class="videoplayer" id="video1" data-files="([^"]+)"'
-
         # ====================================== Actual channel setup STOPS here =======================================
         self.__IgnoreCookieLaw()
         return
@@ -129,37 +127,52 @@ class Channel(chn_class.Channel):
         """
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-
-        baseEncode = Regexer.DoRegex(self.mediaUrlRegex, data)[-1]
-        jsonData = EncodingHelper.DecodeBase64(baseEncode)
-        json = JsonHelper(jsonData, logger=Logger.Instance())
-        Logger.Trace(json)
-
-        # "flv": "http://media.dumpert.nl/flv/e2a926ff_10307954_804223649588516_151552487_n.mp4.flv",
-        # "tablet": "http://media.dumpert.nl/tablet/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
-        # "mobile": "http://media.dumpert.nl/mobile/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
-
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
-        streams = json.GetValue()
-        for key in streams:
-            if key == "flv":
-                part.AppendMediaStream(streams[key], 1000)
-            elif key == "tablet":
-                part.AppendMediaStream(streams[key], 800)
-            elif key == "mobile":
-                part.AppendMediaStream(streams[key], 450)
-            elif key == "embed" and streams[key].startswith("youtube"):
-                embedType, youtubeId = streams[key].split(":")
-                url = "https://www.youtube.com/watch?v=%s" % (youtubeId, )
-                for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
-                    item.complete = True
-                    part.AppendMediaStream(s, b)
-            else:
-                Logger.Debug("Key '%s' was not used", key)
 
-        item.complete = True
-        Logger.Trace("VideoItem updated: %s", item)
+        baseEncode = Regexer.DoRegex('data-files="([^"]+)', data)
+        if baseEncode:
+            Logger.Debug("Loading video from BASE64 encoded JSON data")
+            baseEncode = baseEncode[-1]
+            jsonData = EncodingHelper.DecodeBase64(baseEncode)
+            json = JsonHelper(jsonData, logger=Logger.Instance())
+            Logger.Trace(json)
+
+            # "flv": "http://media.dumpert.nl/flv/e2a926ff_10307954_804223649588516_151552487_n.mp4.flv",
+            # "tablet": "http://media.dumpert.nl/tablet/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
+            # "mobile": "http://media.dumpert.nl/mobile/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
+
+            streams = json.GetValue()
+            for key in streams:
+                if key == "flv":
+                    part.AppendMediaStream(streams[key], 1000)
+                elif key == "720p":
+                    part.AppendMediaStream(streams[key], 1200)
+                elif key == "1080p":
+                    part.AppendMediaStream(streams[key], 1600)
+                elif key == "tablet":
+                    part.AppendMediaStream(streams[key], 800)
+                elif key == "mobile":
+                    part.AppendMediaStream(streams[key], 450)
+                elif key == "embed" and streams[key].startswith("youtube"):
+                    embedType, youtubeId = streams[key].split(":")
+                    url = "https://www.youtube.com/watch?v=%s" % (youtubeId, )
+                    for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+                        item.complete = True
+                        part.AppendMediaStream(s, b)
+                else:
+                    Logger.Debug("Key '%s' was not used", key)
+            item.complete = True
+            Logger.Trace("VideoItem updated: %s", item)
+            return item
+
+        youtubeId = Regexer.DoRegex("class='yt-iframe'[^>]+src='https://www.youtube.com/embed/([^?]+)", data)
+        if youtubeId:
+            youtubeId = youtubeId[-1]
+            url = "https://www.youtube.com/watch?v=%s" % (youtubeId,)
+            for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+                item.complete = True
+                part.AppendMediaStream(s, b)
         return item
 
     def SearchSite(self, url=None):
