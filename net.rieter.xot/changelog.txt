@@ -7,4 +7,6 @@
 -
 
 [B]Channel related[/B]
+* Fixed: missed the MP4 streams for Flevoland (Fixes #1040)
+* Fixed: Dumpert video's were not playing (Fixes #1039)
 * Fixed: NPO shows within `Genres` would not list any items (Fixes #1037)
