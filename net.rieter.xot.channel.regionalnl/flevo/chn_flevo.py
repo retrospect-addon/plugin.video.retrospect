@@ -129,6 +129,9 @@ class Channel(chn_class.Channel):
         if ".mp3" in stream:
             item.complete = True
             part.AppendMediaStream(stream, 0)
+        elif stream.endswith(".mp4"):
+            item.complete = True
+            part.AppendMediaStream(stream, 2500)
         elif ".m3u8" in stream:
             item.url = stream
             return self.UpdateLiveUrls(item)
