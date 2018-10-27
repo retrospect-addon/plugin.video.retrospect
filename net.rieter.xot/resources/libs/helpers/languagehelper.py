@@ -119,7 +119,8 @@ class LanguageHelper:
                          "lv":      30404,
                          "nl":      30401,
                          "no":      30405,
-                         "se":      30402}
+                         "se":      30402,
+                         "dk":      30410}
 
     def __init__(self):
         pass

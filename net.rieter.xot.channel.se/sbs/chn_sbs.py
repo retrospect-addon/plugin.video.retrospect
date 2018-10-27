@@ -122,6 +122,10 @@ class Channel(chn_class.Channel):
             self.baseUrl = "http://www.dplay.no/api/v2/ajax"
             self.primaryChannelId = 73
 
+        elif self.channelCode == "dplaydk":
+            self.noImage = "dplayimage.png"
+            self.baseUrl = "http://www.dplay.dk/api/v2/ajax"
+
         else:
             raise NotImplementedError("ChannelCode %s is not implemented" % (self.channelCode, ))
 

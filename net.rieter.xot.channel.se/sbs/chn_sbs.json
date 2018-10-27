@@ -166,6 +166,17 @@
       "sortorder": 7,
       "language": "no",
       "fanart": "dplayfanart.jpg"
+    },
+    {
+      "guid": "5141DFDF-3B9D-4368-8943-2F8D500BC2D1",
+      "name": "DPlay (Danmark)",
+      "description": "Videos from DPlay.dk",
+      "icon": "dplaylarge.png",
+      "category": "National",
+      "channelcode": "dplaydk",
+      "sortorder": 7,
+      "language": "dk",
+      "fanart": "dplayfanart.jpg"
     }
   ]
 }

@@ -54,6 +54,7 @@
         <setting id="show_other" type="bool" label="30300" subsetting="false" default="true" />
         <setting id="show_belgium" type="bool" label="30306" subsetting="false" default="true" />
         <setting id="show_german" type="bool" label="30309" subsetting="false" default="true" />
+        <setting id="show_danish" type="bool" label="30310" subsetting="false" default="true" />
         <setting id="show_estonia" type="bool" label="30308" subsetting="false" default="true" />
         <setting id="show_engb" type="bool" label="30307" subsetting="false" default="true" />
         <setting id="show_lithuanian" type="bool" label="30303" subsetting="false" default="true" />

@@ -1,4 +1,5 @@
 ﻿[B]Changelog[/B]
+* Added: DPlay.dk for Danish videos via the Dplay platform (Fixes #959)
 * Fixed: improper dates in Dplay.se and related channels (See #1042)
 * Fixed: missed the "premium/paid" on videos still to be broad casted (Fixes #1042)
 
