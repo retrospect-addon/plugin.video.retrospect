@@ -1,7 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: SVT Listing of Live Channels broke (Fixes #1023)
+* Fixed: improper dates in Dplay.se and related channels (See #1042)
+* Fixed: missed the "premium/paid" on videos still to be broad casted (Fixes #1042)
 
 [I]Previous changes[/I]
+* Fixed: SVT Listing of Live Channels broke (Fixes #1023)
 * Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
 * Fixed: some TV4 stream did not work if the Adaptive Stream add-on was not used (Fixes #988)
 * Added: Animal Planet, Discovery, Discovery World, Discovery Science, Investigative Discovery and VOX via dplay.no (Fixes #959)

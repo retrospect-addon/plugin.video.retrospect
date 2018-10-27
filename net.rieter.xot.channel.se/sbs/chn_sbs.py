@@ -1,11 +1,12 @@
 # coding:UTF-8
 
 import uuid
+import datetime
 
 import mediaitem
 import chn_class
 from addonsettings import AddonSettings
-
+from helpers.datehelper import DateHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.subtitlehelper import SubtitleHelper
@@ -461,11 +462,16 @@ class Channel(chn_class.Channel):
 
         item.type = "video"
         videoInfo = resultSet["attributes"]
-        if "publishStart" in videoInfo:
-            date = videoInfo["publishStart"]
-            datePart, timePart = date[0:-3].split("T")
-            year, month, day = datePart.split("-")
-            item.SetDate(year, month, day)
+        if "publishStart" in videoInfo or "airDate" in videoInfo:
+            date = videoInfo.get("airDate", videoInfo["publishStart"])
+            # 2018-03-20T20:00:00Z
+            airDate = DateHelper.GetDateFromString(date,  dateFormat="%Y-%m-%dT%H:%M:%SZ")
+            item.SetDate(*airDate[0:6])
+            # datePart, timePart = date[0:-3].split("T")
+            # year, month, day = datePart.split("-")
+            # item.SetDate(year, month, day)
+            if datetime.datetime(*airDate[0:6]) > datetime.datetime.now():
+                item.isPaid = True
 
         episode = videoInfo.get("episodeNumber", 0)
         season = videoInfo.get("seasonNumber", 0)
