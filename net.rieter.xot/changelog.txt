@@ -1,12 +1,12 @@
-[B]Retrospect v4.1.7~beta28 - Changelog - 2018-10-26[/B]
+[B]Retrospect v4.1.7~beta29 - Changelog - 2018-10-31[/B]
 
 [B]Framework related[/B]
-* Fixed: some favourites within Retrosepct would not be stored correctly resulting in errors during reading (Fixes #1037)
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: missed the MP4 streams for Flevoland (Fixes #1040)
-* Fixed: Dumpert video's were not playing (Fixes #1039)
-* Fixed: NPO shows within `Genres` would not list any items (Fixes #1037)
+* Fixed: improper dates in Dplay.se and related channels (See #1042)
+* Fixed: missed the "premium/paid" on videos still to be broadcasted (Fixes #1042)
+* Fixed: possible caching issue with VRT.nu login
