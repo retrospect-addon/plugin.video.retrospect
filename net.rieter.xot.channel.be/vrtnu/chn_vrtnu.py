@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
         if longLoginCookie is not None:
             # if we stored a valid user signature, we can use it, together with the 'gmid' and
             # 'ucid' cookies to extend the session and get new token data
-            data = UriHandler.Open("https://token.vrt.be/refreshtoken", proxy=self.proxy)
+            data = UriHandler.Open("https://token.vrt.be/refreshtoken", proxy=self.proxy, noCache=True)
             if "vrtnutoken" in data:
                 Logger.Debug("Refreshed the VRT.be session.")
                 return True
@@ -242,14 +242,14 @@ class Channel(chn_class.Channel):
             "authMode": "cookie",
             "format": "json"
         }
-        logonData = UriHandler.Open(url, data=data, proxy=self.proxy)
+        logonData = UriHandler.Open(url, data=data, proxy=self.proxy, noCache=True)
         userId, signature, signatureTimeStamp = self.__ExtractSessionData(logonData)
         if userId is None or signature is None or signatureTimeStamp is None:
             return False
 
         # We need to initialize the token retrieval which will redirect to the actual token
         UriHandler.Open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
-                        proxy=self.proxy)
+                        proxy=self.proxy, noCache=True)
 
         # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 hour. So we call the actual
         # perform_login url which will redirect and get cookies.
@@ -260,7 +260,7 @@ class Channel(chn_class.Channel):
             "client_id": "vrtnu-site",
             "submit": "submit"
         }
-        UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData)
+        UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData, noCache=True)
         return True
 
     def AddCategories(self, data):
