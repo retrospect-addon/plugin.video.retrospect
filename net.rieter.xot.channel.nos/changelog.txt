@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO shows within `Genres` would not list any items (Fixes #1037)
+* Fixed: NOS.nl streams did not start (Fixes #1048)
 
 [I]Previous Changes[/I]
+* Fixed: NPO shows within `Genres` would not list any items (Fixes #1037)
 * Fixed: no images for A-Z listing (Fixes #1010)
 * Changed: Moved `recent` items to own folder
 * Added: use Widevine for Live streams if possible (so we have subtitles)

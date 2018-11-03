@@ -9,6 +9,7 @@ from helpers.datehelper import DateHelper
 from helpers.languagehelper import LanguageHelper
 
 from logger import Logger
+from streams.m3u8 import M3u8
 from urihandler import UriHandler
 
 
@@ -204,15 +205,36 @@ class Channel(chn_class.Channel):
         if not streams:
             return item
 
-        qualities = {"480p": 1200, "360p": 500, "other": 0}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
+        qualities = {"720p": 1600, "480p": 1200, "360p": 500, "other": 0}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
         part = item.CreateNewEmptyMediaPart()
+        urls = []
         for stream in streams:
-            part.AppendMediaStream(
-                url=stream["url"].values()[-1],
-                bitrate=qualities[stream.get("name", "other")]
-            )
+            url = stream["url"].values()[-1]
+            if url in urls:
+                # duplicate url, ignore
+                continue
 
-        item.complete = True
+            urls.append(url)
+
+            # actually process the url
+            if not url.endswith(".m3u8"):
+                part.AppendMediaStream(
+                    url=url,
+                    bitrate=qualities.get(stream.get("name", "other"), 0)
+                )
+                item.complete = True
+            # elif AddonSettings.UseAdaptiveStreamAddOn():
+            #     contentType, url = UriHandler.Header(url, self.proxy)
+            #     stream = part.AppendMediaStream(url, 0)
+            #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            #     item.complete = True
+            else:
+                contentType, url = UriHandler.Header(url, self.proxy)
+                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                    item.complete = True
+                    # s = self.GetVerifiableVideoUrl(s)
+                    part.AppendMediaStream(s, b)
+
         return item
 
     def __IgnoreCookieLaw(self):
