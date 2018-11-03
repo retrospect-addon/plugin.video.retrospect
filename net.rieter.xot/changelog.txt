@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7~beta29 - Changelog - 2018-10-31[/B]
+[B]Retrospect v4.1.7~beta30 - Changelog - 2018-11-03[/B]
 
 [B]Framework related[/B]
 -
@@ -7,6 +7,4 @@
 -
 
 [B]Channel related[/B]
-* Fixed: improper dates in Dplay.se and related channels (See #1042)
-* Fixed: missed the "premium/paid" on videos still to be broadcasted (Fixes #1042)
-* Fixed: possible caching issue with VRT.nu login
+* Fixed: NOS.nl streams did not start (Fixes #1048)
