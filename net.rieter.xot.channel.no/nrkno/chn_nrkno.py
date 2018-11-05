@@ -1,18 +1,16 @@
 # coding:UTF-8
-import datetime
-import sys
 
-# import contextmenu
 import chn_class
 import mediaitem
-from parserdata import ParserData
+from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
+from helpers.languagehelper import LanguageHelper
 from helpers.subtitlehelper import SubtitleHelper
+from parserdata import ParserData
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
-from regexer import Regexer
 from logger import Logger
 
 
@@ -36,49 +34,78 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         self.mainListUri = "#mainlist"
-        self.baseUrl = "https://tvapi.nrk.no/v1"
-        self.httpHeaders["app-version-android"] = "2500"
+        self.baseUrl = "https://psapi.nrk.no"
+        # self.httpHeaders["app-version-android"] = "2500"
 
         #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
         self._AddDataParser(self.mainListUri, preprocessor=self.CreateMainList)
-        self._AddDataParser("https://tvapi.nrk.no/v1/categories/",
-                            matchType=ParserData.MatchExact, json=True,
-                            parser=(), creator=self.CreateCategory)
 
-        self._AddDataParser("https://tvapi.nrk.no/v1/categories/.+",
-                            matchType=ParserData.MatchRegex, json=True,
-                            parser=(), creator=self.CreateProgramFolder)
-        self._AddDataParser("https://tvapi.nrk.no/v1/categories/.+",
-                            matchType=ParserData.MatchRegex, json=True,
-                            parser=(), creator=self.CreateCategoryVideo)
+        # See https://stsnapshottestwe.blob.core.windows.net/apidocumentation/documentation.html for
+        # the url definitions
+        self._AddDataParser("https://psapi.nrk.no/medium/tv/letters?", json=True,
+                            name="Alfa Listing",
+                            parser=(), creator=self.CreateAlphaItem)
 
-        self._AddDataParser("https://tvapi.nrk.no/v1/channels", json=True,
-                            parser=(),
-                            creator=self.CreateLiveChannel)
-        self._AddDataParser("https://tvapi.nrk.no/v1/programs/", json=True, matchType=ParserData.MatchExact,
-                            parser=(),
-                            creator=self.CreateProgramFolder)
+        self._AddDataParser("https://psapi.nrk.no/medium/tv/letters/", json=True,
+                            name="Programs from AlphaListing",
+                            parser=(), creator=self.CreateEpisodeItem)
 
-        self._AddDataParser("https://tvapi.nrk.no/v1/series/[^/]+", json=True, matchType=ParserData.MatchRegex,
-                            name="Default Series parser",
-                            parser=("programs", ),
-                            creator=self.CreateCategoryVideo)
+        self._AddDataParser("https://psapi.nrk.no/programs/", json=True,
+                            name="Main program json video updater",
+                            updater=self.UpdateJsonVideoItem)
 
-        self._AddDataParser("https://tvapi.nrk.no/v1/categories/all-programs/", json=True,
-                            parser=(),
-                            creator=self.CreateCategoryVideo)
+        self._AddDataParsers(
+            ("https://psapi.nrk.no/medium/tv/recommendedprograms",
+             "https://psapi.nrk.no/medium/tv/popularprogramssuper",
+             "https://psapi.nrk.no/medium/tv/recentlysentprograms"),
+            json=True, parser=(), creator=self.CreateVideoItem)
 
-        self._AddDataParser("https://tvapi.nrk.no/v1/search/indexelements", json=True,
-                            name="Main Searchable Index items",
-                            parser=(),
-                            creator=self.CreateIndexedItem)
+        self._AddDataParsers(("https://psapi.nrk.no/tv/live", "https://psapi.nrk.no/radio/live"),
+                             json=True, name="Live items",
+                             parser=(), creator=self.CreateLiveChannelItem)
+        self._AddDataParser("https://psapi.nrk.no/playback/manifest/channel/",
+                            updater=self.UpdateLiveChannel)
+
+        self._AddDataParser("https://psapi.nrk.no/medium/tv/categories", json=True,
+                            name="Category listing",
+                            parser=(), creator=self.CreateCategoryItem)
+        self._AddDataParser("https://psapi.nrk.no/medium/tv/categories/", json=True,
+                            name="Category Items",
+                            parser=(), creator=self.CreateCategoryEpisodeItem)
+
+        # The new Series/Instalments API (https://psapi-catalog-prod-we.azurewebsites.net/swagger/index.html)
+        self._AddDataParser("https://psapi.nrk.no/tv/catalog/series/",
+                            json=True, name="Main Series parser",
+                            parser=("_links", "seasons",), creator=self.CreateInstalmentSeasonItem)
+
+        self._AddDataParser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
+                            matchType=ParserData.MatchRegex,
+                            name="Videos for Serie parser - instalments",
+                            parser=("_embedded", "instalments"),
+                            creator=self.CreateInstalmentVideoItem)
+        self._AddDataParser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
+                            matchType=ParserData.MatchRegex,
+                            name="Videos for Serie parser - episodes",
+                            parser=("_embedded", "episodes"),
+                            creator=self.CreateInstalmentVideoItem)
+
+        # The old Series API (http://nrkpswebapi2ne.cloudapp.net/swagger/ui/index#/)
+        self._AddDataParser("https://psapi.nrk.no/series/", json=True,
+                            name="Main Series parser",
+                            parser=("seasons",), creator=self.CreateSeriesSeasonItem)
+
+        self._AddDataParser("https://psapi.nrk.no/series/[^/]+/seasons/", json=True,
+                            matchType=ParserData.MatchRegex,
+                            name="Videos for Serie parser",
+                            parser=(), creator=self.CreateSeriesVideoItem)
 
         self._AddDataParser("*", updater=self.UpdateVideoItem)
 
         # ==============================================================================================================
         # non standard items
-        self.__metaDataIndexCategory = "category_id"
+        self.__meta_data_index_category = "category_id"
+        self.__api_key = "d1381d92278a47c09066460f2522a67d"
 
         # ==============================================================================================================
         # Test cases:
@@ -108,16 +135,18 @@ class Channel(chn_class.Channel):
         Logger.Info("Performing Pre-Processing")
         items = []
 
+        live = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        live_tv = "{} - TV".format(live)
+        live_radio = "{} - Radio".format(live)
+
         links = {
-            "Live streams": "https://tvapi.nrk.no/v1/channels",
-            "Recommended": "https://tvapi.nrk.no/v1/categories/all-programs/recommendedprograms",
-            "Popular": "https://tvapi.nrk.no/v1/categories/all-programs/popularprograms",
-            "Recent": "https://tvapi.nrk.no/v1/categories/all-programs/recentlysentprograms",
-            "Categories": "https://tvapi.nrk.no/v1/categories/",
-            # The other Programs url stopped working. This the next best thing.
-            # "Programs": "http://m.nrk.no/tvapi/v1/series/",
-            "Programs": "https://tvapi.nrk.no/v1/programs/",
-            "A - Å": "https://tvapi.nrk.no/v1/search/indexelements"
+            live_tv: "https://psapi.nrk.no/tv/live?apiKey={}".format(self.__api_key),
+            live_radio: "https://psapi.nrk.no/radio/live?apiKey={}".format(self.__api_key),
+            "Recommended": "https://psapi.nrk.no/medium/tv/recommendedprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
+            "Popular": "https://psapi.nrk.no/medium/tv/popularprogramssuper?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
+            "Recent": "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
+            "Categories": "https://psapi.nrk.no/medium/tv/categories?apiKey={}".format(self.__api_key),
+            "A - Å": "https://psapi.nrk.no/medium/tv/letters?apiKey={}".format(self.__api_key)
         }
         for name, url in links.iteritems():
             item = mediaitem.MediaItem(name, url)
@@ -130,407 +159,317 @@ class Channel(chn_class.Channel):
         Logger.Debug("Pre-Processing finished")
         return data, items
 
-    def CreateLiveChannel(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
-        for playback.
-
-        """
-
-        Logger.Trace(resultSet)
-
-        channelId = resultSet["channelId"]
-        title = resultSet["title"]
-        if "mediaUrl" not in resultSet:
-            Logger.Warning("Found channel without media url: %s", title)
+    def CreateAlphaItem(self, result_set):
+        program_count = result_set.get("availableInternationally", 0)
+        if program_count <= 0:
             return None
 
-        # url = resultSet["mediaUrl"]
-        if "mediaUrl" in resultSet and channelId in ("nrk1", "nrksuper"):
-            url = resultSet["mediaUrl"]
-        else:
-            # Geo-locked url:
-            # https://psapi-ne.nrk.no/playback/manifest/channel/%s?insuperuniverse=false
-            url = "https://psapi-ne.nrk.no/mediaelement/%s" % (channelId, )
+        title = result_set["title"]
+        url_part = title.lower()
+        if url_part == "0-9":
+            url_part = "$"
+        url = "https://psapi.nrk.no/medium/tv/letters/{}/indexelements?onlyOnDemandRights=false&" \
+              "apiKey={}".format(url_part, self.__api_key)
 
-        item = mediaitem.MediaItem(title, url)
-        item.type = 'video'
-        item.isLive = True
-        item.HttpHeaders = self.httpHeaders
-
-        thumbId = resultSet.get("imageId", None)
-        if thumbId is not None:
-            item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (thumbId, )
-        item.icon = self.icon
-        item.complete = False
-        return item
-
-    def CreateCategory(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-        Logger.Trace(resultSet)
-
-        title = resultSet["displayValue"]
-        # url = "%s/categories/%s/programs" % (self.baseUrl, resultSet["categoryId"], )
-        url = "https://tvapi.nrk.no/v1/search/indexelements"
+        title = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith) % (title, )
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
-        item.HttpHeaders = self.httpHeaders
-        item.metaData[self.__metaDataIndexCategory] = resultSet["categoryId"]
-
         item.thumb = self.noImage
-        item.fanart = self.fanart
         return item
 
-    def CreateIndexedItem(self, resultSet):
-        if "seriesId" in resultSet:
-            return self.CreateProgramFolder(resultSet)
-
-        # elif "programId" in resultSet:
-        #     item = mediaitem.MediaItem(resultSet["title"], "https://tvapi.nrk.no/v1/programs/%s/" % (resultSet["programId"]))
-        #     item.type = "video"
-        #     imageId = resultSet.get("imageId")
-        #     if imageId:
-        #         item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (imageId,)
-        #         item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (imageId,)
-        #     item.complete = False
-        #     item.HttpHeaders = self.httpHeaders
-        #     return item
-        return None
-
-    def CreateProgramFolder(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
-        Logger.Trace(resultSet)
-        title = resultSet["title"]
-        seriesId = resultSet.get("seriesId")
-        if seriesId is None:
-            return None
-
-        categoryId = resultSet.get("categoryId", None)
-        parentCategoryId = self.parentItem.metaData.get(self.__metaDataIndexCategory, None)
-        if parentCategoryId is not None and parentCategoryId != categoryId:
-            return None
-
-        item = mediaitem.MediaItem(title, "%s/series/%s" % (self.baseUrl, seriesId))
+    def CreateCategoryItem(self, result_set):
+        title = result_set["displayValue"]
+        category_id = result_set["id"]
+        url = "https://psapi.nrk.no/medium/tv/categories/{}/indexelements?apiKey={}"\
+            .format(category_id, self.__api_key)
+        item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
-        item.description = resultSet.get("description", "")
-        item.HttpHeaders = self.httpHeaders
-
-        imageId = resultSet.get("seriesImageId", None)
-        if imageId is not None:
-            item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (imageId, )
-            item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (imageId, )
-
-        if "usageRights" in resultSet:
-            item.isGeoLocked = resultSet["usageRights"].get("geoblocked", False)
-            if "availableFrom" in resultSet["usageRights"]:
-                timeStamp = int(resultSet["usageRights"]["availableFrom"]) / 1000
-                if 0 < timeStamp < sys.maxint:
-                    date = DateHelper.GetDateFromPosix(timeStamp)
-                    item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
+        item.thumb = self.noImage
         return item
 
-    def CreateCategoryVideo(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
+    def CreateCategoryEpisodeItem(self, result_set):
+        title = result_set["title"]
 
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        """
-
-        Logger.Trace(resultSet)
-
-        title = resultSet["title"]
-
-        if not resultSet['isAvailable']:
-            Logger.Trace("Found unavailable video: %s", title)
+        program_type = result_set.get("type", "???").lower()
+        if program_type != "series":
+            Logger.Debug("Item '%s' has type '%s'. Ignoring", title, program_type)
             return None
 
-        episodeData = resultSet.get("episodeNumberOrDate", None)
-        season = None
-        episode = None
-        if episodeData is not None and ":" in episodeData:
-            episodeData = episodeData.split(":", 1)
-            season = int(episodeData[0])
-            episode = int(episodeData[1])
-            title = "%s - %02d:%02d" % (title, season, episode)
+        return self.CreateGenericItem(result_set, program_type)
 
-        url = resultSet.get("mediaUrl", None)
-        if url is None:
-            url = resultSet.get("programId", None)
-            if url is None:
-                return None
-            url = "%s/programs/%s" % (self.baseUrl, url)
+    def CreateEpisodeItem(self, result_set):
+        title = result_set["title"]
 
-        item = mediaitem.MediaItem(title, url)
-        item.description = resultSet.get("description", "")
-        item.icon = self.icon
-        item.type = 'video'
-        item.fanart = self.parentItem.fanart
-        item.HttpHeaders = self.httpHeaders
+        program_type = result_set.get("type", "???").lower()
+        if program_type not in ("programme", "series"):
+            Logger.Debug("Item '%s' has type '%s'. Ignoring", title, program_type)
+            return None
 
-        if season is not None and episode is not None:
-            item.SetSeasonInfo(season, episode)
+        return self.CreateGenericItem(result_set, program_type)
 
-        imageId = resultSet.get("imageId", None)
-        if imageId is not None:
-            item.thumb = "http://m.nrk.no/img?kaleidoId=%s&width=720" % (imageId, )
+    def CreateVideoItem(self, result_set):
+        return self.CreateGenericItem(result_set, "programme")
 
-        fanartId = resultSet.get("seriesImageId", None)
-        if fanartId is not None:
-            item.fanart = "http://m.nrk.no/img?kaleidoId=%s&width=1280" % (fanartId, )
+    def CreateGenericItem(self, result_set, program_type):
+        title = result_set["title"]
 
-        dateSet = False
-        if episodeData is not None and ". " in episodeData:
-            episodeData = episodeData.split(" ", 2)
-            day = episodeData[0].strip(".")
-            monthName = episodeData[1]
-            month = DateHelper.GetMonthFromName(monthName, "no", short=False)
-            year = episodeData[2]
-            item.SetDate(year, month, day)
-            dateSet = True
+        if not result_set.get("hasOndemandRights", True):
+            Logger.Debug("Item '%s' has no on-demand rights", title)
+            return None
 
-        if "usageRights" in resultSet:
-            item.isGeoLocked = resultSet["usageRights"].get("geoblocked", False)
-            if not dateSet and "availableFrom" in resultSet["usageRights"]:
-                timeStamp = int(resultSet["usageRights"]["availableFrom"]) / 1000
-                if 0 < timeStamp < sys.maxint:
-                    date = DateHelper.GetDateFromPosix(timeStamp)
-                    item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
-
-        return item
-
-    def UpdateVideoItem(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
-
-        Used to update none complete MediaItems (self.complete = False). This
-        could include opening the item's URL to fetch more data and then process that
-        data or retrieve it's real media-URL.
-
-        The method should at least:
-        * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
-        * set self.complete = True.
-
-        if the returned item does not have a MediaItemPart then the self.complete flag
-        will automatically be set back to False.
-
-        """
-
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
-        url = item.url
-
-        if self.localIP:
-            item.HttpHeaders.update(self.localIP)
-
-        if ".m3u8" not in item.url:
-            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-            json = JsonHelper(data)
-            url = json.GetValue("mediaUrl")
-            if url is None:
-                Logger.Warning("Could not find mediaUrl in %s", item.url)
-                return item
-            f4mNeedle = "/manifest.f4m"
-            if f4mNeedle in url:
-                Logger.Info("Found F4m stream. Converting to M3u8.")
-                url = url[:url.index(f4mNeedle)].replace("/z/", "/i/").replace("http:", "https:")
-                url = "%s/master.m3u8" % (url, )
-
-        # are there subs? They are added as URL parameter
-
-        part = item.CreateNewEmptyMediaPart()
-        subMatches = Regexer.DoRegex('https*%3a%2f%2.+master.m3u8', url)
-        if subMatches:
-            subUrl = HtmlEntityHelper.UrlDecode(subMatches[0])
-            Logger.Info("Item has subtitles: %s", subUrl)
-            subTitle = SubtitleHelper.DownloadSubtitle(subUrl, format="m3u8srt", proxy=self.proxy)
-            if subTitle:
-                part.Subtitle = subTitle
-
-        for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=item.HttpHeaders):
-            item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
-            if self.localIP:
-                part.HttpHeaders.update(self.localIP)
-
-        return item
-
-    def __GetDate(self, first, second, third):
-        """ Tries to parse formats for dates like "Today 9:00" or "mon 9 jun" or "Tonight 9.00"
-
-        @param first: First part
-        @param second: Second part
-        @param third: Third part
-
-        @return:  a tuple containing: year, month, day, hour, minutes
-        """
-
-        Logger.Trace("Determining date for: ('%s', '%s', '%s')", first, second, third)
-        hour = minutes = 0
-
-        year = DateHelper.ThisYear()
-        if first.lower() == "idag" or first.lower() == "ikv&auml;ll":  # Today or Tonight
-            date = datetime.datetime.now()
-            month = date.month
-            day = date.day
-            hour = second
-            minutes = third
-
-        elif first.lower() == "ig&aring;r":  # Yesterday
-            date = datetime.datetime.now() - datetime.timedelta(1)
-            month = date.month
-            day = date.day
-            hour = second
-            minutes = third
-
-        elif second.isdigit():
-            day = int(second)
-            month = DateHelper.GetMonthFromName(third, "se")
-            year = DateHelper.ThisYear()
-
-            # if the date was in the future, it must have been last year.
-            result = datetime.datetime(year, month, day)
-            if result > datetime.datetime.now() + datetime.timedelta(1):
-                Logger.Trace("Found future date, setting it to one year earlier.")
-                year -= 1
-
-        elif first.isdigit() and third.isdigit() and not second.isdigit():
-            day = int(first)
-            month = DateHelper.GetMonthFromName(second, "se")
-            year = int(third)
-
+        item_id = result_set["id"]
+        if program_type == "programme":
+            url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(item_id, self.__api_key)
+            item = mediaitem.MediaItem(title, url)
+            item.type = 'video'
         else:
-            Logger.Warning("Unknonw date format: ('%s', '%s', '%s')", first, second, third)
-            year = month = day = hour = minutes = 0
+            use_old_series_api = False
+            if use_old_series_api:
+                url = "https://psapi.nrk.no/series/{}?apiKey={}".format(item_id, self.__api_key)
+            else:
+                url = "https://psapi.nrk.no/tv/catalog/series/{}?apiKey={}".format(item_id, self.__api_key)
 
-        return year, month, day, hour, minutes
+            item = mediaitem.MediaItem(title, url)
+            item.type = 'folder'
 
-#     @GET("/system/isAddressNorwegian?withIp=true")
-#     <T> IpCheck checkMyIp();
-#
-#     @GET("/search/autocomplete/{query}")
-#     <T> void getAutoComplete(@Path("query") String str, @Query("viewerAgeLimit") int i, Callback<T> callback);
-#
-#     @GET("/categories")
-#     <T> void getCategories(Callback<T> callback);
-#
-#     @GET("/channels")
-#     <T> List<Channel> getChannels();
-#
-#     @GET("/channels")
-#     <T> void getChannels(Callback<T> callback);
-#
-#     @GET("/series/{seriesId}/currentprogram")
-#     <T> void getCurrentProgramForSeries(@Path("seriesId") String str, @Query("viewerAgeLimit") int i, Callback<T> callback);
-#
-#     @GET("/series/{seriesId}/currentprogram")
-#     <T> void getCurrentProgramForSeries(@Path("seriesId") String str, Callback<T> callback);
-#
-#     @GET("/channels/epg")
-#     <T> void getEpg(@Query("date") String str, Callback<T> callback);
-#
-#     @GET("/search/{query}")
-#     <T> void getForSearchPrograms(@Path("query") String str, Callback<T> callback);
-#
-#     @GET("/search/indexelements")
-#     <T> List<ProgramTeaser> getIndexElements();
-#
-#     @POST("/series/newepisodes")
-#     <T> void getNewEpisodesForSeries(@Body SeriesLastSeen[] seriesLastSeenArr, Callback<T> callback);
-#
-#     @GET("/programs/{programId}/nextepisode")
-#     <T> void getNextEpisode(@Path("programId") String str, @Query("viewerAgeLimit") int i, Callback<T> callback);
-#
-#     @GET("/programs/{programId}")
-#     <T> void getProgram(@Path("programId") String str, @Query("viewerAgeLimit") int i, Callback<Program> callback);
-#
-#     @GET("/programs/{programId}")
-#     <T> void getProgram(@Path("programId") String str, Callback<Program> callback);
-#
-#     @GET("/categories/{categoryId}/programs")
-#     <T> void getProgramByCategoryFeed(@Path("categoryId") String str, Callback<T> callback);
-#
-#     @GET("/categories/{categoryId}/popularprograms")
-#     <T> void getProgramByCategoryPopular(@Path("categoryId") String str, Callback<T> callback);
-#
-#     @GET("/categories/{categoryId}/recentlysentprograms")
-#     <T> void getProgramByCategoryRecent(@Path("categoryId") String str, Callback<T> callback);
-#
-#     @GET("/categories/{categoryId}/recommendedprograms")
-#     <T> void getProgramByCategoryRecommended(@Path("categoryId") String str, Callback<T> callback);
-#
-#     @GET("/programs")
-#     <T> List<ProgramTeaser> getProgramFeed();
-#
-#     @GET("/programs")
-#     <T> void getProgramFeed(Callback<T> callback);
-#
-#     @GET("/programs/{programId}")
-#     <T> ProgramTeaser getProgramTeaser(@Path("programId") String str);
-#
-#     @POST("/programs")
-#     <T> List<ProgramTeaser> getProgramTeaserByIdList(@Body String[] strArr);
-#
-#     @POST("/programs")
-#     <T> void getProgramTeaserByIdList(@Body String[] strArr, Callback<T> callback);
-#
-#     @POST("/programs")
-#     List<ProgramTeaser> getProgramTeaserByIdListSynchronous(@Body String[] strArr);
-#
-#     @GET("/categories/barn/programs")
-#     <T> void getSuperFeed(Callback<T> callback);
+        item.icon = self.icon
+        item.isGeoLocked = result_set.get("isGeoBlocked", result_set.get("usageRights", {}).get("isGeoBlocked", False))
+
+        description = result_set.get("description")
+        if description and description.lower() != "no description":
+            item.description = description
+
+        if "image" not in result_set or "webImages" not in result_set["image"]:
+            return item
+
+        item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
+
+        # see if there is a date?
+        self.__set_date(result_set, item)
+        return item
+
+    def CreateSeriesSeasonItem(self, result_set):
+        title = "Sesong {}".format(result_set["name"])
+        season_id = result_set["id"]
+        if not result_set.get("hasOnDemandRightsEpisodes", True):
+            return None
+
+        parent_url, qs = self.parentItem.url.split("?", 1)
+        url = "{}/seasons/{}/episodes?apiKey={}".format(parent_url, season_id, self.__api_key)
+        item = mediaitem.MediaItem(title, url)
+        item.type = 'folder'
+        item.thumb = self.parentItem.thumb
+        item.fanart = self.parentItem.fanart
+        return item
+
+    def CreateSeriesVideoItem(self, result_set):
+        title = result_set["title"]
+        sub_title = result_set.get("episodeTitle", None)
+        if sub_title:
+            title = "{} - {}".format(title, sub_title)
+
+        if not result_set["usageRights"].get("hasRightsNow", True):
+            Logger.Debug("Found '%s' without 'usageRights'", title)
+            return None
+
+        url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["id"], self.__api_key)
+        item = mediaitem.MediaItem(title, url)
+        item.type = 'video'
+        item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
+        item.description = result_set.get("longDescription", "")
+        if not item.description:
+            item.description = result_set.get("shortDescription", "")
+
+        item.isGeoLocked = result_set.get("usageRights", {}).get("isGeoBlocked", False)
+        self.__set_date(result_set, item)
+        return item
+
+    def CreateInstalmentSeasonItem(self, result_set):
+        title = result_set["title"]
+        season_id = result_set["name"]
+        if title != season_id:
+            title = "{} - {}".format(season_id, title)
+
+        # if not result_set.get("hasOnDemandRightsEpisodes", True):
+        #     return None
+
+        url = "{}{}?apiKey={}".format(self.baseUrl, result_set["href"], self.__api_key)
+
+        # parent_url, qs = self.parentItem.url.split("?", 1)
+        # url = "{}/seasons/{}/Episodes?apiKey={}".format(parent_url, season_id, self.__api_key)
+        item = mediaitem.MediaItem(title, url)
+        item.type = 'folder'
+        item.thumb = self.parentItem.thumb
+        item.fanart = self.parentItem.fanart
+        return item
+
+    def CreateInstalmentVideoItem(self, result_set):
+        title = result_set["titles"]["title"]
+        sub_title = result_set["titles"]["subtitle"]
+        # if sub_title and sub_title.strip():
+        #     title = "{} - {}".format(title, sub_title)
+
+        if result_set.get("availability", {}).get("status", "available") != "available":
+            Logger.Debug("Found '%s' with a non-available status", title)
+            return None
+
+        url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["prfId"], self.__api_key)
+        item = mediaitem.MediaItem(title, url)
+        item.type = 'video'
+        item.thumb = self.__get_image(result_set["image"], "width", "url")
+        item.fanart = self.parentItem.fanart
+        item.isGeoLocked = result_set.get("usageRights", {}).get("geoBlock", {}).get("isGeoBlocked", False)
+        if sub_title and sub_title.strip():
+            item.description = sub_title
+
+        if "firstTransmissionDateDisplayValue" in result_set:
+            Logger.Trace("Using 'firstTransmissionDateDisplayValue' for date")
+            day, month, year = result_set["firstTransmissionDateDisplayValue"].split(".")
+            item.SetDate(year, month, day)
+        elif "usageRights" in result_set and "from" in result_set["usageRights"] and result_set["usageRights"]["from"] is not None:
+            Logger.Trace("Using 'usageRights.from.date' for date")
+            date_value = result_set["usageRights"]["from"]["date"].split("+")[0]
+            time_stamp = DateHelper.GetDateFromString(date_value, dateFormat="%Y-%m-%dT%H:%M:%S")
+            item.SetDate(*time_stamp[0:6])
+
+        return item
+
+    def CreateLiveChannelItem(self, result_set):
+        url = "{}{}?apiKey={}".format(self.baseUrl, result_set["_links"]["manifest"]["href"], self.__api_key)
+
+        live_data = result_set["_embedded"]["playback"]
+        item = mediaitem.MediaItem(live_data["title"], url)
+        item.type = "video"
+        item.isLive = True
+        item.isGeoLocked = live_data.get("isGeoBlocked")
+        self.__get_image(live_data["posters"][0]["image"]["items"], "pixelWidth", "url")
+        return item
+
+    def UpdateLiveChannel(self, item):
+        headers = {}
+        if self.localIP:
+            headers.update(self.localIP)
+
+        data = UriHandler.Open(item.url, proxy=self.proxy, noCache=True, additionalHeaders=headers)
+        manifest = JsonHelper(data)
+        if "nonPlayable" in manifest.json and manifest.json["nonPlayable"]:
+            Logger.Error("Cannot update Live: %s", item)
+            return item
+
+        source = manifest.GetValue("sourceMedium")
+        if source == "audio":
+            return self.__update_live_audio(item, manifest, headers)
+        else:
+            return self.__update_live_video(item, manifest, headers)
+
+    def UpdateJsonVideoItem(self, item):
+        headers = {}
+        if self.localIP:
+            headers.update(self.localIP)
+
+        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
+        video_data = JsonHelper(data)
+        stream_data = video_data.GetValue("mediaAssetsOnDemand")
+        if not stream_data:
+            return item
+
+        use_adaptive = AddonSettings.UseAdaptiveStreamAddOn()
+        stream_data = stream_data[0]
+        part = item.CreateNewEmptyMediaPart()
+        if "hlsUrl" in stream_data:
+            hls_url = stream_data["hlsUrl"]
+            if use_adaptive:
+                stream = part.AppendMediaStream(hls_url, 0)
+                M3u8.SetInputStreamAddonInput(stream, self.proxy, headers=headers)
+                item.complete = True
+            else:
+                for s, b in M3u8.GetStreamsFromM3u8(hls_url, self.proxy, headers=headers):
+                    item.complete = True
+                    # s = self.GetVerifiableVideoUrl(s)
+                    part.AppendMediaStream(s, b)
+
+        if "timedTextSubtitlesUrl" in stream_data and stream_data["timedTextSubtitlesUrl"]:
+            sub_url = stream_data["timedTextSubtitlesUrl"].replace(".ttml", ".vtt")
+            sub_url = HtmlEntityHelper.UrlDecode(sub_url)
+            part.Subtitle = SubtitleHelper.DownloadSubtitle(sub_url, format="webvtt")
+        return item
+
+    def __update_live_audio(self, item, manifest, headers):
+        video_info = manifest.GetValue("playable", "assets", 0)
+        url = video_info["url"]
+        # encrypted = video_info["encrypted"]
+        part = item.CreateNewEmptyMediaPart()
+
+        # Adaptive add-on does not work with audio only
+        for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+            item.complete = True
+            part.AppendMediaStream(s, b)
+
+        return item
+
+    def __update_live_video(self, item, manifest, headers):
+        video_info = manifest.GetValue("playable", "assets", 0)
+        url = video_info["url"]
+        encrypted = video_info["encrypted"]
+        part = item.CreateNewEmptyMediaPart()
+
+        if encrypted:
+            use_adaptive = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+            if not use_adaptive:
+                Logger.Error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
+                return item
+            stream = part.AppendMediaStream(url, 0)
+            key = M3u8.GetLicenseKey("", keyHeaders=headers, keyType="R")
+            M3u8.SetInputStreamAddonInput(stream, proxy=self.proxy, headers=headers, licenseKey=key)
+            item.complete = True
+        else:
+            use_adaptive = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
+            if use_adaptive:
+                stream = part.AppendMediaStream(url, 0)
+                M3u8.SetInputStreamAddonInput(stream, self.proxy, headers=headers)
+                item.complete = True
+            else:
+                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy, headers=headers):
+                    item.complete = True
+                    part.AppendMediaStream(s, b)
+
+        return item
+
+    def __set_date(self, result_set, item):
+        if "usageRights" in result_set and "availableFrom" in result_set["usageRights"] \
+                and result_set["usageRights"]["availableFrom"] is not None:
+            Logger.Trace("Using 'usageRights.availableFrom' for date")
+            # availableFrom=/Date(1540612800000+0200)/
+            epoch_stamp = result_set["usageRights"]["availableFrom"][6:16]
+            available_from = DateHelper.GetDateFromPosix(int(epoch_stamp))
+            item.SetDate(available_from.year, available_from.month, available_from.day)
+
+        elif "episodeNumberOrDate" in result_set and result_set["episodeNumberOrDate"] is not None:
+            Logger.Trace("Using 'episodeNumberOrDate' for date")
+            date_parts = result_set["episodeNumberOrDate"].split(".")
+            if len(date_parts) == 3:
+                item.SetDate(date_parts[2], date_parts[1], date_parts[0])
+
+        elif "programUrlMetadata" in result_set and result_set["programUrlMetadata"] is not None:
+            Logger.Trace("Using 'programUrlMetadata' for date")
+            date_parts = result_set["programUrlMetadata"].split("-")
+            if len(date_parts) == 3:
+                item.SetDate(date_parts[2], date_parts[1], date_parts[0])
+        return
+
+    def __get_image(self, images, width_attribute, url_attribute):
+        max_width = 0
+        thumb = None
+        for image_data in images:
+            src = image_data[url_attribute]
+            width = image_data[width_attribute]
+            # if  width > max_width:
+            #     item.fanart = src
+            if max_width < width < 521:
+                thumb = src
+
+        return thumb

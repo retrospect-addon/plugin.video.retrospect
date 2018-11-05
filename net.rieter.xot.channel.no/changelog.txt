@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NRK.no listings (Fixes #1033)
+* Fixed: Using other NRK.no API (Fixes #1033)
 
 [I]Previous changes[/I]
+* Fixed: NRK.no listings (Fixes #1033)
 * Removed: NRK.no for now as their API was shut down (See #1033)
 * Fixed: NRK1 live stream (Fixes #991)
 * Fixed: NRK Category listing (Fixes #893)
