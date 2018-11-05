@@ -53,7 +53,9 @@ class Channel(chn_class.Channel):
             self.noImage = "rtvdrentheimage.png"
             self.mainListUri = "http://drenthe.api.regiogrid.nl/apps/v520/programs.json"
             self.baseUrl = "http://drenthe.api.regiogrid.nl"
-            self.liveUrl = "http://feeds.rtvdrenthe.nl/app/all/tv.json"
+            # TODO: move to chn_rpoapp?
+            # Taken from: https://drenthe.rpoapp.nl/v01/livestreams/AndroidPhone.json
+            self.liveUrl = "https://cdn.rtvdrenthe.nl/live/rtvdrenthe/tv/index.m3u8"
             self.channelBitrate = 1350
 
         elif self.channelCode == "rtvnoord":
@@ -200,6 +202,11 @@ class Channel(chn_class.Channel):
             liveItem.icon = self.icon
             liveItem.thumb = self.noImage
             liveItem.isLive = True
+            if self.channelCode == "rtvdrenthe":
+                # RTV Drenthe actually has a buggy M3u8 without master index.
+                liveItem.AppendSingleStream(liveItem.url, 0)
+                liveItem.complete = True
+
             items.append(liveItem)
             return "", items
 

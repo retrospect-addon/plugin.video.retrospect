@@ -6,6 +6,7 @@ from helpers.datehelper import DateHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from logger import Logger
+from parserdata import ParserData
 from regexer import Regexer
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
@@ -43,7 +44,8 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStreams,
                             parser=videoItemRegex, creator=self.CreateVideoItem)
 
-        self._AddDataParser("https://lb-omroepflevoland-live.cdn.streamgate.nl", updater=self.UpdateLiveUrls)
+        self._AddDataParser("https://[^/]*.cloudfront.net/live/", updater=self.UpdateLiveUrls,
+                            matchType=ParserData.MatchRegex)
 
         self._AddDataParser("*", preprocessor=self.AddLiveStreams,
                             parser=videoItemRegex, creator=self.CreateVideoItem,
@@ -81,7 +83,19 @@ class Channel(chn_class.Channel):
         if self.parentItem is None:
             liveItem = mediaitem.MediaItem(
                 "\a.: Live TV :.",
-                "https://lb-omroepflevoland-live.cdn.streamgate.nl/omroepflevoland/livestream1.mp4/playlist.m3u8"
+                "https://d5ms27yy6exnf.cloudfront.net/live/omroepflevoland/tv/index.m3u8"
+            )
+            liveItem.icon = self.icon
+            liveItem.thumb = self.noImage
+            liveItem.type = 'video'
+            liveItem.dontGroup = True
+            now = datetime.datetime.now()
+            liveItem.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            items.append(liveItem)
+
+            liveItem = mediaitem.MediaItem(
+                "\a.: Live Radio :.",
+                "https://d5ms27yy6exnf.cloudfront.net/live/omroepflevoland/radio/index.m3u8"
             )
             liveItem.icon = self.icon
             liveItem.thumb = self.noImage
