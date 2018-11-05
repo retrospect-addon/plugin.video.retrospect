@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7~beta30 - Changelog - 2018-11-03[/B]
+[B]Retrospect v4.1.7~beta31 - Changelog - 2018-11-05[/B]
 
 [B]Framework related[/B]
 -
@@ -7,4 +7,6 @@
 -
 
 [B]Channel related[/B]
-* Fixed: NOS.nl streams did not start (Fixes #1048)
+* Fixed: Using other NRK.no API (Fixes #1033)
+* Fixed: Omroep Flevoland live streams (See #1032)
+* Fixed: RTV Drenthe live streams (See #1032)
