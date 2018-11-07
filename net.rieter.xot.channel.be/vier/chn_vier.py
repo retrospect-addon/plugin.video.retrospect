@@ -102,7 +102,7 @@ class Channel(chn_class.Channel):
 
         # check if there is a refresh token
         # refresh token: viervijfzes_refresh_token
-        refreshToken = AddonSettings.GetSetting("viervijfzes_refresh_token")
+        refreshToken = AddonSettings.get_setting("viervijfzes_refresh_token")
         client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
                         proxy=self.proxy, logger=Logger.Instance())
         if refreshToken:
@@ -114,7 +114,7 @@ class Channel(chn_class.Channel):
                 Logger.Info("Extending token for VierVijfZes failed.")
 
         # username: viervijfzes_username
-        username = AddonSettings.GetSetting("viervijfzes_username")
+        username = AddonSettings.get_setting("viervijfzes_username")
         # password: viervijfzes_password
         v = Vault()
         password = v.GetSetting("viervijfzes_password")
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
             return False
 
         self.__idToken = idToken
-        AddonSettings.SetSetting("viervijfzes_refresh_token", refreshToken)
+        AddonSettings.set_setting("viervijfzes_refresh_token", refreshToken)
         return True
 
     def CreateEpisodeItem(self, resultSet):

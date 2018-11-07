@@ -94,14 +94,14 @@ class Channel(chn_class.Channel):
     # def LogOn(self):
     #     """ Makes sure that we are logged on. """
     #
-    #     username = AddonSettings.GetSetting("channel_tv4play_se_username")
+    #     username = AddonSettings.get_setting("channel_tv4play_se_username")
     #     if not username:
     #         Logger.Info("No user name for TV4 Play, not logging in")
     #         return False
     #
     #     # Fetch an existing token
     #     tokenSettingId = "channel_tv4play_se_token"
-    #     token = AddonSettings.GetSetting(tokenSettingId)
+    #     token = AddonSettings.get_setting(tokenSettingId)
     #     sessionToken = None
     #     if token:
     #         expiresAt, vimondSessionToken, sessionToken = token.split("|")
@@ -133,7 +133,7 @@ class Channel(chn_class.Channel):
     #         Logger.Info("Authenticating based on username and password")
     #
     #         v = Vault()
-    #         password = v.GetSetting("channel_tv4play_se_password")
+    #         password = v.get_setting("channel_tv4play_se_password")
     #         if not password:
     #             XbmcWrapper.ShowDialog(
     #                 title=None,
@@ -182,8 +182,8 @@ class Channel(chn_class.Channel):
     #     expiresAt = tokenData.get_value("exp")
     #
     #     Logger.Debug("Token expires at: %s (%s)", DateHelper.get_date_from_posix(float(expiresAt)), expiresAt)
-    #     # AddonSettings.SetSetting(tokenSettingId, "%s|%s" % (expiresAt, token))
-    #     AddonSettings.SetSetting(tokenSettingId, "%s|%s|%s" % (expiresAt, vimondSessionToken, sessionToken))
+    #     # AddonSettings.set_setting(tokenSettingId, "%s|%s" % (expiresAt, token))
+    #     AddonSettings.set_setting(tokenSettingId, "%s|%s|%s" % (expiresAt, vimondSessionToken, sessionToken))
     #
     #     # 4: use with: Authorization: Bearer <token>
     #     # 4: use cookies:

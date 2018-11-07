@@ -7,6 +7,7 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
+
 import os
 import uuid
 import shutil
@@ -17,7 +18,7 @@ from logger import Logger                               # this has not further r
 from proxyinfo import ProxyInfo                         # this has not further references
 from config import Config                               # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
-from settings import localsettings, kodisettings
+from settings import localsettings, kodisettings, settingsstore
 
 # Theoretically we could add a remote settings store too!
 KODI = "kodi"
@@ -46,36 +47,47 @@ class AddonSettings(object):
     __language_current = None
 
     @staticmethod
-    def store(storeLocation):
-        store = AddonSettings.__setting_stores.get(storeLocation, None)
+    def store(store_location):
+        """ Returns the Singleton store object for the given type
+
+        @param store_location: Either the Kodi (KODI) store or in the Retrospect (LOCAL) store
+        @type store_location:  str
+
+        @return: An instance of the setting store
+        @rtype:  settingsstore.SettingsStore
+
+        """
+
+        store = AddonSettings.__setting_stores.get(store_location, None)
         if store is not None:
             return store
 
         with AddonSettings.__settings_lock:
             # Just a double check in case there was a race condition??
-            store = AddonSettings.__setting_stores.get(storeLocation, None)
+            store = AddonSettings.__setting_stores.get(store_location, None)
             if store is not None:
                 return store
 
-            if storeLocation == KODI:
+            if store_location == KODI:
                 store = kodisettings.KodiSettings(Logger.Instance())
-            elif storeLocation == LOCAL:
+            elif store_location == LOCAL:
                 store = localsettings.LocalSettings(Config.profileDir, Logger.Instance())
             else:
-                raise IndexError("Cannot find Setting store type: {0}".format(storeLocation))
+                raise IndexError("Cannot find Setting store type: {0}".format(store_location))
 
-            AddonSettings.__setting_stores[storeLocation] = store
+            AddonSettings.__setting_stores[store_location] = store
             return store
 
     @staticmethod
-    def __refresh(storeLocation):
+    def __refresh(store_location):
         """ Removes the instance of the settings store causing a reload.
 
-        @param  storeLocation: What store to refresh
+        @param store_location: Either the Kodi (KODI) store or in the Retrospect (LOCAL) store
+        @type store_location:  str
 
         """
 
-        store = AddonSettings.__setting_stores.pop(storeLocation, None)
+        store = AddonSettings.__setting_stores.pop(store_location, None)
         if store is None:
             return
 
@@ -88,7 +100,7 @@ class AddonSettings(object):
         raise NotImplementedError("Static class cannot be constructed")
 
     @staticmethod
-    def ClearCachedAddonSettingsObject():
+    def clear_cached_addon_settings_object():
         """ Clears the cached add-on settings. This will force a reload for the next INSTANCE
         of an AddonSettings class. """
 
@@ -101,10 +113,11 @@ class AddonSettings(object):
 
     #region Kodi version stuff
     @staticmethod
-    def GetKodiVersion():
+    def get_kodi_version():
         """ Retrieves the Kodi version we are running on.
 
         @return: the full string of the Kodi version. E.g.: 16.1 Git:20160424-c327c53
+        @rtype: str
 
         """
 
@@ -114,72 +127,110 @@ class AddonSettings(object):
         return AddonSettings.__KodiVersion
 
     @staticmethod
-    def IsMinVersion(minValue):
+    def is_min_version(min_value):
         """ Checks whether the version of Kodi is higher or equal to the given version.
 
-        @param minValue: the minimum Kodi version
+        @param min_value: the minimum Kodi version
+        @type min_value: int
+
         @return: True if higher or equal, False otherwise.
+        @rtype: bool
+
         """
 
-        version = int(AddonSettings.GetKodiVersion().split(".")[0])
-        return version >= minValue
+        version = int(AddonSettings.get_kodi_version().split(".")[0])
+        return version >= min_value
     #endregion
 
     #region Generic Access to Settings from other modules
     @staticmethod
-    def GetSetting(settingId, store=KODI):
+    def get_setting(setting_id, store=KODI):
         """Returns the setting for the requested ID, from the cached settings.
 
         Arguments:
         settingId - string - the ID of the settings
 
         Returns:
-        The configured XBMC add-on values for that <id>.
+
+        @type setting_id:   str
+        @param setting_id:  The ID of the setting to retrieve.
+
+        @type store:        str
+        @param store:       Whether to retrieve it from the Kodi (KODI) or in the Retrospect (LOCAL) store
+
+        @rtype:             str
+        @return:            The configured Kodi add-on values for that <id>.
 
         """
 
-        value = AddonSettings.store(store).get_setting(settingId)
+        value = AddonSettings.store(store).get_setting(setting_id)
         return value
 
     @staticmethod
-    def SetSetting(settingId, value, store=KODI):
+    def set_setting(setting_id, value, store=KODI):
         """Sets the value for the setting with requested ID, from the cached settings.
 
-        Arguments:
-        settingId - string - the ID of the settings
-        value     - string - the value
+        @type setting_id:  str
+        @param setting_id: The ID of the setting to store.
 
-        Returns:
-        The configured XBMC add-on values for that <id>.
+        @type value:       str
+        @param value:      The value to store.
+
+        @type store:       str
+        @param store:      Whether to store in Kodi (KODI) or in the Retrospect (LOCAL) store
+
+        @return: The configured Kodi add-on values for that <id>.
+        @rtype:  str
 
         """
 
-        AddonSettings.store(store).set_setting(settingId, value)
+        AddonSettings.store(store).set_setting(setting_id, value)
         return value
 
     @staticmethod
-    def GetChannelSetting(channel, settingId, valueForNone=None, store=KODI):
+    def get_channel_setting(channel, setting_id, value_for_none=None, store=KODI):
         """ Retrieves channel settings for the given channel
 
-        @param channel:     The channel object to get the channels for
-        @param settingId:   The setting to retrieve
-        @type valueForNone: Value that is considered as None
-        @rtype : the configured value
+        @param channel:       The channel object to get the channels for
+
+        @type setting_id:       str
+        @param setting_id:      The ID of the setting to retrieve.
+
+        @type value_for_none:   str
+        @param value_for_none:  What value should we interpret as None?
+
+        @type store:            str
+        @param store:           Whether to retrieve it from the Kodi (KODI) or in the Retrospect
+                                (LOCAL) store.
+
+        @return: the setting with the given <id> for within the <channel>
+        @rtype: str
+
         """
 
-        return AddonSettings.store(store).get_setting(settingId, channel, valueForNone)
+        return AddonSettings.store(store).get_setting(setting_id, channel, value_for_none)
 
     @staticmethod
-    def SetChannelSetting(channel, settingId, value, store=KODI):
+    def set_channel_setting(channel, setting_id, value, store=KODI):
         """ Retrieves channel settings for the given channel
 
-        @param channel:     The channel object to get the channels for
-        @param settingId:   The setting to retrieve
-        @type value:        Value to set
-        @rtype :            The configured value
+        @param channel:    The channel object to get the channels for
+
+        @type setting_id:  str
+        @param setting_id: The ID of the setting to store.
+
+        @type value:       str
+        @param value:      The value to store.
+
+        @type store:       str
+        @param store:      Whether to store in Kodi (KODI) or in the Retrospect (LOCAL) store
+
+        @return: The configured Kodi add-on values for that <id>.
+        @rtype:  str
+
         """
 
-        return AddonSettings.store(store).set_setting(settingId, value, channel)
+        return AddonSettings.store(store).set_setting(setting_id, value, channel)
     #endregion
 
     @staticmethod
@@ -379,7 +430,7 @@ class AddonSettings(object):
             Logger.Warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptiveAddOnId)
             return False
 
-        kodiLeia = AddonSettings.IsMinVersion(18)
+        kodiLeia = AddonSettings.is_min_version(18)
         Logger.Info("Adaptive Stream add-on '%s' %s decryption support was found.",
                     adaptiveAddOnId, "with" if kodiLeia else "without")
 
@@ -410,7 +461,7 @@ class AddonSettings(object):
         from envcontroller import EnvController
 
         # noinspection PyNoneFunctionAssignment
-        version = AddonSettings.GetKodiVersion()
+        version = AddonSettings.get_kodi_version()
         Logger.Debug("Found Kodi version: %s", version)
         git = ""
         try:
@@ -461,7 +512,7 @@ class AddonSettings(object):
             # double check if the version of XBMC is still OK
             if AddonSettings.__UserAgent:
                 # noinspection PyNoneFunctionAssignment
-                version = AddonSettings.GetKodiVersion()
+                version = AddonSettings.get_kodi_version()
 
                 if version not in AddonSettings.__UserAgent:
                     old = AddonSettings.__UserAgent
@@ -630,7 +681,7 @@ class AddonSettings(object):
         AddonSettings.store(KODI).set_setting("config_channel", channelName)
 
         # show settings and focus on the channel settings tab
-        if AddonSettings.IsMinVersion(18):
+        if AddonSettings.is_min_version(18):
             return AddonSettings.ShowSettings(-98)
         else:
             return AddonSettings.ShowSettings(102)

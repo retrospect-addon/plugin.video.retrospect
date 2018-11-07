@@ -97,7 +97,7 @@ class Vault:
         # let's generate a pin using the scrypt password-based key derivation
         pinKey = self.__GetPBK(pin)
         encryptedKey = self.__Encrypt(encryptedKey, pinKey)
-        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, encryptedKey, store=LOCAL)
+        AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, encryptedKey, store=LOCAL)
         Logger.Info("Successfully updated the Retrospect PIN")
         return True
 
@@ -115,7 +115,7 @@ class Vault:
             return
 
         Logger.Info("Resetting the vault to a new initial state.")
-        AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, "", store=LOCAL)
+        AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, "", store=LOCAL)
 
         # create a vault instance so we initialize a new one with a new PIN.
         Vault()
@@ -141,7 +141,7 @@ class Vault:
         """
 
         Logger.Info("Decrypting value for setting '%s'", settingId)
-        encryptedValue = AddonSettings.GetSetting(settingId)
+        encryptedValue = AddonSettings.get_setting(settingId)
         if not encryptedValue:
             return encryptedValue
 
@@ -188,11 +188,11 @@ class Vault:
             settingActionId = "%s_set" % (settingId,)
 
         Logger.Debug("Updating '%s' and '%s'", settingId, settingActionId)
-        AddonSettings.SetSetting(settingId, encryptedValue)
+        AddonSettings.set_setting(settingId, encryptedValue)
         if inputValue:
-            AddonSettings.SetSetting(settingActionId, "******")
+            AddonSettings.set_setting(settingActionId, "******")
         else:
-            AddonSettings.SetSetting(settingActionId, "")
+            AddonSettings.set_setting(settingActionId, "")
         Logger.Info("Successfully encrypted value for setting '%s'", settingId)
         return
 
@@ -202,15 +202,15 @@ class Vault:
         @return: the decrypted application key that is used for all the encryption
         """
 
-        applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING, store=LOCAL)
+        applicationKeyEncrypted = AddonSettings.get_setting(Vault.__APPLICATION_KEY_SETTING, store=LOCAL)
         # The key was never in the local store the value was None. It was "" if it was reset.
         if applicationKeyEncrypted is None:
-            applicationKeyEncrypted = AddonSettings.GetSetting(Vault.__APPLICATION_KEY_SETTING, store=KODI)
+            applicationKeyEncrypted = AddonSettings.get_setting(Vault.__APPLICATION_KEY_SETTING, store=KODI)
             if not applicationKeyEncrypted:
                 return None
 
             Logger.Info("Moved ApplicationKey to local storage")
-            AddonSettings.SetSetting(Vault.__APPLICATION_KEY_SETTING, applicationKeyEncrypted, store=LOCAL)
+            AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, applicationKeyEncrypted, store=LOCAL)
 
         # Still no application key? Then there was no key!
         if applicationKeyEncrypted == "" or applicationKeyEncrypted is None:

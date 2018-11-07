@@ -244,7 +244,7 @@ class Channel(chn_class.Channel):
 
     def LogOn(self):
         signature_settings = "mediaan_signature"
-        login_token = AddonSettings.GetSetting(signature_settings, store=LOCAL)
+        login_token = AddonSettings.get_setting(signature_settings, store=LOCAL)
         api_key = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
         # api_key = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
 
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
         Logger.Info("Logging onto Stievie.be/VTM.be")
         v = Vault()
         password = v.GetSetting("mediaan_password")
-        username = AddonSettings.GetSetting("mediaan_username")
+        username = AddonSettings.get_setting("mediaan_username")
         if not username or not password:
             XbmcWrapper.ShowDialog(
                 title=None,
@@ -634,7 +634,7 @@ class Channel(chn_class.Channel):
         # if self.channelCode != "vtm":
         #     return data, []
 
-        username = AddonSettings.GetSetting("mediaan_username")
+        username = AddonSettings.get_setting("mediaan_username")
         if not username:
             return data, []
 
@@ -982,7 +982,7 @@ class Channel(chn_class.Channel):
         signatureSetting = logonJson.get_value("sessionInfo", "login_token")
         if signatureSetting:
             Logger.Info("Found 'login_token'. Saving it.")
-            AddonSettings.SetSetting(signatureSettings, signatureSetting.split("|")[0], store=LOCAL)
+            AddonSettings.set_setting(signatureSettings, signatureSetting.split("|")[0], store=LOCAL)
 
         self.__signature = logonJson.get_value("UIDSignature")
         self.__userId = logonJson.get_value("UID")

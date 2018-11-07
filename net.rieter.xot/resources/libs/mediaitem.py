@@ -492,7 +492,7 @@ class MediaItem:
                 elif not proxy.UseProxyForUrl(streamUrl):
                     logText = "%s\n    + Not adding proxy due to filter mismatch" % (logText, )
                 else:
-                    if AddonSettings.IsMinVersion(17):
+                    if AddonSettings.is_min_version(17):
                         # See ffmpeg proxy in https://github.com/xbmc/xbmc/commit/60b21973060488febfdc562a415e11cb23eb9764
                         xbmcItem.setProperty("proxy.host", proxy.Proxy)
                         xbmcItem.setProperty("proxy.port", str(proxy.Port))

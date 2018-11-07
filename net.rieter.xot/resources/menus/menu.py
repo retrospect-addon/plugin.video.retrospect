@@ -124,7 +124,7 @@ class Menu(ParameterParser):
         """ Shows the country settings page where channels can be shown/hidden based on the
         country of origin. """
 
-        if AddonSettings.IsMinVersion(18):
+        if AddonSettings.is_min_version(18):
             AddonSettings.ShowSettings(-99)
         else:
             AddonSettings.ShowSettings(101)
@@ -270,7 +270,7 @@ class Menu(ParameterParser):
             Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
 
         # make sure we leave no references behind
-        AddonSettings.ClearCachedAddonSettingsObject()
+        AddonSettings.clear_cached_addon_settings_object()
         # close the log to prevent locking on next call
         Logger.Instance().CloseLog()
         return False

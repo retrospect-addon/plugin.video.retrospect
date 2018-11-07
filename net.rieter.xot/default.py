@@ -69,7 +69,7 @@ def run_plugin():
         plugin.Plugin(sys.argv[0], sys.argv[2], sys.argv[1])
 
         # make sure we leave no references behind
-        AddonSettings.ClearCachedAddonSettingsObject()
+        AddonSettings.clear_cached_addon_settings_object()
         # close the log to prevent locking on next call
         Logger.Instance().CloseLog()
         log_file = None

@@ -1039,7 +1039,7 @@ class Channel:
         # Or as an URL parameter swfvfy where we add the full URL instead of just 1:
         #   return "%s swfvfy=%s" % (url, self.swfUrl)
 
-        if AddonSettings.IsMinVersion(17):
+        if AddonSettings.is_min_version(17):
             Logger.Debug("Using Kodi 17+ RTMP parameters")
             return "%s swfvfy=%s" % (url, self.swfUrl)
         else:
@@ -1093,7 +1093,7 @@ class Channel:
 
         """
 
-        setting = AddonSettings.GetChannelSetting(self, settingId, valueForNone)
+        setting = AddonSettings.get_channel_setting(self, settingId, valueForNone)
         return setting
 
     # noinspection PyPropertyAccess
