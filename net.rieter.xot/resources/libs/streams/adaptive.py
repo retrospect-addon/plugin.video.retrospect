@@ -17,7 +17,7 @@ class Adaptive:
         pass
 
     @staticmethod
-    def get_license_key(key_url, key_type="R", key_headers=None, key_value=None):
+    def get_license_key(key_url, key_type="R", key_headers=None, key_value=None, json_filter=""):
         """ Generates a propery license key value
 
         # A{SSM} -> not implemented
@@ -26,7 +26,7 @@ class Adaptive:
         # D{SSM} -> decimal format
 
         The generic format for a LicenseKey is:
-        |<url>|<headers>|<key with placeholders|
+        |<url>|<headers>|<key with placeholders>|<optional json filter>
 
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
@@ -40,7 +40,11 @@ class Adaptive:
         @param key_headers: A dictionary that contains the HTTP headers to pass
 
         @type key_value: str
-        @param key_value: i
+        @param key_value: the value that is beging passed on as the key value
+
+        @type json_filter: str
+        @param json_filter: if specified selects that json element to extract the key response.
+
         @return:
         """
 
@@ -56,7 +60,7 @@ class Adaptive:
                 raise ValueError("Missing D{SSM} placeholder")
             key_value = HtmlEntityHelper.url_encode(key_value)
 
-        return "{0}|{1}|{2}|".format(key_url, header.strip("&"), key_value)
+        return "{0}|{1}|{2}|{3}".format(key_url, header.strip("&"), key_value, json_filter)
 
     # noinspection PyUnusedLocal
     @staticmethod
