@@ -68,18 +68,22 @@ class Adaptive:
                                      manifest_type=None,
                                      license_key=None,
                                      license_type=None,
-                                     max_bit_rate=None):
+                                     max_bit_rate=None,
+                                     persist_storage=False,
+                                     service_certificate=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
-        @param license_key:
-        @param license_type:
-        @param addon:             (string) Adaptive add-on to use
-        @param manifest_type:      (string) Type of manifest (hls/mpd)
-        @param headers:           (dict) Possible HTTP Headers
-        @param proxy:             (Proxy) The proxy to use for opening
-        @param strm:              (MediaStream) the MediaStream to update
-        @param int max_bit_rate:    The maximum bitrate to use (optional)
+        @param strm:                    (MediaStream) the MediaStream to update
+        @param proxy:                   (Proxy) The proxy to use for opening
+        @param dict headers:            Possible HTTP Headers
+        @param str addon:               Adaptive add-on to use
+        @param str manifest_type:       Type of manifest (hls/mpd)
+        @param str license_key:         The value of the license key request
+        @param str license_type:        The type of license key request used (see below)
+        @param int max_bit_rate:        The maximum bitrate to use (optional)
+        @param bool persist_storage:    Should we store certificates? And request server certificates?
+        @param str service_certificate: Use the specified server certificate
 
         Can be used like this:
 
@@ -107,6 +111,10 @@ class Adaptive:
             strm.AddProperty("inputstream.adaptive.license_type", license_type)
         if max_bit_rate:
             strm.AddProperty("inputstream.adaptive.max_bandwidth", max_bit_rate * 1000)
+        if persist_storage:
+            strm.AddProperty("inputstream.adaptive.license_flags", "persistent_storage")
+        if service_certificate is not None:
+            strm.AddProperty("inputstream.adaptive.server_certificate", service_certificate)
 
         if headers:
             header = ""
