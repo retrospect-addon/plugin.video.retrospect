@@ -228,7 +228,7 @@ class Channel(chn_class.Channel):
             #     item.complete = True
             else:
                 contentType, url = UriHandler.Header(url, self.proxy)
-                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                     item.complete = True
                     # s = self.GetVerifiableVideoUrl(s)
                     part.AppendMediaStream(s, b)

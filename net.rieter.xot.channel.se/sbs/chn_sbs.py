@@ -469,7 +469,7 @@ class Channel(chn_class.Channel):
         if "publishStart" in videoInfo or "airDate" in videoInfo:
             date = videoInfo.get("airDate", videoInfo["publishStart"])
             # 2018-03-20T20:00:00Z
-            airDate = DateHelper.GetDateFromString(date,  dateFormat="%Y-%m-%dT%H:%M:%SZ")
+            airDate = DateHelper.get_date_from_string(date,  date_format="%Y-%m-%dT%H:%M:%SZ")
             item.SetDate(*airDate[0:6])
             # datePart, timePart = date[0:-3].split("T")
             # year, month, day = datePart.split("-")
