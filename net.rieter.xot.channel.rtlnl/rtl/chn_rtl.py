@@ -32,6 +32,7 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         self.mainListUri = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=az/fmt=smooth"
+        self.mainListUri = "https://xlapi.rtl.nl/version=1/fun=az/model=svod/"
         self.baseUrl = "http://www.rtl.nl"
 
         # setup the main parsing data
@@ -122,8 +123,10 @@ class Channel(chn_class.Channel):
 
         """
 
+        Logger.Trace(resultSet)
+
         title = resultSet["name"]
-        key = resultSet["key"]
+        key = resultSet.get("key", resultSet["abstract_key"])
         url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=getseasons/ak=%s" % (key,)
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
@@ -133,7 +136,8 @@ class Channel(chn_class.Channel):
         desc = resultSet.get("synopsis", "")
         item.description = desc
 
-        channel = resultSet.get("station", "folder").lower()
+        # sometimes the `"station": False` instead of a string
+        channel = str(resultSet.get("station", "folder")).lower()
         if channel in self.largeIconSet:
             item.icon = self.largeIconSet[channel]
             item.thumb = self.largeIconSet[channel]
