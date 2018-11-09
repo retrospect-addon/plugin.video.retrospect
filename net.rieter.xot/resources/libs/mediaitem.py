@@ -404,7 +404,7 @@ class MediaItem:
             pass
 
         # now set all the art to prevent duplicate calls to Kodi
-        if self.fanart and not AddonSettings.HideFanart():
+        if self.fanart and not AddonSettings.hide_fanart():
             item.setArt({'thumb': self.thumb, 'icon': self.icon, 'fanart': self.fanart})
         else:
             item.setArt({'thumb': self.thumb, 'icon': self.icon})

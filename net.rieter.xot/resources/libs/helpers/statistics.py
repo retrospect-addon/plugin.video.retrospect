@@ -143,7 +143,7 @@ class Statistics:
         """
 
         try:
-            if not AddonSettings.SendUsageStatistics():
+            if not AddonSettings.send_usage_statistics():
                 Logger.Debug("Not sending statistics because the configuration does not allow this.")
                 return
 

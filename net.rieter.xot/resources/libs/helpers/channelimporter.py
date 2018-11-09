@@ -583,7 +583,7 @@ class ChannelIndex:
 
         """
 
-        hide_first_time = AddonSettings.HideFirstTimeMessages()
+        hide_first_time = AddonSettings.hide_first_time_messages()
         if channel_info.firstTimeMessage:
             if not hide_first_time:
                 Logger.Info("Showing first time message '%s' for channel chn_%s.",

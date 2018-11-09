@@ -122,7 +122,7 @@ class Plugin(ParameterParser):
 
             # Show initial start if not in a session
             # now show the list
-            if AddonSettings.ShowCategories():
+            if AddonSettings.show_categories():
                 self.ShowCategories()
             else:
                 self.ShowChannelList()
@@ -292,7 +292,7 @@ class Plugin(ParameterParser):
             xbmcItem.setProperty(self.propertyRetrospect, "true")
             xbmcItem.setProperty(self.propertyRetrospectCategory, "true")
 
-            if not AddonSettings.HideFanart():
+            if not AddonSettings.hide_fanart():
                 xbmcItem.setArt({'fanart': fanart})
 
             url = self._CreateActionUrl(None, action=self.actionListCategory, category=category)
@@ -482,7 +482,7 @@ class Plugin(ParameterParser):
         try:
             item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
-            if (item.isDrmProtected or item.isPaid) and AddonSettings.ShowDrmPaidWarning():
+            if (item.isDrmProtected or item.isPaid) and AddonSettings.show_drm_paid_warning():
                 if item.isDrmProtected:
                     Logger.Debug("Showing DRM Warning message")
                     title = LanguageHelper.get_localized_string(LanguageHelper.DrmTitle)
@@ -823,7 +823,7 @@ class Plugin(ParameterParser):
         
         """
 
-        languages = AddonSettings.GetAvailableCountries(asCountryCodes=True)
+        languages = AddonSettings.get_available_countries(as_country_codes=True)
 
         if language is not None and language not in languages:
             Logger.Warning("Missing language: %s", language)

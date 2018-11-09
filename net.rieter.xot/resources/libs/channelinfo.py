@@ -128,7 +128,7 @@ class ChannelInfo:
                                # "Tagline": description,
                                "Plot": description})
 
-        if AddonSettings.HideFanart():
+        if AddonSettings.hide_fanart():
             return item
 
         if self.fanart is not None:

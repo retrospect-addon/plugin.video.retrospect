@@ -170,7 +170,7 @@ class LanguageHelper:
 
         """
 
-        value = AddonSettings.GetLocalizedString(string_id)
+        value = AddonSettings.get_localized_string(string_id)
         # value = xbmc.getLocalizedString(string_id)
         # print "%s - %s" % (string_id, value)
         if split_on_pipes and "|" in value:

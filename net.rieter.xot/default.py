@@ -40,7 +40,7 @@ def run_plugin():
         from urihandler import UriHandler
 
         from addonsettings import AddonSettings
-        AddonSettings.SetLanguage()
+        AddonSettings.set_language()
 
         from textures import TextureHandler
 

@@ -22,7 +22,7 @@ class Adaptive:
 
         # A{SSM} -> not implemented
         # R{SSM} -> raw format
-        # B{SSM} -> base64 format
+        # B{SSM} -> base64 format URL encoded (b{ssmm} will not URL encode)
         # D{SSM} -> decimal format
 
         The generic format for a LicenseKey is:

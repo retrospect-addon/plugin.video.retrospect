@@ -244,7 +244,7 @@ class Channel(chn_class.Channel):
         # webvttPath / samiPath
         # loginRequired
         isPremium = resultSet.get("loginRequired", False)
-        if isPremium and AddonSettings.HidePremiumItems():
+        if isPremium and AddonSettings.hide_premium_items():
             Logger.Debug("Found premium item, hiding it.")
             return None
 
