@@ -637,6 +637,9 @@ class Channel(chn_class.Channel):
                 url = self.GetVerifiableVideoUrl(url)
                 part.AppendMediaStream(url, q[1])
 
+            elif "[empty]" in url:
+                Logger.Debug("Found post-live url with '[empty]' in it. Ignoring this.")
+                continue
             else:
                 part.AppendMediaStream(url, q[1])
 

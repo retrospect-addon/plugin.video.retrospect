@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: ViaFree based channels without a season/episode number broken (Fixes #996)
+* Fixed: some ViaFree videos that were just live did not play (Fixes #1050)
 
 [I]Previous changes[/I]
+* Fixed: ViaFree based channels without a season/episode number broken (Fixes #996)
 * Fixed: subtitle issue with some Swedish channels (Fixes #993)
 * Fixed: ViaSat channels split into Viasat.se/.no and non-api channels
 * Fixed: MTG changed their API again (Fixes #973)
