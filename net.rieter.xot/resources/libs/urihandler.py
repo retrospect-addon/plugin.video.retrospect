@@ -216,6 +216,22 @@ class UriHandler(object):
             Logger.Trace("Found cookie '%s'", cookies[0].name)
             return cookies[0]
 
+    # noinspection PyProtectedMember,PyTypeChecker
+    @staticmethod
+    def delete_cookie(name=None, domain=None):
+        cookie_jar = UriHandler.Instance().cookieJar
+        if domain not in cookie_jar._cookies:
+            Logger.Debug("No cookies were found for '%s'", domain)
+            return
+
+        if name is None:
+            cookie_jar.clear(domain=domain)
+        else:
+            cookie_jar.clear(name=name, domain=domain)
+
+        if UriHandler.Instance().cookieJarFile:
+            cookie_jar.save()
+
     @staticmethod
     def GetExtensionFromUrl(url):
         """ determines the file extension for a certain URL
