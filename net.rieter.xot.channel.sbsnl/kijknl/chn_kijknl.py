@@ -3,6 +3,7 @@ import datetime
 import mediaitem
 import chn_class
 from helpers.subtitlehelper import SubtitleHelper
+from parserdata import ParserData
 
 from streams.m3u8 import M3u8
 from streams.mpd import Mpd
@@ -37,7 +38,12 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.baseUrl = "https://www.kijk.nl"
         # Just retrieve a single page with 500 items (should be all)
-        self.mainListUri = "https://api.kijk.nl/v1/default/sections/programs-abc-0123456789abcdefghijklmnopqrstuvwxyz?limit=350&offset=0"
+
+        use_html = False
+        if use_html:
+            self.mainListUri = "https://www.kijk.nl/programmas"
+        else:
+            self.mainListUri = "https://api.kijk.nl/v1/default/sections/programs-abc-0123456789abcdefghijklmnopqrstuvwxyz?limit=350&offset=0"
 
         self.__channelId = self.channelCode
         if self.channelCode == 'veronica':
@@ -63,6 +69,15 @@ class Channel(chn_class.Channel):
                             preprocessor=self.AddOthers,
                             parser=("items", ), creator=self.CreateJsonEpisodeItem)
 
+        self._AddDataParser("https://www.kijk.nl/programmas", matchType=ParserData.MatchExact,
+                            name="Mainlist from HTML", json=True,
+                            preprocessor=self.ExtractMainListJson)
+
+        self._AddDataParser("https://api.kijk.nl/v2/templates/page/format/",
+                            name="Videos from the main show format page", json=True,
+                            parser=("components", 3, "data", "items", 2, "data", "items"),
+                            creator=self.CreateJsonSeasonItem)
+
         self._AddDataParser("#lastweek",
                             name="Last week listing", json=True,
                             preprocessor=self.ListDates)
@@ -75,9 +90,10 @@ class Channel(chn_class.Channel):
                             name="VideoItems Json", json=True,
                             parser=(), creator=self.CreateJsonSearchItem)
 
-        self._AddDataParser("https://api.kijk.nl/v1/default/sections/series",
-                            name="VideoItems Json", json=True,
-                            parser=("items", ), creator=self.CreateJsonVideoItem)
+        self._AddDataParsers(("https://api.kijk.nl/v1/default/sections/series",
+                              "https://api.kijk.nl/v1/default/seasons/"),
+                             name="VideoItems Json", json=True,
+                             parser=("items", ), creator=self.CreateJsonVideoItem)
 
         self._AddDataParser("https://api.kijk.nl/v2/default/sections/popular",
                             name="Popular items Json", json=True,
@@ -98,7 +114,24 @@ class Channel(chn_class.Channel):
         #  Grand Designs has almost all encrypted/non-encrypted/brigthcove streams
 
         # ====================================== Actual channel setup STOPS here =======================================
+        UriHandler.SetCookie(name="OPTOUTMULTI", value="0:0%7Cc5:0%7Cc1:0%7Cc4:0%7Cc3:0%7Cc2:0", domain=".kijk.nl")
         return
+
+    def ExtractMainListJson(self, data):
+        data, items = self.AddOthers(data)
+        start_string = "window.__REDUX_STATE__ = "
+        start_data = data.index(start_string)
+        end_data = data.index("</script><script async=")
+        data = data[start_data + len(start_string):end_data]
+        data = JsonHelper(data)
+        letters = data.GetValue("reduxAsyncConnect", "page", "components", 1, "data", "items", 1, "data", "items")
+        for letter_data in letters:
+            letter_data = letter_data["data"]
+            Logger.Trace("Processing '%s'", letter_data["title"])
+            for item in letter_data["items"]:
+                episode = self.CreateJsonEpisodeItem(item)
+                items.append(episode)
+        return data, items
 
     def AddOthers(self, data):
         """Performs pre-process actions for data processing/
@@ -208,6 +241,27 @@ class Channel(chn_class.Channel):
                 return self.CreateJsonVideoItem(resultSet, prepend_serie=True)
         return None
 
+    def CreateJsonSeasonItem(self, result_set):
+        Logger.Trace(result_set)
+        # {
+        #     "seasonNumber": 3,
+        #     "id": "season-3",
+        #     "episodesId": "achtergeslotendeuren.net5-season-3-episodes",
+        #     "clipsId": "achtergeslotendeuren.net5-season-3-clips",
+        #     "title": "Seizoen 3",
+        #     "format": "achtergeslotendeuren",
+        #     "channel": "net5",
+        #     "episodesLink": "https://api.kijk.nl/v1/default/seasons/achtergeslotendeuren.net5/3/episodes",
+        #     "clipsLink": "https://api.kijk.nl/v1/default/seasons/achtergeslotendeuren.net5/3/clips"
+        # }
+        # https://api.kijk.nl/v1/default/seasons/achtergeslotendeuren.net5/2/episodes?limit=100&offset=1
+
+        url = "{episodesLink}?limit=100&offset=1".format(**result_set)
+        item = mediaitem.MediaItem(result_set["title"], url)
+        item.fanart = self.parentItem.fanart
+        item.thumb = self.parentItem.thumb
+        return item
+
     def CreateJsonEpisodeItem(self, resultSet):
         Logger.Trace(resultSet)
 
@@ -216,7 +270,13 @@ class Channel(chn_class.Channel):
             return None
 
         title = resultSet["title"]
-        url = "https://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % resultSet
+
+        use_season = False
+        if use_season:
+            url = "https://api.kijk.nl/v2/templates/page/format/{id}".format(**resultSet)
+        else:
+            url = "https://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % resultSet
+
         item = mediaitem.MediaItem(title, url)
         item.description = resultSet.get("synopsis", None)
 
@@ -224,6 +284,8 @@ class Channel(chn_class.Channel):
             item.fanart = resultSet["images"]["retina_image_pdp_header"]
         if "retina_image" in resultSet["images"]:
             item.thumb = resultSet["images"]["retina_image"]
+        elif "nonretina_image" in resultSet["images"]:
+            item.thumb = resultSet["images"]["nonretina_image"]
 
         return item
 
