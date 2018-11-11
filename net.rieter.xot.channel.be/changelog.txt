@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: possible caching issue with VRT.nu login
+* Fixed: Stievie login broke (Fixes 1053)
 
 [I]Previous Changes[/I]
+* Fixed: possible caching issue with VRT.nu login
 * Fixed: VRT.nu live streams (Fixes #1028)
 * Fixed: empty category listings in VRT.nu (Fixes #1024)
 * Fixed: missing episodes for VRT.nu (Fixes #1021)

@@ -1,5 +1,6 @@
 # coding=utf-8
 import base64
+import random
 import time
 import datetime
 import uuid
@@ -11,7 +12,7 @@ from mediaitem import MediaItem
 from streams.mpd import Mpd
 from vault import Vault
 from urihandler import UriHandler
-from addonsettings import AddonSettings
+from addonsettings import AddonSettings, LOCAL
 from streams.m3u8 import M3u8
 from regexer import Regexer
 from xbmcwrapper import XbmcWrapper
@@ -119,7 +120,7 @@ class Channel(chn_class.Channel):
             # self.mainListUri = "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0"
             self.mainListUri = "https://channels.medialaan.io/channels/v1/channels?preview=false"
             self._AddDataParser(self.mainListUri,
-                                json=True,
+                                json=True,  # requiresLogon=True,  # if we need premium for channels
                                 preprocessor=self.StievieMenu,
                                 name="JSON Channel overview",
                                 parser=("response", "channels"),
@@ -188,6 +189,7 @@ class Channel(chn_class.Channel):
         self.__signature = None
         self.__signatureTimeStamp = None
         self.__userId = None
+        self.__hasPremium = False
         self.__adaptiveStreamingAvailable = \
             AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
 
@@ -241,21 +243,34 @@ class Channel(chn_class.Channel):
         UriHandler.SetCookie(name="pws", value="functional|analytics|content_recommendation|targeted_advertising|social_media", domain=domain)
 
     def LogOn(self):
-        signatureSettings = "mediaan_signature"
-        signatureSetting = AddonSettings.GetSetting(signatureSettings)
-        # apiKey = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
-        apiKey = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
-        if signatureSetting and "|" not in signatureSetting:
-            url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo"
-            data = "APIKey=%s" \
-                   "&sdk=js_7.4.30" \
-                   "&login_token=%s" % (apiKey, signatureSetting, )
-            logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-            if self.__ExtractSessionData(logonData, signatureSettings):
+        signature_settings = "mediaan_signature"
+        login_token = AddonSettings.GetSetting(signature_settings, store=LOCAL)
+        api_key = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
+        # api_key = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
+
+        # Common Query Parameters between the acounts.login and the accounts.getAccountInfo calls
+        # "&include=profile%%2Cdata" \
+        # "&includeUserInfo=true" \
+        # "&includeSSOToken=true" \
+        # "&sdk=js_latest" \
+        common_data = "APIKey=%s" \
+                      "&authMode=cookie" % (api_key,)
+
+        login_cookie = UriHandler.GetCookie("gmid", domain=".gigya.com")
+
+        if login_token and "|" not in login_token and login_cookie is not None:
+            # only retrieve the account information using the cookie and the token
+            account_info_url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo?{}" \
+                               "&login_token={}".format(common_data, login_token)
+            account_info = UriHandler.Open(account_info_url, proxy=self.proxy, noCache=True)
+
+            # See if it was successfull
+            if self.__ExtractSessionData(account_info, signature_settings):
                 return True
             Logger.Warning("Failed to extend the VTM.be session.")
 
-        Logger.Info("Logging onto VTM.be")
+        # We actually need to login to stievie or VTM
+        Logger.Info("Logging onto Stievie.be/VTM.be")
         v = Vault()
         password = v.GetSetting("mediaan_password")
         username = AddonSettings.GetSetting("mediaan_username")
@@ -267,19 +282,47 @@ class Channel(chn_class.Channel):
                 # displayTime=5000
             )
             return False
-
         Logger.Debug("Using: %s / %s", username, "*" * len(password))
-        url = "https://accounts.eu1.gigya.com/accounts.login"
-        data = "loginID=%s" \
-               "&password=%s" \
-               "&targetEnv=jssdk" \
-               "&APIKey=%s" \
-               "&includeSSOToken=true" \
-               "&authMode=cookie" % \
-               (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password), apiKey)
 
-        logonData = UriHandler.Open(url, params=data, proxy=self.proxy, noCache=True)
-        return self.__ExtractSessionData(logonData, signatureSettings)
+        # clean older data
+        UriHandler.delete_cookie(domain=".gigya.com")
+
+        # first we need a random context_id R<10 numbers>
+        context_id = int(random.random() * 8999999999) + 1000000000
+
+        # then we do an initial bootstrap call, which retrieves the `gmid` and `ucid` cookies
+        url = "https://accounts.eu1.gigya.com/accounts.webSdkBootstrap?apiKey={}" \
+              "&pageURL=https%3A%2F%2Fwatch.stievie.be%2F&format=jsonp" \
+              "&callback=gigya.callback&context=R{}".format(api_key, context_id)
+        init_login = UriHandler.Open(url, proxy=self.proxy, noCache=True)
+        init_data = JsonHelper(init_login)
+        if init_data.GetValue("statusCode") != 200:
+            Logger.Error("Error initiating login")
+
+        # actually do the login request, which requires an async call to retrieve the result
+        login_url = "https://accounts.eu1.gigya.com/accounts.login" \
+                    "?context={0}" \
+                    "&saveResponseID=R{0}".format(context_id)
+        login_data = "loginID=%s" \
+                     "&password=%s" \
+                     "&context=R%s" \
+                     "&targetEnv=jssdk" \
+                     "&sessionExpiration=-2" \
+                     "&%s" % \
+                     (HtmlEntityHelper.UrlEncode(username), HtmlEntityHelper.UrlEncode(password),
+                      context_id, common_data)
+        UriHandler.Open(login_url, params=login_data, proxy=self.proxy, noCache=True)
+
+        #  retrieve the result
+        login_retrieval_url = "https://accounts.eu1.gigya.com/socialize.getSavedResponse" \
+                              "?APIKey={0}" \
+                              "&saveResponseID=R{1}" \
+                              "&noAuth=true" \
+                              "&sdk=js_latest" \
+                              "&format=json" \
+                              "&context=R{1}".format(api_key, context_id)
+        login_response = UriHandler.Open(login_retrieval_url, proxy=self.proxy, noCache=True)
+        return self.__ExtractSessionData(login_response, signature_settings)
 
     # region Stievie listings/menus
     def StievieMenu(self, data):
@@ -353,7 +396,7 @@ class Channel(chn_class.Channel):
     def StievieCreateChannelItem(self, resultSet):
         Logger.Trace(resultSet)
 
-        if resultSet['premium']:
+        if resultSet['premium'] and not self.__hasPremium:
             return None
 
         item = MediaItem(resultSet["name"], "#channel")
@@ -939,9 +982,10 @@ class Channel(chn_class.Channel):
         signatureSetting = logonJson.GetValue("sessionInfo", "login_token")
         if signatureSetting:
             Logger.Info("Found 'login_token'. Saving it.")
-            AddonSettings.SetSetting(signatureSettings, signatureSetting.split("|")[0])
+            AddonSettings.SetSetting(signatureSettings, signatureSetting.split("|")[0], store=LOCAL)
 
         self.__signature = logonJson.GetValue("UIDSignature")
         self.__userId = logonJson.GetValue("UID")
         self.__signatureTimeStamp = logonJson.GetValue("signatureTimestamp")
+        self.__hasPremium = logonJson.GetValue("premium")
         return True
