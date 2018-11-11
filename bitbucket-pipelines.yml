@@ -12,7 +12,7 @@ pipelines:
           - node-scanner
         script: 
           - npm install -g sonarqube-scanner
-          - sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=basrieter-bitbucket -Dsonar.projectKey=Retrospect -Dsonar.login=$SONAR_TOKEN -Dsonar.sources=. -X
+          - sonar-scanner -Dsonar.login=$SONAR_TOKEN
 
 definitions:
   caches:
