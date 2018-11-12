@@ -1,9 +1,10 @@
 ﻿[B]Changelog[/B]
+* Updated: SVT textures thanks to Johan Asplund (Fixes #1049)
+
+[I]Previous changes[/I]
 * Added: DPlay.dk for Danish videos via the Dplay platform (Fixes #959)
 * Fixed: improper dates in Dplay.se and related channels (See #1042)
 * Fixed: missed the "premium/paid" on videos still to be broad casted (Fixes #1042)
-
-[I]Previous changes[/I]
 * Fixed: SVT Listing of Live Channels broke (Fixes #1023)
 * Fixed: TV4/TV7.se were showing incorrect dates for the videos (Fixes #1004)
 * Fixed: some TV4 stream did not work if the Adaptive Stream add-on was not used (Fixes #988)
