@@ -1,12 +1,13 @@
-[B]Retrospect v4.1.7~beta31 - Changelog - 2018-11-05[/B]
+[B]Retrospect v4.1.7~beta32 - Changelog - 2018-11-12[/B]
 
 [B]Framework related[/B]
--
+* Added: UriHandler.delete_cookie()
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Using other NRK.no API (Fixes #1033)
-* Fixed: Omroep Flevoland live streams (See #1032)
-* Fixed: RTV Drenthe live streams (See #1032)
+* Updated: SVT textures thanks to Johan Asplund (Fixes #1049)
+* Fixed: moved to the new RTL XL API (Fixes #1052)
+* Fixed: Stievie login broke (Fixes 1053)
+* Fixed: some ViaFree videos that were just live did not play (Fixes #1050)
