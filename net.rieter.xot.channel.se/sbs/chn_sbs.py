@@ -554,7 +554,7 @@ class Channel(chn_class.Channel):
         m3u8url = videoInfo["streaming"]["hls"]["url"]
 
         m3u8data = UriHandler.Open(m3u8url, self.proxy)
-        if AddonSettings.UseAdaptiveStreamAddOn():
+        if AddonSettings.use_adaptive_stream_add_on():
             stream = part.AppendMediaStream(m3u8url, 0)
             item.complete = True
             M3u8.set_input_stream_addon_input(stream, self.proxy)

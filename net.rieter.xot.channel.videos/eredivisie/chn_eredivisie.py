@@ -203,7 +203,7 @@ class Channel(chn_class.Channel):
 
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        if not AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
+        if not AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
             Logger.Error("Cannot playback video without adaptive stream addon")
             return item
 

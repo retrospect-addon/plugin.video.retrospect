@@ -47,7 +47,7 @@ def run_plugin():
         # update the loglevel
         Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
 
-        use_caching = AddonSettings.CacheHttpResponses()
+        use_caching = AddonSettings.cache_http_responses()
         cache_dir = None
         if use_caching:
             cache_dir = Config.cacheDir
@@ -56,7 +56,7 @@ def run_plugin():
         from envcontroller import EnvController
         from environments import Environments
 
-        ignore_ssl_errors = AddonSettings.IgnoreSslErrors()
+        ignore_ssl_errors = AddonSettings.ignore_ssl_errors()
         UriHandler.CreateUriHandler(cacheDir=cache_dir,
                                     cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"),
                                     ignoreSslErrors=ignore_ssl_errors)

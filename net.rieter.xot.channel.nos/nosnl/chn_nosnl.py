@@ -221,7 +221,7 @@ class Channel(chn_class.Channel):
                     bitrate=qualities.get(stream.get("name", "other"), 0)
                 )
                 item.complete = True
-            # elif AddonSettings.UseAdaptiveStreamAddOn():
+            # elif AddonSettings.use_adaptive_stream_add_on():
             #     contentType, url = UriHandler.Header(url, self.proxy)
             #     stream = part.AppendMediaStream(url, 0)
             #     M3u8.SetInputStreamAddonInput(stream, self.proxy)

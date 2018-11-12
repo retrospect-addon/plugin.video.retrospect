@@ -422,7 +422,7 @@ class Channel(chn_class.Channel):
             Logger.Error("Cannot update live stream that is not an M3u8: %s", item.url)
 
         part = item.CreateNewEmptyMediaPart()
-        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
+        adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
         if adaptiveAvailable:
             stream = part.AppendMediaStream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
@@ -466,7 +466,7 @@ class Channel(chn_class.Channel):
 
         drmKey = assetData.get_value("drm")
         drmProtected = drmKey is not None
-        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=drmProtected)
+        adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=drmProtected)
         part = item.CreateNewEmptyMediaPart()
         srt = None
         for targetUrl in assetData.get_value("targetUrls"):

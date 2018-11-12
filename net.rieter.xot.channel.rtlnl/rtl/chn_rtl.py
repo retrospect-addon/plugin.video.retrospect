@@ -395,7 +395,7 @@ class Channel(chn_class.Channel):
         Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
         part.HttpHeaders["Range"] = ''
 
-        if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
             stream = part.AppendMediaStream(m3u8Url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, part.HttpHeaders)
             item.complete = True

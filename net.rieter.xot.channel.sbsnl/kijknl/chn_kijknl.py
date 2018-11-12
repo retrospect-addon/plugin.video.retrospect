@@ -124,7 +124,7 @@ class Channel(chn_class.Channel):
         end_data = data.index("</script><script async=")
         data = data[start_data + len(start_string):end_data]
         data = JsonHelper(data)
-        letters = data.GetValue("reduxAsyncConnect", "page", "components", 1, "data", "items", 1, "data", "items")
+        letters = data.get_value("reduxAsyncConnect", "page", "components", 1, "data", "items", 1, "data", "items")
         for letter_data in letters:
             letter_data = letter_data["data"]
             Logger.Trace("Processing '%s'", letter_data["title"])
@@ -334,7 +334,7 @@ class Channel(chn_class.Channel):
                                })
         json = JsonHelper(data)
 
-        useAdaptiveWithEncryption = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+        useAdaptiveWithEncryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
         # useAdaptiveWithEncryption = False
         mpdInfo = json.get_value("entitlements", "play")
         part = item.CreateNewEmptyMediaPart()
@@ -366,7 +366,7 @@ class Channel(chn_class.Channel):
 
         # Try the plain M3u8 streams
         m3u8Url = json.get_value("playlist")
-        useAdaptive = AddonSettings.UseAdaptiveStreamAddOn()
+        useAdaptive = AddonSettings.use_adaptive_stream_add_on()
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url paramter instead of an empty m3u8 file
         Logger.Debug("Trying standard M3u8 streams.")

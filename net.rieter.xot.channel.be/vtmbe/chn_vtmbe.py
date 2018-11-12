@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
         self.__userId = None
         self.__hasPremium = False
         self.__adaptiveStreamingAvailable = \
-            AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+            AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
 
         # Mappings from the normal URL (which has all shows with actual videos and very little
         # video-less shows) to the JSON ids. Loading can be done using:
@@ -832,7 +832,7 @@ class Channel(chn_class.Channel):
             return item
 
         # We can do this without DRM apparently.
-        if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False) or True:
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=False) or True:
             # get the cookies
             licenseServerUrl = jsonData.get_value("response", "drm", "format", "hls-aes", "licenseServerUrl")
             UriHandler.Open(licenseServerUrl, proxy=self.proxy, noCache=True)
@@ -892,7 +892,7 @@ class Channel(chn_class.Channel):
         # we need a token:
         token = self.__GetToken()
 
-        # deviceId = AddonSettings.GetClientId()
+        # deviceId = AddonSettings.get_client_id()
         mediaUrl = "https://vod.medialaan.io/vod/v2/videos/" \
                    "%s" \
                    "/watch?deviceId=%s" % (

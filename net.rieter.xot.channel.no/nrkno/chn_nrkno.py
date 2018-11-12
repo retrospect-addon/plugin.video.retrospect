@@ -377,7 +377,7 @@ class Channel(chn_class.Channel):
         if not stream_data:
             return item
 
-        use_adaptive = AddonSettings.UseAdaptiveStreamAddOn()
+        use_adaptive = AddonSettings.use_adaptive_stream_add_on()
         stream_data = stream_data[0]
         part = item.CreateNewEmptyMediaPart()
         if "hlsUrl" in stream_data:
@@ -418,7 +418,7 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
 
         if encrypted:
-            use_adaptive = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+            use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
             if not use_adaptive:
                 Logger.Error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
                 return item
@@ -427,7 +427,7 @@ class Channel(chn_class.Channel):
             M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers, license_key=key)
             item.complete = True
         else:
-            use_adaptive = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
+            use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
             if use_adaptive:
                 stream = part.AppendMediaStream(url, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy, headers=headers)

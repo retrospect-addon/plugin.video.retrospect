@@ -230,7 +230,7 @@ class Menu(ParameterParser):
         bitrate_options = "Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000"\
             .split("|")
 
-        current_bitrate = AddonSettings.GetMaxChannelBitrate(self.channelObject)
+        current_bitrate = AddonSettings.get_max_channel_bitrate(self.channelObject)
         Logger.Debug("Found bitrate for %s: %s", self.channelObject, current_bitrate)
         current_bitrate_index = 0 if current_bitrate not in bitrate_options \
             else bitrate_options.index(current_bitrate)

@@ -147,7 +147,7 @@ class Channel(chn_class.Channel):
         url = "https://rrr.sz.xlcdn.com/?account=atvijf&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
 
         part = item.CreateNewEmptyMediaPart()
-        if AddonSettings.UseAdaptiveStreamAddOn():
+        if AddonSettings.use_adaptive_stream_add_on():
             stream = part.AppendMediaStream(url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)
         else:

@@ -452,7 +452,7 @@ class Channel(chn_class.Channel):
         Logger.Debug("Updating a (Live) video item")
 
         part = item.CreateNewEmptyMediaPart()
-        if AddonSettings.UseAdaptiveStreamAddOn():
+        if AddonSettings.use_adaptive_stream_add_on():
             part = item.CreateNewEmptyMediaPart()
             stream = part.AppendMediaStream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)

@@ -151,7 +151,7 @@ class Statistics:
                 "v": 1,
                 "t": "event",
                 "tid": Config.googleAnalyticsId,
-                "cid": AddonSettings.GetClientId(),
+                "cid": AddonSettings.get_client_id(),
                 "ec": HtmlEntityHelper.url_encode(category),
                 # "ec": HtmlEntityHelper.url_encode("Test"),
                 "ea": HtmlEntityHelper.url_encode(HtmlEntityHelper.convert_html_entities(action)),
@@ -180,7 +180,7 @@ class Statistics:
             Logger.Debug("Sending statistics: %s", data)
 
             # now we need something async without caching
-            user_agent = AddonSettings.GetUserAgent()
+            user_agent = AddonSettings.get_user_agent()
             if user_agent:
                 result = UriHandler.Open(url, additionalHeaders={"User-Agent": user_agent}, params=data, noCache=True)
             else:

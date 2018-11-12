@@ -978,7 +978,7 @@ class Channel(chn_class.Channel):
                 jsonUrls = Regexer.DoRegex('<npo-player media-id="([^"]+)"', htmlData)
 
             for episodeId in jsonUrls:
-                if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True):
+                if AddonSettings.use_adaptive_stream_add_on(with_encryption=True):
                     return self.__UpdateDashItem(item, episodeId)
                 return self.__UpdateVideoItem(item, episodeId)
 
@@ -1047,7 +1047,7 @@ class Channel(chn_class.Channel):
             # s = self.GetVerifiableVideoUrl(s)
             part.AppendMediaStream(s, b)
 
-        if False and AddonSettings.UseAdaptiveStreamAddOn():
+        if False and AddonSettings.use_adaptive_stream_add_on():
             NpoStream.add_mpd_stream_from_npo(None, episodeId, part, proxy=self.proxy)
 
         return item

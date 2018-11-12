@@ -615,7 +615,7 @@ class Channel(chn_class.Channel):
 
         part = item.CreateNewEmptyMediaPart()
 
-        if AddonSettings.UseAdaptiveStreamAddOn() and False:
+        if AddonSettings.use_adaptive_stream_add_on() and False:
             stream = part.AppendMediaStream(m3u8Url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True

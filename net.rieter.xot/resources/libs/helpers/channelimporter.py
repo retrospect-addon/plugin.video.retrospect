@@ -243,7 +243,7 @@ class ChannelIndex:
         if channels_updated:
             Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
             AddonSettings.UpdateAddOnSettingsWithChannels(valid_channels, Config)
-            AddonSettings.UpdateUserAgent()
+            AddonSettings.update_user_agent()
         else:
             Logger.Debug("No channel changes found. Skipping add-on configuration for channels.")
             # TODO: perhaps we should check that the settings.xml is correct and not broken?

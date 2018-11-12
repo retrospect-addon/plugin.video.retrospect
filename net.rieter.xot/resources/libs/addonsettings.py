@@ -28,16 +28,17 @@ LOCAL = "local"
 class AddonSettings(object):
     """ Static Class for retrieving XBMC Addon settings """
 
-    __NoProxy = True
+    __NO_PROXY = True
 
     # these are static properties that store the settings. Creating them each time is causing major slow-down
-    __UserAgent = None
-    __KodiVersion = None
+    __user_agent = None
+    __kodi_version = None
 
     __PROXY_SETTING = "proxy"
     __LOCAL_IP_SETTING = "local_ip"
     __USER_AGENT_SETTING = "user_agent"
     __MD5_HASH_VALUE = "md_hash_value"
+    __CLIENT_ID = "client_id"
 
     #region Setting-stores properties and intialization
     __setting_stores = {}
@@ -104,8 +105,8 @@ class AddonSettings(object):
         """ Clears the cached add-on settings. This will force a reload for the next INSTANCE
         of an AddonSettings class. """
 
-        for storeType in (KODI, LOCAL):
-            store = AddonSettings.__setting_stores.pop(storeType, None)
+        for store_type in (KODI, LOCAL):
+            store = AddonSettings.__setting_stores.pop(store_type, None)
             if store:
                 del store
 
@@ -121,10 +122,10 @@ class AddonSettings(object):
 
         """
 
-        if AddonSettings.__KodiVersion is None:
-            AddonSettings.__KodiVersion = xbmc.getInfoLabel("system.buildversion")
+        if AddonSettings.__kodi_version is None:
+            AddonSettings.__kodi_version = xbmc.getInfoLabel("system.buildversion")
 
-        return AddonSettings.__KodiVersion
+        return AddonSettings.__kodi_version
 
     @staticmethod
     def is_min_version(min_value):
@@ -453,62 +454,72 @@ class AddonSettings(object):
         AddonSettings.store(LOCAL).set_setting(AddonSettings.__MD5_HASH_VALUE, hash_value)
 
     @staticmethod
-    def GetClientId():
-        CLIENT_ID = "client_id"
-        clientId = AddonSettings.store(LOCAL).get_setting(CLIENT_ID)
-        if not clientId:
-            clientId = AddonSettings.store(KODI).get_setting(CLIENT_ID)
-            if clientId:
-                Logger.Info("Moved ClientID to local storage")
-                AddonSettings.store(LOCAL).set_setting(CLIENT_ID, clientId)
-                return clientId
+    def get_client_id():
+        """ Retrieves the GUID for this specific client. If no GUID exists, it will generate a new
+        one.
 
-            clientId = str(uuid.uuid1())
-            Logger.Debug("Generating new ClientID: %s", clientId)
-            AddonSettings.store(LOCAL).set_setting(CLIENT_ID, clientId)
-        return clientId
+        :return: The Client ID GUID
+        :rtype: str
+
+        """
+
+        client_id = AddonSettings.store(LOCAL).get_setting(AddonSettings.__CLIENT_ID)
+        if not client_id:
+            client_id = AddonSettings.store(KODI).get_setting(AddonSettings.__CLIENT_ID)
+            if client_id:
+                Logger.Info("Moved ClientID to local storage")
+                AddonSettings.store(LOCAL).set_setting(AddonSettings.__CLIENT_ID, client_id)
+                return client_id
+
+            client_id = str(uuid.uuid1())
+            Logger.Debug("Generating new ClientID: %s", client_id)
+            AddonSettings.store(LOCAL).set_setting(AddonSettings.__CLIENT_ID, client_id)
+        return client_id
 
     @staticmethod
-    def UseAdaptiveStreamAddOn(withEncryption=False):
+    def use_adaptive_stream_add_on(with_encryption=False):
         """ Should we use the Adaptive Stream add-on?
 
-        :param withEncryption: do we need to decrypte script
-        :return: boolean
+        :param bool with_encryption: do we need to decrypte script
+
+        :return: Indication whether the Adaptive Stream add-on is available.
+        :rtype: bool
 
         """
 
         # check the Retrospect add-on setting perhaps?
-        useAddOn = \
+        use_add_on = \
             AddonSettings.store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
-        if not useAddOn:
+        if not use_add_on:
             Logger.Info("Adaptive Stream add-on disabled from Retrospect settings")
-            return useAddOn
+            return use_add_on
 
         # we should use it, so if we can't find it, it is not so OK.
-        adaptiveAddOnId = "inputstream.adaptive"
-        adaptiveAddOnInstalled = \
-            xbmc.getCondVisibility('System.HasAddon("{0}")'.format(adaptiveAddOnId)) == 1
+        adaptive_add_on_id = "inputstream.adaptive"
+        adaptive_add_on_installed = \
+            xbmc.getCondVisibility('System.HasAddon("{0}")'.format(adaptive_add_on_id)) == 1
 
-        if not adaptiveAddOnInstalled:
-            Logger.Warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptiveAddOnId)
+        if not adaptive_add_on_installed:
+            Logger.Warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptive_add_on_id)
             return False
 
-        kodiLeia = AddonSettings.is_min_version(18)
+        kodi_leia = AddonSettings.is_min_version(18)
         Logger.Info("Adaptive Stream add-on '%s' %s decryption support was found.",
-                    adaptiveAddOnId, "with" if kodiLeia else "without")
+                    adaptive_add_on_id, "with" if kodi_leia else "without")
 
-        if withEncryption:
-            return kodiLeia
+        if with_encryption:
+            return kodi_leia
 
-        return adaptiveAddOnInstalled
+        return adaptive_add_on_installed
 
     @staticmethod
-    def UpdateUserAgent():
+    def update_user_agent():
         """ Creates a user agent for this instance of XOT
 
         this is a very slow action on lower end systems (ATV and rPi) so we minimize the number of runs
 
         :return: Nothing
+        :rtype: None
 
         Actual:
         User-Agent: Kodi/16.1 (Windows NT 10.0; WOW64) App_Bitness/32 Version/16.1-Git:20160424-c327c53
@@ -543,74 +554,90 @@ class AddonSettings(object):
             uname = platform.uname()
             Logger.Trace(uname)
             if git:
-                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s Git:%s" % \
-                            (version, uname[0], uname[2], uname[4], version, git)
+                user_agent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s Git:%s" % \
+                             (version, uname[0], uname[2], uname[4], version, git)
             else:
-                userAgent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % \
-                            (version, uname[0], uname[2], uname[4], version)
+                user_agent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % \
+                             (version, uname[0], uname[2], uname[4], version)
         except:
             Logger.Warning("Error setting user agent", exc_info=True)
-            currentEnv = EnvController.GetPlatform(True)
+            current_env = EnvController.GetPlatform(True)
             # Kodi/14.2 (Windows NT 6.1; WOW64) App_Bitness/32 Version/14.2-Git:20150326-7cc53a9
-            userAgent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, currentEnv)
+            user_agent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, current_env)
 
         # now we store it
-        AddonSettings.store(LOCAL).set_setting(AddonSettings.__USER_AGENT_SETTING, userAgent)
-        AddonSettings.__UserAgent = userAgent
-        Logger.Info("User agent set to: %s", userAgent)
+        AddonSettings.store(LOCAL).set_setting(AddonSettings.__USER_AGENT_SETTING, user_agent)
+        AddonSettings.__user_agent = user_agent
+        Logger.Info("User agent set to: %s", user_agent)
         return
 
     @staticmethod
-    def GetUserAgent():
+    def get_user_agent():
         """ Retrieves a user agent string for this XBMC instance.
 
         :return: a user-agent string
+        :rtype: str
+
         """
 
-        if not AddonSettings.__UserAgent:
+        if not AddonSettings.__user_agent:
             # load and cache
-            userAgent = AddonSettings.store(LOCAL).get_setting(AddonSettings.__USER_AGENT_SETTING)
-            AddonSettings.__UserAgent = userAgent
+            user_agent = AddonSettings.store(LOCAL).get_setting(AddonSettings.__USER_AGENT_SETTING)
+            AddonSettings.__user_agent = user_agent
 
             # double check if the version of XBMC is still OK
-            if AddonSettings.__UserAgent:
+            if AddonSettings.__user_agent:
                 # noinspection PyNoneFunctionAssignment
                 version = AddonSettings.get_kodi_version()
 
-                if version not in AddonSettings.__UserAgent:
-                    old = AddonSettings.__UserAgent
+                if version not in AddonSettings.__user_agent:
+                    old = AddonSettings.__user_agent
                     # a new XBMC version was installed, update the User-agent
-                    AddonSettings.UpdateUserAgent()
+                    AddonSettings.update_user_agent()
                     Logger.Info("User agent updated due to Kodi version change from\n%s to\n%s",
-                                old, AddonSettings.__UserAgent)
+                                old, AddonSettings.__user_agent)
             else:
-                AddonSettings.UpdateUserAgent()
+                AddonSettings.update_user_agent()
                 Logger.Info("Set initial User agent version because it was missing.")
 
-        Logger.Debug("User agent retrieved from cache: %s", AddonSettings.__UserAgent)
-        return AddonSettings.__UserAgent
+        Logger.Debug("User agent retrieved from cache: %s", AddonSettings.__user_agent)
+        return AddonSettings.__user_agent
 
     @staticmethod
-    def CacheHttpResponses():
-        """ Returns True if the HTTP responses need to be cached """
+    def cache_http_responses():
+        """ Returns True if the HTTP responses need to be cached
+
+        :return: Incidation if HTTP(s) requests should be cached or not.
+        :rtype: bool
+
+        """
 
         return AddonSettings.store(KODI).get_boolean_setting("http_cache", default=True)
 
     @staticmethod
-    def IgnoreSslErrors():
-        """ Returns True if SSL errors should be ignored from Python """
+    def ignore_ssl_errors():
+        """ Returns True if SSL errors should be ignored from Python
+
+        :return: Indication if SSL certificate errors should be ignored
+        :rtype: bool
+
+        """
 
         return AddonSettings.store(KODI).get_boolean_setting("ignore_ssl_errors", default=False)
 
     @staticmethod
-    def GetMaxStreamBitrate(channel=None):
+    def get_max_stream_bitrate(channel=None):
         """Returns the maximum bitrate (kbps) for streams specified by the user
-        :type channel: Channel for which the stream needs to play.
+
+        :rtype: int
+        :returns: the maximum stream bitrate. If channel was provided, it will return the configured
+                  value for that channel.
+
         """
 
         setting = "Retrospect"
         if channel is not None:
-            setting = AddonSettings.GetMaxChannelBitrate(channel)
+            setting = AddonSettings.get_max_channel_bitrate(channel)
 
         if setting == "Retrospect":
             setting = AddonSettings.store(KODI).get_setting("stream_bitrate")
@@ -620,12 +647,14 @@ class AddonSettings(object):
         return int(setting or 8000)
 
     @staticmethod
-    def GetMaxChannelBitrate(channel):
+    def get_max_channel_bitrate(channel):
         """ Get the maximum channel bitrate configured for the channel. Keep in mind that if
         'Retrospect' was selected, the actual maximum stream bitrate is set by the overall settings.
 
         :param channel:     The channel to set the bitrate for
-        :return:            The bitrate for the channel as a string!
+
+        :rtype: int
+        :return: The bitrate for the channel as a string!
         """
         return AddonSettings.store(LOCAL).get_setting("bitrate", channel, default="Retrospect")
 
@@ -814,7 +843,7 @@ class AddonSettings(object):
 
         """
 
-        if AddonSettings.__NoProxy:
+        if AddonSettings.__NO_PROXY:
             return None
 
         prefix = AddonSettings.GetLocalIPHeaderCountryCodeForChannel(channel_info)
@@ -840,7 +869,7 @@ class AddonSettings(object):
         :return:             2 character ISO country code
 
         """
-        if AddonSettings.__NoProxy:
+        if AddonSettings.__NO_PROXY:
             return None
 
         countryCode = AddonSettings.store(LOCAL).\
@@ -875,7 +904,7 @@ class AddonSettings(object):
 
         """
 
-        if AddonSettings.__NoProxy:
+        if AddonSettings.__NO_PROXY:
             return None
 
         prefix = AddonSettings.GetProxyCountryCodeForChannel(channelInfo)
@@ -911,7 +940,7 @@ class AddonSettings(object):
 
         """
 
-        if AddonSettings.__NoProxy:
+        if AddonSettings.__NO_PROXY:
             return None
 
         countryCode = AddonSettings.store(LOCAL).\
@@ -1231,16 +1260,16 @@ class AddonSettings(object):
         """Prints the settings"""
 
         pattern = "%s\n%s: %s"
-        value = "%s: %s" % ("ClientId", AddonSettings.GetClientId())
-        value = pattern % (value, "MaxStreamBitrate", AddonSettings.GetMaxStreamBitrate())
+        value = "%s: %s" % ("ClientId", AddonSettings.get_client_id())
+        value = pattern % (value, "MaxStreamBitrate", AddonSettings.get_max_stream_bitrate())
         value = pattern % (value, "UseSubtitle", AddonSettings.UseSubtitle())
-        value = pattern % (value, "CacheHttpResponses", AddonSettings.CacheHttpResponses())
+        value = pattern % (value, "cache_http_responses", AddonSettings.cache_http_responses())
         value = pattern % (value, "Folder Prefx", "'%s'" % AddonSettings.GetFolderPrefix())
         value = pattern % (value, "Mix Folders & Videos", AddonSettings.MixFoldersAndVideos())
         value = pattern % (value, "Empty List Behaviour", AddonSettings.GetEmptyListBehaviour())
         value = pattern % (value, "ListLimit", AddonSettings.GetListLimit())
         value = pattern % (value, "Loglevel", AddonSettings.GetLogLevel())
-        value = pattern % (value, "Ignore SSL Errors", AddonSettings.IgnoreSslErrors())
+        value = pattern % (value, "Ignore SSL Errors", AddonSettings.ignore_ssl_errors())
         value = pattern % (value, "Geo Location", AddonSettings.hide_geo_locked_items_for_location(None, value_only=True))
         value = pattern % (value, "Filter Folders", AddonSettings.hide_restricted_folders())
         value = pattern % (value, "DRM/Paid Warning", AddonSettings.show_drm_paid_warning())
@@ -1256,7 +1285,7 @@ class AddonSettings(object):
         value = pattern % (value, "Show Finnish", AddonSettings.ShowChannelWithLanguage("fi"))
         value = pattern % (value, "Show Other languages", AddonSettings.ShowChannelWithLanguage(None))
 
-        if AddonSettings.__NoProxy:
+        if AddonSettings.__NO_PROXY:
             return value
 
         try:

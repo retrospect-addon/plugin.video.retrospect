@@ -269,7 +269,7 @@ class Vault:
                        for _ in range(length))
 
     def __GetPBK(self, pin):
-        salt = AddonSettings.GetClientId()
+        salt = AddonSettings.get_client_id()
         pbk = pyscrypt.hash(password=pin,
                             salt=salt,
                             N=2 ** 7,  # should be so that Raspberry Pi can handle it
