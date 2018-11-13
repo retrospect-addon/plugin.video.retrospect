@@ -56,7 +56,7 @@ class Channel:
         self.parentItem = None
 
         # The proxy to be used for this channel
-        self.proxy = AddonSettings.GetProxyForChannel(channelInfo)
+        self.proxy = AddonSettings.get_proxy_for_channel(channelInfo)
         self.localIP = AddonSettings.get_local_ip_header_for_channel(channelInfo)
 
         # More and more API's need a specific set of headers. This set is used for the self.mainListUri, and is set to
@@ -162,7 +162,7 @@ class Channel:
 
         """
 
-        AddonSettings.ShowSettings()
+        AddonSettings.show_settings()
         pass
 
     def CtMnRefresh(self, item):
@@ -353,7 +353,7 @@ class Channel:
                         oldCount - len(items), hideFolders)
 
         # Check for grouping or not
-        limit = AddonSettings.GetListLimit()
+        limit = AddonSettings.get_list_limit()
         folderItems = filter(lambda x: x.type.lower() == "folder", items)
 
         # we should also de-duplicate before calculating

@@ -40,7 +40,7 @@ from helpers.languagehelper import LanguageHelper
 from locker import LockWithDialog
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
-Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
+Logger.Instance().minLogLevel = AddonSettings.get_log_level()
 
 
 class Menu(ParameterParser):
@@ -77,7 +77,7 @@ class Menu(ParameterParser):
         """ Hides a specific channel """
 
         Logger.Info("Hiding channel: %s", self.channelObject)
-        AddonSettings.SetChannelVisiblity(self.channelObject, False)
+        AddonSettings.set_channel_visiblity(self.channelObject, False)
         self.refresh()
 
     def select_channels(self):
@@ -110,12 +110,12 @@ class Menu(ParameterParser):
         indices_to_add = filter(lambda i: i not in selected_indices, selected_channels)
         for i in indices_to_remove:
             Logger.Info("Hiding channel: %s", channels_to_show[i])
-            AddonSettings.SetChannelVisiblity(channels_to_show[i], False)
+            AddonSettings.set_channel_visiblity(channels_to_show[i], False)
             pass
 
         for i in indices_to_add:
             Logger.Info("Showing channel: %s", channels_to_show[i])
-            AddonSettings.SetChannelVisiblity(channels_to_show[i], True)
+            AddonSettings.set_channel_visiblity(channels_to_show[i], True)
 
         self.refresh()
         return
@@ -125,22 +125,22 @@ class Menu(ParameterParser):
         country of origin. """
 
         if AddonSettings.is_min_version(18):
-            AddonSettings.ShowSettings(-99)
+            AddonSettings.show_settings(-99)
         else:
-            AddonSettings.ShowSettings(101)
+            AddonSettings.show_settings(101)
         self.refresh()
 
     def show_settings(self):
         """ Shows the add-on settings page and refreshes when closing it. """
 
-        AddonSettings.ShowSettings()
+        AddonSettings.show_settings()
         self.refresh()
 
     def channel_settings(self):
         """ Shows the channel settings for the selected channel. Refreshes the list after closing
         the settings. """
 
-        AddonSettings.ShowChannelSettings(self.channelObject)
+        AddonSettings.show_channel_settings(self.channelObject)
         self.refresh()
 
     def favourites(self, all_favorites=False):
@@ -247,8 +247,8 @@ class Menu(ParameterParser):
                     bitrate_options[current_bitrate_index],
                     bitrate_options[selected_bitrate])
 
-        AddonSettings.SetMaxChannelBitrate(self.channelObject,
-                                           bitrate_options[selected_bitrate])
+        AddonSettings.set_max_channel_bitrate(self.channelObject,
+                                              bitrate_options[selected_bitrate])
         return
 
     def __get_channel(self):

@@ -710,7 +710,7 @@ class MediaItem:
             # not playable items should always show date
             name = "%s (%s)" % (name, self.__date)
 
-        folderPrefix = AddonSettings.GetFolderPrefix()
+        folderPrefix = AddonSettings.get_folder_prefix()
         if self.type == "folder" and not folderPrefix == "":
             name = "%s %s" % (folderPrefix, name)
 

@@ -195,8 +195,8 @@ class Plugin(ParameterParser):
                             # Logger.Critical(value)
                     finally:
                         if self.keywordSettingTabFocus in self.params:
-                            AddonSettings.ShowSettings(self.params[self.keywordSettingTabFocus],
-                                                       self.params.get(
+                            AddonSettings.show_settings(self.params[self.keywordSettingTabFocus],
+                                                        self.params.get(
                                                            self.keywordSettingSettingFocus, None))
                     return
 
@@ -542,7 +542,7 @@ class Plugin(ParameterParser):
                 xbmcPlayer.play(playList)
 
             # the set the subtitles
-            showSubs = AddonSettings.UseSubtitle()
+            showSubs = AddonSettings.use_subtitle()
             if srt and (srt != ""):
                 Logger.Info("Adding subtitle: %s and setting showSubtitles to %s", srt, showSubs)
                 XbmcWrapper.WaitForPlayerToStart(xbmcPlayer, logger=Logger.Instance(), url=resolvedUrl)
@@ -631,7 +631,7 @@ class Plugin(ParameterParser):
             Logger.Warning("Cannot configure channel without channel info")
 
         Logger.Info("Configuring channel: %s", channelInfo)
-        AddonSettings.ShowChannelSettings(channelInfo)
+        AddonSettings.show_channel_settings(channelInfo)
         return
 
     def __AddSortMethodToHandle(self, handle, items=None):
@@ -644,7 +644,7 @@ class Plugin(ParameterParser):
 
         """
 
-        if AddonSettings.MixFoldersAndVideos():
+        if AddonSettings.mix_folders_and_videos():
             labelSortMethod = xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS
         else:
             labelSortMethod = xbmcplugin.SORT_METHOD_LABEL
@@ -756,7 +756,7 @@ class Plugin(ParameterParser):
         else:
             title = LanguageHelper.get_localized_string(LanguageHelper.ErrorNoEpisodes)
 
-        behaviour = AddonSettings.GetEmptyListBehaviour()
+        behaviour = AddonSettings.get_empty_list_behaviour()
 
         Logger.Debug("Showing empty info for mode (favs=%s): [%s]", favs, behaviour)
         if behaviour == "error":
@@ -847,8 +847,8 @@ class Plugin(ParameterParser):
         channelsInCountry = filter(lambda c: c.language == language or language is None, channels)
         for channel in channelsInCountry:
             Logger.Debug("Setting Proxy for: %s", channel)
-            AddonSettings.SetProxyIdForChannel(channel, proxyId)
+            AddonSettings.set_proxy_id_for_channel(channel, proxyId)
             if channel.localIPSupported:
                 Logger.Debug("Setting Local IP for: %s", channel)
-                AddonSettings.SetLocalIPForChannel(channel, localIP)
+                AddonSettings.set_local_ip_for_channel(channel, localIP)
         pass

@@ -547,7 +547,6 @@ class AddonSettings(object):
             # The platform.<method> are not working on rPi and IOS
             # kernel = platform.architecture()
             # Logger.Trace(kernel)
-
             # machine = platform.machine()
             # Logger.Trace(machine)
 
@@ -659,36 +658,50 @@ class AddonSettings(object):
         return AddonSettings.store(LOCAL).get_setting("bitrate", channel, default="Retrospect")
 
     @staticmethod
-    def SetMaxChannelBitrate(channel, bitrate):
+    def set_max_channel_bitrate(channel, bitrate):
         """ Set the maximum channel bitrate
 
-        :param channel:     The channel to set the bitrate for
-        :param bitrate:     the maximum bitrate
+        :param channel:         The channel to set the bitrate for
+        :param int bitrate:     the maximum bitrate
 
         """
+
         AddonSettings.store(LOCAL).set_setting("bitrate", bitrate, channel=channel)
 
     @staticmethod
-    def GetFolderPrefix():
-        """ returns the folder prefix """
+    def get_folder_prefix():
+        """ returns the folder prefix
+
+        :rtype: str
+        :return: A prefix to show in front of folders.
+
+        """
 
         setting = AddonSettings.store(KODI).get_setting("folder_prefix", default="")
         return setting
 
     @staticmethod
-    def MixFoldersAndVideos():
-        """ Should we treat Folders and Videos alike """
+    def mix_folders_and_videos():
+        """ Should we treat Folders and Videos alike
+
+        :rtype: bool
+        :return: Indication of folders and videos should be mixed while sorting (True) or sort them
+                 seperately.
+
+        """
 
         return AddonSettings.store(KODI).get_boolean_setting("folders_as_video", default=False)
 
     @staticmethod
-    def GetEmptyListBehaviour():
-        """
-        :return: returns the behaviour for empty lists:
+    def get_empty_list_behaviour():
+        """ Retrieves how to behave of empty result lists are found.
 
         0 = Error
         1 = Empty List
         2 = Dummy
+
+        :return: returns the behaviour for empty lists (1,2,3):
+        :rtype: int
 
         """
 
@@ -703,8 +716,13 @@ class AddonSettings(object):
             return "dummy"
 
     @staticmethod
-    def UseSubtitle():
-        """Returns whether to show subtitles or not"""
+    def use_subtitle():
+        """Returns whether to show subtitles or not
+
+        :return: Indication if Kodi should how subs or not
+        :rtype: bool
+
+        """
 
         setting = AddonSettings.store(KODI).get_setting("subtitle_mode", default="0")
 
@@ -714,79 +732,93 @@ class AddonSettings(object):
             return False
 
     @staticmethod
-    def GetListLimit():
+    def get_list_limit():
         """ Retrieves the limit for a list before it is grouped alphabetically.
 
-
         :return: an integer with the limit
+        :rtype: int
+
         """
 
         limit = AddonSettings.store(KODI).get_integer_setting("list_limit", default=5)
         return [-1, 10, 50, 75, 100, 150, 200, 1000][limit]
 
     @staticmethod
-    def GetLogLevel():
-        """ Returns True if the add-on should do trace logging """
+    def get_log_level():
+        """ Returns the log level to be used:
+
+        - 00: Trace
+        - 10: Debug
+        - 20: Info
+        - 30: Warning
+        - 40: Error
+        - 50: Critical
+
+        :returnL: The requested log level
+        :rtype: int
+
+        """
 
         level = AddonSettings.store(KODI).get_integer_setting("log_level", default=2)
-
-        # the return value is zero based. 0 -> Trace , 1=Debug (10), 2 -> Info (20)
         return int(level) * 10
 
     @staticmethod
-    def SetChannelVisiblity(channel, visible):
+    def set_channel_visiblity(channel, visible):
         """ Sets the visibility for the give channel.
 
         :param channel: the ChannelInfo object
-        :param visible: indication for visibility
+        :param bool visible: indication for visibility
 
         """
 
         AddonSettings.store(LOCAL).set_setting("visible", visible, channel)
 
     @staticmethod
-    def GetChannelVisibility(channel):
-        """Check if the channel should be shown
+    def get_channel_visibility(channel):
+        """ Checks if the channel should be shown
 
-        Arguments:
-        channel : Channel - The channel to check.
+        :param channel: The channel to check.
+
+        :rtype: bool
+        :return: returns True if the channel should be visible.
 
         """
 
         return AddonSettings.store(LOCAL).get_boolean_setting("visible", channel, default=True)
 
     @staticmethod
-    def ShowChannelSettings(channel):
+    def show_channel_settings(channel):
         """ Show the add-on settings and pre-selects the channel settings tab with the correct channel
         selected.
 
         :param channel: The channel to display settings for.
         """
 
-        channelName = channel.safeName
+        channel_name = channel.safeName
 
         # remove some HTML chars
-        channelName = HtmlEntityHelper.convert_html_entities(channelName)
-        Logger.Debug("Showing channel settings for channel: %s (%s)", channelName, channel.channelName)
+        channel_name = HtmlEntityHelper.convert_html_entities(channel_name)
+        Logger.Debug("Showing channel settings for channel: %s (%s)", channel_name, channel.channelName)
 
         # Set the channel to be the preselected one
-        AddonSettings.store(KODI).set_setting("config_channel", channelName)
+        AddonSettings.store(KODI).set_setting("config_channel", channel_name)
 
         # show settings and focus on the channel settings tab
         if AddonSettings.is_min_version(18):
-            return AddonSettings.ShowSettings(-98)
+            return AddonSettings.show_settings(-98)
         else:
-            return AddonSettings.ShowSettings(102)
+            return AddonSettings.show_settings(102)
 
     @staticmethod
-    def ShowSettings(tabId=None, settingId=None):
-        """Shows the settings dialog
-        :param tabId:       what tab should have focus in the settings?
-        :param settingId:   what control should have focus in the settings tab?
+    def show_settings(tab_id=None, setting_id=None):
+        """ Shows the settings dialog
+
+        :param int|str tab_id:   what tab should have focus in the settings?
+        :param str setting_id:   what control should have focus in the settings tab?
 
         """
 
-        if tabId is None:
+        if tab_id is None:
             # shows the settings and blocks:
             AddonSettings.store(KODI).open_settings()  # this will open settings window
             # reload the cache because stuff might have changed
@@ -797,40 +829,42 @@ class AddonSettings(object):
             # show settings and focus on a tab
             xbmc.executebuiltin('Addon.OpenSettings(%s)' % (Config.addonId,))
 
-            if tabId:
+            if tab_id:
                 # the 100 range are the tabs
                 # the 200 range are the controls in a tab
-                xbmc.executebuiltin('SetFocus(%i)' % int(tabId))
-                if settingId:
-                    xbmc.executebuiltin('SetFocus(%s)' % int(settingId))
+                xbmc.executebuiltin('SetFocus(%i)' % int(tab_id))
+                if setting_id:
+                    xbmc.executebuiltin('SetFocus(%s)' % int(setting_id))
 
-            Logger.Info("Settings shown with focus on %s-%s", tabId, settingId or "<none>")
+            Logger.Info("Settings shown with focus on %s-%s", tab_id, setting_id or "<none>")
         return
 
     @staticmethod
-    def ShowChannelWithLanguage(languageCode):
-        """Checks if the channel with a certain languageCode should be loaded.
+    def show_channel_with_language(language_code):
+        """ Checks if the channel with a certain languageCode should be loaded. Possible language
+        code are:
 
-        Arguments:
-        languageCode : string - one of these language strings:
-                                 * nl    - Dutch
-                                 * se    - Swedish
-                                 * lt    - Lithuanian
-                                 * lv    - Latvian
-                                 * be    - Belgium
-                                 * en-gb - British
-                                 * ee    - Estoniam
-                                 * no    - Norwegian
-                                 * dk    - Danish
-                                 * None  - Other languages
+         * nl    - Dutch
+         * se    - Swedish
+         * lt    - Lithuanian
+         * lv    - Latvian
+         * be    - Belgium
+         * en-gb - British
+         * ee    - Estoniam
+         * no    - Norwegian
+         * dk    - Danish
+         * None  - Other languages
 
-        Returns:
-        True if the channels should be shown. If the lookup does not match
-        a NotImplementedError is thrown.
+        :param None|str language_code: one of the language codes that are listed.
+
+        :rtype: bool
+        :return: True if the channels should be shown. If the lookup does not match
+                 a NotImplementedError is thrown.
 
         """
-        (settingsId, settingsLabel) = AddonSettings.__GetLanguageSettingsIdAndLabel(languageCode)
-        return AddonSettings.store(KODI).get_boolean_setting(settingsId, default=True)
+
+        (settings_id, settings_label) = AddonSettings.__get_language_settings_id_and_label(language_code)
+        return AddonSettings.store(KODI).get_boolean_setting(settings_id, default=True)
 
     @staticmethod
     def get_local_ip_header_for_channel(channel_info):
@@ -846,7 +880,7 @@ class AddonSettings(object):
         if AddonSettings.__NO_PROXY:
             return None
 
-        prefix = AddonSettings.GetLocalIPHeaderCountryCodeForChannel(channel_info)
+        prefix = AddonSettings.get_local_ip_header_country_code_for_channel(channel_info)
         if prefix is None:
             Logger.Debug("No Local IP configured for %s", channel_info)
             return None
@@ -862,63 +896,66 @@ class AddonSettings(object):
         return {"X-Forwarded-For": server}
 
     @staticmethod
-    def GetLocalIPHeaderCountryCodeForChannel(channelInfo):
+    def get_local_ip_header_country_code_for_channel(channel_info):
         """ Returns the Country code for the LocalIP that is configured for this channel
 
-        :param channelInfo:  The ChannelInfo object
-        :return:             2 character ISO country code
+        :param channel_info:  The ChannelInfo object
+
+        :rtype: str
+        :return: 2 character ISO country code
 
         """
         if AddonSettings.__NO_PROXY:
             return None
 
-        countryCode = AddonSettings.store(LOCAL).\
-            get_setting(AddonSettings.__LOCAL_IP_SETTING, channelInfo)
-        return countryCode
+        country_code = AddonSettings.store(LOCAL).\
+            get_setting(AddonSettings.__LOCAL_IP_SETTING, channel_info)
+        return country_code
 
     @staticmethod
-    def SetLocalIPForChannel(channelInfo, countryCode):
+    def set_local_ip_for_channel(channel_info, country_code):
         """ Sets the country code for the local IP for a channel
 
-        Arguments:
-        channelInfo : ChannelInfo - The channel
-        proxyIndex  : Integer     - The Proxy Index
+        :param channel_info:        The channel
+        :param str country_code:    The country code to use for local IP configuration
 
         """
 
-        if countryCode == "other":
+        if country_code == "other":
             Logger.Warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
-            countryCode = None
+            country_code = None
 
         AddonSettings.store(LOCAL).\
-            set_setting(AddonSettings.__LOCAL_IP_SETTING, countryCode, channel=channelInfo)
+            set_setting(AddonSettings.__LOCAL_IP_SETTING, country_code, channel=channel_info)
         return
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def GetProxyForChannel(channelInfo):
+    def get_proxy_for_channel(channel_info):
         """ returns the proxy for a specific channel
 
-        Arguments:
-        channelInfo : ChannelInfo - The channel to get proxy info for
+        :param channel_info: The channel to get proxy info for
+
+        :rtype: None|ProxyInfo
+        :return: The ProxyInfo object to use for calls for this channel. None means no proxy.
 
         """
 
         if AddonSettings.__NO_PROXY:
             return None
 
-        prefix = AddonSettings.GetProxyCountryCodeForChannel(channelInfo)
+        prefix = AddonSettings.get_proxy_country_code_for_channel(channel_info)
         if prefix is None:
-            Logger.Debug("No proxy configured for %s", channelInfo)
+            Logger.Debug("No proxy configured for %s", channel_info)
             return None
 
-        Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channelInfo)
+        Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channel_info)
 
         server = AddonSettings.store(KODI).get_setting("%s_proxy_server" % (prefix,))
         port = AddonSettings.store(KODI).get_integer_setting("%s_proxy_port" % (prefix,), default=0)
-        proxyType = AddonSettings.store(KODI).get_setting("%s_proxy_type" % (prefix,))
+        proxy_type = AddonSettings.store(KODI).get_setting("%s_proxy_type" % (prefix,))
 
-        if not proxyType or proxyType.lower() not in ('dns', 'http') or not server:
+        if not proxy_type or proxy_type.lower() not in ('dns', 'http') or not server:
             Logger.Debug("No proxy found for country '%s'", prefix)
             return None
 
@@ -927,49 +964,49 @@ class AddonSettings(object):
         password = AddonSettings.store(KODI).\
             get_setting("%s_proxy_password" % (prefix,), default="")
 
-        pInfo = ProxyInfo(server, port, scheme=proxyType.lower(), username=username, password=password)
-        Logger.Debug("Found proxy for channel %s:\n%s", channelInfo, pInfo)
-        return pInfo
+        p_info = ProxyInfo(server, port,
+                           scheme=proxy_type.lower(), username=username, password=password)
+        Logger.Debug("Found proxy for channel %s:\n%s", channel_info, p_info)
+        return p_info
 
     @staticmethod
-    def GetProxyCountryCodeForChannel(channelInfo):
+    def get_proxy_country_code_for_channel(channel_info):
         """ Returns the Country code for the proxy that is configured for this channel
 
-        :param channelInfo:  The ChannelInfo object
-        :return:             2 character ISO country code
+        :param channel_info:  The ChannelInfo object
+
+        :return: 2 character ISO country code
+        :rtype: str
 
         """
 
         if AddonSettings.__NO_PROXY:
             return None
 
-        countryCode = AddonSettings.store(LOCAL).\
-            get_setting(AddonSettings.__PROXY_SETTING, channelInfo)
-        return countryCode
+        country_code = AddonSettings.store(LOCAL).\
+            get_setting(AddonSettings.__PROXY_SETTING, channel_info)
+        return country_code
 
     @staticmethod
-    def SetProxyIdForChannel(channelInfo, countryCode):
+    def set_proxy_id_for_channel(channel_info, country_code):
         """ Sets the country code for the proxy for a channel
 
-        Arguments:
-        channelInfo : ChannelInfo - The channel
-        proxyIndex  : Integer     - The Proxy Index
+        :param channel_info: The channel
+        :param str country_code: The country code for the proxy to use.
 
         """
 
         AddonSettings.store(LOCAL).\
-            set_setting(AddonSettings.__PROXY_SETTING, countryCode, channelInfo)
+            set_setting(AddonSettings.__PROXY_SETTING, country_code, channel_info)
         return
 
     #noinspection PyUnresolvedReferences
     @staticmethod
-    def UpdateAddOnSettingsWithChannels(channels, config):
+    def update_add_on_settings_with_channels(channels, config):
         """ updats the settings.xml to include all the channels
 
-
-        Arguments:
-        channels : List<channels> - The channels to add to the settings.xml
-        config   : Config         - The configuration object
+        :param list[any] channels: The channels to add to the settings.xml
+        :param Config config: The configuration object
 
         """
 
@@ -977,67 +1014,69 @@ class AddonSettings(object):
         channels.sort()
 
         # Then we read the original file
-        filenameTemplate = os.path.join(config.rootDir, "resources", "settings_template.xml")
+        filename_template = os.path.join(config.rootDir, "resources", "settings_template.xml")
         # noinspection PyArgumentEqualDefault
-        settingsXml = open(filenameTemplate, "r")
-        contents = settingsXml.read()
-        settingsXml.close()
+        settings_xml = open(filename_template, "r")
+        contents = settings_xml.read()
+        settings_xml.close()
 
-        newContents = AddonSettings.__UpdateAddOnSettingsWithCountrySettings(contents, channels)
-        newContents, settingsOffsetForVisibility, channelsWithSettings = \
-            AddonSettings.__UpdateAddOnSettingsWithChannelSettings(newContents, channels)
-        newContents = AddonSettings.__UpdateAddOnSettingsWithChannelSelection(newContents, channelsWithSettings)
+        new_contents = AddonSettings.__update_add_on_settings_with_country_settings(contents, channels)
+        new_contents, settings_offset_for_visibility, channels_with_settings = \
+            AddonSettings.__update_add_on_settings_with_channel_settings(new_contents, channels)
+
+        new_contents = AddonSettings.__update_add_on_settings_with_channel_selection(
+            new_contents, channels_with_settings)
 
         # Now fill the templates, we only import here due to performance penalties of the
         # large number of imports.
         from helpers.templatehelper import TemplateHelper
-        th = TemplateHelper(Logger.Instance(), template=newContents)
-        newContents = th.Transform()
+        th = TemplateHelper(Logger.Instance(), template=new_contents)
+        new_contents = th.Transform()
 
         # Finally we insert the new XML into the old one
         filename = os.path.join(config.rootDir, "resources", "settings.xml")
-        filenameTemp = os.path.join(config.rootDir, "resources", "settings.tmp.xml")
+        filename_temp = os.path.join(config.rootDir, "resources", "settings.tmp.xml")
         try:
             # Backup the user profile settings.xml because sometimes it gets reset. Because in some
             # concurrency situations, Kodi might decide to think we have no settings and just
             # erase all user settings.
-            userSettings = os.path.join(Config.profileDir, "settings.xml")
-            userSettingsBackup = os.path.join(Config.profileDir, "settings.old.xml")
-            Logger.Debug("Backing-up user settings: %s", userSettingsBackup)
-            if os.path.isfile(userSettings):
-                shutil.copy(userSettings, userSettingsBackup)
+            user_settings = os.path.join(Config.profileDir, "settings.xml")
+            user_settings_backup = os.path.join(Config.profileDir, "settings.old.xml")
+            Logger.Debug("Backing-up user settings: %s", user_settings_backup)
+            if os.path.isfile(user_settings):
+                shutil.copy(user_settings, user_settings_backup)
             else:
-                Logger.Warning("No user settings found at: %s", userSettings)
+                Logger.Warning("No user settings found at: %s", user_settings)
 
             # Update the addonsettings.xml by first updating a temp xml file.
-            Logger.Debug("Creating new settings.xml file: %s", filenameTemp)
-            Logger.Trace(newContents)
-            settingsXml = open(filenameTemp, "w+")
-            settingsXml.write(newContents)
-            settingsXml.close()
+            Logger.Debug("Creating new settings.xml file: %s", filename_temp)
+            Logger.Trace(new_contents)
+            settings_xml = open(filename_temp, "w+")
+            settings_xml.write(new_contents)
+            settings_xml.close()
             Logger.Debug("Replacing existing settings.xml file: %s", filename)
-            shutil.move(filenameTemp, filename)
+            shutil.move(filename_temp, filename)
 
             # restore the user profile settings.xml file when needed
-            if os.path.isfile(userSettings) and os.stat(userSettings).st_size != os.stat(userSettingsBackup).st_size:
-                Logger.Critical("User settings.xml was overwritten during setttings update. Restoring from %s", userSettingsBackup)
-                shutil.copy(userSettingsBackup, userSettings)
+            if os.path.isfile(user_settings) and os.stat(user_settings).st_size != os.stat(user_settings_backup).st_size:
+                Logger.Critical("User settings.xml was overwritten during setttings update. Restoring from %s", user_settings_backup)
+                shutil.copy(user_settings_backup, user_settings)
         except:
             Logger.Error("Something went wrong trying to update the settings.xml", exc_info=True)
             try:
-                settingsXml.close()
+                settings_xml.close()
             except:
                 pass
 
             #  clean up time file
-            if os.path.isfile(filenameTemp):
-                os.remove(filenameTemp)
+            if os.path.isfile(filename_temp):
+                os.remove(filename_temp)
 
             # restore original settings
-            settingsXml = open(filenameTemp, "w+")
-            settingsXml.write(contents)
-            settingsXml.close()
-            shutil.move(filenameTemp, filename)
+            settings_xml = open(filename_temp, "w+")
+            settings_xml.write(contents)
+            settings_xml.close()
+            shutil.move(filename_temp, filename)
             return
 
         Logger.Info("Settings.xml updated succesfully. Reloading settings.")
@@ -1045,13 +1084,15 @@ class AddonSettings(object):
         return
 
     @staticmethod
-    def __UpdateAddOnSettingsWithChannelSelection(contents, channels):
+    def __update_add_on_settings_with_channel_selection(contents, channels):
         """ Adds the settings part that allows the selection of the channel for which the channel settings should
         be displayed.
 
-        :param contents: The current settings
-        :param channels: The available channels
+        :param str  contents: The current settings
+        :param list[Any] channels: The available channels
+
         :return: updated contents
+        :rtype: str
 
         """
 
@@ -1060,27 +1101,29 @@ class AddonSettings(object):
             return
 
         # Create new XML
-        channelSelectionXml = '        <!-- start of active channels -->\n' \
-                              '        <setting id="config_channel" type="select" label="30040" values="'
-        channelSafeNames = "|".join(map(lambda c: c.safeName, channels))
-        channelSelectionXml = "%s%s" % (channelSelectionXml, channelSafeNames)
-        channelSelectionXml = '%s" />' % (channelSelectionXml.rstrip("|"),)
+        channel_selection_xml = '        <!-- start of active channels -->\n' \
+                                '        <setting id="config_channel" type="select" label="30040" values="'
+        channel_safe_names = "|".join(map(lambda c: c.safeName, channels))
+        channel_selection_xml = "%s%s" % (channel_selection_xml, channel_safe_names)
+        channel_selection_xml = '%s" />' % (channel_selection_xml.rstrip("|"),)
 
         # replace the correct parts
         begin = contents[:contents.find('<!-- start of active channels -->')].strip()
         end = contents[contents.find('<!-- end of active channels -->'):].strip()
-        contents = "%s\n%s\n        %s" % (begin, channelSelectionXml, end)
+        contents = "%s\n%s\n        %s" % (begin, channel_selection_xml, end)
         return contents
 
     @staticmethod
-    def __UpdateAddOnSettingsWithChannelSettings(contents, channels):
+    def __update_add_on_settings_with_channel_settings(contents, channels):
         """ Adds the channel specific settings
 
-        :param contents: The current settings
-        :param channels: The available channels
-        :return: updated contents and the offset in visibility
-
         This method first aggregates the settings and then adds them.
+
+        :param str contents: The current settings
+        :param list[any] channels: The available channels
+
+        :return: updated contents and the offset in visibility
+        :rtype: str
 
         """
 
@@ -1089,10 +1132,10 @@ class AddonSettings(object):
             return
 
         settings = dict()
-        channelsWithSettings = []
+        channels_with_settings = []
 
         # There are 2 settings between the selector list and the channel settings in the settings_template.xml
-        settingOffsetForVisibility = 2
+        setting_offset_for_visibility = 2
 
         # Let's make sure they are sorted by channel module. So we first go through them all and then create
         # the XML.
@@ -1105,74 +1148,76 @@ class AddonSettings(object):
                 # Sort the settings so they are really in the correct order, because this is not guaranteed by the
                 # json parser
                 channel.settings.sort(lambda a, b: cmp(a["order"], b["order"]))
-                for channelSettings in channel.settings:
-                    settingId = channelSettings["id"]
-                    settingValue = channelSettings["value"]
-                    Logger.Debug("Adding setting: '%s' with value '%s'", settingId,
-                                 settingValue)
+                for channel_settings in channel.settings:
+                    setting_id = channel_settings["id"]
+                    setting_value = channel_settings["value"]
+                    Logger.Debug("Adding setting: '%s' with value '%s'", setting_id,
+                                 setting_value)
 
-                    if settingValue.startswith("id="):
-                        settingXmlId = settingValue[4:settingValue.index('"', 4)]
-                        settingXml = "<setting %s visible=\"eq(-{0},%s)\" />" % \
-                                     (settingValue, channel.safeName)
+                    if setting_value.startswith("id="):
+                        setting_xml_id = setting_value[4:setting_value.index('"', 4)]
+                        setting_xml = "<setting %s visible=\"eq(-{0},%s)\" />" % \
+                                     (setting_value, channel.safeName)
                     else:
-                        settingXmlId = "channel_{0}_{1}".format(channel.guid, settingId)
-                        settingXml = '<setting id="%s" %s visible=\"eq(-{0},%s)\" />' % \
-                                     (settingXmlId, settingValue, channel.safeName)
+                        setting_xml_id = "channel_{0}_{1}".format(channel.guid, setting_id)
+                        setting_xml = '<setting id="%s" %s visible=\"eq(-{0},%s)\" />' % \
+                                     (setting_xml_id, setting_value, channel.safeName)
 
-                    # existingSettingXmlIndex = []
+                    # existing_setting_xml_index = []
                     # for i, elem in enumerate(settings[channel.moduleName]):
                     #     if 'aa' in elem:
-                    #         existingSettingXmlIndex.append(i)
+                    #         existing_setting_xml_index.append(i)
                     #
                     # Alternatively, as a list comprehension:
                     #
                     # indices = [i for i, elem in enumerate(settings[channel.moduleName]) if 'aa' in elem]
 
-                    existingSettingXmlIndex = [i for i, s in
-                                               enumerate(settings[channel.moduleName]) if
-                                               settingXmlId in s]
-                    if not existingSettingXmlIndex:
-                        settings[channel.moduleName].append((settingXmlId, settingXml))
+                    existing_setting_xml_index = [i for i, s in
+                                                  enumerate(settings[channel.moduleName]) if
+                                                  setting_xml_id in s]
+                    if not existing_setting_xml_index:
+                        settings[channel.moduleName].append((setting_xml_id, setting_xml))
                     else:
-                        xmlIndex = existingSettingXmlIndex[0]
+                        xml_index = existing_setting_xml_index[0]
                         # we need to OR the visibility
-                        settingTuple = settings[channel.moduleName][xmlIndex]
-                        setting = settingTuple[1].replace(
+                        setting_tuple = settings[channel.moduleName][xml_index]
+                        setting = setting_tuple[1].replace(
                             'visible="', 'visible="eq(-{0},%s)|' % (channel.safeName,))
-                        settings[channel.moduleName][xmlIndex] = (settingTuple[0], setting)
+                        settings[channel.moduleName][xml_index] = (setting_tuple[0], setting)
 
             # remove if no settings else, add them to the list with settings
             if len(settings[channel.moduleName]) == 0:
                 settings.pop(channel.moduleName)
             else:
-                channelsWithSettings.append(channel)
+                channels_with_settings.append(channel)
 
-        xmlContent = '\n        <!-- begin of channel settings -->\n'
+        xml_content = '\n        <!-- begin of channel settings -->\n'
         # Sort them to make the result more consistent
         # noinspection PyUnresolvedReferences
-        settingKeys = settings.keys()
-        settingKeys.sort()
-        for pyModule in settingKeys:
-            xmlContent = '%s        <!-- %s.py -->\n' % (xmlContent, pyModule)
-            for settingXmlId, setting in settings[pyModule]:
-                settingOffsetForVisibility += 1
-                xmlContent = "%s        %s\n" % (xmlContent, setting.format(settingOffsetForVisibility))
+        setting_keys = settings.keys()
+        setting_keys.sort()
+        for py_module in setting_keys:
+            xml_content = '%s        <!-- %s.py -->\n' % (xml_content, py_module)
+            for setting_xml_id, setting in settings[py_module]:
+                setting_offset_for_visibility += 1
+                xml_content = "%s        %s\n" % (xml_content, setting.format(setting_offset_for_visibility))
 
         begin = contents[:contents.find('<!-- begin of channel settings -->')].strip()
         end = contents[contents.find('<!-- end of channel settings -->'):]
 
-        Logger.Trace("Generated channel settings:\n%s", xmlContent)
-        contents = "%s\n%s\n        %s" % (begin, xmlContent.rstrip(), end)
-        return contents, settingOffsetForVisibility, channelsWithSettings
+        Logger.Trace("Generated channel settings:\n%s", xml_content)
+        contents = "%s\n%s\n        %s" % (begin, xml_content.rstrip(), end)
+        return contents, setting_offset_for_visibility, channels_with_settings
 
     @staticmethod
-    def __UpdateAddOnSettingsWithCountrySettings(contents, channels):
+    def __update_add_on_settings_with_country_settings(contents, channels):
         """ Adds the channel showing/hiding to the settings.xml
 
-        :param contents: The current settings
-        :param channels: The available channels
+        :param str contents: The current settings
+        :param list[any] channels: The available channels
+
         :return: updated contents and the offset in visibility
+        :rtype: str
 
         """
 
@@ -1181,7 +1226,7 @@ class AddonSettings(object):
             return
 
         # First we create a new bit of settings file.
-        channelXml = '        <!-- start of channel selection -->\n'
+        channel_xml = '        <!-- start of channel selection -->\n'
 
         # the distinct list of languages from the channels
         languages = map(lambda c: c.language, channels)
@@ -1190,64 +1235,70 @@ class AddonSettings(object):
         Logger.Debug("Found languages: %s", languages)
 
         # get the labels and setting identifiers for those languages
-        languageLookup = dict()
+        language_lookup = dict()
         for language in languages:
-            languageLookup[language] = AddonSettings.__GetLanguageSettingsIdAndLabel(language)
+            language_lookup[language] = AddonSettings.__get_language_settings_id_and_label(language)
 
-        languageLookupSortedKeys = languageLookup.keys()
-        languageLookupSortedKeys.sort()
+        language_lookup_sorted_keys = language_lookup.keys()
+        language_lookup_sorted_keys.sort()
 
-        for language in languageLookupSortedKeys:
-            channelXml = '%s        <setting id="%s" type="bool" label="%s" subsetting="false" default="true" />\n' \
-                         % (channelXml, languageLookup[language][0], languageLookup[language][1])
+        for language in language_lookup_sorted_keys:
+            channel_xml = '%s        <setting id="%s" type="bool" label="%s" subsetting="false" default="true" />\n' \
+                         % (channel_xml, language_lookup[language][0], language_lookup[language][1])
 
         begin = contents[:contents.find('<!-- start of channel selection -->')].strip()
         end = contents[contents.find('<!-- end of channel selection -->'):].strip()
-        contents = "%s\n    \n%s        %s" % (begin, channelXml, end)
+        contents = "%s\n    \n%s        %s" % (begin, channel_xml, end)
         return contents
 
     @staticmethod
-    def __GetLanguageSettingsIdAndLabel(languageCode):
+    def __get_language_settings_id_and_label(language_code):
         """ returns the settings xml part for this language
 
-        Arguments:
-        languageCode - String - The language string
+        :param str language_code: The language string
 
-        Returns:
-        A tupple with the label and the settingsId.
+        :return: A tuple with the label and the settingsId.
+        :rtype: tuple[str,int]
 
         """
 
-        if languageCode == "nl":
+        if language_code == "nl":
             return "show_dutch", 30301
-        elif languageCode == "fi":
+        elif language_code == "fi":
             return "show_finnish", 30302
-        elif languageCode == "se":
+        elif language_code == "se":
             return "show_swedish", 30302
-        elif languageCode == "lt":
+        elif language_code == "lt":
             return "show_lithuanian", 30303
-        elif languageCode == "lv":
+        elif language_code == "lv":
             return "show_latvian", 30304
-        elif languageCode == "en-gb":
+        elif language_code == "en-gb":
             return "show_engb", 30307
-        elif languageCode == "no":
+        elif language_code == "no":
             return "show_norwegian", 30305
-        elif languageCode == "be":
+        elif language_code == "be":
             return "show_belgium", 30306
-        elif languageCode == "ee":
+        elif language_code == "ee":
             return "show_estonia", 30308
-        elif languageCode == "dk":
+        elif language_code == "dk":
             return "show_danish", 30310
-        elif languageCode == "de":
+        elif language_code == "de":
             return "show_german", 30309
-        elif languageCode is None:
+        elif language_code is None:
             return "show_other", 30300
         else:
-            raise NotImplementedError("Language code not supported: '%s'" % (languageCode, ))
+            raise NotImplementedError("Language code not supported: '%s'" % (language_code,))
 
     @staticmethod
-    def __SortChannels(x, y):
-        """ compares 2 channels based on language and then sortorder """
+    def __sort_channels(x, y):
+        """ compares 2 channels based on language and then sortorder
+
+        :param x: Channel x
+        :param y: Channel y
+
+        :return: The compare result value
+        :rtype: int
+        """
 
         value = cmp(x.language, y.language)
         if value == 0:
@@ -1256,19 +1307,19 @@ class AddonSettings(object):
             return value
 
     @staticmethod
-    def PrintSettingValues():
+    def print_setting_values():
         """Prints the settings"""
 
         pattern = "%s\n%s: %s"
         value = "%s: %s" % ("ClientId", AddonSettings.get_client_id())
         value = pattern % (value, "MaxStreamBitrate", AddonSettings.get_max_stream_bitrate())
-        value = pattern % (value, "UseSubtitle", AddonSettings.UseSubtitle())
+        value = pattern % (value, "use_subtitle", AddonSettings.use_subtitle())
         value = pattern % (value, "cache_http_responses", AddonSettings.cache_http_responses())
-        value = pattern % (value, "Folder Prefx", "'%s'" % AddonSettings.GetFolderPrefix())
-        value = pattern % (value, "Mix Folders & Videos", AddonSettings.MixFoldersAndVideos())
-        value = pattern % (value, "Empty List Behaviour", AddonSettings.GetEmptyListBehaviour())
-        value = pattern % (value, "ListLimit", AddonSettings.GetListLimit())
-        value = pattern % (value, "Loglevel", AddonSettings.GetLogLevel())
+        value = pattern % (value, "Folder Prefx", "'%s'" % AddonSettings.get_folder_prefix())
+        value = pattern % (value, "Mix Folders & Videos", AddonSettings.mix_folders_and_videos())
+        value = pattern % (value, "Empty List Behaviour", AddonSettings.get_empty_list_behaviour())
+        value = pattern % (value, "ListLimit", AddonSettings.get_list_limit())
+        value = pattern % (value, "Loglevel", AddonSettings.get_log_level())
         value = pattern % (value, "Ignore SSL Errors", AddonSettings.ignore_ssl_errors())
         value = pattern % (value, "Geo Location", AddonSettings.hide_geo_locked_items_for_location(None, value_only=True))
         value = pattern % (value, "Filter Folders", AddonSettings.hide_restricted_folders())
@@ -1276,14 +1327,14 @@ class AddonSettings(object):
         value = pattern % (value, "Hide DRM Items", AddonSettings.hide_drm_items())
         value = pattern % (value, "Hide Premium Items", AddonSettings.hide_premium_items())
         value = pattern % (value, "Show Cloaked Items", AddonSettings.show_cloaked_items())
-        value = pattern % (value, "Show Dutch", AddonSettings.ShowChannelWithLanguage("nl"))
-        value = pattern % (value, "Show Swedish", AddonSettings.ShowChannelWithLanguage("se"))
-        value = pattern % (value, "Show Lithuanian", AddonSettings.ShowChannelWithLanguage("lt"))
-        value = pattern % (value, "Show Latvian", AddonSettings.ShowChannelWithLanguage("lv"))
-        value = pattern % (value, "Show British", AddonSettings.ShowChannelWithLanguage("en-gb"))
-        value = pattern % (value, "Show German", AddonSettings.ShowChannelWithLanguage("de"))
-        value = pattern % (value, "Show Finnish", AddonSettings.ShowChannelWithLanguage("fi"))
-        value = pattern % (value, "Show Other languages", AddonSettings.ShowChannelWithLanguage(None))
+        value = pattern % (value, "Show Dutch", AddonSettings.show_channel_with_language("nl"))
+        value = pattern % (value, "Show Swedish", AddonSettings.show_channel_with_language("se"))
+        value = pattern % (value, "Show Lithuanian", AddonSettings.show_channel_with_language("lt"))
+        value = pattern % (value, "Show Latvian", AddonSettings.show_channel_with_language("lv"))
+        value = pattern % (value, "Show British", AddonSettings.show_channel_with_language("en-gb"))
+        value = pattern % (value, "Show German", AddonSettings.show_channel_with_language("de"))
+        value = pattern % (value, "Show Finnish", AddonSettings.show_channel_with_language("fi"))
+        value = pattern % (value, "Show Other languages", AddonSettings.show_channel_with_language(None))
 
         if AddonSettings.__NO_PROXY:
             return value
@@ -1298,24 +1349,24 @@ class AddonSettings(object):
                 else:
                     country = country.upper()
 
-                proxyTitle = "{0} Proxy".format(country)
-                proxyValue = "{0} ({1})".format(
+                proxy_title = "{0} Proxy".format(country)
+                proxy_value = "{0} ({1})".format(
                     AddonSettings.store(KODI).get_setting(
                         "{0}_proxy_server".format(country.lower()), default="Not Set"),
                     AddonSettings.store(KODI).get_setting(
                         "{0}_proxy_type".format(country.lower()), default="Not Set"))
-                value = pattern % (value, proxyTitle, proxyValue)
+                value = pattern % (value, proxy_title, proxy_value)
 
-                proxyPortTitle = "{0} Proxy Port".format(country)
-                proxyPortValue = \
+                proxy_port_title = "{0} Proxy Port".format(country)
+                proxy_port_value = \
                     AddonSettings.store(KODI).get_integer_setting(
                         "{0}_proxy_port".format(country.lower()), default=0)
-                value = pattern % (value, proxyPortTitle, proxyPortValue)
+                value = pattern % (value, proxy_port_title, proxy_port_value)
 
-                localIpTitle = "{0} Local IP".format(country)
-                localIpValue = AddonSettings.store(KODI). \
+                local_ip_title = "{0} Local IP".format(country)
+                local_ip_value = AddonSettings.store(KODI). \
                     get_setting("{0}_local_ip".format(country.lower()), default="Not Set")
-                value = pattern % (value, localIpTitle, localIpValue)
+                value = pattern % (value, local_ip_title, local_ip_value)
         except:
             Logger.Error("Error", exc_info=True)
         return value

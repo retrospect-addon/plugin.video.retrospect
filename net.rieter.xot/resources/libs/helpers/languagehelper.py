@@ -158,21 +158,18 @@ class LanguageHelper:
 
     @staticmethod
     def get_localized_string(string_id, split_on_pipes=True, replace_pipes=False):
-        # type: (int, bool, bool) -> str
         """ Returns a localized Add-on string using the defined string_id.
 
         @param int string_id:        The ID for the string
         @param bool split_on_pipes:  If true, | cause a split and a list will be returned.
         @param bool replace_pipes:   If true, | will be replaced by \n.
 
-        @rtype: str
+        @rtype: str|list[str]
         @return: localized Add-on string use the defined string_id.
 
         """
 
         value = AddonSettings.get_localized_string(string_id)
-        # value = xbmc.getLocalizedString(string_id)
-        # print "%s - %s" % (string_id, value)
         if split_on_pipes and "|" in value:
             return value.split("|")
         elif replace_pipes and "|" in value:

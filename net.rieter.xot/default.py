@@ -45,7 +45,7 @@ def run_plugin():
         from textures import TextureHandler
 
         # update the loglevel
-        Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
+        Logger.Instance().minLogLevel = AddonSettings.get_log_level()
 
         use_caching = AddonSettings.cache_http_responses()
         cache_dir = None

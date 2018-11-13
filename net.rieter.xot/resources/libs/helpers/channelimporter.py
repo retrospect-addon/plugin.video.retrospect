@@ -232,17 +232,17 @@ class ChannelIndex:
                 # was the channel hidden based on language settings? We do some caching to speed
                 # things up.
                 if channelInfo.language not in country_visibility:
-                    country_visibility[channelInfo.language] = AddonSettings.ShowChannelWithLanguage(channelInfo.language)
+                    country_visibility[channelInfo.language] = AddonSettings.show_channel_with_language(channelInfo.language)
                 channelInfo.visible = country_visibility[channelInfo.language]
 
                 # was the channel explicitly disabled from the settings?
-                channelInfo.enabled = AddonSettings.GetChannelVisibility(channelInfo)
+                channelInfo.enabled = AddonSettings.get_channel_visibility(channelInfo)
 
                 Logger.Debug("Found channel: %s", channelInfo)
 
         if channels_updated:
             Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
-            AddonSettings.UpdateAddOnSettingsWithChannels(valid_channels, Config)
+            AddonSettings.update_add_on_settings_with_channels(valid_channels, Config)
             AddonSettings.update_user_agent()
         else:
             Logger.Debug("No channel changes found. Skipping add-on configuration for channels.")
