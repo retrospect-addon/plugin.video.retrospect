@@ -1006,7 +1006,7 @@ class AddonSettings(object):
         """ updats the settings.xml to include all the channels
 
         :param list[any] channels: The channels to add to the settings.xml
-        :param Config config: The configuration object
+        :param type[Config] config: The configuration object
 
         """
 
@@ -1157,11 +1157,11 @@ class AddonSettings(object):
                     if setting_value.startswith("id="):
                         setting_xml_id = setting_value[4:setting_value.index('"', 4)]
                         setting_xml = "<setting %s visible=\"eq(-{0},%s)\" />" % \
-                                     (setting_value, channel.safeName)
+                                      (setting_value, channel.safeName)
                     else:
                         setting_xml_id = "channel_{0}_{1}".format(channel.guid, setting_id)
                         setting_xml = '<setting id="%s" %s visible=\"eq(-{0},%s)\" />' % \
-                                     (setting_xml_id, setting_value, channel.safeName)
+                                      (setting_xml_id, setting_value, channel.safeName)
 
                     # existing_setting_xml_index = []
                     # for i, elem in enumerate(settings[channel.moduleName]):

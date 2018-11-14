@@ -213,32 +213,32 @@ class ChannelIndex:
                 self.__initialise_channel_set(channel_infos[0])
 
                 # And perform all first actions for the included channels in the set
-                for channelInfo in channel_infos:
-                    self.__initialise_channel(channelInfo)
+                for channel_info in channel_infos:
+                    self.__initialise_channel(channel_info)
 
             # Check the channel validity
-            for channelInfo in channel_infos:
-                if not self.__channel_is_correct(channelInfo):
+            for channel_info in channel_infos:
+                if not self.__channel_is_correct(channel_info):
                     continue
-                self.__allChannels.append(channelInfo)
+                self.__allChannels.append(channel_info)
 
                 # valid channel for this platform ?
-                if not channelInfo.compatiblePlatforms & platform == platform:
+                if not channel_info.compatiblePlatforms & platform == platform:
                     Logger.Warning("Not loading: %s -> platform '%s' is not compatible.",
-                                   channelInfo, Environments.Name(platform))
+                                   channel_info, Environments.Name(platform))
                     continue
-                valid_channels.append(channelInfo)
+                valid_channels.append(channel_info)
 
                 # was the channel hidden based on language settings? We do some caching to speed
                 # things up.
-                if channelInfo.language not in country_visibility:
-                    country_visibility[channelInfo.language] = AddonSettings.show_channel_with_language(channelInfo.language)
-                channelInfo.visible = country_visibility[channelInfo.language]
+                if channel_info.language not in country_visibility:
+                    country_visibility[channel_info.language] = AddonSettings.show_channel_with_language(channel_info.language)
+                channel_info.visible = country_visibility[channel_info.language]
 
                 # was the channel explicitly disabled from the settings?
-                channelInfo.enabled = AddonSettings.get_channel_visibility(channelInfo)
+                channel_info.enabled = AddonSettings.get_channel_visibility(channel_info)
 
-                Logger.Debug("Found channel: %s", channelInfo)
+                Logger.Debug("Found channel: %s", channel_info)
 
         if channels_updated:
             Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
@@ -393,24 +393,24 @@ class ChannelIndex:
         addon_path = self.__get_addon_path()
         channel_path_start = "%s.channel" % (Config.addonDir,)
         add_ons = filter(lambda x: channel_path_start in x and "BUILD" not in x, os.listdir(addon_path))
-        for addOnDir in add_ons:
-            index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(addOnDir)
+        for add_on_dir in add_ons:
+            index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(add_on_dir)
 
-            channel_add_on_path = os.path.join(addon_path, addOnDir)
+            channel_add_on_path = os.path.join(addon_path, add_on_dir)
             channel_add_on_id, channel_add_on_version = self.__validate_add_on_version(channel_add_on_path)
             if channel_add_on_id is None:
                 continue
 
             channel_sets = os.listdir(channel_add_on_path)
-            for channelSet in channel_sets:
-                if not os.path.isdir(os.path.join(channel_add_on_path, channelSet)):
+            for channel_set in channel_sets:
+                if not os.path.isdir(os.path.join(channel_add_on_path, channel_set)):
                     continue
 
-                channel_set_id = "chn_%s" % (channelSet,)
+                channel_set_id = "chn_%s" % (channel_set,)
                 Logger.Debug("Found channel set '%s'", channel_set_id)
                 index[self.__CHANNEL_INDEX_CHANNEL_KEY][channel_set_id] = {
                     self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY: str(channel_add_on_version),
-                    self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_add_on_path, channelSet, "%s.json" % (channel_set_id,))
+                    self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_add_on_path, channel_set, "%s.json" % (channel_set_id,))
                 }
 
         with io.open(self.__CHANNEL_INDEX, 'w+b') as f:
@@ -474,7 +474,6 @@ class ChannelIndex:
         # different paths for XBMC and XBMC4Xbox
         if envcontroller.EnvController.IsPlatform(Environments.Xbox):
             addon_path = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
-            pass
         else:
             addon_path = os.path.abspath(os.path.join(Config.rootDir, ".."))
 
