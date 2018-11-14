@@ -71,7 +71,7 @@ class Channel(chn_class.Channel):
         self.scheduleData = None
 
         # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
+        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
 
         # ====================================== Actual channel setup STOPS here =======================================
         return

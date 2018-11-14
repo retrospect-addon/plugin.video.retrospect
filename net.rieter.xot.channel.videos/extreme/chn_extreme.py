@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
         self.noImage = "extremeimage.png"
 
         # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download item", "CtMnDownloadItem", itemTypes="video"))
+        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download item", "CtMnDownloadItem", item_types="video"))
 
         # setup the urls
         self.mainListUri = "http://extreme.com/"

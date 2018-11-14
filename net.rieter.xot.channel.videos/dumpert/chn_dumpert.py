@@ -38,7 +38,7 @@ class Channel(chn_class.Channel):
         self.noImage = "dumpertimage.png"
 
         # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
+        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
 
         # setup the urls
         self.baseUrl = "http://www.dumpert.nl/mediabase/flv/%s_YTDL_1.flv.flv"

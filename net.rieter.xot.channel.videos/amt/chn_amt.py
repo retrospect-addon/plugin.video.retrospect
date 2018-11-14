@@ -33,7 +33,7 @@ class Channel(chn_class.Channel):
         self.noImage = "amtimage.png"
 
         # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
+        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
 
         # setup the urls
         self.baseUrl = "http://trailers.apple.com"

@@ -31,7 +31,7 @@ class Channel(chn_class.Channel):
         self.noImage = "hardwareinfoimage.png"
 
         # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownload", itemTypes="video"))
+        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownload", item_types="video"))
 
         # setup the urls
         # self.mainListUri = "https://www.youtube.com/feeds/videos.xml?user=hardwareinfovideo"
