@@ -10,7 +10,6 @@
 
 import os
 import sys
-
 import xbmc
 import xbmcgui
 
@@ -111,7 +110,6 @@ class Menu(ParameterParser):
         for i in indices_to_remove:
             Logger.Info("Hiding channel: %s", channels_to_show[i])
             AddonSettings.set_channel_visiblity(channels_to_show[i], False)
-            pass
 
         for i in indices_to_add:
             Logger.Info("Showing channel: %s", channels_to_show[i])
@@ -207,12 +205,12 @@ class Menu(ParameterParser):
         Logger.Info("Cloaking current item: %s", item)
         c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.Instance())
 
-        if c.IsCloaked(item.url):
-            c.UnCloak(item.url)
+        if c.is_cloaked(item.url):
+            c.un_cloak(item.url)
             self.refresh()
             return
 
-        first_time = c.Cloak(item.url)
+        first_time = c.cloak(item.url)
         if first_time:
             XbmcWrapper.ShowDialog(LanguageHelper.get_localized_string(LanguageHelper.CloakFirstTime),
                                    LanguageHelper.get_localized_string(LanguageHelper.CloakMessage))

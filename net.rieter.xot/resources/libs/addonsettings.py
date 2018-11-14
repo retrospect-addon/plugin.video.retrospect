@@ -652,7 +652,7 @@ class AddonSettings(object):
 
         :param channel:     The channel to set the bitrate for
 
-        :rtype: int
+        :rtype: str
         :return: The bitrate for the channel as a string!
         """
         return AddonSettings.store(LOCAL).get_setting("bitrate", channel, default="Retrospect")
@@ -662,7 +662,8 @@ class AddonSettings(object):
         """ Set the maximum channel bitrate
 
         :param channel:         The channel to set the bitrate for
-        :param int bitrate:     the maximum bitrate
+        :param str bitrate:     the maximum bitrate value (it's a string because it could
+                                be "Retrospect"
 
         """
 

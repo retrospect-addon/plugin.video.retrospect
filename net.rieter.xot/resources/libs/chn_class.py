@@ -342,14 +342,14 @@ class Channel:
         cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.Instance())
         if not AddonSettings.show_cloaked_items():
             Logger.Debug("Hiding Cloaked items")
-            items = filter(lambda i: not cloaker.IsCloaked(i.url), items)
+            items = filter(lambda i: not cloaker.is_cloaked(i.url), items)
         else:
-            cloakedItems = filter(lambda i: cloaker.IsCloaked(i.url), items)
+            cloakedItems = filter(lambda i: cloaker.is_cloaked(i.url), items)
             for c in cloakedItems:
                 c.isCloaked = True
 
         if len(items) != oldCount:
-            Logger.Info("Hidden %s items due to DRM/GEO/Premium/Cloak filter (Hide Folders=%s)",
+            Logger.Info("Hidden %s items due to DRM/GEO/Premium/cloak filter (Hide Folders=%s)",
                         oldCount - len(items), hideFolders)
 
         # Check for grouping or not
