@@ -225,7 +225,7 @@ class ChannelIndex:
                 # valid channel for this platform ?
                 if not channel_info.compatiblePlatforms & platform == platform:
                     Logger.Warning("Not loading: %s -> platform '%s' is not compatible.",
-                                   channel_info, Environments.Name(platform))
+                                   channel_info, Environments.name(platform))
                     continue
                 valid_channels.append(channel_info)
 

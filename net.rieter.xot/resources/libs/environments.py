@@ -31,7 +31,7 @@ class Environments:
     All = Xbox | Linux | Windows | OSX | ATV2 | IOS | Android | TVOS
 
     @staticmethod
-    def Name(environment):
+    def name(environment):
         """Returns a string representation of the Environments
 
         Arguments:
@@ -67,16 +67,16 @@ class Environments:
 
 if __name__ == "__main__":
     printFormat = "%-10s - %s"
-    print printFormat % ("NoPlatform", Environments.Name(Environments.NoPlatform))
-    print printFormat % ("Unknown", Environments.Name(Environments.Unknown))
-    print printFormat % ("Xbox", Environments.Name(Environments.Xbox))
-    print printFormat % ("Linux", Environments.Name(Environments.Linux))
-    print printFormat % ("Windows", Environments.Name(Environments.Windows))
-    print printFormat % ("OSX", Environments.Name(Environments.OSX))
-    print printFormat % ("ATV2", Environments.Name(Environments.ATV2))
-    print printFormat % ("ATV2", Environments.Name(Environments.TVOS))
-    print printFormat % ("IOS", Environments.Name(Environments.IOS))
-    print printFormat % ("Android", Environments.Name(Environments.Android))
-    print printFormat % ("Apple", Environments.Name(Environments.Apple))
-    print printFormat % ("Google", Environments.Name(Environments.Google))
-    print printFormat % ("All", Environments.Name(Environments.All))
+    print(printFormat % ("NoPlatform", Environments.name(Environments.NoPlatform)))
+    print(printFormat % ("Unknown", Environments.name(Environments.Unknown)))
+    print(printFormat % ("Xbox", Environments.name(Environments.Xbox)))
+    print(printFormat % ("Linux", Environments.name(Environments.Linux)))
+    print(printFormat % ("Windows", Environments.name(Environments.Windows)))
+    print(printFormat % ("OSX", Environments.name(Environments.OSX)))
+    print(printFormat % ("ATV2", Environments.name(Environments.ATV2)))
+    print(printFormat % ("ATV2", Environments.name(Environments.TVOS)))
+    print(printFormat % ("IOS", Environments.name(Environments.IOS)))
+    print(printFormat % ("Android", Environments.name(Environments.Android)))
+    print(printFormat % ("Apple", Environments.name(Environments.Apple)))
+    print(printFormat % ("Google", Environments.name(Environments.Google)))
+    print(printFormat % ("All", Environments.name(Environments.All)))

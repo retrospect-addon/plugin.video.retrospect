@@ -218,10 +218,10 @@ class EnvController:
                 platform = Environments.Android
 
             EnvController.__CurrentPlatform = platform
-            Logger.Info("Current platform determined to be: %s", Environments.Name(EnvController.__CurrentPlatform))
+            Logger.Info("Current platform determined to be: %s", Environments.name(EnvController.__CurrentPlatform))
 
         if return_name:
-            return Environments.Name(EnvController.__CurrentPlatform)
+            return Environments.name(EnvController.__CurrentPlatform)
         else:
             return EnvController.__CurrentPlatform
 
