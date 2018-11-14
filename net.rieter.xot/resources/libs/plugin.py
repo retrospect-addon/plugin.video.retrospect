@@ -81,14 +81,14 @@ class Plugin(ParameterParser):
         # fetch some environment settings
         envCtrl = envcontroller.EnvController(Logger.Instance())
         # self.FavouritesEnabled = envCtrl.SQLiteEnabled()
-        self.FavouritesEnabled = not envCtrl.IsPlatform(Environments.Xbox)
+        self.FavouritesEnabled = not envCtrl.is_platform(Environments.Xbox)
 
         if not sessionActive:
             # do add-on start stuff
             Logger.Info("Add-On start detected. Performing startup actions.")
 
             # print the folder structure
-            envCtrl.DirectoryPrinter(Config, AddonSettings)
+            envCtrl.print_retrospect_settings_and_folders(Config, AddonSettings)
 
             # show notification
             XbmcWrapper.ShowNotification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
@@ -103,14 +103,14 @@ class Plugin(ParameterParser):
                 XbmcWrapper.ShowNotification(None, lines=notification, displayTime=20000)
 
             # check if the repository is available -> We don't need this now.
-            # envCtrl.IsInstallMethodValid(Config)
-            # envCtrl.AreAddonsEnabled(Config)
+            # envCtrl.is_install_method_valid(Config)
+            # envCtrl.are_addons_enabled(Config)
 
             # check for cache folder
-            envCtrl.CacheCheck()
+            envCtrl.cache_check()
 
             # do some cache cleanup
-            envCtrl.CacheCleanUp(Config.cacheDir, Config.cacheValidTime)
+            envCtrl.cache_clean_up(Config.cacheDir, Config.cacheValidTime)
 
         # create a session
         SessionHelper.create_session(Logger.Instance())

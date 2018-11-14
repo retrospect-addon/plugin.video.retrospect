@@ -560,7 +560,7 @@ class AddonSettings(object):
                              (version, uname[0], uname[2], uname[4], version)
         except:
             Logger.Warning("Error setting user agent", exc_info=True)
-            current_env = EnvController.GetPlatform(True)
+            current_env = EnvController.get_platform(True)
             # Kodi/14.2 (Windows NT 6.1; WOW64) App_Bitness/32 Version/14.2-Git:20150326-7cc53a9
             user_agent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, current_env)
 

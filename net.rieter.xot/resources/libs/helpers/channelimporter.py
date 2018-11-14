@@ -172,7 +172,7 @@ class ChannelIndex:
         valid_channels = []
 
         # What platform are we
-        platform = envcontroller.EnvController.GetPlatform()
+        platform = envcontroller.EnvController.get_platform()
 
         channels_updated = False
         country_visibility = {}
@@ -292,7 +292,7 @@ class ChannelIndex:
         to_deploy = os.listdir(deploy_path)
 
         # addons folder, different for XBMC and XBMC4Xbox
-        if envcontroller.EnvController.IsPlatform(Environments.Xbox):
+        if envcontroller.EnvController.is_platform(Environments.Xbox):
             target_folder = os.path.abspath(
                 os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
             if not os.path.exists(target_folder):
@@ -424,7 +424,7 @@ class ChannelIndex:
                     len(index[self.__CHANNEL_INDEX_ADD_ONS_KEY]),
                     index)
 
-        envcontroller.EnvController.UpdateLocalAddons()
+        envcontroller.EnvController.update_local_addons_in_kodi()
         return index
 
     def __validate_add_on_version(self, path):
@@ -472,7 +472,7 @@ class ChannelIndex:
         """
 
         # different paths for XBMC and XBMC4Xbox
-        if envcontroller.EnvController.IsPlatform(Environments.Xbox):
+        if envcontroller.EnvController.is_platform(Environments.Xbox):
             addon_path = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
         else:
             addon_path = os.path.abspath(os.path.join(Config.rootDir, ".."))
