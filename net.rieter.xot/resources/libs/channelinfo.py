@@ -11,6 +11,8 @@
 # ===============================================================================
 # Import the default modules
 # ===============================================================================
+
+import io
 import os
 import sys
 import xbmcgui
@@ -26,48 +28,47 @@ from textures import TextureHandler
 
 class ChannelInfo:
     def __init__(self, guid, name, description, icon, category, path,
-                 channelCode=None, sortOrder=255, language=None,
-                 compatiblePlatforms=Environments.All, fanart=None):
+                 channel_code=None, sort_order=255, language=None,
+                 compatible_platforms=Environments.All, fanart=None):
         """ Creates a ChannelInfo object with basic information for a channel
 
-        Arguments:
-        guid        : String - A unique GUID
-        name        : String - The channel name
-        description : String - The channel description
-        icon        : String - Name of the icon
-        path        : String - Path of the channel
-
-        Keyword Arguments:
-        channelCode         : String       - A code that distinguishes a channel
-                                             within a module. Default is None
-        sortOrder           : Int          - The sortorder (0-255). Default is 255
-        language            : String       - The language of the channel. Default is None
-        compatiblePlatforms : Environments - The supported platforms. Default is Environments.All
-        fanart              : String       - A fanart url/path
+        :param str guid:                    A unique GUID.
+        :param str name:                    The channel name.
+        :param str description:             The channel description.
+        :param str icon:                    Name of the icon.
+        :param str category:                The category it belongs to.
+        :param str path:                    Path of the channel.
+        :param str channel_code:            A code that distinguishes a channel within a module.
+                                            Default is None.
+        :param int sort_order:              The sortorder (0-255). Default is 255.
+        :param str language:                The language of the channel. Default is None.
+        :param int compatible_platforms:    The supported Platform ID taken from Environments.
+                                            Default is Environments.All
+        :param str fanart:                  A fanart url/path.
 
         """
 
         # set the path info
         self.path = os.path.dirname(path)
-        pathParts = path.split(os.sep)
-        self.moduleName = os.path.splitext(pathParts[-1])[0]
+        path_parts = path.split(os.sep)
+        self.moduleName = os.path.splitext(path_parts[-1])[0]
 
-        self.id = ("%s.%s.%s" % (pathParts[-3], pathParts[-2], channelCode or "")).rstrip(".")
+        self.id = ("%s.%s.%s" % (path_parts[-3], path_parts[-2], channel_code or "")).rstrip(".")
         # TODO: the GUID could be replaced by the self.id in the future.
         self.guid = guid
         self.channelName = name
-        self.channelCode = channelCode
+        self.channelCode = channel_code
         self.channelDescription = description
 
         self.category = category
-        self.compatiblePlatforms = compatiblePlatforms
+        self.compatiblePlatforms = compatible_platforms
         self.language = language
-        self.sortOrder = sortOrder
+        self.sortOrder = sort_order
         # I am Dutch, sorry about that
         if language == "nl":
-            self.sortOrderPerCountry = "#_%s.%04d" % (language or "zz", sortOrder)
+            self.sortOrderPerCountry = "#_%s.%04d" % (language or "zz", sort_order)
         else:
-            self.sortOrderPerCountry = "#%s.%04d" % (language or "zz", sortOrder)
+            self.sortOrderPerCountry = "#%s.%04d" % (language or "zz", sort_order)
         self.firstTimeMessage = None
 
         self.settings = []
@@ -78,40 +79,51 @@ class ChannelInfo:
         self.version = "x.x.x.x"
         self.enabled = False                # enabled from the settings
         self.visible = False                # hidden/visible due to country settings
-        return
 
-    def GetChannel(self):
-        """ Instantiates a channel from a ChannelInfo object """
+    def get_channel(self):
+        """ Instantiates a channel from a ChannelInfo object 
+
+        :returns: an instantiated Channel object based on this ChannelInfo object.
+
+        """
 
         Logger.Trace("Importing module %s from path %s", self.moduleName, self.path)
 
         sys.path.append(self.path)
         exec ("import %s" % (self.moduleName,))
 
-        channelCommand = '%s.Channel(self)' % (self.moduleName,)
+        channel_command = '%s.Channel(self)' % (self.moduleName,)
         try:
-            Logger.Trace("Running command: %s", channelCommand)
-            channel = eval(channelCommand)
+            Logger.Trace("Running command: %s", channel_command)
+            channel = eval(channel_command)
         except:
             Logger.Error("Cannot Create channel for %s", self, exc_info=True)
             return None
         return channel
 
     @property
-    def safeName(self):
-        """ Returns the channel name in a format that can be safely be used in the Kodi settings and will not cause
-        any issues with the boolean expressions there.
+    def safe_name(self):
+        """  Property to retrieve a safe name that can be used within Kodi.
+
+        :returns: the channel name in a format that can be safely be used in the Kodi settings and will not cause
+                  any issues with the boolean expressions there.
+        :rtype: str
         """
 
         return self.channelName.replace("(", "[").replace(")", "]")
 
-    def GetXBMCItem(self):
-        """ Creates an Xbmc ListItem object for this channel """
+    def get_kodi_item(self):
+        """ Creates an Kodi ListItem object for this channel
+        
+        :return: a Kodi ListItem with all required properties set.
+        :rtype: xbmcgui.ListItem
+
+        """
 
         name = HtmlEntityHelper.convert_html_entities(self.channelName)
         description = HtmlEntityHelper.convert_html_entities(self.channelDescription)
 
-        self.icon = self.__GetImagePath(self.icon)
+        self.icon = self.__get_image_path(self.icon)
         item = xbmcgui.ListItem(name, description)
         try:
             item.setIconImage(self.icon)
@@ -132,14 +144,19 @@ class ChannelInfo:
             return item
 
         if self.fanart is not None:
-            self.fanart = self.__GetImagePath(self.fanart)
+            self.fanart = self.__get_image_path(self.fanart)
         else:
             self.fanart = os.path.join(Config.rootDir, "fanart.jpg")
         item.setArt({'fanart': self.fanart})
         return item
 
     def __str__(self):
-        """Returns a string representation of the current channel."""
+        """Returns a string representation of the current channel.
+
+        :return: String representation for this object
+        :rtype: str
+
+        """
 
         if self.channelCode is None:
             return "%s [%s-%s=%s, %s=%s, %s, %s] (Order: %s)" % (
@@ -153,7 +170,12 @@ class ChannelInfo:
             )
 
     def __repr__(self):
-        """ Technical representation """
+        """ Technical representation
+
+        :return: Technical string representation for this object
+        :rtype: str
+
+        """
 
         return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (
             self, self.path, self.moduleName,
@@ -163,10 +185,11 @@ class ChannelInfo:
     def __eq__(self, other):
         """Compares to channel objects for equality
 
-        Arguments:
-        other : Channel - the other channel to compare to
-
         The comparison is based only on the self.guid of the channels.
+
+        :param ChannelInfo other: The other object to compare
+        :return: Whether other equals self
+        :rtype: bool
 
         """
 
@@ -178,24 +201,24 @@ class ChannelInfo:
     def __cmp__(self, other):
         """Compares to channels
 
-        Arguments:
-        other : Channel - the other channel to compare to
+        :param ChannelInfo other: The other object to compare
 
-        Returns:
-        The return value is negative if self < other, zero if self == other and strictly positive if self > other
+        :return: The return value is negative if self < other, zero if self == other and strictly
+                 positive if self > other
+        :rtype: int
 
         """
 
         if other is None:
             return 1
 
-        compVal = cmp(self.sortOrderPerCountry, other.sortOrderPerCountry)
-        if compVal == 0:
-            compVal = cmp(self.channelName, other.channelName)
+        comp_val = cmp(self.sortOrderPerCountry, other.sortOrderPerCountry)
+        if comp_val == 0:
+            comp_val = cmp(self.channelName, other.channelName)
 
-        return compVal
+        return comp_val
 
-    def __GetImagePath(self, image):
+    def __get_image_path(self, image):
         """ Tries to determine the path of an image
 
         Arguments:
@@ -213,15 +236,22 @@ class ChannelInfo:
         return TextureHandler.instance().get_texture_uri(self, image)
 
     @staticmethod
-    def FromJson(path, version="x.x.x.x"):
-        channelInfos = []
-        # Logger.Trace("Using JSON reader for %s", path)
+    def from_json(path, version="x.x.x.x"):
+        """ Generates a list of ChannelInfo objects present in the json meta data file.
 
-        jsonFile = open(path)
-        jsonData = jsonFile.read()
-        jsonFile.close()
+        :param str path: The path of the json file.
+        :param str version: Version of the channel set that contains the channel info file.
 
-        json = JsonHelper(jsonData, logger=Logger.Instance())
+        :return: The channel info objects within the json file.
+        :rtype: list[ChannelInfo]
+
+        """
+        channel_infos = []
+
+        with io.open(path, mode="r", encoding="utf-8") as json_file:
+            json_data = json_file.read()
+
+        json = JsonHelper(json_data, logger=Logger.Instance())
         channels = json.get_value("channels")
 
         if "settings" in json.json:
@@ -231,63 +261,31 @@ class ChannelInfo:
         Logger.Debug("Found %s channels and %s settings in %s", len(channels), len(settings), path)
 
         for channel in channels:
-            channelInfo = ChannelInfo(channel["guid"],
-                                      channel["name"],
-                                      channel["description"],
-                                      channel["icon"],
-                                      channel["category"],
-                                      path,
+            channel_info = ChannelInfo(channel["guid"],
+                                       channel["name"],
+                                       channel["description"],
+                                       channel["icon"],
+                                       channel["category"],
+                                       path,
 
-                                      # none required items
-                                      channel.get("channelcode", None),
-                                      channel.get("sortorder", 255),
-                                      channel.get("language", None),
-                                      eval(channel.get("compatible", "Environments.All")),
-                                      channel.get("fanart", None))
-            channelInfo.firstTimeMessage = channel.get("message", None)
+                                       # none required items
+                                       channel.get("channelcode", None),
+                                       channel.get("sortorder", 255),
+                                       channel.get("language", None),
+                                       eval(channel.get("compatible", "Environments.All")),
+                                       channel.get("fanart", None))
+            channel_info.firstTimeMessage = channel.get("message", None)
             # Disable spoofing for the moment
-            # channelInfo.localIPSupported = channel.get("localIPSupported", False)
-            channelInfo.settings = settings
-            channelInfo.version = version
+            # channel_info.localIPSupported = channel.get("localIPSupported", False)
+            channel_info.settings = settings
+            channel_info.version = version
 
             # validate a bit
-            if channelInfo.channelCode == "None":
+            if channel_info.channelCode == "None":
                 raise Exception("'None' as channelCode")
-            if channelInfo.language == "None":
+            if channel_info.language == "None":
                 raise Exception("'None' as language")
 
-            channelInfos.append(channelInfo)
+            channel_infos.append(channel_info)
 
-        return channelInfos
-
-    @staticmethod
-    def __GetText(channel, name):
-        """ retrieves the text from a XML node with a specific Name
-
-        Arguments:
-        parent : XML Element - The element to search
-        name   : String      - The name to search for
-
-        Returns an Byte Encoded string
-
-        """
-        text = channel[name]
-        if not text:
-            return text
-
-        return text
-
-
-if __name__ == "__main__":
-    ci = ChannelInfo("",
-                     "",
-                     "",
-                     "offloneicon.png",
-                     "Geen",
-                     __file__,
-                     "CODE",
-                     - 1,
-                     "NL",
-                     Environments.Android)
-    print ci
-    print repr(ci)
+        return channel_infos

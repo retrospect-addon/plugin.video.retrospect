@@ -329,7 +329,7 @@ class Plugin(ParameterParser):
                     continue
 
                 # Get the XBMC item
-                item = channel.GetXBMCItem()
+                item = channel.get_kodi_item()
                 item.setProperty(self.propertyRetrospect, "true")
                 item.setProperty(self.propertyRetrospectChannel, "true")
                 if channel.settings:
@@ -421,7 +421,7 @@ class Plugin(ParameterParser):
                     continue
 
                 # Get the XBMC item
-                item = episodeItem.GetXBMCItem()
+                item = episodeItem.get_kodi_item()
 
                 # Set the properties for the context menu add-on
                 item.setProperty(self.propertyRetrospect, "true")

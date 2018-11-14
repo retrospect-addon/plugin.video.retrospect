@@ -69,7 +69,7 @@ class Channel:
         self.id = channelInfo.id
 
         self.channelName = channelInfo.channelName
-        self.safeName = channelInfo.safeName
+        self.safeName = channelInfo.safe_name
         self.channelCode = channelInfo.channelCode
         self.channelDescription = channelInfo.channelDescription
         self.moduleName = channelInfo.moduleName

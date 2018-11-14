@@ -116,7 +116,7 @@ class ChannelIndex:
             self.__rebuild_index()
             return self.get_channel(class_name, channel_code)
 
-        channel_infos = ChannelInfo.FromJson(channel_set_info_path, channel_set_version)
+        channel_infos = ChannelInfo.from_json(channel_set_info_path, channel_set_version)
         if channel_code is None:
             channel_infos = filter(lambda ci: ci.channelCode is None, channel_infos)
         else:
@@ -147,7 +147,7 @@ class ChannelIndex:
         if info_only:
             return channel_infos[0]
 
-        return channel_infos[0].GetChannel()
+        return channel_infos[0].get_channel()
 
     # noinspection PyUnusedLocal
     def get_channels(self, include_disabled=False, **kwargs):
@@ -188,7 +188,7 @@ class ChannelIndex:
                 self.__rebuild_index()
                 return self.get_channels()
 
-            channel_infos = ChannelInfo.FromJson(channel_set_info_path, channel_set_version)
+            channel_infos = ChannelInfo.from_json(channel_set_info_path, channel_set_version)
 
             # Check if the channel was updated
             if self.__is_channel_set_updated(channel_infos[0]):

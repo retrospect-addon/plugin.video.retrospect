@@ -794,7 +794,7 @@ class AddonSettings(object):
         :param channel: The channel to display settings for.
         """
 
-        channel_name = channel.safeName
+        channel_name = channel.safe_name
 
         # remove some HTML chars
         channel_name = HtmlEntityHelper.convert_html_entities(channel_name)
@@ -1103,7 +1103,7 @@ class AddonSettings(object):
         # Create new XML
         channel_selection_xml = '        <!-- start of active channels -->\n' \
                                 '        <setting id="config_channel" type="select" label="30040" values="'
-        channel_safe_names = "|".join(map(lambda c: c.safeName, channels))
+        channel_safe_names = "|".join(map(lambda c: c.safe_name, channels))
         channel_selection_xml = "%s%s" % (channel_selection_xml, channel_safe_names)
         channel_selection_xml = '%s" />' % (channel_selection_xml.rstrip("|"),)
 
@@ -1157,11 +1157,11 @@ class AddonSettings(object):
                     if setting_value.startswith("id="):
                         setting_xml_id = setting_value[4:setting_value.index('"', 4)]
                         setting_xml = "<setting %s visible=\"eq(-{0},%s)\" />" % \
-                                      (setting_value, channel.safeName)
+                                      (setting_value, channel.safe_name)
                     else:
                         setting_xml_id = "channel_{0}_{1}".format(channel.guid, setting_id)
                         setting_xml = '<setting id="%s" %s visible=\"eq(-{0},%s)\" />' % \
-                                      (setting_xml_id, setting_value, channel.safeName)
+                                      (setting_xml_id, setting_value, channel.safe_name)
 
                     # existing_setting_xml_index = []
                     # for i, elem in enumerate(settings[channel.moduleName]):
@@ -1182,7 +1182,7 @@ class AddonSettings(object):
                         # we need to OR the visibility
                         setting_tuple = settings[channel.moduleName][xml_index]
                         setting = setting_tuple[1].replace(
-                            'visible="', 'visible="eq(-{0},%s)|' % (channel.safeName,))
+                            'visible="', 'visible="eq(-{0},%s)|' % (channel.safe_name,))
                         settings[channel.moduleName][xml_index] = (setting_tuple[0], setting)
 
             # remove if no settings else, add them to the list with settings
