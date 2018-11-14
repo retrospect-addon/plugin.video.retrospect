@@ -31,9 +31,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "gelderlandimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
-
         # setup the urls
         self.mainListUri = "http://www.omroepgelderland.nl/web/Uitzending-gemist-5/TV-1/Programmas/Actuele-programmas.htm"
         self.baseUrl = "http://www.omroepgelderland.nl"
@@ -115,8 +112,4 @@ class Channel(chn_class.Channel):
         item.SetDate(year, month, day)
         
         item.complete = True
-        return item
-    
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item

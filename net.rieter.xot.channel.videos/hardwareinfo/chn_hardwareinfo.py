@@ -30,9 +30,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "hardwareinfoimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownload", item_types="video"))
-
         # setup the urls
         # self.mainListUri = "https://www.youtube.com/feeds/videos.xml?user=hardwareinfovideo"
         self.mainListUri = "http://nl.hardware.info/tv/rss-private/streaming"
@@ -238,10 +235,4 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(s, b)
 
         item.complete = True
-        return item
-
-    def CtMnDownload(self, item):
-        """ downloads a video item and returns the updated one
-        """
-        item = self.DownloadVideoItem(item)
         return item

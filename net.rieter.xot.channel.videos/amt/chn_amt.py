@@ -32,9 +32,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "amtimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
-
         # setup the urls
         self.baseUrl = "http://trailers.apple.com"
         self.mainListUri = "http://trailers.apple.com/trailers/home/feeds/just_added.json"

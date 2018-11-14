@@ -25,9 +25,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "myvideoimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
-
         # setup the urls
         self.mainListUri = "http://www.myvideo.nl/"
         self.baseUrl = "http://www.myvideo.nl"
@@ -192,8 +189,4 @@ class Channel(chn_class.Channel):
         Logger.Trace("Updated mediaurl for %s", item)
         item.type = 'video'
         item.complete = True
-        return item
-
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item

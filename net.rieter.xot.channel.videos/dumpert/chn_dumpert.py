@@ -37,9 +37,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "dumpertimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
-
         # setup the urls
         self.baseUrl = "http://www.dumpert.nl/mediabase/flv/%s_YTDL_1.flv.flv"
 
@@ -190,13 +187,6 @@ class Channel(chn_class.Channel):
             return self.ProcessFolderList(temp)
 
         return items
-
-    #==============================================================================
-    # ContextMenu functions
-    #==============================================================================
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
-        return item
 
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """

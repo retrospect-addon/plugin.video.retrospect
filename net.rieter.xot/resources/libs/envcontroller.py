@@ -105,8 +105,8 @@ class EnvController:
         This method is mainly used for debugging purposes to provide developers a better insight
         into the system of the user.
 
-        :param Config config:   The Retrospect config object.
-        :param setting_info:    The AddonSettings object
+        :param Type[Config] config:   The Retrospect config object.
+        :param setting_info:          The AddonSettings object
 
         """
 

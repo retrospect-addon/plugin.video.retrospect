@@ -32,8 +32,6 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
 
         # configure login stuff
         # setup the urls
@@ -404,26 +402,6 @@ class Channel(chn_class.Channel):
                          broadcastDate.second)
 
         item.complete = True
-        return item
-
-    def CtMnDownloadItem(self, item):
-        """Downloads an existing MediaItem with more data.
-
-         Arguments:
-         item : MediaItem - the MediaItem that should be downloaded.
-
-         Returns:
-         The original item with more data added to it's properties.
-
-         Used to download an <item>. If the item is not complete, the self.UpdateVideoItem
-         method is called to update the item. The method downloads only the MediaStream
-         with the bitrate that was set in the addon settings.
-
-         After downloading the self.downloaded property is set.
-
-         """
-
-        item = self.DownloadVideoItem(item)
         return item
 
     def UpdateVideoItem(self, item):

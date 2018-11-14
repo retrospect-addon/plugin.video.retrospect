@@ -31,9 +31,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "extremeimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download item", "CtMnDownloadItem", item_types="video"))
-
         # setup the urls
         self.mainListUri = "http://extreme.com/"
         self.baseUrl = "http://extreme.com"
@@ -47,10 +44,6 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
-      
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
-        return item
     
     def CreateEpisodeItem(self, resultSet):
         """

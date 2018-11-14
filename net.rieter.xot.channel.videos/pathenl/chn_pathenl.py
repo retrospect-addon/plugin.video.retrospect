@@ -70,9 +70,6 @@ class Channel(chn_class.Channel):
         self.noImage = "patheimage.png"
         self.scheduleData = None
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", item_types="video"))
-
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
@@ -360,10 +357,6 @@ class Channel(chn_class.Channel):
             item.AppendSingleStream(video)
         
         item.complete = True
-        return item
-    
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item
 
     # def __JsonHandlerOpen(self, uri, proxy=None, maxBytes=0, params="", referer=None, additionalHeaders=None, noCache=False, progressCallback=None):
