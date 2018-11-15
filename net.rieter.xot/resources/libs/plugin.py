@@ -375,7 +375,7 @@ class Plugin(ParameterParser):
             Logger.Info("Showing favourites for: %s", channel)
 
         f = Favourites(Config.favouriteDir)
-        favs = f.List(channel)
+        favs = f.list(channel)
         return self.ProcessFolderList(favs)
 
     def ProcessFolderList(self, favorites=None):
@@ -404,7 +404,7 @@ class Plugin(ParameterParser):
                 Logger.Debug("ProcessFolderList returned %s items", len(episodeItems))
 
             xbmcItems = []
-            for episodeItem in episodeItems:
+            for episodeItem in episodeItems:  # type: MediaItem
                 if episodeItem.thumb == "":
                     episodeItem.thumb = self.channelObject.noImage
                 if episodeItem.fanart == "":
@@ -421,7 +421,7 @@ class Plugin(ParameterParser):
                     continue
 
                 # Get the XBMC item
-                item = episodeItem.get_kodi_item()
+                item = episodeItem.GetXBMCItem()
 
                 # Set the properties for the context menu add-on
                 item.setProperty(self.propertyRetrospect, "true")

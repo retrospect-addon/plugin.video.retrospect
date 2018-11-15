@@ -174,7 +174,7 @@ class Menu(ParameterParser):
             action = self.actionListFolder
 
         # add the favourite
-        f.Add(self.channelObject,
+        f.add(self.channelObject,
               item,
               self._CreateActionUrl(self.channelObject, action, item))
 
@@ -189,7 +189,7 @@ class Menu(ParameterParser):
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
-        f.Remove(item)
+        f.remove(item)
 
         # refresh the list
         self.refresh()

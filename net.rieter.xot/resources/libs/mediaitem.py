@@ -704,7 +704,7 @@ class MediaItem:
         if self.type == 'page':
             # We need to add the Page prefix to the item
             name = "%s %s" % (LanguageHelper.get_localized_string(LanguageHelper.Page), name)
-            Logger.Debug("get_kodi_item :: Adding Page Prefix")
+            Logger.Debug("GetXbmcItem :: Adding Page Prefix")
 
         elif self.__date != '' and not self.IsPlayable():
             # not playable items should always show date
