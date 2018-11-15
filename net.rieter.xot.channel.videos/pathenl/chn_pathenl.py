@@ -2,7 +2,6 @@
 import datetime
 
 import mediaitem
-import contextmenu
 import chn_class
 
 from helpers.datehelper import DateHelper

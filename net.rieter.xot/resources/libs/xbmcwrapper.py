@@ -137,7 +137,7 @@ class XbmcWrapper:
         """
 
         # let's just unlock the interface, in case it's locked.
-        LockWithDialog.CloseBusyDialog()
+        LockWithDialog.close_busy_dialog()
 
         keyboard = xbmc.Keyboard(default, heading, hidden)
         keyboard.doModal()
@@ -226,7 +226,7 @@ class XbmcWrapper:
         """
 
         # let's just unlock the interface, in case it's locked.
-        LockWithDialog.CloseBusyDialog()
+        LockWithDialog.close_busy_dialog()
 
         msgBox = xbmcgui.Dialog()
         if title == "":
@@ -254,7 +254,7 @@ class XbmcWrapper:
         """
 
         # let's just unlock the interface, in case it's locked.
-        LockWithDialog.CloseBusyDialog()
+        LockWithDialog.close_busy_dialog()
 
         msgBox = xbmcgui.Dialog()
         if title == "":

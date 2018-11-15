@@ -1,6 +1,5 @@
 import mediaitem
 import chn_class
-import contextmenu
 
 from helpers import xmlhelper
 from streams.youtube import YouTube

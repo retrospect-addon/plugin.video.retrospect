@@ -525,7 +525,7 @@ class Plugin(ParameterParser):
 
             # now we force the busy dialog to close, else the video will not play and the
             # setResolved will not work.
-            LockWithDialog.CloseBusyDialog()
+            LockWithDialog.close_busy_dialog()
 
             resolvedUrl = None
             if item.IsResolvable():

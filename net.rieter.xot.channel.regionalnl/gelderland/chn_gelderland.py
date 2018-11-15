@@ -1,5 +1,4 @@
 import mediaitem
-import contextmenu
 import chn_class
 from helpers import datehelper
 

@@ -1,6 +1,5 @@
 import urlparse
 
-import contextmenu
 import mediaitem
 import chn_class
 from addonsettings import AddonSettings

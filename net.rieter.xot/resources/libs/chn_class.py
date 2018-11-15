@@ -968,7 +968,7 @@ class Channel:
 
                     # now we force the busy dialog to close, else we cannot cancel the download
                     # setResolved will not work.
-                    LockWithDialog.CloseBusyDialog()
+                    LockWithDialog.close_busy_dialog()
 
                     # headers = item.HttpHeaders + part.HttpHeaders
                     headers = item.HttpHeaders.copy()
