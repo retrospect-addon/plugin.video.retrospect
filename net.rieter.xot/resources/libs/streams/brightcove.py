@@ -117,10 +117,7 @@ class BrightCove:
 
         if self.logger:
             self.logger.debug("Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s", content_id, player_key, experience_id, url)
-        else:
-            print "Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s" % (content_id, player_key, experience_id, url)
 
-        # const = '686a10e2a34ec3ea6af8f2f1c41788804e0480cb'
         pyamf.register_class(ViewerExperienceRequest, 'com.brightcove.experience.ViewerExperienceRequest')
         pyamf.register_class(ContentOverride, 'com.brightcove.experience.ContentOverride')
 
