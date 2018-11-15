@@ -207,7 +207,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(dataUrl, proxy=self.proxy)
         jsonData = Regexer.DoRegex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
         Logger.Trace(jsonData)
-        json = JsonHelper(jsonData[0], logger=Logger.Instance())
+        json = JsonHelper(jsonData[0], logger=Logger.instance())
         Logger.Trace(json)
 
         streams = json.get_value("assets")

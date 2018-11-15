@@ -125,7 +125,7 @@ class Favourites:
 
             Logger.Debug("Found favourite: %s", name)
             item = self.__pickler.DePickleMediaItem(pickle)
-            validation_error = self.__pickler.Validate(item, logger=Logger.Instance())
+            validation_error = self.__pickler.Validate(item, logger=Logger.instance())
             if validation_error:
                 Logger.Error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
 

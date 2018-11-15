@@ -30,71 +30,77 @@ class Logger:
     __logger = None
 
     @staticmethod
-    def Instance():
-        """ return the logger instance """
+    def instance():
+        """ return the logger instance
+
+        :returns: the current Logger instance
+        :rtype: Logger|None
+
+        """
+
         return Logger.__logger
 
     @staticmethod
-    def Exists():
-        """ returns a boolean indicating that a logger was created """
+    def exists():
+        """ returns a boolean indicating that a logger was created
+
+        :returns: whether or not a Logger instance exists
+        :rtype: bool
+
+        """
+
         return Logger.__logger is not None
 
     @staticmethod
-    def CreateLogger(logFileName, applicationName, minLogLevel=10, append=False, dualLogger=None):
-        """Intialises the Logger Instance and opens it for writing
+    def create_logger(log_file_name, application_name, min_log_level=10,
+                      append=False, dual_logger=None):
+        """ Intialises the Logger Instance and opens it for writing
 
-        Arguments:
-        logFile    : string  - Path of the log file to write to
-        logDual    : boolean - If set to True, exceptions are also written to the
-                               standard out.
+        :param str|None log_file_name:      Path of the log file to write to.
+        :param str application_name:        The name of the current application.
+        :param int min_log_level:           Minimum log level to log. Levels equal or higher are logged.
+        :param bool append:                 If set to True, the current log file is not deleted.
+                                            Default value is False.
+        :param function|None dual_logger:   A function that is used for dual logging.
 
-        Keyword Arguments:
-        append              : [opt] bool -     If set to True, the current log file is not deleted.
-                                               Default value is False.
-        minLogLevel         : [opt] integer -  Minimum log level to log. Levels equal or higher
-                                               are logged.
-        memoryInfoProvider  : [opt] function - Function for memory callback
-        dualLogger          : [opt] function - Fuction for dual logging
+        :return: The new Logger instance
+        :rtype: Logger
 
         """
 
         if Logger.__logger is None:
-            Logger.__logger = Logger(logFileName, applicationName, minLogLevel, append, dualLogger)
+            Logger.__logger = Logger(log_file_name, application_name, min_log_level, append, dual_logger)
             # Logger.__logger.dualLog("CREATING LOGGER: {0}".format(Logger.__logger.id))
         else:
             Logger.Warning("Cannot create a second logger instance!")
             # Logger.__logger.dualLog("EXISTING LOGGER: {0}".format(Logger.__logger.id))
         return Logger.__logger
 
-    def __init__(self, logFileName, applicationName, minLogLevel=10, append=False, dualLogger=None):
-        """Intialises the Logger Instance and opens it for writing
+    def __init__(self, log_file_name, application_name, min_log_level=10,
+                 append=False, dual_logger=None):
+        """ Intialises the Logger Instance and opens it for writing.
 
-        Arguments:
-        logFile    : string  - Path of the log file to write to
-        logDual    : boolean - If set to True, exceptions are also written to the
-                               standard out.
-
-        Keyword Arguments:
-        append     : [opt] bool    - If set to True, the current log file is not deleted.
-                                     Default value is False.
-        minLogLeve : [opt] integer - Minimum log level to log. Levels equal or higher
-                                     are logged.
+        :param str|None log_file_name:      Path of the log file to write to.
+        :param str application_name:        The name of the current application.
+        :param int min_log_level:           Minimum log level to log. Levels equal or higher are logged.
+        :param bool append:                 If set to True, the current log file is not deleted.
+                                            Default value is False.
+        :param function|None dual_logger:   A function that is used for dual logging.
 
         """
 
-        self.logFileName = logFileName
+        self.logFileName = log_file_name
         self.fileMode = "a"
         self.fileFlags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
 
-        self.minLogLevel = minLogLevel
-        self.dualLog = dualLogger
-        self.logDual = dualLogger is not None
+        self.minLogLevel = min_log_level
+        self.dualLog = dual_logger
+        self.logDual = dual_logger is not None
         self.logEntryCount = 0
-        self.flushInterval = 5 if logFileName is not None else 1
+        self.flushInterval = 5 if log_file_name is not None else 1
         self.encoding = 'cp1252'
-        self.applicationName = applicationName
+        self.applicationName = application_name
 
-        # self.logHandle = -1
         self.id = int(time.time())
         self.timeFormat = "%Y%m%d %H:%M:%S"
         self.logFormat = '%s - [%-8s] - %-20s - %-4d - %s\n'
@@ -109,14 +115,14 @@ class Logger:
         }
 
         if not append:
-            self.CleanUpLog()
+            self.clean_up_log()
 
         # now open the file
-        self.__OpenLog()
+        self.__open_log()
 
         # print to the XBMC logfile to tell the user the actual logfile path
         if self.dualLog:
-            dualLogger("%s :: Additional logging can be found in '%s'" % (self.applicationName, self.logFileName,), 1)
+            dual_logger("%s :: Additional logging can be found in '%s'" % (self.applicationName, self.logFileName,), 1)
         return
 
     @staticmethod
@@ -135,7 +141,7 @@ class Logger:
 
         """
 
-        Logger.__logger.__Write(msg, level=Logger.TRACE, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.TRACE, *args, **kwargs)
         return
 
     @staticmethod
@@ -154,7 +160,7 @@ class Logger:
 
         """
 
-        Logger.__logger.__Write(msg, level=Logger.DEBUG, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.DEBUG, *args, **kwargs)
         return
 
     @staticmethod
@@ -173,7 +179,7 @@ class Logger:
 
         """
 
-        Logger.__logger.__Write(msg, level=Logger.INFO, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.INFO, *args, **kwargs)
         return
 
     @staticmethod
@@ -192,7 +198,7 @@ class Logger:
 
         """
 
-        Logger.__logger.__Write(msg, level=Logger.ERROR, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.ERROR, *args, **kwargs)
         return
 
     @staticmethod
@@ -211,7 +217,7 @@ class Logger:
 
         """
 
-        Logger.__logger.__Write(msg, level=Logger.WARNING, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.WARNING, *args, **kwargs)
         return
 
     @staticmethod
@@ -230,23 +236,25 @@ class Logger:
 
         """
 
-        Logger.__logger.__Write(msg, level=Logger.CRITICAL, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.CRITICAL, *args, **kwargs)
         return
 
-    def CloseLog(self, logClosing=True):
-        """Close the logfile.
+    def close_log(self, log_closing=True):
+        """ Close the log file.
 
         Calling close() on a filehandle also closes the FileDescriptor
 
-        Keyword Arguments:
-        logClosing : boolean - indicates whether a log line is written on closure.
+        :param log_closing:     Are we actually going to close the log file? A log line
+                                is written on closure and the object is disposed of.
 
         """
 
-        if logClosing:
+        if log_closing:
             self.Info("%s :: Flushing and closing logfile.", self.applicationName)
+            # Logging for concurrency
             # self.dualLog("CURRENT LOGGER before: {0}".format(Logger.Instance() or "none"))
             Logger._Logger__logger = None
+            # Logging for concurrency
             # self.dualLog("CURRENT LOGGER after: {0}".format(Logger.Instance() or "none"))
             # self.dualLog("CLOSING LOGGER: {0}".format(self.id))
 
@@ -254,8 +262,8 @@ class Logger:
         if self.logHandle is not sys.stdout:
             self.logHandle.close()
 
-    def CleanUpLog(self):
-        """Closes an old log file and creates a new one.
+    def clean_up_log(self):
+        """ Closes an old log file and creates a new one.
 
         This method renames the current log file to .old.log and creates a
         new log file with the .log filename.
@@ -271,20 +279,20 @@ class Logger:
         # create old.log file
         print("%s :: Cleaning up logfile: %s" % (self.applicationName, self.logFileName))
         try:
-            wasOpen = True
-            self.CloseLog(logClosing=False)
+            was_open = True
+            self.close_log(log_closing=False)
         except:
-            wasOpen = False
+            was_open = False
 
-        (fileName, extension) = os.path.splitext(self.logFileName)
-        oldFileName = "%s.old%s" % (fileName, extension)
+        (file_name, extension) = os.path.splitext(self.logFileName)
+        old_file_name = "%s.old%s" % (file_name, extension)
         if os.path.exists(self.logFileName):
-            if os.path.exists(oldFileName):
-                os.remove(oldFileName)
-            os.rename(self.logFileName, oldFileName)
+            if os.path.exists(old_file_name):
+                os.remove(old_file_name)
+            os.rename(self.logFileName, old_file_name)
 
-        if wasOpen:
-            self.__OpenLog()
+        if was_open:
+            self.__open_log()
         return
 
     def __str__(self):
@@ -293,13 +301,9 @@ class Logger:
     def __repr__(self):
         return str(self.id)
 
-    def __Write(self, msg, *args, **kwargs):
-        """Writes the message to the log file taking into account
-        the given arguments and keyword arguments.
-
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
+    def __write(self, msg, *args, **kwargs):
+        """ Writes the message to the log file taking into account the given arguments and
+        keyword arguments.
 
         Keyword Arguments:
         kwargs : list - List of keyword arguments
@@ -307,14 +311,18 @@ class Logger:
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param str msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
         try:
-            formattedMessage = ""
-            logLevel = kwargs["level"]
+            formatted_message = ""
+            log_level = kwargs["level"]
 
             # determine if write is needed:
-            if logLevel < self.minLogLevel:
+            if log_level < self.minLogLevel:
                 return
 
             # convert possible tupple to string:
@@ -322,13 +330,10 @@ class Logger:
 
             # Fill the message with it's content
             if len(args) > 0:
-                # print "# of args: %s" % (len(args[0]))
                 msg = msg % args
-            else:
-                msg = msg
 
             # get frame information
-            (sourceFile, sourceLineNumber) = self.__FindCaller()
+            (source_file, source_line_number) = self.__find_caller()
 
             # get time information
             timestamp = datetime.datetime.today().strftime(self.timeFormat)
@@ -340,9 +345,6 @@ class Logger:
                 msg = "%s\n%s" % (msg, traceback.format_exc())
 
             # now split lines and write everyline into the logfile:
-            # result = re.compile("[\r\n]+", re.DOTALL + re.IGNORECASE)
-            # lines = result.split(msg)
-            # lines = re.split("[\r\n]+", msg)#, flags = re.DOTALL + re.IGNORECASE)
             lines = msg.splitlines()
 
             try:
@@ -355,31 +357,28 @@ class Logger:
                             continue
 
                         # if last line:
-                        if i == 0:
-                            line = line
-                        elif i == len(lines) - 1:
+                        if i == len(lines) - 1:
                             line = '+ %s' % (line, )
                         else:
                             line = '| %s' % (line, )
-                        formattedMessage = self.logFormat % (
+                        formatted_message = self.logFormat % (
                             timestamp,
-                            self.logLevelNames.get(logLevel),
-                            sourceFile,
-                            sourceLineNumber,
+                            self.logLevelNames.get(log_level),
+                            source_file,
+                            source_line_number,
                             line)
-                        self.logHandle.write(formattedMessage)
+                        self.logHandle.write(formatted_message)
                 else:
-                    formattedMessage = self.logFormat % (
+                    formatted_message = self.logFormat % (
                         timestamp,
-                        self.logLevelNames.get(logLevel),
-                        sourceFile,
-                        sourceLineNumber,
+                        self.logLevelNames.get(log_level),
+                        source_file,
+                        source_line_number,
                         msg)
-                    self.logHandle.write(formattedMessage)
+                    self.logHandle.write(formatted_message)
             except UnicodeEncodeError:
-                # self.Error("Unicode logging error", exc_info=True)
-                # formattedMessage = formattedMessage.encode('raw_unicode_escape')
-                self.logHandle.write(formattedMessage)
+                formatted_message = formatted_message.encode('raw_unicode_escape')
+                self.logHandle.write(formatted_message)
                 raise
 
             # Finally close the filehandle
@@ -398,45 +397,48 @@ class Logger:
                 self.dualLog(repr(msg))
                 self.dualLog(repr(args))
                 # noinspection PyUnboundLocalVariable
-                self.dualLog(repr(formattedMessage))
+                self.dualLog(repr(formatted_message))
                 self.dualLog("---------------------------")
             else:
                 traceback.print_exc()
 
-    def __FindCaller(self):
+    def __find_caller(self):
         """Find the stack frame of the caller.
 
         Find the stack frame of the caller so that we can note the source
         file name, line number and function name.
 
+        :return: the source file and line number of the caller
+        :rtype: tuple[str, int]
+
         """
-        returnValue = ("Unknown", 0)
+        return_value = ("Unknown", 0)
 
         # get the current frame and descent down until the correct one is found
         # noinspection PyProtectedMember
-        currentFrame = sys._getframe(3)  # could be _getframe(#) and (3)
-        while hasattr(currentFrame, "f_code"):
-            co = currentFrame.f_code
-            sourceFile = os.path.normcase(co.co_filename)
-            methodName = co.co_name
-            # if currentFrame belongs to this logger.py, equals <string> or equals a private log
+        current_frame = sys._getframe(3)  # could be _getframe(#) and (3)
+        while hasattr(current_frame, "f_code"):
+            co = current_frame.f_code
+            source_file = os.path.normcase(co.co_filename)
+            method_name = co.co_name
+            # if current_frame belongs to this logger.py, equals <string> or equals a private log
             # method (_log or __Log) continue searching.
-            if sourceFile == "<string>" \
-                    or sourceFile in os.path.normcase(__file__) \
-                    or "stopwatch.py" in sourceFile \
-                    or methodName in ("_Log", "__Log"):
-                currentFrame = currentFrame.f_back
+            if source_file == "<string>" \
+                    or source_file in os.path.normcase(__file__) \
+                    or "stopwatch.py" in source_file \
+                    or method_name in ("_Log", "__Log"):
+                current_frame = current_frame.f_back
                 continue
             else:
-                # get the sourcePath and sourceFile
-                (sourcePath, sourceFile) = os.path.split(sourceFile)
-                returnValue = (sourceFile, currentFrame.f_lineno)
+                # get the source_path and source_file
+                (source_path, source_file) = os.path.split(source_file)
+                return_value = (source_file, current_frame.f_lineno)
                 break
 
-        return returnValue
+        return return_value
 
-    def __OpenLog(self):
-        """Opens the log file for appending
+    def __open_log(self):
+        """ Opens the log file for appending.
 
         This method opens a logfile for writing. If one already exists, it will
         be appended. If it does not exist, a new one is created.
@@ -471,11 +473,11 @@ class Logger:
             # and set the pointer to the end.
             self.logHandle = io.open(self.logFileName, "r+b")
             self.logHandle.seek(0, 2)
-            self.__Write("XOT Logger :: Appending Existing logFile", level=Logger.INFO)
+            self.__write("XOT Logger :: Appending Existing logFile", level=Logger.INFO)
         else:
-            logDir = os.path.dirname(self.logFileName)
-            if not os.path.isdir(logDir):
-                os.makedirs(logDir)
+            log_dir = os.path.dirname(self.logFileName)
+            if not os.path.isdir(log_dir):
+                os.makedirs(log_dir)
             # no file exists, so just create a new one for writing
             self.logHandle = io.open(self.logFileName, "wb")
 

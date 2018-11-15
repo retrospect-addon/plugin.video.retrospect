@@ -428,7 +428,7 @@ class _RequestsHandler(object):
         proxies = self.__get_proxies(proxy, uri)
         if proxies is not None and "dns" in proxies:
             s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
-                                                       logger=Logger.Instance()))
+                                                       logger=Logger.instance()))
 
         headers = self.__get_headers(referer, additional_headers)
 

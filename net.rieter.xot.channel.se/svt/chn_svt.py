@@ -718,7 +718,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
         data = self.ExtractJsonData(data)[0]
-        json = JsonHelper(data, logger=Logger.Instance())
+        json = JsonHelper(data, logger=Logger.instance())
 
         # check for direct streams:
         streams = json.get_value("videoTitlePage", "video", "videoReferences")
@@ -764,7 +764,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
-        json = JsonHelper(data, logger=Logger.Instance())
+        json = JsonHelper(data, logger=Logger.instance())
         videos = json.get_value("videoReferences")
         subtitles = json.get_value("subtitleReferences")
         Logger.Trace(videos)

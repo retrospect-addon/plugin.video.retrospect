@@ -32,10 +32,10 @@ def run_plugin():
         else:
             append_log_file = True
 
-        log_file = Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                                       Config.appName,
-                                       append=append_log_file,
-                                       dualLogger=lambda x, y=4: xbmc.log(x, y))
+        log_file = Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                                        Config.appName,
+                                        append=append_log_file,
+                                        dual_logger=lambda x, y=4: xbmc.log(x, y))
 
         from urihandler import UriHandler
 
@@ -45,7 +45,7 @@ def run_plugin():
         from textures import TextureHandler
 
         # update the loglevel
-        Logger.Instance().minLogLevel = AddonSettings.get_log_level()
+        Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
         use_caching = AddonSettings.cache_http_responses()
         cache_dir = None
@@ -62,7 +62,7 @@ def run_plugin():
                                     ignoreSslErrors=ignore_ssl_errors)
 
         # start texture handler
-        TextureHandler.set_texture_handler(Config, Logger.Instance(), UriHandler.Instance())
+        TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.Instance())
 
         # run the plugin
         import plugin
@@ -71,7 +71,7 @@ def run_plugin():
         # make sure we leave no references behind
         AddonSettings.clear_cached_addon_settings_object()
         # close the log to prevent locking on next call
-        Logger.Instance().CloseLog()
+        Logger.instance().close_log()
         log_file = None
 
     except:

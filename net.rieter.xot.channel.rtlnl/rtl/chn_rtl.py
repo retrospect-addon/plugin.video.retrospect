@@ -170,7 +170,7 @@ class Channel(chn_class.Channel):
         items = []
 
         # We need to keep the JSON data, in order to refer to it from the create methods.
-        self.currentJson = JsonHelper(data, Logger.Instance())
+        self.currentJson = JsonHelper(data, Logger.instance())
 
         # Extract season (called abstracts) information
         self.abstracts = dict()  # : the season

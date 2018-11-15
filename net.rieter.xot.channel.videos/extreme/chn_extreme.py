@@ -114,7 +114,7 @@ class Channel(chn_class.Channel):
 
             part = item.CreateNewEmptyMediaPart()
             # But we need the IOS streams!
-            amfHelper = BrightCove(Logger.Instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
+            amfHelper = BrightCove(Logger.instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
             for stream, bitrate in amfHelper.get_stream_info(renditions="IOSRenditions"):
                 part.AppendMediaStream(stream, bitrate)
                 item.complete = True

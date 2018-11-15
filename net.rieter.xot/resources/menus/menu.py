@@ -25,10 +25,10 @@ sys.path.remove(addOnPath)
 
 from config import Config
 from logger import Logger
-Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                    Config.appName,
-                    append=True,
-                    dualLogger=lambda x, y=4: xbmc.log(x, y))
+Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                     Config.appName,
+                     append=True,
+                     dual_logger=lambda x, y=4: xbmc.log(x, y))
 
 from helpers.htmlentityhelper import HtmlEntityHelper
 from addonsettings import AddonSettings, LOCAL
@@ -39,7 +39,7 @@ from helpers.languagehelper import LanguageHelper
 from locker import LockWithDialog
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
-Logger.Instance().minLogLevel = AddonSettings.get_log_level()
+Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
 
 class Menu(ParameterParser):
@@ -157,7 +157,7 @@ class Menu(ParameterParser):
 
         xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmd_url))
 
-    @LockWithDialog(logger=Logger.Instance())
+    @LockWithDialog(logger=Logger.instance())
     def add_favourite(self):
         """ Adds the selected item to the favourites. The opens the favourite list. """
 
@@ -181,7 +181,7 @@ class Menu(ParameterParser):
         # we are finished, so just open the Favorites
         self.favourites()
 
-    @LockWithDialog(logger=Logger.Instance())
+    @LockWithDialog(logger=Logger.instance())
     def remove_favourite(self):
         """ Remove the selected favourite and then refresh the favourite list. """
 
@@ -203,7 +203,7 @@ class Menu(ParameterParser):
 
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.Instance())
+        c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.instance())
 
         if c.is_cloaked(item.url):
             c.un_cloak(item.url)
@@ -270,5 +270,5 @@ class Menu(ParameterParser):
         # make sure we leave no references behind
         AddonSettings.clear_cached_addon_settings_object()
         # close the log to prevent locking on next call
-        Logger.Instance().CloseLog()
+        Logger.instance().close_log()
         return False

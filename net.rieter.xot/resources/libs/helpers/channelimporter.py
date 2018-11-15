@@ -165,7 +165,7 @@ class ChannelIndex:
 
         """
 
-        sw = StopWatch("ChannelIndex.get_channels Importer", Logger.Instance())
+        sw = StopWatch("ChannelIndex.get_channels Importer", Logger.instance())
         Logger.Info("Fetching all enabled channels.")
 
         self.__allChannels = []
@@ -206,7 +206,7 @@ class ChannelIndex:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
                     title = LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)
                     text = LanguageHelper.get_localized_string(LanguageHelper.InitChannelText)
-                    XbmcWrapper.ShowNotification(title, text, displayTime=15000, logger=Logger.Instance())
+                    XbmcWrapper.ShowNotification(title, text, displayTime=15000, logger=Logger.instance())
                 channels_updated |= True
 
                 # Initialise the channelset.
@@ -352,7 +352,7 @@ class ChannelIndex:
             with io.open(self.__CHANNEL_INDEX, 'r', encoding='utf-8') as fd:
                 data = fd.read()
 
-            index_json = JsonHelper(data, logger=Logger.Instance())
+            index_json = JsonHelper(data, logger=Logger.instance())
             Logger.Debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
 
             if not self.__is_index_consistent(index_json.json):

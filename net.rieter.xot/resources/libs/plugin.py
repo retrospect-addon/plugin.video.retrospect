@@ -76,10 +76,10 @@ class Plugin(ParameterParser):
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
 
         # are we in session?
-        sessionActive = SessionHelper.is_session_active(Logger.Instance())
+        sessionActive = SessionHelper.is_session_active(Logger.instance())
 
         # fetch some environment settings
-        envCtrl = envcontroller.EnvController(Logger.Instance())
+        envCtrl = envcontroller.EnvController(Logger.instance())
         # self.FavouritesEnabled = envCtrl.SQLiteEnabled()
         self.FavouritesEnabled = not envCtrl.is_platform(Environments.Xbox)
 
@@ -95,7 +95,7 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
-            up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.Instance())
+            up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.instance())
             if up.IsNewVersionAvailable():
                 Logger.Info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
@@ -113,7 +113,7 @@ class Plugin(ParameterParser):
             envCtrl.cache_clean_up(Config.cacheDir, Config.cacheValidTime)
 
         # create a session
-        SessionHelper.create_session(Logger.Instance())
+        SessionHelper.create_session(Logger.instance())
 
         #===============================================================================
         #        Start the plugin version of progwindow
@@ -390,11 +390,11 @@ class Plugin(ParameterParser):
                 selectedItem = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
 
             if favorites is None:
-                watcher = StopWatch("Plugin ProcessFolderList", Logger.Instance())
+                watcher = StopWatch("Plugin ProcessFolderList", Logger.instance())
                 episodeItems = self.channelObject.ProcessFolderList(selectedItem)
                 watcher.lap("Class ProcessFolderList finished")
             else:
-                watcher = StopWatch("Plugin ProcessFolderList With Items", Logger.Instance())
+                watcher = StopWatch("Plugin ProcessFolderList With Items", Logger.instance())
                 episodeItems = favorites
 
             if len(episodeItems) == 0:
@@ -545,7 +545,7 @@ class Plugin(ParameterParser):
             showSubs = AddonSettings.use_subtitle()
             if srt and (srt != ""):
                 Logger.Info("Adding subtitle: %s and setting showSubtitles to %s", srt, showSubs)
-                XbmcWrapper.WaitForPlayerToStart(xbmcPlayer, logger=Logger.Instance(), url=resolvedUrl)
+                XbmcWrapper.WaitForPlayerToStart(xbmcPlayer, logger=Logger.instance(), url=resolvedUrl)
 
                 xbmcPlayer.setSubtitles(srt)
                 xbmcPlayer.showSubtitles(showSubs)
@@ -787,15 +787,15 @@ class Plugin(ParameterParser):
                                      title, XbmcWrapper.Error, 2500)
         return ok
 
-    @LockWithDialog(logger=Logger.Instance())
+    @LockWithDialog(logger=Logger.instance())
     def __SendLog(self):
         from helpers.logsender import LogSender
         senderMode = 'pastebin'
-        logSender = LogSender(Config.LogSenderApi, logger=Logger.Instance(), mode=senderMode)
+        logSender = LogSender(Config.LogSenderApi, logger=Logger.instance(), mode=senderMode)
         try:
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostSuccessTitle)
             urlText = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
-            filesToSend = [Logger.Instance().logFileName, Logger.Instance().logFileName.replace(".log", ".old.log")]
+            filesToSend = [Logger.instance().logFileName, Logger.instance().logFileName.replace(".log", ".old.log")]
             if senderMode != "gist":
                 pasteUrl = logSender.send_file(Config.logFileNameAddon, filesToSend[0])
             else:
@@ -810,7 +810,7 @@ class Plugin(ParameterParser):
             XbmcWrapper.ShowDialog(title, error.strip(": "))
         return
 
-    @LockWithDialog(logger=Logger.Instance())
+    @LockWithDialog(logger=Logger.instance())
     def __SetProxy(self, language, proxyId, localIP):
         """ Sets the proxy and local IP configuration for channels.
 

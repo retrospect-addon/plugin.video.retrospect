@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
             Logger.Debug("Loading video from BASE64 encoded JSON data")
             baseEncode = baseEncode[-1]
             jsonData = EncodingHelper.decode_base64(baseEncode)
-            json = JsonHelper(jsonData, logger=Logger.Instance())
+            json = JsonHelper(jsonData, logger=Logger.instance())
             Logger.Trace(json)
 
             # "flv": "http://media.dumpert.nl/flv/e2a926ff_10307954_804223649588516_151552487_n.mp4.flv",

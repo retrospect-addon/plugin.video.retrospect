@@ -125,7 +125,7 @@ class NpoStream:
         if not stream_data:
             return []
 
-        stream_json = JsonHelper(stream_data, logger=Logger.Instance())
+        stream_json = JsonHelper(stream_data, logger=Logger.instance())
         stream_infos = stream_json.get_value("items")[0]
         Logger.Trace(stream_infos)
         streams = []
@@ -147,7 +147,7 @@ class NpoStream:
             elif streamInfo["format"] == "hls":
                 m3u8_info_url = streamInfo["url"]
                 m3u8_info_data = UriHandler.Open(m3u8_info_url, proxy=proxy, additionalHeaders=headers)
-                m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.Instance())
+                m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.instance())
                 m3u8_url = m3u8_info_json.get_value("url")
                 streams += M3u8.get_streams_from_m3u8(m3u8_url, proxy, headers=headers)
 
@@ -159,7 +159,7 @@ class NpoStream:
                 else:
                     url = url.replace("jsonp", "json")
                     mp4_url_data = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
-                    mp4_info_json = JsonHelper(mp4_url_data, logger=Logger.Instance())
+                    mp4_info_json = JsonHelper(mp4_url_data, logger=Logger.instance())
                     mp4_url = mp4_info_json.get_value("url")
                 bitrate = bitrates.get(streamInfo["label"].lower(), 0)
                 if bitrate == 0 and "/ipod/" in mp4_url:

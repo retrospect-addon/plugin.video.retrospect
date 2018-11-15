@@ -295,7 +295,7 @@ class Channel:
                     if isinstance(handlerData, JsonHelper):
                         handlerJson = handlerData
                     else:
-                        handlerJson = JsonHelper(handlerData, Logger.Instance())
+                        handlerJson = JsonHelper(handlerData, Logger.instance())
 
                 Logger.Trace(dataParser.Parser)
                 parserResults = handlerJson.get_value(fallback=[], *dataParser.Parser)
@@ -339,7 +339,7 @@ class Channel:
             items = filter(lambda i: not i.isPaid or i.type == typeToExclude, items)
             # items = filter(lambda i: not i.isPaid or i.type == "folder", items)
 
-        cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.Instance())
+        cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.instance())
         if not AddonSettings.show_cloaked_items():
             Logger.Debug("Hiding Cloaked items")
             items = filter(lambda i: not cloaker.is_cloaked(i.url), items)
@@ -464,7 +464,7 @@ class Channel:
         Logger.Trace("Retrieved %s chars as mainlist data", len(data))
 
         # first process folder items.
-        watch = StopWatch('Mainlist', Logger.Instance())
+        watch = StopWatch('Mainlist', Logger.instance())
 
         episodeItems = []
         if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
@@ -474,7 +474,7 @@ class Channel:
 
         elif self.episodeItemJson is not None:
             Logger.Trace("Using JsonHelper for episodes")
-            json = JsonHelper(data, Logger.Instance())
+            json = JsonHelper(data, Logger.instance())
             episodeItems = json.get_value(*self.episodeItemJson)
             watch.lap("Mainlist Json complete")
 

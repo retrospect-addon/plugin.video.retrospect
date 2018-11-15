@@ -70,9 +70,9 @@ class AddonSettings(object):
                 return store
 
             if store_location == KODI:
-                store = kodisettings.KodiSettings(Logger.Instance())
+                store = kodisettings.KodiSettings(Logger.instance())
             elif store_location == LOCAL:
-                store = localsettings.LocalSettings(Config.profileDir, Logger.Instance())
+                store = localsettings.LocalSettings(Config.profileDir, Logger.instance())
             else:
                 raise IndexError("Cannot find Setting store type: {0}".format(store_location))
 
@@ -1031,7 +1031,7 @@ class AddonSettings(object):
         # Now fill the templates, we only import here due to performance penalties of the
         # large number of imports.
         from helpers.templatehelper import TemplateHelper
-        th = TemplateHelper(Logger.Instance(), template=new_contents)
+        th = TemplateHelper(Logger.instance(), template=new_contents)
         new_contents = th.Transform()
 
         # Finally we insert the new XML into the old one

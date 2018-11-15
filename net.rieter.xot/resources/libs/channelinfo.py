@@ -251,7 +251,7 @@ class ChannelInfo:
         with io.open(path, mode="r", encoding="utf-8") as json_file:
             json_data = json_file.read()
 
-        json = JsonHelper(json_data, logger=Logger.Instance())
+        json = JsonHelper(json_data, logger=Logger.instance())
         channels = json.get_value("channels")
 
         if "settings" in json.json:

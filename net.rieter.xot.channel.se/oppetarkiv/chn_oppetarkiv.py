@@ -279,7 +279,7 @@ class Channel(chn_class.Channel):
         Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        json = JsonHelper(data, Logger.Instance())
+        json = JsonHelper(data, Logger.instance())
         videoData = json.get_value("video")
         if videoData:
             part = item.CreateNewEmptyMediaPart()

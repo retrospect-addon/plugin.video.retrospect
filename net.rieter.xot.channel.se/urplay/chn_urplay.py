@@ -302,7 +302,7 @@ class Channel(chn_class.Channel):
         # Extract stream JSON data from HTML
         streams = Regexer.DoRegex(self.mediaUrlRegex, data)
         jsonData = streams[0]
-        json = JsonHelper(jsonData, logger=Logger.Instance())
+        json = JsonHelper(jsonData, logger=Logger.instance())
         Logger.Trace(json.json)
 
         item.MediaItemParts = []

@@ -447,7 +447,7 @@ class Channel(chn_class.Channel):
         secureUrl = secureUrl.rstrip("/")
         secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
         data = UriHandler.Open(secureUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-        secureData = JsonHelper(data, logger=Logger.Instance())
+        secureData = JsonHelper(data, logger=Logger.instance())
         mzid = secureData.get_value(secureData.json.keys()[0], "videoid")
 
         # region New URL retrieval with DRM protection

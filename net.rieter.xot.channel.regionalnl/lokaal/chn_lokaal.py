@@ -208,7 +208,7 @@ class Channel(chn_class.Channel):
             return "", items
 
         # we basically will check for live channels
-        jsonData = JsonHelper(data, logger=Logger.Instance())
+        jsonData = JsonHelper(data, logger=Logger.instance())
         liveStreams = jsonData.get_value()
 
         Logger.Trace(liveStreams)
