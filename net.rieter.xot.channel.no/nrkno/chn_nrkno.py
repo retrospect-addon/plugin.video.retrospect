@@ -132,7 +132,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         live = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
@@ -156,7 +156,7 @@ class Channel(chn_class.Channel):
             item.HttpHeaders = self.httpHeaders
             items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateAlphaItem(self, result_set):
@@ -196,7 +196,7 @@ class Channel(chn_class.Channel):
 
         program_type = result_set.get("type", "???").lower()
         if program_type != "series":
-            Logger.Debug("Item '%s' has type '%s'. Ignoring", title, program_type)
+            Logger.debug("Item '%s' has type '%s'. Ignoring", title, program_type)
             return None
 
         return self.CreateGenericItem(result_set, program_type)
@@ -206,7 +206,7 @@ class Channel(chn_class.Channel):
 
         program_type = result_set.get("type", "???").lower()
         if program_type not in ("programme", "series"):
-            Logger.Debug("Item '%s' has type '%s'. Ignoring", title, program_type)
+            Logger.debug("Item '%s' has type '%s'. Ignoring", title, program_type)
             return None
 
         return self.CreateGenericItem(result_set, program_type)
@@ -218,7 +218,7 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
 
         if not result_set.get("hasOndemandRights", True):
-            Logger.Debug("Item '%s' has no on-demand rights", title)
+            Logger.debug("Item '%s' has no on-demand rights", title)
             return None
 
         item_id = result_set["id"]
@@ -273,7 +273,7 @@ class Channel(chn_class.Channel):
             title = "{} - {}".format(title, sub_title)
 
         if not result_set["usageRights"].get("hasRightsNow", True):
-            Logger.Debug("Found '%s' without 'usageRights'", title)
+            Logger.debug("Found '%s' without 'usageRights'", title)
             return None
 
         url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["id"], self.__api_key)
@@ -314,7 +314,7 @@ class Channel(chn_class.Channel):
         #     title = "{} - {}".format(title, sub_title)
 
         if result_set.get("availability", {}).get("status", "available") != "available":
-            Logger.Debug("Found '%s' with a non-available status", title)
+            Logger.debug("Found '%s' with a non-available status", title)
             return None
 
         url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["prfId"], self.__api_key)
@@ -327,11 +327,11 @@ class Channel(chn_class.Channel):
             item.description = sub_title
 
         if "firstTransmissionDateDisplayValue" in result_set:
-            Logger.Trace("Using 'firstTransmissionDateDisplayValue' for date")
+            Logger.trace("Using 'firstTransmissionDateDisplayValue' for date")
             day, month, year = result_set["firstTransmissionDateDisplayValue"].split(".")
             item.SetDate(year, month, day)
         elif "usageRights" in result_set and "from" in result_set["usageRights"] and result_set["usageRights"]["from"] is not None:
-            Logger.Trace("Using 'usageRights.from.date' for date")
+            Logger.trace("Using 'usageRights.from.date' for date")
             date_value = result_set["usageRights"]["from"]["date"].split("+")[0]
             time_stamp = DateHelper.get_date_from_string(date_value, date_format="%Y-%m-%dT%H:%M:%S")
             item.SetDate(*time_stamp[0:6])
@@ -357,7 +357,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy, noCache=True, additionalHeaders=headers)
         manifest = JsonHelper(data)
         if "nonPlayable" in manifest.json and manifest.json["nonPlayable"]:
-            Logger.Error("Cannot update Live: %s", item)
+            Logger.error("Cannot update Live: %s", item)
             return item
 
         source = manifest.get_value("sourceMedium")
@@ -420,7 +420,7 @@ class Channel(chn_class.Channel):
         if encrypted:
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
             if not use_adaptive:
-                Logger.Error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
+                Logger.error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
                 return item
             stream = part.AppendMediaStream(url, 0)
             key = M3u8.get_license_key("", key_headers=headers, key_type="R")
@@ -442,20 +442,20 @@ class Channel(chn_class.Channel):
     def __set_date(self, result_set, item):
         if "usageRights" in result_set and "availableFrom" in result_set["usageRights"] \
                 and result_set["usageRights"]["availableFrom"] is not None:
-            Logger.Trace("Using 'usageRights.availableFrom' for date")
+            Logger.trace("Using 'usageRights.availableFrom' for date")
             # availableFrom=/Date(1540612800000+0200)/
             epoch_stamp = result_set["usageRights"]["availableFrom"][6:16]
             available_from = DateHelper.get_date_from_posix(int(epoch_stamp))
             item.SetDate(available_from.year, available_from.month, available_from.day)
 
         elif "episodeNumberOrDate" in result_set and result_set["episodeNumberOrDate"] is not None:
-            Logger.Trace("Using 'episodeNumberOrDate' for date")
+            Logger.trace("Using 'episodeNumberOrDate' for date")
             date_parts = result_set["episodeNumberOrDate"].split(".")
             if len(date_parts) == 3:
                 item.SetDate(date_parts[2], date_parts[1], date_parts[0])
 
         elif "programUrlMetadata" in result_set and result_set["programUrlMetadata"] is not None:
-            Logger.Trace("Using 'programUrlMetadata' for date")
+            Logger.trace("Using 'programUrlMetadata' for date")
             date_parts = result_set["programUrlMetadata"].split("-")
             if len(date_parts) == 3:
                 item.SetDate(date_parts[2], date_parts[1], date_parts[0])

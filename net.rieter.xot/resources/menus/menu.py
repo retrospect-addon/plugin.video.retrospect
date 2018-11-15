@@ -45,7 +45,7 @@ Logger.instance().minLogLevel = AddonSettings.get_log_level()
 class Menu(ParameterParser):
 
     def __init__(self, action):
-        Logger.Info("**** Starting menu '%s' for %s add-on version %s ****",
+        Logger.info("**** Starting menu '%s' for %s add-on version %s ****",
                     action, Config.appName, Config.version)
 
         # noinspection PyUnresolvedReferences
@@ -63,7 +63,7 @@ class Menu(ParameterParser):
         super(Menu, self).__init__(name, params)
 
         self.channelObject = self.__get_channel()
-        Logger.Debug("Plugin Params: %s (%s)\n"
+        Logger.debug("Plugin Params: %s (%s)\n"
                      "Name:        %s\n"
                      "Query:       %s", self.params, len(self.params), self.pluginName, params)
 
@@ -75,7 +75,7 @@ class Menu(ParameterParser):
     def hide_channel(self):
         """ Hides a specific channel """
 
-        Logger.Info("Hiding channel: %s", self.channelObject)
+        Logger.info("Hiding channel: %s", self.channelObject)
         AddonSettings.set_channel_visiblity(self.channelObject, False)
         self.refresh()
 
@@ -90,7 +90,7 @@ class Menu(ParameterParser):
 
         selected_channels = filter(lambda c: c.enabled, channels_to_show)
         selected_indices = map(lambda c: channels_to_show.index(c), selected_channels)
-        Logger.Debug("Currently selected channels: %s", selected_indices)
+        Logger.debug("Currently selected channels: %s", selected_indices)
 
         channel_to_show_names = map(lambda c: HtmlEntityHelper.convert_html_entities(c.channelName),
                                     channels_to_show)
@@ -103,16 +103,16 @@ class Menu(ParameterParser):
             return
 
         selected_channels = list(selected_channels)
-        Logger.Debug("New selected channels:       %s", selected_channels)
+        Logger.debug("New selected channels:       %s", selected_channels)
 
         indices_to_remove = filter(lambda i: i not in selected_channels, selected_indices)
         indices_to_add = filter(lambda i: i not in selected_indices, selected_channels)
         for i in indices_to_remove:
-            Logger.Info("Hiding channel: %s", channels_to_show[i])
+            Logger.info("Hiding channel: %s", channels_to_show[i])
             AddonSettings.set_channel_visiblity(channels_to_show[i], False)
 
         for i in indices_to_add:
-            Logger.Info("Showing channel: %s", channels_to_show[i])
+            Logger.info("Showing channel: %s", channels_to_show[i])
             AddonSettings.set_channel_visiblity(channels_to_show[i], True)
 
         self.refresh()
@@ -165,7 +165,7 @@ class Menu(ParameterParser):
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         # no need for dates in the favourites
         # item.ClearDate()
-        Logger.Debug("Adding favourite: %s", item)
+        Logger.debug("Adding favourite: %s", item)
 
         f = Favourites(Config.favouriteDir)
         if item.IsPlayable():
@@ -187,7 +187,7 @@ class Menu(ParameterParser):
 
         # remove the item
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Debug("Removing favourite: %s", item)
+        Logger.debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
         f.remove(item)
 
@@ -202,7 +202,7 @@ class Menu(ParameterParser):
         """ Toggles the cloaking (showing/hiding) of the selected folder. """
 
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Info("Cloaking current item: %s", item)
+        Logger.info("Cloaking current item: %s", item)
         c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.instance())
 
         if c.is_cloaked(item.url):
@@ -229,7 +229,7 @@ class Menu(ParameterParser):
             .split("|")
 
         current_bitrate = AddonSettings.get_max_channel_bitrate(self.channelObject)
-        Logger.Debug("Found bitrate for %s: %s", self.channelObject, current_bitrate)
+        Logger.debug("Found bitrate for %s: %s", self.channelObject, current_bitrate)
         current_bitrate_index = 0 if current_bitrate not in bitrate_options \
             else bitrate_options.index(current_bitrate)
 
@@ -240,7 +240,7 @@ class Menu(ParameterParser):
         if selected_bitrate < 0:
             return
 
-        Logger.Info("Changing bitrate for %s from %s to %s",
+        Logger.info("Changing bitrate for %s from %s to %s",
                     self.channelObject,
                     bitrate_options[current_bitrate_index],
                     bitrate_options[selected_bitrate])
@@ -255,9 +255,9 @@ class Menu(ParameterParser):
         if not chn:
             return None
 
-        Logger.Debug("Fetching channel %s - %s", chn, code)
+        Logger.debug("Fetching channel %s - %s", chn, code)
         channel = ChannelIndex.get_register().get_channel(chn, code, info_only=True)
-        Logger.Debug("Created channel: %s", channel)
+        Logger.debug("Created channel: %s", channel)
         return channel
 
     def __enter__(self):
@@ -265,7 +265,7 @@ class Menu(ParameterParser):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
-            Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
+            Logger.critical("Error in menu handling: %s", exc_val.message, exc_info=True)
 
         # make sure we leave no references behind
         AddonSettings.clear_cached_addon_settings_object()

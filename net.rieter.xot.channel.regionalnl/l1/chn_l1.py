@@ -83,7 +83,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if '>Populair<' in data:
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
         if '>L1-kanalen<' in data:
             data = data[:data.index('>L1-kanalen<')]
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
 
         # add live items
         title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
@@ -145,7 +145,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         thumbUrl = resultSet[1]
         url = "%s%s" % (self.baseUrl, resultSet[2])
@@ -163,7 +163,7 @@ class Channel(chn_class.Channel):
             day = resultSet[3]
             month = resultSet[4]
             year = resultSet[5]
-            Logger.Trace("%s-%s-%s", year, month, day)
+            Logger.trace("%s-%s-%s", year, month, day)
             month = datehelper.DateHelper.get_month_from_name(month, "nl", True)
             item.SetDate(year, month, day)
 
@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         javascriptUrls = Regexer.DoRegex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
@@ -206,9 +206,9 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(dataUrl, proxy=self.proxy)
         jsonData = Regexer.DoRegex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
-        Logger.Trace(jsonData)
+        Logger.trace(jsonData)
         json = JsonHelper(jsonData[0], logger=Logger.instance())
-        Logger.Trace(json)
+        Logger.trace(json)
 
         streams = json.get_value("assets")
         item.MediaItemParts = []

@@ -54,7 +54,7 @@ class TextureHandler:
 
         mode = config.TextureMode.lower()
         if logger is not None:
-            logger.Trace("Creating '%s' Texture Mananger", mode)
+            logger.trace("Creating '%s' Texture Mananger", mode)
 
         if mode == Local:
             import local
@@ -172,14 +172,14 @@ class TextureHandler:
 
         results = JsonHelper(json_results, logger=self._logger)
         if "error" in results.json or "result" not in results.json:
-            self._logger.Error("Error retreiving textures:\nCmd   : %s\nResult: %s", json_cmd, results.json)
+            self._logger.error("Error retreiving textures:\nCmd   : %s\nResult: %s", json_cmd, results.json)
             return
 
         results = results.get_value("result", "textures", fallback=[])
         for result in results:
             texture_id = result["textureid"]
             texture_url = result["url"]
-            self._logger.Debug("Going to remove texture: %d - %s", texture_id, texture_url)
+            self._logger.debug("Going to remove texture: %d - %s", texture_id, texture_url)
             json_cmd = '{' \
                        '"jsonrpc": "2.0", ' \
                        '"method": "Textures.RemoveTexture", ' \

@@ -101,7 +101,7 @@ class Channel(chn_class.Channel):
 
         now = datetime.datetime.now()
         fromDate = now - datetime.timedelta(6)
-        Logger.Debug("Showing dates starting from %02d%02d%02d to %02d%02d%02d", fromDate.year, fromDate.month, fromDate.day, now.year, now.month, now.day)
+        Logger.debug("Showing dates starting from %02d%02d%02d to %02d%02d%02d", fromDate.year, fromDate.month, fromDate.day, now.year, now.month, now.day)
         current = fromDate
         while current <= now:
             url = "https://api.538.nl/api/v1/schedule/station/radio-538" \
@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
         if itemType.lower() != "station":
             return None
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         fields = resultSet["fields"]
         # title = fields["title"]
         streamTypes = fields["streamType"]
@@ -262,7 +262,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         startDate = resultSet['start']  # 2017-01-01T00:00:00+01:00
         startTimeStamp = DateHelper.get_date_from_string(startDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
@@ -306,7 +306,7 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(stream, 0)
             hour += 1
         else:
-            Logger.Warning("Found item without streams: %s", item)
+            Logger.warning("Found item without streams: %s", item)
             return None
         return item
 
@@ -314,7 +314,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
         xml = parseString(data)
         streamXmls = xml.getElementsByTagName("mountpoint")
-        Logger.Debug("Found %d streams", len(streamXmls))
+        Logger.debug("Found %d streams", len(streamXmls))
         part = item.CreateNewEmptyMediaPart()
         for streamXml in streamXmls:
             serverXml = streamXml.getElementsByTagName("server")[0]
@@ -334,7 +334,7 @@ class Channel(chn_class.Channel):
                     suffix = transport.attributes["mountSuffix"].firstChild.nodeValue
                     url = "{0}://{1}:{2}/{3}{4}".format(protocol, server, port, entry, suffix)
                 else:
-                    Logger.Debug("Ignoring transport type: %s", transportType)
+                    Logger.debug("Ignoring transport type: %s", transportType)
                     continue
 
                 part.AppendMediaStream(url, bitrate)

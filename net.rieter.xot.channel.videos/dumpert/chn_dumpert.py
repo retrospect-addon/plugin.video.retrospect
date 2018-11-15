@@ -106,7 +106,7 @@ class Channel(chn_class.Channel):
             month = datehelper.DateHelper.get_month_from_name(resultSet[4], "nl")
             item.SetDate(resultSet[5], month, resultSet[3], resultSet[6], resultSet[7], 0)
         except:
-            Logger.Error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
+            Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 
         item.complete = False
         item.downloadable = True
@@ -123,11 +123,11 @@ class Channel(chn_class.Channel):
 
         baseEncode = Regexer.DoRegex('data-files="([^"]+)', data)
         if baseEncode:
-            Logger.Debug("Loading video from BASE64 encoded JSON data")
+            Logger.debug("Loading video from BASE64 encoded JSON data")
             baseEncode = baseEncode[-1]
             jsonData = EncodingHelper.decode_base64(baseEncode)
             json = JsonHelper(jsonData, logger=Logger.instance())
-            Logger.Trace(json)
+            Logger.trace(json)
 
             # "flv": "http://media.dumpert.nl/flv/e2a926ff_10307954_804223649588516_151552487_n.mp4.flv",
             # "tablet": "http://media.dumpert.nl/tablet/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
@@ -152,9 +152,9 @@ class Channel(chn_class.Channel):
                         item.complete = True
                         part.AppendMediaStream(s, b)
                 else:
-                    Logger.Debug("Key '%s' was not used", key)
+                    Logger.debug("Key '%s' was not used", key)
             item.complete = True
-            Logger.Trace("VideoItem updated: %s", item)
+            Logger.trace("VideoItem updated: %s", item)
             return item
 
         youtubeId = Regexer.DoRegex("class='yt-iframe'[^>]+src='https://www.youtube.com/embed/([^?]+)", data)
@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.dumpert.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.dumpert.nl")
 
         # Set-Cookie: cpc=10; path=/; domain=www.dumpert.nl; expires=Thu, 11-Jun-2020 18:49:38 GMT
         UriHandler.SetCookie(name='cpc', value='10', domain='.www.dumpert.nl')

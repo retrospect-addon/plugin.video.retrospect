@@ -116,7 +116,7 @@ class Channel(chn_class.Channel):
         
         """
         
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         
         # extract the category name from the pagedata
@@ -125,7 +125,7 @@ class Channel(chn_class.Channel):
         if len(results) > 0:
             self.categoryName = results[0]
         
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
     
     def CreateEpisodeItem(self, resultSet):
@@ -137,7 +137,7 @@ class Channel(chn_class.Channel):
         #                            0                     1                                
         item = mediaitem.MediaItem(resultSet[1], HtmlEntityHelper.strip_amp("%s%s" % (self.baseUrl, resultSet[0])))
         item.icon = self.icon
-        Logger.Trace("%s (%s)", item.name, item.url)
+        Logger.trace("%s (%s)", item.name, item.url)
         return item
     
     def CreateVideoItem(self, resultSet):
@@ -160,7 +160,7 @@ class Channel(chn_class.Channel):
          
         """
 
-        Logger.Trace('starting FormatVideoItem for %s', self.channelName)
+        Logger.trace('starting FormatVideoItem for %s', self.channelName)
         #<img id='([^']+)' src='([^']+)' class='vThumb' alt='[^']*'/></a></div></div><div class='sCenter vTitle'><span class='title'><a[^>]+title='([^']+)'>
         #            0            1                                                                                                                    2
         name = resultSet[2]
@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
         mediaurl = "%s.flv" % (mediaurl, )
         
         item.AppendSingleStream(mediaurl)
-        Logger.Trace("Updated mediaurl for %s", item)
+        Logger.trace("Updated mediaurl for %s", item)
         item.type = 'video'
         item.complete = True
         return item

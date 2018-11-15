@@ -103,7 +103,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         subItems = {
@@ -118,7 +118,7 @@ class Channel(chn_class.Channel):
             items.append(item)
             item.isLive = v.endswith('/direct/')
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
 
     def CreateCategory(self, resultSet):
         resultSet = resultSet["@attributes"]
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         # http://www.rtbf.be/auvio/archives?caid=29&contentType=complete,extract,bonus
         # {
         # u'url': u'http://www.rtbf.be/auvio/categorie/sport/football?id=11',
@@ -184,7 +184,7 @@ class Channel(chn_class.Channel):
         mediaInfo = Regexer.DoRegex(mediaRegex, data)[0]
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
-        Logger.Trace(mediaInfo)
+        Logger.trace(mediaInfo)
 
         # sources
         part = item.CreateNewEmptyMediaPart()
@@ -213,25 +213,25 @@ class Channel(chn_class.Channel):
         mediaInfo = Regexer.DoRegex(mediaRegex, data)[0]
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
-        Logger.Trace(mediaInfo)
+        Logger.trace(mediaInfo)
         part = item.CreateNewEmptyMediaPart()
 
         hlsUrl = mediaInfo.get_value("streamUrl")
         if hlsUrl is not None and "m3u8" in hlsUrl:
-            Logger.Debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
+            Logger.debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
             # from debug.router import Router
             # data = Router.GetVia("be", hlsUrl, proxy=self.proxy)
             for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
                 part.AppendMediaStream(s, b)
                 item.complete = True
         else:
-            Logger.Debug("No HLS url found for %s. Fetching RTMP Token.", mediaInfo.json["streamName"])
+            Logger.debug("No HLS url found for %s. Fetching RTMP Token.", mediaInfo.json["streamName"])
             # fetch the token:
             tokenUrl = "%s/api/media/streaming?streamname=%s" % (self.baseUrl, mediaInfo.json["streamName"])
             tokenData = UriHandler.Open(tokenUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
             tokenData = JsonHelper(tokenData)
             token = tokenData.get_value("token")
-            Logger.Debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])
+            Logger.debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])
 
             rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
             rtmpUrl = self.GetVerifiableVideoUrl(rtmpUrl)

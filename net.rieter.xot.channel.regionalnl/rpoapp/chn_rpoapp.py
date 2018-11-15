@@ -97,7 +97,7 @@ class Channel(chn_class.Channel):
         return
 
     def AddLiveChannelAndExtractData(self, data):
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
@@ -110,10 +110,10 @@ class Channel(chn_class.Channel):
 
         jsonData = Regexer.DoRegex("setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
         if isinstance(jsonData, (tuple, list)) and len(jsonData) > 0:
-            Logger.Debug("Pre-Processing finished")
+            Logger.debug("Pre-Processing finished")
             return jsonData[0], items
 
-        Logger.Info("Cannot extract JSON data from HTML.")
+        Logger.info("Cannot extract JSON data from HTML.")
         return data, items
 
     def CreateLiveItem(self, result):
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonEpisodeItem(self, result):
-        Logger.Trace(result)
+        Logger.trace(result)
         url = "{}/RadioTv/Results?medium=Tv&query=&category={}&from=&to=&page=1".format(self.baseUrl, result["seriesId"])
         title = result["title"]
         item = mediaitem.MediaItem(title, url)
@@ -150,7 +150,7 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonVideoItem(self, result):
-        Logger.Trace(result)
+        Logger.trace(result)
         url = result["url"]
         if not url.startswith("http"):
             url = "{}{}".format(self.baseUrl, url)
@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
                 minutes = int(minutes)
                 item.SetDate(year, month, day, hours, minutes, 0)
             except:
-                Logger.Warning("Error parsing date %s", result["publicationTimeString"], exc_info=True)
+                Logger.warning("Error parsing date %s", result["publicationTimeString"], exc_info=True)
 
         item.complete = False
         return item
@@ -209,13 +209,13 @@ class Channel(chn_class.Channel):
             videoId = urlParts[-2]
         else:
             videoId = urlParts[-1]
-        Logger.Debug("Found videoId '%s' for '%s'", videoId, item.url)
+        Logger.debug("Found videoId '%s' for '%s'", videoId, item.url)
 
         url = "https://omroepzeeland.bbvms.com/p/regiogrid/q/sourceid_string:{}*.js".format(videoId)
         data = UriHandler.Open(url, proxy=self.proxy)
 
         jsonData = Regexer.DoRegex('var opts\s*=\s*({.+});\W*//window', data)
-        Logger.Debug("Found jsondata with size: %s", len(jsonData[0]))
+        Logger.debug("Found jsondata with size: %s", len(jsonData[0]))
         jsonData = JsonHelper(jsonData[0])
         clipData = jsonData.get_value("clipData", "assets")
         server = jsonData.get_value("publicationData", "defaultMediaAssetPath")

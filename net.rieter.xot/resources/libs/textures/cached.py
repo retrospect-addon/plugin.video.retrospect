@@ -60,11 +60,11 @@ class Cached(TextureHandler):
             return file_name
 
         if file_name.startswith("http"):
-            self._logger.Trace("Not going to resolve http(s) texture: '%s'.", file_name)
+            self._logger.trace("Not going to resolve http(s) texture: '%s'.", file_name)
             return file_name
 
         if os.path.isabs(file_name) or file_name.startswith(self.__channelTextureUri):
-            self._logger.Trace("Already cached texture found: '%s'", file_name)
+            self._logger.trace("Already cached texture found: '%s'", file_name)
             return file_name
 
         # Check if we already have the file
@@ -81,14 +81,14 @@ class Cached(TextureHandler):
             local_path = os.path.join(channel.path, file_name)
             # if False:
             if os.path.isfile(local_path):
-                self._logger.Trace("Queueing texture '%s' for caching from '%s'", file_name, local_path)
+                self._logger.trace("Queueing texture '%s' for caching from '%s'", file_name, local_path)
                 self.__textureQueue[local_path] = texture_path
             else:
                 uri = "%s/%s/%s" % (self.__cdnUrl, cdn_folder, file_name)
-                self._logger.Trace("Queueing texture '%s' for caching from '%s'", file_name, uri)
+                self._logger.trace("Queueing texture '%s' for caching from '%s'", file_name, uri)
                 self.__textureQueue[uri] = texture_path
 
-        self._logger.Debug("Resolved cached texture for '%s' to '%s'", file_name, texture_uri)
+        self._logger.debug("Resolved cached texture for '%s' to '%s'", file_name, texture_uri)
         Cached.__retrievedTexturePaths.append(texture_path)
         return texture_uri
 
@@ -113,14 +113,14 @@ class Cached(TextureHandler):
         if len(self.__textureQueue) == 0:
             return
 
-        self._logger.Info("Fetching missing textures.")
+        self._logger.info("Fetching missing textures.")
 
         bytes_transfered = 0
         textures_total = len(self.__textureQueue)
         textures_completed = 0
 
         for uri, texturePath in self.__textureQueue.iteritems():
-            self._logger.Debug("Fetching texture for '%s' to '%s'", uri, texturePath)
+            self._logger.debug("Fetching texture for '%s' to '%s'", uri, texturePath)
             if os.path.isfile(uri):
                 shutil.copyfile(uri, texturePath)
                 # import xbmc
@@ -131,7 +131,7 @@ class Cached(TextureHandler):
             file_name = os.path.split(texturePath)[-1]
 
             if dialog_call_back(textures_completed, textures_total, int(100 * textures_completed / textures_total), False, file_name):
-                self._logger.Warning("Texture retrieval cancelled")
+                self._logger.warning("Texture retrieval cancelled")
                 break
 
         return bytes_transfered
@@ -143,7 +143,7 @@ class Cached(TextureHandler):
 
         """
 
-        self._logger.Info("Purging Texture for: %s", channel.path)
+        self._logger.info("Purging Texture for: %s", channel.path)
 
         # read the md5 hashes
         addon_id = self._get_addon_id(channel)
@@ -160,7 +160,7 @@ class Cached(TextureHandler):
         cdn_folder = self._get_cdn_sub_folder(channel)
         texture_path = os.path.join(self.__channelTexturePath, cdn_folder)
         if not os.path.isdir(texture_path):
-            self._logger.Warning("Missing path '%s' to purge", texture_path)
+            self._logger.warning("Missing path '%s' to purge", texture_path)
             return
 
         images = [image for image in os.listdir(texture_path)
@@ -176,9 +176,9 @@ class Cached(TextureHandler):
                 # verify the MD5 in the textures.md5
                 md5 = self.__get_hash(file_path)
                 if md5 == textures[image_key]:
-                    self._logger.Trace("Texture up to date: %s", file_path)
+                    self._logger.trace("Texture up to date: %s", file_path)
                 else:
-                    self._logger.Warning("Texture expired: %s", file_path)
+                    self._logger.warning("Texture expired: %s", file_path)
                     os.remove(file_path)
                     texture_change = True
 
@@ -186,7 +186,7 @@ class Cached(TextureHandler):
                     if file_path in Cached.__retrievedTexturePaths:
                         self.get_texture_uri(channel, image)
             else:
-                self._logger.Warning("Texture no longer required: %s", file_path)
+                self._logger.warning("Texture no longer required: %s", file_path)
                 os.remove(file_path)
                 texture_change = True
 
@@ -209,12 +209,12 @@ class Cached(TextureHandler):
             fs = open(texture_path, mode='wb')
             fs.write(image_bytes)
             fs.close()
-            self._logger.Debug("Retrieved texture: %s", uri)
+            self._logger.debug("Retrieved texture: %s", uri)
         else:
             # fallback to local cache.
             # texturePath = os.path.join(self._channelPath, fileName)
             # self._logger.Error("Could not update Texture: %s. Falling back to: %s", uri, texturePath)
-            self._logger.Error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texture_path)
+            self._logger.error("Could not update Texture:\nSource: '%s'\nTarget: '%s'", uri, texture_path)
         return len(image_bytes or [])
 
     def __get_hash(self, file_path):

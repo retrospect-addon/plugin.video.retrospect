@@ -45,9 +45,9 @@ class Channel(chn_class.Channel):
 
         # download the stream data
         dataPath = os.path.join(self.path, "data")
-        Logger.Debug("Checking '%s' for data", dataPath)
+        Logger.debug("Checking '%s' for data", dataPath)
         if not os.path.isdir(dataPath):
-            Logger.Info("No data found at '%s', downloading stream data", dataPath)
+            Logger.info("No data found at '%s', downloading stream data", dataPath)
             url = "http://www.rieter.net/net.rieter.xot.repository/net.rieter.xot.channel.streams/" \
                   "net.rieter.xot.channel.streams.radionl.data.zip"
 
@@ -63,7 +63,7 @@ class Channel(chn_class.Channel):
             ZipHelper.unzip(zipFile, dataPath)
 
             if os.path.isdir(dataPath):
-                Logger.Info("Data successfully downloaded to: %s", dataPath)
+                Logger.info("Data successfully downloaded to: %s", dataPath)
 
         #===============================================================================================================
         # Test cases:
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
         # read the regional ones
         # noinspection PyUnresolvedReferences
         dataPath = os.path.abspath(os.path.join(__file__, '..', 'data'))
-        Logger.Info("Radio stations located at: %s", dataPath)
+        Logger.info("Radio stations located at: %s", dataPath)
         regionals = os.listdir(os.path.join(dataPath, "Regionale Omroepen"))
         for regional in regionals:
             path = os.path.join(dataPath, "Regionale Omroepen", regional) 

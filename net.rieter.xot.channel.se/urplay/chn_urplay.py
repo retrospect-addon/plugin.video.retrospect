@@ -121,7 +121,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         maxItems = 200
         categories = {
@@ -140,7 +140,7 @@ class Channel(chn_class.Channel):
             item.dontGroup = True
             items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -179,11 +179,11 @@ class Channel(chn_class.Channel):
                 A tuple of the data and a list of MediaItems that were generated.
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         data = data[:data.find('<h2>Relaterade</h2>')]
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItemWithSerie(self, resultSet):
@@ -279,7 +279,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -303,7 +303,7 @@ class Channel(chn_class.Channel):
         streams = Regexer.DoRegex(self.mediaUrlRegex, data)
         jsonData = streams[0]
         json = JsonHelper(jsonData, logger=Logger.instance())
-        Logger.Trace(json.json)
+        Logger.trace(json.json)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
@@ -338,28 +338,28 @@ class Channel(chn_class.Channel):
             proxyData = UriHandler.Open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, noCache=True)
             proxyJson = JsonHelper(proxyData)
             proxy = proxyJson.get_value("redirect")
-        Logger.Trace("Found RTMP Proxy: %s", proxy)
+        Logger.trace("Found RTMP Proxy: %s", proxy)
 
         rtmpApplication = json.get_value("streaming_config", "rtmp", "application")
-        Logger.Trace("Found RTMP Application: %s", rtmpApplication)
+        Logger.trace("Found RTMP Application: %s", rtmpApplication)
 
         # find all streams
         for streamType in streams:
             if streamType not in json.json:
-                Logger.Debug("%s was not found as stream.", streamType)
+                Logger.debug("%s was not found as stream.", streamType)
                 continue
 
             bitrate = streams[streamType]
             streamUrl = json.get_value(streamType)
-            Logger.Trace(streamUrl)
+            Logger.trace(streamUrl)
             if not streamUrl:
-                Logger.Debug("%s was found but was empty as stream.", streamType)
+                Logger.debug("%s was found but was empty as stream.", streamType)
                 continue
 
             #onlySweden = False
             if streamUrl.startswith("se/") or ":se/" in streamUrl:  # or json.get_value("only_in_sweden"): -> will be in the future
                 onlySweden = True
-                Logger.Warning("Streams are only available in Sweden: onlySweden=%s", onlySweden)
+                Logger.warning("Streams are only available in Sweden: onlySweden=%s", onlySweden)
                 # No need to replace the se/ part. Just log.
                 # streamUrl = streamUrl.replace("se/", "", 1)
 
@@ -371,7 +371,7 @@ class Channel(chn_class.Channel):
             elif "_http" in streamType:
                 url = "http://%s/%smaster.m3u8" % (proxy, streamUrl)
             else:
-                Logger.Warning("Unsupported Stream Type: %s", streamType)
+                Logger.warning("Unsupported Stream Type: %s", streamType)
                 continue
             part.AppendMediaStream(url.strip("/"), bitrate)
 
@@ -384,9 +384,9 @@ class Channel(chn_class.Channel):
             url = caption["file"]
             if url.startswith("//"):
                 url = "http:%s" % (url, )
-            Logger.Debug("Found subtitle language: %s [Default=%s]", language, default)
+            Logger.debug("Found subtitle language: %s [Default=%s]", language, default)
             if "Svenska" in language:
-                Logger.Debug("Selected subtitle language: %s", language)
+                Logger.debug("Selected subtitle language: %s", language)
                 fileName = caption["file"]
                 fileName = fileName[fileName.rindex("/") + 1:] + ".srt"
                 if url.endswith("vtt"):

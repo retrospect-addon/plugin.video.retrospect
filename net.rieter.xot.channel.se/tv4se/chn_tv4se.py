@@ -221,16 +221,16 @@ class Channel(chn_class.Channel):
 
         if "channel" in json and json["channel"]:
             channelId = json["channel"]["nid"]
-            Logger.Trace("ChannelId found: %s", channelId)
+            Logger.trace("ChannelId found: %s", channelId)
         else:
             channelId = "tv4"
-            Logger.Warning("ChannelId NOT found. Assuming %s", channelId)
+            Logger.warning("ChannelId NOT found. Assuming %s", channelId)
 
         # match the exact channel or put them in TV4
         isMatchForChannel = channelId.startswith(self.__channelId)
         isMatchForChannel |= self.channelCode == "tv4se" and not channelId.startswith("sjuan") and not channelId.startswith("tv12")
         if not isMatchForChannel:
-            Logger.Debug("Channel mismatch for '%s': %s vs %s", title, channelId, self.channelCode)
+            Logger.debug("Channel mismatch for '%s': %s vs %s", title, channelId, self.channelCode)
             return None
 
         item = mediaitem.MediaItem(title, url)
@@ -259,7 +259,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         # if self.channelCode != "tv4se":
@@ -302,7 +302,7 @@ class Channel(chn_class.Channel):
                 elif i == 1:
                     day = "Igår"
 
-                Logger.Trace("Adding item for: %s - %s", startDate, endDate)
+                Logger.trace("Adding item for: %s - %s", startDate, endDate)
                 # url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
                 #       "nyheterna,v%C3%A4der,ekonomi,lotto,sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s," \
                 #       "nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-g%C3%B6teborg,nyheterna-halland," \
@@ -350,7 +350,7 @@ class Channel(chn_class.Channel):
         # live.isLive = True
         # items.append(live)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def SearchSite(self, url=None):
@@ -403,7 +403,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         # Add a klip folder only on the first page and only if it is not already a clip page
@@ -414,7 +414,7 @@ class Channel(chn_class.Channel):
             catStart = self.parentItem.url.rfind("node_nids=")
             # catEnd = self.parentItem.url.rfind("&start")
             catId = self.parentItem.url[catStart + 10:]
-            Logger.Debug("Currently doing CatId: '%s'", catId)
+            Logger.debug("Currently doing CatId: '%s'", catId)
 
             url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&" \
                   "type=clip&page=1&node_nids=%s&start=0" % (self.maxPageSize, catId,)
@@ -427,7 +427,7 @@ class Channel(chn_class.Channel):
 
         # find the max number of items ("total_hits":2724)
         totalItems = int(Regexer.DoRegex('total_hits\W+(\d+)', data)[-1])
-        Logger.Debug("Found total of %s items. Only showing %s.", totalItems, self.maxPageSize)
+        Logger.debug("Found total of %s items. Only showing %s.", totalItems, self.maxPageSize)
         if totalItems > self.maxPageSize and "&page=1&" in self.parentItem.url:
             # create a group item
             moreTitle = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
@@ -448,7 +448,7 @@ class Channel(chn_class.Channel):
                 currentPage += 1
 
                 url = currentUrl.replace("%s1" % (needle, ), "%s%s" % (needle, currentPage))
-                Logger.Debug("Adding next page: %s\n%s", currentPage, url)
+                Logger.debug("Adding next page: %s\n%s", currentPage, url)
                 page = mediaitem.MediaItem(str(currentPage), url)
                 page.icon = self.icon
                 page.thumb = self.noImage
@@ -461,7 +461,7 @@ class Channel(chn_class.Channel):
                 else:
                     more.items.append(page)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItem(self, resultSet):
@@ -484,7 +484,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace('starting FormatVideoItem for %s', self.channelName)
+        Logger.trace('starting FormatVideoItem for %s', self.channelName)
         # Logger.Trace(resultSet)
 
         # the vmanProgramId (like 1019976) leads to http://anytime.tv4.se/webtv/metafileFlash.smil?p=1019976&bw=1000&emulate=true&sl=true
@@ -523,7 +523,7 @@ class Channel(chn_class.Channel):
             freeExpired = broadcastDate + datetime.timedelta(days=99 * 365)
         else:
             freeExpired = broadcastDate + datetime.timedelta(days=int(freePeriod))
-        Logger.Trace("Premium info for: %s\nPremium state: %s\nFree State:    %s\nBroadcast %s vs Expired %s",
+        Logger.trace("Premium info for: %s\nPremium state: %s\nFree State:    %s\nBroadcast %s vs Expired %s",
                      name, premiumPeriod, freePeriod, broadcastDate, freeExpired)
 
         if now > freeExpired:
@@ -556,7 +556,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         cat = HtmlEntityHelper.url_encode(resultSet['nid'])
         url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
@@ -591,7 +591,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -665,7 +665,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()

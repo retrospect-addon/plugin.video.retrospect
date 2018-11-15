@@ -105,7 +105,7 @@ class Channel(chn_class.Channel):
         return
 
     def CreateEpisodeItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         # id = resultSet["id"]
@@ -132,7 +132,7 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateVideoItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         if "subTitle" in resultSet:
@@ -196,7 +196,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # add  { to make it valid Json again. if it would be in the regex it would
         # not find all items
@@ -252,7 +252,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # get the title
         originalTitle = resultSet.get("original_title")
@@ -269,15 +269,15 @@ class Channel(chn_class.Channel):
         for playList in playLists:
             language = playList["language_code"]
             if language == self.language:
-                Logger.Trace("Found '%s' playlist, using this one.", language)
+                Logger.trace("Found '%s' playlist, using this one.", language)
                 videoMgid = playList["id"]
                 break
             elif language == "en":
-                Logger.Trace("Found '%s' instead of '%s' playlist", language, self.language)
+                Logger.trace("Found '%s' instead of '%s' playlist", language, self.language)
                 videoMgid = playList["id"]
 
         if videoMgid is None:
-            Logger.Error("No video MGID found for: %s", title)
+            Logger.error("No video MGID found for: %s", title)
             return None
 
         url = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid:sensei:video:mtvnn.com:local_playlist-%s" % (videoMgid,)
@@ -322,7 +322,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         url = item.url
         data = UriHandler.Open(url, proxy=self.proxy)

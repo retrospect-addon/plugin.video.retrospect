@@ -286,7 +286,7 @@ class Channel(chn_class.Channel):
             serverTimeJson = JsonHelper(serverTime)
             serverTime = serverTimeJson.get_value("time")
         except:
-            Logger.Error("Error determining server time", exc_info=True)
+            Logger.error("Error determining server time", exc_info=True)
             serverTime = "%04d-%02d-%02dT%02d:%02d:%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
 
         data = UriHandler.Open(
@@ -300,7 +300,7 @@ class Channel(chn_class.Channel):
     def ExtractSlugData(self, data):
         """ Extracts the correct Slugged Data for tabbed items """
 
-        Logger.Info("Extracting Slugged data during pre-processing")
+        Logger.info("Extracting Slugged data during pre-processing")
         data, items = self.ExtractJsonData(data)
         # data, items = self.ExtractJsonDataRedux(data)
 
@@ -333,7 +333,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "titleArticleId" in resultSet:
             return None
@@ -371,7 +371,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         url = resultSet["url"]
         if url.startswith("/video") or url.startswith("/genre") or url.startswith('/oppetarkiv'):
             return None
@@ -402,7 +402,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "nextPageUrl" not in resultSet:
             return None
@@ -427,12 +427,12 @@ class Channel(chn_class.Channel):
         sections = jsonData.get_value("relatedVideoContent", "relatedVideosAccordion")
         sections = filter(lambda s: s['type'] not in self.__excludedTabs, sections)
 
-        Logger.Debug("Found %s folders/tabs", len(sections))
+        Logger.debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:
             # we should exclude that tab from the folders list and show the videos here
             self.__listedRelatedTab = sections[0]["type"]
             # otherwise the default "RELATED_VIDEO_TABS_LATEST" is used
-        Logger.Debug("Excluded tab '%s' which will be show as videos", self.__listedRelatedTab)
+        Logger.debug("Excluded tab '%s' which will be show as videos", self.__listedRelatedTab)
 
         for section in sections:
             if not section["type"] == self.__listedRelatedTab:
@@ -443,7 +443,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def CreateJsonFolderItem(self, resultSet):
-        Logger.Trace(resultSet),
+        Logger.trace(resultSet),
         if resultSet["type"] == self.__listedRelatedTab and self.__showSomeVideosInListing:
             return None
         if resultSet["type"] in self.__excludedTabs:
@@ -474,7 +474,7 @@ class Channel(chn_class.Channel):
         genres = []
 
         for cluster in resultSet['clusters']:
-            Logger.Trace(cluster)
+            Logger.trace(cluster)
             url = "%s%s" % (self.baseUrl, cluster['contentUrl'])
             genre = mediaitem.MediaItem(cluster['name'], url)
             genre.icon = self.icon
@@ -501,7 +501,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # determine the title
         programTitle = resultSet.get("programTitle", "") or ""
@@ -511,7 +511,7 @@ class Channel(chn_class.Channel):
         elif showTitle != "" and programTitle == "":
             title = showTitle
         elif programTitle == "" and showTitle == "":
-            Logger.Warning("Could not find title for item: %s", resultSet)
+            Logger.warning("Could not find title for item: %s", resultSet)
             return None
         elif showTitle != "" and showTitle != programTitle:
             title = "%s - %s" % (programTitle, showTitle)
@@ -531,7 +531,7 @@ class Channel(chn_class.Channel):
 
         if itemType in ("videoEpisod", "videoKlipp", "singel"):
             if not url.startswith("/video/") and not url.startswith("/klipp/"):
-                Logger.Warning("Found video item without a /video/ or /klipp/ url.")
+                Logger.warning("Found video item without a /video/ or /klipp/ url.")
                 return None
             itemType = "video"
             if "programVersionId" in resultSet:
@@ -588,7 +588,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = resultSet["Url"]
         if "http://" not in url and "https://" not in url:
@@ -636,14 +636,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         start = data.find('<div id="playJs-alphabetic-list"')
         end = data.find('<div id="playJs-', start + 1)
         if end == 0:
             end = -1
         data = data[start:end]
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateChannelItem(self, channel):
@@ -654,7 +654,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(channel)
+        Logger.trace(channel)
 
         title = channel["programmeTitle"]
         episode = channel.get("episodeTitle", None)
@@ -725,7 +725,7 @@ class Channel(chn_class.Channel):
         subtitles = json.get_value("videoTitlePage", "video", "subtitles")
 
         if streams:
-            Logger.Info("Found stream information within HTML data")
+            Logger.info("Found stream information within HTML data")
             return self.__UpdateItemFromVideoReferences(item, streams, subtitles)
 
         videoId = json.get_value("videoPage", "video", "id")
@@ -760,14 +760,14 @@ class Channel(chn_class.Channel):
         will automatically be set back to False.
 
         """
-        Logger.Debug('Starting UpdateChannelItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateChannelItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
         json = JsonHelper(data, logger=Logger.instance())
         videos = json.get_value("videoReferences")
         subtitles = json.get_value("subtitleReferences")
-        Logger.Trace(videos)
+        Logger.trace(videos)
         return self.__UpdateItemFromVideoReferences(item, videos, subtitles)
 
     def __UpdateItemFromVideoReferences(self, item, videos, subtitles=None):
@@ -783,13 +783,13 @@ class Channel(chn_class.Channel):
             videoFormat = videoFormat.lower()
 
             if "dash" in videoFormat or "hds" in videoFormat:
-                Logger.Debug("Skipping video format: %s", videoFormat)
+                Logger.debug("Skipping video format: %s", videoFormat)
                 continue
-            Logger.Debug("Found video item for format: %s", videoFormat)
+            Logger.debug("Found video item for format: %s", videoFormat)
 
             url = video['url']
             if len(filter(lambda s: s.Url == url, part.MediaStreams)) > 0:
-                Logger.Debug("Skippping duplicate Stream url: %s", url)
+                Logger.debug("Skippping duplicate Stream url: %s", url)
                 continue
 
             if "m3u8" in url:
@@ -808,7 +808,7 @@ class Channel(chn_class.Channel):
                 part.AppendMediaStream(url, 0)
 
         if subtitles:
-            Logger.Info("Found subtitles to play")
+            Logger.info("Found subtitles to play")
             for sub in subtitles:
                 subFormat = sub["format"].lower()
                 url = sub["url"]
@@ -839,7 +839,7 @@ class Channel(chn_class.Channel):
         @return:  a tuple containing: year, month, day, hour, minutes
         """
 
-        Logger.Trace("Determining date for: ('%s', '%s', '%s')", first, second, third)
+        Logger.trace("Determining date for: ('%s', '%s', '%s')", first, second, third)
         hour = minutes = 0
 
         year = DateHelper.this_year()
@@ -865,7 +865,7 @@ class Channel(chn_class.Channel):
             # if the date was in the future, it must have been last year.
             result = datetime.datetime(year, month, day)
             if result > datetime.datetime.now() + datetime.timedelta(1):
-                Logger.Trace("Found future date, setting it to one year earlier.")
+                Logger.trace("Found future date, setting it to one year earlier.")
                 year -= 1
 
         elif first.isdigit() and third.isdigit() and not second.isdigit():
@@ -874,7 +874,7 @@ class Channel(chn_class.Channel):
             year = int(third)
 
         else:
-            Logger.Warning("Unknonw date format: ('%s', '%s', '%s')", first, second, third)
+            Logger.warning("Unknonw date format: ('%s', '%s', '%s')", first, second, third)
             year = month = day = hour = minutes = 0
 
         return year, month, day, hour, minutes
@@ -907,7 +907,7 @@ class Channel(chn_class.Channel):
         thumb = thumb.replace("/{format}/", thumbSize)\
             .replace("/medium/", thumbSize)\
             .replace("/small/", thumbSize)
-        Logger.Trace(thumb)
+        Logger.trace(thumb)
         return thumb
 
     def __ExtractJsonData(self, data, root):
@@ -929,8 +929,8 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Extracting JSON data during pre-processing")
+        Logger.info("Extracting JSON data during pre-processing")
         data = Regexer.DoRegex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root, ), data)[-1]
         items = []
-        Logger.Trace("JSON data found: %s", data)
+        Logger.trace("JSON data found: %s", data)
         return data, items

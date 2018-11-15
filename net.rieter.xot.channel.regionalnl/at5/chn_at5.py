@@ -82,7 +82,7 @@ class Channel(chn_class.Channel):
         return item
 
     def AddLiveChannel(self, data):
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
@@ -95,7 +95,7 @@ class Channel(chn_class.Channel):
         liveItem.isLive = True
         item.items.append(liveItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItem(self, resultSet):
@@ -118,7 +118,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # vid = resultSet[1]
         thumbUrl = resultSet[2]
@@ -143,7 +143,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateLiveStream(self, item):
-        Logger.Debug("Updating the live stream")
+        Logger.debug("Updating the live stream")
         url = "https://rrr.sz.xlcdn.com/?account=atvijf&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
 
         part = item.CreateNewEmptyMediaPart()
@@ -161,7 +161,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy).decode('unicode_escape')
         streams = Regexer.DoRegex("file:\W+'([^']+)'", data)

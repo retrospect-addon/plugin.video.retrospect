@@ -97,7 +97,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
         if item is not None:
             item.name = "Shows: %s" % (item.name.upper(),)
@@ -122,15 +122,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if "episode.json" in self.parentItem.url:
-            Logger.Debug("Fetching Carousel data")
+            Logger.debug("Fetching Carousel data")
             json = JsonHelper(data)
             data = json.get_value("carousel")
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateFolderItem(self, resultSet):
@@ -148,7 +148,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         item = chn_class.Channel.CreateFolderItem(self, resultSet)
         brand = item.url[item.url.rindex("/") + 1:]
@@ -197,11 +197,11 @@ class Channel(chn_class.Channel):
         """
         Accepts an item. It returns an updated item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        Logger.Trace(item.url)
+        Logger.trace(item.url)
         if not item.url.startswith("http://www.bbc.co.uk/mediaselector/"):
-            Logger.Debug("Determining the stream URL")
+            Logger.debug("Determining the stream URL")
             data = UriHandler.Open(item.url, proxy=self.proxy)
             needle = '"vpid"\W*"([^"]+)"'
             vid = Regexer.DoRegex(needle, data)[-1]
@@ -236,7 +236,7 @@ class Channel(chn_class.Channel):
         for connectionData in connectionDatas:
             # first the bitrate
             bitrate = connectionData[0]
-            Logger.Trace("Found Media: %s", connectionData)
+            Logger.trace("Found Media: %s", connectionData)
 
             # go through the available connections
             for connection in connectionData[1:]:
@@ -244,11 +244,11 @@ class Channel(chn_class.Channel):
                     continue
 
                 connectionXml = XmlHelper(connection)
-                Logger.Trace("Analyzing Connection: %s", connection)
+                Logger.trace("Analyzing Connection: %s", connection)
                 supplier = connectionXml.get_tag_attribute("connection", {"supplier": None})
                 protocol = connectionXml.get_tag_attribute("connection", {"protocol": None})
                 transferFormat = connectionXml.get_tag_attribute("connection", {"transferFormat": None})
-                Logger.Debug("Found connection information:\n"
+                Logger.debug("Found connection information:\n"
                              "Protocol:       %s\n"
                              "TransferFormat: %s\n"
                              "Supplier:       %s\n"
@@ -257,17 +257,17 @@ class Channel(chn_class.Channel):
 
                 if protocol.startswith("http"):
                     if transferFormat != "hls":
-                        Logger.Debug("Ignoring TransferFormat: %s", transferFormat)
+                        Logger.debug("Ignoring TransferFormat: %s", transferFormat)
                         continue
                     if "lime" in supplier or "mf_akamai_uk" in supplier:
-                        Logger.Debug("Ignoring Supplier: %s", supplier)
+                        Logger.debug("Ignoring Supplier: %s", supplier)
                         continue
                     url = connectionXml.get_tag_attribute("connection", {"href": None})
                 elif protocol.startswith("rtmp"):
-                    Logger.Warning("Ignoring RTMP for now")
+                    Logger.warning("Ignoring RTMP for now")
                     continue
                 else:
-                    Logger.Warning("Unknown protocol: %s", protocol)
+                    Logger.warning("Unknown protocol: %s", protocol)
                     continue
 
                 #
@@ -334,7 +334,7 @@ class Channel(chn_class.Channel):
                                                                             proxy=self.proxy)
 
         item.complete = True
-        Logger.Trace('finishing UpdateVideoItem: %s.', item)
+        Logger.trace('finishing UpdateVideoItem: %s.', item)
         return item
 
     def AddLiveChannels(self, data):
@@ -356,7 +356,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Generating Live channels")
+        Logger.info("Generating Live channels")
 
         liveChannels = [
             {"name": "BBC 1 HD", "code": "bbc_one_hd", "image": "bbc1large.png"},
@@ -399,10 +399,10 @@ class Channel(chn_class.Channel):
         """
         Accepts an item. It returns an updated item.
         """
-        Logger.Debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
         streamRoot = Regexer.DoRegex('<media href="([^"]+\.isml)', data)[0]
-        Logger.Debug("Found Live stream root: %s", streamRoot)
+        Logger.debug("Found Live stream root: %s", streamRoot)
         # url = "%s/master.m3u8" % (streamRoot, )
         #
         # part = item.CreateNewEmptyMediaPart()

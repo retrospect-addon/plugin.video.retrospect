@@ -30,7 +30,7 @@ class Cloaker(object):
         self.__settingsStore = settings_store
 
         if self.__logger:
-            self.__logger.Debug("Setting up a Cloaker based on '%s'", self.__settingsStore)
+            self.__logger.debug("Setting up a Cloaker based on '%s'", self.__settingsStore)
 
         # Create a new file if none existed
         self.__cloaked = self.__settingsStore.get_setting("cloaked", channel=channel, default=None)
@@ -39,7 +39,7 @@ class Cloaker(object):
             self.__store(False)
 
         if self.__logger:
-            self.__logger.Trace("Found cloaked data:\n%s", JsonHelper.dump(self.__cloaked, pretty_print=True))
+            self.__logger.trace("Found cloaked data:\n%s", JsonHelper.dump(self.__cloaked, pretty_print=True))
 
     def cloak(self, url):
         """ Cloaks a specific URL from future listing.
@@ -53,11 +53,11 @@ class Cloaker(object):
 
         if url in self.__cloaked:
             if self.__logger:
-                self.__logger.Debug("'%s' in channel '%s' was already cloaked.", url, self.__channelId)
+                self.__logger.debug("'%s' in channel '%s' was already cloaked.", url, self.__channelId)
             return False
 
         if self.__logger:
-            self.__logger.Debug("Cloaking '%s' in channel '%s'", url, self.__channelId)
+            self.__logger.debug("Cloaking '%s' in channel '%s'", url, self.__channelId)
 
         self.__cloaked[url] = {}
         return self.__store()
@@ -71,11 +71,11 @@ class Cloaker(object):
 
         if url not in self.__cloaked:
             if self.__logger:
-                self.__logger.Debug("'%s' in channel '%s' was not cloaked.", url, self.__channelId)
+                self.__logger.debug("'%s' in channel '%s' was not cloaked.", url, self.__channelId)
             return
 
         if self.__logger:
-            self.__logger.Debug("Un-cloaking '%s' in channel '%s'", url, self.__channelId)
+            self.__logger.debug("Un-cloaking '%s' in channel '%s'", url, self.__channelId)
 
         self.__cloaked.pop(url, None)
         self.__store()
@@ -115,10 +115,10 @@ class Cloaker(object):
             set_setting(Cloaker.CLOAKED_KEY, self.__cloaked, channel=self.__channel)
 
         if first_time and self.__logger and update_first_time_message:
-            self.__logger.Debug("First time cloak found.")
+            self.__logger.debug("First time cloak found.")
         return first_time
 
     def __del__(self):
         # just release the reference here
         self.__settingsStore = None
-        self.__logger.Trace("Removing Cloaker object")
+        self.__logger.trace("Removing Cloaker object")

@@ -37,7 +37,7 @@ class JsonHelper:
         if self.data[0] not in "[{":
             # find the actual start in case of a jQuery18303627530449324564_1370950605750({"success":true});
             if self.logger is not None:
-                self.logger.Debug("Removing non-Json wrapper")
+                self.logger.debug("Removing non-Json wrapper")
             start = self.data.find("(") + 1
             end = self.data.rfind(")")
             self.data = self.data[start:end]
@@ -131,11 +131,11 @@ class JsonHelper:
         except KeyError:
             if "fallback" in kwargs:
                 if self.logger:
-                    self.logger.Debug("Key ['%s'] not found in Json", arg)
+                    self.logger.debug("Key ['%s'] not found in Json", arg)
                 return kwargs["fallback"]
 
             if self.logger:
-                self.logger.Warning("Key ['%s'] not found in Json", arg, exc_info=True)
+                self.logger.warning("Key ['%s'] not found in Json", arg, exc_info=True)
             return None
 
         return data

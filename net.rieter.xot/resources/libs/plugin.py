@@ -40,7 +40,7 @@ try:
     from updater import Updater
     from urihandler import UriHandler
 except:
-    Logger.Critical("Error initializing %s", Config.appName, exc_info=True)
+    Logger.critical("Error initializing %s", Config.appName, exc_info=True)
 
 
 #===============================================================================
@@ -57,11 +57,11 @@ class Plugin(ParameterParser):
     def __init__(self, pluginName, params, handle=0):
         """Initialises the plugin with given arguments."""
 
-        Logger.Info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
+        Logger.info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
         self.handle = int(handle)
 
         super(Plugin, self).__init__(pluginName, params)
-        Logger.Debug("Plugin Params: %s (%s)\n"
+        Logger.debug("Plugin Params: %s (%s)\n"
                      "Handle:      %s\n"
                      "Name:        %s\n"
                      "Query:       %s", self.params, len(self.params),
@@ -85,7 +85,7 @@ class Plugin(ParameterParser):
 
         if not sessionActive:
             # do add-on start stuff
-            Logger.Info("Add-On start detected. Performing startup actions.")
+            Logger.info("Add-On start detected. Performing startup actions.")
 
             # print the folder structure
             envCtrl.print_retrospect_settings_and_folders(Config, AddonSettings)
@@ -97,7 +97,7 @@ class Plugin(ParameterParser):
             # check for updates
             up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.instance())
             if up.IsNewVersionAvailable():
-                Logger.Info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
+                Logger.info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
                 notification = notification % (Config.appName, up.onlineVersion)
                 XbmcWrapper.ShowNotification(None, lines=notification, displayTime=20000)
@@ -137,7 +137,7 @@ class Plugin(ParameterParser):
                     # retrieve channel characteristics
                     self.channelFile = os.path.splitext(self.params[self.keywordChannel])[0]
                     self.channelCode = self.params[self.keywordChannelCode]
-                    Logger.Debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
+                    Logger.debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
                                  self.channelCode)
 
                     # import the channel
@@ -147,12 +147,12 @@ class Plugin(ParameterParser):
                     if channel is not None:
                         self.channelObject = channel
                     else:
-                        Logger.Critical("None or more than one channels were found, unable to continue.")
+                        Logger.critical("None or more than one channels were found, unable to continue.")
                         return
 
                     # init the channel as plugin
                     self.channelObject.InitChannel()
-                    Logger.Info("Loaded: %s", self.channelObject.channelName)
+                    Logger.info("Loaded: %s", self.channelObject.channelName)
 
                 elif self.keywordCategory in self.params:
                     # no channel needed.
@@ -213,7 +213,7 @@ class Plugin(ParameterParser):
                     title = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirmTitle)
                     content = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirm)
                     if not XbmcWrapper.ShowYesNo(title, content):
-                        Logger.Warning("Stopping proxy update due to user intervention")
+                        Logger.warning("Stopping proxy update due to user intervention")
                         return
 
                     language = self.params.get(self.keywordLanguage, None)
@@ -223,14 +223,14 @@ class Plugin(ParameterParser):
                     return
 
                 else:
-                    Logger.Critical("Error determining Plugin action")
+                    Logger.critical("Error determining Plugin action")
                     return
 
                 #===============================================================================
                 # See what needs to be done.
                 #===============================================================================
                 if self.keywordAction not in self.params:
-                    Logger.Critical("Action parameters missing from request. Parameters=%s", self.params)
+                    Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
                     return
 
                 elif self.params[self.keywordAction] == self.actionListCategory:
@@ -257,11 +257,11 @@ class Plugin(ParameterParser):
                     self.OnActionFromContextMenu(self.params[self.keywordAction])
 
                 else:
-                    Logger.Warning("Number of parameters (%s) or parameter (%s) values not implemented",
+                    Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
                                    len(self.params), self.params)
 
             except:
-                Logger.Critical("Error parsing for add-on", exc_info=True)
+                Logger.critical("Error parsing for add-on", exc_info=True)
 
         self.__FetchTextures()
         return
@@ -271,7 +271,7 @@ class Plugin(ParameterParser):
         listing.
         """
 
-        Logger.Info("Plugin::ShowCategories")
+        Logger.info("Plugin::ShowCategories")
         channelRegister = ChannelIndex.get_register()
         categories = channelRegister.get_categories()
 
@@ -314,9 +314,9 @@ class Plugin(ParameterParser):
         """
 
         if category:
-            Logger.Info("Plugin::ShowChannelList for %s", category)
+            Logger.info("Plugin::ShowChannelList for %s", category)
         else:
-            Logger.Info("Plugin::ShowChannelList")
+            Logger.info("Plugin::ShowChannelList")
         try:
             # only display channels
             channelRegister = ChannelIndex.get_register()
@@ -325,7 +325,7 @@ class Plugin(ParameterParser):
             xbmcItems = []
             for channel in channels:
                 if category and channel.category != category:
-                    Logger.Debug("Skipping %s (%s) due to category filter", channel.channelName, channel.category)
+                    Logger.debug("Skipping %s (%s) due to category filter", channel.channelName, channel.category)
                     continue
 
                 # Get the XBMC item
@@ -355,7 +355,7 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:
             xbmcplugin.endOfDirectory(self.handle, False)
-            Logger.Critical("Error fetching channels for plugin", exc_info=True)
+            Logger.critical("Error fetching channels for plugin", exc_info=True)
 
     def ShowFavourites(self, channel):
         """ Show the favourites
@@ -367,12 +367,12 @@ class Plugin(ParameterParser):
         replaceExisting : boolean - if True it will replace the current list
 
         """
-        Logger.Debug("Plugin::ShowFavourites")
+        Logger.debug("Plugin::ShowFavourites")
 
         if channel is None:
-            Logger.Info("Showing all favourites")
+            Logger.info("Showing all favourites")
         else:
-            Logger.Info("Showing favourites for: %s", channel)
+            Logger.info("Showing favourites for: %s", channel)
 
         f = Favourites(Config.favouriteDir)
         favs = f.list(channel)
@@ -381,7 +381,7 @@ class Plugin(ParameterParser):
     def ProcessFolderList(self, favorites=None):
         """Wraps the channel.ProcessFolderList"""
 
-        Logger.Info("Plugin::ProcessFolderList Doing ProcessFolderList")
+        Logger.info("Plugin::ProcessFolderList Doing ProcessFolderList")
         try:
             ok = True
 
@@ -398,10 +398,10 @@ class Plugin(ParameterParser):
                 episodeItems = favorites
 
             if len(episodeItems) == 0:
-                Logger.Warning("ProcessFolderList returned %s items", len(episodeItems))
+                Logger.warning("ProcessFolderList returned %s items", len(episodeItems))
                 ok = self.__ShowEmptyInformation(episodeItems)
             else:
-                Logger.Debug("ProcessFolderList returned %s items", len(episodeItems))
+                Logger.debug("ProcessFolderList returned %s items", len(episodeItems))
 
             xbmcItems = []
             for episodeItem in episodeItems:  # type: MediaItem
@@ -417,7 +417,7 @@ class Plugin(ParameterParser):
                     action = self.actionPlayVideo
                     folder = False
                 else:
-                    Logger.Critical("Plugin::ProcessFolderList: Cannot determine what to add")
+                    Logger.critical("Plugin::ProcessFolderList: Cannot determine what to add")
                     continue
 
                 # Get the XBMC item
@@ -469,14 +469,14 @@ class Plugin(ParameterParser):
             XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                          LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                                          XbmcWrapper.Error, 4000)
-            Logger.Error("Plugin::Error Processing FolderList", exc_info=True)
+            Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
 
     # @LockWithDialog(logger=Logger.Instance())  No longer needed as Kodi will do this automatically
     def PlayVideoItem(self):
         """Starts the videoitem using a playlist. """
 
-        Logger.Debug("Playing videoitem using PlayListMethod")
+        Logger.debug("Playing videoitem using PlayListMethod")
 
         item = None
         try:
@@ -484,12 +484,12 @@ class Plugin(ParameterParser):
 
             if (item.isDrmProtected or item.isPaid) and AddonSettings.show_drm_paid_warning():
                 if item.isDrmProtected:
-                    Logger.Debug("Showing DRM Warning message")
+                    Logger.debug("Showing DRM Warning message")
                     title = LanguageHelper.get_localized_string(LanguageHelper.DrmTitle)
                     message = LanguageHelper.get_localized_string(LanguageHelper.DrmText)
                     XbmcWrapper.ShowDialog(title, message)
                 elif item.isPaid:
-                    Logger.Debug("Showing Paid Warning message")
+                    Logger.debug("Showing Paid Warning message")
                     title = LanguageHelper.get_localized_string(LanguageHelper.PaidTitle)
                     message = LanguageHelper.get_localized_string(LanguageHelper.PaidText)
                     XbmcWrapper.ShowDialog(title, message)
@@ -499,7 +499,7 @@ class Plugin(ParameterParser):
 
             # validated the updated item
             if not item.complete or not item.HasMediaItemParts():
-                Logger.Warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
+                Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
                 Statistics.register_error(self.channelObject, item=item)
 
             if not item.HasMediaItemParts():
@@ -507,14 +507,14 @@ class Plugin(ParameterParser):
                 XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                              LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
                                              XbmcWrapper.Error)
-                Logger.Warning("Could not start playback due to missing streams. Item:\n%s", item)
+                Logger.warning("Could not start playback due to missing streams. Item:\n%s", item)
                 return
 
             playData = self.channelObject.PlayVideoItem(item)
 
-            Logger.Debug("Continuing playback in plugin.py")
+            Logger.debug("Continuing playback in plugin.py")
             if not playData:
-                Logger.Warning("PlayVideoItem did not return valid playdata")
+                Logger.warning("PlayVideoItem did not return valid playdata")
                 return
             else:
                 playList, srt = playData
@@ -533,18 +533,18 @@ class Plugin(ParameterParser):
                 startIndex = playList.getposition()  # the current location
                 if startIndex < 0:
                     startIndex = 0
-                Logger.Info("Playing stream @ playlist index %s using setResolvedUrl method", startIndex)
+                Logger.info("Playing stream @ playlist index %s using setResolvedUrl method", startIndex)
                 resolvedUrl = playList[startIndex].getfilename()
                 xbmcplugin.setResolvedUrl(self.handle, True, playList[startIndex])
             else:
                 # playlist do not use the setResolvedUrl
-                Logger.Info("Playing stream using Playlist method")
+                Logger.info("Playing stream using Playlist method")
                 xbmcPlayer.play(playList)
 
             # the set the subtitles
             showSubs = AddonSettings.use_subtitle()
             if srt and (srt != ""):
-                Logger.Info("Adding subtitle: %s and setting showSubtitles to %s", srt, showSubs)
+                Logger.info("Adding subtitle: %s and setting showSubtitles to %s", srt, showSubs)
                 XbmcWrapper.WaitForPlayerToStart(xbmcPlayer, logger=Logger.instance(), url=resolvedUrl)
 
                 xbmcPlayer.setSubtitles(srt)
@@ -559,7 +559,7 @@ class Plugin(ParameterParser):
             XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                          LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
                                          XbmcWrapper.Error)
-            Logger.Critical("Could not playback the url", exc_info=True)
+            Logger.critical("Could not playback the url", exc_info=True)
 
         return
 
@@ -570,23 +570,23 @@ class Plugin(ParameterParser):
         action : String - The name of the method to call
 
         """
-        Logger.Debug("Performing Custom Contextmenu command: %s", action)
+        Logger.debug("Performing Custom Contextmenu command: %s", action)
 
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         if not item.complete:
-            Logger.Debug("The contextmenu action requires a completed item. Updating %s", item)
+            Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
             item = self.channelObject.ProcessVideoItem(item)
 
             if not item.complete:
-                Logger.Warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
+                Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
 
         # invoke
         functionString = "returnItem = self.channelObject.%s(item)" % (action,)
-        Logger.Debug("Calling '%s'", functionString)
+        Logger.debug("Calling '%s'", functionString)
         try:
             exec functionString
         except:
-            Logger.Error("OnActionFromContextMenu :: Cannot execute '%s'.", functionString, exc_info=True)
+            Logger.error("OnActionFromContextMenu :: Cannot execute '%s'.", functionString, exc_info=True)
         return
 
     def __FetchTextures(self):
@@ -612,7 +612,7 @@ class Plugin(ParameterParser):
                 if bytesTransfered > 0:
                     Statistics.register_cdn_bytes(bytesTransfered)
             except:
-                Logger.Error("Error fetching textures", exc_info=True)
+                Logger.error("Error fetching textures", exc_info=True)
             finally:
                 if w is not None:
                     # always close the progress bar
@@ -628,9 +628,9 @@ class Plugin(ParameterParser):
         """
 
         if not channelInfo:
-            Logger.Warning("Cannot configure channel without channel info")
+            Logger.warning("Cannot configure channel without channel info")
 
-        Logger.Info("Configuring channel: %s", channelInfo)
+        Logger.info("Configuring channel: %s", channelInfo)
         AddonSettings.show_channel_settings(channelInfo)
         return
 
@@ -652,7 +652,7 @@ class Plugin(ParameterParser):
         if items:
             hasDates = len(filter(lambda i: i.HasDate(), items)) > 0
             if hasDates:
-                Logger.Debug("Sorting method: Dates")
+                Logger.debug("Sorting method: Dates")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
@@ -661,14 +661,14 @@ class Plugin(ParameterParser):
 
             hasTracks = len(filter(lambda i: i.HasTrack(), items)) > 0
             if hasTracks:
-                Logger.Debug("Sorting method: Tracks")
+                Logger.debug("Sorting method: Tracks")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
 
-        Logger.Debug("Sorting method: Default (Label)")
+        Logger.debug("Sorting method: Default (Label)")
         xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
@@ -716,13 +716,13 @@ class Plugin(ParameterParser):
                         break
 
                 if not methodAvailable:
-                    Logger.Warning("No method for: %s", menuItem)
+                    Logger.warning("No method for: %s", menuItem)
                     continue
 
                 cmdUrl = self._CreateActionUrl(channel, action=menuItem.functionName, item=item)
                 cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
                 title = "Retro: %s" % (menuItem.label,)
-                Logger.Trace("Adding command: %s | %s", title, cmd)
+                Logger.trace("Adding command: %s | %s", title, cmd)
                 contextMenuItems.append((title, cmd))
 
         return contextMenuItems
@@ -758,7 +758,7 @@ class Plugin(ParameterParser):
 
         behaviour = AddonSettings.get_empty_list_behaviour()
 
-        Logger.Debug("Showing empty info for mode (favs=%s): [%s]", favs, behaviour)
+        Logger.debug("Showing empty info for mode (favs=%s): [%s]", favs, behaviour)
         if behaviour == "error":
             # show error
             ok = False
@@ -802,7 +802,7 @@ class Plugin(ParameterParser):
                 pasteUrl = logSender.send_files(Config.logFileNameAddon, filesToSend)
             XbmcWrapper.ShowDialog(title, urlText % (pasteUrl,))
         except Exception, e:
-            Logger.Error("Error sending %s", Config.logFileNameAddon, exc_info=True)
+            Logger.error("Error sending %s", Config.logFileNameAddon, exc_info=True)
 
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostErrorTitle)
             errorText = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
@@ -826,7 +826,7 @@ class Plugin(ParameterParser):
         languages = AddonSettings.get_available_countries(as_country_codes=True)
 
         if language is not None and language not in languages:
-            Logger.Warning("Missing language: %s", language)
+            Logger.warning("Missing language: %s", language)
             return
 
         if proxyId is None:
@@ -840,15 +840,15 @@ class Plugin(ParameterParser):
             localIP = int(localIP)
 
         channels = ChannelIndex.get_register().get_channels()
-        Logger.Info("Setting proxy='%s' (%s) and localIP='%s' (%s) for country '%s'",
+        Logger.info("Setting proxy='%s' (%s) and localIP='%s' (%s) for country '%s'",
                     proxyId, languages[proxyId],
                     localIP, languages[localIP],
                     language)
         channelsInCountry = filter(lambda c: c.language == language or language is None, channels)
         for channel in channelsInCountry:
-            Logger.Debug("Setting Proxy for: %s", channel)
+            Logger.debug("Setting Proxy for: %s", channel)
             AddonSettings.set_proxy_id_for_channel(channel, proxyId)
             if channel.localIPSupported:
-                Logger.Debug("Setting Local IP for: %s", channel)
+                Logger.debug("Setting Local IP for: %s", channel)
                 AddonSettings.set_local_ip_for_channel(channel, localIP)
         pass

@@ -71,10 +71,10 @@ class SubtitleHelper:
         """
 
         if file_name == "":
-            Logger.Debug("No filename present, generating filename using MD5 hash of url.")
+            Logger.debug("No filename present, generating filename using MD5 hash of url.")
             file_name = "%s.srt" % (EncodingHelper.encode_md5(url),)
         elif not file_name.endswith(".srt"):
-            Logger.Debug("No SRT extension present, appending it.")
+            Logger.debug("No SRT extension present, appending it.")
             file_name = "%s.srt" % (file_name,)
 
         srt = ""
@@ -85,11 +85,11 @@ class SubtitleHelper:
             if os.path.exists(local_complete_path):
                 return local_complete_path
 
-            Logger.Trace("Opening Subtitle URL")
+            Logger.trace("Opening Subtitle URL")
             raw = UriHandler.Open(url, proxy=proxy)
 
             if raw == "":
-                Logger.Warning("Empty Subtitle path found. Not setting subtitles.")
+                Logger.warning("Empty Subtitle path found. Not setting subtitles.")
                 return ""
 
             # try to decode it
@@ -100,13 +100,13 @@ class SubtitleHelper:
                 try:
                     raw = raw.replace("\x96", "-")
                 except:
-                    Logger.Error("Error replacing some weird chars.")
-                Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
+                    Logger.error("Error replacing some weird chars.")
+                Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
                 raw = raw.decode('unicode_escape')
 
             # do some auto detection
             if raw.startswith("WEBVTT") and format != "webvtt":
-                Logger.Info("Discovered subtitle format 'webvtt' instead of '%s'", format)
+                Logger.info("Discovered subtitle format 'webvtt' instead of '%s'", format)
                 format = "webvtt"
 
             if format.lower() == 'sami':
@@ -128,17 +128,17 @@ class SubtitleHelper:
                 raise NotImplementedError(error)
 
             if replace:
-                Logger.Debug("Replacing SRT data: %s", replace)
+                Logger.debug("Replacing SRT data: %s", replace)
                 for needle in replace:
                     srt = srt.replace(needle, replace[needle])
 
             f = open(local_complete_path, 'w')
             f.write(srt)
             f.close()
-            Logger.Info("Saved SRT as %s", local_complete_path)
+            Logger.info("Saved SRT as %s", local_complete_path)
             return local_complete_path
         except:
-            Logger.Error("Error handling Subtitle file: [%s]", srt, exc_info=True)
+            Logger.error("Error handling Subtitle file: [%s]", srt, exc_info=True)
             return ""
 
     @staticmethod
@@ -183,7 +183,7 @@ class SubtitleHelper:
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
             except:
-                Logger.Error("Error parsing subtitle: %s", sub, exc_info=True)
+                Logger.error("Error parsing subtitle: %s", sub, exc_info=True)
 
         return srt
 
@@ -251,7 +251,7 @@ class SubtitleHelper:
                 else:
                     text = "%s\n%s" % (text, sub[5].replace("<br />", "\n"))
             except:
-                Logger.Error("Error parsing subtitle: %s", sub, exc_info=True)
+                Logger.error("Error parsing subtitle: %s", sub, exc_info=True)
         return srt
 
     @staticmethod
@@ -331,7 +331,7 @@ class SubtitleHelper:
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
             except:
-                Logger.Error("Error parsing subtitle: %s", sub[1], exc_info=True)
+                Logger.error("Error parsing subtitle: %s", sub[1], exc_info=True)
 
         return srt
 
@@ -372,7 +372,7 @@ class SubtitleHelper:
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text)
                 i += 1
             except:
-                Logger.Error("Error parsing subtitle: %s", sub[1], exc_info=True)
+                Logger.error("Error parsing subtitle: %s", sub[1], exc_info=True)
 
         # re-encode to be able to write it
         return srt
@@ -401,7 +401,7 @@ class SubtitleHelper:
         try:
             m3u8_sub = m3u8_sub.decode()
         except:
-            Logger.Warning("Converting input to UTF-8 using 'unicode_escape'")
+            Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
             m3u8_sub = m3u8_sub.decode('unicode_escape')
 
         for line in m3u8_sub.split("\n"):

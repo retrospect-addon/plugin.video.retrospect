@@ -36,10 +36,10 @@ class CacheHTTPAdapter(HTTPAdapter):
                     self.cache_store.cacheHits += 1
                     return response
         except:
-            Logger.Error("Error retrieving cache for %s", request.url, exc_info=True)
+            Logger.error("Error retrieving cache for %s", request.url, exc_info=True)
 
         # Actually send a request
-        Logger.Debug("Retrieving data from: %s", request.url)
+        Logger.debug("Retrieving data from: %s", request.url)
         response = super(CacheHTTPAdapter, self).send(request, stream, timeout, verify, cert, proxies)
 
         try:
@@ -49,11 +49,11 @@ class CacheHTTPAdapter(HTTPAdapter):
                 self.__store_response(request, response, cache_data)
 
             if response.status_code == 304:
-                Logger.Debug("304 Response found. Pro-Longing the %s", response.url)
+                Logger.debug("304 Response found. Pro-Longing the %s", response.url)
                 self.cache_store.cacheHits += 1
                 response = self.__get_cached_response(request, no_check=True)
         except:
-            Logger.Error("Error storing cache for %s", request.url, exc_info=True)
+            Logger.error("Error storing cache for %s", request.url, exc_info=True)
 
         return response
 
@@ -61,7 +61,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         body_key, meta_key = self.__get_cache_keys(req)
         if not self.cache_store.has_cache_key(meta_key) or not \
                 self.cache_store.has_cache_key(body_key):
-            Logger.Debug("No-Cache-Hit: %s", req.url)
+            Logger.debug("No-Cache-Hit: %s", req.url)
             return None
 
         with self.cache_store.get(meta_key) as fd:
@@ -82,20 +82,20 @@ class CacheHTTPAdapter(HTTPAdapter):
             return resp
 
         # Determine the maximum age and then check if the cache if valid or not.
-        Logger.Trace("Cache-Data: %s", cache_data)
+        Logger.trace("Cache-Data: %s", cache_data)
         valid_in_seconds = 3600
         if 'max-age' in cache_data:
             valid_in_seconds = cache_data['max-age']
         if self.cache_store.is_expired(meta_key, valid_in_seconds):
-            Logger.Debug("Expired Cache-Hit: %s", req.url)
+            Logger.debug("Expired Cache-Hit: %s", req.url)
             return None
 
         if self.__must_revalidate(cache_data):
-            Logger.Debug("Stale-Cache hit found. Revalidating")
+            Logger.debug("Stale-Cache hit found. Revalidating")
             req.headers["If-None-Match"] = headers["etag"]
             return None
 
-        Logger.Debug("Cache-Hit: %s", req.url)
+        Logger.debug("Cache-Hit: %s", req.url)
         return resp
 
     def __extract_cache_data(self, headers):
@@ -121,7 +121,7 @@ class CacheHTTPAdapter(HTTPAdapter):
             cache_data['etag'] = headers['etag']
 
         if cache_data:
-            Logger.Debug("Found cache-control and etag data: %s", cache_data)
+            Logger.debug("Found cache-control and etag data: %s", cache_data)
         return cache_data
 
     def __should_cache(self, res, cache_data):
@@ -171,32 +171,32 @@ class CacheHTTPAdapter(HTTPAdapter):
         """
 
         if res.request.method != "GET":
-            Logger.Trace("Not a GET method. Not caching.")
+            Logger.trace("Not a GET method. Not caching.")
             return False
 
         if res.status_code < 200 or res.status_code >= 300:
-            Logger.Trace("No 2xx response code. Not caching.")
+            Logger.trace("No 2xx response code. Not caching.")
             return False
 
         if "no-cache" in cache_data or "no-store" in cache_data:
-            Logger.Trace("CacheKey No-Cache or No-Store found. Not caching")
+            Logger.trace("CacheKey No-Cache or No-Store found. Not caching")
             return False
 
         # must revalidate means that you must revalidate after the cache became
         # stale. So after the cache expired.
         if "must-revalidate" in cache_data or "proxy-revalidate" in cache_data:
-            Logger.Trace("CacheKey Must-Revalidate or proxy-revalidate found. Caching")
+            Logger.trace("CacheKey Must-Revalidate or proxy-revalidate found. Caching")
             return True
 
         if "max-age" in cache_data:
-            Logger.Trace("Max-Age found (%s). Caching", cache_data['max-age'])
+            Logger.trace("Max-Age found (%s). Caching", cache_data['max-age'])
             return True
 
-        Logger.Trace("Unknown cache parameters. Let's just cache")
+        Logger.trace("Unknown cache parameters. Let's just cache")
         return True
 
     def __store_response(self, req, res, cache_data):
-        Logger.Debug("Storing cache for: %s", res.url)
+        Logger.debug("Storing cache for: %s", res.url)
         body_key, meta_key = self.__get_cache_keys(req)
 
         # Store the body as a binary file and reset the raw and _content_consumed attributes
@@ -232,7 +232,7 @@ class CacheHTTPAdapter(HTTPAdapter):
         }
         with self.cache_store.set(meta_key) as fp:
             json.dump(data, fp, encoding='utf-8', indent=2)
-        Logger.Trace(data)
+        Logger.trace(data)
 
         return
 
@@ -249,7 +249,7 @@ class CacheHTTPAdapter(HTTPAdapter):
 
         # No cache data present, so no need to revalidate the thing.
         if not cache_data:
-            Logger.Trace("No cache data found for a cached request. No "
+            Logger.trace("No cache data found for a cached request. No "
                          "need to revalidate as it's either expired or not.")
             return False
 

@@ -93,7 +93,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         data = data.replace("&#160;", " ")
 
@@ -101,7 +101,7 @@ class Channel(chn_class.Channel):
         if pageNav > 0:
             data = data[0:pageNav]
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreatePageItem(self, resultSet):
@@ -125,7 +125,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         item.SetDate(2022, 1, 1, text="")
 
-        Logger.Trace("Created '%s' for url %s", item.name, item.url)
+        Logger.trace("Created '%s' for url %s", item.name, item.url)
         return item
 
     def CreateFolderItem(self, resultSet):
@@ -144,7 +144,7 @@ class Channel(chn_class.Channel):
         """
 
         if len(resultSet) > 3 and resultSet[3] != "":
-            Logger.Debug("Sub category folder found.")
+            Logger.debug("Sub category folder found.")
             url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[3]))
             name = "\a.: %s :." % (resultSet[4],)
             item = mediaitem.MediaItem(name, url)
@@ -180,7 +180,7 @@ class Channel(chn_class.Channel):
                     month = DateHelper.get_month_from_name(monthPart, "en")
                     item.SetDate(yearPart, month, dayPart)
                 except:
-                    Logger.Error("Error matching month: %s", monthPart, exc_info=True)
+                    Logger.error("Error matching month: %s", monthPart, exc_info=True)
 
         item.complete = True
         return item
@@ -231,7 +231,7 @@ class Channel(chn_class.Channel):
             month = monthLookup.index(monthPart) + 1
             item.SetDate(year, month, day)
         except:
-            Logger.Error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
+            Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 
         return item
 
@@ -240,7 +240,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(item.url)

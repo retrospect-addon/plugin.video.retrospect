@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def CreateLiveChannel(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         item = mediaitem.MediaItem(resultSet[0], resultSet[1])
         item.type = "video"
@@ -154,11 +154,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         data = data[0:data.find('<div class="splitter split24">')]
         # data = data[0:data.find('<ul class="videoarticle-socialsharing">')]
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItem(self, resultSet):
@@ -181,7 +181,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "%s%s" % (self.baseUrl, resultSet["url"])
         if self.parentItem.url not in url:
@@ -205,13 +205,13 @@ class Channel(chn_class.Channel):
             nameParts = name.rsplit("/", 3)
             # possibleDateParts = thumb.split("/")
             if len(nameParts) == 3:
-                Logger.Debug("Found possible date in name: %s", nameParts)
+                Logger.debug("Found possible date in name: %s", nameParts)
                 year = nameParts[2]
                 if len(year) == 2:
                     year = 2000 + int(year)
                 month = nameParts[1]
                 day = nameParts[0].rsplit(" ", 1)[1]
-                Logger.Trace("%s - %s - %s", year, month, day)
+                Logger.trace("%s - %s - %s", year, month, day)
                 item.SetDate(year, month, day)
 
             # elif len(possibleDateParts[3]) == 4 and len(possibleDateParts[4]) == 2:
@@ -227,7 +227,7 @@ class Channel(chn_class.Channel):
             #     Logger.Trace("%s - %s - %s", year, month, day)
             #     item.SetDate(year, month, day)
         except:
-            Logger.Warning("Apparently it was not a date :)")
+            Logger.warning("Apparently it was not a date :)")
         return item
 
     def UpdateLiveItem(self, item):
@@ -242,10 +242,10 @@ class Channel(chn_class.Channel):
                 url = channelData.json[channelId].get("hls")
 
         if url is None:
-            Logger.Error("Could not find stream for live channel: %s", item.url)
+            Logger.error("Could not find stream for live channel: %s", item.url)
             return item
 
-        Logger.Debug("Found stream url for %s: %s", item, url)
+        Logger.debug("Found stream url for %s: %s", item, url)
         part = item.CreateNewEmptyMediaPart()
         for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
             item.complete = True
@@ -258,7 +258,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -289,7 +289,7 @@ class Channel(chn_class.Channel):
         urls = Regexer.DoRegex(self.mediaUrlRegex, data)
         part = item.CreateNewEmptyMediaPart()
         for url in urls:
-            Logger.Trace(url)
+            Logger.trace(url)
             if url[0] == "src":
                 flv = url[1]
                 bitrate = 750

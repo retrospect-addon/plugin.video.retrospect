@@ -82,12 +82,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if self.parentItem is not None and "genre" in self.parentItem.metaData:
             self.__genre = self.parentItem.metaData["genre"]
-            Logger.Debug("Parsing a specific genre: %s", self.__genre)
+            Logger.debug("Parsing a specific genre: %s", self.__genre)
             return data, items
 
         searchItem = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
@@ -120,7 +120,7 @@ class Channel(chn_class.Channel):
             genreItem.metaData = {"genre": genre["genre"]}
             genresItem.items.append(genreItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def SearchSite(self, url=None):  # @UnusedVariable
@@ -172,11 +172,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         genres = resultSet[0]
         if self.__genre and self.__genre not in genres:
-            Logger.Debug("Item '%s' filtered due to genre: %s", resultSet[2], genres)
+            Logger.debug("Item '%s' filtered due to genre: %s", resultSet[2], genres)
             return None
 
         url = resultSet[1]
@@ -215,14 +215,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         thumbUrl = resultSet[0]
         if thumbUrl.startswith("//"):
             thumbUrl = "http:%s" % (thumbUrl, )
         elif not thumbUrl.startswith("http"):
             thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
-        Logger.Trace(thumbUrl)
+        Logger.trace(thumbUrl)
 
         season = resultSet[1]
         if season:
@@ -245,10 +245,10 @@ class Channel(chn_class.Channel):
             year = date[0]
             month = date[1]
             day = date[2]
-            Logger.Trace("%s - %s-%s-%s", date, year, month, day)
+            Logger.trace("%s - %s-%s-%s", date, year, month, day)
             item.SetDate(year, month, day)
         else:
-            Logger.Debug("No date found")
+            Logger.debug("No date found")
 
         item.complete = False
         return item
@@ -276,7 +276,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         json = JsonHelper(data, Logger.instance())
@@ -308,7 +308,7 @@ class Channel(chn_class.Channel):
             # subtitles
             subtitles = videoData.get("subtitleReferences")
             if subtitles:
-                Logger.Trace(subtitles)
+                Logger.trace(subtitles)
                 subUrl = subtitles[0]["url"]
                 fileName = "%s.srt" % (EncodingHelper.encode_md5(subUrl),)
                 subData = UriHandler.Open(subUrl, proxy=self.proxy)
@@ -319,7 +319,7 @@ class Channel(chn_class.Channel):
                 subData = re.sub("--> 1(\d):", "--> 0\g<1>:", subData)
 
                 localCompletePath = os.path.join(Config.cacheDir, fileName)
-                Logger.Debug("Saving subtitle to: %s", localCompletePath)
+                Logger.debug("Saving subtitle to: %s", localCompletePath)
                 f = open(localCompletePath, 'w')
                 f.write(subData)
                 f.close()

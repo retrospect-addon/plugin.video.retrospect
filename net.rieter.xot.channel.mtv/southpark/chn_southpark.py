@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
 
         if not resultSet[0] == "":
             self.promotionId = resultSet[0]
-            Logger.Debug("Setting PromotionId to: %s", resultSet[0])
+            Logger.debug("Setting PromotionId to: %s", resultSet[0])
             return None
 
         # <li><a href="(/guide/season/[^"]+)">(\d+)</a></li>
@@ -159,7 +159,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # 1 - get the overal config file
         guidRegex = 'http://[^:]+/mgid:[^"]+:([0-9a-f-]+)"'
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         for guid in guids:
             # get the info for this part
-            Logger.Debug("Processing part with GUID: %s", guid)
+            Logger.debug("Processing part with GUID: %s", guid)
 
             # reset stuff
             part = None
@@ -192,5 +192,5 @@ class Channel(chn_class.Channel):
                 part.AppendMediaStream(self.GetVerifiableVideoUrl(rtmpStream[2]), rtmpStream[1])
 
         item.complete = True
-        Logger.Trace("Media item updated: %s", item)
+        Logger.trace("Media item updated: %s", item)
         return item

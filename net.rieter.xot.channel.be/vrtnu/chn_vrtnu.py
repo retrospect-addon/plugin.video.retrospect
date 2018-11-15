@@ -199,7 +199,7 @@ class Channel(chn_class.Channel):
             # The old X-VRT-Token expired after 1 year. We don't want that old cookie
             shortLoginCookieCanLiveTooLong = DateHelper.get_date_from_posix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
             if not shortLoginCookieCanLiveTooLong:
-                Logger.Debug("Using existing VRT.be session.")
+                Logger.debug("Using existing VRT.be session.")
                 return True
 
         # Do we still have a valid long living token? If so, try to extend the session. We need the
@@ -211,10 +211,10 @@ class Channel(chn_class.Channel):
             # 'ucid' cookies to extend the session and get new token data
             data = UriHandler.Open("https://token.vrt.be/refreshtoken", proxy=self.proxy, noCache=True)
             if "vrtnutoken" in data:
-                Logger.Debug("Refreshed the VRT.be session.")
+                Logger.debug("Refreshed the VRT.be session.")
                 return True
 
-        Logger.Warning("Failed to extend the VRT.be session.")
+        Logger.warning("Failed to extend the VRT.be session.")
         username = self._GetSetting("username")
         if not username:
             return None
@@ -222,10 +222,10 @@ class Channel(chn_class.Channel):
         v = Vault()
         password = v.GetChannelSetting(self.guid, "password")
         if not password:
-            Logger.Warning("Found empty password for VRT user")
+            Logger.warning("Found empty password for VRT user")
 
         # Get a 'gmid' and 'ucid' cookie by logging in. Valid for 10 years
-        Logger.Debug("Using: %s / %s", username, "*" * len(password))
+        Logger.debug("Using: %s / %s", username, "*" * len(password))
         url = "https://accounts.vrt.be/accounts.login"
         data = {
             "loginID": username,
@@ -264,12 +264,12 @@ class Channel(chn_class.Channel):
         return True
 
     def AddCategories(self, data):
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if self.parentItem and "code" in self.parentItem.metaData:
             self.__currentChannel = self.parentItem.metaData["code"]
-            Logger.Info("Only showing items for channel: '%s'", self.__currentChannel)
+            Logger.info("Only showing items for channel: '%s'", self.__currentChannel)
             return data, items
 
         cat = mediaitem.MediaItem("\a.: Categori&euml;n :.", "https://www.vrt.be/vrtnu/categorieen/")
@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
         channels.dontGroup = True
         items.append(channels)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def ListChannels(self, data):
@@ -329,7 +329,7 @@ class Channel(chn_class.Channel):
     def CreateLiveStream(self, resultSet):
         items = []
         for keyValue, streamValue in resultSet.iteritems():
-            Logger.Trace(streamValue)
+            Logger.trace(streamValue)
             # noinspection PyArgumentList
             channelData = self.__channelData.get(keyValue, None)
             if not channelData:
@@ -346,7 +346,7 @@ class Channel(chn_class.Channel):
         return items
 
     def CreateShowItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         if resultSet["targetUrl"].startswith("//"):
             resultSet["url"] = "https:%(targetUrl)s" % resultSet
         else:
@@ -357,7 +357,7 @@ class Channel(chn_class.Channel):
 
     def CreateEpisodeItem(self, resultSet):
         if self.__currentChannel is not None and resultSet["channel"] != self.__currentChannel:
-            Logger.Debug("Skipping items due to channel mismatch: %s", resultSet)
+            Logger.debug("Skipping items due to channel mismatch: %s", resultSet)
             return None
 
         item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
@@ -419,7 +419,7 @@ class Channel(chn_class.Channel):
 
     def UpdateLiveVideo(self, item):
         if "m3u8" not in item.url:
-            Logger.Error("Cannot update live stream that is not an M3u8: %s", item.url)
+            Logger.error("Cannot update live stream that is not an M3u8: %s", item.url)
 
         part = item.CreateNewEmptyMediaPart()
         adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
@@ -438,7 +438,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateVideoItem(self, item):
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # we need to fetch the actual url as it might differ for single video items
         data, secureUrl = UriHandler.Header(item.url, proxy=self.proxy)
@@ -475,14 +475,14 @@ class Channel(chn_class.Channel):
 
             if videoType == "hls_aes" and drmProtected and adaptiveAvailable:
                 # no difference in encrypted or not.
-                Logger.Debug("Found HLS AES encrypted stream and a DRM key")
+                Logger.debug("Found HLS AES encrypted stream and a DRM key")
                 stream = part.AppendMediaStream(videoUrl, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy)
 
             elif videoType == "hls" and not drmProtected:
                 # no difference in encrypted or not.
                 if adaptiveAvailable:
-                    Logger.Debug("Found standard HLS stream and without DRM protection")
+                    Logger.debug("Found standard HLS stream and without DRM protection")
                     stream = part.AppendMediaStream(videoUrl, 0)
                     M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
@@ -505,7 +505,7 @@ class Channel(chn_class.Channel):
 
             elif videoType == "mpeg_dash" and adaptiveAvailable:
                 if not drmProtected:
-                    Logger.Debug("Found standard MPD stream and without DRM protection")
+                    Logger.debug("Found standard MPD stream and without DRM protection")
                     stream = part.AppendMediaStream(videoUrl, 1)
                     Mpd.set_input_stream_addon_input(stream, self.proxy)
                 else:
@@ -534,7 +534,7 @@ class Channel(chn_class.Channel):
         logonJson = JsonHelper(logonData)
         resultCode = logonJson.get_value("statusCode")
         if resultCode != 200:
-            Logger.Error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
+            Logger.error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
                          logonJson.get_value("errorDetails"))
             return None, None, None
 

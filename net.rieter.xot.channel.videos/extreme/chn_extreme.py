@@ -59,7 +59,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         
         # get additional info
         data = UriHandler.Open(item.url, proxy=self.proxy)
@@ -70,7 +70,7 @@ class Channel(chn_class.Channel):
 
         youTubeUrl = Regexer.DoRegex('"(https://www.youtube.com/embed/[^\"]+)', data)
         if youTubeUrl:
-            Logger.Debug("Using Youtube video")
+            Logger.debug("Using Youtube video")
             part = item.CreateNewEmptyMediaPart()
             youTubeUrl = youTubeUrl[0].replace("embed/", "watch?v=")
             for s, b in YouTube.get_streams_from_you_tube(youTubeUrl, self.proxy):
@@ -98,13 +98,13 @@ class Channel(chn_class.Channel):
                     part.AppendMediaStream("%s%s" % (baseUrl, url[0]), bitrate=int(int(url[1]) / 1000))
                 item.complete = True
 
-            Logger.Trace("UpdateVideoItem complete: %s", item)
+            Logger.trace("UpdateVideoItem complete: %s", item)
             return item
 
         # Try the brightcove
         brightCoveRegex = '<object id="myExperience[\w\W]+?videoPlayer" value="(\d+)"[\w\W]{0,1000}?playerKey" value="([^"]+)'
         brightCoveData = Regexer.DoRegex(brightCoveRegex, data)
-        Logger.Trace(brightCoveData)
+        Logger.trace(brightCoveData)
         if len(brightCoveData) > 0:
             seed = "c5f9ae8729f7054d43187989ef3421531ee8678d"
             objectData = brightCoveData[0]

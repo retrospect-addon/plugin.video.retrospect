@@ -396,7 +396,7 @@ class AddonSettings(object):
         language = xbmc.getLanguage()
         if AddonSettings.__language_current != language:
             AddonSettings.__language_strings = {}
-            Logger.Info("Setting language from %s to %s", AddonSettings.__language_current, language)
+            Logger.info("Setting language from %s to %s", AddonSettings.__language_current, language)
             AddonSettings.__language_current = language
 
         return
@@ -467,12 +467,12 @@ class AddonSettings(object):
         if not client_id:
             client_id = AddonSettings.store(KODI).get_setting(AddonSettings.__CLIENT_ID)
             if client_id:
-                Logger.Info("Moved ClientID to local storage")
+                Logger.info("Moved ClientID to local storage")
                 AddonSettings.store(LOCAL).set_setting(AddonSettings.__CLIENT_ID, client_id)
                 return client_id
 
             client_id = str(uuid.uuid1())
-            Logger.Debug("Generating new ClientID: %s", client_id)
+            Logger.debug("Generating new ClientID: %s", client_id)
             AddonSettings.store(LOCAL).set_setting(AddonSettings.__CLIENT_ID, client_id)
         return client_id
 
@@ -491,7 +491,7 @@ class AddonSettings(object):
         use_add_on = \
             AddonSettings.store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
         if not use_add_on:
-            Logger.Info("Adaptive Stream add-on disabled from Retrospect settings")
+            Logger.info("Adaptive Stream add-on disabled from Retrospect settings")
             return use_add_on
 
         # we should use it, so if we can't find it, it is not so OK.
@@ -500,11 +500,11 @@ class AddonSettings(object):
             xbmc.getCondVisibility('System.HasAddon("{0}")'.format(adaptive_add_on_id)) == 1
 
         if not adaptive_add_on_installed:
-            Logger.Warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptive_add_on_id)
+            Logger.warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptive_add_on_id)
             return False
 
         kodi_leia = AddonSettings.is_min_version(18)
-        Logger.Info("Adaptive Stream add-on '%s' %s decryption support was found.",
+        Logger.info("Adaptive Stream add-on '%s' %s decryption support was found.",
                     adaptive_add_on_id, "with" if kodi_leia else "without")
 
         if with_encryption:
@@ -536,7 +536,7 @@ class AddonSettings(object):
 
         # noinspection PyNoneFunctionAssignment
         version = AddonSettings.get_kodi_version()
-        Logger.Debug("Found Kodi version: %s", version)
+        Logger.debug("Found Kodi version: %s", version)
         git = ""
         try:
             # noinspection PyNoneFunctionAssignment
@@ -551,7 +551,7 @@ class AddonSettings(object):
             # Logger.Trace(machine)
 
             uname = platform.uname()
-            Logger.Trace(uname)
+            Logger.trace(uname)
             if git:
                 user_agent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s Git:%s" % \
                              (version, uname[0], uname[2], uname[4], version, git)
@@ -559,7 +559,7 @@ class AddonSettings(object):
                 user_agent = "Kodi/%s (%s %s; %s; http://kodi.tv) Version/%s" % \
                              (version, uname[0], uname[2], uname[4], version)
         except:
-            Logger.Warning("Error setting user agent", exc_info=True)
+            Logger.warning("Error setting user agent", exc_info=True)
             current_env = EnvController.get_platform(True)
             # Kodi/14.2 (Windows NT 6.1; WOW64) App_Bitness/32 Version/14.2-Git:20150326-7cc53a9
             user_agent = "Kodi/%s (%s; <unknown>; http://kodi.tv)" % (version, current_env)
@@ -567,7 +567,7 @@ class AddonSettings(object):
         # now we store it
         AddonSettings.store(LOCAL).set_setting(AddonSettings.__USER_AGENT_SETTING, user_agent)
         AddonSettings.__user_agent = user_agent
-        Logger.Info("User agent set to: %s", user_agent)
+        Logger.info("User agent set to: %s", user_agent)
         return
 
     @staticmethod
@@ -593,13 +593,13 @@ class AddonSettings(object):
                     old = AddonSettings.__user_agent
                     # a new XBMC version was installed, update the User-agent
                     AddonSettings.update_user_agent()
-                    Logger.Info("User agent updated due to Kodi version change from\n%s to\n%s",
+                    Logger.info("User agent updated due to Kodi version change from\n%s to\n%s",
                                 old, AddonSettings.__user_agent)
             else:
                 AddonSettings.update_user_agent()
-                Logger.Info("Set initial User agent version because it was missing.")
+                Logger.info("Set initial User agent version because it was missing.")
 
-        Logger.Debug("User agent retrieved from cache: %s", AddonSettings.__user_agent)
+        Logger.debug("User agent retrieved from cache: %s", AddonSettings.__user_agent)
         return AddonSettings.__user_agent
 
     @staticmethod
@@ -640,9 +640,9 @@ class AddonSettings(object):
 
         if setting == "Retrospect":
             setting = AddonSettings.store(KODI).get_setting("stream_bitrate")
-            Logger.Debug("Using the Retrospect Default Bitrate: %s", setting)
+            Logger.debug("Using the Retrospect Default Bitrate: %s", setting)
         else:
-            Logger.Debug("Using the Channel Specific Bitrate: %s", setting)
+            Logger.debug("Using the Channel Specific Bitrate: %s", setting)
         return int(setting or 8000)
 
     @staticmethod
@@ -799,7 +799,7 @@ class AddonSettings(object):
 
         # remove some HTML chars
         channel_name = HtmlEntityHelper.convert_html_entities(channel_name)
-        Logger.Debug("Showing channel settings for channel: %s (%s)", channel_name, channel.channelName)
+        Logger.debug("Showing channel settings for channel: %s (%s)", channel_name, channel.channelName)
 
         # Set the channel to be the preselected one
         AddonSettings.store(KODI).set_setting("config_channel", channel_name)
@@ -824,7 +824,7 @@ class AddonSettings(object):
             AddonSettings.store(KODI).open_settings()  # this will open settings window
             # reload the cache because stuff might have changed
 
-            Logger.Info("Clearing Settings cache because settings dialog was shown.")
+            Logger.info("Clearing Settings cache because settings dialog was shown.")
             AddonSettings.__refresh(KODI)
         else:
             # show settings and focus on a tab
@@ -837,7 +837,7 @@ class AddonSettings(object):
                 if setting_id:
                     xbmc.executebuiltin('SetFocus(%s)' % int(setting_id))
 
-            Logger.Info("Settings shown with focus on %s-%s", tab_id, setting_id or "<none>")
+            Logger.info("Settings shown with focus on %s-%s", tab_id, setting_id or "<none>")
         return
 
     @staticmethod
@@ -883,17 +883,17 @@ class AddonSettings(object):
 
         prefix = AddonSettings.get_local_ip_header_country_code_for_channel(channel_info)
         if prefix is None:
-            Logger.Debug("No Local IP configured for %s", channel_info)
+            Logger.debug("No Local IP configured for %s", channel_info)
             return None
 
-        Logger.Debug("Country settings '%s' configured for Local IP for %s", prefix, channel_info)
+        Logger.debug("Country settings '%s' configured for Local IP for %s", prefix, channel_info)
 
         server = AddonSettings.store(KODI).get_setting("%s_local_ip" % (prefix,), default=None)
         if not server:
-            Logger.Debug("No Local IP found for country '%s'", prefix)
+            Logger.debug("No Local IP found for country '%s'", prefix)
             return None
 
-        Logger.Debug("Found Local IP for channel %s:\nLocal IP: %s", channel_info, server)
+        Logger.debug("Found Local IP for channel %s:\nLocal IP: %s", channel_info, server)
         return {"X-Forwarded-For": server}
 
     @staticmethod
@@ -923,7 +923,7 @@ class AddonSettings(object):
         """
 
         if country_code == "other":
-            Logger.Warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
+            Logger.warning("LocalIP updating to 'other' which is invalid. Setting it to None.")
             country_code = None
 
         AddonSettings.store(LOCAL).\
@@ -947,17 +947,17 @@ class AddonSettings(object):
 
         prefix = AddonSettings.get_proxy_country_code_for_channel(channel_info)
         if prefix is None:
-            Logger.Debug("No proxy configured for %s", channel_info)
+            Logger.debug("No proxy configured for %s", channel_info)
             return None
 
-        Logger.Debug("Country settings '%s' configured for Proxy for %s", prefix, channel_info)
+        Logger.debug("Country settings '%s' configured for Proxy for %s", prefix, channel_info)
 
         server = AddonSettings.store(KODI).get_setting("%s_proxy_server" % (prefix,))
         port = AddonSettings.store(KODI).get_integer_setting("%s_proxy_port" % (prefix,), default=0)
         proxy_type = AddonSettings.store(KODI).get_setting("%s_proxy_type" % (prefix,))
 
         if not proxy_type or proxy_type.lower() not in ('dns', 'http') or not server:
-            Logger.Debug("No proxy found for country '%s'", prefix)
+            Logger.debug("No proxy found for country '%s'", prefix)
             return None
 
         username = AddonSettings.store(KODI).\
@@ -967,7 +967,7 @@ class AddonSettings(object):
 
         p_info = ProxyInfo(server, port,
                            scheme=proxy_type.lower(), username=username, password=password)
-        Logger.Debug("Found proxy for channel %s:\n%s", channel_info, p_info)
+        Logger.debug("Found proxy for channel %s:\n%s", channel_info, p_info)
         return p_info
 
     @staticmethod
@@ -1043,27 +1043,27 @@ class AddonSettings(object):
             # erase all user settings.
             user_settings = os.path.join(Config.profileDir, "settings.xml")
             user_settings_backup = os.path.join(Config.profileDir, "settings.old.xml")
-            Logger.Debug("Backing-up user settings: %s", user_settings_backup)
+            Logger.debug("Backing-up user settings: %s", user_settings_backup)
             if os.path.isfile(user_settings):
                 shutil.copy(user_settings, user_settings_backup)
             else:
-                Logger.Warning("No user settings found at: %s", user_settings)
+                Logger.warning("No user settings found at: %s", user_settings)
 
             # Update the addonsettings.xml by first updating a temp xml file.
-            Logger.Debug("Creating new settings.xml file: %s", filename_temp)
-            Logger.Trace(new_contents)
+            Logger.debug("Creating new settings.xml file: %s", filename_temp)
+            Logger.trace(new_contents)
             settings_xml = open(filename_temp, "w+")
             settings_xml.write(new_contents)
             settings_xml.close()
-            Logger.Debug("Replacing existing settings.xml file: %s", filename)
+            Logger.debug("Replacing existing settings.xml file: %s", filename)
             shutil.move(filename_temp, filename)
 
             # restore the user profile settings.xml file when needed
             if os.path.isfile(user_settings) and os.stat(user_settings).st_size != os.stat(user_settings_backup).st_size:
-                Logger.Critical("User settings.xml was overwritten during setttings update. Restoring from %s", user_settings_backup)
+                Logger.critical("User settings.xml was overwritten during setttings update. Restoring from %s", user_settings_backup)
                 shutil.copy(user_settings_backup, user_settings)
         except:
-            Logger.Error("Something went wrong trying to update the settings.xml", exc_info=True)
+            Logger.error("Something went wrong trying to update the settings.xml", exc_info=True)
             try:
                 settings_xml.close()
             except:
@@ -1080,7 +1080,7 @@ class AddonSettings(object):
             shutil.move(filename_temp, filename)
             return
 
-        Logger.Info("Settings.xml updated succesfully. Reloading settings.")
+        Logger.info("Settings.xml updated succesfully. Reloading settings.")
         AddonSettings.__refresh(KODI)
         return
 
@@ -1098,7 +1098,7 @@ class AddonSettings(object):
         """
 
         if "<!-- start of active channels -->" not in contents:
-            Logger.Error("No '<!-- start of active channels -->' found in settings.xml. Stopping updating.")
+            Logger.error("No '<!-- start of active channels -->' found in settings.xml. Stopping updating.")
             return
 
         # Create new XML
@@ -1129,7 +1129,7 @@ class AddonSettings(object):
         """
 
         if "<!-- begin of channel settings -->" not in contents:
-            Logger.Error("No '<!-- begin of channel settings -->' found in settings.xml. Stopping updating.")
+            Logger.error("No '<!-- begin of channel settings -->' found in settings.xml. Stopping updating.")
             return
 
         settings = dict()
@@ -1152,7 +1152,7 @@ class AddonSettings(object):
                 for channel_settings in channel.settings:
                     setting_id = channel_settings["id"]
                     setting_value = channel_settings["value"]
-                    Logger.Debug("Adding setting: '%s' with value '%s'", setting_id,
+                    Logger.debug("Adding setting: '%s' with value '%s'", setting_id,
                                  setting_value)
 
                     if setting_value.startswith("id="):
@@ -1206,7 +1206,7 @@ class AddonSettings(object):
         begin = contents[:contents.find('<!-- begin of channel settings -->')].strip()
         end = contents[contents.find('<!-- end of channel settings -->'):]
 
-        Logger.Trace("Generated channel settings:\n%s", xml_content)
+        Logger.trace("Generated channel settings:\n%s", xml_content)
         contents = "%s\n%s\n        %s" % (begin, xml_content.rstrip(), end)
         return contents, setting_offset_for_visibility, channels_with_settings
 
@@ -1223,7 +1223,7 @@ class AddonSettings(object):
         """
 
         if "<!-- start of channel selection -->" not in contents:
-            Logger.Error("No '<!-- start of channel selection -->' found in settings.xml. Stopping updating.")
+            Logger.error("No '<!-- start of channel selection -->' found in settings.xml. Stopping updating.")
             return
 
         # First we create a new bit of settings file.
@@ -1233,7 +1233,7 @@ class AddonSettings(object):
         languages = map(lambda c: c.language, channels)
         languages = list(set(languages))
         languages.sort()
-        Logger.Debug("Found languages: %s", languages)
+        Logger.debug("Found languages: %s", languages)
 
         # get the labels and setting identifiers for those languages
         language_lookup = dict()
@@ -1369,5 +1369,5 @@ class AddonSettings(object):
                     get_setting("{0}_local_ip".format(country.lower()), default="Not Set")
                 value = pattern % (value, local_ip_title, local_ip_value)
         except:
-            Logger.Error("Error", exc_info=True)
+            Logger.error("Error", exc_info=True)
         return value

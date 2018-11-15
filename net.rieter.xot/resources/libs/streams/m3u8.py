@@ -27,10 +27,10 @@ class M3u8:
         qs = None
         if append_query_string and "?" in url:
             base, qs = url.split("?", 1)
-            Logger.Info("Going to append QS: %s", qs)
+            Logger.info("Going to append QS: %s", qs)
         elif "?" in url:
             base, qs = url.split("?", 1)
-            Logger.Info("Ignoring QS: %s", qs)
+            Logger.info("Ignoring QS: %s", qs)
             qs = None
         else:
             base = url
@@ -42,12 +42,12 @@ class M3u8:
         for n in needles:
             if "://" not in n[url_index]:
                 if not base_url_logged:
-                    Logger.Debug("Using base_url %s for M3u8", base_url)
+                    Logger.debug("Using base_url %s for M3u8", base_url)
                     base_url_logged = True
                 sub = "%s/%s" % (base_url, n[url_index])
             else:
                 if not base_url_logged:
-                    Logger.Debug("Full url found in M3u8")
+                    Logger.debug("Full url found in M3u8")
                     base_url_logged = True
                 sub = n[url_index]
 
@@ -110,20 +110,20 @@ class M3u8:
         streams = []
 
         data = play_list_data or UriHandler.Open(url, proxy, additionalHeaders=headers)
-        Logger.Trace(data)
+        Logger.trace(data)
 
         qs = None
         if append_query_string and "?" in url:
             base, qs = url.split("?", 1)
-            Logger.Info("Going to append QS: %s", qs)
+            Logger.info("Going to append QS: %s", qs)
         elif "?" in url:
             base, qs = url.split("?", 1)
-            Logger.Info("Ignoring QS: %s", qs)
+            Logger.info("Ignoring QS: %s", qs)
             qs = None
         else:
             base = url
 
-        Logger.Debug("Processing M3U8 Streams: %s", url)
+        Logger.debug("Processing M3U8 Streams: %s", url)
 
         # If we need audio
         if map_audio:
@@ -147,19 +147,19 @@ class M3u8:
         base_url = base[:base.rindex("/")]
         for n in needles:
             # see if we need to append a server path
-            Logger.Trace(n)
+            Logger.trace(n)
 
             if "#EXT-X-I-FRAME" in n[type_index]:
                 continue
 
             if "://" not in n[url_index]:
                 if not base_url_logged:
-                    Logger.Debug("Using baseUrl %s for M3u8", base_url)
+                    Logger.debug("Using baseUrl %s for M3u8", base_url)
                     base_url_logged = True
                 stream = "%s/%s" % (base_url, n[url_index])
             else:
                 if not base_url_logged:
-                    Logger.Debug("Full url found in M3u8")
+                    Logger.debug("Full url found in M3u8")
                     base_url_logged = True
                 stream = n[url_index]
             bitrate = n[bitrate_index]
@@ -173,7 +173,7 @@ class M3u8:
 
             if map_audio and "#EXT-X-MEDIA" in n[type_index]:
                 # noinspection PyUnboundLocalVariable
-                Logger.Debug("Found audio stream: %s -> %s", n[id_index], stream)
+                Logger.debug("Found audio stream: %s -> %s", n[id_index], stream)
                 audio_streams[n[id_index]] = stream
                 continue
 
@@ -182,5 +182,5 @@ class M3u8:
             else:
                 streams.append((stream, bitrate))
 
-        Logger.Debug("Found %s substreams in M3U8", len(streams))
+        Logger.debug("Found %s substreams in M3U8", len(streams))
         return streams

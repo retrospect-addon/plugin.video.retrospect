@@ -40,10 +40,10 @@ class Updater:
             if self.onlineVersion is None:
                 return False
 
-            self.__logger.Debug("Found online version: %s", self.onlineVersion)
+            self.__logger.debug("Found online version: %s", self.onlineVersion)
             return self.currentVersion < self.onlineVersion
         except:
-            self.__logger.Error("Error checking for updates", exc_info=True)
+            self.__logger.error("Error checking for updates", exc_info=True)
             return False
 
     def __getOnlineVersion(self):

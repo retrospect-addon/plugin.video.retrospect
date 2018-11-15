@@ -53,13 +53,13 @@ class ChannelIndex:
         # not happen during a user's browsing session, we use sliding expiration of 1 minute.
 
         if not ChannelIndex.__channelIndexer:
-            Logger.Debug("Creating a new ChannelIndex-er.")
+            Logger.debug("Creating a new ChannelIndex-er.")
             ChannelIndex.__channelIndexer = ChannelIndex()
         elif ChannelIndex.__channelIndexer.validAt + valid_for < datetime.datetime.now():
-            Logger.Debug("Existing ChannelIndex-er expired. Creating a new ChannelIndex-er.")
+            Logger.debug("Existing ChannelIndex-er expired. Creating a new ChannelIndex-er.")
             ChannelIndex.__channelIndexer = ChannelIndex()
         else:
-            Logger.Debug("Using an existing %s.", ChannelIndex.__channelIndexer)
+            Logger.debug("Using an existing %s.", ChannelIndex.__channelIndexer)
             # We are using a sliding expiration, so we should let the expiration slide.
             ChannelIndex.__channelIndexer.validAt = datetime.datetime.now()
 
@@ -106,13 +106,13 @@ class ChannelIndex:
 
         channel_set = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY].get(class_name, None)
         if channel_set is None:
-            Logger.Error("Could not find info for channelClass '%s'.", class_name)
+            Logger.error("Could not find info for channelClass '%s'.", class_name)
             return None
 
         channel_set_info_path = channel_set[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
         channel_set_version = channel_set[self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
         if not os.path.isfile(channel_set_info_path) and not self.__reindexed:
-            Logger.Warning("Missing channel_set file: %s.", channel_set_info_path)
+            Logger.warning("Missing channel_set file: %s.", channel_set_info_path)
             self.__rebuild_index()
             return self.get_channel(class_name, channel_code)
 
@@ -123,24 +123,24 @@ class ChannelIndex:
             channel_infos = filter(lambda ci: ci.channelCode == channel_code, channel_infos)
 
         if len(channel_infos) != 1:
-            Logger.Error("Found none or more than 1 matches for '%s' and '%s' in the channel index.",
+            Logger.error("Found none or more than 1 matches for '%s' and '%s' in the channel index.",
                          class_name, channel_code or "None")
             return None
         else:
-            Logger.Debug("Found single channel in the channel index: %s.", channel_infos[0])
+            Logger.debug("Found single channel in the channel index: %s.", channel_infos[0])
 
         if self.__is_channel_set_updated(channel_infos[0]):
             # let's see if the index has already been updated this section, of not, do it and
             # restart the ChannelRetrieval.
             if not self.__reindexed:
                 # rebuild and restart
-                Logger.Warning("Re-index channel index due to channel_set update: %s.", channel_set_info_path)
+                Logger.warning("Re-index channel index due to channel_set update: %s.", channel_set_info_path)
                 self.__rebuild_index()
             else:
-                Logger.Warning("Found updated channel_set: %s.", channel_set_info_path)
+                Logger.warning("Found updated channel_set: %s.", channel_set_info_path)
 
             # new we should init all channels by loading them all, just to be shure that all is ok
-            Logger.Debug("Going to fetching all channels to init them all.")
+            Logger.debug("Going to fetching all channels to init them all.")
             self.get_channels()
             return self.get_channel(class_name, channel_code)
 
@@ -166,7 +166,7 @@ class ChannelIndex:
         """
 
         sw = StopWatch("ChannelIndex.get_channels Importer", Logger.instance())
-        Logger.Info("Fetching all enabled channels.")
+        Logger.info("Fetching all enabled channels.")
 
         self.__allChannels = []
         valid_channels = []
@@ -184,7 +184,7 @@ class ChannelIndex:
 
             # Check if file exists. If not, rebuild index
             if not os.path.isfile(channel_set_info_path) and not self.__reindexed:
-                Logger.Warning("Missing channelSet file: %s.", channel_set_info_path)
+                Logger.warning("Missing channelSet file: %s.", channel_set_info_path)
                 self.__rebuild_index()
                 return self.get_channels()
 
@@ -196,11 +196,11 @@ class ChannelIndex:
                 # restart the ChannelRetrieval.
                 if not self.__reindexed:
                     # rebuild and restart
-                    Logger.Warning("Re-index channel index due to channelSet update: %s.", channel_set_info_path)
+                    Logger.warning("Re-index channel index due to channelSet update: %s.", channel_set_info_path)
                     self.__rebuild_index()
                     return self.get_channels()
                 else:
-                    Logger.Warning("Found updated channelSet: %s.", channel_set_info_path)
+                    Logger.warning("Found updated channelSet: %s.", channel_set_info_path)
 
                 if not channels_updated:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
@@ -224,7 +224,7 @@ class ChannelIndex:
 
                 # valid channel for this platform ?
                 if not channel_info.compatiblePlatforms & platform == platform:
-                    Logger.Warning("Not loading: %s -> platform '%s' is not compatible.",
+                    Logger.warning("Not loading: %s -> platform '%s' is not compatible.",
                                    channel_info, Environments.name(platform))
                     continue
                 valid_channels.append(channel_info)
@@ -238,19 +238,19 @@ class ChannelIndex:
                 # was the channel explicitly disabled from the settings?
                 channel_info.enabled = AddonSettings.get_channel_visibility(channel_info)
 
-                Logger.Debug("Found channel: %s", channel_info)
+                Logger.debug("Found channel: %s", channel_info)
 
         if channels_updated:
-            Logger.Info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
+            Logger.info("New or updated channels found. Updating add-on configuration for all channels and user agent.")
             AddonSettings.update_add_on_settings_with_channels(valid_channels, Config)
             AddonSettings.update_user_agent()
         else:
-            Logger.Debug("No channel changes found. Skipping add-on configuration for channels.")
+            Logger.debug("No channel changes found. Skipping add-on configuration for channels.")
             # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
         valid_channels.sort()
         visible_channels = filter(lambda c: c.visible and c.enabled, valid_channels)
-        Logger.Info("Fetch a total of %d channels of which %d are visible.",
+        Logger.info("Fetch a total of %d channels of which %d are visible.",
                     len(valid_channels),
                     len(visible_channels))
 
@@ -268,7 +268,7 @@ class ChannelIndex:
         categories = set()
         channels = self.get_channels()
         map(lambda c: categories.add(c.category), channels)
-        Logger.Debug("Found these categories: %s", ", ".join(categories))
+        Logger.debug("Found these categories: %s", ", ".join(categories))
         return categories
 
     def __deploy_new_channels(self):
@@ -285,7 +285,7 @@ class ChannelIndex:
 
         """
 
-        Logger.Debug("Checking for new channels to deploy")
+        Logger.debug("Checking for new channels to deploy")
 
         # location of new channels and list of subfolders
         deploy_path = os.path.join(Config.rootDir, "deploy")
@@ -310,10 +310,10 @@ class ChannelIndex:
             deploy_parts = deploy.split(".")
             dest_deploy = "%s.channel.%s" % (Config.addonDir, deploy_parts[-1])
             destination_path = os.path.join(target_folder, dest_deploy)
-            Logger.Info("Deploying Channel Addon '%s' to '%s'", deploy, destination_path)
+            Logger.info("Deploying Channel Addon '%s' to '%s'", deploy, destination_path)
 
             if os.path.exists(destination_path):
-                Logger.Info("Removing old channel at %s", dest_deploy)
+                Logger.info("Removing old channel at %s", dest_deploy)
                 shutil.rmtree(destination_path)
 
             # only update if there was a real addon
@@ -339,13 +339,13 @@ class ChannelIndex:
         # if it was not already re-index and the bit was set
         if self.__reindex:
             if self.__reindexed:
-                Logger.Warning("Forced re-index set, but a re-index was already done previously. Not Rebuilding.")
+                Logger.warning("Forced re-index set, but a re-index was already done previously. Not Rebuilding.")
             else:
-                Logger.Info("Forced re-index set. Rebuilding.")
+                Logger.info("Forced re-index set. Rebuilding.")
                 return self.__rebuild_index()
 
         if not os.path.isfile(self.__CHANNEL_INDEX):
-            Logger.Info("No index file found at '%s'. Rebuilding.", self.__CHANNEL_INDEX)
+            Logger.info("No index file found at '%s'. Rebuilding.", self.__CHANNEL_INDEX)
             return self.__rebuild_index()
 
         try:
@@ -353,13 +353,13 @@ class ChannelIndex:
                 data = fd.read()
 
             index_json = JsonHelper(data, logger=Logger.instance())
-            Logger.Debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
+            Logger.debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
 
             if not self.__is_index_consistent(index_json.json):
                 return self.__rebuild_index()
             return index_json.json
         except:
-            Logger.Critical("Error reading channel index. Rebuilding.", exc_info=True)
+            Logger.critical("Error reading channel index. Rebuilding.", exc_info=True)
             return self.__rebuild_index()
 
     def __rebuild_index(self):
@@ -380,10 +380,10 @@ class ChannelIndex:
         """
 
         if self.__reindexed:
-            Logger.Error("Channel index was already re-indexed this run. Not doing it again.")
+            Logger.error("Channel index was already re-indexed this run. Not doing it again.")
             return self.__channelIndex
 
-        Logger.Info("Rebuilding the channel index.")
+        Logger.info("Rebuilding the channel index.")
         index = {
             self.__CHANNEL_INDEX_ADD_ONS_KEY: [],
             self.__CHANNEL_INDEX_CHANNEL_KEY: {}
@@ -407,7 +407,7 @@ class ChannelIndex:
                     continue
 
                 channel_set_id = "chn_%s" % (channel_set,)
-                Logger.Debug("Found channel set '%s'", channel_set_id)
+                Logger.debug("Found channel set '%s'", channel_set_id)
                 index[self.__CHANNEL_INDEX_CHANNEL_KEY][channel_set_id] = {
                     self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY: str(channel_add_on_version),
                     self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_add_on_path, channel_set, "%s.json" % (channel_set_id,))
@@ -419,7 +419,7 @@ class ChannelIndex:
         # now we marked that we already re-indexed.
         self.__reindexed = True
         self.__channelIndex = index
-        Logger.Info("Rebuilding channel index completed with %d channelSets and %d add-ons: %s.",
+        Logger.info("Rebuilding channel index completed with %d channelSets and %d add-ons: %s.",
                     len(index[self.__CHANNEL_INDEX_CHANNEL_KEY]),
                     len(index[self.__CHANNEL_INDEX_ADD_ONS_KEY]),
                     index)
@@ -439,7 +439,7 @@ class ChannelIndex:
 
         # continue if no addon.xml exists
         if not os.path.isfile(addon_file):
-            Logger.Info("No addon.xml found at %s.", addon_file)
+            Logger.info("No addon.xml found at %s.", addon_file)
             return None, None
 
         with io.open(addon_file, 'r+', encoding='utf-8') as f:
@@ -452,14 +452,14 @@ class ChannelIndex:
             package_id = pack_version[0]
             package_version = Version(version=pack_version[1])
             if Config.version.EqualBuilds(package_version):
-                Logger.Info("Adding %s version %s", package_id, package_version)
+                Logger.info("Adding %s version %s", package_id, package_version)
                 return package_id, package_version
             else:
-                Logger.Warning("Skipping %s version %s: Versions do not match.",
+                Logger.warning("Skipping %s version %s: Versions do not match.",
                                package_id, package_version)
                 return None, None
         else:
-            Logger.Critical("Cannot determine Channel Add-on version. Not loading Add-on @ '%s'.",
+            Logger.critical("Cannot determine Channel Add-on version. Not loading Add-on @ '%s'.",
                             path)
             return None, None
 
@@ -508,12 +508,12 @@ class ChannelIndex:
         """
 
         if not channel_info.guid:
-            Logger.Error("Not loading: %s -> No guid present.", channel_info)
+            Logger.error("Not loading: %s -> No guid present.", channel_info)
             return False
 
         if channel_info in self.__allChannels:
             existing_channel = self.__allChannels[self.__allChannels.index(channel_info)]
-            Logger.Error("Not loading: %s -> a channel with the same guid already exist:\n%s.",
+            Logger.error("Not loading: %s -> a channel with the same guid already exist:\n%s.",
                          channel_info, existing_channel)
             return False
 
@@ -536,7 +536,7 @@ class ChannelIndex:
 
         """
 
-        Logger.Info("Initialising channel set at: %s.", channel_info.path)
+        Logger.info("Initialising channel set at: %s.", channel_info.path)
 
         # now import (required for the PerformFirstTimeActions
         sys.path.append(channel_info.path)
@@ -551,7 +551,7 @@ class ChannelIndex:
         if TextureHandler.instance():
             TextureHandler.instance().purge_texture_cache(channel_info)
         else:
-            Logger.Warning("Could not purge_texture_cache: no TextureHandler available")
+            Logger.warning("Could not purge_texture_cache: no TextureHandler available")
         return
 
     def __initialise_channel(self, channel_info):
@@ -562,7 +562,7 @@ class ChannelIndex:
         channelInfo : ChannelInfo - The channelinfo
         """
 
-        Logger.Info("Performing first time channel actions for: %s.", channel_info)
+        Logger.info("Performing first time channel actions for: %s.", channel_info)
 
         self.__show_first_time_message(channel_info)
         return
@@ -585,13 +585,13 @@ class ChannelIndex:
         hide_first_time = AddonSettings.hide_first_time_messages()
         if channel_info.firstTimeMessage:
             if not hide_first_time:
-                Logger.Info("Showing first time message '%s' for channel chn_%s.",
+                Logger.info("Showing first time message '%s' for channel chn_%s.",
                             channel_info.firstTimeMessage, channel_info.moduleName)
 
                 title = LanguageHelper.get_localized_string(LanguageHelper.ChannelMessageId)
                 XbmcWrapper.ShowDialog(title, channel_info.firstTimeMessage.split("|"))
             else:
-                Logger.Debug("Not showing first time message due to add-on setting set to '%s'.",
+                Logger.debug("Not showing first time message due to add-on setting set to '%s'.",
                              hide_first_time)
         return
 
@@ -603,11 +603,11 @@ class ChannelIndex:
         """
 
         if self.__CHANNEL_INDEX_CHANNEL_KEY not in index:
-            Logger.Warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_CHANNEL_INFO_KEY)
+            Logger.warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_CHANNEL_INFO_KEY)
             return False
 
         if self.__CHANNEL_INDEX_ADD_ONS_KEY not in index:
-            Logger.Warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_ADD_ONS_KEY)
+            Logger.warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_ADD_ONS_KEY)
             return False
 
         # verify if the channels add-ons match, otherwise it is invalid anyways
@@ -618,13 +618,13 @@ class ChannelIndex:
 
         # see if the numbers match
         if len(indexed_channel_add_ons) != len(add_ons):
-            Logger.Warning("Channel Index Inconsistent: add-on count is not up to date (index=%s vs actual=%s).",
+            Logger.warning("Channel Index Inconsistent: add-on count is not up to date (index=%s vs actual=%s).",
                            len(indexed_channel_add_ons), len(add_ons))
             return False
         # cross reference by putting them on a big pile and then get the distinct values (set) and
         # compare the length of the distinct values.
         if len(set(indexed_channel_add_ons + add_ons)) != len(add_ons):
-            Logger.Warning("Channel Index Inconsistent: add-on content is not up to date.")
+            Logger.warning("Channel Index Inconsistent: add-on content is not up to date.")
             return False
 
         # Validate the version of the add-on and the channel-sets
@@ -632,7 +632,7 @@ class ChannelIndex:
         first_version = channels[channels.keys()[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
         first_version = Version(first_version)
         if not Config.version.EqualBuilds(first_version):
-            Logger.Warning("Inconsisten version 'index' vs 'add-on': %s vs %s", first_version, Config.version)
+            Logger.warning("Inconsisten version 'index' vs 'add-on': %s vs %s", first_version, Config.version)
             return False
 
         return True

@@ -88,7 +88,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         endOfSection = data.rfind('<div class="grid-4">')
@@ -98,10 +98,10 @@ class Channel(chn_class.Channel):
         # find the first main video
         jsonData = Regexer.DoRegex(self.mediaUrlRegex, data)
         if not jsonData:
-            Logger.Debug("No show data found as JSON")
+            Logger.debug("No show data found as JSON")
             return data, items
 
-        Logger.Trace(jsonData[0])
+        Logger.trace(jsonData[0])
         json = JsonHelper(jsonData[0])
         title = json.get_value("title")
         url = json.get_value("source", "hls")
@@ -113,7 +113,7 @@ class Channel(chn_class.Channel):
         item.complete = False
         items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateFolderItem(self, resultSet):
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         resultSet["title"] = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         return chn_class.Channel.CreateFolderItem(self, resultSet)
@@ -141,21 +141,21 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         if not item.url.endswith("m3u8"):
             data = UriHandler.Open(item.url, proxy=self.proxy)
             jsonData = Regexer.DoRegex(self.mediaUrlRegex, data)
             if not jsonData:
-                Logger.Error("Cannot find JSON stream info.")
+                Logger.error("Cannot find JSON stream info.")
                 return item
 
             json = JsonHelper(jsonData[0])
-            Logger.Trace(json.json)
+            Logger.trace(json.json)
             stream = json.get_value("source", "hls")
             if stream is None:
                 stream = json.get_value("mzsource", "hls")
-            Logger.Debug("Found HLS: %s", stream)
+            Logger.debug("Found HLS: %s", stream)
         else:
             stream = item.url
 

@@ -95,7 +95,7 @@ class BrightCove:
         response = remoting.decode(response).bodies[0][1].body
 
         if self.logger:
-            self.logger.Trace(response)
+            self.logger.trace(response)
 
         return response['programmedContent']['videoPlayer']['mediaDTO']
 
@@ -116,7 +116,7 @@ class BrightCove:
         """
 
         if self.logger:
-            self.logger.Debug("Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s", content_id, player_key, experience_id, url)
+            self.logger.debug("Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s", content_id, player_key, experience_id, url)
         else:
             print "Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s" % (content_id, player_key, experience_id, url)
 

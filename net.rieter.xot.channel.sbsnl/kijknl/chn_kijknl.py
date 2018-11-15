@@ -127,7 +127,7 @@ class Channel(chn_class.Channel):
         letters = data.get_value("reduxAsyncConnect", "page", "components", 1, "data", "items", 1, "data", "items")
         for letter_data in letters:
             letter_data = letter_data["data"]
-            Logger.Trace("Processing '%s'", letter_data["title"])
+            Logger.trace("Processing '%s'", letter_data["title"])
             for item in letter_data["items"]:
                 episode = self.CreateJsonEpisodeItem(item)
                 items.append(episode)
@@ -152,7 +152,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         others = mediaitem.MediaItem("\b.: Populair :.", "https://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
@@ -169,7 +169,7 @@ class Channel(chn_class.Channel):
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     # noinspection PyUnusedLocal
@@ -216,7 +216,7 @@ class Channel(chn_class.Channel):
             date_item.SetDate(date.year, date.month, date.day)
             items.append(date_item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def ExtractDayItems(self, data):
@@ -242,7 +242,7 @@ class Channel(chn_class.Channel):
         return None
 
     def CreateJsonSeasonItem(self, result_set):
-        Logger.Trace(result_set)
+        Logger.trace(result_set)
         # {
         #     "seasonNumber": 3,
         #     "id": "season-3",
@@ -263,7 +263,7 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonEpisodeItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         channelId = resultSet["channel"]
         if self.__channelId and channelId != self.__channelId:
@@ -298,10 +298,10 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonVideoItem(self, resultSet, prepend_serie=False):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if not resultSet.get("available", True):
-            Logger.Warning("Item not available: %s", resultSet)
+            Logger.warning("Item not available: %s", resultSet)
             return None
 
         item = self.CreateJsonEpisodeItem(resultSet)
@@ -345,7 +345,7 @@ class Channel(chn_class.Channel):
             mpdData = UriHandler.Open(mpdManifestUrl, proxy=self.proxy)
             subtitles = Regexer.DoRegex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
             if subtitles:
-                Logger.Debug("Found subtitle: %s", subtitles[0])
+                Logger.debug("Found subtitle: %s", subtitles[0])
                 subtitle = SubtitleHelper.download_subtitle(subtitles[0],
                                                             proxy=self.proxy,
                                                             format="webvtt")
@@ -353,7 +353,7 @@ class Channel(chn_class.Channel):
 
             if useAdaptiveWithEncryption:
                 # We can use the adaptive add-on with encryption
-                Logger.Info("Using MPD InputStreamAddon")
+                Logger.info("Using MPD InputStreamAddon")
                 licenseUrl = Regexer.DoRegex('licenseUrl="([^"]+)"', mpdData)[0]
                 token = "Bearer {0}".format(mpdInfo["playToken"])
                 keyHeaders = {"Authorization": token}
@@ -369,7 +369,7 @@ class Channel(chn_class.Channel):
         useAdaptive = AddonSettings.use_adaptive_stream_add_on()
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url paramter instead of an empty m3u8 file
-        Logger.Debug("Trying standard M3u8 streams.")
+        Logger.debug("Trying standard M3u8 streams.")
         if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8" \
                 and "hostingervice=brightcove" not in m3u8Url:
             for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, append_query_string=True):
@@ -378,7 +378,7 @@ class Channel(chn_class.Channel):
 
                 if useAdaptive:
                     # we have at least 1 none encrypted streams
-                    Logger.Info("Using HLS InputStreamAddon")
+                    Logger.info("Using HLS InputStreamAddon")
                     strm = part.AppendMediaStream(m3u8Url, 0)
                     M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                     item.complete = True
@@ -388,7 +388,7 @@ class Channel(chn_class.Channel):
                 item.complete = True
             return item
 
-        Logger.Warning("No M3u8 data found. Falling back to BrightCove")
+        Logger.warning("No M3u8 data found. Falling back to BrightCove")
         videoId = json.get_value("vpakey")
         # videoId = json.get_value("videoId") -> Not all items have a videoId
         mpdManifestUrl = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
@@ -399,10 +399,10 @@ class Channel(chn_class.Channel):
         m3u8Urls = Regexer.DoRegex('https:[^"]+.m3u8', data)
         for m3u8Url in m3u8Urls:
             m3u8Url = m3u8Url.replace("\\", "")
-            Logger.Debug("Found direct M3u8 in brightcove data.")
+            Logger.debug("Found direct M3u8 in brightcove data.")
             if useAdaptive:
                 # we have at least 1 none encrypted streams
-                Logger.Info("Using HLS InputStreamAddon")
+                Logger.info("Using HLS InputStreamAddon")
                 strm = part.AppendMediaStream(m3u8Url, 0)
                 M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                 item.complete = True
@@ -418,7 +418,7 @@ class Channel(chn_class.Channel):
         brightCoveRegex = '<video[^>]+data-video-id="(?<videoId>[^"]+)[^>]+data-account="(?<videoAccount>[^"]+)'
         brightCoveData = Regexer.DoRegex(Regexer.FromExpresso(brightCoveRegex), data)
         if brightCoveData:
-            Logger.Info("Found new BrightCove JSON data")
+            Logger.info("Found new BrightCove JSON data")
             brightCoveUrl = 'https://edge.api.brightcove.com/playback/v1/accounts/%(videoAccount)s/videos/%(videoId)s' % \
                             brightCoveData[0]
             headers = {
@@ -434,7 +434,7 @@ class Channel(chn_class.Channel):
                 # these streams work better with the the InputStreamAddon because it removes the
                 # "range" http header
                 if useAdaptiveWithEncryption:
-                    Logger.Info("Using InputStreamAddon for playback of HLS stream")
+                    Logger.info("Using InputStreamAddon for playback of HLS stream")
                     strm = part.AppendMediaStream(streamUrl, 0)
                     strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
                     strm.AddProperty("inputstream.adaptive.manifest_type", "hls")

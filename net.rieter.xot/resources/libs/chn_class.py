@@ -50,7 +50,7 @@ class Channel:
 
         """
 
-        Logger.Info("Initializing channel (__init__): %s", channelInfo)
+        Logger.info("Initializing channel (__init__): %s", channelInfo)
 
         self.mainListItems = []
         self.parentItem = None
@@ -142,7 +142,7 @@ class Channel:
 
         """
 
-        Logger.Debug("Initializing channel (InitChannel): %s", self)
+        Logger.debug("Initializing channel (InitChannel): %s", self)
 
         # Make sure all images are from the correct absolute location
         # self.icon = self.GetImageLocation(self.icon) -> already in the __init__
@@ -207,7 +207,7 @@ class Channel:
         self.parentItem = item
 
         if item is None:
-            Logger.Info("ProcessFolderList :: No item was specified. Assuming it was the main channel list")
+            Logger.info("ProcessFolderList :: No item was specified. Assuming it was the main channel list")
             url = self.mainListUri
         elif len(item.items) > 0:
             return item.items
@@ -219,7 +219,7 @@ class Channel:
         # Exclude the updaters only
         dataParsers = filter(lambda p: not p.IsVideoUpdaterOnly(), dataParsers)
         if filter(lambda p: p.LogOnRequired, dataParsers):
-            Logger.Info("One or more dataparsers require logging in.")
+            Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.LogOn()
 
         # now set the headers here and not earlier in case they might have been update by the logon
@@ -233,27 +233,27 @@ class Channel:
             # Disable cache on live folders
             noCache = item is not None and not item.IsPlayable() and item.isLive
             if noCache:
-                Logger.Debug("Disabling cache for '%s'", item)
+                Logger.debug("Disabling cache for '%s'", item)
             data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=noCache)
         # Searching a site using SearchSite()
         elif url == "searchSite" or url == "#searchSite":
-            Logger.Debug("Starting to search")
+            Logger.debug("Starting to search")
             return self.SearchSite()
         # Labels instead of url's
         elif url.startswith("#"):
             data = ""
         # Others
         else:
-            Logger.Debug("Unknown URL format. Setting data to ''")
+            Logger.debug("Unknown URL format. Setting data to ''")
             data = ""
 
         # first check if there is a generic pre-processor
         preProcs = filter(lambda p: p.IsGenericPreProcessor(), dataParsers)
         numPreProcs = len(preProcs)
-        Logger.Trace("Processing %s Generic Pre-Processors DataParsers", numPreProcs)
+        Logger.trace("Processing %s Generic Pre-Processors DataParsers", numPreProcs)
         if numPreProcs > 1:
             # warn for strange results if more than 1 generic pre-processor is present.
-            Logger.Warning("More than one Generic Pre-Processor is found (%s). They are being processed in the "
+            Logger.warning("More than one Generic Pre-Processor is found (%s). They are being processed in the "
                            "order that Python likes which might result in unexpected result.", numPreProcs)
 
         for dataParser in preProcs:
@@ -261,43 +261,43 @@ class Channel:
             dataParsers.remove(dataParser)
 
             # and process it
-            Logger.Debug("Processing %s", dataParser)
+            Logger.debug("Processing %s", dataParser)
             (data, preItems) = dataParser.PreProcessor(data)
             items += preItems
 
             if isinstance(data, JsonHelper):
-                Logger.Debug("Generic preprocessor resulted in JsonHelper data")
+                Logger.debug("Generic preprocessor resulted in JsonHelper data")
 
         # The the other handlers
-        Logger.Trace("Processing %s Normal DataParsers", len(dataParsers))
+        Logger.trace("Processing %s Normal DataParsers", len(dataParsers))
         handlerJson = None
         for dataParser in dataParsers:
-            Logger.Debug("Processing %s", dataParser)
+            Logger.debug("Processing %s", dataParser)
 
             # Check for preprocessors
             if dataParser.PreProcessor:
-                Logger.Debug("Processing DataParser.PreProcessor")
+                Logger.debug("Processing DataParser.PreProcessor")
                 (handlerData, preItems) = dataParser.PreProcessor(data)
                 items += preItems
             else:
                 handlerData = data
 
-            Logger.Debug("Processing DataParser.Parser")
+            Logger.debug("Processing DataParser.Parser")
             if dataParser.Parser is None or (dataParser.Parser == "" and not dataParser.IsJson):
                 if dataParser.Creator:
-                    Logger.Warning("No <parser> found for %s. Skipping.", dataParser.Creator)
+                    Logger.warning("No <parser> found for %s. Skipping.", dataParser.Creator)
                 continue
 
             if dataParser.IsJson:
                 if handlerJson is None:
                     # Cache the json requests to improve performance
-                    Logger.Trace("Caching JSON results for Dataparsing")
+                    Logger.trace("Caching JSON results for Dataparsing")
                     if isinstance(handlerData, JsonHelper):
                         handlerJson = handlerData
                     else:
                         handlerJson = JsonHelper(handlerData, Logger.instance())
 
-                Logger.Trace(dataParser.Parser)
+                Logger.trace(dataParser.Parser)
                 parserResults = handlerJson.get_value(fallback=[], *dataParser.Parser)
 
                 if not isinstance(parserResults, (tuple, list)):
@@ -309,7 +309,7 @@ class Channel:
                 else:
                     parserResults = Regexer.DoRegex(dataParser.Parser, handlerData)
 
-            Logger.Debug("Processing DataParser.Creator for %s items", len(parserResults))
+            Logger.debug("Processing DataParser.Creator for %s items", len(parserResults))
             for parserResult in parserResults:
                 handlerResult = dataParser.Creator(parserResult)
                 if handlerResult is not None:
@@ -329,19 +329,19 @@ class Channel:
 
         oldCount = len(items)
         if hideDrmProtected:
-            Logger.Debug("Hiding DRM items")
+            Logger.debug("Hiding DRM items")
             items = filter(lambda i: not i.isDrmProtected or i.type == typeToExclude, items)
         if hideGeoLocked:
-            Logger.Debug("Hiding GEO Locked items due to GEO region: %s", self.language)
+            Logger.debug("Hiding GEO Locked items due to GEO region: %s", self.language)
             items = filter(lambda i: not i.isGeoLocked or i.type == typeToExclude, items)
         if hidePremium:
-            Logger.Debug("Hiding Premium items")
+            Logger.debug("Hiding Premium items")
             items = filter(lambda i: not i.isPaid or i.type == typeToExclude, items)
             # items = filter(lambda i: not i.isPaid or i.type == "folder", items)
 
         cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.instance())
         if not AddonSettings.show_cloaked_items():
-            Logger.Debug("Hiding Cloaked items")
+            Logger.debug("Hiding Cloaked items")
             items = filter(lambda i: not cloaker.is_cloaked(i.url), items)
         else:
             cloakedItems = filter(lambda i: cloaker.is_cloaked(i.url), items)
@@ -349,7 +349,7 @@ class Channel:
                 c.isCloaked = True
 
         if len(items) != oldCount:
-            Logger.Info("Hidden %s items due to DRM/GEO/Premium/cloak filter (Hide Folders=%s)",
+            Logger.info("Hidden %s items due to DRM/GEO/Premium/cloak filter (Hide Folders=%s)",
                         oldCount - len(items), hideFolders)
 
         # Check for grouping or not
@@ -362,7 +362,7 @@ class Channel:
 
         if 0 < limit < folders:
             # let's filter them by alphabet if the number is exceeded
-            Logger.Debug("Creating Groups for list exceeding '%s' folder items. Total folders found '%s'.",
+            Logger.debug("Creating Groups for list exceeding '%s' folder items. Total folders found '%s'.",
                          limit, folders)
             other = LanguageHelper.get_localized_string(LanguageHelper.OtherChars)
             titleFormat = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
@@ -387,7 +387,7 @@ class Channel:
                     char = other
 
                 if char not in result:
-                    Logger.Trace("Creating Grouped item from: %s", subItem)
+                    Logger.trace("Creating Grouped item from: %s", subItem)
                     if char == other:
                         item = mediaitem.MediaItem(titleFormat.replace("'", "") % (char,), "")
                     else:
@@ -402,7 +402,7 @@ class Channel:
 
             items = nonGrouped + result.values()
 
-        Logger.Trace("Found '%s' items", len(items))
+        Logger.trace("Found '%s' items", len(items))
         return list(set(items))
 
     def ProcessVideoItem(self, item):
@@ -415,27 +415,27 @@ class Channel:
 
         dataParsers = self.__GetDataParsers(item.url)
         if not dataParsers:
-            Logger.Error("No dataparsers found cannot update item.")
+            Logger.error("No dataparsers found cannot update item.")
             return item
 
         dataParsers = filter(lambda d: d.Updater is not None, dataParsers)
         if len(dataParsers) < 1:
-            Logger.Warning("No DataParsers with Updaters found.")
+            Logger.warning("No DataParsers with Updaters found.")
             return item
 
         if len(dataParsers) > 1:
-            Logger.Warning("More than 2 DataParsers with Updaters found. Only using first one.")
+            Logger.warning("More than 2 DataParsers with Updaters found. Only using first one.")
         dataParser = dataParsers[0]
 
         if not dataParser.Updater:
-            Logger.Error("No videoupdater found cannot update item.")
+            Logger.error("No videoupdater found cannot update item.")
             return item
 
         if dataParser.LogOnRequired:
-            Logger.Info("One or more dataparsers require logging in.")
+            Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.LogOn()
 
-        Logger.Debug("Processing Updater from %s", dataParser)
+        Logger.debug("Processing Updater from %s", dataParser)
         return dataParser.Updater(item)
 
     def ParseMainList(self, returnData=False):
@@ -461,26 +461,26 @@ class Channel:
                 return self.mainListItems
 
         data = UriHandler.Open(self.mainListUri, proxy=self.proxy, additionalHeaders=self.httpHeaders)
-        Logger.Trace("Retrieved %s chars as mainlist data", len(data))
+        Logger.trace("Retrieved %s chars as mainlist data", len(data))
 
         # first process folder items.
         watch = StopWatch('Mainlist', Logger.instance())
 
         episodeItems = []
         if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
-            Logger.Trace("Using Regexer for episodes")
+            Logger.trace("Using Regexer for episodes")
             episodeItems = Regexer.DoRegex(self.episodeItemRegex, data)
             watch.lap("Mainlist Regex complete")
 
         elif self.episodeItemJson is not None:
-            Logger.Trace("Using JsonHelper for episodes")
+            Logger.trace("Using JsonHelper for episodes")
             json = JsonHelper(data, Logger.instance())
             episodeItems = json.get_value(*self.episodeItemJson)
             watch.lap("Mainlist Json complete")
 
-        Logger.Debug('Starting CreateEpisodeItem for %s items', len(episodeItems))
+        Logger.debug('Starting CreateEpisodeItem for %s items', len(episodeItems))
         for episodeItem in episodeItems:
-            Logger.Trace('Starting CreateEpisodeItem for %s', self.channelName)
+            Logger.trace('Starting CreateEpisodeItem for %s', self.channelName)
             tmpItem = self.CreateEpisodeItem(episodeItem)
             # catch the return of None
             if tmpItem:
@@ -524,7 +524,7 @@ class Channel:
             items = []
             needle = XbmcWrapper.ShowKeyBoard()
             if needle:
-                Logger.Debug("Searching for '%s'", needle)
+                Logger.debug("Searching for '%s'", needle)
                 # convert to HTML
                 needle = HtmlEntityHelper.url_encode(needle)
                 searchUrl = url % (needle, )
@@ -548,15 +548,15 @@ class Channel:
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # Validate the input and raise errors
         if not isinstance(resultSet, dict):
-            Logger.Critical("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
+            Logger.critical("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
             raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
             # return None
         elif "title" not in resultSet or "url" not in resultSet:
-            Logger.Warning("No ?P<title> or ?P<url> in resultSet")
+            Logger.warning("No ?P<title> or ?P<url> in resultSet")
             raise LookupError("No ?P<title> or ?P<url> in resultSet")
             # return None
 
@@ -598,9 +598,9 @@ class Channel:
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     # def ProcessPageNavigation(self, data):
@@ -670,7 +670,7 @@ class Channel:
 
         """
 
-        Logger.Debug("Starting CreatePageItem")
+        Logger.debug("Starting CreatePageItem")
         total = ''
 
         for result in resultSet:
@@ -687,7 +687,7 @@ class Channel:
         item.fanart = self.fanart
         item.HttpHeaders = self.httpHeaders
 
-        Logger.Debug("Created '%s' for url %s", item.name, item.url)
+        Logger.debug("Created '%s' for url %s", item.name, item.url)
         return item
 
     def CreateFolderItem(self, resultSet):
@@ -705,15 +705,15 @@ class Channel:
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # Validate the input and raise errors
         if not isinstance(resultSet, dict):
-            Logger.Critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
+            Logger.critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
             raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
             # return None
         elif "title" not in resultSet or "url" not in resultSet:
-            Logger.Warning("No ?P<title> or ?P<url> in resultSet")
+            Logger.warning("No ?P<title> or ?P<url> in resultSet")
             raise LookupError("No ?P<title> or ?P<url> in resultSet")
             # return None
 
@@ -757,15 +757,15 @@ class Channel:
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # Validate the input and raise errors
         if not isinstance(resultSet, dict):
-            Logger.Critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
+            Logger.critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
             raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
             # return None
         elif "title" not in resultSet or "url" not in resultSet:
-            Logger.Warning("No ?P<title> or ?P<url> in resultSet")
+            Logger.warning("No ?P<title> or ?P<url> in resultSet")
             raise LookupError("No ?P<title> or ?P<url> in resultSet")
             # return None
 
@@ -818,7 +818,7 @@ class Channel:
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
 
@@ -826,11 +826,11 @@ class Channel:
         part = mediaitem.MediaItemPart(item.name, url)
         item.MediaItemParts.append(part)
 
-        Logger.Info('finishing UpdateVideoItem. MediaItems are %s', item)
+        Logger.info('finishing UpdateVideoItem. MediaItems are %s', item)
 
         if not item.thumb and self.noImage:
             # no thumb was set yet and no url
-            Logger.Debug("Setting thumb to %s", item.thumb)
+            Logger.debug("Setting thumb to %s", item.thumb)
             item.thumb = self.noImage
 
         if not item.HasMediaItemParts():
@@ -857,22 +857,22 @@ class Channel:
         """
 
         if not item.IsPlayable():
-            Logger.Error("Cannot download a folder item.")
+            Logger.error("Cannot download a folder item.")
             return item
 
         if item.IsPlayable():
             if not item.complete:
-                Logger.Info("Fetching MediaUrl for PlayableItem[%s]", item.type)
+                Logger.info("Fetching MediaUrl for PlayableItem[%s]", item.type)
                 item = self.ProcessVideoItem(item)
 
             if not item.complete or not item.HasMediaItemParts():
-                Logger.Error("Cannot download incomplete item or item without MediaItemParts")
+                Logger.error("Cannot download incomplete item or item without MediaItemParts")
                 return item
 
             i = 1
             bitrate = AddonSettings.get_max_stream_bitrate(self)
             for mediaItemPart in item.MediaItemParts:
-                Logger.Info("Trying to download %s", mediaItemPart)
+                Logger.info("Trying to download %s", mediaItemPart)
                 stream = mediaItemPart.GetMediaStreamForBitrate(bitrate)
                 downloadUrl = stream.Url
                 extension = UriHandler.GetExtensionFromUrl(downloadUrl)
@@ -880,7 +880,7 @@ class Channel:
                     saveFileName = "%s-Part_%s.%s" % (item.name, i, extension)
                 else:
                     saveFileName = "%s.%s" % (item.name, extension)
-                Logger.Debug(saveFileName)
+                Logger.debug(saveFileName)
 
                 # headers = item.HttpHeaders + mediaItemPart.HttpHeaders
                 headers = item.HttpHeaders.copy()
@@ -915,11 +915,11 @@ class Channel:
         """
 
         if not self.requiresLogon:
-            Logger.Debug("No login required of %s", self.channelName)
+            Logger.debug("No login required of %s", self.channelName)
             return True
 
         if self.loggedOn:
-            Logger.Info("Already logged in")
+            Logger.info("Already logged in")
             return True
 
         return False
@@ -953,14 +953,14 @@ class Channel:
             bitrate = AddonSettings.get_max_stream_bitrate(self)
 
         # should we download items?
-        Logger.Debug("Checking for not streamable parts")
+        Logger.debug("Checking for not streamable parts")
         # We need to substract the download time from processing time
         downloadStart = datetime.now()
         for part in item.MediaItemParts:
             if not part.CanStream:
                 stream = part.GetMediaStreamForBitrate(bitrate)
                 if not stream.Downloaded:
-                    Logger.Debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
+                    Logger.debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
 
                     # we need a unique filename
                     fileName = EncodingHelper.encode_md5(stream.Url)
@@ -974,7 +974,7 @@ class Channel:
                     headers = item.HttpHeaders.copy()
                     headers.update(part.HttpHeaders)
 
-                    Logger.Error(headers)
+                    Logger.error(headers)
                     streamFilename = "xot.%s.%skbps-%s.%s" % (fileName, stream.Bitrate, item.name, extension)
                     progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
                     cacheFile = UriHandler.Download(stream.Url, streamFilename, self.GetDefaultCachePath(),
@@ -982,7 +982,7 @@ class Channel:
                                                     additionalHeaders=headers)
 
                     if cacheFile == "":
-                        Logger.Error("Cannot download stream %s \nFrom: %s", stream, part)
+                        Logger.error("Cannot download stream %s \nFrom: %s", stream, part)
                         return
 
                     if cacheFile.startswith("\\\\"):
@@ -1040,10 +1040,10 @@ class Channel:
         #   return "%s swfvfy=%s" % (url, self.swfUrl)
 
         if AddonSettings.is_min_version(17):
-            Logger.Debug("Using Kodi 17+ RTMP parameters")
+            Logger.debug("Using Kodi 17+ RTMP parameters")
             return "%s swfvfy=%s" % (url, self.swfUrl)
         else:
-            Logger.Debug("Using Legacy (Kodi 16 and older) RTMP parameters")
+            Logger.debug("Using Legacy (Kodi 16 and older) RTMP parameters")
             # return "%s swfurl=%s swfvfy=true" % (url, self.swfUrl)
             return "%s swfurl=%s swfvfy=1" % (url, self.swfUrl)
 
@@ -1153,21 +1153,21 @@ class Channel:
         if not self.dataParsers:
             # Add the mainlist
             if url == self.mainListUri:
-                Logger.Debug("No DataParsers found. Adding old Mainlist Creators to DataParsers")
+                Logger.debug("No DataParsers found. Adding old Mainlist Creators to DataParsers")
                 if self.episodeItemJson is not None:
                     self._AddDataParser(self.mainListUri,
                                         parser=self.episodeItemJson, creator=self.CreateEpisodeItem,
                                         json=True, matchType=ParserData.MatchExact)
 
                     if self.episodeItemRegex:
-                        Logger.Warning("Both JSON and Regex parsers available for mainlist, ignoring Regex.")
+                        Logger.warning("Both JSON and Regex parsers available for mainlist, ignoring Regex.")
                 else:
                     self._AddDataParser(self.mainListUri,
                                         parser=self.episodeItemRegex, creator=self.CreateEpisodeItem,
                                         matchType=ParserData.MatchExact)
             else:
                 # Add the folder and video items
-                Logger.Debug("No DataParsers found. Adding old FolderList Creators to DataParsers")
+                Logger.debug("No DataParsers found. Adding old FolderList Creators to DataParsers")
                 self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
 
                 if self.videoItemJson is not None:
@@ -1181,7 +1181,7 @@ class Channel:
                                         json=True)
 
                     if self.folderItemRegex:
-                        Logger.Warning("Both JSON and Regex parsers available for folders/videos, ignoring Regex.")
+                        Logger.warning("Both JSON and Regex parsers available for folders/videos, ignoring Regex.")
                 else:
                     # folder
                     self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
@@ -1196,12 +1196,12 @@ class Channel:
         dataParsers = None
         if url.startswith("#"):
             # let's handle the keyword url's
-            Logger.Trace("Found URL with labeled DataParser keyword [%s]", url)
+            Logger.trace("Found URL with labeled DataParser keyword [%s]", url)
             if url in self.dataParsers.keys():
                 # use the parsers that is associated with No url (the None Parser)
                 dataParsers = self.dataParsers[url]
             else:
-                Logger.Warning("no DataParser was found keyword [%s]. Continuing with other options.", url)
+                Logger.warning("no DataParser was found keyword [%s]. Continuing with other options.", url)
         else:
             # make sure we sort by keylength and then start with the longest one.
             keys = sorted(self.dataParsers.keys(), key=len, reverse=True)
@@ -1213,7 +1213,7 @@ class Channel:
                 dataParsers = filter(lambda p: p.Matches(url),
                                      self.dataParsers[key])
                 if dataParsers:
-                    Logger.Trace("Found %s direct DataParsers matches", len(dataParsers))
+                    Logger.trace("Found %s direct DataParsers matches", len(dataParsers))
                     break
             # watch.lap("DataParsers filtered")
 
@@ -1225,10 +1225,10 @@ class Channel:
         # watch.lap("DataParsers processed")
 
         if not dataParsers:
-            Logger.Error("No DataParsers found for '%s'", url)
+            Logger.error("No DataParsers found for '%s'", url)
             return []
         else:
-            Logger.Debug("Found %s DataParsers for '%s'", len(dataParsers), url)
+            Logger.debug("Found %s DataParsers for '%s'", len(dataParsers), url)
         return dataParsers
 
     def __str__(self):

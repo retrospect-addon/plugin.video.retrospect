@@ -53,7 +53,7 @@ class Pickler:
                            Pickler.__Base64CharsDecode.keys(),
                            hexString)
 
-        Logger.Trace("DePickle: HexString: %s (might be truncated)", hexString[0:256])
+        Logger.trace("DePickle: HexString: %s (might be truncated)", hexString[0:256])
 
         # Logger.Trace("DePickle: HexString: %s", hexString)
         pickleString = base64.b64decode(hexString)
@@ -73,7 +73,7 @@ class Pickler:
         """
 
         if item.guid in self.__pickleContainer:
-            Logger.Trace("Pickle Container cache hit: %s", item.guid)
+            Logger.trace("Pickle Container cache hit: %s", item.guid)
             return self.__pickleContainer[item.guid]
 
         pickleString = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)
@@ -102,12 +102,12 @@ class Pickler:
         """
 
         if logger is not None:
-            Logger.Trace("Testing: %s", test.__dir__())
+            Logger.trace("Testing: %s", test.__dir__())
 
         # the default dir() does not work for Android at the moment.
         for attribute in test.__dir__():
             if logger is not None:
-                logger.Trace("Testing: %s", attribute)
+                logger.trace("Testing: %s", attribute)
 
             # manage private attributes
             if attribute.startswith("__"):
@@ -117,7 +117,7 @@ class Pickler:
                 error = "Attribute Missing: %s" % attribute
 
                 if logger is not None:
-                    logger.Warning(error)
+                    logger.warning(error)
                 if raiseOnMissing:
                     raise Exception(error)
                 return error

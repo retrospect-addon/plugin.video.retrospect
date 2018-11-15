@@ -63,7 +63,7 @@ class AwsIdp:
         self.small_a_value = self.__GenerateRandomSmallA()
         self.large_a_value = self.__CalculateA()
         if self.__logger:
-            self.__logger.Debug("Created %s", self)
+            self.__logger.debug("Created %s", self)
 
     def Authenticate(self, username, password):
         # Step 1: First initiate an authentication request
@@ -79,12 +79,12 @@ class AwsIdp:
         authResponseJson = JsonHelper(authResponse)
         challengeParameters = authResponseJson.get_value("ChallengeParameters")
         if self.__logger:
-            self.__logger.Trace(challengeParameters)
+            self.__logger.trace(challengeParameters)
 
         challengeName = authResponseJson.get_value("ChallengeName")
         if not challengeName == "PASSWORD_VERIFIER":
             if self.__logger:
-                self.__logger.Error("Cannot start authentication challenge")
+                self.__logger.error("Cannot start authentication challenge")
                 return None
 
         # Step 2: Respond to the Challenge with a valid ChallengeResponse
@@ -101,7 +101,7 @@ class AwsIdp:
 
         authResponseJson = JsonHelper(authResponse)
         if "message" in authResponseJson.json:
-            self.__logger.Error("Error logging in: %s", authResponseJson.get_value("message"))
+            self.__logger.error("Error logging in: %s", authResponseJson.get_value("message"))
             return None, None
 
         idToken = authResponseJson.get_value("AuthenticationResult", "IdToken")

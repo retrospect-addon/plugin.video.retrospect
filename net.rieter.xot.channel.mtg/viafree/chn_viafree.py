@@ -164,7 +164,7 @@ class Channel(chn_class.Channel):
         @return: Unmodified JSON data
         """
 
-        Logger.Info("Extracting Category Information")
+        Logger.info("Extracting Category Information")
         dummyData, items = self.AddSearch(data)
 
         # The data was already in a JsonHelper
@@ -172,7 +172,7 @@ class Channel(chn_class.Channel):
         for category in categories:
             self.__categories[category["id"]] = category
 
-        Logger.Debug("Extracting Category Information finished")
+        Logger.debug("Extracting Category Information finished")
         return data, items
 
     def ExtractJsonData(self, data):
@@ -182,7 +182,7 @@ class Channel(chn_class.Channel):
         @return: the JSON part of the HTML data
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         jsonData = Regexer.DoRegex('__initialState__=([^<]+);\W+window.__config__', data)[0]
@@ -192,7 +192,7 @@ class Channel(chn_class.Channel):
         # end = jsonData.index('"ApplicationStore"')
         # returnData = jsonData[0:start] + jsonData[end:]
         returnData = jsonData
-        Logger.Trace("Found Json:\n%s", returnData)
+        Logger.trace("Found Json:\n%s", returnData)
 
         # append categorie data
         # catData = Regexer.DoRegex('"categories":(\[.*?),"allProgramsPage', data)
@@ -222,7 +222,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def CreateJsonVideoItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         url = "http://playapi.mtgx.tv/v3/videos/stream/%(id)s" % resultSet
         item = mediaitem.MediaItem(resultSet["title"], url)
         item.type = "video"
@@ -245,20 +245,20 @@ class Channel(chn_class.Channel):
         # loginRequired
         isPremium = resultSet.get("loginRequired", False)
         if isPremium and AddonSettings.hide_premium_items():
-            Logger.Debug("Found premium item, hiding it.")
+            Logger.debug("Found premium item, hiding it.")
             return None
 
         srt = resultSet.get("samiPath")
         if not srt:
             srt = resultSet.get("subtitles_webvtt")
         if srt:
-            Logger.Debug("Storing SRT/WebVTT path: %s", srt)
+            Logger.debug("Storing SRT/WebVTT path: %s", srt)
             part = item.CreateNewEmptyMediaPart()
             part.Subtitle = srt
         return item
 
     def AddClips(self, data):
-        Logger.Info("Adding Clips Pre-Processing")
+        Logger.info("Adding Clips Pre-Processing")
         items = []
 
         # if the main list was retrieve using json, are the current data is json, just determine
@@ -272,7 +272,7 @@ class Channel(chn_class.Channel):
         else:
             # now we determine the ID and load the json data
             dataId = Regexer.DoRegex('data-format-id="(\d+)"', data)[-1]
-            Logger.Debug("Found FormatId = %s", dataId)
+            Logger.debug("Found FormatId = %s", dataId)
             programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
             data = UriHandler.Open(programUrl, proxy=self.proxy)
             clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
@@ -283,7 +283,7 @@ class Channel(chn_class.Channel):
             clipItem.thumb = self.noImage
             items.append(clipItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def AddSearch(self, data):
@@ -304,18 +304,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         title = "\a.: %s :." % (self.searchInfo.get(self.language, self.searchInfo["se"])[1], )
-        Logger.Trace("Adding search item: %s", title)
+        Logger.trace("Adding search item: %s", title)
         searchItem = mediaitem.MediaItem(title, "searchSite")
         searchItem.thumb = self.noImage
         searchItem.fanart = self.fanart
         searchItem.dontGroup = True
         items.append(searchItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def SearchSite(self, url=None):
@@ -347,7 +347,7 @@ class Channel(chn_class.Channel):
         # baseUrl = self.baseUrl.rsplit('/', 1)[0]
         # url = "%s/api/playClient;isColumn=true;query=%s;resource=search?returnMeta=true" % (baseUrl, query)
 
-        Logger.Debug("Using search url: %s", url)
+        Logger.debug("Using search url: %s", url)
         return chn_class.Channel.SearchSite(self, url)
 
     def CreatePageItem(self, resultSet):
@@ -365,15 +365,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug("Starting CreatePageItem")
-        Logger.Trace(resultSet)
+        Logger.debug("Starting CreatePageItem")
+        Logger.trace(resultSet)
 
         url = resultSet["href"]
         page = url.rsplit("=", 1)[-1]
 
         item = mediaitem.MediaItem(page, url)
         item.type = "page"
-        Logger.Debug("Created '%s' for url %s", item.name, item.url)
+        Logger.debug("Created '%s' for url %s", item.name, item.url)
         return item
 
     def CreateSearchResult(self, resultSet):
@@ -396,7 +396,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         item = mediaitem.MediaItem(
             resultSet["title"],
             "http://playapi.mtgx.tv/v3/videos/stream/%s" % (resultSet["url"], )
@@ -427,7 +427,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         drmLocked = False
         geoBlocked = resultSet["is_geo_blocked"]
@@ -440,7 +440,7 @@ class Channel(chn_class.Channel):
         if ("_links" not in resultSet or
                 "stream" not in resultSet["_links"] or
                 "href" not in resultSet["_links"]["stream"]):
-            Logger.Warning("No streams found for %s", title)
+            Logger.warning("No streams found for %s", title)
             return None
 
         # the description
@@ -473,7 +473,7 @@ class Channel(chn_class.Channel):
                                               self.episodeLabel,
                                               resultSet["format_position"]["episode"])
             else:
-                Logger.Debug("Found episode number '0' for '%s', using name instead of episode number", title)
+                Logger.debug("Found episode number '0' for '%s', using name instead of episode number", title)
 
         url = resultSet["_links"]["stream"]["href"]
         item = mediaitem.MediaItem(title, url)
@@ -482,7 +482,7 @@ class Channel(chn_class.Channel):
         dateFormat = "%Y-%m-%dT%H:%M:%S"
         if "broadcasts" in resultSet and len(resultSet["broadcasts"]) > 0:
             dateInfo = resultSet["broadcasts"][0]["air_at"]
-            Logger.Trace("Date set from 'air_at'")
+            Logger.trace("Date set from 'air_at'")
 
             if "playable_from" in resultSet["broadcasts"][0]:
                 startDate = resultSet["broadcasts"][0]["playable_from"]
@@ -493,7 +493,7 @@ class Channel(chn_class.Channel):
 
         elif "publish_at" in resultSet:
             dateInfo = resultSet["publish_at"]
-            Logger.Trace("Date set from 'publish_at'")
+            Logger.trace("Date set from 'publish_at'")
 
         if dateInfo is not None:
             # publish_at=2007-09-02T21:55:00+00:00
@@ -521,7 +521,7 @@ class Channel(chn_class.Channel):
         if not srt:
             srt = resultSet.get("subtitles_webvtt")
         if srt:
-            Logger.Debug("Storing SRT/WebVTT path: %s", srt)
+            Logger.debug("Storing SRT/WebVTT path: %s", srt)
             part = item.CreateNewEmptyMediaPart()
             part.Subtitle = srt
         return item
@@ -548,7 +548,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         useKodiHls = AddonSettings.use_adaptive_stream_add_on()
 
         # User-agent (and possible other headers), should be consistent over all M3u8 requests (See #864)
@@ -575,7 +575,7 @@ class Channel(chn_class.Channel):
 
         for q in ("high", 3500), ("hls", 2700), ("medium", 2100):
             url = json.get_value("streams", q[0])
-            Logger.Trace(url)
+            Logger.trace(url)
             if not url:
                 continue
 
@@ -595,7 +595,7 @@ class Channel(chn_class.Channel):
                         part.AppendMediaStream(s, b)
 
                 if not part.MediaStreams and "manifest.m3u8" in url:
-                    Logger.Warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
+                    Logger.warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
                     url = url.replace("manifest.m3u8", "master.m3u8")
                     for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
                         if useKodiHls:
@@ -610,7 +610,7 @@ class Channel(chn_class.Channel):
                 # https://mtgxse01-vh.akamaihd.net/i/201703/13/DCjOLN_1489416462884_427ff3d3_,48,260,460,900,1800,2800,.mp4.csmil/master.m3u8?__b__=300&hdnts=st=1489687185~exp=3637170832~acl=/*~hmac=d0e12e62c219d96798e5b5ef31b11fa848724516b255897efe9808c8a499308b&cc1=name=Svenska%20f%C3%B6r%20h%C3%B6rselskadade~default=no~forced=no~lang=sv~uri=https%3A%2F%2Fsubstitch.play.mtgx.tv%2Fsubtitle%2Fconvert%2Fxml%3Fsource%3Dhttps%3A%2F%2Fcdn-subtitles-mtgx-tv.akamaized.net%2Fpitcher%2F20xxxxxx%2F2039xxxx%2F203969xx%2F20396967%2F20396967-swt.xml%26output%3Dm3u8
                 # https://cdn-subtitles-mtgx-tv.akamaized.net/pitcher/20xxxxxx/2039xxxx/203969xx/20396967/20396967-swt.xml&output=m3u8
                 if "uri=" in url and not part.Subtitle:
-                    Logger.Debug("Extracting subs from M3u8")
+                    Logger.debug("Extracting subs from M3u8")
                     subUrl = url.rsplit("uri=")[-1]
                     subUrl = HtmlEntityHelper.url_decode(subUrl)
                     subData = UriHandler.Open(subUrl, proxy=self.proxy)
@@ -632,13 +632,13 @@ class Channel(chn_class.Channel):
                     url = "%s playpath=mp4:%s" % (server, path)
 
                 if oldUrl != url:
-                    Logger.Debug("Updated URL from - to:\n%s\n%s", oldUrl, url)
+                    Logger.debug("Updated URL from - to:\n%s\n%s", oldUrl, url)
 
                 url = self.GetVerifiableVideoUrl(url)
                 part.AppendMediaStream(url, q[1])
 
             elif "[empty]" in url:
-                Logger.Debug("Found post-live url with '[empty]' in it. Ignoring this.")
+                Logger.debug("Found post-live url with '[empty]' in it. Ignoring this.")
                 continue
             else:
                 part.AppendMediaStream(url, q[1])
@@ -648,13 +648,13 @@ class Channel(chn_class.Channel):
 
         if part.MediaStreams:
             item.complete = True
-        Logger.Trace("Found mediaurl: %s", item)
+        Logger.trace("Found mediaurl: %s", item)
         return item
 
     def __CreateJsonEpisodeItem(self, resultSet, checkChannel=True):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         if checkChannel and self.channelId is not None and resultSet['channel'] not in self.channelId:
-            Logger.Trace("Found item for wrong channel %s instead of %s", resultSet['channel'], self.channelId)
+            Logger.trace("Found item for wrong channel %s instead of %s", resultSet['channel'], self.channelId)
             return None
 
         # For now we keep using the API, otherwise we need to do more complex VideoItem parsing

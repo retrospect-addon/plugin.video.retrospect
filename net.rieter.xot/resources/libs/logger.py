@@ -17,14 +17,14 @@ import datetime
 
 
 class Logger:
-    CRITICAL = 50
-    FATAL = CRITICAL
-    ERROR = 40
-    WARNING = 30
-    WARN = WARNING
-    INFO = 20
-    DEBUG = 10
-    TRACE = 0
+    LVL_CRITICAL = 50
+    LVL_FATAL = LVL_CRITICAL
+    LVL_ERROR = 40
+    LVL_WARNING = 30
+    LVL_WARN = LVL_WARNING
+    LVL_INFO = 20
+    LVL_DEBUG = 10
+    LVL_TRACE = 0
 
     # the actual logger
     __logger = None
@@ -72,7 +72,7 @@ class Logger:
             Logger.__logger = Logger(log_file_name, application_name, min_log_level, append, dual_logger)
             # Logger.__logger.dualLog("CREATING LOGGER: {0}".format(Logger.__logger.id))
         else:
-            Logger.Warning("Cannot create a second logger instance!")
+            Logger.warning("Cannot create a second logger instance!")
             # Logger.__logger.dualLog("EXISTING LOGGER: {0}".format(Logger.__logger.id))
         return Logger.__logger
 
@@ -106,12 +106,12 @@ class Logger:
         self.logFormat = '%s - [%-8s] - %-20s - %-4d - %s\n'
 
         self.logLevelNames = {
-            Logger.CRITICAL: 'CRITICAL',
-            Logger.ERROR: 'ERROR',
-            Logger.WARNING: 'WARNING',
-            Logger.INFO: 'INFO',
-            Logger.DEBUG: 'DEBUG',
-            Logger.TRACE: 'TRACE'
+            Logger.LVL_CRITICAL: 'CRITICAL',
+            Logger.LVL_ERROR: 'ERROR',
+            Logger.LVL_WARNING: 'WARNING',
+            Logger.LVL_INFO: 'INFO',
+            Logger.LVL_DEBUG: 'DEBUG',
+            Logger.LVL_TRACE: 'TRACE'
         }
 
         if not append:
@@ -126,117 +126,99 @@ class Logger:
         return
 
     @staticmethod
-    def Trace(msg, *args, **kwargs):
-        """Logs an trace message (with loglevel 0)
-
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
-
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
+    def trace(msg, *args, **kwargs):
+        """ Logs an trace message (with loglevel 0)
 
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param Any msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
-        Logger.__logger.__write(msg, level=Logger.TRACE, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.LVL_TRACE, *args, **kwargs)
         return
 
     @staticmethod
-    def Debug(msg, *args, **kwargs):
+    def debug(msg, *args, **kwargs):
         """Logs an debug message (with loglevel 10)
 
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
-
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
-
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param Any msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
-        Logger.__logger.__write(msg, level=Logger.DEBUG, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.LVL_DEBUG, *args, **kwargs)
         return
 
     @staticmethod
-    def Info(msg, *args, **kwargs):
+    def info(msg, *args, **kwargs):
         """Logs an informational message (with loglevel 20)
 
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
-
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
-
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param Any msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
-        Logger.__logger.__write(msg, level=Logger.INFO, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.LVL_INFO, *args, **kwargs)
         return
 
     @staticmethod
-    def Error(msg, *args, **kwargs):
+    def error(msg, *args, **kwargs):
         """Logs an error message (with loglevel 40)
 
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
-
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
-
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param Any msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
-        Logger.__logger.__write(msg, level=Logger.ERROR, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.LVL_ERROR, *args, **kwargs)
         return
 
     @staticmethod
-    def Warning(msg, *args, **kwargs):
+    def warning(msg, *args, **kwargs):
         """Logs an warning message (with loglevel 30)
 
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
-
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
-
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param Any msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
-        Logger.__logger.__write(msg, level=Logger.WARNING, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.LVL_WARNING, *args, **kwargs)
         return
 
     @staticmethod
-    def Critical(msg, *args, **kwargs):
+    def critical(msg, *args, **kwargs):
         """Logs an critical message (with loglevel 50)
-
-        Arguments:
-        msg    : string - The message to log
-        args   : list   - List of arguments
-
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
 
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
+        :param Any msg:       The message to log.
+        :param Any args:      List of arguments to fill in the message formatting.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
         """
 
-        Logger.__logger.__write(msg, level=Logger.CRITICAL, *args, **kwargs)
+        Logger.__logger.__write(msg, level=Logger.LVL_CRITICAL, *args, **kwargs)
         return
 
     def close_log(self, log_closing=True):
@@ -250,7 +232,7 @@ class Logger:
         """
 
         if log_closing:
-            self.Info("%s :: Flushing and closing logfile.", self.applicationName)
+            self.info("%s :: Flushing and closing logfile.", self.applicationName)
             # Logging for concurrency
             # self.dualLog("CURRENT LOGGER before: {0}".format(Logger.Instance() or "none"))
             Logger._Logger__logger = None
@@ -305,13 +287,10 @@ class Logger:
         """ Writes the message to the log file taking into account the given arguments and
         keyword arguments.
 
-        Keyword Arguments:
-        kwargs : list - List of keyword arguments
-
         The arguments and keyword arguments are used in a string format way
         so and will replace the parameters in the message.
 
-        :param str msg:       The message to log.
+        :param Any msg:       The message to log.
         :param Any args:      List of arguments to fill in the message formatting.
         :param Any kwargs:    Dictionary with keyword arguments.
 
@@ -339,28 +318,27 @@ class Logger:
             timestamp = datetime.datetime.today().strftime(self.timeFormat)
 
             # check for exception info, if present, add to end of string:
-            if "exc_info" in kwargs:
-                if self.logDual:
-                    self.dualLog(traceback.format_exc())
-                msg = "%s\n%s" % (msg, traceback.format_exc())
+            msg = self.__process_exc_info(msg, **kwargs)
 
             # now split lines and write everyline into the logfile:
             lines = msg.splitlines()
+            line_count = len(lines)
 
             try:
                 # check if multiline
-                if len(lines) > 1:
-                    for i in range(0, len(lines)):
+                if line_count > 1:
+                    for i in range(0, line_count):
                         # for line in lines:
                         line = lines[i]
                         if len(line) <= 0:
                             continue
 
                         # if last line:
-                        if i == len(lines) - 1:
+                        if i == line_count - 1:
                             line = '+ %s' % (line, )
-                        else:
-                            line = '| %s' % (line, )
+                        elif i > 0:
+                            line = '| %s' % (line,)
+
                         formatted_message = self.logFormat % (
                             timestamp,
                             self.logLevelNames.get(log_level),
@@ -384,23 +362,23 @@ class Logger:
             # Finally close the filehandle
             self.logEntryCount += 1
             if self.logEntryCount % self.flushInterval == 0:
-                # self.logHandle.write("Saving")
                 self.logEntryCount = 0
                 self.logHandle.flush()
             return
         except:
-            if self.logDual:
-                self.dualLog("Retrospect Logger :: Error logging in Logger.py:")
-                self.dualLog("---------------------------")
-                self.dualLog(traceback.format_exc())
-                self.dualLog("---------------------------")
-                self.dualLog(repr(msg))
-                self.dualLog(repr(args))
-                # noinspection PyUnboundLocalVariable
-                self.dualLog(repr(formatted_message))
-                self.dualLog("---------------------------")
-            else:
+            if not self.logDual:
                 traceback.print_exc()
+                return
+            
+            self.dualLog("Retrospect Logger :: Error logging in Logger.py:")
+            self.dualLog("---------------------------")
+            self.dualLog(traceback.format_exc())
+            self.dualLog("---------------------------")
+            self.dualLog(repr(msg))
+            self.dualLog(repr(args))
+            # noinspection PyUnboundLocalVariable
+            self.dualLog(repr(formatted_message))
+            self.dualLog("---------------------------")
 
     def __find_caller(self):
         """Find the stack frame of the caller.
@@ -473,7 +451,7 @@ class Logger:
             # and set the pointer to the end.
             self.logHandle = io.open(self.logFileName, "r+b")
             self.logHandle.seek(0, 2)
-            self.__write("XOT Logger :: Appending Existing logFile", level=Logger.INFO)
+            self.__write("XOT Logger :: Appending Existing logFile", level=Logger.LVL_INFO)
         else:
             log_dir = os.path.dirname(self.logFileName)
             if not os.path.isdir(log_dir):
@@ -482,3 +460,21 @@ class Logger:
             self.logHandle = io.open(self.logFileName, "wb")
 
         return
+
+    def __process_exc_info(self, msg, **kwargs):
+        """ Adds the Exception Traceback if the exc_info keyword parameter is specified.
+
+        :param Any msg:       The message to log.
+        :param Any kwargs:    Dictionary with keyword arguments.
+
+        :return: The new updated message string
+        :rtype: str
+
+        """
+
+        if "exc_info" in kwargs:
+            if self.logDual:
+                self.dualLog(traceback.format_exc())
+            msg = "%s\n%s" % (msg, traceback.format_exc())
+
+        return msg

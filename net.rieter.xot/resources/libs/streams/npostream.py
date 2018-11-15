@@ -43,12 +43,12 @@ class NpoStream:
         """
 
         if url:
-            Logger.Info("Determining MPD streams for url: %s", url)
+            Logger.info("Determining MPD streams for url: %s", url)
             episode_id = url.split("/")[-1]
         elif episode_id:
-            Logger.Info("Determining MPD streams for VideoId: %s", episode_id)
+            Logger.info("Determining MPD streams for VideoId: %s", episode_id)
         else:
-            Logger.Error("No url or streamId specified!")
+            Logger.error("No url or streamId specified!")
             return
 
         # https://www.npo.nl/player/KN_1693703 -> token
@@ -57,7 +57,7 @@ class NpoStream:
                                proxy=proxy,
                                additionalHeaders=headers)
         token = JsonHelper(data).get_value("token")
-        Logger.Trace("Found token %s", token)
+        Logger.trace("Found token %s", token)
 
         stream_data_url = "https://start-player.npo.nl/video/{0}/streams?" \
                           "profile=dash-widevine" \
@@ -106,12 +106,12 @@ class NpoStream:
         """
 
         if url:
-            Logger.Info("Determining streams for url: %s", url)
+            Logger.info("Determining streams for url: %s", url)
             episode_id = url.split("/")[-1]
         elif episode_id:
-            Logger.Info("Determining streams for VideoId: %s", episode_id)
+            Logger.info("Determining streams for VideoId: %s", episode_id)
         else:
-            Logger.Error("No url or streamId specified!")
+            Logger.error("No url or streamId specified!")
             return []
 
         # we need an hash code
@@ -127,21 +127,21 @@ class NpoStream:
 
         stream_json = JsonHelper(stream_data, logger=Logger.instance())
         stream_infos = stream_json.get_value("items")[0]
-        Logger.Trace(stream_infos)
+        Logger.trace(stream_infos)
         streams = []
         for streamInfo in stream_infos:
-            Logger.Debug("Found stream info: %s", streamInfo)
+            Logger.debug("Found stream info: %s", streamInfo)
             if streamInfo["format"] == "mp3":
                 streams.append((streamInfo["url"], 0))
                 continue
 
             elif streamInfo["contentType"] == "live":
-                Logger.Debug("Found live stream")
+                Logger.debug("Found live stream")
                 url = streamInfo["url"]
                 url = url.replace("jsonp", "json")
                 live_url_data = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
                 live_url = live_url_data.strip("\"").replace("\\", "")
-                Logger.Trace(live_url)
+                Logger.trace(live_url)
                 streams += M3u8.get_streams_from_m3u8(live_url, proxy, headers=headers)
 
             elif streamInfo["format"] == "hls":

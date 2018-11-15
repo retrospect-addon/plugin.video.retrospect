@@ -87,17 +87,17 @@ class ChannelInfo:
 
         """
 
-        Logger.Trace("Importing module %s from path %s", self.moduleName, self.path)
+        Logger.trace("Importing module %s from path %s", self.moduleName, self.path)
 
         sys.path.append(self.path)
         exec ("import %s" % (self.moduleName,))
 
         channel_command = '%s.Channel(self)' % (self.moduleName,)
         try:
-            Logger.Trace("Running command: %s", channel_command)
+            Logger.trace("Running command: %s", channel_command)
             channel = eval(channel_command)
         except:
-            Logger.Error("Cannot Create channel for %s", self, exc_info=True)
+            Logger.error("Cannot Create channel for %s", self, exc_info=True)
             return None
         return channel
 
@@ -258,7 +258,7 @@ class ChannelInfo:
             settings = json.get_value("settings")
         else:
             settings = []
-        Logger.Debug("Found %s channels and %s settings in %s", len(channels), len(settings), path)
+        Logger.debug("Found %s channels and %s settings in %s", len(channels), len(settings), path)
 
         for channel in channels:
             channel_info = ChannelInfo(channel["guid"],

@@ -54,7 +54,7 @@ class LockWithDialog(object):
 
             # show the busy dialog
             if self.logger:
-                self.logger.Debug("Locking interface and showing '%s'", LockWithDialog.BusyDialog)
+                self.logger.debug("Locking interface and showing '%s'", LockWithDialog.BusyDialog)
 
             xbmc.executebuiltin("ActivateWindow({0})".format(LockWithDialog.BusyDialog))
             try:
@@ -70,7 +70,7 @@ class LockWithDialog(object):
                 # Hide the busy Dialog
                 LockWithDialog.close_busy_dialog()
                 if self.logger:
-                    self.logger.Debug("Un-locking interface and hiding '%s'",
+                    self.logger.debug("Un-locking interface and hiding '%s'",
                                       LockWithDialog.BusyDialog)
             return response
 

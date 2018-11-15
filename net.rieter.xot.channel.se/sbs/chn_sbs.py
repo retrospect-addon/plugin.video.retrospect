@@ -246,7 +246,7 @@ class Channel(chn_class.Channel):
 
         for p in range(2, pages + 1, 1):
             url = urlFormat.format(p)
-            Logger.Debug("Loading: %s", url)
+            Logger.debug("Loading: %s", url)
 
             data = UriHandler.Open(url, proxy=self.proxy)
             json = JsonHelper(data)
@@ -255,7 +255,7 @@ class Channel(chn_class.Channel):
             # extract the images
             self.__UpdateImageLookup(json)
 
-        Logger.Debug("Found a total of %s items over %s pages", len(programs), pages)
+        Logger.debug("Found a total of %s items over %s pages", len(programs), pages)
 
         for p in programs:
             item = self.CreateProgramItem(p)
@@ -301,7 +301,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         urlFormat = "https://{0}/content/videos?decorators=viewingHistory&" \
                     "include=images%2CprimaryChannel%2Cshow&" \
                     "filter%5BvideoType%5D=EPISODE%2CLIVE%2CFOLLOW_UP&" \
@@ -344,7 +344,7 @@ class Channel(chn_class.Channel):
         if "totalPages" not in resultSet:
             return None
 
-        Logger.Debug("Starting CreatePageItem")
+        Logger.debug("Starting CreatePageItem")
 
         # current page?
         pageUriPart = "page%5Bnumber%5D="
@@ -363,7 +363,7 @@ class Channel(chn_class.Channel):
                 urlFormat = "{0}&page%5Bnumber%5D={{0:d}}&{1}".format(baseUrl, pagePart[nextPart:])
 
         maxPages = resultSet.get("totalPages", 0)
-        Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, self.parentItem.url)
+        Logger.trace("Current Page: %d of %d (%s)", page, maxPages, self.parentItem.url)
 
         if page + 1 > maxPages:
             return None
@@ -418,7 +418,7 @@ class Channel(chn_class.Channel):
 
         needle = XbmcWrapper.ShowKeyBoard()
         if needle:
-            Logger.Debug("Searching for '%s'", needle)
+            Logger.debug("Searching for '%s'", needle)
             needle = HtmlEntityHelper.url_encode(needle)
 
             searchUrl = videos_url % (needle, )
@@ -644,7 +644,7 @@ class Channel(chn_class.Channel):
         name = videoInfo["name"]
 
         if expectedItemType != resultSet["type"]:
-            Logger.Warning("Not %s, excluding %s", expectedItemType, name)
+            Logger.warning("Not %s, excluding %s", expectedItemType, name)
             return None
 
         channelId = int(resultSet["relationships"]["primaryChannel"]["data"]["id"])
@@ -666,7 +666,7 @@ class Channel(chn_class.Channel):
             thumbId = resultSet["relationships"]["images"]["data"][0]["id"]
             item.thumb = self.imageLookup.get(thumbId, self.noImage)
             if item.thumb == self.noImage:
-                Logger.Warning("No thumb found for %s", thumbId)
+                Logger.warning("No thumb found for %s", thumbId)
 
         # paid or not?
         if "contentPackages" in resultSet["relationships"]:

@@ -18,7 +18,7 @@ from pickler import Pickler
 
 class ParameterParser(object):
     def __init__(self, pluginName, params):
-        Logger.Debug("Parsing parameters from: %s", params)
+        Logger.debug("Parsing parameters from: %s", params)
 
         # Url Keywords
         self.keywordPickle = "pickle"                                   # : Used for the pickle item
@@ -130,11 +130,11 @@ class ParameterParser(object):
 
                 # if the channelcode was empty, it was stripped, add it again.
                 if self.keywordChannelCode not in result:
-                    Logger.Debug("Adding ChannelCode=None as it was missing from the dict: %s",
+                    Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s",
                                  result)
                     result[self.keywordChannelCode] = None
             except:
-                Logger.Critical("Cannot determine query strings from %s", queryString,
+                Logger.critical("Cannot determine query strings from %s", queryString,
                                 exc_info=True)
                 raise
 

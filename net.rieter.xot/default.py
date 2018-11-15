@@ -76,7 +76,7 @@ def run_plugin():
 
     except:
         if log_file:
-            log_file.Critical("Error running plugin", exc_info=True)
+            log_file.critical("Error running plugin", exc_info=True)
         raise
 
 

@@ -38,7 +38,7 @@ class Favourites:
 
         """
 
-        Logger.Debug("Adding item %s\nfor channel %s\n%s", item, channel, action_url)
+        Logger.debug("Adding item %s\nfor channel %s\n%s", item, channel, action_url)
         file_name = self.__filePattern % (channel.guid, item.guid)
         file_path = os.path.join(self.FavouriteFolder, file_name)
         pickle = self.__pickler.PickleMediaItem(item)
@@ -54,7 +54,7 @@ class Favourites:
             with io.open(file_path, mode='w', encoding='utf-8') as file_handle:
                 file_handle.write("%s\n%s\n%s\n%s" % (channel.channelName, item.name, action_url, pickle))
         except:
-            Logger.Error("Error saving favourite", exc_info=True)
+            Logger.error("Error saving favourite", exc_info=True)
             raise
         return
 
@@ -68,9 +68,9 @@ class Favourites:
 
         path_mask = os.path.join(self.FavouriteFolder, "*-%s.xotfav" % (item.guid, ))
 
-        Logger.Debug("Removing favourites for mask: %s", path_mask)
+        Logger.debug("Removing favourites for mask: %s", path_mask)
         for fav in glob.glob(path_mask):
-            Logger.Trace("Removing item %s\nFileName: %s", item, fav)
+            Logger.trace("Removing item %s\nFileName: %s", item, fav)
             os.remove(fav)
         return
 
@@ -91,9 +91,9 @@ class Favourites:
         else:
             path_mask = os.path.join(self.FavouriteFolder, "*.xotfav")
 
-        Logger.Debug("Fetching favourites for mask: %s", path_mask)
+        Logger.debug("Fetching favourites for mask: %s", path_mask)
         for fav in glob.glob(path_mask):
-            Logger.Trace("Fetching %s", fav)
+            Logger.trace("Fetching %s", fav)
 
             try:
                 with io.open(fav, mode='r', encoding='utf-8') as file_handle:
@@ -102,16 +102,16 @@ class Favourites:
                     action_url = file_handle.readline().rstrip()
                     if "pickle=" in action_url and "pickle=%s" not in action_url:
                         # see issue https://bitbucket.org/basrieter/xbmc-online-tv/issues/1037
-                        Logger.Debug("Found favourite with full pickle, removing the pickle as we should use the one from the file.")
+                        Logger.debug("Found favourite with full pickle, removing the pickle as we should use the one from the file.")
                         action_url = self.__remove_pickle(action_url)
 
                     pickle = file_handle.readline()
             except:
-                Logger.Error("Error fetching favourite", exc_info=True)
+                Logger.error("Error fetching favourite", exc_info=True)
                 raise
 
             if channel_name == "" or name == "" or action_url == "" or pickle == "":
-                Logger.Error("Apparently the file had too few lines, corrupt Favourite, removing it:\n"
+                Logger.error("Apparently the file had too few lines, corrupt Favourite, removing it:\n"
                              "Pickle: %s\n"
                              "Channel: %s\n"
                              "Item: %s\n"
@@ -123,11 +123,11 @@ class Favourites:
                 os.remove(fav)
                 continue
 
-            Logger.Debug("Found favourite: %s", name)
+            Logger.debug("Found favourite: %s", name)
             item = self.__pickler.DePickleMediaItem(pickle)
             validation_error = self.__pickler.Validate(item, logger=Logger.instance())
             if validation_error:
-                Logger.Error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
+                Logger.error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
 
                 # Remove the invalid favourite
                 os.remove(fav)

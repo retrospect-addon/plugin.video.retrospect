@@ -99,12 +99,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         jsonData = Regexer.DoRegex('type="application/json">([^<]+)<', data)
         if not jsonData:
-            Logger.Warning("No JSON data found.")
+            Logger.warning("No JSON data found.")
             return data, items
 
         json = JsonHelper(jsonData[0])
@@ -118,7 +118,7 @@ class Channel(chn_class.Channel):
         return json, items
 
     def CreateEpisodeItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet["title"].replace("-", " ").title()
 
         # http://www.nickjr.nl/data/propertyStreamPage.json?&urlKey=dora&apiKey=nl_global_Nickjr_web&page=1
@@ -145,10 +145,10 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         nextPage = resultSet["next"]
         if not nextPage:
-            Logger.Debug("No more items available")
+            Logger.debug("No more items available")
             return None
 
         more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         isSerieTitle = resultSet["seriesTitle"]
         if not isSerieTitle:
@@ -249,7 +249,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         metaData = UriHandler.Open(item.url, proxy=self.proxy, referer=self.baseUrl)
         meta = JsonHelper(metaData)
@@ -278,5 +278,5 @@ class Channel(chn_class.Channel):
                 part.AppendMediaStream(rtmpUrl, bitrate)
 
         item.complete = True
-        Logger.Trace("Media url: %s", item)
+        Logger.trace("Media url: %s", item)
         return item

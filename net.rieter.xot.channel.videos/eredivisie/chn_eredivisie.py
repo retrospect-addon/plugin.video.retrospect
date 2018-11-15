@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Adding pages")
+        Logger.info("Adding pages")
 
         # extract the current page from:
         # http://www.foxsports.nl/video/filter/fragments/1/alle/tennis/
@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if resultSet["Type"] == "sport":
             # http://www.foxsports.nl/video/filter/alle/tennis/
@@ -165,7 +165,7 @@ class Channel(chn_class.Channel):
         for playback.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "%s%s" % (self.baseUrl, resultSet["Url"])
         item = mediaitem.MediaItem(resultSet["Title"], url)
@@ -201,10 +201,10 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         if not AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
-            Logger.Error("Cannot playback video without adaptive stream addon")
+            Logger.error("Cannot playback video without adaptive stream addon")
             return item
 
         # https://www.foxsports.nl/api/video/videodata/2945190

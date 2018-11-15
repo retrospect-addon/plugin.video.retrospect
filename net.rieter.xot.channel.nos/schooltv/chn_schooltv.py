@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "http://m.schooltv.nl/api/v1/programmas/%s/afleveringen.json?size=%s&sort=Nieuwste" % (resultSet['mid'], self.__PageSize)
         item = mediaitem.MediaItem(resultSet['title'], url)
@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
         @return:        a tuple of data and items
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         cat = mediaitem.MediaItem("\b.: Categorie&euml;n :.",
@@ -154,7 +154,7 @@ class Channel(chn_class.Channel):
                     ageItem.items.append(self.CreateEpisodeItem(program))
         items.append(ages)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateCategory(self, resultSet):
@@ -163,7 +163,7 @@ class Channel(chn_class.Channel):
         @param resultSet:
         @return:
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = HtmlEntityHelper.url_encode(resultSet['title'])
         url = "http://m.schooltv.nl/api/v1/categorieen/%s/afleveringen.json?sort=Nieuwste&age_filter=&size=%s" % (title, self.__PageSize)
@@ -180,7 +180,7 @@ class Channel(chn_class.Channel):
         @return:        a tuple of data and items
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         json = JsonHelper(data)
         totalResults = json.get_value("totalResults")
@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
             morePages = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             url = self.parentItem.url.split('?')[0]
             url = "%s?size=%s&from=%s&sort=Nieuwste" % (url, sizeValue, fromValue+sizeValue)
-            Logger.Debug("Adding next-page item from %s to %s", fromValue+sizeValue, fromValue+sizeValue+sizeValue)
+            Logger.debug("Adding next-page item from %s to %s", fromValue + sizeValue, fromValue + sizeValue + sizeValue)
 
             nextPage = mediaitem.MediaItem(morePages, url)
             nextPage.icon = self.parentItem.icon
@@ -200,7 +200,7 @@ class Channel(chn_class.Channel):
             nextPage.dontGroup = True
             items.append(nextPage)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return json, items
 
     def CreateVideoItem(self, resultSet):
@@ -223,11 +223,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         if title is None:
-            Logger.Warning("Found item with all <null> items. Skipping")
+            Logger.warning("Found item with all <null> items. Skipping")
             return None
 
         if "subtitle" in resultSet and resultSet['subtitle'].lower() not in title.lower():
@@ -257,7 +257,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateVideoItem(self, item):
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         json = JsonHelper(data)

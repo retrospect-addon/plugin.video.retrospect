@@ -59,9 +59,9 @@ class Channel(chn_class.Channel):
         # read the regional ones
         # noinspection PyUnresolvedReferences
         dataPath = os.path.abspath(os.path.join(__file__, '..', 'data'))
-        Logger.Info("TV streams located at: %s", dataPath)
+        Logger.info("TV streams located at: %s", dataPath)
         regionals = os.listdir(dataPath)
-        Logger.Trace(regionals)
+        Logger.trace(regionals)
         for regional in regionals:
             path = os.path.join(dataPath, regional)
             if not os.path.isdir(path):
@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
         """
 
         item = self.parentItem
-        Logger.Debug("trying first items")
+        Logger.debug("trying first items")
         url = item.url
         items = []
 

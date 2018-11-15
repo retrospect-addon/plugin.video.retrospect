@@ -102,7 +102,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         item = None
         # not implemented yet
         return item
@@ -127,7 +127,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         name = resultSet[1]
         url = resultSet[0]
@@ -155,13 +155,13 @@ class Channel(chn_class.Channel):
         #     month = name[-5:-3]
         #     day = name[-8:-6]
         if len(nameParts) == 3:
-            Logger.Debug("Found possible date in name: %s", nameParts)
+            Logger.debug("Found possible date in name: %s", nameParts)
             year = nameParts[2]
             if len(year) == 2:
                 year = 2000 + int(year)
             month = nameParts[1]
             day = nameParts[0].rsplit(" ", 1)[1]
-            Logger.Trace("%s - %s - %s", year, month, day)
+            Logger.trace("%s - %s - %s", year, month, day)
             item.SetDate(year, month, day)
 
         return item
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -194,7 +194,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url)
 
         descriptions = Regexer.DoRegex('<div class="longdesc"><p>([^<]+)</', data)
-        Logger.Trace(descriptions)
+        Logger.trace(descriptions)
         for desc in descriptions:
             item.description = desc
 
@@ -202,7 +202,7 @@ class Channel(chn_class.Channel):
         urls = Regexer.DoRegex(self.mediaUrlRegex, data)
         part = item.CreateNewEmptyMediaPart()
         for url in urls:
-            Logger.Trace(url)
+            Logger.trace(url)
             if url[0] == "src":
                 flv = url[1]
                 bitrate = 750

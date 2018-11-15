@@ -61,7 +61,7 @@ class Statistics:
 
         if item is not None:
             if item.isPaid or item.isDrmProtected:
-                Logger.Debug("Not registering error of item which is Paid or DRM Protected.")
+                Logger.debug("Not registering error of item which is Paid or DRM Protected.")
                 return
 
             title = item.name
@@ -116,7 +116,7 @@ class Statistics:
         if start_time:
             time_delta = (datetime.now() - start_time)
             duration = time_delta.seconds * 1000 + (time_delta.microseconds / (10 ** 3)) + offset
-        Logger.Trace("Duration set to: %s (%s, offset=%s)", duration, time_delta or "None", offset)
+        Logger.trace("Duration set to: %s (%s, offset=%s)", duration, time_delta or "None", offset)
 
         action = "%s: %s" % (Statistics.__ACTION_PLAY, item.name)
         Statistics.__register_hit(Statistics.__STATISTICS, channel.channelName, action,
@@ -144,7 +144,7 @@ class Statistics:
 
         try:
             if not AddonSettings.send_usage_statistics():
-                Logger.Debug("Not sending statistics because the configuration does not allow this.")
+                Logger.debug("Not sending statistics because the configuration does not allow this.")
                 return
 
             post_data = {
@@ -177,7 +177,7 @@ class Statistics:
             data = data.rstrip("&")
 
             # url = "http://www.rieter.net/net.rieter.xot.usage/%s/%s/?rnd=%s" % (action, value, rnd)
-            Logger.Debug("Sending statistics: %s", data)
+            Logger.debug("Sending statistics: %s", data)
 
             # now we need something async without caching
             user_agent = AddonSettings.get_user_agent()
@@ -186,10 +186,10 @@ class Statistics:
             else:
                 result = UriHandler.Open(url, params=data, noCache=True)
             if len(result) > 0:
-                Logger.Debug("Statistics were successfully sent. Content Length: %d", len(result))
+                Logger.debug("Statistics were successfully sent. Content Length: %d", len(result))
             else:
-                Logger.Warning("Statistics were not successfully sent")
+                Logger.warning("Statistics were not successfully sent")
         except:
             # we should never ever fail here
-            Logger.Warning("Cannot send statistics", exc_info=True)
+            Logger.warning("Cannot send statistics", exc_info=True)
             return

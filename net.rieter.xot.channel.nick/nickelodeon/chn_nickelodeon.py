@@ -89,14 +89,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         end = data.find("<h2 class='row-title'>Nick Jr")
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         if end > 0:
-            Logger.Debug("Nick Jr content found starting at %d", end)
+            Logger.debug("Nick Jr content found starting at %d", end)
             return data[:end], items
         return data, items
 
@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         end = data.find('<li class="divider playlist-item">')
@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         if end < 0:
             end = data.find("<p>Andere leuke video’s</p>")
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         if end > 0:
             return data[:end], items
 
@@ -159,7 +159,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
@@ -193,5 +193,5 @@ class Channel(chn_class.Channel):
             part.AppendMediaStream(convertedUrl, bitrate)
 
         item.complete = True
-        Logger.Trace("Media url: %s", item)
+        Logger.trace("Media url: %s", item)
         return item

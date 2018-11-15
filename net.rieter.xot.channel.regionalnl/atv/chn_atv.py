@@ -79,7 +79,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         item = mediaitem.MediaItem("\a.: Live TV :.", "http://cache.tikilive.com:8080/socket.io/"
@@ -90,7 +90,7 @@ class Channel(chn_class.Channel):
         item.isLive = True
         items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if resultSet[0]:
             title = resultSet[0]
@@ -142,7 +142,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         item = mediaitem.MediaItem(resultSet[0], resultSet[1])
         item.thumb = self.noImage
@@ -157,7 +157,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         streams = Regexer.DoRegex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         data = data[data.index('{'):]

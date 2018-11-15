@@ -267,10 +267,10 @@ class Channel(chn_class.Channel):
             # See if it was successfull
             if self.__ExtractSessionData(account_info, signature_settings):
                 return True
-            Logger.Warning("Failed to extend the VTM.be session.")
+            Logger.warning("Failed to extend the VTM.be session.")
 
         # We actually need to login to stievie or VTM
-        Logger.Info("Logging onto Stievie.be/VTM.be")
+        Logger.info("Logging onto Stievie.be/VTM.be")
         v = Vault()
         password = v.GetSetting("mediaan_password")
         username = AddonSettings.get_setting("mediaan_username")
@@ -282,7 +282,7 @@ class Channel(chn_class.Channel):
                 # displayTime=5000
             )
             return False
-        Logger.Debug("Using: %s / %s", username, "*" * len(password))
+        Logger.debug("Using: %s / %s", username, "*" * len(password))
 
         # clean older data
         UriHandler.delete_cookie(domain=".gigya.com")
@@ -297,7 +297,7 @@ class Channel(chn_class.Channel):
         init_login = UriHandler.Open(url, proxy=self.proxy, noCache=True)
         init_data = JsonHelper(init_login)
         if init_data.get_value("statusCode") != 200:
-            Logger.Error("Error initiating login")
+            Logger.error("Error initiating login")
 
         # actually do the login request, which requires an async call to retrieve the result
         login_url = "https://accounts.eu1.gigya.com/accounts.login" \
@@ -370,7 +370,7 @@ class Channel(chn_class.Channel):
         days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
         for i in range(0, 7, 1):
             airDate = today - datetime.timedelta(i)
-            Logger.Trace("Adding item for: %s", airDate)
+            Logger.trace("Adding item for: %s", airDate)
 
             day = days[airDate.weekday()]
             if i == 0:
@@ -394,7 +394,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def StievieCreateChannelItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if resultSet['premium'] and not self.__hasPremium:
             return None
@@ -410,8 +410,8 @@ class Channel(chn_class.Channel):
         return item
 
     def StievieCreateEpgItems(self, epg):
-        Logger.Trace(epg)
-        Logger.Debug("Processing EPG for channel %s", epg["id"])
+        Logger.trace(epg)
+        Logger.debug("Processing EPG for channel %s", epg["id"])
 
         items = []
         summerTime = time.localtime().tm_isdst
@@ -445,7 +445,7 @@ class Channel(chn_class.Channel):
                     blackoutDuration = resultSet["blackout"]["duration"]
                     blackoutStart = startTime + datetime.timedelta(seconds=blackoutDuration)
                     if blackoutStart < now:
-                        Logger.Debug("Found item in Black-out period: %s (started at %s)", title, blackoutStart)
+                        Logger.debug("Found item in Black-out period: %s (started at %s)", title, blackoutStart)
                         continue
 
             # else:
@@ -469,7 +469,7 @@ class Channel(chn_class.Channel):
         return items
 
     def StievieCreateEpisode(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet['title']
         url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
               "&apikey=%s" \
@@ -508,7 +508,7 @@ class Channel(chn_class.Channel):
         count = json.get_value("response", "total")
         for i in range(100, count, 100):
             url = "%s&from=%s" % (self.mainListUri, i)
-            Logger.Debug("Retrieving more items from: %s", url)
+            Logger.debug("Retrieving more items from: %s", url)
             moreData = UriHandler.Open(url, proxy=self.proxy)
             moreJson = JsonHelper(moreData)
             moreItems = moreJson.get_value("response", "items")
@@ -532,7 +532,7 @@ class Channel(chn_class.Channel):
 
        """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet['title']
 
@@ -601,7 +601,7 @@ class Channel(chn_class.Channel):
         return data, []
 
     def CreateVideoItemJson(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if 'episode' in resultSet:
             title = resultSet['episode']['title']
@@ -630,7 +630,7 @@ class Channel(chn_class.Channel):
         return self.__UpdateVideoItem(item, videoId)
 
     def AddLiveChannel(self, data):
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         # if self.channelCode != "vtm":
         #     return data, []
 
@@ -659,7 +659,7 @@ class Channel(chn_class.Channel):
             item.dontGroup = True
             items.append(recent)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateEpisodeItemHtml(self, resultSet):
@@ -677,7 +677,7 @@ class Channel(chn_class.Channel):
 
        """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet['title']
         url = resultSet['url']
@@ -688,7 +688,7 @@ class Channel(chn_class.Channel):
         programId = title.rstrip()
         if programId in self.__mappings.get(self.channelCode, {}):
             seriesId = self.__mappings[self.channelCode][programId]
-            Logger.Debug("Using JSON SeriesID '%s' for '%s' (%s)", seriesId, title, programId)
+            Logger.debug("Using JSON SeriesID '%s' for '%s' (%s)", seriesId, title, programId)
             url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
                   "&apikey=%s" \
                   "&sort=broadcastDate&sortDirection=desc" \
@@ -718,7 +718,7 @@ class Channel(chn_class.Channel):
         regex = Regexer.FromExpresso(regex)
         results = Regexer.DoRegex(regex, recentData)
         for result in results:
-            Logger.Trace(result)
+            Logger.trace(result)
             item = self.CreateVideoItemHtml(result)
             items.append(item)
 
@@ -744,7 +744,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet['title']
         if title:
@@ -756,7 +756,7 @@ class Channel(chn_class.Channel):
             title = resultSet['subtitle'].strip()
 
         if not title:
-            Logger.Warning("Item without title found: %s", resultSet)
+            Logger.warning("Item without title found: %s", resultSet)
             return None
 
         url = resultSet["url"].replace('  ', ' ')
@@ -793,10 +793,10 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         if not self.loggedOn:
-            Logger.Warning("Cannot log on")
+            Logger.warning("Cannot log on")
             return None
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
@@ -805,7 +805,7 @@ class Channel(chn_class.Channel):
         return self.__UpdateVideoItem(item, videoId)
 
     def UpdateLiveStream(self, item):
-        Logger.Debug("Updating Live stream")
+        Logger.debug("Updating Live stream")
         # let's request a token
         token = self.__GetToken()
 
@@ -848,7 +848,7 @@ class Channel(chn_class.Channel):
             for c in cookies:
                 cookie = UriHandler.GetCookie(c, domain, path=path)
                 if cookie is None:
-                    Logger.Error("Missing cookie: %s", c)
+                    Logger.error("Missing cookie: %s", c)
                     return item
 
                 value = cookie.value
@@ -861,7 +861,7 @@ class Channel(chn_class.Channel):
             M3u8.set_input_stream_addon_input(stream, license_key=licenseKey)
             item.complete = True
         else:
-            Logger.Error("Cannot play live-stream without encryption support.")
+            Logger.error("Cannot play live-stream without encryption support.")
         return item
 
     def UpdateHtmlClipItem(self, item):
@@ -907,7 +907,7 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(data)
         dashInfo = jsonData.get_value("response", "dash-cenc")
         if self.__adaptiveStreamingAvailable and dashInfo:
-            Logger.Debug("Using Dash streams to playback")
+            Logger.debug("Using Dash streams to playback")
             dashInfo = jsonData.get_value("response", "dash-cenc")
             licenseUrl = dashInfo["widevineLicenseServerURL"]
             streamUrl = dashInfo["url"]
@@ -927,7 +927,7 @@ class Channel(chn_class.Channel):
             Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey, license_type="com.widevine.alpha")
             item.complete = True
         else:
-            Logger.Debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
+            Logger.debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
 
             m3u8Url = jsonData.get_value("response", "hls-encrypted", "url")
             if not m3u8Url:
@@ -938,7 +938,7 @@ class Channel(chn_class.Channel):
             # Set the Range header to a proper value to make all streams start at the beginning. Make
             # sure that a complete TS part comes in a single call otherwise we get stuttering.
             byteRange = 10 * 1024 * 1024
-            Logger.Debug("Setting an 'Range' http header of bytes=0-%d to force playback at the start "
+            Logger.debug("Setting an 'Range' http header of bytes=0-%d to force playback at the start "
                          "of a stream and to include a full .ts part.", byteRange)
             part.HttpHeaders["Range"] = 'bytes=0-%d' % (byteRange, )
 
@@ -954,7 +954,7 @@ class Channel(chn_class.Channel):
         if not self.loggedOn:
             self.loggedOn = self.LogOn()
         if not self.loggedOn:
-            Logger.Warning("Cannot log on")
+            Logger.warning("Cannot log on")
             return None
 
         # Q2:  https://user.medialaan.io/user/v1/gigya/request_token?uid=897b786c46e3462eac81549453680c0d&signature=SM7b5ciP09Z0gbcaCoZ%2B7r4b3uk%3D&timestamp=1484691251&apikey=q2-html5-NNSMRSQSwGMDAjWKexV4e5Vm6eSPtupk&database=q2-sso&_=1484691247493
@@ -973,15 +973,15 @@ class Channel(chn_class.Channel):
     def __ExtractSessionData(self, logonData, signatureSettings):
         logonJson = JsonHelper(logonData)
         resultCode = logonJson.get_value("statusCode")
-        Logger.Trace("Logging in returned: %s", resultCode)
+        Logger.trace("Logging in returned: %s", resultCode)
         if resultCode != 200:
-            Logger.Error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
+            Logger.error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
                          logonJson.get_value("errorDetails"))
             return False
 
         signatureSetting = logonJson.get_value("sessionInfo", "login_token")
         if signatureSetting:
-            Logger.Info("Found 'login_token'. Saving it.")
+            Logger.info("Found 'login_token'. Saving it.")
             AddonSettings.set_setting(signatureSettings, signatureSetting.split("|")[0], store=LOCAL)
 
         self.__signature = logonJson.get_value("UIDSignature")

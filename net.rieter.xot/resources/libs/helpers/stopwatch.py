@@ -49,7 +49,7 @@ class StopWatch:
         else:
             delta = self.stopTime - self.startTime
             
-        self.logger.Debug("Stopwatch :: Stop (%s): %s, time elapsed: %s ms (+%s ms)",
+        self.logger.debug("Stopwatch :: Stop (%s): %s, time elapsed: %s ms (+%s ms)",
                           self.name, self.stopTime, seconds_taken * 1000, delta * 1000)
         return
         
@@ -57,7 +57,7 @@ class StopWatch:
         """Starts the stopwatch and prints the start time."""
         
         self.startTime = time.time()
-        self.logger.Debug("Stopwatch :: Set (%s): %s", self.name, self.startTime)
+        self.logger.debug("Stopwatch :: Set (%s): %s", self.name, self.startTime)
         return
         
     def lap(self, value=""):
@@ -77,7 +77,7 @@ class StopWatch:
         
         self.lapTime = now
         seconds_taken = self.lapTime - self.startTime
-        self.logger.Debug("Stopwatch :: Lap (%s) %s: elapsed since start: %s ms (delta +%s ms)",
+        self.logger.debug("Stopwatch :: Lap (%s) %s: elapsed since start: %s ms (delta +%s ms)",
                           self.name, value, seconds_taken * 1000, delta * 1000)
            
     def __str__(self):

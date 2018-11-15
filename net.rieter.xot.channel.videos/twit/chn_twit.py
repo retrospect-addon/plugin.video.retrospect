@@ -122,10 +122,10 @@ class Channel(chn_class.Channel):
         for bitrate in mediaUrls:
             playbackPart.AppendMediaStream(mediaUrls[bitrate], bitrate)
 
-        Logger.Debug("Streams: %s", playbackPart)
+        Logger.debug("Streams: %s", playbackPart)
         playbackItem.complete = True
         item.items.append(playbackItem)
-        Logger.Debug("Appended: %s", playbackItem)
+        Logger.debug("Appended: %s", playbackItem)
 
         items.append(item)
         return data, items
@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = resultSet["url"]
         if not url.startswith("http"):
@@ -222,7 +222,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         streams = Regexer.DoRegex(self.mediaUrlRegex, data)
@@ -230,7 +230,7 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
         for stream in streams:
-            Logger.Trace(stream)
+            Logger.trace(stream)
             part.AppendMediaStream(stream[0], stream[1])
 
         item.complete = True

@@ -77,7 +77,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Fetching episode items")
+        Logger.info("Fetching episode items")
         items = []
 
         liveItems = mediaitem.MediaItem("\a.: Live TV :.", "")
@@ -114,7 +114,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup/%s.json" % (resultSet["id"],)
         item = mediaitem.MediaItem(resultSet["title"], url)
@@ -150,7 +150,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup/%s.json?pageSize=100" % (resultSet["id"],)
         # url = "http://www.srf.ch/player/webservice/videoprogram/index?id=%s" % (resultSet["id"],)
@@ -182,7 +182,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "fullengthSegment" in resultSet and "segment" in resultSet["fullengthSegment"]:
             videoId = resultSet["fullengthSegment"]["segment"]["id"]
@@ -190,9 +190,9 @@ class Channel(chn_class.Channel):
             geoBlock = False
             if "flags" in resultSet["fullengthSegment"]["segment"]:
                 geoBlock = resultSet["fullengthSegment"]["segment"]["flags"].get("geoblock", None)
-            Logger.Trace("Found geoLocation/geoBlock: %s/%s", geoLocation, geoBlock)
+            Logger.trace("Found geoLocation/geoBlock: %s/%s", geoLocation, geoBlock)
         else:
-            Logger.Warning("No video information found.")
+            Logger.warning("No video information found.")
             return None
 
         url = "http://www.srf.ch/player/webservice/videodetail/index?id=%s" % (videoId,)
@@ -233,18 +233,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         videos = self.__GetNestedValue(resultSet, "Assets", "Video")
         if not videos:
-            Logger.Warning("No video information found.")
+            Logger.warning("No video information found.")
             return None
 
         videoInfos = filter(lambda vi: vi["fullLength"], videos)
         if len(videoInfos) > 0:
             videoInfo = videoInfos[0]
         else:
-            Logger.Warning("No full length video found.")
+            Logger.warning("No full length video found.")
             return None
         # noinspection PyTypeChecker
         videoId = videoInfo["id"]
@@ -289,7 +289,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         json = JsonHelper(data)
@@ -338,7 +338,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         json = JsonHelper(data)
@@ -347,7 +347,7 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         for playList in videoPlayLists:
             streams = playList["url"]
-            Logger.Trace("Found %s streams", len(streams))
+            Logger.trace("Found %s streams", len(streams))
             for stream in streams:
                 streamUrl = stream["text"]
                 if ".m3u8" in streamUrl:
@@ -356,7 +356,7 @@ class Channel(chn_class.Channel):
                         # s = self.GetVerifiableVideoUrl(s)
                         part.AppendMediaStream(s, b)
                 else:
-                    Logger.Debug("Cannot use stream url: %s", streamUrl)
+                    Logger.debug("Cannot use stream url: %s", streamUrl)
 
         # videoInfo = json.get_value("content", "videoInfos")
         #
@@ -386,7 +386,7 @@ class Channel(chn_class.Channel):
             try:
                 currentNode = currentNode[a]
             except:
-                Logger.Debug("Value '%s' is not found in '%s'", a, currentNode)
+                Logger.debug("Value '%s' is not found in '%s'", a, currentNode)
                 if "fallback" in kwargs:
                     return kwargs["fallback"]
                 else:

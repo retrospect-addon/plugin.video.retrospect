@@ -46,7 +46,7 @@ class Channel(chn_class.Channel):
         Accepts an arraylist of results. It returns an item.
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet["title"]
         date = resultSet["trailers"][0]["postdate"]
         url = resultSet["trailers"][0]["url"]
@@ -81,18 +81,18 @@ class Channel(chn_class.Channel):
         @param data: the original data
         @return: the new data
         """
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         movieId = Regexer.DoRegex("movietrailers://movie/detail/(\d+)", data)[-1]
-        Logger.Debug("Found Movie ID: %s", movieId)
+        Logger.debug("Found Movie ID: %s", movieId)
         url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movieId)
         data = UriHandler.Open(url, proxy=self.proxy)
 
         # set it for logging purposes
         self.parentItem.url = url
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItem(self, resultSet):
@@ -115,7 +115,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         title = "%s - %s" % (self.parentItem.name, title)
@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
                             # movs need to have a 'h' before the quality
                             parts = streamUrl.rsplit("_", 1)
                             if len(parts) == 2:
-                                Logger.Trace(parts)
+                                Logger.trace(parts)
                                 streamUrl = "%s_h%s" % (parts[0], parts[1])
                             part.AppendMediaStream(streamUrl, bitrate)
                         else:

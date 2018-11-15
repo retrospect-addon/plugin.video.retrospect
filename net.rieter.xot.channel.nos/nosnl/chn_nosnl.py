@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Creating categories")
+        Logger.info("Creating categories")
         items = []
 
         cats = {
@@ -111,7 +111,7 @@ class Channel(chn_class.Channel):
             item.complete = True
             items.append(item)
 
-        Logger.Debug("Creating categories finished")
+        Logger.debug("Creating categories finished")
         return data, items
 
     def CreatePageItem(self, resultSet):
@@ -195,7 +195,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem: %s', item.name)
+        Logger.debug('Starting UpdateVideoItem: %s', item.name)
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
         jsonData = JsonHelper(data)
@@ -238,7 +238,7 @@ class Channel(chn_class.Channel):
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # a second cookie seems to be required
         UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.nos.nl')

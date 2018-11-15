@@ -35,16 +35,16 @@ class Vault:
 
             # was there a key? No, let's initialize it.
             if key is None:
-                Logger.Warning("No Application Key present. Intializing a new one.")
+                Logger.warning("No Application Key present. Intializing a new one.")
                 key = self.__GetNewKey()
                 if not self.ChangePin(key):
                     raise RuntimeError("Error creating Application Key.")
-                Logger.Info("Created a new Application Key with MD5: %s (lengt=%s)",
+                Logger.info("Created a new Application Key with MD5: %s (lengt=%s)",
                             hashlib.md5(key).hexdigest(), len(key))
                 self.__newKeyGeneratedInConstructor = True
 
             Vault.__Key = key
-            Logger.Trace("Using Application Key with MD5: %s (lengt=%s)", hashlib.md5(key).hexdigest(), len(key))
+            Logger.trace("Using Application Key with MD5: %s (lengt=%s)", hashlib.md5(key).hexdigest(), len(key))
 
     def ChangePin(self, applicationKey=None):
         # type: (str) -> bool
@@ -55,17 +55,17 @@ class Vault:
         @return: indication of success
         """
 
-        Logger.Info("Updating the ApplicationKey with a new PIN")
+        Logger.info("Updating the ApplicationKey with a new PIN")
 
         if self.__newKeyGeneratedInConstructor:
-            Logger.Info("A key was just generated, no need to change PINs.")
+            Logger.info("A key was just generated, no need to change PINs.")
             return True
 
         if applicationKey is None:
-            Logger.Debug("Using the ApplicationKey from the vault.")
+            Logger.debug("Using the ApplicationKey from the vault.")
             applicationKey = Vault.__Key
         else:
-            Logger.Debug("Using the ApplicationKey from the input parameter.")
+            Logger.debug("Using the ApplicationKey from the input parameter.")
 
         if not applicationKey:
             raise ValueError("No ApplicationKey specified.")
@@ -85,7 +85,7 @@ class Vault:
             heading=LanguageHelper.get_localized_string(LanguageHelper.VaultRepeatPin),
             hidden=True)
         if pin != pin2:
-            Logger.Critical("Mismatch in PINs")
+            Logger.critical("Mismatch in PINs")
             XbmcWrapper.ShowNotification(
                 "",
                 LanguageHelper.get_localized_string(LanguageHelper.VaultPinsDontMatch),
@@ -98,7 +98,7 @@ class Vault:
         pinKey = self.__GetPBK(pin)
         encryptedKey = self.__Encrypt(encryptedKey, pinKey)
         AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, encryptedKey, store=LOCAL)
-        Logger.Info("Successfully updated the Retrospect PIN")
+        Logger.info("Successfully updated the Retrospect PIN")
         return True
 
     @staticmethod
@@ -111,10 +111,10 @@ class Vault:
         ok = XbmcWrapper.ShowYesNo(LanguageHelper.get_localized_string(LanguageHelper.VaultReset),
                                    LanguageHelper.get_localized_string(LanguageHelper.VaultResetConfirm))
         if not ok:
-            Logger.Debug("Aborting Reset Vault")
+            Logger.debug("Aborting Reset Vault")
             return
 
-        Logger.Info("Resetting the vault to a new initial state.")
+        Logger.info("Resetting the vault to a new initial state.")
         AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, "", store=LOCAL)
 
         # create a vault instance so we initialize a new one with a new PIN.
@@ -140,7 +140,7 @@ class Vault:
         @return:          the decrypted value for the setting
         """
 
-        Logger.Info("Decrypting value for setting '%s'", settingId)
+        Logger.info("Decrypting value for setting '%s'", settingId)
         encryptedValue = AddonSettings.get_setting(settingId)
         if not encryptedValue:
             return encryptedValue
@@ -148,13 +148,13 @@ class Vault:
         try:
             decryptedValue = self.__Decrypt(encryptedValue, Vault.__Key)
             if not decryptedValue.startswith(settingId):
-                Logger.Error("Invalid decrypted value for setting '%s'", settingId)
+                Logger.error("Invalid decrypted value for setting '%s'", settingId)
                 return None
 
             decryptedValue = decryptedValue[len(settingId) + 1:]
-            Logger.Info("Successfully decrypted value for setting '%s'", settingId)
+            Logger.info("Successfully decrypted value for setting '%s'", settingId)
         except UnicodeDecodeError:
-            Logger.Error("Invalid Unicode data returned from decryption. Must be wrong data")
+            Logger.error("Invalid Unicode data returned from decryption. Must be wrong data")
             return None
 
         return decryptedValue
@@ -172,13 +172,13 @@ class Vault:
 
         """
 
-        Logger.Info("Encrypting value for setting '%s'", settingId)
+        Logger.info("Encrypting value for setting '%s'", settingId)
         inputValue = XbmcWrapper.ShowKeyBoard(
             "",
             LanguageHelper.get_localized_string(LanguageHelper.VaultSpecifySetting) % (settingName or settingId,))
 
         if inputValue is None:
-            Logger.Debug("Setting of encrypted value cancelled.")
+            Logger.debug("Setting of encrypted value cancelled.")
             return
 
         value = "%s=%s" % (settingId, inputValue)
@@ -187,13 +187,13 @@ class Vault:
         if settingActionId is None:
             settingActionId = "%s_set" % (settingId,)
 
-        Logger.Debug("Updating '%s' and '%s'", settingId, settingActionId)
+        Logger.debug("Updating '%s' and '%s'", settingId, settingActionId)
         AddonSettings.set_setting(settingId, encryptedValue)
         if inputValue:
             AddonSettings.set_setting(settingActionId, "******")
         else:
             AddonSettings.set_setting(settingActionId, "")
-        Logger.Info("Successfully encrypted value for setting '%s'", settingId)
+        Logger.info("Successfully encrypted value for setting '%s'", settingId)
         return
 
     def __GetApplicationKey(self):
@@ -209,7 +209,7 @@ class Vault:
             if not applicationKeyEncrypted:
                 return None
 
-            Logger.Info("Moved ApplicationKey to local storage")
+            Logger.info("Moved ApplicationKey to local storage")
             AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, applicationKeyEncrypted, store=LOCAL)
 
         # Still no application key? Then there was no key!
@@ -226,12 +226,12 @@ class Vault:
         pinKey = self.__GetPBK(pin)
         applicationKey = self.__Decrypt(applicationKeyEncrypted, pinKey)
         if not applicationKey.startswith(Vault.__APPLICATION_KEY_SETTING):
-            Logger.Critical("Invalid Retrospect PIN")
+            Logger.critical("Invalid Retrospect PIN")
             XbmcWrapper.ShowNotification("", vaultIncorrectPin, XbmcWrapper.Error)
             raise RuntimeError("Incorrect Retrospect PIN specified")
 
         applicationKeyValue = applicationKey[len(Vault.__APPLICATION_KEY_SETTING) + 1:]
-        Logger.Info("Successfully decrypted the ApplicationKey.")
+        Logger.info("Successfully decrypted the ApplicationKey.")
         return applicationKeyValue
 
     def __Encrypt(self, data, key):
@@ -241,7 +241,7 @@ class Vault:
         @param data: [string] the data to encrypt
         """
 
-        Logger.Debug("Encrypting with keysize: %s", len(key))
+        Logger.debug("Encrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
         return base64.b64encode(aes.encrypt(data))
 
@@ -254,7 +254,7 @@ class Vault:
         @return:     [string] the password retrieved from the keyring
         """
 
-        Logger.Debug("Decrypting with keysize: %s", len(key))
+        Logger.debug("Decrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
         return aes.decrypt(base64.b64decode(data))
 
@@ -277,5 +277,5 @@ class Vault:
                             r=1,
                             p=1,
                             dkLen=32)
-        Logger.Trace("Generated PBK with MD5: %s", hashlib.md5(pbk).hexdigest())
+        Logger.trace("Generated PBK with MD5: %s", hashlib.md5(pbk).hexdigest())
         return pbk

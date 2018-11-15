@@ -35,7 +35,7 @@ class LogSender:
             raise ValueError("No filename specified")
 
         if self.__logger:
-            self.__logger.Info("Sending log at: %s", file_path)
+            self.__logger.info("Sending log at: %s", file_path)
 
         if self.__mode == 'gist':
             return self.send_files(name, [file_path])
@@ -76,7 +76,7 @@ class LogSender:
         json_data = JsonHelper(data)
         url = json_data.get_value("html_url")
         if self.__logger:
-            self.__logger.Info("Gist: %s", url)
+            self.__logger.info("Gist: %s", url)
 
         # minify with google
         # POST https://www.googleapis.com/urlshortener/v1/url
@@ -89,7 +89,7 @@ class LogSender:
 
         google_url = JsonHelper(google_data).get_value("id")
         if self.__logger:
-            self.__logger.Info("Goo.gl: %s", google_url)
+            self.__logger.info("Goo.gl: %s", google_url)
         return google_url
 
     def send(self, name, code, expire='1M', paste_format=None, user_key=None):
@@ -125,7 +125,7 @@ class LogSender:
         json_data = JsonHelper(data)
         url = json_data.get_value("html_url")
         if self.__logger:
-            self.__logger.Info("Gist: %s", url)
+            self.__logger.info("Gist: %s", url)
 
         # minify with google
         # POST https://www.googleapis.com/urlshortener/v1/url
@@ -164,7 +164,7 @@ class LogSender:
             HtmlEntityHelper.url_encode(str(params[y]))), params.keys(), "").lstrip("&")
 
         if self.__logger:
-            self.__logger.Debug("Posting %d chars to pastebin.com", len(code))
+            self.__logger.debug("Posting %d chars to pastebin.com", len(code))
             # self.__logger.Trace("POST params: %s", post_params)
 
         data = UriHandler.Open("http://pastebin.com/api/api_post.php", params=post_params,
@@ -174,7 +174,7 @@ class LogSender:
             raise IOError(data)
 
         if self.__logger:
-            self.__logger.Info("PasteBin: %s", data)
+            self.__logger.info("PasteBin: %s", data)
 
         return data
 
@@ -186,7 +186,7 @@ class LogSender:
             fp.seek(0, os.SEEK_SET)
             if size > self.__maxSize:
                 if self.__logger:
-                    self.__logger.Warning("Filesize too large: %s, posting last %s kB",
+                    self.__logger.warning("Filesize too large: %s, posting last %s kB",
                                           size, self.__maxSize / 1024)
 
                 # post the top so wwe have all the required data, and the bottom

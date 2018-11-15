@@ -111,7 +111,7 @@ class Channel(chn_class.Channel):
                 self.__idToken = idToken
                 return True
             else:
-                Logger.Info("Extending token for VierVijfZes failed.")
+                Logger.info("Extending token for VierVijfZes failed.")
 
         # username: viervijfzes_username
         username = AddonSettings.get_setting("viervijfzes_username")
@@ -127,7 +127,7 @@ class Channel(chn_class.Channel):
 
         idToken, refreshToken = client.Authenticate(username, password)
         if not idToken or not refreshToken:
-            Logger.Error("Error getting a new token. Wrong password?")
+            Logger.error("Error getting a new token. Wrong password?")
             return False
 
         self.__idToken = idToken
@@ -170,7 +170,7 @@ class Channel(chn_class.Channel):
         items = []
         json = JsonHelper(data)
         data = json.get_value("data")
-        Logger.Trace(data)
+        Logger.trace(data)
 
         if json.get_value("loadMore", fallback=False):
             url, page = self.parentItem.url.rsplit("/", 1)
@@ -245,7 +245,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # https://api.viervijfzes.be/content/c58996a6-9e3d-4195-9ecf-9931194c00bf
         # videoId = item.url.split("/")[-1]
@@ -259,7 +259,7 @@ class Channel(chn_class.Channel):
         m3u8Url = Regexer.DoRegex(regex, data)[-1]
 
         if ".m3u8" not in m3u8Url:
-            Logger.Info("Not a direct M3u8 file. Need to log in")
+            Logger.info("Not a direct M3u8 file. Need to log in")
             url = "https://api.viervijfzes.be/content/%s" % (m3u8Url, )
 
             # We need to log in
@@ -283,7 +283,7 @@ class Channel(chn_class.Channel):
         part = item.CreateNewEmptyMediaPart()
         for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             if int(b) < 200:
-                Logger.Info("Skipping stream of quality '%s' kbps", b)
+                Logger.info("Skipping stream of quality '%s' kbps", b)
                 continue
 
             item.complete = True

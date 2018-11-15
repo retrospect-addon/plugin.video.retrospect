@@ -65,7 +65,7 @@ class Regexer:
                 else:
                     return Regexer.__DoRegex(regex, data)
             else:
-                Logger.Debug("Performing multi-regex find on '%s'", regex)
+                Logger.debug("Performing multi-regex find on '%s'", regex)
                 results = []
                 count = 0
                 for r in regex:
@@ -84,10 +84,10 @@ class Regexer:
                                 results += map(lambda x: (count, x), regexResults)
                     # increase count
                     count += 1
-                Logger.Debug("Returning %s results", len(results))
+                Logger.debug("Returning %s results", len(results))
                 return results
         except:
-            Logger.Critical('error regexing', exc_info=True)
+            Logger.critical('error regexing', exc_info=True)
             return []
 
     @staticmethod
@@ -131,10 +131,10 @@ class Regexer:
         """
 
         if regex in Regexer.__compiledRegexes:
-            Logger.Debug("Re-using cached Compiled Regex object")
+            Logger.debug("Re-using cached Compiled Regex object")
             compiledRegex = Regexer.__compiledRegexes[regex]
         else:
-            Logger.Trace("Compiling Regex object and storing in cache")
+            Logger.trace("Compiling Regex object and storing in cache")
             compiledRegex = re.compile(regex, re.DOTALL + re.IGNORECASE)
             Regexer.__compiledRegexes[regex] = compiledRegex
 

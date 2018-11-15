@@ -134,7 +134,7 @@ class MediaItem:
             self.guid = "%s%s" % (EncodingHelper.encode_md5(title), EncodingHelper.encode_md5(url or ""))
             # self.guid = ("%s-%s" % (encodinghelper.EncodingHelper.encode_md5(title), url)).replace(" ", "")
         except:
-            Logger.Error("Error setting GUID for title:'%s' and url:'%s'. Falling back to UUID", title, url, exc_info=True)
+            Logger.error("Error setting GUID for title:'%s' and url:'%s'. Falling back to UUID", title, url, exc_info=True)
             self.guid = self.__GetUUID()
         self.guidValue = int("0x%s" % (self.guid,), 0)
 
@@ -248,7 +248,7 @@ class MediaItem:
         """
 
         if season is None or episode is None:
-            Logger.Warning("Cannot set EpisodeInfo without season and episode")
+            Logger.warning("Cannot set EpisodeInfo without season and episode")
             return
 
         self.__infoLabels["Episode"] = int(episode)
@@ -320,7 +320,7 @@ class MediaItem:
                 self.__date = text
 
         except ValueError:
-            Logger.Error("Error setting date: Year=%s, Month=%s, Day=%s, Hour=%s, Minutes=%s, Seconds=%s", year, month, day, hour, minutes, seconds, exc_info=True)
+            Logger.error("Error setting date: Year=%s, Month=%s, Day=%s, Hour=%s, Minutes=%s, Seconds=%s", year, month, day, hour, minutes, seconds, exc_info=True)
             self.__timestamp = datetime.datetime.min
             self.__date = ""
 
@@ -387,11 +387,11 @@ class MediaItem:
 
         # set a flag to indicate it is a item that can be used with setResolveUrl.
         if self.IsResolvable():
-            Logger.Trace("Setting IsPlayable to True")
+            Logger.trace("Setting IsPlayable to True")
             item.setProperty("IsPlayable", "true")
 
         # specific items
-        Logger.Trace("Setting InfoLabels: %s", infoLabels)
+        Logger.trace("Setting InfoLabels: %s", infoLabels)
         if self.type == "audio":
             item.setInfo(type="music", infoLabels=infoLabels)
         else:
@@ -458,13 +458,13 @@ class MediaItem:
                 # no items where there, so we can just start at position 0
                 currentIndex = 0
 
-            Logger.Info("Updating the playlist for item at position %s and trying to preserve other playlist items", currentIndex)
+            Logger.info("Updating the playlist for item at position %s and trying to preserve other playlist items", currentIndex)
             for i in range(0, len(playList)):
-                Logger.Trace("Copying playList item %s out of %s", i + 1, len(playList))
+                Logger.trace("Copying playList item %s out of %s", i + 1, len(playList))
                 playListItems.append((playList[i].getfilename(), playList[i]))
 
             startList = reduce(lambda x, y: "%s\n%s" % (x, y[0]), playListItems, "Starting with Playlist Items (%s)" % (len(playListItems),))
-            Logger.Debug(startList)
+            Logger.debug(startList)
             playList.clear()
 
         logText = "Creating playlist for Bitrate: %s kbps\n%s\nSelected Streams:\n" % (bitrate, self)
@@ -473,7 +473,7 @@ class MediaItem:
         index = currentIndex
         for part in self.MediaItemParts:
             if len(part.MediaStreams) == 0:
-                Logger.Warning("Ignoring empty MediaPart: %s", part)
+                Logger.warning("Ignoring empty MediaPart: %s", part)
                 continue
 
             # get the playlist item
@@ -513,16 +513,16 @@ class MediaItem:
             if xbmcParams:
                 xbmcQueryString = reduce(lambda x, y: "%s&%s=%s" %
                                                       (x, y, xbmcParams[y]), xbmcParams.keys(), "").lstrip("&")
-                Logger.Debug("Adding Kodi Stream parameters: %s\n%s", xbmcParams, xbmcQueryString)
+                Logger.debug("Adding Kodi Stream parameters: %s\n%s", xbmcParams, xbmcQueryString)
                 streamUrl = "%s|%s" % (stream.Url, xbmcQueryString)
 
             if index == currentIndex and index < len(playListItems):
                 # We need to replace the current item.
-                Logger.Trace("Replacing current Kodi ListItem at Playlist index %s (of %s)", index, len(playListItems))
+                Logger.trace("Replacing current Kodi ListItem at Playlist index %s (of %s)", index, len(playListItems))
                 playListItems[index] = (streamUrl, xbmcItem)
             else:
                 # We need to add at the current index
-                Logger.Trace("Inserting Kodi ListItem at Playlist index %s", index)
+                Logger.trace("Inserting Kodi ListItem at Playlist index %s", index)
                 playListItems.insert(index, (streamUrl, xbmcItem))
 
             index += 1
@@ -531,10 +531,10 @@ class MediaItem:
             # part has it's own subtitles.
             srt = part.Subtitle
 
-        Logger.Info(logText)
+        Logger.info(logText)
 
         endList = reduce(lambda x, y: "%s\n%s" % (x, y[0]), playListItems, "Ended with Playlist Items (%s)" % (len(playListItems),))
-        Logger.Debug(endList)
+        Logger.debug(endList)
         for playListItem in playListItems:
             playList.add(playListItem[0], playListItem[1])
 
@@ -704,7 +704,7 @@ class MediaItem:
         if self.type == 'page':
             # We need to add the Page prefix to the item
             name = "%s %s" % (LanguageHelper.get_localized_string(LanguageHelper.Page), name)
-            Logger.Debug("GetXbmcItem :: Adding Page Prefix")
+            Logger.debug("GetXbmcItem :: Adding Page Prefix")
 
         elif self.__date != '' and not self.IsPlayable():
             # not playable items should always show date
@@ -759,7 +759,7 @@ class MediaItemPart:
 
         """
 
-        Logger.Trace("Creating MediaItemPart '%s' for '%s'", name, url)
+        Logger.trace("Creating MediaItemPart '%s' for '%s'", name, url)
         self.Name = name
         self.MediaStreams = []
         self.Subtitle = ""
@@ -811,7 +811,7 @@ class MediaItemPart:
 
         """
 
-        Logger.Debug("Adding property: %s = %s", name, value)
+        Logger.debug("Adding property: %s = %s", name, value)
         self.Properties.append((name, value))
 
     def GetXBMCPlayListItem(self, parent, bitrate, updateItemUrls=False):
@@ -839,17 +839,17 @@ class MediaItemPart:
         """
 
         if self.Name:
-            Logger.Debug("Creating Kodi ListItem '%s'", self.Name)
+            Logger.debug("Creating Kodi ListItem '%s'", self.Name)
             item = parent.GetXBMCItem(name=self.Name)
         else:
-            Logger.Debug("Creating Kodi ListItem '%s'", parent.name)
+            Logger.debug("Creating Kodi ListItem '%s'", parent.name)
             item = parent.GetXBMCItem()
 
         if not bitrate:
             raise ValueError("Bitrate not specified")
 
         for prop in self.Properties:
-            Logger.Trace("Adding property: %s", prop)
+            Logger.trace("Adding property: %s", prop)
             item.setProperty(prop[0], prop[1])
 
         # now find the correct quality stream and set the properties if there are any
@@ -858,11 +858,11 @@ class MediaItemPart:
             Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
 
         for prop in stream.Properties:
-            Logger.Trace("Adding Kodi property: %s", prop)
+            Logger.trace("Adding Kodi property: %s", prop)
             item.setProperty(prop[0], prop[1])
 
         if updateItemUrls:
-            Logger.Info("Updating Kodi playlist-item path: %s", stream.Url)
+            Logger.info("Updating Kodi playlist-item path: %s", stream.Url)
             item.setProperty("path", stream.Url)
 
         return stream, item
@@ -996,7 +996,7 @@ class MediaStream:
 
         """
 
-        Logger.Trace("Creating MediaStream '%s' with bitrate '%s'", url, bitrate)
+        Logger.trace("Creating MediaStream '%s' with bitrate '%s'", url, bitrate)
         self.Url = url
         self.Bitrate = int(bitrate)
         self.Downloaded = False
@@ -1023,7 +1023,7 @@ class MediaStream:
         
         """
 
-        Logger.Debug("Adding stream property: %s = %s", name, value)
+        Logger.debug("Adding stream property: %s = %s", name, value)
         self.Properties.append((name, value))
 
     def __cmp__(self, other):

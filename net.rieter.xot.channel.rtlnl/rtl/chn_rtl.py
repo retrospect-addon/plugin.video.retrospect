@@ -123,7 +123,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["name"]
         key = resultSet.get("key", resultSet["abstract_key"])
@@ -174,14 +174,14 @@ class Channel(chn_class.Channel):
 
         # Extract season (called abstracts) information
         self.abstracts = dict()  # : the season
-        Logger.Debug("Storing abstract information")
+        Logger.debug("Storing abstract information")
         for abstract in self.currentJson.get_value("abstracts"):
             self.abstracts[abstract["key"]] = abstract
 
         # If we have episodes available, list them
         self.episodes = dict()
         if "episodes" in self.currentJson.get_value():
-            Logger.Debug("Storing episode information")
+            Logger.debug("Storing episode information")
             for episode in self.currentJson.get_value("episodes"):
                 self.episodes[episode["key"]] = episode
 
@@ -197,17 +197,17 @@ class Channel(chn_class.Channel):
             currentPage = 1
         else:
             currentPage = int(currentPage)
-        Logger.Debug("Found a total of %s items (%s items per page), we are on page %s", totalItems, itemsOnPage, currentPage)
+        Logger.debug("Found a total of %s items (%s items per page), we are on page %s", totalItems, itemsOnPage, currentPage)
 
         # But don't show them if not episodes were found
         if self.episodes:
             if itemsOnPage < 50:
-                Logger.Debug("No more pages to show.")
+                Logger.debug("No more pages to show.")
             else:
                 nextPage = currentPage + 1
                 url = self.parentItem.url[:self.parentItem.url.rindex("=")]
                 url = "%s=%s" % (url, nextPage)
-                Logger.Trace(url)
+                Logger.trace(url)
                 pageItem = mediaitem.MediaItem(str(nextPage), url)
                 pageItem.type = "page"
                 pageItem.complete = True
@@ -229,7 +229,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "/sk=" in self.parentItem.url:
             return None
@@ -237,10 +237,10 @@ class Channel(chn_class.Channel):
         abstractKey = resultSet["abstract_key"]
         abstractData = self.abstracts.get(abstractKey, None)
         if not abstractData:
-            Logger.Warning("Could not find abstract data for key: %s", abstractKey)
+            Logger.warning("Could not find abstract data for key: %s", abstractKey)
             return None
 
-        Logger.Debug("Found Abstract Data: %s", abstractData)
+        Logger.debug("Found Abstract Data: %s", abstractData)
 
         abstractName = abstractData.get("name", "")
         title = resultSet["name"]
@@ -277,17 +277,17 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         episodeKey = resultSet["episode_key"]
         if episodeKey:
             episodeData = self.episodes.get(episodeKey, None)
             if not episodeData:
-                Logger.Warning("Could not find episodes data for key: %s", episodeKey)
+                Logger.warning("Could not find episodes data for key: %s", episodeKey)
                 return None
-            Logger.Debug("Found Episode Data: %s", episodeData)
+            Logger.debug("Found Episode Data: %s", episodeData)
         else:
-            Logger.Debug("No Episode Data Found")
+            Logger.debug("No Episode Data Found")
             episodeData = None
 
         title = resultSet["title"]
@@ -317,7 +317,7 @@ class Channel(chn_class.Channel):
         tariffs = resultSet.get("ddr_timeframes")
         premiumItem = False
         if tariffs:
-            Logger.Trace(tariffs)
+            Logger.trace(tariffs)
             for tariff in tariffs:
                 if tariff["tariff"] > 0:
                     start = tariff.get("start", 0)
@@ -327,7 +327,7 @@ class Channel(chn_class.Channel):
                     now = datetime.datetime.now()
                     if start < now < end:
                         premiumItem = True
-                        Logger.Debug("Found a tariff for this episode: %s - %s: %s", start, end, tariff["tariff"])
+                        Logger.debug("Found a tariff for this episode: %s - %s: %s", start, end, tariff["tariff"])
                         break
 
         uuid = resultSet["uuid"]
@@ -345,7 +345,7 @@ class Channel(chn_class.Channel):
         if station:
             icon = self.largeIconSet.get(station.lower(), None)
             if icon:
-                Logger.Trace("Setting icon to: %s", icon)
+                Logger.trace("Setting icon to: %s", icon)
                 item.icon = icon
 
         dateTime = resultSet.get("display_date", None)
@@ -378,13 +378,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         xmlData = UriHandler.Open(item.url, proxy=self.proxy)
         # <ref type='adaptive' device='pc' host='http://manifest.us.rtl.nl' href='/rtlxl/network/pc/adaptive/components/videorecorder/27/278629/278630/d009c025-6e8c-3d11-8aba-dc8579373134.ssm/d009c025-6e8c-3d11-8aba-dc8579373134.m3u8' />
         m3u8Urls = Regexer.DoRegex("<ref type='adaptive' device='pc' host='([^']+)' href='/([^']+)' />", xmlData)
         if not m3u8Urls:
-            Logger.Warning("No m3u8 data found for: %s", item)
+            Logger.warning("No m3u8 data found for: %s", item)
             return item
         m3u8Url = "%s/%s" % (m3u8Urls[0][0], m3u8Urls[0][1])
 
@@ -392,7 +392,7 @@ class Channel(chn_class.Channel):
         # prevent the "418 I'm a teapot" error
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
         # Remove the Range header to make all streams start at the beginning.
-        Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
+        Logger.debug("Setting an empty 'Range' http header to force playback at the start of a stream")
         part.HttpHeaders["Range"] = ''
 
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
@@ -410,7 +410,7 @@ class Channel(chn_class.Channel):
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from RTL channel in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
         UriHandler.SetCookie(name='rtlcookieconsent', value='yes', domain='.www.rtl.nl')

@@ -150,14 +150,14 @@ class Channel(chn_class.Channel):
 
         username = self._GetSetting("username")
         if not username:
-            Logger.Info("No user name for NPO, not logging in")
+            Logger.info("No user name for NPO, not logging in")
             return False
 
         # cookieValue = self._GetSetting("cookie")
         cookie = UriHandler.GetCookie("isAuthenticatedUser", "www.npostart.nl")
         if cookie:
             expireDate = DateHelper.get_date_from_posix(float(cookie.expires))
-            Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
+            Logger.info("Found existing valid NPO token (valid until: %s)", expireDate)
             return True
 
         v = Vault()
@@ -216,10 +216,10 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(data)
         tiles = jsonData.get_value("tiles")
         if not isinstance(tiles,  (tuple, list)):
-            Logger.Debug("Found single tile data blob")
+            Logger.debug("Found single tile data blob")
             newData = tiles
         else:
-            Logger.Debug("Found multiple tile data blobs")
+            Logger.debug("Found multiple tile data blobs")
             for itemData in tiles:
                 newData = "%s%s\n" % (newData, itemData)
 
@@ -234,7 +234,7 @@ class Channel(chn_class.Channel):
         httpHeaders.update(self.httpHeaders)
         while nextPage and currentCount < maxCount:
             currentCount += 1
-            Logger.Debug("Found next page: %s", nextPage)
+            Logger.debug("Found next page: %s", nextPage)
             if nextPage.startswith("/search/extended") or nextPage.startswith("/media/series"):
                 nextPage = nextPage.split("&", 1)[0]
                 nextPage = "%s%s&%s" % (self.baseUrlLive, nextPage, queryString)
@@ -247,10 +247,10 @@ class Channel(chn_class.Channel):
             jsonData = JsonHelper(pageData)
             tiles = jsonData.get_value("tiles")
             if not isinstance(tiles, (tuple, list)):
-                Logger.Debug("Found single tile data blob")
+                Logger.debug("Found single tile data blob")
                 newData = "%s%s\n" % (newData, tiles)
             else:
-                Logger.Debug("Found multiple tile data blobs")
+                Logger.debug("Found multiple tile data blobs")
                 for itemData in tiles:
                     newData = "%s%s\n" % (newData, itemData)
             nextPage = jsonData.get_value("nextLink")
@@ -374,7 +374,7 @@ class Channel(chn_class.Channel):
         days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
         for i in range(0, 7, 1):
             airDate = today - datetime.timedelta(i)
-            Logger.Trace("Adding item for: %s", airDate)
+            Logger.trace("Adding item for: %s", airDate)
 
             # Determine a nice display date
             day = days[airDate.weekday()]
@@ -411,7 +411,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def GetAdditionalLiveItems(self, data):
-        Logger.Info("Processing Live items")
+        Logger.info("Processing Live items")
 
         items = []
         # if "/radio/" in self.parentItem.url:
@@ -453,7 +453,7 @@ class Channel(chn_class.Channel):
             }
 
             for stream in liveStreams:
-                Logger.Debug("Adding video item to '%s' sub item list: %s", parent, stream)
+                Logger.debug("Adding video item to '%s' sub item list: %s", parent, stream)
                 liveData = liveStreams[stream]
                 item = mediaitem.MediaItem(stream, liveData["url"])
                 item.icon = parent.icon
@@ -476,7 +476,7 @@ class Channel(chn_class.Channel):
         data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
         # fixUp some json
         data = re.sub('(\w+):([^/])', '"\\1":\\2', data)
-        Logger.Trace(data)
+        Logger.trace(data)
         return data, items
 
     def AlphaListing(self, data):
@@ -498,7 +498,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Generating an Alpha list for NPO")
+        Logger.info("Generating an Alpha list for NPO")
 
         items = []
         # https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser
@@ -546,7 +546,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("CreateJsonShows(%s)", resultSet)
+        Logger.trace("CreateJsonShows(%s)", resultSet)
         if not resultSet:
             return None
 
@@ -554,7 +554,7 @@ class Channel(chn_class.Channel):
         if 'mid' in resultSet:
             url = "https://www.npostart.nl/media/series/{mid}/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise".format(**resultSet)
         else:
-            Logger.Warning("Skipping (no 'mid' ID): %(name)s", resultSet)
+            Logger.warning("Skipping (no 'mid' ID): %(name)s", resultSet)
             return None
 
         name = resultSet['name']
@@ -598,7 +598,7 @@ class Channel(chn_class.Channel):
         return chn_class.Channel.SearchSite(self, url)
 
     def CreateTvGuideItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         channel = resultSet["channel"].replace("NED", "NPO ")
         title = "{0[hours]}:{0[minutes]} - {1} - {0[title]}".format(resultSet, channel)
         item = mediaitem.MediaItem(title, resultSet["url"])
@@ -630,7 +630,7 @@ class Channel(chn_class.Channel):
             if ":" in dateTime[-1] and item.name == "NOS Journaal":
                 item.name = "{0} - {1}".format(item.name, dateTime[-1])
 
-            Logger.Trace(dateTime)
+            Logger.trace(dateTime)
             if dateTime[0].lower() == "gisteren":
                 dateTime = datetime.datetime.now() + datetime.timedelta(days=-1)
                 item.SetDate(dateTime.year, dateTime.month, dateTime.day)
@@ -672,14 +672,14 @@ class Channel(chn_class.Channel):
                 item.SetDate(dateTime[2], month, dateTime[0])
 
         except:
-            Logger.Debug("Cannot set date from label: %s", resultSet["subtitle"], exc_info=True)
+            Logger.debug("Cannot set date from label: %s", resultSet["subtitle"], exc_info=True)
             # 2016-07-05T00:00:00Z
             dateValue = resultSet.get("date", None)
             if dateValue:
                 timeStamp = DateHelper.get_date_from_string(dateValue, "%Y-%m-%dT%H:%M:%SZ")
                 item.SetDate(*timeStamp[0:6])
             else:
-                Logger.Warning("Cannot set date from 'data-from': %s", resultSet["date"], exc_info=True)
+                Logger.warning("Cannot set date from 'data-from': %s", resultSet["date"], exc_info=True)
         return item
 
     def CreateVideoItemJson(self, resultSet):
@@ -701,7 +701,7 @@ class Channel(chn_class.Channel):
         for playback.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # In some cases the name, posix and description are in the root, in other cases in the
         # 'episode' node
@@ -712,11 +712,11 @@ class Channel(chn_class.Channel):
 
         # the tips has an extra 'episodes' key
         if 'episode' in resultSet:
-            Logger.Debug("Found subnode: episodes")
+            Logger.debug("Found subnode: episodes")
             # set to episode node
             data = resultSet['episode']
         else:
-            Logger.Warning("No subnode 'episodes' found, trying anyways")
+            Logger.warning("No subnode 'episodes' found, trying anyways")
             data = resultSet
 
         # look for better values
@@ -770,7 +770,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # url = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tileMapping=normal&tileType=teaser" % (resultSet[1],)
         # url = "https://www.npostart.nl/media/%s/lanes/234?page=1&tileMapping=normal&tileType=asset&pageType=collection" % (resultSet[0],)
@@ -805,7 +805,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("Content = %s", resultSet)
+        Logger.trace("Content = %s", resultSet)
 
         # first regex matched -> video channel
         channelId = resultSet[0]
@@ -858,7 +858,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("Content = %s", resultSet)
+        Logger.trace("Content = %s", resultSet)
         name = resultSet["name"]
         if name == "demo":
             return None
@@ -874,7 +874,7 @@ class Channel(chn_class.Channel):
 
         # first check for the video streams
         for stream in resultSet.get("videostreams", []):
-            Logger.Trace(stream)
+            Logger.trace(stream)
             # url = stream["url"]
             # if not url.endswith("m3u8"):
             if not stream["protocol"] == "prid":
@@ -885,7 +885,7 @@ class Channel(chn_class.Channel):
 
         # else the radio streams
         for stream in streams:
-            Logger.Trace(stream)
+            Logger.trace(stream)
             if not stream["protocol"] or stream["protocol"] == "prid":
                 continue
             bitrate = stream.get("bitrate", 0)
@@ -922,7 +922,7 @@ class Channel(chn_class.Channel):
         """
 
         if "/radio/" in item.url or "/live/" in item.url or "/LI_" in item.url:
-            Logger.Info("Updating Live item: %s", item.url)
+            Logger.info("Updating Live item: %s", item.url)
             return self.UpdateVideoItemLive(item)
 
         whatson_id = item.url
@@ -955,21 +955,21 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem: %s', item.name)
+        Logger.debug('Starting UpdateVideoItem: %s', item.name)
 
         item.MediaItemParts = []
         part = item.CreateNewEmptyMediaPart()
 
         # we need to determine radio or live tv
-        Logger.Debug("Fetching live stream data from item url: %s", item.url)
+        Logger.debug("Fetching live stream data from item url: %s", item.url)
         htmlData = UriHandler.Open(item.url, proxy=self.proxy)
 
         mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
         if len(mp3Urls) > 0:
-            Logger.Debug("Found MP3 URL")
+            Logger.debug("Found MP3 URL")
             part.AppendMediaStream(mp3Urls[0], 192)
         else:
-            Logger.Debug("Finding the actual metadata url from %s", item.url)
+            Logger.debug("Finding the actual metadata url from %s", item.url)
             # NPO3 normal stream had wrong subs
             if "npo-3" in item.url and False:
                 # NPO3 has apparently switched the normal and hearing impaired streams?
@@ -982,7 +982,7 @@ class Channel(chn_class.Channel):
                     return self.__UpdateDashItem(item, episodeId)
                 return self.__UpdateVideoItem(item, episodeId)
 
-            Logger.Warning("Cannot update live item: %s", item)
+            Logger.warning("Cannot update live item: %s", item)
             return item
 
         item.complete = True
@@ -1029,7 +1029,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("Using Generic UpdateVideoItem method")
+        Logger.trace("Using Generic UpdateVideoItem method")
 
         # get the subtitle
         subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (episodeId,)
@@ -1055,7 +1055,7 @@ class Channel(chn_class.Channel):
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         UriHandler.SetCookie(name='site_cookie_consent', value='yes',
                              domain='.www.uitzendinggemist.nl')

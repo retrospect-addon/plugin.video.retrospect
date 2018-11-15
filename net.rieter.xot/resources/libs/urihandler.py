@@ -55,9 +55,9 @@ class UriHandler(object):
             )
 
             UriHandler.__handler = handler
-            Logger.Info("Initialised: %s", handler)
+            Logger.info("Initialised: %s", handler)
         else:
-            Logger.Info("Re-using existing UriHandler: %s", UriHandler.__handler)
+            Logger.info("Re-using existing UriHandler: %s", UriHandler.__handler)
         return UriHandler.__handler
 
     @staticmethod
@@ -173,7 +173,7 @@ class UriHandler(object):
         @param expires:             Integer expiry date in seconds since epoch, or None.
         """
 
-        Logger.Debug("Setting a cookie with this data:\n"
+        Logger.debug("Setting a cookie with this data:\n"
                      "name:   '%s'\n"
                      "value:  '%s'\n"
                      "domain: '%s'\n"
@@ -213,7 +213,7 @@ class UriHandler(object):
         if not cookies:
             return None
         else:
-            Logger.Trace("Found cookie '%s'", cookies[0].name)
+            Logger.trace("Found cookie '%s'", cookies[0].name)
             return cookies[0]
 
     # noinspection PyProtectedMember,PyTypeChecker
@@ -221,7 +221,7 @@ class UriHandler(object):
     def delete_cookie(name=None, domain=None):
         cookie_jar = UriHandler.Instance().cookieJar
         if domain not in cookie_jar._cookies:
-            Logger.Debug("No cookies were found for '%s'", domain)
+            Logger.debug("No cookies were found for '%s'", domain)
             return
 
         if name is None:
@@ -285,15 +285,15 @@ class _RequestsHandler(object):
         self.cacheStore = None
         if cache_dir:
             self.cacheStore = StreamCache(cache_dir)
-            Logger.Debug("Opened %s", self.cacheStore)
+            Logger.debug("Opened %s", self.cacheStore)
         else:
-            Logger.Debug("No cache-store provided. Cached disabled.")
+            Logger.debug("No cache-store provided. Cached disabled.")
 
         self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
         self.webTimeOut = web_time_out                # max duration of request
         self.ignoreSslErrors = ignore_ssl_errors      # ignore SSL errors
         if self.ignoreSslErrors:
-            Logger.Warning("Ignoring all SSL errors in Python")
+            Logger.warning("Ignoring all SSL errors in Python")
 
         # status of the most recent call
         self.status = UriStatus(code=0, url=None, error=False, reason=None)
@@ -333,10 +333,10 @@ class _RequestsHandler(object):
 
         download_path = os.path.join(folder, filename)
         if os.path.isfile(download_path):
-            Logger.Info("Url already downloaded to: %s", download_path)
+            Logger.info("Url already downloaded to: %s", download_path)
             return download_path
 
-        Logger.Info("Creating Downloader for url '%s' to filename '%s'", uri, download_path)
+        Logger.info("Creating Downloader for url '%s' to filename '%s'", uri, download_path)
         r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
                             referer=referer, additional_headers=additional_headers,
                             no_cache=True, stream=True)
@@ -355,12 +355,12 @@ class _RequestsHandler(object):
                 if progress_callback:
                     cancel = self.__do_progress_callback(progress_callback, retrieved_bytes, total_size, False)
                 if cancel:
-                    Logger.Warning("Download of %s aborted", uri)
+                    Logger.warning("Download of %s aborted", uri)
                     break
 
         if cancel:
             if os.path.isfile(download_path):
-                Logger.Info("Removing partial download: %s", download_path)
+                Logger.info("Removing partial download: %s", download_path)
                 os.remove(download_path)
             return ""
 
@@ -379,7 +379,7 @@ class _RequestsHandler(object):
 
         if r.encoding == 'ISO-8859-1' and "text" in r.headers.get("content-type", ""):
             # Requests defaults to ISO-8859-1 for all text content that does not specify an encoding
-            Logger.Debug("Found 'ISO-8859-1' for 'text' content-type. Using UTF-8 instead.")
+            Logger.debug("Found 'ISO-8859-1' for 'text' content-type. Using UTF-8 instead.")
             r.encoding = 'utf-8'
 
         return r.text if r.encoding else r.content
@@ -392,7 +392,7 @@ class _RequestsHandler(object):
         proxies = self.__get_proxies(proxy, uri)
         headers = self.__get_headers(referer, additional_headers)
 
-        Logger.Info("Performing a HEAD for %s", uri)
+        Logger.info("Performing a HEAD for %s", uri)
         r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
                    timeout=self.webTimeOut)
 
@@ -405,11 +405,11 @@ class _RequestsHandler(object):
             self.cookieJar.save()
 
         if r.ok:
-            Logger.Info("%s resulted in '%s %s' (%s) for %s",
+            Logger.info("%s resulted in '%s %s' (%s) for %s",
                         r.request.method, r.status_code, r.reason, r.elapsed, r.url)
             return content_type, real_url
         else:
-            Logger.Error("%s failed with in '%s %s' (%s) for %s",
+            Logger.error("%s failed with in '%s %s' (%s) for %s",
                          r.request.method, r.status_code, r.reason, r.elapsed, r.url)
             return "", ""
 
@@ -421,7 +421,7 @@ class _RequestsHandler(object):
         s.cookies = self.cookieJar
         s.verify = not self.ignoreSslErrors
         if self.cacheStore and not no_cache:
-            Logger.Trace("Adding the %s to the request", self.cacheStore)
+            Logger.trace("Adding the %s to the request", self.cacheStore)
             s.mount("https://", CacheHTTPAdapter(self.cacheStore))
             s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
@@ -437,28 +437,28 @@ class _RequestsHandler(object):
             if "content-type" not in headers:
                 headers["content-type"] = "application/x-www-form-urlencoded"
 
-            Logger.Info("Performing a POST with '%s' for %s", headers["content-type"], uri)
+            Logger.info("Performing a POST with '%s' for %s", headers["content-type"], uri)
             r = s.post(uri, data=params, proxies=proxies, headers=headers,
                        stream=stream, timeout=self.webTimeOut)
         elif data is not None:
             # Normal Requests compatible data object
-            Logger.Info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
+            Logger.info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
             r = s.post(uri, data=data, proxies=proxies, headers=headers,
                        stream=stream, timeout=self.webTimeOut)
         elif json is not None:
-            Logger.Info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
+            Logger.info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
             r = s.post(uri, json=json, proxies=proxies, headers=headers,
                        stream=stream, timeout=self.webTimeOut)
         else:
-            Logger.Info("Performing a GET for %s", uri)
+            Logger.info("Performing a GET for %s", uri)
             r = s.get(uri, proxies=proxies, headers=headers,
                       stream=stream, timeout=self.webTimeOut)
 
         if r.ok:
-            Logger.Info("%s resulted in '%s %s' (%s) for %s",
+            Logger.info("%s resulted in '%s %s' (%s) for %s",
                         r.request.method, r.status_code, r.reason, r.elapsed, r.url)
         else:
-            Logger.Error("%s failed with '%s %s' (%s) for %s",
+            Logger.error("%s failed with '%s %s' (%s) for %s",
                          r.request.method, r.status_code, r.reason, r.elapsed, r.url)
 
         self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
@@ -485,18 +485,18 @@ class _RequestsHandler(object):
             return None
 
         elif not proxy.UseProxyForUrl(url):
-            Logger.Debug("Not using proxy due to filter mismatch")
+            Logger.debug("Not using proxy due to filter mismatch")
 
         elif proxy.Scheme == "http":
-            Logger.Debug("Using a http(s) %s", proxy)
+            Logger.debug("Using a http(s) %s", proxy)
             proxy_address = proxy.GetProxyAddress()
             return {"http": proxy_address, "https": proxy_address}
 
         elif proxy.Scheme == "dns":
-            Logger.Debug("Using a DNS %s", proxy)
+            Logger.debug("Using a DNS %s", proxy)
             return {"dns": proxy.Proxy}
 
-        Logger.Warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
+        Logger.warning("Unsupported Proxy Scheme: %s", proxy.Scheme)
         return None
 
     def __do_progress_callback(self, progress_callback, retrieved_size, total_size, completed):
@@ -530,7 +530,7 @@ class _RequestsHandler(object):
         try:
             return progress_callback(retrieved_size, total_size, percentage, completed, status)
         except:
-            Logger.Error("Error in Progress Callback", exc_info=True)
+            Logger.error("Error in Progress Callback", exc_info=True)
             # cancel the download
             return True
 

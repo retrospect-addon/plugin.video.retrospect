@@ -33,13 +33,13 @@ class TemplateHelper:
             self.__settingsIndex[categoryId] = categorySettingsIndex
 
             settings = category.findall('.//setting')
-            self.__logger.Debug("Found %d settings in Category '%s'", len(settings), categoryId)
+            self.__logger.debug("Found %d settings in Category '%s'", len(settings), categoryId)
             for node in settings:
                 # setting = node.attributes.get("id", None)
                 settingId = node.attrib.get("id", ElementTree.tostring(node).strip())
                 nodeStr = ElementTree.tostring(node).strip()
                 categorySettingsIndex.append(settingId)
-                self.__logger.Trace("%02d: %s - %s", len(categorySettingsIndex), settingId, nodeStr)
+                self.__logger.trace("%02d: %s - %s", len(categorySettingsIndex), settingId, nodeStr)
 
     def GetOffset(self, categoryId, referenceId, settingId, skip=0):
         if self.__settingsIndex[categoryId].count(referenceId) > 1:
@@ -47,7 +47,7 @@ class TemplateHelper:
 
         if self.__settingsIndex[categoryId].count(settingId) > 1:
             # raise ValueError("Multiple setting indexes found for %s. Don't know which one to use." % (settingId,))
-            self.__logger.Warning("Multiple values found for %s, using #%s", settingId, skip)
+            self.__logger.warning("Multiple values found for %s, using #%s", settingId, skip)
 
         return self.GetIndexOf(categoryId, referenceId) - self.GetIndexOf(categoryId, settingId, skip)
 
@@ -56,7 +56,7 @@ class TemplateHelper:
         if settingsInCategory.count(settingId) == 1:
             return settingsInCategory.index(settingId)
 
-        self.__logger.Warning("Multiple values found for settingId %s, using #%s", settingId, skip)
+        self.__logger.warning("Multiple values found for settingId %s, using #%s", settingId, skip)
         settingIndexes = filter(lambda s: s == settingId, settingsInCategory)
         if not settingIndexes:
             raise ValueError("No settings found for %s" % (settingId, ))
@@ -82,7 +82,7 @@ class TemplateHelper:
         settingsInCategory = []
         for line in self.__templateLines:
             # always append the line
-            self.__logger.Trace("%s", line.strip())
+            self.__logger.trace("%s", line.strip())
             result.append(line)
 
             if "<category" in line:
@@ -114,7 +114,7 @@ class TemplateHelper:
                 # we need a visible attribute with a template
                 continue
 
-            self.__logger.Debug("IN:  %s", line.strip())
+            self.__logger.debug("IN:  %s", line.strip())
             matches = self.__relativeRegex.findall(line)
             for match in matches:
                 # line = line.replace(match[0], str(self.GetIndexOf(match[1]) - settingIndex))
@@ -122,5 +122,5 @@ class TemplateHelper:
 
             # replace the line we added at the start
             result[-1] = line
-            self.__logger.Debug("OUT: %s", line.strip())
+            self.__logger.debug("OUT: %s", line.strip())
         return "".join(result)

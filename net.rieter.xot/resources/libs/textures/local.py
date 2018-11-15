@@ -30,7 +30,7 @@ class Local(TextureHandler):
             return file_name
 
         if file_name.startswith("http"):
-            self._logger.Trace("Not going to resolve http(s) texture: '%s'.", file_name)
+            self._logger.trace("Not going to resolve http(s) texture: '%s'.", file_name)
             return file_name
 
         if os.path.isabs(file_name):
@@ -38,5 +38,5 @@ class Local(TextureHandler):
         else:
             return_value = os.path.join(channel.path, file_name)
 
-        self._logger.Trace("Resolved texture '%s' to '%s'", file_name, return_value)
+        self._logger.trace("Resolved texture '%s' to '%s'", file_name, return_value)
         return return_value

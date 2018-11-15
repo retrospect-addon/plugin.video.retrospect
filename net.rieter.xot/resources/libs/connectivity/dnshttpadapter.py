@@ -23,9 +23,9 @@ class DnsResolverHTTPAdapter(HTTPAdapter):
                  pool_block=DEFAULT_POOLBLOCK):
 
         self.__dns_server = dns_server
-        logger.Debug("Creating %s", self)
+        logger.debug("Creating %s", self)
         if dns_server not in DnsResolverHTTPAdapter.__dns_cache:
-            logger.Trace("Creating a DNS Cache object for server %s", dns_server)
+            logger.trace("Creating a DNS Cache object for server %s", dns_server)
             DnsResolverHTTPAdapter.__dns_cache[dns_server] = {}
 
         # <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
@@ -38,11 +38,11 @@ class DnsResolverHTTPAdapter(HTTPAdapter):
         if resolved_ip is None:
             self.__dns_resolver = DnsResolver(self.__dns_server)
             resolved_ips = self.__dns_resolver.resolve_address(self.__original_host_name)
-            logger.Debug("Resolved DNS %s to %s", self.__original_host_name, resolved_ips)
+            logger.debug("Resolved DNS %s to %s", self.__original_host_name, resolved_ips)
             resolved_ip = resolved_ips[0][-1]
             DnsResolverHTTPAdapter.__dns_cache[dns_server][self.__original_host_name] = resolved_ip
         else:
-            logger.Debug("Resolved DNS %s to %s (via cache)", self.__original_host_name, resolved_ip)
+            logger.debug("Resolved DNS %s to %s (via cache)", self.__original_host_name, resolved_ip)
         self.__url_parts[1] = resolved_ip
         self.__resolved_url = requests.utils.urlunparse(self.__url_parts)
 

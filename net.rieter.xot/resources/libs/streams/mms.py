@@ -49,10 +49,10 @@ class Mms:
         """
 
         if url.find(".mms") > 0:
-            Logger.Info("MMS found in url: %s", url)
+            Logger.info("MMS found in url: %s", url)
             return url
 
-        Logger.Debug("Parsing %s to find MMS", url)
+        Logger.debug("Parsing %s to find MMS", url)
         data = UriHandler.Open(url, proxy=proxy)
         urls = Regexer.DoRegex("[Rr]ef\d=http://([^\r\n]+)", data)
 
@@ -99,10 +99,10 @@ class Mms:
         """
 
         if url.find(".mms") > 0:
-            Logger.Info("MMS found in url: %s", url)
+            Logger.info("MMS found in url: %s", url)
             return url
 
-        Logger.Debug("Parsing %s to find MMS", url)
+        Logger.debug("Parsing %s to find MMS", url)
         data = UriHandler.Open(url, proxy=proxy)
         urls = Regexer.DoRegex('[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
 

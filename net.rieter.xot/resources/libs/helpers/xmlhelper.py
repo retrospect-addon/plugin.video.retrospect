@@ -76,11 +76,11 @@ class XmlHelper(TagHelperBase):
             # just do one pass
 
         regex += "[^>]*>([\w\W]+?)</%s>" % (node_tag,)
-        Logger.Trace("XmlRegex = %s", regex)
+        Logger.trace("XmlRegex = %s", regex)
         
         #regex = '<%s>([^<]+)</%s>' % (nodeTag, nodeTag)
         results = Regexer.DoRegex(regex, self.data)
-        Logger.Trace(results)
+        Logger.trace(results)
         return results
     
     @staticmethod

@@ -160,7 +160,7 @@ class Channel(chn_class.Channel):
 
         items = []
         if self.liveUrl:
-            Logger.Debug("Adding live item")
+            Logger.debug("Adding live item")
             liveItem = mediaitem.MediaItem("\aLive TV", self.liveUrl)
             liveItem.icon = self.icon
             liveItem.thumb = self.noImage
@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        Logger.Info("Adding Live Streams")
+        Logger.info("Adding Live Streams")
 
         if self.liveUrl.endswith(".m3u8"):
             title = "{} - {}".format(self.channelName, LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId))
@@ -211,19 +211,19 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(data, logger=Logger.instance())
         liveStreams = jsonData.get_value()
 
-        Logger.Trace(liveStreams)
+        Logger.trace(liveStreams)
         if "videos" in liveStreams:
-            Logger.Debug("Multiple streams found")
+            Logger.debug("Multiple streams found")
             liveStreams = liveStreams["videos"]
         elif not isinstance(liveStreams, (list, tuple)):
-            Logger.Debug("Single streams found")
+            Logger.debug("Single streams found")
             liveStreams = (liveStreams, )
         else:
-            Logger.Debug("List of stream found")
+            Logger.debug("List of stream found")
 
         liveStreamValue = None
         for streams in liveStreams:
-            Logger.Debug("Adding live stream")
+            Logger.debug("Adding live stream")
             title = streams.get('name') or "%s - Live TV" % (self.channelName, )
 
             liveItem = mediaitem.MediaItem(title, self.liveUrl)
@@ -234,7 +234,7 @@ class Channel(chn_class.Channel):
             liveItem.isLive = True
             part = liveItem.CreateNewEmptyMediaPart()
             for stream in streams:
-                Logger.Trace(stream)
+                Logger.trace(stream)
                 bitrate = None
                 # if self.liveSelector and stream not in self.liveSelector:
                 #     Logger.Warning("Skipping '%s'", stream)
@@ -276,11 +276,11 @@ class Channel(chn_class.Channel):
                 elif stream == "name":
                     pass
                 else:
-                    Logger.Warning("No url found for type '%s'", stream)
+                    Logger.warning("No url found for type '%s'", stream)
 
                 # noinspection PyUnboundLocalVariable
                 if "livestreams.omroep.nl/live/" in url and url.endswith("m3u8"):
-                    Logger.Info("Found NPO Stream, adding ?protection=url")
+                    Logger.info("Found NPO Stream, adding ?protection=url")
                     url = "%s?protection=url" % (url, )
 
                 if bitrate:
@@ -288,14 +288,14 @@ class Channel(chn_class.Channel):
 
                     if url == liveStreamValue and ".m3u8" in url:
                         # if it was equal to the previous one, assume we have a m3u8. Reset the others.
-                        Logger.Info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
+                        Logger.info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
                         liveItem.MediaItemParts = []
                         liveItem.url = url
                         liveItem.complete = False
                         break
                     elif "playlist.m3u8" in url:
                         # if we have a playlist, use that one. Reset the others.
-                        Logger.Info("Found M3u8 playlist for this Live channel, using that one: %s", url)
+                        Logger.info("Found M3u8 playlist for this Live channel, using that one: %s", url)
                         liveItem.MediaItemParts = []
                         liveItem.url = url
                         liveItem.complete = False
@@ -310,7 +310,7 @@ class Channel(chn_class.Channel):
         """
         Accepts an arraylist of results. It returns an item.
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet.get("title")
 
         if not title:
@@ -349,7 +349,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         mediaLink = resultSet.get("ipadLink")
         title = resultSet.get("title")
@@ -426,7 +426,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug("Updating a (Live) video item")
+        Logger.debug("Updating a (Live) video item")
 
         part = item.CreateNewEmptyMediaPart()
         if AddonSettings.use_adaptive_stream_add_on():

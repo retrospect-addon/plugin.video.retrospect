@@ -34,9 +34,9 @@ class SessionHelper:
         """
 
         if not SessionHelper.is_session_active() and logger:
-            logger.Debug("Creating session at '%s'", SessionHelper.__get_session_path())
+            logger.debug("Creating session at '%s'", SessionHelper.__get_session_path())
         elif logger:
-            logger.Debug("Updating session at '%s'", SessionHelper.__get_session_path())
+            logger.debug("Updating session at '%s'", SessionHelper.__get_session_path())
 
         if logger:
             fd = open(SessionHelper.__get_session_path(), 'w')
@@ -51,10 +51,10 @@ class SessionHelper:
 
         if os.path.isfile(SessionHelper.__get_session_path()):
             if logger:
-                logger.Warning("Clearing session at '%s'", SessionHelper.__get_session_path())
+                logger.warning("Clearing session at '%s'", SessionHelper.__get_session_path())
             os.remove(SessionHelper.__get_session_path())
         elif logger:
-            logger.Debug("No session to clear")
+            logger.debug("No session to clear")
 
         return
 
@@ -63,11 +63,11 @@ class SessionHelper:
         """ Returns True if an active session file is found """
 
         if logger:
-            logger.Debug("Checking for active sessions (%.2f minutes / %.2f hours).", SessionHelper.__TimeOut / 60, SessionHelper.__TimeOut / 3600.0)
+            logger.debug("Checking for active sessions (%.2f minutes / %.2f hours).", SessionHelper.__TimeOut / 60, SessionHelper.__TimeOut / 3600.0)
 
         if not os.path.isfile(SessionHelper.__get_session_path()):
             if logger:
-                logger.Debug("No active sessions found.")
+                logger.debug("No active sessions found.")
             return False
 
         time_stamp = os.path.getmtime(SessionHelper.__get_session_path())
@@ -88,22 +88,22 @@ class SessionHelper:
                 else:
                     new_log_level_found = False
             except:
-                logger.Error("Error determining previous loglevel", exc_info=True)
+                logger.error("Error determining previous loglevel", exc_info=True)
                 new_log_level_found = False
         else:
             new_log_level_found = False
 
         if logger and new_log_level_found:
-            logger.Debug("Found active session at '%s' with an old loglevel '%s' vs '%s', resetting session",
+            logger.debug("Found active session at '%s' with an old loglevel '%s' vs '%s', resetting session",
                          SessionHelper.__get_session_path(), log_level, logger.minLogLevel)
             modified_in_last_hours = False
 
         elif logger and modified_in_last_hours:
-            logger.Debug("Found active session at '%s' which was modified %.2f minutes (%.2f hours) ago",
+            logger.debug("Found active session at '%s' which was modified %.2f minutes (%.2f hours) ago",
                          SessionHelper.__get_session_path(), (now_stamp - time_stamp) / 60, (now_stamp - time_stamp) / 3600.0)
 
         elif logger:
-            logger.Debug("Found expired session at '%s' which was modified %.2f minutes (%.2f hours) ago",
+            logger.debug("Found expired session at '%s' which was modified %.2f minutes (%.2f hours) ago",
                          SessionHelper.__get_session_path(), (now_stamp - time_stamp) / 60, (now_stamp - time_stamp) / 3600.0)
 
         return modified_in_last_hours

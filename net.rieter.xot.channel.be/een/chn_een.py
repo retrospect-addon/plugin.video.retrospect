@@ -128,7 +128,7 @@ class Channel(chn_class.Channel):
         Accepts an arraylist of results. It returns an item. 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         exclude = {
             11: "Dagelijkse Kost",
@@ -156,7 +156,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # rtmpt://vrt.flash.streampower.be/een//2011/07/1000_110723_getipt_neefs_wiels_Website_EEN.flv
         # http://www.een.be/sites/een.be/modules/custom/vrt_video/player/player_4.3.swf
@@ -180,7 +180,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
         urls = json.get_value("targetUrls")
         for urlInfo in urls:
-            Logger.Trace(urlInfo)
+            Logger.trace(urlInfo)
             if urlInfo["type"].lower() != "hls":
                 continue
 

@@ -39,8 +39,8 @@ class F4m:
         streams = []
 
         data = UriHandler.Open(url, proxy, additionalHeaders=headers)
-        Logger.Trace(data)
-        Logger.Debug("Processing F4M Streams: %s", url)
+        Logger.trace(data)
+        Logger.debug("Processing F4M Streams: %s", url)
         needle = '<media href="([^"]+)"[^>]*bitrate="([^"]+)"'
         needles = Regexer.DoRegex(needle, data)
 
@@ -48,19 +48,19 @@ class F4m:
         base_url = url[:url.rindex("/")]
         for n in needles:
             # see if we need to append a server path
-            Logger.Trace(n)
+            Logger.trace(n)
             if "://" not in n[0]:
                 if not base_url_logged:
-                    Logger.Trace("Using base_url %s for F4M", base_url)
+                    Logger.trace("Using base_url %s for F4M", base_url)
                     base_url_logged = True
                 stream = "%s/%s" % (base_url, n[0])
             else:
                 if not base_url_logged:
-                    Logger.Trace("Full url found in F4M")
+                    Logger.trace("Full url found in F4M")
                     base_url_logged = True
                 stream = n[0]
             bitrate = int(n[1])
             streams.append((stream, bitrate))
 
-        Logger.Debug("Found %s substreams in F4M", len(streams))
+        Logger.debug("Found %s substreams in F4M", len(streams))
         return streams

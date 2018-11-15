@@ -41,7 +41,7 @@ class EnvController:
     @staticmethod
     def update_local_addons_in_kodi():
         """ Ask Kodi to update the list of local add-ons. """
-        Logger.Info("Asking Kodi to update the local add-ons")
+        Logger.info("Asking Kodi to update the local add-ons")
         xbmc.executebuiltin("UpdateLocalAddons")
 
     # def are_addons_enabled(self, config):
@@ -111,8 +111,8 @@ class EnvController:
         """
 
         # if we have a log level higher then debug, there is no need to do this
-        if Logger.instance().minLogLevel > Logger.DEBUG:
-            Logger.Info("Not walking directory structure because the loglevel is set to INFO or higher")
+        if Logger.instance().minLogLevel > Logger.LVL_DEBUG:
+            Logger.info("Not walking directory structure because the loglevel is set to INFO or higher")
             return
 
         directory = "<Unknown>"
@@ -142,10 +142,10 @@ class EnvController:
             if config.TextureUrl:
                 info_string = "%s\n%s: %s" % (info_string, "TextureUrl", config.TextureUrl)
 
-            self.logger.Info("Kodi Information:\n%s", info_string)
+            self.logger.info("Kodi Information:\n%s", info_string)
 
             # log the settings
-            self.logger.Info("Retrospect Settings:\n%s", setting_info.PrintSettingValues())
+            self.logger.info("Retrospect Settings:\n%s", setting_info.PrintSettingValues())
 
             if setting_info.GetLogLevel() > 10:
                 return
@@ -160,11 +160,11 @@ class EnvController:
             # Then if the child folders contains the dir_script then, walk all
             # the subfolders and files. This greatly improves performance.
             for current_path in os.listdir(walk_source_path):
-                self.logger.Trace("Checking %s", current_path)
+                self.logger.trace("Checking %s", current_path)
                 if dir_script not in current_path:
                     continue
 
-                self.logger.Trace("Now walking DirectoryPrinter")
+                self.logger.trace("Now walking DirectoryPrinter")
                 dir_walker = os.walk(ospathjoin(walk_source_path, current_path))
 
                 for directory, folders, files in dir_walker:  # @UnusedVariables
@@ -176,9 +176,9 @@ class EnvController:
                         if file_name.startswith(".") or file_name.endswith(".pyo") or file_name.endswith(".pyc"):
                             continue
                         dir_print = "%s\n%s" % (dir_print, ospathjoin(directory, file_name))
-            self.logger.Debug("%s" % (dir_print, ))
+            self.logger.debug("%s" % (dir_print,))
         except:
-            self.logger.Critical("Error printing folder %s", directory, exc_info=True)
+            self.logger.critical("Error printing folder %s", directory, exc_info=True)
 
     @staticmethod
     def get_platform(return_name=False):
@@ -218,7 +218,7 @@ class EnvController:
                 platform = Environments.Android
 
             EnvController.__CurrentPlatform = platform
-            Logger.Info("Current platform determined to be: %s", Environments.name(EnvController.__CurrentPlatform))
+            Logger.info("Current platform determined to be: %s", Environments.name(EnvController.__CurrentPlatform))
 
         if return_name:
             return Environments.name(EnvController.__CurrentPlatform)
@@ -253,7 +253,7 @@ class EnvController:
 
         # check for cache folder. If not present. Create it!
         if not os.path.exists(Config.cacheDir):
-            Logger.Info("Creating cache folder at: %s", Config.cacheDir)
+            Logger.info("Creating cache folder at: %s", Config.cacheDir)
             os.makedirs(Config.cacheDir)
             return False
 
@@ -277,9 +277,9 @@ class EnvController:
         import glob
 
         try:
-            Logger.Info("Cleaning up cache in '%s' that is older than %s days", path, cache_time / 24 / 3600)
+            Logger.info("Cleaning up cache in '%s' that is older than %s days", path, cache_time / 24 / 3600)
             if not os.path.exists(path):
-                Logger.Info("Did not cleanup cache: folder does not exist")
+                Logger.info("Did not cleanup cache: folder does not exist")
                 return
 
             delete_count = 0
@@ -290,16 +290,16 @@ class EnvController:
             for item in glob.glob(path_mask):
                 file_name = os.path.join(path, item)
                 if os.path.isfile(file_name):
-                    Logger.Trace(file_name)
+                    Logger.trace(file_name)
                     file_count += 1
                     create_time = os.path.getctime(file_name)
                     if create_time + cache_time < time.time():
                         os.remove(file_name)
-                        Logger.Debug("Removed file: %s", file_name)
+                        Logger.debug("Removed file: %s", file_name)
                         delete_count += 1
-            Logger.Info("Removed %s of %s files from cache in: '%s'", delete_count, file_count, path_mask)
+            Logger.info("Removed %s of %s files from cache in: '%s'", delete_count, file_count, path_mask)
         except:
-            Logger.Critical("Error cleaning the cachefolder: %s", path, exc_info=True)
+            Logger.critical("Error cleaning the cachefolder: %s", path, exc_info=True)
 
     def __get_python_version(self):
         """Returns the current python version
@@ -360,7 +360,7 @@ class EnvController:
 
         if EnvController.is_platform(Environments.Xbox):
             if self.logger:
-                self.logger.Debug("Skipping repository check on Xbox.")
+                self.logger.debug("Skipping repository check on Xbox.")
 
             # on Xbox it's never installed. So always return True to make it all work
             return not_installed if return_name else True
@@ -370,7 +370,7 @@ class EnvController:
             repo_available = xbmc.getCondVisibility('System.HasAddon("%s")' % (repo_name,)) == 1
 
             if self.logger:
-                self.logger.Debug("Checking repository '%s'. Repository available=%s",
+                self.logger.debug("Checking repository '%s'. Repository available=%s",
                                   repo_name, repo_available)
 
             if not return_name:
@@ -383,7 +383,7 @@ class EnvController:
                 # return not installed if non was available
                 return not_installed
         except:
-            self.logger.Error("Error determining Repository Status", exc_info=True)
+            self.logger.error("Error determining Repository Status", exc_info=True)
             if not return_name:
                 # in case of error, return True
                 return True

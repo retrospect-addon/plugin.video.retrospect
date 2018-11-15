@@ -86,7 +86,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         cinema = mediaitem.MediaItem(resultSet["name"], "")
         cinema.icon = self.icon
         cinema.thumb = resultSet["image"].replace("nocropthumb/[format]/", "")
@@ -128,7 +128,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         movieId = resultSet['id']
         url = "%s/movies/%s" % (self.baseUrl, movieId)
         item = mediaitem.MediaItem(resultSet["name"], url)
@@ -138,7 +138,7 @@ class Channel(chn_class.Channel):
         item.HttpHeaders = self.httpHeaders
 
         if self.scheduleData:
-            Logger.Debug("Adding schedule data")
+            Logger.debug("Adding schedule data")
             # scheduleData = filter(lambda s: s['movieId'] == movieId, self.scheduleData)
             scheduleData = [s for s in self.scheduleData if s['movieId'] == movieId]
             schedule = ""
@@ -187,7 +187,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         url = self.parentItem.url
         item = mediaitem.MediaItem(resultSet["caption"], url, "video")
         item.icon = self.icon
@@ -217,11 +217,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         json = JsonHelper(data)
         self.scheduleData = json.get_value("schedules")
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateEpisodeItem(self, resultSet):
@@ -250,7 +250,7 @@ class Channel(chn_class.Channel):
          
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if self.parentItem.url.endswith(str(DateHelper.this_year())):
             return None
@@ -291,7 +291,7 @@ class Channel(chn_class.Channel):
          
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if not self.parentItem.url[-1].isdigit():
             # only video on folders for day
@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
         timeTableRegex = '<ul>\W+<li><b>([^<]+)</b></li>\W+<li>\w+ (\d+:\d+)</li>\W+<li>\w+ (\d+:\d+)</li>'
         biosSet = False
         for timeTableEntry in Regexer.DoRegex(timeTableRegex, timeTable):
-            Logger.Trace(timeTableEntry)
+            Logger.trace(timeTableEntry)
 
             bios = timeTableEntry[0]
             if not biosSet:
@@ -342,7 +342,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         
         data = UriHandler.Open(item.url, proxy=self.proxy)
         videos = Regexer.DoRegex(self.mediaUrlRegex, data)
@@ -352,7 +352,7 @@ class Channel(chn_class.Channel):
             item.fanart = fanart[0]
 
         for video in videos:
-            Logger.Trace(video)
+            Logger.trace(video)
             item.AppendSingleStream(video)
         
         item.complete = True

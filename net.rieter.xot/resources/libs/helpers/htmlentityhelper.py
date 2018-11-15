@@ -55,7 +55,7 @@ class HtmlEntityHelper:
         try:
             return HtmlEntityHelper.__convert_html_entities(html)
         except:
-            Logger.Error("Error converting: %s", html, exc_info=True)
+            Logger.error("Error converting: %s", html, exc_info=True)
             return html
 
     @staticmethod
@@ -72,7 +72,7 @@ class HtmlEntityHelper:
         """
 
         if isinstance(url, unicode):
-            Logger.Trace("Unicode url: %s", url)
+            Logger.trace("Unicode url: %s", url)
             return urllib.quote(url.encode())
         else:
             # this is the main time waster
@@ -140,5 +140,5 @@ class HtmlEntityHelper:
                 # Logger.Trace("%s: %s", entity.group(2), htmlentitydefs.name2codepoint[entity.group(2)])
                 return unichr(htmlentitydefs.name2codepoint[entity.group(2)])
         except:
-            Logger.Error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
+            Logger.error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
             return '&%s%s;' % (entity.group(1), entity.group(2))

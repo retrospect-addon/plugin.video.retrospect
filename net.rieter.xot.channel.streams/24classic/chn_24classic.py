@@ -63,7 +63,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         jsonData = JsonHelper(data)
         dictItems = jsonData.get_value("items", fallback=[])
@@ -72,7 +72,7 @@ class Channel(chn_class.Channel):
                 continue
             items.append(self.CreateEpisodeItem(dictItems[item]))
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         data = ""
         return data, items
 
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet["title"]
         description = resultSet.get("description", "")
         descriptionNL = resultSet.get("introduction_lan1", "")
@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = "%(composers)s - %(title)s" % resultSet
         url = "http://www.24classics.com/app/ajax/auth.php?serial=%(serial)s" % resultSet
 
@@ -165,11 +165,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateMusicItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateMusicItem for %s (%s)', item.name, self.channelName)
         url, data = item.url.split("?")
 
         data = UriHandler.Open(url, proxy=self.proxy, params=data, additionalHeaders=item.HttpHeaders)
-        Logger.Trace(data)
+        Logger.trace(data)
         jsonData = JsonHelper(data)
         url = jsonData.get_value("url", fallback=None)
 

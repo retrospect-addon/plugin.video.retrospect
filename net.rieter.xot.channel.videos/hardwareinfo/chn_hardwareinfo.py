@@ -193,7 +193,7 @@ class Channel(chn_class.Channel):
 
         # Retrieve an ID and create an URL like: http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=OHqu64Qnz9M
         url = xmlData.get_tag_attribute("enclosure", {'url': None}, {'type': 'video/youtube'})
-        Logger.Trace(url)
+        Logger.trace(url)
 
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
@@ -204,7 +204,7 @@ class Channel(chn_class.Channel):
         dayname, day, month, year, time, zone = date.split(' ', 6)
         month = DateHelper.get_month_from_name(month, language="en")
         hour, minute, seconds = time.split(":")
-        Logger.Trace("%s-%s-%s %s:%s", year, month, day, hour, minute)
+        Logger.trace("%s-%s-%s %s:%s", year, month, day, hour, minute)
         item.SetDate(year, month, day, hour, minute, 0)
 
         # # description stuff

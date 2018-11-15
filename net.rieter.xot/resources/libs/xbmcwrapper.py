@@ -198,7 +198,7 @@ class XbmcWrapper:
             notificationIcon = notificationType
 
         if logger:
-            logger.Debug("Showing notification: %s - %s", notificationTitle, notificationContent)
+            logger.debug("Showing notification: %s - %s", notificationTitle, notificationContent)
 
         try:
             xbmcgui.Dialog().notification(
@@ -305,10 +305,10 @@ class XbmcWrapper:
     @staticmethod
     def ExecuteJsonRpc(json, logger=None):
         if logger:
-            logger.Trace("Sending command: %s", json)
+            logger.trace("Sending command: %s", json)
         response = xbmc.executeJSONRPC(json)
         if logger:
-            logger.Trace("Received result: %s", response)
+            logger.trace("Received result: %s", response)
         return response
 
     @staticmethod
@@ -356,11 +356,11 @@ class XbmcWrapper:
         start = time.time()
 
         if logger:
-            logger.Debug("Waiting for Player status '%s'", toStart)
+            logger.debug("Waiting for Player status '%s'", toStart)
             if url is None:
-                logger.Debug("player.isPlaying is '%s', preferred value is '%s'", player.isPlaying(), toStart)
+                logger.debug("player.isPlaying is '%s', preferred value is '%s'", player.isPlaying(), toStart)
             else:
-                logger.Debug("player.isPlaying is '%s', preferred value is %s and stream: '%s'",
+                logger.debug("player.isPlaying is '%s', preferred value is %s and stream: '%s'",
                              player.isPlaying(), toStart, url)
 
         while time.time() - start < timeout:
@@ -368,21 +368,21 @@ class XbmcWrapper:
                 if url is None:
                     # the player stopped in time
                     if logger:
-                        logger.Debug("player.isPlaying obtained the desired value '%s'", toStart)
+                        logger.debug("player.isPlaying obtained the desired value '%s'", toStart)
                     return True
 
                 playingFile = player.getPlayingFile()
                 if url == playingFile:
                     if logger:
-                        logger.Debug("player.isPlaying obtained the desired value '%s' and correct stream.", toStart)
+                        logger.debug("player.isPlaying obtained the desired value '%s' and correct stream.", toStart)
                     return True
 
                 if logger:
-                    logger.Debug("player.isPlaying obtained the desired value '%s', but incorrect stream: %s",
+                    logger.debug("player.isPlaying obtained the desired value '%s', but incorrect stream: %s",
                                  toStart, playingFile)
 
             if logger:
-                logger.Debug("player.isPlaying is %s, waiting a cycle", player.isPlaying())
+                logger.debug("player.isPlaying is %s, waiting a cycle", player.isPlaying())
             time.sleep(1.)
 
         # a time out occurred

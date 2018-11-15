@@ -76,21 +76,21 @@ class YouTube:
         you_tube_add_on_available = xbmc.getCondVisibility('System.HasAddon("plugin.video.youtube")') == 1
 
         if you_tube_add_on_available and use_add_on:
-            Logger.Info("Found Youtube add-on. Using it")
+            Logger.info("Found Youtube add-on. Using it")
             you_tube_streams.append((YouTube.__play_you_tube_url(url), 0))
-            Logger.Trace(you_tube_streams)
+            Logger.trace(you_tube_streams)
             return you_tube_streams
 
-        Logger.Info("No Kodi Youtube Video add-on was found. Falling back.")
+        Logger.info("No Kodi Youtube Video add-on was found. Falling back.")
 
         if "watch?v=" in url:
             video_id = url.split("?v=")[-1]
-            Logger.Debug("Using Youtube ID '%s' retrieved from '%s'", video_id, url)
+            Logger.debug("Using Youtube ID '%s' retrieved from '%s'", video_id, url)
             # get the meta data url
             url = "http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (video_id, )
 
         elif "get_video_info" not in url:
-            Logger.Error("Invalid Youtube URL specified: '%s'", url)
+            Logger.error("Invalid Youtube URL specified: '%s'", url)
             return []
 
         data = UriHandler.Open(url, proxy=proxy)
@@ -108,14 +108,14 @@ class YouTube:
             # let's create a new part
             # noinspection PyTypeChecker
             qs_data = dict([x.split("=") for x in stream.split("&")])
-            Logger.Trace(qs_data)
+            Logger.trace(qs_data)
 
             if "itag" in qs_data and "bitrate" not in qs_data:
                 i_tag = int(qs_data.get('itag', -1))
                 stream_encoding = YouTube.__YouTubeEncodings.get(i_tag, None)
                 if stream_encoding is None:
                     # if the i_tag was not in the list, skip it.
-                    Logger.Debug(
+                    Logger.debug(
                         "Not using i_tag %s as it is not in the list of supported encodings.", i_tag)
                     continue
                 bitrate = stream_encoding[0]
@@ -125,7 +125,7 @@ class YouTube:
             signature = qs_data.get('s', None)
             quality = qs_data.get('quality_label', qs_data.get('quality'))
             if not quality:
-                Logger.Debug("Missing 'quality_label', skipping: %s", qs_data)
+                Logger.debug("Missing 'quality_label', skipping: %s", qs_data)
                 continue
 
             video_url = HtmlEntityHelper.url_decode(qs_data['url'])
@@ -150,6 +150,6 @@ class YouTube:
         """
 
         if "youtube" in url:
-            Logger.Debug("Determining Add-on URL for YouTube: %s", url)
+            Logger.debug("Determining Add-on URL for YouTube: %s", url)
             url = "plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=%s" % (url.split("v=")[1], )
         return url

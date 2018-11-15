@@ -34,7 +34,7 @@ class ZipHelper:
 
             # now extract
             first = True
-            Logger.Debug("Extracting %s to %s", path, destination)
+            Logger.debug("Extracting %s to %s", path, destination)
             for name in zip_file.namelist():
                 if first:
                     folder = os.path.split(name)[0]
@@ -47,17 +47,17 @@ class ZipHelper:
                     path = os.path.dirname(file_name)
                     if not os.path.exists(path):
                         os.makedirs(path)
-                    Logger.Debug("Extracting %s", file_name)
+                    Logger.debug("Extracting %s", file_name)
                     outfile = open(file_name, 'wb')
                     outfile.write(zip_file.read(name))
                     outfile.close()
         except zipfile.BadZipfile:
-            Logger.Error("Invalid zipfile: %s", path, exc_info=True)
+            Logger.error("Invalid zipfile: %s", path, exc_info=True)
             if os.path.isfile(path):
                 os.remove(path)
         except:
-            Logger.Error("Error extracting file: %s", path, exc_info=True)
+            Logger.error("Error extracting file: %s", path, exc_info=True)
         finally:
             if zip_file:
-                Logger.Debug("Closing zipfile: %s", path)
+                Logger.debug("Closing zipfile: %s", path)
                 zip_file.close()

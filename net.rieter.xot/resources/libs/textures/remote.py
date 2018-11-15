@@ -27,7 +27,7 @@ class Remote(TextureHandler):
         """
 
         cdn_folder = self._get_cdn_sub_folder(channel)
-        self._logger.Info("Purging Kodi Texture for: %s", cdn_folder)
+        self._logger.info("Purging Kodi Texture for: %s", cdn_folder)
         self._purge_kodi_cache(cdn_folder)
         return
 
@@ -49,5 +49,5 @@ class Remote(TextureHandler):
             cdn_folder = self._get_cdn_sub_folder(channel)
             return_value = "%s/%s/%s" % (self.__cdnUrl, cdn_folder, file_name)
 
-        self._logger.Debug("Resolved texture '%s' to '%s'", file_name, return_value)
+        self._logger.debug("Resolved texture '%s' to '%s'", file_name, return_value)
         return return_value

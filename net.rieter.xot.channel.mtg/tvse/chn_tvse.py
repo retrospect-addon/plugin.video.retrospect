@@ -131,18 +131,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         title = "\a.: %s :." % (self.searchInfo.get(self.language, self.searchInfo["se"])[1], )
-        Logger.Trace("Adding search item: %s", title)
+        Logger.trace("Adding search item: %s", title)
         searchItem = mediaitem.MediaItem(title, "searchSite")
         searchItem.thumb = self.noImage
         searchItem.fanart = self.fanart
         searchItem.dontGroup = True
         items.append(searchItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItem(self, resultSet):

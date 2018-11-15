@@ -174,7 +174,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         part = item.CreateNewEmptyMediaPart()
         if AddonSettings.use_adaptive_stream_add_on():
