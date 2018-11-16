@@ -127,7 +127,7 @@ class Channel(chn_class.Channel):
         timeInfo = info[1]
         dateInfo = dateInfo.split("-")
         timeInfo = timeInfo.split(":")
-        item.SetDate(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
+        item.set_date(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
         # else:
         #     item.thumb = self.noImage
         #
@@ -136,7 +136,7 @@ class Channel(chn_class.Channel):
         # if "/" in dayOrTime and year:
         #     # date found
         #     (day, month) = dayOrTime.split("/")
-        #     item.SetDate(year, month, day, 0, 0, 0)
+        #     item.set_date(year, month, day, 0, 0, 0)
         # elif "." in dayOrTime:
         #     # time found for today
         #     date = datetime.now()
@@ -144,7 +144,7 @@ class Channel(chn_class.Channel):
         #     month = date.month
         #     year = date.year
         #     (hour, minutes) = dayOrTime.split(".")
-        #     item.SetDate(year, month, day, hour, minutes, 0)
+        #     item.set_date(year, month, day, hour, minutes, 0)
         # else:
         #     Logger.Warning("Could not determine date for item '%s' with datestring='%s'", title, dayOrTime)
         return item

@@ -187,7 +187,7 @@ class Channel(chn_class.Channel):
         item.url = "http://www.bbc.co.uk/iplayer/episode/%s" % (vid,)
         if "year" in resultSet and resultSet["year"]:
             month = DateHelper.get_month_from_name(resultSet["month"], "en", short=True)
-            item.SetDate(resultSet["year"], month, resultSet["day"])
+            item.set_date(resultSet["year"], month, resultSet["day"])
 
         item.isGeoLocked = True
         # item.url = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/%s/atk/" % (vid,)
@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
         # /2.0/mediaset/pc/vpid/%s/atk/2214e42b5729dcdd012dfb61a3054d39309ccd31/asn/1/
         # And I don't know where that one comes from
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         streamData = UriHandler.Open(streamDataUrl, proxy=self.proxy)
         # from debug.router import Router
@@ -405,13 +405,13 @@ class Channel(chn_class.Channel):
         Logger.debug("Found Live stream root: %s", streamRoot)
         # url = "%s/master.m3u8" % (streamRoot, )
         #
-        # part = item.CreateNewEmptyMediaPart()
+        # part = item.create_new_empty_media_part()
         # for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
         #     item.complete = True
         #     # s = self.GetVerifiableVideoUrl(s)
         #     part.AppendMediaStream(s, b)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in F4m.get_streams_from_f4m(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)

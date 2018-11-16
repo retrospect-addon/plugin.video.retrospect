@@ -184,7 +184,7 @@ class Channel(chn_class.Channel):
                 mediaurl = "%s%s" % (mediaurl, part)
         mediaurl = "%s.flv" % (mediaurl, )
         
-        item.AppendSingleStream(mediaurl)
+        item.append_single_stream(mediaurl)
         Logger.trace("Updated mediaurl for %s", item)
         item.type = 'video'
         item.complete = True

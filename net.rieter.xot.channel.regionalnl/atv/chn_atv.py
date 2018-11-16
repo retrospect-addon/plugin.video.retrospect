@@ -161,7 +161,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         streams = Regexer.DoRegex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s in streams:
             part.AppendMediaStream(s.replace(" ", "%20"), 0)
 
@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
                    "?i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcmtzJm9JRD0xMzY1NTUmb05hbW" \
                    "U9YXR2bmV0d29ya3Mmc0lkPWZvODRpbDNlN3FzNjh1ZXQycWwyZWF2MDgxJnVJRD0wJnVOYW1lPUd1ZXN0MTNiNjk=&id=%s" \
                    % (sid,)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(videoUrl, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)

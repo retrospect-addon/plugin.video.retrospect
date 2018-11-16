@@ -169,7 +169,7 @@ class Channel(chn_class.Channel):
         # set the date and time
         date = resultSet["published_at"]
         timeStamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
-        item.SetDate(*timeStamp[0:6])
+        item.set_date(*timeStamp[0:6])
         return item
 
     def UpdateJsonVideo(self, item):
@@ -204,7 +204,7 @@ class Channel(chn_class.Channel):
             return item
 
         qualities = {"720p": 1600, "480p": 1200, "360p": 500, "other": 0}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         urls = []
         for stream in streams:
             url = stream["url"].values()[-1]

@@ -164,11 +164,11 @@ class Menu(ParameterParser):
         # remove the item
         item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
         # no need for dates in the favourites
-        # item.ClearDate()
+        # item.clear_date()
         Logger.debug("Adding favourite: %s", item)
 
         f = Favourites(Config.favouriteDir)
-        if item.IsPlayable():
+        if item.is_playable():
             action = self.actionPlayVideo
         else:
             action = self.actionListFolder

@@ -306,7 +306,7 @@ class Channel(chn_class.Channel):
         Logger.trace(json.json)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         streams = {
             # No longer used I think

@@ -211,9 +211,9 @@ class Channel(chn_class.Channel):
         time_stamp = resultSet.get("timestamp")
         if time_stamp:
             dateTime = DateHelper.get_date_from_posix(int(resultSet["timestamp"]))
-            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
-                         dateTime.minute,
-                         dateTime.second)
+            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                          dateTime.minute,
+                          dateTime.second)
 
         if not item.thumb and "thumburl2" in resultSet and resultSet["thumburl2"]:
             item.thumb = resultSet["thumburl2"]
@@ -280,7 +280,7 @@ class Channel(chn_class.Channel):
             # set it for the error statistics
             item.isGeoLocked = True
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             if int(b) < 200:
                 Logger.info("Skipping stream of quality '%s' kbps", b)

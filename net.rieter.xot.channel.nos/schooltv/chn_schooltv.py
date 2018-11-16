@@ -244,16 +244,16 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.fanart = self.fanart
         item.complete = False
-        item.SetInfoLabel("duration", resultSet['duration'])
+        item.set_info_label("duration", resultSet['duration'])
 
         if "publicationDate" in resultSet:
             broadcastDate = DateHelper.get_date_from_posix(int(resultSet['publicationDate']))
-            item.SetDate(broadcastDate.year,
-                         broadcastDate.month,
-                         broadcastDate.day,
-                         broadcastDate.hour,
-                         broadcastDate.minute,
-                         broadcastDate.second)
+            item.set_date(broadcastDate.year,
+                          broadcastDate.month,
+                          broadcastDate.day,
+                          broadcastDate.hour,
+                          broadcastDate.minute,
+                          broadcastDate.second)
         return item
 
     def UpdateVideoItem(self, item):
@@ -262,7 +262,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         json = JsonHelper(data)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         part.Subtitle = NpoStream.get_subtitle(json.get_value("mid"), proxy=self.proxy)
 
         for stream in json.get_value("videoStreams"):
@@ -270,7 +270,7 @@ class Channel(chn_class.Channel):
                 part.AppendMediaStream(stream["url"], stream["bitrate"]/1000)
                 item.complete = True
 
-        if item.HasMediaItemParts():
+        if item.has_media_item_parts():
             return item
 
         for s, b in NpoStream.get_streams_from_npo(None, json.get_value("mid"), proxy=self.proxy):

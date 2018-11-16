@@ -97,7 +97,7 @@ class NpoStream:
 
         Can be used like this:
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             for s, b in NpoStream.get_streams_from_npo(m3u8Url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)

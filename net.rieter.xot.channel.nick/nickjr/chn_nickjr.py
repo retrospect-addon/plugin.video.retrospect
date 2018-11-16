@@ -217,7 +217,7 @@ class Channel(chn_class.Channel):
 
         if "datePosted" in resultSet:
             date = DateHelper.get_date_from_posix(float(resultSet["datePosted"]["unixOffset"]) / 1000)
-            item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
+            item.set_date(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
         if "images" in resultSet:
             images = resultSet.get("images", {})
@@ -263,7 +263,7 @@ class Channel(chn_class.Channel):
             stream = JsonHelper(streamData)
 
             # subUrls = stream.get_value("package", "video", "item", 0, "transcript", 0, "typographic")
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
 
             # m3u8Url = stream.get_value("package", "video", "item", 0, "rendition", 0, "src")
             # for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):

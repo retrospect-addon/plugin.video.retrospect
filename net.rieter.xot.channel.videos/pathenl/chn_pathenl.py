@@ -167,7 +167,7 @@ class Channel(chn_class.Channel):
         # date = resultSet.get('releaseDate', None)
         # if date is not None:
         #     year, month, day = date.split("-")
-        #     item.SetDate(year, month, day)
+        #     item.set_date(year, month, day)
 
         item.description = item.description.strip()
         return item
@@ -193,7 +193,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.thumb = resultSet["still"].replace("nocropthumb/[format]/", "")
         item.fanart = item.thumb
-        item.AppendSingleStream(resultSet['filename'])
+        item.append_single_stream(resultSet['filename'])
         item.complete = True
         item.HttpHeaders = self.httpHeaders
         return item
@@ -267,7 +267,7 @@ class Channel(chn_class.Channel):
         month = DateHelper.get_month_from_name(month, "nl", short=False)
         year = resultSet[2]
 
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
         item.complete = True
         return item
     
@@ -353,7 +353,7 @@ class Channel(chn_class.Channel):
 
         for video in videos:
             Logger.trace(video)
-            item.AppendSingleStream(video)
+            item.append_single_stream(video)
         
         item.complete = True
         return item

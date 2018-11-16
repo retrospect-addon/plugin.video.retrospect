@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
             stationItem.icon = os.path.join(url, "%s%s" % (name, ".tbn"))
             stationItem.complete = True
             stationItem.description = stationItem.name
-            stationItem.AppendSingleStream(stream)
+            stationItem.append_single_stream(stream)
             stationItem.type = "playlist"
             stationItem.thumb = stationItem.icon
             items.append(stationItem)

@@ -90,7 +90,7 @@ class Channel(chn_class.Channel):
             liveItem.type = 'video'
             liveItem.dontGroup = True
             now = datetime.datetime.now()
-            liveItem.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            liveItem.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
             items.append(liveItem)
 
             liveItem = mediaitem.MediaItem(
@@ -102,7 +102,7 @@ class Channel(chn_class.Channel):
             liveItem.type = 'video'
             liveItem.dontGroup = True
             now = datetime.datetime.now()
-            liveItem.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            liveItem.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
             items.append(liveItem)
 
         # add "More"
@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
             return item
 
         timeStamp = DateHelper.get_date_from_string(resultSet["date"], "%d-%m-%Y %H:%M")
-        item.SetDate(*timeStamp[0:6])
+        item.set_date(*timeStamp[0:6])
         return item
 
     def UpdateVideoItem(self, item):
@@ -139,7 +139,7 @@ class Channel(chn_class.Channel):
         if not stream:
             return item
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if ".mp3" in stream:
             item.complete = True
             part.AppendMediaStream(stream, 0)
@@ -176,7 +176,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
             stream = part.AppendMediaStream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)

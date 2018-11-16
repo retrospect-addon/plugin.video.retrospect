@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
         hour = date[11:13]
         minute = date[14:16]
         # Logger.Trace("%s-%s-%s %s:%s", year, month, day, hour, minute)
-        item.SetDate(year, month, day, hour, minute, 0)
+        item.set_date(year, month, day, hour, minute, 0)
 
         # description stuff
         description = xmlData.get_single_node_content("media:description")
@@ -205,7 +205,7 @@ class Channel(chn_class.Channel):
         month = DateHelper.get_month_from_name(month, language="en")
         hour, minute, seconds = time.split(":")
         Logger.trace("%s-%s-%s %s:%s", year, month, day, hour, minute)
-        item.SetDate(year, month, day, hour, minute, 0)
+        item.set_date(year, month, day, hour, minute, 0)
 
         # # description stuff
         description = xmlData.get_single_node_content("description")
@@ -227,7 +227,7 @@ class Channel(chn_class.Channel):
         Accepts an arraylist of results. It returns an item.
         """
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in YouTube.get_streams_from_you_tube(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)

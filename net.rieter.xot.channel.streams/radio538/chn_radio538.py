@@ -193,7 +193,7 @@ class Channel(chn_class.Channel):
         slamFm.thumb = self.noImage
         slamFm.type = "audio"
         slamFm.isLive = True
-        slamFm.AppendSingleStream(slamFm.url)
+        slamFm.append_single_stream(slamFm.url)
         slamFm.complete = True
         items.append(slamFm)
 
@@ -281,7 +281,7 @@ class Channel(chn_class.Channel):
             item.thumb = "https://static.538.nl/%s" % (resultSet["image"]['src'], )
 
         item.icon = self.icon
-        item.SetDate(*startTimeStamp[0:6])
+        item.set_date(*startTimeStamp[0:6])
         item.description = resultSet.get('description')
         if "playbackUrls" in resultSet and resultSet["playbackUrls"]:
             titleFormat = "%%02d:%%02d - %s" % (resultSet['title'],)
@@ -290,7 +290,7 @@ class Channel(chn_class.Channel):
             for stream in resultSet["playbackUrls"]:
                 if stream.startswith("//"):
                     stream = "https:%s" % (stream, )
-                part = item.CreateNewEmptyMediaPart()
+                part = item.create_new_empty_media_part()
                 part.Name = titleFormat % (hour, startTimeStamp.tm_min)
                 part.AppendMediaStream(stream, 0)
                 hour += 1
@@ -301,7 +301,7 @@ class Channel(chn_class.Channel):
             hour = startTimeStamp.tm_hour
             if stream.startswith("//"):
                 stream = "https:%s" % (stream,)
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             part.Name = titleFormat % (hour, startTimeStamp.tm_min)
             part.AppendMediaStream(stream, 0)
             hour += 1
@@ -315,7 +315,7 @@ class Channel(chn_class.Channel):
         xml = parseString(data)
         streamXmls = xml.getElementsByTagName("mountpoint")
         Logger.debug("Found %d streams", len(streamXmls))
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for streamXml in streamXmls:
             serverXml = streamXml.getElementsByTagName("server")[0]
             server = serverXml.getElementsByTagName("ip")[0].firstChild.nodeValue
@@ -364,7 +364,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)

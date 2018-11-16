@@ -159,7 +159,7 @@ class Channel(chn_class.Channel):
         else:
             stream = item.url
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(stream, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)

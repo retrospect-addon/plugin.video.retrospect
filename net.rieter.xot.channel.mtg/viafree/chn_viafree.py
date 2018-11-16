@@ -237,7 +237,7 @@ class Channel(chn_class.Channel):
             # 2016-05-20T15:05:00+00:00
             airedAt = airedAt.split("+")[0].rstrip('Z')
             timeStamp = DateHelper.get_date_from_string(airedAt, "%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*timeStamp[0:6])
+            item.set_date(*timeStamp[0:6])
 
         item.thumb = self.__GetThumbImage(resultSet.get("image"))
 
@@ -253,7 +253,7 @@ class Channel(chn_class.Channel):
             srt = resultSet.get("subtitles_webvtt")
         if srt:
             Logger.debug("Storing SRT/WebVTT path: %s", srt)
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             part.Subtitle = srt
         return item
 
@@ -502,7 +502,7 @@ class Channel(chn_class.Channel):
             timeInfo = info[1]
             dateInfo = dateInfo.split("-")
             timeInfo = timeInfo.split(":")
-            item.SetDate(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
+            item.set_date(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
 
         item.type = "video"
         item.complete = False
@@ -522,7 +522,7 @@ class Channel(chn_class.Channel):
             srt = resultSet.get("subtitles_webvtt")
         if srt:
             Logger.debug("Storing SRT/WebVTT path: %s", srt)
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             part.Subtitle = srt
         return item
 
@@ -571,7 +571,7 @@ class Channel(chn_class.Channel):
             else:
                 part.Subtitle = SubtitleHelper.download_subtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
         else:
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
 
         for q in ("high", 3500), ("hls", 2700), ("medium", 2100):
             url = json.get_value("streams", q[0])

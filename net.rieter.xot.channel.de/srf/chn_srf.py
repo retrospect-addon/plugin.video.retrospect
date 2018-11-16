@@ -206,7 +206,7 @@ class Channel(chn_class.Channel):
 
         dateValue = str(resultSet["time_published"])
         dateTime = DateHelper.get_date_from_string(dateValue, "%Y-%m-%d %H:%M:%S")  # 2015-01-20 22:17:59"
-        item.SetDate(*dateTime[0:6])
+        item.set_date(*dateTime[0:6])
 
         item.icon = self.icon
         item.httpHeaders = self.httpHeaders
@@ -259,7 +259,7 @@ class Channel(chn_class.Channel):
         dateValue = str(resultSet["publishedDate"])
         dateValue = dateValue[0:-6]
         dateTime = DateHelper.get_date_from_string(dateValue, "%Y-%m-%dT%H:%M:%S")  # 2015-01-20T22:17:59"
-        item.SetDate(*dateTime[0:6])
+        item.set_date(*dateTime[0:6])
 
         item.icon = self.icon
         item.httpHeaders = self.httpHeaders
@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
         videoInfo = json.get_value("content", "videoInfos")
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if "HLSurlHD" in videoInfo:
             # HLSurlHD=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,q50,q60,.mp4.csmil/master.m3u8
             for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"], self.proxy):
@@ -344,7 +344,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
         videoPlayLists = json.get_value("Video", "Playlists", "Playlist")
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for playList in videoPlayLists:
             streams = playList["url"]
             Logger.trace("Found %s streams", len(streams))
@@ -360,7 +360,7 @@ class Channel(chn_class.Channel):
 
         # videoInfo = json.get_value("content", "videoInfos")
         #
-        # part = item.CreateNewEmptyMediaPart()
+        # part = item.create_new_empty_media_part()
         # if "HLSurlHD" in videoInfo:
         #     # HLSurlHD=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,q50,q60,.mp4.csmil/master.m3u8
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"], self.proxy):

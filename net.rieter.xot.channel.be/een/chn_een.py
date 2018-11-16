@@ -120,7 +120,7 @@ class Channel(chn_class.Channel):
         item = chn_class.Channel.CreateVideoItem(self, resultSet)
         item.fanart = self.parentItem.fanart
         if "year" in resultSet and resultSet["year"]:
-            item.SetDate(resultSet["year"], resultSet["month"], resultSet["day"])
+            item.set_date(resultSet["year"], resultSet["month"], resultSet["day"])
         return item
 
     def CreateShowItem(self, resultSet):
@@ -164,7 +164,7 @@ class Channel(chn_class.Channel):
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if "mediazone.vrt.be" not in item.url:
             # Extract actual media data
             videoId = Regexer.DoRegex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
 
         # urls = Regexer.DoRegex(self.mediaUrlRegex, data)
         # Logger.Trace(urls)
-        # part = item.CreateNewEmptyMediaPart()
+        # part = item.create_new_empty_media_part()
         # for url in urls:
         #     if not url[1] == "":
         #         mediaurl = "%s//%s" % (url[0], url[1])  # the extra slash in the url causes the application name in the RTMP stream to be "een" instead of "een/2011"

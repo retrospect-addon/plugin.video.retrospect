@@ -99,7 +99,7 @@ class M3u8:
 
         Can be used like this:
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)

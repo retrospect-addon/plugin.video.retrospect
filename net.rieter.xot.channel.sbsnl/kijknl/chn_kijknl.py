@@ -213,7 +213,7 @@ class Channel(chn_class.Channel):
                 title = day_name
 
             date_item = mediaitem.MediaItem(title, url)
-            date_item.SetDate(date.year, date.month, date.day)
+            date_item.set_date(date.year, date.month, date.day)
             items.append(date_item)
 
         Logger.debug("Pre-Processing finished")
@@ -323,7 +323,7 @@ class Channel(chn_class.Channel):
             date = resultSet["date"].split("+")[0]
             # 2016-12-25T17:58:00+01:00
             timeStamp = DateHelper.get_date_from_string(date, "%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*timeStamp[0:6])
+            item.set_date(*timeStamp[0:6])
 
         return item
 
@@ -337,7 +337,7 @@ class Channel(chn_class.Channel):
         useAdaptiveWithEncryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
         # useAdaptiveWithEncryption = False
         mpdInfo = json.get_value("entitlements", "play")
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         # is there MPD information in the API response?
         if mpdInfo is not None:

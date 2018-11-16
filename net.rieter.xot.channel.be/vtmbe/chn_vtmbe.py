@@ -341,7 +341,7 @@ class Channel(chn_class.Channel):
         search.icon = self.icon
         search.thumb = self.noImage
         search.dontGroup = True
-        search.SetDate(2200, 1, 1, text="")
+        search.set_date(2200, 1, 1, text="")
         items.append(search)
         return data, items
 
@@ -387,7 +387,7 @@ class Channel(chn_class.Channel):
             extra.icon = self.icon
             extra.thumb = self.noImage
             extra.dontGroup = True
-            extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+            extra.set_date(airDate.year, airDate.month, airDate.day, text="")
             extra.metaData["airDate"] = airDate
             items.append(extra)
 
@@ -455,7 +455,7 @@ class Channel(chn_class.Channel):
             item.type = "video"
             item.isGeoLocked = resultSet["geoblock"]
             item.description = resultSet["shortDescription"]
-            # item.SetDate(startTime.year, startTime.month, startTime.day)
+            # item.set_date(startTime.year, startTime.month, startTime.day)
 
             if "images" in resultSet and resultSet["images"] and "styles" in resultSet["images"][0]:
                 images = resultSet["images"][0]["styles"]
@@ -615,7 +615,7 @@ class Channel(chn_class.Channel):
 
         # broadcastDate=2018-05-31T18:39:36.840Z
         created = DateHelper.get_date_from_string(resultSet['broadcastDate'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
-        item.SetDate(*created[0:6])
+        item.set_date(*created[0:6])
 
         return item
 
@@ -649,7 +649,7 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         item.thumb = self.noImage
         now = datetime.datetime.now()
-        item.SetDate(now.year, now.month, now.day, now.hour, now.minute, now.second)
+        item.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
 
         if self.channelCode == "vtm":
@@ -767,7 +767,7 @@ class Channel(chn_class.Channel):
         item.complete = False
 
         if "year" in resultSet and resultSet["year"]:
-            item.SetDate(resultSet["year"], resultSet["month"], resultSet["day"])
+            item.set_date(resultSet["year"], resultSet["month"], resultSet["day"])
         return item
 
     def UpdateVideoItem(self, item):
@@ -856,7 +856,7 @@ class Channel(chn_class.Channel):
 
             licenseKey = licenseKey[2:]
             licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.url_encode(licenseKey))
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             stream = part.AppendMediaStream(hls, 0)
             M3u8.set_input_stream_addon_input(stream, license_key=licenseKey)
             item.complete = True
@@ -874,7 +874,7 @@ class Channel(chn_class.Channel):
         for stream in streams:
             streamUrl = stream['url']
             if stream['type'] == "mp4":
-                item.AppendSingleStream(streamUrl, 0)
+                item.append_single_stream(streamUrl, 0)
                 item.complete = True
 
         return item
@@ -922,7 +922,7 @@ class Channel(chn_class.Channel):
             licenseHeaders = "x-dt-custom-data={0}&Content-Type=application/octstream".format(base64.b64encode(licenseHeader))
             licenseKey = "{0}?specConform=true|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             stream = part.AppendMediaStream(streamUrl, 0)
             Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey, license_type="com.widevine.alpha")
             item.complete = True
@@ -934,7 +934,7 @@ class Channel(chn_class.Channel):
                 m3u8Url = jsonData.get_value("response", "uri")
                 # m3u8Url = jsonData.get_value("response", "hls-drm-uri")  # not supported by Kodi
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             # Set the Range header to a proper value to make all streams start at the beginning. Make
             # sure that a complete TS part comes in a single call otherwise we get stuttering.
             byteRange = 10 * 1024 * 1024

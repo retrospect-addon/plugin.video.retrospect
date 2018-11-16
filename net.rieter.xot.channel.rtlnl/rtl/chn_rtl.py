@@ -97,11 +97,11 @@ class Channel(chn_class.Channel):
         streamItem.complete = True
         streamItem.type = "video"
         streamItem.dontGroup = True
-        streamItem.AppendSingleStream("http://mss6.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss26.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss4.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss5.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss3.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss6.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss26.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss4.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss5.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss3.rtl7.nl/rtlzbroad", 1200)
 
         rtlzLive.items.append(streamItem)
         items.append(rtlzLive)
@@ -351,7 +351,7 @@ class Channel(chn_class.Channel):
         dateTime = resultSet.get("display_date", None)
         if dateTime:
             dateTime = DateHelper.get_date_from_posix(int(dateTime))
-            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
+            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
 
         return item
 
@@ -388,7 +388,7 @@ class Channel(chn_class.Channel):
             return item
         m3u8Url = "%s/%s" % (m3u8Urls[0][0], m3u8Urls[0][1])
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         # prevent the "418 I'm a teapot" error
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
         # Remove the Range header to make all streams start at the beginning.

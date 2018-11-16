@@ -184,7 +184,7 @@ class Channel(chn_class.Channel):
 
         rtmpUrls = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for rtmpUrl in rtmpUrls:
             url = "%s/%s" % (rtmpUrl[1], rtmpUrl[2])
             bitrate = rtmpUrl[0]

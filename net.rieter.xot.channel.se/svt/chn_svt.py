@@ -219,20 +219,20 @@ class Channel(chn_class.Channel):
             newItem.complete = True
             newItem.thumb = self.noImage
             newItem.dontGroup = True
-            newItem.SetDate(2099, 1, 1, text="")
+            newItem.set_date(2099, 1, 1, text="")
             items.append(newItem)
 
         newItem = mediaitem.MediaItem("\a.: Kategorier :.", "https://www.svtplay.se/genre")
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
-        newItem.SetDate(2099, 1, 1, text="")
+        newItem.set_date(2099, 1, 1, text="")
         for title, (url, thumb) in categoryItems.iteritems():
             catItem = mediaitem.MediaItem(title, url)
             catItem.complete = True
             catItem.thumb = thumb or self.noImage
             catItem.dontGroup = True
-            # catItem.SetDate(2099, 1, 1, text="")
+            # catItem.set_date(2099, 1, 1, text="")
             newItem.items.append(catItem)
         items.append(newItem)
 
@@ -240,7 +240,7 @@ class Channel(chn_class.Channel):
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
-        newItem.SetDate(2099, 1, 1, text="")
+        newItem.set_date(2099, 1, 1, text="")
         items.append(newItem)
 
         return data, items
@@ -553,7 +553,7 @@ class Channel(chn_class.Channel):
             episode = int(resultSet["episodeNumber"])
             if season > 0 and episode > 0:
                 item.name = "s%02de%02d - %s" % (season, episode, item.name)
-                item.SetSeasonInfo(season, episode)
+                item.set_season_info(season, episode)
 
         # thumb = resultSet.get("imageMedium", self.noImage).replace("/medium/", "/extralarge/")
         thumb = self.noImage
@@ -571,7 +571,7 @@ class Channel(chn_class.Channel):
             if "+" in broadCastDate:
                 broadCastDate = broadCastDate.rsplit("+")[0]
             timeStamp = DateHelper.get_date_from_string(broadCastDate, "%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*timeStamp[0:6])
+            item.set_date(*timeStamp[0:6])
         return item
 
     def CreateCategoryItem(self, resultSet):
@@ -605,7 +605,7 @@ class Channel(chn_class.Channel):
 
         if resultSet["Date1"] is not None and resultSet["Date1"].lower() != "imorgon":
             year, month, day, hour, minutes = self.__GetDate(resultSet["Date1"], resultSet["Date2"], resultSet["Date3"])
-            item.SetDate(year, month, day, hour, minutes, 0)
+            item.set_date(year, month, day, hour, minutes, 0)
 
         if "/video/" in url:
             item.type = "video"
@@ -772,7 +772,7 @@ class Channel(chn_class.Channel):
 
     def __UpdateItemFromVideoReferences(self, item, videos, subtitles=None):
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if self.localIP:
             part.HttpHeaders.update(self.localIP)
 

@@ -174,7 +174,7 @@ class Channel(chn_class.Channel):
         if "date" in resultSet:
             # 2016-05-14T20:00:00+02:00 -> strip the hours
             timeStamp = DateHelper.get_date_from_string(resultSet["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*timeStamp[0:6])
+            item.set_date(*timeStamp[0:6])
 
         return item
 
@@ -187,7 +187,7 @@ class Channel(chn_class.Channel):
         Logger.trace(mediaInfo)
 
         # sources
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         # high, web, mobile, url
         mediaSources = mediaInfo.json.get("sources", {})
         for quality in mediaSources:
@@ -214,7 +214,7 @@ class Channel(chn_class.Channel):
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
         Logger.trace(mediaInfo)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         hlsUrl = mediaInfo.get_value("streamUrl")
         if hlsUrl is not None and "m3u8" in hlsUrl:

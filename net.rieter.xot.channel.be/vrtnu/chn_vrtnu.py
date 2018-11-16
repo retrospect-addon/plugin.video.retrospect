@@ -408,7 +408,7 @@ class Channel(chn_class.Channel):
             return None
 
         if "day" in resultSet and resultSet["day"] and len(resultSet.get("year", "")) == 4:
-            item.SetDate(resultSet["year"] or DateHelper.this_year(), resultSet["month"], resultSet["day"])
+            item.set_date(resultSet["year"] or DateHelper.this_year(), resultSet["month"], resultSet["day"])
 
         if item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
@@ -421,7 +421,7 @@ class Channel(chn_class.Channel):
         if "m3u8" not in item.url:
             Logger.error("Cannot update live stream that is not an M3u8: %s", item.url)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
         if adaptiveAvailable:
             stream = part.AppendMediaStream(item.url, 0)
@@ -467,7 +467,7 @@ class Channel(chn_class.Channel):
         drmKey = assetData.get_value("drm")
         drmProtected = drmKey is not None
         adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=drmProtected)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         srt = None
         for targetUrl in assetData.get_value("targetUrls"):
             videoType = targetUrl["type"]

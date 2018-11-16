@@ -77,7 +77,7 @@ class Channel(chn_class.Channel):
         playbackItem.thumb = self.noImage
         playbackItem.icon = self.icon
         playbackItem.isLive = True
-        playbackPart = playbackItem.CreateNewEmptyMediaPart()
+        playbackPart = playbackItem.create_new_empty_media_part()
 
         # noinspection PyStatementEffect
         """
@@ -194,7 +194,7 @@ class Channel(chn_class.Channel):
         month = DateHelper.get_month_from_name(month, "en", False)
         day = resultSet["day"]
         year = resultSet["year"]
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
 
         item.complete = False
         return item
@@ -228,7 +228,7 @@ class Channel(chn_class.Channel):
         streams = Regexer.DoRegex(self.mediaUrlRegex, data)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for stream in streams:
             Logger.trace(stream)
             part.AppendMediaStream(stream[0], stream[1])

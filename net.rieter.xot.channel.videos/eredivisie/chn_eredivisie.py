@@ -243,7 +243,7 @@ class Channel(chn_class.Channel):
                                          notificationType=XbmcWrapper.Error, displayTime=5000)
 
         licenseUrl = streamInfo.get_value("LicenseURL")
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         stream = part.AppendMediaStream(streamUrl, 0)
         licenseKey = Mpd.get_license_key(licenseUrl)
         Mpd.set_input_stream_addon_input(stream, proxy=self.proxy, license_key=licenseKey)

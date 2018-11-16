@@ -123,7 +123,7 @@ class Channel(chn_class.Channel):
         item = mediaitem.MediaItem(resultSet[self.pageNavigationRegexIndex], url)
         item.type = "page"
         item.complete = True
-        item.SetDate(2022, 1, 1, text="")
+        item.set_date(2022, 1, 1, text="")
 
         Logger.trace("Created '%s' for url %s", item.name, item.url)
         return item
@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
 
                 try:
                     month = DateHelper.get_month_from_name(monthPart, "en")
-                    item.SetDate(yearPart, month, dayPart)
+                    item.set_date(yearPart, month, dayPart)
                 except:
                     Logger.error("Error matching month: %s", monthPart, exc_info=True)
 
@@ -229,7 +229,7 @@ class Channel(chn_class.Channel):
         try:
             monthLookup = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
             month = monthLookup.index(monthPart) + 1
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
         except:
             Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 

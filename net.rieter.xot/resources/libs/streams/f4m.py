@@ -28,7 +28,7 @@ class F4m:
 
         Can be used like this:
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             for s, b in F4m.get_streams_from_f4m(url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)

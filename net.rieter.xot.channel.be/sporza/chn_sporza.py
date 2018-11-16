@@ -101,8 +101,8 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = resultSet[3].lower() == "true"
 
         dateTime = DateHelper.get_date_from_posix(int(resultSet[2]) * 1 / 1000)
-        item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute,
-                     dateTime.second)
+        item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute,
+                      dateTime.second)
 
         thumb = resultSet[4]
         if not thumb.startswith("http"):
@@ -212,7 +212,7 @@ class Channel(chn_class.Channel):
                 month = nameParts[1]
                 day = nameParts[0].rsplit(" ", 1)[1]
                 Logger.trace("%s - %s - %s", year, month, day)
-                item.SetDate(year, month, day)
+                item.set_date(year, month, day)
 
             # elif len(possibleDateParts[3]) == 4 and len(possibleDateParts[4]) == 2:
             #     Logger.Debug("Found possible date in name: %s - %s - %s",
@@ -225,7 +225,7 @@ class Channel(chn_class.Channel):
             #     else:
             #         day = 1
             #     Logger.Trace("%s - %s - %s", year, month, day)
-            #     item.SetDate(year, month, day)
+            #     item.set_date(year, month, day)
         except:
             Logger.warning("Apparently it was not a date :)")
         return item
@@ -246,7 +246,7 @@ class Channel(chn_class.Channel):
             return item
 
         Logger.debug("Found stream url for %s: %s", item, url)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
@@ -287,7 +287,7 @@ class Channel(chn_class.Channel):
 
         data = data.replace("\\/", "/")
         urls = Regexer.DoRegex(self.mediaUrlRegex, data)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for url in urls:
             Logger.trace(url)
             if url[0] == "src":

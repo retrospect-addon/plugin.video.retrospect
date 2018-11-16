@@ -102,13 +102,13 @@ class Channel(chn_class.Channel):
         item.thumb = thumbUrl
         item.icon = self.icon
         item.type = 'video'
-        item.AppendSingleStream(videoUrl)
+        item.append_single_stream(videoUrl)
         
         # set date
         month = datehelper.DateHelper.get_month_from_name(resultSet[3], "nl", False)
         day = resultSet[2]
         year = resultSet[4]
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
         
         item.complete = True
         return item

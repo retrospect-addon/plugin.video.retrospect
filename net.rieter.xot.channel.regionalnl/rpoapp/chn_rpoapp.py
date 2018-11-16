@@ -124,7 +124,7 @@ class Channel(chn_class.Channel):
         item.isLive = True
 
         if item.url.endswith(".mp3"):
-            item.AppendSingleStream(item.url)
+            item.append_single_stream(item.url)
             item.complete = True
             return item
 
@@ -146,7 +146,7 @@ class Channel(chn_class.Channel):
 
         # 2018-02-24 07:15:00
         timeStamp = DateHelper.get_date_from_string(resultSet['date'], date_format="%Y-%m-%d %H:%M:%S")
-        item.SetDate(*timeStamp[0:6])
+        item.set_date(*timeStamp[0:6])
         return item
 
     def CreateJsonVideoItem(self, result):
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
                 hours, minutes = dateParts[3].split(":")
                 hours = int(hours)
                 minutes = int(minutes)
-                item.SetDate(year, month, day, hours, minutes, 0)
+                item.set_date(year, month, day, hours, minutes, 0)
             except:
                 Logger.warning("Error parsing date %s", result["publicationTimeString"], exc_info=True)
 
@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateLiveItem(self, item):
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
             stream = part.AppendMediaStream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
@@ -194,7 +194,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
         streams = Regexer.DoRegex('label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         bitrates = { "720p SD": 1200 }
         for stream in streams:
             part.AppendMediaStream(stream[1], bitrates.get(stream[0], 0))
@@ -219,7 +219,7 @@ class Channel(chn_class.Channel):
         jsonData = JsonHelper(jsonData[0])
         clipData = jsonData.get_value("clipData", "assets")
         server = jsonData.get_value("publicationData", "defaultMediaAssetPath")
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for clip in clipData:
             part.AppendMediaStream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
             item.complete = True

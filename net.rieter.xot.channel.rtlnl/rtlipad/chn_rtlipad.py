@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         item.type = 'video'
 
-        item.SetDate(date[0:4], date[5:7], date[8:10], date[11:13], date[14:16], date[17:20])
+        item.set_date(date[0:4], date[5:7], date[8:10], date[11:13], date[14:16], date[17:20])
         item.complete = False
         return item
 
@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # load the details.
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         # prevent the "418 I'm a teapot" error
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
 

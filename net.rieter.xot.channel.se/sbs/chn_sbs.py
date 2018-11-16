@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
             date = videoInfo["newestEpisodePublishStart"]
             datePart, timePart = date[0:-3].split("T")
             year, month, day = datePart.split("-")
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
 
         if item.thumb != self.noImage:
             item.fanart = item.thumb
@@ -470,10 +470,10 @@ class Channel(chn_class.Channel):
             date = videoInfo.get("airDate", videoInfo["publishStart"])
             # 2018-03-20T20:00:00Z
             airDate = DateHelper.get_date_from_string(date,  date_format="%Y-%m-%dT%H:%M:%SZ")
-            item.SetDate(*airDate[0:6])
+            item.set_date(*airDate[0:6])
             # datePart, timePart = date[0:-3].split("T")
             # year, month, day = datePart.split("-")
-            # item.SetDate(year, month, day)
+            # item.set_date(year, month, day)
             if datetime.datetime(*airDate[0:6]) > datetime.datetime.now():
                 item.isPaid = True
 
@@ -481,7 +481,7 @@ class Channel(chn_class.Channel):
         season = videoInfo.get("seasonNumber", 0)
         if episode > 0 and season > 0:
             item.name = "s{0:02d}e{1:02d} - {2}".format(season, episode, item.name)
-            item.SetSeasonInfo(season, episode)
+            item.set_season_info(season, episode)
 
         if include_show_title:
             show_id = resultSet["relationships"].get("show", {}).get("data", {}).get("id")
@@ -514,7 +514,7 @@ class Channel(chn_class.Channel):
         """
 
         videoId = item.url.rsplit("/", 1)[-1]
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         item.complete = self.__GetVideoStreams(videoId, part)
         return item
 
@@ -549,7 +549,7 @@ class Channel(chn_class.Channel):
         videoData = JsonHelper(videoData)
         videoInfo = videoData.get_value("data", "attributes")
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         m3u8url = videoInfo["streaming"]["hls"]["url"]
 

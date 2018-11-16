@@ -162,7 +162,7 @@ class Channel(chn_class.Channel):
             month = nameParts[1]
             day = nameParts[0].rsplit(" ", 1)[1]
             Logger.trace("%s - %s - %s", year, month, day)
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
 
         return item
 
@@ -200,7 +200,7 @@ class Channel(chn_class.Channel):
 
         data = data.replace("\\/", "/")
         urls = Regexer.DoRegex(self.mediaUrlRegex, data)
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for url in urls:
             Logger.trace(url)
             if url[0] == "src":

@@ -283,7 +283,7 @@ class Channel(chn_class.Channel):
         search.icon = self.icon
         search.thumb = self.noImage
         search.dontGroup = True
-        search.SetDate(2200, 1, 1, text="")
+        search.set_date(2200, 1, 1, text="")
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
 
@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
         # favs.thumb = self.noImage
         # favs.dontGroup = True
         # favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        # favs.SetDate(2200, 1, 1, text="")
+        # favs.set_date(2200, 1, 1, text="")
         # items.append(favs)
 
         extra = mediaitem.MediaItem("Populair", "%s/episodes/popular.json" % (self.baseUrl,))
@@ -303,7 +303,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         # extra = mediaitem.MediaItem("Tips", "%s/tips.json" % (self.baseUrl,))
@@ -311,7 +311,7 @@ class Channel(chn_class.Channel):
         # extra.icon = self.icon
         # extra.thumb = self.noImage
         # extra.dontGroup = True
-        # extra.SetDate(2200, 1, 1, text="")
+        # extra.set_date(2200, 1, 1, text="")
         # items.append(extra)
 
         extra = mediaitem.MediaItem("Live Radio",
@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         extra = mediaitem.MediaItem("Live TV", "%s/live" % (self.baseUrlLive,))
@@ -328,7 +328,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         extra = mediaitem.MediaItem("Programma's (Hele lijst)", "%s/series.json" % (self.baseUrl,))
@@ -337,7 +337,7 @@ class Channel(chn_class.Channel):
         extra.thumb = self.noImage
         extra.dontGroup = True
         extra.description = "Volledige programma lijst van de NPO iOS/Android App."
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         extra = mediaitem.MediaItem("Genres", "https://www.npostart.nl/programmas")
@@ -345,7 +345,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         # extra.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(extra)
 
@@ -355,7 +355,7 @@ class Channel(chn_class.Channel):
         extra.thumb = self.noImage
         extra.description = "Alfabetische lijst van de NPO.nl site."
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         recent = mediaitem.MediaItem("Recent", "#recent")
@@ -363,7 +363,7 @@ class Channel(chn_class.Channel):
         recent.icon = self.icon
         recent.thumb = self.noImage
         recent.dontGroup = True
-        recent.SetDate(2200, 1, 1, text="")
+        recent.set_date(2200, 1, 1, text="")
         items.append(recent)
 
         return data, items
@@ -396,7 +396,7 @@ class Channel(chn_class.Channel):
             extra.dontGroup = True
             extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
             extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
-            extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+            extra.set_date(airDate.year, airDate.month, airDate.day, text="")
 
             items.append(extra)
 
@@ -405,7 +405,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
 
         items.append(extra)
         return data, items
@@ -633,10 +633,10 @@ class Channel(chn_class.Channel):
             Logger.trace(dateTime)
             if dateTime[0].lower() == "gisteren":
                 dateTime = datetime.datetime.now() + datetime.timedelta(days=-1)
-                item.SetDate(dateTime.year, dateTime.month, dateTime.day)
+                item.set_date(dateTime.year, dateTime.month, dateTime.day)
             elif dateTime[0].lower() == "vandaag":
                 dateTime = datetime.datetime.now()
-                item.SetDate(dateTime.year, dateTime.month, dateTime.day)
+                item.set_date(dateTime.year, dateTime.month, dateTime.day)
             elif ":" in dateTime[-1]:
                 if dateTime[-2].isalpha():
                     year = datetime.datetime.now().year
@@ -651,7 +651,7 @@ class Channel(chn_class.Channel):
                 stamp = datetime.datetime(year, month, day)
                 if stamp > datetime.datetime.now():
                     year -= 1
-                item.SetDate(year, month, day)
+                item.set_date(year, month, day)
             else:
                 # there is an actual date present
                 if dateTime[0].isalpha():
@@ -669,7 +669,7 @@ class Channel(chn_class.Channel):
                     if stamp > datetime.datetime.now():
                         dateTime[2] -= 1
 
-                item.SetDate(dateTime[2], month, dateTime[0])
+                item.set_date(dateTime[2], month, dateTime[0])
 
         except:
             Logger.debug("Cannot set date from label: %s", resultSet["subtitle"], exc_info=True)
@@ -677,7 +677,7 @@ class Channel(chn_class.Channel):
             dateValue = resultSet.get("date", None)
             if dateValue:
                 timeStamp = DateHelper.get_date_from_string(dateValue, "%Y-%m-%dT%H:%M:%SZ")
-                item.SetDate(*timeStamp[0:6])
+                item.set_date(*timeStamp[0:6])
             else:
                 Logger.warning("Cannot set date from 'data-from': %s", resultSet["date"], exc_info=True)
         return item
@@ -750,9 +750,9 @@ class Channel(chn_class.Channel):
             # no stills, or empty, check for image
             item.thumb = image
 
-        item.SetDate(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour,
-                     broadcasted.minute,
-                     broadcasted.second)
+        item.set_date(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour,
+                      broadcasted.minute,
+                      broadcasted.second)
 
         return item
 
@@ -870,7 +870,7 @@ class Channel(chn_class.Channel):
         item.complete = False
 
         streams = resultSet.get("audiostreams", [])
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         # first check for the video streams
         for stream in resultSet.get("videostreams", []):
@@ -958,7 +958,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem: %s', item.name)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         # we need to determine radio or live tv
         Logger.debug("Fetching live stream data from item url: %s", item.url)
@@ -999,7 +999,7 @@ class Channel(chn_class.Channel):
         dashHeaders[u"Referer"] = unicode(url)
         dashLicense = Mpd.get_license_key(dashLicenseUrl, key_headers=dashHeaders, key_type="R")
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         stream = part.AppendMediaStream(dashUrl, 0)
         Mpd.set_input_stream_addon_input(stream, self.proxy, dashHeaders, license_key=dashLicense)
         item.complete = True
@@ -1039,7 +1039,7 @@ class Channel(chn_class.Channel):
                                                                        proxy=self.proxy)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         part.Subtitle = subTitlePath
 
         for s, b in NpoStream.get_streams_from_npo(None, episodeId, proxy=self.proxy):

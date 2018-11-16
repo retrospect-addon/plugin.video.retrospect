@@ -129,7 +129,7 @@ class Channel(chn_class.Channel):
         #     year = "20%s" % (year,)
         # day = date[0:2]
         # month = date[3:5]
-        # item.SetDate(year, month, day)
+        # item.set_date(year, month, day)
         #
         # return item
 
@@ -187,7 +187,7 @@ class Channel(chn_class.Channel):
             for rtmpStream in rtmpStreams:
                 # if this is the first stream for the part, create an new part
                 if part is None:
-                    part = item.CreateNewEmptyMediaPart()
+                    part = item.create_new_empty_media_part()
 
                 part.AppendMediaStream(self.GetVerifiableVideoUrl(rtmpStream[2]), rtmpStream[1])
 

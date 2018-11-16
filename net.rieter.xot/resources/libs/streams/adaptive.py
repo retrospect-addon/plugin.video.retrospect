@@ -87,7 +87,7 @@ class Adaptive:
 
         Can be used like this:
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             stream = part.AppendMediaStream(m3u8url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, self.headers)
             item.complete = True

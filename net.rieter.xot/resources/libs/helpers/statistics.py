@@ -66,7 +66,7 @@ class Statistics:
 
             title = item.name
             referer = item.url
-            if item.IsPlayable():
+            if item.is_playable():
                 title = "%s: %s" % (Statistics.__ACTION_PLAY, title)
             else:
                 title = "%s: %s" % (Statistics.__ACTION_LIST, title)

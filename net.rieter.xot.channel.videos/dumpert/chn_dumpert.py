@@ -104,7 +104,7 @@ class Channel(chn_class.Channel):
 
         try:
             month = datehelper.DateHelper.get_month_from_name(resultSet[4], "nl")
-            item.SetDate(resultSet[5], month, resultSet[3], resultSet[6], resultSet[7], 0)
+            item.set_date(resultSet[5], month, resultSet[3], resultSet[6], resultSet[7], 0)
         except:
             Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 
@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         baseEncode = Regexer.DoRegex('data-files="([^"]+)', data)
         if baseEncode:

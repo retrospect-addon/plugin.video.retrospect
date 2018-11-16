@@ -166,7 +166,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
         m3u8Url = Regexer.DoRegex('data-file="([^"]+)"', data)[0]
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
             stream = part.AppendMediaStream(m3u8Url, 0)
             M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers)

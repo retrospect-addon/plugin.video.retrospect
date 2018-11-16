@@ -201,7 +201,7 @@ class Channel(chn_class.Channel):
             liveItem.isLive = True
             if self.channelCode == "rtvdrenthe":
                 # RTV Drenthe actually has a buggy M3u8 without master index.
-                liveItem.AppendSingleStream(liveItem.url, 0)
+                liveItem.append_single_stream(liveItem.url, 0)
                 liveItem.complete = True
 
             items.append(liveItem)
@@ -232,7 +232,7 @@ class Channel(chn_class.Channel):
             liveItem.icon = self.icon
             liveItem.thumb = self.noImage
             liveItem.isLive = True
-            part = liveItem.CreateNewEmptyMediaPart()
+            part = liveItem.create_new_empty_media_part()
             for stream in streams:
                 Logger.trace(stream)
                 bitrate = None
@@ -365,7 +365,7 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
 
         if mediaLink:
-            item.AppendSingleStream(mediaLink, self.channelBitrate)
+            item.append_single_stream(mediaLink, self.channelBitrate)
 
         # get the thumbs from multiple locations
         thumbUrls = resultSet.get("images", None)
@@ -393,12 +393,12 @@ class Channel(chn_class.Channel):
         posix = resultSet.get("timestamp", None)
         if posix:
             broadcastDate = DateHelper.get_date_from_posix(int(posix))
-            item.SetDate(broadcastDate.year,
-                         broadcastDate.month,
-                         broadcastDate.day,
-                         broadcastDate.hour,
-                         broadcastDate.minute,
-                         broadcastDate.second)
+            item.set_date(broadcastDate.year,
+                          broadcastDate.month,
+                          broadcastDate.day,
+                          broadcastDate.hour,
+                          broadcastDate.minute,
+                          broadcastDate.second)
 
         item.complete = True
         return item
@@ -428,9 +428,9 @@ class Channel(chn_class.Channel):
 
         Logger.debug("Updating a (Live) video item")
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             stream = part.AppendMediaStream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)
             item.complete = True

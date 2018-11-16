@@ -95,7 +95,7 @@ class Channel(chn_class.Channel):
         searchItem.thumb = self.noImage
         searchItem.dontGroup = True
         searchItem.fanart = self.fanart
-        # searchItem.SetDate(2099, 1, 1, text="")
+        # searchItem.set_date(2099, 1, 1, text="")
         # -> No items have dates, so adding this will force a date sort in Retrospect
         items.append(searchItem)
 
@@ -246,7 +246,7 @@ class Channel(chn_class.Channel):
             month = date[1]
             day = date[2]
             Logger.trace("%s - %s-%s-%s", date, year, month, day)
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
         else:
             Logger.debug("No date found")
 
@@ -282,7 +282,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data, Logger.instance())
         videoData = json.get_value("video")
         if videoData:
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             if self.localIP:
                 part.HttpHeaders.update(self.localIP)
 

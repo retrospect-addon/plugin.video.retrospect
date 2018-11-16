@@ -137,7 +137,7 @@ class Favourites:
             if channel is None:
                 item.name = "%s [%s]" % (item.name, channel_name)
 
-            item.ClearDate()
+            item.clear_date()
 
             item.actionUrl = action_url % (pickle,)
             favs.append(item)

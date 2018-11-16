@@ -71,7 +71,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.thumb = thumbUrl.replace("poster.jpg", "poster-xlarge.jpg")
         item.fanart = fanart
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
         item.complete = True
         return item
 
@@ -128,9 +128,9 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.thumb = thumb
         item.fanart = self.parentItem.fanart
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         part.HttpHeaders["User-Agent"] = "QuickTime/7.6 (qtver=7.6;os=Windows NT 6.0Service Pack 2)"
 
         if "versions" in resultSet and "enus" in resultSet["versions"] and "sizes" in resultSet["versions"]["enus"]:

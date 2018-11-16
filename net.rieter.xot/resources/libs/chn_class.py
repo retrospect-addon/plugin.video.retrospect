@@ -176,7 +176,7 @@ class Channel:
         """
 
         # reset the media item parts, as they will be reloaded.
-        if item.HasMediaItemParts():
+        if item.has_media_item_parts():
             item.MediaItemParts = []
 
         return self.ProcessVideoItem(item)
@@ -200,6 +200,8 @@ class Channel:
 
         if the item is NOne, we assume that we are dealing with the first call for this channel and the mainlist uri
         is used.
+
+        :param mediaitem.MediaItem item: the parent item.
 
         """
 
@@ -231,7 +233,7 @@ class Channel:
         # Let's retrieve the required data. Main url's
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
-            noCache = item is not None and not item.IsPlayable() and item.isLive
+            noCache = item is not None and not item.is_playable() and item.isLive
             if noCache:
                 Logger.debug("Disabling cache for '%s'", item)
             data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=noCache)
@@ -394,7 +396,7 @@ class Channel:
                         item = mediaitem.MediaItem(titleFormat % (char.upper(),), "")
                     item.thumb = self.noImage
                     item.complete = True
-                    # item.SetDate(2100 + ord(char[0]), 1, 1, text='')
+                    # item.set_date(2100 + ord(char[0]), 1, 1, text='')
                     result[char] = item
                 else:
                     item = result[char]
@@ -833,7 +835,7 @@ class Channel:
             Logger.debug("Setting thumb to %s", item.thumb)
             item.thumb = self.noImage
 
-        if not item.HasMediaItemParts():
+        if not item.has_media_item_parts():
             item.complete = False
         else:
             item.complete = True
@@ -856,16 +858,16 @@ class Channel:
 
         """
 
-        if not item.IsPlayable():
+        if not item.is_playable():
             Logger.error("Cannot download a folder item.")
             return item
 
-        if item.IsPlayable():
+        if item.is_playable():
             if not item.complete:
                 Logger.info("Fetching MediaUrl for PlayableItem[%s]", item.type)
                 item = self.ProcessVideoItem(item)
 
-            if not item.complete or not item.HasMediaItemParts():
+            if not item.complete or not item.has_media_item_parts():
                 Logger.error("Cannot download incomplete item or item without MediaItemParts")
                 return item
 
@@ -1001,7 +1003,7 @@ class Channel:
         item.downloaded = True
 
         # get the playlist
-        (playList, srt) = item.GetXBMCPlayList(bitrate, updateItemUrls=True, proxy=self.proxy)
+        (playList, srt) = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
 
         # call for statistics with timing
         Statistics.register_playback(self, item, Initializer.StartTime, -downloadDuration)

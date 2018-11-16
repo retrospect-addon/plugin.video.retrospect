@@ -170,9 +170,9 @@ class Channel(chn_class.Channel):
         if date:
             timeStamp = date["timestamp"]
             dateTime = DateHelper.get_date_from_posix(timeStamp)
-            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
-                         dateTime.minute,
-                         dateTime.second)
+            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                          dateTime.minute,
+                          dateTime.second)
 
         return item
 
@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
         item.description = description
         item.icon = self.icon
         item.type = 'video'
-        item.SetDate(date[0], date[1], date[2])
+        item.set_date(date[0], date[1], date[2])
         item.complete = False
         return item
 
@@ -333,7 +333,7 @@ class Channel(chn_class.Channel):
         videoItems = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for videoItem in videoItems:
             mediaUrl = self.GetVerifiableVideoUrl(videoItem[1].replace("rtmpe", "rtmp"))
             part.AppendMediaStream(mediaUrl, videoItem[0])

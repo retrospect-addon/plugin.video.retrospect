@@ -329,12 +329,12 @@ class Channel(chn_class.Channel):
         if "firstTransmissionDateDisplayValue" in result_set:
             Logger.trace("Using 'firstTransmissionDateDisplayValue' for date")
             day, month, year = result_set["firstTransmissionDateDisplayValue"].split(".")
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
         elif "usageRights" in result_set and "from" in result_set["usageRights"] and result_set["usageRights"]["from"] is not None:
             Logger.trace("Using 'usageRights.from.date' for date")
             date_value = result_set["usageRights"]["from"]["date"].split("+")[0]
             time_stamp = DateHelper.get_date_from_string(date_value, date_format="%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*time_stamp[0:6])
+            item.set_date(*time_stamp[0:6])
 
         return item
 
@@ -379,7 +379,7 @@ class Channel(chn_class.Channel):
 
         use_adaptive = AddonSettings.use_adaptive_stream_add_on()
         stream_data = stream_data[0]
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if "hlsUrl" in stream_data:
             hls_url = stream_data["hlsUrl"]
             if use_adaptive:
@@ -402,7 +402,7 @@ class Channel(chn_class.Channel):
         video_info = manifest.get_value("playable", "assets", 0)
         url = video_info["url"]
         # encrypted = video_info["encrypted"]
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         # Adaptive add-on does not work with audio only
         for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
@@ -415,7 +415,7 @@ class Channel(chn_class.Channel):
         video_info = manifest.get_value("playable", "assets", 0)
         url = video_info["url"]
         encrypted = video_info["encrypted"]
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         if encrypted:
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
@@ -446,19 +446,19 @@ class Channel(chn_class.Channel):
             # availableFrom=/Date(1540612800000+0200)/
             epoch_stamp = result_set["usageRights"]["availableFrom"][6:16]
             available_from = DateHelper.get_date_from_posix(int(epoch_stamp))
-            item.SetDate(available_from.year, available_from.month, available_from.day)
+            item.set_date(available_from.year, available_from.month, available_from.day)
 
         elif "episodeNumberOrDate" in result_set and result_set["episodeNumberOrDate"] is not None:
             Logger.trace("Using 'episodeNumberOrDate' for date")
             date_parts = result_set["episodeNumberOrDate"].split(".")
             if len(date_parts) == 3:
-                item.SetDate(date_parts[2], date_parts[1], date_parts[0])
+                item.set_date(date_parts[2], date_parts[1], date_parts[0])
 
         elif "programUrlMetadata" in result_set and result_set["programUrlMetadata"] is not None:
             Logger.trace("Using 'programUrlMetadata' for date")
             date_parts = result_set["programUrlMetadata"].split("-")
             if len(date_parts) == 3:
-                item.SetDate(date_parts[2], date_parts[1], date_parts[0])
+                item.set_date(date_parts[2], date_parts[1], date_parts[0])
         return
 
     def __get_image(self, images, width_attribute, url_attribute):

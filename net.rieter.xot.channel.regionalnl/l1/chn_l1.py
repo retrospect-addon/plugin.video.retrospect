@@ -165,7 +165,7 @@ class Channel(chn_class.Channel):
             year = resultSet[5]
             Logger.trace("%s-%s-%s", year, month, day)
             month = datehelper.DateHelper.get_month_from_name(month, "nl", True)
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
 
         item.complete = False
         return item
@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
             episodeId = "LI_L1_716685"
             # url = "https://ida.omroep.nl/app.php/LI_L1_716685?adaptive=yes&token={}"
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for s, b in NpoStream.get_streams_from_npo(None, episode_id=episodeId, proxy=self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
@@ -212,7 +212,7 @@ class Channel(chn_class.Channel):
 
         streams = json.get_value("assets")
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for stream in streams:
             url = stream.get("src", None)
             if "://" not in url:

@@ -137,9 +137,9 @@ class Channel(chn_class.Channel):
         item.thumb = self.parentItem.thumb
         item.complete = False
         item.description = "Composers: %(composers)s\nPerformers: %(performers)s" % resultSet
-        item.SetInfoLabel("TrackNumber", resultSet["order"])
-        item.SetInfoLabel("AlbumArtist", resultSet["composers"].split(","))
-        item.SetInfoLabel("Artist", resultSet["performers"].split(","))
+        item.set_info_label("TrackNumber", resultSet["order"])
+        item.set_info_label("AlbumArtist", resultSet["composers"].split(","))
+        item.set_info_label("Artist", resultSet["performers"].split(","))
         return item
 
     def UpdateMusicItem(self, item):
@@ -174,6 +174,6 @@ class Channel(chn_class.Channel):
         url = jsonData.get_value("url", fallback=None)
 
         if url:
-            item.AppendSingleStream(url)
+            item.append_single_stream(url)
             item.Complete = True
         return item

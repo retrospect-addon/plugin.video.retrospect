@@ -145,9 +145,9 @@ class EnvController:
             self.logger.info("Kodi Information:\n%s", info_string)
 
             # log the settings
-            self.logger.info("Retrospect Settings:\n%s", setting_info.PrintSettingValues())
+            self.logger.info("Retrospect Settings:\n%s", setting_info.print_setting_values())
 
-            if setting_info.GetLogLevel() > 10:
+            if setting_info.get_log_level() > 10:
                 return
 
             # get the script directory

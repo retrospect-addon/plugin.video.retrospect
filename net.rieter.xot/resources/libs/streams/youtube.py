@@ -65,7 +65,7 @@ class YouTube:
 
         Can be used like this:
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)

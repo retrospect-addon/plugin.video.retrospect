@@ -71,7 +71,7 @@ class Channel(chn_class.Channel):
         youTubeUrl = Regexer.DoRegex('"(https://www.youtube.com/embed/[^\"]+)', data)
         if youTubeUrl:
             Logger.debug("Using Youtube video")
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             youTubeUrl = youTubeUrl[0].replace("embed/", "watch?v=")
             for s, b in YouTube.get_streams_from_you_tube(youTubeUrl, self.proxy):
                 item.complete = True
@@ -88,7 +88,7 @@ class Channel(chn_class.Channel):
             baseUrl = smiller.get_base_url()
             urls = smiller.get_videos_and_bitrates()
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             for url in urls:
                 if "youtube" in url[0]:
                     for s, b in YouTube.get_streams_from_you_tube(url[0], self.proxy):
@@ -112,7 +112,7 @@ class Channel(chn_class.Channel):
             playerKey = str(objectData[1])
             videoId = int(objectData[0])
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             # But we need the IOS streams!
             amfHelper = BrightCove(Logger.instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
             for stream, bitrate in amfHelper.get_stream_info(renditions="IOSRenditions"):

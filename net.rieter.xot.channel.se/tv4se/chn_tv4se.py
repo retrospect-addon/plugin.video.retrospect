@@ -333,9 +333,9 @@ class Channel(chn_class.Channel):
             item.isLive = isLive
 
             if date is not None:
-                item.SetDate(date.year, date.month, date.day, 0, 0, 0, text=date.strftime("%Y-%m-%d"))
+                item.set_date(date.year, date.month, date.day, 0, 0, 0, text=date.strftime("%Y-%m-%d"))
             else:
-                item.SetDate(1901, 1, 1, 0, 0, 0, text="")
+                item.set_date(1901, 1, 1, 0, 0, 0, text="")
             items.append(item)
 
         if not self.channelCode == "tv4se":
@@ -504,7 +504,7 @@ class Channel(chn_class.Channel):
         (datePart, timePart) = date.split("T")
         (year, month, day) = datePart.split("-")
         (hour, minutes, rest1, zone) = timePart.split(":")
-        item.SetDate(year, month, day, hour, minutes, 00)
+        item.set_date(year, month, day, hour, minutes, 00)
         broadcastDate = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes))
 
         thumbUrl = resultSet["image"]
@@ -613,7 +613,7 @@ class Channel(chn_class.Channel):
         if m3u8Url is None:
             return item
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         if AddonSettings.use_adaptive_stream_add_on() and False:
             stream = part.AppendMediaStream(m3u8Url, 0)
@@ -668,7 +668,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
         if spoofIp:

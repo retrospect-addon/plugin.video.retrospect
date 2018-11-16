@@ -413,7 +413,7 @@ class Plugin(ParameterParser):
                 if episodeItem.type == 'folder' or episodeItem.type == 'append' or episodeItem.type == "page":
                     action = self.actionListFolder
                     folder = True
-                elif episodeItem.IsPlayable():
+                elif episodeItem.is_playable():
                     action = self.actionPlayVideo
                     folder = False
                 else:
@@ -421,7 +421,7 @@ class Plugin(ParameterParser):
                     continue
 
                 # Get the XBMC item
-                item = episodeItem.GetXBMCItem()
+                item = episodeItem.get_kodi_item()
 
                 # Set the properties for the context menu add-on
                 item.setProperty(self.propertyRetrospect, "true")
@@ -498,11 +498,11 @@ class Plugin(ParameterParser):
                 item = self.channelObject.ProcessVideoItem(item)
 
             # validated the updated item
-            if not item.complete or not item.HasMediaItemParts():
+            if not item.complete or not item.has_media_item_parts():
                 Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
                 Statistics.register_error(self.channelObject, item=item)
 
-            if not item.HasMediaItemParts():
+            if not item.has_media_item_parts():
                 # the update failed or no items where found. Don't play
                 XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                              LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
@@ -528,7 +528,7 @@ class Plugin(ParameterParser):
             LockWithDialog.close_busy_dialog()
 
             resolvedUrl = None
-            if item.IsResolvable():
+            if item.is_resolvable():
                 # now set the resolve to the first URL
                 startIndex = playList.getposition()  # the current location
                 if startIndex < 0:
@@ -650,7 +650,7 @@ class Plugin(ParameterParser):
             labelSortMethod = xbmcplugin.SORT_METHOD_LABEL
 
         if items:
-            hasDates = len(filter(lambda i: i.HasDate(), items)) > 0
+            hasDates = len(filter(lambda i: i.has_date(), items)) > 0
             if hasDates:
                 Logger.debug("Sorting method: Dates")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
@@ -659,7 +659,7 @@ class Plugin(ParameterParser):
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
 
-            hasTracks = len(filter(lambda i: i.HasTrack(), items)) > 0
+            hasTracks = len(filter(lambda i: i.has_track(), items)) > 0
             if hasTracks:
                 Logger.debug("Sorting method: Tracks")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
@@ -773,7 +773,7 @@ class Plugin(ParameterParser):
             emptyListItem.complete = True
             emptyListItem.fanart = self.channelObject.fanart
             # add funny stream here?
-            # part = emptyListItem.CreateNewEmptyMediaPart()
+            # part = emptyListItem.create_new_empty_media_part()
             # for s, b in YouTube.get_streams_from_you_tube("", self.channelObject.proxy):
             #     part.AppendMediaStream(s, b)
 
