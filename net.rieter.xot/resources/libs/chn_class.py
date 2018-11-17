@@ -219,7 +219,7 @@ class Channel:
         # Determine the handlers and process
         dataParsers = self.__GetDataParsers(url)
         # Exclude the updaters only
-        dataParsers = filter(lambda p: not p.IsVideoUpdaterOnly(), dataParsers)
+        dataParsers = filter(lambda p: not p.is_video_updater_only(), dataParsers)
         if filter(lambda p: p.LogOnRequired, dataParsers):
             Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.LogOn()
@@ -250,7 +250,7 @@ class Channel:
             data = ""
 
         # first check if there is a generic pre-processor
-        preProcs = filter(lambda p: p.IsGenericPreProcessor(), dataParsers)
+        preProcs = filter(lambda p: p.is_generic_pre_processor(), dataParsers)
         numPreProcs = len(preProcs)
         Logger.trace("Processing %s Generic Pre-Processors DataParsers", numPreProcs)
         if numPreProcs > 1:
@@ -1212,7 +1212,7 @@ class Channel:
             # filter them in order
             for key in keys:
                 # for each key we see if we have filtered results
-                dataParsers = filter(lambda p: p.Matches(url),
+                dataParsers = filter(lambda p: p.matches(url),
                                      self.dataParsers[key])
                 if dataParsers:
                     Logger.trace("Found %s direct DataParsers matches", len(dataParsers))
