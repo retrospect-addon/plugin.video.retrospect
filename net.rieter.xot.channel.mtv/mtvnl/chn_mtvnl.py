@@ -336,7 +336,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         for videoItem in videoItems:
             mediaUrl = self.GetVerifiableVideoUrl(videoItem[1].replace("rtmpe", "rtmp"))
-            part.AppendMediaStream(mediaUrl, videoItem[0])
+            part.append_media_stream(mediaUrl, videoItem[0])
 
         item.complete = True
         return item

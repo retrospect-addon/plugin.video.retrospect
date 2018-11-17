@@ -799,13 +799,13 @@ class Channel(chn_class.Channel):
                     url = url[0:altIndex + 4]
 
                 for s, b in M3u8.get_streams_from_m3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
-                    part.AppendMediaStream(s, b)
+                    part.append_media_stream(s, b)
 
             elif video["url"].startswith("rtmp"):
                 # just replace some data in the URL
-                part.AppendMediaStream(self.GetVerifiableVideoUrl(video["url"]).replace("_definst_", "?slist="), video[1])
+                part.append_media_stream(self.GetVerifiableVideoUrl(video["url"]).replace("_definst_", "?slist="), video[1])
             else:
-                part.AppendMediaStream(url, 0)
+                part.append_media_stream(url, 0)
 
         if subtitles:
             Logger.info("Found subtitles to play")

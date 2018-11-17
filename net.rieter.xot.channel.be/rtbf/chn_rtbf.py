@@ -200,7 +200,7 @@ class Channel(chn_class.Channel):
                 bitrate = 400
             else:
                 bitrate = 0
-            part.AppendMediaStream(url, bitrate)
+            part.append_media_stream(url, bitrate)
 
         # geoLocRestriction
         item.isGeoLocked = not mediaInfo.get_value("geoLocRestriction", fallback="world") == "world"
@@ -222,7 +222,7 @@ class Channel(chn_class.Channel):
             # from debug.router import Router
             # data = Router.GetVia("be", hlsUrl, proxy=self.proxy)
             for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
                 item.complete = True
         else:
             Logger.debug("No HLS url found for %s. Fetching RTMP Token.", mediaInfo.json["streamName"])
@@ -235,7 +235,7 @@ class Channel(chn_class.Channel):
 
             rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
             rtmpUrl = self.GetVerifiableVideoUrl(rtmpUrl)
-            part.AppendMediaStream(rtmpUrl, 0)
+            part.append_media_stream(rtmpUrl, 0)
             item.complete = True
 
         item.isGeoLocked = not mediaInfo.get_value("geoLocRestriction", fallback="world") == "world"

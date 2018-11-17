@@ -292,7 +292,7 @@ class Channel(chn_class.Channel):
                     stream = "https:%s" % (stream, )
                 part = item.create_new_empty_media_part()
                 part.Name = titleFormat % (hour, startTimeStamp.tm_min)
-                part.AppendMediaStream(stream, 0)
+                part.append_media_stream(stream, 0)
                 hour += 1
         elif "showUrl" in resultSet and resultSet["showUrl"]:
             titleFormat = "%%02d:%%02d - %s" % (resultSet['title'],)
@@ -303,7 +303,7 @@ class Channel(chn_class.Channel):
                 stream = "https:%s" % (stream,)
             part = item.create_new_empty_media_part()
             part.Name = titleFormat % (hour, startTimeStamp.tm_min)
-            part.AppendMediaStream(stream, 0)
+            part.append_media_stream(stream, 0)
             hour += 1
         else:
             Logger.warning("Found item without streams: %s", item)
@@ -337,7 +337,7 @@ class Channel(chn_class.Channel):
                     Logger.debug("Ignoring transport type: %s", transportType)
                     continue
 
-                part.AppendMediaStream(url, bitrate)
+                part.append_media_stream(url, bitrate)
                 item.complete = True
         return item
 
@@ -368,7 +368,7 @@ class Channel(chn_class.Channel):
         for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

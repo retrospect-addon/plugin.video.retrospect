@@ -148,12 +148,12 @@ class Channel(chn_class.Channel):
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
-            stream = part.AppendMediaStream(url, 0)
+            stream = part.append_media_stream(url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)
         else:
             for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                 item.complete = True
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         return item
 
     def UpdateVideoItem(self, item):
@@ -180,14 +180,14 @@ class Channel(chn_class.Channel):
             if "_hi.mp4" in s:
                 # if s.startswith("rtmp"):
                 #     s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, 2402 + bitrateAdd)
-                part.AppendMediaStream(s.replace("_hi.mp4", "_medium.mp4"), 1402 + bitrateAdd)
-                part.AppendMediaStream(s.replace("_hi.mp4", "_low.mp4"), 302 + bitrateAdd)
+                part.append_media_stream(s, 2402 + bitrateAdd)
+                part.append_media_stream(s.replace("_hi.mp4", "_medium.mp4"), 1402 + bitrateAdd)
+                part.append_media_stream(s.replace("_hi.mp4", "_low.mp4"), 302 + bitrateAdd)
 
             elif "_medium.mp4" in s:
                 # if s.startswith("rtmp"):
                 #     s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, 1402 + bitrateAdd)
-                part.AppendMediaStream(s.replace("_medium.mp4", "_low.mp4"), 302 + bitrateAdd)
+                part.append_media_stream(s, 1402 + bitrateAdd)
+                part.append_media_stream(s.replace("_medium.mp4", "_low.mp4"), 302 + bitrateAdd)
         item.complete = True
         return item

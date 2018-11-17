@@ -424,7 +424,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
         if adaptiveAvailable:
-            stream = part.AppendMediaStream(item.url, 0)
+            stream = part.append_media_stream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             return item
 
@@ -434,7 +434,7 @@ class Channel(chn_class.Channel):
             # this is an ugly fix, but it will work!
             if "-audio_" not in s:
                 s = s.replace(".m3u8", "-audio_track=96000.m3u8")
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
         return item
 
     def UpdateVideoItem(self, item):
@@ -476,14 +476,14 @@ class Channel(chn_class.Channel):
             if videoType == "hls_aes" and drmProtected and adaptiveAvailable:
                 # no difference in encrypted or not.
                 Logger.debug("Found HLS AES encrypted stream and a DRM key")
-                stream = part.AppendMediaStream(videoUrl, 0)
+                stream = part.append_media_stream(videoUrl, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy)
 
             elif videoType == "hls" and not drmProtected:
                 # no difference in encrypted or not.
                 if adaptiveAvailable:
                     Logger.debug("Found standard HLS stream and without DRM protection")
-                    stream = part.AppendMediaStream(videoUrl, 0)
+                    stream = part.append_media_stream(videoUrl, 0)
                     M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
                     m3u8Data = UriHandler.Open(videoUrl, self.proxy)
@@ -494,7 +494,7 @@ class Channel(chn_class.Channel):
                             audioPart = a.rsplit("-", 1)[-1]
                             audioPart = "-%s" % (audioPart, )
                             s = s.replace(".m3u8", audioPart)
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
 
                     srt = M3u8.get_subtitle(videoUrl, play_list_data=m3u8Data, proxy=self.proxy)
                     if not srt:
@@ -506,10 +506,10 @@ class Channel(chn_class.Channel):
             elif videoType == "mpeg_dash" and adaptiveAvailable:
                 if not drmProtected:
                     Logger.debug("Found standard MPD stream and without DRM protection")
-                    stream = part.AppendMediaStream(videoUrl, 1)
+                    stream = part.append_media_stream(videoUrl, 1)
                     Mpd.set_input_stream_addon_input(stream, self.proxy)
                 else:
-                    stream = part.AppendMediaStream(videoUrl, 1)
+                    stream = part.append_media_stream(videoUrl, 1)
                     encryptionJson = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'\
                         .format(drmKey)
                     encryptionKey = Mpd.get_license_key(

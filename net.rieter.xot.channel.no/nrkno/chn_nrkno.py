@@ -383,14 +383,14 @@ class Channel(chn_class.Channel):
         if "hlsUrl" in stream_data:
             hls_url = stream_data["hlsUrl"]
             if use_adaptive:
-                stream = part.AppendMediaStream(hls_url, 0)
+                stream = part.append_media_stream(hls_url, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy, headers=headers)
                 item.complete = True
             else:
                 for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy, headers=headers):
                     item.complete = True
                     # s = self.GetVerifiableVideoUrl(s)
-                    part.AppendMediaStream(s, b)
+                    part.append_media_stream(s, b)
 
         if "timedTextSubtitlesUrl" in stream_data and stream_data["timedTextSubtitlesUrl"]:
             sub_url = stream_data["timedTextSubtitlesUrl"].replace(".ttml", ".vtt")
@@ -407,7 +407,7 @@ class Channel(chn_class.Channel):
         # Adaptive add-on does not work with audio only
         for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
             item.complete = True
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item
 
@@ -422,20 +422,20 @@ class Channel(chn_class.Channel):
             if not use_adaptive:
                 Logger.error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
                 return item
-            stream = part.AppendMediaStream(url, 0)
+            stream = part.append_media_stream(url, 0)
             key = M3u8.get_license_key("", key_headers=headers, key_type="R")
             M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers, license_key=key)
             item.complete = True
         else:
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
             if use_adaptive:
-                stream = part.AppendMediaStream(url, 0)
+                stream = part.append_media_stream(url, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy, headers=headers)
                 item.complete = True
             else:
                 for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
                     item.complete = True
-                    part.AppendMediaStream(s, b)
+                    part.append_media_stream(s, b)
 
         return item
 

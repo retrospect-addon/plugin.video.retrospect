@@ -136,21 +136,21 @@ class Channel(chn_class.Channel):
             streams = json.get_value()
             for key in streams:
                 if key == "flv":
-                    part.AppendMediaStream(streams[key], 1000)
+                    part.append_media_stream(streams[key], 1000)
                 elif key == "720p":
-                    part.AppendMediaStream(streams[key], 1200)
+                    part.append_media_stream(streams[key], 1200)
                 elif key == "1080p":
-                    part.AppendMediaStream(streams[key], 1600)
+                    part.append_media_stream(streams[key], 1600)
                 elif key == "tablet":
-                    part.AppendMediaStream(streams[key], 800)
+                    part.append_media_stream(streams[key], 800)
                 elif key == "mobile":
-                    part.AppendMediaStream(streams[key], 450)
+                    part.append_media_stream(streams[key], 450)
                 elif key == "embed" and streams[key].startswith("youtube"):
                     embedType, youtubeId = streams[key].split(":")
                     url = "https://www.youtube.com/watch?v=%s" % (youtubeId, )
                     for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                 else:
                     Logger.debug("Key '%s' was not used", key)
             item.complete = True
@@ -163,7 +163,7 @@ class Channel(chn_class.Channel):
             url = "https://www.youtube.com/watch?v=%s" % (youtubeId,)
             for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                 item.complete = True
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         return item
 
     def SearchSite(self, url=None):

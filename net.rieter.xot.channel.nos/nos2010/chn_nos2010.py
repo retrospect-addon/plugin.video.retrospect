@@ -890,7 +890,7 @@ class Channel(chn_class.Channel):
                 continue
             bitrate = stream.get("bitrate", 0)
             url = stream["url"]
-            part.AppendMediaStream(url, bitrate)
+            part.append_media_stream(url, bitrate)
             item.complete = True
             # if not stream["protocol"] == "prid":
             #     continue
@@ -967,7 +967,7 @@ class Channel(chn_class.Channel):
         mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
         if len(mp3Urls) > 0:
             Logger.debug("Found MP3 URL")
-            part.AppendMediaStream(mp3Urls[0], 192)
+            part.append_media_stream(mp3Urls[0], 192)
         else:
             Logger.debug("Finding the actual metadata url from %s", item.url)
             # NPO3 normal stream had wrong subs
@@ -1000,7 +1000,7 @@ class Channel(chn_class.Channel):
         dashLicense = Mpd.get_license_key(dashLicenseUrl, key_headers=dashHeaders, key_type="R")
 
         part = item.create_new_empty_media_part()
-        stream = part.AppendMediaStream(dashUrl, 0)
+        stream = part.append_media_stream(dashUrl, 0)
         Mpd.set_input_stream_addon_input(stream, self.proxy, dashHeaders, license_key=dashLicense)
         item.complete = True
         return item
@@ -1045,7 +1045,7 @@ class Channel(chn_class.Channel):
         for s, b in NpoStream.get_streams_from_npo(None, episodeId, proxy=self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         if False and AddonSettings.use_adaptive_stream_add_on():
             NpoStream.add_mpd_stream_from_npo(None, episodeId, part, proxy=self.proxy)

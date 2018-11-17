@@ -875,7 +875,7 @@ class Channel:
             bitrate = AddonSettings.get_max_stream_bitrate(self)
             for mediaItemPart in item.MediaItemParts:
                 Logger.info("Trying to download %s", mediaItemPart)
-                stream = mediaItemPart.GetMediaStreamForBitrate(bitrate)
+                stream = mediaItemPart.get_media_stream_for_bitrate(bitrate)
                 downloadUrl = stream.Url
                 extension = UriHandler.GetExtensionFromUrl(downloadUrl)
                 if len(item.MediaItemParts) > 1:
@@ -960,7 +960,7 @@ class Channel:
         downloadStart = datetime.now()
         for part in item.MediaItemParts:
             if not part.CanStream:
-                stream = part.GetMediaStreamForBitrate(bitrate)
+                stream = part.get_media_stream_for_bitrate(bitrate)
                 if not stream.Downloaded:
                     Logger.debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
 
@@ -1037,7 +1037,7 @@ class Channel:
 
         # Kodi 17.x also accepts an SWF-url as swfvfy option (https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp).
         # This option should be set via the XbmcListItem.setProperty, so within Retrospect via:
-        #   part.AddProperty("swfvfy", self.swfUrl)
+        #   part.add_property("swfvfy", self.swfUrl)
         # Or as an URL parameter swfvfy where we add the full URL instead of just 1:
         #   return "%s swfvfy=%s" % (url, self.swfUrl)
 

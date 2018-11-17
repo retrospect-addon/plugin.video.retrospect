@@ -151,9 +151,9 @@ class Channel(chn_class.Channel):
                             if len(parts) == 2:
                                 Logger.trace(parts)
                                 streamUrl = "%s_h%s" % (parts[0], parts[1])
-                            part.AppendMediaStream(streamUrl, bitrate)
+                            part.append_media_stream(streamUrl, bitrate)
                         else:
-                            part.AppendMediaStream(streamUrl, bitrate)
+                            part.append_media_stream(streamUrl, bitrate)
                         item.complete = True
 
         item.downloadable = True

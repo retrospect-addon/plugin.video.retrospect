@@ -359,7 +359,7 @@ class Channel(chn_class.Channel):
                 keyHeaders = {"Authorization": token}
                 licenseKey = Mpd.get_license_key(licenseUrl, key_headers=keyHeaders)
 
-                stream = part.AppendMediaStream(mpdManifestUrl, 0)
+                stream = part.append_media_stream(mpdManifestUrl, 0)
                 Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey)
                 item.complete = True
                 return item
@@ -379,12 +379,12 @@ class Channel(chn_class.Channel):
                 if useAdaptive:
                     # we have at least 1 none encrypted streams
                     Logger.info("Using HLS InputStreamAddon")
-                    strm = part.AppendMediaStream(m3u8Url, 0)
+                    strm = part.append_media_stream(m3u8Url, 0)
                     M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                     item.complete = True
                     return item
 
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
                 item.complete = True
             return item
 
@@ -403,14 +403,14 @@ class Channel(chn_class.Channel):
             if useAdaptive:
                 # we have at least 1 none encrypted streams
                 Logger.info("Using HLS InputStreamAddon")
-                strm = part.AppendMediaStream(m3u8Url, 0)
+                strm = part.append_media_stream(m3u8Url, 0)
                 M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                 item.complete = True
                 return item
 
             for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, append_query_string=True):
                 item.complete = True
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
             return item
 
@@ -435,13 +435,13 @@ class Channel(chn_class.Channel):
                 # "range" http header
                 if useAdaptiveWithEncryption:
                     Logger.info("Using InputStreamAddon for playback of HLS stream")
-                    strm = part.AppendMediaStream(streamUrl, 0)
-                    strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
-                    strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+                    strm = part.append_media_stream(streamUrl, 0)
+                    strm.add_property("inputstreamaddon", "inputstream.adaptive")
+                    strm.add_property("inputstream.adaptive.manifest_type", "hls")
                     item.complete = True
                     return item
 
                 for s, b in M3u8.get_streams_from_m3u8(streamUrl, self.proxy):
                     item.complete = True
-                    part.AppendMediaStream(s, b)
+                    part.append_media_stream(s, b)
                 return item

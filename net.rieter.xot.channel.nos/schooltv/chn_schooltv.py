@@ -267,7 +267,7 @@ class Channel(chn_class.Channel):
 
         for stream in json.get_value("videoStreams"):
             if not stream["url"].startswith("odi"):
-                part.AppendMediaStream(stream["url"], stream["bitrate"]/1000)
+                part.append_media_stream(stream["url"], stream["bitrate"] / 1000)
                 item.complete = True
 
         if item.has_media_item_parts():
@@ -275,6 +275,6 @@ class Channel(chn_class.Channel):
 
         for s, b in NpoStream.get_streams_from_npo(None, json.get_value("mid"), proxy=self.proxy):
             item.complete = True
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item

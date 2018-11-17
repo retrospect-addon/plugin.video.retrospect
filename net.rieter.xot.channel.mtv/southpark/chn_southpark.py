@@ -189,7 +189,7 @@ class Channel(chn_class.Channel):
                 if part is None:
                     part = item.create_new_empty_media_part()
 
-                part.AppendMediaStream(self.GetVerifiableVideoUrl(rtmpStream[2]), rtmpStream[1])
+                part.append_media_stream(self.GetVerifiableVideoUrl(rtmpStream[2]), rtmpStream[1])
 
         item.complete = True
         Logger.trace("Media item updated: %s", item)

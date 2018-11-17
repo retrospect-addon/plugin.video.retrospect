@@ -182,7 +182,7 @@ class Channel(chn_class.Channel):
         for s, b in NpoStream.get_streams_from_npo(None, episode_id=episodeId, proxy=self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item
 
@@ -219,7 +219,7 @@ class Channel(chn_class.Channel):
                 url = "http://static.l1.nl/bbw%s" % (url, )
             bitrate = stream.get("bandwidth", None)
             if url:
-                part.AppendMediaStream(url, bitrate)
+                part.append_media_stream(url, bitrate)
 
         if not item.thumb and json.get_value("thumbnails"):
             url = json.get_value("thumbnails")[0].get("src", None)

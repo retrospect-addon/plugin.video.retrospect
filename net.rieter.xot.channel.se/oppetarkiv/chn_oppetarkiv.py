@@ -296,14 +296,14 @@ class Channel(chn_class.Channel):
                 elif "master.m3u8" in streamInfo:
                     for s, b in M3u8.get_streams_from_m3u8(streamInfo, self.proxy, headers=part.HttpHeaders):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
 
                     #m3u8Data = UriHandler.Open(streamInfo, proxy=self.proxy)
 
                     #urls = Regexer.DoRegex(self.mediaUrlRegex, m3u8Data)
                     #Logger.Trace(urls)
                     #for url in urls:
-                        #part.AppendMediaStream(url[1].strip(), url[0])
+                        #part.append_media_stream(url[1].strip(), url[0])
 
             # subtitles
             subtitles = videoData.get("subtitleReferences")

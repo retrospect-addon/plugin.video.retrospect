@@ -103,7 +103,7 @@ class M3u8:
             for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         """
 

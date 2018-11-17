@@ -301,17 +301,17 @@ class Channel(chn_class.Channel):
             for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"], self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         elif "HLSurl" in videoInfo:
             # HLSurl=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,.mp4.csmil/master.m3u8
             for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurl"], self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         if "downloadLink" in videoInfo:
             # downloadLink=http://podcastsource.sf.tv/nps/podcast/10vor10/2015/03/10vor10_20150304_215030_v_podcast_h264_q10.mp4
-            part.AppendMediaStream(videoInfo["downloadLink"], 1000)
+            part.append_media_stream(videoInfo["downloadLink"], 1000)
 
         return item
 
@@ -354,7 +354,7 @@ class Channel(chn_class.Channel):
                     for s, b in M3u8.get_streams_from_m3u8(streamUrl, self.proxy):
                         item.complete = True
                         # s = self.GetVerifiableVideoUrl(s)
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                 else:
                     Logger.debug("Cannot use stream url: %s", streamUrl)
 
@@ -366,17 +366,17 @@ class Channel(chn_class.Channel):
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"], self.proxy):
         #         item.complete = True
         #         # s = self.GetVerifiableVideoUrl(s)
-        #         part.AppendMediaStream(s, b)
+        #         part.append_media_stream(s, b)
         # elif "HLSurl" in videoInfo:
         #     # HLSurl=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,.mp4.csmil/master.m3u8
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurl"], self.proxy):
         #         item.complete = True
         #         # s = self.GetVerifiableVideoUrl(s)
-        #         part.AppendMediaStream(s, b)
+        #         part.append_media_stream(s, b)
         #
         # if "downloadLink" in videoInfo:
         #     # downloadLink=http://podcastsource.sf.tv/nps/podcast/10vor10/2015/03/10vor10_20150304_215030_v_podcast_h264_q10.mp4
-        #     part.AppendMediaStream(videoInfo["downloadLink"], 1000)
+        #     part.append_media_stream(videoInfo["downloadLink"], 1000)
 
         return item
 

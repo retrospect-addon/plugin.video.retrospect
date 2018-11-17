@@ -216,14 +216,14 @@ class Channel(chn_class.Channel):
 
             # actually process the url
             if not url.endswith(".m3u8"):
-                part.AppendMediaStream(
+                part.append_media_stream(
                     url=url,
                     bitrate=qualities.get(stream.get("name", "other"), 0)
                 )
                 item.complete = True
             # elif AddonSettings.use_adaptive_stream_add_on():
             #     contentType, url = UriHandler.Header(url, self.proxy)
-            #     stream = part.AppendMediaStream(url, 0)
+            #     stream = part.append_media_stream(url, 0)
             #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
             #     item.complete = True
             else:
@@ -231,7 +231,7 @@ class Channel(chn_class.Channel):
                 for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                     item.complete = True
                     # s = self.GetVerifiableVideoUrl(s)
-                    part.AppendMediaStream(s, b)
+                    part.append_media_stream(s, b)
 
         return item
 

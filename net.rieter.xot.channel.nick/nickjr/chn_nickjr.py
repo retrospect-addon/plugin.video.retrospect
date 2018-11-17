@@ -268,14 +268,14 @@ class Channel(chn_class.Channel):
             # m3u8Url = stream.get_value("package", "video", "item", 0, "rendition", 0, "src")
             # for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             #     item.complete = True
-            #     part.AppendMediaStream(s, b)
+            #     part.append_media_stream(s, b)
 
             rtmpDatas = stream.get_value("package", "video", "item", 0, "rendition")
             for rtmpData in rtmpDatas:
                 rtmpUrl = rtmpData["src"]
                 rtmpUrl = rtmpUrl.replace("rtmpe://", "rtmp://")
                 bitrate = rtmpData["bitrate"]
-                part.AppendMediaStream(rtmpUrl, bitrate)
+                part.append_media_stream(rtmpUrl, bitrate)
 
         item.complete = True
         Logger.trace("Media url: %s", item)

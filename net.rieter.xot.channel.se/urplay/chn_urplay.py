@@ -373,7 +373,7 @@ class Channel(chn_class.Channel):
             else:
                 Logger.warning("Unsupported Stream Type: %s", streamType)
                 continue
-            part.AppendMediaStream(url.strip("/"), bitrate)
+            part.append_media_stream(url.strip("/"), bitrate)
 
         # get the subtitles
         captions = json.get_value("subtitles")

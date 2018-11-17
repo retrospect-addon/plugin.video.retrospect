@@ -120,7 +120,7 @@ class Channel(chn_class.Channel):
         }
 
         for bitrate in mediaUrls:
-            playbackPart.AppendMediaStream(mediaUrls[bitrate], bitrate)
+            playbackPart.append_media_stream(mediaUrls[bitrate], bitrate)
 
         Logger.debug("Streams: %s", playbackPart)
         playbackItem.complete = True
@@ -231,7 +231,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         for stream in streams:
             Logger.trace(stream)
-            part.AppendMediaStream(stream[0], stream[1])
+            part.append_media_stream(stream[0], stream[1])
 
         item.complete = True
         return item

@@ -322,7 +322,7 @@ class Channel(chn_class.Channel):
 
                 # if liveStream:
                 #     url = "%s live=1" % (url, )
-                part.AppendMediaStream(url, bitrate)
+                part.append_media_stream(url, bitrate)
 
         # get the subtitle
         subtitles = Regexer.DoRegex('<connection href="(http://www.bbc.co.uk/iplayer/subtitles/[^"]+/)([^/]+.xml)"',
@@ -409,14 +409,14 @@ class Channel(chn_class.Channel):
         # for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
         #     item.complete = True
         #     # s = self.GetVerifiableVideoUrl(s)
-        #     part.AppendMediaStream(s, b)
+        #     part.append_media_stream(s, b)
 
         part = item.create_new_empty_media_part()
         for s, b in F4m.get_streams_from_f4m(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
             s = s.replace(".f4m", ".m3u8")
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item
 

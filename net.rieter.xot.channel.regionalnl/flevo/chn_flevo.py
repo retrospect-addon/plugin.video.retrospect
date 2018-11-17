@@ -142,10 +142,10 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         if ".mp3" in stream:
             item.complete = True
-            part.AppendMediaStream(stream, 0)
+            part.append_media_stream(stream, 0)
         elif stream.endswith(".mp4"):
             item.complete = True
-            part.AppendMediaStream(stream, 2500)
+            part.append_media_stream(stream, 2500)
         elif ".m3u8" in stream:
             item.url = stream
             return self.UpdateLiveUrls(item)
@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
-            stream = part.AppendMediaStream(item.url, 0)
+            stream = part.append_media_stream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True
         else:
@@ -186,6 +186,6 @@ class Channel(chn_class.Channel):
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
             item.complete = True
         return item

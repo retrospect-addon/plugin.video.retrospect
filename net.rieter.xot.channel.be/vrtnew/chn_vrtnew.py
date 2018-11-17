@@ -227,7 +227,7 @@ class Channel(chn_class.Channel):
 
                     for s, b in M3u8.get_streams_from_m3u8(flv, self.proxy):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                     # no need to continue adding the streams
                     continue
 
@@ -239,7 +239,7 @@ class Channel(chn_class.Channel):
                     flv = "%s/%s" % (flvServer, flvPath)
                     bitrate = 0
 
-            part.AppendMediaStream(flv, bitrate)
+            part.append_media_stream(flv, bitrate)
 
         item.complete = True
         return item

@@ -775,7 +775,7 @@ class Plugin(ParameterParser):
             # add funny stream here?
             # part = emptyListItem.create_new_empty_media_part()
             # for s, b in YouTube.get_streams_from_you_tube("", self.channelObject.proxy):
-            #     part.AppendMediaStream(s, b)
+            #     part.append_media_stream(s, b)
 
             # if we add one, set OK to True
             ok = True

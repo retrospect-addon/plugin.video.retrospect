@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
             bitrate = rtmpUrl[0]
             # convertedUrl = url.replace("ondemand/","ondemand?slist=")
             convertedUrl = self.GetVerifiableVideoUrl(url)
-            part.AppendMediaStream(convertedUrl, bitrate)
+            part.append_media_stream(convertedUrl, bitrate)
 
         item.complete = True
         Logger.trace("Media url: %s", item)

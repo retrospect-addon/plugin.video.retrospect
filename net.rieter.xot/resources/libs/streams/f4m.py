@@ -32,7 +32,7 @@ class F4m:
             for s, b in F4m.get_streams_from_f4m(url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         """
 

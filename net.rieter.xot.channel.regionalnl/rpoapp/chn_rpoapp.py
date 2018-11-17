@@ -181,13 +181,13 @@ class Channel(chn_class.Channel):
     def UpdateLiveItem(self, item):
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
-            stream = part.AppendMediaStream(item.url, 0)
+            stream = part.append_media_stream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True
         else:
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
                 item.complete = True
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         return item
 
     def UpdateVideoItemJsonPlayer(self, item):
@@ -197,7 +197,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         bitrates = { "720p SD": 1200 }
         for stream in streams:
-            part.AppendMediaStream(stream[1], bitrates.get(stream[0], 0))
+            part.append_media_stream(stream[1], bitrates.get(stream[0], 0))
             item.complete = True
 
         return item
@@ -221,7 +221,7 @@ class Channel(chn_class.Channel):
         server = jsonData.get_value("publicationData", "defaultMediaAssetPath")
         part = item.create_new_empty_media_part()
         for clip in clipData:
-            part.AppendMediaStream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
+            part.append_media_stream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
             item.complete = True
 
         return item

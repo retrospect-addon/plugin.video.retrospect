@@ -288,7 +288,7 @@ class Channel(chn_class.Channel):
 
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

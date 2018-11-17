@@ -231,7 +231,7 @@ class Channel(chn_class.Channel):
         for s, b in YouTube.get_streams_from_you_tube(item.url, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

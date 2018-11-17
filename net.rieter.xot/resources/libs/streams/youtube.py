@@ -69,7 +69,7 @@ class YouTube:
             for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         """
 
         you_tube_streams = []
@@ -143,7 +143,7 @@ class YouTube:
         """ Plays a YouTube URL with the YouTube addon from XBMC.
 
         url = YouTube.PlayYouTubeUrl(url[0])
-        part.AppendMediaStream(url, bitrate=0)
+        part.append_media_stream(url, bitrate=0)
 
         @param url: The URL to playback in the format: http://www.youtube.com/watch?v=878-LYQEcPs
         @return: The plugin:// url for the YouTube addon

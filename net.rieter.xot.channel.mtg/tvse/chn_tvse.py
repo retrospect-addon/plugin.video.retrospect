@@ -168,7 +168,7 @@ class Channel(chn_class.Channel):
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
-            stream = part.AppendMediaStream(m3u8Url, 0)
+            stream = part.append_media_stream(m3u8Url, 0)
             M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers)
             item.complete = True
         else:
@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
                     videoPart = s.rsplit("-", 1)[-1]
                     videoPart = "-%s" % (videoPart,)
                     s = a.replace(".m3u8", videoPart)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
                 item.complete = True
 
         return item

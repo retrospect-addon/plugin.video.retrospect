@@ -135,7 +135,7 @@ class Channel(chn_class.Channel):
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
 
         for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

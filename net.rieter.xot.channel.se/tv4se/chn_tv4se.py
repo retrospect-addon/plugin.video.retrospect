@@ -616,7 +616,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
 
         if AddonSettings.use_adaptive_stream_add_on() and False:
-            stream = part.AppendMediaStream(m3u8Url, 0)
+            stream = part.append_media_stream(m3u8Url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True
         else:
@@ -632,7 +632,7 @@ class Channel(chn_class.Channel):
                     videoPart = videoPart.rsplit("-", 1)[-1]
                     videoPart = "-%s" % (videoPart,)
                     s = a.replace(".m3u8", videoPart)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         # subtitle = M3u8.get_subtitle(m3u8Url, playListData=m3u8Data)
         # Not working due to VTT format.
@@ -673,10 +673,10 @@ class Channel(chn_class.Channel):
         spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
         if spoofIp:
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         else:
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         item.complete = True
         return item

@@ -84,9 +84,9 @@ class MediaItem:
         the item. This is all taken care of when creating Kodi items in the
         different methods.
 
-        :param str title:   The title of the item, used for appearance in lists.
-        :param str url:     Url that used for further information retrieval.
-        :param str type:    Type of MediaItem (folder, video, audio). Defaults to 'folder'.
+        :param str|unicode title:   The title of the item, used for appearance in lists.
+        :param str|unicode url:     Url that used for further information retrieval.
+        :param str type:            Type of MediaItem (folder, video, audio). Defaults to 'folder'.
 
         """
 
@@ -479,7 +479,7 @@ class MediaItem:
                 continue
 
             # get the playlist item
-            (stream, kodi_item) = part.GetXBMCPlayListItem(self, bitrate, updateItemUrls=update_item_urls)
+            (stream, kodi_item) = part.get_kodi_play_list_item(self, bitrate, update_item_urls=update_item_urls)
 
             stream_url = stream.Url
             kodi_params = dict()
@@ -601,7 +601,12 @@ class MediaItem:
         return string_value
 
     def __str__(self):
-        """ String representation """
+        """ String representation 
+
+        :return: The String representation
+        :rtype: str
+
+        """
 
         value = self.name
 
@@ -654,7 +659,7 @@ class MediaItem:
         return hash(self.guidValue)
 
     def __equals(self, other):
-        """ Compares two MediaItems
+        """ Checks two MediaItems for equality
 
         :param MediaItem other: The other item.
 
@@ -772,20 +777,17 @@ class MediaItemPart:
         instantiated with the values <url> and <bitrate>.
         The MediaPart could also have a <subtitle> or Properties in the <*args>
 
-        Arguments:
-        name : string       - the name of the MediaItemPart
-        url  : string       - the URL of the stream of the MediaItemPart
-        args : list[string] - a list of arguments that will be set as properties
-                              when getting an XBMC Playlist Item
-
-        Keyword Arguments:
-        bitrate  : [opt] integer - The bitrate of the stream of the MediaItemPart
-        subtitle : [opt] string  - The url of the subtitle of this MediaItemPart
-
         If a subtitles was provided, the subtitle will be downloaded and stored
         in the XOT cache. When played, the subtitle is shown. Due to the XBMC
         limitation only one subtitle can be set on a playlist, this will be
         the subtitle of the first MediaPartItem
+
+        :param str name:                    The name of the MediaItemPart.
+        :param str url:                     The URL of the stream of the MediaItemPart.
+        :param int bitrate:                 The bitrate of the stream of the MediaItemPart.
+        :param str|None subtitle:           The url of the subtitle of this MediaItemPart
+        :param tuple[str,str] args:         A list of arguments that will be set as properties
+                                            when getting an XBMC Playlist Item
 
         """
 
@@ -802,26 +804,26 @@ class MediaItemPart:
 
         if not url == "":
             # set the stream that was passed
-            self.AppendMediaStream(url, bitrate)
+            self.append_media_stream(url, bitrate)
 
         # set properties
         self.Properties = []
         for prop in args:
-            self.AddProperty(prop[0], prop[1])
+            self.add_property(prop[0], prop[1])
         return
 
-    def AppendMediaStream(self, url, bitrate, *args):
+    def append_media_stream(self, url, bitrate, *args):
         """Appends a mediastream item to the current MediaPart
 
-        Arguments:
-        url     : string  - the url of the MediaStream
-        bitrate : integer - the bitrate of the MediaStream
-        args    : tuple   - (name, value) for any stream property 
-
-        Returns:
-        the newly added MediaStream by reference.
-
         The bitrate could be set to None.
+
+        :param url:                     The url of the MediaStream.
+        :param int|str bitrate:         The bitrate of the MediaStream.
+        :param tuple[str,str] args:     A list of arguments that will be set as properties
+                                        when getting an XBMC Playlist Item
+
+        :return: The newly added MediaStream by reference.
+        :rtype: MediaStream
 
         """
 
@@ -829,42 +831,38 @@ class MediaItemPart:
         self.MediaStreams.append(stream)
         return stream
 
-    def AddProperty(self, name, value):
-        """Adds a property to the MediaPart
-
-        Arguments:
-        name  : string - the name of the property
-        value : stirng - the value of the property
+    def add_property(self, name, value):
+        """ Adds a property to the MediaPart.
 
         Appends a new property to the self.Properties dictionary. On playback
         these properties will be set to the XBMC PlaylistItem as properties.
+
+        :param str name:    The name of the property.
+        :param str value:   The value of the property.
 
         """
 
         Logger.debug("Adding property: %s = %s", name, value)
         self.Properties.append((name, value))
 
-    def GetXBMCPlayListItem(self, parent, bitrate, updateItemUrls=False):
-        """Returns a XBMC List Item than can be played or added to an XBMC
+    def get_kodi_play_list_item(self, parent, bitrate, update_item_urls=False):
+        """ Returns a Kodi List Item than can be played or added to an Kodi
         PlayList.
 
-        Arguments:
-        parent : MediaItem - the parent MediaItem
-        bitrate: integer   - the bitrate for the list items
-
-        Keyword Arguments:
-        quality        : [opt] integer - The quality of the requested XBMC
-                                         PlayListItem streams.
-        updateItemUrls : [opt] boolean - If set, the xbmc items will have a path
-                                         that corresponds with the actual stream.
-
-        Returns:
-        A tuple with (stream url, XBMC PlayListItem). The XBMC PlayListItem
-        can be used to add to a XBMC Playlist. The stream url can be used
+        Returns a tuple with (stream url, Kodi PlayListItem). The Kodi PlayListItem
+        can be used to add to a Kodi Playlist. The stream url can be used
         to set as the stream for the PlayListItem using xbmc.PlayList.add()
 
         If quality is not specified the quality is retrieved from the add-on
         settings.
+
+        :param MediaItem parent:        The parent MediaItem.
+        :param int bitrate:             The bitrate for the list items
+        :param bool update_item_urls:   If set, the Kodi items will have a path
+                                        that corresponds with the actual stream.
+
+        :return: A tuple with (stream url, Kodi PlayListItem).
+        :rtype: tuple[MediaStream,ListItem]
 
         """
 
@@ -883,7 +881,7 @@ class MediaItemPart:
             item.setProperty(prop[0], prop[1])
 
         # now find the correct quality stream and set the properties if there are any
-        stream = self.GetMediaStreamForBitrate(bitrate)
+        stream = self.get_media_stream_for_bitrate(bitrate)
         if stream.Adaptive:
             Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
 
@@ -891,13 +889,13 @@ class MediaItemPart:
             Logger.trace("Adding Kodi property: %s", prop)
             item.setProperty(prop[0], prop[1])
 
-        if updateItemUrls:
+        if update_item_urls:
             Logger.info("Updating Kodi playlist-item path: %s", stream.Url)
             item.setProperty("path", stream.Url)
 
         return stream, item
 
-    def GetMediaStreamForBitrate(self, bitrate):
+    def get_media_stream_for_bitrate(self, bitrate):
         """Returns the MediaStream for the requested bitrate.
 
         Arguments:
@@ -912,8 +910,8 @@ class MediaItemPart:
 
         # order the items by bitrate
         self.MediaStreams.sort()
-        bestStream = None
-        bestDistance = None
+        best_stream = None
+        best_distance = None
 
         for stream in self.MediaStreams:
             if stream.Bitrate is None:
@@ -929,31 +927,32 @@ class MediaItemPart:
             # determine the distance till the bitrate
             distance = abs(bitrate - stream.Bitrate)
 
-            if bestDistance is None or bestDistance > distance:
+            if best_distance is None or best_distance > distance:
                 # this stream is better, so store it.
-                bestDistance = distance
-                bestStream = stream
+                best_distance = distance
+                best_stream = stream
 
-        if bestStream is None:
+        if best_stream is None:
             # no match, take the lowest bitrate
             return self.MediaStreams[0]
 
-        return bestStream
+        return best_stream
 
     def __cmp__(self, other):
-        """ Compares 2 items based on their appearance order
+        """ Compares 2 items based on their appearance order:
 
-        Arguments:
-        other : MediaItemPart - The part to compare to
-
-        Returns:
-         * -1 : If the item is lower than the current one
-         *  0 : If the item is order is equal
-         *  1 : If the item is higher than the current one
+        * -1 : If the item is lower than the current one
+        *  0 : If the item is order is equal
+        *  1 : If the item is higher than the current one
 
         The comparison is done base on the Name only.
 
+        :param MediaItemPart other:     The other part to compare to
+        :return: The comparison result.
+        :rtype: int
+
         """
+
         if other is None:
             return -1
 
@@ -961,17 +960,17 @@ class MediaItemPart:
         return cmp(self.Name, other.Name)
 
     def __eq__(self, other):
-        """ checks 2 items for Equality
+        """ Checks 2 items for Equality. Equality takes into consideration:
 
-        Arguments:
-        item : MediaItemPart - The part to check for equality.
+        * Name
+        * Subtitle
+        * Length of the MediaStreams
+        * Compares all the MediaStreams in the slef.MediaStreams
 
-        Returns:
-        the True if the items are equal. Equality takes into consideration:
-         * Name
-         * Subtitle
-         * Length of the MediaStreams
-         * Compares all the MediaStreams in the slef.MediaStreams
+         :param MediaItemPart other: The part the test for equality.
+
+         :return: Returns true if the items are equal.
+         :rtype: bool
 
         """
 
@@ -996,7 +995,12 @@ class MediaItemPart:
         return True
 
     def __str__(self):
-        """ String representation """
+        """ String representation for the MediaPart
+
+        :return: The String representation
+        :rtype: str
+
+        """
 
         text = "MediaPart: %s [CanStream=%s, HttpHeaders=%s]" % (self.Name, self.CanStream, self.HttpHeaders)
 
@@ -1017,12 +1021,9 @@ class MediaStream:
     def __init__(self, url, bitrate=0, *args):
         """Initialises a new MediaStream
 
-        Arguments:
-        url  : string - the URL of the stream
-        args : tuple  - (name, value) for any stream property
-
-        Keyworkd Arguments:
-        bitrate : [opt] integer - the bitrate of the stream (defaults to 0)
+        :param str url:                 The URL of the stream.
+        :param int|str bitrate:         The bitrate of the stream (defaults to 0).
+        :param tuple[str,str] args:     (name, value) for any stream property.
 
         """
 
@@ -1034,40 +1035,38 @@ class MediaStream:
         self.Adaptive = False
 
         for prop in args:
-            self.AddProperty(prop[0], prop[1])
+            self.add_property(prop[0], prop[1])
         return
 
-    def AddProperty(self, name, value):
-        """Adds a property to the MediaStream
-
-        Arguments:
-        name  : string - the name of the property
-        value : stirng - the value of the property
-
-        Appends a new property to the self.Properties dictionary. On playback
-        these properties will be set to the XBMC PlaylistItem as properties.
+    def add_property(self, name, value):
+        """ Appends a new property to the self.Properties dictionary. On playback
+        these properties will be set to the Kodi PlaylistItem as properties.
 
         Example:    
-        strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
-        strm.AddProperty("inputstream.adaptive.manifest_type", "mpd")
-        
+        strm.add_property("inputstreamaddon", "inputstream.adaptive")
+        strm.add_property("inputstream.adaptive.manifest_type", "mpd")
+
+        :param str name:    The name of the property.
+        :param str value:   The value of the property.
+
         """
 
         Logger.debug("Adding stream property: %s = %s", name, value)
         self.Properties.append((name, value))
 
     def __cmp__(self, other):
-        """Compares two MediaStream based on the bitrate
+        """ Compares 2 items based on their bitrate:
 
-        Arguments:
-        other : MediaStream - The stream to compare to
-
-        Returns:
-         * -1 : If the item is lower than the current one
-         *  0 : If the item is order is equal
-         *  1 : If the item is higher than the current one
+        * -1 : If the item is lower than the current one
+        *  0 : If the item is order is equal
+        *  1 : If the item is higher than the current one
 
         The comparison is done base on the bitrate only.
+
+        :param MediaStream other:     The other part to compare to
+
+        :return: The comparison result.
+        :rtype: int
 
         """
 
@@ -1077,14 +1076,16 @@ class MediaStream:
         return cmp(self.Bitrate, other.Bitrate)
 
     def __eq__(self, other):
-        """Checks 2 items for Equality
+        """ Checks 2 items for Equality
 
-        Arguments:
-        other : MediaStream - The stream to check for equality.
+        Equality takes into consideration:
 
-        Returns:
-        the True if the items are equal. Equality takes into consideration:
-         * The url of the MediaStream
+        * The url of the MediaStream
+
+        :param MediaStream other:   The stream to check for equality.
+
+        :return: True if the items are equal.
+        :rtype: bool
 
         """
 
@@ -1095,7 +1096,12 @@ class MediaStream:
         return self.Url == other.Url
 
     def __str__(self):
-        """String representation"""
+        """ String representation
+
+        :return: The String representation
+        :rtype: str
+
+        """
 
         text = "MediaStream: %s [bitrate=%s, downloaded=%s]" % (self.Url, self.Bitrate, self.Downloaded)
         for prop in self.Properties:

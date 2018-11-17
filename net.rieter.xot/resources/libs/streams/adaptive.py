@@ -88,7 +88,7 @@ class Adaptive:
         Can be used like this:
 
             part = item.create_new_empty_media_part()
-            stream = part.AppendMediaStream(m3u8url, 0)
+            stream = part.append_media_stream(m3u8url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, self.headers)
             item.complete = True
 
@@ -103,24 +103,24 @@ class Adaptive:
         strm.Adaptive = True
 
         # See https://github.com/peak3d/inputstream.adaptive/blob/master/inputstream.adaptive/addon.xml.in
-        strm.AddProperty("inputstreamaddon", addon)
-        strm.AddProperty("inputstream.adaptive.manifest_type", manifest_type)
+        strm.add_property("inputstreamaddon", addon)
+        strm.add_property("inputstream.adaptive.manifest_type", manifest_type)
         if license_key:
-            strm.AddProperty("inputstream.adaptive.license_key", license_key)
+            strm.add_property("inputstream.adaptive.license_key", license_key)
         if license_type:
-            strm.AddProperty("inputstream.adaptive.license_type", license_type)
+            strm.add_property("inputstream.adaptive.license_type", license_type)
         if max_bit_rate:
-            strm.AddProperty("inputstream.adaptive.max_bandwidth", max_bit_rate * 1000)
+            strm.add_property("inputstream.adaptive.max_bandwidth", max_bit_rate * 1000)
         if persist_storage:
-            strm.AddProperty("inputstream.adaptive.license_flags", "persistent_storage")
+            strm.add_property("inputstream.adaptive.license_flags", "persistent_storage")
         if service_certificate is not None:
-            strm.AddProperty("inputstream.adaptive.server_certificate", service_certificate)
+            strm.add_property("inputstream.adaptive.server_certificate", service_certificate)
 
         if headers:
             header = ""
             for k, v in list(headers.items()):
                 header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.url_encode(v))
-            strm.AddProperty("inputstream.adaptive.stream_headers", header.strip("&"))
+            strm.add_property("inputstream.adaptive.stream_headers", header.strip("&"))
 
         return strm
 
@@ -133,5 +133,5 @@ class Adaptive:
         if "inputstream.adaptive.max_bandwidth" in stream.Properties:
             return
 
-        stream.AddProperty("inputstream.adaptive.max_bandwidth", str(max_bit_rate * 1000))
+        stream.add_property("inputstream.adaptive.max_bandwidth", str(max_bit_rate * 1000))
         return

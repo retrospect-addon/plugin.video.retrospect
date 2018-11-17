@@ -170,7 +170,7 @@ class Channel(chn_class.Channel):
             videoId = Regexer.DoRegex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
             # if videoId.startswith("http"):
             #     Logger.Info("Found direct stream. Not processing any further.")
-            #     part.AppendMediaStream(videoId, 0)
+            #     part.append_media_stream(videoId, 0)
             #     item.complete = True
             #     return item
 
@@ -186,7 +186,7 @@ class Channel(chn_class.Channel):
 
             hlsUrl = urlInfo["url"]
             for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         # urls = Regexer.DoRegex(self.mediaUrlRegex, data)
         # Logger.Trace(urls)
@@ -202,14 +202,14 @@ class Channel(chn_class.Channel):
         #     if "rtmp" in mediaurl:
         #         mediaurl = self.GetVerifiableVideoUrl(mediaurl)
         #         # In some cases the RTMPT does not work. Let's just try the RTMP first and then add the original if the RTMP version fails.
-        #         part.AppendMediaStream(mediaurl.replace("rtmpt://", "rtmp://"), 650)
+        #         part.append_media_stream(mediaurl.replace("rtmpt://", "rtmp://"), 650)
         #     elif "rtsp" in mediaurl:
-        #         part.AppendMediaStream(mediaurl, 600)
+        #         part.append_media_stream(mediaurl, 600)
         #     elif mediaurl.startswith("http") and "m3u8" in mediaurl:
         #         # http://iphone.streampower.be/een_nogeo/_definst_/2013/08/1000_130830_placetobe_marjolein_Website_Een_M4V.m4v/playlist.m3u8
         #         mediaurl = mediaurl.rstrip()
         #         for s, b in M3u8.get_streams_from_m3u8(mediaurl, self.proxy):
-        #             part.AppendMediaStream(s, b)
+        #             part.append_media_stream(s, b)
         #     else:
         #         Logger.Warning("Media url was not recognised: %s", mediaurl)
 

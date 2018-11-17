@@ -857,7 +857,7 @@ class Channel(chn_class.Channel):
             licenseKey = licenseKey[2:]
             licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.url_encode(licenseKey))
             part = item.create_new_empty_media_part()
-            stream = part.AppendMediaStream(hls, 0)
+            stream = part.append_media_stream(hls, 0)
             M3u8.set_input_stream_addon_input(stream, license_key=licenseKey)
             item.complete = True
         else:
@@ -923,7 +923,7 @@ class Channel(chn_class.Channel):
             licenseKey = "{0}?specConform=true|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
 
             part = item.create_new_empty_media_part()
-            stream = part.AppendMediaStream(streamUrl, 0)
+            stream = part.append_media_stream(streamUrl, 0)
             Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey, license_type="com.widevine.alpha")
             item.complete = True
         else:
@@ -945,7 +945,7 @@ class Channel(chn_class.Channel):
             for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         return item
 

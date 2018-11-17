@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
                 bitrate = 200
             else:
                 bitrate = 0
-            mediaPart.AppendMediaStream(HtmlEntityHelper.convert_html_entities(url[0]), bitrate)
+            mediaPart.append_media_stream(HtmlEntityHelper.convert_html_entities(url[0]), bitrate)
 
         item.MediaItemParts.append(mediaPart)
 

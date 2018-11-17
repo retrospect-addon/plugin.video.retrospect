@@ -396,14 +396,14 @@ class Channel(chn_class.Channel):
         part.HttpHeaders["Range"] = ''
 
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
-            stream = part.AppendMediaStream(m3u8Url, 0)
+            stream = part.append_media_stream(m3u8Url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, part.HttpHeaders)
             item.complete = True
             return item
 
         for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             item.complete = True
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item
 

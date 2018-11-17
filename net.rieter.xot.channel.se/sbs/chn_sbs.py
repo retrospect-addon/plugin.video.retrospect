@@ -555,7 +555,7 @@ class Channel(chn_class.Channel):
 
         m3u8data = UriHandler.Open(m3u8url, self.proxy)
         if AddonSettings.use_adaptive_stream_add_on():
-            stream = part.AppendMediaStream(m3u8url, 0)
+            stream = part.append_media_stream(m3u8url, 0)
             item.complete = True
             M3u8.set_input_stream_addon_input(stream, self.proxy)
         else:
@@ -568,7 +568,7 @@ class Channel(chn_class.Channel):
                     audioPart = a.split("-prog_index.m3u8", 1)[0]
                     audioId = audioPart.rsplit("/", 1)[-1]
                     s = s.replace("-prog_index.m3u8", "-{0}-prog_index.m3u8".format(audioId))
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         vttUrl = M3u8.get_subtitle(m3u8url, self.proxy, m3u8data)
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
@@ -635,7 +635,7 @@ class Channel(chn_class.Channel):
                 else:
                     s = "%s?%s" % (s, qs)
 
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return streamsFound
 

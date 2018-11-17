@@ -36,9 +36,9 @@ class NpoStream:
 
         for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId, proxy=self.proxy):
             item.complete = True
-            stream = part.AppendMediaStream(s, b)
+            stream = part.append_media_stream(s, b)
             for k, v in p.iteritems():
-                stream.AddProperty(k, v)
+                stream.add_property(k, v)
 
         """
 
@@ -79,7 +79,7 @@ class NpoStream:
         license_key = "{0}|{1}|R{{SSM}}|".format(license_url, license_headers or "")
 
         # Actually set the stream
-        stream = part.AppendMediaStream(stream_url, 0)
+        stream = part.append_media_stream(stream_url, 0)
         M3u8.set_input_stream_addon_input(stream, proxy, headers)
         Mpd.set_input_stream_addon_input(stream, proxy, headers,
                                          license_key=license_key,
@@ -101,7 +101,7 @@ class NpoStream:
             for s, b in NpoStream.get_streams_from_npo(m3u8Url, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
         """
 

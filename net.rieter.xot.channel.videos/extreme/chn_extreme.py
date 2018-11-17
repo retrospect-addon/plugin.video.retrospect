@@ -76,7 +76,7 @@ class Channel(chn_class.Channel):
             for s, b in YouTube.get_streams_from_you_tube(youTubeUrl, self.proxy):
                 item.complete = True
                 # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
             return item
 
         guid = Regexer.DoRegex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
@@ -93,9 +93,9 @@ class Channel(chn_class.Channel):
                 if "youtube" in url[0]:
                     for s, b in YouTube.get_streams_from_you_tube(url[0], self.proxy):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                 else:
-                    part.AppendMediaStream("%s%s" % (baseUrl, url[0]), bitrate=int(int(url[1]) / 1000))
+                    part.append_media_stream("%s%s" % (baseUrl, url[0]), bitrate=int(int(url[1]) / 1000))
                 item.complete = True
 
             Logger.trace("UpdateVideoItem complete: %s", item)
@@ -116,7 +116,7 @@ class Channel(chn_class.Channel):
             # But we need the IOS streams!
             amfHelper = BrightCove(Logger.instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
             for stream, bitrate in amfHelper.get_stream_info(renditions="IOSRenditions"):
-                part.AppendMediaStream(stream, bitrate)
+                part.append_media_stream(stream, bitrate)
                 item.complete = True
 
         # Logger.Error("Cannot find GUID in url: %s", item.url)

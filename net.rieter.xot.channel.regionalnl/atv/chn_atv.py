@@ -163,7 +163,7 @@ class Channel(chn_class.Channel):
         streams = Regexer.DoRegex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
         part = item.create_new_empty_media_part()
         for s in streams:
-            part.AppendMediaStream(s.replace(" ", "%20"), 0)
+            part.append_media_stream(s.replace(" ", "%20"), 0)
 
         item.complete = True
         return item
@@ -195,7 +195,7 @@ class Channel(chn_class.Channel):
         for s, b in M3u8.get_streams_from_m3u8(videoUrl, self.proxy):
             item.complete = True
             # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item
