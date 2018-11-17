@@ -50,7 +50,7 @@ class Plugin(ParameterParser):
     """Main Plugin Class
 
     This class makes it possible to access all the XOT channels as a Kodi Add-on
-    instead of a script. s
+    instead of a script.
 
     """
 
@@ -295,7 +295,7 @@ class Plugin(ParameterParser):
             if not AddonSettings.hide_fanart():
                 xbmcItem.setArt({'fanart': fanart})
 
-            url = self._CreateActionUrl(None, action=self.actionListCategory, category=category)
+            url = self._create_action_url(None, action=self.actionListCategory, category=category)
             xbmcItems.append((url, xbmcItem, True))
 
         # Logger.Trace(xbmcItems)
@@ -339,7 +339,7 @@ class Plugin(ParameterParser):
                 contextMenuItems = self.__GetContextMenuItems(channel)
                 item.addContextMenuItems(contextMenuItems)
                 # Get the URL for the item
-                url = self._CreateActionUrl(channel, action=self.actionListFolder)
+                url = self._create_action_url(channel, action=self.actionListFolder)
 
                 # Append to the list of XBMC Items
                 xbmcItems.append((url, item, True))
@@ -441,7 +441,7 @@ class Plugin(ParameterParser):
                 # Get the action URL
                 url = episodeItem.actionUrl
                 if url is None:
-                    url = self._CreateActionUrl(self.channelObject, action=action, item=episodeItem)
+                    url = self._create_action_url(self.channelObject, action=action, item=episodeItem)
 
                 # Add them to the list of XBMC items
                 xbmcItems.append((url, item, folder))
@@ -719,7 +719,7 @@ class Plugin(ParameterParser):
                     Logger.warning("No method for: %s", menuItem)
                     continue
 
-                cmdUrl = self._CreateActionUrl(channel, action=menuItem.functionName, item=item)
+                cmdUrl = self._create_action_url(channel, action=menuItem.functionName, item=item)
                 cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
                 title = "Retro: %s" % (menuItem.label,)
                 Logger.trace("Adding command: %s | %s", title, cmd)

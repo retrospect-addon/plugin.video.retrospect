@@ -150,7 +150,7 @@ class Menu(ParameterParser):
         """
 
         # it's just the channel, so only add the favourites
-        cmd_url = self._CreateActionUrl(
+        cmd_url = self._create_action_url(
             None if all_favorites else self.channelObject,
             action=self.actionAllFavourites if all_favorites else self.actionFavourites
         )
@@ -176,7 +176,7 @@ class Menu(ParameterParser):
         # add the favourite
         f.add(self.channelObject,
               item,
-              self._CreateActionUrl(self.channelObject, action, item))
+              self._create_action_url(self.channelObject, action, item))
 
         # we are finished, so just open the Favorites
         self.favourites()

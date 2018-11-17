@@ -341,7 +341,7 @@ class MediaItem:
         This item is used for displaying purposes only and changes to it will
         not be passed on to the MediaItem.
 
-        :param str name:    Overwrites the name of the XBMC item.
+        :param str name:    Overwrites the name of the Kodi item.
 
         :return: a complete Kodi ListItem
         :rtype: xbmcgui.ListItem
@@ -426,7 +426,7 @@ class MediaItem:
         return item
 
     def get_kodi_play_list(self, bitrate, update_item_urls=False, proxy=None):
-        """ Creates a XBMC Playlist containing the MediaItemParts in this MediaItem
+        """ Creates a Kodi Playlist containing the MediaItemParts in this MediaItem
 
         Keyword Arguments:
         bitrate        : integer         - The bitrate of the streams that should be in
@@ -437,7 +437,7 @@ class MediaItem:
         proxy          : [opt] ProxyInfo - The proxy to set
 
         Returns:
-        a XBMC Playlist for this MediaItem
+        a Kodi Playlist for this MediaItem
 
         If the Bitrate keyword is omitted the the bitrate is retrieved using the
         default bitrate settings:
@@ -454,7 +454,7 @@ class MediaItem:
             current_index = 0
         else:
             # copy into a list so we can add stuff in between (we can't do that in an
-            # XBMC PlayList) and then create a new playlist item
+            # Kodi PlayList) and then create a new playlist item
             current_index = play_list.getposition()  # this is the location at which we are now.
             if current_index < 0:
                 # no items where there, so we can just start at position 0
@@ -738,7 +738,7 @@ class MediaItem:
         if self.type == 'page':
             # We need to add the Page prefix to the item
             name = "%s %s" % (LanguageHelper.get_localized_string(LanguageHelper.Page), name)
-            Logger.debug("GetXbmcItem :: Adding Page Prefix")
+            Logger.debug("MediaItem.__get_title :: Adding Page Prefix")
 
         elif self.__date != '' and not self.is_playable():
             # not playable items should always show date
@@ -778,7 +778,7 @@ class MediaItemPart:
         The MediaPart could also have a <subtitle> or Properties in the <*args>
 
         If a subtitles was provided, the subtitle will be downloaded and stored
-        in the XOT cache. When played, the subtitle is shown. Due to the XBMC
+        in the XOT cache. When played, the subtitle is shown. Due to the Kodi
         limitation only one subtitle can be set on a playlist, this will be
         the subtitle of the first MediaPartItem
 
@@ -787,7 +787,7 @@ class MediaItemPart:
         :param int bitrate:                 The bitrate of the stream of the MediaItemPart.
         :param str|None subtitle:           The url of the subtitle of this MediaItemPart
         :param tuple[str,str] args:         A list of arguments that will be set as properties
-                                            when getting an XBMC Playlist Item
+                                            when getting an Kodi Playlist Item
 
         """
 
@@ -820,7 +820,7 @@ class MediaItemPart:
         :param url:                     The url of the MediaStream.
         :param int|str bitrate:         The bitrate of the MediaStream.
         :param tuple[str,str] args:     A list of arguments that will be set as properties
-                                        when getting an XBMC Playlist Item
+                                        when getting an Kodi Playlist Item
 
         :return: The newly added MediaStream by reference.
         :rtype: MediaStream
@@ -835,7 +835,7 @@ class MediaItemPart:
         """ Adds a property to the MediaPart.
 
         Appends a new property to the self.Properties dictionary. On playback
-        these properties will be set to the XBMC PlaylistItem as properties.
+        these properties will be set to the Kodi PlaylistItem as properties.
 
         :param str name:    The name of the property.
         :param str value:   The value of the property.
