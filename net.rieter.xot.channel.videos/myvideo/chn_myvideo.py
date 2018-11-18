@@ -120,7 +120,7 @@ class Channel(chn_class.Channel):
         items = []
         
         # extract the category name from the pagedata
-        results = Regexer.DoRegex("in de categorie\W+<span class='[^']+'>[^;]+;([^<]+)&quot", data)
+        results = Regexer.do_regex("in de categorie\W+<span class='[^']+'>[^;]+;([^<]+)&quot", data)
         
         if len(results) > 0:
             self.categoryName = results[0]
@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
         # het script: http://myvideo-906.vo.llnwd.net/nl/d2/movie4/d93548906.flv
         # de pagina:  http://myvideo-906.vo.llnwd.net/nl/d2/movie4/d9/3548906.flv
         
-        urlResult = Regexer.DoRegex("(http://myvideo[^_]+)/thumbs(/\d+)_\d+.jpg", item.thumb)
+        urlResult = Regexer.do_regex("(http://myvideo[^_]+)/thumbs(/\d+)_\d+.jpg", item.thumb)
         mediaurl = ""
         if len(urlResult) > 0:
             for part in urlResult[0]:

@@ -41,14 +41,14 @@ class Channel(chn_class.Channel):
             raise NotImplementedError("Unknown channel code")
 
         episodeItemRegex = """<a[^>]+href="(?<url>/[^"]+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'[^>]*>\W*<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
-        episodeItemRegex = Regexer.FromExpresso(episodeItemRegex)
+        episodeItemRegex = Regexer.from_expresso(episodeItemRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.NoNickJr,
                             parser=episodeItemRegex, creator=self.CreateEpisodeItem)
         # <h2 class='row-title'>Nick Jr
 
         videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
-        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        videoItemRegex = Regexer.from_expresso(videoItemRegex)
         self._AddDataParser("*",
                             preprocessor=self.PreProcessFolderList,
                             parser=videoItemRegex, creator=self.CreateVideoItem,
@@ -164,10 +164,10 @@ class Channel(chn_class.Channel):
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
         # get the playlist GUID
-        playlistGuids = Regexer.DoRegex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
+        playlistGuids = Regexer.do_regex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
         if not playlistGuids:
             # let's try the alternative then (for the new channels)
-            playlistGuids = Regexer.DoRegex('local_playlist[", -]+([a-f0-9]{20})"', data)
+            playlistGuids = Regexer.do_regex('local_playlist[", -]+([a-f0-9]{20})"', data)
         playlistGuid = playlistGuids[0]
         # Logger.Trace(playlistGuid)
 
@@ -179,10 +179,10 @@ class Channel(chn_class.Channel):
         playListData = UriHandler.Open(playListUrl, proxy=self.proxy)
 
         # now get the real RTMP data
-        rtmpMetaData = Regexer.DoRegex('<media:content[^>]+[^>]+url="([^"]+)&amp;force_country=', playListData)[0]
+        rtmpMetaData = Regexer.do_regex('<media:content[^>]+[^>]+url="([^"]+)&amp;force_country=', playListData)[0]
         rtmpData = UriHandler.Open(rtmpMetaData, proxy=self.proxy)
 
-        rtmpUrls = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
+        rtmpUrls = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
 
         part = item.create_new_empty_media_part()
         for rtmpUrl in rtmpUrls:

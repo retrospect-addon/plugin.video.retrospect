@@ -82,16 +82,16 @@ class Channel(chn_class.Channel):
 
         self.folderItemRegex = '<option value="(?<url>[^"]+)"\W*>(?<title>[^<]+)</option>'
 
-        self.episodeItemRegex = Regexer.FromExpresso(self.episodeItemRegex)
+        self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddSearch,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
         self._AddDataParser("*", preprocessor=self.RemoveClips,
                             parser=self.videoItemRegex, creator=self.CreateVideoItem)
 
-        self.folderItemRegex = Regexer.FromExpresso(self.folderItemRegex)
+        self.folderItemRegex = Regexer.from_expresso(self.folderItemRegex)
         self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
 
         # Add an updater
@@ -164,7 +164,7 @@ class Channel(chn_class.Channel):
             headers.update(self.localIP)
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
-        m3u8Url = Regexer.DoRegex('data-file="([^"]+)"', data)[0]
+        m3u8Url = Regexer.do_regex('data-file="([^"]+)"', data)[0]
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):

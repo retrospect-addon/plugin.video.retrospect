@@ -44,14 +44,14 @@ class Channel(chn_class.Channel):
         # self.videoItemJson = ("item",)
         self._AddDataParser(
             self.mainListUri,
-            parser=Regexer.FromExpresso('<a [hd][^>]*ata-(?<Type>area|sport)="(?<Url>[^"]+)[^>]*>'
+            parser=Regexer.from_expresso('<a [hd][^>]*ata-(?<Type>area|sport)="(?<Url>[^"]+)[^>]*>'
                                         '(?<Title>[^<]+)</a>'),
             creator=self.CreateFolderItem
         )
 
         self._AddDataParser(
             self.mainListUri,
-            parser=Regexer.FromExpresso('<a[^>]+href="/video/(?<Type>filter|meest_bekeken)/?'
+            parser=Regexer.from_expresso('<a[^>]+href="/video/(?<Type>filter|meest_bekeken)/?'
                                         '(?<Url>[^"]*)">[^<]*</a>\W+<h1[^>]*>(?<Title>[^<;]+)'
                                         '(?:&#39;s){0,1}</h1>'),
             creator=self.CreateFolderItem
@@ -60,7 +60,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser(
             "https://www.foxsports.nl/video/filter/fragments/",
             preprocessor=self.AddPages,
-            parser=Regexer.FromExpresso('<img[^>]+src=\'(?<Thumb>[^\']+)\'[^>]*>\W+</picture>\W+'
+            parser=Regexer.from_expresso('<img[^>]+src=\'(?<Thumb>[^\']+)\'[^>]*>\W+</picture>\W+'
                                         '<span class="[^"]+play[\w\W]{0,500}?<h1[^>]*>\W+<a href="'
                                         '(?<Url>[^"]+)"[^>]*>(?<Title>[^<]+)</a>\W+</h1>\W+<span'
                                         '[^>]*>(?<Date>[^>]+)</span>'),
@@ -95,7 +95,7 @@ class Channel(chn_class.Channel):
 
         # extract the current page from:
         # http://www.foxsports.nl/video/filter/fragments/1/alle/tennis/
-        currentPages = Regexer.DoRegex('(.+filter/fragments)/(\d+)/(.+)', self.parentItem.url)
+        currentPages = Regexer.do_regex('(.+filter/fragments)/(\d+)/(.+)', self.parentItem.url)
         if not currentPages:
             return data, []
 
@@ -209,10 +209,10 @@ class Channel(chn_class.Channel):
 
         # https://www.foxsports.nl/api/video/videodata/2945190
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-        videoId = Regexer.DoRegex('data-videoid="(\d+)" ', data)[-1]
+        videoId = Regexer.do_regex('data-videoid="(\d+)" ', data)[-1]
         data = UriHandler.Open("https://www.foxsports.nl/api/video/videodata/%s" % (videoId,),
                                proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
-        streamId = Regexer.DoRegex('<uri>([^>]+)</uri>', data)[-1]
+        streamId = Regexer.do_regex('<uri>([^>]+)</uri>', data)[-1]
 
         # POST https://d3api.foxsports.nl/api/V2/entitlement/tokenize
         postData = {

@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
                        '<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
                        '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
                        '(?:</p>)?\W*</div>'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
                             matchType=ParserData.MatchExact,
@@ -84,7 +84,7 @@ class Channel(chn_class.Channel):
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
                    '*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
                    '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
-        catregex = Regexer.FromExpresso(catregex)
+        catregex = Regexer.from_expresso(catregex)
         self._AddDataParser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
                             matchType=ParserData.MatchExact,
                             parser=catregex,
@@ -92,7 +92,7 @@ class Channel(chn_class.Channel):
 
         folderRegex = '<li class="vrt-labelnav--item "[^>]*>\s*<h2[^<]*>\s*<a[^>]*href="' \
                       '(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
-        folderRegex = Regexer.FromExpresso(folderRegex)
+        folderRegex = Regexer.from_expresso(folderRegex)
         self._AddDataParser("*", name="Folder/Season parser",
                             parser=folderRegex, creator=self.CreateFolderItem)
 
@@ -103,7 +103,7 @@ class Channel(chn_class.Channel):
                      '[\w\W]{0,1000}?<source srcset="[^"]+(?<thumburl>//[^ ]+)'
 
         # No need for a subtitle for now as it only includes the textual date
-        videoRegex = Regexer.FromExpresso(videoRegex)
+        videoRegex = Regexer.from_expresso(videoRegex)
         self._AddDataParser("*", name="Video item parser",
                             parser=videoRegex, creator=self.CreateVideoItem)
 
@@ -112,7 +112,7 @@ class Channel(chn_class.Channel):
         # singleVideoRegex = '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>' \
         #                    '[^ ]+)[\w\W]{0,4000}<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>' \
         #                    '\W*<span[^>]+>(?<description>[^<]+)'
-        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
+        singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
         self._AddDataParser("*", name="Single video item parser",
                             parser=singleVideoRegex, creator=self.CreateSingleVideoItem)
 

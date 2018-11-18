@@ -166,7 +166,7 @@ class Channel(chn_class.Channel):
         rtmpRegex = 'type="video/([^"]+)" bitrate="(\d+)">\W+<src>([^<]+)</src>'
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        guids = Regexer.DoRegex(guidRegex, data)
+        guids = Regexer.do_regex(guidRegex, data)
 
         item.MediaItemParts = []
         for guid in guids:
@@ -182,7 +182,7 @@ class Channel(chn_class.Channel):
 
             # 2- Get the GUIDS for the different ACTS
             infoData = UriHandler.Open(infoUrl, proxy=self.proxy)
-            rtmpStreams = Regexer.DoRegex(rtmpRegex, infoData)
+            rtmpStreams = Regexer.do_regex(rtmpRegex, infoData)
 
             for rtmpStream in rtmpStreams:
                 # if this is the first stream for the part, create an new part

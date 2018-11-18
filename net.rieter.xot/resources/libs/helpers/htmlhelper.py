@@ -55,7 +55,7 @@ class HtmlHelper(taghelperbase.TagHelperBase):
             html_regex += '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
 
         html_regex += "[^>]*>([^<]+)</"
-        result = Regexer.DoRegex(html_regex, self.data)
+        result = Regexer.do_regex(html_regex, self.data)
         if len(result) > 0:
             if first_only:
                 return result[0].strip()

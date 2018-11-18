@@ -35,7 +35,7 @@ class M3u8:
         else:
             base = url
 
-        needles = Regexer.DoRegex(regex, data)
+        needles = Regexer.do_regex(regex, data)
         url_index = 1
         base_url_logged = False
         base_url = base[:base.rindex("/")]
@@ -128,16 +128,16 @@ class M3u8:
         # If we need audio
         if map_audio:
             audio_needle = '(#\w[^:]+):TYPE=AUDIO()[^\r\n]+ID="([^"]+)"[^\n\r]+URI="([^"]+.m3u8[^"]*)"'
-            needles = Regexer.DoRegex(audio_needle, data)
+            needles = Regexer.do_regex(audio_needle, data)
             needle = '(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}(?:[^\r\n]*AUDIO="([^"]+)"){0,1}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)'
-            needles += Regexer.DoRegex(needle, data)
+            needles += Regexer.do_regex(needle, data)
             type_index = 0
             bitrate_index = 1
             id_index = 2
             url_index = 3
         else:
             needle = "(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
-            needles = Regexer.DoRegex(needle, data)
+            needles = Regexer.do_regex(needle, data)
             type_index = 0
             bitrate_index = 1
             url_index = 2

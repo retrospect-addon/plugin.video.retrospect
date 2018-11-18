@@ -42,7 +42,7 @@ class F4m:
         Logger.trace(data)
         Logger.debug("Processing F4M Streams: %s", url)
         needle = '<media href="([^"]+)"[^>]*bitrate="([^"]+)"'
-        needles = Regexer.DoRegex(needle, data)
+        needles = Regexer.do_regex(needle, data)
 
         base_url_logged = False
         base_url = url[:url.rindex("/")]

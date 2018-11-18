@@ -68,7 +68,7 @@ class Channel(chn_class.Channel):
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> playlist with bitrate
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> info (not needed, get description from main page.
 
-        youTubeUrl = Regexer.DoRegex('"(https://www.youtube.com/embed/[^\"]+)', data)
+        youTubeUrl = Regexer.do_regex('"(https://www.youtube.com/embed/[^\"]+)', data)
         if youTubeUrl:
             Logger.debug("Using Youtube video")
             part = item.create_new_empty_media_part()
@@ -79,7 +79,7 @@ class Channel(chn_class.Channel):
                 part.append_media_stream(s, b)
             return item
 
-        guid = Regexer.DoRegex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
+        guid = Regexer.do_regex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
         if len(guid) > 0:
             url = '%s/player/smil/%s' % (self.baseUrl, guid[0],) 
             data = UriHandler.Open(url)
@@ -103,7 +103,7 @@ class Channel(chn_class.Channel):
 
         # Try the brightcove
         brightCoveRegex = '<object id="myExperience[\w\W]+?videoPlayer" value="(\d+)"[\w\W]{0,1000}?playerKey" value="([^"]+)'
-        brightCoveData = Regexer.DoRegex(brightCoveRegex, data)
+        brightCoveData = Regexer.do_regex(brightCoveRegex, data)
         Logger.trace(brightCoveData)
         if len(brightCoveData) > 0:
             seed = "c5f9ae8729f7054d43187989ef3421531ee8678d"

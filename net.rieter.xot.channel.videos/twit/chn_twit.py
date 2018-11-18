@@ -35,7 +35,7 @@ class Channel(chn_class.Channel):
         self.episodeItemRegex = '<img[^>]+src="(?<thumburl>[^"]+)"[^>]*></a>\W+<div[^>]+>\W+' \
                                 '<h2[^>]*><a[^>]+href="/(?<url>shows/[^"]+)"[^>]*>(?<title>[^<]+)' \
                                 '</a></h2>\W+<div[^>]*>(?<description>[^<]+)'
-        self.episodeItemRegex = Regexer.FromExpresso(self.episodeItemRegex)
+        self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
         self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStream, matchType=ParserData.MatchExact,
                             parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
 
@@ -43,7 +43,7 @@ class Channel(chn_class.Channel):
                               'title="(?<title>[^"]+)">[\w\W]{0,500}?<img[^>]+src="' \
                               '(?<thumburl>[^"]+)"[^>]+>[\w\W]{0,500}?<span[^>]+class="date"' \
                               '[^>]*>(?<month>\w+) (?<day>\d+)\w+ (?<year>\d+)'
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         self.mediaUrlRegex = '<a href="([^"]+_(\d+).mp4)"[^>]+download>'
@@ -225,7 +225,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        streams = Regexer.DoRegex(self.mediaUrlRegex, data)
+        streams = Regexer.do_regex(self.mediaUrlRegex, data)
 
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()

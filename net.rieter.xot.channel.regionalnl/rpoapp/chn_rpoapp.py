@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
 
         # HTML Based Main lists
         htmlEpisodeRegex = '<option\s+value="(?<url>/gemist/uitzending/[^"]+)">(?<title>[^<]*)'
-        htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
+        htmlEpisodeRegex = Regexer.from_expresso(htmlEpisodeRegex)
         self._AddDataParser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
                             preprocessor=self.AddLiveChannelAndExtractData,
                             matchType=ParserData.MatchExact,
@@ -65,7 +65,7 @@ class Channel(chn_class.Channel):
                             json=False)
 
         videoItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*</a>\W*<figcaption(?:[^>]+>\W*){2}<time[^>]+datetime="(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){3}<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
-        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        videoItemRegex = Regexer.from_expresso(videoItemRegex)
         self._AddDataParser("https://www.rtvutrecht.nl/",
                             name="HTML Video parsers and updater for JWPlayer embedded JSON",
                             parser=videoItemRegex, creator=self.CreateVideoItem,
@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
         if not data:
             return "[]", items
 
-        jsonData = Regexer.DoRegex("setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
+        jsonData = Regexer.do_regex("setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
         if isinstance(jsonData, (tuple, list)) and len(jsonData) > 0:
             Logger.debug("Pre-Processing finished")
             return jsonData[0], items
@@ -192,7 +192,7 @@ class Channel(chn_class.Channel):
 
     def UpdateVideoItemJsonPlayer(self, item):
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        streams = Regexer.DoRegex('label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
+        streams = Regexer.do_regex('label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
 
         part = item.create_new_empty_media_part()
         bitrates = { "720p SD": 1200 }
@@ -214,7 +214,7 @@ class Channel(chn_class.Channel):
         url = "https://omroepzeeland.bbvms.com/p/regiogrid/q/sourceid_string:{}*.js".format(videoId)
         data = UriHandler.Open(url, proxy=self.proxy)
 
-        jsonData = Regexer.DoRegex('var opts\s*=\s*({.+});\W*//window', data)
+        jsonData = Regexer.do_regex('var opts\s*=\s*({.+});\W*//window', data)
         Logger.debug("Found jsondata with size: %s", len(jsonData[0]))
         jsonData = JsonHelper(jsonData[0])
         clipData = jsonData.get_value("clipData", "assets")

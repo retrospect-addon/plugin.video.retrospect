@@ -169,7 +169,7 @@ class Channel(chn_class.Channel):
             date = helper.get_tag_content("span", {'class': 'lastPublishedDate'})
 
         if not date == "":
-            dateParts = Regexer.DoRegex("(\w+) (\d+)[^<]+, (\d+)", date)
+            dateParts = Regexer.do_regex("(\w+) (\d+)[^<]+, (\d+)", date)
             if len(dateParts) > 0:
                 dateParts = dateParts[0]
                 monthPart = dateParts[0].lower()
@@ -221,7 +221,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
 
         date = xmlData.get_single_node_content("pubDate")
-        dateResult = Regexer.DoRegex("\w+, (\d+) (\w+) (\d+)", date)[-1]
+        dateResult = Regexer.do_regex("\w+, (\d+) (\w+) (\d+)", date)[-1]
         day = dateResult[0]
         monthPart = dateResult[1].lower()
         year = dateResult[2]
@@ -245,7 +245,7 @@ class Channel(chn_class.Channel):
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(item.url)
 
-        urls = Regexer.DoRegex('<a href="([^"]+.(?:wmv|mp4))">(High|Medium|Mid|Low|MP4)', data)
+        urls = Regexer.do_regex('<a href="([^"]+.(?:wmv|mp4))">(High|Medium|Mid|Low|MP4)', data)
         mediaPart = mediaitem.MediaItemPart(item.name)
         for url in urls:
             if url[1].lower() == "high":
@@ -260,7 +260,7 @@ class Channel(chn_class.Channel):
 
         item.MediaItemParts.append(mediaPart)
 
-        #images = Regexer.DoRegex('<link type="image/jpeg" rel="videothumbnail" href="([^"]+)"/>', data)
+        #images = Regexer.do_regex('<link type="image/jpeg" rel="videothumbnail" href="([^"]+)"/>', data)
         #for image in images:
         #    thumbUrl = htmlentityhelper.HtmlEntityHelper.convert_html_entities(image)
         #    break

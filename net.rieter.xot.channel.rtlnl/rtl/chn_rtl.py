@@ -382,7 +382,7 @@ class Channel(chn_class.Channel):
 
         xmlData = UriHandler.Open(item.url, proxy=self.proxy)
         # <ref type='adaptive' device='pc' host='http://manifest.us.rtl.nl' href='/rtlxl/network/pc/adaptive/components/videorecorder/27/278629/278630/d009c025-6e8c-3d11-8aba-dc8579373134.ssm/d009c025-6e8c-3d11-8aba-dc8579373134.m3u8' />
-        m3u8Urls = Regexer.DoRegex("<ref type='adaptive' device='pc' host='([^']+)' href='/([^']+)' />", xmlData)
+        m3u8Urls = Regexer.do_regex("<ref type='adaptive' device='pc' host='([^']+)' href='/([^']+)' />", xmlData)
         if not m3u8Urls:
             Logger.warning("No m3u8 data found for: %s", item)
             return item

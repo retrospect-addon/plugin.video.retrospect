@@ -106,7 +106,7 @@ class Channel(chn_class.Channel):
                             creator=self.CreateJsonFolderItem)
 
         # And the old stuff
-        catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
+        catRegex = Regexer.from_expresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
         self._AddDataParser("https://www.svtplay.se/barn",
                             matchType=ParserData.MatchExact,
                             preprocessor=self.StripNonCategories, parser=catRegex,
@@ -930,7 +930,7 @@ class Channel(chn_class.Channel):
         """
 
         Logger.info("Extracting JSON data during pre-processing")
-        data = Regexer.DoRegex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root, ), data)[-1]
+        data = Regexer.do_regex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root,), data)[-1]
         items = []
         Logger.trace("JSON data found: %s", data)
         return data, items

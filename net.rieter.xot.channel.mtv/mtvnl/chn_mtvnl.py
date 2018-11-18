@@ -327,10 +327,10 @@ class Channel(chn_class.Channel):
         url = item.url
         data = UriHandler.Open(url, proxy=self.proxy)
 
-        renditionsUrl = Regexer.DoRegex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
+        renditionsUrl = Regexer.do_regex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
         renditionsUrl = HtmlEntityHelper.strip_amp(renditionsUrl)
         renditionData = UriHandler.Open(renditionsUrl, proxy=self.proxy)
-        videoItems = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
+        videoItems = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
 
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()

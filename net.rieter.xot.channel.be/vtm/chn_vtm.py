@@ -38,11 +38,11 @@ class Channel(chn_class.Channel):
                               'src="(?<Thumb>[^"]+)"[^>]*>[\w\W]{0,500}?<h3[^>]*>(?:\W+<span[^>]*>[^>]*>)?' \
                               '(?<Title>[^<]+)</h3>\W+<div[^<]+<time[^>]+datetime="(?<DateTime>[^"]+)"[^<]+</time>\W*' \
                               '</div>\W*<p[^>]+>*(?<Description>[^<]+)'
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
         self._AddDataParser("*", creator=self.CreateVideoItem, parser=self.videoItemRegex, updater=self.UpdateVideoItem)
 
         stadionRegex = '<article[^>]*>\W*<div class="image is-video">\W*<a href="(?<Url>[^"]+)[^>]*>\W*<img[^>]+src="(?<Thumb>[^"]+)"[\w\W]{0,1000}?<h3 class="pagemanager-item-title">\W*<span>\W*<a[^>]*>(?<Title>[^<]+)[\w\W]{0,1000}?<div class="teaser">\W*<a[^>]+>(?<Description>[^<]+)'
-        stadionRegex = Regexer.FromExpresso(stadionRegex)
+        stadionRegex = Regexer.from_expresso(stadionRegex)
         self._AddDataParser("http://nieuws.vtm.be/stadion", parser=stadionRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         self.mediaUrlRegex = '<source[^>]+src="([^"]+)"[^>]+type="video/mp4"[^>]*/>'

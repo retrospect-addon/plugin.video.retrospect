@@ -84,7 +84,7 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        movieId = Regexer.DoRegex("movietrailers://movie/detail/(\d+)", data)[-1]
+        movieId = Regexer.do_regex("movietrailers://movie/detail/(\d+)", data)[-1]
         Logger.debug("Found Movie ID: %s", movieId)
         url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movieId)
         data = UriHandler.Open(url, proxy=self.proxy)

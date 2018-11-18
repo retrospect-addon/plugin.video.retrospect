@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        jsonData = Regexer.DoRegex('__initialState__=([^<]+);\W+window.__config__', data)[0]
+        jsonData = Regexer.do_regex('__initialState__=([^<]+);\W+window.__config__', data)[0]
         # the "RouteStore" has some weird functions, removing it.
         # start = jsonData.index('"RouteStore"')
         # the need at least the 'ApplicationStore'
@@ -195,7 +195,7 @@ class Channel(chn_class.Channel):
         Logger.trace("Found Json:\n%s", returnData)
 
         # append categorie data
-        # catData = Regexer.DoRegex('"categories":(\[.*?),"allProgramsPage', data)
+        # catData = Regexer.do_regex('"categories":(\[.*?),"allProgramsPage', data)
         # if catData:
         #     catData = catData[0]
         #     returnData = returnData[:-1] + ', "categories": ' + catData + '}'
@@ -271,7 +271,7 @@ class Channel(chn_class.Channel):
                 clipUrl = self.parentItem.url.replace("type=program", "type=clip")
         else:
             # now we determine the ID and load the json data
-            dataId = Regexer.DoRegex('data-format-id="(\d+)"', data)[-1]
+            dataId = Regexer.do_regex('data-format-id="(\d+)"', data)[-1]
             Logger.debug("Found FormatId = %s", dataId)
             programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
             data = UriHandler.Open(programUrl, proxy=self.proxy)

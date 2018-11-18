@@ -39,7 +39,7 @@ class Channel(chn_class.Channel):
         self.channelBitrate = 780
 
         videoItemRegex = '<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<div[^>]+background-image: url\(\'(?<thumburl>[^\']+)\'[^>]+>(?:[^>]+>){7}\W*<h5>(?<title>[^<]+)<[^>]*>\s*(?<date>\d+-\d+-\d+\s+\d+:\d+)(?:[^>]+>){11}\W*(?<description>[^<]+)</p>'
-        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        videoItemRegex = Regexer.from_expresso(videoItemRegex)
 
         self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStreams,
                             parser=videoItemRegex, creator=self.CreateVideoItem)
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
 
     def UpdateVideoItem(self, item):
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        jsonData = Regexer.DoRegex("video.createPlayer\(JSON.parse\('([^']+)", data)[0]
+        jsonData = Regexer.do_regex("video.createPlayer\(JSON.parse\('([^']+)", data)[0]
         jsonData = jsonData.decode('unicode-escape').encode('ascii')
         jsonData = jsonData.replace("\\\\", "")
         json = JsonHelper(jsonData)

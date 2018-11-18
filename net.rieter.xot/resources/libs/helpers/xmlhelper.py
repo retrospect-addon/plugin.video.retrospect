@@ -79,7 +79,7 @@ class XmlHelper(TagHelperBase):
         Logger.trace("XmlRegex = %s", regex)
         
         #regex = '<%s>([^<]+)</%s>' % (nodeTag, nodeTag)
-        results = Regexer.DoRegex(regex, self.data)
+        results = Regexer.do_regex(regex, self.data)
         Logger.trace(results)
         return results
     

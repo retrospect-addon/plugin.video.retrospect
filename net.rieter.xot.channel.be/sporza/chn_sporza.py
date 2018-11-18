@@ -61,10 +61,10 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*", preprocessor=self.ExtractVideoSection)
 
         # the main video of the page
-        regex = Regexer.FromExpresso('<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>[\w\W]{0,700}<p>(?<description>[^<]+)</p>[\w\W]{0,500}?<a href="(?<url>/cm/[^/]+/videozone/[^?"]+)" >(?<title>[^<]+)</a>')
+        regex = Regexer.from_expresso('<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>[\w\W]{0,700}<p>(?<description>[^<]+)</p>[\w\W]{0,500}?<a href="(?<url>/cm/[^/]+/videozone/[^?"]+)" >(?<title>[^<]+)</a>')
         self._AddDataParser("*", parser=regex, creator=self.CreateVideoItem)
         # other videos in the side bar
-        regex = Regexer.FromExpresso('<a[^>]*href="(?<url>[^"]+)"[^>]*class="videolink"[^>]*>\W*<span[^>]*>(?<title>[^"]+)</span>\W*(?:<span[^>]*>(?<desciption>[^"]+)</span>\W*)?<span[^>]*>\W*<img[^>]*src="(?<thumburl>[^"]+)"')
+        regex = Regexer.from_expresso('<a[^>]*href="(?<url>[^"]+)"[^>]*class="videolink"[^>]*>\W*<span[^>]*>(?<title>[^"]+)</span>\W*(?:<span[^>]*>(?<desciption>[^"]+)</span>\W*)?<span[^>]*>\W*<img[^>]*src="(?<thumburl>[^"]+)"')
         self._AddDataParser("*", parser=regex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
@@ -280,13 +280,13 @@ class Channel(chn_class.Channel):
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(item.url, proxy=self.proxy)
 
-        # descriptions = Regexer.DoRegex('<div class="longdesc"><p>([^<]+)</', data)
+        # descriptions = Regexer.do_regex('<div class="longdesc"><p>([^<]+)</', data)
         # Logger.Trace(descriptions)
         # for desc in descriptions:
         #     item.description = desc
 
         data = data.replace("\\/", "/")
-        urls = Regexer.DoRegex(self.mediaUrlRegex, data)
+        urls = Regexer.do_regex(self.mediaUrlRegex, data)
         part = item.create_new_empty_media_part()
         for url in urls:
             Logger.trace(url)

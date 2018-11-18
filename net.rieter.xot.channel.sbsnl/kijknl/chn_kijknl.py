@@ -343,7 +343,7 @@ class Channel(chn_class.Channel):
         if mpdInfo is not None:
             mpdManifestUrl = "https:{0}".format(mpdInfo["mediaLocator"])
             mpdData = UriHandler.Open(mpdManifestUrl, proxy=self.proxy)
-            subtitles = Regexer.DoRegex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
+            subtitles = Regexer.do_regex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
             if subtitles:
                 Logger.debug("Found subtitle: %s", subtitles[0])
                 subtitle = SubtitleHelper.download_subtitle(subtitles[0],
@@ -354,7 +354,7 @@ class Channel(chn_class.Channel):
             if useAdaptiveWithEncryption:
                 # We can use the adaptive add-on with encryption
                 Logger.info("Using MPD InputStreamAddon")
-                licenseUrl = Regexer.DoRegex('licenseUrl="([^"]+)"', mpdData)[0]
+                licenseUrl = Regexer.do_regex('licenseUrl="([^"]+)"', mpdData)[0]
                 token = "Bearer {0}".format(mpdInfo["playToken"])
                 keyHeaders = {"Authorization": token}
                 licenseKey = Mpd.get_license_key(licenseUrl, key_headers=keyHeaders)
@@ -396,7 +396,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(mpdManifestUrl, proxy=self.proxy, referer=referer)
         # First try to find an M3u8
-        m3u8Urls = Regexer.DoRegex('https:[^"]+.m3u8', data)
+        m3u8Urls = Regexer.do_regex('https:[^"]+.m3u8', data)
         for m3u8Url in m3u8Urls:
             m3u8Url = m3u8Url.replace("\\", "")
             Logger.debug("Found direct M3u8 in brightcove data.")
@@ -416,7 +416,7 @@ class Channel(chn_class.Channel):
 
         # Then try the new BrightCove JSON
         brightCoveRegex = '<video[^>]+data-video-id="(?<videoId>[^"]+)[^>]+data-account="(?<videoAccount>[^"]+)'
-        brightCoveData = Regexer.DoRegex(Regexer.FromExpresso(brightCoveRegex), data)
+        brightCoveData = Regexer.do_regex(Regexer.from_expresso(brightCoveRegex), data)
         if brightCoveData:
             Logger.info("Found new BrightCove JSON data")
             brightCoveUrl = 'https://edge.api.brightcove.com/playback/v1/accounts/%(videoAccount)s/videos/%(videoId)s' % \

@@ -319,7 +319,7 @@ class Channel(chn_class.Channel):
         timeTable = resultSet[3]
         timeTableRegex = '<ul>\W+<li><b>([^<]+)</b></li>\W+<li>\w+ (\d+:\d+)</li>\W+<li>\w+ (\d+:\d+)</li>'
         biosSet = False
-        for timeTableEntry in Regexer.DoRegex(timeTableRegex, timeTable):
+        for timeTableEntry in Regexer.do_regex(timeTableRegex, timeTable):
             Logger.trace(timeTableEntry)
 
             bios = timeTableEntry[0]
@@ -345,9 +345,9 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        videos = Regexer.DoRegex(self.mediaUrlRegex, data)
+        videos = Regexer.do_regex(self.mediaUrlRegex, data)
 
-        fanart = Regexer.DoRegex('<div class="visual-image">\W+<img src="([^"]+)"', data)
+        fanart = Regexer.do_regex('<div class="visual-image">\W+<img src="([^"]+)"', data)
         if fanart:
             item.fanart = fanart[0]
 

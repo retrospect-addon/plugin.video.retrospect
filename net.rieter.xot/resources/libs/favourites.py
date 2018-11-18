@@ -144,7 +144,7 @@ class Favourites:
         return favs
 
     def __remove_pickle(self, action_url):
-        pickle = Regexer.DoRegex("pickle=([^&]+)", action_url)
+        pickle = Regexer.do_regex("pickle=([^&]+)", action_url)
         if not pickle:
             return action_url
 

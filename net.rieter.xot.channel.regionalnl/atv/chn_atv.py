@@ -160,7 +160,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        streams = Regexer.DoRegex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
+        streams = Regexer.do_regex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
         part = item.create_new_empty_media_part()
         for s in streams:
             part.append_media_stream(s.replace(" ", "%20"), 0)

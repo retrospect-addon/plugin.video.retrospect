@@ -36,7 +36,7 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         episodeRegex = '<li>\W*<a[^>]*href="(?<url>/[^"]+)"[^>]*>(?<title>[^<]+)</a>\W*</li>'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, preprocessor=self.PreProcessFolderList,
                             parser=episodeRegex, creator=self.CreateEpisodeItem)
 
@@ -45,11 +45,11 @@ class Channel(chn_class.Channel):
 
         videoRegex = '<a[^>]*class="mediaItem"[^>]*href="(?<url>[^"]+)"[^>]*title="(?<title>' \
                      '[^"]+)"[^>]*>[\w\W]{0,500}?<img[^>]+src="/(?<thumburl>[^"]+)'
-        videoRegex = Regexer.FromExpresso(videoRegex)
+        videoRegex = Regexer.from_expresso(videoRegex)
         self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         pageRegex = '<a[^>]+href="https?://l1.nl/([^"]+?pagina=)(\d+)"'
-        pageRegex = Regexer.FromExpresso(pageRegex)
+        pageRegex = Regexer.from_expresso(pageRegex)
         self.pageNavigationRegexIndex = 1
         self._AddDataParser("*", parser=pageRegex, creator=self.CreatePageItem)
         # self.episodeItemRegex = '<a href="(http://www.l1.nl/programma/[^"]+)">([^<]+)'  # used for the ParseMainList
@@ -194,7 +194,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
-        javascriptUrls = Regexer.DoRegex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
+        javascriptUrls = Regexer.do_regex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
         dataUrl = None
         for javascriptUrl in javascriptUrls:
             dataUrl = javascriptUrl
@@ -205,7 +205,7 @@ class Channel(chn_class.Channel):
             return item
 
         data = UriHandler.Open(dataUrl, proxy=self.proxy)
-        jsonData = Regexer.DoRegex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
+        jsonData = Regexer.do_regex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
         Logger.trace(jsonData)
         json = JsonHelper(jsonData[0], logger=Logger.instance())
         Logger.trace(json)

@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
         programReg = 'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
                      '{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>(?<description>[^<]+)' \
                      '<span class="usp">(?<description2>[^<]+)'
-        programReg = Regexer.FromExpresso(programReg)
+        programReg = Regexer.from_expresso(programReg)
         self._AddDataParser(self.mainListUri,
                             name="Show parser with categories",
                             matchType=ParserData.MatchExact,
@@ -53,7 +53,7 @@ class Channel(chn_class.Channel):
         # Categories
         catReg = '<a[^>]+href="(?<url>[^"]+)">\W*<img[^>]+data-src="(?<thumburl>[^"]+)' \
                  '"[^>]*>\W*<span>(?<title>[^<]+)<'
-        catReg = Regexer.FromExpresso(catReg)
+        catReg = Regexer.from_expresso(catReg)
         self._AddDataParser("http://urplay.se/", name="Category parser",
                             matchType=ParserData.MatchExact,
                             parser=catReg,
@@ -65,14 +65,14 @@ class Channel(chn_class.Channel):
         #                  '\W+<span[^>]*class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>' \
         #                  '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^>]+>' \
         #                  '(?<description>[^<]+)'
-        # videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        # videoItemRegex = Regexer.from_expresso(videoItemRegex)
         singleVideoRegex = '<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
                            '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
                            '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
                            '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
                            'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
                            'content="(?<date>[^"]+)"'
-        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
+        singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
         self._AddDataParser("http://urplay.se/sok?product_type=program",
                             parser=programReg, preprocessor=self.GetVideoSection,
                             creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
@@ -300,7 +300,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         # Extract stream JSON data from HTML
-        streams = Regexer.DoRegex(self.mediaUrlRegex, data)
+        streams = Regexer.do_regex(self.mediaUrlRegex, data)
         jsonData = streams[0]
         json = JsonHelper(jsonData, logger=Logger.instance())
         Logger.trace(json.json)

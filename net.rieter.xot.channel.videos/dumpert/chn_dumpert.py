@@ -121,7 +121,7 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
 
-        baseEncode = Regexer.DoRegex('data-files="([^"]+)', data)
+        baseEncode = Regexer.do_regex('data-files="([^"]+)', data)
         if baseEncode:
             Logger.debug("Loading video from BASE64 encoded JSON data")
             baseEncode = baseEncode[-1]
@@ -157,7 +157,7 @@ class Channel(chn_class.Channel):
             Logger.trace("VideoItem updated: %s", item)
             return item
 
-        youtubeId = Regexer.DoRegex("class='yt-iframe'[^>]+src='https://www.youtube.com/embed/([^?]+)", data)
+        youtubeId = Regexer.do_regex("class='yt-iframe'[^>]+src='https://www.youtube.com/embed/([^?]+)", data)
         if youtubeId:
             youtubeId = youtubeId[-1]
             url = "https://www.youtube.com/watch?v=%s" % (youtubeId,)

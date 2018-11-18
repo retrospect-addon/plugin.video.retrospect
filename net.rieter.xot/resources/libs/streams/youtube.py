@@ -97,9 +97,9 @@ class YouTube:
         # get the stream data from the page
 
         # Up to 720p with audio and video combined.
-        url_encoded_fmt_stream_map = Regexer.DoRegex("url_encoded_fmt_stream_map=([^&]+)", data)
+        url_encoded_fmt_stream_map = Regexer.do_regex("url_encoded_fmt_stream_map=([^&]+)", data)
         # Up to 4K with audio and video split.
-        # url_encoded_fmt_stream_map = Regexer.DoRegex("adaptive_fmts=([^&]+)", data)
+        # url_encoded_fmt_stream_map = Regexer.do_regex("adaptive_fmts=([^&]+)", data)
         url_encoded_fmt_stream_map_data = HtmlEntityHelper.url_decode(url_encoded_fmt_stream_map[0])
         # split per stream
         streams = url_encoded_fmt_stream_map_data.split(',')

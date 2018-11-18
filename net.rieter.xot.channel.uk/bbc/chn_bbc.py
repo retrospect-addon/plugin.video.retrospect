@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
                               '[^<]+)</div>\W+)?<p[^>]*>(?<description>[^<]*)</p>[\w\W]{0,1000}?' \
                               '(?:<span class="release">\W+First shown: (?<day>\d+) (?<month>\w+) ' \
                               '(?<year>\d+)|<div class="period")'
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
         self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem)
 
         # Live channels
@@ -204,7 +204,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Determining the stream URL")
             data = UriHandler.Open(item.url, proxy=self.proxy)
             needle = '"vpid"\W*"([^"]+)"'
-            vid = Regexer.DoRegex(needle, data)[-1]
+            vid = Regexer.do_regex(needle, data)[-1]
             # streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/4/mtis/stream/%s/" % (vid,)
             streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/iptv-all/vpid/%s" % (vid,)
             # streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/%s" % (vid,)
@@ -226,7 +226,7 @@ class Channel(chn_class.Channel):
         # from debug.router import Router
         # streamData = Router.GetVia("uk", streamDataUrl, self.proxy)
 
-        connectionDatas = Regexer.DoRegex(
+        connectionDatas = Regexer.do_regex(
             '<media bitrate="(\d+)"[^>]+>\W*'
             '(<connection[^>]+>\W*)'
             '(<connection[^>]+>\W*)?'
@@ -325,8 +325,8 @@ class Channel(chn_class.Channel):
                 part.append_media_stream(url, bitrate)
 
         # get the subtitle
-        subtitles = Regexer.DoRegex('<connection href="(http://www.bbc.co.uk/iplayer/subtitles/[^"]+/)([^/]+.xml)"',
-                                    streamData)
+        subtitles = Regexer.do_regex('<connection href="(http://www.bbc.co.uk/iplayer/subtitles/[^"]+/)([^/]+.xml)"',
+                                     streamData)
         if len(subtitles) > 0:
             subtitle = subtitles[0]
             subtitleUrl = "%s%s" % (subtitle[0], subtitle[1])
@@ -401,7 +401,7 @@ class Channel(chn_class.Channel):
         """
         Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
-        streamRoot = Regexer.DoRegex('<media href="([^"]+\.isml)', data)[0]
+        streamRoot = Regexer.do_regex('<media href="([^"]+\.isml)', data)[0]
         Logger.debug("Found Live stream root: %s", streamRoot)
         # url = "%s/master.m3u8" % (streamRoot, )
         #

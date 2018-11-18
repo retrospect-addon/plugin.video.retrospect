@@ -60,21 +60,21 @@ class Channel(chn_class.Channel):
             # setup the main parsing data in case of HTML
             recentRegex = '<a href="/(?<url>[^"]+)"[^>]*>\W+(?:<div[^>]+>\W+)+<img[^>]+src="(?<thumburl>[^"]+)"[^>]+>\W*<span[^>]*>\W*(?<subtitle>[^<]+)[\w\W]{0,300}?(?:<div[^>]+class="item-caption-program"[^>]*>(?<title>[^<]+)</div>\W*)</div>\W*</div>\W*</div>\W*</a'
             # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
-            recentRegex = Regexer.FromExpresso(recentRegex)
+            recentRegex = Regexer.from_expresso(recentRegex)
             self._AddDataParser("https://vtm.be/video/volledige-afleveringen/id",
                                 matchType=ParserData.MatchExact,
                                 name="Recent Items HTML Video Parser",
                                 parser=recentRegex, creator=self.CreateVideoItemHtml)
 
             episodeRegex = '<li>\s*<a[^>]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>\s*</li>'
-            episodeRegex = Regexer.FromExpresso(episodeRegex)
+            episodeRegex = Regexer.from_expresso(episodeRegex)
             self._AddDataParser("https://vtm.be/programmas/az",
                                 name="New VTM parser",
                                 preprocessor=self.AddLiveChannel,
                                 parser=episodeRegex, creator=self.CreateEpisodeItemHtml)
 
             clip_regex = '<a[^>]+href="/(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
-            clip_regex = Regexer.FromExpresso(clip_regex)
+            clip_regex = Regexer.from_expresso(clip_regex)
             self._AddDataParser("*", name="New Video parser for VTM Clips",
                                 parser=clip_regex, creator=self.CreateVideoItemHtml,
                                 updater=self.UpdateHtmlClipItem)
@@ -95,14 +95,14 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.q2.be/video?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
 
             htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
-            htmlVideoRegex = Regexer.FromExpresso(htmlVideoRegex)
+            htmlVideoRegex = Regexer.from_expresso(htmlVideoRegex)
             self._AddDataParser(
                 "https://www.q2.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
             htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
-            htmlEpisodeRegex = Regexer.FromExpresso(htmlEpisodeRegex)
+            htmlEpisodeRegex = Regexer.from_expresso(htmlEpisodeRegex)
             self._AddDataParser("sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
                                 matchType=ParserData.MatchEnd,
                                 name="HTML Page Show Parser",
@@ -592,7 +592,7 @@ class Channel(chn_class.Channel):
         return json, items
 
     def ExtractVtmIdFromJson(self, data):
-        showId = Regexer.DoRegex('\["(\d{15})"', data)[0]
+        showId = Regexer.do_regex('\["(\d{15})"', data)[0]
         url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
               "&apikey=%s" \
               "&sort=broadcastDate&sortDirection=desc" \
@@ -715,8 +715,8 @@ class Channel(chn_class.Channel):
         regex = '<a href="/(?<url>[^"]+)"[^>]*>\W+<img[^>]+src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?' \
                 '<div class="item-date">(?<day>\d+)/(?<month>\d+)/(?<year>\d+)</div>\W+<[^>]+>\W+' \
                 '<div[^>]+class="item-caption-title">(?<title>[^<]+)'
-        regex = Regexer.FromExpresso(regex)
-        results = Regexer.DoRegex(regex, recentData)
+        regex = Regexer.from_expresso(regex)
+        results = Regexer.do_regex(regex, recentData)
         for result in results:
             Logger.trace(result)
             item = self.CreateVideoItemHtml(result)
@@ -801,7 +801,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.Open(item.url, proxy=self.proxy)
         videoIdRegex = '"vodId":"([^"]+)"'
-        videoId = Regexer.DoRegex(videoIdRegex, data)[0]
+        videoId = Regexer.do_regex(videoIdRegex, data)[0]
         return self.__UpdateVideoItem(item, videoId)
 
     def UpdateLiveStream(self, item):
@@ -866,7 +866,7 @@ class Channel(chn_class.Channel):
 
     def UpdateHtmlClipItem(self, item):
         data = UriHandler.Open(item.url)
-        jsonData = Regexer.DoRegex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
+        jsonData = Regexer.do_regex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
         jsonData = JsonHelper(jsonData[-1])
         videoInfo = jsonData.get_value('medialaan_player', )
         videoConfig = videoInfo[videoInfo.keys()[-1]]['videoConfig']['video']

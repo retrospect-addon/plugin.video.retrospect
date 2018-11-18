@@ -72,7 +72,7 @@ class TagHelperBase:
         html_regex += "[^>]*>"
         Logger.trace("HtmlRegex = %s", html_regex)
         
-        result = Regexer.DoRegex(html_regex, self.data)
+        result = Regexer.do_regex(html_regex, self.data)
         Logger.trace(result)
         
         if len(result) > 0:

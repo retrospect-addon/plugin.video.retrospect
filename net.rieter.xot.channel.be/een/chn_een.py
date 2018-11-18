@@ -50,7 +50,7 @@ class Channel(chn_class.Channel):
                       '(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*>\W+<div[^>]+_play[\w\W+]' \
                       '{0,2000}?<div[^>]*>(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)' \
                       '</h3>\W+<div[^>]*>\W+(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
-        videoParser = Regexer.FromExpresso(videoParser)
+        videoParser = Regexer.from_expresso(videoParser)
         self._AddDataParser("*", name="Links to teasers of videos (Card teaser)",
                             # preprocessor=self.CropData,
                             parser=videoParser, creator=self.CreateVideoItem,
@@ -61,7 +61,7 @@ class Channel(chn_class.Channel):
                       '(?<url>[^"]+)"[^>]*>\W+<div[^>]+_play[\w\W+]{0,2000}?<div[^>]*>' \
                       '(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>\W+' \
                       '(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
-        videoParser = Regexer.FromExpresso(videoParser)
+        videoParser = Regexer.from_expresso(videoParser)
         self._AddDataParser("*", name="Links to teasers of videos (Image Teaser)",
                             # preprocessor=self.CropData,
                             parser=videoParser, creator=self.CreateVideoItem,
@@ -70,7 +70,7 @@ class Channel(chn_class.Channel):
         singleVideoParser = '>(?<title>[^<]+)</h1>[\w\W]{0,2000}?(?:<h2>?<description>[^<]+)?' \
                             '[\w\W]{0,1000}?data-video="(?<url>[^"]+)"[\w\W]{0,500}data-analytics' \
                             '=\'{&quot;date&quot;:&quot;(?<year>\d+)-(?<month>\d+)-(?<day>\d+)'
-        singleVideoParser = Regexer.FromExpresso(singleVideoParser)
+        singleVideoParser = Regexer.from_expresso(singleVideoParser)
         self._AddDataParser("*", name="Pages that contain only a single video",
                             parser=singleVideoParser, creator=self.CreateVideoItem)
 
@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
         recent.dontGroup = True
         items.append(recent)
 
-        data = Regexer.DoRegex('epgAZ\W+({"data"[\w\W]+?);<', data)[0]
+        data = Regexer.do_regex('epgAZ\W+({"data"[\w\W]+?);<', data)[0]
         return data, items
 
     def CropData(self, data):
@@ -167,7 +167,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         if "mediazone.vrt.be" not in item.url:
             # Extract actual media data
-            videoId = Regexer.DoRegex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
+            videoId = Regexer.do_regex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
             # if videoId.startswith("http"):
             #     Logger.Info("Found direct stream. Not processing any further.")
             #     part.append_media_stream(videoId, 0)
@@ -188,7 +188,7 @@ class Channel(chn_class.Channel):
             for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
                 part.append_media_stream(s, b)
 
-        # urls = Regexer.DoRegex(self.mediaUrlRegex, data)
+        # urls = Regexer.do_regex(self.mediaUrlRegex, data)
         # Logger.Trace(urls)
         # part = item.create_new_empty_media_part()
         # for url in urls:

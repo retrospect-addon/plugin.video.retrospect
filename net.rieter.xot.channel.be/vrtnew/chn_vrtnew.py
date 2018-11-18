@@ -193,13 +193,13 @@ class Channel(chn_class.Channel):
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.Open(item.url)
 
-        descriptions = Regexer.DoRegex('<div class="longdesc"><p>([^<]+)</', data)
+        descriptions = Regexer.do_regex('<div class="longdesc"><p>([^<]+)</', data)
         Logger.trace(descriptions)
         for desc in descriptions:
             item.description = desc
 
         data = data.replace("\\/", "/")
-        urls = Regexer.DoRegex(self.mediaUrlRegex, data)
+        urls = Regexer.do_regex(self.mediaUrlRegex, data)
         part = item.create_new_empty_media_part()
         for url in urls:
             Logger.trace(url)

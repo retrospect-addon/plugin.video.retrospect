@@ -102,7 +102,7 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        jsonData = Regexer.DoRegex('type="application/json">([^<]+)<', data)
+        jsonData = Regexer.do_regex('type="application/json">([^<]+)<', data)
         if not jsonData:
             Logger.warning("No JSON data found.")
             return data, items

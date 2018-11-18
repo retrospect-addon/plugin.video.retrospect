@@ -50,12 +50,12 @@ class Smil:
         """
         
         regex = '<meta base="([^"]+)" />'
-        results = Regexer.DoRegex(regex, self.data)
+        results = Regexer.do_regex(regex, self.data)
         if len(results) > 0:
             return results[0]
         else:
             regex = '<meta name="httpBase" content="([^"]+)"\W*/>'
-            results = Regexer.DoRegex(regex, self.data)
+            results = Regexer.do_regex(regex, self.data)
             if len(results) > 0:
                 return results[0]
             else:            
@@ -86,7 +86,7 @@ class Smil:
         """
         
         regex = '<video src="([^"]+)"[^>]+system-bitrate="([^"]+)"'
-        results = Regexer.DoRegex(regex, self.data)
+        results = Regexer.do_regex(regex, self.data)
         if len(results) > 0:
             return results
         else:
@@ -96,7 +96,7 @@ class Smil:
         """ Retrieves the URL of the included subtitle"""
         
         regex = '<param\W*name="subtitle"[^>]*value="([^"]+)'
-        urls = Regexer.DoRegex(regex, self.data)
+        urls = Regexer.do_regex(regex, self.data)
         
         for url in urls:
             if "http:" in url:            

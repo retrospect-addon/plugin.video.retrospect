@@ -48,20 +48,20 @@ class Channel(chn_class.Channel):
             self.baseUrl = "https://www.vier.be"
 
         episodeRegex = '<a class="program-overview__link" href="(?<url>[^"]+)">(?<title>[^<]+)</a>'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeRegex,
                             creator=self.CreateEpisodeItem)
 
         videoRegex = '<a(?:[^>]+data-background-image="(?<thumburl>[^"]+)")?[^>]+href="(?<url>/video/[^"]+)"[^>]*>(?:\s+<div[^>]+>\s+<div [^>]+data-background-image="(?<thumburl2>[^"]+)")?[\w\W]{0,1000}?<h3[^>]*>(?:<span>)?(?<title>[^<]+)(?:</span>)?</h3>(?:\s+(?:<div[^>]*>\s+)?<div[^>]*>[^<]+</div>\s+<div[^>]+data-timestamp="(?<timestamp>\d+)")?'
-        videoRegex = Regexer.FromExpresso(videoRegex)
+        videoRegex = Regexer.from_expresso(videoRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             name="Normal video items",
                             parser=videoRegex,
                             creator=self.CreateVideoItem)
 
         pageRegex = '<button class="button button--default js-load-more-button"\W+data-url="(?<url>[^"]+)"\W+data-page="(?<title>\d+)"'
-        pageRegex = Regexer.FromExpresso(pageRegex)
+        pageRegex = Regexer.from_expresso(pageRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             parser=pageRegex,
                             creator=self.CreatePageItem)
@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
                             creator=self.CreateVideoItem)
 
         # imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)(?:</div>\W*<div[^>]*>\W*)?<div[^>]+data-videoid="(?<videoid>[^"]+)"'
-        # imageVideoRegex = Regexer.FromExpresso(imageVideoRegex)
+        # imageVideoRegex = Regexer.from_expresso(imageVideoRegex)
         # self._AddDataParser("*", matchType=ParserData.MatchExact,
         #                     parser=imageVideoRegex,
         #                     creator=self.CreateVideoItem)
@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
 
     def __UpdateVideo(self, item, data):
         regex = 'data-file="([^"]+)'
-        m3u8Url = Regexer.DoRegex(regex, data)[-1]
+        m3u8Url = Regexer.do_regex(regex, data)[-1]
 
         if ".m3u8" not in m3u8Url:
             Logger.info("Not a direct M3u8 file. Need to log in")

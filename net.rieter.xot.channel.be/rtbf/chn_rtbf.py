@@ -41,7 +41,7 @@ class Channel(chn_class.Channel):
         episodeRegex = '<article[^>]+data-id="(?<id>(?<url>\d+))"[^>]*>\W+<figure[^>]+>\W+' \
                        '<figcaption[^>]+>(?<title>[^{][^<]+)</figcaption>\W*<div[^>]*>\W*' \
                        '<img[^>]*(?<thumburl>http[^"]+) \d+w"'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddCategoryAndLiveItems,
                             parser=episodeRegex,
@@ -52,7 +52,7 @@ class Channel(chn_class.Channel):
                             parser=("item", 3, "item"), creator=self.CreateCategory)
 
         liveRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant</span> (?:sur )?(?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
-        liveRegex = Regexer.FromExpresso(liveRegex)
+        liveRegex = Regexer.from_expresso(liveRegex)
         self._AddDataParser("https://www.rtbf.be/auvio/direct/",
                             parser=liveRegex,
                             creator=self.CreateVideoItem)
@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
                      'datetime="(?<date>[^"]+)"[\w\W]{0,500}?<h4[^>]+>\W+<a[^>]+href="' \
                      '(?<url>[^<"]+=(?<videoId>\d+))"[^>]*>(?<title>[^<]+)</a>\W+</h4>\W+' \
                      '<h5[^>]+>(?<description>[^<]*)'
-        videoRegex = Regexer.FromExpresso(videoRegex)
+        videoRegex = Regexer.from_expresso(videoRegex)
         self._AddDataParser("*",
                             # preprocessor=self.ExtractVideoSection,
                             parser=videoRegex, creator=self.CreateVideoItem,
@@ -181,7 +181,7 @@ class Channel(chn_class.Channel):
     def UpdateVideoItem(self, item):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
-        mediaInfo = Regexer.DoRegex(mediaRegex, data)[0]
+        mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
         Logger.trace(mediaInfo)
@@ -210,7 +210,7 @@ class Channel(chn_class.Channel):
     def UpdateLiveItem(self, item):
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
-        mediaInfo = Regexer.DoRegex(mediaRegex, data)[0]
+        mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
         mediaInfo = JsonHelper(mediaInfo)
         Logger.trace(mediaInfo)

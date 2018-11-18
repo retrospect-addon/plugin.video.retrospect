@@ -92,7 +92,7 @@ class Channel(chn_class.Channel):
         # Alpha listing and paging for that list
         self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
 
-        episodeParser = Regexer.FromExpresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
+        episodeParser = Regexer.from_expresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
         self._AddDataParsers(["https://www.npostart.nl/media/series?page=", ],
                              name="Parser for main series overview pages",
                              preprocessor=self.ExtractTiles,
@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
                              creator=self.CreateEpisodeItem)
 
         # very similar parser as the Live Channels!
-        videoParser = Regexer.FromExpresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)'
+        videoParser = Regexer.from_expresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)'
                                            '"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+'
                                            'data-scorecard=\'(?<videodata>[^\']*)\'[^>]*>\W+<div[^>]+>\W+'
                                            '<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
@@ -132,7 +132,7 @@ class Channel(chn_class.Channel):
                             json=True)
 
         tvGuideRegex = 'data-channel="(?<channel>[^"]+)"[^>]+data-title="(?<title>[^"]+)"[^>]+data-id=\'(?<url>[^\']+)\'[^>]*>\W*<div[^>]*>\W+<p>\W+<span[^>]+time"[^>]*>(?<hours>\d+):(?<minutes>\d+)</span>\W+<span[^<]+</span>\W+<span class="npo-epg-active"></span>\W+<span class="npo-epg-play"></span>'
-        tvGuideRegex = Regexer.FromExpresso(tvGuideRegex)
+        tvGuideRegex = Regexer.from_expresso(tvGuideRegex)
         self._AddDataParser("https://www.npostart.nl/gids?date=",
                             parser=tvGuideRegex, creator=self.CreateTvGuideItem)
 
@@ -183,7 +183,7 @@ class Channel(chn_class.Channel):
                         },
                         params=data)
 
-        # token = Regexer.DoRegex('name="authenticity_token"[^>]+value="([^"]+)"', tokenData)[0]
+        # token = Regexer.do_regex('name="authenticity_token"[^>]+value="([^"]+)"', tokenData)[0]
         #
         # # login: https://mijn.npo.nl/sessions POST
         # # utf8=%E2%9C%93&authenticity_token=<token>&email=<username>&password=<password>&remember_me=1&commit=Inloggen
@@ -473,7 +473,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
+        data = Regexer.do_regex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
         # fixUp some json
         data = re.sub('(\w+):([^/])', '"\\1":\\2', data)
         Logger.trace(data)
@@ -964,7 +964,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Fetching live stream data from item url: %s", item.url)
         htmlData = UriHandler.Open(item.url, proxy=self.proxy)
 
-        mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
+        mp3Urls = Regexer.do_regex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
         if len(mp3Urls) > 0:
             Logger.debug("Found MP3 URL")
             part.append_media_stream(mp3Urls[0], 192)
@@ -973,9 +973,9 @@ class Channel(chn_class.Channel):
             # NPO3 normal stream had wrong subs
             if "npo-3" in item.url and False:
                 # NPO3 has apparently switched the normal and hearing impaired streams?
-                jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', htmlData)
+                jsonUrls = Regexer.do_regex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', htmlData)
             else:
-                jsonUrls = Regexer.DoRegex('<npo-player media-id="([^"]+)"', htmlData)
+                jsonUrls = Regexer.do_regex('<npo-player media-id="([^"]+)"', htmlData)
 
             for episodeId in jsonUrls:
                 if AddonSettings.use_adaptive_stream_add_on(with_encryption=True):

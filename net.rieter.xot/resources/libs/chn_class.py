@@ -309,7 +309,7 @@ class Channel:
                 if isinstance(handlerData, JsonHelper):
                     raise ValueError("Cannot perform Regex Parser on JsonHelper.")
                 else:
-                    parserResults = Regexer.DoRegex(dataParser.Parser, handlerData)
+                    parserResults = Regexer.do_regex(dataParser.Parser, handlerData)
 
             Logger.debug("Processing DataParser.Creator for %s items", len(parserResults))
             for parserResult in parserResults:
@@ -471,7 +471,7 @@ class Channel:
         episodeItems = []
         if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
             Logger.trace("Using Regexer for episodes")
-            episodeItems = Regexer.DoRegex(self.episodeItemRegex, data)
+            episodeItems = Regexer.do_regex(self.episodeItemRegex, data)
             watch.lap("Mainlist Regex complete")
 
         elif self.episodeItemJson is not None:
@@ -627,7 +627,7 @@ class Channel:
     #
     #     # try the regex on the current data
     #     if not self.pageNavigationRegex == "" and not self.pageNavigationRegex is None:
-    #         pages = Regexer.DoRegex(self.pageNavigationRegex, data)
+    #         pages = Regexer.do_regex(self.pageNavigationRegex, data)
     #
     #     elif not self.pageNavigationJson is None:
     #         pageJson = JsonHelper(data, logger=Logger.Instance())
@@ -824,7 +824,7 @@ class Channel:
 
         data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
 
-        url = Regexer.DoRegex(self.mediaUrlRegex, data)[-1]
+        url = Regexer.do_regex(self.mediaUrlRegex, data)[-1]
         part = mediaitem.MediaItemPart(item.name, url)
         item.MediaItemParts.append(part)
 

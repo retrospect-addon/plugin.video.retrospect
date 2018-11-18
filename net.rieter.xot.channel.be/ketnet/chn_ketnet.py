@@ -45,19 +45,19 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/html/flash/common/player.swf" % (self.baseUrl,)
 
         episodeRegex = '<a[^>]+href="(?<url>/kijken[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeRegex, creator=self.CreateEpisodeItem)
 
         self._AddDataParser("*", preprocessor=self.SelectVideoSection)
 
-        videoRegex = Regexer.FromExpresso('<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
+        videoRegex = Regexer.from_expresso('<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
                                           '\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
                                           '[^>]+></span>\W+(?<description>[^<]+)')
         self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
-        folderRegex = Regexer.FromExpresso('<span class="more-of-program" rel="/(?<url>[^"]+)">')
+        folderRegex = Regexer.from_expresso('<span class="more-of-program" rel="/(?<url>[^"]+)">')
         self._AddDataParser("*", parser=folderRegex, creator=self.CreateFolderItem)
 
         #===============================================================================================================
@@ -96,7 +96,7 @@ class Channel(chn_class.Channel):
             data = data[:endOfSection]
 
         # find the first main video
-        jsonData = Regexer.DoRegex(self.mediaUrlRegex, data)
+        jsonData = Regexer.do_regex(self.mediaUrlRegex, data)
         if not jsonData:
             Logger.debug("No show data found as JSON")
             return data, items
@@ -145,7 +145,7 @@ class Channel(chn_class.Channel):
 
         if not item.url.endswith("m3u8"):
             data = UriHandler.Open(item.url, proxy=self.proxy)
-            jsonData = Regexer.DoRegex(self.mediaUrlRegex, data)
+            jsonData = Regexer.do_regex(self.mediaUrlRegex, data)
             if not jsonData:
                 Logger.error("Cannot find JSON stream info.")
                 return item

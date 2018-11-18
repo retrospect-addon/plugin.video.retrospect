@@ -165,7 +165,7 @@ class SubtitleHelper:
         """
 
         regex = '"startMillis":(\d+),"endMillis":(\d+),"text":"(.+?)(?=["] *,)'
-        subs = Regexer.DoRegex(regex, json_subtitle)
+        subs = Regexer.do_regex(regex, json_subtitle)
 
         # Init some stuff
         srt = ""
@@ -227,7 +227,7 @@ class SubtitleHelper:
         parse_regex = '<subtitle[^>]+spotnumber="(\d+)" timein="(\d+:\d+:\d+):(\d+)" ' \
                       'timeout="(\d+:\d+:\d+):(\d+)"[^>]+>|<text[^>]+>([^<]+)</text>'
         parse_regex = parse_regex.replace('"', '["\']')
-        subs = Regexer.DoRegex(parse_regex, dc_subtitle)
+        subs = Regexer.do_regex(parse_regex, dc_subtitle)
 
         srt = ""
         i = 1
@@ -314,7 +314,7 @@ class SubtitleHelper:
         """
 
         pars_regex = '<p[^>]+begin="([^"]+)\.(\d+)"[^>]+end="([^"]+)\.(\d+)"[^>]*>([\w\W]+?)</p>'
-        subs = Regexer.DoRegex(pars_regex, ttml)
+        subs = Regexer.do_regex(pars_regex, ttml)
 
         srt = ""
         i = 1
@@ -352,11 +352,11 @@ class SubtitleHelper:
 
         """
         pars_regex = '<sync start="(\d+)"><p[^>]+>([^<]+)</p></sync>\W+<sync start="(\d+)">'
-        subs = Regexer.DoRegex(pars_regex, sami)
+        subs = Regexer.do_regex(pars_regex, sami)
 
         if len(subs) == 0:
             pars_regex2 = '<sync start=(\d+)>\W+<p[^>]+>([^\n]+)\W+<sync start=(\d+)>'
-            subs = Regexer.DoRegex(pars_regex2, sami)
+            subs = Regexer.do_regex(pars_regex2, sami)
 
         srt = ""
         i = 1

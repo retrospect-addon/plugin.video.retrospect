@@ -108,8 +108,8 @@ class Channel(chn_class.Channel):
 
         # find the actual genres
         genreRegex = '<li[^>]+genre[^>]*><button[^>]+data-value="(?<genre>[^"]+)"[^>]*>(?<title>[^>]+)</button></li>'
-        genreRegex = Regexer.FromExpresso(genreRegex)
-        genres = Regexer.DoRegex(genreRegex, data)
+        genreRegex = Regexer.from_expresso(genreRegex)
+        genres = Regexer.do_regex(genreRegex, data)
         for genre in genres:
             if genre["genre"] == "all":
                 continue
@@ -300,7 +300,7 @@ class Channel(chn_class.Channel):
 
                     #m3u8Data = UriHandler.Open(streamInfo, proxy=self.proxy)
 
-                    #urls = Regexer.DoRegex(self.mediaUrlRegex, m3u8Data)
+                    #urls = Regexer.do_regex(self.mediaUrlRegex, m3u8Data)
                     #Logger.Trace(urls)
                     #for url in urls:
                         #part.append_media_stream(url[1].strip(), url[0])

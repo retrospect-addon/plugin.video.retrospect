@@ -445,7 +445,7 @@ class ChannelIndex:
         with io.open(addon_file, 'r+', encoding='utf-8') as f:
             addon_xml = f.read()
 
-        pack_version = Regexer.DoRegex('id="([^"]+)"\W+version="([^"]+)"', addon_xml)
+        pack_version = Regexer.do_regex('id="([^"]+)"\W+version="([^"]+)"', addon_xml)
         if len(pack_version) > 0:
             # Get the first match
             pack_version = pack_version[0]

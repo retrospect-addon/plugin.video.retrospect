@@ -65,7 +65,7 @@ class Channel(chn_class.Channel):
         # favRegex = '<a href="/program/(?<nid>[^"]+)"><img[^>]+alt="(?<name>[^"]+)"[^>]+src="(?<program_image>[^"]+)'
         # self._AddDataParser("http://www.tv4play.se/program/favourites", name="Favourite parser",
         #                     requiresLogon=True,
-        #                     parser=Regexer.FromExpresso(favRegex), creator=self.CreateEpisodeItem)
+        #                     parser=Regexer.from_expresso(favRegex), creator=self.CreateEpisodeItem)
 
         self._AddDataParser("http://webapi.tv4play.se/play/categories.json", json=True, matchType=ParserData.MatchExact,
                             parser=(), creator=self.CreateCategoryItem)
@@ -426,7 +426,7 @@ class Channel(chn_class.Channel):
             items.append(clips)
 
         # find the max number of items ("total_hits":2724)
-        totalItems = int(Regexer.DoRegex('total_hits\W+(\d+)', data)[-1])
+        totalItems = int(Regexer.do_regex('total_hits\W+(\d+)', data)[-1])
         Logger.debug("Found total of %s items. Only showing %s.", totalItems, self.maxPageSize)
         if totalItems > self.maxPageSize and "&page=1&" in self.parentItem.url:
             # create a group item
