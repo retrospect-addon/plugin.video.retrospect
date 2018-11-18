@@ -12,31 +12,45 @@ import re
 
 from helpers.jsonhelper import JsonHelper
 from version import Version
+from logger import Logger
 
 
 class Updater:
     __regex = None
 
-    def __init__(self, updateUrl, currentVersion, uriHandler, logger):
-        """ Initiates a Updater class """
+    def __init__(self, update_url, current_version, uri_handler, logger):
+        """ Initiates a Updater class
 
-        if not updateUrl:
+        :param str update_url:
+        :param Version current_version:
+        :param any uri_handler:
+        :param Logger logger:
+        """
+
+        if not update_url:
             raise ValueError("Missing update url")
-        if not currentVersion:
+        if not current_version:
             raise ValueError("Missing current version")
-        if not uriHandler:
+        if not uri_handler:
             raise ValueError("Missing UriHandler")
 
-        self.updateUrl = updateUrl
-        self.currentVersion = currentVersion
+        self.updateUrl = update_url
+        self.currentVersion = current_version
         self.onlineVersion = None
 
         self.__logger = logger
-        self.__uriHandler = uriHandler
+        self.__uriHandler = uri_handler
 
-    def IsNewVersionAvailable(self):
+    def is_new_version_available(self):
+        """ Check if a new version is available online.
+
+        :return: Indication if a newer version is available
+        :rtype: str
+
+        """
+
         try:
-            self.onlineVersion = self.__getOnlineVersion()
+            self.onlineVersion = self.__get_online_version()
             if self.onlineVersion is None:
                 return False
 
@@ -46,24 +60,39 @@ class Updater:
             self.__logger.error("Error checking for updates", exc_info=True)
             return False
 
-    def __getOnlineVersion(self):
+    def __get_online_version(self):
+        """ Retrieves the current online version.
+
+        :return: Returns the current online version or `None` of no version was found.
+        :rtype: None|Version
+
+        """
         data = self.__uriHandler.open(self.updateUrl, noCache=True)
-        jsonData = JsonHelper(data)
-        onlineDownloads = list(filter(lambda d: self.__isValidUpdate(d), jsonData.get_value("values")))
-        if len(onlineDownloads) == 0:
+        json_data = JsonHelper(data)
+        online_downloads = list(filter(lambda d: self.__is_valid_update(d), json_data.get_value("values")))
+        if len(online_downloads) == 0:
             return None
 
-        onlineDownload = onlineDownloads[0]
-        onlineParts = onlineDownload['name'].rsplit(".", 1)[0].split("-")
-        if len(onlineParts) < 2:
+        online_download = online_downloads[0]
+        online_parts = online_download['name'].rsplit(".", 1)[0].split("-")
+        if len(online_parts) < 2:
             return None
 
         # fix the problem that a ~ is preventing downloads on BitBucket
-        onlineVersionData = onlineParts[1].replace("alpha", "~alpha").replace("beta", "~beta")
-        onlineVersion = Version(onlineVersionData)
-        return onlineVersion
+        online_version_data = online_parts[1].replace("alpha", "~alpha").replace("beta", "~beta")
+        online_version = Version(online_version_data)
+        return online_version
 
-    def __isValidUpdate(self, download):
+    def __is_valid_update(self, download):
+        """ Checks if the found API entry is indeed an update.
+
+        :param dict[str, Any] download: The information from the API.
+
+        :return: Indication if the found download indeed points to a download.
+        :rtype: bool
+
+        """
+
         name = download.get("name")
         if name is None:
             return False
