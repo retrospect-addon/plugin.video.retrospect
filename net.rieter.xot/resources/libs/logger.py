@@ -54,7 +54,7 @@ class Logger:
     @staticmethod
     def create_logger(log_file_name, application_name, min_log_level=10,
                       append=False, dual_logger=None):
-        """ Intialises the Logger Instance and opens it for writing
+        """ Intialises the Logger instance and opens it for writing
 
         :param str|None log_file_name:      Path of the log file to write to.
         :param str application_name:        The name of the current application.
@@ -78,7 +78,7 @@ class Logger:
 
     def __init__(self, log_file_name, application_name, min_log_level=10,
                  append=False, dual_logger=None):
-        """ Intialises the Logger Instance and opens it for writing.
+        """ Intialises the Logger instance and opens it for writing.
 
         :param str|None log_file_name:      Path of the log file to write to.
         :param str application_name:        The name of the current application.
@@ -234,10 +234,10 @@ class Logger:
         if log_closing:
             self.info("%s :: Flushing and closing logfile.", self.applicationName)
             # Logging for concurrency
-            # self.dualLog("CURRENT LOGGER before: {0}".format(Logger.Instance() or "none"))
+            # self.dualLog("CURRENT LOGGER before: {0}".format(Logger.instance() or "none"))
             Logger._Logger__logger = None
             # Logging for concurrency
-            # self.dualLog("CURRENT LOGGER after: {0}".format(Logger.Instance() or "none"))
+            # self.dualLog("CURRENT LOGGER after: {0}".format(Logger.instance() or "none"))
             # self.dualLog("CLOSING LOGGER: {0}".format(self.id))
 
         self.logHandle.flush()

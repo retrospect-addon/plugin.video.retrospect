@@ -56,7 +56,7 @@ class Channel(chn_class.Channel):
                                                        "net.rieter.xot.channel.streams.radionl.data.zip", url)
 
             # download the zipfile
-            zipFile = UriHandler.Download(url, "net.rieter.xot.channel.streams.radionl.data.zip",
+            zipFile = UriHandler.download(url, "net.rieter.xot.channel.streams.radionl.data.zip",
                                           self.GetDefaultCachePath(), progressDialog)
 
             # and unzip it

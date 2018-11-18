@@ -278,7 +278,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         json = JsonHelper(data, Logger.instance())
         videoData = json.get_value("video")
         if videoData:
@@ -298,7 +298,7 @@ class Channel(chn_class.Channel):
                         item.complete = True
                         part.append_media_stream(s, b)
 
-                    #m3u8Data = UriHandler.Open(streamInfo, proxy=self.proxy)
+                    #m3u8Data = UriHandler.open(streamInfo, proxy=self.proxy)
 
                     #urls = Regexer.do_regex(self.mediaUrlRegex, m3u8Data)
                     #Logger.Trace(urls)
@@ -311,7 +311,7 @@ class Channel(chn_class.Channel):
                 Logger.trace(subtitles)
                 subUrl = subtitles[0]["url"]
                 fileName = "%s.srt" % (EncodingHelper.encode_md5(subUrl),)
-                subData = UriHandler.Open(subUrl, proxy=self.proxy)
+                subData = UriHandler.open(subUrl, proxy=self.proxy)
 
                 # correct the subs
                 regex = re.compile("^1(\d:)", re.MULTILINE)

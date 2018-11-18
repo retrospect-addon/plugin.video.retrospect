@@ -32,8 +32,8 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "pathejson":
             # we need to add headers and stuff for the API
-            # self.UriHandlerOpen = UriHandler.Open
-            # UriHandler.Open = self.__JsonHandlerOpen
+            # self.UriHandlerOpen = UriHandler.open
+            # UriHandler.open = self.__JsonHandlerOpen
 
             self.baseUrl = "https://connect.pathe.nl/v1"
             # set the default headers
@@ -344,7 +344,7 @@ class Channel(chn_class.Channel):
         """
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         videos = Regexer.do_regex(self.mediaUrlRegex, data)
 
         fanart = Regexer.do_regex('<div class="visual-image">\W+<img src="([^"]+)"', data)

@@ -68,8 +68,8 @@ class LogSender:
             "Content-Type": "application/json"
         }
         post_data = JsonHelper.dump(params, pretty_print=False)
-        data = UriHandler.Open("https://api.github.com/gists", params=post_data,
-                               proxy=self.__proxy, additionalHeaders=headers)
+        data = UriHandler.open("https://api.github.com/gists", params=post_data,
+                               proxy=self.__proxy, additional_headers=headers)
         if not data:
             raise IOError("Error posting Gist to GitHub")
 
@@ -83,9 +83,9 @@ class LogSender:
         # Content-Type: application/json
         shortener = {"longUrl": url}
         google = "https://www.googleapis.com/urlshortener/v1/url?key=%s" % (self.__apiKey,)
-        google_data = UriHandler.Open(google, params=JsonHelper.dump(shortener, False),
+        google_data = UriHandler.open(google, params=JsonHelper.dump(shortener, False),
                                       proxy=self.__proxy,
-                                      additionalHeaders={"Content-Type": "application/json"})
+                                      additional_headers={"Content-Type": "application/json"})
 
         google_url = JsonHelper(google_data).get_value("id")
         if self.__logger:
@@ -117,8 +117,8 @@ class LogSender:
             "Content-Type": "application/json"
         }
         post_data = JsonHelper.dump(params, pretty_print=False)
-        data = UriHandler.Open("https://api.github.com/gists", params=post_data,
-                               proxy=self.__proxy, additionalHeaders=headers)
+        data = UriHandler.open("https://api.github.com/gists", params=post_data,
+                               proxy=self.__proxy, additional_headers=headers)
         if not data:
             raise IOError("Error posting Gist to GitHub")
 
@@ -132,9 +132,9 @@ class LogSender:
         # Content-Type: application/json
         shortener = {"longUrl": url}
         google = "https://www.googleapis.com/urlshortener/v1/url?key=%s" % (self.__apiKey, )
-        google_data = UriHandler.Open(google, params=JsonHelper.dump(shortener, False),
+        google_data = UriHandler.open(google, params=JsonHelper.dump(shortener, False),
                                       proxy=self.__proxy,
-                                      additionalHeaders={"Content-Type": "application/json"})
+                                      additional_headers={"Content-Type": "application/json"})
 
         return JsonHelper(google_data).get_value("id")
 
@@ -167,7 +167,7 @@ class LogSender:
             self.__logger.debug("Posting %d chars to pastebin.com", len(code))
             # self.__logger.Trace("POST params: %s", post_params)
 
-        data = UriHandler.Open("http://pastebin.com/api/api_post.php", params=post_params,
+        data = UriHandler.open("http://pastebin.com/api/api_post.php", params=post_params,
                                proxy=self.__proxy)
 
         if "pastebin.com" not in data:

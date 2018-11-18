@@ -259,7 +259,7 @@ class Channel(chn_class.Channel):
     def UpdateVideoItem(self, item):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
 
         part = item.create_new_empty_media_part()

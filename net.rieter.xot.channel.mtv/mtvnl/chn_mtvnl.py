@@ -325,11 +325,11 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         url = item.url
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
 
         renditionsUrl = Regexer.do_regex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
         renditionsUrl = HtmlEntityHelper.strip_amp(renditionsUrl)
-        renditionData = UriHandler.Open(renditionsUrl, proxy=self.proxy)
+        renditionData = UriHandler.open(renditionsUrl, proxy=self.proxy)
         videoItems = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
 
         item.MediaItemParts = []

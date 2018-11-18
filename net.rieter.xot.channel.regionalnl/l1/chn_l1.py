@@ -193,7 +193,7 @@ class Channel(chn_class.Channel):
         """
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         javascriptUrls = Regexer.do_regex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
         dataUrl = None
         for javascriptUrl in javascriptUrls:
@@ -204,7 +204,7 @@ class Channel(chn_class.Channel):
         if not dataUrl:
             return item
 
-        data = UriHandler.Open(dataUrl, proxy=self.proxy)
+        data = UriHandler.open(dataUrl, proxy=self.proxy)
         jsonData = Regexer.do_regex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
         Logger.trace(jsonData)
         json = JsonHelper(jsonData[0], logger=Logger.instance())

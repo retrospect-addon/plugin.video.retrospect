@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
         if longLoginCookie is not None:
             # if we stored a valid user signature, we can use it, together with the 'gmid' and
             # 'ucid' cookies to extend the session and get new token data
-            data = UriHandler.Open("https://token.vrt.be/refreshtoken", proxy=self.proxy, noCache=True)
+            data = UriHandler.open("https://token.vrt.be/refreshtoken", proxy=self.proxy, no_cache=True)
             if "vrtnutoken" in data:
                 Logger.debug("Refreshed the VRT.be session.")
                 return True
@@ -242,14 +242,14 @@ class Channel(chn_class.Channel):
             "authMode": "cookie",
             "format": "json"
         }
-        logonData = UriHandler.Open(url, data=data, proxy=self.proxy, noCache=True)
+        logonData = UriHandler.open(url, data=data, proxy=self.proxy, no_cache=True)
         userId, signature, signatureTimeStamp = self.__ExtractSessionData(logonData)
         if userId is None or signature is None or signatureTimeStamp is None:
             return False
 
         # We need to initialize the token retrieval which will redirect to the actual token
-        UriHandler.Open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
-                        proxy=self.proxy, noCache=True)
+        UriHandler.open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
+                        proxy=self.proxy, no_cache=True)
 
         # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 hour. So we call the actual
         # perform_login url which will redirect and get cookies.
@@ -260,7 +260,7 @@ class Channel(chn_class.Channel):
             "client_id": "vrtnu-site",
             "submit": "submit"
         }
-        UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData, noCache=True)
+        UriHandler.open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData, no_cache=True)
         return True
 
     def AddCategories(self, data):
@@ -446,22 +446,22 @@ class Channel(chn_class.Channel):
         # Get the MZID
         secureUrl = secureUrl.rstrip("/")
         secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
-        data = UriHandler.Open(secureUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(secureUrl, proxy=self.proxy, additional_headers=item.HttpHeaders)
         secureData = JsonHelper(data, logger=Logger.instance())
         mzid = secureData.get_value(secureData.json.keys()[0], "videoid")
 
         # region New URL retrieval with DRM protection
         # We need a player token
-        tokenData = UriHandler.Open("https://media-services-public.vrt.be/"
+        tokenData = UriHandler.open("https://media-services-public.vrt.be/"
                                     "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
-                                    additionalHeaders={"Content-Type": "application/json"})
+                                    additional_headers={"Content-Type": "application/json"})
 
         token = JsonHelper(tokenData).get_value("vrtPlayerToken")
 
         assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
                    "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
             .format(HtmlEntityHelper.url_encode(mzid), HtmlEntityHelper.url_encode(token))
-        assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
+        assetData = UriHandler.open(assetUrl, proxy=self.proxy, no_cache=True)
         assetData = JsonHelper(assetData)
 
         drmKey = assetData.get_value("drm")
@@ -486,7 +486,7 @@ class Channel(chn_class.Channel):
                     stream = part.append_media_stream(videoUrl, 0)
                     M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
-                    m3u8Data = UriHandler.Open(videoUrl, self.proxy)
+                    m3u8Data = UriHandler.open(videoUrl, self.proxy)
                     for s, b, a in M3u8.get_streams_from_m3u8(videoUrl, self.proxy,
                                                               play_list_data=m3u8Data, map_audio=True):
                         item.complete = True

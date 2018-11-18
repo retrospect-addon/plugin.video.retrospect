@@ -182,9 +182,9 @@ class Statistics:
             # now we need something async without caching
             user_agent = AddonSettings.get_user_agent()
             if user_agent:
-                result = UriHandler.Open(url, additionalHeaders={"User-Agent": user_agent}, params=data, noCache=True)
+                result = UriHandler.open(url, additional_headers={"User-Agent": user_agent}, params=data, no_cache=True)
             else:
-                result = UriHandler.Open(url, params=data, noCache=True)
+                result = UriHandler.open(url, params=data, no_cache=True)
             if len(result) > 0:
                 Logger.debug("Statistics were successfully sent. Content Length: %d", len(result))
             else:

@@ -243,7 +243,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # now the mediaurl is derived. First we try WMV
-        data = UriHandler.Open(item.url)
+        data = UriHandler.open(item.url)
 
         urls = Regexer.do_regex('<a href="([^"]+.(?:wmv|mp4))">(High|Medium|Mid|Low|MP4)', data)
         mediaPart = mediaitem.MediaItemPart(item.name)

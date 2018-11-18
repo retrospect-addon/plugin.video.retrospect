@@ -62,7 +62,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
         
         # get additional info
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
         #<param name="flashvars" value="id=dj0xMDEzNzQyJmM9MTAwMDAwNA&amp;tags=source%253Dfreecaster&amp;autoplay=1" />
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> playlist with bitrate
@@ -82,7 +82,7 @@ class Channel(chn_class.Channel):
         guid = Regexer.do_regex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
         if len(guid) > 0:
             url = '%s/player/smil/%s' % (self.baseUrl, guid[0],) 
-            data = UriHandler.Open(url)
+            data = UriHandler.open(url)
 
             smiller = Smil(data)
             baseUrl = smiller.get_base_url()

@@ -251,7 +251,7 @@ class Channel(chn_class.Channel):
         # videoId = item.url.split("/")[-1]
         # url = "%s/video/v3/embed/%s" % (self.baseUrl, videoId,)
         url = item.url
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
         return self.__UpdateVideo(item, data)
 
     def __UpdateVideo(self, item, data):
@@ -271,7 +271,7 @@ class Channel(chn_class.Channel):
                 "authorization": self.__idToken,
                 "content-type": "application/json"
             }
-            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=authenticationHeader)
+            data = UriHandler.open(url, proxy=self.proxy, additional_headers=authenticationHeader)
             jsonData = JsonHelper(data)
             m3u8Url = jsonData.get_value("video", "S")
 

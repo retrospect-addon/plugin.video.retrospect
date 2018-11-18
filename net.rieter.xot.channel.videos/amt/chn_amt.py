@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         movieId = Regexer.do_regex("movietrailers://movie/detail/(\d+)", data)[-1]
         Logger.debug("Found Movie ID: %s", movieId)
         url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movieId)
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
 
         # set it for logging purposes
         self.parentItem.url = url

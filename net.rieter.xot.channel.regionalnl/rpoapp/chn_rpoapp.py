@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateVideoItemJsonPlayer(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         streams = Regexer.do_regex('label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
 
         part = item.create_new_empty_media_part()
@@ -212,7 +212,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Found videoId '%s' for '%s'", videoId, item.url)
 
         url = "https://omroepzeeland.bbvms.com/p/regiogrid/q/sourceid_string:{}*.js".format(videoId)
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
 
         jsonData = Regexer.do_regex('var opts\s*=\s*({.+});\W*//window', data)
         Logger.debug("Found jsondata with size: %s", len(jsonData[0]))

@@ -117,7 +117,7 @@ class Channel(chn_class.Channel):
         Updates the item
         """
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
 

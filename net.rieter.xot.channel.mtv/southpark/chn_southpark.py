@@ -165,7 +165,7 @@ class Channel(chn_class.Channel):
         guidRegex = 'http://[^:]+/mgid:[^"]+:([0-9a-f-]+)"'
         rtmpRegex = 'type="video/([^"]+)" bitrate="(\d+)">\W+<src>([^<]+)</src>'
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         guids = Regexer.do_regex(guidRegex, data)
 
         item.MediaItemParts = []
@@ -181,7 +181,7 @@ class Channel(chn_class.Channel):
             infoUrl = "%s/feeds/video-player/mediagen?uri=%s&suppressRegisterBeacon=true" % (self.baseUrl, guid)
 
             # 2- Get the GUIDS for the different ACTS
-            infoData = UriHandler.Open(infoUrl, proxy=self.proxy)
+            infoData = UriHandler.open(infoUrl, proxy=self.proxy)
             rtmpStreams = Regexer.do_regex(rtmpRegex, infoData)
 
             for rtmpStream in rtmpStreams:

@@ -86,7 +86,7 @@ class SubtitleHelper:
                 return local_complete_path
 
             Logger.trace("Opening Subtitle URL")
-            raw = UriHandler.Open(url, proxy=proxy)
+            raw = UriHandler.open(url, proxy=proxy)
 
             if raw == "":
                 Logger.warning("Empty Subtitle path found. Not setting subtitles.")
@@ -396,7 +396,7 @@ class SubtitleHelper:
         # Now we know the subtitle, it would be wise to just use the existing converters to just
         # convert the data, but now now
         result = ""
-        m3u8_sub = UriHandler.Open(sub_url, proxy=proxy)
+        m3u8_sub = UriHandler.open(sub_url, proxy=proxy)
         # Again decode the data
         try:
             m3u8_sub = m3u8_sub.decode()

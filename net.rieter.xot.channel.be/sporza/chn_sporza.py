@@ -232,7 +232,7 @@ class Channel(chn_class.Channel):
 
     def UpdateLiveItem(self, item):
         # http://services.vrt.be/videoplayer/r/live.json?_1466364209811=
-        channelData = UriHandler.Open("http://services.vrt.be/videoplayer/r/live.json", proxy=self.proxy)
+        channelData = UriHandler.open("http://services.vrt.be/videoplayer/r/live.json", proxy=self.proxy)
         channelData = JsonHelper(channelData)
         url = None
         for channelId in channelData.json:
@@ -278,7 +278,7 @@ class Channel(chn_class.Channel):
         """
 
         # now the mediaurl is derived. First we try WMV
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
         # descriptions = Regexer.do_regex('<div class="longdesc"><p>([^<]+)</', data)
         # Logger.Trace(descriptions)

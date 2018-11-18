@@ -168,7 +168,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateMusicItem for %s (%s)', item.name, self.channelName)
         url, data = item.url.split("?")
 
-        data = UriHandler.Open(url, proxy=self.proxy, params=data, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(url, proxy=self.proxy, params=data, additional_headers=item.HttpHeaders)
         Logger.trace(data)
         jsonData = JsonHelper(data)
         url = jsonData.get_value("url", fallback=None)

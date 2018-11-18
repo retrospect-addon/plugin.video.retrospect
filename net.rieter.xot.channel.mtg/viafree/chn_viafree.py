@@ -274,7 +274,7 @@ class Channel(chn_class.Channel):
             dataId = Regexer.do_regex('data-format-id="(\d+)"', data)[-1]
             Logger.debug("Found FormatId = %s", dataId)
             programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
-            data = UriHandler.Open(programUrl, proxy=self.proxy)
+            data = UriHandler.open(programUrl, proxy=self.proxy)
             clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
 
         if clipUrl is not None:
@@ -560,7 +560,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers or None)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers or None)
         json = JsonHelper(data)
 
         # see if there was an srt already
@@ -613,7 +613,7 @@ class Channel(chn_class.Channel):
                     Logger.debug("Extracting subs from M3u8")
                     subUrl = url.rsplit("uri=")[-1]
                     subUrl = HtmlEntityHelper.url_decode(subUrl)
-                    subData = UriHandler.Open(subUrl, proxy=self.proxy)
+                    subData = UriHandler.open(subUrl, proxy=self.proxy)
                     # subUrl = None
                     subs = filter(lambda line: line.startswith("http"), subData.split("\n"))
                     if subs:

@@ -328,8 +328,8 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateJsonVideoItem(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy,
-                               additionalHeaders={
+        data = UriHandler.open(item.url, proxy=self.proxy,
+                               additional_headers={
                                    "accept": "application/vnd.sbs.ovp+json; version=2.0"
                                })
         json = JsonHelper(data)
@@ -342,7 +342,7 @@ class Channel(chn_class.Channel):
         # is there MPD information in the API response?
         if mpdInfo is not None:
             mpdManifestUrl = "https:{0}".format(mpdInfo["mediaLocator"])
-            mpdData = UriHandler.Open(mpdManifestUrl, proxy=self.proxy)
+            mpdData = UriHandler.open(mpdManifestUrl, proxy=self.proxy)
             subtitles = Regexer.do_regex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
             if subtitles:
                 Logger.debug("Found subtitle: %s", subtitles[0])
@@ -394,7 +394,7 @@ class Channel(chn_class.Channel):
         mpdManifestUrl = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
         referer = "https://embed.kijk.nl/video/%s" % (videoId,)
 
-        data = UriHandler.Open(mpdManifestUrl, proxy=self.proxy, referer=referer)
+        data = UriHandler.open(mpdManifestUrl, proxy=self.proxy, referer=referer)
         # First try to find an M3u8
         m3u8Urls = Regexer.do_regex('https:[^"]+.m3u8', data)
         for m3u8Url in m3u8Urls:
@@ -423,8 +423,8 @@ class Channel(chn_class.Channel):
                             brightCoveData[0]
             headers = {
                 "Accept": "application/json;pk=BCpkADawqM3ve1c3k3HcmzaxBvD8lXCl89K7XEHiKutxZArg2c5RhwJHJANOwPwS_4o7UsC4RhIzXG8Y69mrwKCPlRkIxNgPQVY9qG78SJ1TJop4JoDDcgdsNrg"}
-            brightCoveData = UriHandler.Open(brightCoveUrl, proxy=self.proxy,
-                                             additionalHeaders=headers)
+            brightCoveData = UriHandler.open(brightCoveUrl, proxy=self.proxy,
+                                             additional_headers=headers)
             brightCoveJson = JsonHelper(brightCoveData)
             streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.get_value("sources"))
             if streams:

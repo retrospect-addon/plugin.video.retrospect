@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateVideoItem(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         jsonData = Regexer.do_regex("video.createPlayer\(JSON.parse\('([^']+)", data)[0]
         jsonData = jsonData.decode('unicode-escape').encode('ascii')
         jsonData = jsonData.replace("\\\\", "")

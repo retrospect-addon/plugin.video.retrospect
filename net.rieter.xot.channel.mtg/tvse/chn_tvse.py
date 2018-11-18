@@ -163,7 +163,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers)
         m3u8Url = Regexer.do_regex('data-file="([^"]+)"', data)[0]
 
         part = item.create_new_empty_media_part()

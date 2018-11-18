@@ -124,7 +124,7 @@ class Channel(chn_class.Channel):
     #                  "client=tv4play-web" % (
     #                      HtmlEntityHelper.url_encode(sessionToken)
     #                  )
-    #         data = UriHandler.Open("https://account.services.tv4play.se/session/reauthenticate",
+    #         data = UriHandler.open("https://account.services.tv4play.se/session/reauthenticate",
     #                                noCache=True, proxy=self.proxy, params=params)
     #
     #     if not data or "vimond_session_token" not in data:
@@ -151,7 +151,7 @@ class Channel(chn_class.Channel):
     #                      HtmlEntityHelper.url_encode(username),
     #                      HtmlEntityHelper.url_encode(password),
     #                  )
-    #         data = UriHandler.Open("https://account.services.tv4play.se/session/authenticate",
+    #         data = UriHandler.open("https://account.services.tv4play.se/session/authenticate",
     #                                noCache=True, proxy=self.proxy, params=params)
     #         if not data:
     #             Logger.Error("Error logging in")
@@ -172,7 +172,7 @@ class Channel(chn_class.Channel):
     #     # Get an OAuth token -> not really needed for the standard HTTP calls but it gets us the
     #     # expiration date
     #     tokenUrl = "https://token.services.tv4play.se/jwt?jsessionid=%s&client=tv4play-web" % (vimondSessionToken, )
-    #     token = UriHandler.Open(tokenUrl, noCache=True, proxy=self.proxy)
+    #     token = UriHandler.open(tokenUrl, noCache=True, proxy=self.proxy)
     #     # Figure out the expiration data
     #     data, expires, other = token.split('.')
     #     expires += "=" * (4 - len(expires) % 4)
@@ -380,7 +380,7 @@ class Channel(chn_class.Channel):
     #     for token in self.token:
     #
     #
-    #     data = UriHandler.Open("https://personalization.services.tv4play.se/favorites", proxy=self.proxy,
+    #     data = UriHandler.open("https://personalization.services.tv4play.se/favorites", proxy=self.proxy,
     #                            additionalHeaders=additionalHeaders)
     #     return data, items
 
@@ -607,7 +607,7 @@ class Channel(chn_class.Channel):
                 """
 
         # retrieve the mediaurl
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.localIP)
         streamInfo = JsonHelper(data)
         m3u8Url = streamInfo.get_value("playbackItem", "manifestUrl")
         if m3u8Url is None:
@@ -620,7 +620,7 @@ class Channel(chn_class.Channel):
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True
         else:
-            m3u8Data = UriHandler.Open(m3u8Url, proxy=self.proxy, additionalHeaders=self.localIP)
+            m3u8Data = UriHandler.open(m3u8Url, proxy=self.proxy, additional_headers=self.localIP)
             for s, b, a in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, play_list_data=m3u8Data, map_audio=True):
                 item.complete = True
                 if not item.isLive and "-video" not in s:

@@ -196,7 +196,7 @@ class Channel(chn_class.Channel):
             # =aa9ef0ed760df76d184b262d739299a75ccae7b67eec923fe3fcd861f97bcc7f&shortlived=true
             url = "https://{0}/token?realm=dplay{1}&deviceId={2}&shortlived=true"\
                 .format(self.baseUrlApi, self.language, guid)
-            JsonHelper(UriHandler.Open(url, proxy=self.proxy))
+            JsonHelper(UriHandler.open(url, proxy=self.proxy))
 
         self.imageLookup = {}
         self.showLookup = {}
@@ -236,7 +236,7 @@ class Channel(chn_class.Channel):
                     "&page%5Bsize%5D=100&page%5Bnumber%5D={{0}}".format(self.baseUrlApi)
         # "include=images%2CprimaryChannel" \
         url = urlFormat.format(p)
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
         json = JsonHelper(data)
         pages = json.get_value("meta", "totalPages")
         programs = json.get_value("data") or []
@@ -248,7 +248,7 @@ class Channel(chn_class.Channel):
             url = urlFormat.format(p)
             Logger.debug("Loading: %s", url)
 
-            data = UriHandler.Open(url, proxy=self.proxy)
+            data = UriHandler.open(url, proxy=self.proxy)
             json = JsonHelper(data)
             programs += json.get_value("data") or []
 
@@ -541,7 +541,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        videoData = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
+        videoData = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.localIP)
 
         if not videoData:
             return item
@@ -553,7 +553,7 @@ class Channel(chn_class.Channel):
 
         m3u8url = videoInfo["streaming"]["hls"]["url"]
 
-        m3u8data = UriHandler.Open(m3u8url, self.proxy)
+        m3u8data = UriHandler.open(m3u8url, self.proxy)
         if AddonSettings.use_adaptive_stream_add_on():
             stream = part.append_media_stream(m3u8url, 0)
             item.complete = True
@@ -611,7 +611,7 @@ class Channel(chn_class.Channel):
         subdomain, domain = host.split(".", 1)
         url = "https://secure.%s/secure/api/v2/user/authorization/stream/%s?stream_type=hls" \
               % (domain, videoId,)
-        data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=True)
+        data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=True)
         json = JsonHelper(data)
         url = json.get_value("hls")
 

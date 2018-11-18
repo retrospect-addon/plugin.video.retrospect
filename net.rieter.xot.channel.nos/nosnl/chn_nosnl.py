@@ -197,7 +197,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem: %s', item.name)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
         jsonData = JsonHelper(data)
         streams = jsonData.get_value("formats")
         if not streams:

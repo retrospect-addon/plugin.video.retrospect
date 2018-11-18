@@ -93,7 +93,7 @@ class YouTube:
             Logger.error("Invalid Youtube URL specified: '%s'", url)
             return []
 
-        data = UriHandler.Open(url, proxy=proxy)
+        data = UriHandler.open(url, proxy=proxy)
         # get the stream data from the page
 
         # Up to 720p with audio and video combined.

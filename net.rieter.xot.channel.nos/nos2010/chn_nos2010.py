@@ -164,8 +164,8 @@ class Channel(chn_class.Channel):
         password = v.GetChannelSetting(self.guid, "password")
 
         # get a token (why?), cookies and an xsrf token
-        token = UriHandler.Open("https://www.npostart.nl/api/token", proxy=self.proxy, noCache=True,
-                                additionalHeaders={"X-Requested-With": "XMLHttpRequest"})
+        token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy, no_cache=True,
+                                additional_headers={"X-Requested-With": "XMLHttpRequest"})
 
         jsonToken = JsonHelper(token)
         token = jsonToken.get_value("token")
@@ -176,8 +176,8 @@ class Channel(chn_class.Channel):
 
         data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
                                             HtmlEntityHelper.url_encode(password))
-        UriHandler.Open("https://www.npostart.nl/api/login", proxy=self.proxy, noCache=True,
-                        additionalHeaders={
+        UriHandler.open("https://www.npostart.nl/api/login", proxy=self.proxy, no_cache=True,
+                        additional_headers={
                             "X-Requested-With": "XMLHttpRequest",
                             "X-XSRF-TOKEN": xsrfToken
                         },
@@ -194,7 +194,7 @@ class Channel(chn_class.Channel):
         # }
         # postData = "utf8=%%E2%%9C%%93&authenticity_token=%(token)s&email=%(email)s&" \
         #            "password=%(password)s&remember_me=1&commit=Inloggen" % postData
-        # data = UriHandler.Open("https://mijn.npo.nl/sessions", noCache=True, proxy=self.proxy,
+        # data = UriHandler.open("https://mijn.npo.nl/sessions", noCache=True, proxy=self.proxy,
         #                        params=postData)
         # if not data:
         #     Logger.Error("Error logging in: no response data")
@@ -243,7 +243,7 @@ class Channel(chn_class.Channel):
             else:
                 nextPage = "%s&%s" % (nextPage, queryString)
 
-            pageData = UriHandler.Open(nextPage, proxy=self.proxy, additionalHeaders=httpHeaders)
+            pageData = UriHandler.open(nextPage, proxy=self.proxy, additional_headers=httpHeaders)
             jsonData = JsonHelper(pageData)
             tiles = jsonData.get_value("tiles")
             if not isinstance(tiles, (tuple, list)):
@@ -962,7 +962,7 @@ class Channel(chn_class.Channel):
 
         # we need to determine radio or live tv
         Logger.debug("Fetching live stream data from item url: %s", item.url)
-        htmlData = UriHandler.Open(item.url, proxy=self.proxy)
+        htmlData = UriHandler.open(item.url, proxy=self.proxy)
 
         mp3Urls = Regexer.do_regex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
         if len(mp3Urls) > 0:
@@ -991,7 +991,7 @@ class Channel(chn_class.Channel):
     def __UpdateDashItem(self, item, episodeId):
         url = "https://start-player.npo.nl/video/{0}/streams?profile=dash-widevine&" \
               "quality=npo&streamType=livetv&mobile=0&ios=0&isChromecast=0".format(episodeId)
-        dashData = UriHandler.Open(url, proxy=self.proxy)
+        dashData = UriHandler.open(url, proxy=self.proxy)
         dashJson = JsonHelper(dashData)
         dashUrl = dashJson.get_value("stream", "src")
         dashLicenseUrl = dashJson.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")

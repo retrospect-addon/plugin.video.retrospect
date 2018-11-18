@@ -291,7 +291,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
         videoInfo = json.get_value("content", "videoInfos")
 
@@ -340,7 +340,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
         videoPlayLists = json.get_value("Video", "Playlists", "Playlist")
 

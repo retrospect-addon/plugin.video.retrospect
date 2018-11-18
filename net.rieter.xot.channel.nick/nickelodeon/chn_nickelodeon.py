@@ -161,7 +161,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
         # get the playlist GUID
         playlistGuids = Regexer.do_regex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
@@ -176,11 +176,11 @@ class Channel(chn_class.Channel):
         # but this seems to work.
         # http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-39ce0652b0b3c09258d9
         playListUrl = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-" + playlistGuid
-        playListData = UriHandler.Open(playListUrl, proxy=self.proxy)
+        playListData = UriHandler.open(playListUrl, proxy=self.proxy)
 
         # now get the real RTMP data
         rtmpMetaData = Regexer.do_regex('<media:content[^>]+[^>]+url="([^"]+)&amp;force_country=', playListData)[0]
-        rtmpData = UriHandler.Open(rtmpMetaData, proxy=self.proxy)
+        rtmpData = UriHandler.open(rtmpMetaData, proxy=self.proxy)
 
         rtmpUrls = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
 

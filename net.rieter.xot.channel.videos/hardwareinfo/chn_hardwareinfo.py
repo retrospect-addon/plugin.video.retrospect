@@ -81,7 +81,7 @@ class Channel(chn_class.Channel):
         # we need to create page items. So let's just spoof the paging. Youtube has
         # a 50 max results per query limit.
         itemsPerPage = 50
-        data = UriHandler.Open(self.mainListUri, proxy=self.proxy)
+        data = UriHandler.open(self.mainListUri, proxy=self.proxy)
         xml = xmlhelper.XmlHelper(data)
         nrItems = xml.get_single_node_content("openSearch:totalResults")
 

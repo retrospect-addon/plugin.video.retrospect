@@ -208,10 +208,10 @@ class Channel(chn_class.Channel):
             return item
 
         # https://www.foxsports.nl/api/video/videodata/2945190
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         videoId = Regexer.do_regex('data-videoid="(\d+)" ', data)[-1]
-        data = UriHandler.Open("https://www.foxsports.nl/api/video/videodata/%s" % (videoId,),
-                               proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
+        data = UriHandler.open("https://www.foxsports.nl/api/video/videodata/%s" % (videoId,),
+                               proxy=self.proxy, additional_headers=item.HttpHeaders, no_cache=True)
         streamId = Regexer.do_regex('<uri>([^>]+)</uri>', data)[-1]
 
         # POST https://d3api.foxsports.nl/api/V2/entitlement/tokenize
@@ -233,8 +233,8 @@ class Channel(chn_class.Channel):
           "Other__": "playerName=HTML5-Web-vod|ae755267-8482-455b-9055-529b643ece1d|undefined|undefined|undefined|2945541|HTML5|web|diva.MajorVersion=4|diva.MinorVersion=2|diva.PatchVersion=13"
         }
 
-        data = UriHandler.Open("https://d3api.foxsports.nl/api/V2/entitlement/tokenize",
-                               json=postData, noCache=True, proxy=self.proxy)
+        data = UriHandler.open("https://d3api.foxsports.nl/api/V2/entitlement/tokenize",
+                               json=postData, no_cache=True, proxy=self.proxy)
         streamInfo = JsonHelper(data)
         streamUrl = streamInfo.get_value("ContentUrl")
         if not streamUrl:

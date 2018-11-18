@@ -251,7 +251,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        metaData = UriHandler.Open(item.url, proxy=self.proxy, referer=self.baseUrl)
+        metaData = UriHandler.open(item.url, proxy=self.proxy, referer=self.baseUrl)
         meta = JsonHelper(metaData)
         streamParts = meta.get_value("feed", "items")
         for streamPart in streamParts:
@@ -259,7 +259,7 @@ class Channel(chn_class.Channel):
             # streamUrl = streamUrl.replace("{device}", "ipad")
             streamUrl = streamUrl.replace("{device}", "html5")
             streamUrl = "%s&format=json" % (streamUrl, )
-            streamData = UriHandler.Open(streamUrl, proxy=self.proxy)
+            streamData = UriHandler.open(streamUrl, proxy=self.proxy)
             stream = JsonHelper(streamData)
 
             # subUrls = stream.get_value("package", "video", "item", 0, "transcript", 0, "typographic")

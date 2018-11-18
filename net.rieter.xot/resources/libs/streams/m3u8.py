@@ -20,7 +20,7 @@ class M3u8:
 
     @staticmethod
     def get_subtitle(url, proxy=None, play_list_data=None, append_query_string=True):
-        data = play_list_data or UriHandler.Open(url, proxy)
+        data = play_list_data or UriHandler.open(url, proxy)
         regex = '(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
         sub = ""
 
@@ -109,7 +109,7 @@ class M3u8:
 
         streams = []
 
-        data = play_list_data or UriHandler.Open(url, proxy, additionalHeaders=headers)
+        data = play_list_data or UriHandler.open(url, proxy, additional_headers=headers)
         Logger.trace(data)
 
         qs = None

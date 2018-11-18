@@ -159,7 +159,7 @@ class Channel(chn_class.Channel):
         """
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         streams = Regexer.do_regex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
         part = item.create_new_empty_media_part()
         for s in streams:
@@ -175,7 +175,7 @@ class Channel(chn_class.Channel):
         """
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         data = data[data.index('{'):]
         json = JsonHelper(data)
 

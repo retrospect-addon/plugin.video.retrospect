@@ -38,7 +38,7 @@ class F4m:
 
         streams = []
 
-        data = UriHandler.Open(url, proxy, additionalHeaders=headers)
+        data = UriHandler.open(url, proxy, additional_headers=headers)
         Logger.trace(data)
         Logger.debug("Processing F4M Streams: %s", url)
         needle = '<media href="([^"]+)"[^>]*bitrate="([^"]+)"'

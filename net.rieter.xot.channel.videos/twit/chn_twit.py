@@ -224,7 +224,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         streams = Regexer.do_regex(self.mediaUrlRegex, data)
 
         item.MediaItemParts = []

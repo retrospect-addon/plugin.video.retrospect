@@ -57,12 +57,12 @@ def run_plugin():
         from environments import Environments
 
         ignore_ssl_errors = AddonSettings.ignore_ssl_errors()
-        UriHandler.CreateUriHandler(cacheDir=cache_dir,
-                                    cookieJar=os.path.join(Config.profileDir, "cookiejar.dat"),
-                                    ignoreSslErrors=ignore_ssl_errors)
+        UriHandler.create_uri_handler(cache_dir=cache_dir,
+                                      cookie_jar=os.path.join(Config.profileDir, "cookiejar.dat"),
+                                      ignore_ssl_errors=ignore_ssl_errors)
 
         # start texture handler
-        TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.Instance())
+        TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.instance())
 
         # run the plugin
         import plugin

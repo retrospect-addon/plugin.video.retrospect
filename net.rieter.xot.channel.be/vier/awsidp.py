@@ -74,8 +74,8 @@ class AwsIdp:
             "Accept-Encoding": "identity",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        authResponse = UriHandler.Open(self.url, proxy=self.__proxy,
-                                       params=authData, additionalHeaders=authHeaders)
+        authResponse = UriHandler.open(self.url, proxy=self.__proxy,
+                                       params=authData, additional_headers=authHeaders)
         authResponseJson = JsonHelper(authResponse)
         challengeParameters = authResponseJson.get_value("ChallengeParameters")
         if self.__logger:
@@ -94,8 +94,8 @@ class AwsIdp:
             "X-Amz-Target": "AWSCognitoIdentityProviderService.RespondToAuthChallenge",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        authResponse = UriHandler.Open(self.url, proxy=self.__proxy,
-                                       params=challengeData, additionalHeaders=challengeHeaders)
+        authResponse = UriHandler.open(self.url, proxy=self.__proxy,
+                                       params=challengeData, additional_headers=challengeHeaders)
         # if not authResponse:
         #     raise ValueError("No data on ChallengeResponse. Wrong username/password?")
 
@@ -129,9 +129,9 @@ class AwsIdp:
             "Content-Type": "application/x-amz-json-1.1"
         }
         refreshRequestData = JsonHelper.dump(refreshRequest)
-        refreshResponse = UriHandler.Open(self.url, proxy=self.__proxy,
+        refreshResponse = UriHandler.open(self.url, proxy=self.__proxy,
                                           params=refreshRequestData,
-                                          additionalHeaders=refreshHeaders)
+                                          additional_headers=refreshHeaders)
         refreshJson = JsonHelper(refreshResponse)
         idToken = refreshJson.get_value("AuthenticationResult", "IdToken")
         return idToken

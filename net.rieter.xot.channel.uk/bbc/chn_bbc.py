@@ -202,7 +202,7 @@ class Channel(chn_class.Channel):
         Logger.trace(item.url)
         if not item.url.startswith("http://www.bbc.co.uk/mediaselector/"):
             Logger.debug("Determining the stream URL")
-            data = UriHandler.Open(item.url, proxy=self.proxy)
+            data = UriHandler.open(item.url, proxy=self.proxy)
             needle = '"vpid"\W*"([^"]+)"'
             vid = Regexer.do_regex(needle, data)[-1]
             # streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/4/mtis/stream/%s/" % (vid,)
@@ -222,7 +222,7 @@ class Channel(chn_class.Channel):
 
         part = item.create_new_empty_media_part()
 
-        streamData = UriHandler.Open(streamDataUrl, proxy=self.proxy)
+        streamData = UriHandler.open(streamDataUrl, proxy=self.proxy)
         # from debug.router import Router
         # streamData = Router.GetVia("uk", streamDataUrl, self.proxy)
 
@@ -400,7 +400,7 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item.
         """
         Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
         streamRoot = Regexer.do_regex('<media href="([^"]+\.isml)', data)[0]
         Logger.debug("Found Live stream root: %s", streamRoot)
         # url = "%s/master.m3u8" % (streamRoot, )

@@ -262,7 +262,7 @@ class Channel(chn_class.Channel):
             # only retrieve the account information using the cookie and the token
             account_info_url = "https://accounts.eu1.gigya.com/accounts.getAccountInfo?{}" \
                                "&login_token={}".format(common_data, login_token)
-            account_info = UriHandler.Open(account_info_url, proxy=self.proxy, noCache=True)
+            account_info = UriHandler.open(account_info_url, proxy=self.proxy, no_cache=True)
 
             # See if it was successfull
             if self.__ExtractSessionData(account_info, signature_settings):
@@ -294,7 +294,7 @@ class Channel(chn_class.Channel):
         url = "https://accounts.eu1.gigya.com/accounts.webSdkBootstrap?apiKey={}" \
               "&pageURL=https%3A%2F%2Fwatch.stievie.be%2F&format=jsonp" \
               "&callback=gigya.callback&context=R{}".format(api_key, context_id)
-        init_login = UriHandler.Open(url, proxy=self.proxy, noCache=True)
+        init_login = UriHandler.open(url, proxy=self.proxy, no_cache=True)
         init_data = JsonHelper(init_login)
         if init_data.get_value("statusCode") != 200:
             Logger.error("Error initiating login")
@@ -311,7 +311,7 @@ class Channel(chn_class.Channel):
                      "&%s" % \
                      (HtmlEntityHelper.url_encode(username), HtmlEntityHelper.url_encode(password),
                       context_id, common_data)
-        UriHandler.Open(login_url, params=login_data, proxy=self.proxy, noCache=True)
+        UriHandler.open(login_url, params=login_data, proxy=self.proxy, no_cache=True)
 
         #  retrieve the result
         login_retrieval_url = "https://accounts.eu1.gigya.com/socialize.getSavedResponse" \
@@ -321,7 +321,7 @@ class Channel(chn_class.Channel):
                               "&sdk=js_latest" \
                               "&format=json" \
                               "&context=R{1}".format(api_key, context_id)
-        login_response = UriHandler.Open(login_retrieval_url, proxy=self.proxy, noCache=True)
+        login_response = UriHandler.open(login_retrieval_url, proxy=self.proxy, no_cache=True)
         return self.__ExtractSessionData(login_response, signature_settings)
 
     # region Stievie listings/menus
@@ -509,7 +509,7 @@ class Channel(chn_class.Channel):
         for i in range(100, count, 100):
             url = "%s&from=%s" % (self.mainListUri, i)
             Logger.debug("Retrieving more items from: %s", url)
-            moreData = UriHandler.Open(url, proxy=self.proxy)
+            moreData = UriHandler.open(url, proxy=self.proxy)
             moreJson = JsonHelper(moreData)
             moreItems = moreJson.get_value("response", "items")
             if moreItems:
@@ -597,7 +597,7 @@ class Channel(chn_class.Channel):
               "&apikey=%s" \
               "&sort=broadcastDate&sortDirection=desc" \
               "&programIds=%s" % (self.__apiKey, showId)
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
         return data, []
 
     def CreateVideoItemJson(self, resultSet):
@@ -624,7 +624,7 @@ class Channel(chn_class.Channel):
         return self.__UpdateVideoItem(item, videoId)
 
     def UpdateVideoEpgItemJson(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
         jsonData = JsonHelper(data)
         videoId = jsonData.get_value("response", "videos", 0, "id")
         return self.__UpdateVideoItem(item, videoId)
@@ -709,7 +709,7 @@ class Channel(chn_class.Channel):
 
         videoId = self.parentItem.url.rsplit("%3A", 1)[-1]
         recentUrl = "https://vtm.be/block/responsive/medialaan_vod/program?offset=0&limit=10&program=%s" % (videoId, )
-        recentData = UriHandler.Open(recentUrl, proxy=self.proxy)
+        recentData = UriHandler.open(recentUrl, proxy=self.proxy)
 
         # https://vtm.be/video/volledige-afleveringen/id/257124125192000
         regex = '<a href="/(?<url>[^"]+)"[^>]*>\W+<img[^>]+src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?' \
@@ -799,7 +799,7 @@ class Channel(chn_class.Channel):
             Logger.warning("Cannot log on")
             return None
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         videoIdRegex = '"vodId":"([^"]+)"'
         videoId = Regexer.do_regex(videoIdRegex, data)[0]
         return self.__UpdateVideoItem(item, videoId)
@@ -825,7 +825,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             auth.update(self.localIP)
 
-        data = UriHandler.Open(url, proxy=self.proxy, noCache=True, additionalHeaders=auth)
+        data = UriHandler.open(url, proxy=self.proxy, no_cache=True, additional_headers=auth)
         jsonData = JsonHelper(data)
         hls = jsonData.get_value("response", "url", "hls-aes-linear")
         if not hls:
@@ -835,7 +835,7 @@ class Channel(chn_class.Channel):
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False) or True:
             # get the cookies
             licenseServerUrl = jsonData.get_value("response", "drm", "format", "hls-aes", "licenseServerUrl")
-            UriHandler.Open(licenseServerUrl, proxy=self.proxy, noCache=True)
+            UriHandler.open(licenseServerUrl, proxy=self.proxy, no_cache=True)
             domain = ".license.medialaan.io"
             channelPath = jsonData.get_value("response", "broadcast", "channel")
 
@@ -865,7 +865,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateHtmlClipItem(self, item):
-        data = UriHandler.Open(item.url)
+        data = UriHandler.open(item.url)
         jsonData = Regexer.do_regex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
         jsonData = JsonHelper(jsonData[-1])
         videoInfo = jsonData.get_value('medialaan_player', )
@@ -902,7 +902,7 @@ class Channel(chn_class.Channel):
 
         auth = "apikey=%s&access_token=%s" % (self.__apiKey, token)
         headers = {"Authorization": auth}
-        data = UriHandler.Open(mediaUrl, proxy=self.proxy, additionalHeaders=headers)
+        data = UriHandler.open(mediaUrl, proxy=self.proxy, additional_headers=headers)
 
         jsonData = JsonHelper(data)
         dashInfo = jsonData.get_value("response", "dash-cenc")
@@ -966,7 +966,7 @@ class Channel(chn_class.Channel):
             self.__signatureTimeStamp,
             HtmlEntityHelper.url_encode(self.__apiKey),
             self.__sso)
-        data = UriHandler.Open(url, proxy=self.proxy, noCache=True)
+        data = UriHandler.open(url, proxy=self.proxy, no_cache=True)
         jsonData = JsonHelper(data)
         return jsonData.get_value("response")
 

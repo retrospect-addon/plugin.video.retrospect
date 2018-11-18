@@ -95,7 +95,7 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
-            up = Updater(Config.UpdateUrl, Config.version, UriHandler.Instance(), Logger.instance())
+            up = Updater(Config.UpdateUrl, Config.version, UriHandler.instance(), Logger.instance())
             if up.is_new_version_available():
                 Logger.info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
@@ -472,7 +472,7 @@ class Plugin(ParameterParser):
             Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
 
-    # @LockWithDialog(logger=Logger.Instance())  No longer needed as Kodi will do this automatically
+    # @LockWithDialog(logger=Logger.instance())  No longer needed as Kodi will do this automatically
     def PlayVideoItem(self):
         """Starts the videoitem using a playlist. """
 

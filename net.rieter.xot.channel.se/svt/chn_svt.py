@@ -248,7 +248,7 @@ class Channel(chn_class.Channel):
     # def FetchThumbData(self, data):
     #     items = []
     #
-    #     thumbData = UriHandler.Open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
+    #     thumbData = UriHandler.open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
     #     json = JsonHelper(thumbData)
     #     for jsonData in json.get_value():
     #         if "thumbnail" not in jsonData:
@@ -277,19 +277,19 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        # data = UriHandler.Open("https://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
+        # data = UriHandler.open("https://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
 
         now = datetime.datetime.now()
         try:
-            serverTime = UriHandler.Open("https://www.svtplay.se/api/server_time",
-                                         proxy=self.proxy, noCache=True)
+            serverTime = UriHandler.open("https://www.svtplay.se/api/server_time",
+                                         proxy=self.proxy, no_cache=True)
             serverTimeJson = JsonHelper(serverTime)
             serverTime = serverTimeJson.get_value("time")
         except:
             Logger.error("Error determining server time", exc_info=True)
             serverTime = "%04d-%02d-%02dT%02d:%02d:%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
 
-        data = UriHandler.Open(
+        data = UriHandler.open(
             "https://www.svtplay.se/api/channel_page?now=%s" % (serverTime, ),
             proxy=self.proxy)
         return data, items
@@ -715,7 +715,7 @@ class Channel(chn_class.Channel):
         will automatically be set back to False.
 
         """
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
         data = self.ExtractJsonData(data)[0]
         json = JsonHelper(data, logger=Logger.instance())
@@ -762,7 +762,7 @@ class Channel(chn_class.Channel):
         """
         Logger.debug('Starting UpdateChannelItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
         json = JsonHelper(data, logger=Logger.instance())
         videos = json.get_value("videoReferences")

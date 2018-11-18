@@ -144,7 +144,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         if not item.url.endswith("m3u8"):
-            data = UriHandler.Open(item.url, proxy=self.proxy)
+            data = UriHandler.open(item.url, proxy=self.proxy)
             jsonData = Regexer.do_regex(self.mediaUrlRegex, data)
             if not jsonData:
                 Logger.error("Cannot find JSON stream info.")

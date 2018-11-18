@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateVideoItem(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
         mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
@@ -208,7 +208,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateLiveItem(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
         mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
         mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
@@ -228,7 +228,7 @@ class Channel(chn_class.Channel):
             Logger.debug("No HLS url found for %s. Fetching RTMP Token.", mediaInfo.json["streamName"])
             # fetch the token:
             tokenUrl = "%s/api/media/streaming?streamname=%s" % (self.baseUrl, mediaInfo.json["streamName"])
-            tokenData = UriHandler.Open(tokenUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
+            tokenData = UriHandler.open(tokenUrl, proxy=self.proxy, additional_headers=item.HttpHeaders, no_cache=True)
             tokenData = JsonHelper(tokenData)
             token = tokenData.get_value("token")
             Logger.debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])

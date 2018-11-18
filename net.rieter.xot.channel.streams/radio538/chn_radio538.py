@@ -311,7 +311,7 @@ class Channel(chn_class.Channel):
         return item
 
     def UpdateLiveStreamXml(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         xml = parseString(data)
         streamXmls = xml.getElementsByTagName("mountpoint")
         Logger.debug("Found %d streams", len(streamXmls))

@@ -236,7 +236,7 @@ class Channel:
             noCache = item is not None and not item.is_playable() and item.isLive
             if noCache:
                 Logger.debug("Disabling cache for '%s'", item)
-            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=noCache)
+            data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=noCache)
         # Searching a site using SearchSite()
         elif url == "searchSite" or url == "#searchSite":
             Logger.debug("Starting to search")
@@ -462,7 +462,7 @@ class Channel:
             else:
                 return self.mainListItems
 
-        data = UriHandler.Open(self.mainListUri, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        data = UriHandler.open(self.mainListUri, proxy=self.proxy, additional_headers=self.httpHeaders)
         Logger.trace("Retrieved %s chars as mainlist data", len(data))
 
         # first process folder items.
@@ -630,7 +630,7 @@ class Channel:
     #         pages = Regexer.do_regex(self.pageNavigationRegex, data)
     #
     #     elif not self.pageNavigationJson is None:
-    #         pageJson = JsonHelper(data, logger=Logger.Instance())
+    #         pageJson = JsonHelper(data, logger=Logger.instance())
     #         pages = pageJson.get_value(*self.pageNavigationJson)
     #
     #         if pages is None:
@@ -822,7 +822,7 @@ class Channel:
 
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
 
         url = Regexer.do_regex(self.mediaUrlRegex, data)[-1]
         part = mediaitem.MediaItemPart(item.name, url)
@@ -890,8 +890,8 @@ class Channel:
 
                 progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
                 folderName = XbmcWrapper.ShowFolderSelection('Select download destination for "%s"' % (saveFileName, ))
-                UriHandler.Download(downloadUrl, saveFileName, folderName, progressDialog, proxy=self.proxy,
-                                    additionalHeaders=headers)
+                UriHandler.download(downloadUrl, saveFileName, folderName, progressDialog, proxy=self.proxy,
+                                    additional_headers=headers)
                 i += 1
 
             item.downloaded = True
@@ -979,9 +979,9 @@ class Channel:
                     Logger.error(headers)
                     streamFilename = "xot.%s.%skbps-%s.%s" % (fileName, stream.Bitrate, item.name, extension)
                     progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                    cacheFile = UriHandler.Download(stream.Url, streamFilename, self.GetDefaultCachePath(),
+                    cacheFile = UriHandler.download(stream.Url, streamFilename, self.GetDefaultCachePath(),
                                                     progressDialog.ProgressUpdate, proxy=self.proxy,
-                                                    additionalHeaders=headers)
+                                                    additional_headers=headers)
 
                     if cacheFile == "":
                         Logger.error("Cannot download stream %s \nFrom: %s", stream, part)
@@ -1194,7 +1194,7 @@ class Channel:
                     self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
 
         # Find the parsers
-        # watch = stopwatch.StopWatch('DataParsers', Logger.Instance())
+        # watch = stopwatch.StopWatch('DataParsers', Logger.instance())
         dataParsers = None
         if url.startswith("#"):
             # let's handle the keyword url's

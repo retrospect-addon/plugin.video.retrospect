@@ -354,7 +354,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, noCache=True, additionalHeaders=headers)
+        data = UriHandler.open(item.url, proxy=self.proxy, no_cache=True, additional_headers=headers)
         manifest = JsonHelper(data)
         if "nonPlayable" in manifest.json and manifest.json["nonPlayable"]:
             Logger.error("Cannot update Live: %s", item)
@@ -371,7 +371,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers)
         video_data = JsonHelper(data)
         stream_data = video_data.get_value("mediaAssetsOnDemand")
         if not stream_data:

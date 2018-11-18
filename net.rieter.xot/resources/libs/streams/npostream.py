@@ -52,10 +52,10 @@ class NpoStream:
             return
 
         # https://www.npo.nl/player/KN_1693703 -> token
-        data = UriHandler.Open("https://www.npostart.nl/player/{0}".format(episode_id),
+        data = UriHandler.open("https://www.npostart.nl/player/{0}".format(episode_id),
                                params="autoplay=1",
                                proxy=proxy,
-                               additionalHeaders=headers)
+                               additional_headers=headers)
         token = JsonHelper(data).get_value("token")
         Logger.trace("Found token %s", token)
 
@@ -67,7 +67,7 @@ class NpoStream:
                           "&mobile=0" \
                           "&isChromecast=0".format(episode_id, token)
 
-        data = UriHandler.Open(stream_data_url, proxy=proxy, additionalHeaders=headers)
+        data = UriHandler.open(stream_data_url, proxy=proxy, additional_headers=headers)
         stream_data = JsonHelper(data)
         license_url = stream_data.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
         license_headers = stream_data.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
@@ -115,13 +115,13 @@ class NpoStream:
             return []
 
         # we need an hash code
-        token_json_data = UriHandler.Open("http://ida.omroep.nl/app.php/auth",
-                                          noCache=True, proxy=proxy, additionalHeaders=headers)
+        token_json_data = UriHandler.open("http://ida.omroep.nl/app.php/auth",
+                                          no_cache=True, proxy=proxy, additional_headers=headers)
         token_json = JsonHelper(token_json_data)
         token = token_json.get_value("token")
 
         url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episode_id, token)
-        stream_data = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
+        stream_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
         if not stream_data:
             return []
 
@@ -139,14 +139,14 @@ class NpoStream:
                 Logger.debug("Found live stream")
                 url = streamInfo["url"]
                 url = url.replace("jsonp", "json")
-                live_url_data = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
+                live_url_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
                 live_url = live_url_data.strip("\"").replace("\\", "")
                 Logger.trace(live_url)
                 streams += M3u8.get_streams_from_m3u8(live_url, proxy, headers=headers)
 
             elif streamInfo["format"] == "hls":
                 m3u8_info_url = streamInfo["url"]
-                m3u8_info_data = UriHandler.Open(m3u8_info_url, proxy=proxy, additionalHeaders=headers)
+                m3u8_info_data = UriHandler.open(m3u8_info_url, proxy=proxy, additional_headers=headers)
                 m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.instance())
                 m3u8_url = m3u8_info_json.get_value("url")
                 streams += M3u8.get_streams_from_m3u8(m3u8_url, proxy, headers=headers)
@@ -158,7 +158,7 @@ class NpoStream:
                     mp4_url = url
                 else:
                     url = url.replace("jsonp", "json")
-                    mp4_url_data = UriHandler.Open(url, proxy=proxy, additionalHeaders=headers)
+                    mp4_url_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
                     mp4_info_json = JsonHelper(mp4_url_data, logger=Logger.instance())
                     mp4_url = mp4_info_json.get_value("url")
                 bitrate = bitrates.get(streamInfo["label"].lower(), 0)

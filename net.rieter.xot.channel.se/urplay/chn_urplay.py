@@ -298,7 +298,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         # Extract stream JSON data from HTML
         streams = Regexer.do_regex(self.mediaUrlRegex, data)
         jsonData = streams[0]
@@ -335,7 +335,7 @@ class Channel(chn_class.Channel):
         # generic server information
         proxy = json.get_value("streaming_config", "streamer", "redirect")
         if proxy is None:
-            proxyData = UriHandler.Open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, noCache=True)
+            proxyData = UriHandler.open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, no_cache=True)
             proxyJson = JsonHelper(proxyData)
             proxy = proxyJson.get_value("redirect")
         Logger.trace("Found RTMP Proxy: %s", proxy)
