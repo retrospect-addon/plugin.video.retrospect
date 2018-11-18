@@ -108,7 +108,7 @@ class ParameterParser(object):
 
         # it might have an item or not
         if item is not None:
-            params[self.keywordPickle] = self._pickler.PickleMediaItem(item)
+            params[self.keywordPickle] = self._pickler.pickle_media_item(item)
 
             if action == self.actionPlayVideo and item.isLive:
                 params[self.keywordRandomLive] = random.randint(10000, 99999)

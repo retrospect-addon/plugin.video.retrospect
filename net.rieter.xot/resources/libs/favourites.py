@@ -41,7 +41,7 @@ class Favourites:
         Logger.debug("Adding item %s\nfor channel %s\n%s", item, channel, action_url)
         file_name = self.__filePattern % (channel.guid, item.guid)
         file_path = os.path.join(self.FavouriteFolder, file_name)
-        pickle = self.__pickler.PickleMediaItem(item)
+        pickle = self.__pickler.pickle_media_item(item)
 
         # Just double check for folder existence
         if not os.path.isdir(self.FavouriteFolder):
@@ -124,8 +124,8 @@ class Favourites:
                 continue
 
             Logger.debug("Found favourite: %s", name)
-            item = self.__pickler.DePickleMediaItem(pickle)
-            validation_error = self.__pickler.Validate(item, logger=Logger.instance())
+            item = self.__pickler.de_pickle_media_item(pickle)
+            validation_error = self.__pickler.validate(item, logger=Logger.instance())
             if validation_error:
                 Logger.error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
 

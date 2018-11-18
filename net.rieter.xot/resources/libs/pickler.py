@@ -8,6 +8,7 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+# noinspection PyPep8Naming
 import cPickle as pickle
 import base64
 
@@ -37,38 +38,34 @@ class Pickler:
         # store some vars for speed optimization
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
 
-    def DePickleMediaItem(self, hexString):
-        """De-serializes a serialized mediaitem
+    def de_pickle_media_item(self, hex_string):
+        """ De-serializes a serialized mediaitem
 
-        Arguments:
-        hexString : string - Base64 encoded string that should be decoded.
+        :param str|unicode hex_string: Base64 encoded string that should be decoded.
 
-        Returns:
-        The object that was Pickled and Base64 encoded.
+        :return: The object that was Pickled and Base64 encoded.
 
         """
 
-        hexString = hexString.rstrip(' ')
-        hexString = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsDecode[y]),
-                           Pickler.__Base64CharsDecode.keys(),
-                           hexString)
+        hex_string = hex_string.rstrip(' ')
+        hex_string = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsDecode[y]),
+                            Pickler.__Base64CharsDecode.keys(),
+                            hex_string)
 
-        Logger.trace("DePickle: HexString: %s (might be truncated)", hexString[0:256])
+        Logger.trace("DePickle: HexString: %s (might be truncated)", hex_string[0:256])
 
         # Logger.Trace("DePickle: HexString: %s", hexString)
-        pickleString = base64.b64decode(hexString)
-        # Logger.Trace("DePickle: PickleString: %s", pickleString)
-        pickleItem = pickle.loads(pickleString)
-        return pickleItem
+        pickle_string = base64.b64decode(hex_string)
+        # Logger.Trace("DePickle: PickleString: %s", pickle_string)
+        pickle_item = pickle.loads(pickle_string)
+        return pickle_item
 
-    def PickleMediaItem(self, item):
-        """Serialises a mediaitem
+    def pickle_media_item(self, item):
+        """ Serialises a mediaitem using Pickle
 
-        Arguments:
-        item : MediaItem - the item that should be serialized
-
-        Returns:
-        A pickled and base64 encoded serialization of the <item>.
+        :param Any item: The item that should be serialized
+        :return: A pickled and Base64 encoded serialization of the `item`.
+        :rtype: str
 
         """
 
@@ -76,29 +73,31 @@ class Pickler:
             Logger.trace("Pickle Container cache hit: %s", item.guid)
             return self.__pickleContainer[item.guid]
 
-        pickleString = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)
-        # Logger.Trace("Pickle: PickleString: %s", pickleString)
-        hexString = base64.b64encode(pickleString)
+        pickle_string = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)
+        # Logger.Trace("Pickle: PickleString: %s", pickle_string)
+        hex_string = base64.b64encode(pickle_string)
 
         # if not unquoted, we must replace the \n's for the URL
-        hexString = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsEncode[y]),
-                           Pickler.__Base64CharsEncode.keys(),
-                           hexString)
+        hex_string = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsEncode[y]),
+                            Pickler.__Base64CharsEncode.keys(),
+                            hex_string)
 
-        # Logger.Trace("Pickle: HexString: %s", hexString)
+        # Logger.Trace("Pickle: HexString: %s", hex_string)
 
-        self.__pickleContainer[item.guid] = hexString
-        return hexString
+        self.__pickleContainer[item.guid] = hex_string
+        return hex_string
 
-    def Validate(self, test, raiseOnMissing=False, logger=None):
-        """ Validates if in instance has all properties after depickling. The __class__ of the 'test' should
-         implement a self.__dir__(self) that returns the required attributes.
+    def validate(self, test, raise_on_missing=False, logger=None):
+        """ Validates if in instance has all properties after depickling. The __class__ of
+        the 'test' should implement a self.__dir__(self) that returns the required attributes.
 
-        @param test:            Item to test
-        @param raiseOnMissing:  If True an error will be raised on failure
-        @param logger           Pass a loger in
+        :param any test:                Item to test
+        :param bool raise_on_missing:   If True an error will be raised on failure
+        :param Logger|None logger:      Pass a loger in
 
-        @return None if no error, or an error message if an error occurred.
+        :return: None if no error, or an error message if an error occurred.
+        :rtype: str|None
+        
         """
 
         if logger is not None:
@@ -118,7 +117,7 @@ class Pickler:
 
                 if logger is not None:
                     logger.warning(error)
-                if raiseOnMissing:
+                if raise_on_missing:
                     raise Exception(error)
                 return error
 

@@ -387,7 +387,7 @@ class Plugin(ParameterParser):
 
             selectedItem = None
             if self.keywordPickle in self.params:
-                selectedItem = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
+                selectedItem = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
             if favorites is None:
                 watcher = StopWatch("Plugin ProcessFolderList", Logger.instance())
@@ -480,7 +480,7 @@ class Plugin(ParameterParser):
 
         item = None
         try:
-            item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
+            item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
             if (item.isDrmProtected or item.isPaid) and AddonSettings.show_drm_paid_warning():
                 if item.isDrmProtected:
@@ -572,7 +572,7 @@ class Plugin(ParameterParser):
         """
         Logger.debug("Performing Custom Contextmenu command: %s", action)
 
-        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
         if not item.complete:
             Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
             item = self.channelObject.ProcessVideoItem(item)
