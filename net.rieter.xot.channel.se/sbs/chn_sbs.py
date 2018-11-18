@@ -189,7 +189,7 @@ class Channel(chn_class.Channel):
 
         #===========================================================================================
         # non standard items
-        if not UriHandler.GetCookie("st", self.baseUrlApi):
+        if not UriHandler.get_cookie("st", self.baseUrlApi):
             guid = uuid.uuid4()
             guid = str(guid).replace("-", "")
             # https://disco-api.dplay.se/token?realm=dplayse&deviceId

@@ -188,5 +188,5 @@ class Channel(chn_class.Channel):
         Logger.info("Setting the Cookie-Consent cookie for www.dumpert.nl")
 
         # Set-Cookie: cpc=10; path=/; domain=www.dumpert.nl; expires=Thu, 11-Jun-2020 18:49:38 GMT
-        UriHandler.SetCookie(name='cpc', value='10', domain='.www.dumpert.nl')
+        UriHandler.set_cookie(name='cpc', value='10', domain='.www.dumpert.nl')
         return

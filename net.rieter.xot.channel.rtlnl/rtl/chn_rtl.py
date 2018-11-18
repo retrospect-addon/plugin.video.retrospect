@@ -413,5 +413,5 @@ class Channel(chn_class.Channel):
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
-        UriHandler.SetCookie(name='rtlcookieconsent', value='yes', domain='.www.rtl.nl')
+        UriHandler.set_cookie(name='rtlcookieconsent', value='yes', domain='.www.rtl.nl')
         return

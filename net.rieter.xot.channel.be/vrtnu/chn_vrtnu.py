@@ -194,7 +194,7 @@ class Channel(chn_class.Channel):
         apiKey = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
 
         # Do we still have a valid short living token (1 hour)? If so, we have an active session.
-        shortLoginCookie = UriHandler.GetCookie("X-VRT-Token", ".vrt.be")
+        shortLoginCookie = UriHandler.get_cookie("X-VRT-Token", ".vrt.be")
         if shortLoginCookie is not None:
             # The old X-VRT-Token expired after 1 year. We don't want that old cookie
             shortLoginCookieCanLiveTooLong = DateHelper.get_date_from_posix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
@@ -205,7 +205,7 @@ class Channel(chn_class.Channel):
         # Do we still have a valid long living token? If so, try to extend the session. We need the
         # original UIDSignature value for that. The 'vrtlogin-rt' and all other related cookies
         # are valid for a same period (1 year).
-        longLoginCookie = UriHandler.GetCookie("vrtlogin-rt", ".vrt.be")
+        longLoginCookie = UriHandler.get_cookie("vrtlogin-rt", ".vrt.be")
         if longLoginCookie is not None:
             # if we stored a valid user signature, we can use it, together with the 'gmid' and
             # 'ucid' cookies to extend the session and get new token data
@@ -441,7 +441,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
 
         # we need to fetch the actual url as it might differ for single video items
-        data, secureUrl = UriHandler.Header(item.url, proxy=self.proxy)
+        data, secureUrl = UriHandler.header(item.url, proxy=self.proxy)
 
         # Get the MZID
         secureUrl = secureUrl.rstrip("/")

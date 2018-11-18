@@ -239,8 +239,8 @@ class Channel(chn_class.Channel):
     def SetCookie(self):
         # Cookie: pwv=1; pws=functional|analytics|content_recommendation|targeted_advertising|social_media
         domain = self.mainListUri.replace("https://", "").split("/", 1)[0]
-        UriHandler.SetCookie(name="pwv", value="1", domain=domain)
-        UriHandler.SetCookie(name="pws", value="functional|analytics|content_recommendation|targeted_advertising|social_media", domain=domain)
+        UriHandler.set_cookie(name="pwv", value="1", domain=domain)
+        UriHandler.set_cookie(name="pws", value="functional|analytics|content_recommendation|targeted_advertising|social_media", domain=domain)
 
     def LogOn(self):
         signature_settings = "mediaan_signature"
@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
         common_data = "APIKey=%s" \
                       "&authMode=cookie" % (api_key,)
 
-        login_cookie = UriHandler.GetCookie("gmid", domain=".gigya.com")
+        login_cookie = UriHandler.get_cookie("gmid", domain=".gigya.com")
 
         if login_token and "|" not in login_token and login_cookie is not None:
             # only retrieve the account information using the cookie and the token
@@ -846,7 +846,7 @@ class Channel(chn_class.Channel):
             cookies = ["CloudFront-Key-Pair-Id", "CloudFront-Policy", "CloudFront-Signature"]
             licenseKey = ""
             for c in cookies:
-                cookie = UriHandler.GetCookie(c, domain, path=path)
+                cookie = UriHandler.get_cookie(c, domain, path=path)
                 if cookie is None:
                     Logger.error("Missing cookie: %s", c)
                     return item

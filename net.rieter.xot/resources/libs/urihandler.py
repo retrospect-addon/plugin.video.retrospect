@@ -81,14 +81,14 @@ class UriHandler(object):
     @staticmethod
     def download(uri, filename, folder, progress_callback=None, proxy=None,
                  params=None, data=None, json=None, referer=None, additional_headers=None):
-        """Downloads a remote file
+        """ Downloads a remote file
 
-        Arguments
-        :param str uri:                     The URI to download.
         :param str filename:                The filename that should be used to store the file.
+        :param str folder:                  The folder to save the file in.
         :param str params:                  Data to send with the request (open(uri, params)).
+        :param str uri:                     The URI to download.
         :param dict[str, any]|str data:     Data to send with the request (open(uri, data)).
-        :param dict[str, any]:              Json to send with the request (open(uri, params)).
+        :param dict[str, any] json:              Json to send with the request (open(uri, params)).
         :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
                                             proxy server that should be used.
         :param str referer:                 The http referer to use.
@@ -128,57 +128,56 @@ class UriHandler(object):
                                           referer, additional_headers, no_cache)
 
     @staticmethod
-    def Header(uri, proxy=None, referer=None, additionalHeaders=None):
-        # type: (str, object, str, dict) -> (object, str)
-        """ Retrieves header information only
+    def header(uri, proxy=None, referer=None, additional_headers=None):
+        """ Retrieves header information only.
 
-        Arguments:
-        uri      : string - the URI to download
+        :param str uri:                     The URI to fetch the header from.
+        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
+                                            proxy server that should be used.
+        :param str referer:                 The http referer to use.
+        :param dict additional_headers:     The optional headers.
 
-        Arguments
-        :param uri:                 - String          - the URI to download
-
-        Keyword Arguments:
-        :param proxy:               - [opt] ProxyInfo - The address and port (proxy.address.ext:port) of
-                                                        a proxy server that should be used.
-        :param referer:             - [opt] string    - the http referer to use
-        :param additionalHeaders:   - [opt] dict      - the optional headers
-
-        Returns:
-        Data and the URL to which a redirect could have occurred.
+        :return: Content-type and the URL to which a redirect could have occurred.
+        :rtype: tuple[str,str]
 
         """
 
         return UriHandler.instance().header(uri, proxy, referer,
-                                            additionalHeaders)
+                                            additional_headers)
 
     @staticmethod
-    def SetCookie(version=0, name='', value='',
-                  port=None,  # port_specified=False,
-                  domain='',  # domain_specified=True,
-                  domain_initial_dot=False,
-                  path='/',  # path_specified=True,
-                  secure=False,
-                  expires=4102444555,
-                  # discard=False,
-                  # comment=None,
-                  # comment_url=None,
-                  # rest=None,
-                  # rfc2109=False
-                  ):
-        # type: (int, str, str, str, str, bool, str, bool, int) -> cookielib.Cookie
-
+    def set_cookie(version=0, name='', value='',
+                   port=None,
+                   # Not used: port_specified=False,
+                   domain='',
+                   # Not used: domain_specified=True,
+                   domain_initial_dot=False,
+                   path='/',
+                   # Not used: path_specified=True,
+                   secure=False,
+                   expires=4102444555,
+                   # Not used:
+                   # discard=False,
+                   # comment=None,
+                   # comment_url=None,
+                   # rest=None,
+                   # rfc2109=False
+                   ):
         """ Sets a cookie in the UriHandler cookie jar
 
-        :param version:             the cookie version
-        :param name:                the name of the cookie
-        :param value:               the value of the cookie
-        :param port:                String representing a port or a set of ports (eg. '80', or '80,8080'), or None
-        :param domain:              the domain for which the cookie should be valid
-        :param domain_initial_dot:  if the domain explicitly specified by the server began with a dot ('.').
-        :param path:                the path the cookie is valid for
-        :param secure:              if cookie should only be returned over a secure connection
-        :param expires:             Integer expiry date in seconds since epoch, or None.
+        :param int version:             The cookie version
+        :param str name:                The name of the cookie
+        :param str value:               The value of the cookie
+        :param int|None port:           String representing a port or a set of
+                                        ports (eg. '80', or '80,8080'), or None
+        :param str domain:              The domain for which the cookie should be valid
+        :param bool domain_initial_dot: If the domain explicitly specified by the server began with a dot ('.').
+        :param str path:                The path the cookie is valid for
+        :param bool secure:             If cookie should only be returned over a secure connection
+        :param int expires:             Integer expiry date in seconds since epoch, or None.
+
+        :return: The new cookie.
+        :rtype: cookielib.Cookie
         """
 
         Logger.debug("Setting a cookie with this data:\n"
@@ -202,16 +201,27 @@ class UriHandler(object):
         UriHandler.instance().cookieJar.set_cookie(c)
         return c
 
-    # noinspection PyProtectedMember,PyTypeChecker
+    # noinspection PyProtectedMember
     @staticmethod
-    def GetCookie(name, domain, path="/", matchStart=False):
-        # type: (str, str, str, bool) -> cookielib.Cookie
+    def get_cookie(name, domain, path="/", match_start=False):
+        """ Fetches a specific cookie.
+
+        :param str name:            Name of the cookie.
+        :param str domain:          Domain of the cookie.
+        :param str path:            Path of the cookie.
+        :param bool match_start:    Should only match the start of a name?
+
+        :return: the found cookie or
+        :rtype: cookielib.Cookie|None
+
+        """
+
         if domain not in UriHandler.instance().cookieJar._cookies or \
                 path not in UriHandler.instance().cookieJar._cookies[domain]:
             return None
 
         cookies = UriHandler.instance().cookieJar._cookies[domain][path]
-        if not matchStart:
+        if not match_start:
             if name in cookies:
                 return cookies[name]
             return None
@@ -224,7 +234,7 @@ class UriHandler(object):
             Logger.trace("Found cookie '%s'", cookies[0].name)
             return cookies[0]
 
-    # noinspection PyProtectedMember,PyTypeChecker
+    # noinspection PyProtectedMember
     @staticmethod
     def delete_cookie(name=None, domain=None):
         cookie_jar = UriHandler.instance().cookieJar
@@ -242,13 +252,12 @@ class UriHandler(object):
             cookie_jar.save()
 
     @staticmethod
-    def GetExtensionFromUrl(url):
+    def get_extension_from_url(url):
         """ determines the file extension for a certain URL
 
-        Arguments:
-        url: String - The URL to search
-
-        Returns an extension or "" if not was found.
+        :param str url:     The URL to search
+        :return: Returns an extension or "" if not was found.
+        :rtype: str
 
         """
 
@@ -269,12 +278,13 @@ class _RequestsHandler(object):
 
     def __init__(self, cache_dir=None, web_time_out=30, cookie_jar=None,
                  ignore_ssl_errors=False):
-        """Initialises the UriHandler class
+        """ Initialises the UriHandler class
 
         Keyword Arguments:
-        :param cache_dir:         string  - a path for http caching. If specified, caching will be used.
-        :param web_time_out:      integer - timeout for requests in seconds
-        :param cookie_jar:        string  - the path to the cookie jar (in case of file storage)
+        :param str cache_dir:         A path for http caching. If specified, caching will be used.
+        :param int web_time_out:      Timeout for requests in seconds
+        :param str cookie_jar:        The path to the cookie jar (in case of file storage)
+        :param ignore_ssl_errors:     Ignore any SSL certificate errors.
 
         """
 
@@ -312,24 +322,23 @@ class _RequestsHandler(object):
 
     def download(self, uri, filename, folder, progress_callback=None, proxy=None, params="",
                  data="", json="", referer=None, additional_headers=None):
-        """Downloads a remote file
+        """ Downloads a remote file
 
-        Arguments
-        :param uri:                 - String        - the URI to download
-        :param filename:            - String        - the filename that should be used to store the file.
+        :param str filename:                The filename that should be used to store the file.
+        :param str folder:                  The folder to save the file in.
+        :param str params:                  Data to send with the request (open(uri, params)).
+        :param str uri:                     The URI to download.
+        :param dict[str, any]|str data:     Data to send with the request (open(uri, data)).
+        :param dict[str, any] json:              Json to send with the request (open(uri, params)).
+        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
+                                            proxy server that should be used.
+        :param str referer:                 The http referer to use.
+        :param dict additional_headers:     The optional headers.
+        :param function progress_callback:  The callback for progress update. The format is
+                                            function(retrievedSize, totalSize, perc, completed, status)
 
-        Keyword Arguments:
-        :param params:              - [opt] string    - data to send with the request (open(uri, params))
-        :param data:                - [opt] string    - data to send with the request (open(uri, data))
-        :param json:                - [opt] dict      - json to send with the request (open(uri, params))
-        :param proxy:               - [opt] ProxyInfo - The address and port (proxy.address.ext:port) of
-                                                        a proxy server that should be used.
-        :param referer:             - [opt] string    - the http referer to use
-        :param additional_headers:  - [opt] dict      - the optional headers
-        :param progress_callback:   - Function        - the callback for progress update. The format is
-                                                        function(retrievedSize, totalSize, perc, completed, status)
-
-        @rtype : The full path of the downloaded file.
+        :return: The full path of the loccation to which it was downloaded.
+        :rtype: str
 
         """
 
@@ -378,11 +387,26 @@ class _RequestsHandler(object):
         return download_path
 
     def open(self, uri, proxy=None, params=None, data=None, json=None,
-             referer=None, additionalHeaders=None, noCache=False):
+             referer=None, additional_headers=None, no_cache=False):
+        """ Open an URL Async using a thread
 
+        :param str uri:                     The URI to download.
+        :param str params:                  Data to send with the request (open(uri, params)).
+        :param dict[str, any]|str data:     Data to send with the request (open(uri, data)).
+        :param dict[str, any] json:         Json to send with the request (open(uri, params)).
+        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
+                                            proxy server that should be used.
+        :param str referer:                 The http referer to use.
+        :param dict additional_headers:     The optional headers.
+        :param bool no_cache:               Should cache be disabled.
+
+        :return: The data that was retrieved from the URI.
+        :rtype: str|unicode
+
+        """
         r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
-                            referer=referer, additional_headers=additionalHeaders,
-                            no_cache=noCache, stream=False)
+                            referer=referer, additional_headers=additional_headers,
+                            no_cache=no_cache, stream=False)
         if r is None:
             return ""
 
@@ -394,6 +418,19 @@ class _RequestsHandler(object):
         return r.text if r.encoding else r.content
 
     def header(self, uri, proxy=None, referer=None, additional_headers=None):
+        """ Retrieves header information only.
+
+        :param str uri:                     The URI to fetch the header from.
+        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
+                                            proxy server that should be used.
+        :param str referer:                 The http referer to use.
+        :param dict additional_headers:     The optional headers.
+
+        :return: Content-type and the URL to which a redirect could have occurred.
+        :rtype: tuple[str,str]
+
+        """
+
         s = requests.session()
         s.cookies = self.cookieJar
         s.verify = not self.ignoreSslErrors

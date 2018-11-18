@@ -67,7 +67,7 @@ class Updater:
         :rtype: None|Version
 
         """
-        data = self.__uriHandler.open(self.updateUrl, noCache=True)
+        data = self.__uriHandler.open(self.updateUrl, no_cache=True)
         json_data = JsonHelper(data)
         online_downloads = list(filter(lambda d: self.__is_valid_update(d), json_data.get_value("values")))
         if len(online_downloads) == 0:

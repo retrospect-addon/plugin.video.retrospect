@@ -114,7 +114,7 @@ class Channel(chn_class.Channel):
         #  Grand Designs has almost all encrypted/non-encrypted/brigthcove streams
 
         # ====================================== Actual channel setup STOPS here =======================================
-        UriHandler.SetCookie(name="OPTOUTMULTI", value="0:0%7Cc5:0%7Cc1:0%7Cc4:0%7Cc3:0%7Cc2:0", domain=".kijk.nl")
+        UriHandler.set_cookie(name="OPTOUTMULTI", value="0:0%7Cc5:0%7Cc1:0%7Cc4:0%7Cc3:0%7Cc2:0", domain=".kijk.nl")
         return
 
     def ExtractMainListJson(self, data):

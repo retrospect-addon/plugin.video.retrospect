@@ -222,12 +222,12 @@ class Channel(chn_class.Channel):
                 )
                 item.complete = True
             # elif AddonSettings.use_adaptive_stream_add_on():
-            #     contentType, url = UriHandler.Header(url, self.proxy)
+            #     contentType, url = UriHandler.header(url, self.proxy)
             #     stream = part.append_media_stream(url, 0)
             #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
             #     item.complete = True
             else:
-                contentType, url = UriHandler.Header(url, self.proxy)
+                contentType, url = UriHandler.header(url, self.proxy)
                 for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                     item.complete = True
                     # s = self.GetVerifiableVideoUrl(s)
@@ -241,5 +241,5 @@ class Channel(chn_class.Channel):
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # a second cookie seems to be required
-        UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.nos.nl')
+        UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.nos.nl')
         return

@@ -204,7 +204,7 @@ class Cached(TextureHandler):
 
         """
 
-        image_bytes = self.__uriHandler.open(uri, noCache=True)
+        image_bytes = self.__uriHandler.open(uri, no_cache=True)
         if image_bytes:
             fs = open(texture_path, mode='wb')
             fs.write(image_bytes)

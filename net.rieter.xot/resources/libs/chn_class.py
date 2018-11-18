@@ -877,7 +877,7 @@ class Channel:
                 Logger.info("Trying to download %s", mediaItemPart)
                 stream = mediaItemPart.get_media_stream_for_bitrate(bitrate)
                 downloadUrl = stream.Url
-                extension = UriHandler.GetExtensionFromUrl(downloadUrl)
+                extension = UriHandler.get_extension_from_url(downloadUrl)
                 if len(item.MediaItemParts) > 1:
                     saveFileName = "%s-Part_%s.%s" % (item.name, i, extension)
                 else:
@@ -966,7 +966,7 @@ class Channel:
 
                     # we need a unique filename
                     fileName = EncodingHelper.encode_md5(stream.Url)
-                    extension = UriHandler.GetExtensionFromUrl(stream.Url)
+                    extension = UriHandler.get_extension_from_url(stream.Url)
 
                     # now we force the busy dialog to close, else we cannot cancel the download
                     # setResolved will not work.

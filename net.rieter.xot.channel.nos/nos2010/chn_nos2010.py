@@ -154,7 +154,7 @@ class Channel(chn_class.Channel):
             return False
 
         # cookieValue = self._GetSetting("cookie")
-        cookie = UriHandler.GetCookie("isAuthenticatedUser", "www.npostart.nl")
+        cookie = UriHandler.get_cookie("isAuthenticatedUser", "www.npostart.nl")
         if cookie:
             expireDate = DateHelper.get_date_from_posix(float(cookie.expires))
             Logger.info("Found existing valid NPO token (valid until: %s)", expireDate)
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
         token = jsonToken.get_value("token")
         if not token:
             return False
-        xsrfToken = UriHandler.GetCookie("XSRF-TOKEN", "www.npostart.nl").value
+        xsrfToken = UriHandler.get_cookie("XSRF-TOKEN", "www.npostart.nl").value
         xsrfToken = HtmlEntityHelper.url_decode(xsrfToken)
 
         data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
@@ -201,7 +201,7 @@ class Channel(chn_class.Channel):
         #     return False
         #
         # # extract the cookie and store
-        # authCookie = UriHandler.GetCookie("npo_portal_auth_token", ".mijn.npo.nl")
+        # authCookie = UriHandler.get_cookie("npo_portal_auth_token", ".mijn.npo.nl")
         # if not authCookie:
         #     Logger.Error("Error logging in: Cookie not found.")
         #     return False
@@ -1057,13 +1057,13 @@ class Channel(chn_class.Channel):
 
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes',
-                             domain='.www.uitzendinggemist.nl')
-        UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
+        UriHandler.set_cookie(name='site_cookie_consent', value='yes',
+                              domain='.www.uitzendinggemist.nl')
+        UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
-        UriHandler.SetCookie(name='npo_cc', value='30', domain='.npo.nl')
+        UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
+        UriHandler.set_cookie(name='npo_cc', value='30', domain='.npo.nl')
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
-        UriHandler.SetCookie(name='npo_cc', value='30', domain='.npostart.nl')
+        UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
+        UriHandler.set_cookie(name='npo_cc', value='30', domain='.npostart.nl')
         return
