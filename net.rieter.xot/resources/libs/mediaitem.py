@@ -548,7 +548,7 @@ class MediaItem:
             log_text = "%s\n    + Not adding proxy due to scheme mismatch" % (log_text,)
         elif proxy.Scheme == "dns":
             log_text = "%s\n    + Not adding DNS proxy for Kodi streams" % (log_text,)
-        elif not proxy.UseProxyForUrl(stream_url):
+        elif not proxy.use_proxy_for_url(stream_url):
             log_text = "%s\n    + Not adding proxy due to filter mismatch" % (log_text,)
         else:
             if AddonSettings.is_min_version(17):
@@ -562,7 +562,7 @@ class MediaItem:
                     kodi_item.setProperty("proxy.password", proxy.Password)
                 log_text = "%s\n    + Adding (Krypton) %s" % (log_text, proxy)
             else:
-                kodi_params["HttpProxy"] = proxy.GetProxyAddress()
+                kodi_params["HttpProxy"] = proxy.get_proxy_address()
                 log_text = "%s\n    + Adding (Pre-Krypton) %s" % (log_text, proxy)
         return log_text
 

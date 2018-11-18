@@ -21,6 +21,8 @@ from connectivity.cachehttpadapter import CacheHTTPAdapter
 from connectivity.dnshttpadapter import DnsResolverHTTPAdapter
 from connectivity.streamcache import StreamCache
 from logger import Logger
+from proxyinfo import ProxyInfo
+
 
 UriStatus = namedtuple('UriStatus', [
     'code',
@@ -481,15 +483,25 @@ class _RequestsHandler(object):
         return headers
 
     def __get_proxies(self, proxy, url):
+        """
+
+        :param ProxyInfo proxy:
+        :param url:
+
+        :return:
+        :rtype: dict[str, str]
+
+        """
+
         if proxy is None:
             return None
 
-        elif not proxy.UseProxyForUrl(url):
+        elif not proxy.use_proxy_for_url(url):
             Logger.debug("Not using proxy due to filter mismatch")
 
         elif proxy.Scheme == "http":
             Logger.debug("Using a http(s) %s", proxy)
-            proxy_address = proxy.GetProxyAddress()
+            proxy_address = proxy.get_proxy_address()
             return {"http": proxy_address, "https": proxy_address}
 
         elif proxy.Scheme == "dns":
