@@ -272,7 +272,7 @@ class Channel(chn_class.Channel):
         # We actually need to login to stievie or VTM
         Logger.info("Logging onto Stievie.be/VTM.be")
         v = Vault()
-        password = v.GetSetting("mediaan_password")
+        password = v.get_setting("mediaan_password")
         username = AddonSettings.get_setting("mediaan_username")
         if not username or not password:
             XbmcWrapper.ShowDialog(

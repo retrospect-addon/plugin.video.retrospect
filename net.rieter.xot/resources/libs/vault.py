@@ -26,18 +26,19 @@ class Vault:
     __APPLICATION_KEY_SETTING = "application_key"
 
     def __init__(self):
-        # type: (Vault) -> None
+        """ Creates a new instance of the Vault class """
+
         self.__newKeyGeneratedInConstructor = False    # : This was the very first time a key was generated
 
         # ask for PIN of no key is present
         if Vault.__Key is None:
-            key = self.__GetApplicationKey()
+            key = self.__get_application_key()
 
             # was there a key? No, let's initialize it.
             if key is None:
                 Logger.warning("No Application Key present. Intializing a new one.")
-                key = self.__GetNewKey()
-                if not self.ChangePin(key):
+                key = self.__get_new_key()
+                if not self.change_pin(key):
                     raise RuntimeError("Error creating Application Key.")
                 Logger.info("Created a new Application Key with MD5: %s (lengt=%s)",
                             hashlib.md5(key).hexdigest(), len(key))
@@ -46,13 +47,16 @@ class Vault:
             Vault.__Key = key
             Logger.trace("Using Application Key with MD5: %s (lengt=%s)", hashlib.md5(key).hexdigest(), len(key))
 
-    def ChangePin(self, applicationKey=None):
-        # type: (str) -> bool
-        """ Stores an existing ApplicationKey using a new PIN
+    def change_pin(self, application_key=None):
+        """ Stores an existing ApplicationKey using a new PIN.
 
-        @param applicationKey: an existing ApplicationKey that will be stored. If none specified,
-                               the existing ApplicationKey of the Vault will be used.
-        @return: indication of success
+        :param str application_key: an existing ApplicationKey that will be stored. If none
+                                    specified, the existing ApplicationKey of the Vault will
+                                    be used.
+
+        :return: Indication of success.
+        :rtype: bool
+
         """
 
         Logger.info("Updating the ApplicationKey with a new PIN")
@@ -61,13 +65,13 @@ class Vault:
             Logger.info("A key was just generated, no need to change PINs.")
             return True
 
-        if applicationKey is None:
+        if application_key is None:
             Logger.debug("Using the ApplicationKey from the vault.")
-            applicationKey = Vault.__Key
+            application_key = Vault.__Key
         else:
             Logger.debug("Using the ApplicationKey from the input parameter.")
 
-        if not applicationKey:
+        if not application_key:
             raise ValueError("No ApplicationKey specified.")
 
         # Now we get a new PIN and (re)encrypt
@@ -92,19 +96,21 @@ class Vault:
                 XbmcWrapper.Error)
             return False
 
-        encryptedKey = "%s=%s" % (self.__APPLICATION_KEY_SETTING, applicationKey)
+        encrypted_key = "%s=%s" % (self.__APPLICATION_KEY_SETTING, application_key)
 
         # let's generate a pin using the scrypt password-based key derivation
-        pinKey = self.__GetPBK(pin)
-        encryptedKey = self.__Encrypt(encryptedKey, pinKey)
-        AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, encryptedKey, store=LOCAL)
+        pin_key = self.__get_pbk(pin)
+        encrypted_key = self.__encrypt(encrypted_key, pin_key)
+        AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, encrypted_key, store=LOCAL)
         Logger.info("Successfully updated the Retrospect PIN")
         return True
 
     @staticmethod
-    def Reset():
+    def reset():
         """ Resets the Vault and Retrospect Machine key, making all encrypted values
         useless.
+
+        :rtype: none
 
         """
 
@@ -121,154 +127,181 @@ class Vault:
         Vault()
         return
 
-    def GetChannelSetting(self, channelGuid, settingId):
-        # type: (str, str) -> str
-        """ Retrieves channel settings for the given channel
+    def get_channel_setting(self, channel_guid, setting_id):
+        """ Retrieves channel settings for the given channel.
 
-        @param channelGuid: The channel object to get the channels for
-        @param settingId:   The setting to retrieve
-        @rtype : the configured value
+        :param str channel_guid: The channel object to get the channels for.
+        :param str setting_id:   The setting to retrieve.
+
+        :return: the configured value.
+        :rtype: str
         """
 
-        fullSettingId = "channel_%s_%s" % (channelGuid, settingId)
-        return self.GetSetting(fullSettingId)
+        full_setting_id = "channel_%s_%s" % (channel_guid, setting_id)
+        return self.get_setting(full_setting_id)
 
-    def GetSetting(self, settingId):
+    def get_setting(self, setting_id):
         """ Retrieves an encrypted setting from the Kodi Add-on Settings.
 
-        @param settingId: the ID for the setting to retrieve
-        @return:          the decrypted value for the setting
+        :param str setting_id: the ID for the setting to retrieve.
+
+        :return: the decrypted value for the setting.
+        :rtype: str
         """
 
-        Logger.info("Decrypting value for setting '%s'", settingId)
-        encryptedValue = AddonSettings.get_setting(settingId)
-        if not encryptedValue:
-            return encryptedValue
+        Logger.info("Decrypting value for setting '%s'", setting_id)
+        encrypted_value = AddonSettings.get_setting(setting_id)
+        if not encrypted_value:
+            return encrypted_value
 
         try:
-            decryptedValue = self.__Decrypt(encryptedValue, Vault.__Key)
-            if not decryptedValue.startswith(settingId):
-                Logger.error("Invalid decrypted value for setting '%s'", settingId)
+            decrypted_value = self.__decrypt(encrypted_value, Vault.__Key)
+            if not decrypted_value.startswith(setting_id):
+                Logger.error("Invalid decrypted value for setting '%s'", setting_id)
                 return None
 
-            decryptedValue = decryptedValue[len(settingId) + 1:]
-            Logger.info("Successfully decrypted value for setting '%s'", settingId)
+            decrypted_value = decrypted_value[len(setting_id) + 1:]
+            Logger.info("Successfully decrypted value for setting '%s'", setting_id)
         except UnicodeDecodeError:
             Logger.error("Invalid Unicode data returned from decryption. Must be wrong data")
             return None
 
-        return decryptedValue
+        return decrypted_value
 
-    def SetSetting(self, settingId, settingName=None, settingActionId=None):
-        # type: (str, str, str) -> None
+    def set_setting(self, setting_id, setting_name=None, setting_action_id=None):
         """ Reads a value for a setting from the keyboard and encryptes it in the Kodi
-        Add-on settings
-
-        @param settingId:   the ID for the Kodi Add-on setting to set
-        @param settingName: the name to display in the keyboard
-        @param settingActionId: the name of the action that was called.
+        Add-on settings.
 
         The setttingActionId defaults to <settingId>_set
 
+        :param str setting_id:          The ID for the Kodi Add-on setting to set.
+        :param str setting_name:        The name to display in the keyboard.
+        :param str setting_action_id:   The name of the action that was called.
+
+        :rtype: None
+
         """
 
-        Logger.info("Encrypting value for setting '%s'", settingId)
-        inputValue = XbmcWrapper.ShowKeyBoard(
-            "",
-            LanguageHelper.get_localized_string(LanguageHelper.VaultSpecifySetting) % (settingName or settingId,))
+        Logger.info("Encrypting value for setting '%s'", setting_id)
+        input_value = XbmcWrapper.ShowKeyBoard(
+            "", LanguageHelper.get_localized_string(
+                    LanguageHelper.VaultSpecifySetting
+            ) % (setting_name or setting_id,)
+        )
 
-        if inputValue is None:
+        if input_value is None:
             Logger.debug("Setting of encrypted value cancelled.")
             return
 
-        value = "%s=%s" % (settingId, inputValue)
-        encryptedValue = self.__Encrypt(value, Vault.__Key)
+        value = "%s=%s" % (setting_id, input_value)
+        encrypted_value = self.__encrypt(value, Vault.__Key)
 
-        if settingActionId is None:
-            settingActionId = "%s_set" % (settingId,)
+        if setting_action_id is None:
+            setting_action_id = "%s_set" % (setting_id,)
 
-        Logger.debug("Updating '%s' and '%s'", settingId, settingActionId)
-        AddonSettings.set_setting(settingId, encryptedValue)
-        if inputValue:
-            AddonSettings.set_setting(settingActionId, "******")
+        Logger.debug("Updating '%s' and '%s'", setting_id, setting_action_id)
+        AddonSettings.set_setting(setting_id, encrypted_value)
+        if input_value:
+            AddonSettings.set_setting(setting_action_id, "******")
         else:
-            AddonSettings.set_setting(settingActionId, "")
-        Logger.info("Successfully encrypted value for setting '%s'", settingId)
+            AddonSettings.set_setting(setting_action_id, "")
+        Logger.info("Successfully encrypted value for setting '%s'", setting_id)
         return
 
-    def __GetApplicationKey(self):
-        """ Gets the decrypted application key that is used for all the encryption
+    def __get_application_key(self):
+        """ Gets the decrypted application key that is used for all the encryption.
 
-        @return: the decrypted application key that is used for all the encryption
+        :return: The decrypted application key that is used for all the encryption.
+        :rtype: str
+
         """
 
-        applicationKeyEncrypted = AddonSettings.get_setting(Vault.__APPLICATION_KEY_SETTING, store=LOCAL)
+        application_key_encrypted = AddonSettings.get_setting(Vault.__APPLICATION_KEY_SETTING, store=LOCAL)
         # The key was never in the local store the value was None. It was "" if it was reset.
-        if applicationKeyEncrypted is None:
-            applicationKeyEncrypted = AddonSettings.get_setting(Vault.__APPLICATION_KEY_SETTING, store=KODI)
-            if not applicationKeyEncrypted:
+        if application_key_encrypted is None:
+            application_key_encrypted = AddonSettings.get_setting(Vault.__APPLICATION_KEY_SETTING, store=KODI)
+            if not application_key_encrypted:
                 return None
 
             Logger.info("Moved ApplicationKey to local storage")
-            AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, applicationKeyEncrypted, store=LOCAL)
+            AddonSettings.set_setting(Vault.__APPLICATION_KEY_SETTING, application_key_encrypted, store=LOCAL)
 
         # Still no application key? Then there was no key!
-        if applicationKeyEncrypted == "" or applicationKeyEncrypted is None:
+        if application_key_encrypted == "" or application_key_encrypted is None:
             return None
 
-        vaultIncorrectPin = LanguageHelper.get_localized_string(LanguageHelper.VaultIncorrectPin)
+        vault_incorrect_pin = LanguageHelper.get_localized_string(LanguageHelper.VaultIncorrectPin)
         pin = XbmcWrapper.ShowKeyBoard(
             heading=LanguageHelper.get_localized_string(LanguageHelper.VaultInputPin),
             hidden=True)
         if not pin:
-            XbmcWrapper.ShowNotification("", vaultIncorrectPin, XbmcWrapper.Error)
+            XbmcWrapper.ShowNotification("", vault_incorrect_pin, XbmcWrapper.Error)
             raise RuntimeError("Incorrect Retrospect PIN specified")
-        pinKey = self.__GetPBK(pin)
-        applicationKey = self.__Decrypt(applicationKeyEncrypted, pinKey)
-        if not applicationKey.startswith(Vault.__APPLICATION_KEY_SETTING):
+        pin_key = self.__get_pbk(pin)
+        application_key = self.__decrypt(application_key_encrypted, pin_key)
+        if not application_key.startswith(Vault.__APPLICATION_KEY_SETTING):
             Logger.critical("Invalid Retrospect PIN")
-            XbmcWrapper.ShowNotification("", vaultIncorrectPin, XbmcWrapper.Error)
+            XbmcWrapper.ShowNotification("", vault_incorrect_pin, XbmcWrapper.Error)
             raise RuntimeError("Incorrect Retrospect PIN specified")
 
-        applicationKeyValue = applicationKey[len(Vault.__APPLICATION_KEY_SETTING) + 1:]
+        application_key_value = application_key[len(Vault.__APPLICATION_KEY_SETTING) + 1:]
         Logger.info("Successfully decrypted the ApplicationKey.")
-        return applicationKeyValue
+        return application_key_value
 
-    def __Encrypt(self, data, key):
-        # type: (str, str) -> str
-        """ Encrypt data based on a given passPhrase
+    def __encrypt(self, data, key):
+        """ Encrypt data based on the given encryption key.
 
-        @param data: [string] the data to encrypt
+        :param str data:    The data to encrypt.
+        :param str key:     The key to use for encryption.
+
+        :return: The encrypted base64 encoded value.
+        :rtype: str
+
         """
 
         Logger.debug("Encrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
         return base64.b64encode(aes.encrypt(data))
 
-    def __Decrypt(self, data, key):
+    def __decrypt(self, data, key):
         # type: (str, str) -> str
-        """ Retrieves a password from the keyring. If none is found, None is return.
+        """ Decrypts data based on the given encryption key.
 
-        @param data: [string] the data to decrypt
-        @param key:  [string] the key to use for decrypting
-        @return:     [string] the password retrieved from the keyring
+        :param str data:    The data to decrypt.
+        :param str key:     The key to use for encryption.
+
+        :return: Decrypted value.
+        :rtype: str
+
         """
 
         Logger.debug("Decrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
         return aes.decrypt(base64.b64decode(data))
 
-    def __GetNewKey(self, length=32):
-        # type: (int) -> str
-        """ Returns a random key
+    def __get_new_key(self, length=32):
+        """ Returns a random key.
 
-        @param length: the lenght of the key
-        @return: a random key of the given length
+        :param int length:  The lenght of the key.
+
+        :return: A random key of the given length.
+        :rtype: str
+
         """
+
         return ''.join(random.choice(string.digits + string.letters + string.punctuation)
                        for _ in range(length))
 
-    def __GetPBK(self, pin):
+    def __get_pbk(self, pin):
+        """ Gets the Password Based Key (PBK) based in the PIN.
+
+        :param str pin: The pin for the key.
+
+        :return: The PBK
+        :rtype: str
+
+        """
+
         salt = AddonSettings.get_client_id()
         pbk = pyscrypt.hash(password=pin,
                             salt=salt,

@@ -117,7 +117,7 @@ class Channel(chn_class.Channel):
         username = AddonSettings.get_setting("viervijfzes_username")
         # password: viervijfzes_password
         v = Vault()
-        password = v.GetSetting("viervijfzes_password")
+        password = v.get_setting("viervijfzes_password")
         if not username or not password:
             XbmcWrapper.ShowDialog(
                 title=None,

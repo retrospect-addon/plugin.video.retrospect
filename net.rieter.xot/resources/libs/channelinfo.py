@@ -229,10 +229,6 @@ class ChannelInfo:
 
         """
 
-        # if Config.CdnUrl is None:
-        #     return os.path.join(self.path, image)
-        #
-        # return "%s%s" % (Config.CdnUrl, image)
         return TextureHandler.instance().get_texture_uri(self, image)
 
     @staticmethod

@@ -181,17 +181,17 @@ class Plugin(ParameterParser):
 
                         action = self.params[self.keywordAction]
                         if action == self.actionResetVault:
-                            Vault.Reset()
+                            Vault.reset()
                             return
 
                         v = Vault()
                         if action == self.actionSetEncryptionPin:
-                            v.ChangePin()
+                            v.change_pin()
                         elif action == self.actionSetEncryptedValue:
-                            v.SetSetting(self.params[self.keywordSettingId],
-                                         self.params.get(self.keywordSettingName, ""),
-                                         self.params.get(self.keywordSettingActionId, None))
-                            # value = v.GetSetting(self.params[self.keywordSettingId])
+                            v.set_setting(self.params[self.keywordSettingId],
+                                          self.params.get(self.keywordSettingName, ""),
+                                          self.params.get(self.keywordSettingActionId, None))
+                            # value = v.get_setting(self.params[self.keywordSettingId])
                             # Logger.Critical(value)
                     finally:
                         if self.keywordSettingTabFocus in self.params:

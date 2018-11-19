@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
             return None
 
         v = Vault()
-        password = v.GetChannelSetting(self.guid, "password")
+        password = v.get_channel_setting(self.guid, "password")
         if not password:
             Logger.warning("Found empty password for VRT user")
 

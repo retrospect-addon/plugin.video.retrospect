@@ -161,7 +161,7 @@ class Channel(chn_class.Channel):
             return True
 
         v = Vault()
-        password = v.GetChannelSetting(self.guid, "password")
+        password = v.get_channel_setting(self.guid, "password")
 
         # get a token (why?), cookies and an xsrf token
         token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy, no_cache=True,
