@@ -275,7 +275,7 @@ class Channel(chn_class.Channel):
         password = v.get_setting("mediaan_password")
         username = AddonSettings.get_setting("mediaan_username")
         if not username or not password:
-            XbmcWrapper.ShowDialog(
+            XbmcWrapper.show_dialog(
                 title=None,
                 lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
                 # notificationType=XbmcWrapper.Error,

@@ -65,7 +65,7 @@ class EnvController:
     #
     #             Logger.Warning("Add-on '%s' is not enabled in Kodi and will not be updated automatically", directory)
     #
-    #             XbmcWrapper.ShowDialog(
+    #             XbmcWrapper.show_dialog(
     #                 LanguageHelper.get_localized_string(LanguageHelper.AddonsNotEnabledTitle),
     #                 LanguageHelper.get_localized_string(LanguageHelper.AddonsNotEnabledText))
     #             xbmc.executebuiltin("ActivateWindow(AddonBrowser, addons://user/all/, return)")
@@ -93,7 +93,7 @@ class EnvController:
     #         if self.logger:
     #             self.logger.Warning("No Respository installed. Reminding user to install it.")
     #
-    #         XbmcWrapper.ShowDialog(LanguageHelper.get_localized_string(
+    #         XbmcWrapper.show_dialog(LanguageHelper.get_localized_string(
     #             LanguageHelper.RepoWarningId),
     #             LanguageHelper.get_localized_string(LanguageHelper.RepoWarningDetailId))
     #

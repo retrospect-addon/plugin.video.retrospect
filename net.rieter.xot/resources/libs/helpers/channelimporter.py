@@ -206,7 +206,7 @@ class ChannelIndex:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
                     title = LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)
                     text = LanguageHelper.get_localized_string(LanguageHelper.InitChannelText)
-                    XbmcWrapper.ShowNotification(title, text, displayTime=15000, logger=Logger.instance())
+                    XbmcWrapper.show_notification(title, text, display_time=15000, logger=Logger.instance())
                 channels_updated |= True
 
                 # Initialise the channelset.
@@ -589,7 +589,7 @@ class ChannelIndex:
                             channel_info.firstTimeMessage, channel_info.moduleName)
 
                 title = LanguageHelper.get_localized_string(LanguageHelper.ChannelMessageId)
-                XbmcWrapper.ShowDialog(title, channel_info.firstTimeMessage.split("|"))
+                XbmcWrapper.show_dialog(title, channel_info.firstTimeMessage.split("|"))
             else:
                 Logger.debug("Not showing first time message due to add-on setting set to '%s'.",
                              hide_first_time)

@@ -524,7 +524,7 @@ class Channel:
             items.append(item)
         else:
             items = []
-            needle = XbmcWrapper.ShowKeyBoard()
+            needle = XbmcWrapper.show_key_board()
             if needle:
                 Logger.debug("Searching for '%s'", needle)
                 # convert to HTML
@@ -889,7 +889,7 @@ class Channel:
                 headers.update(mediaItemPart.HttpHeaders)
 
                 progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                folderName = XbmcWrapper.ShowFolderSelection('Select download destination for "%s"' % (saveFileName, ))
+                folderName = XbmcWrapper.show_folder_selection('Select download destination for "%s"' % (saveFileName,))
                 UriHandler.download(downloadUrl, saveFileName, folderName, progressDialog, proxy=self.proxy,
                                     additional_headers=headers)
                 i += 1
@@ -980,7 +980,7 @@ class Channel:
                     streamFilename = "xot.%s.%skbps-%s.%s" % (fileName, stream.Bitrate, item.name, extension)
                     progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
                     cacheFile = UriHandler.download(stream.Url, streamFilename, self.GetDefaultCachePath(),
-                                                    progressDialog.ProgressUpdate, proxy=self.proxy,
+                                                    progressDialog.progress_update, proxy=self.proxy,
                                                     additional_headers=headers)
 
                     if cacheFile == "":

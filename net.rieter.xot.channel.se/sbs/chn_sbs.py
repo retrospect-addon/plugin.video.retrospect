@@ -416,7 +416,7 @@ class Channel(chn_class.Channel):
                          "page%%5Bsize%%5D={1}&query=%s" \
                 .format(self.baseUrlApi, self.videoPageSize)
 
-        needle = XbmcWrapper.ShowKeyBoard()
+        needle = XbmcWrapper.show_key_board()
         if needle:
             Logger.debug("Searching for '%s'", needle)
             needle = HtmlEntityHelper.url_encode(needle)

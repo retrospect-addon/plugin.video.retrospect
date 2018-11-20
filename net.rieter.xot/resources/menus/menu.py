@@ -212,8 +212,8 @@ class Menu(ParameterParser):
 
         first_time = c.cloak(item.url)
         if first_time:
-            XbmcWrapper.ShowDialog(LanguageHelper.get_localized_string(LanguageHelper.CloakFirstTime),
-                                   LanguageHelper.get_localized_string(LanguageHelper.CloakMessage))
+            XbmcWrapper.show_dialog(LanguageHelper.get_localized_string(LanguageHelper.CloakFirstTime),
+                                    LanguageHelper.get_localized_string(LanguageHelper.CloakMessage))
 
         del c
         self.refresh()

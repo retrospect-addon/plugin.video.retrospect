@@ -168,7 +168,7 @@ class TextureHandler:
                    '}, ' \
                    '"id": "libTextures"' \
                    '}' % (channel_texture_path,)
-        json_results = XbmcWrapper.ExecuteJsonRpc(json_cmd, self._logger)
+        json_results = XbmcWrapper.execute_json_rpc(json_cmd, self._logger)
 
         results = JsonHelper(json_results, logger=self._logger)
         if "error" in results.json or "result" not in results.json:
@@ -187,5 +187,5 @@ class TextureHandler:
                        '"textureid": %s' \
                        '}' \
                        '}' % (texture_id,)
-            XbmcWrapper.ExecuteJsonRpc(json_cmd, self._logger)
+            XbmcWrapper.execute_json_rpc(json_cmd, self._logger)
         return

@@ -91,7 +91,7 @@ class Plugin(ParameterParser):
             envCtrl.print_retrospect_settings_and_folders(Config, AddonSettings)
 
             # show notification
-            XbmcWrapper.ShowNotification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
+            XbmcWrapper.show_notification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
@@ -100,7 +100,7 @@ class Plugin(ParameterParser):
                 Logger.info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
                 notification = notification % (Config.appName, up.onlineVersion)
-                XbmcWrapper.ShowNotification(None, lines=notification, displayTime=20000)
+                XbmcWrapper.show_notification(None, lines=notification, display_time=20000)
 
             # check if the repository is available -> We don't need this now.
             # envCtrl.is_install_method_valid(Config)
@@ -212,7 +212,7 @@ class Plugin(ParameterParser):
                     # a confirm box is shown
                     title = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirmTitle)
                     content = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirm)
-                    if not XbmcWrapper.ShowYesNo(title, content):
+                    if not XbmcWrapper.show_yes_no(title, content):
                         Logger.warning("Stopping proxy update due to user intervention")
                         return
 
@@ -466,9 +466,9 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, ok)
         except:
             Statistics.register_error(self.channelObject)
-            XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
-                                         LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
-                                         XbmcWrapper.Error, 4000)
+            XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                          LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
+                                          XbmcWrapper.Error, 4000)
             Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
 
@@ -487,12 +487,12 @@ class Plugin(ParameterParser):
                     Logger.debug("Showing DRM Warning message")
                     title = LanguageHelper.get_localized_string(LanguageHelper.DrmTitle)
                     message = LanguageHelper.get_localized_string(LanguageHelper.DrmText)
-                    XbmcWrapper.ShowDialog(title, message)
+                    XbmcWrapper.show_dialog(title, message)
                 elif item.isPaid:
                     Logger.debug("Showing Paid Warning message")
                     title = LanguageHelper.get_localized_string(LanguageHelper.PaidTitle)
                     message = LanguageHelper.get_localized_string(LanguageHelper.PaidText)
-                    XbmcWrapper.ShowDialog(title, message)
+                    XbmcWrapper.show_dialog(title, message)
 
             if not item.complete:
                 item = self.channelObject.ProcessVideoItem(item)
@@ -504,9 +504,9 @@ class Plugin(ParameterParser):
 
             if not item.has_media_item_parts():
                 # the update failed or no items where found. Don't play
-                XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
-                                             LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
-                                             XbmcWrapper.Error)
+                XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                              LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
+                                              XbmcWrapper.Error)
                 Logger.warning("Could not start playback due to missing streams. Item:\n%s", item)
                 return
 
@@ -545,7 +545,7 @@ class Plugin(ParameterParser):
             showSubs = AddonSettings.use_subtitle()
             if srt and (srt != ""):
                 Logger.info("Adding subtitle: %s and setting showSubtitles to %s", srt, showSubs)
-                XbmcWrapper.WaitForPlayerToStart(xbmcPlayer, logger=Logger.instance(), url=resolvedUrl)
+                XbmcWrapper.wait_for_player_to_start(xbmcPlayer, logger=Logger.instance(), url=resolvedUrl)
 
                 xbmcPlayer.setSubtitles(srt)
                 xbmcPlayer.showSubtitles(showSubs)
@@ -556,9 +556,9 @@ class Plugin(ParameterParser):
             else:
                 Statistics.register_error(self.channelObject)
 
-            XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
-                                         LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
-                                         XbmcWrapper.Error)
+            XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                          LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
+                                          XbmcWrapper.Error)
             Logger.critical("Could not playback the url", exc_info=True)
 
         return
@@ -608,7 +608,7 @@ class Plugin(ParameterParser):
                         Config.TextureUrl
                     )
 
-                bytesTransfered = TextureHandler.instance().fetch_textures(w.ProgressUpdate)
+                bytesTransfered = TextureHandler.instance().fetch_textures(w.progress_update)
                 if bytesTransfered > 0:
                     Statistics.register_cdn_bytes(bytesTransfered)
             except:
@@ -616,7 +616,7 @@ class Plugin(ParameterParser):
             finally:
                 if w is not None:
                     # always close the progress bar
-                    w.Close()
+                    w.close()
         return
 
     def __ConfigureChannel(self, channelInfo):
@@ -783,8 +783,8 @@ class Plugin(ParameterParser):
         else:
             ok = True
 
-        XbmcWrapper.ShowNotification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
-                                     title, XbmcWrapper.Error, 2500)
+        XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                                      title, XbmcWrapper.Error, 2500)
         return ok
 
     @LockWithDialog(logger=Logger.instance())
@@ -800,14 +800,14 @@ class Plugin(ParameterParser):
                 pasteUrl = logSender.send_file(Config.logFileNameAddon, filesToSend[0])
             else:
                 pasteUrl = logSender.send_files(Config.logFileNameAddon, filesToSend)
-            XbmcWrapper.ShowDialog(title, urlText % (pasteUrl,))
+            XbmcWrapper.show_dialog(title, urlText % (pasteUrl,))
         except Exception, e:
             Logger.error("Error sending %s", Config.logFileNameAddon, exc_info=True)
 
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostErrorTitle)
             errorText = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
             error = errorText % (e.message,)
-            XbmcWrapper.ShowDialog(title, error.strip(": "))
+            XbmcWrapper.show_dialog(title, error.strip(": "))
         return
 
     @LockWithDialog(logger=Logger.instance())

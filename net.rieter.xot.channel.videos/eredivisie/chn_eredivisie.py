@@ -239,8 +239,8 @@ class Channel(chn_class.Channel):
         streamUrl = streamInfo.get_value("ContentUrl")
         if not streamUrl:
             message = "Protected stream: {0}".format(streamInfo.get_value("Message"))
-            XbmcWrapper.ShowNotification(None, message,
-                                         notificationType=XbmcWrapper.Error, displayTime=5000)
+            XbmcWrapper.show_notification(None, message,
+                                          notification_type=XbmcWrapper.Error, display_time=5000)
 
         licenseUrl = streamInfo.get_value("LicenseURL")
         part = item.create_new_empty_media_part()

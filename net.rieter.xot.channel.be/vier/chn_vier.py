@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
         v = Vault()
         password = v.get_setting("viervijfzes_password")
         if not username or not password:
-            XbmcWrapper.ShowDialog(
+            XbmcWrapper.show_dialog(
                 title=None,
                 lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
             )

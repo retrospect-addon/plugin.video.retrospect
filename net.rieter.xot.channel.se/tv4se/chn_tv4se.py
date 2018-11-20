@@ -135,7 +135,7 @@ class Channel(chn_class.Channel):
     #         v = Vault()
     #         password = v.get_setting("channel_tv4play_se_password")
     #         if not password:
-    #             XbmcWrapper.ShowDialog(
+    #             XbmcWrapper.show_dialog(
     #                 title=None,
     #                 lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
     #                 # notificationType=XbmcWrapper.Error,

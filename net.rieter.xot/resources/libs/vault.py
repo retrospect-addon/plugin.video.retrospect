@@ -76,21 +76,21 @@ class Vault:
 
         # Now we get a new PIN and (re)encrypt
 
-        pin = XbmcWrapper.ShowKeyBoard(
+        pin = XbmcWrapper.show_key_board(
             heading=LanguageHelper.get_localized_string(LanguageHelper.VaultNewPin),
             hidden=True)
         if not pin:
-            XbmcWrapper.ShowNotification(
+            XbmcWrapper.show_notification(
                 "", LanguageHelper.get_localized_string(LanguageHelper.VaultNoPin),
                 XbmcWrapper.Error)
             return False
 
-        pin2 = XbmcWrapper.ShowKeyBoard(
+        pin2 = XbmcWrapper.show_key_board(
             heading=LanguageHelper.get_localized_string(LanguageHelper.VaultRepeatPin),
             hidden=True)
         if pin != pin2:
             Logger.critical("Mismatch in PINs")
-            XbmcWrapper.ShowNotification(
+            XbmcWrapper.show_notification(
                 "",
                 LanguageHelper.get_localized_string(LanguageHelper.VaultPinsDontMatch),
                 XbmcWrapper.Error)
@@ -114,8 +114,8 @@ class Vault:
 
         """
 
-        ok = XbmcWrapper.ShowYesNo(LanguageHelper.get_localized_string(LanguageHelper.VaultReset),
-                                   LanguageHelper.get_localized_string(LanguageHelper.VaultResetConfirm))
+        ok = XbmcWrapper.show_yes_no(LanguageHelper.get_localized_string(LanguageHelper.VaultReset),
+                                     LanguageHelper.get_localized_string(LanguageHelper.VaultResetConfirm))
         if not ok:
             Logger.debug("Aborting Reset Vault")
             return
@@ -183,7 +183,7 @@ class Vault:
         """
 
         Logger.info("Encrypting value for setting '%s'", setting_id)
-        input_value = XbmcWrapper.ShowKeyBoard(
+        input_value = XbmcWrapper.show_key_board(
             "", LanguageHelper.get_localized_string(
                     LanguageHelper.VaultSpecifySetting
             ) % (setting_name or setting_id,)
@@ -231,17 +231,17 @@ class Vault:
             return None
 
         vault_incorrect_pin = LanguageHelper.get_localized_string(LanguageHelper.VaultIncorrectPin)
-        pin = XbmcWrapper.ShowKeyBoard(
+        pin = XbmcWrapper.show_key_board(
             heading=LanguageHelper.get_localized_string(LanguageHelper.VaultInputPin),
             hidden=True)
         if not pin:
-            XbmcWrapper.ShowNotification("", vault_incorrect_pin, XbmcWrapper.Error)
+            XbmcWrapper.show_notification("", vault_incorrect_pin, XbmcWrapper.Error)
             raise RuntimeError("Incorrect Retrospect PIN specified")
         pin_key = self.__get_pbk(pin)
         application_key = self.__decrypt(application_key_encrypted, pin_key)
         if not application_key.startswith(Vault.__APPLICATION_KEY_SETTING):
             Logger.critical("Invalid Retrospect PIN")
-            XbmcWrapper.ShowNotification("", vault_incorrect_pin, XbmcWrapper.Error)
+            XbmcWrapper.show_notification("", vault_incorrect_pin, XbmcWrapper.Error)
             raise RuntimeError("Incorrect Retrospect PIN specified")
 
         application_key_value = application_key[len(Vault.__APPLICATION_KEY_SETTING) + 1:]

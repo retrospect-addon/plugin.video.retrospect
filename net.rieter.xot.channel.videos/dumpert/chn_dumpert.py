@@ -172,7 +172,7 @@ class Channel(chn_class.Channel):
         """
         items = []
 
-        needle = XbmcWrapper.ShowKeyBoard()
+        needle = XbmcWrapper.show_key_board()
         if needle:
             #convert to HTML
             needle = string.replace(needle, " ", "%20")
