@@ -119,16 +119,16 @@ class Cached(TextureHandler):
         textures_total = len(self.__textureQueue)
         textures_completed = 0
 
-        for uri, texturePath in self.__textureQueue.iteritems():
-            self._logger.debug("Fetching texture for '%s' to '%s'", uri, texturePath)
+        for uri, texture_path in self.__textureQueue.iteritems():
+            self._logger.debug("Fetching texture for '%s' to '%s'", uri, texture_path)
             if os.path.isfile(uri):
-                shutil.copyfile(uri, texturePath)
+                shutil.copyfile(uri, texture_path)
                 # import xbmc
                 # xbmc.sleep(100)
             else:
-                bytes_transfered += self.__fetch_texture(uri, texturePath)
+                bytes_transfered += self.__fetch_texture(uri, texture_path)
             textures_completed += 1
-            file_name = os.path.split(texturePath)[-1]
+            file_name = os.path.split(texture_path)[-1]
 
             if dialog_call_back(textures_completed, textures_total, int(100 * textures_completed / textures_total), False, file_name):
                 self._logger.warning("Texture retrieval cancelled")

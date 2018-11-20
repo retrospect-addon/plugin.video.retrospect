@@ -49,7 +49,6 @@ class SubtitleHelper:
         """
 
         raise Exception("Not allowed to create instance of SubtitleHelper")
-        pass
 
     # noinspection PyShadowingBuiltins
     @staticmethod

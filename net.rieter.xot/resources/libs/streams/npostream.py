@@ -129,39 +129,39 @@ class NpoStream:
         stream_infos = stream_json.get_value("items")[0]
         Logger.trace(stream_infos)
         streams = []
-        for streamInfo in stream_infos:
-            Logger.debug("Found stream info: %s", streamInfo)
-            if streamInfo["format"] == "mp3":
-                streams.append((streamInfo["url"], 0))
+        for stream_info in stream_infos:
+            Logger.debug("Found stream info: %s", stream_info)
+            if stream_info["format"] == "mp3":
+                streams.append((stream_info["url"], 0))
                 continue
 
-            elif streamInfo["contentType"] == "live":
+            elif stream_info["contentType"] == "live":
                 Logger.debug("Found live stream")
-                url = streamInfo["url"]
+                url = stream_info["url"]
                 url = url.replace("jsonp", "json")
                 live_url_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
                 live_url = live_url_data.strip("\"").replace("\\", "")
                 Logger.trace(live_url)
                 streams += M3u8.get_streams_from_m3u8(live_url, proxy, headers=headers)
 
-            elif streamInfo["format"] == "hls":
-                m3u8_info_url = streamInfo["url"]
+            elif stream_info["format"] == "hls":
+                m3u8_info_url = stream_info["url"]
                 m3u8_info_data = UriHandler.open(m3u8_info_url, proxy=proxy, additional_headers=headers)
                 m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.instance())
                 m3u8_url = m3u8_info_json.get_value("url")
                 streams += M3u8.get_streams_from_m3u8(m3u8_url, proxy, headers=headers)
 
-            elif streamInfo["format"] == "mp4":
+            elif stream_info["format"] == "mp4":
                 bitrates = {"hoog": 1000, "normaal": 500}
-                url = streamInfo["url"]
-                if "contentType" in streamInfo and streamInfo["contentType"] == "url":
+                url = stream_info["url"]
+                if "contentType" in stream_info and stream_info["contentType"] == "url":
                     mp4_url = url
                 else:
                     url = url.replace("jsonp", "json")
                     mp4_url_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
                     mp4_info_json = JsonHelper(mp4_url_data, logger=Logger.instance())
                     mp4_url = mp4_info_json.get_value("url")
-                bitrate = bitrates.get(streamInfo["label"].lower(), 0)
+                bitrate = bitrates.get(stream_info["label"].lower(), 0)
                 if bitrate == 0 and "/ipod/" in mp4_url:
                     bitrate = 200
                 elif bitrate == 0 and "/mp4/" in mp4_url:
