@@ -80,7 +80,7 @@ class Favourites:
         :param channel: The channel to limit the favourites to.
 
         :return: A list of tupples (action_url, pickle)
-        :rtype: tuple[str,str]
+        :rtype: list
 
         """
 

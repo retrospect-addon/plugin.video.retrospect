@@ -341,7 +341,7 @@ class MediaItem:
         This item is used for displaying purposes only and changes to it will
         not be passed on to the MediaItem.
 
-        :param str name:    Overwrites the name of the Kodi item.
+        :param str|unicode name:    Overwrites the name of the Kodi item.
 
         :return: a complete Kodi ListItem
         :rtype: xbmcgui.ListItem

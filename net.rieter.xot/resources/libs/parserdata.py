@@ -67,7 +67,7 @@ class ParserData(object):
     def matches(self, url):
         """ Returns true if the DataParser matches the URL.
 
-        :param str url:     The URL to match
+        :param str|unicode url:     The URL to match
 
         :return: Returns True if a match was found
         :rtype: bool

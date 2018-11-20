@@ -8,59 +8,55 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-import os
 
-#import inspect
+import os
 
 import xbmcplugin
 import xbmc
 import xbmcgui
 
-try:
-    import envcontroller
-
-    from logger import Logger
-    from addonsettings import AddonSettings
-    from locker import LockWithDialog
-    from config import Config
-    from channelinfo import ChannelInfo
-    from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
-    from environments import Environments
-    from initializer import Initializer
-    from favourites import Favourites
-    from mediaitem import MediaItem
-    from helpers.channelimporter import ChannelIndex
-    from helpers.languagehelper import LanguageHelper
-    from helpers.htmlentityhelper import HtmlEntityHelper
-    from helpers.stopwatch import StopWatch
-    from helpers.statistics import Statistics
-    from helpers.sessionhelper import SessionHelper
-    from textures import TextureHandler
-    from paramparser import ParameterParser
-    from updater import Updater
-    from urihandler import UriHandler
-except:
-    Logger.critical("Error initializing %s", Config.appName, exc_info=True)
+import envcontroller
+from logger import Logger
+from addonsettings import AddonSettings
+from locker import LockWithDialog
+from config import Config
+from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
+from initializer import Initializer
+from favourites import Favourites
+from mediaitem import MediaItem
+from helpers.channelimporter import ChannelIndex
+from helpers.languagehelper import LanguageHelper
+from helpers.stopwatch import StopWatch
+from helpers.statistics import Statistics
+from helpers.sessionhelper import SessionHelper
+from textures import TextureHandler
+from paramparser import ParameterParser
+from updater import Updater
+from urihandler import UriHandler
+from channelinfo import ChannelInfo
 
 
-#===============================================================================
-# Main Plugin Class
-#===============================================================================
 class Plugin(ParameterParser):
-    """Main Plugin Class
+    """ Main Plugin Class
 
     This class makes it possible to access all the XOT channels as a Kodi Add-on
     instead of a script.
 
     """
 
-    def __init__(self, pluginName, params, handle=0):
-        """Initialises the plugin with given arguments."""
+    def __init__(self, addon_name, params, handle=0):  # NOSONAR complexity
+        """ Initialises the plugin with given arguments.
+
+        :param str addon_name:      The add-on name.
+        :param str params:          The input parameters from the query string.
+        :param int handle:          The Kodi directory handle.
+
+        """
 
         Logger.info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
         self.handle = int(handle)
 
-        super(Plugin, self).__init__(pluginName, params)
+        super(Plugin, self).__init__(addon_name, params)
         Logger.debug("Plugin Params: %s (%s)\n"
                      "Handle:      %s\n"
                      "Name:        %s\n"
@@ -76,19 +72,17 @@ class Plugin(ParameterParser):
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
 
         # are we in session?
-        sessionActive = SessionHelper.is_session_active(Logger.instance())
+        session_active = SessionHelper.is_session_active(Logger.instance())
 
         # fetch some environment settings
-        envCtrl = envcontroller.EnvController(Logger.instance())
-        # self.FavouritesEnabled = envCtrl.SQLiteEnabled()
-        self.FavouritesEnabled = not envCtrl.is_platform(Environments.Xbox)
+        env_ctrl = envcontroller.EnvController(Logger.instance())
 
-        if not sessionActive:
+        if not session_active:
             # do add-on start stuff
             Logger.info("Add-On start detected. Performing startup actions.")
 
             # print the folder structure
-            envCtrl.print_retrospect_settings_and_folders(Config, AddonSettings)
+            env_ctrl.print_retrospect_settings_and_folders(Config, AddonSettings)
 
             # show notification
             XbmcWrapper.show_notification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
@@ -103,14 +97,14 @@ class Plugin(ParameterParser):
                 XbmcWrapper.show_notification(None, lines=notification, display_time=20000)
 
             # check if the repository is available -> We don't need this now.
-            # envCtrl.is_install_method_valid(Config)
-            # envCtrl.are_addons_enabled(Config)
+            # env_ctrl.is_install_method_valid(Config)
+            # env_ctrl.are_addons_enabled(Config)
 
             # check for cache folder
-            envCtrl.cache_check()
+            env_ctrl.cache_check()
 
             # do some cache cleanup
-            envCtrl.cache_clean_up(Config.cacheDir, Config.cacheValidTime)
+            env_ctrl.cache_clean_up(Config.cacheDir, Config.cacheValidTime)
 
         # create a session
         SessionHelper.create_session(Logger.instance())
@@ -123,9 +117,9 @@ class Plugin(ParameterParser):
             # Show initial start if not in a session
             # now show the list
             if AddonSettings.show_categories():
-                self.ShowCategories()
+                self.show_categories()
             else:
-                self.ShowChannelList()
+                self.show_channel_list()
 
         #===============================================================================
         #        Start the plugin verion of the episode window
@@ -141,8 +135,8 @@ class Plugin(ParameterParser):
                                  self.channelCode)
 
                     # import the channel
-                    channelRegister = ChannelIndex.get_register()
-                    channel = channelRegister.get_channel(self.channelFile, self.channelCode)
+                    channel_register = ChannelIndex.get_register()
+                    channel = channel_register.get_channel(self.channelFile, self.channelCode)
 
                     if channel is not None:
                         self.channelObject = channel
@@ -154,13 +148,10 @@ class Plugin(ParameterParser):
                     self.channelObject.InitChannel()
                     Logger.info("Loaded: %s", self.channelObject.channelName)
 
-                elif self.keywordCategory in self.params:
-                    # no channel needed.
-                    pass
-
-                elif self.keywordAction in self.params and (
-                        self.params[self.keywordAction] == self.actionAllFavourites or
-                        self.params[self.keywordAction] == self.actionRemoveFavourite):
+                elif self.keywordCategory in self.params \
+                        or self.keywordAction in self.params and (
+                            self.params[self.keywordAction] == self.actionAllFavourites or
+                            self.params[self.keywordAction] == self.actionRemoveFavourite):
                     # no channel needed for these favourites actions.
                     pass
 
@@ -191,8 +182,6 @@ class Plugin(ParameterParser):
                             v.set_setting(self.params[self.keywordSettingId],
                                           self.params.get(self.keywordSettingName, ""),
                                           self.params.get(self.keywordSettingActionId, None))
-                            # value = v.get_setting(self.params[self.keywordSettingId])
-                            # Logger.Critical(value)
                     finally:
                         if self.keywordSettingTabFocus in self.params:
                             AddonSettings.show_settings(self.params[self.keywordSettingTabFocus],
@@ -202,7 +191,7 @@ class Plugin(ParameterParser):
 
                 elif self.keywordAction in self.params and \
                         self.actionPostLog in self.params[self.keywordAction]:
-                    self.__SendLog()
+                    self.__send_log()
                     return
 
                 elif self.keywordAction in self.params and \
@@ -217,9 +206,9 @@ class Plugin(ParameterParser):
                         return
 
                     language = self.params.get(self.keywordLanguage, None)
-                    proxyId = self.params.get(self.keywordProxy, None)
-                    localIp = self.params.get(self.keywordLocalIP, None)
-                    self.__SetProxy(language, proxyId, localIp)
+                    proxy_id = self.params.get(self.keywordProxy, None)
+                    local_ip = self.params.get(self.keywordLocalIP, None)
+                    self.__set_proxy(language, proxy_id, local_ip)
                     return
 
                 else:
@@ -234,27 +223,27 @@ class Plugin(ParameterParser):
                     return
 
                 elif self.params[self.keywordAction] == self.actionListCategory:
-                    self.ShowChannelList(self.params[self.keywordCategory])
+                    self.show_channel_list(self.params[self.keywordCategory])
 
                 elif self.params[self.keywordAction] == self.actionConfigureChannel:
-                    self.__ConfigureChannel(self.channelObject)
+                    self.__configure_channel(self.channelObject)
 
                 elif self.params[self.keywordAction] == self.actionFavourites:
                     # we should show the favourites
-                    self.ShowFavourites(self.channelObject)
+                    self.show_favourites(self.channelObject)
 
                 elif self.params[self.keywordAction] == self.actionAllFavourites:
-                    self.ShowFavourites(None)
+                    self.show_favourites(None)
 
                 elif self.params[self.keywordAction] == self.actionListFolder:
                     # channelName and URL is present, Parse the folder
-                    self.ProcessFolderList()
+                    self.process_folder_list()
 
                 elif self.params[self.keywordAction] == self.actionPlayVideo:
-                    self.PlayVideoItem()
+                    self.play_video_item()
 
                 elif not self.params[self.keywordAction] == "":
-                    self.OnActionFromContextMenu(self.params[self.keywordAction])
+                    self.on_action_from_context_menu(self.params[self.keywordAction])
 
                 else:
                     Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
@@ -263,66 +252,69 @@ class Plugin(ParameterParser):
             except:
                 Logger.critical("Error parsing for add-on", exc_info=True)
 
-        self.__FetchTextures()
+        self.__fetch_textures()
         return
 
-    def ShowCategories(self):
-        """Displays the ShowCategories that are currently available in XOT as a directory
+    def show_categories(self):
+        """ Displays the show_categories that are currently available in XOT as a directory
         listing.
+
+        :return: indication if all succeeded.
+        :rtype: bool
+
         """
 
-        Logger.info("Plugin::ShowCategories")
-        channelRegister = ChannelIndex.get_register()
-        categories = channelRegister.get_categories()
+        Logger.info("Plugin::show_categories")
+        channel_register = ChannelIndex.get_register()
+        categories = channel_register.get_categories()
 
-        xbmcItems = []
+        kodi_items = []
         icon = os.path.join(Config.rootDir, "icon.png")
         fanart = os.path.join(Config.rootDir, "fanart.jpg")
         for category in categories:
             name = LanguageHelper.get_localized_category(category)
-            xbmcItem = xbmcgui.ListItem(name, name)
+            kodi_item = xbmcgui.ListItem(name, name)
 
             # set art
             try:
-                xbmcItem.setIconImage(icon)
+                kodi_item.setIconImage(icon)
             except:
                 # it was deprecated
                 pass
-            xbmcItem.setArt({'thumb': icon, 'icon': icon})
-            xbmcItem.setProperty(self.propertyRetrospect, "true")
-            xbmcItem.setProperty(self.propertyRetrospectCategory, "true")
+            kodi_item.setArt({'thumb': icon, 'icon': icon})
+            kodi_item.setProperty(self.propertyRetrospect, "true")
+            kodi_item.setProperty(self.propertyRetrospectCategory, "true")
 
             if not AddonSettings.hide_fanart():
-                xbmcItem.setArt({'fanart': fanart})
+                kodi_item.setArt({'fanart': fanart})
 
             url = self._create_action_url(None, action=self.actionListCategory, category=category)
-            xbmcItems.append((url, xbmcItem, True))
+            kodi_items.append((url, kodi_item, True))
 
-        # Logger.Trace(xbmcItems)
-        ok = xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
+        # Logger.Trace(kodi_items)
+        ok = xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
         xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
         xbmcplugin.endOfDirectory(self.handle, ok)
         return ok
 
-    def ShowChannelList(self, category=None):
-        """Displays the channels that are currently available in XOT as a directory
+    def show_channel_list(self, category=None):
+        """ Displays the channels that are currently available in XOT as a directory
         listing.
 
-        Keyword Arguments:
-        category : String - The category to show channels for
+        :param str category:    The category to show channels for
 
         """
 
         if category:
-            Logger.info("Plugin::ShowChannelList for %s", category)
+            Logger.info("Plugin::show_channel_list for %s", category)
         else:
-            Logger.info("Plugin::ShowChannelList")
+            Logger.info("Plugin::show_channel_list")
         try:
             # only display channels
-            channelRegister = ChannelIndex.get_register()
-            channels = channelRegister.get_channels()
+            channel_register = ChannelIndex.get_register()
+            channels = channel_register.get_channels()
 
-            xbmcItems = []
+            xbmc_items = []
             for channel in channels:
                 if category and channel.category != category:
                     Logger.debug("Skipping %s (%s) due to category filter", channel.channelName, channel.category)
@@ -336,16 +328,16 @@ class Plugin(ParameterParser):
                     item.setProperty(self.propertyRetrospectChannelSetting, "true")
 
                 # Get the context menu items
-                contextMenuItems = self.__GetContextMenuItems(channel)
-                item.addContextMenuItems(contextMenuItems)
+                context_menu_items = self.__get_context_menu_items(channel)
+                item.addContextMenuItems(context_menu_items)
                 # Get the URL for the item
                 url = self._create_action_url(channel, action=self.actionListFolder)
 
                 # Append to the list of XBMC Items
-                xbmcItems.append((url, item, True))
+                xbmc_items.append((url, item, True))
 
             # Add the items
-            ok = xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
+            ok = xbmcplugin.addDirectoryItems(self.handle, xbmc_items, len(xbmc_items))
 
             # Just let Kodi display the order we give.
             xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
@@ -357,17 +349,15 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, False)
             Logger.critical("Error fetching channels for plugin", exc_info=True)
 
-    def ShowFavourites(self, channel):
-        """ Show the favourites
+    def show_favourites(self, channel):
+        """ Show the favourites (for a channel).
 
-        Arguments:
-        channel : Channel - The channel to show favourites for. Might be None to show all.
-
-        Keyword Arguments:
-        replaceExisting : boolean - if True it will replace the current list
+        :param ChannelInfo|none channel:    The channel to show favourites for.
+                                            Might be None to show all.
 
         """
-        Logger.debug("Plugin::ShowFavourites")
+
+        Logger.debug("Plugin::show_favourites")
 
         if channel is None:
             Logger.info("Showing all favourites")
@@ -376,44 +366,46 @@ class Plugin(ParameterParser):
 
         f = Favourites(Config.favouriteDir)
         favs = f.list(channel)
-        return self.ProcessFolderList(favs)
+        self.process_folder_list(favs)
 
-    def ProcessFolderList(self, favorites=None):
-        """Wraps the channel.ProcessFolderList"""
+    def process_folder_list(self, favorites=None):
+        """Wraps the channel.ProcessFolderList
+
+        :param list[MediaItem] favorites:
+
+        """
 
         Logger.info("Plugin::ProcessFolderList Doing ProcessFolderList")
         try:
             ok = True
 
-            selectedItem = None
+            selected_item = None
             if self.keywordPickle in self.params:
-                selectedItem = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+                selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
             if favorites is None:
                 watcher = StopWatch("Plugin ProcessFolderList", Logger.instance())
-                episodeItems = self.channelObject.ProcessFolderList(selectedItem)
+                media_items = self.channelObject.ProcessFolderList(selected_item)
                 watcher.lap("Class ProcessFolderList finished")
             else:
                 watcher = StopWatch("Plugin ProcessFolderList With Items", Logger.instance())
-                episodeItems = favorites
+                media_items = favorites
 
-            if len(episodeItems) == 0:
-                Logger.warning("ProcessFolderList returned %s items", len(episodeItems))
-                ok = self.__ShowEmptyInformation(episodeItems)
+            if len(media_items) == 0:
+                Logger.warning("ProcessFolderList returned %s items", len(media_items))
+                ok = self.__show_empty_information(media_items)
             else:
-                Logger.debug("ProcessFolderList returned %s items", len(episodeItems))
+                Logger.debug("ProcessFolderList returned %s items", len(media_items))
 
-            xbmcItems = []
-            for episodeItem in episodeItems:  # type: MediaItem
-                if episodeItem.thumb == "":
-                    episodeItem.thumb = self.channelObject.noImage
-                if episodeItem.fanart == "":
-                    episodeItem.fanart = self.channelObject.fanart
+            kodi_items = []
+            for media_item in media_items:  # type: MediaItem
+                media_item.thumb = media_item.thumb or self.channelObject.noImage
+                media_item.fanart = media_item.fanart or self.channelObject.fanart
 
-                if episodeItem.type == 'folder' or episodeItem.type == 'append' or episodeItem.type == "page":
+                if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
                     action = self.actionListFolder
                     folder = True
-                elif episodeItem.is_playable():
+                elif media_item.is_playable():
                     action = self.actionPlayVideo
                     folder = False
                 else:
@@ -421,44 +413,35 @@ class Plugin(ParameterParser):
                     continue
 
                 # Get the XBMC item
-                item = episodeItem.get_kodi_item()
-
-                # Set the properties for the context menu add-on
-                item.setProperty(self.propertyRetrospect, "true")
-                item.setProperty(self.propertyRetrospectFolder
-                                 if folder
-                                 else self.propertyRetrospectVideo, "true")
-
-                if favorites is not None:
-                    item.setProperty(self.propertyRetrospectFavorite, "true")
-                elif episodeItem.isCloaked:
-                    item.setProperty(self.propertyRetrospectCloaked, "true")
+                kodi_item = media_item.get_kodi_item()
+                self.__set_kodi_properties(kodi_item, media_item, folder,
+                                           is_favourite=favorites is not None)
 
                 # Get the context menu items
-                contextMenuItems = self.__GetContextMenuItems(self.channelObject, item=episodeItem)
-                item.addContextMenuItems(contextMenuItems)
+                context_menu_items = self.__get_context_menu_items(self.channelObject, item=media_item)
+                kodi_item.addContextMenuItems(context_menu_items)
 
                 # Get the action URL
-                url = episodeItem.actionUrl
+                url = media_item.actionUrl
                 if url is None:
-                    url = self._create_action_url(self.channelObject, action=action, item=episodeItem)
+                    url = self._create_action_url(self.channelObject, action=action, item=media_item)
 
                 # Add them to the list of XBMC items
-                xbmcItems.append((url, item, folder))
+                kodi_items.append((url, kodi_item, folder))
 
             watcher.lap("Kodi Items generated")
             # add items but if OK was False, keep it like that
-            ok = ok and xbmcplugin.addDirectoryItems(self.handle, xbmcItems, len(xbmcItems))
+            ok = ok and xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
             watcher.lap("items send to Kodi")
 
-            if selectedItem is None and self.channelObject is not None:
+            if selected_item is None and self.channelObject is not None:
                 # mainlist item register channel.
                 Statistics.register_channel_open(self.channelObject, Initializer.StartTime)
                 watcher.lap("Statistics send")
 
             watcher.stop()
 
-            self.__AddSortMethodToHandle(self.handle, episodeItems)
+            self.__add_sort_method_to_handle(self.handle, media_items)
 
             # set the content
             xbmcplugin.setContent(handle=self.handle, content=self.contentType)
@@ -473,86 +456,77 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, False)
 
     # @LockWithDialog(logger=Logger.instance())  No longer needed as Kodi will do this automatically
-    def PlayVideoItem(self):
-        """Starts the videoitem using a playlist. """
+    def play_video_item(self):
+        """ Starts the videoitem using a playlist. """
 
         Logger.debug("Playing videoitem using PlayListMethod")
 
-        item = None
+        media_item = None
         try:
-            item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+            media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
-            if (item.isDrmProtected or item.isPaid) and AddonSettings.show_drm_paid_warning():
-                if item.isDrmProtected:
-                    Logger.debug("Showing DRM Warning message")
-                    title = LanguageHelper.get_localized_string(LanguageHelper.DrmTitle)
-                    message = LanguageHelper.get_localized_string(LanguageHelper.DrmText)
-                    XbmcWrapper.show_dialog(title, message)
-                elif item.isPaid:
-                    Logger.debug("Showing Paid Warning message")
-                    title = LanguageHelper.get_localized_string(LanguageHelper.PaidTitle)
-                    message = LanguageHelper.get_localized_string(LanguageHelper.PaidText)
-                    XbmcWrapper.show_dialog(title, message)
+            # Any warning to show
+            self.__show_warnings(media_item)
 
-            if not item.complete:
-                item = self.channelObject.ProcessVideoItem(item)
+            if not media_item.complete:
+                media_item = self.channelObject.ProcessVideoItem(media_item)
 
-            # validated the updated item
-            if not item.complete or not item.has_media_item_parts():
-                Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
-                Statistics.register_error(self.channelObject, item=item)
+            # validated the updated media_item
+            if not media_item.complete or not media_item.has_media_item_parts():
+                Logger.warning("UpdateVideoItem returned an media_item that had media_item.complete = False:\n%s", media_item)
+                Statistics.register_error(self.channelObject, item=media_item)
 
-            if not item.has_media_item_parts():
+            if not media_item.has_media_item_parts():
                 # the update failed or no items where found. Don't play
                 XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                               LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
                                               XbmcWrapper.Error)
-                Logger.warning("Could not start playback due to missing streams. Item:\n%s", item)
+                Logger.warning("Could not start playback due to missing streams. Item:\n%s", media_item)
                 return
 
-            playData = self.channelObject.PlayVideoItem(item)
+            play_data = self.channelObject.PlayVideoItem(media_item)
 
             Logger.debug("Continuing playback in plugin.py")
-            if not playData:
-                Logger.warning("PlayVideoItem did not return valid playdata")
+            if not play_data:
+                Logger.warning("play_video_item did not return valid playdata")
                 return
             else:
-                playList, srt = playData
+                play_list, srt = play_data
 
             # Get the Kodi Player instance (let Kodi decide what player, see
             # http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)
-            xbmcPlayer = xbmc.Player()
+            kodi_player = xbmc.Player()
 
             # now we force the busy dialog to close, else the video will not play and the
             # setResolved will not work.
             LockWithDialog.close_busy_dialog()
 
-            resolvedUrl = None
-            if item.is_resolvable():
+            resolved_url = None
+            if media_item.is_resolvable():
                 # now set the resolve to the first URL
-                startIndex = playList.getposition()  # the current location
-                if startIndex < 0:
-                    startIndex = 0
-                Logger.info("Playing stream @ playlist index %s using setResolvedUrl method", startIndex)
-                resolvedUrl = playList[startIndex].getfilename()
-                xbmcplugin.setResolvedUrl(self.handle, True, playList[startIndex])
+                start_index = play_list.getposition()  # the current location
+                if start_index < 0:
+                    start_index = 0
+                Logger.info("Playing stream @ playlist index %s using setResolvedUrl method", start_index)
+                resolved_url = play_list[start_index].getfilename()
+                xbmcplugin.setResolvedUrl(self.handle, True, play_list[start_index])
             else:
                 # playlist do not use the setResolvedUrl
                 Logger.info("Playing stream using Playlist method")
-                xbmcPlayer.play(playList)
+                kodi_player.play(play_list)
 
             # the set the subtitles
-            showSubs = AddonSettings.use_subtitle()
+            show_subs = AddonSettings.use_subtitle()
             if srt and (srt != ""):
-                Logger.info("Adding subtitle: %s and setting showSubtitles to %s", srt, showSubs)
-                XbmcWrapper.wait_for_player_to_start(xbmcPlayer, logger=Logger.instance(), url=resolvedUrl)
+                Logger.info("Adding subtitle: %s and setting showSubtitles to %s", srt, show_subs)
+                XbmcWrapper.wait_for_player_to_start(kodi_player, logger=Logger.instance(), url=resolved_url)
 
-                xbmcPlayer.setSubtitles(srt)
-                xbmcPlayer.showSubtitles(showSubs)
+                kodi_player.setSubtitles(srt)
+                kodi_player.showSubtitles(show_subs)
 
         except:
-            if item:
-                Statistics.register_error(self.channelObject, item=item)
+            if media_item:
+                Statistics.register_error(self.channelObject, item=media_item)
             else:
                 Statistics.register_error(self.channelObject)
 
@@ -563,7 +537,7 @@ class Plugin(ParameterParser):
 
         return
 
-    def OnActionFromContextMenu(self, action):
+    def on_action_from_context_menu(self, action):
         """Peforms the action from a custom contextmenu
 
         Arguments:
@@ -581,22 +555,22 @@ class Plugin(ParameterParser):
                 Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
 
         # invoke
-        functionString = "returnItem = self.channelObject.%s(item)" % (action,)
-        Logger.debug("Calling '%s'", functionString)
+        function_string = "returnItem = self.channelObject.%s(item)" % (action,)
+        Logger.debug("Calling '%s'", function_string)
         try:
-            exec functionString
+            exec function_string  # NOSONAR We just need this here.
         except:
-            Logger.error("OnActionFromContextMenu :: Cannot execute '%s'.", functionString, exc_info=True)
+            Logger.error("on_action_from_context_menu :: Cannot execute '%s'.", function_string, exc_info=True)
         return
 
-    def __FetchTextures(self):
-        texturesToRetrieve = TextureHandler.instance().number_of_missing_textures()
+    def __fetch_textures(self):
+        textures_to_retrieve = TextureHandler.instance().number_of_missing_textures()
 
-        if texturesToRetrieve > 0:
+        if textures_to_retrieve > 0:
             w = None
             try:
                 # show a blocking or background progress bar
-                if texturesToRetrieve > 4:
+                if textures_to_retrieve > 4:
                     w = XbmcDialogProgressWrapper(
                         "%s: %s" % (Config.appName, LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)),
                         LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle),
@@ -608,9 +582,9 @@ class Plugin(ParameterParser):
                         Config.TextureUrl
                     )
 
-                bytesTransfered = TextureHandler.instance().fetch_textures(w.progress_update)
-                if bytesTransfered > 0:
-                    Statistics.register_cdn_bytes(bytesTransfered)
+                bytes_transfered = TextureHandler.instance().fetch_textures(w.progress_update)
+                if bytes_transfered > 0:
+                    Statistics.register_cdn_bytes(bytes_transfered)
             except:
                 Logger.error("Error fetching textures", exc_info=True)
             finally:
@@ -619,132 +593,146 @@ class Plugin(ParameterParser):
                     w.close()
         return
 
-    def __ConfigureChannel(self, channelInfo):
-        """ Configures a proxy for a channel
+    def __configure_channel(self, channel_info):
+        """ Shows the current channels settings dialog.
 
-        Arguments:
-        channelInfo : ChannelInfo - The channel info
+        :param ChannelInfo channel_info:    The channel info for the channel
 
         """
 
-        if not channelInfo:
+        if not channel_info:
             Logger.warning("Cannot configure channel without channel info")
 
-        Logger.info("Configuring channel: %s", channelInfo)
-        AddonSettings.show_channel_settings(channelInfo)
-        return
+        Logger.info("Configuring channel: %s", channel_info)
+        AddonSettings.show_channel_settings(channel_info)
 
-    def __AddSortMethodToHandle(self, handle, items=None):
+    def __add_sort_method_to_handle(self, handle, items=None):
         """ Add a sort method to the plugin output. It takes the Add-On settings into
         account. But if none of the items have a date, it is forced to sort by name.
 
-        Arguments:
-        handle : int        - The handle to add the sortmethod to
-        items  : MediaItems - The items that need to be sorted
+        :param int handle:              The handle to add the sortmethod to.
+        :param list[MediaItem] items:   The items that need to be sorted
+
+        :rtype: none
 
         """
 
         if AddonSettings.mix_folders_and_videos():
-            labelSortMethod = xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS
+            label_sort_method = xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS
         else:
-            labelSortMethod = xbmcplugin.SORT_METHOD_LABEL
+            label_sort_method = xbmcplugin.SORT_METHOD_LABEL
 
         if items:
-            hasDates = len(filter(lambda i: i.has_date(), items)) > 0
-            if hasDates:
+            has_dates = len(filter(lambda i: i.has_date(), items)) > 0
+            if has_dates:
                 Logger.debug("Sorting method: Dates")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=label_sort_method)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
 
-            hasTracks = len(filter(lambda i: i.has_track(), items)) > 0
-            if hasTracks:
+            has_tracks = len(filter(lambda i: i.has_track(), items)) > 0
+            if has_tracks:
                 Logger.debug("Sorting method: Tracks")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-                xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
+                xbmcplugin.addSortMethod(handle=handle, sortMethod=label_sort_method)
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
 
         Logger.debug("Sorting method: Default (Label)")
-        xbmcplugin.addSortMethod(handle=handle, sortMethod=labelSortMethod)
+        xbmcplugin.addSortMethod(handle=handle, sortMethod=label_sort_method)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
         xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
         return
 
-    def __GetContextMenuItems(self, channel, item=None):
-        """Retrieves the context menu items to display
+    def __get_context_menu_items(self, channel, item=None):
+        """ Retrieves the custom context menu items to display.
 
-        Arguments:
-        channel : Channel - The channel from which to get the context menu items. The channel might be None in case of
-                            some actions that do not require a channel.
-
-        Keyword Arguments
-        item           : MediaItem - The item to which the context menu belongs.
         favouritesList : Boolean   - Indication that the menu is for the favorites
+
+        :param Channel|none channel:    The channel from which to get the context menu items.
+                                        The channel might be None in case of some actions that
+                                        do not require a channel.
+        :param MediaItem|none item:     The item to which the context menu belongs.
+
+        :return: A list of context menu names and their commands.
+        :rtype: list[tuple[str,str]]
+
         """
 
-        contextMenuItems = []
+        context_menu_items = []
 
         if item is None:
-            return contextMenuItems
+            return context_menu_items
 
         # if it was a favourites list, don't add the channel methods as they might be from a different channel
         if channel is None:
-            return contextMenuItems
+            return context_menu_items
 
         # now we process the other items
-        possibleMethods = self.__GetMembers(channel)
-        # Logger.Debug(possibleMethods)
+        possible_methods = self.__get_members(channel)
+        # Logger.Debug(possible_methods)
 
-        for menuItem in channel.contextMenuItems:
-            # Logger.Debug(menuItem)
-            if menuItem.itemTypes is None or item.type in menuItem.itemTypes:
+        for menu_item in channel.contextMenuItems:
+            # Logger.Debug(menu_item)
+            if menu_item.itemTypes is None or item.type in menu_item.itemTypes:
                 # We don't care for complete here!
-                # if menuItem.completeStatus == None or menuItem.completeStatus == item.complete:
+                # if menu_item.completeStatus == None or menu_item.completeStatus == item.complete:
 
                 # see if the method is available
-                methodAvailable = False
+                method_available = False
 
-                for method in possibleMethods:
-                    if method == menuItem.functionName:
-                        methodAvailable = True
+                for method in possible_methods:
+                    if method == menu_item.functionName:
+                        method_available = True
                         # break from the method loop
                         break
 
-                if not methodAvailable:
-                    Logger.warning("No method for: %s", menuItem)
+                if not method_available:
+                    Logger.warning("No method for: %s", menu_item)
                     continue
 
-                cmdUrl = self._create_action_url(channel, action=menuItem.functionName, item=item)
-                cmd = "XBMC.RunPlugin(%s)" % (cmdUrl,)
-                title = "Retro: %s" % (menuItem.label,)
+                cmd_url = self._create_action_url(channel, action=menu_item.functionName, item=item)
+                cmd = "XBMC.RunPlugin(%s)" % (cmd_url,)
+                title = "Retro: %s" % (menu_item.label,)
                 Logger.trace("Adding command: %s | %s", title, cmd)
-                contextMenuItems.append((title, cmd))
+                context_menu_items.append((title, cmd))
 
-        return contextMenuItems
+        return context_menu_items
 
-    def __GetMembers(self, channel):
-        """ Caches the inspect.getmembers(channel) method for performance
-        matters
+    def __get_members(self, channel):
+        """ Caches the inspect.getmembers(channel) or dir(channel) method for performance
+        matters.
+
+        :param Channel channel:     The channel from which to get the context menu items.
+                                    The channel might be None in case of some actions that
+                                    do not require a channel.
+
+        :return: A list of all methods in the channel.
+        :rtype: list[str]
 
         """
 
         if channel.guid not in self.methodContainer:
-            #self.methodContainer[channel.guid] = inspect.getmembers(channel)
+            # Not working on all platforms
+            # self.methodContainer[channel.guid] = inspect.getmembers(channel)
             self.methodContainer[channel.guid] = dir(channel)
 
         return self.methodContainer[channel.guid]
 
-    def __ShowEmptyInformation(self, items, favs=False):
+    def __show_empty_information(self, items, favs=False):
         """ Adds an empty item to a list or just shows a message.
-        @type favs: boolean indicating that we are dealing with favourites
-        @param items: the list of items
+        @type favs: boolean
+        @param items:
 
-        @rtype : boolean indicating succes or not
+        :param list[MediaItem] items:   The list of items.
+        :param bool favs:               Indicating that we are dealing with favourites.
+
+        :return: boolean indicating to report the listing as succes or not.
+        :rtype: ok
 
         """
 
@@ -764,22 +752,22 @@ class Plugin(ParameterParser):
             ok = False
         elif behaviour == "dummy" and not favs:
             # We should add a dummy items, but not for favs
-            emptyListItem = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
-            emptyListItem.icon = self.channelObject.icon
-            emptyListItem.thumb = self.channelObject.noImage
-            emptyListItem.fanart = self.channelObject.fanart
-            emptyListItem.dontGroup = True
-            emptyListItem.description = "This listing was left empty intentionally."
-            emptyListItem.complete = True
-            emptyListItem.fanart = self.channelObject.fanart
+            empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
+            empty_list_item.icon = self.channelObject.icon
+            empty_list_item.thumb = self.channelObject.noImage
+            empty_list_item.fanart = self.channelObject.fanart
+            empty_list_item.dontGroup = True
+            empty_list_item.description = "This listing was left empty intentionally."
+            empty_list_item.complete = True
+            empty_list_item.fanart = self.channelObject.fanart
             # add funny stream here?
-            # part = emptyListItem.create_new_empty_media_part()
+            # part = empty_list_item.create_new_empty_media_part()
             # for s, b in YouTube.get_streams_from_you_tube("", self.channelObject.proxy):
             #     part.append_media_stream(s, b)
 
             # if we add one, set OK to True
             ok = True
-            items.append(emptyListItem)
+            items.append(empty_list_item)
         else:
             ok = True
 
@@ -788,38 +776,39 @@ class Plugin(ParameterParser):
         return ok
 
     @LockWithDialog(logger=Logger.instance())
-    def __SendLog(self):
+    def __send_log(self):
+        """ Send log files via Pastbin or Gist. """
+
         from helpers.logsender import LogSender
-        senderMode = 'pastebin'
-        logSender = LogSender(Config.LogSenderApi, logger=Logger.instance(), mode=senderMode)
+        sender_mode = 'pastebin'
+        log_sender = LogSender(Config.LogSenderApi, logger=Logger.instance(), mode=sender_mode)
         try:
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostSuccessTitle)
-            urlText = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
-            filesToSend = [Logger.instance().logFileName, Logger.instance().logFileName.replace(".log", ".old.log")]
-            if senderMode != "gist":
-                pasteUrl = logSender.send_file(Config.logFileNameAddon, filesToSend[0])
+            url_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
+            files_to_send = [Logger.instance().logFileName, Logger.instance().logFileName.replace(".log", ".old.log")]
+            if sender_mode != "gist":
+                paste_url = log_sender.send_file(Config.logFileNameAddon, files_to_send[0])
             else:
-                pasteUrl = logSender.send_files(Config.logFileNameAddon, filesToSend)
-            XbmcWrapper.show_dialog(title, urlText % (pasteUrl,))
+                paste_url = log_sender.send_files(Config.logFileNameAddon, files_to_send)
+            XbmcWrapper.show_dialog(title, url_text % (paste_url,))
         except Exception, e:
             Logger.error("Error sending %s", Config.logFileNameAddon, exc_info=True)
 
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostErrorTitle)
-            errorText = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
-            error = errorText % (e.message,)
+            error_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
+            error = error_text % (e.message,)
             XbmcWrapper.show_dialog(title, error.strip(": "))
-        return
 
     @LockWithDialog(logger=Logger.instance())
-    def __SetProxy(self, language, proxyId, localIP):
+    def __set_proxy(self, language, proxy_id, local_ip):
         """ Sets the proxy and local IP configuration for channels.
 
-        @param language: the language for what channels to update
-        @param proxyId:  the proxy index to use
-        @param localIP:  the localIP index to use.
+        :param str language:    The language for what channels to update.
+        :param int proxy_id:    The proxy index to use.
+        :param int local_ip:    The local_ip index to use.
         
-        If no proxyId is specified (None) then the proxyId will be determined based on language
-        If no localIP is specified (None) then the localIP will be determined based on language
+        If no proxy_id is specified (None) then the proxy_id will be determined based on language
+        If no local_ip is specified (None) then the local_ip will be determined based on language
         
         """
 
@@ -829,26 +818,66 @@ class Plugin(ParameterParser):
             Logger.warning("Missing language: %s", language)
             return
 
-        if proxyId is None:
-            proxyId = languages.index(language)
+        if proxy_id is None:
+            proxy_id = languages.index(language)
         else:
-            proxyId = int(proxyId)
+            proxy_id = int(proxy_id)
 
-        if localIP is None:
-            localIP = languages.index(language)
+        if local_ip is None:
+            local_ip = languages.index(language)
         else:
-            localIP = int(localIP)
+            local_ip = int(local_ip)
 
         channels = ChannelIndex.get_register().get_channels()
-        Logger.info("Setting proxy='%s' (%s) and localIP='%s' (%s) for country '%s'",
-                    proxyId, languages[proxyId],
-                    localIP, languages[localIP],
+        Logger.info("Setting proxy='%s' (%s) and local_ip='%s' (%s) for country '%s'",
+                    proxy_id, languages[proxy_id],
+                    local_ip, languages[local_ip],
                     language)
-        channelsInCountry = filter(lambda c: c.language == language or language is None, channels)
-        for channel in channelsInCountry:
+
+        channels_in_country = filter(lambda c: c.language == language or language is None, channels)
+        for channel in channels_in_country:
             Logger.debug("Setting Proxy for: %s", channel)
-            AddonSettings.set_proxy_id_for_channel(channel, proxyId)
+            AddonSettings.set_proxy_id_for_channel(channel, proxy_id)
             if channel.localIPSupported:
                 Logger.debug("Setting Local IP for: %s", channel)
-                AddonSettings.set_local_ip_for_channel(channel, localIP)
-        pass
+                AddonSettings.set_local_ip_for_channel(channel, local_ip)
+
+    def __set_kodi_properties(self, kodi_item, media_item, is_folder, is_favourite):
+        """ Sets any Kodi related properties.
+
+        :param xbmcgui.ListItem kodi_item:  The Kodi list item.
+        :param MediaItem media_item:        The internal media item.
+        :param bool is_folder:              Is this a folder.
+        :param bool is_favourite:           Is this a favourite.
+
+        """
+
+        # Set the properties for the context menu add-on
+        kodi_item.setProperty(self.propertyRetrospect, "true")
+        kodi_item.setProperty(self.propertyRetrospectFolder
+                              if is_folder
+                              else self.propertyRetrospectVideo, "true")
+
+        if is_favourite:
+            kodi_item.setProperty(self.propertyRetrospectFavorite, "true")
+        elif media_item.isCloaked:
+            kodi_item.setProperty(self.propertyRetrospectCloaked, "true")
+
+    def __show_warnings(self, media_item):
+        """ Show playback warnings for this MediaItem
+
+        :param MediaItem media_item: The current MediaItem that will be played.
+
+        """
+
+        if (media_item.isDrmProtected or media_item.isPaid) and AddonSettings.show_drm_paid_warning():
+            if media_item.isDrmProtected:
+                Logger.debug("Showing DRM Warning message")
+                title = LanguageHelper.get_localized_string(LanguageHelper.DrmTitle)
+                message = LanguageHelper.get_localized_string(LanguageHelper.DrmText)
+                XbmcWrapper.show_dialog(title, message)
+            elif media_item.isPaid:
+                Logger.debug("Showing Paid Warning message")
+                title = LanguageHelper.get_localized_string(LanguageHelper.PaidTitle)
+                message = LanguageHelper.get_localized_string(LanguageHelper.PaidText)
+                XbmcWrapper.show_dialog(title, message)

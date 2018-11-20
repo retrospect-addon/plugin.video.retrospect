@@ -390,15 +390,15 @@ class _RequestsHandler(object):
              referer=None, additional_headers=None, no_cache=False):
         """ Open an URL Async using a thread
 
-        :param str uri:                     The URI to download.
-        :param str params:                  Data to send with the request (open(uri, params)).
-        :param dict[str, any]|str data:     Data to send with the request (open(uri, data)).
-        :param dict[str, any] json:         Json to send with the request (open(uri, params)).
-        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
-                                            proxy server that should be used.
-        :param str referer:                 The http referer to use.
-        :param dict additional_headers:     The optional headers.
-        :param bool no_cache:               Should cache be disabled.
+        :param str uri:                         The URI to download.
+        :param str params:                      Data to send with the request (open(uri, params)).
+        :param dict[str, any]|str data:         Data to send with the request (open(uri, data)).
+        :param dict[str, any] json:             Json to send with the request (open(uri, params)).
+        :param ProxyInfo proxy:                 The address and port (proxy.address.ext:port) of a
+                                                proxy server that should be used.
+        :param str referer:                     The http referer to use.
+        :param dict|None additional_headers:    The optional headers.
+        :param bool no_cache:                   Should cache be disabled.
 
         :return: The data that was retrieved from the URI.
         :rtype: str|unicode
