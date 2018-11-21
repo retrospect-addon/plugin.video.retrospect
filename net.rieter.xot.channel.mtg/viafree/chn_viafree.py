@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
         Returns:
         A tuple of the data and a list of MediaItems that were generated.
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -318,14 +318,8 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def SearchSite(self, url=None):
-        """Creates an list of items by searching the site
-
-        Keyword Arguments:
-        url : String - Url to use to search with a %s for the search parameters
-
-        Returns:
-        A list of MediaItems that should be displayed.
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
@@ -333,6 +327,11 @@ class Channel(chn_class.Channel):
 
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
 
         """
 
@@ -348,7 +347,7 @@ class Channel(chn_class.Channel):
         # url = "%s/api/playClient;isColumn=true;query=%s;resource=search?returnMeta=true" % (baseUrl, query)
 
         Logger.debug("Using search url: %s", url)
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
     def CreatePageItem(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.

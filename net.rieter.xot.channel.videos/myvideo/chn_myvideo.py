@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
         Returns:
         A tuple of the data and a list of MediaItems that were generated.
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -107,7 +107,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.  
         
         
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel. 
         Inside this method the <data> could be changed and additional items can 
         be created. 

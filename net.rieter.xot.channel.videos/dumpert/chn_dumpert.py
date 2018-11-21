@@ -166,10 +166,23 @@ class Channel(chn_class.Channel):
                 part.append_media_stream(s, b)
         return item
 
-    def SearchSite(self, url=None):
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
         """
-        Creates an list of items by searching the site
-        """
+
         items = []
 
         needle = XbmcWrapper.show_key_board()
@@ -178,7 +191,7 @@ class Channel(chn_class.Channel):
             needle = string.replace(needle, " ", "%20")
             searchUrl = "http://www.dumpert.nl/search/V/%s/ " % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
-            return self.ProcessFolderList(temp)
+            return self.process_folder_list(temp)
 
         return items
 

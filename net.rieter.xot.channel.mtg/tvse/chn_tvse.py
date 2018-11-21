@@ -122,7 +122,7 @@ class Channel(chn_class.Channel):
         Returns:
         A tuple of the data and a list of MediaItems that were generated.
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -184,12 +184,28 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def SearchSite(self, url=None):
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
+        """
+
         # https://tvplay.tv3.lt/paieska/Lietuvos%20talentai%20/
         # https://tvplay.tv3.ee/otsi/test%20test%20/
         url = self.__GetSearchUrl()
         url = "{0}/%s/".format(url)
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
     def __GetSearchUrl(self):
         searchInfo = self.searchInfo.get(self.language, None)

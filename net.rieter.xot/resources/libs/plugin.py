@@ -145,7 +145,7 @@ class Plugin(ParameterParser):
                         return
 
                     # init the channel as plugin
-                    self.channelObject.InitChannel()
+                    self.channelObject.init_channel()
                     Logger.info("Loaded: %s", self.channelObject.channelName)
 
                 elif self.keywordCategory in self.params \
@@ -369,13 +369,13 @@ class Plugin(ParameterParser):
         self.process_folder_list(favs)
 
     def process_folder_list(self, favorites=None):
-        """Wraps the channel.ProcessFolderList
+        """Wraps the channel.process_folder_list
 
         :param list[MediaItem] favorites:
 
         """
 
-        Logger.info("Plugin::ProcessFolderList Doing ProcessFolderList")
+        Logger.info("Plugin::process_folder_list Doing process_folder_list")
         try:
             ok = True
 
@@ -384,18 +384,18 @@ class Plugin(ParameterParser):
                 selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
             if favorites is None:
-                watcher = StopWatch("Plugin ProcessFolderList", Logger.instance())
-                media_items = self.channelObject.ProcessFolderList(selected_item)
-                watcher.lap("Class ProcessFolderList finished")
+                watcher = StopWatch("Plugin process_folder_list", Logger.instance())
+                media_items = self.channelObject.process_folder_list(selected_item)
+                watcher.lap("Class process_folder_list finished")
             else:
-                watcher = StopWatch("Plugin ProcessFolderList With Items", Logger.instance())
+                watcher = StopWatch("Plugin process_folder_list With Items", Logger.instance())
                 media_items = favorites
 
             if len(media_items) == 0:
-                Logger.warning("ProcessFolderList returned %s items", len(media_items))
+                Logger.warning("process_folder_list returned %s items", len(media_items))
                 ok = self.__show_empty_information(media_items)
             else:
-                Logger.debug("ProcessFolderList returned %s items", len(media_items))
+                Logger.debug("process_folder_list returned %s items", len(media_items))
 
             kodi_items = []
             for media_item in media_items:  # type: MediaItem
@@ -409,7 +409,7 @@ class Plugin(ParameterParser):
                     action = self.actionPlayVideo
                     folder = False
                 else:
-                    Logger.critical("Plugin::ProcessFolderList: Cannot determine what to add")
+                    Logger.critical("Plugin::process_folder_list: Cannot determine what to add")
                     continue
 
                 # Get the XBMC item
@@ -469,7 +469,7 @@ class Plugin(ParameterParser):
             self.__show_warnings(media_item)
 
             if not media_item.complete:
-                media_item = self.channelObject.ProcessVideoItem(media_item)
+                media_item = self.channelObject.process_video_item(media_item)
 
             # validated the updated media_item
             if not media_item.complete or not media_item.has_media_item_parts():
@@ -549,7 +549,7 @@ class Plugin(ParameterParser):
         item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
         if not item.complete:
             Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
-            item = self.channelObject.ProcessVideoItem(item)
+            item = self.channelObject.process_video_item(item)
 
             if not item.complete:
                 Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
