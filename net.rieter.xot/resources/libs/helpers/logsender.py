@@ -57,11 +57,11 @@ class LogSender:
             }
         }
 
-        for filePath in file_paths:
-            if not os.path.isfile(filePath):
+        for file_path in file_paths:
+            if not os.path.isfile(file_path):
                 continue
-            code = self.__read_file_bytes(filePath)
-            file_name = os.path.split(filePath)
+            code = self.__read_file_bytes(file_path)
+            file_name = os.path.split(file_path)
             params["files"][file_name[-1]] = {"content": code}
 
         headers = {
