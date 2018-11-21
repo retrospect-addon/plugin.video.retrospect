@@ -1032,7 +1032,7 @@ class AddonSettings(object):
         # large number of imports.
         from helpers.templatehelper import TemplateHelper
         th = TemplateHelper(Logger.instance(), template=new_contents)
-        new_contents = th.Transform()
+        new_contents = th.transform()
 
         # Finally we insert the new XML into the old one
         filename = os.path.join(config.rootDir, "resources", "settings.xml")
