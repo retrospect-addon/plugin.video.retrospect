@@ -25,7 +25,6 @@ from urihandler import UriHandler
 from parserdata import ParserData
 from textures import TextureHandler
 
-from helpers.stopwatch import StopWatch
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.encodinghelper import EncodingHelper
 from helpers.jsonhelper import JsonHelper
@@ -163,7 +162,6 @@ class Channel:
         """
 
         AddonSettings.show_settings()
-        pass
 
     def CtMnRefresh(self, item):
         """ refreshes an item's MediaParts
@@ -217,10 +215,10 @@ class Channel:
             url = item.url
 
         # Determine the handlers and process
-        dataParsers = self.__GetDataParsers(url)
+        data_parsers = self.__GetDataParsers(url)
         # Exclude the updaters only
-        dataParsers = filter(lambda p: not p.is_video_updater_only(), dataParsers)
-        if filter(lambda p: p.LogOnRequired, dataParsers):
+        data_parsers = filter(lambda p: not p.is_video_updater_only(), data_parsers)
+        if filter(lambda p: p.LogOnRequired, data_parsers):
             Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.LogOn()
 
@@ -233,10 +231,10 @@ class Channel:
         # Let's retrieve the required data. Main url's
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
-            noCache = item is not None and not item.is_playable() and item.isLive
-            if noCache:
+            no_cache = item is not None and not item.is_playable() and item.isLive
+            if no_cache:
                 Logger.debug("Disabling cache for '%s'", item)
-            data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=noCache)
+            data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=no_cache)
         # Searching a site using SearchSite()
         elif url == "searchSite" or url == "#searchSite":
             Logger.debug("Starting to search")
@@ -250,138 +248,138 @@ class Channel:
             data = ""
 
         # first check if there is a generic pre-processor
-        preProcs = filter(lambda p: p.is_generic_pre_processor(), dataParsers)
-        numPreProcs = len(preProcs)
-        Logger.trace("Processing %s Generic Pre-Processors DataParsers", numPreProcs)
-        if numPreProcs > 1:
+        pre_procs = filter(lambda p: p.is_generic_pre_processor(), data_parsers)
+        num_pre_procs = len(pre_procs)
+        Logger.trace("Processing %s Generic Pre-Processors DataParsers", num_pre_procs)
+        if num_pre_procs > 1:
             # warn for strange results if more than 1 generic pre-processor is present.
             Logger.warning("More than one Generic Pre-Processor is found (%s). They are being processed in the "
-                           "order that Python likes which might result in unexpected result.", numPreProcs)
+                           "order that Python likes which might result in unexpected result.", num_pre_procs)
 
-        for dataParser in preProcs:
+        for data_parser in pre_procs:
             # remove it from the list
-            dataParsers.remove(dataParser)
+            data_parsers.remove(data_parser)
 
             # and process it
-            Logger.debug("Processing %s", dataParser)
-            (data, preItems) = dataParser.PreProcessor(data)
-            items += preItems
+            Logger.debug("Processing %s", data_parser)
+            (data, pre_items) = data_parser.PreProcessor(data)
+            items += pre_items
 
             if isinstance(data, JsonHelper):
                 Logger.debug("Generic preprocessor resulted in JsonHelper data")
 
         # The the other handlers
-        Logger.trace("Processing %s Normal DataParsers", len(dataParsers))
-        handlerJson = None
-        for dataParser in dataParsers:
-            Logger.debug("Processing %s", dataParser)
+        Logger.trace("Processing %s Normal DataParsers", len(data_parsers))
+        handler_json = None
+        for data_parser in data_parsers:
+            Logger.debug("Processing %s", data_parser)
 
             # Check for preprocessors
-            if dataParser.PreProcessor:
+            if data_parser.PreProcessor:
                 Logger.debug("Processing DataParser.PreProcessor")
-                (handlerData, preItems) = dataParser.PreProcessor(data)
-                items += preItems
+                (handler_data, pre_items) = data_parser.PreProcessor(data)
+                items += pre_items
             else:
-                handlerData = data
+                handler_data = data
 
             Logger.debug("Processing DataParser.Parser")
-            if dataParser.Parser is None or (dataParser.Parser == "" and not dataParser.IsJson):
-                if dataParser.Creator:
-                    Logger.warning("No <parser> found for %s. Skipping.", dataParser.Creator)
+            if data_parser.Parser is None or (data_parser.Parser == "" and not data_parser.IsJson):
+                if data_parser.Creator:
+                    Logger.warning("No <parser> found for %s. Skipping.", data_parser.Creator)
                 continue
 
-            if dataParser.IsJson:
-                if handlerJson is None:
+            if data_parser.IsJson:
+                if handler_json is None:
                     # Cache the json requests to improve performance
                     Logger.trace("Caching JSON results for Dataparsing")
-                    if isinstance(handlerData, JsonHelper):
-                        handlerJson = handlerData
+                    if isinstance(handler_data, JsonHelper):
+                        handler_json = handler_data
                     else:
-                        handlerJson = JsonHelper(handlerData, Logger.instance())
+                        handler_json = JsonHelper(handler_data, Logger.instance())
 
-                Logger.trace(dataParser.Parser)
-                parserResults = handlerJson.get_value(fallback=[], *dataParser.Parser)
+                Logger.trace(data_parser.Parser)
+                parser_results = handler_json.get_value(fallback=[], *data_parser.Parser)
 
-                if not isinstance(parserResults, (tuple, list)):
+                if not isinstance(parser_results, (tuple, list)):
                     # if there is just one match, return that as a list
-                    parserResults = [parserResults]
+                    parser_results = [parser_results]
             else:
-                if isinstance(handlerData, JsonHelper):
+                if isinstance(handler_data, JsonHelper):
                     raise ValueError("Cannot perform Regex Parser on JsonHelper.")
                 else:
-                    parserResults = Regexer.do_regex(dataParser.Parser, handlerData)
+                    parser_results = Regexer.do_regex(data_parser.Parser, handler_data)
 
-            Logger.debug("Processing DataParser.Creator for %s items", len(parserResults))
-            for parserResult in parserResults:
-                handlerResult = dataParser.Creator(parserResult)
-                if handlerResult is not None:
-                    if isinstance(handlerResult, list):
-                        items += handlerResult
+            Logger.debug("Processing DataParser.Creator for %s items", len(parser_results))
+            for parser_result in parser_results:
+                handler_result = data_parser.Creator(parser_result)
+                if handler_result is not None:
+                    if isinstance(handler_result, list):
+                        items += handler_result
                     else:
-                        items.append(handlerResult)
+                        items.append(handler_result)
 
         # should we exclude DRM/GEO?
-        hideGeoLocked = AddonSettings.hide_geo_locked_items_for_location(self.language)
-        hideDrmProtected = AddonSettings.hide_drm_items()
-        hidePremium = AddonSettings.hide_premium_items()
-        hideFolders = AddonSettings.hide_restricted_folders()
-        typeToExclude = None
-        if not hideFolders:
-            typeToExclude = "folder"
+        hide_geo_locked = AddonSettings.hide_geo_locked_items_for_location(self.language)
+        hide_drm_protected = AddonSettings.hide_drm_items()
+        hide_premium = AddonSettings.hide_premium_items()
+        hide_folders = AddonSettings.hide_restricted_folders()
+        type_to_exclude = None
+        if not hide_folders:
+            type_to_exclude = "folder"
 
-        oldCount = len(items)
-        if hideDrmProtected:
+        old_count = len(items)
+        if hide_drm_protected:
             Logger.debug("Hiding DRM items")
-            items = filter(lambda i: not i.isDrmProtected or i.type == typeToExclude, items)
-        if hideGeoLocked:
+            items = filter(lambda i: not i.isDrmProtected or i.type == type_to_exclude, items)
+        if hide_geo_locked:
             Logger.debug("Hiding GEO Locked items due to GEO region: %s", self.language)
-            items = filter(lambda i: not i.isGeoLocked or i.type == typeToExclude, items)
-        if hidePremium:
+            items = filter(lambda i: not i.isGeoLocked or i.type == type_to_exclude, items)
+        if hide_premium:
             Logger.debug("Hiding Premium items")
-            items = filter(lambda i: not i.isPaid or i.type == typeToExclude, items)
-            # items = filter(lambda i: not i.isPaid or i.type == "folder", items)
+            items = filter(lambda i: not i.isPaid or i.type == type_to_exclude, items)
 
         cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.instance())
         if not AddonSettings.show_cloaked_items():
             Logger.debug("Hiding Cloaked items")
             items = filter(lambda i: not cloaker.is_cloaked(i.url), items)
         else:
-            cloakedItems = filter(lambda i: cloaker.is_cloaked(i.url), items)
-            for c in cloakedItems:
+            cloaked_items = filter(lambda i: cloaker.is_cloaked(i.url), items)
+            for c in cloaked_items:
                 c.isCloaked = True
 
-        if len(items) != oldCount:
+        if len(items) != old_count:
             Logger.info("Hidden %s items due to DRM/GEO/Premium/cloak filter (Hide Folders=%s)",
-                        oldCount - len(items), hideFolders)
+                        old_count - len(items), hide_folders)
 
         # Check for grouping or not
         limit = AddonSettings.get_list_limit()
-        folderItems = filter(lambda x: x.type.lower() == "folder", items)
+        folder_items = filter(lambda x: x.type.lower() == "folder", items)
 
         # we should also de-duplicate before calculating
-        folderItems = list(set(folderItems))
-        folders = len(folderItems)
+        folder_items = list(set(folder_items))
+        folders = len(folder_items)
 
         if 0 < limit < folders:
             # let's filter them by alphabet if the number is exceeded
             Logger.debug("Creating Groups for list exceeding '%s' folder items. Total folders found '%s'.",
                          limit, folders)
             other = LanguageHelper.get_localized_string(LanguageHelper.OtherChars)
-            titleFormat = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
+            title_format = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
             result = dict()
-            nonGrouped = []
+            non_grouped = []
+            # Should we remove prefixes just as Kodi does?
             # prefixes = ("de", "het", "the", "een", "a", "an")
 
-            for subItem in items:
-                if subItem.dontGroup or subItem.type != "folder":
-                    nonGrouped.append(subItem)
+            for sub_item in items:
+                if sub_item.dontGroup or sub_item.type != "folder":
+                    non_grouped.append(sub_item)
                     continue
 
-                char = subItem.name[0].upper()
+                char = sub_item.name[0].upper()
                 # Should we de-prefix?
                 # for p in prefixes:
-                #     if subItem.name.lower().startswith(p + " "):
-                #         char = subItem.name[len(p) + 1][0].upper()
+                #     if sub_item.name.lower().startswith(p + " "):
+                #         char = sub_item.name[len(p) + 1][0].upper()
 
                 if char.isdigit():
                     char = "0-9"
@@ -389,20 +387,20 @@ class Channel:
                     char = other
 
                 if char not in result:
-                    Logger.trace("Creating Grouped item from: %s", subItem)
+                    Logger.trace("Creating Grouped item from: %s", sub_item)
                     if char == other:
-                        item = mediaitem.MediaItem(titleFormat.replace("'", "") % (char,), "")
+                        item = mediaitem.MediaItem(title_format.replace("'", "") % (char,), "")
                     else:
-                        item = mediaitem.MediaItem(titleFormat % (char.upper(),), "")
+                        item = mediaitem.MediaItem(title_format % (char.upper(),), "")
                     item.thumb = self.noImage
                     item.complete = True
                     # item.set_date(2100 + ord(char[0]), 1, 1, text='')
                     result[char] = item
                 else:
                     item = result[char]
-                item.items.append(subItem)
+                item.items.append(sub_item)
 
-            items = nonGrouped + result.values()
+            items = non_grouped + result.values()
 
         Logger.trace("Found '%s' items", len(items))
         return list(set(items))
@@ -415,89 +413,90 @@ class Channel:
 
         """
 
-        dataParsers = self.__GetDataParsers(item.url)
-        if not dataParsers:
+        data_parsers = self.__GetDataParsers(item.url)
+        if not data_parsers:
             Logger.error("No dataparsers found cannot update item.")
             return item
 
-        dataParsers = filter(lambda d: d.Updater is not None, dataParsers)
-        if len(dataParsers) < 1:
+        data_parsers = filter(lambda d: d.Updater is not None, data_parsers)
+        if len(data_parsers) < 1:
             Logger.warning("No DataParsers with Updaters found.")
             return item
 
-        if len(dataParsers) > 1:
+        if len(data_parsers) > 1:
             Logger.warning("More than 2 DataParsers with Updaters found. Only using first one.")
-        dataParser = dataParsers[0]
+        data_parser = data_parsers[0]
 
-        if not dataParser.Updater:
+        if not data_parser.Updater:
             Logger.error("No videoupdater found cannot update item.")
             return item
 
-        if dataParser.LogOnRequired:
+        if data_parser.LogOnRequired:
             Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.LogOn()
 
-        Logger.debug("Processing Updater from %s", dataParser)
-        return dataParser.Updater(item)
+        Logger.debug("Processing Updater from %s", data_parser)
+        return data_parser.Updater(item)
 
-    def ParseMainList(self, returnData=False):
-        """Parses the mainlist of the channel and returns a list of MediaItems
-
-        This method creates a list of MediaItems that represent all the different
-        programs that are available in the online source. The list is used to fill
-        the ProgWindow.
-
-        Keyword parameters:
-        returnData : [opt] boolean - If set to true, it will return the retrieved
-                                     data as well
-
-        Returns a list of MediaItems that were retrieved.
-
-        """
-
-        items = []
-        if len(self.mainListItems) > 1:
-            if returnData:
-                return self.mainListItems, ""
-            else:
-                return self.mainListItems
-
-        data = UriHandler.open(self.mainListUri, proxy=self.proxy, additional_headers=self.httpHeaders)
-        Logger.trace("Retrieved %s chars as mainlist data", len(data))
-
-        # first process folder items.
-        watch = StopWatch('Mainlist', Logger.instance())
-
-        episodeItems = []
-        if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
-            Logger.trace("Using Regexer for episodes")
-            episodeItems = Regexer.do_regex(self.episodeItemRegex, data)
-            watch.lap("Mainlist Regex complete")
-
-        elif self.episodeItemJson is not None:
-            Logger.trace("Using JsonHelper for episodes")
-            json = JsonHelper(data, Logger.instance())
-            episodeItems = json.get_value(*self.episodeItemJson)
-            watch.lap("Mainlist Json complete")
-
-        Logger.debug('Starting CreateEpisodeItem for %s items', len(episodeItems))
-        for episodeItem in episodeItems:
-            Logger.trace('Starting CreateEpisodeItem for %s', self.channelName)
-            tmpItem = self.CreateEpisodeItem(episodeItem)
-            # catch the return of None
-            if tmpItem:
-                items.append(tmpItem)
-
-        # Filter out the duplicates using the HASH power of a set
-        items = list(set(items))
-
-        watch.lap("MediaItem creation complete")
-        self.mainListItems = items
-
-        if returnData:
-            return items, data
-        else:
-            return items
+    # TODO: Seems like this is no longer used?
+    # def ParseMainList(self, returnData=False):
+    #     """Parses the mainlist of the channel and returns a list of MediaItems
+    #
+    #     This method creates a list of MediaItems that represent all the different
+    #     programs that are available in the online source. The list is used to fill
+    #     the ProgWindow.
+    #
+    #     Keyword parameters:
+    #     returnData : [opt] boolean - If set to true, it will return the retrieved
+    #                                  data as well
+    #
+    #     Returns a list of MediaItems that were retrieved.
+    #
+    #     """
+    #
+    #     items = []
+    #     if len(self.mainListItems) > 1:
+    #         if returnData:
+    #             return self.mainListItems, ""
+    #         else:
+    #             return self.mainListItems
+    #
+    #     data = UriHandler.open(self.mainListUri, proxy=self.proxy, additional_headers=self.httpHeaders)
+    #     Logger.trace("Retrieved %s chars as mainlist data", len(data))
+    #
+    #     # first process folder items.
+    #     watch = StopWatch('Mainlist', Logger.instance())
+    #
+    #     episode_items = []
+    #     if not self.episodeItemRegex == "" and self.episodeItemRegex is not None:
+    #         Logger.trace("Using Regexer for episodes")
+    #         episode_items = Regexer.do_regex(self.episodeItemRegex, data)
+    #         watch.lap("Mainlist Regex complete")
+    #
+    #     elif self.episodeItemJson is not None:
+    #         Logger.trace("Using JsonHelper for episodes")
+    #         json = JsonHelper(data, Logger.instance())
+    #         episode_items = json.get_value(*self.episodeItemJson)
+    #         watch.lap("Mainlist Json complete")
+    #
+    #     Logger.debug('Starting CreateEpisodeItem for %s items', len(episode_items))
+    #     for episode_item in episode_items:
+    #         Logger.trace('Starting CreateEpisodeItem for %s', self.channelName)
+    #         tmp_item = self.CreateEpisodeItem(episode_item)
+    #         # catch the return of None
+    #         if tmp_item:
+    #             items.append(tmp_item)
+    #
+    #     # Filter out the duplicates using the HASH power of a set
+    #     items = list(set(items))
+    #
+    #     watch.lap("MediaItem creation complete")
+    #     self.mainListItems = items
+    #
+    #     if returnData:
+    #         return items, data
+    #     else:
+    #         return items
 
     def SearchSite(self, url=None):
         """Creates an list of items by searching the site
@@ -529,8 +528,8 @@ class Channel:
                 Logger.debug("Searching for '%s'", needle)
                 # convert to HTML
                 needle = HtmlEntityHelper.url_encode(needle)
-                searchUrl = url % (needle, )
-                temp = mediaitem.MediaItem("Search", searchUrl)
+                search_url = url % (needle, )
+                temp = mediaitem.MediaItem("Search", search_url)
                 return self.ProcessFolderList(temp)
 
         return items
@@ -556,11 +555,10 @@ class Channel:
         if not isinstance(resultSet, dict):
             Logger.critical("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
             raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
-            # return None
+
         elif "title" not in resultSet or "url" not in resultSet:
             Logger.warning("No ?P<title> or ?P<url> in resultSet")
             raise LookupError("No ?P<title> or ?P<url> in resultSet")
-            # return None
 
         # the URL
         url = resultSet["url"]
@@ -713,11 +711,10 @@ class Channel:
         if not isinstance(resultSet, dict):
             Logger.critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
             raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
-            # return None
+
         elif "title" not in resultSet or "url" not in resultSet:
             Logger.warning("No ?P<title> or ?P<url> in resultSet")
             raise LookupError("No ?P<title> or ?P<url> in resultSet")
-            # return None
 
         # The URL
         url = resultSet["url"]
@@ -765,11 +762,10 @@ class Channel:
         if not isinstance(resultSet, dict):
             Logger.critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
             raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
-            # return None
+
         elif "title" not in resultSet or "url" not in resultSet:
             Logger.warning("No ?P<title> or ?P<url> in resultSet")
             raise LookupError("No ?P<title> or ?P<url> in resultSet")
-            # return None
 
         # The URL
         url = resultSet["url"]
@@ -841,6 +837,7 @@ class Channel:
             item.complete = True
         return item
 
+    # TODO: remove this?
     def DownloadVideoItem(self, item):
         """Downloads an existing MediaItem with more data.
 
@@ -873,24 +870,23 @@ class Channel:
 
             i = 1
             bitrate = AddonSettings.get_max_stream_bitrate(self)
-            for mediaItemPart in item.MediaItemParts:
-                Logger.info("Trying to download %s", mediaItemPart)
-                stream = mediaItemPart.get_media_stream_for_bitrate(bitrate)
-                downloadUrl = stream.Url
-                extension = UriHandler.get_extension_from_url(downloadUrl)
+            for media_item_part in item.MediaItemParts:
+                Logger.info("Trying to download %s", media_item_part)
+                stream = media_item_part.get_media_stream_for_bitrate(bitrate)
+                download_url = stream.Url
+                extension = UriHandler.get_extension_from_url(download_url)
                 if len(item.MediaItemParts) > 1:
-                    saveFileName = "%s-Part_%s.%s" % (item.name, i, extension)
+                    save_file_name = "%s-Part_%s.%s" % (item.name, i, extension)
                 else:
-                    saveFileName = "%s.%s" % (item.name, extension)
-                Logger.debug(saveFileName)
+                    save_file_name = "%s.%s" % (item.name, extension)
+                Logger.debug(save_file_name)
 
-                # headers = item.HttpHeaders + mediaItemPart.HttpHeaders
                 headers = item.HttpHeaders.copy()
-                headers.update(mediaItemPart.HttpHeaders)
+                headers.update(media_item_part.HttpHeaders)
 
-                progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                folderName = XbmcWrapper.show_folder_selection('Select download destination for "%s"' % (saveFileName,))
-                UriHandler.download(downloadUrl, saveFileName, folderName, progressDialog, proxy=self.proxy,
+                progress_dialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
+                folder_name = XbmcWrapper.show_folder_selection('Select download destination for "%s"' % (save_file_name,))
+                UriHandler.download(download_url, save_file_name, folder_name, progress_dialog, proxy=self.proxy,
                                     additional_headers=headers)
                 i += 1
 
@@ -957,59 +953,59 @@ class Channel:
         # should we download items?
         Logger.debug("Checking for not streamable parts")
         # We need to substract the download time from processing time
-        downloadStart = datetime.now()
+        download_start = datetime.now()
         for part in item.MediaItemParts:
+            # TODO: remove the CanStream and Download stuff
             if not part.CanStream:
                 stream = part.get_media_stream_for_bitrate(bitrate)
                 if not stream.Downloaded:
                     Logger.debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
 
                     # we need a unique filename
-                    fileName = EncodingHelper.encode_md5(stream.Url)
+                    file_name = EncodingHelper.encode_md5(stream.Url)
                     extension = UriHandler.get_extension_from_url(stream.Url)
 
                     # now we force the busy dialog to close, else we cannot cancel the download
                     # setResolved will not work.
                     LockWithDialog.close_busy_dialog()
 
-                    # headers = item.HttpHeaders + part.HttpHeaders
                     headers = item.HttpHeaders.copy()
                     headers.update(part.HttpHeaders)
 
                     Logger.error(headers)
-                    streamFilename = "xot.%s.%skbps-%s.%s" % (fileName, stream.Bitrate, item.name, extension)
-                    progressDialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                    cacheFile = UriHandler.download(stream.Url, streamFilename, self.GetDefaultCachePath(),
-                                                    progressDialog.progress_update, proxy=self.proxy,
-                                                    additional_headers=headers)
+                    stream_filename = "xot.%s.%skbps-%s.%s" % (file_name, stream.Bitrate, item.name, extension)
+                    progress_dialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
+                    cache_file = UriHandler.download(stream.Url, stream_filename, self.GetDefaultCachePath(),
+                                                     progress_dialog.progress_update, proxy=self.proxy,
+                                                     additional_headers=headers)
 
-                    if cacheFile == "":
+                    if cache_file == "":
                         Logger.error("Cannot download stream %s \nFrom: %s", stream, part)
                         return
 
-                    if cacheFile.startswith("\\\\"):
-                        cacheFile = cacheFile.replace("\\", "/")
-                        stream.Url = "file:///%s" % (cacheFile,)
+                    if cache_file.startswith("\\\\"):
+                        cache_file = cache_file.replace("\\", "/")
+                        stream.Url = "file:///%s" % (cache_file,)
                     else:
-                        stream.Url = "file://%s" % (cacheFile,)
-                        # stream.Url = cacheFile
+                        stream.Url = "file://%s" % (cache_file,)
+
                     stream.Downloaded = True
 
         # We need to substract the download time from processing time
-        downloadTime = datetime.now() - downloadStart
-        downloadDuration = 1000 * downloadTime.seconds + downloadTime.microseconds / 1000
+        download_time = datetime.now() - download_start
+        download_duration = 1000 * download_time.seconds + download_time.microseconds / 1000
 
         # Set item as downloaded
         item.downloaded = True
 
         # get the playlist
-        (playList, srt) = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
+        (play_list, srt) = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
 
         # call for statistics with timing
-        Statistics.register_playback(self, item, Initializer.StartTime, -downloadDuration)
+        Statistics.register_playback(self, item, Initializer.StartTime, -download_duration)
 
         # if the item urls have been updated, don't start playback, but return
-        return playList, srt
+        return play_list, srt
 
     def GetDefaultCachePath(self):
         """ returns the default cache path for this channel
@@ -1046,7 +1042,6 @@ class Channel:
             return "%s swfvfy=%s" % (url, self.swfUrl)
         else:
             Logger.debug("Using Legacy (Kodi 16 and older) RTMP parameters")
-            # return "%s swfurl=%s swfvfy=true" % (url, self.swfUrl)
             return "%s swfurl=%s swfvfy=1" % (url, self.swfUrl)
 
     def GetImageLocation(self, image):
@@ -1059,10 +1054,6 @@ class Channel:
         The full local path to the requested image.
 
         """
-
-        # if Config.CdnUrl is None:
-        #     return os.path.join(os.path.dirname(sys.modules[self.__module__].__file__), image)
-        # return "%s%s" % (Config.CdnUrl, image)
 
         return TextureHandler.instance().get_texture_uri(self, image)
 
@@ -1138,7 +1129,7 @@ class Channel:
         """ Fetches a list of dataparsers that are valid for this URL. The Parsers and Creators can then
         be used to parse the data from the url. The first match is returned.
 
-        If none matches, the self.dataParsers dictionary is checked for generic dataparsers (marked with *).
+        If none matches, the self.data_parsers dictionary is checked for generic dataparsers (marked with *).
 
         If no dataparsers are defined at all, they will be created based on the old regular expressions or the
         JSON queries. The regular expression suppersede the JSON.
@@ -1195,13 +1186,13 @@ class Channel:
 
         # Find the parsers
         # watch = stopwatch.StopWatch('DataParsers', Logger.instance())
-        dataParsers = None
+        data_parsers = None
         if url.startswith("#"):
             # let's handle the keyword url's
             Logger.trace("Found URL with labeled DataParser keyword [%s]", url)
             if url in self.dataParsers.keys():
                 # use the parsers that is associated with No url (the None Parser)
-                dataParsers = self.dataParsers[url]
+                data_parsers = self.dataParsers[url]
             else:
                 Logger.warning("no DataParser was found keyword [%s]. Continuing with other options.", url)
         else:
@@ -1212,26 +1203,26 @@ class Channel:
             # filter them in order
             for key in keys:
                 # for each key we see if we have filtered results
-                dataParsers = filter(lambda p: p.matches(url),
+                data_parsers = filter(lambda p: p.matches(url),
                                      self.dataParsers[key])
-                if dataParsers:
-                    Logger.trace("Found %s direct DataParsers matches", len(dataParsers))
+                if data_parsers:
+                    Logger.trace("Found %s direct DataParsers matches", len(data_parsers))
                     break
             # watch.lap("DataParsers filtered")
 
-        if not dataParsers:
+        if not data_parsers:
             # Let's use a fallback
             key = "*"
-            dataParsers = self.dataParsers.get(key, None)
+            data_parsers = self.dataParsers.get(key, None)
 
         # watch.lap("DataParsers processed")
 
-        if not dataParsers:
+        if not data_parsers:
             Logger.error("No DataParsers found for '%s'", url)
             return []
         else:
-            Logger.debug("Found %s DataParsers for '%s'", len(dataParsers), url)
-        return dataParsers
+            Logger.debug("Found %s DataParsers for '%s'", len(data_parsers), url)
+        return data_parsers
 
     def __str__(self):
         """Returns a string representation of the current channel."""
@@ -1274,8 +1265,8 @@ class Channel:
         if other is None:
             return 1
 
-        compVal = cmp(self.sortOrder, other.sortOrder)
-        if compVal == 0:
-            compVal = cmp(self.channelName, self.channelName)
+        comp_val = cmp(self.sortOrder, other.sortOrder)
+        if comp_val == 0:
+            comp_val = cmp(self.channelName, self.channelName)
 
-        return compVal
+        return comp_val
