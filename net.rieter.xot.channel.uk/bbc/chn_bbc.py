@@ -43,13 +43,13 @@ class Channel(chn_class.Channel):
                                 .replace("(?<", "(?P<")
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddLiveChannels,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         # Standard items
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
+        self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
         self.folderItemRegex = '<a href="(?<url>/iplayer/brand/[^"]+)"[^>]*>\W+<i[^>]+></i>\W+<span[^>]+>' \
                                '(?<title>[^<]+)<'.replace("(?<", "(?P<")
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
+        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
         self.videoItemRegex = '<a\W+href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+' \
                               '</div>\W+(?:<div[^>]+>[^>]+</div>\W+)?[\w\W]{0,500}?<source ' \
                               'srcset="(?<thumburl>[^"]+)"[\w\W]{0,500}?<div class="secondary">' \
@@ -82,7 +82,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -98,12 +98,12 @@ class Channel(chn_class.Channel):
         """
 
         Logger.trace(resultSet)
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is not None:
             item.name = "Shows: %s" % (item.name.upper(),)
         return item
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -133,7 +133,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -150,7 +150,7 @@ class Channel(chn_class.Channel):
 
         Logger.trace(resultSet)
 
-        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+        item = chn_class.Channel.create_folder_item(self, resultSet)
         brand = item.url[item.url.rindex("/") + 1:]
 
         # to match the first video regex: item.url = "http://www.bbc.co.uk/programmes/%s/episodes/player" % (brand, )

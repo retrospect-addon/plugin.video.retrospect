@@ -38,7 +38,7 @@ class Channel(chn_class.Channel):
         # setup the intial listing
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, preprocessor=self.AddLive,
                             parser='<h3>([^>]+)</h3>[\w\W]+?<a[^>]+href\W+"([^"]+)"[^>]*>meer',
-                            creator=self.CreateEpisodeItem)
+                            creator=self.create_episode_item)
 
         # videos on the main list
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
@@ -93,7 +93,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

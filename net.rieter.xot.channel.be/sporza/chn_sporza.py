@@ -55,7 +55,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddLiveChannel,
                             parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
-                            creator=self.CreateEpisodeItem)
+                            creator=self.create_episode_item)
 
         # extract the right section, although it is hard to determine the actual one
         self._AddDataParser("*", preprocessor=self.ExtractVideoSection)
@@ -111,7 +111,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

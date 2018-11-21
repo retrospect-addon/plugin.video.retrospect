@@ -34,14 +34,14 @@ class Channel(chn_class.Channel):
         # self.mainListUri = "http://trailers.apple.com/ca/home/feeds/most_pop.json"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, parser=(), json=True, creator=self.CreateEpisodeItem)
+        self._AddDataParser(self.mainListUri, parser=(), json=True, creator=self.create_episode_item)
         self._AddDataParser("*", json=True, preprocessor=self.GetMovieId,
                             parser=("clips", ), creator=self.CreateVideoItem)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """

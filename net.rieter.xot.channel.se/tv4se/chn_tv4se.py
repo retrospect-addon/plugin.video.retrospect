@@ -60,23 +60,23 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri,
                             preprocessor=self.AddCategoriesAndSpecials, json=True,
                             matchType=ParserData.MatchExact,  # requiresLogon=True,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemJson, creator=self.create_episode_item)
 
         # favRegex = '<a href="/program/(?<nid>[^"]+)"><img[^>]+alt="(?<name>[^"]+)"[^>]+src="(?<program_image>[^"]+)'
         # self._AddDataParser("http://www.tv4play.se/program/favourites", name="Favourite parser",
         #                     requiresLogon=True,
-        #                     parser=Regexer.from_expresso(favRegex), creator=self.CreateEpisodeItem)
+        #                     parser=Regexer.from_expresso(favRegex), creator=self.create_episode_item)
 
         self._AddDataParser("http://webapi.tv4play.se/play/categories.json", json=True, matchType=ParserData.MatchExact,
                             parser=(), creator=self.CreateCategoryItem)
         self._AddDataParser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemJson, creator=self.create_episode_item)
 
         self._AddDataParser("http://tv4live-i.akamaihd.net/hls/live/", updater=self.UpdateLiveItem)
         self._AddDataParser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1", updater=self.UpdateLiveItem)
 
         self.videoItemJson = ("results",)
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList, json=True,
+        self._AddDataParser("*", preprocessor=self.pre_process_folder_list, json=True,
                             parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
 
         #===============================================================================================================
@@ -195,7 +195,7 @@ class Channel(chn_class.Channel):
     #     self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
     #     return True
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -384,7 +384,7 @@ class Channel(chn_class.Channel):
     #                            additionalHeaders=additionalHeaders)
     #     return data, items
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:

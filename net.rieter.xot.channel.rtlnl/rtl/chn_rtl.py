@@ -39,14 +39,14 @@ class Channel(chn_class.Channel):
         self.episodeItemJson = ("abstracts",)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.AddLiveStreams,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemJson, creator=self.create_episode_item)
 
         self.videoItemJson = ("material",)
         self.folderItemJson = ("seasons",)
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
+        self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
         self._AddDataParser("*", json=True,
                             parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        self._AddDataParser("*", parser=self.folderItemJson, creator=self.CreateFolderItem, json=True)
+        self._AddDataParser("*", parser=self.folderItemJson, creator=self.create_folder_item, json=True)
 
         #===============================================================================================================
         # non standard items
@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -148,7 +148,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -215,7 +215,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:

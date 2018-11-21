@@ -48,7 +48,7 @@ class Channel(chn_class.Channel):
         self.episodeItemRegex = '<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self._AddDataParser(self.mainListUri,
                             preprocessor=self.AddSearchAndGenres,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
                               '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
                             updater=self.UpdateVideoItem)
         self.pageNavigationRegex = '<a href="(/[^?]+\?[^"]*sida=)(\d+)(&amp;sort=[^"]+)?'
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         self.__genre = None
@@ -143,7 +143,7 @@ class Channel(chn_class.Channel):
         url = "http://www.oppetarkiv.se/sok/?q=%s"
         return chn_class.Channel.search_site(self, url)
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -158,11 +158,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        item = chn_class.Channel.CreatePageItem(self, resultSet)
+        item = chn_class.Channel.create_page_item(self, resultSet)
         item.url = "%s&embed=true" % (item.url,)
         return item
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

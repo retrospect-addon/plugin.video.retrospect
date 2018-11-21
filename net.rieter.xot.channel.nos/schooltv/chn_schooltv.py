@@ -39,11 +39,11 @@ class Channel(chn_class.Channel):
         self._AddDataParser("http://m.schooltv.nl/api/v1/programmas.json", json=True,
                             name="All Shows (API v1)",
                             preprocessor=self.AddCategories,
-                            parser=(), creator=self.CreateEpisodeItem)
+                            parser=(), creator=self.create_episode_item)
 
         self._AddDataParser("http://m.schooltv.nl/api/v1/programmas/tips.json?size=100", json=True,
                             name="Tips (API v1)",
-                            parser=(), creator=self.CreateEpisodeItem)
+                            parser=(), creator=self.create_episode_item)
 
         self._AddDataParsers(["http://m.schooltv.nl/api/v1/programmas/",
                               "http://m.schooltv.nl/api/v1/categorieen/",
@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -151,7 +151,7 @@ class Channel(chn_class.Channel):
             # We should list programs instead of videos, so just prefill them here.
             for program in data.get_value():
                 if age in program['ageGroups']:
-                    ageItem.items.append(self.CreateEpisodeItem(program))
+                    ageItem.items.append(self.create_episode_item(program))
         items.append(ages)
 
         Logger.debug("Pre-Processing finished")

@@ -57,7 +57,7 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
                             preprocessor=self.ExtractJson,
-                            parser=(), creator=self.CreateEpisodeItem)
+                            parser=(), creator=self.create_episode_item)
 
         self._AddDataParser("*", json=True,
                             parser=("stream", ),
@@ -66,7 +66,7 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("*", json=True,
                             parser=("pagination", ),
-                            creator=self.CreatePageItem)
+                            creator=self.create_page_item)
 
         self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
@@ -117,7 +117,7 @@ class Channel(chn_class.Channel):
         json.json = result
         return json, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         Logger.trace(resultSet)
         title = resultSet["title"].replace("-", " ").title()
 
@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         item.HttpHeaders = self.httpHeaders
         return item
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:

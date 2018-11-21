@@ -61,7 +61,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri, name="Main A-Z listing",
                             preprocessor=self.AddCategories,
                             matchType=ParserData.MatchExact,
-                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+                            parser=episodeRegex, creator=self.create_episode_item)
 
         self._AddDataParser("#channels", name="Main channel name listing",
                             preprocessor=self.ListChannels)
@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
                       '(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
         folderRegex = Regexer.from_expresso(folderRegex)
         self._AddDataParser("*", name="Folder/Season parser",
-                            parser=folderRegex, creator=self.CreateFolderItem)
+                            parser=folderRegex, creator=self.create_folder_item)
 
         videoRegex = '<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
                      '<div[^>]*>\W*<h[23][^>]*>\s*(?<title>[^<]+)\s*(?:<br />\s*)*</h[23]>\W*' \
@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
     def CreateCategory(self, resultSet):
         # https://search.vrt.be/suggest?facets[categories]=met-audiodescriptie
         resultSet["url"] = "https://search.vrt.be/suggest?facets[categories]=%(catid)s" % resultSet
-        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+        item = chn_class.Channel.create_folder_item(self, resultSet)
         if item is not None and item.thumb and item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
 
@@ -353,14 +353,14 @@ class Channel(chn_class.Channel):
             resultSet["url"] = resultSet["targetUrl"]
         resultSet["thumburl"] = resultSet["thumbnail"]
 
-        return chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        return chn_class.Channel.create_episode_item(self, resultSet)
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         if self.__currentChannel is not None and resultSet["channel"] != self.__currentChannel:
             Logger.debug("Skipping items due to channel mismatch: %s", resultSet)
             return None
 
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is None:
             return None
 
@@ -375,8 +375,8 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         return item
 
-    def CreateFolderItem(self, resultSet):
-        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+    def create_folder_item(self, resultSet):
+        item = chn_class.Channel.create_folder_item(self, resultSet)
         if item is None:
             return None
 

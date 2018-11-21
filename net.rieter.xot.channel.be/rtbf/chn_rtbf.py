@@ -45,7 +45,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddCategoryAndLiveItems,
                             parser=episodeRegex,
-                            creator=self.CreateEpisodeItem)
+                            creator=self.create_episode_item)
 
         self._AddDataParser("http://www.rtbf.be/news/api/menu?site=media", json=True,
                             matchType=ParserData.MatchExact,
@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
         pageRegex = '<li class="[^a][^"]+">\W+<a class="rtbf-pagination__link" href="([^"]+&p=)(\d+)"'
         self._AddDataParser("*",
                             # preprocessor=self.ExtractVideoSection,
-                            parser=pageRegex, creator=self.CreatePageItem)
+                            parser=pageRegex, creator=self.create_page_item)
 
         self.swfUrl = "http://www.static.rtbf.be/rtbf/embed/js/vendor/jwplayer/jwplayer.flash.swf"
         # ==========================================================================================
@@ -121,8 +121,8 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+    def create_episode_item(self, resultSet):
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is None:
             return item
 
@@ -145,15 +145,15 @@ class Channel(chn_class.Channel):
         return item
     #
     # def CreateLiveChannelItem(self, resultSet):
-    #     item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+    #     item = chn_class.Channel.create_episode_item(self, resultSet)
     #     if item is None:
     #         return item
     #
     #     item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, resultSet["id"])
     #     return item
 
-    def CreatePageItem(self, resultSet):
-        item = chn_class.Channel.CreatePageItem(self, resultSet)
+    def create_page_item(self, resultSet):
+        item = chn_class.Channel.create_page_item(self, resultSet)
         url = "%s/auvio/archives%s%s" % (self.baseUrl, HtmlEntityHelper.url_decode(resultSet[0]), resultSet[1])
         item.url = url
         return item

@@ -97,15 +97,15 @@ class Channel(chn_class.Channel):
                              name="Parser for main series overview pages",
                              preprocessor=self.ExtractTiles,
                              parser=episodeParser,
-                             creator=self.CreateEpisodeItem)
+                             creator=self.create_episode_item)
 
         # very similar parser as the Live Channels!
         videoParser = Regexer.from_expresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)'
-                                           '"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+'
-                                           'data-scorecard=\'(?<videodata>[^\']*)\'[^>]*>\W+<div[^>]+>\W+'
-                                           '<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
-                                           'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)'
-                                           '</h2>\W+<p>(?<subtitle>[^<]*)</p>')
+                                            '"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+'
+                                            'data-scorecard=\'(?<videodata>[^\']*)\'[^>]*>\W+<div[^>]+>\W+'
+                                            '<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
+                                            'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)'
+                                            '</h2>\W+<p>(?<subtitle>[^<]*)</p>')
         self._AddDataParsers(["https://www.npostart.nl/media/series/", "https://www.npostart.nl/search/extended", "https://www.npostart.nl/media/collections/"],
                              name="Parser for shows on the main series sub pages, the search and the genres",
                              preprocessor=self.ExtractTiles,
@@ -123,7 +123,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("https://www.npostart.nl/ums/accounts/@me/favourites",
                             preprocessor=self.ExtractTiles,
                             parser=episodeParser,
-                            creator=self.CreateEpisodeItem,
+                            creator=self.create_episode_item,
                             requiresLogon=True)
 
         # Alpha listing based on JSON interface
@@ -519,9 +519,9 @@ class Channel(chn_class.Channel):
             items.append(subItem)
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """ Create a video item """
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
 
         # Update the URL
         # https://www.npostart.nl/media/series/POW_03094258/episodes?page=2&tileMapping=dedicated&tileType=asset

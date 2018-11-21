@@ -45,25 +45,25 @@ class Channel(chn_class.Channel):
         self._AddDataParser(
             self.mainListUri,
             parser=Regexer.from_expresso('<a [hd][^>]*ata-(?<Type>area|sport)="(?<Url>[^"]+)[^>]*>'
-                                        '(?<Title>[^<]+)</a>'),
-            creator=self.CreateFolderItem
+                                         '(?<Title>[^<]+)</a>'),
+            creator=self.create_folder_item
         )
 
         self._AddDataParser(
             self.mainListUri,
             parser=Regexer.from_expresso('<a[^>]+href="/video/(?<Type>filter|meest_bekeken)/?'
-                                        '(?<Url>[^"]*)">[^<]*</a>\W+<h1[^>]*>(?<Title>[^<;]+)'
-                                        '(?:&#39;s){0,1}</h1>'),
-            creator=self.CreateFolderItem
+                                         '(?<Url>[^"]*)">[^<]*</a>\W+<h1[^>]*>(?<Title>[^<;]+)'
+                                         '(?:&#39;s){0,1}</h1>'),
+            creator=self.create_folder_item
         )
 
         self._AddDataParser(
             "https://www.foxsports.nl/video/filter/fragments/",
             preprocessor=self.AddPages,
             parser=Regexer.from_expresso('<img[^>]+src=\'(?<Thumb>[^\']+)\'[^>]*>\W+</picture>\W+'
-                                        '<span class="[^"]+play[\w\W]{0,500}?<h1[^>]*>\W+<a href="'
-                                        '(?<Url>[^"]+)"[^>]*>(?<Title>[^<]+)</a>\W+</h1>\W+<span'
-                                        '[^>]*>(?<Date>[^>]+)</span>'),
+                                         '<span class="[^"]+play[\w\W]{0,500}?<h1[^>]*>\W+<a href="'
+                                         '(?<Url>[^"]+)"[^>]*>(?<Title>[^<]+)</a>\W+</h1>\W+<span'
+                                         '[^>]*>(?<Date>[^>]+)</span>'),
             creator=self.CreateVideoItem
         )
 
@@ -111,7 +111,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:

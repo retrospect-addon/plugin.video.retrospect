@@ -85,14 +85,14 @@ class Channel(chn_class.Channel):
         self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.AddSearch,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
         self._AddDataParser("*", preprocessor=self.RemoveClips,
                             parser=self.videoItemRegex, creator=self.CreateVideoItem)
 
         self.folderItemRegex = Regexer.from_expresso(self.folderItemRegex)
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
+        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
 
         # Add an updater
         self._AddDataParser("*", updater=self.UpdateVideoItem)
@@ -146,7 +146,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def CreateVideoItem(self, resultSet):
-        item = self.CreateEpisodeItem(resultSet)
+        item = self.create_episode_item(resultSet)
         if item is None:
             return None
 

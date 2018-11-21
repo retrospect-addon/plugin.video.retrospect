@@ -176,7 +176,7 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
                             name="Search Pages", json=True,
-                            parser=("meta", ), creator=self.CreatePageItem)
+                            parser=("meta", ), creator=self.create_page_item)
 
         # Others
         self._AddDataParser("*", json=True,
@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
                             updater=self.UpdateVideoItem)
 
         self._AddDataParser("*", json=True,
-                            parser=("meta", ), creator=self.CreatePageItem)
+                            parser=("meta", ), creator=self.create_page_item)
 
         #===========================================================================================
         # non standard items
@@ -326,7 +326,7 @@ class Channel(chn_class.Channel):
             item.fanart = item.thumb
         return item
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -344,7 +344,7 @@ class Channel(chn_class.Channel):
         if "totalPages" not in resultSet:
             return None
 
-        Logger.debug("Starting CreatePageItem")
+        Logger.debug("Starting create_page_item")
 
         # current page?
         pageUriPart = "page%5Bnumber%5D="

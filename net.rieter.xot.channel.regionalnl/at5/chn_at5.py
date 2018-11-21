@@ -40,7 +40,7 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         epsideItemRegex = '<option value="(\d+)"[^>]*>([^<]+)'
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=epsideItemRegex, creator=self.CreateEpisodeItem,
+                            parser=epsideItemRegex, creator=self.create_episode_item,
                             preprocessor=self.AddLiveChannel)
 
         # Main video items
@@ -56,7 +56,7 @@ class Channel(chn_class.Channel):
         self.pageNavigationRegexIndex = 1
         pageNavigationRegex = '<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
         self._AddDataParser("*",
-                            parser=pageNavigationRegex, creator=self.CreatePageItem)
+                            parser=pageNavigationRegex, creator=self.create_page_item)
 
         self._AddDataParser("#livestream", updater=self.UpdateLiveStream)
 
@@ -70,7 +70,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """

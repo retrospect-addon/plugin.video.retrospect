@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         # self.episodeItemRegex = '<name>([^-]+) - (\d+)-(\d+)-(\d+)[^<]*</name>'
         # self._AddDataParser(self.mainListUri, preprocessor=self.AddEpisodePaging,
-        #                     parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        #                     parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = '<(?:entry|item)>([\w\W]+?)</(?:entry|item)>'
         self._AddDataParser("http://nl.hardware.info/tv/rss-private/streaming",
@@ -48,7 +48,7 @@ class Channel(chn_class.Channel):
         self.pageNavigationIndicationRegex = '<page>(\d+)</page>'
         self.pageNavigationRegex = '<page>(\d+)</page>'
         self.pageNavigationRegexIndex = 0
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -86,13 +86,13 @@ class Channel(chn_class.Channel):
         nrItems = xml.get_single_node_content("openSearch:totalResults")
 
         for index in range(1, int(nrItems), itemsPerPage):
-            items.append(self.CreateEpisodeItem([index, itemsPerPage]))
+            items.append(self.create_episode_item([index, itemsPerPage]))
             pass
         # Continue working normal!
 
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """

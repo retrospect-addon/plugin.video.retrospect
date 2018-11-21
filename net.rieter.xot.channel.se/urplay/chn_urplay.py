@@ -42,13 +42,13 @@ class Channel(chn_class.Channel):
                             name="Show parser with categories",
                             matchType=ParserData.MatchExact,
                             preprocessor=self.AddCategories,
-                            parser=programReg, creator=self.CreateEpisodeItem)
+                            parser=programReg, creator=self.create_episode_item)
 
         self._AddDataParser("http://urplay.se/bladdra/",
                             name="Category show parser",
                             matchType=ParserData.MatchStart,
                             parser=programReg,
-                            creator=self.CreateEpisodeItem)
+                            creator=self.create_episode_item)
 
         # Categories
         catReg = '<a[^>]+href="(?<url>[^"]+)">\W*<img[^>]+data-src="(?<thumburl>[^"]+)' \
@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
             resultSet['thumburl'] = "%s/%s" % (self.baseUrl, resultSet["thumburl"])
 
         resultSet["url"] = "%s?rows=1000&start=0" % (resultSet["url"],)
-        return self.CreateFolderItem(resultSet)
+        return self.create_folder_item(resultSet)
 
     def AddCategories(self, data):
         """Performs pre-process actions for data processing
@@ -143,7 +143,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

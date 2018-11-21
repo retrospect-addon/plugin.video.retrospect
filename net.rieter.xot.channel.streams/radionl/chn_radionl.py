@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
 
         * loading of the data from the item.url
         * perform pre-processing actions
-        * creates a sorted list folder items using self.folderItemRegex and self.CreateFolderItem
+        * creates a sorted list folder items using self.folderItemRegex and self.create_folder_item
         * creates a sorted list of media items using self.videoItemRegex and self.CreateVideoItem
         * create page items using self.ProcessPageNavigation
 

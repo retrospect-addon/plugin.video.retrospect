@@ -70,7 +70,7 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/",
                             name="Main show listing PlayPlay API", json=True,
-                            parser=("data", "items"), creator=self.CreateEpisodeItem)
+                            parser=("data", "items"), creator=self.create_episode_item)
 
         self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/series/items",
                             name="Main video listing PlayPlay API", json=True,
@@ -93,7 +93,7 @@ class Channel(chn_class.Channel):
         #     Logger.Debug("Doing a JSON version of MTV")
         #     self.episodeItemJson = ()
         #     self.videoItemJson = ()
-        #     self.CreateEpisodeItem = self.CreateEpisodeItemJson
+        #     self.create_episode_item = self.CreateEpisodeItemJson
         #     self.CreateVideoItem = self.CreateVideoItemJson
         # else:
         #     Logger.Debug("Doing a HTML version of MTV")
@@ -104,7 +104,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         Logger.trace(resultSet)
 
         title = resultSet["title"]

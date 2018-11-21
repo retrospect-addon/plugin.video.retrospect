@@ -51,7 +51,7 @@ class Channel(chn_class.Channel):
         episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser=episodeRegex,
-                            creator=self.CreateEpisodeItem)
+                            creator=self.create_episode_item)
 
         videoRegex = '<a(?:[^>]+data-background-image="(?<thumburl>[^"]+)")?[^>]+href="(?<url>/video/[^"]+)"[^>]*>(?:\s+<div[^>]+>\s+<div [^>]+data-background-image="(?<thumburl2>[^"]+)")?[\w\W]{0,1000}?<h3[^>]*>(?:<span>)?(?<title>[^<]+)(?:</span>)?</h3>(?:\s+(?:<div[^>]*>\s+)?<div[^>]*>[^<]+</div>\s+<div[^>]+data-timestamp="(?<timestamp>\d+)")?'
         videoRegex = Regexer.from_expresso(videoRegex)
@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
         pageRegex = Regexer.from_expresso(pageRegex)
         self._AddDataParser("*", matchType=ParserData.MatchExact,
                             parser=pageRegex,
-                            creator=self.CreatePageItem)
+                            creator=self.create_page_item)
 
         self._AddDataParser("/api/program/fixed/", name="API paging",
                             matchType=ParserData.MatchContains,
@@ -134,7 +134,7 @@ class Channel(chn_class.Channel):
         AddonSettings.set_setting("viervijfzes_refresh_token", refreshToken)
         return True
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is None:
             return item
 
@@ -158,11 +158,11 @@ class Channel(chn_class.Channel):
         item.thumb = item.thumb or self.noImage
         return item
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         resultSet["url"] = "{0}/{1}".format(resultSet["url"], resultSet["title"])
         resultSet["title"] = str(int(resultSet["title"]) + 1)
 
-        item = self.CreateFolderItem(resultSet)
+        item = self.create_folder_item(resultSet)
         item.type = "page"
         return item
 

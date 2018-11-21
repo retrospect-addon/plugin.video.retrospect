@@ -106,14 +106,14 @@ class Channel:
         self.episodeItemJson = None     # : used for the ParseMainList
         self.videoItemRegex = ''        # : used for the ParseMainList
         self.videoItemJson = None       # : used for the ParseMainList
-        self.folderItemRegex = ''       # : used for the CreateFolderItem
-        self.folderItemJson = None      # : used for the CreateFolderItem
+        self.folderItemRegex = ''       # : used for the create_folder_item
+        self.folderItemJson = None      # : used for the create_folder_item
         self.mediaUrlRegex = ''         # : used for the UpdateVideoItem
         self.mediaUrlJson = None        # : used for the UpdateVideoItem
 
         """
             The ProcessPageNavigation method will parse the current data using the pageNavigationRegex. It will
-            create a pageItem using the CreatePageItem method. If no CreatePageItem method is in the channel,
+            create a pageItem using the create_page_item method. If no create_page_item method is in the channel,
             a default one will be created with the number present in the resultset location specified in the
             pageNavigationRegexIndex and the url from the combined resultset. If that url does not contain http://
             the self.baseUrl will be added.
@@ -182,7 +182,7 @@ class Channel:
             url = item.url
 
         # Determine the handlers and process
-        data_parsers = self.__GetDataParsers(url)
+        data_parsers = self.__get_data_parsers(url)
         # Exclude the updaters only
         data_parsers = filter(lambda p: not p.is_video_updater_only(), data_parsers)
         if filter(lambda p: p.LogOnRequired, data_parsers):
@@ -382,7 +382,7 @@ class Channel:
 
         """
 
-        data_parsers = self.__GetDataParsers(item.url)
+        data_parsers = self.__get_data_parsers(item.url)
         if not data_parsers:
             Logger.error("No dataparsers found cannot update item.")
             return item
@@ -442,60 +442,52 @@ class Channel:
 
         return items
 
-    def CreateEpisodeItem(self, resultSet):
-        """Creates a new MediaItem for an episode
-
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         # Validate the input and raise errors
-        if not isinstance(resultSet, dict):
-            Logger.critical("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
-            raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateEpisodeItem")
+        if not isinstance(result_set, dict):
+            Logger.critical("No Dictionary as a result_set. Implement a custom create_episode_item")
+            raise NotImplementedError("No Dictionary as a result_set. Implement a custom create_episode_item")
 
-        elif "title" not in resultSet or "url" not in resultSet:
-            Logger.warning("No ?P<title> or ?P<url> in resultSet")
-            raise LookupError("No ?P<title> or ?P<url> in resultSet")
+        elif "title" not in result_set or "url" not in result_set:
+            Logger.warning("No ?P<title> or ?P<url> in result_set")
+            raise LookupError("No ?P<title> or ?P<url> in result_set")
 
         # the URL
-        url = resultSet["url"]
+        url = result_set["url"]
         if not url.startswith("http"):
             url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
 
         # the title
-        title = resultSet["title"]
+        title = result_set["title"]
         if title.isupper():
             title = title.title()
 
         item = MediaItem(title, url)
-        item.thumb = resultSet.get("thumburl", None)
-        item.description = resultSet.get("description", "")
+        item.thumb = result_set.get("thumburl", None)
+        item.description = result_set.get("description", "")
         item.icon = self.icon
         item.complete = True
         item.fanart = self.fanart
         item.HttpHeaders = self.httpHeaders
         return item
 
-    def PreProcessFolderList(self, data):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def pre_process_folder_list(self, data):
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -504,6 +496,11 @@ class Channel:
 
         The return values should always be instantiated in at least ("", []).
 
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
 
         Logger.info("Performing Pre-Processing")
@@ -511,83 +508,30 @@ class Channel:
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    # def ProcessPageNavigation(self, data):
-    #     """Generates a list of pageNavigation items.
-    #
-    #     Arguments:
-    #     data : string - the retrieve data that was loaded for the current item and URL.
-    #
-    #     Returns:
-    #     A list of MediaItems of type 'page'
-    #
-    #     Parses the <data> using the self.pageNavigationRegex and then calls the
-    #     self.CreatePageItem method for each result to create a page item. The
-    #     list of those items is returned.
-    #
-    #     """
-    #
-    #     Logger.Debug("Starting ProcessPageNavigation")
-    #
-    #     pageItems = []
-    #     pages = []
-    #
-    #     # try the regex on the current data
-    #     if not self.pageNavigationRegex == "" and not self.pageNavigationRegex is None:
-    #         pages = Regexer.do_regex(self.pageNavigationRegex, data)
-    #
-    #     elif not self.pageNavigationJson is None:
-    #         pageJson = JsonHelper(data, logger=Logger.instance())
-    #         pages = pageJson.get_value(*self.pageNavigationJson)
-    #
-    #         if pages is None:
-    #             # no matches, so no pages
-    #             pages = []
-    #         elif not isinstance(pages, (tuple, list)):
-    #             # if there is just one match, return that as a list
-    #             pages = [pages]
-    #
-    #     if len(pages) == 0:
-    #         Logger.Debug("No pages found.")
-    #         return pageItems
-    #
-    #     Logger.Debug('Starting CreatePageItem for %s items', len(pages))
-    #     for page in pages:
-    #         Logger.Trace('Starting CreatePageItem for %s', self.channelName)
-    #         item = self.CreatePageItem(page)
-    #         if not item is None:
-    #             pageItems.append(item)
-    #
-    #     # Filter out the duplicates using the HASH power of a set
-    #     pageItems = list(set(pageItems))
-    #
-    #     # Logger.Debug(pageItems)
-    #     return pageItems
-
-    def CreatePageItem(self, resultSet):
-        """Creates a MediaItem of type 'page' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(string) - the resultSet of the self.pageNavigationRegex
-
-        Returns:
-        A new MediaItem of type 'page'
+    def create_page_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|none
 
         """
 
-        Logger.debug("Starting CreatePageItem")
+        Logger.debug("Starting create_page_item")
         total = ''
 
-        for result in resultSet:
+        for result in result_set:
             total = "%s%s" % (total, result)
 
         total = HtmlEntityHelper.strip_amp(total)
 
         if not self.pageNavigationRegexIndex == '':
-            item = MediaItem(resultSet[self.pageNavigationRegexIndex], urlparse.urljoin(self.baseUrl, total))
+            item = MediaItem(result_set[self.pageNavigationRegexIndex], urlparse.urljoin(self.baseUrl, total))
         else:
             item = MediaItem("0", "")
 
@@ -598,45 +542,44 @@ class Channel:
         Logger.debug("Created '%s' for url %s", item.name, item.url)
         return item
 
-    def CreateFolderItem(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_folder_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         # Validate the input and raise errors
-        if not isinstance(resultSet, dict):
-            Logger.critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
-            raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
+        if not isinstance(result_set, dict):
+            Logger.critical("No Dictionary as a result_set. Implement a custom CreateVideoItem")
+            raise NotImplementedError("No Dictionary as a result_set. Implement a custom CreateVideoItem")
 
-        elif "title" not in resultSet or "url" not in resultSet:
-            Logger.warning("No ?P<title> or ?P<url> in resultSet")
-            raise LookupError("No ?P<title> or ?P<url> in resultSet")
+        elif "title" not in result_set or "url" not in result_set:
+            Logger.warning("No ?P<title> or ?P<url> in result_set")
+            raise LookupError("No ?P<title> or ?P<url> in result_set")
 
         # The URL
-        url = resultSet["url"]
+        url = result_set["url"]
         if not url.startswith("http"):
             url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
 
         # The title
-        title = resultSet["title"]
+        title = result_set["title"]
         if title.isupper():
             title = title.title()
 
         item = MediaItem(title, url)
-        item.description = resultSet.get("description", "")
-        item.thumb = resultSet.get("thumburl", "")
+        item.description = result_set.get("description", "")
+        item.thumb = result_set.get("thumburl", "")
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
@@ -1033,7 +976,7 @@ class Channel:
             self.dataParsers[url] = [data]
         return
 
-    def __GetDataParsers(self, url, ):
+    def __get_data_parsers(self, url):
         """ Fetches a list of dataparsers that are valid for this URL. The Parsers and Creators can then
         be used to parse the data from the url. The first match is returned.
 
@@ -1042,8 +985,10 @@ class Channel:
         If no dataparsers are defined at all, they will be created based on the old regular expressions or the
         JSON queries. The regular expression suppersede the JSON.
 
-        @param url:     The URL to match
-        @return:        A list of parsers to use.
+        :param str url: The URL to match
+
+        :return: A list of parsers to use.
+        :rtype: list[ParserData]
 
         """
 
@@ -1057,40 +1002,40 @@ class Channel:
                 Logger.debug("No DataParsers found. Adding old Mainlist Creators to DataParsers")
                 if self.episodeItemJson is not None:
                     self._AddDataParser(self.mainListUri,
-                                        parser=self.episodeItemJson, creator=self.CreateEpisodeItem,
+                                        parser=self.episodeItemJson, creator=self.create_episode_item,
                                         json=True, matchType=ParserData.MatchExact)
 
                     if self.episodeItemRegex:
                         Logger.warning("Both JSON and Regex parsers available for mainlist, ignoring Regex.")
                 else:
                     self._AddDataParser(self.mainListUri,
-                                        parser=self.episodeItemRegex, creator=self.CreateEpisodeItem,
+                                        parser=self.episodeItemRegex, creator=self.create_episode_item,
                                         matchType=ParserData.MatchExact)
             else:
                 # Add the folder and video items
                 Logger.debug("No DataParsers found. Adding old FolderList Creators to DataParsers")
-                self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
+                self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
 
                 if self.videoItemJson is not None:
                     # foldder
-                    self._AddDataParser("*", parser=self.folderItemJson, creator=self.CreateFolderItem)
+                    self._AddDataParser("*", parser=self.folderItemJson, creator=self.create_folder_item)
                     # video
                     self._AddDataParser("*", parser=self.videoItemJson, creator=self.CreateVideoItem,
                                         updater=self.UpdateVideoItem, json=True)
                     # page
-                    self._AddDataParser("*", parser=self.pageNavigationJson, creator=self.CreatePageItem,
+                    self._AddDataParser("*", parser=self.pageNavigationJson, creator=self.create_page_item,
                                         json=True)
 
                     if self.folderItemRegex:
                         Logger.warning("Both JSON and Regex parsers available for folders/videos, ignoring Regex.")
                 else:
                     # folder
-                    self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
+                    self._AddDataParser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
                     # video
                     self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem,
                                         updater=self.UpdateVideoItem)
                     # page
-                    self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+                    self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         # Find the parsers
         # watch = stopwatch.StopWatch('DataParsers', Logger.instance())
@@ -1112,7 +1057,7 @@ class Channel:
             for key in keys:
                 # for each key we see if we have filtered results
                 data_parsers = filter(lambda p: p.matches(url),
-                                     self.dataParsers[key])
+                                      self.dataParsers[key])
                 if data_parsers:
                     Logger.trace("Found %s direct DataParsers matches", len(data_parsers))
                     break

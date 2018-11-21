@@ -49,7 +49,7 @@ class Channel(chn_class.Channel):
 
         self._AddDataParser("https://psapi.nrk.no/medium/tv/letters/", json=True,
                             name="Programs from AlphaListing",
-                            parser=(), creator=self.CreateEpisodeItem)
+                            parser=(), creator=self.create_episode_item)
 
         self._AddDataParser("https://psapi.nrk.no/programs/", json=True,
                             name="Main program json video updater",
@@ -201,7 +201,7 @@ class Channel(chn_class.Channel):
 
         return self.CreateGenericItem(result_set, program_type)
 
-    def CreateEpisodeItem(self, result_set):
+    def create_episode_item(self, result_set):
         title = result_set["title"]
 
         program_type = result_set.get("type", "???").lower()

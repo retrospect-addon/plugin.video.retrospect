@@ -44,19 +44,19 @@ class Channel(chn_class.Channel):
         episodeItemRegex = Regexer.from_expresso(episodeItemRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             preprocessor=self.NoNickJr,
-                            parser=episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=episodeItemRegex, creator=self.create_episode_item)
         # <h2 class='row-title'>Nick Jr
 
         videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
         videoItemRegex = Regexer.from_expresso(videoItemRegex)
         self._AddDataParser("*",
-                            preprocessor=self.PreProcessFolderList,
+                            preprocessor=self.pre_process_folder_list,
                             parser=videoItemRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
         self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
             return data[:end], items
         return data, items
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:

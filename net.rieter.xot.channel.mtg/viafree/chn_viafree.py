@@ -128,7 +128,7 @@ class Channel(chn_class.Channel):
             self.pageNavigationJson = ("_links", "next")
             self.pageNavigationJsonIndex = 0
             self._AddDataParser("*", json=True,
-                                parser=self.pageNavigationJson, creator=self.CreatePageItem)
+                                parser=self.pageNavigationJson, creator=self.create_page_item)
 
         self._AddDataParser("https://playapi.mtgx.tv/v3/search?term=", json=True,
                             parser=("_embedded", "formats"), creator=self.CreateJsonSearchItem)
@@ -214,7 +214,7 @@ class Channel(chn_class.Channel):
 
         jsonData = JsonHelper(data)
         seasonFolders = jsonData.get_value("context", "dispatcher", "stores",
-                                          "ContentPageProgramStore", "format", "videos")
+                                           "ContentPageProgramStore", "format", "videos")
         for season in seasonFolders:
             for video in seasonFolders[season]['program']:
                 items.append(self.CreateJsonVideoItem(video))
@@ -349,7 +349,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Using search url: %s", url)
         return chn_class.Channel.search_site(self, url)
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -364,7 +364,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug("Starting CreatePageItem")
+        Logger.debug("Starting create_page_item")
         Logger.trace(resultSet)
 
         url = resultSet["href"]

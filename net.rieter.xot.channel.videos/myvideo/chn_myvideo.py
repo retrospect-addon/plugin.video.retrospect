@@ -31,19 +31,19 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self.episodeItemRegex = "<a class='nArrow' href='([^']+)' title='[^']*'>([^<]+)</a>"
         self._AddDataParser(self.mainListUri, preprocessor=self.AddCategories,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         # Add generic Pre Procesor
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
+        self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
 
         self.videoItemRegex = "<img id='([^']+)' src='([^']+)' class='vThumb' alt='[^']*' [^>]+></a></div></div><div class='sCenter vTitle'><span class='title'><a[^>]+title='([^']+)'"
         self.mediaUrlRegex = '<item>\W*<file>\W*([^>]*)\W*</file>\W*<bandwidth>(\d+)</bandwidth>'
-        self._AddDataParser("*", parser=self.episodeItemRegex, creator=self.CreateEpisodeItem,
+        self._AddDataParser("*", parser=self.episodeItemRegex, creator=self.create_episode_item,
                             updater=self.UpdateVideoItem)
 
         self.pageNavigationRegex = "<a class='pView pnNumbers'  href='([^?]+\?lpage=)(\d+)([^']+)"
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -97,7 +97,7 @@ class Channel(chn_class.Channel):
 
         return data, items
     
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
         
         Arguments:
@@ -128,7 +128,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
     
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item. 
         """

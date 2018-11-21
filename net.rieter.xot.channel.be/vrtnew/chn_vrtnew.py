@@ -42,14 +42,14 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
-                            creator=self.CreateEpisodeItem)
+                            creator=self.create_episode_item)
 
         self._AddDataParser("*", creator=self.CreateVideoItem,
                             parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
         self._AddDataParser("*", creator=self.CreateVideoItem,
                             parser='data-video-permalink="([^"]+)"[^>]*>\W+<span[^>]*>([^<]+)</span>\W+<span[^>]*>\W+<img[^>]*src="([^"]+)"', updater=self.UpdateVideoItem)
 
-        self._AddDataParser("*", creator=self.CreatePageItem,
+        self._AddDataParser("*", creator=self.create_page_item,
                             parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
         self.pageNavigationRegexIndex = 1
 
@@ -57,13 +57,13 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         # Only get the first bit
         seperatorIndex = data.find('<div class="splitter split24">')
         data = data[:seperatorIndex]
-        return chn_class.Channel.PreProcessFolderList(self, data)
+        return chn_class.Channel.pre_process_folder_list(self, data)
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:

@@ -36,7 +36,7 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
                             json=True, preprocessor=self.MakeEpisodeDictionaryArray,
-                            parser=("items", ), creator=self.CreateEpisodeItem)
+                            parser=("items", ), creator=self.create_episode_item)
 
         self._AddDataParser("*", json=True,
                             parser=("items", "tracklist"), creator=self.CreateMusicItem,
@@ -70,13 +70,13 @@ class Channel(chn_class.Channel):
         for item in dictItems:
             if item == "banners" or item == "curators":
                 continue
-            items.append(self.CreateEpisodeItem(dictItems[item]))
+            items.append(self.create_episode_item(dictItems[item]))
 
         Logger.debug("Pre-Processing finished")
         data = ""
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

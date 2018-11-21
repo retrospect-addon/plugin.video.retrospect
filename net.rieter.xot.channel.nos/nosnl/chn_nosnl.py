@@ -65,7 +65,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("*",
                             json=True,
                             parser=('links',),
-                            creator=self.CreatePageItem)
+                            creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -114,7 +114,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Creating categories finished")
         return data, items
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         items = []
         if 'next' in resultSet:
             title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)

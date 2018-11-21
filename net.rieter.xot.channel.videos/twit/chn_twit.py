@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
                                 '</a></h2>\W+<div[^>]*>(?<description>[^<]+)'
         self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
         self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStream, matchType=ParserData.MatchExact,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+                            parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = '<div[^>]+class="episode item"[^>]*>\W+<a[^>]+href="(?<url>[^"]+)" ' \
                               'title="(?<title>[^"]+)">[\w\W]{0,500}?<img[^>]+src="' \
@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         items.append(item)
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

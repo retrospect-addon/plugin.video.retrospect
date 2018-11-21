@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.episodeItemRegex = '<li><a[^>]+href="/([^"]+)" class="level-1[^>]+>([^<]+)</a>'
-        self._AddDataParser(self.mainListUri, creator=self.CreateEpisodeItem, parser=self.episodeItemRegex)
+        self._AddDataParser(self.mainListUri, creator=self.create_episode_item, parser=self.episodeItemRegex)
 
         self.videoItemRegex = '<article[^<]+has-video"[^>]*>\W*<a href="(?<Url>[^<"]+)"[^>]*>\W+<div[^<]+<img[^>]+' \
                               'src="(?<Thumb>[^"]+)"[^>]*>[\w\W]{0,500}?<h3[^>]*>(?:\W+<span[^>]*>[^>]*>)?' \
@@ -58,7 +58,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:

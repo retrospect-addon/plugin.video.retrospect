@@ -47,18 +47,18 @@ class Channel(chn_class.Channel):
         episodeRegex = '<a[^>]+href="(?<url>/kijken[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"'
         episodeRegex = Regexer.from_expresso(episodeRegex)
         self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+                            parser=episodeRegex, creator=self.create_episode_item)
 
         self._AddDataParser("*", preprocessor=self.SelectVideoSection)
 
         videoRegex = Regexer.from_expresso('<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
-                                          '\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
-                                          '[^>]+></span>\W+(?<description>[^<]+)')
+                                           '\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
+                                           '[^>]+></span>\W+(?<description>[^<]+)')
         self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem,
                             updater=self.UpdateVideoItem)
 
         folderRegex = Regexer.from_expresso('<span class="more-of-program" rel="/(?<url>[^"]+)">')
-        self._AddDataParser("*", parser=folderRegex, creator=self.CreateFolderItem)
+        self._AddDataParser("*", parser=folderRegex, creator=self.create_folder_item)
 
         #===============================================================================================================
         # non standard items
@@ -116,7 +116,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -134,7 +134,7 @@ class Channel(chn_class.Channel):
         Logger.trace(resultSet)
 
         resultSet["title"] = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-        return chn_class.Channel.CreateFolderItem(self, resultSet)
+        return chn_class.Channel.create_folder_item(self, resultSet)
 
     def UpdateVideoItem(self, item):
         """

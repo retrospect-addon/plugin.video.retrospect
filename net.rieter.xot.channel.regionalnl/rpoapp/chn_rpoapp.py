@@ -61,7 +61,7 @@ class Channel(chn_class.Channel):
         self._AddDataParser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
                             preprocessor=self.AddLiveChannelAndExtractData,
                             matchType=ParserData.MatchExact,
-                            parser=htmlEpisodeRegex, creator=self.CreateEpisodeItem,
+                            parser=htmlEpisodeRegex, creator=self.create_episode_item,
                             json=False)
 
         videoItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*</a>\W*<figcaption(?:[^>]+>\W*){2}<time[^>]+datetime="(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){3}<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
@@ -195,7 +195,7 @@ class Channel(chn_class.Channel):
         streams = Regexer.do_regex('label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
 
         part = item.create_new_empty_media_part()
-        bitrates = { "720p SD": 1200 }
+        bitrates = {"720p SD": 1200}
         for stream in streams:
             part.append_media_stream(stream[1], bitrates.get(stream[0], 0))
             item.complete = True

@@ -117,7 +117,7 @@ class Channel(chn_class.Channel):
         self.videoItemJson = ("items", )
 
         self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveItems, matchType=ParserData.MatchExact,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem,
+                            parser=self.episodeItemJson, creator=self.create_episode_item,
                             json=True)
 
         if self.liveUrl:
@@ -306,7 +306,7 @@ class Channel(chn_class.Channel):
             items.append(liveItem)
         return "", items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """

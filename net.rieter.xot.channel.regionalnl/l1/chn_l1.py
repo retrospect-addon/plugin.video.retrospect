@@ -37,8 +37,8 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         episodeRegex = '<li>\W*<a[^>]*href="(?<url>/[^"]+)"[^>]*>(?<title>[^<]+)</a>\W*</li>'
         episodeRegex = Regexer.from_expresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, preprocessor=self.PreProcessFolderList,
-                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+        self._AddDataParser(self.mainListUri, preprocessor=self.pre_process_folder_list,
+                            parser=episodeRegex, creator=self.create_episode_item)
 
         # live stuff
         self._AddDataParsers(("#livetv", "#liveradio"), updater=self.UpdateLiveStream)
@@ -51,7 +51,7 @@ class Channel(chn_class.Channel):
         pageRegex = '<a[^>]+href="https?://l1.nl/([^"]+?pagina=)(\d+)"'
         pageRegex = Regexer.from_expresso(pageRegex)
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=pageRegex, creator=self.CreatePageItem)
+        self._AddDataParser("*", parser=pageRegex, creator=self.create_page_item)
         # self.episodeItemRegex = '<a href="(http://www.l1.nl/programma/[^"]+)">([^<]+)'  # used for the ParseMainList
         # self.videoItemRegex = '(:?<a href="/video/[^"]+"[^>]+><img src="([^"]+)"[^>]+>[\w\W]{0,200}){0,1}<a href="(/video/[^"]+-(\d{1,2})-(\w{3})-(\d{4})[^"]*|/video/[^"]+)"[^>]*>([^>]+)</a>'
 
@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -111,10 +111,10 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """ We need to exclude L1 Gemist """
 
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if "L1 Gemist" in item.name:
             return None
         return item
