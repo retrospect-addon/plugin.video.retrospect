@@ -52,27 +52,27 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/html/flash/common/player.5.10.swf" % (self.baseUrl,)
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddLiveChannel,
-                            parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
-                            creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.AddLiveChannel,
+                              parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
+                              creator=self.create_episode_item)
 
         # extract the right section, although it is hard to determine the actual one
-        self._AddDataParser("*", preprocessor=self.ExtractVideoSection)
+        self._add_data_parser("*", preprocessor=self.ExtractVideoSection)
 
         # the main video of the page
         regex = Regexer.from_expresso('<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>[\w\W]{0,700}<p>(?<description>[^<]+)</p>[\w\W]{0,500}?<a href="(?<url>/cm/[^/]+/videozone/[^?"]+)" >(?<title>[^<]+)</a>')
-        self._AddDataParser("*", parser=regex, creator=self.CreateVideoItem)
+        self._add_data_parser("*", parser=regex, creator=self.create_video_item)
         # other videos in the side bar
         regex = Regexer.from_expresso('<a[^>]*href="(?<url>[^"]+)"[^>]*class="videolink"[^>]*>\W*<span[^>]*>(?<title>[^"]+)</span>\W*(?:<span[^>]*>(?<desciption>[^"]+)</span>\W*)?<span[^>]*>\W*<img[^>]*src="(?<thumburl>[^"]+)"')
-        self._AddDataParser("*", parser=regex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=regex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         # live streams
-        self._AddDataParser("http://sporza.be/cm/sporza/matchcenter/mc_livestream",
-                            creator=self.CreateLiveChannel,
-                            parser='data-video-title="([^"]+)"\W+data-video-iphone-server="([^"]+)"\W+[\w\W]{0,1000}data-video-sitestat-pubdate="(\d+)"[\w\W]{0,2000}data-video-geoblocking="(\w+)"[^>]+>\W*<img[^>]*src="([^"]+)"')
-        self._AddDataParser("http://live.stream.vrt.be", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://sporza.be/cm/sporza/matchcenter/mc_livestream",
+                              creator=self.CreateLiveChannel,
+                              parser='data-video-title="([^"]+)"\W+data-video-iphone-server="([^"]+)"\W+[\w\W]{0,1000}data-video-sitestat-pubdate="(\d+)"[\w\W]{0,2000}data-video-geoblocking="(\w+)"[^>]+>\W*<img[^>]*src="([^"]+)"')
+        self._add_data_parser("http://live.stream.vrt.be", updater=self.UpdateLiveItem)
 
         self.mediaUrlRegex = 'data-video-((?:src|rtmp|iphone|mobile)[^=]*)="([^"]+)"\W+(?:data-video-[^"]+path="([^"]+)){0,1}'
 
@@ -161,7 +161,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -176,7 +176,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focused or selected
+        self.update_video_item method is called if the item is focused or selected
         for playback.
 
         """
@@ -249,16 +249,16 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             part.append_media_stream(s, b)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -304,7 +304,7 @@ class Channel(chn_class.Channel):
                 elif url[0] == "rtmpt-server":
                     continue
                     #flv = "%s//%s" % (flvServer, flvPath)
-                    #flv = self.GetVerifiableVideoUrl(flv)
+                    #flv = self.get_verifiable_video_url(flv)
                     #bitrate = 1500
 
                 elif url[0] == "iphone-server":

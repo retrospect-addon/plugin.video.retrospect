@@ -473,7 +473,7 @@ class Plugin(ParameterParser):
 
             # validated the updated media_item
             if not media_item.complete or not media_item.has_media_item_parts():
-                Logger.warning("UpdateVideoItem returned an media_item that had media_item.complete = False:\n%s", media_item)
+                Logger.warning("update_video_item returned an media_item that had media_item.complete = False:\n%s", media_item)
                 Statistics.register_error(self.channelObject, item=media_item)
 
             if not media_item.has_media_item_parts():
@@ -484,7 +484,7 @@ class Plugin(ParameterParser):
                 Logger.warning("Could not start playback due to missing streams. Item:\n%s", media_item)
                 return
 
-            play_data = self.channelObject.PlayVideoItem(media_item)
+            play_data = self.channelObject.play_video_item(media_item)
 
             Logger.debug("Continuing playback in plugin.py")
             if not play_data:
@@ -552,7 +552,7 @@ class Plugin(ParameterParser):
             item = self.channelObject.process_video_item(item)
 
             if not item.complete:
-                Logger.warning("UpdateVideoItem returned an item that had item.complete = False:\n%s", item)
+                Logger.warning("update_video_item returned an item that had item.complete = False:\n%s", item)
 
         # invoke
         function_string = "returnItem = self.channelObject.%s(item)" % (action,)

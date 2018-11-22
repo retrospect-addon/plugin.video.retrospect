@@ -42,39 +42,39 @@ class Channel(chn_class.Channel):
                        '<figcaption[^>]+>(?<title>[^{][^<]+)</figcaption>\W*<div[^>]*>\W*' \
                        '<img[^>]*(?<thumburl>http[^"]+) \d+w"'
         episodeRegex = Regexer.from_expresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddCategoryAndLiveItems,
-                            parser=episodeRegex,
-                            creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.AddCategoryAndLiveItems,
+                              parser=episodeRegex,
+                              creator=self.create_episode_item)
 
-        self._AddDataParser("http://www.rtbf.be/news/api/menu?site=media", json=True,
-                            matchType=ParserData.MatchExact,
-                            parser=("item", 3, "item"), creator=self.CreateCategory)
+        self._add_data_parser("http://www.rtbf.be/news/api/menu?site=media", json=True,
+                              match_type=ParserData.MatchExact,
+                              parser=["item", 3, "item"], creator=self.CreateCategory)
 
         liveRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant</span> (?:sur )?(?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
         liveRegex = Regexer.from_expresso(liveRegex)
-        self._AddDataParser("https://www.rtbf.be/auvio/direct/",
-                            parser=liveRegex,
-                            creator=self.CreateVideoItem)
+        self._add_data_parser("https://www.rtbf.be/auvio/direct/",
+                              parser=liveRegex,
+                              creator=self.create_video_item)
 
-        self._AddDataParser("https://www.rtbf.be/auvio/embed/direct",
-                            updater=self.UpdateLiveItem)
+        self._add_data_parser("https://www.rtbf.be/auvio/embed/direct",
+                              updater=self.UpdateLiveItem)
 
         videoRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}?<time[^>]+' \
                      'datetime="(?<date>[^"]+)"[\w\W]{0,500}?<h4[^>]+>\W+<a[^>]+href="' \
                      '(?<url>[^<"]+=(?<videoId>\d+))"[^>]*>(?<title>[^<]+)</a>\W+</h4>\W+' \
                      '<h5[^>]+>(?<description>[^<]*)'
         videoRegex = Regexer.from_expresso(videoRegex)
-        self._AddDataParser("*",
-                            # preprocessor=self.ExtractVideoSection,
-                            parser=videoRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              # preprocessor=self.ExtractVideoSection,
+                              parser=videoRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         self.pageNavigationRegexIndex = 1
         pageRegex = '<li class="[^a][^"]+">\W+<a class="rtbf-pagination__link" href="([^"]+&p=)(\d+)"'
-        self._AddDataParser("*",
-                            # preprocessor=self.ExtractVideoSection,
-                            parser=pageRegex, creator=self.create_page_item)
+        self._add_data_parser("*",
+                              # preprocessor=self.ExtractVideoSection,
+                              parser=pageRegex, creator=self.create_page_item)
 
         self.swfUrl = "http://www.static.rtbf.be/rtbf/embed/js/vendor/jwplayer/jwplayer.flash.swf"
         # ==========================================================================================
@@ -158,8 +158,8 @@ class Channel(chn_class.Channel):
         item.url = url
         return item
 
-    def CreateVideoItem(self, resultSet):
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+    def create_video_item(self, resultSet):
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if item is None:
             return item
 
@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         mediaRegex = 'data-media="([^"]+)"'
         mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
@@ -234,7 +234,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])
 
             rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
-            rtmpUrl = self.GetVerifiableVideoUrl(rtmpUrl)
+            rtmpUrl = self.get_verifiable_video_url(rtmpUrl)
             part.append_media_stream(rtmpUrl, 0)
             item.complete = True
 

@@ -41,15 +41,15 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self.episodeItemRegex = '<a class="letter stat" href="(?<url>/iplayer/a-z/[^"]+)">(?<title>[^<]+)</a>'\
                                 .replace("(?<", "(?P<")
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddLiveChannels,
-                            parser=self.episodeItemRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.AddLiveChannels,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         # Standard items
-        self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
         self.folderItemRegex = '<a href="(?<url>/iplayer/brand/[^"]+)"[^>]*>\W+<i[^>]+></i>\W+<span[^>]+>' \
                                '(?<title>[^<]+)<'.replace("(?<", "(?P<")
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
+        self._add_data_parser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
         self.videoItemRegex = '<a\W+href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+' \
                               '</div>\W+(?:<div[^>]+>[^>]+</div>\W+)?[\w\W]{0,500}?<source ' \
                               'srcset="(?<thumburl>[^"]+)"[\w\W]{0,500}?<div class="secondary">' \
@@ -58,14 +58,14 @@ class Channel(chn_class.Channel):
                               '(?:<span class="release">\W+First shown: (?<day>\d+) (?<month>\w+) ' \
                               '(?<year>\d+)|<div class="period")'
         self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem)
+        self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item)
 
         # Live channels
-        self._AddDataParser("http://vs-hds-uk-live.edgesuite.net/", updater=self.UpdateLiveItem)
-        self._AddDataParser("http://a.files.bbci.co.uk/media/live/manifesto/", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://vs-hds-uk-live.edgesuite.net/", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://a.files.bbci.co.uk/media/live/manifesto/", updater=self.UpdateLiveItem)
 
         # Generic updater
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # ===============================================================================================================
         # non standard items
@@ -158,7 +158,7 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -181,7 +181,7 @@ class Channel(chn_class.Channel):
         if "subtitle" in resultSet and not resultSet["subtitle"]:
             del resultSet["subtitle"]
 
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
         vid = item.url.replace(self.baseUrl, "")
         # item.thumb = item.thumb.replace("192x108", "%sx%s" % (192 * 2, 108 * 2))
         item.url = "http://www.bbc.co.uk/iplayer/episode/%s" % (vid,)
@@ -193,11 +193,11 @@ class Channel(chn_class.Channel):
         # item.url = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/%s/atk/" % (vid,)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item.
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         Logger.trace(item.url)
         if not item.url.startswith("http://www.bbc.co.uk/mediaselector/"):
@@ -318,7 +318,7 @@ class Channel(chn_class.Channel):
                 #     # for a none-limelight we just compose a RTMP stream
                 #     url = "%s://%s/%s?%s playpath=%s" % (protocol, server, application, authentication, fileName)
                 #     Logger.Debug("Creating RTMP for a None-LimeLight type\n%s", url)
-                # url = self.GetVerifiableVideoUrl(url)
+                # url = self.get_verifiable_video_url(url)
 
                 # if liveStream:
                 #     url = "%s live=1" % (url, )
@@ -334,7 +334,7 @@ class Channel(chn_class.Channel):
                                                                             proxy=self.proxy)
 
         item.complete = True
-        Logger.trace('finishing UpdateVideoItem: %s.', item)
+        Logger.trace('finishing update_video_item: %s.', item)
         return item
 
     def AddLiveChannels(self, data):
@@ -390,7 +390,7 @@ class Channel(chn_class.Channel):
             item.isLive = True
             item.type = "video"
             item.complete = False
-            item.thumb = self.GetImageLocation(channel["image"])
+            item.thumb = self.get_image_location(channel["image"])
             live.items.append(item)
 
         return data, [live, ]
@@ -408,13 +408,13 @@ class Channel(chn_class.Channel):
         # part = item.create_new_empty_media_part()
         # for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
         #     item.complete = True
-        #     # s = self.GetVerifiableVideoUrl(s)
+        #     # s = self.get_verifiable_video_url(s)
         #     part.append_media_stream(s, b)
 
         part = item.create_new_empty_media_part()
         for s, b in F4m.get_streams_from_f4m(item.url, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             s = s.replace(".f4m", ".m3u8")
             part.append_media_stream(s, b)
 

@@ -36,30 +36,30 @@ class Channel(chn_class.Channel):
         self.mainListUri = "http://m.schooltv.nl/api/v1/programmas.json"
 
         # mainlist stuff
-        self._AddDataParser("http://m.schooltv.nl/api/v1/programmas.json", json=True,
-                            name="All Shows (API v1)",
-                            preprocessor=self.AddCategories,
-                            parser=(), creator=self.create_episode_item)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/programmas.json", json=True,
+                              name="All Shows (API v1)",
+                              preprocessor=self.AddCategories,
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParser("http://m.schooltv.nl/api/v1/programmas/tips.json?size=100", json=True,
-                            name="Tips (API v1)",
-                            parser=(), creator=self.create_episode_item)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/programmas/tips.json?size=100", json=True,
+                              name="Tips (API v1)",
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParsers(["http://m.schooltv.nl/api/v1/programmas/",
-                              "http://m.schooltv.nl/api/v1/categorieen/",
-                              "http://m.schooltv.nl/api/v1/leeftijdscategorieen/"],
-                             json=True,
-                             name="Paged Video Items (API v1)",
-                             preprocessor=self.AddPageItems,
-                             parser=('results', ), creator=self.CreateVideoItem)
+        self._add_data_parsers(["http://m.schooltv.nl/api/v1/programmas/",
+                               "http://m.schooltv.nl/api/v1/categorieen/",
+                               "http://m.schooltv.nl/api/v1/leeftijdscategorieen/"],
+                               json=True,
+                               name="Paged Video Items (API v1)",
+                               preprocessor=self.AddPageItems,
+                               parser=['results', ], creator=self.create_video_item)
 
-        self._AddDataParser("http://m.schooltv.nl/api/v1/categorieen.json?size=100", json=True,
-                            name="Categories (API v1)",
-                            parser=(), creator=self.CreateCategory)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/categorieen.json?size=100", json=True,
+                              name="Categories (API v1)",
+                              parser=[], creator=self.CreateCategory)
 
-        self._AddDataParser("http://m.schooltv.nl/api/v1/afleveringen/", json=True,
-                            name="Video Updater (API v1)",
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/afleveringen/", json=True,
+                              name="Video Updater (API v1)",
+                              updater=self.update_video_item)
 
         # ===============================================================================================================
         # non standard items
@@ -203,7 +203,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return json, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -218,7 +218,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -256,8 +256,8 @@ class Channel(chn_class.Channel):
                           broadcastDate.second)
         return item
 
-    def UpdateVideoItem(self, item):
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+    def update_video_item(self, item):
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)

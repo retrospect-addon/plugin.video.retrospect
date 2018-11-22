@@ -39,68 +39,68 @@ class Channel(chn_class.Channel):
 
         #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
-        self._AddDataParser(self.mainListUri, preprocessor=self.CreateMainList)
+        self._add_data_parser(self.mainListUri, preprocessor=self.CreateMainList)
 
         # See https://stsnapshottestwe.blob.core.windows.net/apidocumentation/documentation.html for
         # the url definitions
-        self._AddDataParser("https://psapi.nrk.no/medium/tv/letters?", json=True,
-                            name="Alfa Listing",
-                            parser=(), creator=self.CreateAlphaItem)
+        self._add_data_parser("https://psapi.nrk.no/medium/tv/letters?", json=True,
+                              name="Alfa Listing",
+                              parser=[], creator=self.CreateAlphaItem)
 
-        self._AddDataParser("https://psapi.nrk.no/medium/tv/letters/", json=True,
-                            name="Programs from AlphaListing",
-                            parser=(), creator=self.create_episode_item)
+        self._add_data_parser("https://psapi.nrk.no/medium/tv/letters/", json=True,
+                              name="Programs from AlphaListing",
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParser("https://psapi.nrk.no/programs/", json=True,
-                            name="Main program json video updater",
-                            updater=self.UpdateJsonVideoItem)
+        self._add_data_parser("https://psapi.nrk.no/programs/", json=True,
+                              name="Main program json video updater",
+                              updater=self.UpdateJsonVideoItem)
 
-        self._AddDataParsers(
-            ("https://psapi.nrk.no/medium/tv/recommendedprograms",
+        self._add_data_parsers(
+            ["https://psapi.nrk.no/medium/tv/recommendedprograms",
              "https://psapi.nrk.no/medium/tv/popularprogramssuper",
-             "https://psapi.nrk.no/medium/tv/recentlysentprograms"),
-            json=True, parser=(), creator=self.CreateVideoItem)
+             "https://psapi.nrk.no/medium/tv/recentlysentprograms"],
+            json=True, parser=[], creator=self.create_video_item)
 
-        self._AddDataParsers(("https://psapi.nrk.no/tv/live", "https://psapi.nrk.no/radio/live"),
-                             json=True, name="Live items",
-                             parser=(), creator=self.CreateLiveChannelItem)
-        self._AddDataParser("https://psapi.nrk.no/playback/manifest/channel/",
-                            updater=self.UpdateLiveChannel)
+        self._add_data_parsers(["https://psapi.nrk.no/tv/live", "https://psapi.nrk.no/radio/live"],
+                               json=True, name="Live items",
+                               parser=[], creator=self.CreateLiveChannelItem)
+        self._add_data_parser("https://psapi.nrk.no/playback/manifest/channel/",
+                              updater=self.UpdateLiveChannel)
 
-        self._AddDataParser("https://psapi.nrk.no/medium/tv/categories", json=True,
-                            name="Category listing",
-                            parser=(), creator=self.CreateCategoryItem)
-        self._AddDataParser("https://psapi.nrk.no/medium/tv/categories/", json=True,
-                            name="Category Items",
-                            parser=(), creator=self.CreateCategoryEpisodeItem)
+        self._add_data_parser("https://psapi.nrk.no/medium/tv/categories", json=True,
+                              name="Category listing",
+                              parser=[], creator=self.CreateCategoryItem)
+        self._add_data_parser("https://psapi.nrk.no/medium/tv/categories/", json=True,
+                              name="Category Items",
+                              parser=[], creator=self.CreateCategoryEpisodeItem)
 
         # The new Series/Instalments API (https://psapi-catalog-prod-we.azurewebsites.net/swagger/index.html)
-        self._AddDataParser("https://psapi.nrk.no/tv/catalog/series/",
-                            json=True, name="Main Series parser",
-                            parser=("_links", "seasons",), creator=self.CreateInstalmentSeasonItem)
+        self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/",
+                              json=True, name="Main Series parser",
+                              parser=["_links", "seasons"], creator=self.CreateInstalmentSeasonItem)
 
-        self._AddDataParser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
-                            matchType=ParserData.MatchRegex,
-                            name="Videos for Serie parser - instalments",
-                            parser=("_embedded", "instalments"),
-                            creator=self.CreateInstalmentVideoItem)
-        self._AddDataParser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
-                            matchType=ParserData.MatchRegex,
-                            name="Videos for Serie parser - episodes",
-                            parser=("_embedded", "episodes"),
-                            creator=self.CreateInstalmentVideoItem)
+        self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
+                              match_type=ParserData.MatchRegex,
+                              name="Videos for Serie parser - instalments",
+                              parser=["_embedded", "instalments"],
+                              creator=self.CreateInstalmentVideoItem)
+        self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
+                              match_type=ParserData.MatchRegex,
+                              name="Videos for Serie parser - episodes",
+                              parser=["_embedded", "episodes"],
+                              creator=self.CreateInstalmentVideoItem)
 
         # The old Series API (http://nrkpswebapi2ne.cloudapp.net/swagger/ui/index#/)
-        self._AddDataParser("https://psapi.nrk.no/series/", json=True,
-                            name="Main Series parser",
-                            parser=("seasons",), creator=self.CreateSeriesSeasonItem)
+        self._add_data_parser("https://psapi.nrk.no/series/", json=True,
+                              name="Main Series parser",
+                              parser=["seasons",], creator=self.CreateSeriesSeasonItem)
 
-        self._AddDataParser("https://psapi.nrk.no/series/[^/]+/seasons/", json=True,
-                            matchType=ParserData.MatchRegex,
-                            name="Videos for Serie parser",
-                            parser=(), creator=self.CreateSeriesVideoItem)
+        self._add_data_parser("https://psapi.nrk.no/series/[^/]+/seasons/", json=True,
+                              match_type=ParserData.MatchRegex,
+                              name="Videos for Serie parser",
+                              parser=[], creator=self.CreateSeriesVideoItem)
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # ==============================================================================================================
         # non standard items
@@ -211,7 +211,7 @@ class Channel(chn_class.Channel):
 
         return self.CreateGenericItem(result_set, program_type)
 
-    def CreateVideoItem(self, result_set):
+    def create_video_item(self, result_set):
         return self.CreateGenericItem(result_set, "programme")
 
     def CreateGenericItem(self, result_set, program_type):
@@ -389,7 +389,7 @@ class Channel(chn_class.Channel):
             else:
                 for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy, headers=headers):
                     item.complete = True
-                    # s = self.GetVerifiableVideoUrl(s)
+                    # s = self.get_verifiable_video_url(s)
                     part.append_media_stream(s, b)
 
         if "timedTextSubtitlesUrl" in stream_data and stream_data["timedTextSubtitlesUrl"]:

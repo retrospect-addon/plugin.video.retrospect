@@ -38,26 +38,26 @@ class Channel(chn_class.Channel):
                      '{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>(?<description>[^<]+)' \
                      '<span class="usp">(?<description2>[^<]+)'
         programReg = Regexer.from_expresso(programReg)
-        self._AddDataParser(self.mainListUri,
-                            name="Show parser with categories",
-                            matchType=ParserData.MatchExact,
-                            preprocessor=self.AddCategories,
-                            parser=programReg, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri,
+                              name="Show parser with categories",
+                              match_type=ParserData.MatchExact,
+                              preprocessor=self.AddCategories,
+                              parser=programReg, creator=self.create_episode_item)
 
-        self._AddDataParser("http://urplay.se/bladdra/",
-                            name="Category show parser",
-                            matchType=ParserData.MatchStart,
-                            parser=programReg,
-                            creator=self.create_episode_item)
+        self._add_data_parser("http://urplay.se/bladdra/",
+                              name="Category show parser",
+                              match_type=ParserData.MatchStart,
+                              parser=programReg,
+                              creator=self.create_episode_item)
 
         # Categories
         catReg = '<a[^>]+href="(?<url>[^"]+)">\W*<img[^>]+data-src="(?<thumburl>[^"]+)' \
                  '"[^>]*>\W*<span>(?<title>[^<]+)<'
         catReg = Regexer.from_expresso(catReg)
-        self._AddDataParser("http://urplay.se/", name="Category parser",
-                            matchType=ParserData.MatchExact,
-                            parser=catReg,
-                            creator=self.CreateCategory)
+        self._add_data_parser("http://urplay.se/", name="Category parser",
+                              match_type=ParserData.MatchExact,
+                              parser=catReg,
+                              creator=self.CreateCategory)
 
         # videos
         # videoItemRegex = 'href="/(?<url>\w+/(?<id>\d+)[^"]+)[^>]*>[^<]+</a>\W*<div[^>]*>\W*' \
@@ -73,14 +73,14 @@ class Channel(chn_class.Channel):
                            'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
                            'content="(?<date>[^"]+)"'
         singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
-        self._AddDataParser("http://urplay.se/sok?product_type=program",
-                            parser=programReg, preprocessor=self.GetVideoSection,
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        self._add_data_parser("http://urplay.se/sok?product_type=program",
+                              parser=programReg, preprocessor=self.GetVideoSection,
+                              creator=self.create_video_item, updater=self.update_video_item)
 
-        self._AddDataParser("*", parser=programReg, preprocessor=self.GetVideoSection,
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
-                            creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=programReg, preprocessor=self.GetVideoSection,
+                              creator=self.create_video_item, updater=self.update_video_item)
+        self._add_data_parser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
+                              creator=self.CreateSingleVideoItem, updater=self.update_video_item)
 
         self.mediaUrlRegex = "urPlayer.init\(([^<]+)\);"
 
@@ -201,11 +201,11 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
-        item = self.CreateVideoItem(resultSet)
+        item = self.create_video_item(resultSet)
         if item is None:
             return item
 
@@ -218,9 +218,9 @@ class Channel(chn_class.Channel):
 
         if self.__videoItemFound:
             return None
-        return self.CreateVideoItem(resultSet)
+        return self.create_video_item(resultSet)
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -235,7 +235,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
         self.__videoItemFound = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -279,7 +279,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -367,7 +367,7 @@ class Channel(chn_class.Channel):
             alwaysRtmp = False
             if alwaysRtmp or "_rtmp" in streamType:
                 url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmpApplication, streamUrl)
-                url = self.GetVerifiableVideoUrl(url)
+                url = self.get_verifiable_video_url(url)
             elif "_http" in streamType:
                 url = "http://%s/%smaster.m3u8" % (proxy, streamUrl)
             else:

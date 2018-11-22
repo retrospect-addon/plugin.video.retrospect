@@ -46,19 +46,19 @@ class Channel(chn_class.Channel):
 
         episodeRegex = '<a[^>]+href="(?<url>/kijken[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"'
         episodeRegex = Regexer.from_expresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=episodeRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser=episodeRegex, creator=self.create_episode_item)
 
-        self._AddDataParser("*", preprocessor=self.SelectVideoSection)
+        self._add_data_parser("*", preprocessor=self.SelectVideoSection)
 
         videoRegex = Regexer.from_expresso('<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
                                            '\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
                                            '[^>]+></span>\W+(?<description>[^<]+)')
-        self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=videoRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         folderRegex = Regexer.from_expresso('<span class="more-of-program" rel="/(?<url>[^"]+)">')
-        self._AddDataParser("*", parser=folderRegex, creator=self.create_folder_item)
+        self._add_data_parser("*", parser=folderRegex, creator=self.create_folder_item)
 
         #===============================================================================================================
         # non standard items
@@ -136,12 +136,12 @@ class Channel(chn_class.Channel):
         resultSet["title"] = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         return chn_class.Channel.create_folder_item(self, resultSet)
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         if not item.url.endswith("m3u8"):
             data = UriHandler.open(item.url, proxy=self.proxy)
@@ -162,7 +162,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(stream, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             part.append_media_stream(s, b)
 
         # var playerConfig = {"id":"mediaplayer","width":"100%","height":"100%","autostart":"false","image":"http:\/\/www.ketnet.be\/sites\/default\/files\/thumb_5667ea22632bc.jpg","brand":"ketnet","source":{"hls":"http:\/\/vod.stream.vrt.be\/ketnet\/_definst_\/mp4:ketnet\/2015\/12\/Ben_ik_familie_van_R001_A0023_20151208_143112_864.mp4\/playlist.m3u8"},"analytics":{"type_stream":"vod","playlist":"Ben ik familie van?","program":"Ben ik familie van?","episode":"Ben ik familie van?: Warre - Aflevering 3","parts":"1","whatson":"270157835527"},"title":"Ben ik familie van?: Warre - Aflevering 3","description":"Ben ik familie van?: Warre - Aflevering 3"}

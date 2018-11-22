@@ -68,25 +68,25 @@ class Channel(chn_class.Channel):
 
         self.swfUrl = "http://media.mtvnservices.com/player/prime/mediaplayerprime.2.11.4.swf"
 
-        self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/",
-                            name="Main show listing PlayPlay API", json=True,
-                            parser=("data", "items"), creator=self.create_episode_item)
+        self._add_data_parser("http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/",
+                              name="Main show listing PlayPlay API", json=True,
+                              parser=["data", "items"], creator=self.create_episode_item)
 
-        self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/series/items",
-                            name="Main video listing PlayPlay API", json=True,
-                            parser=("data", "items"), creator=self.CreateVideoItem)
+        self._add_data_parser("http://api.playplex.viacom.com/feeds/networkapp/intl/series/items",
+                              name="Main video listing PlayPlay API", json=True,
+                              parser=["data", "items"], creator=self.create_video_item)
 
         # Old API
-        self._AddDataParser("http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
-                            matchType=ParserData.MatchRegex,
-                            name="V2 API show listing", json=True,
-                            parser=(), creator=self.CreateEpisodeItemJson)
-        self._AddDataParser("http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
-                            matchType=ParserData.MatchRegex,
-                            name="V2 API video listing", json=True,
-                            parser=(), creator=self.CreateVideoItemJson)
+        self._add_data_parser("http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
+                              match_type=ParserData.MatchRegex,
+                              name="V2 API show listing", json=True,
+                              parser=[], creator=self.CreateEpisodeItemJson)
+        self._add_data_parser("http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
+                              match_type=ParserData.MatchRegex,
+                              name="V2 API video listing", json=True,
+                              parser=[], creator=self.CreateVideoItemJson)
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # # setup the main parsing data
         # if "json" in self.mainListUri:
@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
         #     self.episodeItemJson = ()
         #     self.videoItemJson = ()
         #     self.create_episode_item = self.CreateEpisodeItemJson
-        #     self.CreateVideoItem = self.CreateVideoItemJson
+        #     self.create_video_item = self.CreateVideoItemJson
         # else:
         #     Logger.Debug("Doing a HTML version of MTV")
         #     self.episodeItemRegex = '<a href="/(shows/[^"]+)" title="([^"]+)"><img [^>]+src="([^"]+)"'  # used for the ParseMainList
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         Logger.trace(resultSet)
 
         title = resultSet["title"]
@@ -191,7 +191,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -247,7 +247,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -299,7 +299,7 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -322,7 +322,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         url = item.url
         data = UriHandler.open(url, proxy=self.proxy)
@@ -335,7 +335,7 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
         for videoItem in videoItems:
-            mediaUrl = self.GetVerifiableVideoUrl(videoItem[1].replace("rtmpe", "rtmp"))
+            mediaUrl = self.get_verifiable_video_url(videoItem[1].replace("rtmpe", "rtmp"))
             part.append_media_stream(mediaUrl, videoItem[0])
 
         item.complete = True

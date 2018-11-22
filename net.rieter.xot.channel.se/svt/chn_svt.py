@@ -40,84 +40,84 @@ class Channel(chn_class.Channel):
         self.swfUrl = "https://media.svt.se/swf/video/svtplayer-2016.01.swf"
 
         # setup the intial listing based on Alphabeth and specials
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveItemsAndGenres)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddLiveItemsAndGenres)
         # in case we use the All Titles and Singles
-        self._AddDataParser("https://www.svtplay.se/api/all_titles_and_singles",
-                            matchType=ParserData.MatchExact, json=True,
-                            # preprocessor=self.FetchThumbData,
-                            parser=(), creator=self.MergeJsonEpisodeItem)
+        self._add_data_parser("https://www.svtplay.se/api/all_titles_and_singles",
+                              match_type=ParserData.MatchExact, json=True,
+                              # not used: preprocessor=self.FetchThumbData,
+                              parser=[], creator=self.MergeJsonEpisodeItem)
 
         # setup channel listing based on JSON data
-        self._AddDataParser("#kanaler",
-                            preprocessor=self.LoadChannelData,
-                            json=True,
-                            parser=("hits", ),
-                            creator=self.CreateChannelItem)
+        self._add_data_parser("#kanaler",
+                              preprocessor=self.LoadChannelData,
+                              json=True,
+                              parser=["hits", ],
+                              creator=self.CreateChannelItem)
 
         # special pages (using JSON) using a generic pre-processor to extract the data
         specialJsonPages = "^https?://www.svtplay.se/(senaste|sista-chansen|populara|live)\?sida=\d+$"
-        self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
-        self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, json=True,
-                            parser=("gridPage", "content"),
-                            creator=self.CreateJsonItem)
-        self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, json=True,
-                            parser=("gridPage", "pagination"),
-                            creator=self.CreateJsonPageItem)
+        self._add_data_parser(specialJsonPages,
+                              match_type=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
+        self._add_data_parser(specialJsonPages,
+                              match_type=ParserData.MatchRegex, json=True,
+                              parser=["gridPage", "content"],
+                              creator=self.CreateJsonItem)
+        self._add_data_parser(specialJsonPages,
+                              match_type=ParserData.MatchRegex, json=True,
+                              parser=["gridPage", "pagination"],
+                              creator=self.CreateJsonPageItem)
 
         # genres (using JSON)
-        self._AddDataParser("https://www.svtplay.se/genre",
-                            preprocessor=self.ExtractJsonData, json=True,
-                            name="Parser for dynamically parsing tags/genres from overview",
-                            matchType=ParserData.MatchExact,
-                            parser=("clusters", "alphabetical"),
-                            creator=self.CreateJsonGenre)
+        self._add_data_parser("https://www.svtplay.se/genre",
+                              preprocessor=self.ExtractJsonData, json=True,
+                              name="Parser for dynamically parsing tags/genres from overview",
+                              match_type=ParserData.MatchExact,
+                              parser=["clusters", "alphabetical"],
+                              creator=self.CreateJsonGenre)
 
-        self._AddDataParser("https://www.svtplay.se/genre/",
-                            preprocessor=self.ExtractJsonData, json=True,
-                            name="Video/Folder parsers for items in a Genre/Tag",
-                            parser=("clusterPage", "titlesAndEpisodes"),
-                            creator=self.CreateJsonItem)
+        self._add_data_parser("https://www.svtplay.se/genre/",
+                              preprocessor=self.ExtractJsonData, json=True,
+                              name="Video/Folder parsers for items in a Genre/Tag",
+                              parser=["clusterPage", "titlesAndEpisodes"],
+                              creator=self.CreateJsonItem)
 
-        self._AddDataParser("https://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
-        self._AddDataParser("https://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchPage", "episodes"),
-                            creator=self.CreateJsonItem)
-        self._AddDataParser("https://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchPage", "videosAndTitles"),
-                            creator=self.CreateJsonItem)
+        self._add_data_parser("https://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
+        self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
+                              parser=["searchPage", "episodes"],
+                              creator=self.CreateJsonItem)
+        self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
+                              parser=["searchPage", "videosAndTitles"],
+                              creator=self.CreateJsonItem)
 
         # slugged items for which we need to filter tab items
-        self._AddDataParser("^https?://www.svtplay.se/[^?]+\?tab=", matchType=ParserData.MatchRegex,
-                            preprocessor=self.ExtractSlugData, json=True, updater=self.UpdateVideoHtmlItem)
+        self._add_data_parser("^https?://www.svtplay.se/[^?]+\?tab=", match_type=ParserData.MatchRegex,
+                              preprocessor=self.ExtractSlugData, json=True, updater=self.UpdateVideoHtmlItem)
 
         # Other Json items
-        self._AddDataParser("*", preprocessor=self.ExtractJsonData, json=True)
+        self._add_data_parser("*", preprocessor=self.ExtractJsonData, json=True)
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
         self.__excludedTabs = ["RELATED_VIDEOS_ACCORDION_UPCOMING", ]
-        self._AddDataParser("*", json=True,
-                            preprocessor=self.ListSomeVideos,
-                            parser=("relatedVideoContent", "relatedVideosAccordion"),
-                            creator=self.CreateJsonFolderItem)
+        self._add_data_parser("*", json=True,
+                              preprocessor=self.ListSomeVideos,
+                              parser=["relatedVideoContent", "relatedVideosAccordion"],
+                              creator=self.CreateJsonFolderItem)
 
         # And the old stuff
         catRegex = Regexer.from_expresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
-        self._AddDataParser("https://www.svtplay.se/barn",
-                            matchType=ParserData.MatchExact,
-                            preprocessor=self.StripNonCategories, parser=catRegex,
-                            creator=self.CreateCategoryItem)
+        self._add_data_parser("https://www.svtplay.se/barn",
+                              match_type=ParserData.MatchExact,
+                              preprocessor=self.StripNonCategories, parser=catRegex,
+                              creator=self.CreateCategoryItem)
 
         # Update via HTML pages
-        self._AddDataParser("https://www.svtplay.se/video/", updater=self.UpdateVideoHtmlItem)
-        self._AddDataParser("https://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
+        self._add_data_parser("https://www.svtplay.se/video/", updater=self.UpdateVideoHtmlItem)
+        self._add_data_parser("https://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
         # Update via the new API urls
-        self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
-        self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
+        self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
+        self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
 
         # ===============================================================================================================
         # non standard items
@@ -808,7 +808,7 @@ class Channel(chn_class.Channel):
 
             elif video["url"].startswith("rtmp"):
                 # just replace some data in the URL
-                part.append_media_stream(self.GetVerifiableVideoUrl(video["url"]).replace("_definst_", "?slist="), video[1])
+                part.append_media_stream(self.get_verifiable_video_url(video["url"]).replace("_definst_", "?slist="), video[1])
             else:
                 part.append_media_stream(url, 0)
 

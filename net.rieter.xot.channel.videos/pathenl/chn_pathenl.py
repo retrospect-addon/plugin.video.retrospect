@@ -41,14 +41,14 @@ class Channel(chn_class.Channel):
                                 "Accept": "application/json"}
             self.mainListUri = "https://connect.pathe.nl/v1/cinemas"
 
-            self._AddDataParser("https://connect.pathe.nl/v1/cinemas", json=True, matchType=ParserData.MatchExact,
-                                parser=(), creator=self.CreateCinema)
-            self._AddDataParser("/movies/nowplaying", json=True, matchType=ParserData.MatchEnd,
-                                parser=(), creator=self.CreateMovie)
-            self._AddDataParser("https://connect.pathe.nl/v1/movies/", json=True,
-                                parser=['trailers'], creator=self.CreateTrailer)
-            self._AddDataParser("/schedules?date=", json=True, matchType=ParserData.MatchContains,
-                                preprocessor=self.GetScheduleData, parser=['movies'], creator=self.CreateMovie)
+            self._add_data_parser("https://connect.pathe.nl/v1/cinemas", json=True, match_type=ParserData.MatchExact,
+                                  parser=[], creator=self.CreateCinema)
+            self._add_data_parser("/movies/nowplaying", json=True, match_type=ParserData.MatchEnd,
+                                  parser=[], creator=self.CreateMovie)
+            self._add_data_parser("https://connect.pathe.nl/v1/movies/", json=True,
+                                  parser=['trailers'], creator=self.CreateTrailer)
+            self._add_data_parser("/schedules?date=", json=True, match_type=ParserData.MatchContains,
+                                  preprocessor=self.GetScheduleData, parser=['movies'], creator=self.CreateMovie)
 
         elif self.channelCode == "pathe":
             self.mainListUri = "https://www.pathe.nl"
@@ -271,7 +271,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
     
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -286,7 +286,7 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """
@@ -337,12 +337,12 @@ class Channel(chn_class.Channel):
         item.complete = False        
         return item
     
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
         data = UriHandler.open(item.url, proxy=self.proxy)
         videos = Regexer.do_regex(self.mediaUrlRegex, data)

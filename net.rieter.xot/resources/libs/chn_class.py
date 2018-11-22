@@ -108,8 +108,8 @@ class Channel:
         self.videoItemJson = None       # : used for the ParseMainList
         self.folderItemRegex = ''       # : used for the create_folder_item
         self.folderItemJson = None      # : used for the create_folder_item
-        self.mediaUrlRegex = ''         # : used for the UpdateVideoItem
-        self.mediaUrlJson = None        # : used for the UpdateVideoItem
+        self.mediaUrlRegex = ''         # : used for the update_video_item
+        self.mediaUrlJson = None        # : used for the update_video_item
 
         """
             The ProcessPageNavigation method will parse the current data using the pageNavigationRegex. It will
@@ -144,8 +144,8 @@ class Channel:
         Logger.debug("Initializing channel (init_channel): %s", self)
 
         # Make sure all images are from the correct absolute location
-        # self.icon = self.GetImageLocation(self.icon) -> already in the __init__
-        # self.fanart = self.GetImageLocation(self.fanart) -> already in the __init__
+        # self.icon = self.get_image_location(self.icon) -> already in the __init__
+        # self.fanart = self.get_image_location(self.fanart) -> already in the __init__
         self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
         return
 
@@ -187,7 +187,7 @@ class Channel:
         data_parsers = filter(lambda p: not p.is_video_updater_only(), data_parsers)
         if filter(lambda p: p.LogOnRequired, data_parsers):
             Logger.info("One or more dataparsers require logging in.")
-            self.loggedOn = self.LogOn()
+            self.loggedOn = self.log_on()
 
         # now set the headers here and not earlier in case they might have been update by the logon
         if item is not None and item.HttpHeaders:
@@ -402,7 +402,7 @@ class Channel:
 
         if data_parser.LogOnRequired:
             Logger.info("One or more dataparsers require logging in.")
-            self.loggedOn = self.LogOn()
+            self.loggedOn = self.log_on()
 
         Logger.debug("Processing Updater from %s", data_parser)
         return data_parser.Updater(item)
@@ -560,8 +560,8 @@ class Channel:
 
         # Validate the input and raise errors
         if not isinstance(result_set, dict):
-            Logger.critical("No Dictionary as a result_set. Implement a custom CreateVideoItem")
-            raise NotImplementedError("No Dictionary as a result_set. Implement a custom CreateVideoItem")
+            Logger.critical("No Dictionary as a result_set. Implement a custom create_video_item")
+            raise NotImplementedError("No Dictionary as a result_set. Implement a custom create_video_item")
 
         elif "title" not in result_set or "url" not in result_set:
             Logger.warning("No ?P<title> or ?P<url> in result_set")
@@ -587,53 +587,52 @@ class Channel:
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         # Validate the input and raise errors
-        if not isinstance(resultSet, dict):
-            Logger.critical("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
-            raise NotImplementedError("No Dictionary as a resultSet. Implement a custom CreateVideoItem")
+        if not isinstance(result_set, dict):
+            Logger.critical("No Dictionary as a result_set. Implement a custom create_video_item")
+            raise NotImplementedError("No Dictionary as a result_set. Implement a custom create_video_item")
 
-        elif "title" not in resultSet or "url" not in resultSet:
-            Logger.warning("No ?P<title> or ?P<url> in resultSet")
-            raise LookupError("No ?P<title> or ?P<url> in resultSet")
+        elif "title" not in result_set or "url" not in result_set:
+            Logger.warning("No ?P<title> or ?P<url> in result_set")
+            raise LookupError("No ?P<title> or ?P<url> in result_set")
 
         # The URL
-        url = resultSet["url"]
+        url = result_set["url"]
         if not url.startswith("http"):
             url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
 
         # The title
-        if "subtitle" in resultSet and resultSet["subtitle"]:
-            title = "%(title)s - %(subtitle)s" % resultSet
+        if "subtitle" in result_set and result_set["subtitle"]:
+            title = "%(title)s - %(subtitle)s" % result_set
         else:
-            title = resultSet["title"]
+            title = result_set["title"]
         if title.isupper():
             title = title.title()
 
         item = MediaItem(title, url)
-        item.description = resultSet.get("description", "")
-        item.thumb = resultSet.get("thumburl", "")
+        item.description = result_set.get("description", "")
+        item.thumb = result_set.get("thumburl", "")
         if item.thumb and not item.thumb.startswith("http"):
             item.thumb = "{}{}".format(self.baseUrl.rstrip('/'), item.thumb)
 
@@ -644,14 +643,8 @@ class Channel:
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+    def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -665,9 +658,12 @@ class Channel:
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
 
@@ -675,7 +671,7 @@ class Channel:
         part = MediaItemPart(item.name, url)
         item.MediaItemParts.append(part)
 
-        Logger.info('finishing UpdateVideoItem. MediaItems are %s', item)
+        Logger.info('finishing update_video_item. MediaItems are %s', item)
 
         if not item.thumb and self.noImage:
             # no thumb was set yet and no url
@@ -688,69 +684,8 @@ class Channel:
             item.complete = True
         return item
 
-    # TODO: remove this?
-    def DownloadVideoItem(self, item):
-        """Downloads an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that should be downloaded.
-
-        Returns:
-        The original item with more data added to it's properties.
-
-        Used to download an <item>. If the item is not complete, the self.UpdateVideoItem
-        method is called to update the item. The method downloads only the MediaStream
-        with the bitrate that was set in the addon settings.
-
-        After downloading the self.downloaded property is set.
-
-        """
-
-        if not item.is_playable():
-            Logger.error("Cannot download a folder item.")
-            return item
-
-        if item.is_playable():
-            if not item.complete:
-                Logger.info("Fetching MediaUrl for PlayableItem[%s]", item.type)
-                item = self.process_video_item(item)
-
-            if not item.complete or not item.has_media_item_parts():
-                Logger.error("Cannot download incomplete item or item without MediaItemParts")
-                return item
-
-            i = 1
-            bitrate = AddonSettings.get_max_stream_bitrate(self)
-            for media_item_part in item.MediaItemParts:
-                Logger.info("Trying to download %s", media_item_part)
-                stream = media_item_part.get_media_stream_for_bitrate(bitrate)
-                download_url = stream.Url
-                extension = UriHandler.get_extension_from_url(download_url)
-                if len(item.MediaItemParts) > 1:
-                    save_file_name = "%s-Part_%s.%s" % (item.name, i, extension)
-                else:
-                    save_file_name = "%s.%s" % (item.name, extension)
-                Logger.debug(save_file_name)
-
-                headers = item.HttpHeaders.copy()
-                headers.update(media_item_part.HttpHeaders)
-
-                progress_dialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                folder_name = XbmcWrapper.show_folder_selection('Select download destination for "%s"' % (save_file_name,))
-                UriHandler.download(download_url, save_file_name, folder_name, progress_dialog, proxy=self.proxy,
-                                    additional_headers=headers)
-                i += 1
-
-            item.downloaded = True
-
-        return item
-
-    #noinspection PyUnusedLocal
-    def LogOn(self):
-        """Logs on to a website, using an url.
-
-        Returns:
-        True if successful.
+    def log_on(self):
+        """ Logs on to a website, using an url.
 
         First checks if the channel requires log on. If so and it's not already
         logged on, it should handle the log on. That part should be implemented
@@ -760,6 +695,9 @@ class Channel:
 
         After a successful log on the self.loggedOn property is set to True and
         True is returned.
+
+        :return: indication if the login was successful.
+        :rtype: bool
 
         """
 
@@ -773,8 +711,8 @@ class Channel:
 
         return False
 
-    def PlayVideoItem(self, item, bitrate=None):
-        """Starts the playback of the <item> with the specific <bitrate> in the selected <player>.
+    def play_video_item(self, item, bitrate=None):
+        """ Starts the playback of the <item> with the specific <bitrate> in the selected <player>.
 
         Arguments:
         item    : MediaItem - The item to start playing
@@ -788,12 +726,15 @@ class Channel:
         The updated <item>.
 
         Starts the playback of the selected MediaItem <item>. Before playback is started
-        the item is check for completion (item.complete), if not completed, the self.UpdateVideoItem
+        the item is check for completion (item.complete), if not completed, the self.update_video_item
         method is called to update the item.
 
         After updating the requested bitrate playlist is selected, if bitrate was set to None
         the bitrate is retrieved from the addon settings. The playlist is then played using the
         requested player.
+
+        :return: A Kodi Playlist for this MediaItem and a subtitle.
+        :rtype: tuple[xbmc.PlayList, str]
 
         """
 
@@ -826,7 +767,7 @@ class Channel:
                     Logger.error(headers)
                     stream_filename = "xot.%s.%skbps-%s.%s" % (file_name, stream.Bitrate, item.name, extension)
                     progress_dialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                    cache_file = UriHandler.download(stream.Url, stream_filename, self.GetDefaultCachePath(),
+                    cache_file = UriHandler.download(stream.Url, stream_filename, self.get_default_cache_path(),
                                                      progress_dialog.progress_update, proxy=self.proxy,
                                                      additional_headers=headers)
 
@@ -858,31 +799,35 @@ class Channel:
         # if the item urls have been updated, don't start playback, but return
         return play_list, srt
 
-    def GetDefaultCachePath(self):
-        """ returns the default cache path for this channel
+    def get_default_cache_path(self):
+        """ Returns the default cache path for this channel.
 
         Could be overridden by a channel.
+
+        :return: Returns the default cache path.
+        :rtype: str|unicode
 
         """
 
         return Config.cacheDir
 
-    def GetVerifiableVideoUrl(self, url):
-        """Creates an RTMP(E) url that can be verified using an SWF URL.
+    def get_verifiable_video_url(self, url):
+        """ Creates an RTMP(E) url that can be verified using an SWF URL.
 
-        Arguments:
-        url : string - the URL that should be made verifiable.
-
-        Returns:
-        A new URL that includes the self.swfUrl in the form of "url --swfVfy|-W swfUrl".
+        Returns a new URL that includes the self.swfUrl in the form of "url --swfVfy|-W swfUrl".
         If self.swfUrl == "", the original URL is returned.
+
+        :param str url: The URL that should be made verifiable.
+
+        :return:    A new URL that includes the self.swfUrl
+        :rtype: str
 
         """
 
         if self.swfUrl == "":
             return url
 
-        # Kodi 17.x also accepts an SWF-url as swfvfy option (https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp).
+        # TODO: Kodi 17.x also accepts an SWF-url as swfvfy option (https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp).
         # This option should be set via the XbmcListItem.setProperty, so within Retrospect via:
         #   part.add_property("swfvfy", self.swfUrl)
         # Or as an URL parameter swfvfy where we add the full URL instead of just 1:
@@ -895,68 +840,56 @@ class Channel:
             Logger.debug("Using Legacy (Kodi 16 and older) RTMP parameters")
             return "%s swfurl=%s swfvfy=1" % (url, self.swfUrl)
 
-    def GetImageLocation(self, image):
-        """returns the path for a specific image name.
+    def get_image_location(self, image):
+        """ Returns the path for a specific image name.
 
-        Arguments:
-        image : string - the filename of the requested argument.
+        :param str image: the filename of the requested argument.
 
-        Returns:
-        The full local path to the requested image.
+        :return: The full local path to the requested image.
+        :rtype: str
 
         """
 
         return TextureHandler.instance().get_texture_uri(self, image)
 
-    def _AddDataParsers(self, urls, name=None, preprocessor=None,
-                        parser=None, creator=None, updater=None,
-                        json=False, matchType=ParserData.MatchStart):
+    def _add_data_parsers(self, urls, name=None, preprocessor=None,
+                          parser=None, creator=None, updater=None,
+                          json=False, match_type=ParserData.MatchStart,
+                          requires_logon=False):
         """ Adds a DataParser to the handlers dictionary for the  given urls
 
-        @param urls:            The URLs that triggers these handlers
-        @param preprocessor:    The pre-processor called
-        @param parser:          The parser (regex or json)
-        @param creator:         The creator called with the results from the parser
-        @param updater:         The updater called for updating a item
-        @param json:            Indication whether the parsers are JSON (True) or Regex (False)
-        @param matchType:       The type of matching to use
-
-        @return: Nothing
+        :param list[str] urls:              The URLs that triggers these handlers
+        :param str name:                    The name of the DataParser
+        :param function preprocessor:       The pre-processor called
+        :param str|list[str|int] parser:    The parser (regex or json)
+        :param function creator:            The creator called with the results from the parser
+        :param function updater:            The updater called for updating a item
+        :param bool json:                   Indication whether the parsers are JSON (True) or Regex (False)
+        :param str match_type:              The type of matching to use
+        :param bool requires_logon:         Do we need to be logged on?
 
         """
 
         for url in urls:
-            self._AddDataParser(url, name, preprocessor, parser, creator, updater, json, matchType=matchType)
+            self._add_data_parser(url, name, preprocessor, parser, creator, updater, json,
+                                  match_type=match_type, requires_logon=requires_logon)
         return
 
-    def _GetSetting(self, settingId, valueForNone=None):
-        """ Retrieves channel specific settings. Just to prevent us from importing AddonSettings in all channels.
-
-        @param settingId: the channels specific setting
-        @return: the settings value from the Add-on using the Kodi settings API
-
-        """
-
-        setting = AddonSettings.get_channel_setting(self, settingId, valueForNone)
-        return setting
-
     # noinspection PyPropertyAccess
-    def _AddDataParser(self, url, name=None, preprocessor=None,
-                       parser=None, creator=None, updater=None,
-                       json=False, matchType=ParserData.MatchStart, requiresLogon=False):
+    def _add_data_parser(self, url, name=None, preprocessor=None,
+                         parser=None, creator=None, updater=None,
+                         json=False, match_type=ParserData.MatchStart, requires_logon=False):
         """ Adds a DataParser to the handlers dictionary
 
-        @param url:             The URL that triggers these handlers
-        @param preprocessor:    The pre-processor called
-        @param parser:          The parser (regex or json)
-        @param creator:         The creator called with the results from the parser
-        @param updater:         The updater called for updating a item
-        @param json:            Indication whether the parsers are JSON (True) or Regex (False)
-        @param matchType:       The type of matching to use
-        @param name:            The name of the dataparser
-        @param requiresLogon:   Do we need to logon for this?
-
-        @return: Nothing
+        :param function preprocessor:       The pre-processor called
+        :param str name:                    The name of the DataParser
+        :param str url:                     The URLs that triggers these handlers
+        :param str|list[str|int] parser:    The parser (regex or json)
+        :param function creator:            The creator called with the results from the parser
+        :param function updater:            The updater called for updating a item
+        :param bool json:                   Indication whether the parsers are JSON (True) or Regex (False)
+        :param str match_type:              The type of matching to use
+        :param bool requires_logon:         Do we need to be logged on?
 
         """
 
@@ -967,14 +900,31 @@ class Channel:
         data.Creator = creator
         data.Updater = updater
         data.IsJson = json
-        data.MatchType = matchType
-        data.LogOnRequired = requiresLogon
+        data.MatchType = match_type
+        data.LogOnRequired = requires_logon
 
         if url in self.dataParsers:
             self.dataParsers[url].append(data)
         else:
             self.dataParsers[url] = [data]
         return
+
+    def _get_setting(self, setting_id, value_for_none=None):
+        """ Retrieves channel specific settings. Just to prevent us from importing AddonSettings in all channels.
+
+        @param setting_id:
+        @return:
+
+        :param str setting_id:      the channels specific setting
+        :param str value_for_none:  What value should we interpret as None?
+
+        :return: The settings value from the Add-on using the Kodi settings API.
+        :rtype: str
+
+        """
+
+        setting = AddonSettings.get_channel_setting(self, setting_id, value_for_none)
+        return setting
 
     def __get_data_parsers(self, url):
         """ Fetches a list of dataparsers that are valid for this URL. The Parsers and Creators can then
@@ -1001,41 +951,41 @@ class Channel:
             if url == self.mainListUri:
                 Logger.debug("No DataParsers found. Adding old Mainlist Creators to DataParsers")
                 if self.episodeItemJson is not None:
-                    self._AddDataParser(self.mainListUri,
-                                        parser=self.episodeItemJson, creator=self.create_episode_item,
-                                        json=True, matchType=ParserData.MatchExact)
+                    self._add_data_parser(self.mainListUri,
+                                          parser=self.episodeItemJson, creator=self.create_episode_item,
+                                          json=True, match_type=ParserData.MatchExact)
 
                     if self.episodeItemRegex:
                         Logger.warning("Both JSON and Regex parsers available for mainlist, ignoring Regex.")
                 else:
-                    self._AddDataParser(self.mainListUri,
-                                        parser=self.episodeItemRegex, creator=self.create_episode_item,
-                                        matchType=ParserData.MatchExact)
+                    self._add_data_parser(self.mainListUri,
+                                          parser=self.episodeItemRegex, creator=self.create_episode_item,
+                                          match_type=ParserData.MatchExact)
             else:
                 # Add the folder and video items
                 Logger.debug("No DataParsers found. Adding old FolderList Creators to DataParsers")
-                self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
+                self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
 
                 if self.videoItemJson is not None:
                     # foldder
-                    self._AddDataParser("*", parser=self.folderItemJson, creator=self.create_folder_item)
+                    self._add_data_parser("*", parser=self.folderItemJson, creator=self.create_folder_item)
                     # video
-                    self._AddDataParser("*", parser=self.videoItemJson, creator=self.CreateVideoItem,
-                                        updater=self.UpdateVideoItem, json=True)
+                    self._add_data_parser("*", parser=self.videoItemJson, creator=self.create_video_item,
+                                          updater=self.update_video_item, json=True)
                     # page
-                    self._AddDataParser("*", parser=self.pageNavigationJson, creator=self.create_page_item,
-                                        json=True)
+                    self._add_data_parser("*", parser=self.pageNavigationJson, creator=self.create_page_item,
+                                          json=True)
 
                     if self.folderItemRegex:
                         Logger.warning("Both JSON and Regex parsers available for folders/videos, ignoring Regex.")
                 else:
                     # folder
-                    self._AddDataParser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
+                    self._add_data_parser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
                     # video
-                    self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem,
-                                        updater=self.UpdateVideoItem)
+                    self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item,
+                                          updater=self.update_video_item)
                     # page
-                    self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
+                    self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         # Find the parsers
         # watch = stopwatch.StopWatch('DataParsers', Logger.instance())

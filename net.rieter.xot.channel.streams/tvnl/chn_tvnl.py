@@ -33,8 +33,8 @@ class Channel(chn_class.Channel):
         self.noImage = "tvnlimage.png"
 
         self.mainListUri = "#mainlist"
-        self._AddDataParser(url="#mainlist", preprocessor=self.ParseTvList)
-        self._AddDataParser(url="*", preprocessor=self.ParseSubList)
+        self._add_data_parser(url="#mainlist", preprocessor=self.ParseTvList)
+        self._add_data_parser(url="*", preprocessor=self.ParseSubList)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -90,7 +90,7 @@ class Channel(chn_class.Channel):
         * loading of the data from the item.url
         * perform pre-processing actions
         * creates a sorted list folder items using self.folderItemRegex and self.create_folder_item
-        * creates a sorted list of media items using self.videoItemRegex and self.CreateVideoItem
+        * creates a sorted list of media items using self.videoItemRegex and self.create_video_item
         * create page items using self.ProcessPageNavigation
 
         if item = None then an empty list is returned.

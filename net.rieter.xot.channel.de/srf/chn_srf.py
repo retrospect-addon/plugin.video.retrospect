@@ -35,22 +35,22 @@ class Channel(chn_class.Channel):
         # self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
 
         # setup the intial listing
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            parser=("AssetGroups", "Show"), creator=self.CreateEpisodeItemNew)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              parser=["AssetGroups", "Show"], creator=self.CreateEpisodeItemNew)
 
-        # self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
+        # self._add_data_parser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
         #                     preprocessor=self.GetLiveItems)
 
-        self._AddDataParser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play",
-                            updater=self.UpdateLiveItem)
+        self._add_data_parser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play",
+                              updater=self.UpdateLiveItem)
 
-        self._AddDataParser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup", json=True,
-                            # preprocessor=self.AddCalendar,
-                            parser=('AssetSets', 'AssetSet'),
-                            creator=self.CreateVideoItemNew)
+        self._add_data_parser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/assetSet/listByAssetGroup", json=True,
+                              # preprocessor=self.AddCalendar,
+                              parser=['AssetSets', 'AssetSet'],
+                              creator=self.CreateVideoItemNew)
 
         # TODO: folders
-        self._AddDataParser("http://www.srf.ch/player/webservice/videodetail/", updater=self.UpdateVideoItem)
+        self._add_data_parser("http://www.srf.ch/player/webservice/videodetail/", updater=self.update_video_item)
 
         # ===============================================================================================================
         # Test cases:
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
                         "SRF info live": ("c49c1d73-2f70-0001-138a-15e0c4ccd3d0", "srfinfo.png")}
         for liveItem in liveChannels:
             item = mediaitem.MediaItem(liveItem, liveBase % (liveChannels[liveItem][0],))
-            item.thumb = self.GetImageLocation(liveChannels[liveItem][1])
+            item.thumb = self.get_image_location(liveChannels[liveItem][1])
             item.icon = self.icon
             item.isGeoLocked = True
             item.type = "video"
@@ -162,7 +162,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -177,7 +177,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -228,7 +228,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -266,7 +266,7 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -289,7 +289,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
@@ -300,13 +300,13 @@ class Channel(chn_class.Channel):
             # HLSurlHD=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,q50,q60,.mp4.csmil/master.m3u8
             for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"], self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
         elif "HLSurl" in videoInfo:
             # HLSurl=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,.mp4.csmil/master.m3u8
             for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurl"], self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
 
         if "downloadLink" in videoInfo:
@@ -338,7 +338,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
@@ -353,7 +353,7 @@ class Channel(chn_class.Channel):
                 if ".m3u8" in streamUrl:
                     for s, b in M3u8.get_streams_from_m3u8(streamUrl, self.proxy):
                         item.complete = True
-                        # s = self.GetVerifiableVideoUrl(s)
+                        # s = self.get_verifiable_video_url(s)
                         part.append_media_stream(s, b)
                 else:
                     Logger.debug("Cannot use stream url: %s", streamUrl)
@@ -365,13 +365,13 @@ class Channel(chn_class.Channel):
         #     # HLSurlHD=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,q50,q60,.mp4.csmil/master.m3u8
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"], self.proxy):
         #         item.complete = True
-        #         # s = self.GetVerifiableVideoUrl(s)
+        #         # s = self.get_verifiable_video_url(s)
         #         part.append_media_stream(s, b)
         # elif "HLSurl" in videoInfo:
         #     # HLSurl=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,.mp4.csmil/master.m3u8
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurl"], self.proxy):
         #         item.complete = True
-        #         # s = self.GetVerifiableVideoUrl(s)
+        #         # s = self.get_verifiable_video_url(s)
         #         part.append_media_stream(s, b)
         #
         # if "downloadLink" in videoInfo:

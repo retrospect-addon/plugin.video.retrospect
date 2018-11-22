@@ -42,8 +42,8 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.een.be"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, preprocessor=self.ExtractJson, json=True,
-                            parser=("data", ), creator=self.CreateShowItem)
+        self._add_data_parser(self.mainListUri, preprocessor=self.ExtractJson, json=True,
+                              parser=["data", ], creator=self.CreateShowItem)
 
         videoParser = '<a class="card-teaser"[^>][^>]*href="(?<url>[^"]+)"[^>]*>\W+<div[^>]+' \
                       'style="background-image: url\(\'(?<thumburl>[^\']+/(?<year>\d{4})/' \
@@ -51,10 +51,10 @@ class Channel(chn_class.Channel):
                       '{0,2000}?<div[^>]*>(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)' \
                       '</h3>\W+<div[^>]*>\W+(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
         videoParser = Regexer.from_expresso(videoParser)
-        self._AddDataParser("*", name="Links to teasers of videos (Card teaser)",
-                            # preprocessor=self.CropData,
-                            parser=videoParser, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", name="Links to teasers of videos (Card teaser)",
+                              # preprocessor=self.CropData,
+                              parser=videoParser, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         videoParser = '<a[^>]*class="[^"]+-teaser"[^>]*background-image: url\(\'(?<thumburl>' \
                       '[^\']+/(?<year>\d{4})/(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*href="' \
@@ -62,17 +62,17 @@ class Channel(chn_class.Channel):
                       '(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>\W+' \
                       '(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
         videoParser = Regexer.from_expresso(videoParser)
-        self._AddDataParser("*", name="Links to teasers of videos (Image Teaser)",
-                            # preprocessor=self.CropData,
-                            parser=videoParser, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", name="Links to teasers of videos (Image Teaser)",
+                              # preprocessor=self.CropData,
+                              parser=videoParser, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         singleVideoParser = '>(?<title>[^<]+)</h1>[\w\W]{0,2000}?(?:<h2>?<description>[^<]+)?' \
                             '[\w\W]{0,1000}?data-video="(?<url>[^"]+)"[\w\W]{0,500}data-analytics' \
                             '=\'{&quot;date&quot;:&quot;(?<year>\d+)-(?<month>\d+)-(?<day>\d+)'
         singleVideoParser = Regexer.from_expresso(singleVideoParser)
-        self._AddDataParser("*", name="Pages that contain only a single video",
-                            parser=singleVideoParser, creator=self.CreateVideoItem)
+        self._add_data_parser("*", name="Pages that contain only a single video",
+                              parser=singleVideoParser, creator=self.create_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -113,11 +113,11 @@ class Channel(chn_class.Channel):
         data = data[0: data.find('<div class="section section--12">')]
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         if not resultSet["url"].startswith("http"):
             resultSet["url"] = "https://mediazone.vrt.be/api/v1/een/assets/%(url)s" % resultSet
 
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
         item.fanart = self.parentItem.fanart
         if "year" in resultSet and resultSet["year"]:
             item.set_date(resultSet["year"], resultSet["month"], resultSet["day"])
@@ -151,12 +151,12 @@ class Channel(chn_class.Channel):
             item.fanart = resultSet["image"]["data"]["url"]
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # rtmpt://vrt.flash.streampower.be/een//2011/07/1000_110723_getipt_neefs_wiels_Website_EEN.flv
         # http://www.een.be/sites/een.be/modules/custom/vrt_video/player/player_4.3.swf
@@ -200,7 +200,7 @@ class Channel(chn_class.Channel):
         #     mediaurl = mediaurl.replace(" ", "%20")
         #
         #     if "rtmp" in mediaurl:
-        #         mediaurl = self.GetVerifiableVideoUrl(mediaurl)
+        #         mediaurl = self.get_verifiable_video_url(mediaurl)
         #         # In some cases the RTMPT does not work. Let's just try the RTMP first and then add the original if the RTMP version fails.
         #         part.append_media_stream(mediaurl.replace("rtmpt://", "rtmp://"), 650)
         #     elif "rtsp" in mediaurl:

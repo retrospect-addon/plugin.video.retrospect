@@ -54,12 +54,12 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
         # get additional info
         data = UriHandler.open(item.url, proxy=self.proxy)
@@ -75,7 +75,7 @@ class Channel(chn_class.Channel):
             youTubeUrl = youTubeUrl[0].replace("embed/", "watch?v=")
             for s, b in YouTube.get_streams_from_you_tube(youTubeUrl, self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
             return item
 
@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
                     part.append_media_stream("%s%s" % (baseUrl, url[0]), bitrate=int(int(url[1]) / 1000))
                 item.complete = True
 
-            Logger.trace("UpdateVideoItem complete: %s", item)
+            Logger.trace("update_video_item complete: %s", item)
             return item
 
         # Try the brightcove

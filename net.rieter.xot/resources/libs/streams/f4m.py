@@ -31,7 +31,7 @@ class F4m:
             part = item.create_new_empty_media_part()
             for s, b in F4m.get_streams_from_f4m(url, self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
 
         """

@@ -56,28 +56,23 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.tv4play.se"
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
 
-        self.episodeItemJson = ("results",)
-        self._AddDataParser(self.mainListUri,
-                            preprocessor=self.AddCategoriesAndSpecials, json=True,
-                            matchType=ParserData.MatchExact,  # requiresLogon=True,
-                            parser=self.episodeItemJson, creator=self.create_episode_item)
+        self.episodeItemJson = ["results",]
+        self._add_data_parser(self.mainListUri,
+                              preprocessor=self.AddCategoriesAndSpecials, json=True,
+                              match_type=ParserData.MatchExact,  # No longer used:  requiresLogon=True,
+                              parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        # favRegex = '<a href="/program/(?<nid>[^"]+)"><img[^>]+alt="(?<name>[^"]+)"[^>]+src="(?<program_image>[^"]+)'
-        # self._AddDataParser("http://www.tv4play.se/program/favourites", name="Favourite parser",
-        #                     requiresLogon=True,
-        #                     parser=Regexer.from_expresso(favRegex), creator=self.create_episode_item)
+        self._add_data_parser("http://webapi.tv4play.se/play/categories.json", json=True, match_type=ParserData.MatchExact,
+                              parser=[], creator=self.CreateCategoryItem)
+        self._add_data_parser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
+                              parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self._AddDataParser("http://webapi.tv4play.se/play/categories.json", json=True, matchType=ParserData.MatchExact,
-                            parser=(), creator=self.CreateCategoryItem)
-        self._AddDataParser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
-                            parser=self.episodeItemJson, creator=self.create_episode_item)
+        self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1", updater=self.UpdateLiveItem)
 
-        self._AddDataParser("http://tv4live-i.akamaihd.net/hls/live/", updater=self.UpdateLiveItem)
-        self._AddDataParser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1", updater=self.UpdateLiveItem)
-
-        self.videoItemJson = ("results",)
-        self._AddDataParser("*", preprocessor=self.pre_process_folder_list, json=True,
-                            parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        self.videoItemJson = ["results",]
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list, json=True,
+                              parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -91,7 +86,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    # def LogOn(self):
+    # def log_on(self):
     #     """ Makes sure that we are logged on. """
     #
     #     username = AddonSettings.get_setting("channel_tv4play_se_username")
@@ -464,7 +459,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -479,7 +474,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -568,7 +563,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -591,7 +586,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -670,7 +665,7 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
 
-        spoofIp = self._GetSetting("spoof_ip", "0.0.0.0")
+        spoofIp = self._get_setting("spoof_ip", "0.0.0.0")
         if spoofIp:
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
                 part.append_media_stream(s, b)

@@ -58,43 +58,43 @@ class Channel(chn_class.Channel):
                        '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
                        '(?:</p>)?\W*</div>'
         episodeRegex = Regexer.from_expresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, name="Main A-Z listing",
-                            preprocessor=self.AddCategories,
-                            matchType=ParserData.MatchExact,
-                            parser=episodeRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, name="Main A-Z listing",
+                              preprocessor=self.AddCategories,
+                              match_type=ParserData.MatchExact,
+                              parser=episodeRegex, creator=self.create_episode_item)
 
-        self._AddDataParser("#channels", name="Main channel name listing",
-                            preprocessor=self.ListChannels)
+        self._add_data_parser("#channels", name="Main channel name listing",
+                              preprocessor=self.ListChannels)
 
-        self._AddDataParser("https://search.vrt.be/suggest?facets[categories]",
-                            name="JSON Show Parser", json=True,
-                            parser=(), creator=self.CreateShowItem)
+        self._add_data_parser("https://search.vrt.be/suggest?facets[categories]",
+                              name="JSON Show Parser", json=True,
+                              parser=[], creator=self.CreateShowItem)
 
-        self._AddDataParser("https://services.vrt.be/videoplayer/r/live.json", json=True,
-                            name="Live streams parser",
-                            parser=(), creator=self.CreateLiveStream)
-        self._AddDataParsers(["http://live.stream.vrt.be/", "https://live-vrt.akamaized.net"],
-                             name="Live streams updater",
-                             updater=self.UpdateLiveVideo)
-        self._AddDataParser("https://live-[^/]+\.vrtcdn\.be",
-                            matchType=ParserData.MatchRegex,
-                            name="Live streams updater",
-                            updater=self.UpdateLiveVideo)
+        self._add_data_parser("https://services.vrt.be/videoplayer/r/live.json", json=True,
+                              name="Live streams parser",
+                              parser=[], creator=self.CreateLiveStream)
+        self._add_data_parsers(["http://live.stream.vrt.be/", "https://live-vrt.akamaized.net"],
+                               name="Live streams updater",
+                               updater=self.UpdateLiveVideo)
+        self._add_data_parser("https://live-[^/]+\.vrtcdn\.be",
+                              match_type=ParserData.MatchRegex,
+                              name="Live streams updater",
+                              updater=self.UpdateLiveVideo)
 
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
                    '*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
                    '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
         catregex = Regexer.from_expresso(catregex)
-        self._AddDataParser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
-                            matchType=ParserData.MatchExact,
-                            parser=catregex,
-                            creator=self.CreateCategory)
+        self._add_data_parser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
+                              match_type=ParserData.MatchExact,
+                              parser=catregex,
+                              creator=self.CreateCategory)
 
         folderRegex = '<li class="vrt-labelnav--item "[^>]*>\s*<h2[^<]*>\s*<a[^>]*href="' \
                       '(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
         folderRegex = Regexer.from_expresso(folderRegex)
-        self._AddDataParser("*", name="Folder/Season parser",
-                            parser=folderRegex, creator=self.create_folder_item)
+        self._add_data_parser("*", name="Folder/Season parser",
+                              parser=folderRegex, creator=self.create_folder_item)
 
         videoRegex = '<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
                      '<div[^>]*>\W*<h[23][^>]*>\s*(?<title>[^<]+)\s*(?:<br />\s*)*</h[23]>\W*' \
@@ -104,8 +104,8 @@ class Channel(chn_class.Channel):
 
         # No need for a subtitle for now as it only includes the textual date
         videoRegex = Regexer.from_expresso(videoRegex)
-        self._AddDataParser("*", name="Video item parser",
-                            parser=videoRegex, creator=self.CreateVideoItem)
+        self._add_data_parser("*", name="Video item parser",
+                              parser=videoRegex, creator=self.create_video_item)
 
         # needs to be after the standard video item regex
         singleVideoRegex = '<script type="application/ld\+json">\W+({[\w\W]+?})\s*</script'
@@ -113,10 +113,10 @@ class Channel(chn_class.Channel):
         #                    '[^ ]+)[\w\W]{0,4000}<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>' \
         #                    '\W*<span[^>]+>(?<description>[^<]+)'
         singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
-        self._AddDataParser("*", name="Single video item parser",
-                            parser=singleVideoRegex, creator=self.CreateSingleVideoItem)
+        self._add_data_parser("*", name="Single video item parser",
+                              parser=singleVideoRegex, creator=self.CreateSingleVideoItem)
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem, requiresLogon=True)
+        self._add_data_parser("*", updater=self.update_video_item, requires_logon=True)
 
         # ===============================================================================================================
         # non standard items
@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def LogOn(self):
+    def log_on(self):
         apiKey = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
 
         # Do we still have a valid short living token (1 hour)? If so, we have an active session.
@@ -215,7 +215,7 @@ class Channel(chn_class.Channel):
                 return True
 
         Logger.warning("Failed to extend the VRT.be session.")
-        username = self._GetSetting("username")
+        username = self._get_setting("username")
         if not username:
             return None
 
@@ -398,12 +398,12 @@ class Channel(chn_class.Channel):
         item.fanart = self.parentItem.fanart
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         if "title" not in resultSet or resultSet["title"] is None:
             resultSet["title"] = resultSet.pop("subtitle")
 
         resultSet["title"] = resultSet["title"].strip()
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if item is None:
             return None
 
@@ -437,8 +437,8 @@ class Channel(chn_class.Channel):
             part.append_media_stream(s, b)
         return item
 
-    def UpdateVideoItem(self, item):
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+    def update_video_item(self, item):
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # we need to fetch the actual url as it might differ for single video items
         data, secureUrl = UriHandler.header(item.url, proxy=self.proxy)

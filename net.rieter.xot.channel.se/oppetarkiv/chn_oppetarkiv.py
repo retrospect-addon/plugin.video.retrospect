@@ -46,18 +46,18 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         # self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self.episodeItemRegex = '<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
-        self._AddDataParser(self.mainListUri,
-                            preprocessor=self.AddSearchAndGenres,
-                            parser=self.episodeItemRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri,
+                              preprocessor=self.AddSearchAndGenres,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
                               '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
                               '*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
         self.pageNavigationRegex = '<a href="(/[^?]+\?[^"]*sida=)(\d+)(&amp;sort=[^"]+)?'
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
+        self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         self.__genre = None
@@ -200,7 +200,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -215,7 +215,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -258,7 +258,7 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -281,7 +281,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy)
         json = JsonHelper(data, Logger.instance())

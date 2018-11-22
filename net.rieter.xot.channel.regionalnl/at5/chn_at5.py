@@ -39,26 +39,26 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         epsideItemRegex = '<option value="(\d+)"[^>]*>([^<]+)'
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=epsideItemRegex, creator=self.create_episode_item,
-                            preprocessor=self.AddLiveChannel)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser=epsideItemRegex, creator=self.create_episode_item,
+                              preprocessor=self.AddLiveChannel)
 
         # Main video items
         videoItemRegex = 'data-href="/(gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">' \
                          '\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+' \
                          '<div class="uitz_new_desc">(?:\W*<div[^>]*>){1,2}[^-]*-([^<]+)</div>' \
                          '\W+div class="uitz_new_desc_title_time">\W+\w+ (\d+) (\w+) (\d+) (\d+):(\d+)'
-        self._AddDataParser("*",
-                            parser=videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              parser=videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         # Paging
         self.pageNavigationRegexIndex = 1
         pageNavigationRegex = '<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
-        self._AddDataParser("*",
-                            parser=pageNavigationRegex, creator=self.create_page_item)
+        self._add_data_parser("*",
+                              parser=pageNavigationRegex, creator=self.create_page_item)
 
-        self._AddDataParser("#livestream", updater=self.UpdateLiveStream)
+        self._add_data_parser("#livestream", updater=self.UpdateLiveStream)
 
         #===============================================================================================================
         # non standard items
@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -113,7 +113,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -156,12 +156,12 @@ class Channel(chn_class.Channel):
                 part.append_media_stream(s, b)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy).decode('unicode_escape')
         streams = Regexer.do_regex("file:\W+'([^']+)'", data)
@@ -179,14 +179,14 @@ class Channel(chn_class.Channel):
 
             if "_hi.mp4" in s:
                 # if s.startswith("rtmp"):
-                #     s = self.GetVerifiableVideoUrl(s)
+                #     s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, 2402 + bitrateAdd)
                 part.append_media_stream(s.replace("_hi.mp4", "_medium.mp4"), 1402 + bitrateAdd)
                 part.append_media_stream(s.replace("_hi.mp4", "_low.mp4"), 302 + bitrateAdd)
 
             elif "_medium.mp4" in s:
                 # if s.startswith("rtmp"):
-                #     s = self.GetVerifiableVideoUrl(s)
+                #     s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, 1402 + bitrateAdd)
                 part.append_media_stream(s.replace("_medium.mp4", "_low.mp4"), 302 + bitrateAdd)
         item.complete = True

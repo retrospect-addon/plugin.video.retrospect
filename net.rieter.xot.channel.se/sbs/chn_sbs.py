@@ -141,51 +141,51 @@ class Channel(chn_class.Channel):
         #===========================================================================================
         # THIS CHANNEL DOES NOT SEEM TO WORK WITH PROXIES VERY WELL!
         #===========================================================================================
-        self._AddDataParser("#programs", preprocessor=self.LoadPrograms)
-        # self._AddDataParser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
+        self._add_data_parser("#programs", preprocessor=self.LoadPrograms)
+        # self._add_data_parser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
         #                     matchType=ParserData.MatchRegex,
         #                     updater=self.UpdateChannelItem)
 
         # Recent
-        self._AddDataParser("/content/videos?decorators=viewingHistory&"
+        self._add_data_parser("/content/videos?decorators=viewingHistory&"
                             "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
                             "filter%5BprimaryChannel.id%5D=",
-                            name="Recent video items", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", ), creator=self.CreateVideoItemWithShowTitle)
+                              name="Recent video items", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", ], creator=self.CreateVideoItemWithShowTitle)
 
-        self._AddDataParser("/content/videos?decorators=viewingHistory&"
+        self._add_data_parser("/content/videos?decorators=viewingHistory&"
                             "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
                             "filter%5BprimaryChannel.id%5D=",
-                            name="Recent more pages", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", ), creator=self.CreateVideoItem)
+                              name="Recent more pages", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", ], creator=self.create_video_item)
 
         # Search
-        self._AddDataParser("http.+content/shows\?.+query=.+", matchType=ParserData.MatchRegex,
-                            name="Search shows", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            parser=("data",), creator=self.CreateProgramItem)
+        self._add_data_parser("http.+content/shows\?.+query=.+", match_type=ParserData.MatchRegex,
+                              name="Search shows", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              parser=["data", ], creator=self.CreateProgramItem)
 
-        self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
-                            name="Search videos", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            parser=("data",), creator=self.CreateVideoItemWithShowTitle)
+        self._add_data_parser("http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
+                              name="Search videos", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              parser=["data", ], creator=self.CreateVideoItemWithShowTitle)
 
-        self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
-                            name="Search Pages", json=True,
-                            parser=("meta", ), creator=self.create_page_item)
+        self._add_data_parser("http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
+                              name="Search Pages", json=True,
+                              parser=["meta", ], creator=self.create_page_item)
 
         # Others
-        self._AddDataParser("*", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            parser=("data",), creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              parser=["data", ], creator=self.create_video_item,
+                              updater=self.update_video_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("meta", ), creator=self.create_page_item)
+        self._add_data_parser("*", json=True,
+                              parser=["meta", ], creator=self.create_page_item)
 
         #===========================================================================================
         # non standard items
@@ -432,9 +432,9 @@ class Channel(chn_class.Channel):
         return []
 
     def CreateVideoItemWithShowTitle(self, resultSet):
-        return self.CreateVideoItem(resultSet, include_show_title=True)
+        return self.create_video_item(resultSet, include_show_title=True)
 
-    def CreateVideoItem(self, resultSet, include_show_title=False):
+    def create_video_item(self, resultSet, include_show_title=False):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -449,7 +449,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -517,7 +517,7 @@ class Channel(chn_class.Channel):
         item.complete = self.__GetVideoStreams(videoId, part)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:

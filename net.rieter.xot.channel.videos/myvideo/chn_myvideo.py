@@ -30,20 +30,20 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.episodeItemRegex = "<a class='nArrow' href='([^']+)' title='[^']*'>([^<]+)</a>"
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddCategories,
-                            parser=self.episodeItemRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, preprocessor=self.AddCategories,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         # Add generic Pre Procesor
-        self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
 
         self.videoItemRegex = "<img id='([^']+)' src='([^']+)' class='vThumb' alt='[^']*' [^>]+></a></div></div><div class='sCenter vTitle'><span class='title'><a[^>]+title='([^']+)'"
         self.mediaUrlRegex = '<item>\W*<file>\W*([^>]*)\W*</file>\W*<bandwidth>(\d+)</bandwidth>'
-        self._AddDataParser("*", parser=self.episodeItemRegex, creator=self.create_episode_item,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=self.episodeItemRegex, creator=self.create_episode_item,
+                              updater=self.update_video_item)
 
         self.pageNavigationRegex = "<a class='pView pnNumbers'  href='([^?]+\?lpage=)(\d+)([^']+)"
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
+        self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -140,7 +140,7 @@ class Channel(chn_class.Channel):
         Logger.trace("%s (%s)", item.name, item.url)
         return item
     
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -155,7 +155,7 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """

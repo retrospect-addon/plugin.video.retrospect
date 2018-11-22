@@ -64,43 +64,43 @@ class Channel(chn_class.Channel):
             self.noImage = "kijkimage.png"
 
         # setup the main parsing data
-        self._AddDataParser("https://api.kijk.nl/v1/default/sections/programs-abc",
-                            name="Mainlist Json", json=True,
-                            preprocessor=self.AddOthers,
-                            parser=("items", ), creator=self.CreateJsonEpisodeItem)
+        self._add_data_parser("https://api.kijk.nl/v1/default/sections/programs-abc",
+                              name="Mainlist Json", json=True,
+                              preprocessor=self.AddOthers,
+                              parser=["items", ], creator=self.CreateJsonEpisodeItem)
 
-        self._AddDataParser("https://www.kijk.nl/programmas", matchType=ParserData.MatchExact,
-                            name="Mainlist from HTML", json=True,
-                            preprocessor=self.ExtractMainListJson)
+        self._add_data_parser("https://www.kijk.nl/programmas", match_type=ParserData.MatchExact,
+                              name="Mainlist from HTML", json=True,
+                              preprocessor=self.ExtractMainListJson)
 
-        self._AddDataParser("https://api.kijk.nl/v2/templates/page/format/",
-                            name="Videos from the main show format page", json=True,
-                            parser=("components", 3, "data", "items", 2, "data", "items"),
-                            creator=self.CreateJsonSeasonItem)
+        self._add_data_parser("https://api.kijk.nl/v2/templates/page/format/",
+                              name="Videos from the main show format page", json=True,
+                              parser=["components", 3, "data", "items", 2, "data", "items"],
+                              creator=self.CreateJsonSeasonItem)
 
-        self._AddDataParser("#lastweek",
-                            name="Last week listing", json=True,
-                            preprocessor=self.ListDates)
+        self._add_data_parser("#lastweek",
+                              name="Last week listing", json=True,
+                              preprocessor=self.ListDates)
 
-        self._AddDataParsers(("https://api.kijk.nl/v2/templates/page/missed/all/",
-                              "https://api.kijk.nl/v1/default/sections/missed-all-"),
-                             name="Day listing", json=True, preprocessor=self.ExtractDayItems)
+        self._add_data_parsers(["https://api.kijk.nl/v2/templates/page/missed/all/",
+                               "https://api.kijk.nl/v1/default/sections/missed-all-"],
+                               name="Day listing", json=True, preprocessor=self.ExtractDayItems)
 
-        self._AddDataParser("https://api.kijk.nl/v1/default/searchresultsgrouped",
-                            name="VideoItems Json", json=True,
-                            parser=(), creator=self.CreateJsonSearchItem)
+        self._add_data_parser("https://api.kijk.nl/v1/default/searchresultsgrouped",
+                              name="VideoItems Json", json=True,
+                              parser=[], creator=self.CreateJsonSearchItem)
 
-        self._AddDataParsers(("https://api.kijk.nl/v1/default/sections/series",
-                              "https://api.kijk.nl/v1/default/seasons/"),
-                             name="VideoItems Json", json=True,
-                             parser=("items", ), creator=self.CreateJsonVideoItem)
+        self._add_data_parsers(["https://api.kijk.nl/v1/default/sections/series",
+                               "https://api.kijk.nl/v1/default/seasons/"],
+                               name="VideoItems Json", json=True,
+                               parser=["items", ], creator=self.CreateJsonVideoItem)
 
-        self._AddDataParser("https://api.kijk.nl/v2/default/sections/popular",
-                            name="Popular items Json", json=True,
-                            parser=("items", ), creator=self.CreateJsonPopularItem)
+        self._add_data_parser("https://api.kijk.nl/v2/default/sections/popular",
+                              name="Popular items Json", json=True,
+                              parser=["items", ], creator=self.CreateJsonPopularItem)
 
-        self._AddDataParser("https://embed.kijk.nl/",
-                            updater=self.UpdateJsonVideoItem)
+        self._add_data_parser("https://embed.kijk.nl/",
+                              updater=self.UpdateJsonVideoItem)
 
         #===============================================================================================================
         # non standard items

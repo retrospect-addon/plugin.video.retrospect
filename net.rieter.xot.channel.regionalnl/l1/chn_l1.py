@@ -37,21 +37,21 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         episodeRegex = '<li>\W*<a[^>]*href="(?<url>/[^"]+)"[^>]*>(?<title>[^<]+)</a>\W*</li>'
         episodeRegex = Regexer.from_expresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, preprocessor=self.pre_process_folder_list,
-                            parser=episodeRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, preprocessor=self.pre_process_folder_list,
+                              parser=episodeRegex, creator=self.create_episode_item)
 
         # live stuff
-        self._AddDataParsers(("#livetv", "#liveradio"), updater=self.UpdateLiveStream)
+        self._add_data_parsers(["#livetv", "#liveradio"], updater=self.UpdateLiveStream)
 
         videoRegex = '<a[^>]*class="mediaItem"[^>]*href="(?<url>[^"]+)"[^>]*title="(?<title>' \
                      '[^"]+)"[^>]*>[\w\W]{0,500}?<img[^>]+src="/(?<thumburl>[^"]+)'
         videoRegex = Regexer.from_expresso(videoRegex)
-        self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=videoRegex, creator=self.create_video_item, updater=self.update_video_item)
 
         pageRegex = '<a[^>]+href="https?://l1.nl/([^"]+?pagina=)(\d+)"'
         pageRegex = Regexer.from_expresso(pageRegex)
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=pageRegex, creator=self.create_page_item)
+        self._add_data_parser("*", parser=pageRegex, creator=self.create_page_item)
         # self.episodeItemRegex = '<a href="(http://www.l1.nl/programma/[^"]+)">([^<]+)'  # used for the ParseMainList
         # self.videoItemRegex = '(:?<a href="/video/[^"]+"[^>]+><img src="([^"]+)"[^>]+>[\w\W]{0,200}){0,1}<a href="(/video/[^"]+-(\d{1,2})-(\w{3})-(\d{4})[^"]*|/video/[^"]+)"[^>]*>([^>]+)</a>'
 
@@ -119,8 +119,8 @@ class Channel(chn_class.Channel):
             return None
         return item
 
-    def CreateVideoItem(self, resultSet):
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+    def create_video_item(self, resultSet):
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if not item.thumb.startswith("http"):
             item.thumb = "%s/%s" % (self.baseUrl, item.thumb)
         return item
@@ -140,7 +140,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -181,17 +181,17 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         for s, b in NpoStream.get_streams_from_npo(None, episode_id=episodeId, proxy=self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             part.append_media_stream(s, b)
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy)
         javascriptUrls = Regexer.do_regex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
@@ -227,8 +227,4 @@ class Channel(chn_class.Channel):
                 url = "%s%s" % (self.baseUrl, url)
             item.thumb = url
         item.complete = True
-        return item
-
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item

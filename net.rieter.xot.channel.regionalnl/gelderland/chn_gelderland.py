@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
     
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -79,7 +79,7 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """
@@ -92,7 +92,7 @@ class Channel(chn_class.Channel):
         
         videoUrl = resultSet[0]
         videoUrl = videoUrl.replace(" ", "%20")
-        #videoUrl = self.GetVerifiableVideoUrl(videoUrl)
+        #videoUrl = self.get_verifiable_video_url(videoUrl)
         # convert RTMP to HTTP
         #rtmp://media.omroepgelderland.nl         /uitzendingen/video/2012/07/120714 338 Carrie on.mp4
         #http://content.omroep.nl/omroepgelderland/uitzendingen/video/2012/07/120714 338 Carrie on.mp4

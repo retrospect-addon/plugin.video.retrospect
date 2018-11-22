@@ -41,15 +41,15 @@ class Channel(chn_class.Channel):
         videoItemRegex = '<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<div[^>]+background-image: url\(\'(?<thumburl>[^\']+)\'[^>]+>(?:[^>]+>){7}\W*<h5>(?<title>[^<]+)<[^>]*>\s*(?<date>\d+-\d+-\d+\s+\d+:\d+)(?:[^>]+>){11}\W*(?<description>[^<]+)</p>'
         videoItemRegex = Regexer.from_expresso(videoItemRegex)
 
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStreams,
-                            parser=videoItemRegex, creator=self.CreateVideoItem)
+        self._add_data_parser(self.mainListUri, preprocessor=self.AddLiveStreams,
+                              parser=videoItemRegex, creator=self.create_video_item)
 
-        self._AddDataParser("https://[^/]*.cloudfront.net/live/", updater=self.UpdateLiveUrls,
-                            matchType=ParserData.MatchRegex)
+        self._add_data_parser("https://[^/]*.cloudfront.net/live/", updater=self.UpdateLiveUrls,
+                              match_type=ParserData.MatchRegex)
 
-        self._AddDataParser("*", preprocessor=self.AddLiveStreams,
-                            parser=videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", preprocessor=self.AddLiveStreams,
+                              parser=videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -120,8 +120,8 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateVideoItem(self, resultSet):
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+    def create_video_item(self, resultSet):
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if item is None:
             return item
 
@@ -129,7 +129,7 @@ class Channel(chn_class.Channel):
         item.set_date(*timeStamp[0:6])
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         data = UriHandler.open(item.url, proxy=self.proxy)
         jsonData = Regexer.do_regex("video.createPlayer\(JSON.parse\('([^']+)", data)[0]
         jsonData = jsonData.decode('unicode-escape').encode('ascii')
@@ -174,7 +174,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
 
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
             item.complete = True
         return item

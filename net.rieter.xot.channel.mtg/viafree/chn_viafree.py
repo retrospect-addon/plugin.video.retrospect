@@ -104,44 +104,44 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-1.8.swf"
 
         # New JSON page data
-        self._AddDataParser(self.mainListUri, preprocessor=self.ExtractJsonData,
-                            matchType=ParserData.MatchExact)
-        self._AddDataParser(self.mainListUri, preprocessor=self.ExtractCategoriesAndAddSearch, json=True,
-                            matchType=ParserData.MatchExact,
-                            parser=("allProgramsPage", "programs"),
-                            creator=self.CreateJsonEpisodeItem)
+        self._add_data_parser(self.mainListUri, preprocessor=self.ExtractJsonData,
+                              match_type=ParserData.MatchExact)
+        self._add_data_parser(self.mainListUri, preprocessor=self.ExtractCategoriesAndAddSearch, json=True,
+                              match_type=ParserData.MatchExact,
+                              parser=["allProgramsPage", "programs"],
+                              creator=self.CreateJsonEpisodeItem)
 
         # This is the new way, but more complex and some channels have items with missing
         # category slugs and is not compatible with the old method channels.
         self.useNewPages = False
         if self.useNewPages:
-            self._AddDataParser("*", preprocessor=self.ExtractJsonData)
-            self._AddDataParser("*", json=True, preprocessor=self.MergeSeasonData,
-                                # parser=("context", "dispatcher", "stores", "ContentPageProgramStore", "format", "videos", "0", "program"),
-                                # creator=self.CreateJsonVideoItem
-                                )
+            self._add_data_parser("*", preprocessor=self.ExtractJsonData)
+            self._add_data_parser("*", json=True, preprocessor=self.MergeSeasonData,
+                                  # parser=["context", "dispatcher", "stores", "ContentPageProgramStore", "format", "videos", "0", "program"),
+                                  # creator=self.CreateJsonVideoItem
+                                  )
 
-            self._AddDataParser("http://playapi.mtgx.tv/", updater=self.UpdateVideoItem)
+            self._add_data_parser("http://playapi.mtgx.tv/", updater=self.update_video_item)
         else:
-            self._AddDataParser("*", parser=('_embedded', 'videos'), json=True, preprocessor=self.AddClips,
-                                creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-            self.pageNavigationJson = ("_links", "next")
+            self._add_data_parser("*", parser=['_embedded', 'videos'], json=True, preprocessor=self.AddClips,
+                                  creator=self.create_video_item, updater=self.update_video_item)
+            self.pageNavigationJson = ["_links", "next"]
             self.pageNavigationJsonIndex = 0
-            self._AddDataParser("*", json=True,
-                                parser=self.pageNavigationJson, creator=self.create_page_item)
+            self._add_data_parser("*", json=True,
+                                  parser=self.pageNavigationJson, creator=self.create_page_item)
 
-        self._AddDataParser("https://playapi.mtgx.tv/v3/search?term=", json=True,
-                            parser=("_embedded", "formats"), creator=self.CreateJsonSearchItem)
+        self._add_data_parser("https://playapi.mtgx.tv/v3/search?term=", json=True,
+                              parser=["_embedded", "formats"], creator=self.CreateJsonSearchItem)
 
-        self._AddDataParser("/api/playClient;isColumn=true;query=", json=True,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", "formats"), creator=self.CreateJsonEpisodeItem)
-        self._AddDataParser("/api/playClient;isColumn=true;query=", json=True,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", "clips"), creator=self.CreateJsonVideoItem)
-        self._AddDataParser("/api/playClient;isColumn=true;query=", json=True,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", "episodes"), creator=self.CreateJsonVideoItem)
+        self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", "formats"], creator=self.CreateJsonEpisodeItem)
+        self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", "clips"], creator=self.CreateJsonVideoItem)
+        self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", "episodes"], creator=self.CreateJsonVideoItem)
         # ===============================================================================================================
         # non standard items
         self.episodeLabel = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
@@ -390,7 +390,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -406,7 +406,7 @@ class Channel(chn_class.Channel):
         # item.description = resultSet["description"]
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -421,7 +421,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -525,7 +525,7 @@ class Channel(chn_class.Channel):
             part.Subtitle = srt
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -547,7 +547,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         useKodiHls = AddonSettings.use_adaptive_stream_add_on()
 
         # User-agent (and possible other headers), should be consistent over all M3u8 requests (See #864)
@@ -633,7 +633,7 @@ class Channel(chn_class.Channel):
                 if oldUrl != url:
                     Logger.debug("Updated URL from - to:\n%s\n%s", oldUrl, url)
 
-                url = self.GetVerifiableVideoUrl(url)
+                url = self.get_verifiable_video_url(url)
                 part.append_media_stream(url, q[1])
 
             elif "[empty]" in url:

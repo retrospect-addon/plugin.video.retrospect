@@ -34,9 +34,9 @@ class Channel(chn_class.Channel):
         # self.mainListUri = "http://trailers.apple.com/ca/home/feeds/most_pop.json"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, parser=(), json=True, creator=self.create_episode_item)
-        self._AddDataParser("*", json=True, preprocessor=self.GetMovieId,
-                            parser=("clips", ), creator=self.CreateVideoItem)
+        self._add_data_parser(self.mainListUri, parser=[], json=True, creator=self.create_episode_item)
+        self._add_data_parser("*", json=True, preprocessor=self.GetMovieId,
+                              parser=["clips", ], creator=self.create_video_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -95,7 +95,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -110,7 +110,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -157,11 +157,4 @@ class Channel(chn_class.Channel):
                         item.complete = True
 
         item.downloadable = True
-        return item
-
-    #noinspection PyUnusedLocal
-    def CtMnDownloadItem(self, item):
-        """ downloads a video item and returns the updated one
-        """
-        item = self.DownloadVideoItem(item)
         return item

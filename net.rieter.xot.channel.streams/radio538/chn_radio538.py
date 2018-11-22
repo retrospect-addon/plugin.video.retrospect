@@ -48,27 +48,25 @@ class Channel(chn_class.Channel):
             self.__liveData = {}
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveStreams)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddDays)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddLiveStreams)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddDays)
 
-        self._AddDataParser("https://api.538.nl/api/v1/schedule/station/", json=True,
-                            parser=("data",), creator=self.CreateShowItem)
+        self._add_data_parser("https://api.538.nl/api/v1/schedule/station/", json=True,
+                              parser=["data",], creator=self.CreateShowItem)
 
-        self._AddDataParser(self.__liveUrl, json=True,
-                            preprocessor=self.AddMissingLiveStreams,
-                            parser=("includes", "Entry"), creator=self.CreateLiveChannel)
+        self._add_data_parser(self.__liveUrl, json=True,
+                              preprocessor=self.AddMissingLiveStreams,
+                              parser=["includes", "Entry"], creator=self.CreateLiveChannel)
 
         # updater for live streams
-        self._AddDataParsers(("https://talparadiohls-i.akamaihd.net/hls/live/",
-                              "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/",
-                              "https://hls.slam.nl/streaming/hls/"),
-                             # matchType=ParserData.MatchRegex,
-                             updater=self.UpdateLiveStreamM3u8)
-        self._AddDataParsers("https://playerservices.streamtheworld.com/api/livestream",
-                             # matchType=ParserData.MatchRegex,
-                             updater=self.UpdateLiveStreamXml)
+        self._add_data_parsers(["https://talparadiohls-i.akamaihd.net/hls/live/",
+                                "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/",
+                                "https://hls.slam.nl/streaming/hls/"],
+                               updater=self.UpdateLiveStreamM3u8)
+        self._add_data_parser("https://playerservices.streamtheworld.com/api/livestream",
+                              updater=self.UpdateLiveStreamXml)
 
         #===============================================================================================================
         # non standard items
@@ -367,7 +365,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             part.append_media_stream(s, b)
 
         item.complete = True

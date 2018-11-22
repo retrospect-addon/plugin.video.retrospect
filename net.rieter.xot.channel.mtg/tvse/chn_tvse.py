@@ -83,19 +83,19 @@ class Channel(chn_class.Channel):
         self.folderItemRegex = '<option value="(?<url>[^"]+)"\W*>(?<title>[^<]+)</option>'
 
         self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddSearch,
-                            parser=self.episodeItemRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.AddSearch,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
-        self._AddDataParser("*", preprocessor=self.RemoveClips,
-                            parser=self.videoItemRegex, creator=self.CreateVideoItem)
+        self._add_data_parser("*", preprocessor=self.RemoveClips,
+                              parser=self.videoItemRegex, creator=self.create_video_item)
 
         self.folderItemRegex = Regexer.from_expresso(self.folderItemRegex)
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
+        self._add_data_parser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
 
         # Add an updater
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         self.baseUrl = "{0}//{2}".format(*self.mainListUri.split("/", 3))
         self.searchInfo = {
@@ -145,7 +145,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         item = self.create_episode_item(resultSet)
         if item is None:
             return None
@@ -158,7 +158,7 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         headers = {}
         if self.localIP:
             headers.update(self.localIP)

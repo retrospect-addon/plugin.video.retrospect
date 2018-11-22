@@ -42,14 +42,14 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         # self.episodeItemRegex = '<option[^>]+value="([^"]+)"[^=>]+(?:data-season="([^"]+)")?[^=>]*>([^<]+)</option>'
         # self.videoItemJson = ("item",)
-        self._AddDataParser(
+        self._add_data_parser(
             self.mainListUri,
             parser=Regexer.from_expresso('<a [hd][^>]*ata-(?<Type>area|sport)="(?<Url>[^"]+)[^>]*>'
                                          '(?<Title>[^<]+)</a>'),
             creator=self.create_folder_item
         )
 
-        self._AddDataParser(
+        self._add_data_parser(
             self.mainListUri,
             parser=Regexer.from_expresso('<a[^>]+href="/video/(?<Type>filter|meest_bekeken)/?'
                                          '(?<Url>[^"]*)">[^<]*</a>\W+<h1[^>]*>(?<Title>[^<;]+)'
@@ -57,17 +57,17 @@ class Channel(chn_class.Channel):
             creator=self.create_folder_item
         )
 
-        self._AddDataParser(
+        self._add_data_parser(
             "https://www.foxsports.nl/video/filter/fragments/",
             preprocessor=self.AddPages,
             parser=Regexer.from_expresso('<img[^>]+src=\'(?<Thumb>[^\']+)\'[^>]*>\W+</picture>\W+'
                                          '<span class="[^"]+play[\w\W]{0,500}?<h1[^>]*>\W+<a href="'
                                          '(?<Url>[^"]+)"[^>]*>(?<Title>[^<]+)</a>\W+</h1>\W+<span'
                                          '[^>]*>(?<Date>[^>]+)</span>'),
-            creator=self.CreateVideoItem
+            creator=self.create_video_item
         )
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -146,7 +146,7 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -161,7 +161,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
             item.fanart = self.parentItem.fanart
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -201,7 +201,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         if not AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
             Logger.error("Cannot playback video without adaptive stream addon")

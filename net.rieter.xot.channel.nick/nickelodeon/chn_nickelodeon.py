@@ -42,23 +42,23 @@ class Channel(chn_class.Channel):
 
         episodeItemRegex = """<a[^>]+href="(?<url>/[^"]+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'[^>]*>\W*<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
         episodeItemRegex = Regexer.from_expresso(episodeItemRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.NoNickJr,
-                            parser=episodeItemRegex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.NoNickJr,
+                              parser=episodeItemRegex, creator=self.create_episode_item)
         # <h2 class='row-title'>Nick Jr
 
         videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
         videoItemRegex = Regexer.from_expresso(videoItemRegex)
-        self._AddDataParser("*",
-                            preprocessor=self.pre_process_folder_list,
-                            parser=videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              preprocessor=self.pre_process_folder_list,
+                              parser=videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
+        self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
-        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
+        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the update_video_item
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
 
         #===============================================================================================================
@@ -136,7 +136,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -159,7 +159,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy)
 
@@ -189,7 +189,7 @@ class Channel(chn_class.Channel):
             url = "%s/%s" % (rtmpUrl[1], rtmpUrl[2])
             bitrate = rtmpUrl[0]
             # convertedUrl = url.replace("ondemand/","ondemand?slist=")
-            convertedUrl = self.GetVerifiableVideoUrl(url)
+            convertedUrl = self.get_verifiable_video_url(url)
             part.append_media_stream(convertedUrl, bitrate)
 
         item.complete = True

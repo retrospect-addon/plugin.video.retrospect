@@ -113,18 +113,18 @@ class Channel(chn_class.Channel):
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 
         # setup the main parsing data
-        self.episodeItemJson = ()
-        self.videoItemJson = ("items", )
+        self.episodeItemJson = []
+        self.videoItemJson = ["items", ]
 
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveItems, matchType=ParserData.MatchExact,
-                            parser=self.episodeItemJson, creator=self.create_episode_item,
-                            json=True)
+        self._add_data_parser(self.mainListUri, preprocessor=self.AddLiveItems, match_type=ParserData.MatchExact,
+                              parser=self.episodeItemJson, creator=self.create_episode_item,
+                              json=True)
 
         if self.liveUrl:
-            self._AddDataParser(self.liveUrl, preprocessor=self.ProcessLiveItems, updater=self.UpdateVideoItem)
+            self._add_data_parser(self.liveUrl, preprocessor=self.ProcessLiveItems, updater=self.update_video_item)
 
-        self._AddDataParser("*", parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem,
-                            json=True)
+        self._add_data_parser("*", parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item,
+                              json=True)
 
         #===============================================================================================================
         # non standard items
@@ -329,7 +329,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -344,7 +344,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -403,7 +403,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -437,7 +437,7 @@ class Channel(chn_class.Channel):
         else:
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy, append_query_string=True):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
             item.complete = True
 

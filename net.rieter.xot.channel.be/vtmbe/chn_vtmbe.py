@@ -61,27 +61,27 @@ class Channel(chn_class.Channel):
             recentRegex = '<a href="/(?<url>[^"]+)"[^>]*>\W+(?:<div[^>]+>\W+)+<img[^>]+src="(?<thumburl>[^"]+)"[^>]+>\W*<span[^>]*>\W*(?<subtitle>[^<]+)[\w\W]{0,300}?(?:<div[^>]+class="item-caption-program"[^>]*>(?<title>[^<]+)</div>\W*)</div>\W*</div>\W*</div>\W*</a'
             # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
             recentRegex = Regexer.from_expresso(recentRegex)
-            self._AddDataParser("https://vtm.be/video/volledige-afleveringen/id",
-                                matchType=ParserData.MatchExact,
-                                name="Recent Items HTML Video Parser",
-                                parser=recentRegex, creator=self.CreateVideoItemHtml)
+            self._add_data_parser("https://vtm.be/video/volledige-afleveringen/id",
+                                  match_type=ParserData.MatchExact,
+                                  name="Recent Items HTML Video Parser",
+                                  parser=recentRegex, creator=self.CreateVideoItemHtml)
 
             episodeRegex = '<li>\s*<a[^>]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>\s*</li>'
             episodeRegex = Regexer.from_expresso(episodeRegex)
-            self._AddDataParser("https://vtm.be/programmas/az",
-                                name="New VTM parser",
-                                preprocessor=self.AddLiveChannel,
-                                parser=episodeRegex, creator=self.CreateEpisodeItemHtml)
+            self._add_data_parser("https://vtm.be/programmas/az",
+                                  name="New VTM parser",
+                                  preprocessor=self.AddLiveChannel,
+                                  parser=episodeRegex, creator=self.CreateEpisodeItemHtml)
 
             clip_regex = '<a[^>]+href="/(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
             clip_regex = Regexer.from_expresso(clip_regex)
-            self._AddDataParser("*", name="New Video parser for VTM Clips",
-                                parser=clip_regex, creator=self.CreateVideoItemHtml,
-                                updater=self.UpdateHtmlClipItem)
+            self._add_data_parser("*", name="New Video parser for VTM Clips",
+                                  parser=clip_regex, creator=self.CreateVideoItemHtml,
+                                  updater=self.UpdateHtmlClipItem)
 
-            self._AddDataParser("*", name="New Video parser for VTM Videos", json=True,
-                                preprocessor=self.ExtractVtmIdFromJson,
-                                parser=("response", "videos"), creator=self.CreateVideoItemJson)
+            self._add_data_parser("*", name="New Video parser for VTM Videos", json=True,
+                                  preprocessor=self.ExtractVtmIdFromJson,
+                                  parser=["response", "videos"], creator=self.CreateVideoItemJson)
 
         elif self.channelCode == "q2":
             self.__app = "q2"
@@ -96,19 +96,19 @@ class Channel(chn_class.Channel):
 
             htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
             htmlVideoRegex = Regexer.from_expresso(htmlVideoRegex)
-            self._AddDataParser(
+            self._add_data_parser(
                 "https://www.q2.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
                 parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
 
             htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
             htmlEpisodeRegex = Regexer.from_expresso(htmlEpisodeRegex)
-            self._AddDataParser("sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
-                                matchType=ParserData.MatchEnd,
-                                name="HTML Page Show Parser",
-                                preprocessor=self.AddLiveChannel,
-                                parser=htmlEpisodeRegex,
-                                creator=self.CreateEpisodeItemHtml)
+            self._add_data_parser("sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
+                                  match_type=ParserData.MatchEnd,
+                                  name="HTML Page Show Parser",
+                                  preprocessor=self.AddLiveChannel,
+                                  parser=htmlEpisodeRegex,
+                                  creator=self.CreateEpisodeItemHtml)
 
         elif self.channelCode == "stievie":
             self.__app = "stievie"
@@ -119,70 +119,70 @@ class Channel(chn_class.Channel):
 
             # self.mainListUri = "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0"
             self.mainListUri = "https://channels.medialaan.io/channels/v1/channels?preview=false"
-            self._AddDataParser(self.mainListUri,
-                                json=True,  # requiresLogon=True,  # if we need premium for channels
-                                preprocessor=self.StievieMenu,
-                                name="JSON Channel overview",
-                                parser=("response", "channels"),
-                                creator=self.StievieCreateChannelItem)
+            self._add_data_parser(self.mainListUri,
+                                  json=True,  # requiresLogon=True,  # if we need premium for channels
+                                  preprocessor=self.StievieMenu,
+                                  name="JSON Channel overview",
+                                  parser=["response", "channels"],
+                                  creator=self.StievieCreateChannelItem)
 
-            self._AddDataParser("#channel", name="Channel menu parser",
-                                preprocessor=self.StievieChannelMenu)
+            self._add_data_parser("#channel", name="Channel menu parser",
+                                  preprocessor=self.StievieChannelMenu)
 
             # main list parsing
-            self._AddDataParser("https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0",
-                                json=True,
-                                name="Main program list parsing for Stievie",
-                                # preprocessor=self.AddLiveChannel,
-                                creator=self.StievieCreateEpisode,
-                                parser=("response", "videos"))
+            self._add_data_parser("https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0",
+                                  json=True,
+                                  name="Main program list parsing for Stievie",
+                                  # preprocessor=self.AddLiveChannel,
+                                  creator=self.StievieCreateEpisode,
+                                  parser=["response", "videos"])
 
-            self._AddDataParser("https://epg.medialaan.io/epg/v2/", json=True,
-                                name="EPG Stievie parser",
-                                creator=self.StievieCreateEpgItems,
-                                parser=("channels", ))
+            self._add_data_parser("https://epg.medialaan.io/epg/v2/", json=True,
+                                  name="EPG Stievie parser",
+                                  creator=self.StievieCreateEpgItems,
+                                  parser=["channels", ])
 
-            self._AddDataParser("https://vod.medialaan.io/vod/v2/programs?query=",
-                                name="Stievie Search Parser", json=True,
-                                creator=self.StievieCreateEpisode,
-                                parser=("response", "videos"))
+            self._add_data_parser("https://vod.medialaan.io/vod/v2/programs?query=",
+                                  name="Stievie Search Parser", json=True,
+                                  creator=self.StievieCreateEpisode,
+                                  parser=["response", "videos"])
 
         else:
             raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
 
-        self._AddDataParser(
+        self._add_data_parser(
             "https://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
-            matchType=ParserData.MatchRegex,
+            match_type=ParserData.MatchRegex,
             name="HTML Page Video Updater",
-            updater=self.UpdateVideoItem, requiresLogon=True)
+            updater=self.update_video_item, requires_logon=True)
 
-        self._AddDataParser("https://vtm.be/video/volledige-afleveringen/id/",
-                            name="HTML Page Video Updater New Style (AddMoreRecentVideos)",
-                            updater=self.UpdateVideoItem, requiresLogon=True)
+        self._add_data_parser("https://vtm.be/video/volledige-afleveringen/id/",
+                              name="HTML Page Video Updater New Style (AddMoreRecentVideos)",
+                              updater=self.update_video_item, requires_logon=True)
 
         # setup the main parsing data in case of JSON mainlist of the V2 API
-        self._AddDataParser("/feed/programs?format=json&type=all&only_with_video=true",
-                            matchType=ParserData.MatchEnd,
-                            name="JSON Feed Show Parser for Medialaan",
-                            json=True, preprocessor=self.AddLiveChannelAndFetchAllData,
-                            creator=self.CreateEpisodeItemJson, parser=("response", "items"))
+        self._add_data_parser("/feed/programs?format=json&type=all&only_with_video=true",
+                              match_type=ParserData.MatchEnd,
+                              name="JSON Feed Show Parser for Medialaan",
+                              json=True, preprocessor=self.AddLiveChannelAndFetchAllData,
+                              creator=self.CreateEpisodeItemJson, parser=["response", "items"])
 
-        self._AddDataParser("https://vod.medialaan.io/vod/v2/videos/",
-                            matchType=ParserData.MatchRegex,
-                            name="JSON Video Updater for Medialaan",
-                            updater=self.UpdateVideoItemJson, requiresLogon=True)
+        self._add_data_parser("https://vod.medialaan.io/vod/v2/videos/",
+                              match_type=ParserData.MatchRegex,
+                              name="JSON Video Updater for Medialaan",
+                              updater=self.UpdateVideoItemJson, requires_logon=True)
 
-        self._AddDataParser("https://vod.medialaan.io/vod/v2/videos?", json=True,
-                            preprocessor=self.AddVideoPageItemsJson,
-                            parser=("response", "videos"), creator=self.CreateVideoItemJson,
-                            name="JSON Video Listing for Medialaan with programOID")
+        self._add_data_parser("https://vod.medialaan.io/vod/v2/videos?", json=True,
+                              preprocessor=self.AddVideoPageItemsJson,
+                              parser=["response", "videos"], creator=self.CreateVideoItemJson,
+                              name="JSON Video Listing for Medialaan with programOID")
 
-        self._AddDataParser("https://vod.medialaan.io/vod/v2/videos?", json=True,
-                            name="JSON Video Updater for Medialaan with programOID",
-                            updater=self.UpdateVideoEpgItemJson, requiresLogon=True)
+        self._add_data_parser("https://vod.medialaan.io/vod/v2/videos?", json=True,
+                              name="JSON Video Updater for Medialaan with programOID",
+                              updater=self.UpdateVideoEpgItemJson, requires_logon=True)
 
-        self._AddDataParser("#livestream", name="Live Stream Updater for Q2, VTM and Stievie",
-                            requiresLogon=True, updater=self.UpdateLiveStream)
+        self._add_data_parser("#livestream", name="Live Stream Updater for Q2, VTM and Stievie",
+                              requires_logon=True, updater=self.UpdateLiveStream)
 
         # ===============================================================================================================
         # non standard items
@@ -242,7 +242,7 @@ class Channel(chn_class.Channel):
         UriHandler.set_cookie(name="pwv", value="1", domain=domain)
         UriHandler.set_cookie(name="pws", value="functional|analytics|content_recommendation|targeted_advertising|social_media", domain=domain)
 
-    def LogOn(self):
+    def log_on(self):
         signature_settings = "mediaan_signature"
         login_token = AddonSettings.get_setting(signature_settings, store=LOCAL)
         api_key = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
@@ -744,7 +744,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -775,7 +775,7 @@ class Channel(chn_class.Channel):
             item.set_date(resultSet["year"], resultSet["month"], resultSet["day"])
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -798,7 +798,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         if not self.loggedOn:
             Logger.warning("Cannot log on")
@@ -949,7 +949,7 @@ class Channel(chn_class.Channel):
 
             for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
+                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
 
         return item
@@ -957,7 +957,7 @@ class Channel(chn_class.Channel):
     def __GetToken(self):
         """ Requests a playback token """
         if not self.loggedOn:
-            self.loggedOn = self.LogOn()
+            self.loggedOn = self.log_on()
         if not self.loggedOn:
             Logger.warning("Cannot log on")
             return None

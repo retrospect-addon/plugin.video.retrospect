@@ -34,13 +34,13 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.24classics.com"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            json=True, preprocessor=self.MakeEpisodeDictionaryArray,
-                            parser=("items", ), creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              json=True, preprocessor=self.MakeEpisodeDictionaryArray,
+                              parser=["items", ], creator=self.create_episode_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("items", "tracklist"), creator=self.CreateMusicItem,
-                            updater=self.UpdateMusicItem)
+        self._add_data_parser("*", json=True,
+                              parser=["items", "tracklist"], creator=self.CreateMusicItem,
+                              updater=self.UpdateMusicItem)
 
         #===============================================================================================================
         # non standard items
@@ -121,7 +121,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """

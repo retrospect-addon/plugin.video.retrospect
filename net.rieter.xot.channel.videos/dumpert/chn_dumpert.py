@@ -36,12 +36,12 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.mainListUri = "#mainlist"
-        self._AddDataParser(self.mainListUri, preprocessor=self.GetMainListItems)
+        self._add_data_parser(self.mainListUri, preprocessor=self.GetMainListItems)
         self.videoItemRegex = '<a[^>]+href="([^"]+)"[^>]*>\W+<img src="([^"]+)[\W\w]{0,400}<h\d>([^<]+)</h\d>\W+<[^>]' \
                               '*date"{0,1}>(\d+) (\w+) (\d+) (\d+):(\d+)'
-        self._AddDataParser("*",
-                            parser=self.videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              parser=self.videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         self.__IgnoreCookieLaw()
@@ -72,7 +72,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """
@@ -112,7 +112,7 @@ class Channel(chn_class.Channel):
         item.downloadable = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Updates the item
         """

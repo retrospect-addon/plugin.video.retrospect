@@ -49,40 +49,40 @@ class Channel(chn_class.Channel):
 
         episodeRegex = '<a class="program-overview__link" href="(?<url>[^"]+)">(?<title>[^<]+)</a>'
         episodeRegex = Regexer.from_expresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=episodeRegex,
-                            creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser=episodeRegex,
+                              creator=self.create_episode_item)
 
         videoRegex = '<a(?:[^>]+data-background-image="(?<thumburl>[^"]+)")?[^>]+href="(?<url>/video/[^"]+)"[^>]*>(?:\s+<div[^>]+>\s+<div [^>]+data-background-image="(?<thumburl2>[^"]+)")?[\w\W]{0,1000}?<h3[^>]*>(?:<span>)?(?<title>[^<]+)(?:</span>)?</h3>(?:\s+(?:<div[^>]*>\s+)?<div[^>]*>[^<]+</div>\s+<div[^>]+data-timestamp="(?<timestamp>\d+)")?'
         videoRegex = Regexer.from_expresso(videoRegex)
-        self._AddDataParser("*", matchType=ParserData.MatchExact,
-                            name="Normal video items",
-                            parser=videoRegex,
-                            creator=self.CreateVideoItem)
+        self._add_data_parser("*", match_type=ParserData.MatchExact,
+                              name="Normal video items",
+                              parser=videoRegex,
+                              creator=self.create_video_item)
 
         pageRegex = '<button class="button button--default js-load-more-button"\W+data-url="(?<url>[^"]+)"\W+data-page="(?<title>\d+)"'
         pageRegex = Regexer.from_expresso(pageRegex)
-        self._AddDataParser("*", matchType=ParserData.MatchExact,
-                            parser=pageRegex,
-                            creator=self.create_page_item)
+        self._add_data_parser("*", match_type=ParserData.MatchExact,
+                              parser=pageRegex,
+                              creator=self.create_page_item)
 
-        self._AddDataParser("/api/program/fixed/", name="API paging",
-                            matchType=ParserData.MatchContains,
-                            # json=False,
-                            preprocessor=self.ExtractPageData,
-                            parser=videoRegex,
-                            creator=self.CreateVideoItem)
+        self._add_data_parser("/api/program/fixed/", name="API paging",
+                              match_type=ParserData.MatchContains,
+                              # json=False,
+                              preprocessor=self.ExtractPageData,
+                              parser=videoRegex,
+                              creator=self.create_video_item)
 
         # imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)(?:</div>\W*<div[^>]*>\W*)?<div[^>]+data-videoid="(?<videoid>[^"]+)"'
         # imageVideoRegex = Regexer.from_expresso(imageVideoRegex)
-        # self._AddDataParser("*", matchType=ParserData.MatchExact,
+        # self._add_data_parser("*", matchType=ParserData.MatchExact,
         #                     parser=imageVideoRegex,
-        #                     creator=self.CreateVideoItem)
+        #                     creator=self.create_video_item)
 
         # Generic updater with login
-        self._AddDataParser("*",
-                            # requiresLogon=True,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              # requiresLogon=True,
+                              updater=self.update_video_item)
 
         # ==========================================================================================
         # Channel specific stuff
@@ -96,7 +96,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here ===================
         return
 
-    def LogOn(self):
+    def log_on(self):
         if self.__idToken:
             return True
 
@@ -180,7 +180,7 @@ class Channel(chn_class.Channel):
             items.append(pageItem)
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -195,12 +195,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
 
         # All of vier.be video's seem GEO locked.
         item.isGeoLocked = True
@@ -222,7 +222,7 @@ class Channel(chn_class.Channel):
             item.thumb = HtmlEntityHelper.strip_amp(item.thumb)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -245,7 +245,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # https://api.viervijfzes.be/content/c58996a6-9e3d-4195-9ecf-9931194c00bf
         # videoId = item.url.split("/")[-1]
@@ -264,7 +264,7 @@ class Channel(chn_class.Channel):
 
             # We need to log in
             if not self.loggedOn:
-                self.LogOn()
+                self.log_on()
 
             # add authorization header
             authenticationHeader = {
@@ -287,7 +287,7 @@ class Channel(chn_class.Channel):
                 continue
 
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             part.append_media_stream(s, b)
 
         item.complete = True

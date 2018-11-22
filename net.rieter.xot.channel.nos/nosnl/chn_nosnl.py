@@ -56,16 +56,16 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://nos.nl"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, preprocessor=self.GetCategories)
-        self._AddDataParser("*",
-                            # preprocessor=self.AddNextPage,
-                            json=True,
-                            parser=('items', ),
-                            creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
-        self._AddDataParser("*",
-                            json=True,
-                            parser=('links',),
-                            creator=self.create_page_item)
+        self._add_data_parser(self.mainListUri, preprocessor=self.GetCategories)
+        self._add_data_parser("*",
+                              # No longer used: preprocessor=self.AddNextPage,
+                              json=True,
+                              parser=['items', ],
+                              creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
+        self._add_data_parser("*",
+                              json=True,
+                              parser=['links',],
+                              creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -141,7 +141,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -195,7 +195,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem: %s', item.name)
+        Logger.debug('Starting update_video_item: %s', item.name)
 
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
         jsonData = JsonHelper(data)
@@ -230,7 +230,7 @@ class Channel(chn_class.Channel):
                 contentType, url = UriHandler.header(url, self.proxy)
                 for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                     item.complete = True
-                    # s = self.GetVerifiableVideoUrl(s)
+                    # s = self.get_verifiable_video_url(s)
                     part.append_media_stream(s, b)
 
         return item

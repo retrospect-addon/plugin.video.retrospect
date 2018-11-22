@@ -49,43 +49,43 @@ class Channel(chn_class.Channel):
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 
         # JSON Based Main lists
-        self._AddDataParser("https://www.omroepzeeland.nl/tvgemist",
-                            preprocessor=self.AddLiveChannelAndExtractData,
-                            matchType=ParserData.MatchExact,
-                            parser=(), creator=self.CreateJsonEpisodeItem,
-                            json=True)
+        self._add_data_parser("https://www.omroepzeeland.nl/tvgemist",
+                              preprocessor=self.AddLiveChannelAndExtractData,
+                              match_type=ParserData.MatchExact,
+                              parser=[], creator=self.CreateJsonEpisodeItem,
+                              json=True)
 
         # HTML Based Main lists
         htmlEpisodeRegex = '<option\s+value="(?<url>/gemist/uitzending/[^"]+)">(?<title>[^<]*)'
         htmlEpisodeRegex = Regexer.from_expresso(htmlEpisodeRegex)
-        self._AddDataParser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
-                            preprocessor=self.AddLiveChannelAndExtractData,
-                            matchType=ParserData.MatchExact,
-                            parser=htmlEpisodeRegex, creator=self.create_episode_item,
-                            json=False)
+        self._add_data_parser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
+                              preprocessor=self.AddLiveChannelAndExtractData,
+                              match_type=ParserData.MatchExact,
+                              parser=htmlEpisodeRegex, creator=self.create_episode_item,
+                              json=False)
 
         videoItemRegex = '<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*</a>\W*<figcaption(?:[^>]+>\W*){2}<time[^>]+datetime="(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){3}<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
         videoItemRegex = Regexer.from_expresso(videoItemRegex)
-        self._AddDataParser("https://www.rtvutrecht.nl/",
-                            name="HTML Video parsers and updater for JWPlayer embedded JSON",
-                            parser=videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItemJsonPlayer)
+        self._add_data_parser("https://www.rtvutrecht.nl/",
+                              name="HTML Video parsers and updater for JWPlayer embedded JSON",
+                              parser=videoItemRegex, creator=self.create_video_item,
+                              updater=self.UpdateVideoItemJsonPlayer)
 
         # Json based stuff
-        self._AddDataParser("https://www.omroepzeeland.nl/RadioTv/Results?",
-                            name="Video item parser", json=True,
-                            parser=("searchResults", ), creator=self.CreateJsonVideoItem)
+        self._add_data_parser("https://www.omroepzeeland.nl/RadioTv/Results?",
+                              name="Video item parser", json=True,
+                              parser=["searchResults", ], creator=self.CreateJsonVideoItem)
 
-        self._AddDataParser("https://www.omroepzeeland.nl/",
-                            name="Updater for Javascript file based stream data",
-                            updater=self.UpdateVideoItemJavascript)
+        self._add_data_parser("https://www.omroepzeeland.nl/",
+                              name="Updater for Javascript file based stream data",
+                              updater=self.UpdateVideoItemJavascript)
 
         # Live Stuff
-        self._AddDataParser(self.liveUrl, name="Live Stream Creator",
-                            creator=self.CreateLiveItem, parser=(), json=True)
+        self._add_data_parser(self.liveUrl, name="Live Stream Creator",
+                              creator=self.CreateLiveItem, parser=[], json=True)
 
-        self._AddDataParser(".+/live/.+", matchType=ParserData.MatchRegex,
-                            updater=self.UpdateLiveItem)
+        self._add_data_parser(".+/live/.+", match_type=ParserData.MatchRegex,
+                              updater=self.UpdateLiveItem)
         #===============================================================================================================
         # non standard items
 
@@ -139,8 +139,8 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def CreateVideoItem(self, resultSet):
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+    def create_video_item(self, resultSet):
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if item is None:
             return None
 

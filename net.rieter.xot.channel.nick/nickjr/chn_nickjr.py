@@ -55,20 +55,20 @@ class Channel(chn_class.Channel):
         else:
             raise NotImplementedError("Unknown channel code")
 
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.ExtractJson,
-                            parser=(), creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.ExtractJson,
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("stream", ),
-                            creator=self.CreateVideoItems,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", json=True,
+                              parser=["stream", ],
+                              creator=self.CreateVideoItems,
+                              updater=self.update_video_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("pagination", ),
-                            creator=self.create_page_item)
+        self._add_data_parser("*", json=True,
+                              parser=["pagination", ],
+                              creator=self.create_page_item)
 
-        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
+        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the update_video_item
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
 
         #===============================================================================================================
@@ -164,13 +164,13 @@ class Channel(chn_class.Channel):
         items = []
         for resultSet in resultSets.get("items", []):
             if "data" in resultSet and resultSet["data"]:
-                item = self.CreateVideoItem(resultSet["data"])
+                item = self.create_video_item(resultSet["data"])
                 if item:
                     items.append(item)
 
         return items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -185,7 +185,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -226,7 +226,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -249,7 +249,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         metaData = UriHandler.open(item.url, proxy=self.proxy, referer=self.baseUrl)
         meta = JsonHelper(metaData)

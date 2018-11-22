@@ -36,24 +36,24 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.rtl.nl"
 
         # setup the main parsing data
-        self.episodeItemJson = ("abstracts",)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveStreams,
-                            parser=self.episodeItemJson, creator=self.create_episode_item)
+        self.episodeItemJson = ["abstracts",]
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddLiveStreams,
+                              parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self.videoItemJson = ("material",)
-        self.folderItemJson = ("seasons",)
-        self._AddDataParser("*", preprocessor=self.pre_process_folder_list)
-        self._AddDataParser("*", json=True,
-                            parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        self._AddDataParser("*", parser=self.folderItemJson, creator=self.create_folder_item, json=True)
+        self.videoItemJson = ["material",]
+        self.folderItemJson = ["seasons",]
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
+        self._add_data_parser("*", json=True,
+                              parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item)
+        self._add_data_parser("*", parser=self.folderItemJson, creator=self.create_folder_item, json=True)
 
         #===============================================================================================================
         # non standard items
         self.largeIconSet = dict()
 
         for channel in ["rtl4", "rtl5", "rtl7", "rtl8"]:
-            self.largeIconSet[channel] = self.GetImageLocation("%slarge.png" % (channel,))
+            self.largeIconSet[channel] = self.get_image_location("%slarge.png" % (channel,))
 
         self.__IgnoreCookieLaw()
 
@@ -257,7 +257,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -272,7 +272,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -355,7 +355,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -378,7 +378,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         xmlData = UriHandler.open(item.url, proxy=self.proxy)
         # <ref type='adaptive' device='pc' host='http://manifest.us.rtl.nl' href='/rtlxl/network/pc/adaptive/components/videorecorder/27/278629/278630/d009c025-6e8c-3d11-8aba-dc8579373134.ssm/d009c025-6e8c-3d11-8aba-dc8579373134.m3u8' />
