@@ -947,45 +947,7 @@ class Channel:
 
         # For now we need to be backwards compatible:
         if not self.dataParsers:
-            # Add the mainlist
-            if url == self.mainListUri:
-                Logger.debug("No DataParsers found. Adding old Mainlist Creators to DataParsers")
-                if self.episodeItemJson is not None:
-                    self._add_data_parser(self.mainListUri,
-                                          parser=self.episodeItemJson, creator=self.create_episode_item,
-                                          json=True, match_type=ParserData.MatchExact)
-
-                    if self.episodeItemRegex:
-                        Logger.warning("Both JSON and Regex parsers available for mainlist, ignoring Regex.")
-                else:
-                    self._add_data_parser(self.mainListUri,
-                                          parser=self.episodeItemRegex, creator=self.create_episode_item,
-                                          match_type=ParserData.MatchExact)
-            else:
-                # Add the folder and video items
-                Logger.debug("No DataParsers found. Adding old FolderList Creators to DataParsers")
-                self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
-
-                if self.videoItemJson is not None:
-                    # foldder
-                    self._add_data_parser("*", parser=self.folderItemJson, creator=self.create_folder_item)
-                    # video
-                    self._add_data_parser("*", parser=self.videoItemJson, creator=self.create_video_item,
-                                          updater=self.update_video_item, json=True)
-                    # page
-                    self._add_data_parser("*", parser=self.pageNavigationJson, creator=self.create_page_item,
-                                          json=True)
-
-                    if self.folderItemRegex:
-                        Logger.warning("Both JSON and Regex parsers available for folders/videos, ignoring Regex.")
-                else:
-                    # folder
-                    self._add_data_parser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
-                    # video
-                    self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item,
-                                          updater=self.update_video_item)
-                    # page
-                    self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
+            self.__generate_data_parsers_from_old_methods(url)
 
         # Find the parsers
         # watch = stopwatch.StopWatch('DataParsers', Logger.instance())
@@ -1026,6 +988,62 @@ class Channel:
         else:
             Logger.debug("Found %s DataParsers for '%s'", len(data_parsers), url)
         return data_parsers
+
+    def __generate_data_parsers_from_old_methods(self, url):
+        """ Generates Data Parsers based on the old regular expressions or the JSON queries.
+        The regular expression suppersede the JSON.
+
+        :param str url: The URL to match
+
+        """
+
+        # Add the mainlist
+        if url == self.mainListUri:
+            Logger.debug("No DataParsers found. Adding old Mainlist Creators to DataParsers")
+            if self.episodeItemJson is not None:
+                self._add_data_parser(self.mainListUri,
+                                      parser=self.episodeItemJson, creator=self.create_episode_item,
+                                      json=True, match_type=ParserData.MatchExact)
+
+                if self.episodeItemRegex:
+                    Logger.warning(
+                        "Both JSON and Regex parsers available for mainlist, ignoring Regex.")
+            else:
+                self._add_data_parser(self.mainListUri,
+                                      parser=self.episodeItemRegex, creator=self.create_episode_item,
+                                      match_type=ParserData.MatchExact)
+        else:
+            # Add the folder and video items
+            Logger.debug("No DataParsers found. Adding old FolderList Creators to DataParsers")
+            self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
+
+            if self.videoItemJson is not None:
+                # foldder
+                self._add_data_parser("*", parser=self.folderItemJson,
+                                      creator=self.create_folder_item)
+                # video
+                self._add_data_parser("*", parser=self.videoItemJson,
+                                      creator=self.create_video_item,
+                                      updater=self.update_video_item, json=True)
+                # page
+                self._add_data_parser("*", parser=self.pageNavigationJson,
+                                      creator=self.create_page_item,
+                                      json=True)
+
+                if self.folderItemRegex:
+                    Logger.warning(
+                        "Both JSON and Regex parsers available for folders/videos, ignoring Regex.")
+            else:
+                # folder
+                self._add_data_parser("*", parser=self.folderItemRegex,
+                                      creator=self.create_folder_item)
+                # video
+                self._add_data_parser("*", parser=self.videoItemRegex,
+                                      creator=self.create_video_item,
+                                      updater=self.update_video_item)
+                # page
+                self._add_data_parser("*", parser=self.pageNavigationRegex,
+                                      creator=self.create_page_item)
 
     def __str__(self):
         """Returns a string representation of the current channel."""
