@@ -109,7 +109,6 @@ class Channel(chn_class.Channel):
             Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 
         item.complete = False
-        item.downloadable = True
         return item
 
     def update_video_item(self, item):

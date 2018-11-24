@@ -10,14 +10,12 @@
 #===============================================================================
 
 import urlparse
-from datetime import datetime
 
 from mediaitem import MediaItem, MediaItemPart
-from locker import LockWithDialog
 
 from regexer import Regexer
 from cloaker import Cloaker
-from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper
+from xbmcwrapper import XbmcWrapper
 from config import Config
 from initializer import Initializer
 from logger import Logger
@@ -26,7 +24,6 @@ from parserdata import ParserData
 from textures import TextureHandler
 
 from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.encodinghelper import EncodingHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.statistics import Statistics
@@ -714,17 +711,6 @@ class Channel:
     def play_video_item(self, item, bitrate=None):
         """ Starts the playback of the <item> with the specific <bitrate> in the selected <player>.
 
-        Arguments:
-        item    : MediaItem - The item to start playing
-
-        Keyword Arguments:
-        bitrate : [opt] integer - The requested bitrate in Kbps or None.
-        plugin  : [opt] boolean - Indication whether we are in plugin mode. If True, there
-                                  will not actually be playback, rather a tuple with info.
-
-        Returns:
-        The updated <item>.
-
         Starts the playback of the selected MediaItem <item>. Before playback is started
         the item is check for completion (item.complete), if not completed, the self.update_video_item
         method is called to update the item.
@@ -732,6 +718,9 @@ class Channel:
         After updating the requested bitrate playlist is selected, if bitrate was set to None
         the bitrate is retrieved from the addon settings. The playlist is then played using the
         requested player.
+
+        :param MediaItem item:      The item to start playing
+        :param int|none bitrate:    The requested bitrate in Kbps or None.
 
         :return: A Kodi Playlist for this MediaItem and a subtitle.
         :rtype: tuple[xbmc.PlayList, str]
@@ -742,59 +731,11 @@ class Channel:
             # use the bitrate from the Kodi settings if bitrate was not specified and the item is MultiBitrate
             bitrate = AddonSettings.get_max_stream_bitrate(self)
 
-        # should we download items?
-        Logger.debug("Checking for not streamable parts")
-        # We need to substract the download time from processing time
-        download_start = datetime.now()
-        for part in item.MediaItemParts:
-            # TODO: remove the CanStream and Download stuff
-            if not part.CanStream:
-                stream = part.get_media_stream_for_bitrate(bitrate)
-                if not stream.Downloaded:
-                    Logger.debug("Downloading not streamable part: %s\nDownloading Stream: %s", part, stream)
-
-                    # we need a unique filename
-                    file_name = EncodingHelper.encode_md5(stream.Url)
-                    extension = UriHandler.get_extension_from_url(stream.Url)
-
-                    # now we force the busy dialog to close, else we cannot cancel the download
-                    # setResolved will not work.
-                    LockWithDialog.close_busy_dialog()
-
-                    headers = item.HttpHeaders.copy()
-                    headers.update(part.HttpHeaders)
-
-                    Logger.error(headers)
-                    stream_filename = "xot.%s.%skbps-%s.%s" % (file_name, stream.Bitrate, item.name, extension)
-                    progress_dialog = XbmcDialogProgressWrapper("Downloading Item", item.name, stream.Url)
-                    cache_file = UriHandler.download(stream.Url, stream_filename, self.get_default_cache_path(),
-                                                     progress_dialog.progress_update, proxy=self.proxy,
-                                                     additional_headers=headers)
-
-                    if cache_file == "":
-                        Logger.error("Cannot download stream %s \nFrom: %s", stream, part)
-                        return
-
-                    if cache_file.startswith("\\\\"):
-                        cache_file = cache_file.replace("\\", "/")
-                        stream.Url = "file:///%s" % (cache_file,)
-                    else:
-                        stream.Url = "file://%s" % (cache_file,)
-
-                    stream.Downloaded = True
-
-        # We need to substract the download time from processing time
-        download_time = datetime.now() - download_start
-        download_duration = 1000 * download_time.seconds + download_time.microseconds / 1000
-
-        # Set item as downloaded
-        item.downloaded = True
-
         # get the playlist
         (play_list, srt) = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
 
         # call for statistics with timing
-        Statistics.register_playback(self, item, Initializer.StartTime, -download_duration)
+        Statistics.register_playback(self, item, Initializer.StartTime)
 
         # if the item urls have been updated, don't start playback, but return
         return play_list, srt

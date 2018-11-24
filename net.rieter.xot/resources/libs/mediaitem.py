@@ -64,8 +64,6 @@ class MediaItem:
                 "isPaid",
                 "__infoLabels",
                 "complete",
-                "downloaded",
-                "downloadable",
                 "items",
                 "HttpHeaders",
                 "rating",
@@ -113,8 +111,6 @@ class MediaItem:
         self.__infoLabels = dict()                # : Additional Kodi InfoLabels
 
         self.complete = False
-        self.downloaded = False
-        self.downloadable = False
         self.items = []
         self.HttpHeaders = dict()                 # : http headers for the item data retrieval
         self.rating = None
@@ -610,16 +606,16 @@ class MediaItem:
 
         if self.is_playable():
             if len(self.MediaItemParts) > 0:
-                value = "MediaItem: %s [Type=%s, Complete=%s, IsLive=%s, Date=%s, Downloadable=%s, Geo/DRM=%s/%s]" % \
+                value = "MediaItem: %s [Type=%s, Complete=%s, IsLive=%s, Date=%s, Geo/DRM=%s/%s]" % \
                         (value, self.type, self.complete, self.isLive, self.__date,
-                         self.downloadable, self.isGeoLocked, self.isDrmProtected)
+                         self.isGeoLocked, self.isDrmProtected)
                 for media_part in self.MediaItemParts:
                     value = "%s\n%s" % (value, media_part)
                 value = "%s" % (value,)
             else:
-                value = "%s [Type=%s, Complete=%s, unknown urls, IsLive=%s, Date=%s, Downloadable=%s, Geo/DRM=%s/%s]" \
+                value = "%s [Type=%s, Complete=%s, unknown urls, IsLive=%s, Date=%s, Geo/DRM=%s/%s]" \
                         % (value, self.type, self.complete, self.isLive, self.__date,
-                           self.downloadable, self.isGeoLocked, self.isDrmProtected)
+                           self.isGeoLocked, self.isDrmProtected)
         else:
             value = "%s [Type=%s, Url=%s, Date=%s, IsLive=%s, Geo/DRM=%s/%s]" \
                     % (value, self.type, self.url, self.__date, self.isLive, self.isGeoLocked, self.isDrmProtected)

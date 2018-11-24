@@ -156,5 +156,4 @@ class Channel(chn_class.Channel):
                             part.append_media_stream(streamUrl, bitrate)
                         item.complete = True
 
-        item.downloadable = True
         return item
