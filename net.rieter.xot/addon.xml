@@ -51,7 +51,7 @@
 
                 <item library="resources\menus\menu_channel_favs.py">
                     <label>30503</label>
-                    <visible>ListItem.Property(RetrospectChannel)</visible>
+                    <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)|ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
                 <item library="resources\menus\menu_all_favs.py">
