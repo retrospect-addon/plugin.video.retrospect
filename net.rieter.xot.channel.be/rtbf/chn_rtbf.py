@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
         if hlsUrl is not None and "m3u8" in hlsUrl:
             Logger.debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
             # from debug.router import Router
-            # data = Router.GetVia("be", hlsUrl, proxy=self.proxy)
+            # data = Router.get_via("be", hlsUrl, proxy=self.proxy)
             for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
                 part.append_media_stream(s, b)
                 item.complete = True

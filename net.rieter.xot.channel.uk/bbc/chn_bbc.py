@@ -224,7 +224,7 @@ class Channel(chn_class.Channel):
 
         streamData = UriHandler.open(streamDataUrl, proxy=self.proxy)
         # from debug.router import Router
-        # streamData = Router.GetVia("uk", streamDataUrl, self.proxy)
+        # streamData = Router.get_via("uk", streamDataUrl, self.proxy)
 
         connectionDatas = Regexer.do_regex(
             '<media bitrate="(\d+)"[^>]+>\W*'
