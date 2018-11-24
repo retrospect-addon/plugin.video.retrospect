@@ -224,7 +224,7 @@ class ChannelInfo:
         Arguments:
         image : String - The filename (not path) of the image
 
-        Returns the path of the image. In case of a XBMC skin image it will
+        Returns the path of the image. In case of a Kodi skin image it will
         return just the filename, else the full path.
 
         """

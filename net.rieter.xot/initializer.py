@@ -39,7 +39,7 @@ class Initializer:
         except:
             path = os.getcwd()
 
-        # the XBMC libs return unicode info, so we need to convert this
+        # the Kodi libs return unicode info, so we need to convert this
         # noinspection PyArgumentEqualDefault
         path = path.decode('utf-8')  # .encode('latin-1')
         # insert the path at the start to prevent other lib-add-ons to steal our class names

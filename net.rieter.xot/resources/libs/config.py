@@ -64,7 +64,7 @@ class Config:
     __addonXmlPath = os.path.join(rootDir, 'addon.xml')
     __addonXmlcontents = xml.dom.minidom.parse(__addonXmlPath)
     for addonentry in __addonXmlcontents.getElementsByTagName("addon"):
-        addonId = str(addonentry.getAttribute("id"))          # : The ID the addon has in XBMC (from addon.xml)
+        addonId = str(addonentry.getAttribute("id"))          # : The ID the addon has in Kodi (from addon.xml)
         __version = addonentry.getAttribute("version")        # : The Version of the addon (from addon.xml) in text
         version = Version(version=__version)                  # : The Version of the addon (from addon.xml)
         #noinspection PyRedeclaration

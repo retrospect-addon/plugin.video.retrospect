@@ -182,7 +182,7 @@ class EnvController:
 
     @staticmethod
     def get_platform(return_name=False):
-        """ Returns the platform that XBMC returns as it's host:
+        """ Returns the platform that Kodi returns as it's host:
 
         * linux   - Normal Linux
         * Xbox    - Native Xbox
@@ -197,7 +197,7 @@ class EnvController:
         """
 
         if not EnvController.__CurrentPlatform:
-            # let's cache the current environment as the call to the xbmc library is very slow.
+            # let's cache the current environment as the call to the Kodi library is very slow.
             platform = Environments.Unknown
             # it's in the .\xbmc\GUIInfoManager.cpp
             if xbmc.getCondVisibility("system.platform.linux"):
@@ -345,7 +345,7 @@ class EnvController:
             return "win32"
 
     def __is_repo_available(self, config, return_name=False):
-        """ Checks if the repository is available in XBMC and returns it's name.
+        """ Checks if the repository is available in Kodi and returns it's name.
 
         :param Config config:   The configuration object of Retrospect
         :param return_name:      If set to True the name of the repository will

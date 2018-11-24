@@ -291,7 +291,7 @@ class ChannelIndex:
         deploy_path = os.path.join(Config.rootDir, "deploy")
         to_deploy = os.listdir(deploy_path)
 
-        # addons folder, different for XBMC and XBMC4Xbox
+        # addons folder, different for Kodi and XBMC4Xbox
         if envcontroller.EnvController.is_platform(Environments.Xbox):
             target_folder = os.path.abspath(
                 os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
@@ -465,13 +465,13 @@ class ChannelIndex:
 
     def __get_addon_path(self):
         # type: () -> str
-        """ Returns the path that holds all the XBMC add-ons. It differs for Xbox and other platforms.
+        """ Returns the path that holds all the Kodi add-ons. It differs for Xbox and other platforms.
 
         @return: The add-on base path
 
         """
 
-        # different paths for XBMC and XBMC4Xbox
+        # different paths for Kodi and XBMC4Xbox
         if envcontroller.EnvController.is_platform(Environments.Xbox):
             addon_path = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
         else:
@@ -578,7 +578,7 @@ class ChannelIndex:
 
         Shows a message dialog if the message should be shown.
 
-        Make sure that each line fits in a single line of a XBMC Dialog box (50 chars)
+        Make sure that each line fits in a single line of a Kodi Dialog box (50 chars)
 
         """
 

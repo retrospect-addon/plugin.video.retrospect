@@ -739,7 +739,7 @@ class Channel:
         """
 
         if bitrate is None:
-            # use the bitrate from the xbmc settings if bitrate was not specified and the item is MultiBitrate
+            # use the bitrate from the Kodi settings if bitrate was not specified and the item is MultiBitrate
             bitrate = AddonSettings.get_max_stream_bitrate(self)
 
         # should we download items?

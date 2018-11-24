@@ -120,7 +120,7 @@ class Logger:
         # now open the file
         self.__open_log()
 
-        # print to the XBMC logfile to tell the user the actual logfile path
+        # print to the Kodi logfile to tell the user the actual logfile path
         if self.dualLog:
             dual_logger("%s :: Additional logging can be found in '%s'" % (self.applicationName, self.logFileName,), 1)
         return

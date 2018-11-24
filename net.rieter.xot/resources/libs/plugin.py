@@ -320,7 +320,7 @@ class Plugin(ParameterParser):
                     Logger.debug("Skipping %s (%s) due to category filter", channel.channelName, channel.category)
                     continue
 
-                # Get the XBMC item
+                # Get the Kodi item
                 item = channel.get_kodi_item()
                 item.setProperty(self.propertyRetrospect, "true")
                 item.setProperty(self.propertyRetrospectChannel, "true")
@@ -333,7 +333,7 @@ class Plugin(ParameterParser):
                 # Get the URL for the item
                 url = self._create_action_url(channel, action=self.actionListFolder)
 
-                # Append to the list of XBMC Items
+                # Append to the list of Kodi Items
                 xbmc_items.append((url, item, True))
 
             # Add the items
@@ -412,7 +412,7 @@ class Plugin(ParameterParser):
                     Logger.critical("Plugin::process_folder_list: Cannot determine what to add")
                     continue
 
-                # Get the XBMC item
+                # Get the Kodi item
                 kodi_item = media_item.get_kodi_item()
                 self.__set_kodi_properties(kodi_item, media_item, folder,
                                            is_favourite=favorites is not None)
@@ -426,7 +426,7 @@ class Plugin(ParameterParser):
                 if url is None:
                     url = self._create_action_url(self.channelObject, action=action, item=media_item)
 
-                # Add them to the list of XBMC items
+                # Add them to the list of Kodi items
                 kodi_items.append((url, kodi_item, folder))
 
             watcher.lap("Kodi Items generated")

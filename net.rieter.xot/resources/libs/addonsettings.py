@@ -26,7 +26,7 @@ LOCAL = "local"
 
 
 class AddonSettings(object):
-    """ Static Class for retrieving XBMC Addon settings """
+    """ Static Class for retrieving Kodi Addon settings """
 
     __NO_PROXY = True
 
@@ -572,7 +572,7 @@ class AddonSettings(object):
 
     @staticmethod
     def get_user_agent():
-        """ Retrieves a user agent string for this XBMC instance.
+        """ Retrieves a user agent string for this Kodi instance.
 
         :return: a user-agent string
         :rtype: str
@@ -584,7 +584,7 @@ class AddonSettings(object):
             user_agent = AddonSettings.store(LOCAL).get_setting(AddonSettings.__USER_AGENT_SETTING)
             AddonSettings.__user_agent = user_agent
 
-            # double check if the version of XBMC is still OK
+            # double check if the version of Kodi is still OK
             if AddonSettings.__user_agent:
                 # noinspection PyNoneFunctionAssignment
                 version = AddonSettings.get_kodi_version()
