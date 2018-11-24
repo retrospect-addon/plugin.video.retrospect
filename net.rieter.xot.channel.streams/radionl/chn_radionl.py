@@ -34,8 +34,8 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         self.mainListUri = "#mainlist"
-        self._AddDataParser(url="#mainlist", preprocessor=self.ParseRadioList)
-        self._AddDataParser(url="*", preprocessor=self.ParseSubList)
+        self._add_data_parser(url="#mainlist", preprocessor=self.ParseRadioList)
+        self._add_data_parser(url="*", preprocessor=self.ParseSubList)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "radionlimage.png"
@@ -45,9 +45,9 @@ class Channel(chn_class.Channel):
 
         # download the stream data
         dataPath = os.path.join(self.path, "data")
-        Logger.Debug("Checking '%s' for data", dataPath)
+        Logger.debug("Checking '%s' for data", dataPath)
         if not os.path.isdir(dataPath):
-            Logger.Info("No data found at '%s', downloading stream data", dataPath)
+            Logger.info("No data found at '%s', downloading stream data", dataPath)
             url = "http://www.rieter.net/net.rieter.xot.repository/net.rieter.xot.channel.streams/" \
                   "net.rieter.xot.channel.streams.radionl.data.zip"
 
@@ -56,14 +56,14 @@ class Channel(chn_class.Channel):
                                                        "net.rieter.xot.channel.streams.radionl.data.zip", url)
 
             # download the zipfile
-            zipFile = UriHandler.Download(url, "net.rieter.xot.channel.streams.radionl.data.zip",
-                                          self.GetDefaultCachePath(), progressDialog)
+            zipFile = UriHandler.download(url, "net.rieter.xot.channel.streams.radionl.data.zip",
+                                          self.get_default_cache_path(), progressDialog)
 
             # and unzip it
-            ZipHelper.Unzip(zipFile, dataPath)
+            ZipHelper.unzip(zipFile, dataPath)
 
             if os.path.isdir(dataPath):
-                Logger.Info("Data successfully downloaded to: %s", dataPath)
+                Logger.info("Data successfully downloaded to: %s", dataPath)
 
         #===============================================================================================================
         # Test cases:
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
         # read the regional ones
         # noinspection PyUnresolvedReferences
         dataPath = os.path.abspath(os.path.join(__file__, '..', 'data'))
-        Logger.Info("Radio stations located at: %s", dataPath)
+        Logger.info("Radio stations located at: %s", dataPath)
         regionals = os.listdir(os.path.join(dataPath, "Regionale Omroepen"))
         for regional in regionals:
             path = os.path.join(dataPath, "Regionale Omroepen", regional) 
@@ -126,8 +126,8 @@ class Channel(chn_class.Channel):
 
         * loading of the data from the item.url
         * perform pre-processing actions
-        * creates a sorted list folder items using self.folderItemRegex and self.CreateFolderItem
-        * creates a sorted list of media items using self.videoItemRegex and self.CreateVideoItem
+        * creates a sorted list folder items using self.folderItemRegex and self.create_folder_item
+        * creates a sorted list of media items using self.videoItemRegex and self.create_video_item
         * create page items using self.ProcessPageNavigation
 
         if item = None then an empty list is returned.
@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
             stationItem.icon = os.path.join(url, "%s%s" % (name, ".tbn"))
             stationItem.complete = True
             stationItem.description = stationItem.name
-            stationItem.AppendSingleStream(stream)
+            stationItem.append_single_stream(stream)
             stationItem.type = "playlist"
             stationItem.thumb = stationItem.icon
             items.append(stationItem)

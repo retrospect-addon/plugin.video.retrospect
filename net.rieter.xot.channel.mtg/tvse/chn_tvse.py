@@ -82,20 +82,20 @@ class Channel(chn_class.Channel):
 
         self.folderItemRegex = '<option value="(?<url>[^"]+)"\W*>(?<title>[^<]+)</option>'
 
-        self.episodeItemRegex = Regexer.FromExpresso(self.episodeItemRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddSearch,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.AddSearch,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
-        self._AddDataParser("*", preprocessor=self.RemoveClips,
-                            parser=self.videoItemRegex, creator=self.CreateVideoItem)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
+        self._add_data_parser("*", preprocessor=self.RemoveClips,
+                              parser=self.videoItemRegex, creator=self.create_video_item)
 
-        self.folderItemRegex = Regexer.FromExpresso(self.folderItemRegex)
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
+        self.folderItemRegex = Regexer.from_expresso(self.folderItemRegex)
+        self._add_data_parser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
 
         # Add an updater
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         self.baseUrl = "{0}//{2}".format(*self.mainListUri.split("/", 3))
         self.searchInfo = {
@@ -122,7 +122,7 @@ class Channel(chn_class.Channel):
         Returns:
         A tuple of the data and a list of MediaItems that were generated.
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -131,22 +131,22 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         title = "\a.: %s :." % (self.searchInfo.get(self.language, self.searchInfo["se"])[1], )
-        Logger.Trace("Adding search item: %s", title)
+        Logger.trace("Adding search item: %s", title)
         searchItem = mediaitem.MediaItem(title, "searchSite")
         searchItem.thumb = self.noImage
         searchItem.fanart = self.fanart
         searchItem.dontGroup = True
         items.append(searchItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
-        item = self.CreateEpisodeItem(resultSet)
+    def create_video_item(self, resultSet):
+        item = self.create_episode_item(resultSet)
         if item is None:
             return None
 
@@ -158,38 +158,54 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         headers = {}
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=headers)
-        m3u8Url = Regexer.DoRegex('data-file="([^"]+)"', data)[0]
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers)
+        m3u8Url = Regexer.do_regex('data-file="([^"]+)"', data)[0]
 
-        part = item.CreateNewEmptyMediaPart()
-        if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
-            stream = part.AppendMediaStream(m3u8Url, 0)
-            M3u8.SetInputStreamAddonInput(stream, proxy=self.proxy, headers=headers)
+        part = item.create_new_empty_media_part()
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
+            stream = part.append_media_stream(m3u8Url, 0)
+            M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers)
             item.complete = True
         else:
-            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy,
-                                                   headers=headers, mapAudio=True):
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy,
+                                                      headers=headers, map_audio=True):
 
                 if a and "-audio" not in s:
                     videoPart = s.rsplit("-", 1)[-1]
                     videoPart = "-%s" % (videoPart,)
                     s = a.replace(".m3u8", videoPart)
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
                 item.complete = True
 
         return item
 
-    def SearchSite(self, url=None):
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
+        """
+
         # https://tvplay.tv3.lt/paieska/Lietuvos%20talentai%20/
         # https://tvplay.tv3.ee/otsi/test%20test%20/
         url = self.__GetSearchUrl()
         url = "{0}/%s/".format(url)
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
     def __GetSearchUrl(self):
         searchInfo = self.searchInfo.get(self.language, None)

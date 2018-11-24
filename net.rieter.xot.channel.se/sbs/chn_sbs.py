@@ -141,62 +141,62 @@ class Channel(chn_class.Channel):
         #===========================================================================================
         # THIS CHANNEL DOES NOT SEEM TO WORK WITH PROXIES VERY WELL!
         #===========================================================================================
-        self._AddDataParser("#programs", preprocessor=self.LoadPrograms)
-        # self._AddDataParser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
+        self._add_data_parser("#programs", preprocessor=self.LoadPrograms)
+        # self._add_data_parser("https://secure.dplay.\w+/secure/api/v2/user/authorization/stream/",
         #                     matchType=ParserData.MatchRegex,
         #                     updater=self.UpdateChannelItem)
 
         # Recent
-        self._AddDataParser("/content/videos?decorators=viewingHistory&"
+        self._add_data_parser("/content/videos?decorators=viewingHistory&"
                             "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
                             "filter%5BprimaryChannel.id%5D=",
-                            name="Recent video items", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", ), creator=self.CreateVideoItemWithShowTitle)
+                              name="Recent video items", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", ], creator=self.CreateVideoItemWithShowTitle)
 
-        self._AddDataParser("/content/videos?decorators=viewingHistory&"
+        self._add_data_parser("/content/videos?decorators=viewingHistory&"
                             "include=images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE&"
                             "filter%5BprimaryChannel.id%5D=",
-                            name="Recent more pages", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            matchType=ParserData.MatchContains,
-                            parser=("data", ), creator=self.CreateVideoItem)
+                              name="Recent more pages", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              match_type=ParserData.MatchContains,
+                              parser=["data", ], creator=self.create_video_item)
 
         # Search
-        self._AddDataParser("http.+content/shows\?.+query=.+", matchType=ParserData.MatchRegex,
-                            name="Search shows", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            parser=("data",), creator=self.CreateProgramItem)
+        self._add_data_parser("http.+content/shows\?.+query=.+", match_type=ParserData.MatchRegex,
+                              name="Search shows", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              parser=["data", ], creator=self.CreateProgramItem)
 
-        self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
-                            name="Search videos", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            parser=("data",), creator=self.CreateVideoItemWithShowTitle)
+        self._add_data_parser("http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
+                              name="Search videos", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              parser=["data", ], creator=self.CreateVideoItemWithShowTitle)
 
-        self._AddDataParser("http.+content/videos\?.+query=.+", matchType=ParserData.MatchRegex,
-                            name="Search Pages", json=True,
-                            parser=("meta", ), creator=self.CreatePageItem)
+        self._add_data_parser("http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
+                              name="Search Pages", json=True,
+                              parser=["meta", ], creator=self.create_page_item)
 
         # Others
-        self._AddDataParser("*", json=True,
-                            preprocessor=self.__GetImagesFromMetaData,
-                            parser=("data",), creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", json=True,
+                              preprocessor=self.__GetImagesFromMetaData,
+                              parser=["data", ], creator=self.create_video_item,
+                              updater=self.update_video_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("meta", ), creator=self.CreatePageItem)
+        self._add_data_parser("*", json=True,
+                              parser=["meta", ], creator=self.create_page_item)
 
         #===========================================================================================
         # non standard items
-        if not UriHandler.GetCookie("st", self.baseUrlApi):
+        if not UriHandler.get_cookie("st", self.baseUrlApi):
             guid = uuid.uuid4()
             guid = str(guid).replace("-", "")
             # https://disco-api.dplay.se/token?realm=dplayse&deviceId
             # =aa9ef0ed760df76d184b262d739299a75ccae7b67eec923fe3fcd861f97bcc7f&shortlived=true
             url = "https://{0}/token?realm=dplay{1}&deviceId={2}&shortlived=true"\
                 .format(self.baseUrlApi, self.language, guid)
-            JsonHelper(UriHandler.Open(url, proxy=self.proxy))
+            JsonHelper(UriHandler.open(url, proxy=self.proxy))
 
         self.imageLookup = {}
         self.showLookup = {}
@@ -219,7 +219,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -236,26 +236,26 @@ class Channel(chn_class.Channel):
                     "&page%5Bsize%5D=100&page%5Bnumber%5D={{0}}".format(self.baseUrlApi)
         # "include=images%2CprimaryChannel" \
         url = urlFormat.format(p)
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
         json = JsonHelper(data)
-        pages = json.GetValue("meta", "totalPages")
-        programs = json.GetValue("data") or []
+        pages = json.get_value("meta", "totalPages")
+        programs = json.get_value("data") or []
 
         # extract the images
         self.__UpdateImageLookup(json)
 
         for p in range(2, pages + 1, 1):
             url = urlFormat.format(p)
-            Logger.Debug("Loading: %s", url)
+            Logger.debug("Loading: %s", url)
 
-            data = UriHandler.Open(url, proxy=self.proxy)
+            data = UriHandler.open(url, proxy=self.proxy)
             json = JsonHelper(data)
-            programs += json.GetValue("data") or []
+            programs += json.get_value("data") or []
 
             # extract the images
             self.__UpdateImageLookup(json)
 
-        Logger.Debug("Found a total of %s items over %s pages", len(programs), pages)
+        Logger.debug("Found a total of %s items over %s pages", len(programs), pages)
 
         for p in programs:
             item = self.CreateProgramItem(p)
@@ -301,7 +301,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         urlFormat = "https://{0}/content/videos?decorators=viewingHistory&" \
                     "include=images%2CprimaryChannel%2Cshow&" \
                     "filter%5BvideoType%5D=EPISODE%2CLIVE%2CFOLLOW_UP&" \
@@ -320,13 +320,13 @@ class Channel(chn_class.Channel):
             date = videoInfo["newestEpisodePublishStart"]
             datePart, timePart = date[0:-3].split("T")
             year, month, day = datePart.split("-")
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
 
         if item.thumb != self.noImage:
             item.fanart = item.thumb
         return item
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -344,7 +344,7 @@ class Channel(chn_class.Channel):
         if "totalPages" not in resultSet:
             return None
 
-        Logger.Debug("Starting CreatePageItem")
+        Logger.debug("Starting create_page_item")
 
         # current page?
         pageUriPart = "page%5Bnumber%5D="
@@ -363,26 +363,20 @@ class Channel(chn_class.Channel):
                 urlFormat = "{0}&page%5Bnumber%5D={{0:d}}&{1}".format(baseUrl, pagePart[nextPart:])
 
         maxPages = resultSet.get("totalPages", 0)
-        Logger.Trace("Current Page: %d of %d (%s)", page, maxPages, self.parentItem.url)
+        Logger.trace("Current Page: %d of %d (%s)", page, maxPages, self.parentItem.url)
 
         if page + 1 > maxPages:
             return None
 
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         url = urlFormat.format(page + 1)
         item = mediaitem.MediaItem(title, url)
         item.fanart = self.parentItem.fanart
         item.thumb = self.parentItem.thumb
         return item
 
-    def SearchSite(self, url=None):
-        """Creates an list of items by searching the site
-
-        Keyword Arguments:
-        url : String - Url to use to search with a %s for the search parameters
-
-        Returns:
-        A list of MediaItems that should be displayed.
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
@@ -390,6 +384,11 @@ class Channel(chn_class.Channel):
 
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
 
         """
 
@@ -416,26 +415,26 @@ class Channel(chn_class.Channel):
                          "page%%5Bsize%%5D={1}&query=%s" \
                 .format(self.baseUrlApi, self.videoPageSize)
 
-        needle = XbmcWrapper.ShowKeyBoard()
+        needle = XbmcWrapper.show_key_board()
         if needle:
-            Logger.Debug("Searching for '%s'", needle)
-            needle = HtmlEntityHelper.UrlEncode(needle)
+            Logger.debug("Searching for '%s'", needle)
+            needle = HtmlEntityHelper.url_encode(needle)
 
             searchUrl = videos_url % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
-            episodes = self.ProcessFolderList(temp)
+            episodes = self.process_folder_list(temp)
 
             searchUrl = shows_url % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
-            shows = self.ProcessFolderList(temp)
+            shows = self.process_folder_list(temp)
             return shows + episodes
 
         return []
 
     def CreateVideoItemWithShowTitle(self, resultSet):
-        return self.CreateVideoItem(resultSet, include_show_title=True)
+        return self.create_video_item(resultSet, include_show_title=True)
 
-    def CreateVideoItem(self, resultSet, include_show_title=False):
+    def create_video_item(self, resultSet, include_show_title=False):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -450,7 +449,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -469,11 +468,11 @@ class Channel(chn_class.Channel):
         if "publishStart" in videoInfo or "airDate" in videoInfo:
             date = videoInfo.get("airDate", videoInfo["publishStart"])
             # 2018-03-20T20:00:00Z
-            airDate = DateHelper.GetDateFromString(date,  dateFormat="%Y-%m-%dT%H:%M:%SZ")
-            item.SetDate(*airDate[0:6])
+            airDate = DateHelper.get_date_from_string(date,  date_format="%Y-%m-%dT%H:%M:%SZ")
+            item.set_date(*airDate[0:6])
             # datePart, timePart = date[0:-3].split("T")
             # year, month, day = datePart.split("-")
-            # item.SetDate(year, month, day)
+            # item.set_date(year, month, day)
             if datetime.datetime(*airDate[0:6]) > datetime.datetime.now():
                 item.isPaid = True
 
@@ -481,7 +480,7 @@ class Channel(chn_class.Channel):
         season = videoInfo.get("seasonNumber", 0)
         if episode > 0 and season > 0:
             item.name = "s{0:02d}e{1:02d} - {2}".format(season, episode, item.name)
-            item.SetSeasonInfo(season, episode)
+            item.set_season_info(season, episode)
 
         if include_show_title:
             show_id = resultSet["relationships"].get("show", {}).get("data", {}).get("id")
@@ -514,11 +513,11 @@ class Channel(chn_class.Channel):
         """
 
         videoId = item.url.rsplit("/", 1)[-1]
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         item.complete = self.__GetVideoStreams(videoId, part)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -541,39 +540,39 @@ class Channel(chn_class.Channel):
 
         """
 
-        videoData = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.localIP)
+        videoData = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.localIP)
 
         if not videoData:
             return item
 
         videoData = JsonHelper(videoData)
-        videoInfo = videoData.GetValue("data", "attributes")
+        videoInfo = videoData.get_value("data", "attributes")
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         m3u8url = videoInfo["streaming"]["hls"]["url"]
 
-        m3u8data = UriHandler.Open(m3u8url, self.proxy)
-        if AddonSettings.UseAdaptiveStreamAddOn():
-            stream = part.AppendMediaStream(m3u8url, 0)
+        m3u8data = UriHandler.open(m3u8url, self.proxy)
+        if AddonSettings.use_adaptive_stream_add_on():
+            stream = part.append_media_stream(m3u8url, 0)
             item.complete = True
-            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            M3u8.set_input_stream_addon_input(stream, self.proxy)
         else:
             # user agent for all sub m3u8 and ts requests needs to be the same
             part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
-            for s, b, a in M3u8.GetStreamsFromM3u8(m3u8url, self.proxy, appendQueryString=False,
-                                                   mapAudio=True, playListData=m3u8data):
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8url, self.proxy, append_query_string=False,
+                                                      map_audio=True, play_list_data=m3u8data):
                 item.complete = True
                 if a:
                     audioPart = a.split("-prog_index.m3u8", 1)[0]
                     audioId = audioPart.rsplit("/", 1)[-1]
                     s = s.replace("-prog_index.m3u8", "-{0}-prog_index.m3u8".format(audioId))
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
-        vttUrl = M3u8.GetSubtitle(m3u8url, self.proxy, m3u8data)
+        vttUrl = M3u8.get_subtitle(m3u8url, self.proxy, m3u8data)
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
         vttUrl = vttUrl.replace("-prog_index.m3u8", "-0.vtt")
-        part.Subtitle = SubtitleHelper.DownloadSubtitle(vttUrl, format='srt', proxy=self.proxy)
+        part.Subtitle = SubtitleHelper.download_subtitle(vttUrl, format='srt', proxy=self.proxy)
         return item
 
     def __GetImagesFromMetaData(self, data):
@@ -582,11 +581,12 @@ class Channel(chn_class.Channel):
         self.__UpdateImageLookup(data)
         return data, items
 
+    # noinspection PyTypeChecker
     def __UpdateImageLookup(self, jsonData):
-        images = filter(lambda a: a["type"] == "image", jsonData.GetValue("included"))
+        images = filter(lambda a: a["type"] == "image", jsonData.get_value("included"))
         images = {str(image["id"]): image["attributes"]["src"] for image in images}
 
-        shows = filter(lambda a: a["type"] == "show", jsonData.GetValue("included"))
+        shows = filter(lambda a: a["type"] == "show", jsonData.get_value("included"))
         shows = {str(show["id"]): show["attributes"]["name"] for show in shows}
         self.showLookup.update(shows)
         self.imageLookup.update(images)
@@ -602,7 +602,7 @@ class Channel(chn_class.Channel):
 
         # hardcoded for now as it does not seem top matter
         dscgeo = '{"countryCode":"%s","expiry":1446917369986}' % (self.language.upper(),)
-        dscgeo = HtmlEntityHelper.UrlEncode(dscgeo)
+        dscgeo = HtmlEntityHelper.url_encode(dscgeo)
         headers = {"Cookie": "dsc-geo=%s" % (dscgeo, )}
 
         # send the data
@@ -610,9 +610,9 @@ class Channel(chn_class.Channel):
         subdomain, domain = host.split(".", 1)
         url = "https://secure.%s/secure/api/v2/user/authorization/stream/%s?stream_type=hls" \
               % (domain, videoId,)
-        data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=headers, noCache=True)
+        data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=True)
         json = JsonHelper(data)
-        url = json.GetValue("hls")
+        url = json.get_value("hls")
 
         if url is None:
             return False
@@ -622,7 +622,7 @@ class Channel(chn_class.Channel):
             qs = url.split("?")[-1]
         else:
             qs = None
-        for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
             # and we need to append the original QueryString
             if "X-I-FRAME-STREAM" in s:
                 continue
@@ -634,7 +634,7 @@ class Channel(chn_class.Channel):
                 else:
                     s = "%s?%s" % (s, qs)
 
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return streamsFound
 
@@ -643,7 +643,7 @@ class Channel(chn_class.Channel):
         name = videoInfo["name"]
 
         if expectedItemType != resultSet["type"]:
-            Logger.Warning("Not %s, excluding %s", expectedItemType, name)
+            Logger.warning("Not %s, excluding %s", expectedItemType, name)
             return None
 
         channelId = int(resultSet["relationships"]["primaryChannel"]["data"]["id"])
@@ -665,7 +665,7 @@ class Channel(chn_class.Channel):
             thumbId = resultSet["relationships"]["images"]["data"][0]["id"]
             item.thumb = self.imageLookup.get(thumbId, self.noImage)
             if item.thumb == self.noImage:
-                Logger.Warning("No thumb found for %s", thumbId)
+                Logger.warning("No thumb found for %s", thumbId)
 
         # paid or not?
         if "contentPackages" in resultSet["relationships"]:

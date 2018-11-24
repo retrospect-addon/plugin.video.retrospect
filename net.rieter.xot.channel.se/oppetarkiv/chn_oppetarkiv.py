@@ -46,18 +46,18 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         # self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self.episodeItemRegex = '<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
-        self._AddDataParser(self.mainListUri,
-                            preprocessor=self.AddSearchAndGenres,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri,
+                              preprocessor=self.AddSearchAndGenres,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
                               '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
                               '*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
         self.pageNavigationRegex = '<a href="(/[^?]+\?[^"]*sida=)(\d+)(&amp;sort=[^"]+)?'
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         self.__genre = None
@@ -73,7 +73,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -82,12 +82,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if self.parentItem is not None and "genre" in self.parentItem.metaData:
             self.__genre = self.parentItem.metaData["genre"]
-            Logger.Debug("Parsing a specific genre: %s", self.__genre)
+            Logger.debug("Parsing a specific genre: %s", self.__genre)
             return data, items
 
         searchItem = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
@@ -95,7 +95,7 @@ class Channel(chn_class.Channel):
         searchItem.thumb = self.noImage
         searchItem.dontGroup = True
         searchItem.fanart = self.fanart
-        # searchItem.SetDate(2099, 1, 1, text="")
+        # searchItem.set_date(2099, 1, 1, text="")
         # -> No items have dates, so adding this will force a date sort in Retrospect
         items.append(searchItem)
 
@@ -108,8 +108,8 @@ class Channel(chn_class.Channel):
 
         # find the actual genres
         genreRegex = '<li[^>]+genre[^>]*><button[^>]+data-value="(?<genre>[^"]+)"[^>]*>(?<title>[^>]+)</button></li>'
-        genreRegex = Regexer.FromExpresso(genreRegex)
-        genres = Regexer.DoRegex(genreRegex, data)
+        genreRegex = Regexer.from_expresso(genreRegex)
+        genres = Regexer.do_regex(genreRegex, data)
         for genre in genres:
             if genre["genre"] == "all":
                 continue
@@ -120,25 +120,30 @@ class Channel(chn_class.Channel):
             genreItem.metaData = {"genre": genre["genre"]}
             genresItem.items.append(genreItem)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def SearchSite(self, url=None):  # @UnusedVariable
-        """Creates an list of items by searching the site
-
-        Returns:
-        A list of MediaItems that should be displayed.
+    def search_site(self, url=None):  # @UnusedVariable
+        """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
         """
 
         url = "http://www.oppetarkiv.se/sok/?q=%s"
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -153,11 +158,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        item = chn_class.Channel.CreatePageItem(self, resultSet)
+        item = chn_class.Channel.create_page_item(self, resultSet)
         item.url = "%s&embed=true" % (item.url,)
         return item
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -172,16 +177,16 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         genres = resultSet[0]
         if self.__genre and self.__genre not in genres:
-            Logger.Debug("Item '%s' filtered due to genre: %s", resultSet[2], genres)
+            Logger.debug("Item '%s' filtered due to genre: %s", resultSet[2], genres)
             return None
 
         url = resultSet[1]
         if "&" in url:
-            url = HtmlEntityHelper.ConvertHTMLEntities(url)
+            url = HtmlEntityHelper.convert_html_entities(url)
 
         if not url.startswith("http:"):
             url = "%s%s" % (self.baseUrl, url)
@@ -195,7 +200,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -210,19 +215,19 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         thumbUrl = resultSet[0]
         if thumbUrl.startswith("//"):
             thumbUrl = "http:%s" % (thumbUrl, )
         elif not thumbUrl.startswith("http"):
             thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
-        Logger.Trace(thumbUrl)
+        Logger.trace(thumbUrl)
 
         season = resultSet[1]
         if season:
@@ -245,15 +250,15 @@ class Channel(chn_class.Channel):
             year = date[0]
             month = date[1]
             day = date[2]
-            Logger.Trace("%s - %s-%s-%s", date, year, month, day)
-            item.SetDate(year, month, day)
+            Logger.trace("%s - %s-%s-%s", date, year, month, day)
+            item.set_date(year, month, day)
         else:
-            Logger.Debug("No date found")
+            Logger.debug("No date found")
 
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -276,13 +281,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
-        json = JsonHelper(data, Logger.Instance())
-        videoData = json.GetValue("video")
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        json = JsonHelper(data, Logger.instance())
+        videoData = json.get_value("video")
         if videoData:
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             if self.localIP:
                 part.HttpHeaders.update(self.localIP)
 
@@ -294,24 +299,24 @@ class Channel(chn_class.Channel):
                 if "manifest.f4m" in streamInfo:
                     continue
                 elif "master.m3u8" in streamInfo:
-                    for s, b in M3u8.GetStreamsFromM3u8(streamInfo, self.proxy, headers=part.HttpHeaders):
+                    for s, b in M3u8.get_streams_from_m3u8(streamInfo, self.proxy, headers=part.HttpHeaders):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
 
-                    #m3u8Data = UriHandler.Open(streamInfo, proxy=self.proxy)
+                    #m3u8Data = UriHandler.open(streamInfo, proxy=self.proxy)
 
-                    #urls = Regexer.DoRegex(self.mediaUrlRegex, m3u8Data)
+                    #urls = Regexer.do_regex(self.mediaUrlRegex, m3u8Data)
                     #Logger.Trace(urls)
                     #for url in urls:
-                        #part.AppendMediaStream(url[1].strip(), url[0])
+                        #part.append_media_stream(url[1].strip(), url[0])
 
             # subtitles
             subtitles = videoData.get("subtitleReferences")
             if subtitles:
-                Logger.Trace(subtitles)
+                Logger.trace(subtitles)
                 subUrl = subtitles[0]["url"]
-                fileName = "%s.srt" % (EncodingHelper.EncodeMD5(subUrl),)
-                subData = UriHandler.Open(subUrl, proxy=self.proxy)
+                fileName = "%s.srt" % (EncodingHelper.encode_md5(subUrl),)
+                subData = UriHandler.open(subUrl, proxy=self.proxy)
 
                 # correct the subs
                 regex = re.compile("^1(\d:)", re.MULTILINE)
@@ -319,7 +324,7 @@ class Channel(chn_class.Channel):
                 subData = re.sub("--> 1(\d):", "--> 0\g<1>:", subData)
 
                 localCompletePath = os.path.join(Config.cacheDir, fileName)
-                Logger.Debug("Saving subtitle to: %s", localCompletePath)
+                Logger.debug("Saving subtitle to: %s", localCompletePath)
                 f = open(localCompletePath, 'w')
                 f.write(subData)
                 f.close()

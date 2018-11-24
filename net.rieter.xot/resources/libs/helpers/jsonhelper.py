@@ -37,7 +37,7 @@ class JsonHelper:
         if self.data[0] not in "[{":
             # find the actual start in case of a jQuery18303627530449324564_1370950605750({"success":true});
             if self.logger is not None:
-                self.logger.Debug("Removing non-Json wrapper")
+                self.logger.debug("Removing non-Json wrapper")
             start = self.data.find("(") + 1
             end = self.data.rfind(")")
             self.data = self.data[start:end]
@@ -46,7 +46,7 @@ class JsonHelper:
         self.json = json.loads(self.data)
 
     @staticmethod
-    def ConvertSpecialChars(text, doQuotes=True):
+    def convert_special_chars(text, do_quotes=True):
         """ Converts special characters in json to their Unicode equivalents. Quotes can
         be ommitted by specifying the doQuotes as False. The input text should be able to
         hold the output format. That means that for UTF-8 charachters
@@ -67,20 +67,20 @@ class JsonHelper:
 
         # special chars
         # unicode chars
-        cleanText = re.sub("(\\\u)(.{4})", JsonHelper.__SpecialCharsHandler, text)
+        clean_text = re.sub("(\\\u)(.{4})", JsonHelper.__special_chars_handler, text)
 
         # other replacements
         replacements = [("\\n", "\n"), ("\\r", "\r"), ("\\/", "/")]
         for k, v in replacements:
-            cleanText = cleanText.replace(k, v)
+            clean_text = clean_text.replace(k, v)
 
-        if doQuotes:
-            cleanText = JsonHelper.__ConvertQuotes(cleanText)
+        if do_quotes:
+            clean_text = JsonHelper.__convert_quotes(clean_text)
 
-        return cleanText
+        return clean_text
 
     @staticmethod
-    def __ConvertQuotes(text):
+    def __convert_quotes(text):
         """ Replaces escaped quotes with their none escaped ones.
 
         Arguments:
@@ -88,16 +88,16 @@ class JsonHelper:
 
         """
 
-        cleanText = text
+        clean_text = text
         replacements = [('\\"', '"'), ("\\'", "'")]
 
         for k, v in replacements:
-            cleanText = cleanText.replace(k, v)
+            clean_text = clean_text.replace(k, v)
 
-        return cleanText
+        return clean_text
 
     @staticmethod
-    def __SpecialCharsHandler(match):
+    def __special_chars_handler(match):
         """ Helper method to replace \uXXXX with unichr(int(hex))
 
         Arguments:
@@ -108,13 +108,13 @@ class JsonHelper:
 
         """
 
-        hexString = "0x%s" % (match.group(2))
+        hex_string = "0x%s" % (match.group(2))
         # print hexString
-        hexValue = int(hexString, 16)
-        return unichr(hexValue)
+        hex_value = int(hex_string, 16)
+        return unichr(hex_value)
 
     #noinspection PyUnboundLocalVariable
-    def GetValue(self, *args, **kwargs):
+    def get_value(self, *args, **kwargs):
         """ Retrieves data from the JSON object based on the input parameters
 
         @param args:    the dictionary keys, or list indexes
@@ -131,50 +131,40 @@ class JsonHelper:
         except KeyError:
             if "fallback" in kwargs:
                 if self.logger:
-                    self.logger.Debug("Key ['%s'] not found in Json", arg)
+                    self.logger.debug("Key ['%s'] not found in Json", arg)
                 return kwargs["fallback"]
 
             if self.logger:
-                self.logger.Warning("Key ['%s'] not found in Json", arg, exc_info=True)
+                self.logger.warning("Key ['%s'] not found in Json", arg, exc_info=True)
             return None
 
         return data
 
     @staticmethod
-    def DictionaryToString(dictionary):
-        """ Converts a dictionary into a set of lines 'key': 'value'
-
-        @param dictionary: the input dictionary
-        @return: string representation
-        """
-
-        return reduce(lambda x, y: "%s'%s': '%s'\n" % (x, y, dictionary[y]), dictionary, "Dictionary:\n")
-
-    @staticmethod
-    def Dump(dictionary, prettyPrint=True):
+    def dump(dictionary, pretty_print=True):
         """ Dumps a JSON object to a string
 
-        @param prettyPrint:     (boolean) indicating if the format should be nice
+        @param pretty_print:     (boolean) indicating if the format should be nice
         @param dictionary: (string) the object to dump
 
         @return: a valid JSON string
         """
 
-        if prettyPrint:
+        if pretty_print:
             return json.dumps(dictionary, indent=4)
         else:
             return json.dumps(dictionary)
 
     @staticmethod
-    def Loads(jsonData):
+    def loads(json_data):
         """ Loads a JSON object to a valid object
 
-        @param jsonData:   (string) the JSON data to load
+        @param json_data:   (string) the JSON data to load
 
         @return: a valid JSON object
         """
 
-        return json.loads(jsonData)
+        return json.loads(json_data)
 
     def __str__(self):
         return self.data

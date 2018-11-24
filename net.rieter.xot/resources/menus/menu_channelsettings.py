@@ -11,4 +11,4 @@
 import menu
 
 with menu.Menu("Channel Settings") as m:
-    m.ChannelSettings()
+    m.channel_settings()

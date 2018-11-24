@@ -57,44 +57,44 @@ class Channel(chn_class.Channel):
                        '<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
                        '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
                        '(?:</p>)?\W*</div>'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, name="Main A-Z listing",
-                            preprocessor=self.AddCategories,
-                            matchType=ParserData.MatchExact,
-                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
+        self._add_data_parser(self.mainListUri, name="Main A-Z listing",
+                              preprocessor=self.AddCategories,
+                              match_type=ParserData.MatchExact,
+                              parser=episodeRegex, creator=self.create_episode_item)
 
-        self._AddDataParser("#channels", name="Main channel name listing",
-                            preprocessor=self.ListChannels)
+        self._add_data_parser("#channels", name="Main channel name listing",
+                              preprocessor=self.ListChannels)
 
-        self._AddDataParser("https://search.vrt.be/suggest?facets[categories]",
-                            name="JSON Show Parser", json=True,
-                            parser=(), creator=self.CreateShowItem)
+        self._add_data_parser("https://search.vrt.be/suggest?facets[categories]",
+                              name="JSON Show Parser", json=True,
+                              parser=[], creator=self.CreateShowItem)
 
-        self._AddDataParser("https://services.vrt.be/videoplayer/r/live.json", json=True,
-                            name="Live streams parser",
-                            parser=(), creator=self.CreateLiveStream)
-        self._AddDataParsers(["http://live.stream.vrt.be/", "https://live-vrt.akamaized.net"],
-                             name="Live streams updater",
-                             updater=self.UpdateLiveVideo)
-        self._AddDataParser("https://live-[^/]+\.vrtcdn\.be",
-                            matchType=ParserData.MatchRegex,
-                            name="Live streams updater",
-                            updater=self.UpdateLiveVideo)
+        self._add_data_parser("https://services.vrt.be/videoplayer/r/live.json", json=True,
+                              name="Live streams parser",
+                              parser=[], creator=self.CreateLiveStream)
+        self._add_data_parsers(["http://live.stream.vrt.be/", "https://live-vrt.akamaized.net"],
+                               name="Live streams updater",
+                               updater=self.UpdateLiveVideo)
+        self._add_data_parser("https://live-[^/]+\.vrtcdn\.be",
+                              match_type=ParserData.MatchRegex,
+                              name="Live streams updater",
+                              updater=self.UpdateLiveVideo)
 
         catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
                    '*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
                    '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
-        catregex = Regexer.FromExpresso(catregex)
-        self._AddDataParser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
-                            matchType=ParserData.MatchExact,
-                            parser=catregex,
-                            creator=self.CreateCategory)
+        catregex = Regexer.from_expresso(catregex)
+        self._add_data_parser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
+                              match_type=ParserData.MatchExact,
+                              parser=catregex,
+                              creator=self.CreateCategory)
 
         folderRegex = '<li class="vrt-labelnav--item "[^>]*>\s*<h2[^<]*>\s*<a[^>]*href="' \
                       '(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
-        folderRegex = Regexer.FromExpresso(folderRegex)
-        self._AddDataParser("*", name="Folder/Season parser",
-                            parser=folderRegex, creator=self.CreateFolderItem)
+        folderRegex = Regexer.from_expresso(folderRegex)
+        self._add_data_parser("*", name="Folder/Season parser",
+                              parser=folderRegex, creator=self.create_folder_item)
 
         videoRegex = '<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
                      '<div[^>]*>\W*<h[23][^>]*>\s*(?<title>[^<]+)\s*(?:<br />\s*)*</h[23]>\W*' \
@@ -103,20 +103,20 @@ class Channel(chn_class.Channel):
                      '[\w\W]{0,1000}?<source srcset="[^"]+(?<thumburl>//[^ ]+)'
 
         # No need for a subtitle for now as it only includes the textual date
-        videoRegex = Regexer.FromExpresso(videoRegex)
-        self._AddDataParser("*", name="Video item parser",
-                            parser=videoRegex, creator=self.CreateVideoItem)
+        videoRegex = Regexer.from_expresso(videoRegex)
+        self._add_data_parser("*", name="Video item parser",
+                              parser=videoRegex, creator=self.create_video_item)
 
         # needs to be after the standard video item regex
         singleVideoRegex = '<script type="application/ld\+json">\W+({[\w\W]+?})\s*</script'
         # singleVideoRegex = '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>' \
         #                    '[^ ]+)[\w\W]{0,4000}<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>' \
         #                    '\W*<span[^>]+>(?<description>[^<]+)'
-        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
-        self._AddDataParser("*", name="Single video item parser",
-                            parser=singleVideoRegex, creator=self.CreateSingleVideoItem)
+        singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
+        self._add_data_parser("*", name="Single video item parser",
+                              parser=singleVideoRegex, creator=self.CreateSingleVideoItem)
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem, requiresLogon=True)
+        self._add_data_parser("*", updater=self.update_video_item, requires_logon=True)
 
         # ===============================================================================================================
         # non standard items
@@ -128,54 +128,54 @@ class Channel(chn_class.Channel):
             "vualto_mnm": {
                 "title": "MNM",
                 "metaCode": "mnm",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "mnmfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "mnmimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "mnmicon.png")
+                "fanart": TextureHandler.instance().get_texture_uri(self, "mnmfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "mnmimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "mnmicon.png")
             },
             "vualto_stubru": {
                 "title": "Studio Brussel",
                 "metaCode": "stubru",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "stubrufanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "stubruimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "stubruicon.png")
+                "fanart": TextureHandler.instance().get_texture_uri(self, "stubrufanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "stubruimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "stubruicon.png")
             },
             "vualto_een": {
                 "title": "E&eacute;n",
                 "metaCode": "een",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "eenfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "eenimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "eenlarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "eenfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "eenimage.png"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "eenlarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupc/live/8edf3bdf-7db3-41c3-a318-72cb7f82de66/live_aes.isml/.m3u8"
             },
             "vualto_canvas": {
                 "title": "Canvas",
                 "metaCode": "canvas",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "canvasfanart.png"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "canvasimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "canvaslarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "canvasfanart.png"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "canvasimage.png"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "canvaslarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupc/live/14a2c0f6-3043-4850-88a5-7fb062fe7f05/live_aes.isml/.m3u8"
             },
             "vualto_ketnet": {
                 "title": "KetNet",
                 "metaCode": "ketnet",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "ketnetfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "ketnetimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "ketnetlarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupc/live/f132f1b8-d04d-404e-90e0-6da1abb4f4fc/live_aes.isml/.m3u8"
             },
             "vualto_sporza": {  # not in the channel filter maps, so no metaCode
                 "title": "Sporza",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "sporzafanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "sporzaimage.jpg"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "sporzalarge.png"),
+                "fanart": TextureHandler.instance().get_texture_uri(self, "sporzafanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "sporzaimage.jpg"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "sporzalarge.png"),
                 "url": "https://live-vrt.akamaized.net/groupa/live/7d5f0e4a-3429-4861-91d4-aa3229d7ad7b/live_aes.isml/.m3u8"
             },
             "ketnet-jr": {  # Not in the live channels
                 "title": "KetNet Junior",
                 "metaCode": "ketnet-jr",
-                "fanart": TextureHandler.Instance().GetTextureUri(self, "ketnetfanart.jpg"),
-                "thumb": TextureHandler.Instance().GetTextureUri(self, "ketnetimage.png"),
-                "icon": TextureHandler.Instance().GetTextureUri(self, "ketnetlarge.png")
+                "fanart": TextureHandler.instance().get_texture_uri(self, "ketnetfanart.jpg"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "ketnetimage.png"),
+                "icon": TextureHandler.instance().get_texture_uri(self, "ketnetlarge.png")
             }
         }
 
@@ -190,42 +190,42 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def LogOn(self):
+    def log_on(self):
         apiKey = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
 
         # Do we still have a valid short living token (1 hour)? If so, we have an active session.
-        shortLoginCookie = UriHandler.GetCookie("X-VRT-Token", ".vrt.be")
+        shortLoginCookie = UriHandler.get_cookie("X-VRT-Token", ".vrt.be")
         if shortLoginCookie is not None:
             # The old X-VRT-Token expired after 1 year. We don't want that old cookie
-            shortLoginCookieCanLiveTooLong = DateHelper.GetDateFromPosix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
+            shortLoginCookieCanLiveTooLong = DateHelper.get_date_from_posix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
             if not shortLoginCookieCanLiveTooLong:
-                Logger.Debug("Using existing VRT.be session.")
+                Logger.debug("Using existing VRT.be session.")
                 return True
 
         # Do we still have a valid long living token? If so, try to extend the session. We need the
         # original UIDSignature value for that. The 'vrtlogin-rt' and all other related cookies
         # are valid for a same period (1 year).
-        longLoginCookie = UriHandler.GetCookie("vrtlogin-rt", ".vrt.be")
+        longLoginCookie = UriHandler.get_cookie("vrtlogin-rt", ".vrt.be")
         if longLoginCookie is not None:
             # if we stored a valid user signature, we can use it, together with the 'gmid' and
             # 'ucid' cookies to extend the session and get new token data
-            data = UriHandler.Open("https://token.vrt.be/refreshtoken", proxy=self.proxy, noCache=True)
+            data = UriHandler.open("https://token.vrt.be/refreshtoken", proxy=self.proxy, no_cache=True)
             if "vrtnutoken" in data:
-                Logger.Debug("Refreshed the VRT.be session.")
+                Logger.debug("Refreshed the VRT.be session.")
                 return True
 
-        Logger.Warning("Failed to extend the VRT.be session.")
-        username = self._GetSetting("username")
+        Logger.warning("Failed to extend the VRT.be session.")
+        username = self._get_setting("username")
         if not username:
             return None
 
         v = Vault()
-        password = v.GetChannelSetting(self.guid, "password")
+        password = v.get_channel_setting(self.guid, "password")
         if not password:
-            Logger.Warning("Found empty password for VRT user")
+            Logger.warning("Found empty password for VRT user")
 
         # Get a 'gmid' and 'ucid' cookie by logging in. Valid for 10 years
-        Logger.Debug("Using: %s / %s", username, "*" * len(password))
+        Logger.debug("Using: %s / %s", username, "*" * len(password))
         url = "https://accounts.vrt.be/accounts.login"
         data = {
             "loginID": username,
@@ -242,14 +242,14 @@ class Channel(chn_class.Channel):
             "authMode": "cookie",
             "format": "json"
         }
-        logonData = UriHandler.Open(url, data=data, proxy=self.proxy, noCache=True)
+        logonData = UriHandler.open(url, data=data, proxy=self.proxy, no_cache=True)
         userId, signature, signatureTimeStamp = self.__ExtractSessionData(logonData)
         if userId is None or signature is None or signatureTimeStamp is None:
             return False
 
         # We need to initialize the token retrieval which will redirect to the actual token
-        UriHandler.Open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
-                        proxy=self.proxy, noCache=True)
+        UriHandler.open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
+                        proxy=self.proxy, no_cache=True)
 
         # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 hour. So we call the actual
         # perform_login url which will redirect and get cookies.
@@ -260,16 +260,16 @@ class Channel(chn_class.Channel):
             "client_id": "vrtnu-site",
             "submit": "submit"
         }
-        UriHandler.Open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData, noCache=True)
+        UriHandler.open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData, no_cache=True)
         return True
 
     def AddCategories(self, data):
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if self.parentItem and "code" in self.parentItem.metaData:
             self.__currentChannel = self.parentItem.metaData["code"]
-            Logger.Info("Only showing items for channel: '%s'", self.__currentChannel)
+            Logger.info("Only showing items for channel: '%s'", self.__currentChannel)
             return data, items
 
         cat = mediaitem.MediaItem("\a.: Categori&euml;n :.", "https://www.vrt.be/vrtnu/categorieen/")
@@ -287,7 +287,7 @@ class Channel(chn_class.Channel):
         live.isLive = True
         items.append(live)
 
-        channelText = LanguageHelper.GetLocalizedString(30010)
+        channelText = LanguageHelper.get_localized_string(30010)
         channels = mediaitem.MediaItem(".: %s :." % (channelText, ), "#channels")
         channels.fanart = self.fanart
         channels.thumb = self.noImage
@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
         channels.dontGroup = True
         items.append(channels)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def ListChannels(self, data):
@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
     def CreateCategory(self, resultSet):
         # https://search.vrt.be/suggest?facets[categories]=met-audiodescriptie
         resultSet["url"] = "https://search.vrt.be/suggest?facets[categories]=%(catid)s" % resultSet
-        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+        item = chn_class.Channel.create_folder_item(self, resultSet)
         if item is not None and item.thumb and item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
 
@@ -329,7 +329,7 @@ class Channel(chn_class.Channel):
     def CreateLiveStream(self, resultSet):
         items = []
         for keyValue, streamValue in resultSet.iteritems():
-            Logger.Trace(streamValue)
+            Logger.trace(streamValue)
             # noinspection PyArgumentList
             channelData = self.__channelData.get(keyValue, None)
             if not channelData:
@@ -346,21 +346,21 @@ class Channel(chn_class.Channel):
         return items
 
     def CreateShowItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         if resultSet["targetUrl"].startswith("//"):
             resultSet["url"] = "https:%(targetUrl)s" % resultSet
         else:
             resultSet["url"] = resultSet["targetUrl"]
         resultSet["thumburl"] = resultSet["thumbnail"]
 
-        return chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        return chn_class.Channel.create_episode_item(self, resultSet)
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         if self.__currentChannel is not None and resultSet["channel"] != self.__currentChannel:
-            Logger.Debug("Skipping items due to channel mismatch: %s", resultSet)
+            Logger.debug("Skipping items due to channel mismatch: %s", resultSet)
             return None
 
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is None:
             return None
 
@@ -375,8 +375,8 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         return item
 
-    def CreateFolderItem(self, resultSet):
-        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+    def create_folder_item(self, resultSet):
+        item = chn_class.Channel.create_folder_item(self, resultSet)
         if item is None:
             return None
 
@@ -390,25 +390,25 @@ class Channel(chn_class.Channel):
 
         jsonData = JsonHelper(resultSet)
         url = self.parentItem.url
-        title = jsonData.GetValue("name")
-        description = HtmlHelper.ToText(jsonData.GetValue("description"))
+        title = jsonData.get_value("name")
+        description = HtmlHelper.to_text(jsonData.get_value("description"))
         item = mediaitem.MediaItem(title, url, type="video")
         item.description = description
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         if "title" not in resultSet or resultSet["title"] is None:
             resultSet["title"] = resultSet.pop("subtitle")
 
         resultSet["title"] = resultSet["title"].strip()
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if item is None:
             return None
 
         if "day" in resultSet and resultSet["day"] and len(resultSet.get("year", "")) == 4:
-            item.SetDate(resultSet["year"] or DateHelper.ThisYear(), resultSet["month"], resultSet["day"])
+            item.set_date(resultSet["year"] or DateHelper.this_year(), resultSet["month"], resultSet["day"])
 
         if item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
@@ -419,112 +419,112 @@ class Channel(chn_class.Channel):
 
     def UpdateLiveVideo(self, item):
         if "m3u8" not in item.url:
-            Logger.Error("Cannot update live stream that is not an M3u8: %s", item.url)
+            Logger.error("Cannot update live stream that is not an M3u8: %s", item.url)
 
-        part = item.CreateNewEmptyMediaPart()
-        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False)
+        part = item.create_new_empty_media_part()
+        adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
         if adaptiveAvailable:
-            stream = part.AppendMediaStream(item.url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            stream = part.append_media_stream(item.url, 0)
+            M3u8.set_input_stream_addon_input(stream, self.proxy)
             return item
 
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
             item.complete = True
             # apparently they split up M3u8 streams and audio streams, so we need to fix that here
             # this is an ugly fix, but it will work!
             if "-audio_" not in s:
                 s = s.replace(".m3u8", "-audio_track=96000.m3u8")
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
         return item
 
-    def UpdateVideoItem(self, item):
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+    def update_video_item(self, item):
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # we need to fetch the actual url as it might differ for single video items
-        data, secureUrl = UriHandler.Header(item.url, proxy=self.proxy)
+        data, secureUrl = UriHandler.header(item.url, proxy=self.proxy)
 
         # Get the MZID
         secureUrl = secureUrl.rstrip("/")
         secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
-        data = UriHandler.Open(secureUrl, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-        secureData = JsonHelper(data, logger=Logger.Instance())
-        mzid = secureData.GetValue(secureData.json.keys()[0], "videoid")
+        data = UriHandler.open(secureUrl, proxy=self.proxy, additional_headers=item.HttpHeaders)
+        secureData = JsonHelper(data, logger=Logger.instance())
+        mzid = secureData.get_value(secureData.json.keys()[0], "videoid")
 
         # region New URL retrieval with DRM protection
         # We need a player token
-        tokenData = UriHandler.Open("https://media-services-public.vrt.be/"
+        tokenData = UriHandler.open("https://media-services-public.vrt.be/"
                                     "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
-                                    additionalHeaders={"Content-Type": "application/json"})
+                                    additional_headers={"Content-Type": "application/json"})
 
-        token = JsonHelper(tokenData).GetValue("vrtPlayerToken")
+        token = JsonHelper(tokenData).get_value("vrtPlayerToken")
 
         assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
                    "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
-            .format(HtmlEntityHelper.UrlEncode(mzid), HtmlEntityHelper.UrlEncode(token))
-        assetData = UriHandler.Open(assetUrl, proxy=self.proxy, noCache=True)
+            .format(HtmlEntityHelper.url_encode(mzid), HtmlEntityHelper.url_encode(token))
+        assetData = UriHandler.open(assetUrl, proxy=self.proxy, no_cache=True)
         assetData = JsonHelper(assetData)
 
-        drmKey = assetData.GetValue("drm")
+        drmKey = assetData.get_value("drm")
         drmProtected = drmKey is not None
-        adaptiveAvailable = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=drmProtected)
-        part = item.CreateNewEmptyMediaPart()
+        adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=drmProtected)
+        part = item.create_new_empty_media_part()
         srt = None
-        for targetUrl in assetData.GetValue("targetUrls"):
+        for targetUrl in assetData.get_value("targetUrls"):
             videoType = targetUrl["type"]
             videoUrl = targetUrl["url"]
 
             if videoType == "hls_aes" and drmProtected and adaptiveAvailable:
                 # no difference in encrypted or not.
-                Logger.Debug("Found HLS AES encrypted stream and a DRM key")
-                stream = part.AppendMediaStream(videoUrl, 0)
-                M3u8.SetInputStreamAddonInput(stream, self.proxy)
+                Logger.debug("Found HLS AES encrypted stream and a DRM key")
+                stream = part.append_media_stream(videoUrl, 0)
+                M3u8.set_input_stream_addon_input(stream, self.proxy)
 
             elif videoType == "hls" and not drmProtected:
                 # no difference in encrypted or not.
                 if adaptiveAvailable:
-                    Logger.Debug("Found standard HLS stream and without DRM protection")
-                    stream = part.AppendMediaStream(videoUrl, 0)
-                    M3u8.SetInputStreamAddonInput(stream, self.proxy)
+                    Logger.debug("Found standard HLS stream and without DRM protection")
+                    stream = part.append_media_stream(videoUrl, 0)
+                    M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
-                    m3u8Data = UriHandler.Open(videoUrl, self.proxy)
-                    for s, b, a in M3u8.GetStreamsFromM3u8(videoUrl, self.proxy,
-                                                           playListData=m3u8Data, mapAudio=True):
+                    m3u8Data = UriHandler.open(videoUrl, self.proxy)
+                    for s, b, a in M3u8.get_streams_from_m3u8(videoUrl, self.proxy,
+                                                              play_list_data=m3u8Data, map_audio=True):
                         item.complete = True
                         if a:
                             audioPart = a.rsplit("-", 1)[-1]
                             audioPart = "-%s" % (audioPart, )
                             s = s.replace(".m3u8", audioPart)
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
 
-                    srt = M3u8.GetSubtitle(videoUrl, playListData=m3u8Data, proxy=self.proxy)
+                    srt = M3u8.get_subtitle(videoUrl, play_list_data=m3u8Data, proxy=self.proxy)
                     if not srt:
                         continue
 
                     srt = srt.replace(".m3u8", ".vtt")
-                    part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+                    part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             elif videoType == "mpeg_dash" and adaptiveAvailable:
                 if not drmProtected:
-                    Logger.Debug("Found standard MPD stream and without DRM protection")
-                    stream = part.AppendMediaStream(videoUrl, 1)
-                    Mpd.SetInputStreamAddonInput(stream, self.proxy)
+                    Logger.debug("Found standard MPD stream and without DRM protection")
+                    stream = part.append_media_stream(videoUrl, 1)
+                    Mpd.set_input_stream_addon_input(stream, self.proxy)
                 else:
-                    stream = part.AppendMediaStream(videoUrl, 1)
+                    stream = part.append_media_stream(videoUrl, 1)
                     encryptionJson = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'\
                         .format(drmKey)
-                    encryptionKey = Mpd.GetLicenseKey(
-                        keyUrl="https://widevine-proxy.drm.technology/proxy",
-                        keyType="D",
-                        keyValue=encryptionJson,
-                        keyHeaders={"Content-Type": "text/plain;charset=UTF-8"}
+                    encryptionKey = Mpd.get_license_key(
+                        key_url="https://widevine-proxy.drm.technology/proxy",
+                        key_type="D",
+                        key_value=encryptionJson,
+                        key_headers={"Content-Type": "text/plain;charset=UTF-8"}
                     )
-                    Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=encryptionKey)
+                    Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=encryptionKey)
 
             if videoType.startswith("hls") and srt is None:
-                srt = M3u8.GetSubtitle(videoUrl, proxy=self.proxy)
+                srt = M3u8.get_subtitle(videoUrl, proxy=self.proxy)
                 if srt:
                     srt = srt.replace(".m3u8", ".vtt")
-                    part.Subtitle = SubtitleHelper.DownloadSubtitle(srt, format="webvtt")
+                    part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             item.complete = True
         # endregion
@@ -532,12 +532,12 @@ class Channel(chn_class.Channel):
 
     def __ExtractSessionData(self, logonData):
         logonJson = JsonHelper(logonData)
-        resultCode = logonJson.GetValue("statusCode")
+        resultCode = logonJson.get_value("statusCode")
         if resultCode != 200:
-            Logger.Error("Error loging in: %s - %s", logonJson.GetValue("errorMessage"),
-                         logonJson.GetValue("errorDetails"))
+            Logger.error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
+                         logonJson.get_value("errorDetails"))
             return None, None, None
 
-        return logonJson.GetValue("UID"), \
-            logonJson.GetValue("UIDSignature"), \
-            logonJson.GetValue("signatureTimestamp")
+        return logonJson.get_value("UID"), \
+            logonJson.get_value("UIDSignature"), \
+            logonJson.get_value("signatureTimestamp")

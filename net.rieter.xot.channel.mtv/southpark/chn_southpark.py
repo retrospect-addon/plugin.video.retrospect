@@ -47,7 +47,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
 
         if not resultSet[0] == "":
             self.promotionId = resultSet[0]
-            Logger.Debug("Setting PromotionId to: %s", resultSet[0])
+            Logger.debug("Setting PromotionId to: %s", resultSet[0])
             return None
 
         # <li><a href="(/guide/season/[^"]+)">(\d+)</a></li>
@@ -79,7 +79,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -129,14 +129,14 @@ class Channel(chn_class.Channel):
         #     year = "20%s" % (year,)
         # day = date[0:2]
         # month = date[3:5]
-        # item.SetDate(year, month, day)
+        # item.set_date(year, month, day)
         #
         # return item
 
         # json that comes here, sucks!
         return None
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -159,38 +159,38 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # 1 - get the overal config file
         guidRegex = 'http://[^:]+/mgid:[^"]+:([0-9a-f-]+)"'
         rtmpRegex = 'type="video/([^"]+)" bitrate="(\d+)">\W+<src>([^<]+)</src>'
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
-        guids = Regexer.DoRegex(guidRegex, data)
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        guids = Regexer.do_regex(guidRegex, data)
 
         item.MediaItemParts = []
         for guid in guids:
             # get the info for this part
-            Logger.Debug("Processing part with GUID: %s", guid)
+            Logger.debug("Processing part with GUID: %s", guid)
 
             # reset stuff
             part = None
 
             # http://www.southpark.nl/feeds/video-player/mediagen?uri=mgid%3Aarc%3Aepisode%3Acomedycentral.com%3Aeb2a53f7-e370-4049-a6a9-57c195367a92&suppressRegisterBeacon=true
-            guid = HtmlEntityHelper.UrlEncode("mgid:arc:episode:comedycentral.com:%s" % (guid,))
+            guid = HtmlEntityHelper.url_encode("mgid:arc:episode:comedycentral.com:%s" % (guid,))
             infoUrl = "%s/feeds/video-player/mediagen?uri=%s&suppressRegisterBeacon=true" % (self.baseUrl, guid)
 
             # 2- Get the GUIDS for the different ACTS
-            infoData = UriHandler.Open(infoUrl, proxy=self.proxy)
-            rtmpStreams = Regexer.DoRegex(rtmpRegex, infoData)
+            infoData = UriHandler.open(infoUrl, proxy=self.proxy)
+            rtmpStreams = Regexer.do_regex(rtmpRegex, infoData)
 
             for rtmpStream in rtmpStreams:
                 # if this is the first stream for the part, create an new part
                 if part is None:
-                    part = item.CreateNewEmptyMediaPart()
+                    part = item.create_new_empty_media_part()
 
-                part.AppendMediaStream(self.GetVerifiableVideoUrl(rtmpStream[2]), rtmpStream[1])
+                part.append_media_stream(self.get_verifiable_video_url(rtmpStream[2]), rtmpStream[1])
 
         item.complete = True
-        Logger.Trace("Media item updated: %s", item)
+        Logger.trace("Media item updated: %s", item)
         return item

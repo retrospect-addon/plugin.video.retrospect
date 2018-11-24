@@ -12,25 +12,20 @@
 class ContextMenuItem:
     """Context menu item class that is used to pass on contextmenu items."""
 
-    def __init__(self, label, functionName, itemTypes=None):
+    def __init__(self, label, function_name, item_types=None):
         """Instantiation of the class. 
-        
-        Arguments:
-        label          : string - The label/name of the item
-        functionName   : string - The name of the method that is called when the item is selcted
-        
-        Keyword Arguments:
-        itemTypes      : list[string] - The MediaItem types for which the contextitem 
-                                        should be shown [optional]
-        completeStatus : boolean      - Indication whether the item should only 
-                                        be shown if the MediaItem.status equals 
-                                        this value.
+
+        :param str label:               The label/name of the item.
+        :param str function_name:       The name of the method that is called when the
+                                        item is selcted.
+        :param list[str] item_types:    The MediaItem types for which the contextitem should be
+                                        shown [optional].
 
         """
 
         self.label = label
-        self.functionName = functionName
-        self.itemTypes = itemTypes
+        self.functionName = function_name
+        self.itemTypes = item_types
 
     def __str__(self):
         """Returns the string representation of the contextmenu item"""

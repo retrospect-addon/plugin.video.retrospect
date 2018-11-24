@@ -36,24 +36,24 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.rtl.nl"
 
         # setup the main parsing data
-        self.episodeItemJson = ("abstracts",)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveStreams,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem)
+        self.episodeItemJson = ["abstracts",]
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddLiveStreams,
+                              parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self.videoItemJson = ("material",)
-        self.folderItemJson = ("seasons",)
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
-        self._AddDataParser("*", json=True,
-                            parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        self._AddDataParser("*", parser=self.folderItemJson, creator=self.CreateFolderItem, json=True)
+        self.videoItemJson = ["material",]
+        self.folderItemJson = ["seasons",]
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
+        self._add_data_parser("*", json=True,
+                              parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item)
+        self._add_data_parser("*", parser=self.folderItemJson, creator=self.create_folder_item, json=True)
 
         #===============================================================================================================
         # non standard items
         self.largeIconSet = dict()
 
         for channel in ["rtl4", "rtl5", "rtl7", "rtl8"]:
-            self.largeIconSet[channel] = self.GetImageLocation("%slarge.png" % (channel,))
+            self.largeIconSet[channel] = self.get_image_location("%slarge.png" % (channel,))
 
         self.__IgnoreCookieLaw()
 
@@ -97,18 +97,18 @@ class Channel(chn_class.Channel):
         streamItem.complete = True
         streamItem.type = "video"
         streamItem.dontGroup = True
-        streamItem.AppendSingleStream("http://mss6.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss26.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss4.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss5.rtl7.nl/rtlzbroad", 1200)
-        streamItem.AppendSingleStream("http://mss3.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss6.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss26.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss4.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss5.rtl7.nl/rtlzbroad", 1200)
+        streamItem.append_single_stream("http://mss3.rtl7.nl/rtlzbroad", 1200)
 
         rtlzLive.items.append(streamItem)
         items.append(rtlzLive)
 
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -123,7 +123,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["name"]
         key = resultSet.get("key", resultSet["abstract_key"])
@@ -148,7 +148,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -158,7 +158,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -170,44 +170,44 @@ class Channel(chn_class.Channel):
         items = []
 
         # We need to keep the JSON data, in order to refer to it from the create methods.
-        self.currentJson = JsonHelper(data, Logger.Instance())
+        self.currentJson = JsonHelper(data, Logger.instance())
 
         # Extract season (called abstracts) information
         self.abstracts = dict()  # : the season
-        Logger.Debug("Storing abstract information")
-        for abstract in self.currentJson.GetValue("abstracts"):
+        Logger.debug("Storing abstract information")
+        for abstract in self.currentJson.get_value("abstracts"):
             self.abstracts[abstract["key"]] = abstract
 
         # If we have episodes available, list them
         self.episodes = dict()
-        if "episodes" in self.currentJson.GetValue():
-            Logger.Debug("Storing episode information")
-            for episode in self.currentJson.GetValue("episodes"):
+        if "episodes" in self.currentJson.get_value():
+            Logger.debug("Storing episode information")
+            for episode in self.currentJson.get_value("episodes"):
                 self.episodes[episode["key"]] = episode
 
         # extract some meta data
-        self.posterBase = self.currentJson.GetValue("meta", "poster_base_url")
-        self.thumbBase = self.currentJson.GetValue("meta", "thumb_base_url")
+        self.posterBase = self.currentJson.get_value("meta", "poster_base_url")
+        self.thumbBase = self.currentJson.get_value("meta", "thumb_base_url")
 
         # And create page items
-        itemsOnPage = int(self.currentJson.GetValue("meta", "nr_of_videos_onpage"))
-        totalItems = int(self.currentJson.GetValue("meta", "nr_of_videos_total"))
-        currentPage = self.currentJson.GetValue("meta", "pg")
+        itemsOnPage = int(self.currentJson.get_value("meta", "nr_of_videos_onpage"))
+        totalItems = int(self.currentJson.get_value("meta", "nr_of_videos_total"))
+        currentPage = self.currentJson.get_value("meta", "pg")
         if currentPage == "all":
             currentPage = 1
         else:
             currentPage = int(currentPage)
-        Logger.Debug("Found a total of %s items (%s items per page), we are on page %s", totalItems, itemsOnPage, currentPage)
+        Logger.debug("Found a total of %s items (%s items per page), we are on page %s", totalItems, itemsOnPage, currentPage)
 
         # But don't show them if not episodes were found
         if self.episodes:
             if itemsOnPage < 50:
-                Logger.Debug("No more pages to show.")
+                Logger.debug("No more pages to show.")
             else:
                 nextPage = currentPage + 1
                 url = self.parentItem.url[:self.parentItem.url.rindex("=")]
                 url = "%s=%s" % (url, nextPage)
-                Logger.Trace(url)
+                Logger.trace(url)
                 pageItem = mediaitem.MediaItem(str(nextPage), url)
                 pageItem.type = "page"
                 pageItem.complete = True
@@ -215,7 +215,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -229,7 +229,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "/sk=" in self.parentItem.url:
             return None
@@ -237,10 +237,10 @@ class Channel(chn_class.Channel):
         abstractKey = resultSet["abstract_key"]
         abstractData = self.abstracts.get(abstractKey, None)
         if not abstractData:
-            Logger.Warning("Could not find abstract data for key: %s", abstractKey)
+            Logger.warning("Could not find abstract data for key: %s", abstractKey)
             return None
 
-        Logger.Debug("Found Abstract Data: %s", abstractData)
+        Logger.debug("Found Abstract Data: %s", abstractData)
 
         abstractName = abstractData.get("name", "")
         title = resultSet["name"]
@@ -257,7 +257,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -272,22 +272,22 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         episodeKey = resultSet["episode_key"]
         if episodeKey:
             episodeData = self.episodes.get(episodeKey, None)
             if not episodeData:
-                Logger.Warning("Could not find episodes data for key: %s", episodeKey)
+                Logger.warning("Could not find episodes data for key: %s", episodeKey)
                 return None
-            Logger.Debug("Found Episode Data: %s", episodeData)
+            Logger.debug("Found Episode Data: %s", episodeData)
         else:
-            Logger.Debug("No Episode Data Found")
+            Logger.debug("No Episode Data Found")
             episodeData = None
 
         title = resultSet["title"]
@@ -317,17 +317,17 @@ class Channel(chn_class.Channel):
         tariffs = resultSet.get("ddr_timeframes")
         premiumItem = False
         if tariffs:
-            Logger.Trace(tariffs)
+            Logger.trace(tariffs)
             for tariff in tariffs:
                 if tariff["tariff"] > 0:
                     start = tariff.get("start", 0)
                     end = tariff.get("stop", 2147483647)
-                    start = DateHelper.GetDateFromPosix(start)
-                    end = DateHelper.GetDateFromPosix(end)
+                    start = DateHelper.get_date_from_posix(start)
+                    end = DateHelper.get_date_from_posix(end)
                     now = datetime.datetime.now()
                     if start < now < end:
                         premiumItem = True
-                        Logger.Debug("Found a tariff for this episode: %s - %s: %s", start, end, tariff["tariff"])
+                        Logger.debug("Found a tariff for this episode: %s - %s: %s", start, end, tariff["tariff"])
                         break
 
         uuid = resultSet["uuid"]
@@ -345,17 +345,17 @@ class Channel(chn_class.Channel):
         if station:
             icon = self.largeIconSet.get(station.lower(), None)
             if icon:
-                Logger.Trace("Setting icon to: %s", icon)
+                Logger.trace("Setting icon to: %s", icon)
                 item.icon = icon
 
         dateTime = resultSet.get("display_date", None)
         if dateTime:
-            dateTime = DateHelper.GetDateFromPosix(int(dateTime))
-            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
+            dateTime = DateHelper.get_date_from_posix(int(dateTime))
+            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -378,40 +378,40 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        xmlData = UriHandler.Open(item.url, proxy=self.proxy)
+        xmlData = UriHandler.open(item.url, proxy=self.proxy)
         # <ref type='adaptive' device='pc' host='http://manifest.us.rtl.nl' href='/rtlxl/network/pc/adaptive/components/videorecorder/27/278629/278630/d009c025-6e8c-3d11-8aba-dc8579373134.ssm/d009c025-6e8c-3d11-8aba-dc8579373134.m3u8' />
-        m3u8Urls = Regexer.DoRegex("<ref type='adaptive' device='pc' host='([^']+)' href='/([^']+)' />", xmlData)
+        m3u8Urls = Regexer.do_regex("<ref type='adaptive' device='pc' host='([^']+)' href='/([^']+)' />", xmlData)
         if not m3u8Urls:
-            Logger.Warning("No m3u8 data found for: %s", item)
+            Logger.warning("No m3u8 data found for: %s", item)
             return item
         m3u8Url = "%s/%s" % (m3u8Urls[0][0], m3u8Urls[0][1])
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         # prevent the "418 I'm a teapot" error
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
         # Remove the Range header to make all streams start at the beginning.
-        Logger.Debug("Setting an empty 'Range' http header to force playback at the start of a stream")
+        Logger.debug("Setting an empty 'Range' http header to force playback at the start of a stream")
         part.HttpHeaders["Range"] = ''
 
-        if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
-            stream = part.AppendMediaStream(m3u8Url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy, part.HttpHeaders)
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
+            stream = part.append_media_stream(m3u8Url, 0)
+            M3u8.set_input_stream_addon_input(stream, self.proxy, part.HttpHeaders)
             item.complete = True
             return item
 
-        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             item.complete = True
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item
 
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from RTL channel in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
-        UriHandler.SetCookie(name='rtlcookieconsent', value='yes', domain='.www.rtl.nl')
+        UriHandler.set_cookie(name='rtlcookieconsent', value='yes', domain='.www.rtl.nl')
         return

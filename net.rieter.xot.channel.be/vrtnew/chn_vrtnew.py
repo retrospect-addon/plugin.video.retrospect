@@ -40,30 +40,30 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/html/flash/common/player.5.10.swf" % (self.baseUrl,)
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
-                            creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
+                              creator=self.create_episode_item)
 
-        self._AddDataParser("*", creator=self.CreateVideoItem,
-                            parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
-        self._AddDataParser("*", creator=self.CreateVideoItem,
-                            parser='data-video-permalink="([^"]+)"[^>]*>\W+<span[^>]*>([^<]+)</span>\W+<span[^>]*>\W+<img[^>]*src="([^"]+)"', updater=self.UpdateVideoItem)
+        self._add_data_parser("*", creator=self.create_video_item,
+                              parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
+        self._add_data_parser("*", creator=self.create_video_item,
+                              parser='data-video-permalink="([^"]+)"[^>]*>\W+<span[^>]*>([^<]+)</span>\W+<span[^>]*>\W+<img[^>]*src="([^"]+)"', updater=self.update_video_item)
 
-        self._AddDataParser("*", creator=self.CreatePageItem,
-                            parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
+        self._add_data_parser("*", creator=self.create_page_item,
+                              parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
         self.pageNavigationRegexIndex = 1
 
         self.mediaUrlRegex = 'data-video-((?:src|rtmp|iphone|mobile)[^=]*)="([^"]+)"\W+(?:data-video-[^"]+path="([^"]+)){0,1}'
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         # Only get the first bit
         seperatorIndex = data.find('<div class="splitter split24">')
         data = data[:seperatorIndex]
-        return chn_class.Channel.PreProcessFolderList(self, data)
+        return chn_class.Channel.pre_process_folder_list(self, data)
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -102,12 +102,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         item = None
         # not implemented yet
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -122,12 +122,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focused or selected
+        self.update_video_item method is called if the item is focused or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         name = resultSet[1]
         url = resultSet[0]
@@ -155,23 +155,23 @@ class Channel(chn_class.Channel):
         #     month = name[-5:-3]
         #     day = name[-8:-6]
         if len(nameParts) == 3:
-            Logger.Debug("Found possible date in name: %s", nameParts)
+            Logger.debug("Found possible date in name: %s", nameParts)
             year = nameParts[2]
             if len(year) == 2:
                 year = 2000 + int(year)
             month = nameParts[1]
             day = nameParts[0].rsplit(" ", 1)[1]
-            Logger.Trace("%s - %s - %s", year, month, day)
-            item.SetDate(year, month, day)
+            Logger.trace("%s - %s - %s", year, month, day)
+            item.set_date(year, month, day)
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -191,18 +191,18 @@ class Channel(chn_class.Channel):
         """
 
         # now the mediaurl is derived. First we try WMV
-        data = UriHandler.Open(item.url)
+        data = UriHandler.open(item.url)
 
-        descriptions = Regexer.DoRegex('<div class="longdesc"><p>([^<]+)</', data)
-        Logger.Trace(descriptions)
+        descriptions = Regexer.do_regex('<div class="longdesc"><p>([^<]+)</', data)
+        Logger.trace(descriptions)
         for desc in descriptions:
             item.description = desc
 
         data = data.replace("\\/", "/")
-        urls = Regexer.DoRegex(self.mediaUrlRegex, data)
-        part = item.CreateNewEmptyMediaPart()
+        urls = Regexer.do_regex(self.mediaUrlRegex, data)
+        part = item.create_new_empty_media_part()
         for url in urls:
-            Logger.Trace(url)
+            Logger.trace(url)
             if url[0] == "src":
                 flv = url[1]
                 bitrate = 750
@@ -217,7 +217,7 @@ class Channel(chn_class.Channel):
                 elif url[0] == "rtmpt-server":
                     continue
                     #flv = "%s//%s" % (flvServer, flvPath)
-                    #flv = self.GetVerifiableVideoUrl(flv)
+                    #flv = self.get_verifiable_video_url(flv)
                     #bitrate = 1500
 
                 elif url[0] == "iphone-server":
@@ -225,9 +225,9 @@ class Channel(chn_class.Channel):
                     if not flv.endswith("playlist.m3u8"):
                         flv = "%s/playlist.m3u8" % (flv,)
 
-                    for s, b in M3u8.GetStreamsFromM3u8(flv, self.proxy):
+                    for s, b in M3u8.get_streams_from_m3u8(flv, self.proxy):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                     # no need to continue adding the streams
                     continue
 
@@ -239,7 +239,7 @@ class Channel(chn_class.Channel):
                     flv = "%s/%s" % (flvServer, flvPath)
                     bitrate = 0
 
-            part.AppendMediaStream(flv, bitrate)
+            part.append_media_stream(flv, bitrate)
 
         item.complete = True
         return item

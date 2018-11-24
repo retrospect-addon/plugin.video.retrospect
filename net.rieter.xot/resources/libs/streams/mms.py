@@ -7,6 +7,7 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
+
 from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
@@ -23,7 +24,7 @@ class Mms:
         raise NotImplementedError
 
     @staticmethod
-    def GetMmsFromHtml(url, proxy=None, index=0):
+    def get_mms_from_html(url, proxy=None, index=0):
         """Opens a URL with a MMS playlist and returns the first found stream
         in the MMS file. Searches for http://url and returns mms://url.
 
@@ -48,12 +49,12 @@ class Mms:
         """
 
         if url.find(".mms") > 0:
-            Logger.Info("MMS found in url: %s", url)
+            Logger.info("MMS found in url: %s", url)
             return url
 
-        Logger.Debug("Parsing %s to find MMS", url)
-        data = UriHandler.Open(url, proxy=proxy)
-        urls = Regexer.DoRegex("[Rr]ef\d=http://([^\r\n]+)", data)
+        Logger.debug("Parsing %s to find MMS", url)
+        data = UriHandler.open(url, proxy=proxy)
+        urls = Regexer.do_regex("[Rr]ef\d=http://([^\r\n]+)", data)
 
         if len(urls) > index:
             return "mms://%s" % (urls[index],)
@@ -63,7 +64,7 @@ class Mms:
             return url
 
     @staticmethod
-    def GetMmsFromAsx(url, proxy):
+    def get_mms_from_asx(url, proxy):
         """Opens a URL with an ASX playlist and returns the first found stream
         in the ASX file. Only searches for mms://url.
 
@@ -98,12 +99,12 @@ class Mms:
         """
 
         if url.find(".mms") > 0:
-            Logger.Info("MMS found in url: %s", url)
+            Logger.info("MMS found in url: %s", url)
             return url
 
-        Logger.Debug("Parsing %s to find MMS", url)
-        data = UriHandler.Open(url, proxy=proxy)
-        urls = Regexer.DoRegex('[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
+        Logger.debug("Parsing %s to find MMS", url)
+        data = UriHandler.open(url, proxy=proxy)
+        urls = Regexer.do_regex('[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
 
         if len(urls) > 0:
             return "mms://%s" % (urls[0],)

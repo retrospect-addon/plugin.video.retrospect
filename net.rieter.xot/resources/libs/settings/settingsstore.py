@@ -22,9 +22,29 @@ class SettingsStore(object):
         pass
 
     def get_boolean_setting(self, setting_id, channel=None, default=None):
+        """ Returns a boolean value for the given setting_id.
+
+        :param str setting_id:  The ID of the setting that is to be retrieved.
+        :param channel:         If specified the specific channel setting is retrieved.
+        :param bool default:    The default value in case the settings is not set yet.
+
+        :returns: the boolean value for the given setting_id
+        :rtype: bool
+
+        """
         pass
 
     def get_integer_setting(self, setting_id, channel=None, default=None):
+        """ Returns an interger value for the given setting_id.
+
+        :param str setting_id:  The ID of the setting that is to be retrieved.
+        :param channel:         If specified the specific channel setting is retrieved.
+        :param int default:     The default value in case the settings is not set yet.
+
+        :returns: the integer value for the given setting_id
+        :rtype: int
+
+        """
         pass
 
     def get_setting(self, setting_id, channel=None, default=None):

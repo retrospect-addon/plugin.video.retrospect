@@ -1,4 +1,3 @@
-# coding=utf-8
 #===============================================================================
 # LICENSE Retrospect-Framework - CC BY-NC-ND
 #===============================================================================
@@ -17,8 +16,15 @@ from pickler import Pickler
 
 
 class ParameterParser(object):
-    def __init__(self, pluginName, params):
-        Logger.Debug("Parsing parameters from: %s", params)
+    def __init__(self, addon_name, params):
+        """
+
+        :param str addon_name:  The name of the add-on
+        :param str params:      The parameteters used to start the ParameterParser
+
+        """
+
+        Logger.debug("Parsing parameters from: %s", params)
 
         # Url Keywords
         self.keywordPickle = "pickle"                                   # : Used for the pickle item
@@ -63,23 +69,32 @@ class ParameterParser(object):
         self.propertyRetrospectFavorite = "RetrospectFavorite"
 
         # determine the query parameters
-        self.params = self.__GetParameters(params)
-        self.pluginName = pluginName
+        self.params = self.__get_parameters(params)
+        self.pluginName = addon_name
 
         # We need a picker for this instance
         self._pickler = Pickler()
 
-    def _CreateActionUrl(self, channel, action, item=None, category=None):
-        """Creates an URL that includes an action
+    def _create_action_url(self, channel, action, item=None, category=None):
+        """ Creates an URL that includes an action.
 
         Arguments:
-        channel : Channel - The channel object to use for the URL
-        action  : string  - Action to create an url for
+        channel : Channel -
+        action  : string  -
 
         Keyword Arguments:
-        item : MediaItem - The media item to add
+        item : MediaItem -
+
+        :param ChannelInfo|Channel channel:     The channel object to use for the URL.
+        :param str action:                      Action to create an url for
+        :param MediaItem item:                  The media item to add
+        :param str category:                    The category to use.
+
+        :return: a complete action url with all keywords and values
+        :rtype: str|unicode
 
         """
+
         if action is None:
             raise Exception("action is required")
 
@@ -93,7 +108,7 @@ class ParameterParser(object):
 
         # it might have an item or not
         if item is not None:
-            params[self.keywordPickle] = self._pickler.PickleMediaItem(item)
+            params[self.keywordPickle] = self._pickler.pickle_media_item(item)
 
             if action == self.actionPlayVideo and item.isLive:
                 params[self.keywordRandomLive] = random.randint(10000, 99999)
@@ -109,32 +124,31 @@ class ParameterParser(object):
         # Logger.Trace("Created url: '%s'", url)
         return url
 
-    def __GetParameters(self, queryString):
+    def __get_parameters(self, query_string):
         """ Extracts the actual parameters as a dictionary from the passed in
         querystring. This method takes the self.quotedPlus into account.
 
-        Arguments:
-        queryString : String - The querystring
+        :param str query_string:    The querystring
 
-        Returns:
-        dict() of keywords and values.
+        :return: dict() of keywords and values.
+        :rtype: dict[str,str|None]
 
         """
         result = dict()
-        queryString = queryString.strip('?')
-        if queryString != '':
+        query_string = query_string.strip('?')
+        if query_string != '':
             try:
-                for pair in queryString.split("&"):
+                for pair in query_string.split("&"):
                     (k, v) = pair.split("=")
                     result[k] = v
 
                 # if the channelcode was empty, it was stripped, add it again.
                 if self.keywordChannelCode not in result:
-                    Logger.Debug("Adding ChannelCode=None as it was missing from the dict: %s",
+                    Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s",
                                  result)
                     result[self.keywordChannelCode] = None
             except:
-                Logger.Critical("Cannot determine query strings from %s", queryString,
+                Logger.critical("Cannot determine query strings from %s", query_string,
                                 exc_info=True)
                 raise
 

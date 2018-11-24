@@ -68,33 +68,33 @@ class Channel(chn_class.Channel):
 
         self.swfUrl = "http://media.mtvnservices.com/player/prime/mediaplayerprime.2.11.4.swf"
 
-        self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/",
-                            name="Main show listing PlayPlay API", json=True,
-                            parser=("data", "items"), creator=self.CreateEpisodeItem)
+        self._add_data_parser("http://api.playplex.viacom.com/feeds/networkapp/intl/promolist/1.5/",
+                              name="Main show listing PlayPlay API", json=True,
+                              parser=["data", "items"], creator=self.create_episode_item)
 
-        self._AddDataParser("http://api.playplex.viacom.com/feeds/networkapp/intl/series/items",
-                            name="Main video listing PlayPlay API", json=True,
-                            parser=("data", "items"), creator=self.CreateVideoItem)
+        self._add_data_parser("http://api.playplex.viacom.com/feeds/networkapp/intl/series/items",
+                              name="Main video listing PlayPlay API", json=True,
+                              parser=["data", "items"], creator=self.create_video_item)
 
         # Old API
-        self._AddDataParser("http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
-                            matchType=ParserData.MatchRegex,
-                            name="V2 API show listing", json=True,
-                            parser=(), creator=self.CreateEpisodeItemJson)
-        self._AddDataParser("http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
-                            matchType=ParserData.MatchRegex,
-                            name="V2 API video listing", json=True,
-                            parser=(), creator=self.CreateVideoItemJson)
+        self._add_data_parser("http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
+                              match_type=ParserData.MatchRegex,
+                              name="V2 API show listing", json=True,
+                              parser=[], creator=self.CreateEpisodeItemJson)
+        self._add_data_parser("http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
+                              match_type=ParserData.MatchRegex,
+                              name="V2 API video listing", json=True,
+                              parser=[], creator=self.CreateVideoItemJson)
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # # setup the main parsing data
         # if "json" in self.mainListUri:
         #     Logger.Debug("Doing a JSON version of MTV")
         #     self.episodeItemJson = ()
         #     self.videoItemJson = ()
-        #     self.CreateEpisodeItem = self.CreateEpisodeItemJson
-        #     self.CreateVideoItem = self.CreateVideoItemJson
+        #     self.create_episode_item = self.CreateEpisodeItemJson
+        #     self.create_video_item = self.CreateVideoItemJson
         # else:
         #     Logger.Debug("Doing a HTML version of MTV")
         #     self.episodeItemRegex = '<a href="/(shows/[^"]+)" title="([^"]+)"><img [^>]+src="([^"]+)"'  # used for the ParseMainList
@@ -104,8 +104,8 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
-        Logger.Trace(resultSet)
+    def create_episode_item(self, resultSet):
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         # id = resultSet["id"]
@@ -131,8 +131,8 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def CreateVideoItem(self, resultSet):
-        Logger.Trace(resultSet)
+    def create_video_item(self, resultSet):
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         if "subTitle" in resultSet:
@@ -169,10 +169,10 @@ class Channel(chn_class.Channel):
             date = resultSet.get("originalPublishDate", None)
         if date:
             timeStamp = date["timestamp"]
-            dateTime = DateHelper.GetDateFromPosix(timeStamp)
-            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
-                         dateTime.minute,
-                         dateTime.second)
+            dateTime = DateHelper.get_date_from_posix(timeStamp)
+            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                          dateTime.minute,
+                          dateTime.second)
 
         return item
 
@@ -191,12 +191,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # add  { to make it valid Json again. if it would be in the regex it would
         # not find all items
@@ -247,12 +247,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # get the title
         originalTitle = resultSet.get("original_title")
@@ -269,15 +269,15 @@ class Channel(chn_class.Channel):
         for playList in playLists:
             language = playList["language_code"]
             if language == self.language:
-                Logger.Trace("Found '%s' playlist, using this one.", language)
+                Logger.trace("Found '%s' playlist, using this one.", language)
                 videoMgid = playList["id"]
                 break
             elif language == "en":
-                Logger.Trace("Found '%s' instead of '%s' playlist", language, self.language)
+                Logger.trace("Found '%s' instead of '%s' playlist", language, self.language)
                 videoMgid = playList["id"]
 
         if videoMgid is None:
-            Logger.Error("No video MGID found for: %s", title)
+            Logger.error("No video MGID found for: %s", title)
             return None
 
         url = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid:sensei:video:mtvnn.com:local_playlist-%s" % (videoMgid,)
@@ -295,11 +295,11 @@ class Channel(chn_class.Channel):
         item.description = description
         item.icon = self.icon
         item.type = 'video'
-        item.SetDate(date[0], date[1], date[2])
+        item.set_date(date[0], date[1], date[2])
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -322,21 +322,21 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         url = item.url
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
 
-        renditionsUrl = Regexer.DoRegex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
-        renditionsUrl = HtmlEntityHelper.StripAmp(renditionsUrl)
-        renditionData = UriHandler.Open(renditionsUrl, proxy=self.proxy)
-        videoItems = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
+        renditionsUrl = Regexer.do_regex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
+        renditionsUrl = HtmlEntityHelper.strip_amp(renditionsUrl)
+        renditionData = UriHandler.open(renditionsUrl, proxy=self.proxy)
+        videoItems = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for videoItem in videoItems:
-            mediaUrl = self.GetVerifiableVideoUrl(videoItem[1].replace("rtmpe", "rtmp"))
-            part.AppendMediaStream(mediaUrl, videoItem[0])
+            mediaUrl = self.get_verifiable_video_url(videoItem[1].replace("rtmpe", "rtmp"))
+            part.append_media_stream(mediaUrl, videoItem[0])
 
         item.complete = True
         return item

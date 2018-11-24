@@ -1,12 +1,6 @@
-#===============================================================================
-# Import the default modules
-#===============================================================================
 import string
-#===============================================================================
-# Make global object available
-#===============================================================================
+
 import mediaitem
-import contextmenu
 import chn_class
 
 from helpers import datehelper
@@ -37,20 +31,17 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "dumpertimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
-
         # setup the urls
         self.baseUrl = "http://www.dumpert.nl/mediabase/flv/%s_YTDL_1.flv.flv"
 
         # setup the main parsing data
         self.mainListUri = "#mainlist"
-        self._AddDataParser(self.mainListUri, preprocessor=self.GetMainListItems)
+        self._add_data_parser(self.mainListUri, preprocessor=self.GetMainListItems)
         self.videoItemRegex = '<a[^>]+href="([^"]+)"[^>]*>\W+<img src="([^"]+)[\W\w]{0,400}<h\d>([^<]+)</h\d>\W+<[^>]' \
                               '*date"{0,1}>(\d+) (\w+) (\d+) (\d+):(\d+)'
-        self._AddDataParser("*",
-                            parser=self.videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              parser=self.videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         self.__IgnoreCookieLaw()
@@ -81,7 +72,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -96,7 +87,7 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """
@@ -112,97 +103,103 @@ class Channel(chn_class.Channel):
         item.thumb = resultSet[1]
 
         try:
-            month = datehelper.DateHelper.GetMonthFromName(resultSet[4], "nl")
-            item.SetDate(resultSet[5], month, resultSet[3], resultSet[6], resultSet[7], 0)
+            month = datehelper.DateHelper.get_month_from_name(resultSet[4], "nl")
+            item.set_date(resultSet[5], month, resultSet[3], resultSet[6], resultSet[7], 0)
         except:
-            Logger.Error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
+            Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 
         item.complete = False
         item.downloadable = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Updates the item
         """
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
-        baseEncode = Regexer.DoRegex('data-files="([^"]+)', data)
+        baseEncode = Regexer.do_regex('data-files="([^"]+)', data)
         if baseEncode:
-            Logger.Debug("Loading video from BASE64 encoded JSON data")
+            Logger.debug("Loading video from BASE64 encoded JSON data")
             baseEncode = baseEncode[-1]
-            jsonData = EncodingHelper.DecodeBase64(baseEncode)
-            json = JsonHelper(jsonData, logger=Logger.Instance())
-            Logger.Trace(json)
+            jsonData = EncodingHelper.decode_base64(baseEncode)
+            json = JsonHelper(jsonData, logger=Logger.instance())
+            Logger.trace(json)
 
             # "flv": "http://media.dumpert.nl/flv/e2a926ff_10307954_804223649588516_151552487_n.mp4.flv",
             # "tablet": "http://media.dumpert.nl/tablet/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
             # "mobile": "http://media.dumpert.nl/mobile/e2a926ff_10307954_804223649588516_151552487_n.mp4.mp4",
 
-            streams = json.GetValue()
+            streams = json.get_value()
             for key in streams:
                 if key == "flv":
-                    part.AppendMediaStream(streams[key], 1000)
+                    part.append_media_stream(streams[key], 1000)
                 elif key == "720p":
-                    part.AppendMediaStream(streams[key], 1200)
+                    part.append_media_stream(streams[key], 1200)
                 elif key == "1080p":
-                    part.AppendMediaStream(streams[key], 1600)
+                    part.append_media_stream(streams[key], 1600)
                 elif key == "tablet":
-                    part.AppendMediaStream(streams[key], 800)
+                    part.append_media_stream(streams[key], 800)
                 elif key == "mobile":
-                    part.AppendMediaStream(streams[key], 450)
+                    part.append_media_stream(streams[key], 450)
                 elif key == "embed" and streams[key].startswith("youtube"):
                     embedType, youtubeId = streams[key].split(":")
                     url = "https://www.youtube.com/watch?v=%s" % (youtubeId, )
-                    for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+                    for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                 else:
-                    Logger.Debug("Key '%s' was not used", key)
+                    Logger.debug("Key '%s' was not used", key)
             item.complete = True
-            Logger.Trace("VideoItem updated: %s", item)
+            Logger.trace("VideoItem updated: %s", item)
             return item
 
-        youtubeId = Regexer.DoRegex("class='yt-iframe'[^>]+src='https://www.youtube.com/embed/([^?]+)", data)
+        youtubeId = Regexer.do_regex("class='yt-iframe'[^>]+src='https://www.youtube.com/embed/([^?]+)", data)
         if youtubeId:
             youtubeId = youtubeId[-1]
             url = "https://www.youtube.com/watch?v=%s" % (youtubeId,)
-            for s, b in YouTube.GetStreamsFromYouTube(url, self.proxy):
+            for s, b in YouTube.get_streams_from_you_tube(url, self.proxy):
                 item.complete = True
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
         return item
 
-    def SearchSite(self, url=None):
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
         """
-        Creates an list of items by searching the site
-        """
+
         items = []
 
-        needle = XbmcWrapper.ShowKeyBoard()
+        needle = XbmcWrapper.show_key_board()
         if needle:
             #convert to HTML
             needle = string.replace(needle, " ", "%20")
             searchUrl = "http://www.dumpert.nl/search/V/%s/ " % (needle, )
             temp = mediaitem.MediaItem("Search", searchUrl)
-            return self.ProcessFolderList(temp)
+            return self.process_folder_list(temp)
 
         return items
-
-    #==============================================================================
-    # ContextMenu functions
-    #==============================================================================
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
-        return item
 
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.dumpert.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.dumpert.nl")
 
         # Set-Cookie: cpc=10; path=/; domain=www.dumpert.nl; expires=Thu, 11-Jun-2020 18:49:38 GMT
-        UriHandler.SetCookie(name='cpc', value='10', domain='.www.dumpert.nl')
+        UriHandler.set_cookie(name='cpc', value='10', domain='.www.dumpert.nl')
         return

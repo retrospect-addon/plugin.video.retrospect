@@ -7,14 +7,10 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300, 
 # San Francisco, California 94105, USA.
 #===============================================================================
+
 import string
 
 from regexer import Regexer
-
-#===============================================================================
-# Make global object available
-#===============================================================================
-#from logger import Logger
 
 
 class Smil:
@@ -46,7 +42,7 @@ class Smil:
         
         self.data = data
     
-    def GetBaseUrl(self):
+    def get_base_url(self):
         """Retrieves the BaseUrl from the Smil data.
         
         From the example data it would be http://mydomain.com
@@ -54,32 +50,32 @@ class Smil:
         """
         
         regex = '<meta base="([^"]+)" />'
-        results = Regexer.DoRegex(regex, self.data)
+        results = Regexer.do_regex(regex, self.data)
         if len(results) > 0:
             return results[0]
         else:
             regex = '<meta name="httpBase" content="([^"]+)"\W*/>'
-            results = Regexer.DoRegex(regex, self.data)
+            results = Regexer.do_regex(regex, self.data)
             if len(results) > 0:
                 return results[0]
             else:            
                 return ""
     
-    def GetBestVideo(self):
+    def get_best_video(self):
         """Returns a list of video's with the highest quality.
         
         In this case: myStream1500K@54552
         
         """
         
-        urls = self.GetVideosAndBitrates()
+        urls = self.get_videos_and_bitrates()
         if urls is None:
             return ""
         
         urls.sort(lambda x, y: int(y[1]) - int(x[1]))
         return urls[0][0]
     
-    def GetVideosAndBitrates(self):
+    def get_videos_and_bitrates(self):
         """Returns a list of all video's and bitrates in the Smil file. 
         
         In this case:
@@ -90,27 +86,27 @@ class Smil:
         """
         
         regex = '<video src="([^"]+)"[^>]+system-bitrate="([^"]+)"'
-        results = Regexer.DoRegex(regex, self.data)
+        results = Regexer.do_regex(regex, self.data)
         if len(results) > 0:
             return results
         else:
             return None
     
-    def GetSubtitle(self):
+    def get_subtitle(self):
         """ Retrieves the URL of the included subtitle"""
         
         regex = '<param\W*name="subtitle"[^>]*value="([^"]+)'
-        urls = Regexer.DoRegex(regex, self.data)
+        urls = Regexer.do_regex(regex, self.data)
         
         for url in urls:
             if "http:" in url:            
                 return url
             else:
-                return "%s/%s" % (self.GetBaseUrl().rstrip("/"), url.lstrip("/"))
+                return "%s/%s" % (self.get_base_url().rstrip("/"), url.lstrip("/"))
         
         return ""
     
-    def StripTypeStart(self, url):
+    def strip_type_start(self, url):
         """Strips the first part of an URL up to the first /
         
         Arguments: 

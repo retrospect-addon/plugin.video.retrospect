@@ -1,5 +1,4 @@
 import mediaitem
-import contextmenu
 import chn_class
 
 from regexer import Regexer
@@ -25,29 +24,26 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "myvideoimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
-
         # setup the urls
         self.mainListUri = "http://www.myvideo.nl/"
         self.baseUrl = "http://www.myvideo.nl"
 
         # setup the main parsing data
         self.episodeItemRegex = "<a class='nArrow' href='([^']+)' title='[^']*'>([^<]+)</a>"
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddCategories,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri, preprocessor=self.AddCategories,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         # Add generic Pre Procesor
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
 
         self.videoItemRegex = "<img id='([^']+)' src='([^']+)' class='vThumb' alt='[^']*' [^>]+></a></div></div><div class='sCenter vTitle'><span class='title'><a[^>]+title='([^']+)'"
         self.mediaUrlRegex = '<item>\W*<file>\W*([^>]*)\W*</file>\W*<bandwidth>(\d+)</bandwidth>'
-        self._AddDataParser("*", parser=self.episodeItemRegex, creator=self.CreateEpisodeItem,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=self.episodeItemRegex, creator=self.create_episode_item,
+                              updater=self.update_video_item)
 
         self.pageNavigationRegex = "<a class='pView pnNumbers'  href='([^?]+\?lpage=)(\d+)([^']+)"
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -68,7 +64,7 @@ class Channel(chn_class.Channel):
         Returns:
         A tuple of the data and a list of MediaItems that were generated.
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -101,7 +97,7 @@ class Channel(chn_class.Channel):
 
         return data, items
     
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
         
         Arguments:
@@ -111,7 +107,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.  
         
         
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel. 
         Inside this method the <data> could be changed and additional items can 
         be created. 
@@ -120,31 +116,31 @@ class Channel(chn_class.Channel):
         
         """
         
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         
         # extract the category name from the pagedata
-        results = Regexer.DoRegex("in de categorie\W+<span class='[^']+'>[^;]+;([^<]+)&quot", data)
+        results = Regexer.do_regex("in de categorie\W+<span class='[^']+'>[^;]+;([^<]+)&quot", data)
         
         if len(results) > 0:
             self.categoryName = results[0]
         
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
     
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item. 
         """
         
         #<a class='nArrow' href='([^']+)' title='[^']*'>([^<]+)</a>
         #                            0                     1                                
-        item = mediaitem.MediaItem(resultSet[1], HtmlEntityHelper.StripAmp("%s%s" % (self.baseUrl, resultSet[0])))
+        item = mediaitem.MediaItem(resultSet[1], HtmlEntityHelper.strip_amp("%s%s" % (self.baseUrl, resultSet[0])))
         item.icon = self.icon
-        Logger.Trace("%s (%s)", item.name, item.url)
+        Logger.trace("%s (%s)", item.name, item.url)
         return item
     
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -159,16 +155,16 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """
 
-        Logger.Trace('starting FormatVideoItem for %s', self.channelName)
+        Logger.trace('starting FormatVideoItem for %s', self.channelName)
         #<img id='([^']+)' src='([^']+)' class='vThumb' alt='[^']*'/></a></div></div><div class='sCenter vTitle'><span class='title'><a[^>]+title='([^']+)'>
         #            0            1                                                                                                                    2
         name = resultSet[2]
-        item = mediaitem.MediaItem(name, HtmlEntityHelper.StripAmp("%s%s" % (self.baseUrl, resultSet[0])))
+        item = mediaitem.MediaItem(name, HtmlEntityHelper.strip_amp("%s%s" % (self.baseUrl, resultSet[0])))
         
         item.description = "%s\n%s" % (self.categoryName, resultSet[2])
         item.icon = self.icon
@@ -181,19 +177,15 @@ class Channel(chn_class.Channel):
         # het script: http://myvideo-906.vo.llnwd.net/nl/d2/movie4/d93548906.flv
         # de pagina:  http://myvideo-906.vo.llnwd.net/nl/d2/movie4/d9/3548906.flv
         
-        urlResult = Regexer.DoRegex("(http://myvideo[^_]+)/thumbs(/\d+)_\d+.jpg", item.thumb)
+        urlResult = Regexer.do_regex("(http://myvideo[^_]+)/thumbs(/\d+)_\d+.jpg", item.thumb)
         mediaurl = ""
         if len(urlResult) > 0:
             for part in urlResult[0]:
                 mediaurl = "%s%s" % (mediaurl, part)
         mediaurl = "%s.flv" % (mediaurl, )
         
-        item.AppendSingleStream(mediaurl)
-        Logger.Trace("Updated mediaurl for %s", item)
+        item.append_single_stream(mediaurl)
+        Logger.trace("Updated mediaurl for %s", item)
         item.type = 'video'
         item.complete = True
-        return item
-
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item

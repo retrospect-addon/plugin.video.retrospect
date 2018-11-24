@@ -36,21 +36,21 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://www.tikilive.com/public/player/player.flash.swf"
 
         # setup the intial listing
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, preprocessor=self.AddLive,
-                            parser='<h3>([^>]+)</h3>[\w\W]+?<a[^>]+href\W+"([^"]+)"[^>]*>meer',
-                            creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, preprocessor=self.AddLive,
+                              parser='<h3>([^>]+)</h3>[\w\W]+?<a[^>]+href\W+"([^"]+)"[^>]*>meer',
+                              creator=self.create_episode_item)
 
         # videos on the main list
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser='<a title="(Suri[^"]+|Whaz[^"]+)" href="([^"]+)" rel="bookmark">\W+<img[^>]*src="([^"]+)',
-                            creator=self.CreateVideoItem)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser='<a title="(Suri[^"]+|Whaz[^"]+)" href="([^"]+)" rel="bookmark">\W+<img[^>]*src="([^"]+)',
+                              creator=self.create_video_item)
 
-        self._AddDataParser("*",
-                            parser='<a[^>]*title="([^"]+)"[^>]*href="([^"]+)"[^>]*>\W+<img[^>]*src="([^"]+)"',
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              parser='<a[^>]*title="([^"]+)"[^>]*href="([^"]+)"[^>]*>\W+<img[^>]*src="([^"]+)"',
+                              creator=self.create_video_item, updater=self.update_video_item)
 
-        self._AddDataParser("http://cache.tikilive.com:8080/socket.io/",
-                            updater=self.UpdateLiveItem)
+        self._add_data_parser("http://cache.tikilive.com:8080/socket.io/",
+                              updater=self.UpdateLiveItem)
         #===============================================================================================================
         # non standard items
 
@@ -70,7 +70,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -79,7 +79,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         item = mediaitem.MediaItem("\a.: Live TV :.", "http://cache.tikilive.com:8080/socket.io/"
@@ -90,10 +90,10 @@ class Channel(chn_class.Channel):
         item.isLive = True
         items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if resultSet[0]:
             title = resultSet[0]
@@ -122,7 +122,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -137,12 +137,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         item = mediaitem.MediaItem(resultSet[0], resultSet[1])
         item.thumb = self.noImage
@@ -152,18 +152,18 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
-        streams = Regexer.DoRegex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
-        part = item.CreateNewEmptyMediaPart()
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        streams = Regexer.do_regex('<(?:source|video)[^>]+src="([^"]+)"[^>]+>', data)
+        part = item.create_new_empty_media_part()
         for s in streams:
-            part.AppendMediaStream(s.replace(" ", "%20"), 0)
+            part.append_media_stream(s.replace(" ", "%20"), 0)
 
         item.complete = True
         return item
@@ -173,13 +173,13 @@ class Channel(chn_class.Channel):
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         data = data[data.index('{'):]
         json = JsonHelper(data)
 
-        sid = json.GetValue("sid")
+        sid = json.get_value("sid")
         # The i= is the same as the one from the RTMP stream at the page of ATV.sr:
         # http://edge1.tikilive.com:1935/rtmp_tikilive/34967/amlst:mainstream/jwplayer.smil?id=dIzAVAVL2dirCfJgAPEb&i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcmtzJm9JRD0xMzY1NTUmb05hbWU9YXR2bmV0d29ya3Mmc0lkPWJwaHR2bXR2OXI4M2N1Mm9sZ2Q5dWx1aWs2JnVJRD0wJnVOYW1lPUd1ZXN0OWFmYTE=
 
@@ -191,11 +191,11 @@ class Channel(chn_class.Channel):
                    "?i=YXBwTmFtZT1QbGF5ZXImY0lEPTM0OTY3JmNOYW1lPUFUViUyME5ldHdvcmtzJm9JRD0xMzY1NTUmb05hbW" \
                    "U9YXR2bmV0d29ya3Mmc0lkPWZvODRpbDNlN3FzNjh1ZXQycWwyZWF2MDgxJnVJRD0wJnVOYW1lPUd1ZXN0MTNiNjk=&id=%s" \
                    % (sid,)
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(videoUrl, self.proxy):
+        part = item.create_new_empty_media_part()
+        for s, b in M3u8.get_streams_from_m3u8(videoUrl, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            # s = self.get_verifiable_video_url(s)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

@@ -49,12 +49,12 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[0]))
         name = resultSet[1]
 
         if name == "Tags":
@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -84,7 +84,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -93,7 +93,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         data = data.replace("&#160;", " ")
 
@@ -101,10 +101,10 @@ class Channel(chn_class.Channel):
         if pageNav > 0:
             data = data[0:pageNav]
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -119,16 +119,16 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[0]))
         item = mediaitem.MediaItem(resultSet[self.pageNavigationRegexIndex], url)
         item.type = "page"
         item.complete = True
-        item.SetDate(2022, 1, 1, text="")
+        item.set_date(2022, 1, 1, text="")
 
-        Logger.Trace("Created '%s' for url %s", item.name, item.url)
+        Logger.trace("Created '%s' for url %s", item.name, item.url)
         return item
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -144,8 +144,8 @@ class Channel(chn_class.Channel):
         """
 
         if len(resultSet) > 3 and resultSet[3] != "":
-            Logger.Debug("Sub category folder found.")
-            url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[3]))
+            Logger.debug("Sub category folder found.")
+            url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[3]))
             name = "\a.: %s :." % (resultSet[4],)
             item = mediaitem.MediaItem(name, url)
             item.thumb = self.noImage
@@ -153,23 +153,23 @@ class Channel(chn_class.Channel):
             item.type = "folder"
             return item
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.ConvertHTMLEntities(resultSet[0]))
-        name = HtmlEntityHelper.ConvertHTMLEntities(resultSet[1])
+        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(resultSet[0]))
+        name = HtmlEntityHelper.convert_html_entities(resultSet[1])
 
         helper = HtmlHelper(resultSet[2])
-        description = helper.GetTagContent("div", {'class': 'description'})
+        description = helper.get_tag_content("div", {'class': 'description'})
 
         item = mediaitem.MediaItem(name, "%s/RSS" % (url,))
         item.thumb = self.noImage
         item.type = 'folder'
         item.description = description.strip()
 
-        date = helper.GetTagContent("div", {'class': 'date'})
+        date = helper.get_tag_content("div", {'class': 'date'})
         if date == "":
-            date = helper.GetTagContent("span", {'class': 'lastPublishedDate'})
+            date = helper.get_tag_content("span", {'class': 'lastPublishedDate'})
 
         if not date == "":
-            dateParts = Regexer.DoRegex("(\w+) (\d+)[^<]+, (\d+)", date)
+            dateParts = Regexer.do_regex("(\w+) (\d+)[^<]+, (\d+)", date)
             if len(dateParts) > 0:
                 dateParts = dateParts[0]
                 monthPart = dateParts[0].lower()
@@ -177,15 +177,15 @@ class Channel(chn_class.Channel):
                 yearPart = dateParts[2]
 
                 try:
-                    month = DateHelper.GetMonthFromName(monthPart, "en")
-                    item.SetDate(yearPart, month, dayPart)
+                    month = DateHelper.get_month_from_name(monthPart, "en")
+                    item.set_date(yearPart, month, dayPart)
                 except:
-                    Logger.Error("Error matching month: %s", monthPart, exc_info=True)
+                    Logger.error("Error matching month: %s", monthPart, exc_info=True)
 
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -200,7 +200,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -208,9 +208,9 @@ class Channel(chn_class.Channel):
         # Logger.Trace(resultSet)
 
         xmlData = XmlHelper(resultSet)
-        title = xmlData.GetSingleNodeContent("title")
-        url = xmlData.GetSingleNodeContent("link")
-        description = xmlData.GetSingleNodeContent("description")
+        title = xmlData.get_single_node_content("title")
+        url = xmlData.get_single_node_content("link")
+        description = xmlData.get_single_node_content("description")
         description = description.replace("<![CDATA[ ", "").replace("]]>", "").replace("<p>", "").replace("</p>", "\n")
 
         item = mediaitem.MediaItem(title, url)
@@ -220,8 +220,8 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         item.icon = self.icon
 
-        date = xmlData.GetSingleNodeContent("pubDate")
-        dateResult = Regexer.DoRegex("\w+, (\d+) (\w+) (\d+)", date)[-1]
+        date = xmlData.get_single_node_content("pubDate")
+        dateResult = Regexer.do_regex("\w+, (\d+) (\w+) (\d+)", date)[-1]
         day = dateResult[0]
         monthPart = dateResult[1].lower()
         year = dateResult[2]
@@ -229,23 +229,23 @@ class Channel(chn_class.Channel):
         try:
             monthLookup = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
             month = monthLookup.index(monthPart) + 1
-            item.SetDate(year, month, day)
+            item.set_date(year, month, day)
         except:
-            Logger.Error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
+            Logger.error("Error matching month: %s", resultSet[4].lower(), exc_info=True)
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # now the mediaurl is derived. First we try WMV
-        data = UriHandler.Open(item.url)
+        data = UriHandler.open(item.url)
 
-        urls = Regexer.DoRegex('<a href="([^"]+.(?:wmv|mp4))">(High|Medium|Mid|Low|MP4)', data)
+        urls = Regexer.do_regex('<a href="([^"]+.(?:wmv|mp4))">(High|Medium|Mid|Low|MP4)', data)
         mediaPart = mediaitem.MediaItemPart(item.name)
         for url in urls:
             if url[1].lower() == "high":
@@ -256,13 +256,13 @@ class Channel(chn_class.Channel):
                 bitrate = 200
             else:
                 bitrate = 0
-            mediaPart.AppendMediaStream(HtmlEntityHelper.ConvertHTMLEntities(url[0]), bitrate)
+            mediaPart.append_media_stream(HtmlEntityHelper.convert_html_entities(url[0]), bitrate)
 
         item.MediaItemParts.append(mediaPart)
 
-        #images = Regexer.DoRegex('<link type="image/jpeg" rel="videothumbnail" href="([^"]+)"/>', data)
+        #images = Regexer.do_regex('<link type="image/jpeg" rel="videothumbnail" href="([^"]+)"/>', data)
         #for image in images:
-        #    thumbUrl = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(image)
+        #    thumbUrl = htmlentityhelper.HtmlEntityHelper.convert_html_entities(image)
         #    break
 
         item.complete = True

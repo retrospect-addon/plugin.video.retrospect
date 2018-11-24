@@ -33,8 +33,8 @@ class Channel(chn_class.Channel):
         self.noImage = "tvnlimage.png"
 
         self.mainListUri = "#mainlist"
-        self._AddDataParser(url="#mainlist", preprocessor=self.ParseTvList)
-        self._AddDataParser(url="*", preprocessor=self.ParseSubList)
+        self._add_data_parser(url="#mainlist", preprocessor=self.ParseTvList)
+        self._add_data_parser(url="*", preprocessor=self.ParseSubList)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -59,9 +59,9 @@ class Channel(chn_class.Channel):
         # read the regional ones
         # noinspection PyUnresolvedReferences
         dataPath = os.path.abspath(os.path.join(__file__, '..', 'data'))
-        Logger.Info("TV streams located at: %s", dataPath)
+        Logger.info("TV streams located at: %s", dataPath)
         regionals = os.listdir(dataPath)
-        Logger.Trace(regionals)
+        Logger.trace(regionals)
         for regional in regionals:
             path = os.path.join(dataPath, regional)
             if not os.path.isdir(path):
@@ -89,8 +89,8 @@ class Channel(chn_class.Channel):
 
         * loading of the data from the item.url
         * perform pre-processing actions
-        * creates a sorted list folder items using self.folderItemRegex and self.CreateFolderItem
-        * creates a sorted list of media items using self.videoItemRegex and self.CreateVideoItem
+        * creates a sorted list folder items using self.folderItemRegex and self.create_folder_item
+        * creates a sorted list of media items using self.videoItemRegex and self.create_video_item
         * create page items using self.ProcessPageNavigation
 
         if item = None then an empty list is returned.
@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
         """
 
         item = self.parentItem
-        Logger.Debug("trying first items")
+        Logger.debug("trying first items")
         url = item.url
         items = []
 
@@ -113,7 +113,7 @@ class Channel(chn_class.Channel):
             stationItem.icon = os.path.join(url, "%s%s" % (name, ".tbn"))
             stationItem.complete = True
             stationItem.description = stationItem.name
-            stationItem.AppendSingleStream(stream)
+            stationItem.append_single_stream(stream)
             stationItem.type = "playlist"
             stationItem.thumb = stationItem.icon
             items.append(stationItem)

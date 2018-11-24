@@ -55,20 +55,20 @@ class Channel(chn_class.Channel):
         else:
             raise NotImplementedError("Unknown channel code")
 
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.ExtractJson,
-                            parser=(), creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.ExtractJson,
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("stream", ),
-                            creator=self.CreateVideoItems,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*", json=True,
+                              parser=["stream", ],
+                              creator=self.CreateVideoItems,
+                              updater=self.update_video_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("pagination", ),
-                            creator=self.CreatePageItem)
+        self._add_data_parser("*", json=True,
+                              parser=["pagination", ],
+                              creator=self.create_page_item)
 
-        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
+        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the update_video_item
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
 
         #===============================================================================================================
@@ -90,7 +90,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -99,12 +99,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
-        jsonData = Regexer.DoRegex('type="application/json">([^<]+)<', data)
+        jsonData = Regexer.do_regex('type="application/json">([^<]+)<', data)
         if not jsonData:
-            Logger.Warning("No JSON data found.")
+            Logger.warning("No JSON data found.")
             return data, items
 
         json = JsonHelper(jsonData[0])
@@ -117,8 +117,8 @@ class Channel(chn_class.Channel):
         json.json = result
         return json, items
 
-    def CreateEpisodeItem(self, resultSet):
-        Logger.Trace(resultSet)
+    def create_episode_item(self, resultSet):
+        Logger.trace(resultSet)
         title = resultSet["title"].replace("-", " ").title()
 
         # http://www.nickjr.nl/data/propertyStreamPage.json?&urlKey=dora&apiKey=nl_global_Nickjr_web&page=1
@@ -130,7 +130,7 @@ class Channel(chn_class.Channel):
         item.HttpHeaders = self.httpHeaders
         return item
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         """Creates a MediaItem of type 'page' using the resultSet from the regex.
 
         Arguments:
@@ -145,13 +145,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         nextPage = resultSet["next"]
         if not nextPage:
-            Logger.Debug("No more items available")
+            Logger.debug("No more items available")
             return None
 
-        more = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+        more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         url = "%s=%s" % (self.parentItem.url.rsplit("=", 1)[0], nextPage)
         item = mediaitem.MediaItem(more, url)
         item.thumb = self.parentItem.thumb
@@ -164,13 +164,13 @@ class Channel(chn_class.Channel):
         items = []
         for resultSet in resultSets.get("items", []):
             if "data" in resultSet and resultSet["data"]:
-                item = self.CreateVideoItem(resultSet["data"])
+                item = self.create_video_item(resultSet["data"])
                 if item:
                     items.append(item)
 
         return items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -185,12 +185,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         isSerieTitle = resultSet["seriesTitle"]
         if not isSerieTitle:
@@ -216,8 +216,8 @@ class Channel(chn_class.Channel):
         item.complete = False
 
         if "datePosted" in resultSet:
-            date = DateHelper.GetDateFromPosix(float(resultSet["datePosted"]["unixOffset"])/1000)
-            item.SetDate(date.year, date.month, date.day, date.hour, date.minute, date.second)
+            date = DateHelper.get_date_from_posix(float(resultSet["datePosted"]["unixOffset"]) / 1000)
+            item.set_date(date.year, date.month, date.day, date.hour, date.minute, date.second)
 
         if "images" in resultSet:
             images = resultSet.get("images", {})
@@ -226,7 +226,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -249,34 +249,34 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        metaData = UriHandler.Open(item.url, proxy=self.proxy, referer=self.baseUrl)
+        metaData = UriHandler.open(item.url, proxy=self.proxy, referer=self.baseUrl)
         meta = JsonHelper(metaData)
-        streamParts = meta.GetValue("feed", "items")
+        streamParts = meta.get_value("feed", "items")
         for streamPart in streamParts:
             streamUrl = streamPart["group"]["content"]
             # streamUrl = streamUrl.replace("{device}", "ipad")
             streamUrl = streamUrl.replace("{device}", "html5")
             streamUrl = "%s&format=json" % (streamUrl, )
-            streamData = UriHandler.Open(streamUrl, proxy=self.proxy)
+            streamData = UriHandler.open(streamUrl, proxy=self.proxy)
             stream = JsonHelper(streamData)
 
-            # subUrls = stream.GetValue("package", "video", "item", 0, "transcript", 0, "typographic")
-            part = item.CreateNewEmptyMediaPart()
+            # subUrls = stream.get_value("package", "video", "item", 0, "transcript", 0, "typographic")
+            part = item.create_new_empty_media_part()
 
-            # m3u8Url = stream.GetValue("package", "video", "item", 0, "rendition", 0, "src")
-            # for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+            # m3u8Url = stream.get_value("package", "video", "item", 0, "rendition", 0, "src")
+            # for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             #     item.complete = True
-            #     part.AppendMediaStream(s, b)
+            #     part.append_media_stream(s, b)
 
-            rtmpDatas = stream.GetValue("package", "video", "item", 0, "rendition")
+            rtmpDatas = stream.get_value("package", "video", "item", 0, "rendition")
             for rtmpData in rtmpDatas:
                 rtmpUrl = rtmpData["src"]
                 rtmpUrl = rtmpUrl.replace("rtmpe://", "rtmp://")
                 bitrate = rtmpData["bitrate"]
-                part.AppendMediaStream(rtmpUrl, bitrate)
+                part.append_media_stream(rtmpUrl, bitrate)
 
         item.complete = True
-        Logger.Trace("Media url: %s", item)
+        Logger.trace("Media url: %s", item)
         return item

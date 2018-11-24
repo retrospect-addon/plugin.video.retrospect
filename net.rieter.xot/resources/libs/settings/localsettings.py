@@ -39,7 +39,7 @@ class LocalSettings(settingsstore.SettingsStore):
     def set_setting(self, setting_id, setting_value, channel=None):
         if channel is None:
             LocalSettings.__settings[LocalSettings.__SETTINGS_KEY][setting_id] = setting_value
-            self._logger.Debug("Local Setting Updated: %s: '%s'",
+            self._logger.debug("Local Setting Updated: %s: '%s'",
                                setting_id,
                                self._get_safe_print_value(setting_id, setting_value))
         else:
@@ -49,7 +49,7 @@ class LocalSettings(settingsstore.SettingsStore):
             LocalSettings.__settings[LocalSettings.__CHANNELS_KEY][channel.id][setting_id] = \
                 setting_value
 
-            self._logger.Debug("Local Channel Setting Updated: %s:%s: '%s'",
+            self._logger.debug("Local Channel Setting Updated: %s:%s: '%s'",
                                channel.id, setting_id,
                                self._get_safe_print_value(setting_id, setting_value))
 
@@ -67,12 +67,12 @@ class LocalSettings(settingsstore.SettingsStore):
         if channel is None:
             setting_value = LocalSettings.__settings["settings"].get(setting_id, default)
 
-            self._logger.Trace("Local Setting: %s='%s'", setting_id,
+            self._logger.trace("Local Setting: %s='%s'", setting_id,
                                self._get_safe_print_value(setting_id, setting_value))
         else:
             channel_settings = LocalSettings.__settings["channels"].get(channel.id, {})
             setting_value = channel_settings.get(setting_id, default)
-            self._logger.Trace("Local Channel Setting: %s.%s='%s'", channel.id, setting_id,
+            self._logger.trace("Local Channel Setting: %s.%s='%s'", channel.id, setting_id,
                                self._get_safe_print_value(setting_id, setting_value))
 
         # the default was already retrieved by the dict.get(key, default)
@@ -89,7 +89,7 @@ class LocalSettings(settingsstore.SettingsStore):
         if LocalSettings.__settings is not None:
             del LocalSettings.__settings
             LocalSettings.__settings = None
-        self._logger.Debug("Removed Local settings-store")
+        self._logger.debug("Removed Local settings-store")
 
     def __str__(self):
         return "LocalSettings store: {0}".format(self.local_settings_file)
@@ -97,7 +97,7 @@ class LocalSettings(settingsstore.SettingsStore):
     def __load_settings(self):
         if not os.path.isfile(self.local_settings_file):
             LocalSettings.__settings = self.__empty_settings()
-            self._logger.Warning("No local settings file found: %s", self.local_settings_file)
+            self._logger.warning("No local settings file found: %s", self.local_settings_file)
             return
 
         try:
@@ -105,17 +105,17 @@ class LocalSettings(settingsstore.SettingsStore):
                 content = fp.read()
                 if not content:
                     LocalSettings.__settings = self.__empty_settings()
-                    self._logger.Warning("Empty local settings file found: %s", self.local_settings_file)
+                    self._logger.warning("Empty local settings file found: %s", self.local_settings_file)
                     return
 
                 # Print the content might expose secret settings. See self._secure_setting_ids
                 # self._logger.Trace("Loading settings: %s", content)
                 LocalSettings.__settings = json.loads(content, encoding='utf-8')
         except:
-            self._logger.Error("Error loading JSON settings. Resetting all settings.", exc_info=True)
+            self._logger.error("Error loading JSON settings. Resetting all settings.", exc_info=True)
             LocalSettings.__settings = self.__empty_settings()
             backup = self.local_settings_file.replace(".json", ".error.json")
-            self._logger.Warning("Creating backup of settings file: %s", backup)
+            self._logger.warning("Creating backup of settings file: %s", backup)
             shutil.copy(
                 self.local_settings_file,
                 backup

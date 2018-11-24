@@ -41,7 +41,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -62,7 +62,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -77,7 +77,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -85,14 +85,14 @@ class Channel(chn_class.Channel):
         xml = resultSet[0]
         xmlData = xmlhelper.XmlHelper(xml)
 
-        title = xmlData.GetSingleNodeContent("title")
-        eTitle = xmlData.GetSingleNodeContent("episodetitel")
+        title = xmlData.get_single_node_content("title")
+        eTitle = xmlData.get_single_node_content("episodetitel")
         if not eTitle == title:
             title = "%s - %s" % (title, eTitle)
-        thumb = xmlData.GetSingleNodeContent("thumbnail")
-        url = xmlData.GetSingleNodeContent("movie")
-        date = xmlData.GetSingleNodeContent("broadcastdatetime")
-        desc = xmlData.GetSingleNodeContent("samenvattinglang") or title
+        thumb = xmlData.get_single_node_content("thumbnail")
+        url = xmlData.get_single_node_content("movie")
+        date = xmlData.get_single_node_content("broadcastdatetime")
+        desc = xmlData.get_single_node_content("samenvattinglang") or title
 
         item = mediaitem.MediaItem(title, url)
         item.description = desc
@@ -100,11 +100,11 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         item.type = 'video'
 
-        item.SetDate(date[0:4], date[5:7], date[8:10], date[11:13], date[14:16], date[17:20])
+        item.set_date(date[0:4], date[5:7], date[8:10], date[11:13], date[14:16], date[17:20])
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -127,15 +127,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # load the details.
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         # prevent the "418 I'm a teapot" error
         part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0"
 
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
-            part.AppendMediaStream(s, b)
+        for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

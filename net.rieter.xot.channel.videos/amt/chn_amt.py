@@ -1,8 +1,4 @@
-#===============================================================================
-# Make global object available
-#===============================================================================
 import mediaitem
-import contextmenu
 import chn_class
 from helpers import datehelper
 from regexer import Regexer
@@ -32,28 +28,25 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "amtimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
-
         # setup the urls
         self.baseUrl = "http://trailers.apple.com"
         self.mainListUri = "http://trailers.apple.com/trailers/home/feeds/just_added.json"
         # self.mainListUri = "http://trailers.apple.com/ca/home/feeds/most_pop.json"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, parser=(), json=True, creator=self.CreateEpisodeItem)
-        self._AddDataParser("*", json=True, preprocessor=self.GetMovieId,
-                            parser=("clips", ), creator=self.CreateVideoItem)
+        self._add_data_parser(self.mainListUri, parser=[], json=True, creator=self.create_episode_item)
+        self._add_data_parser("*", json=True, preprocessor=self.GetMovieId,
+                              parser=["clips", ], creator=self.create_video_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet["title"]
         date = resultSet["trailers"][0]["postdate"]
         url = resultSet["trailers"][0]["url"]
@@ -70,7 +63,7 @@ class Channel(chn_class.Channel):
         dates = date.split(" ")
         # Logger.Trace(dates)
         day = dates[1]
-        month = datehelper.DateHelper.GetMonthFromName(dates[2], "en")
+        month = datehelper.DateHelper.get_month_from_name(dates[2], "en")
         year = dates[3]
 
         # dummy class
@@ -78,7 +71,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.thumb = thumbUrl.replace("poster.jpg", "poster-xlarge.jpg")
         item.fanart = fanart
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
         item.complete = True
         return item
 
@@ -88,21 +81,21 @@ class Channel(chn_class.Channel):
         @param data: the original data
         @return: the new data
         """
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
-        movieId = Regexer.DoRegex("movietrailers://movie/detail/(\d+)", data)[-1]
-        Logger.Debug("Found Movie ID: %s", movieId)
+        movieId = Regexer.do_regex("movietrailers://movie/detail/(\d+)", data)[-1]
+        Logger.debug("Found Movie ID: %s", movieId)
         url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movieId)
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
 
         # set it for logging purposes
         self.parentItem.url = url
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -117,12 +110,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         title = "%s - %s" % (self.parentItem.name, title)
@@ -135,9 +128,9 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.thumb = thumb
         item.fanart = self.parentItem.fanart
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         part.HttpHeaders["User-Agent"] = "QuickTime/7.6 (qtver=7.6;os=Windows NT 6.0Service Pack 2)"
 
         if "versions" in resultSet and "enus" in resultSet["versions"] and "sizes" in resultSet["versions"]["enus"]:
@@ -156,19 +149,12 @@ class Channel(chn_class.Channel):
                             # movs need to have a 'h' before the quality
                             parts = streamUrl.rsplit("_", 1)
                             if len(parts) == 2:
-                                Logger.Trace(parts)
+                                Logger.trace(parts)
                                 streamUrl = "%s_h%s" % (parts[0], parts[1])
-                            part.AppendMediaStream(streamUrl, bitrate)
+                            part.append_media_stream(streamUrl, bitrate)
                         else:
-                            part.AppendMediaStream(streamUrl, bitrate)
+                            part.append_media_stream(streamUrl, bitrate)
                         item.complete = True
 
         item.downloadable = True
-        return item
-
-    #noinspection PyUnusedLocal
-    def CtMnDownloadItem(self, item):
-        """ downloads a video item and returns the updated one
-        """
-        item = self.DownloadVideoItem(item)
         return item

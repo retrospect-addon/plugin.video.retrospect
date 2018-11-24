@@ -41,15 +41,15 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self.episodeItemRegex = '<a class="letter stat" href="(?<url>/iplayer/a-z/[^"]+)">(?<title>[^<]+)</a>'\
                                 .replace("(?<", "(?P<")
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.AddLiveChannels,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.AddLiveChannels,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         # Standard items
-        self._AddDataParser("*", preprocessor=self.PreProcessFolderList)
+        self._add_data_parser("*", preprocessor=self.pre_process_folder_list)
         self.folderItemRegex = '<a href="(?<url>/iplayer/brand/[^"]+)"[^>]*>\W+<i[^>]+></i>\W+<span[^>]+>' \
                                '(?<title>[^<]+)<'.replace("(?<", "(?P<")
-        self._AddDataParser("*", parser=self.folderItemRegex, creator=self.CreateFolderItem)
+        self._add_data_parser("*", parser=self.folderItemRegex, creator=self.create_folder_item)
         self.videoItemRegex = '<a\W+href="/iplayer/episode/(?<url>[^/]+)[^>]+>\W+<div[^>]+>[^>]+' \
                               '</div>\W+(?:<div[^>]+>[^>]+</div>\W+)?[\w\W]{0,500}?<source ' \
                               'srcset="(?<thumburl>[^"]+)"[\w\W]{0,500}?<div class="secondary">' \
@@ -57,15 +57,15 @@ class Channel(chn_class.Channel):
                               '[^<]+)</div>\W+)?<p[^>]*>(?<description>[^<]*)</p>[\w\W]{0,1000}?' \
                               '(?:<span class="release">\W+First shown: (?<day>\d+) (?<month>\w+) ' \
                               '(?<year>\d+)|<div class="period")'
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
+        self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item)
 
         # Live channels
-        self._AddDataParser("http://vs-hds-uk-live.edgesuite.net/", updater=self.UpdateLiveItem)
-        self._AddDataParser("http://a.files.bbci.co.uk/media/live/manifesto/", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://vs-hds-uk-live.edgesuite.net/", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://a.files.bbci.co.uk/media/live/manifesto/", updater=self.UpdateLiveItem)
 
         # Generic updater
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # ===============================================================================================================
         # non standard items
@@ -82,7 +82,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -97,13 +97,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        Logger.trace(resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is not None:
             item.name = "Shows: %s" % (item.name.upper(),)
         return item
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -113,7 +113,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -122,18 +122,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if "episode.json" in self.parentItem.url:
-            Logger.Debug("Fetching Carousel data")
+            Logger.debug("Fetching Carousel data")
             json = JsonHelper(data)
-            data = json.GetValue("carousel")
+            data = json.get_value("carousel")
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -148,9 +148,9 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
-        item = chn_class.Channel.CreateFolderItem(self, resultSet)
+        item = chn_class.Channel.create_folder_item(self, resultSet)
         brand = item.url[item.url.rindex("/") + 1:]
 
         # to match the first video regex: item.url = "http://www.bbc.co.uk/programmes/%s/episodes/player" % (brand, )
@@ -158,7 +158,7 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -181,30 +181,30 @@ class Channel(chn_class.Channel):
         if "subtitle" in resultSet and not resultSet["subtitle"]:
             del resultSet["subtitle"]
 
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
         vid = item.url.replace(self.baseUrl, "")
         # item.thumb = item.thumb.replace("192x108", "%sx%s" % (192 * 2, 108 * 2))
         item.url = "http://www.bbc.co.uk/iplayer/episode/%s" % (vid,)
         if "year" in resultSet and resultSet["year"]:
-            month = DateHelper.GetMonthFromName(resultSet["month"], "en", short=True)
-            item.SetDate(resultSet["year"], month, resultSet["day"])
+            month = DateHelper.get_month_from_name(resultSet["month"], "en", short=True)
+            item.set_date(resultSet["year"], month, resultSet["day"])
 
         item.isGeoLocked = True
         # item.url = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/%s/atk/" % (vid,)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        Logger.Trace(item.url)
+        Logger.trace(item.url)
         if not item.url.startswith("http://www.bbc.co.uk/mediaselector/"):
-            Logger.Debug("Determining the stream URL")
-            data = UriHandler.Open(item.url, proxy=self.proxy)
+            Logger.debug("Determining the stream URL")
+            data = UriHandler.open(item.url, proxy=self.proxy)
             needle = '"vpid"\W*"([^"]+)"'
-            vid = Regexer.DoRegex(needle, data)[-1]
+            vid = Regexer.do_regex(needle, data)[-1]
             # streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/4/mtis/stream/%s/" % (vid,)
             streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/iptv-all/vpid/%s" % (vid,)
             # streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/%s" % (vid,)
@@ -220,13 +220,13 @@ class Channel(chn_class.Channel):
         # /2.0/mediaset/pc/vpid/%s/atk/2214e42b5729dcdd012dfb61a3054d39309ccd31/asn/1/
         # And I don't know where that one comes from
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
-        streamData = UriHandler.Open(streamDataUrl, proxy=self.proxy)
+        streamData = UriHandler.open(streamDataUrl, proxy=self.proxy)
         # from debug.router import Router
-        # streamData = Router.GetVia("uk", streamDataUrl, self.proxy)
+        # streamData = Router.get_via("uk", streamDataUrl, self.proxy)
 
-        connectionDatas = Regexer.DoRegex(
+        connectionDatas = Regexer.do_regex(
             '<media bitrate="(\d+)"[^>]+>\W*'
             '(<connection[^>]+>\W*)'
             '(<connection[^>]+>\W*)?'
@@ -236,7 +236,7 @@ class Channel(chn_class.Channel):
         for connectionData in connectionDatas:
             # first the bitrate
             bitrate = connectionData[0]
-            Logger.Trace("Found Media: %s", connectionData)
+            Logger.trace("Found Media: %s", connectionData)
 
             # go through the available connections
             for connection in connectionData[1:]:
@@ -244,11 +244,11 @@ class Channel(chn_class.Channel):
                     continue
 
                 connectionXml = XmlHelper(connection)
-                Logger.Trace("Analyzing Connection: %s", connection)
-                supplier = connectionXml.GetTagAttribute("connection", {"supplier": None})
-                protocol = connectionXml.GetTagAttribute("connection", {"protocol": None})
-                transferFormat = connectionXml.GetTagAttribute("connection", {"transferFormat": None})
-                Logger.Debug("Found connection information:\n"
+                Logger.trace("Analyzing Connection: %s", connection)
+                supplier = connectionXml.get_tag_attribute("connection", {"supplier": None})
+                protocol = connectionXml.get_tag_attribute("connection", {"protocol": None})
+                transferFormat = connectionXml.get_tag_attribute("connection", {"transferFormat": None})
+                Logger.debug("Found connection information:\n"
                              "Protocol:       %s\n"
                              "TransferFormat: %s\n"
                              "Supplier:       %s\n"
@@ -257,23 +257,23 @@ class Channel(chn_class.Channel):
 
                 if protocol.startswith("http"):
                     if transferFormat != "hls":
-                        Logger.Debug("Ignoring TransferFormat: %s", transferFormat)
+                        Logger.debug("Ignoring TransferFormat: %s", transferFormat)
                         continue
                     if "lime" in supplier or "mf_akamai_uk" in supplier:
-                        Logger.Debug("Ignoring Supplier: %s", supplier)
+                        Logger.debug("Ignoring Supplier: %s", supplier)
                         continue
-                    url = connectionXml.GetTagAttribute("connection", {"href": None})
+                    url = connectionXml.get_tag_attribute("connection", {"href": None})
                 elif protocol.startswith("rtmp"):
-                    Logger.Warning("Ignoring RTMP for now")
+                    Logger.warning("Ignoring RTMP for now")
                     continue
                 else:
-                    Logger.Warning("Unknown protocol: %s", protocol)
+                    Logger.warning("Unknown protocol: %s", protocol)
                     continue
 
                 #
                 # # port: we take the default one
                 # # determine protocol
-                # protocol = connectionXml.GetTagAttribute("connection", {"protocol": None})
+                # protocol = connectionXml.get_tag_attribute("connection", {"protocol": None})
                 # if protocol == "http":
                 #     Logger.Debug("Http stream found, skipping for now.")
                 #     continue
@@ -283,22 +283,22 @@ class Channel(chn_class.Channel):
                 # Logger.Debug("Found protocol      : %s", protocol)
                 #
                 # # now for the non-http version, we need application, authentication, server, file and kind
-                # application = connectionXml.GetTagAttribute("connection", {"application": None})
+                # application = connectionXml.get_tag_attribute("connection", {"application": None})
                 # if application == "":
                 #     application = "ondemand"
                 # Logger.Debug("Found application   : %s", application)
                 #
-                # authentication = connectionXml.GetTagAttribute("connection", {"authString": None})
-                # authentication = htmlentityhelper.HtmlEntityHelper.ConvertHTMLEntities(authentication)
+                # authentication = connectionXml.get_tag_attribute("connection", {"authString": None})
+                # authentication = htmlentityhelper.HtmlEntityHelper.convert_html_entities(authentication)
                 # Logger.Debug("Found authentication: %s", authentication)
                 #
-                # server = connectionXml.GetTagAttribute("connection", {"server": None})
+                # server = connectionXml.get_tag_attribute("connection", {"server": None})
                 # Logger.Debug("Found server        : %s", server)
                 #
-                # fileName = connectionXml.GetTagAttribute("connection", {"identifier": None})
+                # fileName = connectionXml.get_tag_attribute("connection", {"identifier": None})
                 # Logger.Debug("Found identifier    : %s", fileName)
                 #
-                # kind = connectionXml.GetTagAttribute("connection", {"kind": None})
+                # kind = connectionXml.get_tag_attribute("connection", {"kind": None})
                 # Logger.Debug("Found kind          : %s", kind)
                 #
                 # Logger.Trace("XML: %s\nProtocol: %s, Server: %s, Application: %s, Authentication: %s, File: %s , Kind: %s", connection, protocol, server, application, authentication, fileName, kind)
@@ -318,23 +318,23 @@ class Channel(chn_class.Channel):
                 #     # for a none-limelight we just compose a RTMP stream
                 #     url = "%s://%s/%s?%s playpath=%s" % (protocol, server, application, authentication, fileName)
                 #     Logger.Debug("Creating RTMP for a None-LimeLight type\n%s", url)
-                # url = self.GetVerifiableVideoUrl(url)
+                # url = self.get_verifiable_video_url(url)
 
                 # if liveStream:
                 #     url = "%s live=1" % (url, )
-                part.AppendMediaStream(url, bitrate)
+                part.append_media_stream(url, bitrate)
 
         # get the subtitle
-        subtitles = Regexer.DoRegex('<connection href="(http://www.bbc.co.uk/iplayer/subtitles/[^"]+/)([^/]+.xml)"',
-                                    streamData)
+        subtitles = Regexer.do_regex('<connection href="(http://www.bbc.co.uk/iplayer/subtitles/[^"]+/)([^/]+.xml)"',
+                                     streamData)
         if len(subtitles) > 0:
             subtitle = subtitles[0]
             subtitleUrl = "%s%s" % (subtitle[0], subtitle[1])
-            part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subtitleUrl, subtitle[1], "ttml",
-                                                                           proxy=self.proxy)
+            part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(subtitleUrl, subtitle[1], "ttml",
+                                                                            proxy=self.proxy)
 
         item.complete = True
-        Logger.Trace('finishing UpdateVideoItem: %s.', item)
+        Logger.trace('finishing update_video_item: %s.', item)
         return item
 
     def AddLiveChannels(self, data):
@@ -347,7 +347,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -356,7 +356,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Generating Live channels")
+        Logger.info("Generating Live channels")
 
         liveChannels = [
             {"name": "BBC 1 HD", "code": "bbc_one_hd", "image": "bbc1large.png"},
@@ -390,7 +390,7 @@ class Channel(chn_class.Channel):
             item.isLive = True
             item.type = "video"
             item.complete = False
-            item.thumb = self.GetImageLocation(channel["image"])
+            item.thumb = self.get_image_location(channel["image"])
             live.items.append(item)
 
         return data, [live, ]
@@ -399,24 +399,24 @@ class Channel(chn_class.Channel):
         """
         Accepts an item. It returns an updated item.
         """
-        Logger.Debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
-        streamRoot = Regexer.DoRegex('<media href="([^"]+\.isml)', data)[0]
-        Logger.Debug("Found Live stream root: %s", streamRoot)
+        Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
+        streamRoot = Regexer.do_regex('<media href="([^"]+\.isml)', data)[0]
+        Logger.debug("Found Live stream root: %s", streamRoot)
         # url = "%s/master.m3u8" % (streamRoot, )
         #
-        # part = item.CreateNewEmptyMediaPart()
-        # for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+        # part = item.create_new_empty_media_part()
+        # for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
         #     item.complete = True
-        #     # s = self.GetVerifiableVideoUrl(s)
-        #     part.AppendMediaStream(s, b)
+        #     # s = self.get_verifiable_video_url(s)
+        #     part.append_media_stream(s, b)
 
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in F4m.GetStreamsFromF4m(item.url, self.proxy):
+        part = item.create_new_empty_media_part()
+        for s, b in F4m.get_streams_from_f4m(item.url, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
+            # s = self.get_verifiable_video_url(s)
             s = s.replace(".f4m", ".m3u8")
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item
 

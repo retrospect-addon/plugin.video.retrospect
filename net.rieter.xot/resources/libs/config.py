@@ -57,22 +57,22 @@ class Config:
     logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
     logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin
 
-    retroDb = os.path.join(profileDir, "retrospect.db")     # : Filename of the XOT DB file
-    googleAnalyticsId = "UA-3902785-11"                     # : Google Analytics ID for statistics
+    retroDb = os.path.join(profileDir, "retrospect.db")      # : Filename of the XOT DB file
+    googleAnalyticsId = "UA-3902785-11"                      # : Google Analytics ID for statistics
 
     # must be single quotes for build script
     __addonXmlPath = os.path.join(rootDir, 'addon.xml')
     __addonXmlcontents = xml.dom.minidom.parse(__addonXmlPath)
     for addonentry in __addonXmlcontents.getElementsByTagName("addon"):
-        addonId = str(addonentry.getAttribute("id"))         # : The ID the addon has in XBMC (from addon.xml)
-        __version = addonentry.getAttribute("version")       # : The Version of the addon (from addon.xml) in text
-        version = Version(version=__version)                 # : The Version of the addon (from addon.xml)
+        addonId = str(addonentry.getAttribute("id"))          # : The ID the addon has in Kodi (from addon.xml)
+        __version = addonentry.getAttribute("version")        # : The Version of the addon (from addon.xml) in text
+        version = Version(version=__version)                  # : The Version of the addon (from addon.xml)
         #noinspection PyRedeclaration
-        appName = str(addonentry.getAttribute("name"))       # : The name from the addon (from addon.xml)
+        appName = str(addonentry.getAttribute("name"))        # : The name from the addon (from addon.xml)
 
     UpdateUrl = "https://api.bitbucket.org/2.0/repositories/basrieter/xbmc-online-tv/downloads/"
 
-    TextureMode = "Cached"                                   # : The mode for the textures: Local, Remote or Cached
-    TextureUrl = "http://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
+    TextureMode = "Cached"                                    # : The mode for the textures: Local, Remote or Cached
+    TextureUrl = "https://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
 
-    LogSenderApi = "1786d25d01392d572659bba76f95174f"          # : The Retrospect logsender API (Google Shortner API or PasteBinAPI)
+    LogSenderApi = "1786d25d01392d572659bba76f95174f"         # : The Retrospect logsender API (Google Shortner API or PasteBinAPI)

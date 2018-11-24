@@ -45,20 +45,20 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/html/flash/common/player.swf" % (self.baseUrl,)
 
         episodeRegex = '<a[^>]+href="(?<url>/kijken[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser=episodeRegex, creator=self.create_episode_item)
 
-        self._AddDataParser("*", preprocessor=self.SelectVideoSection)
+        self._add_data_parser("*", preprocessor=self.SelectVideoSection)
 
-        videoRegex = Regexer.FromExpresso('<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
-                                          '\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
-                                          '[^>]+></span>\W+(?<description>[^<]+)')
-        self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        videoRegex = Regexer.from_expresso('<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
+                                           '\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
+                                           '[^>]+></span>\W+(?<description>[^<]+)')
+        self._add_data_parser("*", parser=videoRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
-        folderRegex = Regexer.FromExpresso('<span class="more-of-program" rel="/(?<url>[^"]+)">')
-        self._AddDataParser("*", parser=folderRegex, creator=self.CreateFolderItem)
+        folderRegex = Regexer.from_expresso('<span class="more-of-program" rel="/(?<url>[^"]+)">')
+        self._add_data_parser("*", parser=folderRegex, creator=self.create_folder_item)
 
         #===============================================================================================================
         # non standard items
@@ -79,7 +79,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -88,7 +88,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         endOfSection = data.rfind('<div class="grid-4">')
@@ -96,27 +96,27 @@ class Channel(chn_class.Channel):
             data = data[:endOfSection]
 
         # find the first main video
-        jsonData = Regexer.DoRegex(self.mediaUrlRegex, data)
+        jsonData = Regexer.do_regex(self.mediaUrlRegex, data)
         if not jsonData:
-            Logger.Debug("No show data found as JSON")
+            Logger.debug("No show data found as JSON")
             return data, items
 
-        Logger.Trace(jsonData[0])
+        Logger.trace(jsonData[0])
         json = JsonHelper(jsonData[0])
-        title = json.GetValue("title")
-        url = json.GetValue("source", "hls")
+        title = json.get_value("title")
+        url = json.get_value("source", "hls")
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'
-        item.description = json.GetValue("description", fallback=None)
-        item.thumb = json.GetValue("image", fallback=self.noImage)
+        item.description = json.get_value("description", fallback=None)
+        item.thumb = json.get_value("image", fallback=self.noImage)
         item.fanart = self.parentItem.fanart
         item.complete = False
         items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -131,39 +131,39 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
-        resultSet["title"] = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
-        return chn_class.Channel.CreateFolderItem(self, resultSet)
+        resultSet["title"] = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
+        return chn_class.Channel.create_folder_item(self, resultSet)
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         if not item.url.endswith("m3u8"):
-            data = UriHandler.Open(item.url, proxy=self.proxy)
-            jsonData = Regexer.DoRegex(self.mediaUrlRegex, data)
+            data = UriHandler.open(item.url, proxy=self.proxy)
+            jsonData = Regexer.do_regex(self.mediaUrlRegex, data)
             if not jsonData:
-                Logger.Error("Cannot find JSON stream info.")
+                Logger.error("Cannot find JSON stream info.")
                 return item
 
             json = JsonHelper(jsonData[0])
-            Logger.Trace(json.json)
-            stream = json.GetValue("source", "hls")
+            Logger.trace(json.json)
+            stream = json.get_value("source", "hls")
             if stream is None:
-                stream = json.GetValue("mzsource", "hls")
-            Logger.Debug("Found HLS: %s", stream)
+                stream = json.get_value("mzsource", "hls")
+            Logger.debug("Found HLS: %s", stream)
         else:
             stream = item.url
 
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(stream, self.proxy):
+        part = item.create_new_empty_media_part()
+        for s, b in M3u8.get_streams_from_m3u8(stream, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            # s = self.get_verifiable_video_url(s)
+            part.append_media_stream(s, b)
 
         # var playerConfig = {"id":"mediaplayer","width":"100%","height":"100%","autostart":"false","image":"http:\/\/www.ketnet.be\/sites\/default\/files\/thumb_5667ea22632bc.jpg","brand":"ketnet","source":{"hls":"http:\/\/vod.stream.vrt.be\/ketnet\/_definst_\/mp4:ketnet\/2015\/12\/Ben_ik_familie_van_R001_A0023_20151208_143112_864.mp4\/playlist.m3u8"},"analytics":{"type_stream":"vod","playlist":"Ben ik familie van?","program":"Ben ik familie van?","episode":"Ben ik familie van?: Warre - Aflevering 3","parts":"1","whatson":"270157835527"},"title":"Ben ik familie van?: Warre - Aflevering 3","description":"Ben ik familie van?: Warre - Aflevering 3"}
         return item    

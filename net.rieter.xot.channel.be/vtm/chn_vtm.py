@@ -32,18 +32,18 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self.episodeItemRegex = '<li><a[^>]+href="/([^"]+)" class="level-1[^>]+>([^<]+)</a>'
-        self._AddDataParser(self.mainListUri, creator=self.CreateEpisodeItem, parser=self.episodeItemRegex)
+        self._add_data_parser(self.mainListUri, creator=self.create_episode_item, parser=self.episodeItemRegex)
 
         self.videoItemRegex = '<article[^<]+has-video"[^>]*>\W*<a href="(?<Url>[^<"]+)"[^>]*>\W+<div[^<]+<img[^>]+' \
                               'src="(?<Thumb>[^"]+)"[^>]*>[\w\W]{0,500}?<h3[^>]*>(?:\W+<span[^>]*>[^>]*>)?' \
                               '(?<Title>[^<]+)</h3>\W+<div[^<]+<time[^>]+datetime="(?<DateTime>[^"]+)"[^<]+</time>\W*' \
                               '</div>\W*<p[^>]+>*(?<Description>[^<]+)'
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
-        self._AddDataParser("*", creator=self.CreateVideoItem, parser=self.videoItemRegex, updater=self.UpdateVideoItem)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
+        self._add_data_parser("*", creator=self.create_video_item, parser=self.videoItemRegex, updater=self.update_video_item)
 
         stadionRegex = '<article[^>]*>\W*<div class="image is-video">\W*<a href="(?<Url>[^"]+)[^>]*>\W*<img[^>]+src="(?<Thumb>[^"]+)"[\w\W]{0,1000}?<h3 class="pagemanager-item-title">\W*<span>\W*<a[^>]*>(?<Title>[^<]+)[\w\W]{0,1000}?<div class="teaser">\W*<a[^>]+>(?<Description>[^<]+)'
-        stadionRegex = Regexer.FromExpresso(stadionRegex)
-        self._AddDataParser("http://nieuws.vtm.be/stadion", parser=stadionRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        stadionRegex = Regexer.from_expresso(stadionRegex)
+        self._add_data_parser("http://nieuws.vtm.be/stadion", parser=stadionRegex, creator=self.create_video_item, updater=self.update_video_item)
 
         self.mediaUrlRegex = '<source[^>]+src="([^"]+)"[^>]+type="video/mp4"[^>]*/>'
         self.pageNavigationRegex = ''
@@ -58,7 +58,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -84,7 +84,7 @@ class Channel(chn_class.Channel):
             item.complete = False
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -99,7 +99,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -127,7 +127,7 @@ class Channel(chn_class.Channel):
         timeInfo = info[1]
         dateInfo = dateInfo.split("-")
         timeInfo = timeInfo.split(":")
-        item.SetDate(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
+        item.set_date(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
         # else:
         #     item.thumb = self.noImage
         #
@@ -136,7 +136,7 @@ class Channel(chn_class.Channel):
         # if "/" in dayOrTime and year:
         #     # date found
         #     (day, month) = dayOrTime.split("/")
-        #     item.SetDate(year, month, day, 0, 0, 0)
+        #     item.set_date(year, month, day, 0, 0, 0)
         # elif "." in dayOrTime:
         #     # time found for today
         #     date = datetime.now()
@@ -144,7 +144,7 @@ class Channel(chn_class.Channel):
         #     month = date.month
         #     year = date.year
         #     (hour, minutes) = dayOrTime.split(".")
-        #     item.SetDate(year, month, day, hour, minutes, 0)
+        #     item.set_date(year, month, day, hour, minutes, 0)
         # else:
         #     Logger.Warning("Could not determine date for item '%s' with datestring='%s'", title, dayOrTime)
         return item

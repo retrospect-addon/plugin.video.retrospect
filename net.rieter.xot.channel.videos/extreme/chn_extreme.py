@@ -1,5 +1,4 @@
 import mediaitem
-import contextmenu
 import chn_class
 
 from streams.smil import Smil
@@ -31,9 +30,6 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "extremeimage.png"
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download item", "CtMnDownloadItem", itemTypes="video"))
-
         # setup the urls
         self.mainListUri = "http://extreme.com/"
         self.baseUrl = "http://extreme.com"
@@ -47,12 +43,8 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
-      
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
-        return item
     
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item. 
         """
@@ -62,57 +54,57 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
         # get additional info
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
         #<param name="flashvars" value="id=dj0xMDEzNzQyJmM9MTAwMDAwNA&amp;tags=source%253Dfreecaster&amp;autoplay=1" />
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> playlist with bitrate
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> info (not needed, get description from main page.
 
-        youTubeUrl = Regexer.DoRegex('"(https://www.youtube.com/embed/[^\"]+)', data)
+        youTubeUrl = Regexer.do_regex('"(https://www.youtube.com/embed/[^\"]+)', data)
         if youTubeUrl:
-            Logger.Debug("Using Youtube video")
-            part = item.CreateNewEmptyMediaPart()
+            Logger.debug("Using Youtube video")
+            part = item.create_new_empty_media_part()
             youTubeUrl = youTubeUrl[0].replace("embed/", "watch?v=")
-            for s, b in YouTube.GetStreamsFromYouTube(youTubeUrl, self.proxy):
+            for s, b in YouTube.get_streams_from_you_tube(youTubeUrl, self.proxy):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                # s = self.get_verifiable_video_url(s)
+                part.append_media_stream(s, b)
             return item
 
-        guid = Regexer.DoRegex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
+        guid = Regexer.do_regex('<meta property="og:video" content="http://player.extreme.com/FCPlayer.swf\?id=([^&]+)&amp[^"]+" />', data)
         if len(guid) > 0:
             url = '%s/player/smil/%s' % (self.baseUrl, guid[0],) 
-            data = UriHandler.Open(url)
+            data = UriHandler.open(url)
 
             smiller = Smil(data)
-            baseUrl = smiller.GetBaseUrl()
-            urls = smiller.GetVideosAndBitrates()
+            baseUrl = smiller.get_base_url()
+            urls = smiller.get_videos_and_bitrates()
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             for url in urls:
                 if "youtube" in url[0]:
-                    for s, b in YouTube.GetStreamsFromYouTube(url[0], self.proxy):
+                    for s, b in YouTube.get_streams_from_you_tube(url[0], self.proxy):
                         item.complete = True
-                        part.AppendMediaStream(s, b)
+                        part.append_media_stream(s, b)
                 else:
-                    part.AppendMediaStream("%s%s" % (baseUrl, url[0]), bitrate=int(int(url[1]) / 1000))
+                    part.append_media_stream("%s%s" % (baseUrl, url[0]), bitrate=int(int(url[1]) / 1000))
                 item.complete = True
 
-            Logger.Trace("UpdateVideoItem complete: %s", item)
+            Logger.trace("update_video_item complete: %s", item)
             return item
 
         # Try the brightcove
         brightCoveRegex = '<object id="myExperience[\w\W]+?videoPlayer" value="(\d+)"[\w\W]{0,1000}?playerKey" value="([^"]+)'
-        brightCoveData = Regexer.DoRegex(brightCoveRegex, data)
-        Logger.Trace(brightCoveData)
+        brightCoveData = Regexer.do_regex(brightCoveRegex, data)
+        Logger.trace(brightCoveData)
         if len(brightCoveData) > 0:
             seed = "c5f9ae8729f7054d43187989ef3421531ee8678d"
             objectData = brightCoveData[0]
@@ -120,11 +112,11 @@ class Channel(chn_class.Channel):
             playerKey = str(objectData[1])
             videoId = int(objectData[0])
 
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             # But we need the IOS streams!
-            amfHelper = BrightCove(Logger.Instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
-            for stream, bitrate in amfHelper.GetStreamInfo(renditions="IOSRenditions"):
-                part.AppendMediaStream(stream, bitrate)
+            amfHelper = BrightCove(Logger.instance(), playerKey, videoId, str(item.url), seed, proxy=self.proxy)
+            for stream, bitrate in amfHelper.get_stream_info(renditions="IOSRenditions"):
+                part.append_media_stream(stream, bitrate)
                 item.complete = True
 
         # Logger.Error("Cannot find GUID in url: %s", item.url)

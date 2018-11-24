@@ -42,32 +42,32 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         # self.episodeItemRegex = '<option[^>]+value="([^"]+)"[^=>]+(?:data-season="([^"]+)")?[^=>]*>([^<]+)</option>'
         # self.videoItemJson = ("item",)
-        self._AddDataParser(
+        self._add_data_parser(
             self.mainListUri,
-            parser=Regexer.FromExpresso('<a [hd][^>]*ata-(?<Type>area|sport)="(?<Url>[^"]+)[^>]*>'
-                                        '(?<Title>[^<]+)</a>'),
-            creator=self.CreateFolderItem
+            parser=Regexer.from_expresso('<a [hd][^>]*ata-(?<Type>area|sport)="(?<Url>[^"]+)[^>]*>'
+                                         '(?<Title>[^<]+)</a>'),
+            creator=self.create_folder_item
         )
 
-        self._AddDataParser(
+        self._add_data_parser(
             self.mainListUri,
-            parser=Regexer.FromExpresso('<a[^>]+href="/video/(?<Type>filter|meest_bekeken)/?'
-                                        '(?<Url>[^"]*)">[^<]*</a>\W+<h1[^>]*>(?<Title>[^<;]+)'
-                                        '(?:&#39;s){0,1}</h1>'),
-            creator=self.CreateFolderItem
+            parser=Regexer.from_expresso('<a[^>]+href="/video/(?<Type>filter|meest_bekeken)/?'
+                                         '(?<Url>[^"]*)">[^<]*</a>\W+<h1[^>]*>(?<Title>[^<;]+)'
+                                         '(?:&#39;s){0,1}</h1>'),
+            creator=self.create_folder_item
         )
 
-        self._AddDataParser(
+        self._add_data_parser(
             "https://www.foxsports.nl/video/filter/fragments/",
             preprocessor=self.AddPages,
-            parser=Regexer.FromExpresso('<img[^>]+src=\'(?<Thumb>[^\']+)\'[^>]*>\W+</picture>\W+'
-                                        '<span class="[^"]+play[\w\W]{0,500}?<h1[^>]*>\W+<a href="'
-                                        '(?<Url>[^"]+)"[^>]*>(?<Title>[^<]+)</a>\W+</h1>\W+<span'
-                                        '[^>]*>(?<Date>[^>]+)</span>'),
-            creator=self.CreateVideoItem
+            parser=Regexer.from_expresso('<img[^>]+src=\'(?<Thumb>[^\']+)\'[^>]*>\W+</picture>\W+'
+                                         '<span class="[^"]+play[\w\W]{0,500}?<h1[^>]*>\W+<a href="'
+                                         '(?<Url>[^"]+)"[^>]*>(?<Title>[^<]+)</a>\W+</h1>\W+<span'
+                                         '[^>]*>(?<Date>[^>]+)</span>'),
+            creator=self.create_video_item
         )
 
-        self._AddDataParser("*", updater=self.UpdateVideoItem)
+        self._add_data_parser("*", updater=self.update_video_item)
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -82,7 +82,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -91,11 +91,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Adding pages")
+        Logger.info("Adding pages")
 
         # extract the current page from:
         # http://www.foxsports.nl/video/filter/fragments/1/alle/tennis/
-        currentPages = Regexer.DoRegex('(.+filter/fragments)/(\d+)/(.+)', self.parentItem.url)
+        currentPages = Regexer.do_regex('(.+filter/fragments)/(\d+)/(.+)', self.parentItem.url)
         if not currentPages:
             return data, []
 
@@ -103,7 +103,7 @@ class Channel(chn_class.Channel):
         items = []
 
         url = "%s/%s/%s" % (currentPage[0], int(currentPage[1]) + 1, currentPage[2])
-        pageItem = mediaitem.MediaItem(LanguageHelper.GetLocalizedString(LanguageHelper.MorePages), url)
+        pageItem = mediaitem.MediaItem(LanguageHelper.get_localized_string(LanguageHelper.MorePages), url)
         pageItem.fanart = self.parentItem.fanart
         pageItem.thumb = self.parentItem.thumb
         pageItem.dontGroup = True
@@ -111,7 +111,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
 
         Arguments:
@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if resultSet["Type"] == "sport":
             # http://www.foxsports.nl/video/filter/alle/tennis/
@@ -146,7 +146,7 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -161,11 +161,11 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "%s%s" % (self.baseUrl, resultSet["Url"])
         item = mediaitem.MediaItem(resultSet["Title"], url)
@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
             item.fanart = self.parentItem.fanart
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -201,18 +201,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        if not AddonSettings.UseAdaptiveStreamAddOn(withEncryption=False):
-            Logger.Error("Cannot playback video without adaptive stream addon")
+        if not AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
+            Logger.error("Cannot playback video without adaptive stream addon")
             return item
 
         # https://www.foxsports.nl/api/video/videodata/2945190
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
-        videoId = Regexer.DoRegex('data-videoid="(\d+)" ', data)[-1]
-        data = UriHandler.Open("https://www.foxsports.nl/api/video/videodata/%s" % (videoId,),
-                               proxy=self.proxy, additionalHeaders=item.HttpHeaders, noCache=True)
-        streamId = Regexer.DoRegex('<uri>([^>]+)</uri>', data)[-1]
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
+        videoId = Regexer.do_regex('data-videoid="(\d+)" ', data)[-1]
+        data = UriHandler.open("https://www.foxsports.nl/api/video/videodata/%s" % (videoId,),
+                               proxy=self.proxy, additional_headers=item.HttpHeaders, no_cache=True)
+        streamId = Regexer.do_regex('<uri>([^>]+)</uri>', data)[-1]
 
         # POST https://d3api.foxsports.nl/api/V2/entitlement/tokenize
         postData = {
@@ -233,18 +233,18 @@ class Channel(chn_class.Channel):
           "Other__": "playerName=HTML5-Web-vod|ae755267-8482-455b-9055-529b643ece1d|undefined|undefined|undefined|2945541|HTML5|web|diva.MajorVersion=4|diva.MinorVersion=2|diva.PatchVersion=13"
         }
 
-        data = UriHandler.Open("https://d3api.foxsports.nl/api/V2/entitlement/tokenize",
-                               json=postData, noCache=True, proxy=self.proxy)
+        data = UriHandler.open("https://d3api.foxsports.nl/api/V2/entitlement/tokenize",
+                               json=postData, no_cache=True, proxy=self.proxy)
         streamInfo = JsonHelper(data)
-        streamUrl = streamInfo.GetValue("ContentUrl")
+        streamUrl = streamInfo.get_value("ContentUrl")
         if not streamUrl:
-            message = "Protected stream: {0}".format(streamInfo.GetValue("Message"))
-            XbmcWrapper.ShowNotification(None, message,
-                                         notificationType=XbmcWrapper.Error, displayTime=5000)
+            message = "Protected stream: {0}".format(streamInfo.get_value("Message"))
+            XbmcWrapper.show_notification(None, message,
+                                          notification_type=XbmcWrapper.Error, display_time=5000)
 
-        licenseUrl = streamInfo.GetValue("LicenseURL")
-        part = item.CreateNewEmptyMediaPart()
-        stream = part.AppendMediaStream(streamUrl, 0)
-        licenseKey = Mpd.GetLicenseKey(licenseUrl)
-        Mpd.SetInputStreamAddonInput(stream, proxy=self.proxy, licenseKey=licenseKey)
+        licenseUrl = streamInfo.get_value("LicenseURL")
+        part = item.create_new_empty_media_part()
+        stream = part.append_media_stream(streamUrl, 0)
+        licenseKey = Mpd.get_license_key(licenseUrl)
+        Mpd.set_input_stream_addon_input(stream, proxy=self.proxy, license_key=licenseKey)
         return item

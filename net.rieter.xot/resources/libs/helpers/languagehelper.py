@@ -126,49 +126,53 @@ class LanguageHelper:
         pass
 
     @staticmethod
-    def GetLocalizedCategory(categoryName):
-        """
+    def get_localized_category(category_name):
+        """ Translates the category name into the language that is used within Kodi.
+
+        @param str category_name: name of the category to lookup
+
+        @rtype: str
+        @return: Returns the localized version of the category name
 
         """
-        stringId = LanguageHelper.__Categories.get(categoryName, None)
-        if not stringId:
-            return categoryName
+        string_id = LanguageHelper.__Categories.get(category_name, None)
+        if not string_id:
+            return category_name
 
-        return LanguageHelper.GetLocalizedString(stringId, False)
+        return LanguageHelper.get_localized_string(string_id, False)
 
     @staticmethod
-    def GetFullLanguage(languageId):
+    def get_full_language(language_id):
         """ Converts a language short ID to a localized Full language name.
 
-        @param languageId: the sort ID for the language
-        @return: the long language
+        @param str language_id: the sort ID for the language
+
+        @rtype: str
+        @return: The long language
 
         Eg: nl -> Dutch, se -> Swedish
         """
-
-        return LanguageHelper.GetLocalizedString(
-            LanguageHelper.__LanguageMapping.get(languageId,
+        return LanguageHelper.get_localized_string(
+            LanguageHelper.__LanguageMapping.get(language_id,
                                                  LanguageHelper.__LanguageMapping[None]))
 
     @staticmethod
-    def GetLocalizedString(stringId, splitOnPipes=True, replacePipes=False):
-        """ Returns a localized Add-on string using the defined StringId's.
+    def get_localized_string(string_id, split_on_pipes=True, replace_pipes=False):
+        """ Returns a localized Add-on string using the defined string_id.
 
-        Arguments:
-        stringId - int - The ID for the string
+        @param int string_id:        The ID for the string
+        @param bool split_on_pipes:  If true, | cause a split and a list will be returned.
+        @param bool replace_pipes:   If true, | will be replaced by \n.
 
-        Keyword arguments:
-        splitOnPipes - Boolean - If true, | cause a split and a list will be returned.
-        replacePipes - Boolean - If true, | will be replaced by \n.
+        @rtype: str|list[str]
+        @return: localized Add-on string use the defined string_id.
 
         """
 
-        value = AddonSettings.GetLocalizedString(stringId)
-        # value = xbmc.getLocalizedString(stringId)
-        # print "%s - %s" % (stringId, value)
-        if splitOnPipes and "|" in value:
+        value = AddonSettings.get_localized_string(string_id)
+        if split_on_pipes and "|" in value:
             return value.split("|")
-        elif replacePipes and "|" in value:
+        elif replace_pipes and "|" in value:
             return value.replace("|", "\n")
         else:
             return value

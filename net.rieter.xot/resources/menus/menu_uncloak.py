@@ -10,5 +10,5 @@
 
 import menu
 
-with menu.Menu("Un-Cloak Item") as m:
-    m.ToggleCloak()
+with menu.Menu("Un-cloak Item") as m:
+    m.toggle_cloak()

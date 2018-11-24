@@ -48,27 +48,25 @@ class Channel(chn_class.Channel):
             self.__liveData = {}
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveStreams)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddDays)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddLiveStreams)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddDays)
 
-        self._AddDataParser("https://api.538.nl/api/v1/schedule/station/", json=True,
-                            parser=("data",), creator=self.CreateShowItem)
+        self._add_data_parser("https://api.538.nl/api/v1/schedule/station/", json=True,
+                              parser=["data",], creator=self.CreateShowItem)
 
-        self._AddDataParser(self.__liveUrl, json=True,
-                            preprocessor=self.AddMissingLiveStreams,
-                            parser=("includes", "Entry"), creator=self.CreateLiveChannel)
+        self._add_data_parser(self.__liveUrl, json=True,
+                              preprocessor=self.AddMissingLiveStreams,
+                              parser=["includes", "Entry"], creator=self.CreateLiveChannel)
 
         # updater for live streams
-        self._AddDataParsers(("https://talparadiohls-i.akamaihd.net/hls/live/",
-                              "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/",
-                              "https://hls.slam.nl/streaming/hls/"),
-                             # matchType=ParserData.MatchRegex,
-                             updater=self.UpdateLiveStreamM3u8)
-        self._AddDataParsers("https://playerservices.streamtheworld.com/api/livestream",
-                             # matchType=ParserData.MatchRegex,
-                             updater=self.UpdateLiveStreamXml)
+        self._add_data_parsers(["https://talparadiohls-i.akamaihd.net/hls/live/",
+                                "http://538hls.lswcdn.triple-it.nl/content/slamwebcam/",
+                                "https://hls.slam.nl/streaming/hls/"],
+                               updater=self.UpdateLiveStreamM3u8)
+        self._add_data_parser("https://playerservices.streamtheworld.com/api/livestream",
+                              updater=self.UpdateLiveStreamXml)
 
         #===============================================================================================================
         # non standard items
@@ -89,7 +87,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -101,7 +99,7 @@ class Channel(chn_class.Channel):
 
         now = datetime.datetime.now()
         fromDate = now - datetime.timedelta(6)
-        Logger.Debug("Showing dates starting from %02d%02d%02d to %02d%02d%02d", fromDate.year, fromDate.month, fromDate.day, now.year, now.month, now.day)
+        Logger.debug("Showing dates starting from %02d%02d%02d to %02d%02d%02d", fromDate.year, fromDate.month, fromDate.day, now.year, now.month, now.day)
         current = fromDate
         while current <= now:
             url = "https://api.538.nl/api/v1/schedule/station/radio-538" \
@@ -128,7 +126,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -156,7 +154,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -193,14 +191,14 @@ class Channel(chn_class.Channel):
         slamFm.thumb = self.noImage
         slamFm.type = "audio"
         slamFm.isLive = True
-        slamFm.AppendSingleStream(slamFm.url)
+        slamFm.append_single_stream(slamFm.url)
         slamFm.complete = True
         items.append(slamFm)
 
         data = JsonHelper(data)
-        for e in data.GetValue("includes", "Entry"):
+        for e in data.get_value("includes", "Entry"):
             self.__liveData[e["sys"]["id"]] = e
-        for e in data.GetValue("includes", "Asset"):
+        for e in data.get_value("includes", "Asset"):
             self.__liveData[e["sys"]["id"]] = e
         return data, items
 
@@ -209,7 +207,7 @@ class Channel(chn_class.Channel):
         if itemType.lower() != "station":
             return None
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         fields = resultSet["fields"]
         # title = fields["title"]
         streamTypes = fields["streamType"]
@@ -262,12 +260,12 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         startDate = resultSet['start']  # 2017-01-01T00:00:00+01:00
-        startTimeStamp = DateHelper.GetDateFromString(startDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
+        startTimeStamp = DateHelper.get_date_from_string(startDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
         endDate = resultSet['end']
-        endTimeStamp = DateHelper.GetDateFromString(endDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
+        endTimeStamp = DateHelper.get_date_from_string(endDate.split("+")[0], "%Y-%m-%dT%H:%M:%S")
         title = "%02d:%02d - %02d:%02d: %s" % (startTimeStamp.tm_hour, startTimeStamp.tm_min,
                                                endTimeStamp.tm_hour, endTimeStamp.tm_min,
                                                resultSet['title'])
@@ -281,7 +279,7 @@ class Channel(chn_class.Channel):
             item.thumb = "https://static.538.nl/%s" % (resultSet["image"]['src'], )
 
         item.icon = self.icon
-        item.SetDate(*startTimeStamp[0:6])
+        item.set_date(*startTimeStamp[0:6])
         item.description = resultSet.get('description')
         if "playbackUrls" in resultSet and resultSet["playbackUrls"]:
             titleFormat = "%%02d:%%02d - %s" % (resultSet['title'],)
@@ -290,9 +288,9 @@ class Channel(chn_class.Channel):
             for stream in resultSet["playbackUrls"]:
                 if stream.startswith("//"):
                     stream = "https:%s" % (stream, )
-                part = item.CreateNewEmptyMediaPart()
+                part = item.create_new_empty_media_part()
                 part.Name = titleFormat % (hour, startTimeStamp.tm_min)
-                part.AppendMediaStream(stream, 0)
+                part.append_media_stream(stream, 0)
                 hour += 1
         elif "showUrl" in resultSet and resultSet["showUrl"]:
             titleFormat = "%%02d:%%02d - %s" % (resultSet['title'],)
@@ -301,21 +299,21 @@ class Channel(chn_class.Channel):
             hour = startTimeStamp.tm_hour
             if stream.startswith("//"):
                 stream = "https:%s" % (stream,)
-            part = item.CreateNewEmptyMediaPart()
+            part = item.create_new_empty_media_part()
             part.Name = titleFormat % (hour, startTimeStamp.tm_min)
-            part.AppendMediaStream(stream, 0)
+            part.append_media_stream(stream, 0)
             hour += 1
         else:
-            Logger.Warning("Found item without streams: %s", item)
+            Logger.warning("Found item without streams: %s", item)
             return None
         return item
 
     def UpdateLiveStreamXml(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         xml = parseString(data)
         streamXmls = xml.getElementsByTagName("mountpoint")
-        Logger.Debug("Found %d streams", len(streamXmls))
-        part = item.CreateNewEmptyMediaPart()
+        Logger.debug("Found %d streams", len(streamXmls))
+        part = item.create_new_empty_media_part()
         for streamXml in streamXmls:
             serverXml = streamXml.getElementsByTagName("server")[0]
             server = serverXml.getElementsByTagName("ip")[0].firstChild.nodeValue
@@ -334,10 +332,10 @@ class Channel(chn_class.Channel):
                     suffix = transport.attributes["mountSuffix"].firstChild.nodeValue
                     url = "{0}://{1}:{2}/{3}{4}".format(protocol, server, port, entry, suffix)
                 else:
-                    Logger.Debug("Ignoring transport type: %s", transportType)
+                    Logger.debug("Ignoring transport type: %s", transportType)
                     continue
 
-                part.AppendMediaStream(url, bitrate)
+                part.append_media_stream(url, bitrate)
                 item.complete = True
         return item
 
@@ -364,11 +362,11 @@ class Channel(chn_class.Channel):
 
         """
 
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy):
+        part = item.create_new_empty_media_part()
+        for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            # s = self.get_verifiable_video_url(s)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

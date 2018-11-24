@@ -48,41 +48,41 @@ class Channel(chn_class.Channel):
             self.baseUrl = "https://www.vier.be"
 
         episodeRegex = '<a class="program-overview__link" href="(?<url>[^"]+)">(?<title>[^<]+)</a>'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            parser=episodeRegex,
-                            creator=self.CreateEpisodeItem)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              parser=episodeRegex,
+                              creator=self.create_episode_item)
 
         videoRegex = '<a(?:[^>]+data-background-image="(?<thumburl>[^"]+)")?[^>]+href="(?<url>/video/[^"]+)"[^>]*>(?:\s+<div[^>]+>\s+<div [^>]+data-background-image="(?<thumburl2>[^"]+)")?[\w\W]{0,1000}?<h3[^>]*>(?:<span>)?(?<title>[^<]+)(?:</span>)?</h3>(?:\s+(?:<div[^>]*>\s+)?<div[^>]*>[^<]+</div>\s+<div[^>]+data-timestamp="(?<timestamp>\d+)")?'
-        videoRegex = Regexer.FromExpresso(videoRegex)
-        self._AddDataParser("*", matchType=ParserData.MatchExact,
-                            name="Normal video items",
-                            parser=videoRegex,
-                            creator=self.CreateVideoItem)
+        videoRegex = Regexer.from_expresso(videoRegex)
+        self._add_data_parser("*", match_type=ParserData.MatchExact,
+                              name="Normal video items",
+                              parser=videoRegex,
+                              creator=self.create_video_item)
 
         pageRegex = '<button class="button button--default js-load-more-button"\W+data-url="(?<url>[^"]+)"\W+data-page="(?<title>\d+)"'
-        pageRegex = Regexer.FromExpresso(pageRegex)
-        self._AddDataParser("*", matchType=ParserData.MatchExact,
-                            parser=pageRegex,
-                            creator=self.CreatePageItem)
+        pageRegex = Regexer.from_expresso(pageRegex)
+        self._add_data_parser("*", match_type=ParserData.MatchExact,
+                              parser=pageRegex,
+                              creator=self.create_page_item)
 
-        self._AddDataParser("/api/program/fixed/", name="API paging",
-                            matchType=ParserData.MatchContains,
-                            # json=False,
-                            preprocessor=self.ExtractPageData,
-                            parser=videoRegex,
-                            creator=self.CreateVideoItem)
+        self._add_data_parser("/api/program/fixed/", name="API paging",
+                              match_type=ParserData.MatchContains,
+                              # json=False,
+                              preprocessor=self.ExtractPageData,
+                              parser=videoRegex,
+                              creator=self.create_video_item)
 
         # imageVideoRegex = '<a[^>]+url\((?<thumburl>[^)]+)[^>]+href="(?<url>/video/[^"]+)"[\w\W]{500,2000}<h3[^>]+>(?<title>[^<]+)</h3>\W*<div[^>]*>(?<description>[^<]+)(?:</div>\W*<div[^>]*>\W*)?<div[^>]+data-videoid="(?<videoid>[^"]+)"'
-        # imageVideoRegex = Regexer.FromExpresso(imageVideoRegex)
-        # self._AddDataParser("*", matchType=ParserData.MatchExact,
+        # imageVideoRegex = Regexer.from_expresso(imageVideoRegex)
+        # self._add_data_parser("*", matchType=ParserData.MatchExact,
         #                     parser=imageVideoRegex,
-        #                     creator=self.CreateVideoItem)
+        #                     creator=self.create_video_item)
 
         # Generic updater with login
-        self._AddDataParser("*",
-                            # requiresLogon=True,
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              # requiresLogon=True,
+                              updater=self.update_video_item)
 
         # ==========================================================================================
         # Channel specific stuff
@@ -96,45 +96,45 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here ===================
         return
 
-    def LogOn(self):
+    def log_on(self):
         if self.__idToken:
             return True
 
         # check if there is a refresh token
         # refresh token: viervijfzes_refresh_token
-        refreshToken = AddonSettings.GetSetting("viervijfzes_refresh_token")
+        refreshToken = AddonSettings.get_setting("viervijfzes_refresh_token")
         client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
-                        proxy=self.proxy, logger=Logger.Instance())
+                        proxy=self.proxy, logger=Logger.instance())
         if refreshToken:
             idToken = client.RenewToken(refreshToken)
             if idToken:
                 self.__idToken = idToken
                 return True
             else:
-                Logger.Info("Extending token for VierVijfZes failed.")
+                Logger.info("Extending token for VierVijfZes failed.")
 
         # username: viervijfzes_username
-        username = AddonSettings.GetSetting("viervijfzes_username")
+        username = AddonSettings.get_setting("viervijfzes_username")
         # password: viervijfzes_password
         v = Vault()
-        password = v.GetSetting("viervijfzes_password")
+        password = v.get_setting("viervijfzes_password")
         if not username or not password:
-            XbmcWrapper.ShowDialog(
+            XbmcWrapper.show_dialog(
                 title=None,
-                lines=LanguageHelper.GetLocalizedString(LanguageHelper.MissingCredentials),
+                lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
             )
             return False
 
         idToken, refreshToken = client.Authenticate(username, password)
         if not idToken or not refreshToken:
-            Logger.Error("Error getting a new token. Wrong password?")
+            Logger.error("Error getting a new token. Wrong password?")
             return False
 
         self.__idToken = idToken
-        AddonSettings.SetSetting("viervijfzes_refresh_token", refreshToken)
+        AddonSettings.set_setting("viervijfzes_refresh_token", refreshToken)
         return True
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if item is None:
             return item
 
@@ -158,21 +158,21 @@ class Channel(chn_class.Channel):
         item.thumb = item.thumb or self.noImage
         return item
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         resultSet["url"] = "{0}/{1}".format(resultSet["url"], resultSet["title"])
         resultSet["title"] = str(int(resultSet["title"]) + 1)
 
-        item = self.CreateFolderItem(resultSet)
+        item = self.create_folder_item(resultSet)
         item.type = "page"
         return item
 
     def ExtractPageData(self, data):
         items = []
         json = JsonHelper(data)
-        data = json.GetValue("data")
-        Logger.Trace(data)
+        data = json.get_value("data")
+        Logger.trace(data)
 
-        if json.GetValue("loadMore", fallback=False):
+        if json.get_value("loadMore", fallback=False):
             url, page = self.parentItem.url.rsplit("/", 1)
             url = "{0}/{1}".format(url, int(page) + 1)
             pageItem = MediaItem("{0}".format(int(page) + 2), url)
@@ -180,7 +180,7 @@ class Channel(chn_class.Channel):
             items.append(pageItem)
         return data, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -195,12 +195,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
 
         # All of vier.be video's seem GEO locked.
         item.isGeoLocked = True
@@ -210,19 +210,19 @@ class Channel(chn_class.Channel):
         # item.url = "https://api.viervijfzes.be/content/%s" % (videoId, )
         time_stamp = resultSet.get("timestamp")
         if time_stamp:
-            dateTime = DateHelper.GetDateFromPosix(int(resultSet["timestamp"]))
-            item.SetDate(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
-                         dateTime.minute,
-                         dateTime.second)
+            dateTime = DateHelper.get_date_from_posix(int(resultSet["timestamp"]))
+            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
+                          dateTime.minute,
+                          dateTime.second)
 
         if not item.thumb and "thumburl2" in resultSet and resultSet["thumburl2"]:
             item.thumb = resultSet["thumburl2"]
 
         if item.thumb and item.thumb != self.noImage:
-            item.thumb = HtmlEntityHelper.StripAmp(item.thumb)
+            item.thumb = HtmlEntityHelper.strip_amp(item.thumb)
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -245,50 +245,50 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # https://api.viervijfzes.be/content/c58996a6-9e3d-4195-9ecf-9931194c00bf
         # videoId = item.url.split("/")[-1]
         # url = "%s/video/v3/embed/%s" % (self.baseUrl, videoId,)
         url = item.url
-        data = UriHandler.Open(url, proxy=self.proxy)
+        data = UriHandler.open(url, proxy=self.proxy)
         return self.__UpdateVideo(item, data)
 
     def __UpdateVideo(self, item, data):
         regex = 'data-file="([^"]+)'
-        m3u8Url = Regexer.DoRegex(regex, data)[-1]
+        m3u8Url = Regexer.do_regex(regex, data)[-1]
 
         if ".m3u8" not in m3u8Url:
-            Logger.Info("Not a direct M3u8 file. Need to log in")
+            Logger.info("Not a direct M3u8 file. Need to log in")
             url = "https://api.viervijfzes.be/content/%s" % (m3u8Url, )
 
             # We need to log in
             if not self.loggedOn:
-                self.LogOn()
+                self.log_on()
 
             # add authorization header
             authenticationHeader = {
                 "authorization": self.__idToken,
                 "content-type": "application/json"
             }
-            data = UriHandler.Open(url, proxy=self.proxy, additionalHeaders=authenticationHeader)
+            data = UriHandler.open(url, proxy=self.proxy, additional_headers=authenticationHeader)
             jsonData = JsonHelper(data)
-            m3u8Url = jsonData.GetValue("video", "S")
+            m3u8Url = jsonData.get_value("video", "S")
 
         # Geo Locked?
         if "geo" in m3u8Url.lower():
             # set it for the error statistics
             item.isGeoLocked = True
 
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy):
+        part = item.create_new_empty_media_part()
+        for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
             if int(b) < 200:
-                Logger.Info("Skipping stream of quality '%s' kbps", b)
+                Logger.info("Skipping stream of quality '%s' kbps", b)
                 continue
 
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            # s = self.get_verifiable_video_url(s)
+            part.append_media_stream(s, b)
 
         item.complete = True
         return item

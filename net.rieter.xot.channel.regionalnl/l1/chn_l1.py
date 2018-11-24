@@ -36,22 +36,22 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         episodeRegex = '<li>\W*<a[^>]*href="(?<url>/[^"]+)"[^>]*>(?<title>[^<]+)</a>\W*</li>'
-        episodeRegex = Regexer.FromExpresso(episodeRegex)
-        self._AddDataParser(self.mainListUri, preprocessor=self.PreProcessFolderList,
-                            parser=episodeRegex, creator=self.CreateEpisodeItem)
+        episodeRegex = Regexer.from_expresso(episodeRegex)
+        self._add_data_parser(self.mainListUri, preprocessor=self.pre_process_folder_list,
+                              parser=episodeRegex, creator=self.create_episode_item)
 
         # live stuff
-        self._AddDataParsers(("#livetv", "#liveradio"), updater=self.UpdateLiveStream)
+        self._add_data_parsers(["#livetv", "#liveradio"], updater=self.UpdateLiveStream)
 
         videoRegex = '<a[^>]*class="mediaItem"[^>]*href="(?<url>[^"]+)"[^>]*title="(?<title>' \
                      '[^"]+)"[^>]*>[\w\W]{0,500}?<img[^>]+src="/(?<thumburl>[^"]+)'
-        videoRegex = Regexer.FromExpresso(videoRegex)
-        self._AddDataParser("*", parser=videoRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        videoRegex = Regexer.from_expresso(videoRegex)
+        self._add_data_parser("*", parser=videoRegex, creator=self.create_video_item, updater=self.update_video_item)
 
         pageRegex = '<a[^>]+href="https?://l1.nl/([^"]+?pagina=)(\d+)"'
-        pageRegex = Regexer.FromExpresso(pageRegex)
+        pageRegex = Regexer.from_expresso(pageRegex)
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=pageRegex, creator=self.CreatePageItem)
+        self._add_data_parser("*", parser=pageRegex, creator=self.create_page_item)
         # self.episodeItemRegex = '<a href="(http://www.l1.nl/programma/[^"]+)">([^<]+)'  # used for the ParseMainList
         # self.videoItemRegex = '(:?<a href="/video/[^"]+"[^>]+><img src="([^"]+)"[^>]+>[\w\W]{0,200}){0,1}<a href="(/video/[^"]+-(\d{1,2})-(\w{3})-(\d{4})[^"]*|/video/[^"]+)"[^>]*>([^>]+)</a>'
 
@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -83,7 +83,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         if '>Populair<' in data:
@@ -91,10 +91,10 @@ class Channel(chn_class.Channel):
         if '>L1-kanalen<' in data:
             data = data[:data.index('>L1-kanalen<')]
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
 
         # add live items
-        title = LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId)
+        title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
         item = mediaitem.MediaItem("\a.: {} :.".format(title), "")
         item.type = "folder"
         items.append(item)
@@ -111,16 +111,16 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """ We need to exclude L1 Gemist """
 
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
         if "L1 Gemist" in item.name:
             return None
         return item
 
-    def CreateVideoItem(self, resultSet):
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+    def create_video_item(self, resultSet):
+        item = chn_class.Channel.create_video_item(self, resultSet)
         if not item.thumb.startswith("http"):
             item.thumb = "%s/%s" % (self.baseUrl, item.thumb)
         return item
@@ -140,12 +140,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         thumbUrl = resultSet[1]
         url = "%s%s" % (self.baseUrl, resultSet[2])
@@ -163,9 +163,9 @@ class Channel(chn_class.Channel):
             day = resultSet[3]
             month = resultSet[4]
             year = resultSet[5]
-            Logger.Trace("%s-%s-%s", year, month, day)
-            month = datehelper.DateHelper.GetMonthFromName(month, "nl", True)
-            item.SetDate(year, month, day)
+            Logger.trace("%s-%s-%s", year, month, day)
+            month = datehelper.DateHelper.get_month_from_name(month, "nl", True)
+            item.set_date(year, month, day)
 
         item.complete = False
         return item
@@ -178,23 +178,23 @@ class Channel(chn_class.Channel):
             episodeId = "LI_L1_716685"
             # url = "https://ida.omroep.nl/app.php/LI_L1_716685?adaptive=yes&token={}"
 
-        part = item.CreateNewEmptyMediaPart()
-        for s, b in NpoStream.GetStreamsFromNpo(None, episodeId=episodeId, proxy=self.proxy):
+        part = item.create_new_empty_media_part()
+        for s, b in NpoStream.get_streams_from_npo(None, episode_id=episodeId, proxy=self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            # s = self.get_verifiable_video_url(s)
+            part.append_media_stream(s, b)
 
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL
         and the Thumb! It should return a completed item.
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
-        javascriptUrls = Regexer.DoRegex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        javascriptUrls = Regexer.do_regex('<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
         dataUrl = None
         for javascriptUrl in javascriptUrls:
             dataUrl = javascriptUrl
@@ -204,31 +204,27 @@ class Channel(chn_class.Channel):
         if not dataUrl:
             return item
 
-        data = UriHandler.Open(dataUrl, proxy=self.proxy)
-        jsonData = Regexer.DoRegex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
-        Logger.Trace(jsonData)
-        json = JsonHelper(jsonData[0], logger=Logger.Instance())
-        Logger.Trace(json)
+        data = UriHandler.open(dataUrl, proxy=self.proxy)
+        jsonData = Regexer.do_regex('clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
+        Logger.trace(jsonData)
+        json = JsonHelper(jsonData[0], logger=Logger.instance())
+        Logger.trace(json)
 
-        streams = json.GetValue("assets")
+        streams = json.get_value("assets")
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for stream in streams:
             url = stream.get("src", None)
             if "://" not in url:
                 url = "http://static.l1.nl/bbw%s" % (url, )
             bitrate = stream.get("bandwidth", None)
             if url:
-                part.AppendMediaStream(url, bitrate)
+                part.append_media_stream(url, bitrate)
 
-        if not item.thumb and json.GetValue("thumbnails"):
-            url = json.GetValue("thumbnails")[0].get("src", None)
+        if not item.thumb and json.get_value("thumbnails"):
+            url = json.get_value("thumbnails")[0].get("src", None)
             if url and "http:/" not in url:
                 url = "%s%s" % (self.baseUrl, url)
             item.thumb = url
         item.complete = True
-        return item
-
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item

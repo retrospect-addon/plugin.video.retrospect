@@ -20,7 +20,7 @@ from logger import Logger
 class XmlHelper(TagHelperBase):
     """Class that helps getting the content of XML nodes"""
 
-    def GetSingleNodeContent(self, nodeTag, *args, **kwargs):
+    def get_single_node_content(self, node_tag, *args, **kwargs):
         """Retreives a single node 
         
         Arguments:
@@ -40,20 +40,20 @@ class XmlHelper(TagHelperBase):
         """
         
         if "stripCData" in kwargs:
-            stripCData = kwargs["stripCData"]
+            strip_cdata = kwargs["stripCData"]
         else:
-            stripCData = False
+            strip_cdata = False
         
-        result = self.GetNodesContent(nodeTag, *args)
+        result = self.get_nodes_content(node_tag, *args)
         if len(result) > 0:
-            if stripCData:
-                return XmlHelper.StripCData(result[0])
+            if strip_cdata:
+                return XmlHelper.__strip_cdata(result[0])
             else:
                 return result[0]
         else:
             return ""
     
-    def GetNodesContent(self, nodeTag, *args):
+    def get_nodes_content(self, node_tag, *args):
         """Retreives all nodes with nodeTag as name 
         
         Arguments:
@@ -69,22 +69,22 @@ class XmlHelper(TagHelperBase):
         
         """
         
-        regex = "<%s" % (nodeTag,)
+        regex = "<%s" % (node_tag,)
         
         for arg in args:
             regex += '[^>]*%s\W*=\W*"%s"' % (arg.keys()[0], arg[arg.keys()[0]])
             # just do one pass
 
-        regex += "[^>]*>([\w\W]+?)</%s>" % (nodeTag,)
-        Logger.Trace("XmlRegex = %s", regex)
+        regex += "[^>]*>([\w\W]+?)</%s>" % (node_tag,)
+        Logger.trace("XmlRegex = %s", regex)
         
         #regex = '<%s>([^<]+)</%s>' % (nodeTag, nodeTag)
-        results = Regexer.DoRegex(regex, self.data)
-        Logger.Trace(results)
+        results = Regexer.do_regex(regex, self.data)
+        Logger.trace(results)
         return results
     
     @staticmethod
-    def StripCData(data):
+    def __strip_cdata(data):
         """ Strips the <![CDATA[......]]> from XML data tags 
         
         Arguments:

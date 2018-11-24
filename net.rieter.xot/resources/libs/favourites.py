@@ -8,6 +8,7 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import glob
+import io
 import os
 
 from logger import Logger
@@ -19,7 +20,7 @@ class Favourites:
     def __init__(self, path):
         """ Initializes a Favourites class that can be use to show, add and delete favourites.
 
-        @param path: The path to store the favourites file
+        :param str path: The path to store the favourites file
 
         """
 
@@ -28,116 +29,105 @@ class Favourites:
 
         self.FavouriteFolder = path
 
-    def Add(self, channel, item, actionUrl):
+    def add(self, channel, item, action_url):
         """ Adds a favourite for a specific channel.
 
-        @param channel:       The channel
-        @param item:          The mediaitem
-        @param actionUrl:     The mediaitem's actionUrl
+        :param channel:       The channel
+        :param item:          The mediaitem
+        :param str action_url:     The mediaitem's actionUrl
 
-        Returns nothing
         """
 
-        Logger.Debug("Adding item %s\nfor channel %s\n%s", item, channel, actionUrl)
-        fileName = self.__filePattern % (channel.guid, item.guid)
-        filePath = os.path.join(self.FavouriteFolder, fileName)
-        pickle = self.__pickler.PickleMediaItem(item)
+        Logger.debug("Adding item %s\nfor channel %s\n%s", item, channel, action_url)
+        file_name = self.__filePattern % (channel.guid, item.guid)
+        file_path = os.path.join(self.FavouriteFolder, file_name)
+        pickle = self.__pickler.pickle_media_item(item)
 
         # Just double check for folder existence
         if not os.path.isdir(self.FavouriteFolder):
             os.makedirs(self.FavouriteFolder)
 
         # replacing to pickle in the actionUrl to save space
-        actionUrl = self.__remove_pickle(actionUrl)
-        fileHandle = None
+        action_url = self.__remove_pickle(action_url)
 
         try:
-            fileHandle = open(filePath, mode='w')
-            fileHandle.write("%s\n%s\n%s\n%s" % (channel.channelName, item.name, actionUrl, pickle))
-            fileHandle.close()
+            with io.open(file_path, mode='w', encoding='utf-8') as file_handle:
+                file_handle.write("%s\n%s\n%s\n%s" % (channel.channelName, item.name, action_url, pickle))
         except:
-            Logger.Error("Error saving favourite", exc_info=True)
-            if fileHandle and not fileHandle.closed:
-                fileHandle.close()
+            Logger.error("Error saving favourite", exc_info=True)
             raise
         return
 
     # noinspection PyUnusedLocal
-    def Remove(self, item):
+    def remove(self, item):
         """ Adds a favourite for a specific channel
 
-        @param item:          The mediaitem
-
-        Returns nothing
+        :param item:          The mediaitem
 
         """
 
-        pathMask = os.path.join(self.FavouriteFolder, "*-%s.xotfav" % (item.guid, ))
+        path_mask = os.path.join(self.FavouriteFolder, "*-%s.xotfav" % (item.guid, ))
 
-        Logger.Debug("Removing favourites for mask: %s", pathMask)
-        for fav in glob.glob(pathMask):
-            Logger.Trace("Removing item %s\nFileName: %s", item, fav)
+        Logger.debug("Removing favourites for mask: %s", path_mask)
+        for fav in glob.glob(path_mask):
+            Logger.trace("Removing item %s\nFileName: %s", item, fav)
             os.remove(fav)
         return
 
-    def List(self, channel=None):
+    def list(self, channel=None):
         """ Lists favourites. If a channel was specified it will limit them to that.
 
-        @param channel: The channel to limit the favourites to.
+        :param channel: The channel to limit the favourites to.
 
-
-        Returns a list of tupples (actionUrl, pickle)
+        :return: A list of tupples (action_url, pickle)
+        :rtype: list
 
         """
 
         favs = []
 
         if channel:
-            pathMask = os.path.join(self.FavouriteFolder, "%s-*.xotfav" % (channel.guid,))
+            path_mask = os.path.join(self.FavouriteFolder, "%s-*.xotfav" % (channel.guid,))
         else:
-            pathMask = os.path.join(self.FavouriteFolder, "*.xotfav")
+            path_mask = os.path.join(self.FavouriteFolder, "*.xotfav")
 
-        Logger.Debug("Fetching favourites for mask: %s", pathMask)
-        for fav in glob.glob(pathMask):
-            Logger.Trace("Fetching %s", fav)
+        Logger.debug("Fetching favourites for mask: %s", path_mask)
+        for fav in glob.glob(path_mask):
+            Logger.trace("Fetching %s", fav)
 
-            fileHandle = None
             try:
-                fileHandle = open(fav)
-                channelName = fileHandle.readline().rstrip()
-                name = fileHandle.readline().rstrip()
-                actionUrl = fileHandle.readline().rstrip()
-                if "pickle=" in actionUrl and "pickle=%s" not in actionUrl:
-                    # see issue https://bitbucket.org/basrieter/xbmc-online-tv/issues/1037
-                    Logger.Debug("Found favourite with full pickle, removing the pickle as we should use the one from the file.")
-                    actionUrl = self.__remove_pickle(actionUrl)
+                with io.open(fav, mode='r', encoding='utf-8') as file_handle:
+                    channel_name = file_handle.readline().rstrip()
+                    name = file_handle.readline().rstrip()
+                    action_url = file_handle.readline().rstrip()
+                    if "pickle=" in action_url and "pickle=%s" not in action_url:
+                        # see issue https://bitbucket.org/basrieter/xbmc-online-tv/issues/1037
+                        Logger.debug("Found favourite with full pickle, removing the pickle as we should use the one from the file.")
+                        action_url = self.__remove_pickle(action_url)
 
-                pickle = fileHandle.readline()
-                fileHandle.close()
+                    pickle = file_handle.readline()
             except:
-                Logger.Error("Error fetching favourite", exc_info=True)
-                if fileHandle and not fileHandle.closed:
-                    fileHandle.close()
+                Logger.error("Error fetching favourite", exc_info=True)
                 raise
 
-            if channelName == "" or name == "" or actionUrl == "" or pickle == "":
-                Logger.Error("Apparently the file had too few lines, corrupt Favourite, removing it:\n"
+            if channel_name == "" or name == "" or action_url == "" or pickle == "":
+                Logger.error("Apparently the file had too few lines, corrupt Favourite, removing it:\n"
                              "Pickle: %s\n"
                              "Channel: %s\n"
                              "Item: %s\n"
                              "ActionUrl: %s\n"
                              "Pickle: %s",
-                             fav, channelName, name, actionUrl, pickle)
+                             fav, channel_name, name, action_url, pickle)
 
                 # Remove the invalid favourite
                 os.remove(fav)
                 continue
 
-            Logger.Debug("Found favourite: %s", name)
-            item = self.__pickler.DePickleMediaItem(pickle)
-            validationError = self.__pickler.Validate(item, logger=Logger.Instance())
-            if validationError:
-                Logger.Error("Invalid Pickled Item: %s\nRemoving favourite: %s", validationError, fav)
+            Logger.debug("Found favourite: %s", name)
+            item = self.__pickler.de_pickle_media_item(pickle)
+            validation_error = self.__pickler.validate(item, logger=Logger.instance())
+            if validation_error:
+                Logger.error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
 
                 # Remove the invalid favourite
                 os.remove(fav)
@@ -145,16 +135,16 @@ class Favourites:
 
             # add the channel name
             if channel is None:
-                item.name = "%s [%s]" % (item.name, channelName)
+                item.name = "%s [%s]" % (item.name, channel_name)
 
-            item.ClearDate()
+            item.clear_date()
 
-            item.actionUrl = actionUrl % (pickle,)
+            item.actionUrl = action_url % (pickle,)
             favs.append(item)
         return favs
 
     def __remove_pickle(self, action_url):
-        pickle = Regexer.DoRegex("pickle=([^&]+)", action_url)
+        pickle = Regexer.do_regex("pickle=([^&]+)", action_url)
         if not pickle:
             return action_url
 

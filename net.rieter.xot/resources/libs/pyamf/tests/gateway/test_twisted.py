@@ -93,7 +93,7 @@ class TwistedServerTestCase(BaseTestCase):
         A classic GET on the xml server should return a NOT_ALLOWED.
         """
         d = self.getPage(method='GET')
-        d = self.assertFailure(d, error.Error)
+        d = self.assertFailure(d, error.error)
         d.addCallback(
             lambda exc: self.assertEqual(int(exc.args[0]), http.NOT_ALLOWED))
 
@@ -101,7 +101,7 @@ class TwistedServerTestCase(BaseTestCase):
 
     def test_bad_content(self):
         d = self.getPage('spamandeggs')
-        d = self.assertFailure(d, error.Error)
+        d = self.assertFailure(d, error.error)
 
         d.addCallback(
             lambda exc: self.assertEqual(int(exc.args[0]), http.BAD_REQUEST))
@@ -308,7 +308,7 @@ class TwistedServerTestCase(BaseTestCase):
         def switch(x):
             twisted.remoting.encode = encode
 
-        d = self.assertFailure(d, error.Error)
+        d = self.assertFailure(d, error.error)
 
         def check(exc):
             self.assertEqual(int(exc.args[0]), http.INTERNAL_SERVER_ERROR)

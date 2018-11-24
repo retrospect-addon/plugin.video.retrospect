@@ -35,31 +35,32 @@ class StopWatch:
         self.lapTime = None
         self.stopTime = None
         
-        self.Set()        
+        self.set()
         return
     
-    def Stop(self):
+    def stop(self):
         """Stops the stopwatch and prints the time elapsed."""
         
         self.stopTime = time.time()
-        secondsTaken = self.stopTime - self.startTime
+        seconds_taken = self.stopTime - self.startTime
         
         if self.lapTime:
             delta = self.stopTime - self.lapTime
         else:
             delta = self.stopTime - self.startTime
             
-        self.logger.Debug("Stopwatch :: Stop (%s): %s, time elapsed: %s ms (+%s ms)", self.name, self.stopTime, secondsTaken * 1000, delta * 1000)
+        self.logger.debug("Stopwatch :: Stop (%s): %s, time elapsed: %s ms (+%s ms)",
+                          self.name, self.stopTime, seconds_taken * 1000, delta * 1000)
         return
         
-    def Set(self):
+    def set(self):
         """Starts the stopwatch and prints the start time."""
         
         self.startTime = time.time()
-        self.logger.Debug("Stopwatch :: Set (%s): %s", self.name, self.startTime)
+        self.logger.debug("Stopwatch :: Set (%s): %s", self.name, self.startTime)
         return
         
-    def Lap(self, value=""):
+    def lap(self, value=""):
         """Laps the stopwatch and prints the elapsed time. The stopwatch 
         does not stop.
         
@@ -75,8 +76,9 @@ class StopWatch:
             delta = now - self.startTime
         
         self.lapTime = now
-        secondsTaken = self.lapTime - self.startTime
-        self.logger.Debug("Stopwatch :: Lap (%s) %s: elapsed since start: %s ms (delta +%s ms)", self.name, value, secondsTaken * 1000, delta * 1000)
+        seconds_taken = self.lapTime - self.startTime
+        self.logger.debug("Stopwatch :: Lap (%s) %s: elapsed since start: %s ms (delta +%s ms)",
+                          self.name, value, seconds_taken * 1000, delta * 1000)
            
     def __str__(self):
         """String representation of this class."""

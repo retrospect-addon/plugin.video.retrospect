@@ -51,90 +51,89 @@ class Channel(chn_class.Channel):
             raise NotImplementedError("Code %s is not implemented" % (self.channelCode,))
 
         # mainlist stuff
-        self._AddDataParser("#mainlist", preprocessor=self.GetInitialFolderItems)
+        self._add_data_parser("#mainlist", preprocessor=self.GetInitialFolderItems)
 
         # live stuff
         self.baseUrlLive = "https://www.npostart.nl"
 
         # live radio, the folders and items
-        self._AddDataParser("http://radio-app.omroep.nl/player/script/",
-                            name="Live Radio Streams",
-                            preprocessor=self.ExtractJsonForLiveRadio, json=True,
-                            parser=(), creator=self.CreateLiveRadio)
+        self._add_data_parser("http://radio-app.omroep.nl/player/script/",
+                              name="Live Radio Streams",
+                              preprocessor=self.ExtractJsonForLiveRadio, json=True,
+                              parser=[], creator=self.CreateLiveRadio)
 
-        self._AddDataParser("/live", matchType=ParserData.MatchEnd,
-                            name="Main Live Stream HTML parser",
-                            preprocessor=self.GetAdditionalLiveItems,
-                            # parser="<img[^>]+alt=\"Logo van ([^\"]+)\" [^>]+src=\"([^\"]+)\" /></a>[\w\W]{0,400}?<div class='item current-item'>\W+<div class='time now'>Nu</div>\W+<div class='description'>\W+<a[^>]+href=\"/live/([^\"]+)\"[^>]*>([^<]+)[\w\W]{0,400}?<div class='item next-item'>\W+(?:<div class='time next'>([^<]+)</div>\W+<div class='description next'>\W+<[^>]+>([^<]+)|</div>)",
-                            parser='<a href="[^"]+/live/([^"]+)" class="npo-tile-link"[^>]+>[\w\W]{0,1000}?<img data-src="([^"]+)"[\w\W]{0,1000}?<h2>(?:Nu: )?([^<]+)</h2>\W+<p>(?:Straks: )?([^<]*)</p>',
-                            creator=self.CreateLiveTv,
-                            updater=self.UpdateVideoItemLive)
+        self._add_data_parser("/live", match_type=ParserData.MatchEnd,
+                              name="Main Live Stream HTML parser",
+                              preprocessor=self.GetAdditionalLiveItems,
+                              parser='<a href="[^"]+/live/([^"]+)" class="npo-tile-link"[^>]+>[\w\W]{0,1000}?<img data-src="([^"]+)"[\w\W]{0,1000}?<h2>(?:Nu: )?([^<]+)</h2>\W+<p>(?:Straks: )?([^<]*)</p>',
+                              creator=self.CreateLiveTv,
+                              updater=self.UpdateVideoItemLive)
 
-        self._AddDataParser("https://www.npostart.nl/live/", name="Live Video Updater from HTML",
-                            updater=self.UpdateVideoItemLive)
+        self._add_data_parser("https://www.npostart.nl/live/", name="Live Video Updater from HTML",
+                              updater=self.UpdateVideoItemLive)
 
         # Use old urls with new Updater
-        self._AddDataParser("http://e.omroep.nl/metadata/", name="e.omroep.nl classic parser",
-                            updater=self.UpdateFromPoms)
+        self._add_data_parser("http://e.omroep.nl/metadata/", name="e.omroep.nl classic parser",
+                              updater=self.UpdateFromPoms)
 
         # Standard updater
-        self._AddDataParser("*",
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("*",
+                              updater=self.update_video_item)
 
         # recent and popular stuff and other Json data
-        self._AddDataParser(".json", name="JSON List Parser for the recent/tips/populair",
-                            parser=(), creator=self.CreateVideoItemJson,
-                            json=True, matchType=ParserData.MatchEnd)
+        self._add_data_parser(".json", name="JSON List Parser for the recent/tips/populair",
+                              parser=[], creator=self.CreateVideoItemJson,
+                              json=True, match_type=ParserData.MatchEnd)
 
-        self._AddDataParser("#recent", name="Recent items list",
-                            preprocessor=self.AddRecentItems)
+        self._add_data_parser("#recent", name="Recent items list",
+                              preprocessor=self.AddRecentItems)
 
         # Alpha listing and paging for that list
-        self._AddDataParser("#alphalisting", preprocessor=self.AlphaListing)
+        self._add_data_parser("#alphalisting", preprocessor=self.AlphaListing)
 
-        episodeParser = Regexer.FromExpresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
-        self._AddDataParsers(["https://www.npostart.nl/media/series?page=", ],
-                             name="Parser for main series overview pages",
-                             preprocessor=self.ExtractTiles,
-                             parser=episodeParser,
-                             creator=self.CreateEpisodeItem)
+        episodeParser = Regexer.from_expresso('id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
+        self._add_data_parsers(["https://www.npostart.nl/media/series?page=", ],
+                               name="Parser for main series overview pages",
+                               preprocessor=self.ExtractTiles,
+                               parser=episodeParser,
+                               creator=self.create_episode_item)
 
         # very similar parser as the Live Channels!
-        videoParser = Regexer.FromExpresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)'
-                                           '"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+'
-                                           'data-scorecard=\'(?<videodata>[^\']*)\'[^>]*>\W+<div[^>]+>\W+'
-                                           '<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
-                                           'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)'
-                                           '</h2>\W+<p>(?<subtitle>[^<]*)</p>')
-        self._AddDataParsers(["https://www.npostart.nl/media/series/", "https://www.npostart.nl/search/extended", "https://www.npostart.nl/media/collections/"],
-                             name="Parser for shows on the main series sub pages, the search and the genres",
-                             preprocessor=self.ExtractTiles,
-                             parser=videoParser,
-                             creator=self.CreateNpoItem)
+        videoParser = Regexer.from_expresso('<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)'
+                                            '"[^>]*>\W*<a href="[^"]+/(?<url>[^/"]+)" class="npo-tile-link"[^>]+'
+                                            'data-scorecard=\'(?<videodata>[^\']*)\'[^>]*>\W+<div[^>]+>\W+'
+                                            '<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
+                                            'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)'
+                                            '</h2>\W+<p>(?<subtitle>[^<]*)</p>')
+        self._add_data_parsers(["https://www.npostart.nl/media/series/", "https://www.npostart.nl/search/extended", "https://www.npostart.nl/media/collections/"],
+                               name="Parser for shows on the main series sub pages, the search and the genres",
+                               preprocessor=self.ExtractTiles,
+                               parser=videoParser,
+                               creator=self.CreateNpoItem)
 
         # Genres
-        self._AddDataParser("https://www.npostart.nl/programmas",
-                            matchType=ParserData.MatchExact,
-                            name="Genres",
-                            parser='<a\W+class="close-dropdown"\W+href="/collectie/([^"]+)"\W+title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+data-argument="genreId',
-                            creator=self.CreateGenreItem)
+        self._add_data_parser("https://www.npostart.nl/programmas",
+                              match_type=ParserData.MatchExact,
+                              name="Genres",
+                              parser='<a\W+class="close-dropdown"\W+href="/collectie/([^"]+)"\W+title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+data-argument="genreId',
+                              creator=self.CreateGenreItem)
 
         # Favourites
-        self._AddDataParser("https://www.npostart.nl/ums/accounts/@me/favourites",
-                            preprocessor=self.ExtractTiles,
-                            parser=episodeParser,
-                            creator=self.CreateEpisodeItem,
-                            requiresLogon=True)
+        self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites",
+                              preprocessor=self.ExtractTiles,
+                              parser=episodeParser,
+                              creator=self.create_episode_item,
+                              requires_logon=True)
 
         # Alpha listing based on JSON interface
-        self._AddDataParser("%s/series.json" % (self.baseUrl,),
-                            parser=(), creator=self.CreateJsonEpisodeItem,
-                            json=True)
+        self._add_data_parser("%s/series.json" % (self.baseUrl,),
+                              parser=[], creator=self.CreateJsonEpisodeItem,
+                              json=True)
 
         tvGuideRegex = 'data-channel="(?<channel>[^"]+)"[^>]+data-title="(?<title>[^"]+)"[^>]+data-id=\'(?<url>[^\']+)\'[^>]*>\W*<div[^>]*>\W+<p>\W+<span[^>]+time"[^>]*>(?<hours>\d+):(?<minutes>\d+)</span>\W+<span[^<]+</span>\W+<span class="npo-epg-active"></span>\W+<span class="npo-epg-play"></span>'
-        tvGuideRegex = Regexer.FromExpresso(tvGuideRegex)
-        self._AddDataParser("https://www.npostart.nl/gids?date=",
-                            parser=tvGuideRegex, creator=self.CreateTvGuideItem)
+        tvGuideRegex = Regexer.from_expresso(tvGuideRegex)
+        self._add_data_parser("https://www.npostart.nl/gids?date=",
+                              parser=tvGuideRegex, creator=self.CreateTvGuideItem)
 
         self.__IgnoreCookieLaw()
 
@@ -145,63 +144,63 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def LogOn(self):
+    def log_on(self):
         """ Makes sure that we are logged on. """
 
-        username = self._GetSetting("username")
+        username = self._get_setting("username")
         if not username:
-            Logger.Info("No user name for NPO, not logging in")
+            Logger.info("No user name for NPO, not logging in")
             return False
 
-        # cookieValue = self._GetSetting("cookie")
-        cookie = UriHandler.GetCookie("isAuthenticatedUser", "www.npostart.nl")
+        # cookieValue = self._get_setting("cookie")
+        cookie = UriHandler.get_cookie("isAuthenticatedUser", "www.npostart.nl")
         if cookie:
-            expireDate = DateHelper.GetDateFromPosix(float(cookie.expires))
-            Logger.Info("Found existing valid NPO token (valid until: %s)", expireDate)
+            expireDate = DateHelper.get_date_from_posix(float(cookie.expires))
+            Logger.info("Found existing valid NPO token (valid until: %s)", expireDate)
             return True
 
         v = Vault()
-        password = v.GetChannelSetting(self.guid, "password")
+        password = v.get_channel_setting(self.guid, "password")
 
         # get a token (why?), cookies and an xsrf token
-        token = UriHandler.Open("https://www.npostart.nl/api/token", proxy=self.proxy, noCache=True,
-                                additionalHeaders={"X-Requested-With": "XMLHttpRequest"})
+        token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy, no_cache=True,
+                                additional_headers={"X-Requested-With": "XMLHttpRequest"})
 
         jsonToken = JsonHelper(token)
-        token = jsonToken.GetValue("token")
+        token = jsonToken.get_value("token")
         if not token:
             return False
-        xsrfToken = UriHandler.GetCookie("XSRF-TOKEN", "www.npostart.nl").value
-        xsrfToken = HtmlEntityHelper.UrlDecode(xsrfToken)
+        xsrfToken = UriHandler.get_cookie("XSRF-TOKEN", "www.npostart.nl").value
+        xsrfToken = HtmlEntityHelper.url_decode(xsrfToken)
 
-        data = "username=%s&password=%s" % (HtmlEntityHelper.UrlEncode(username),
-                                            HtmlEntityHelper.UrlEncode(password))
-        UriHandler.Open("https://www.npostart.nl/api/login", proxy=self.proxy, noCache=True,
-                        additionalHeaders={
+        data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
+                                            HtmlEntityHelper.url_encode(password))
+        UriHandler.open("https://www.npostart.nl/api/login", proxy=self.proxy, no_cache=True,
+                        additional_headers={
                             "X-Requested-With": "XMLHttpRequest",
                             "X-XSRF-TOKEN": xsrfToken
                         },
                         params=data)
 
-        # token = Regexer.DoRegex('name="authenticity_token"[^>]+value="([^"]+)"', tokenData)[0]
+        # token = Regexer.do_regex('name="authenticity_token"[^>]+value="([^"]+)"', tokenData)[0]
         #
         # # login: https://mijn.npo.nl/sessions POST
         # # utf8=%E2%9C%93&authenticity_token=<token>&email=<username>&password=<password>&remember_me=1&commit=Inloggen
         # postData = {
-        #     "token": HtmlEntityHelper.UrlEncode(token),
-        #     "email": HtmlEntityHelper.UrlEncode(username),
-        #     "password": HtmlEntityHelper.UrlEncode(password)
+        #     "token": HtmlEntityHelper.url_encode(token),
+        #     "email": HtmlEntityHelper.url_encode(username),
+        #     "password": HtmlEntityHelper.url_encode(password)
         # }
         # postData = "utf8=%%E2%%9C%%93&authenticity_token=%(token)s&email=%(email)s&" \
         #            "password=%(password)s&remember_me=1&commit=Inloggen" % postData
-        # data = UriHandler.Open("https://mijn.npo.nl/sessions", noCache=True, proxy=self.proxy,
+        # data = UriHandler.open("https://mijn.npo.nl/sessions", noCache=True, proxy=self.proxy,
         #                        params=postData)
         # if not data:
         #     Logger.Error("Error logging in: no response data")
         #     return False
         #
         # # extract the cookie and store
-        # authCookie = UriHandler.GetCookie("npo_portal_auth_token", ".mijn.npo.nl")
+        # authCookie = UriHandler.get_cookie("npo_portal_auth_token", ".mijn.npo.nl")
         # if not authCookie:
         #     Logger.Error("Error logging in: Cookie not found.")
         #     return False
@@ -214,19 +213,19 @@ class Channel(chn_class.Channel):
         newData = ""
 
         jsonData = JsonHelper(data)
-        tiles = jsonData.GetValue("tiles")
+        tiles = jsonData.get_value("tiles")
         if not isinstance(tiles,  (tuple, list)):
-            Logger.Debug("Found single tile data blob")
+            Logger.debug("Found single tile data blob")
             newData = tiles
         else:
-            Logger.Debug("Found multiple tile data blobs")
+            Logger.debug("Found multiple tile data blobs")
             for itemData in tiles:
                 newData = "%s%s\n" % (newData, itemData)
 
         # More pages?
         maxCount = 5
         currentCount = 1
-        nextPage = jsonData.GetValue("nextLink")
+        nextPage = jsonData.get_value("nextLink")
         queryString = self.parentItem.url.split("&", 1)[-1]
 
         httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
@@ -234,7 +233,7 @@ class Channel(chn_class.Channel):
         httpHeaders.update(self.httpHeaders)
         while nextPage and currentCount < maxCount:
             currentCount += 1
-            Logger.Debug("Found next page: %s", nextPage)
+            Logger.debug("Found next page: %s", nextPage)
             if nextPage.startswith("/search/extended") or nextPage.startswith("/media/series"):
                 nextPage = nextPage.split("&", 1)[0]
                 nextPage = "%s%s&%s" % (self.baseUrlLive, nextPage, queryString)
@@ -243,17 +242,17 @@ class Channel(chn_class.Channel):
             else:
                 nextPage = "%s&%s" % (nextPage, queryString)
 
-            pageData = UriHandler.Open(nextPage, proxy=self.proxy, additionalHeaders=httpHeaders)
+            pageData = UriHandler.open(nextPage, proxy=self.proxy, additional_headers=httpHeaders)
             jsonData = JsonHelper(pageData)
-            tiles = jsonData.GetValue("tiles")
+            tiles = jsonData.get_value("tiles")
             if not isinstance(tiles, (tuple, list)):
-                Logger.Debug("Found single tile data blob")
+                Logger.debug("Found single tile data blob")
                 newData = "%s%s\n" % (newData, tiles)
             else:
-                Logger.Debug("Found multiple tile data blobs")
+                Logger.debug("Found multiple tile data blobs")
                 for itemData in tiles:
                     newData = "%s%s\n" % (newData, itemData)
-            nextPage = jsonData.GetValue("nextLink")
+            nextPage = jsonData.get_value("nextLink")
 
         if nextPage and currentCount == maxCount:
             # There are more pages
@@ -265,7 +264,7 @@ class Channel(chn_class.Channel):
             else:
                 nextPage = "%s&%s" % (nextPage, queryString)
 
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             title = "\a.: %s :." % (title, )
             more = mediaitem.MediaItem(title, nextPage)
             more.thumb = self.parentItem.thumb
@@ -283,7 +282,7 @@ class Channel(chn_class.Channel):
         search.icon = self.icon
         search.thumb = self.noImage
         search.dontGroup = True
-        search.SetDate(2200, 1, 1, text="")
+        search.set_date(2200, 1, 1, text="")
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
 
@@ -295,7 +294,7 @@ class Channel(chn_class.Channel):
         # favs.thumb = self.noImage
         # favs.dontGroup = True
         # favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        # favs.SetDate(2200, 1, 1, text="")
+        # favs.set_date(2200, 1, 1, text="")
         # items.append(favs)
 
         extra = mediaitem.MediaItem("Populair", "%s/episodes/popular.json" % (self.baseUrl,))
@@ -303,7 +302,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         # extra = mediaitem.MediaItem("Tips", "%s/tips.json" % (self.baseUrl,))
@@ -311,7 +310,7 @@ class Channel(chn_class.Channel):
         # extra.icon = self.icon
         # extra.thumb = self.noImage
         # extra.dontGroup = True
-        # extra.SetDate(2200, 1, 1, text="")
+        # extra.set_date(2200, 1, 1, text="")
         # items.append(extra)
 
         extra = mediaitem.MediaItem("Live Radio",
@@ -320,7 +319,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         extra = mediaitem.MediaItem("Live TV", "%s/live" % (self.baseUrlLive,))
@@ -328,7 +327,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         extra = mediaitem.MediaItem("Programma's (Hele lijst)", "%s/series.json" % (self.baseUrl,))
@@ -337,7 +336,7 @@ class Channel(chn_class.Channel):
         extra.thumb = self.noImage
         extra.dontGroup = True
         extra.description = "Volledige programma lijst van de NPO iOS/Android App."
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         extra = mediaitem.MediaItem("Genres", "https://www.npostart.nl/programmas")
@@ -345,7 +344,7 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         # extra.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(extra)
 
@@ -355,7 +354,7 @@ class Channel(chn_class.Channel):
         extra.thumb = self.noImage
         extra.description = "Alfabetische lijst van de NPO.nl site."
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
         recent = mediaitem.MediaItem("Recent", "#recent")
@@ -363,7 +362,7 @@ class Channel(chn_class.Channel):
         recent.icon = self.icon
         recent.thumb = self.noImage
         recent.dontGroup = True
-        recent.SetDate(2200, 1, 1, text="")
+        recent.set_date(2200, 1, 1, text="")
         items.append(recent)
 
         return data, items
@@ -374,7 +373,7 @@ class Channel(chn_class.Channel):
         days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
         for i in range(0, 7, 1):
             airDate = today - datetime.timedelta(i)
-            Logger.Trace("Adding item for: %s", airDate)
+            Logger.trace("Adding item for: %s", airDate)
 
             # Determine a nice display date
             day = days[airDate.weekday()]
@@ -396,7 +395,7 @@ class Channel(chn_class.Channel):
             extra.dontGroup = True
             extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
             extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
-            extra.SetDate(airDate.year, airDate.month, airDate.day, text="")
+            extra.set_date(airDate.year, airDate.month, airDate.day, text="")
 
             items.append(extra)
 
@@ -405,13 +404,13 @@ class Channel(chn_class.Channel):
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.SetDate(2200, 1, 1, text="")
+        extra.set_date(2200, 1, 1, text="")
 
         items.append(extra)
         return data, items
 
     def GetAdditionalLiveItems(self, data):
-        Logger.Info("Processing Live items")
+        Logger.info("Processing Live items")
 
         items = []
         # if "/radio/" in self.parentItem.url:
@@ -437,23 +436,23 @@ class Channel(chn_class.Channel):
                 },
                 "Radio 2 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RADIO2_300879",
-                    "thumb": self.GetImageLocation("radio2.png")
+                    "thumb": self.get_image_location("radio2.png")
                     # "thumb": "http://www.radio2.nl/image/rm/48254/NPO_RD2_Logo_RGB_1200dpi.jpg?width=848&height=477"
                 },
                 "Radio 6 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RADIO6_300883",
                     # "thumb": "http://www.radio6.nl/data/thumb/abc_media_image/3000/3882/w500.1daa0.png"
-                    "thumb": self.GetImageLocation("radio6.png")
+                    "thumb": self.get_image_location("radio6.png")
                 },
                 "Radio 1 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RADIO1_300877",
                     # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
-                    "thumb": self.GetImageLocation("radio1.png")
+                    "thumb": self.get_image_location("radio1.png")
                 },
             }
 
             for stream in liveStreams:
-                Logger.Debug("Adding video item to '%s' sub item list: %s", parent, stream)
+                Logger.debug("Adding video item to '%s' sub item list: %s", parent, stream)
                 liveData = liveStreams[stream]
                 item = mediaitem.MediaItem(stream, liveData["url"])
                 item.icon = parent.icon
@@ -473,10 +472,10 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.DoRegex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
+        data = Regexer.do_regex('NPW.config.channels=([\w\W]+?),NPW\.config\.', data)[-1].rstrip(";")
         # fixUp some json
         data = re.sub('(\w+):([^/])', '"\\1":\\2', data)
-        Logger.Trace(data)
+        Logger.trace(data)
         return data, items
 
     def AlphaListing(self, data):
@@ -489,7 +488,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -498,14 +497,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Generating an Alpha list for NPO")
+        Logger.info("Generating an Alpha list for NPO")
 
         items = []
         # https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser
         # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tileMapping=normal&tileType=teaser
         # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tileMapping=normal&tileType=teaser
 
-        titleFormat = LanguageHelper.GetLocalizedString(LanguageHelper.StartWith)
+        titleFormat = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
         urlFormat = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tileMapping=normal&tileType=teaser&pageType=catalogue"
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
@@ -519,9 +518,9 @@ class Channel(chn_class.Channel):
             items.append(subItem)
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """ Create a video item """
-        item = chn_class.Channel.CreateEpisodeItem(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, resultSet)
 
         # Update the URL
         # https://www.npostart.nl/media/series/POW_03094258/episodes?page=2&tileMapping=dedicated&tileType=asset
@@ -546,7 +545,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("CreateJsonShows(%s)", resultSet)
+        Logger.trace("CreateJsonShows(%s)", resultSet)
         if not resultSet:
             return None
 
@@ -554,7 +553,7 @@ class Channel(chn_class.Channel):
         if 'mid' in resultSet:
             url = "https://www.npostart.nl/media/series/{mid}/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise".format(**resultSet)
         else:
-            Logger.Warning("Skipping (no 'mid' ID): %(name)s", resultSet)
+            Logger.warning("Skipping (no 'mid' ID): %(name)s", resultSet)
             return None
 
         name = resultSet['name']
@@ -578,27 +577,33 @@ class Channel(chn_class.Channel):
         return item
 
     # noinspection PyUnusedLocal
-    def SearchSite(self, url=None):  # @UnusedVariable
-        """Creates an list of items by searching the site
-
-        Returns:
-        A list of MediaItems that should be displayed.
+    def search_site(self, url=None):  # @UnusedVariable
+        """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
         """
+
         # Videos
         url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tileMapping=search&tileType=asset&pageType=search"
 
         # Shows
         # url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser&pageType=search"
         self.httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
     def CreateTvGuideItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         channel = resultSet["channel"].replace("NED", "NPO ")
         title = "{0[hours]}:{0[minutes]} - {1} - {0[title]}".format(resultSet, channel)
         item = mediaitem.MediaItem(title, resultSet["url"])
@@ -612,7 +617,7 @@ class Channel(chn_class.Channel):
 
     def CreateNpoItem(self, resultSet):
         """ Call base method and then do some more stuff """
-        item = chn_class.Channel.CreateVideoItem(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, resultSet)
         # set the POW id
         if resultSet["videodata"]:
             item.type = "video"
@@ -630,13 +635,13 @@ class Channel(chn_class.Channel):
             if ":" in dateTime[-1] and item.name == "NOS Journaal":
                 item.name = "{0} - {1}".format(item.name, dateTime[-1])
 
-            Logger.Trace(dateTime)
+            Logger.trace(dateTime)
             if dateTime[0].lower() == "gisteren":
                 dateTime = datetime.datetime.now() + datetime.timedelta(days=-1)
-                item.SetDate(dateTime.year, dateTime.month, dateTime.day)
+                item.set_date(dateTime.year, dateTime.month, dateTime.day)
             elif dateTime[0].lower() == "vandaag":
                 dateTime = datetime.datetime.now()
-                item.SetDate(dateTime.year, dateTime.month, dateTime.day)
+                item.set_date(dateTime.year, dateTime.month, dateTime.day)
             elif ":" in dateTime[-1]:
                 if dateTime[-2].isalpha():
                     year = datetime.datetime.now().year
@@ -645,13 +650,13 @@ class Channel(chn_class.Channel):
                     item.name = "{0} - {1}".format(item.name, dateTime[-1])
                 year = int(dateTime[-2])
 
-                month = DateHelper.GetMonthFromName(dateTime[-3], language="nl")
+                month = DateHelper.get_month_from_name(dateTime[-3], language="nl")
                 day = int(dateTime[-4])
 
                 stamp = datetime.datetime(year, month, day)
                 if stamp > datetime.datetime.now():
                     year -= 1
-                item.SetDate(year, month, day)
+                item.set_date(year, month, day)
             else:
                 # there is an actual date present
                 if dateTime[0].isalpha():
@@ -659,7 +664,7 @@ class Channel(chn_class.Channel):
                     dateTime.pop(0)
 
                 # translate the month
-                month = DateHelper.GetMonthFromName(dateTime[1], language="nl")
+                month = DateHelper.get_month_from_name(dateTime[1], language="nl")
 
                 # if the year is missing, let's assume it is this year
                 if ":" in dateTime[2]:
@@ -669,17 +674,17 @@ class Channel(chn_class.Channel):
                     if stamp > datetime.datetime.now():
                         dateTime[2] -= 1
 
-                item.SetDate(dateTime[2], month, dateTime[0])
+                item.set_date(dateTime[2], month, dateTime[0])
 
         except:
-            Logger.Debug("Cannot set date from label: %s", resultSet["subtitle"], exc_info=True)
+            Logger.debug("Cannot set date from label: %s", resultSet["subtitle"], exc_info=True)
             # 2016-07-05T00:00:00Z
             dateValue = resultSet.get("date", None)
             if dateValue:
-                timeStamp = DateHelper.GetDateFromString(dateValue, "%Y-%m-%dT%H:%M:%SZ")
-                item.SetDate(*timeStamp[0:6])
+                timeStamp = DateHelper.get_date_from_string(dateValue, "%Y-%m-%dT%H:%M:%SZ")
+                item.set_date(*timeStamp[0:6])
             else:
-                Logger.Warning("Cannot set date from 'data-from': %s", resultSet["date"], exc_info=True)
+                Logger.warning("Cannot set date from 'data-from': %s", resultSet["date"], exc_info=True)
         return item
 
     def CreateVideoItemJson(self, resultSet):
@@ -697,11 +702,11 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # In some cases the name, posix and description are in the root, in other cases in the
         # 'episode' node
@@ -712,16 +717,16 @@ class Channel(chn_class.Channel):
 
         # the tips has an extra 'episodes' key
         if 'episode' in resultSet:
-            Logger.Debug("Found subnode: episodes")
+            Logger.debug("Found subnode: episodes")
             # set to episode node
             data = resultSet['episode']
         else:
-            Logger.Warning("No subnode 'episodes' found, trying anyways")
+            Logger.warning("No subnode 'episodes' found, trying anyways")
             data = resultSet
 
         # look for better values
         posix = data.get('broadcasted_at', posix)
-        broadcasted = DateHelper.GetDateFromPosix(posix)
+        broadcasted = DateHelper.get_date_from_posix(posix)
         description = resultSet.get('description', description)
         videoId = data.get('whatson_id', None)
 
@@ -750,9 +755,9 @@ class Channel(chn_class.Channel):
             # no stills, or empty, check for image
             item.thumb = image
 
-        item.SetDate(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour,
-                     broadcasted.minute,
-                     broadcasted.second)
+        item.set_date(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour,
+                      broadcasted.minute,
+                      broadcasted.second)
 
         return item
 
@@ -770,7 +775,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # url = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&genreId=%s&tileMapping=normal&tileType=teaser" % (resultSet[1],)
         # url = "https://www.npostart.nl/media/%s/lanes/234?page=1&tileMapping=normal&tileType=asset&pageType=collection" % (resultSet[0],)
@@ -800,12 +805,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace("Content = %s", resultSet)
+        Logger.trace("Content = %s", resultSet)
 
         # first regex matched -> video channel
         channelId = resultSet[0]
@@ -853,12 +858,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace("Content = %s", resultSet)
+        Logger.trace("Content = %s", resultSet)
         name = resultSet["name"]
         if name == "demo":
             return None
@@ -870,11 +875,11 @@ class Channel(chn_class.Channel):
         item.complete = False
 
         streams = resultSet.get("audiostreams", [])
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         # first check for the video streams
         for stream in resultSet.get("videostreams", []):
-            Logger.Trace(stream)
+            Logger.trace(stream)
             # url = stream["url"]
             # if not url.endswith("m3u8"):
             if not stream["protocol"] == "prid":
@@ -885,12 +890,12 @@ class Channel(chn_class.Channel):
 
         # else the radio streams
         for stream in streams:
-            Logger.Trace(stream)
+            Logger.trace(stream)
             if not stream["protocol"] or stream["protocol"] == "prid":
                 continue
             bitrate = stream.get("bitrate", 0)
             url = stream["url"]
-            part.AppendMediaStream(url, bitrate)
+            part.append_media_stream(url, bitrate)
             item.complete = True
             # if not stream["protocol"] == "prid":
             #     continue
@@ -898,7 +903,7 @@ class Channel(chn_class.Channel):
             # item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -922,7 +927,7 @@ class Channel(chn_class.Channel):
         """
 
         if "/radio/" in item.url or "/live/" in item.url or "/LI_" in item.url:
-            Logger.Info("Updating Live item: %s", item.url)
+            Logger.info("Updating Live item: %s", item.url)
             return self.UpdateVideoItemLive(item)
 
         whatson_id = item.url
@@ -955,34 +960,34 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem: %s', item.name)
+        Logger.debug('Starting update_video_item: %s', item.name)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         # we need to determine radio or live tv
-        Logger.Debug("Fetching live stream data from item url: %s", item.url)
-        htmlData = UriHandler.Open(item.url, proxy=self.proxy)
+        Logger.debug("Fetching live stream data from item url: %s", item.url)
+        htmlData = UriHandler.open(item.url, proxy=self.proxy)
 
-        mp3Urls = Regexer.DoRegex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
+        mp3Urls = Regexer.do_regex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", htmlData)
         if len(mp3Urls) > 0:
-            Logger.Debug("Found MP3 URL")
-            part.AppendMediaStream(mp3Urls[0], 192)
+            Logger.debug("Found MP3 URL")
+            part.append_media_stream(mp3Urls[0], 192)
         else:
-            Logger.Debug("Finding the actual metadata url from %s", item.url)
+            Logger.debug("Finding the actual metadata url from %s", item.url)
             # NPO3 normal stream had wrong subs
             if "npo-3" in item.url and False:
                 # NPO3 has apparently switched the normal and hearing impaired streams?
-                jsonUrls = Regexer.DoRegex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', htmlData)
+                jsonUrls = Regexer.do_regex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', htmlData)
             else:
-                jsonUrls = Regexer.DoRegex('<npo-player media-id="([^"]+)"', htmlData)
+                jsonUrls = Regexer.do_regex('<npo-player media-id="([^"]+)"', htmlData)
 
             for episodeId in jsonUrls:
-                if AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True):
+                if AddonSettings.use_adaptive_stream_add_on(with_encryption=True):
                     return self.__UpdateDashItem(item, episodeId)
                 return self.__UpdateVideoItem(item, episodeId)
 
-            Logger.Warning("Cannot update live item: %s", item)
+            Logger.warning("Cannot update live item: %s", item)
             return item
 
         item.complete = True
@@ -991,17 +996,17 @@ class Channel(chn_class.Channel):
     def __UpdateDashItem(self, item, episodeId):
         url = "https://start-player.npo.nl/video/{0}/streams?profile=dash-widevine&" \
               "quality=npo&streamType=livetv&mobile=0&ios=0&isChromecast=0".format(episodeId)
-        dashData = UriHandler.Open(url, proxy=self.proxy)
+        dashData = UriHandler.open(url, proxy=self.proxy)
         dashJson = JsonHelper(dashData)
-        dashUrl = dashJson.GetValue("stream", "src")
-        dashLicenseUrl = dashJson.GetValue("stream", "keySystemOptions", 0, "options", "licenseUrl")
-        dashHeaders = dashJson.GetValue("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
+        dashUrl = dashJson.get_value("stream", "src")
+        dashLicenseUrl = dashJson.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
+        dashHeaders = dashJson.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
         dashHeaders[u"Referer"] = unicode(url)
-        dashLicense = Mpd.GetLicenseKey(dashLicenseUrl, keyHeaders=dashHeaders, keyType="R")
+        dashLicense = Mpd.get_license_key(dashLicenseUrl, key_headers=dashHeaders, key_type="R")
 
-        part = item.CreateNewEmptyMediaPart()
-        stream = part.AppendMediaStream(dashUrl, 0)
-        Mpd.SetInputStreamAddonInput(stream, self.proxy, dashHeaders, licenseKey=dashLicense)
+        part = item.create_new_empty_media_part()
+        stream = part.append_media_stream(dashUrl, 0)
+        Mpd.set_input_stream_addon_input(stream, self.proxy, dashHeaders, license_key=dashLicense)
         item.complete = True
         return item
 
@@ -1029,41 +1034,41 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace("Using Generic UpdateVideoItem method")
+        Logger.trace("Using Generic update_video_item method")
 
         # get the subtitle
         subTitleUrl = "http://tt888.omroep.nl/tt888/%s" % (episodeId,)
-        subTitlePath = subtitlehelper.SubtitleHelper.DownloadSubtitle(subTitleUrl,
-                                                                      episodeId + ".srt",
-                                                                      format='srt',
-                                                                      proxy=self.proxy)
+        subTitlePath = subtitlehelper.SubtitleHelper.download_subtitle(subTitleUrl,
+                                                                       episodeId + ".srt",
+                                                                       format='srt',
+                                                                       proxy=self.proxy)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         part.Subtitle = subTitlePath
 
-        for s, b in NpoStream.GetStreamsFromNpo(None, episodeId, proxy=self.proxy):
+        for s, b in NpoStream.get_streams_from_npo(None, episodeId, proxy=self.proxy):
             item.complete = True
-            # s = self.GetVerifiableVideoUrl(s)
-            part.AppendMediaStream(s, b)
+            # s = self.get_verifiable_video_url(s)
+            part.append_media_stream(s, b)
 
-        if False and AddonSettings.UseAdaptiveStreamAddOn():
-            NpoStream.AddMpdStreamFromNpo(None, episodeId, part, proxy=self.proxy)
+        if False and AddonSettings.use_adaptive_stream_add_on():
+            NpoStream.add_mpd_stream_from_npo(None, episodeId, part, proxy=self.proxy)
 
         return item
 
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes',
-                             domain='.www.uitzendinggemist.nl')
-        UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
+        UriHandler.set_cookie(name='site_cookie_consent', value='yes',
+                              domain='.www.uitzendinggemist.nl')
+        UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
-        UriHandler.SetCookie(name='npo_cc', value='30', domain='.npo.nl')
+        UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
+        UriHandler.set_cookie(name='npo_cc', value='30', domain='.npo.nl')
 
-        UriHandler.SetCookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
-        UriHandler.SetCookie(name='npo_cc', value='30', domain='.npostart.nl')
+        UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
+        UriHandler.set_cookie(name='npo_cc', value='30', domain='.npostart.nl')
         return

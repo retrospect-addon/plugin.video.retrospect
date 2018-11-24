@@ -35,16 +35,16 @@ class Channel(chn_class.Channel):
         self.episodeItemRegex = '<img[^>]+src="(?<thumburl>[^"]+)"[^>]*></a>\W+<div[^>]+>\W+' \
                                 '<h2[^>]*><a[^>]+href="/(?<url>shows/[^"]+)"[^>]*>(?<title>[^<]+)' \
                                 '</a></h2>\W+<div[^>]*>(?<description>[^<]+)'
-        self.episodeItemRegex = Regexer.FromExpresso(self.episodeItemRegex)
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveStream, matchType=ParserData.MatchExact,
-                            parser=self.episodeItemRegex, creator=self.CreateEpisodeItem)
+        self.episodeItemRegex = Regexer.from_expresso(self.episodeItemRegex)
+        self._add_data_parser(self.mainListUri, preprocessor=self.AddLiveStream, match_type=ParserData.MatchExact,
+                              parser=self.episodeItemRegex, creator=self.create_episode_item)
 
         self.videoItemRegex = '<div[^>]+class="episode item"[^>]*>\W+<a[^>]+href="(?<url>[^"]+)" ' \
                               'title="(?<title>[^"]+)">[\w\W]{0,500}?<img[^>]+src="' \
                               '(?<thumburl>[^"]+)"[^>]+>[\w\W]{0,500}?<span[^>]+class="date"' \
                               '[^>]*>(?<month>\w+) (?<day>\d+)\w+ (?<year>\d+)'
-        self.videoItemRegex = Regexer.FromExpresso(self.videoItemRegex)
-        self._AddDataParser("*", parser=self.videoItemRegex, creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
+        self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item, updater=self.update_video_item)
 
         self.mediaUrlRegex = '<a href="([^"]+_(\d+).mp4)"[^>]+download>'
 
@@ -77,7 +77,7 @@ class Channel(chn_class.Channel):
         playbackItem.thumb = self.noImage
         playbackItem.icon = self.icon
         playbackItem.isLive = True
-        playbackPart = playbackItem.CreateNewEmptyMediaPart()
+        playbackPart = playbackItem.create_new_empty_media_part()
 
         # noinspection PyStatementEffect
         """
@@ -120,17 +120,17 @@ class Channel(chn_class.Channel):
         }
 
         for bitrate in mediaUrls:
-            playbackPart.AppendMediaStream(mediaUrls[bitrate], bitrate)
+            playbackPart.append_media_stream(mediaUrls[bitrate], bitrate)
 
-        Logger.Debug("Streams: %s", playbackPart)
+        Logger.debug("Streams: %s", playbackPart)
         playbackItem.complete = True
         item.items.append(playbackItem)
-        Logger.Debug("Appended: %s", playbackItem)
+        Logger.debug("Appended: %s", playbackItem)
 
         items.append(item)
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -157,7 +157,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -172,12 +172,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = resultSet["url"]
         if not url.startswith("http"):
@@ -191,15 +191,15 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
 
         month = resultSet["month"]
-        month = DateHelper.GetMonthFromName(month, "en", False)
+        month = DateHelper.get_month_from_name(month, "en", False)
         day = resultSet["day"]
         year = resultSet["year"]
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
 
         item.complete = False
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -222,16 +222,16 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
-        streams = Regexer.DoRegex(self.mediaUrlRegex, data)
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        streams = Regexer.do_regex(self.mediaUrlRegex, data)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for stream in streams:
-            Logger.Trace(stream)
-            part.AppendMediaStream(stream[0], stream[1])
+            Logger.trace(stream)
+            part.append_media_stream(stream[0], stream[1])
 
         item.complete = True
         return item

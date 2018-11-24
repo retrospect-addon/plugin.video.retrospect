@@ -64,43 +64,43 @@ class Channel(chn_class.Channel):
             self.noImage = "kijkimage.png"
 
         # setup the main parsing data
-        self._AddDataParser("https://api.kijk.nl/v1/default/sections/programs-abc",
-                            name="Mainlist Json", json=True,
-                            preprocessor=self.AddOthers,
-                            parser=("items", ), creator=self.CreateJsonEpisodeItem)
+        self._add_data_parser("https://api.kijk.nl/v1/default/sections/programs-abc",
+                              name="Mainlist Json", json=True,
+                              preprocessor=self.AddOthers,
+                              parser=["items", ], creator=self.CreateJsonEpisodeItem)
 
-        self._AddDataParser("https://www.kijk.nl/programmas", matchType=ParserData.MatchExact,
-                            name="Mainlist from HTML", json=True,
-                            preprocessor=self.ExtractMainListJson)
+        self._add_data_parser("https://www.kijk.nl/programmas", match_type=ParserData.MatchExact,
+                              name="Mainlist from HTML", json=True,
+                              preprocessor=self.ExtractMainListJson)
 
-        self._AddDataParser("https://api.kijk.nl/v2/templates/page/format/",
-                            name="Videos from the main show format page", json=True,
-                            parser=("components", 3, "data", "items", 2, "data", "items"),
-                            creator=self.CreateJsonSeasonItem)
+        self._add_data_parser("https://api.kijk.nl/v2/templates/page/format/",
+                              name="Videos from the main show format page", json=True,
+                              parser=["components", 3, "data", "items", 2, "data", "items"],
+                              creator=self.CreateJsonSeasonItem)
 
-        self._AddDataParser("#lastweek",
-                            name="Last week listing", json=True,
-                            preprocessor=self.ListDates)
+        self._add_data_parser("#lastweek",
+                              name="Last week listing", json=True,
+                              preprocessor=self.ListDates)
 
-        self._AddDataParsers(("https://api.kijk.nl/v2/templates/page/missed/all/",
-                              "https://api.kijk.nl/v1/default/sections/missed-all-"),
-                             name="Day listing", json=True, preprocessor=self.ExtractDayItems)
+        self._add_data_parsers(["https://api.kijk.nl/v2/templates/page/missed/all/",
+                               "https://api.kijk.nl/v1/default/sections/missed-all-"],
+                               name="Day listing", json=True, preprocessor=self.ExtractDayItems)
 
-        self._AddDataParser("https://api.kijk.nl/v1/default/searchresultsgrouped",
-                            name="VideoItems Json", json=True,
-                            parser=(), creator=self.CreateJsonSearchItem)
+        self._add_data_parser("https://api.kijk.nl/v1/default/searchresultsgrouped",
+                              name="VideoItems Json", json=True,
+                              parser=[], creator=self.CreateJsonSearchItem)
 
-        self._AddDataParsers(("https://api.kijk.nl/v1/default/sections/series",
-                              "https://api.kijk.nl/v1/default/seasons/"),
-                             name="VideoItems Json", json=True,
-                             parser=("items", ), creator=self.CreateJsonVideoItem)
+        self._add_data_parsers(["https://api.kijk.nl/v1/default/sections/series",
+                               "https://api.kijk.nl/v1/default/seasons/"],
+                               name="VideoItems Json", json=True,
+                               parser=["items", ], creator=self.CreateJsonVideoItem)
 
-        self._AddDataParser("https://api.kijk.nl/v2/default/sections/popular",
-                            name="Popular items Json", json=True,
-                            parser=("items", ), creator=self.CreateJsonPopularItem)
+        self._add_data_parser("https://api.kijk.nl/v2/default/sections/popular",
+                              name="Popular items Json", json=True,
+                              parser=["items", ], creator=self.CreateJsonPopularItem)
 
-        self._AddDataParser("https://embed.kijk.nl/",
-                            updater=self.UpdateJsonVideoItem)
+        self._add_data_parser("https://embed.kijk.nl/",
+                              updater=self.UpdateJsonVideoItem)
 
         #===============================================================================================================
         # non standard items
@@ -114,7 +114,7 @@ class Channel(chn_class.Channel):
         #  Grand Designs has almost all encrypted/non-encrypted/brigthcove streams
 
         # ====================================== Actual channel setup STOPS here =======================================
-        UriHandler.SetCookie(name="OPTOUTMULTI", value="0:0%7Cc5:0%7Cc1:0%7Cc4:0%7Cc3:0%7Cc2:0", domain=".kijk.nl")
+        UriHandler.set_cookie(name="OPTOUTMULTI", value="0:0%7Cc5:0%7Cc1:0%7Cc4:0%7Cc3:0%7Cc2:0", domain=".kijk.nl")
         return
 
     def ExtractMainListJson(self, data):
@@ -124,10 +124,10 @@ class Channel(chn_class.Channel):
         end_data = data.index("</script><script async=")
         data = data[start_data + len(start_string):end_data]
         data = JsonHelper(data)
-        letters = data.GetValue("reduxAsyncConnect", "page", "components", 1, "data", "items", 1, "data", "items")
+        letters = data.get_value("reduxAsyncConnect", "page", "components", 1, "data", "items", 1, "data", "items")
         for letter_data in letters:
             letter_data = letter_data["data"]
-            Logger.Trace("Processing '%s'", letter_data["title"])
+            Logger.trace("Processing '%s'", letter_data["title"])
             for item in letter_data["items"]:
                 episode = self.CreateJsonEpisodeItem(item)
                 items.append(episode)
@@ -143,7 +143,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -152,7 +152,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         others = mediaitem.MediaItem("\b.: Populair :.", "https://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
@@ -169,24 +169,29 @@ class Channel(chn_class.Channel):
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     # noinspection PyUnusedLocal
-    def SearchSite(self, url=None):  # @UnusedVariable
-        """Creates an list of items by searching the site
-
-        Returns:
-        A list of MediaItems that should be displayed.
+    def search_site(self, url=None):  # @UnusedVariable
+        """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
         """
 
         url = "https://api.kijk.nl/v1/default/searchresultsgrouped?search=%s"
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
     def ListDates(self, data):
         items = []
@@ -200,29 +205,29 @@ class Channel(chn_class.Channel):
             # https://api.kijk.nl/v1/default/sections/missed-all-20180619
             url = "https://api.kijk.nl/v1/default/sections/missed-all-{0}{1:02d}{2:02d}".format(date.year, date.month, date.day)
             if i == 0:
-                # title = LanguageHelper.GetLocalizedString(LanguageHelper.Today)
+                # title = LanguageHelper.get_localized_string(LanguageHelper.Today)
                 title = "Vandaag"
             elif i == 1:
-                # title = LanguageHelper.GetLocalizedString(LanguageHelper.Yesterday)
+                # title = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
                 title = "Gisteren"
             elif i == 2:
-                # title = LanguageHelper.GetLocalizedString(LanguageHelper.DayBeforeYesterday)
+                # title = LanguageHelper.get_localized_string(LanguageHelper.DayBeforeYesterday)
                 title = "Eergisteren"
             else:
                 day_name = days[date.weekday()]
                 title = day_name
 
             date_item = mediaitem.MediaItem(title, url)
-            date_item.SetDate(date.year, date.month, date.day)
+            date_item.set_date(date.year, date.month, date.day)
             items.append(date_item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def ExtractDayItems(self, data):
         items = []
         json = JsonHelper(data)
-        page_items = json.GetValue('items')
+        page_items = json.get_value('items')
         for item in page_items:
             video_item = self.CreateJsonVideoItem(item, prepend_serie=True)
             if video_item:
@@ -242,7 +247,7 @@ class Channel(chn_class.Channel):
         return None
 
     def CreateJsonSeasonItem(self, result_set):
-        Logger.Trace(result_set)
+        Logger.trace(result_set)
         # {
         #     "seasonNumber": 3,
         #     "id": "season-3",
@@ -263,7 +268,7 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonEpisodeItem(self, resultSet):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         channelId = resultSet["channel"]
         if self.__channelId and channelId != self.__channelId:
@@ -298,10 +303,10 @@ class Channel(chn_class.Channel):
         return item
 
     def CreateJsonVideoItem(self, resultSet, prepend_serie=False):
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if not resultSet.get("available", True):
-            Logger.Warning("Item not available: %s", resultSet)
+            Logger.warning("Item not available: %s", resultSet)
             return None
 
         item = self.CreateJsonEpisodeItem(resultSet)
@@ -322,111 +327,111 @@ class Channel(chn_class.Channel):
         if "date" in resultSet:
             date = resultSet["date"].split("+")[0]
             # 2016-12-25T17:58:00+01:00
-            timeStamp = DateHelper.GetDateFromString(date, "%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*timeStamp[0:6])
+            timeStamp = DateHelper.get_date_from_string(date, "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*timeStamp[0:6])
 
         return item
 
     def UpdateJsonVideoItem(self, item):
-        data = UriHandler.Open(item.url, proxy=self.proxy,
-                               additionalHeaders={
+        data = UriHandler.open(item.url, proxy=self.proxy,
+                               additional_headers={
                                    "accept": "application/vnd.sbs.ovp+json; version=2.0"
                                })
         json = JsonHelper(data)
 
-        useAdaptiveWithEncryption = AddonSettings.UseAdaptiveStreamAddOn(withEncryption=True)
+        useAdaptiveWithEncryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
         # useAdaptiveWithEncryption = False
-        mpdInfo = json.GetValue("entitlements", "play")
-        part = item.CreateNewEmptyMediaPart()
+        mpdInfo = json.get_value("entitlements", "play")
+        part = item.create_new_empty_media_part()
 
         # is there MPD information in the API response?
         if mpdInfo is not None:
             mpdManifestUrl = "https:{0}".format(mpdInfo["mediaLocator"])
-            mpdData = UriHandler.Open(mpdManifestUrl, proxy=self.proxy)
-            subtitles = Regexer.DoRegex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
+            mpdData = UriHandler.open(mpdManifestUrl, proxy=self.proxy)
+            subtitles = Regexer.do_regex('<BaseURL>([^<]+\.vtt)</BaseURL>', mpdData)
             if subtitles:
-                Logger.Debug("Found subtitle: %s", subtitles[0])
-                subtitle = SubtitleHelper.DownloadSubtitle(subtitles[0],
-                                                           proxy=self.proxy,
-                                                           format="webvtt")
+                Logger.debug("Found subtitle: %s", subtitles[0])
+                subtitle = SubtitleHelper.download_subtitle(subtitles[0],
+                                                            proxy=self.proxy,
+                                                            format="webvtt")
                 part.Subtitle = subtitle
 
             if useAdaptiveWithEncryption:
                 # We can use the adaptive add-on with encryption
-                Logger.Info("Using MPD InputStreamAddon")
-                licenseUrl = Regexer.DoRegex('licenseUrl="([^"]+)"', mpdData)[0]
+                Logger.info("Using MPD InputStreamAddon")
+                licenseUrl = Regexer.do_regex('licenseUrl="([^"]+)"', mpdData)[0]
                 token = "Bearer {0}".format(mpdInfo["playToken"])
                 keyHeaders = {"Authorization": token}
-                licenseKey = Mpd.GetLicenseKey(licenseUrl, keyHeaders=keyHeaders)
+                licenseKey = Mpd.get_license_key(licenseUrl, key_headers=keyHeaders)
 
-                stream = part.AppendMediaStream(mpdManifestUrl, 0)
-                Mpd.SetInputStreamAddonInput(stream, self.proxy, licenseKey=licenseKey)
+                stream = part.append_media_stream(mpdManifestUrl, 0)
+                Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey)
                 item.complete = True
                 return item
 
         # Try the plain M3u8 streams
-        m3u8Url = json.GetValue("playlist")
-        useAdaptive = AddonSettings.UseAdaptiveStreamAddOn()
+        m3u8Url = json.get_value("playlist")
+        useAdaptive = AddonSettings.use_adaptive_stream_add_on()
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url paramter instead of an empty m3u8 file
-        Logger.Debug("Trying standard M3u8 streams.")
+        Logger.debug("Trying standard M3u8 streams.")
         if m3u8Url != "https://embed.kijk.nl/api/playlist/.m3u8" \
                 and "hostingervice=brightcove" not in m3u8Url:
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, append_query_string=True):
                 if "_enc_" in s:
                     continue
 
                 if useAdaptive:
                     # we have at least 1 none encrypted streams
-                    Logger.Info("Using HLS InputStreamAddon")
-                    strm = part.AppendMediaStream(m3u8Url, 0)
-                    M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+                    Logger.info("Using HLS InputStreamAddon")
+                    strm = part.append_media_stream(m3u8Url, 0)
+                    M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                     item.complete = True
                     return item
 
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
                 item.complete = True
             return item
 
-        Logger.Warning("No M3u8 data found. Falling back to BrightCove")
-        videoId = json.GetValue("vpakey")
-        # videoId = json.GetValue("videoId") -> Not all items have a videoId
+        Logger.warning("No M3u8 data found. Falling back to BrightCove")
+        videoId = json.get_value("vpakey")
+        # videoId = json.get_value("videoId") -> Not all items have a videoId
         mpdManifestUrl = "https://embed.kijk.nl/video/%s?width=868&height=491" % (videoId,)
         referer = "https://embed.kijk.nl/video/%s" % (videoId,)
 
-        data = UriHandler.Open(mpdManifestUrl, proxy=self.proxy, referer=referer)
+        data = UriHandler.open(mpdManifestUrl, proxy=self.proxy, referer=referer)
         # First try to find an M3u8
-        m3u8Urls = Regexer.DoRegex('https:[^"]+.m3u8', data)
+        m3u8Urls = Regexer.do_regex('https:[^"]+.m3u8', data)
         for m3u8Url in m3u8Urls:
             m3u8Url = m3u8Url.replace("\\", "")
-            Logger.Debug("Found direct M3u8 in brightcove data.")
+            Logger.debug("Found direct M3u8 in brightcove data.")
             if useAdaptive:
                 # we have at least 1 none encrypted streams
-                Logger.Info("Using HLS InputStreamAddon")
-                strm = part.AppendMediaStream(m3u8Url, 0)
-                M3u8.SetInputStreamAddonInput(strm, proxy=self.proxy)
+                Logger.info("Using HLS InputStreamAddon")
+                strm = part.append_media_stream(m3u8Url, 0)
+                M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
                 item.complete = True
                 return item
 
-            for s, b in M3u8.GetStreamsFromM3u8(m3u8Url, self.proxy, appendQueryString=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, append_query_string=True):
                 item.complete = True
-                part.AppendMediaStream(s, b)
+                part.append_media_stream(s, b)
 
             return item
 
         # Then try the new BrightCove JSON
         brightCoveRegex = '<video[^>]+data-video-id="(?<videoId>[^"]+)[^>]+data-account="(?<videoAccount>[^"]+)'
-        brightCoveData = Regexer.DoRegex(Regexer.FromExpresso(brightCoveRegex), data)
+        brightCoveData = Regexer.do_regex(Regexer.from_expresso(brightCoveRegex), data)
         if brightCoveData:
-            Logger.Info("Found new BrightCove JSON data")
+            Logger.info("Found new BrightCove JSON data")
             brightCoveUrl = 'https://edge.api.brightcove.com/playback/v1/accounts/%(videoAccount)s/videos/%(videoId)s' % \
                             brightCoveData[0]
             headers = {
                 "Accept": "application/json;pk=BCpkADawqM3ve1c3k3HcmzaxBvD8lXCl89K7XEHiKutxZArg2c5RhwJHJANOwPwS_4o7UsC4RhIzXG8Y69mrwKCPlRkIxNgPQVY9qG78SJ1TJop4JoDDcgdsNrg"}
-            brightCoveData = UriHandler.Open(brightCoveUrl, proxy=self.proxy,
-                                             additionalHeaders=headers)
+            brightCoveData = UriHandler.open(brightCoveUrl, proxy=self.proxy,
+                                             additional_headers=headers)
             brightCoveJson = JsonHelper(brightCoveData)
-            streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.GetValue("sources"))
+            streams = filter(lambda d: d["container"] == "M2TS", brightCoveJson.get_value("sources"))
             if streams:
                 # noinspection PyTypeChecker
                 streamUrl = streams[0]["src"]
@@ -434,14 +439,14 @@ class Channel(chn_class.Channel):
                 # these streams work better with the the InputStreamAddon because it removes the
                 # "range" http header
                 if useAdaptiveWithEncryption:
-                    Logger.Info("Using InputStreamAddon for playback of HLS stream")
-                    strm = part.AppendMediaStream(streamUrl, 0)
-                    strm.AddProperty("inputstreamaddon", "inputstream.adaptive")
-                    strm.AddProperty("inputstream.adaptive.manifest_type", "hls")
+                    Logger.info("Using InputStreamAddon for playback of HLS stream")
+                    strm = part.append_media_stream(streamUrl, 0)
+                    strm.add_property("inputstreamaddon", "inputstream.adaptive")
+                    strm.add_property("inputstream.adaptive.manifest_type", "hls")
                     item.complete = True
                     return item
 
-                for s, b in M3u8.GetStreamsFromM3u8(streamUrl, self.proxy):
+                for s, b in M3u8.get_streams_from_m3u8(streamUrl, self.proxy):
                     item.complete = True
-                    part.AppendMediaStream(s, b)
+                    part.append_media_stream(s, b)
                 return item

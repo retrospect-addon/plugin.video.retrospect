@@ -2,6 +2,7 @@
 *.pyc
 #/**/Thumbs.db
 /**/*.lnk
+.scannerwork/**
 
 /net.rieter.xot/resources/libs/debug
 /net.rieter.xot/debugrun.py

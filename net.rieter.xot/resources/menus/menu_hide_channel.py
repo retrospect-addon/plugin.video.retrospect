@@ -11,4 +11,4 @@
 import menu
 
 with menu.Menu("Hide Channel") as m:
-    m.HideChannel()
+    m.hide_channel()

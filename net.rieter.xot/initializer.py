@@ -20,7 +20,7 @@ class Initializer:
         raise NotImplementedError("Static class only")
 
     @staticmethod
-    def SetUnicode():
+    def set_unicode():
         """Forces the environment to UTF-8"""
 
         reload(sys)
@@ -29,7 +29,7 @@ class Initializer:
         return
 
     @staticmethod
-    def SetupPythonPaths():
+    def setup_python_paths():
 
         # Get the path we are in
         try:
@@ -39,7 +39,7 @@ class Initializer:
         except:
             path = os.getcwd()
 
-        # the XBMC libs return unicode info, so we need to convert this
+        # the Kodi libs return unicode info, so we need to convert this
         # noinspection PyArgumentEqualDefault
         path = path.decode('utf-8')  # .encode('latin-1')
         # insert the path at the start to prevent other lib-add-ons to steal our class names
@@ -48,4 +48,4 @@ class Initializer:
 
 
 if __name__ == "__main__":
-    init = Initializer.SetupPythonPaths()
+    init = Initializer.setup_python_paths()

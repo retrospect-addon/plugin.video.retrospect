@@ -41,24 +41,24 @@ class Channel(chn_class.Channel):
             raise NotImplementedError("Unknown channel code")
 
         episodeItemRegex = """<a[^>]+href="(?<url>/[^"]+)"[^>]*>\W*<img[^>]+src='(?<thumburl>[^']+)'[^>]*>\W*<div class='info'>\W+<h2 class='title'>(?<title>[^<]+)</h2>\W+<p class='sub_title'>(?<description>[^<]+)</p>"""
-        episodeItemRegex = Regexer.FromExpresso(episodeItemRegex)
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            preprocessor=self.NoNickJr,
-                            parser=episodeItemRegex, creator=self.CreateEpisodeItem)
+        episodeItemRegex = Regexer.from_expresso(episodeItemRegex)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.NoNickJr,
+                              parser=episodeItemRegex, creator=self.create_episode_item)
         # <h2 class='row-title'>Nick Jr
 
         videoItemRegex = """<li[^>]+data-item-id='\d+'>\W+<a href='(?<url>[^']+)'>\W+<img[^>]+src="(?<thumburl>[^"]+)"[^>]*>\W+<p class='title'>(?<title>[^<]+)</p>\W+<p[^>]+class='subtitle'[^>]*>(?<subtitle>[^>]+)</p>"""
-        videoItemRegex = Regexer.FromExpresso(videoItemRegex)
-        self._AddDataParser("*",
-                            preprocessor=self.PreProcessFolderList,
-                            parser=videoItemRegex, creator=self.CreateVideoItem,
-                            updater=self.UpdateVideoItem)
+        videoItemRegex = Regexer.from_expresso(videoItemRegex)
+        self._add_data_parser("*",
+                              preprocessor=self.pre_process_folder_list,
+                              parser=videoItemRegex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         self.pageNavigationRegex = 'href="(/video[^?"]+\?page_\d*=)(\d+)"'
         self.pageNavigationRegexIndex = 1
-        self._AddDataParser("*", parser=self.pageNavigationRegex, creator=self.CreatePageItem)
+        self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
-        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the UpdateVideoItem
+        self.mediaUrlRegex = '<param name="src" value="([^"]+)" />'    # used for the update_video_item
         self.swfUrl = "http://origin-player.mtvnn.com/g2/g2player_2.1.7.swf"
 
         #===============================================================================================================
@@ -80,7 +80,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -89,18 +89,18 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         end = data.find("<h2 class='row-title'>Nick Jr")
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         if end > 0:
-            Logger.Debug("Nick Jr content found starting at %d", end)
+            Logger.debug("Nick Jr content found starting at %d", end)
             return data[:end], items
         return data, items
 
-    def PreProcessFolderList(self, data):
+    def pre_process_folder_list(self, data):
         """Performs pre-process actions for data processing/
 
         Arguments:
@@ -110,7 +110,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         end = data.find('<li class="divider playlist-item">')
@@ -130,13 +130,13 @@ class Channel(chn_class.Channel):
         if end < 0:
             end = data.find("<p>Andere leuke video’s</p>")
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         if end > 0:
             return data[:end], items
 
         return data, items
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -159,15 +159,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
         # get the playlist GUID
-        playlistGuids = Regexer.DoRegex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
+        playlistGuids = Regexer.do_regex("<div[^>]+data-playlist-id='([^']+)'[^>]+></div>", data)
         if not playlistGuids:
             # let's try the alternative then (for the new channels)
-            playlistGuids = Regexer.DoRegex('local_playlist[", -]+([a-f0-9]{20})"', data)
+            playlistGuids = Regexer.do_regex('local_playlist[", -]+([a-f0-9]{20})"', data)
         playlistGuid = playlistGuids[0]
         # Logger.Trace(playlistGuid)
 
@@ -176,22 +176,22 @@ class Channel(chn_class.Channel):
         # but this seems to work.
         # http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-39ce0652b0b3c09258d9
         playListUrl = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid%3Asensei%3Avideo%3Amtvnn.com%3Alocal_playlist-" + playlistGuid
-        playListData = UriHandler.Open(playListUrl, proxy=self.proxy)
+        playListData = UriHandler.open(playListUrl, proxy=self.proxy)
 
         # now get the real RTMP data
-        rtmpMetaData = Regexer.DoRegex('<media:content[^>]+[^>]+url="([^"]+)&amp;force_country=', playListData)[0]
-        rtmpData = UriHandler.Open(rtmpMetaData, proxy=self.proxy)
+        rtmpMetaData = Regexer.do_regex('<media:content[^>]+[^>]+url="([^"]+)&amp;force_country=', playListData)[0]
+        rtmpData = UriHandler.open(rtmpMetaData, proxy=self.proxy)
 
-        rtmpUrls = Regexer.DoRegex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
+        rtmpUrls = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+ondemand)/([^<]+)</src>', rtmpData)
 
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         for rtmpUrl in rtmpUrls:
             url = "%s/%s" % (rtmpUrl[1], rtmpUrl[2])
             bitrate = rtmpUrl[0]
             # convertedUrl = url.replace("ondemand/","ondemand?slist=")
-            convertedUrl = self.GetVerifiableVideoUrl(url)
-            part.AppendMediaStream(convertedUrl, bitrate)
+            convertedUrl = self.get_verifiable_video_url(url)
+            part.append_media_stream(convertedUrl, bitrate)
 
         item.complete = True
-        Logger.Trace("Media url: %s", item)
+        Logger.trace("Media url: %s", item)
         return item

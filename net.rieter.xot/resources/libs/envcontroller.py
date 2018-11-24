@@ -13,17 +13,18 @@ import time
 
 import xbmc
 
-# from xbmcwrapper import XbmcWrapper
 from logger import Logger
 from environments import Environments
 from config import Config
 
+# Only needed if we want to reinstate my own Kodi repository
+# from xbmcwrapper import XbmcWrapper
 # from helpers.languagehelper import LanguageHelper
 
 
 class EnvController:
     """Controller class for getting all kinds of information about the
-    XBMC environment."""
+    Kodi environment."""
 
     __CurrentPlatform = None
     __SQLiteEnabled = None
@@ -31,95 +32,87 @@ class EnvController:
     def __init__(self, logger=None):
         """Class to determine platform depended stuff
 
-        Keyword Arguments:
-        logger : Logger - a logger object that is used to log information to
+        :param Logger logger: a logger object that is used to log information to
 
         """
 
         self.logger = logger
-        pass
-
-    def GetPythonVersion(self):
-        """Returns the current python version
-
-        Returns:
-        Python version in the #.#.# format
-
-        """
-
-        major = sys.version_info[0]
-        minor = sys.version_info[1]
-        build = sys.version_info[2]
-        return "%s.%s.%s" % (major, minor, build)
 
     @staticmethod
-    def UpdateLocalAddons():
+    def update_local_addons_in_kodi():
         """ Ask Kodi to update the list of local add-ons. """
-        Logger.Info("Asking Kodi to update the local add-ons")
+        Logger.info("Asking Kodi to update the local add-ons")
         xbmc.executebuiltin("UpdateLocalAddons")
 
-    # def AreAddonsEnabled(self, config):
+    # def are_addons_enabled(self, config):
     #     """ Checks if all Retrospect channel add-ons are enabled.
     #
-    #     @param config: The config object
-    #     @return: True or False
-    #
-    #     If channel add-ons are not enabled in Kodi, they will not be auto updated.
+    #     :param Config config: The config object
+    #     :return: If channel add-ons are not enabled in Kodi, they will not be auto updated.
+    #     :rtype: bool
     #     """
     #
-    #     addonDir = os.path.join(config.rootDir, "..")
-    #     for directory in os.listdir(addonDir):
+    #     addon_dir = os.path.join(config.rootDir, "..")
+    #     for directory in os.listdir(addon_dir):
     #         if not directory.startswith("%s.channel" % (config.addonId, )):
     #             continue
     #
     #         installed = xbmc.getCondVisibility('System.HasAddon("%s")' % (directory,)) == 1
     #         if not installed:
-    #             if not os.path.isfile(os.path.join(addonDir, directory, "addon.xml")):
+    #             if not os.path.isfile(os.path.join(addon_dir, directory, "addon.xml")):
     #                 # no add-on, continue
     #                 continue
     #
     #             Logger.Warning("Add-on '%s' is not enabled in Kodi and will not be updated automatically", directory)
     #
-    #             XbmcWrapper.ShowDialog(
-    #                 LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledTitle),
-    #                 LanguageHelper.GetLocalizedString(LanguageHelper.AddonsNotEnabledText))
+    #             XbmcWrapper.show_dialog(
+    #                 LanguageHelper.get_localized_string(LanguageHelper.AddonsNotEnabledTitle),
+    #                 LanguageHelper.get_localized_string(LanguageHelper.AddonsNotEnabledText))
     #             xbmc.executebuiltin("ActivateWindow(AddonBrowser, addons://user/all/, return)")
     #             return False
     #
     #         Logger.Debug("Add-on '%s' is enabled in Kodi", directory)
     #     return True
-
-    # def IsInstallMethodValid(self, config):
+    #
+    # def is_install_method_valid(self, config):
     #     """ Validates that Retrospect is installed using the repository. If not
     #     it will popup a dialog box.
     #
     #     Arguments:
-    #     config : Config - The Retrospect config object.
+    #     :param Config config : The Retrospect config object.
+    #
+    #     :return: Indication of Retrospect was installed via the correct means.
+    #     :rtype: bool
     #
     #     """
     #
-    #     repoAvailable = self.__IsRepoAvailable(config)
+    #     repo_available = self.__is_repo_available(config)
     #
-    #     if not repoAvailable:
+    #     if not repo_available:
     #         # show alert
     #         if self.logger:
     #             self.logger.Warning("No Respository installed. Reminding user to install it.")
     #
-    #         XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.RepoWarningId), LanguageHelper.GetLocalizedString(LanguageHelper.RepoWarningDetailId))
+    #         XbmcWrapper.show_dialog(LanguageHelper.get_localized_string(
+    #             LanguageHelper.RepoWarningId),
+    #             LanguageHelper.get_localized_string(LanguageHelper.RepoWarningDetailId))
     #
-    #     return repoAvailable
+    #     return repo_available
 
-    def DirectoryPrinter(self, config, settingInfo):
+    def print_retrospect_settings_and_folders(self, config, setting_info):
         """Prints out all the XOT related directories to the logFile.
 
         This method is mainly used for debugging purposes to provide developers a better insight
         into the system of the user.
 
+        :param Type[Config] config:   The Retrospect config object.
+        :param setting_info:          The AddonSettings object
+
         """
 
         # if we have a log level higher then debug, there is no need to do this
-        if Logger.Instance().minLogLevel > Logger.DEBUG:
-            Logger.Info("Not walking directory structure because the loglevel is set to INFO or higher")
+        if Logger.instance().minLogLevel > Logger.LVL_DEBUG:
+            Logger.info("Not walking directory structure because the loglevel is set to INFO or higher")
             return
 
         directory = "<Unknown>"
@@ -129,82 +122,82 @@ class EnvController:
             ospathjoin = os.path.join
 
             version = xbmc.getInfoLabel("system.buildversion")
-            buildDate = xbmc.getInfoLabel("system.builddate")
+            build_date = xbmc.getInfoLabel("system.builddate")
 
-            repoName = self.__IsRepoAvailable(config, returnName=True)
+            repo_name = self.__is_repo_available(config, return_name=True)
 
-            envCtrl = EnvController()
-            infoString = "%s: %s" % ("Version", version)
-            infoString = "%s\n%s: %s" % (infoString, "BuildDate", buildDate)
-            infoString = "%s\n%s: %s" % (infoString, "Environment", envCtrl.__GetEnvironment())
-            infoString = "%s\n%s: %s" % (infoString, "Platform", envCtrl.GetPlatform(True))
-            infoString = "%s\n%s: %s" % (infoString, "Python Version", envCtrl.GetPythonVersion())
-            infoString = "%s\n%s: %s" % (infoString, "Retrospect Version", config.version)
-            infoString = "%s\n%s: %s" % (infoString, "AddonID", config.addonId)
-            infoString = "%s\n%s: %s" % (infoString, "Path", config.rootDir)
-            infoString = "%s\n%s: %s" % (infoString, "ProfilePath", config.profileDir)
-            infoString = "%s\n%s: %s" % (infoString, "PathDetection", config.pathDetection)
-            infoString = "%s\n%s: %s" % (infoString, "Encoding", sys.getdefaultencoding())
-            infoString = "%s\n%s: %s" % (infoString, "Repository", repoName)
-            infoString = "%s\n%s: %s" % (infoString, "TextureMode", config.TextureMode)
+            info_string = "%s: %s" % ("Version", version)
+            info_string = "%s\n%s: %s" % (info_string, "BuildDate", build_date)
+            info_string = "%s\n%s: %s" % (info_string, "Environment", self.__get_environment())
+            info_string = "%s\n%s: %s" % (info_string, "Platform", self.get_platform(True))
+            info_string = "%s\n%s: %s" % (info_string, "Python Version", self.__get_python_version())
+            info_string = "%s\n%s: %s" % (info_string, "Retrospect Version", config.version)
+            info_string = "%s\n%s: %s" % (info_string, "AddonID", config.addonId)
+            info_string = "%s\n%s: %s" % (info_string, "Path", config.rootDir)
+            info_string = "%s\n%s: %s" % (info_string, "ProfilePath", config.profileDir)
+            info_string = "%s\n%s: %s" % (info_string, "PathDetection", config.pathDetection)
+            info_string = "%s\n%s: %s" % (info_string, "Encoding", sys.getdefaultencoding())
+            info_string = "%s\n%s: %s" % (info_string, "Repository", repo_name)
+            info_string = "%s\n%s: %s" % (info_string, "TextureMode", config.TextureMode)
             if config.TextureUrl:
-                infoString = "%s\n%s: %s" % (infoString, "TextureUrl", config.TextureUrl)
+                info_string = "%s\n%s: %s" % (info_string, "TextureUrl", config.TextureUrl)
 
-            self.logger.Info("Kodi Information:\n%s", infoString)
+            self.logger.info("Kodi Information:\n%s", info_string)
 
             # log the settings
-            self.logger.Info("Retrospect Settings:\n%s", settingInfo.PrintSettingValues())
+            self.logger.info("Retrospect Settings:\n%s", setting_info.print_setting_values())
 
-            if settingInfo.GetLogLevel() > 10:
+            if setting_info.get_log_level() > 10:
                 return
 
             # get the script directory
-            dirScript = config.addonDir
-            walkSourcePath = os.path.abspath(ospathjoin(config.rootDir, ".."))
-            dirPrint = "Folder Structure of %s (%s)" % (config.appName, dirScript)
+            dir_script = config.addonDir
+            walk_source_path = os.path.abspath(ospathjoin(config.rootDir, ".."))
+            dir_print = "Folder Structure of %s (%s)" % (config.appName, dir_script)
 
             # instead of walking all directories and files and then see if the
             # folders is in the exclude list, we first list the first children.
-            # Then if the child folders contains the dirScript then, walk all
+            # Then if the child folders contains the dir_script then, walk all
             # the subfolders and files. This greatly improves performance.
-            for currentPath in os.listdir(walkSourcePath):
-                self.logger.Trace("Checking %s", currentPath)
-                if dirScript in currentPath:
-                    self.logger.Trace("Now walking DirectoryPrinter")
-                    # excludePattern = ospathjoin('a','.svn').replace("a","") -> we now have GIT and no more nested .SVN
-                    dirWalker = os.walk(ospathjoin(walkSourcePath, currentPath))
+            for current_path in os.listdir(walk_source_path):
+                self.logger.trace("Checking %s", current_path)
+                if dir_script not in current_path:
+                    continue
 
-                    for directory, folders, files in dirWalker:  # @UnusedVariables
-                        # if directory.count(excludePattern) == 0:
-                        if directory.count("BUILD") == 0:
-                            for fileName in files:
-                                if not fileName.startswith(".") \
-                                        and not fileName.endswith(".pyo") \
-                                        and not fileName.endswith(".pyc"):
-                                    dirPrint = "%s\n%s" % (dirPrint, ospathjoin(directory, fileName))
-            self.logger.Debug("%s" % (dirPrint, ))
+                self.logger.trace("Now walking DirectoryPrinter")
+                dir_walker = os.walk(ospathjoin(walk_source_path, current_path))
+
+                for directory, folders, files in dir_walker:  # @UnusedVariables
+                    # if directory.count(excludePattern) == 0:
+                    if directory.count("BUILD") != 0:
+                        continue
+
+                    for file_name in files:
+                        if file_name.startswith(".") or file_name.endswith(".pyo") or file_name.endswith(".pyc"):
+                            continue
+                        dir_print = "%s\n%s" % (dir_print, ospathjoin(directory, file_name))
+            self.logger.debug("%s" % (dir_print,))
         except:
-            self.logger.Critical("Error printing folder %s", directory, exc_info=True)
+            self.logger.critical("Error printing folder %s", directory, exc_info=True)
 
     @staticmethod
-    def GetPlatform(returnName=False):
-        """Returns the platform that XBMC returns as it's host:
+    def get_platform(return_name=False):
+        """ Returns the platform that Kodi returns as it's host:
 
-        Keyword Arguments:
-        returnName : boolean - If true a string value is returned
-
-        Returns:
-        A string representing the host OS:
         * linux   - Normal Linux
         * Xbox    - Native Xbox
         * OS X    - Apple OS
         * Windows - Windows OS
         * unknown - in case it's undetermined
 
+        :param bool return_name:    If true a string value is returned
+        :return: A string representing the host OS:
+        :rtype: int|str
+
         """
 
         if not EnvController.__CurrentPlatform:
-            # let's cache the current environment as the call to the xbmc library is very slow.
+            # let's cache the current environment as the call to the Kodi library is very slow.
             platform = Environments.Unknown
             # it's in the .\xbmc\GUIInfoManager.cpp
             if xbmc.getCondVisibility("system.platform.linux"):
@@ -225,56 +218,58 @@ class EnvController:
                 platform = Environments.Android
 
             EnvController.__CurrentPlatform = platform
-            Logger.Info("Current platform determined to be: %s", Environments.Name(EnvController.__CurrentPlatform))
+            Logger.info("Current platform determined to be: %s", Environments.name(EnvController.__CurrentPlatform))
 
-        if returnName:
-            return Environments.Name(EnvController.__CurrentPlatform)
+        if return_name:
+            return Environments.name(EnvController.__CurrentPlatform)
         else:
             return EnvController.__CurrentPlatform
 
     @staticmethod
-    def IsPlatform(platform):
+    def is_platform(platform):
         """Checks if the current platform matches the requested on
 
-        Arguments:
-        platform : string - The requested platform
+        :param int platform: The requested platform
 
-        Returns:
-        True if the <platform> matches EnvController.GetPlatform().
+        :return: True if the <platform> matches EnvController.get_platform().
+        :rtype: bool
 
         """
 
-        plat = EnvController.GetPlatform()
+        plat = EnvController.get_platform()
 
         # check if the actual platform is in the platform bitmask
         # return plat & platform  == platform
         return platform & plat == plat
 
     @staticmethod
-    def CacheCheck():
-        """Checks if the cache folder exists. If it does not exists
-        It will be created.
+    def cache_check():
+        """Checks if the cache folder exists. If it does not exists it will be created.
 
-        Returns False it the folder initially did not exist
+        :return: False it the folder initially did not exist
+        :rtype: bool
 
         """
 
         # check for cache folder. If not present. Create it!
         if not os.path.exists(Config.cacheDir):
-            Logger.Info("Creating cache folder at: %s", Config.cacheDir)
+            Logger.info("Creating cache folder at: %s", Config.cacheDir)
             os.makedirs(Config.cacheDir)
             return False
 
         return True
 
     @staticmethod
-    def CacheCleanUp(path, cacheTime, mask="*.*"):
+    def cache_clean_up(path, cache_time, mask="*.*"):
         """Cleans up the XOT cache folder.
 
         Check the cache files create timestamp and compares it with the current datetime extended
         with the amount of seconds as defined in cacheTime.
 
         Expired items are deleted.
+        :param str path:        The cache path to clean.
+        :param int cache_time:  The minimum (in seconds) of files that will be deleted.
+        :param str mask:        The file mask to consider when cleaning the cache.
 
         """
 
@@ -282,44 +277,58 @@ class EnvController:
         import glob
 
         try:
-            Logger.Info("Cleaning up cache in '%s' that is older than %s days", path, cacheTime / 24 / 3600)
+            Logger.info("Cleaning up cache in '%s' that is older than %s days", path, cache_time / 24 / 3600)
             if not os.path.exists(path):
-                Logger.Info("Did not cleanup cache: folder does not exist")
+                Logger.info("Did not cleanup cache: folder does not exist")
                 return
 
-            deleteCount = 0
-            fileCount = 0
+            delete_count = 0
+            file_count = 0
 
             #for item in os.listdir(path):
-            pathMask = os.path.join(path, mask)
-            for item in glob.glob(pathMask):
-                fileName = os.path.join(path, item)
-                if os.path.isfile(fileName):
-                    Logger.Trace(fileName)
-                    fileCount += 1
-                    createTime = os.path.getctime(fileName)
-                    if createTime + cacheTime < time.time():
-                        os.remove(fileName)
-                        Logger.Debug("Removed file: %s", fileName)
-                        deleteCount += 1
-            Logger.Info("Removed %s of %s files from cache in: '%s'", deleteCount, fileCount, pathMask)
+            path_mask = os.path.join(path, mask)
+            for item in glob.glob(path_mask):
+                file_name = os.path.join(path, item)
+                if os.path.isfile(file_name):
+                    Logger.trace(file_name)
+                    file_count += 1
+                    create_time = os.path.getctime(file_name)
+                    if create_time + cache_time < time.time():
+                        os.remove(file_name)
+                        Logger.debug("Removed file: %s", file_name)
+                        delete_count += 1
+            Logger.info("Removed %s of %s files from cache in: '%s'", delete_count, file_count, path_mask)
         except:
-            Logger.Critical("Error cleaning the cachefolder: %s", path, exc_info=True)
+            Logger.critical("Error cleaning the cachefolder: %s", path, exc_info=True)
 
-    def __GetEnvironment(self):
-        """Gets the type of environment
+    def __get_python_version(self):
+        """Returns the current python version
 
         Returns:
-        A string defining the OS:
+        Python version in the #.#.# format
+
+        """
+
+        major = sys.version_info[0]
+        minor = sys.version_info[1]
+        build = sys.version_info[2]
+        return "%s.%s.%s" % (major, minor, build)
+
+    def __get_environment(self):
+        """ Gets the type of environment for Kodi in a string:
+
         * Linux   - Normal Linux
         * Linux64 - 64-bit Linux
         * OS X    - For Apple decices
         * win32   - Windows / Native Xbox
 
+        :return: String representation for the current environment.
+
         """
 
         env = os.environ.get("OS", "win32")
         if env == "Linux":
+            # These don't work on all platforms
             # (bits, type) = platform.architecture()
             # if bits.count("64") > 0:
             #     # first the bits of platform.architecture is checked
@@ -335,62 +344,47 @@ class EnvController:
         else:
             return "win32"
 
-    def __IsRepoAvailable(self, config, returnName=False):
-        """ Checks if the repository is available in XBMC and returns it's name.
+    def __is_repo_available(self, config, return_name=False):
+        """ Checks if the repository is available in Kodi and returns it's name.
 
-        Arguments:
-        config     : Config  - The configuration object of Retrospect
-
-        Keyword Arguments:
-        returnName : Boolean - [opt] If set to True the name of the repository will
-                               be returned or a label with the reason why no repo
-                               was found.
+        :param Config config:   The configuration object of Retrospect
+        :param return_name:      If set to True the name of the repository will
+                                be returned or a label with the reason why no repo
+                                was found.
+        :return:
+        :rtype: bool|str
 
         """
 
-        NOT_INSTALLED = "<not installed>"
-        UNKWOWN = "<data only available in Eden builds>"
+        not_installed = "<not installed>"
 
-        if EnvController.IsPlatform(Environments.Xbox):
+        if EnvController.is_platform(Environments.Xbox):
             if self.logger:
-                self.logger.Debug("Skipping repository check on Xbox.")
+                self.logger.debug("Skipping repository check on Xbox.")
 
-            if returnName:
-                # on Xbox it's never installed.
-                return NOT_INSTALLED
-            else:
-                # always return True for Xbox
-                return True
-
-        if xbmc.getInfoLabel("system.buildversion").startswith("10."):
-            if self.logger:
-                self.logger.Debug("Skipping repository check on 10.x builds.")
-
-            if returnName:
-                return UNKWOWN
-            else:
-                # always return True
-                return True
+            # on Xbox it's never installed. So always return True to make it all work
+            return not_installed if return_name else True
 
         try:
-            repoName = "%s.repository" % (config.addonId,)
-            repoAvailable = xbmc.getCondVisibility('System.HasAddon("%s")' % (repoName,)) == 1
+            repo_name = "%s.repository" % (config.addonId,)
+            repo_available = xbmc.getCondVisibility('System.HasAddon("%s")' % (repo_name,)) == 1
 
             if self.logger:
-                self.logger.Debug("Checking repository '%s'. Repository available=%s", repoName, repoAvailable)
+                self.logger.debug("Checking repository '%s'. Repository available=%s",
+                                  repo_name, repo_available)
 
-            if not returnName:
+            if not return_name:
                 # return a boolean
-                return repoAvailable
-            elif repoAvailable:
+                return repo_available
+            elif repo_available:
                 # return the name if it was available
-                return repoName
+                return repo_name
             else:
                 # return not installed if non was available
-                return NOT_INSTALLED
+                return not_installed
         except:
-            self.logger.Error("Error determining Repository Status", exc_info=True)
-            if not returnName:
+            self.logger.error("Error determining Repository Status", exc_info=True)
+            if not return_name:
                 # in case of error, return True
                 return True
             else:

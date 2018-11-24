@@ -63,49 +63,49 @@ class AwsIdp:
         self.small_a_value = self.__GenerateRandomSmallA()
         self.large_a_value = self.__CalculateA()
         if self.__logger:
-            self.__logger.Debug("Created %s", self)
+            self.__logger.debug("Created %s", self)
 
     def Authenticate(self, username, password):
         # Step 1: First initiate an authentication request
         authRequest = self.__GetAuthenticationRequest(username)
-        authData = JsonHelper.Dump(authRequest)
+        authData = JsonHelper.dump(authRequest)
         authHeaders = {
             "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
             "Accept-Encoding": "identity",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        authResponse = UriHandler.Open(self.url, proxy=self.__proxy,
-                                       params=authData, additionalHeaders=authHeaders)
+        authResponse = UriHandler.open(self.url, proxy=self.__proxy,
+                                       params=authData, additional_headers=authHeaders)
         authResponseJson = JsonHelper(authResponse)
-        challengeParameters = authResponseJson.GetValue("ChallengeParameters")
+        challengeParameters = authResponseJson.get_value("ChallengeParameters")
         if self.__logger:
-            self.__logger.Trace(challengeParameters)
+            self.__logger.trace(challengeParameters)
 
-        challengeName = authResponseJson.GetValue("ChallengeName")
+        challengeName = authResponseJson.get_value("ChallengeName")
         if not challengeName == "PASSWORD_VERIFIER":
             if self.__logger:
-                self.__logger.Error("Cannot start authentication challenge")
+                self.__logger.error("Cannot start authentication challenge")
                 return None
 
         # Step 2: Respond to the Challenge with a valid ChallengeResponse
         challengeRequest = self.__GetChallengeResponseRequest(challengeParameters, password)
-        challengeData = JsonHelper.Dump(challengeRequest)
+        challengeData = JsonHelper.dump(challengeRequest)
         challengeHeaders = {
             "X-Amz-Target": "AWSCognitoIdentityProviderService.RespondToAuthChallenge",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        authResponse = UriHandler.Open(self.url, proxy=self.__proxy,
-                                       params=challengeData, additionalHeaders=challengeHeaders)
+        authResponse = UriHandler.open(self.url, proxy=self.__proxy,
+                                       params=challengeData, additional_headers=challengeHeaders)
         # if not authResponse:
         #     raise ValueError("No data on ChallengeResponse. Wrong username/password?")
 
         authResponseJson = JsonHelper(authResponse)
         if "message" in authResponseJson.json:
-            self.__logger.Error("Error logging in: %s", authResponseJson.GetValue("message"))
+            self.__logger.error("Error logging in: %s", authResponseJson.get_value("message"))
             return None, None
 
-        idToken = authResponseJson.GetValue("AuthenticationResult", "IdToken")
-        refreshToken = authResponseJson.GetValue("AuthenticationResult", "RefreshToken")
+        idToken = authResponseJson.get_value("AuthenticationResult", "IdToken")
+        refreshToken = authResponseJson.get_value("AuthenticationResult", "RefreshToken")
         return idToken, refreshToken
 
     def RenewToken(self, refreshToken):
@@ -128,12 +128,12 @@ class AwsIdp:
             "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        refreshRequestData = JsonHelper.Dump(refreshRequest)
-        refreshResponse = UriHandler.Open(self.url, proxy=self.__proxy,
+        refreshRequestData = JsonHelper.dump(refreshRequest)
+        refreshResponse = UriHandler.open(self.url, proxy=self.__proxy,
                                           params=refreshRequestData,
-                                          additionalHeaders=refreshHeaders)
+                                          additional_headers=refreshHeaders)
         refreshJson = JsonHelper(refreshResponse)
-        idToken = refreshJson.GetValue("AuthenticationResult", "IdToken")
+        idToken = refreshJson.get_value("AuthenticationResult", "IdToken")
         return idToken
 
     def __GetAuthenticationRequest(self, username):

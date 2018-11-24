@@ -42,30 +42,30 @@ class Channel(chn_class.Channel):
         salt = int(time.time())
         # key = "%sRM%%j%%l@g@w_A%%" % (salt,)
         # Logger.Trace("Found Salt: %s and Key: %s", salt, key)
-        # key = EncodingHelper.EncodeMD5(key, toUpper=False)
+        # key = EncodingHelper.encode_md5(key, toUpper=False)
         # self.httpHeaders = {"X-NOS-App": "Google/x86;Android/4.4.4;nl.nos.app/3.1",
         #                     "X-NOS-Salt": salt,
         #                     "X-NOS-Key": key}
 
         userAgent = "%s;%d;%s/%s;Android/%s;nl.nos.app/%s" % ("nos", salt, "Google", "Nexus", "6.0", "5.1.1")
         string = ";UB}7Gaji==JPHtjX3@c%s" % (userAgent, )
-        string = EncodingHelper.EncodeMD5(string, toUpper=False).zfill(32)
+        string = EncodingHelper.encode_md5(string, to_upper=False).zfill(32)
         xnos = string + base64.b64encode(userAgent)
         self.httpHeaders = {"X-Nos": xnos}
 
         self.baseUrl = "http://nos.nl"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, preprocessor=self.GetCategories)
-        self._AddDataParser("*",
-                            # preprocessor=self.AddNextPage,
-                            json=True,
-                            parser=('items', ),
-                            creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
-        self._AddDataParser("*",
-                            json=True,
-                            parser=('links',),
-                            creator=self.CreatePageItem)
+        self._add_data_parser(self.mainListUri, preprocessor=self.GetCategories)
+        self._add_data_parser("*",
+                              # No longer used: preprocessor=self.AddNextPage,
+                              json=True,
+                              parser=['items', ],
+                              creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
+        self._add_data_parser("*",
+                              json=True,
+                              parser=['links',],
+                              creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
@@ -85,7 +85,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Creating categories")
+        Logger.info("Creating categories")
         items = []
 
         cats = {
@@ -111,13 +111,13 @@ class Channel(chn_class.Channel):
             item.complete = True
             items.append(item)
 
-        Logger.Debug("Creating categories finished")
+        Logger.debug("Creating categories finished")
         return data, items
 
-    def CreatePageItem(self, resultSet):
+    def create_page_item(self, resultSet):
         items = []
         if 'next' in resultSet:
-            title = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             url = resultSet['next']
             item = mediaitem.MediaItem(title, url)
             item.fanart = self.parentItem.fanart
@@ -141,12 +141,10 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
-
-        # Logger.Trace(JsonHelper.DictionaryToString(resultSet))
 
         videoId = resultSet['id']
         # category = resultSet["maincategory"].title()
@@ -170,8 +168,8 @@ class Channel(chn_class.Channel):
 
         # set the date and time
         date = resultSet["published_at"]
-        timeStamp = DateHelper.GetDateFromString(date, dateFormat="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
-        item.SetDate(*timeStamp[0:6])
+        timeStamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
+        item.set_date(*timeStamp[0:6])
         return item
 
     def UpdateJsonVideo(self, item):
@@ -197,16 +195,16 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem: %s', item.name)
+        Logger.debug('Starting update_video_item: %s', item.name)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=self.httpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
         jsonData = JsonHelper(data)
-        streams = jsonData.GetValue("formats")
+        streams = jsonData.get_value("formats")
         if not streams:
             return item
 
         qualities = {"720p": 1600, "480p": 1200, "360p": 500, "other": 0}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         urls = []
         for stream in streams:
             url = stream["url"].values()[-1]
@@ -218,30 +216,30 @@ class Channel(chn_class.Channel):
 
             # actually process the url
             if not url.endswith(".m3u8"):
-                part.AppendMediaStream(
+                part.append_media_stream(
                     url=url,
                     bitrate=qualities.get(stream.get("name", "other"), 0)
                 )
                 item.complete = True
-            # elif AddonSettings.UseAdaptiveStreamAddOn():
-            #     contentType, url = UriHandler.Header(url, self.proxy)
-            #     stream = part.AppendMediaStream(url, 0)
+            # elif AddonSettings.use_adaptive_stream_add_on():
+            #     contentType, url = UriHandler.header(url, self.proxy)
+            #     stream = part.append_media_stream(url, 0)
             #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
             #     item.complete = True
             else:
-                contentType, url = UriHandler.Header(url, self.proxy)
-                for s, b in M3u8.GetStreamsFromM3u8(url, self.proxy):
+                contentType, url = UriHandler.header(url, self.proxy)
+                for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                     item.complete = True
-                    # s = self.GetVerifiableVideoUrl(s)
-                    part.AppendMediaStream(s, b)
+                    # s = self.get_verifiable_video_url(s)
+                    part.append_media_stream(s, b)
 
         return item
 
     def __IgnoreCookieLaw(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
-        Logger.Info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
+        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
         # a second cookie seems to be required
-        UriHandler.SetCookie(name='npo_cc', value='tmp', domain='.nos.nl')
+        UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.nos.nl')
         return

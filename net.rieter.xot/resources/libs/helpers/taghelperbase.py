@@ -25,7 +25,7 @@ class TagHelperBase:
         
         self.data = data
     
-    def GetTagAttribute(self, tag, *args, **kwargs):
+    def get_tag_attribute(self, tag, *args, **kwargs):
         """Gets the content of an specific attribute of an HTML <tag>
         
         Arguments:
@@ -48,35 +48,35 @@ class TagHelperBase:
         
         """
         
-        firstOnly = True
+        first_only = True
         if list(kwargs.keys()).count("firstOnly") > 0:
-            firstOnly = kwargs["firstOnly"]
-            Logger.Trace("Setting 'firstOnly' to '%s'", firstOnly)
+            first_only = kwargs["firstOnly"]
+            Logger.trace("Setting 'firstOnly' to '%s'", first_only)
             
-        htmlRegex = '<%s' % (tag,)
+        html_regex = '<%s' % (tag,)
         
         for arg in args:
             name = arg.keys()[0]
             value = arg[arg.keys()[0]]
-            Logger.Trace("Name: %s, Value: %s", name, value)
+            Logger.trace("Name: %s, Value: %s", name, value)
             
             # to keep working with older versions where class could not be passed
             if name == "cls":
                 name = "class"
             
             if value is None:
-                htmlRegex += '[^>]*%s\W*=\W*["\']([^"\']+)["\']' % (name,)
+                html_regex += '[^>]*%s\W*=\W*["\']([^"\']+)["\']' % (name,)
             else:
-                htmlRegex += '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
+                html_regex += '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
 
-        htmlRegex += "[^>]*>"
-        Logger.Trace("HtmlRegex = %s", htmlRegex)
+        html_regex += "[^>]*>"
+        Logger.trace("HtmlRegex = %s", html_regex)
         
-        result = Regexer.DoRegex(htmlRegex, self.data)
-        Logger.Trace(result)
+        result = Regexer.do_regex(html_regex, self.data)
+        Logger.trace(result)
         
         if len(result) > 0:
-            if firstOnly:
+            if first_only:
                 return result[0].strip()
             else:
                 return result

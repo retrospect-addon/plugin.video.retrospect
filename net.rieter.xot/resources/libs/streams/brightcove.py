@@ -8,10 +8,6 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-#===============================================================================
-# Import the default modules
-#===============================================================================
-
 import pyamf
 from pyamf import remoting
 import httplib
@@ -27,23 +23,24 @@ class BrightCove:
 
     """
 
-    def __init__(self, logger, playerKey, contentId, url, seed, experienceId=0, amfVersion=3, proxy=None):
+    def __init__(self, logger, player_key, content_id, url, seed,
+                 experience_id=0, amf_version=3, proxy=None):
         """ Initializes the BrightCove class """
 
-        self.playerKey = playerKey
-        self.contentId = contentId
+        self.playerKey = player_key
+        self.contentId = content_id
         self.url = url
         self.seed = seed
-        self.experienceId = experienceId
-        self.amfVersion = amfVersion
+        self.experienceId = experience_id
+        self.amfVersion = amf_version
 
         self.proxy = proxy
 
         self.logger = logger
-        self.data = self.__GetBrightCoveData()
+        self.data = self.__get_bright_cove_data()
         return
 
-    def GetDescription(self):
+    def get_description(self):
         """ Retrieves the full description """
 
         description = self.data['longDescription']
@@ -53,15 +50,15 @@ class BrightCove:
             return self.data['longDescription']
         return ""
 
-    def GetStreamInfo(self, renditions="renditions"):
+    def get_stream_info(self, renditions="renditions"):
         """ Returns the streams in the form of a list of
         tuples (streamUrl, bitrate).
 
         """
 
         streams = []
-        streamData = self.data[renditions]
-        for stream in streamData:
+        stream_data = self.data[renditions]
+        for stream in stream_data:
             bitrate = int(stream['encodingRate']) / 1000
             # The result is Unicode, so we should encode it.
             strm = stream['defaultURL']
@@ -69,7 +66,7 @@ class BrightCove:
 
         return streams
 
-    def __GetBrightCoveData(self):
+    def __get_bright_cove_data(self):
         """ Retrieves the Url's from a brightcove stream
 
         Arguments:
@@ -86,7 +83,7 @@ class BrightCove:
         """
 
         # Seed = 61773bc7479ab4e69a5214f17fd4afd21fe1987a
-        envelope = self.__BuildBrightCoveAmfRequest(self.playerKey, self.contentId, self.url, self.experienceId, self.seed)
+        envelope = self.__build_bright_cove_amf_request(self.playerKey, self.contentId, self.url, self.experienceId, self.seed)
 
         if self.proxy:
             connection = httplib.HTTPConnection(self.proxy.Proxy, self.proxy.Port)
@@ -98,11 +95,11 @@ class BrightCove:
         response = remoting.decode(response).bodies[0][1].body
 
         if self.logger:
-            self.logger.Trace(response)
+            self.logger.trace(response)
 
         return response['programmedContent']['videoPlayer']['mediaDTO']
 
-    def __BuildBrightCoveAmfRequest(self, playerKey, contentId, url, experienceId, seed):
+    def __build_bright_cove_amf_request(self, player_key, content_id, url, experience_id, seed):
         """ Builds a AMF request compatible with BrightCove
 
         Arguments:
@@ -119,40 +116,37 @@ class BrightCove:
         """
 
         if self.logger:
-            self.logger.Debug("Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s", contentId, playerKey, experienceId, url)
-        else:
-            print "Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s" % (contentId, playerKey, experienceId, url)
+            self.logger.debug("Creating BrightCover request for ContentId=%s, Key=%s, ExperienceId=%s, url=%s", content_id, player_key, experience_id, url)
 
-        # const = '686a10e2a34ec3ea6af8f2f1c41788804e0480cb'
         pyamf.register_class(ViewerExperienceRequest, 'com.brightcove.experience.ViewerExperienceRequest')
         pyamf.register_class(ContentOverride, 'com.brightcove.experience.ContentOverride')
 
-        contentOverrides = [ContentOverride(str(contentId))]
-        viewerExperienceRequest = ViewerExperienceRequest(url, contentOverrides, int(experienceId), playerKey)
+        content_overrides = [ContentOverride(str(content_id))]
+        viewer_experience_request = ViewerExperienceRequest(url, content_overrides, int(experience_id), player_key)
 
         envelope = remoting.Envelope(amfVersion=self.amfVersion)
-        remotingRequest = remoting.Request(target="com.brightcove.experience.ExperienceRuntimeFacade.getDataForExperience", body=[seed, viewerExperienceRequest], envelope=envelope)
-        envelope.bodies.append(("/1", remotingRequest))
+        remoting_request = remoting.Request(target="com.brightcove.experience.ExperienceRuntimeFacade.getDataForExperience", body=[seed, viewer_experience_request], envelope=envelope)
+        envelope.bodies.append(("/1", remoting_request))
 
         return envelope
 
 
 class ViewerExperienceRequest(object):
     """ Class needed for brightcove AMF requests """
-    def __init__(self, URL, contentOverrides, experienceId, playerKey, TTLToken=''):
-        self.TTLToken = TTLToken
-        self.URL = URL
+    def __init__(self, url, content_overrides, experience_id, player_key, ttl_token=''):
+        self.TTLToken = ttl_token
+        self.URL = url
         self.deliveryType = float(0)
-        self.contentOverrides = contentOverrides
-        self.experienceId = experienceId
-        self.playerKey = playerKey
+        self.contentOverrides = content_overrides
+        self.experienceId = experience_id
+        self.playerKey = player_key
 
 
 class ContentOverride(object):
     """ Class needed for brightcove AMF requests """
-    def __init__(self, contentId, contentType=0, target='videoPlayer'):
-        self.contentType = contentType
-        self.contentId = contentId
+    def __init__(self, content_id, content_type=0, target='videoPlayer'):
+        self.contentType = content_type
+        self.contentId = content_id
         self.target = target
         self.contentIds = None
         self.contentRefId = None

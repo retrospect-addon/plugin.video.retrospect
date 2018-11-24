@@ -23,7 +23,7 @@ class SessionHelper:
         raise NotImplementedError()
 
     @staticmethod
-    def CreateSession(logger=None):
+    def create_session(logger=None):
         """ Creates a session file in the add-on data folder. This file indicates
         that we passed the channel selection screen. It's main purpose is to be
         able to distinguish between coming back to the channel selection screen
@@ -33,83 +33,83 @@ class SessionHelper:
 
         """
 
-        if not SessionHelper.IsSessionActive() and logger:
-            logger.Debug("Creating session at '%s'", SessionHelper.__GetSessionPath())
+        if not SessionHelper.is_session_active() and logger:
+            logger.debug("Creating session at '%s'", SessionHelper.__get_session_path())
         elif logger:
-            logger.Debug("Updating session at '%s'", SessionHelper.__GetSessionPath())
+            logger.debug("Updating session at '%s'", SessionHelper.__get_session_path())
 
         if logger:
-            fd = open(SessionHelper.__GetSessionPath(), 'w')
+            fd = open(SessionHelper.__get_session_path(), 'w')
             fd.write(str(logger.minLogLevel))
             fd.close()
         else:
-            open(SessionHelper.__GetSessionPath(), 'w').close()
+            open(SessionHelper.__get_session_path(), 'w').close()
 
     @staticmethod
-    def ClearSession(logger=None):
+    def clear_session(logger=None):
         """ Clears the active session indicator by deleting the file """
 
-        if os.path.isfile(SessionHelper.__GetSessionPath()):
+        if os.path.isfile(SessionHelper.__get_session_path()):
             if logger:
-                logger.Warning("Clearing session at '%s'", SessionHelper.__GetSessionPath())
-            os.remove(SessionHelper.__GetSessionPath())
+                logger.warning("Clearing session at '%s'", SessionHelper.__get_session_path())
+            os.remove(SessionHelper.__get_session_path())
         elif logger:
-            logger.Debug("No session to clear")
+            logger.debug("No session to clear")
 
         return
 
     @staticmethod
-    def IsSessionActive(logger=None):
+    def is_session_active(logger=None):
         """ Returns True if an active session file is found """
 
         if logger:
-            logger.Debug("Checking for active sessions (%.2f minutes / %.2f hours).", SessionHelper.__TimeOut / 60, SessionHelper.__TimeOut / 3600.0)
+            logger.debug("Checking for active sessions (%.2f minutes / %.2f hours).", SessionHelper.__TimeOut / 60, SessionHelper.__TimeOut / 3600.0)
 
-        if not os.path.isfile(SessionHelper.__GetSessionPath()):
+        if not os.path.isfile(SessionHelper.__get_session_path()):
             if logger:
-                logger.Debug("No active sessions found.")
+                logger.debug("No active sessions found.")
             return False
 
-        timeStamp = os.path.getmtime(SessionHelper.__GetSessionPath())
-        nowStamp = time.time()
-        modifiedInLastHours = (nowStamp - SessionHelper.__TimeOut) < timeStamp
+        time_stamp = os.path.getmtime(SessionHelper.__get_session_path())
+        now_stamp = time.time()
+        modified_in_last_hours = (now_stamp - SessionHelper.__TimeOut) < time_stamp
 
-        logLevel = None
+        log_level = None
         # try to determine whether we have a new loglevel in this session, if so, we reset the session to get all
         # required debug data. But we can only do that with a logger.
         if logger:
             try:
-                fd = open(SessionHelper.__GetSessionPath())
-                logLevel = fd.readline()
+                fd = open(SessionHelper.__get_session_path())
+                log_level = fd.readline()
                 fd.close()
-                if not logLevel == "":
+                if not log_level == "":
                     # logger.Trace("Found previous loglevel: %s vs current: %s", logLevel, logger.minLogLevel)
-                    newLogLevelFound = not logger.minLogLevel == int(logLevel)
+                    new_log_level_found = not logger.minLogLevel == int(log_level)
                 else:
-                    newLogLevelFound = False
+                    new_log_level_found = False
             except:
-                logger.Error("Error determining previous loglevel", exc_info=True)
-                newLogLevelFound = False
+                logger.error("Error determining previous loglevel", exc_info=True)
+                new_log_level_found = False
         else:
-            newLogLevelFound = False
+            new_log_level_found = False
 
-        if logger and newLogLevelFound:
-            logger.Debug("Found active session at '%s' with an old loglevel '%s' vs '%s', resetting session",
-                         SessionHelper.__GetSessionPath(), logLevel, logger.minLogLevel)
-            modifiedInLastHours = False
+        if logger and new_log_level_found:
+            logger.debug("Found active session at '%s' with an old loglevel '%s' vs '%s', resetting session",
+                         SessionHelper.__get_session_path(), log_level, logger.minLogLevel)
+            modified_in_last_hours = False
 
-        elif logger and modifiedInLastHours:
-            logger.Debug("Found active session at '%s' which was modified %.2f minutes (%.2f hours) ago",
-                         SessionHelper.__GetSessionPath(), (nowStamp - timeStamp) / 60, (nowStamp - timeStamp) / 3600.0)
+        elif logger and modified_in_last_hours:
+            logger.debug("Found active session at '%s' which was modified %.2f minutes (%.2f hours) ago",
+                         SessionHelper.__get_session_path(), (now_stamp - time_stamp) / 60, (now_stamp - time_stamp) / 3600.0)
 
         elif logger:
-            logger.Debug("Found expired session at '%s' which was modified %.2f minutes (%.2f hours) ago",
-                         SessionHelper.__GetSessionPath(), (nowStamp - timeStamp) / 60, (nowStamp - timeStamp) / 3600.0)
+            logger.debug("Found expired session at '%s' which was modified %.2f minutes (%.2f hours) ago",
+                         SessionHelper.__get_session_path(), (now_stamp - time_stamp) / 60, (now_stamp - time_stamp) / 3600.0)
 
-        return modifiedInLastHours
+        return modified_in_last_hours
 
     @staticmethod
-    def __GetSessionPath():
+    def __get_session_path():
         """ Returns the session file path """
 
         return os.path.join(Config.profileDir, "xot.session.lock")

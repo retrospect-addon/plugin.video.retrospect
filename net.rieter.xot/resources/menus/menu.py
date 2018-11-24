@@ -10,7 +10,6 @@
 
 import os
 import sys
-
 import xbmc
 import xbmcgui
 
@@ -20,16 +19,16 @@ sys.path.append(addOnPath)
 
 # setup some initial stuff
 from initializer import Initializer
-Initializer.SetUnicode()
-Initializer.SetupPythonPaths()
+Initializer.set_unicode()
+Initializer.setup_python_paths()
 sys.path.remove(addOnPath)
 
 from config import Config
 from logger import Logger
-Logger.CreateLogger(os.path.join(Config.profileDir, Config.logFileNameAddon),
-                    Config.appName,
-                    append=True,
-                    dualLogger=lambda x, y=4: xbmc.log(x, y))
+Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
+                     Config.appName,
+                     append=True,
+                     dual_logger=lambda x, y=4: xbmc.log(x, y))
 
 from helpers.htmlentityhelper import HtmlEntityHelper
 from addonsettings import AddonSettings, LOCAL
@@ -40,13 +39,13 @@ from helpers.languagehelper import LanguageHelper
 from locker import LockWithDialog
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
-Logger.Instance().minLogLevel = AddonSettings.GetLogLevel()
+Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
 
 class Menu(ParameterParser):
 
     def __init__(self, action):
-        Logger.Info("**** Starting menu '%s' for %s add-on version %s ****",
+        Logger.info("**** Starting menu '%s' for %s add-on version %s ****",
                     action, Config.appName, Config.version)
 
         # noinspection PyUnresolvedReferences
@@ -63,144 +62,202 @@ class Menu(ParameterParser):
         # Main constructor parses
         super(Menu, self).__init__(name, params)
 
-        self.channelObject = self.__GetChannel()
-        Logger.Debug("Plugin Params: %s (%s)\n"
+        self.channelObject = self.__get_channel()
+        Logger.debug("Plugin Params: %s (%s)\n"
                      "Name:        %s\n"
                      "Query:       %s", self.params, len(self.params), self.pluginName, params)
 
         if self.keywordPickle in self.params:
-            self.mediaItem = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
+            self.mediaItem = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
         else:
             self.mediaItem = None
 
-    def HideChannel(self):
-        Logger.Info("Hiding channel: %s", self.channelObject)
-        AddonSettings.SetChannelVisiblity(self.channelObject, False)
-        self.Refresh()
+    def hide_channel(self):
+        """ Hides a specific channel """
 
-    def SelectChannels(self):
-        validChannels = ChannelIndex.GetRegister().GetChannels(includeDisabled=True)
-        channelsToShow = filter(lambda c: c.visible, validChannels)
+        Logger.info("Hiding channel: %s", self.channelObject)
+        AddonSettings.set_channel_visiblity(self.channelObject, False)
+        self.refresh()
 
-        selectedChannels = filter(lambda c: c.enabled, channelsToShow)
-        selectedIndices = map(lambda c: channelsToShow.index(c), selectedChannels)
-        Logger.Debug("Currently selected channels: %s", selectedIndices)
+    def select_channels(self):
+        """ Selects the channels that should be visible.
 
-        channelToShowNames = map(lambda c: HtmlEntityHelper.ConvertHTMLEntities(c.channelName),
-                                 channelsToShow)
+        @return: None
+        """
+
+        valid_channels = ChannelIndex.get_register().get_channels(include_disabled=True)
+        channels_to_show = filter(lambda c: c.visible, valid_channels)
+
+        selected_channels = filter(lambda c: c.enabled, channels_to_show)
+        selected_indices = map(lambda c: channels_to_show.index(c), selected_channels)
+        Logger.debug("Currently selected channels: %s", selected_indices)
+
+        channel_to_show_names = map(lambda c: HtmlEntityHelper.convert_html_entities(c.channelName),
+                                    channels_to_show)
 
         dialog = xbmcgui.Dialog()
-        heading = LanguageHelper.GetLocalizedString(LanguageHelper.ChannelSelection)[:-1]
-        selectedChannels = dialog.multiselect(heading, channelToShowNames,
-                                              preselect=selectedIndices)
-        if selectedChannels is None:
+        heading = LanguageHelper.get_localized_string(LanguageHelper.ChannelSelection)[:-1]
+        selected_channels = dialog.multiselect(heading, channel_to_show_names,
+                                               preselect=selected_indices)
+        if selected_channels is None:
             return
 
-        selectedChannels = list(selectedChannels)
-        Logger.Debug("New selected channels:       %s", selectedChannels)
+        selected_channels = list(selected_channels)
+        Logger.debug("New selected channels:       %s", selected_channels)
 
-        indicesToRemove = filter(lambda i: i not in selectedChannels, selectedIndices)
-        indicesToAdd = filter(lambda i: i not in selectedIndices, selectedChannels)
-        for i in indicesToRemove:
-            Logger.Info("Hiding channel: %s", channelsToShow[i])
-            AddonSettings.SetChannelVisiblity(channelsToShow[i], False)
-            pass
+        indices_to_remove = filter(lambda i: i not in selected_channels, selected_indices)
+        indices_to_add = filter(lambda i: i not in selected_indices, selected_channels)
+        for i in indices_to_remove:
+            Logger.info("Hiding channel: %s", channels_to_show[i])
+            AddonSettings.set_channel_visiblity(channels_to_show[i], False)
 
-        for i in indicesToAdd:
-            Logger.Info("Showing channel: %s", channelsToShow[i])
-            AddonSettings.SetChannelVisiblity(channelsToShow[i], True)
+        for i in indices_to_add:
+            Logger.info("Showing channel: %s", channels_to_show[i])
+            AddonSettings.set_channel_visiblity(channels_to_show[i], True)
 
-        self.Refresh()
+        self.refresh()
         return
 
-    def ShowCountrySettings(self):
-        if AddonSettings.IsMinVersion(18):
-            AddonSettings.ShowSettings(-99)
+    def show_country_settings(self):
+        """ Shows the country settings page where channels can be shown/hidden based on the
+        country of origin. """
+
+        if AddonSettings.is_min_version(18):
+            AddonSettings.show_settings(-99)
         else:
-            AddonSettings.ShowSettings(101)
-        self.Refresh()
+            AddonSettings.show_settings(101)
+        self.refresh()
 
-    def ShowSettings(self):
-        AddonSettings.ShowSettings()
-        self.Refresh()
+    def show_settings(self):
+        """ Shows the add-on settings page and refreshes when closing it. """
 
-    def ChannelSettings(self):
-        AddonSettings.ShowChannelSettings(self.channelObject)
-        self.Refresh()
+        AddonSettings.show_settings()
+        self.refresh()
 
-    def Favourites(self, allFavorites=False):
+    def channel_settings(self):
+        """ Shows the channel settings for the selected channel. Refreshes the list after closing
+        the settings. """
+
+        AddonSettings.show_channel_settings(self.channelObject)
+        self.refresh()
+
+    def favourites(self, all_favorites=False):
+        """ Shows the favourites, either for a channel or all that are known.
+
+        @param all_favorites: if True the list will return all favorites. Otherwise it will only
+                              only return the channel ones.
+
+        """
+
         # it's just the channel, so only add the favourites
-        cmdUrl = self._CreateActionUrl(
-            None if allFavorites else self.channelObject,
-            action=self.actionAllFavourites if allFavorites else self.actionFavourites
+        cmd_url = self._create_action_url(
+            None if all_favorites else self.channelObject,
+            action=self.actionAllFavourites if all_favorites else self.actionFavourites
         )
 
-        xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmdUrl))
+        xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmd_url))
 
-    @LockWithDialog(logger=Logger.Instance())
-    def AddFavourite(self):
+    @LockWithDialog(logger=Logger.instance())
+    def add_favourite(self):
+        """ Adds the selected item to the favourites. The opens the favourite list. """
+
         # remove the item
-        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
+        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
         # no need for dates in the favourites
-        # item.ClearDate()
-        Logger.Debug("Adding favourite: %s", item)
+        # item.clear_date()
+        Logger.debug("Adding favourite: %s", item)
 
         f = Favourites(Config.favouriteDir)
-        if item.IsPlayable():
+        if item.is_playable():
             action = self.actionPlayVideo
         else:
             action = self.actionListFolder
 
         # add the favourite
-        f.Add(self.channelObject,
+        f.add(self.channelObject,
               item,
-              self._CreateActionUrl(self.channelObject, action, item))
+              self._create_action_url(self.channelObject, action, item))
 
         # we are finished, so just open the Favorites
-        self.Favourites()
+        self.favourites()
 
-    @LockWithDialog(logger=Logger.Instance())
-    def RemoveFavourite(self):
+    @LockWithDialog(logger=Logger.instance())
+    def remove_favourite(self):
+        """ Remove the selected favourite and then refresh the favourite list. """
+
         # remove the item
-        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Debug("Removing favourite: %s", item)
+        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        Logger.debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
-        f.Remove(item)
+        f.remove(item)
 
         # refresh the list
-        self.Refresh()
+        self.refresh()
 
-    def Refresh(self):
+    def refresh(self):
+        """ Refreshes the current Kodi list """
         xbmc.executebuiltin("XBMC.Container.Refresh()")
-        return
 
-    def ToggleCloak(self):
-        item = self._pickler.DePickleMediaItem(self.params[self.keywordPickle])
-        Logger.Info("Cloaking current item: %s", item)
-        c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.Instance())
+    def toggle_cloak(self):
+        """ Toggles the cloaking (showing/hiding) of the selected folder. """
 
-        if c.IsCloaked(item.url):
-            c.UnCloak(item.url)
-            self.Refresh()
+        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        Logger.info("Cloaking current item: %s", item)
+        c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.instance())
+
+        if c.is_cloaked(item.url):
+            c.un_cloak(item.url)
+            self.refresh()
             return
 
-        firstTime = c.Cloak(item.url)
-        if firstTime:
-            XbmcWrapper.ShowDialog(LanguageHelper.GetLocalizedString(LanguageHelper.CloakFirstTime),
-                                   LanguageHelper.GetLocalizedString(LanguageHelper.CloakMessage))
+        first_time = c.cloak(item.url)
+        if first_time:
+            XbmcWrapper.show_dialog(LanguageHelper.get_localized_string(LanguageHelper.CloakFirstTime),
+                                    LanguageHelper.get_localized_string(LanguageHelper.CloakMessage))
 
         del c
-        self.Refresh()
+        self.refresh()
 
-    def __GetChannel(self):
+    def set_bitrate(self):
+        """ Sets the bitrate for the selected channel via a specific dialog. """
+
+        if self.channelObject is None:
+            raise ValueError("Missing channel")
+
+        # taken from the settings.xml
+        bitrate_options = "Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000"\
+            .split("|")
+
+        current_bitrate = AddonSettings.get_max_channel_bitrate(self.channelObject)
+        Logger.debug("Found bitrate for %s: %s", self.channelObject, current_bitrate)
+        current_bitrate_index = 0 if current_bitrate not in bitrate_options \
+            else bitrate_options.index(current_bitrate)
+
+        dialog = xbmcgui.Dialog()
+        heading = LanguageHelper.get_localized_string(LanguageHelper.BitrateSelection)
+        selected_bitrate = dialog.select(heading, bitrate_options,
+                                         preselect=current_bitrate_index)
+        if selected_bitrate < 0:
+            return
+
+        Logger.info("Changing bitrate for %s from %s to %s",
+                    self.channelObject,
+                    bitrate_options[current_bitrate_index],
+                    bitrate_options[selected_bitrate])
+
+        AddonSettings.set_max_channel_bitrate(self.channelObject,
+                                              bitrate_options[selected_bitrate])
+        return
+
+    def __get_channel(self):
         chn = self.params.get(self.keywordChannel, None)
         code = self.params.get(self.keywordChannelCode, None)
         if not chn:
             return None
 
-        Logger.Debug("Fetching channel %s - %s", chn, code)
-        channel = ChannelIndex.GetRegister().GetChannel(chn, code, infoOnly=True)
-        Logger.Debug("Created channel: %s", channel)
+        Logger.debug("Fetching channel %s - %s", chn, code)
+        channel = ChannelIndex.get_register().get_channel(chn, code, info_only=True)
+        Logger.debug("Created channel: %s", channel)
         return channel
 
     def __enter__(self):
@@ -208,36 +265,10 @@ class Menu(ParameterParser):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
-            Logger.Critical("Error in menu handling: %s", exc_val.message, exc_info=True)
+            Logger.critical("Error in menu handling: %s", exc_val.message, exc_info=True)
 
         # make sure we leave no references behind
-        AddonSettings.ClearCachedAddonSettingsObject()
+        AddonSettings.clear_cached_addon_settings_object()
         # close the log to prevent locking on next call
-        Logger.Instance().CloseLog()
+        Logger.instance().close_log()
         return False
-
-    def SetBitrate(self):
-        if self.channelObject is None:
-            raise ValueError("Missing channel")
-
-        # taken from the settings.xml
-        bitrateOptions = "Retrospect|100|250|500|750|1000|1500|2000|2500|4000|8000|20000".split("|")
-        currentBitrate = AddonSettings.GetMaxChannelBitrate(self.channelObject)
-        Logger.Debug("Found bitrate for %s: %s", self.channelObject, currentBitrate)
-        currentBitrateIndex = 0 if currentBitrate not in bitrateOptions \
-            else bitrateOptions.index(currentBitrate)
-
-        dialog = xbmcgui.Dialog()
-        heading = LanguageHelper.GetLocalizedString(LanguageHelper.BitrateSelection)
-        selectedBitrate = dialog.select(heading, bitrateOptions,
-                                        preselect=currentBitrateIndex)
-        if selectedBitrate < 0:
-            return
-
-        Logger.Info("Changing bitrate for %s from %s to %s",
-                    self.channelObject,
-                    bitrateOptions[currentBitrateIndex],
-                    bitrateOptions[selectedBitrate])
-
-        AddonSettings.SetMaxChannelBitrate(self.channelObject, bitrateOptions[selectedBitrate])
-        return

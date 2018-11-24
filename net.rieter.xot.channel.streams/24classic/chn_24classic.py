@@ -34,13 +34,13 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.24classics.com"
 
         # setup the main parsing data
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact,
-                            json=True, preprocessor=self.MakeEpisodeDictionaryArray,
-                            parser=("items", ), creator=self.CreateEpisodeItem)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              json=True, preprocessor=self.MakeEpisodeDictionaryArray,
+                              parser=["items", ], creator=self.create_episode_item)
 
-        self._AddDataParser("*", json=True,
-                            parser=("items", "tracklist"), creator=self.CreateMusicItem,
-                            updater=self.UpdateMusicItem)
+        self._add_data_parser("*", json=True,
+                              parser=["items", "tracklist"], creator=self.CreateMusicItem,
+                              updater=self.UpdateMusicItem)
 
         #===============================================================================================================
         # non standard items
@@ -63,20 +63,20 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         jsonData = JsonHelper(data)
-        dictItems = jsonData.GetValue("items", fallback=[])
+        dictItems = jsonData.get_value("items", fallback=[])
         for item in dictItems:
             if item == "banners" or item == "curators":
                 continue
-            items.append(self.CreateEpisodeItem(dictItems[item]))
+            items.append(self.create_episode_item(dictItems[item]))
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         data = ""
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -91,7 +91,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet["title"]
         description = resultSet.get("description", "")
         descriptionNL = resultSet.get("introduction_lan1", "")
@@ -121,12 +121,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = "%(composers)s - %(title)s" % resultSet
         url = "http://www.24classics.com/app/ajax/auth.php?serial=%(serial)s" % resultSet
 
@@ -137,9 +137,9 @@ class Channel(chn_class.Channel):
         item.thumb = self.parentItem.thumb
         item.complete = False
         item.description = "Composers: %(composers)s\nPerformers: %(performers)s" % resultSet
-        item.SetInfoLabel("TrackNumber", resultSet["order"])
-        item.SetInfoLabel("AlbumArtist", resultSet["composers"].split(","))
-        item.SetInfoLabel("Artist", resultSet["performers"].split(","))
+        item.set_info_label("TrackNumber", resultSet["order"])
+        item.set_info_label("AlbumArtist", resultSet["composers"].split(","))
+        item.set_info_label("Artist", resultSet["performers"].split(","))
         return item
 
     def UpdateMusicItem(self, item):
@@ -165,15 +165,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateMusicItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateMusicItem for %s (%s)', item.name, self.channelName)
         url, data = item.url.split("?")
 
-        data = UriHandler.Open(url, proxy=self.proxy, params=data, additionalHeaders=item.HttpHeaders)
-        Logger.Trace(data)
+        data = UriHandler.open(url, proxy=self.proxy, params=data, additional_headers=item.HttpHeaders)
+        Logger.trace(data)
         jsonData = JsonHelper(data)
-        url = jsonData.GetValue("url", fallback=None)
+        url = jsonData.get_value("url", fallback=None)
 
         if url:
-            item.AppendSingleStream(url)
+            item.append_single_stream(url)
             item.Complete = True
         return item

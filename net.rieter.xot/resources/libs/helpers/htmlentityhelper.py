@@ -27,7 +27,7 @@ class HtmlEntityHelper:
         raise NotImplementedError("Just statics")
 
     @staticmethod
-    def StripAmp(data):
+    def strip_amp(data):
         """Replaces the "&amp;" with "&"
 
         Arguments:
@@ -41,7 +41,7 @@ class HtmlEntityHelper:
         return string.replace(data, "&amp;", "&")
 
     @staticmethod
-    def ConvertHTMLEntities(html):
+    def convert_html_entities(html):
         """Convert the HTML entities into their real characters
 
         Arguments:
@@ -53,73 +53,72 @@ class HtmlEntityHelper:
         """
 
         try:
-            return HtmlEntityHelper.__ConvertHTMLEntities(html)
+            return HtmlEntityHelper.__convert_html_entities(html)
         except:
-            Logger.Error("Error converting: %s", html, exc_info=True)
+            Logger.error("Error converting: %s", html, exc_info=True)
             return html
 
     @staticmethod
-    def UrlEncode(url):
+    def url_encode(url):
+        # type: (str) -> str
         """Converts an URL in url encode characters
 
-        Arguments:
-        url : string - the URL to encode.
+        @type url: str
+        @param url: the data to URL encode.
 
-        Returns:
-        encoded URL like this.
-
-        Example: '/~connolly/' yields '/%7econnolly/'.
+        @rtype: str
+        @return: Encoded URL like this. Example: '/~connolly/' yields '/%7econnolly/'.
 
         """
 
         if isinstance(url, unicode):
-            Logger.Trace("Unicode url: %s", url)
+            Logger.trace("Unicode url: %s", url)
             return urllib.quote(url.encode())
         else:
             # this is the main time waster
             return urllib.quote(url)
 
     @staticmethod
-    def UrlDecode(url):
+    def url_decode(url):
+        # type: (str) -> str
         """Converts an URL encoded text in plain text
 
-        Arguments:
-        url : string - the URL to decode.
+        @type url: str
+        @param url: the URL encoded text to decode to decode
 
-        Returns:
-        decoded URL like this.
-
-        Example: '/%7econnolly/' yields '/~connolly/'.
+        @rtype: str
+        @return: Decoded URL like this. Example: '/%7econnolly/' yields '/~connolly/'.
 
         """
 
         return urllib.unquote(url)
 
     @staticmethod
-    def __ConvertHTMLEntities(html):
+    def __convert_html_entities(html):
         """Convert the entities in HTML using the HTMLEntityConverter into
         their real characters.
 
-        Arguments:
-        html : string - The HTML to convert
+        @type html: str
+        @param html: The HTML to convert
 
-        Returns:
-        The HTML with converted characters
+        @rtype: str
+        @return: The HTML with converted characters
 
         """
 
-        return re.sub("&(#?x?)(\w+?);", HtmlEntityHelper.__HTMLEntityConverter, html)
+        return re.sub("&(#?x?)(\w+?);", HtmlEntityHelper.__html_entity_converter, html)
 
     @staticmethod
-    def __HTMLEntityConverter(entity):
+    def __html_entity_converter(entity):
         """Substitutes an HTML entity with the correct character
 
-        Arguments:
-        entity - string - Value of the HTML entity without the '&'
+        @type entity: re.MatchObject
+        @param entity: Value of the HTML entity without the '&'
 
-        Returns:
-        Replaces &#xx where 'x' is single digit, or &...; where '.' is a
+        @rtype: str
+        @return: Replaces &#xx where 'x' is single digit, or &...; where '.' is a
         character into the real character. That character is returned.
+
 
         """
 
@@ -138,11 +137,8 @@ class HtmlEntityHelper:
                 return "'"
 
             else:
-                # Logger.Trace("%s: %s", entity.group(2), htmlentitydefs.entitydefs[entity.group(2)])
-                # return htmlentitydefs.entitydefs[entity.group(2).lower()]
+                # Logger.Trace("%s: %s", entity.group(2), htmlentitydefs.name2codepoint[entity.group(2)])
                 return unichr(htmlentitydefs.name2codepoint[entity.group(2)])
-                # return chr(htmlentitydefs.name2codepoint[entity.group(2)])
         except:
-            Logger.Error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
+            Logger.error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
             return '&%s%s;' % (entity.group(1), entity.group(2))
-        # return entity

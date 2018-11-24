@@ -36,30 +36,30 @@ class Channel(chn_class.Channel):
         self.mainListUri = "http://m.schooltv.nl/api/v1/programmas.json"
 
         # mainlist stuff
-        self._AddDataParser("http://m.schooltv.nl/api/v1/programmas.json", json=True,
-                            name="All Shows (API v1)",
-                            preprocessor=self.AddCategories,
-                            parser=(), creator=self.CreateEpisodeItem)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/programmas.json", json=True,
+                              name="All Shows (API v1)",
+                              preprocessor=self.AddCategories,
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParser("http://m.schooltv.nl/api/v1/programmas/tips.json?size=100", json=True,
-                            name="Tips (API v1)",
-                            parser=(), creator=self.CreateEpisodeItem)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/programmas/tips.json?size=100", json=True,
+                              name="Tips (API v1)",
+                              parser=[], creator=self.create_episode_item)
 
-        self._AddDataParsers(["http://m.schooltv.nl/api/v1/programmas/",
-                              "http://m.schooltv.nl/api/v1/categorieen/",
-                              "http://m.schooltv.nl/api/v1/leeftijdscategorieen/"],
-                             json=True,
-                             name="Paged Video Items (API v1)",
-                             preprocessor=self.AddPageItems,
-                             parser=('results', ), creator=self.CreateVideoItem)
+        self._add_data_parsers(["http://m.schooltv.nl/api/v1/programmas/",
+                               "http://m.schooltv.nl/api/v1/categorieen/",
+                               "http://m.schooltv.nl/api/v1/leeftijdscategorieen/"],
+                               json=True,
+                               name="Paged Video Items (API v1)",
+                               preprocessor=self.AddPageItems,
+                               parser=['results', ], creator=self.create_video_item)
 
-        self._AddDataParser("http://m.schooltv.nl/api/v1/categorieen.json?size=100", json=True,
-                            name="Categories (API v1)",
-                            parser=(), creator=self.CreateCategory)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/categorieen.json?size=100", json=True,
+                              name="Categories (API v1)",
+                              parser=[], creator=self.CreateCategory)
 
-        self._AddDataParser("http://m.schooltv.nl/api/v1/afleveringen/", json=True,
-                            name="Video Updater (API v1)",
-                            updater=self.UpdateVideoItem)
+        self._add_data_parser("http://m.schooltv.nl/api/v1/afleveringen/", json=True,
+                              name="Video Updater (API v1)",
+                              updater=self.update_video_item)
 
         # ===============================================================================================================
         # non standard items
@@ -74,7 +74,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = "http://m.schooltv.nl/api/v1/programmas/%s/afleveringen.json?size=%s&sort=Nieuwste" % (resultSet['mid'], self.__PageSize)
         item = mediaitem.MediaItem(resultSet['title'], url)
@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
         @return:        a tuple of data and items
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         cat = mediaitem.MediaItem("\b.: Categorie&euml;n :.",
@@ -149,12 +149,12 @@ class Channel(chn_class.Channel):
             ages.items.append(ageItem)
 
             # We should list programs instead of videos, so just prefill them here.
-            for program in data.GetValue():
+            for program in data.get_value():
                 if age in program['ageGroups']:
-                    ageItem.items.append(self.CreateEpisodeItem(program))
+                    ageItem.items.append(self.create_episode_item(program))
         items.append(ages)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateCategory(self, resultSet):
@@ -163,9 +163,9 @@ class Channel(chn_class.Channel):
         @param resultSet:
         @return:
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
-        title = HtmlEntityHelper.UrlEncode(resultSet['title'])
+        title = HtmlEntityHelper.url_encode(resultSet['title'])
         url = "http://m.schooltv.nl/api/v1/categorieen/%s/afleveringen.json?sort=Nieuwste&age_filter=&size=%s" % (title, self.__PageSize)
         item = mediaitem.MediaItem(resultSet['title'], url)
         item.thumb = resultSet.get('image', self.noImage)
@@ -180,18 +180,18 @@ class Channel(chn_class.Channel):
         @return:        a tuple of data and items
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         json = JsonHelper(data)
-        totalResults = json.GetValue("totalResults")
-        fromValue = json.GetValue("from")
-        sizeValue = json.GetValue("size")
+        totalResults = json.get_value("totalResults")
+        fromValue = json.get_value("from")
+        sizeValue = json.get_value("size")
 
         if fromValue + sizeValue < totalResults:
-            morePages = LanguageHelper.GetLocalizedString(LanguageHelper.MorePages)
+            morePages = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             url = self.parentItem.url.split('?')[0]
             url = "%s?size=%s&from=%s&sort=Nieuwste" % (url, sizeValue, fromValue+sizeValue)
-            Logger.Debug("Adding next-page item from %s to %s", fromValue+sizeValue, fromValue+sizeValue+sizeValue)
+            Logger.debug("Adding next-page item from %s to %s", fromValue + sizeValue, fromValue + sizeValue + sizeValue)
 
             nextPage = mediaitem.MediaItem(morePages, url)
             nextPage.icon = self.parentItem.icon
@@ -200,10 +200,10 @@ class Channel(chn_class.Channel):
             nextPage.dontGroup = True
             items.append(nextPage)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return json, items
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -218,16 +218,16 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         title = resultSet["title"]
         if title is None:
-            Logger.Warning("Found item with all <null> items. Skipping")
+            Logger.warning("Found item with all <null> items. Skipping")
             return None
 
         if "subtitle" in resultSet and resultSet['subtitle'].lower() not in title.lower():
@@ -244,37 +244,37 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.fanart = self.fanart
         item.complete = False
-        item.SetInfoLabel("duration", resultSet['duration'])
+        item.set_info_label("duration", resultSet['duration'])
 
         if "publicationDate" in resultSet:
-            broadcastDate = DateHelper.GetDateFromPosix(int(resultSet['publicationDate']))
-            item.SetDate(broadcastDate.year,
-                         broadcastDate.month,
-                         broadcastDate.day,
-                         broadcastDate.hour,
-                         broadcastDate.minute,
-                         broadcastDate.second)
+            broadcastDate = DateHelper.get_date_from_posix(int(resultSet['publicationDate']))
+            item.set_date(broadcastDate.year,
+                          broadcastDate.month,
+                          broadcastDate.day,
+                          broadcastDate.hour,
+                          broadcastDate.minute,
+                          broadcastDate.second)
         return item
 
-    def UpdateVideoItem(self, item):
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+    def update_video_item(self, item):
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy, additionalHeaders=item.HttpHeaders)
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
 
-        part = item.CreateNewEmptyMediaPart()
-        part.Subtitle = NpoStream.GetSubtitle(json.GetValue("mid"), proxy=self.proxy)
+        part = item.create_new_empty_media_part()
+        part.Subtitle = NpoStream.get_subtitle(json.get_value("mid"), proxy=self.proxy)
 
-        for stream in json.GetValue("videoStreams"):
+        for stream in json.get_value("videoStreams"):
             if not stream["url"].startswith("odi"):
-                part.AppendMediaStream(stream["url"], stream["bitrate"]/1000)
+                part.append_media_stream(stream["url"], stream["bitrate"] / 1000)
                 item.complete = True
 
-        if item.HasMediaItemParts():
+        if item.has_media_item_parts():
             return item
 
-        for s, b in NpoStream.GetStreamsFromNpo(None, json.GetValue("mid"), proxy=self.proxy):
+        for s, b in NpoStream.get_streams_from_npo(None, json.get_value("mid"), proxy=self.proxy):
             item.complete = True
-            part.AppendMediaStream(s, b)
+            part.append_media_stream(s, b)
 
         return item

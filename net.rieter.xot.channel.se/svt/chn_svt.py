@@ -40,84 +40,84 @@ class Channel(chn_class.Channel):
         self.swfUrl = "https://media.svt.se/swf/video/svtplayer-2016.01.swf"
 
         # setup the intial listing based on Alphabeth and specials
-        self._AddDataParser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-                            preprocessor=self.AddLiveItemsAndGenres)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.AddLiveItemsAndGenres)
         # in case we use the All Titles and Singles
-        self._AddDataParser("https://www.svtplay.se/api/all_titles_and_singles",
-                            matchType=ParserData.MatchExact, json=True,
-                            # preprocessor=self.FetchThumbData,
-                            parser=(), creator=self.MergeJsonEpisodeItem)
+        self._add_data_parser("https://www.svtplay.se/api/all_titles_and_singles",
+                              match_type=ParserData.MatchExact, json=True,
+                              # not used: preprocessor=self.FetchThumbData,
+                              parser=[], creator=self.MergeJsonEpisodeItem)
 
         # setup channel listing based on JSON data
-        self._AddDataParser("#kanaler",
-                            preprocessor=self.LoadChannelData,
-                            json=True,
-                            parser=("hits", ),
-                            creator=self.CreateChannelItem)
+        self._add_data_parser("#kanaler",
+                              preprocessor=self.LoadChannelData,
+                              json=True,
+                              parser=["hits", ],
+                              creator=self.CreateChannelItem)
 
         # special pages (using JSON) using a generic pre-processor to extract the data
         specialJsonPages = "^https?://www.svtplay.se/(senaste|sista-chansen|populara|live)\?sida=\d+$"
-        self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
-        self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, json=True,
-                            parser=("gridPage", "content"),
-                            creator=self.CreateJsonItem)
-        self._AddDataParser(specialJsonPages,
-                            matchType=ParserData.MatchRegex, json=True,
-                            parser=("gridPage", "pagination"),
-                            creator=self.CreateJsonPageItem)
+        self._add_data_parser(specialJsonPages,
+                              match_type=ParserData.MatchRegex, preprocessor=self.ExtractJsonData)
+        self._add_data_parser(specialJsonPages,
+                              match_type=ParserData.MatchRegex, json=True,
+                              parser=["gridPage", "content"],
+                              creator=self.CreateJsonItem)
+        self._add_data_parser(specialJsonPages,
+                              match_type=ParserData.MatchRegex, json=True,
+                              parser=["gridPage", "pagination"],
+                              creator=self.CreateJsonPageItem)
 
         # genres (using JSON)
-        self._AddDataParser("https://www.svtplay.se/genre",
-                            preprocessor=self.ExtractJsonData, json=True,
-                            name="Parser for dynamically parsing tags/genres from overview",
-                            matchType=ParserData.MatchExact,
-                            parser=("clusters", "alphabetical"),
-                            creator=self.CreateJsonGenre)
+        self._add_data_parser("https://www.svtplay.se/genre",
+                              preprocessor=self.ExtractJsonData, json=True,
+                              name="Parser for dynamically parsing tags/genres from overview",
+                              match_type=ParserData.MatchExact,
+                              parser=["clusters", "alphabetical"],
+                              creator=self.CreateJsonGenre)
 
-        self._AddDataParser("https://www.svtplay.se/genre/",
-                            preprocessor=self.ExtractJsonData, json=True,
-                            name="Video/Folder parsers for items in a Genre/Tag",
-                            parser=("clusterPage", "titlesAndEpisodes"),
-                            creator=self.CreateJsonItem)
+        self._add_data_parser("https://www.svtplay.se/genre/",
+                              preprocessor=self.ExtractJsonData, json=True,
+                              name="Video/Folder parsers for items in a Genre/Tag",
+                              parser=["clusterPage", "titlesAndEpisodes"],
+                              creator=self.CreateJsonItem)
 
-        self._AddDataParser("https://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
-        self._AddDataParser("https://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchPage", "episodes"),
-                            creator=self.CreateJsonItem)
-        self._AddDataParser("https://www.svtplay.se/sok?q=", json=True,
-                            parser=("searchPage", "videosAndTitles"),
-                            creator=self.CreateJsonItem)
+        self._add_data_parser("https://www.svtplay.se/sok?q=", preprocessor=self.ExtractJsonData)
+        self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
+                              parser=["searchPage", "episodes"],
+                              creator=self.CreateJsonItem)
+        self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
+                              parser=["searchPage", "videosAndTitles"],
+                              creator=self.CreateJsonItem)
 
         # slugged items for which we need to filter tab items
-        self._AddDataParser("^https?://www.svtplay.se/[^?]+\?tab=", matchType=ParserData.MatchRegex,
-                            preprocessor=self.ExtractSlugData, json=True, updater=self.UpdateVideoHtmlItem)
+        self._add_data_parser("^https?://www.svtplay.se/[^?]+\?tab=", match_type=ParserData.MatchRegex,
+                              preprocessor=self.ExtractSlugData, json=True, updater=self.UpdateVideoHtmlItem)
 
         # Other Json items
-        self._AddDataParser("*", preprocessor=self.ExtractJsonData, json=True)
+        self._add_data_parser("*", preprocessor=self.ExtractJsonData, json=True)
 
         self.__showSomeVideosInListing = True
         self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
         self.__excludedTabs = ["RELATED_VIDEOS_ACCORDION_UPCOMING", ]
-        self._AddDataParser("*", json=True,
-                            preprocessor=self.ListSomeVideos,
-                            parser=("relatedVideoContent", "relatedVideosAccordion"),
-                            creator=self.CreateJsonFolderItem)
+        self._add_data_parser("*", json=True,
+                              preprocessor=self.ListSomeVideos,
+                              parser=["relatedVideoContent", "relatedVideosAccordion"],
+                              creator=self.CreateJsonFolderItem)
 
         # And the old stuff
-        catRegex = Regexer.FromExpresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
-        self._AddDataParser("https://www.svtplay.se/barn",
-                            matchType=ParserData.MatchExact,
-                            preprocessor=self.StripNonCategories, parser=catRegex,
-                            creator=self.CreateCategoryItem)
+        catRegex = Regexer.from_expresso('<article[^>]+data-title="(?<Title>[^"]+)"[^"]+data-description="(?<Description>[^"]*)"[^>]+data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)[ .](?<Date3>[^"]+))?"[^>]+data-abroad="(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
+        self._add_data_parser("https://www.svtplay.se/barn",
+                              match_type=ParserData.MatchExact,
+                              preprocessor=self.StripNonCategories, parser=catRegex,
+                              creator=self.CreateCategoryItem)
 
         # Update via HTML pages
-        self._AddDataParser("https://www.svtplay.se/video/", updater=self.UpdateVideoHtmlItem)
-        self._AddDataParser("https://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
+        self._add_data_parser("https://www.svtplay.se/video/", updater=self.UpdateVideoHtmlItem)
+        self._add_data_parser("https://www.svtplay.se/klipp/", updater=self.UpdateVideoHtmlItem)
         # Update via the new API urls
-        self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
-        self._AddDataParser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
+        self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
+        self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.UpdateVideoApiItem)
 
         # ===============================================================================================================
         # non standard items
@@ -130,20 +130,25 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def SearchSite(self, url=None):  # @UnusedVariable
-        """Creates an list of items by searching the site
-
-        Returns:
-        A list of MediaItems that should be displayed.
+    def search_site(self, url=None):  # @UnusedVariable
+        """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
         """
 
         url = "https://www.svtplay.se/sok?q=%s"
-        return chn_class.Channel.SearchSite(self, url)
+        return chn_class.Channel.search_site(self, url)
 
     def AddLiveItemsAndGenres(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
@@ -219,20 +224,20 @@ class Channel(chn_class.Channel):
             newItem.complete = True
             newItem.thumb = self.noImage
             newItem.dontGroup = True
-            newItem.SetDate(2099, 1, 1, text="")
+            newItem.set_date(2099, 1, 1, text="")
             items.append(newItem)
 
         newItem = mediaitem.MediaItem("\a.: Kategorier :.", "https://www.svtplay.se/genre")
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
-        newItem.SetDate(2099, 1, 1, text="")
+        newItem.set_date(2099, 1, 1, text="")
         for title, (url, thumb) in categoryItems.iteritems():
             catItem = mediaitem.MediaItem(title, url)
             catItem.complete = True
             catItem.thumb = thumb or self.noImage
             catItem.dontGroup = True
-            # catItem.SetDate(2099, 1, 1, text="")
+            # catItem.set_date(2099, 1, 1, text="")
             newItem.items.append(catItem)
         items.append(newItem)
 
@@ -240,7 +245,7 @@ class Channel(chn_class.Channel):
         newItem.complete = True
         newItem.thumb = self.noImage
         newItem.dontGroup = True
-        newItem.SetDate(2099, 1, 1, text="")
+        newItem.set_date(2099, 1, 1, text="")
         items.append(newItem)
 
         return data, items
@@ -248,9 +253,9 @@ class Channel(chn_class.Channel):
     # def FetchThumbData(self, data):
     #     items = []
     #
-    #     thumbData = UriHandler.Open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
+    #     thumbData = UriHandler.open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
     #     json = JsonHelper(thumbData)
-    #     for jsonData in json.GetValue():
+    #     for jsonData in json.get_value():
     #         if "thumbnail" not in jsonData:
     #             continue
     #         self.__thumbLookup[jsonData["url"]] = jsonData["thumbnail"]
@@ -277,19 +282,19 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        # data = UriHandler.Open("https://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
+        # data = UriHandler.open("https://www.svtplay.se/api/channel_page", proxy=self.proxy, noCache=True)
 
         now = datetime.datetime.now()
         try:
-            serverTime = UriHandler.Open("https://www.svtplay.se/api/server_time",
-                                         proxy=self.proxy, noCache=True)
+            serverTime = UriHandler.open("https://www.svtplay.se/api/server_time",
+                                         proxy=self.proxy, no_cache=True)
             serverTimeJson = JsonHelper(serverTime)
-            serverTime = serverTimeJson.GetValue("time")
+            serverTime = serverTimeJson.get_value("time")
         except:
-            Logger.Error("Error determining server time", exc_info=True)
+            Logger.error("Error determining server time", exc_info=True)
             serverTime = "%04d-%02d-%02dT%02d:%02d:%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
 
-        data = UriHandler.Open(
+        data = UriHandler.open(
             "https://www.svtplay.se/api/channel_page?now=%s" % (serverTime, ),
             proxy=self.proxy)
         return data, items
@@ -300,12 +305,12 @@ class Channel(chn_class.Channel):
     def ExtractSlugData(self, data):
         """ Extracts the correct Slugged Data for tabbed items """
 
-        Logger.Info("Extracting Slugged data during pre-processing")
+        Logger.info("Extracting Slugged data during pre-processing")
         data, items = self.ExtractJsonData(data)
         # data, items = self.ExtractJsonDataRedux(data)
 
         json = JsonHelper(data)
-        slugs = json.GetValue("relatedVideoContent", "relatedVideosAccordion")
+        slugs = json.get_value("relatedVideoContent", "relatedVideosAccordion")
         for slugData in slugs:
             tabSlug = "?tab=%s" % (slugData["slug"], )
             if not self.parentItem.url.endswith(tabSlug):
@@ -333,7 +338,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "titleArticleId" in resultSet:
             return None
@@ -371,7 +376,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         url = resultSet["url"]
         if url.startswith("/video") or url.startswith("/genre") or url.startswith('/oppetarkiv'):
             return None
@@ -402,12 +407,12 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if "nextPageUrl" not in resultSet:
             return None
 
-        title = "\b.: %s :." % (LanguageHelper.GetLocalizedString(LanguageHelper.MorePages), )
+        title = "\b.: %s :." % (LanguageHelper.get_localized_string(LanguageHelper.MorePages),)
         url = "%s%s" % (self.baseUrl, resultSet["nextPageUrl"])
         item = mediaitem.MediaItem(title, url)
         item.icon = self.icon
@@ -415,6 +420,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
+    # noinspection PyTypeChecker
     def ListSomeVideos(self, data):
         """ If there was a Lastest section in the data return those video files """
         items = []
@@ -423,15 +429,15 @@ class Channel(chn_class.Channel):
             return data, items
 
         jsonData = JsonHelper(data)
-        sections = jsonData.GetValue("relatedVideoContent", "relatedVideosAccordion")
+        sections = jsonData.get_value("relatedVideoContent", "relatedVideosAccordion")
         sections = filter(lambda s: s['type'] not in self.__excludedTabs, sections)
 
-        Logger.Debug("Found %s folders/tabs", len(sections))
+        Logger.debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:
             # we should exclude that tab from the folders list and show the videos here
             self.__listedRelatedTab = sections[0]["type"]
             # otherwise the default "RELATED_VIDEO_TABS_LATEST" is used
-        Logger.Debug("Excluded tab '%s' which will be show as videos", self.__listedRelatedTab)
+        Logger.debug("Excluded tab '%s' which will be show as videos", self.__listedRelatedTab)
 
         for section in sections:
             if not section["type"] == self.__listedRelatedTab:
@@ -442,7 +448,7 @@ class Channel(chn_class.Channel):
         return data, items
 
     def CreateJsonFolderItem(self, resultSet):
-        Logger.Trace(resultSet),
+        Logger.trace(resultSet),
         if resultSet["type"] == self.__listedRelatedTab and self.__showSomeVideosInListing:
             return None
         if resultSet["type"] in self.__excludedTabs:
@@ -473,7 +479,7 @@ class Channel(chn_class.Channel):
         genres = []
 
         for cluster in resultSet['clusters']:
-            Logger.Trace(cluster)
+            Logger.trace(cluster)
             url = "%s%s" % (self.baseUrl, cluster['contentUrl'])
             genre = mediaitem.MediaItem(cluster['name'], url)
             genre.icon = self.icon
@@ -500,7 +506,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         # determine the title
         programTitle = resultSet.get("programTitle", "") or ""
@@ -510,7 +516,7 @@ class Channel(chn_class.Channel):
         elif showTitle != "" and programTitle == "":
             title = showTitle
         elif programTitle == "" and showTitle == "":
-            Logger.Warning("Could not find title for item: %s", resultSet)
+            Logger.warning("Could not find title for item: %s", resultSet)
             return None
         elif showTitle != "" and showTitle != programTitle:
             title = "%s - %s" % (programTitle, showTitle)
@@ -530,7 +536,7 @@ class Channel(chn_class.Channel):
 
         if itemType in ("videoEpisod", "videoKlipp", "singel"):
             if not url.startswith("/video/") and not url.startswith("/klipp/"):
-                Logger.Warning("Found video item without a /video/ or /klipp/ url.")
+                Logger.warning("Found video item without a /video/ or /klipp/ url.")
                 return None
             itemType = "video"
             if "programVersionId" in resultSet:
@@ -552,7 +558,7 @@ class Channel(chn_class.Channel):
             episode = int(resultSet["episodeNumber"])
             if season > 0 and episode > 0:
                 item.name = "s%02de%02d - %s" % (season, episode, item.name)
-                item.SetSeasonInfo(season, episode)
+                item.set_season_info(season, episode)
 
         # thumb = resultSet.get("imageMedium", self.noImage).replace("/medium/", "/extralarge/")
         thumb = self.noImage
@@ -569,8 +575,8 @@ class Channel(chn_class.Channel):
         if broadCastDate is not None:
             if "+" in broadCastDate:
                 broadCastDate = broadCastDate.rsplit("+")[0]
-            timeStamp = DateHelper.GetDateFromString(broadCastDate, "%Y-%m-%dT%H:%M:%S")
-            item.SetDate(*timeStamp[0:6])
+            timeStamp = DateHelper.get_date_from_string(broadCastDate, "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*timeStamp[0:6])
         return item
 
     def CreateCategoryItem(self, resultSet):
@@ -587,7 +593,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         url = resultSet["Url"]
         if "http://" not in url and "https://" not in url:
@@ -604,7 +610,7 @@ class Channel(chn_class.Channel):
 
         if resultSet["Date1"] is not None and resultSet["Date1"].lower() != "imorgon":
             year, month, day, hour, minutes = self.__GetDate(resultSet["Date1"], resultSet["Date2"], resultSet["Date3"])
-            item.SetDate(year, month, day, hour, minutes, 0)
+            item.set_date(year, month, day, hour, minutes, 0)
 
         if "/video/" in url:
             item.type = "video"
@@ -626,7 +632,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -635,14 +641,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         start = data.find('<div id="playJs-alphabetic-list"')
         end = data.find('<div id="playJs-', start + 1)
         if end == 0:
             end = -1
         data = data[start:end]
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateChannelItem(self, channel):
@@ -653,7 +659,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(channel)
+        Logger.trace(channel)
 
         title = channel["programmeTitle"]
         episode = channel.get("episodeTitle", None)
@@ -670,8 +676,8 @@ class Channel(chn_class.Channel):
         description = channel.get("longDescription")
 
         dateFormat = "%Y-%m-%dT%H:%M:%S"
-        startTime = DateHelper.GetDateFromString(channel["publishingTime"][:19], dateFormat)
-        endTime = DateHelper.GetDateFromString(channel["publishingEndTime"][:19], dateFormat)
+        startTime = DateHelper.get_date_from_string(channel["publishingTime"][:19], dateFormat)
+        endTime = DateHelper.get_date_from_string(channel["publishingEndTime"][:19], dateFormat)
 
         if episode:
             title = "%s: %s - %s (%02d:%02d - %02d:%02d)" \
@@ -714,23 +720,23 @@ class Channel(chn_class.Channel):
         will automatically be set back to False.
 
         """
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         # Logger.Trace(data)
         data = self.ExtractJsonData(data)[0]
-        json = JsonHelper(data, logger=Logger.Instance())
+        json = JsonHelper(data, logger=Logger.instance())
 
         # check for direct streams:
-        streams = json.GetValue("videoTitlePage", "video", "videoReferences")
-        subtitles = json.GetValue("videoTitlePage", "video", "subtitles")
+        streams = json.get_value("videoTitlePage", "video", "videoReferences")
+        subtitles = json.get_value("videoTitlePage", "video", "subtitles")
 
         if streams:
-            Logger.Info("Found stream information within HTML data")
+            Logger.info("Found stream information within HTML data")
             return self.__UpdateItemFromVideoReferences(item, streams, subtitles)
 
-        videoId = json.GetValue("videoPage", "video", "id")
+        videoId = json.get_value("videoPage", "video", "id")
         # in case that did not work, try the old version.
         if not videoId:
-            videoId = json.GetValue("videoPage", "video", "programVersionId")
+            videoId = json.get_value("videoPage", "video", "programVersionId")
         if videoId:
             # item.url = "https://www.svt.se/videoplayer-api/video/%s" % (videoId, )
             item.url = "https://api.svt.se/videoplayer-api/video/%s" % (videoId, )
@@ -759,19 +765,19 @@ class Channel(chn_class.Channel):
         will automatically be set back to False.
 
         """
-        Logger.Debug('Starting UpdateChannelItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting UpdateChannelItem for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
 
-        json = JsonHelper(data, logger=Logger.Instance())
-        videos = json.GetValue("videoReferences")
-        subtitles = json.GetValue("subtitleReferences")
-        Logger.Trace(videos)
+        json = JsonHelper(data, logger=Logger.instance())
+        videos = json.get_value("videoReferences")
+        subtitles = json.get_value("subtitleReferences")
+        Logger.trace(videos)
         return self.__UpdateItemFromVideoReferences(item, videos, subtitles)
 
     def __UpdateItemFromVideoReferences(self, item, videos, subtitles=None):
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
         if self.localIP:
             part.HttpHeaders.update(self.localIP)
 
@@ -782,13 +788,13 @@ class Channel(chn_class.Channel):
             videoFormat = videoFormat.lower()
 
             if "dash" in videoFormat or "hds" in videoFormat:
-                Logger.Debug("Skipping video format: %s", videoFormat)
+                Logger.debug("Skipping video format: %s", videoFormat)
                 continue
-            Logger.Debug("Found video item for format: %s", videoFormat)
+            Logger.debug("Found video item for format: %s", videoFormat)
 
             url = video['url']
             if len(filter(lambda s: s.Url == url, part.MediaStreams)) > 0:
-                Logger.Debug("Skippping duplicate Stream url: %s", url)
+                Logger.debug("Skippping duplicate Stream url: %s", url)
                 continue
 
             if "m3u8" in url:
@@ -797,17 +803,17 @@ class Channel(chn_class.Channel):
                 if altIndex > 0:
                     url = url[0:altIndex + 4]
 
-                for s, b in M3u8.GetStreamsFromM3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
-                    part.AppendMediaStream(s, b)
+                for s, b in M3u8.get_streams_from_m3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
+                    part.append_media_stream(s, b)
 
             elif video["url"].startswith("rtmp"):
                 # just replace some data in the URL
-                part.AppendMediaStream(self.GetVerifiableVideoUrl(video["url"]).replace("_definst_", "?slist="), video[1])
+                part.append_media_stream(self.get_verifiable_video_url(video["url"]).replace("_definst_", "?slist="), video[1])
             else:
-                part.AppendMediaStream(url, 0)
+                part.append_media_stream(url, 0)
 
         if subtitles:
-            Logger.Info("Found subtitles to play")
+            Logger.info("Found subtitles to play")
             for sub in subtitles:
                 subFormat = sub["format"].lower()
                 url = sub["url"]
@@ -821,7 +827,7 @@ class Channel(chn_class.Channel):
                     # look for more
                     continue
 
-                part.Subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(subUrl, format="srt", proxy=self.proxy)
+                part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(subUrl, format="srt", proxy=self.proxy)
                 # stop when finding one
                 break
 
@@ -838,10 +844,10 @@ class Channel(chn_class.Channel):
         @return:  a tuple containing: year, month, day, hour, minutes
         """
 
-        Logger.Trace("Determining date for: ('%s', '%s', '%s')", first, second, third)
+        Logger.trace("Determining date for: ('%s', '%s', '%s')", first, second, third)
         hour = minutes = 0
 
-        year = DateHelper.ThisYear()
+        year = DateHelper.this_year()
         if first.lower() == "idag" or first.lower() == "ikv&auml;ll":  # Today or Tonight
             date = datetime.datetime.now()
             month = date.month
@@ -858,22 +864,22 @@ class Channel(chn_class.Channel):
 
         elif second.isdigit():
             day = int(second)
-            month = DateHelper.GetMonthFromName(third, "se")
-            year = DateHelper.ThisYear()
+            month = DateHelper.get_month_from_name(third, "se")
+            year = DateHelper.this_year()
 
             # if the date was in the future, it must have been last year.
             result = datetime.datetime(year, month, day)
             if result > datetime.datetime.now() + datetime.timedelta(1):
-                Logger.Trace("Found future date, setting it to one year earlier.")
+                Logger.trace("Found future date, setting it to one year earlier.")
                 year -= 1
 
         elif first.isdigit() and third.isdigit() and not second.isdigit():
             day = int(first)
-            month = DateHelper.GetMonthFromName(second, "se")
+            month = DateHelper.get_month_from_name(second, "se")
             year = int(third)
 
         else:
-            Logger.Warning("Unknonw date format: ('%s', '%s', '%s')", first, second, third)
+            Logger.warning("Unknonw date format: ('%s', '%s', '%s')", first, second, third)
             year = month = day = hour = minutes = 0
 
         return year, month, day, hour, minutes
@@ -906,7 +912,7 @@ class Channel(chn_class.Channel):
         thumb = thumb.replace("/{format}/", thumbSize)\
             .replace("/medium/", thumbSize)\
             .replace("/small/", thumbSize)
-        Logger.Trace(thumb)
+        Logger.trace(thumb)
         return thumb
 
     def __ExtractJsonData(self, data, root):
@@ -919,7 +925,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -928,8 +934,8 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Extracting JSON data during pre-processing")
-        data = Regexer.DoRegex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root, ), data)[-1]
+        Logger.info("Extracting JSON data during pre-processing")
+        data = Regexer.do_regex('root\[[\'"]%s[\'"]\] = ([\w\W]+?);\W*root\[' % (root,), data)[-1]
         items = []
-        Logger.Trace("JSON data found: %s", data)
+        Logger.trace("JSON data found: %s", data)
         return data, items

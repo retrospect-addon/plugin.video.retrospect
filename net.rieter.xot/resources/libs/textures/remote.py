@@ -12,42 +12,42 @@ from textures import TextureHandler
 
 
 class Remote(TextureHandler):
-    def __init__(self, cdnUrl, logger):
+    def __init__(self, cdn_url, logger):
         TextureHandler.__init__(self, logger)
 
-        self.__cdnUrl = cdnUrl
+        self.__cdnUrl = cdn_url
         if not self.__cdnUrl:
-            self.__cdnUrl = "http://www.rieter.net/net.rieter.xot.cdn/"
+            self.__cdnUrl = "https://www.rieter.net/net.rieter.xot.cdn/"
 
-    def PurgeTextureCache(self, channel):
+    def purge_texture_cache(self, channel):
         """ Removes those entries from the textures cache that are no longer required.
 
         @param channel:  the channel
 
         """
 
-        cdnFolder = self._GetCdnSubFolder(channel)
-        self._logger.Info("Purging Kodi Texture for: %s", cdnFolder)
-        self._PurgeXbmcCache(cdnFolder)
+        cdn_folder = self._get_cdn_sub_folder(channel)
+        self._logger.info("Purging Kodi Texture for: %s", cdn_folder)
+        self._purge_kodi_cache(cdn_folder)
         return
 
-    def GetTextureUri(self, channel, fileName):
+    def get_texture_uri(self, channel, file_name):
         """ Gets the full URI for the image file. Depending on the type of textures handling, it might also cache
         the texture and return that path.
 
-        @param fileName: the file name
+        @param file_name: the file name
         @param channel:  the channel
 
         """
 
-        if fileName is None or fileName == "":
-            return fileName
+        if file_name is None or file_name == "":
+            return file_name
 
-        if fileName.startswith("http"):
-            returnValue = fileName
+        if file_name.startswith("http"):
+            return_value = file_name
         else:
-            cdnFolder = self._GetCdnSubFolder(channel)
-            returnValue = "%s/%s/%s" % (self.__cdnUrl, cdnFolder, fileName)
+            cdn_folder = self._get_cdn_sub_folder(channel)
+            return_value = "%s/%s/%s" % (self.__cdnUrl, cdn_folder, file_name)
 
-        self._logger.Debug("Resolved texture '%s' to '%s'", fileName, returnValue)
-        return returnValue
+        self._logger.debug("Resolved texture '%s' to '%s'", file_name, return_value)
+        return return_value

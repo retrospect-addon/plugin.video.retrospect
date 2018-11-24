@@ -8,14 +8,7 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import base64
-
-# prefer hashlib over md5. But XBMC4Xbox does not have hashlib, so fallback to
-# md5 if an import error occurs.
-try:
-    import hashlib
-except:
-    # noinspection PyDeprecation
-    import md5
+import hashlib
 
 
 class EncodingHelper:
@@ -35,51 +28,44 @@ class EncodingHelper:
             * <type 'unicode'> to <type 'str'> (or Binary data)
 
         """
-        #codecs.register_error('keep', EncodingHelper.__KeepHandler)
+
+        #codecs.register_error('keep', EncodingHelper.__keep_handler)
         #self.decoder = decoder
         #self.encoder = encoder
         return
 
     @staticmethod
-    def DecodeBase64(data):
+    def decode_base64(data):
         """Decodes a Base64 encoded string into a normal string.
 
-        Arguments:
-        data : Base64 encode string - data to decode.
-
-        Returns:
-        Normal string representing the Base64 encoded string.
+        @param data:  string - Base64 encode string withdata to decode.
+        @return: Normal string representing the Base64 encoded string.
 
         """
 
         return base64.b64decode(data)
 
     @staticmethod
-    def EncodeMD5(data, toUpper=True):
+    def encode_md5(data, to_upper=True):
         """Encodes the selected string into an MD5 hashTool.
 
-        Arguments:
-        data : string - data for which the MD5 should be calculated.
+        @param data:        string        - Data for which the MD5 should be calculated.
+        @param to_upper:    [opt] boolean - Result should be upper-case. (default: True)
 
-        Keyword Arguments:
-        toUpper : [opt] boolean : result should be upper-case. (default: True)
+        @return: an MD5 encoded representation of the input, ether upper-case (default)
+                 or lower-case.
 
         """
 
-        try:
-            hashTool = hashlib.md5()    # @UndefinedVariable
-        except:
-            # noinspection PyDeprecation
-            hashTool = md5.new()
-
-        hashTool.update(data)
-        if toUpper:
-            return hashTool.hexdigest().upper()
+        hash_tool = hashlib.md5()
+        hash_tool.update(data)
+        if to_upper:
+            return hash_tool.hexdigest().upper()
         else:
-            return hashTool.hexdigest()
+            return hash_tool.hexdigest()
 
     @staticmethod
-    def __KeepHandler(exc):
+    def __keep_handler(exc):
         """Sometimes the unicode decoding fails due to strange UTF-8 chars in
         string that should not be there. This method just converts the chars
         in the string to Unicode chars and then returns the as their unicode
@@ -95,10 +81,10 @@ class EncodingHelper:
         """
 
         try:
-            returnValue = u''
+            return_value = u''
             for c in exc.object[exc.start:exc.end]:
                 # just convert each character as if it was Unicode to it's Unicode equivalent.
-                returnValue = u'%s%s' % (returnValue, unichr(ord(c)))
+                return_value = u'%s%s' % (return_value, unichr(ord(c)))
         except:
-            returnValue = exc.object[exc.start:exc.end].decode(exc.encoding, 'replace')
-        return returnValue, exc.end
+            return_value = exc.object[exc.start:exc.end].decode(exc.encoding, 'replace')
+        return return_value, exc.end

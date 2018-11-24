@@ -1,6 +1,5 @@
 import urlparse
 
-import contextmenu
 import mediaitem
 import chn_class
 from addonsettings import AddonSettings
@@ -32,8 +31,6 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channelInfo)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
 
         # configure login stuff
         # setup the urls
@@ -116,18 +113,18 @@ class Channel(chn_class.Channel):
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 
         # setup the main parsing data
-        self.episodeItemJson = ()
-        self.videoItemJson = ("items", )
+        self.episodeItemJson = []
+        self.videoItemJson = ["items", ]
 
-        self._AddDataParser(self.mainListUri, preprocessor=self.AddLiveItems, matchType=ParserData.MatchExact,
-                            parser=self.episodeItemJson, creator=self.CreateEpisodeItem,
-                            json=True)
+        self._add_data_parser(self.mainListUri, preprocessor=self.AddLiveItems, match_type=ParserData.MatchExact,
+                              parser=self.episodeItemJson, creator=self.create_episode_item,
+                              json=True)
 
         if self.liveUrl:
-            self._AddDataParser(self.liveUrl, preprocessor=self.ProcessLiveItems, updater=self.UpdateVideoItem)
+            self._add_data_parser(self.liveUrl, preprocessor=self.ProcessLiveItems, updater=self.update_video_item)
 
-        self._AddDataParser("*", parser=self.videoItemJson, creator=self.CreateVideoItem, updater=self.UpdateVideoItem,
-                            json=True)
+        self._add_data_parser("*", parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item,
+                              json=True)
 
         #===============================================================================================================
         # non standard items
@@ -152,7 +149,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -163,7 +160,7 @@ class Channel(chn_class.Channel):
 
         items = []
         if self.liveUrl:
-            Logger.Debug("Adding live item")
+            Logger.debug("Adding live item")
             liveItem = mediaitem.MediaItem("\aLive TV", self.liveUrl)
             liveItem.icon = self.icon
             liveItem.thumb = self.noImage
@@ -182,7 +179,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -193,10 +190,10 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        Logger.Info("Adding Live Streams")
+        Logger.info("Adding Live Streams")
 
         if self.liveUrl.endswith(".m3u8"):
-            title = "{} - {}".format(self.channelName, LanguageHelper.GetLocalizedString(LanguageHelper.LiveStreamTitleId))
+            title = "{} - {}".format(self.channelName, LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId))
             liveItem = mediaitem.MediaItem(title, self.liveUrl)
             liveItem.type = 'video'
             liveItem.icon = self.icon
@@ -204,29 +201,29 @@ class Channel(chn_class.Channel):
             liveItem.isLive = True
             if self.channelCode == "rtvdrenthe":
                 # RTV Drenthe actually has a buggy M3u8 without master index.
-                liveItem.AppendSingleStream(liveItem.url, 0)
+                liveItem.append_single_stream(liveItem.url, 0)
                 liveItem.complete = True
 
             items.append(liveItem)
             return "", items
 
         # we basically will check for live channels
-        jsonData = JsonHelper(data, logger=Logger.Instance())
-        liveStreams = jsonData.GetValue()
+        jsonData = JsonHelper(data, logger=Logger.instance())
+        liveStreams = jsonData.get_value()
 
-        Logger.Trace(liveStreams)
+        Logger.trace(liveStreams)
         if "videos" in liveStreams:
-            Logger.Debug("Multiple streams found")
+            Logger.debug("Multiple streams found")
             liveStreams = liveStreams["videos"]
         elif not isinstance(liveStreams, (list, tuple)):
-            Logger.Debug("Single streams found")
+            Logger.debug("Single streams found")
             liveStreams = (liveStreams, )
         else:
-            Logger.Debug("List of stream found")
+            Logger.debug("List of stream found")
 
         liveStreamValue = None
         for streams in liveStreams:
-            Logger.Debug("Adding live stream")
+            Logger.debug("Adding live stream")
             title = streams.get('name') or "%s - Live TV" % (self.channelName, )
 
             liveItem = mediaitem.MediaItem(title, self.liveUrl)
@@ -235,9 +232,9 @@ class Channel(chn_class.Channel):
             liveItem.icon = self.icon
             liveItem.thumb = self.noImage
             liveItem.isLive = True
-            part = liveItem.CreateNewEmptyMediaPart()
+            part = liveItem.create_new_empty_media_part()
             for stream in streams:
-                Logger.Trace(stream)
+                Logger.trace(stream)
                 bitrate = None
                 # if self.liveSelector and stream not in self.liveSelector:
                 #     Logger.Warning("Skipping '%s'", stream)
@@ -279,25 +276,26 @@ class Channel(chn_class.Channel):
                 elif stream == "name":
                     pass
                 else:
-                    Logger.Warning("No url found for type '%s'", stream)
+                    Logger.warning("No url found for type '%s'", stream)
 
+                # noinspection PyUnboundLocalVariable
                 if "livestreams.omroep.nl/live/" in url and url.endswith("m3u8"):
-                    Logger.Info("Found NPO Stream, adding ?protection=url")
+                    Logger.info("Found NPO Stream, adding ?protection=url")
                     url = "%s?protection=url" % (url, )
 
                 if bitrate:
-                    part.AppendMediaStream(url, bitrate)
+                    part.append_media_stream(url, bitrate)
 
                     if url == liveStreamValue and ".m3u8" in url:
                         # if it was equal to the previous one, assume we have a m3u8. Reset the others.
-                        Logger.Info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
+                        Logger.info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
                         liveItem.MediaItemParts = []
                         liveItem.url = url
                         liveItem.complete = False
                         break
                     elif "playlist.m3u8" in url:
                         # if we have a playlist, use that one. Reset the others.
-                        Logger.Info("Found M3u8 playlist for this Live channel, using that one: %s", url)
+                        Logger.info("Found M3u8 playlist for this Live channel, using that one: %s", url)
                         liveItem.MediaItemParts = []
                         liveItem.url = url
                         liveItem.complete = False
@@ -308,11 +306,11 @@ class Channel(chn_class.Channel):
             items.append(liveItem)
         return "", items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item.
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         title = resultSet.get("title")
 
         if not title:
@@ -331,7 +329,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -346,12 +344,12 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         mediaLink = resultSet.get("ipadLink")
         title = resultSet.get("title")
@@ -367,7 +365,7 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
 
         if mediaLink:
-            item.AppendSingleStream(mediaLink, self.channelBitrate)
+            item.append_single_stream(mediaLink, self.channelBitrate)
 
         # get the thumbs from multiple locations
         thumbUrls = resultSet.get("images", None)
@@ -388,44 +386,24 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.type = 'video'
 
-        item.description = HtmlHelper.ToText(resultSet.get("text"))
+        item.description = HtmlHelper.to_text(resultSet.get("text"))
         #if item.description:
         #    item.description = item.description.replace("<br />", "\n")
 
         posix = resultSet.get("timestamp", None)
         if posix:
-            broadcastDate = DateHelper.GetDateFromPosix(int(posix))
-            item.SetDate(broadcastDate.year,
-                         broadcastDate.month,
-                         broadcastDate.day,
-                         broadcastDate.hour,
-                         broadcastDate.minute,
-                         broadcastDate.second)
+            broadcastDate = DateHelper.get_date_from_posix(int(posix))
+            item.set_date(broadcastDate.year,
+                          broadcastDate.month,
+                          broadcastDate.day,
+                          broadcastDate.hour,
+                          broadcastDate.minute,
+                          broadcastDate.second)
 
         item.complete = True
         return item
 
-    def CtMnDownloadItem(self, item):
-        """Downloads an existing MediaItem with more data.
-
-         Arguments:
-         item : MediaItem - the MediaItem that should be downloaded.
-
-         Returns:
-         The original item with more data added to it's properties.
-
-         Used to download an <item>. If the item is not complete, the self.UpdateVideoItem
-         method is called to update the item. The method downloads only the MediaStream
-         with the bitrate that was set in the addon settings.
-
-         After downloading the self.downloaded property is set.
-
-         """
-
-        item = self.DownloadVideoItem(item)
-        return item
-
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -448,19 +426,19 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug("Updating a (Live) video item")
+        Logger.debug("Updating a (Live) video item")
 
-        part = item.CreateNewEmptyMediaPart()
-        if AddonSettings.UseAdaptiveStreamAddOn():
-            part = item.CreateNewEmptyMediaPart()
-            stream = part.AppendMediaStream(item.url, 0)
-            M3u8.SetInputStreamAddonInput(stream, self.proxy, item.HttpHeaders)
+        part = item.create_new_empty_media_part()
+        if AddonSettings.use_adaptive_stream_add_on():
+            part = item.create_new_empty_media_part()
+            stream = part.append_media_stream(item.url, 0)
+            M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)
             item.complete = True
         else:
-            for s, b in M3u8.GetStreamsFromM3u8(item.url, self.proxy, appendQueryString=True):
+            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy, append_query_string=True):
                 item.complete = True
-                # s = self.GetVerifiableVideoUrl(s)
-                part.AppendMediaStream(s, b)
+                # s = self.get_verifiable_video_url(s)
+                part.append_media_stream(s, b)
             item.complete = True
 
         return item

@@ -7,6 +7,7 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
+
 import os
 import shutil
 import zipfile
@@ -19,7 +20,7 @@ class ZipHelper:
         pass
 
     @staticmethod
-    def Unzip(path, destination):
+    def unzip(path, destination):
         """ Unzips a file <path> to the folder <destination>
 
         @param path:        The path to the zipfile
@@ -27,14 +28,14 @@ class ZipHelper:
 
         """
 
-        zipFile = None
+        zip_file = None
         try:
-            zipFile = zipfile.ZipFile(path)
+            zip_file = zipfile.ZipFile(path)
 
             # now extract
             first = True
-            Logger.Debug("Extracting %s to %s", path, destination)
-            for name in zipFile.namelist():
+            Logger.debug("Extracting %s to %s", path, destination)
+            for name in zip_file.namelist():
                 if first:
                     folder = os.path.split(name)[0]
                     if os.path.exists(os.path.join(destination, folder)):
@@ -42,21 +43,21 @@ class ZipHelper:
                     first = False
 
                 if not name.endswith("/") and not name.endswith("\\"):
-                    fileName = os.path.join(destination, name)
-                    path = os.path.dirname(fileName)
+                    file_name = os.path.join(destination, name)
+                    path = os.path.dirname(file_name)
                     if not os.path.exists(path):
                         os.makedirs(path)
-                    Logger.Debug("Extracting %s", fileName)
-                    outfile = open(fileName, 'wb')
-                    outfile.write(zipFile.read(name))
+                    Logger.debug("Extracting %s", file_name)
+                    outfile = open(file_name, 'wb')
+                    outfile.write(zip_file.read(name))
                     outfile.close()
         except zipfile.BadZipfile:
-            Logger.Error("Invalid zipfile: %s", path, exc_info=True)
+            Logger.error("Invalid zipfile: %s", path, exc_info=True)
             if os.path.isfile(path):
                 os.remove(path)
         except:
-            Logger.Error("Error extracting file: %s", path, exc_info=True)
+            Logger.error("Error extracting file: %s", path, exc_info=True)
         finally:
-            if zipFile:
-                Logger.Debug("Closing zipfile: %s", path)
-                zipFile.close()
+            if zip_file:
+                Logger.debug("Closing zipfile: %s", path)
+                zip_file.close()

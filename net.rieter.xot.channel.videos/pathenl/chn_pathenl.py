@@ -2,7 +2,6 @@
 import datetime
 
 import mediaitem
-import contextmenu
 import chn_class
 
 from helpers.datehelper import DateHelper
@@ -33,8 +32,8 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "pathejson":
             # we need to add headers and stuff for the API
-            # self.UriHandlerOpen = UriHandler.Open
-            # UriHandler.Open = self.__JsonHandlerOpen
+            # self.UriHandlerOpen = UriHandler.open
+            # UriHandler.open = self.__JsonHandlerOpen
 
             self.baseUrl = "https://connect.pathe.nl/v1"
             # set the default headers
@@ -42,14 +41,14 @@ class Channel(chn_class.Channel):
                                 "Accept": "application/json"}
             self.mainListUri = "https://connect.pathe.nl/v1/cinemas"
 
-            self._AddDataParser("https://connect.pathe.nl/v1/cinemas", json=True, matchType=ParserData.MatchExact,
-                                parser=(), creator=self.CreateCinema)
-            self._AddDataParser("/movies/nowplaying", json=True, matchType=ParserData.MatchEnd,
-                                parser=(), creator=self.CreateMovie)
-            self._AddDataParser("https://connect.pathe.nl/v1/movies/", json=True,
-                                parser=['trailers'], creator=self.CreateTrailer)
-            self._AddDataParser("/schedules?date=", json=True, matchType=ParserData.MatchContains,
-                                preprocessor=self.GetScheduleData, parser=['movies'], creator=self.CreateMovie)
+            self._add_data_parser("https://connect.pathe.nl/v1/cinemas", json=True, match_type=ParserData.MatchExact,
+                                  parser=[], creator=self.CreateCinema)
+            self._add_data_parser("/movies/nowplaying", json=True, match_type=ParserData.MatchEnd,
+                                  parser=[], creator=self.CreateMovie)
+            self._add_data_parser("https://connect.pathe.nl/v1/movies/", json=True,
+                                  parser=['trailers'], creator=self.CreateTrailer)
+            self._add_data_parser("/schedules?date=", json=True, match_type=ParserData.MatchContains,
+                                  preprocessor=self.GetScheduleData, parser=['movies'], creator=self.CreateMovie)
 
         elif self.channelCode == "pathe":
             self.mainListUri = "https://www.pathe.nl"
@@ -70,9 +69,6 @@ class Channel(chn_class.Channel):
         self.noImage = "patheimage.png"
         self.scheduleData = None
 
-        # set context menu items
-        self.contextMenuItems.append(contextmenu.ContextMenuItem("Download Item", "CtMnDownloadItem", itemTypes="video"))
-
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
@@ -90,7 +86,7 @@ class Channel(chn_class.Channel):
         and are specific to the channel.
 
         """
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         cinema = mediaitem.MediaItem(resultSet["name"], "")
         cinema.icon = self.icon
         cinema.thumb = resultSet["image"].replace("nocropthumb/[format]/", "")
@@ -132,7 +128,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         movieId = resultSet['id']
         url = "%s/movies/%s" % (self.baseUrl, movieId)
         item = mediaitem.MediaItem(resultSet["name"], url)
@@ -142,7 +138,7 @@ class Channel(chn_class.Channel):
         item.HttpHeaders = self.httpHeaders
 
         if self.scheduleData:
-            Logger.Debug("Adding schedule data")
+            Logger.debug("Adding schedule data")
             # scheduleData = filter(lambda s: s['movieId'] == movieId, self.scheduleData)
             scheduleData = [s for s in self.scheduleData if s['movieId'] == movieId]
             schedule = ""
@@ -171,7 +167,7 @@ class Channel(chn_class.Channel):
         # date = resultSet.get('releaseDate', None)
         # if date is not None:
         #     year, month, day = date.split("-")
-        #     item.SetDate(year, month, day)
+        #     item.set_date(year, month, day)
 
         item.description = item.description.strip()
         return item
@@ -191,13 +187,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
         url = self.parentItem.url
         item = mediaitem.MediaItem(resultSet["caption"], url, "video")
         item.icon = self.icon
         item.thumb = resultSet["still"].replace("nocropthumb/[format]/", "")
         item.fanart = item.thumb
-        item.AppendSingleStream(resultSet['filename'])
+        item.append_single_stream(resultSet['filename'])
         item.complete = True
         item.HttpHeaders = self.httpHeaders
         return item
@@ -212,7 +208,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -221,14 +217,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         json = JsonHelper(data)
-        self.scheduleData = json.GetValue("schedules")
-        Logger.Debug("Pre-Processing finished")
+        self.scheduleData = json.get_value("schedules")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """
         Accepts an arraylist of results. It returns an item. 
         """
@@ -239,7 +235,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def CreateFolderItem(self, resultSet):
+    def create_folder_item(self, resultSet):
         """Creates a MediaItem of type 'folder' using the resultSet from the regex.
         
         Arguments:
@@ -254,9 +250,9 @@ class Channel(chn_class.Channel):
          
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
-        if self.parentItem.url.endswith(str(DateHelper.ThisYear())):
+        if self.parentItem.url.endswith(str(DateHelper.this_year())):
             return None
 
         url = "%s%s" % (self.baseUrl, resultSet[3])
@@ -268,14 +264,14 @@ class Channel(chn_class.Channel):
 
         day = resultSet[0]
         month = resultSet[1]
-        month = DateHelper.GetMonthFromName(month, "nl", short=False)
+        month = DateHelper.get_month_from_name(month, "nl", short=False)
         year = resultSet[2]
 
-        item.SetDate(year, month, day)
+        item.set_date(year, month, day)
         item.complete = True
         return item
     
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
         
         Arguments:
@@ -290,12 +286,12 @@ class Channel(chn_class.Channel):
         
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
          
         """
 
-        Logger.Trace(resultSet)
+        Logger.trace(resultSet)
 
         if not self.parentItem.url[-1].isdigit():
             # only video on folders for day
@@ -323,8 +319,8 @@ class Channel(chn_class.Channel):
         timeTable = resultSet[3]
         timeTableRegex = '<ul>\W+<li><b>([^<]+)</b></li>\W+<li>\w+ (\d+:\d+)</li>\W+<li>\w+ (\d+:\d+)</li>'
         biosSet = False
-        for timeTableEntry in Regexer.DoRegex(timeTableRegex, timeTable):
-            Logger.Trace(timeTableEntry)
+        for timeTableEntry in Regexer.do_regex(timeTableRegex, timeTable):
+            Logger.trace(timeTableEntry)
 
             bios = timeTableEntry[0]
             if not biosSet:
@@ -341,29 +337,25 @@ class Channel(chn_class.Channel):
         item.complete = False        
         return item
     
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """
         Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
         and the Thumb! It should return a completed item. 
         """
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
-        data = UriHandler.Open(item.url, proxy=self.proxy)
-        videos = Regexer.DoRegex(self.mediaUrlRegex, data)
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        videos = Regexer.do_regex(self.mediaUrlRegex, data)
 
-        fanart = Regexer.DoRegex('<div class="visual-image">\W+<img src="([^"]+)"', data)
+        fanart = Regexer.do_regex('<div class="visual-image">\W+<img src="([^"]+)"', data)
         if fanart:
             item.fanart = fanart[0]
 
         for video in videos:
-            Logger.Trace(video)
-            item.AppendSingleStream(video)
+            Logger.trace(video)
+            item.append_single_stream(video)
         
         item.complete = True
-        return item
-    
-    def CtMnDownloadItem(self, item):
-        item = self.DownloadVideoItem(item)
         return item
 
     # def __JsonHandlerOpen(self, uri, proxy=None, maxBytes=0, params="", referer=None, additionalHeaders=None, noCache=False, progressCallback=None):

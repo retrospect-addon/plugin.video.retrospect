@@ -37,27 +37,27 @@ class Channel(chn_class.Channel):
         programReg = 'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
                      '{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>(?<description>[^<]+)' \
                      '<span class="usp">(?<description2>[^<]+)'
-        programReg = Regexer.FromExpresso(programReg)
-        self._AddDataParser(self.mainListUri,
-                            name="Show parser with categories",
-                            matchType=ParserData.MatchExact,
-                            preprocessor=self.AddCategories,
-                            parser=programReg, creator=self.CreateEpisodeItem)
+        programReg = Regexer.from_expresso(programReg)
+        self._add_data_parser(self.mainListUri,
+                              name="Show parser with categories",
+                              match_type=ParserData.MatchExact,
+                              preprocessor=self.AddCategories,
+                              parser=programReg, creator=self.create_episode_item)
 
-        self._AddDataParser("http://urplay.se/bladdra/",
-                            name="Category show parser",
-                            matchType=ParserData.MatchStart,
-                            parser=programReg,
-                            creator=self.CreateEpisodeItem)
+        self._add_data_parser("http://urplay.se/bladdra/",
+                              name="Category show parser",
+                              match_type=ParserData.MatchStart,
+                              parser=programReg,
+                              creator=self.create_episode_item)
 
         # Categories
         catReg = '<a[^>]+href="(?<url>[^"]+)">\W*<img[^>]+data-src="(?<thumburl>[^"]+)' \
                  '"[^>]*>\W*<span>(?<title>[^<]+)<'
-        catReg = Regexer.FromExpresso(catReg)
-        self._AddDataParser("http://urplay.se/", name="Category parser",
-                            matchType=ParserData.MatchExact,
-                            parser=catReg,
-                            creator=self.CreateCategory)
+        catReg = Regexer.from_expresso(catReg)
+        self._add_data_parser("http://urplay.se/", name="Category parser",
+                              match_type=ParserData.MatchExact,
+                              parser=catReg,
+                              creator=self.CreateCategory)
 
         # videos
         # videoItemRegex = 'href="/(?<url>\w+/(?<id>\d+)[^"]+)[^>]*>[^<]+</a>\W*<div[^>]*>\W*' \
@@ -65,22 +65,22 @@ class Channel(chn_class.Channel):
         #                  '\W+<span[^>]*class="(?<type>[^"]+)"[^>]*>[\w\W]{0,500}?<h3>' \
         #                  '(?<title>[^<]+)</h3>\W+<p[^>]*>(?<serie>[^<]+)</p>\W*<p[^>]+>' \
         #                  '(?<description>[^<]+)'
-        # videoItemRegex = Regexer.FromExpresso(videoItemRegex)
+        # videoItemRegex = Regexer.from_expresso(videoItemRegex)
         singleVideoRegex = '<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
                            '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
                            '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
                            '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
                            'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
                            'content="(?<date>[^"]+)"'
-        singleVideoRegex = Regexer.FromExpresso(singleVideoRegex)
-        self._AddDataParser("http://urplay.se/sok?product_type=program",
-                            parser=programReg, preprocessor=self.GetVideoSection,
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
+        singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
+        self._add_data_parser("http://urplay.se/sok?product_type=program",
+                              parser=programReg, preprocessor=self.GetVideoSection,
+                              creator=self.create_video_item, updater=self.update_video_item)
 
-        self._AddDataParser("*", parser=programReg, preprocessor=self.GetVideoSection,
-                            creator=self.CreateVideoItem, updater=self.UpdateVideoItem)
-        self._AddDataParser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
-                            creator=self.CreateSingleVideoItem, updater=self.UpdateVideoItem)
+        self._add_data_parser("*", parser=programReg, preprocessor=self.GetVideoSection,
+                              creator=self.create_video_item, updater=self.update_video_item)
+        self._add_data_parser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
+                              creator=self.CreateSingleVideoItem, updater=self.update_video_item)
 
         self.mediaUrlRegex = "urPlayer.init\(([^<]+)\);"
 
@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
             resultSet['thumburl'] = "%s/%s" % (self.baseUrl, resultSet["thumburl"])
 
         resultSet["url"] = "%s?rows=1000&start=0" % (resultSet["url"],)
-        return self.CreateFolderItem(resultSet)
+        return self.create_folder_item(resultSet)
 
     def AddCategories(self, data):
         """Performs pre-process actions for data processing
@@ -112,7 +112,7 @@ class Channel(chn_class.Channel):
         A tuple of the data and a list of MediaItems that were generated.
 
 
-        Accepts an data from the ProcessFolderList method, BEFORE the items are
+        Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -121,7 +121,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
         maxItems = 200
         categories = {
@@ -140,10 +140,10 @@ class Channel(chn_class.Channel):
             item.dontGroup = True
             items.append(item)
 
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItem(self, resultSet):
+    def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
 
         Arguments:
@@ -179,11 +179,11 @@ class Channel(chn_class.Channel):
                 A tuple of the data and a list of MediaItems that were generated.
         """
 
-        Logger.Info("Performing Pre-Processing")
+        Logger.info("Performing Pre-Processing")
         items = []
 
         data = data[:data.find('<h2>Relaterade</h2>')]
-        Logger.Debug("Pre-Processing finished")
+        Logger.debug("Pre-Processing finished")
         return data, items
 
     def CreateVideoItemWithSerie(self, resultSet):
@@ -201,11 +201,11 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
-        item = self.CreateVideoItem(resultSet)
+        item = self.create_video_item(resultSet)
         if item is None:
             return item
 
@@ -218,9 +218,9 @@ class Channel(chn_class.Channel):
 
         if self.__videoItemFound:
             return None
-        return self.CreateVideoItem(resultSet)
+        return self.create_video_item(resultSet)
 
-    def CreateVideoItem(self, resultSet):
+    def create_video_item(self, resultSet):
         """Creates a MediaItem of type 'video' using the resultSet from the regex.
 
         Arguments:
@@ -235,7 +235,7 @@ class Channel(chn_class.Channel):
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.UpdateVideoItem method is called if the item is focussed or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
 
         """
@@ -256,7 +256,7 @@ class Channel(chn_class.Channel):
         self.__videoItemFound = True
         return item
 
-    def UpdateVideoItem(self, item):
+    def update_video_item(self, item):
         """Updates an existing MediaItem with more data.
 
         Arguments:
@@ -279,7 +279,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.Debug('Starting UpdateVideoItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # noinspection PyStatementEffect
         """
@@ -298,15 +298,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.Open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url, proxy=self.proxy)
         # Extract stream JSON data from HTML
-        streams = Regexer.DoRegex(self.mediaUrlRegex, data)
+        streams = Regexer.do_regex(self.mediaUrlRegex, data)
         jsonData = streams[0]
-        json = JsonHelper(jsonData, logger=Logger.Instance())
-        Logger.Trace(json.json)
+        json = JsonHelper(jsonData, logger=Logger.instance())
+        Logger.trace(json.json)
 
         item.MediaItemParts = []
-        part = item.CreateNewEmptyMediaPart()
+        part = item.create_new_empty_media_part()
 
         streams = {
             # No longer used I think
@@ -333,33 +333,33 @@ class Channel(chn_class.Channel):
         # u'file_http_hd': u'urplay/_definst_/mp4: 178000-178999/178963-7.mp4/',
 
         # generic server information
-        proxy = json.GetValue("streaming_config", "streamer", "redirect")
+        proxy = json.get_value("streaming_config", "streamer", "redirect")
         if proxy is None:
-            proxyData = UriHandler.Open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, noCache=True)
+            proxyData = UriHandler.open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, no_cache=True)
             proxyJson = JsonHelper(proxyData)
-            proxy = proxyJson.GetValue("redirect")
-        Logger.Trace("Found RTMP Proxy: %s", proxy)
+            proxy = proxyJson.get_value("redirect")
+        Logger.trace("Found RTMP Proxy: %s", proxy)
 
-        rtmpApplication = json.GetValue("streaming_config", "rtmp", "application")
-        Logger.Trace("Found RTMP Application: %s", rtmpApplication)
+        rtmpApplication = json.get_value("streaming_config", "rtmp", "application")
+        Logger.trace("Found RTMP Application: %s", rtmpApplication)
 
         # find all streams
         for streamType in streams:
             if streamType not in json.json:
-                Logger.Debug("%s was not found as stream.", streamType)
+                Logger.debug("%s was not found as stream.", streamType)
                 continue
 
             bitrate = streams[streamType]
-            streamUrl = json.GetValue(streamType)
-            Logger.Trace(streamUrl)
+            streamUrl = json.get_value(streamType)
+            Logger.trace(streamUrl)
             if not streamUrl:
-                Logger.Debug("%s was found but was empty as stream.", streamType)
+                Logger.debug("%s was found but was empty as stream.", streamType)
                 continue
 
             #onlySweden = False
-            if streamUrl.startswith("se/") or ":se/" in streamUrl:  # or json.GetValue("only_in_sweden"): -> will be in the future
+            if streamUrl.startswith("se/") or ":se/" in streamUrl:  # or json.get_value("only_in_sweden"): -> will be in the future
                 onlySweden = True
-                Logger.Warning("Streams are only available in Sweden: onlySweden=%s", onlySweden)
+                Logger.warning("Streams are only available in Sweden: onlySweden=%s", onlySweden)
                 # No need to replace the se/ part. Just log.
                 # streamUrl = streamUrl.replace("se/", "", 1)
 
@@ -367,16 +367,16 @@ class Channel(chn_class.Channel):
             alwaysRtmp = False
             if alwaysRtmp or "_rtmp" in streamType:
                 url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmpApplication, streamUrl)
-                url = self.GetVerifiableVideoUrl(url)
+                url = self.get_verifiable_video_url(url)
             elif "_http" in streamType:
                 url = "http://%s/%smaster.m3u8" % (proxy, streamUrl)
             else:
-                Logger.Warning("Unsupported Stream Type: %s", streamType)
+                Logger.warning("Unsupported Stream Type: %s", streamType)
                 continue
-            part.AppendMediaStream(url.strip("/"), bitrate)
+            part.append_media_stream(url.strip("/"), bitrate)
 
         # get the subtitles
-        captions = json.GetValue("subtitles")
+        captions = json.get_value("subtitles")
         subtitle = None
         for caption in captions:
             language = caption["label"]
@@ -384,15 +384,15 @@ class Channel(chn_class.Channel):
             url = caption["file"]
             if url.startswith("//"):
                 url = "http:%s" % (url, )
-            Logger.Debug("Found subtitle language: %s [Default=%s]", language, default)
+            Logger.debug("Found subtitle language: %s [Default=%s]", language, default)
             if "Svenska" in language:
-                Logger.Debug("Selected subtitle language: %s", language)
+                Logger.debug("Selected subtitle language: %s", language)
                 fileName = caption["file"]
                 fileName = fileName[fileName.rindex("/") + 1:] + ".srt"
                 if url.endswith("vtt"):
-                    subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "webvtt", proxy=self.proxy)
+                    subtitle = subtitlehelper.SubtitleHelper.download_subtitle(url, fileName, "webvtt", proxy=self.proxy)
                 else:
-                    subtitle = subtitlehelper.SubtitleHelper.DownloadSubtitle(url, fileName, "ttml", proxy=self.proxy)
+                    subtitle = subtitlehelper.SubtitleHelper.download_subtitle(url, fileName, "ttml", proxy=self.proxy)
                 break
         part.Subtitle = subtitle
 
