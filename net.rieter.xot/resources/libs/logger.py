@@ -404,7 +404,7 @@ class Logger:
             if source_file == "<string>" \
                     or source_file in os.path.normcase(__file__) \
                     or "stopwatch.py" in source_file \
-                    or method_name in ("_Log", "__Log"):
+                    or method_name in ("_Log", "__Log", "_log", "__log"):
                 current_frame = current_frame.f_back
                 continue
             else:
