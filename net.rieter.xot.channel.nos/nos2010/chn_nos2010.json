@@ -2,8 +2,8 @@
   "channels": [
     {
       "guid": "ED8FDB9C-3870-11E2-B1C2-192A6288709B",
-      "name": "Uitzendinggemist (NPO.nl)",
-      "description": "Uitzendingen van de publieke zenders beschikbaar op mobiele devices.",
+      "name": "NPO Start",
+      "description": "Uitzendingen van de publieke zenders beschikbaar via www.npostart.nl.",
       "icon": "npolarge.png",
       "category": "National",
       "channelcode": "uzgjson",

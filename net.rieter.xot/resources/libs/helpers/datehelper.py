@@ -102,19 +102,14 @@ class DateHelper:
 
     @staticmethod
     def get_month_from_name(month, language, short=None):
-        """Gets the month number from the name.
+        """ Gets the month number from the name.
 
-        Arguments:
-        month    : string - Name of the month
-        language : string - Language code (nl, en)
+        :param str month:           Name of the month.
+        :param str language:        Language code (nl, en).
+        :param bool|none short:     Indicates the monthnames are short. Default: None
 
-        Keyword Arguments:
-        short : [opt] boolean - indicates the monthnames are short. Default: None
-
-        Returns:
-        the month number. If short = None, both long and short formats are tried
-        with the short first, then the long.
-        if short is True or False, only those options are selected.
+        :return: The month number.
+        :rtype: int
 
         """
 

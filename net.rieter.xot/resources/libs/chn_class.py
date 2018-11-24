@@ -28,6 +28,7 @@ from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
 from helpers.statistics import Statistics
 from addonsettings import AddonSettings, LOCAL
+from channelinfo import ChannelInfo
 
 
 class Channel:
@@ -36,13 +37,12 @@ class Channel:
     """
 
     def __init__(self, channel_info):
-        """Initialisation of the class.
-
-        Arguments:
-        channel_info: ChannelInfo - The channel info object to base this channel on.
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
+
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
 
         """
 
@@ -585,7 +585,7 @@ class Channel:
         return item
 
     def create_video_item(self, result_set):
-        """Creates a MediaItem of type 'video' using the result_set from the regex.
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
         results <result_set>. The method should be implemented by derived classes
@@ -654,6 +654,8 @@ class Channel:
 
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
 
         :return: The original item with more data added to it's properties.
         :rtype: MediaItem
