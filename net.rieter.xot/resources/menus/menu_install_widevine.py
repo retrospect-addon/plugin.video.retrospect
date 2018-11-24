@@ -17,8 +17,8 @@ def install_widevine():
     # Because Retrospect also has a config.py module, we can't really use Retrospect and the
     # AdaptiveSstream Helper add-on in a single Python scripts. Doing it barefoot then.
     add_on = xbmcaddon.Addon(sys.argv[1])
-    msgBox = xbmcgui.Dialog()
-    ok = msgBox.yesno(add_on.getLocalizedString(30532), add_on.getLocalizedString(30533))
+    msg_box = xbmcgui.Dialog()
+    ok = msg_box.yesno(add_on.getLocalizedString(30532), add_on.getLocalizedString(30533))
     if ok:
         try:
             import inputstreamhelper
