@@ -793,7 +793,6 @@ class MediaItemPart:
         self.Name = name
         self.MediaStreams = []
         self.Subtitle = ""
-        self.CanStream = True
         self.HttpHeaders = dict()                   # :  HTTP Headers for stream playback
 
         # set a subtitle
@@ -1000,7 +999,7 @@ class MediaItemPart:
 
         """
 
-        text = "MediaPart: %s [CanStream=%s, HttpHeaders=%s]" % (self.Name, self.CanStream, self.HttpHeaders)
+        text = "MediaPart: %s [HttpHeaders=%s]" % (self.Name, self.HttpHeaders)
 
         if self.Subtitle != "":
             text = "%s\n + Subtitle: %s" % (text, self.Subtitle)
