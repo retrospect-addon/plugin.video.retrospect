@@ -346,8 +346,8 @@ class AddonSettings(object):
 
         """
 
-        proxy_ids = [30025, 30300, 30301, 30307, 30302, 30305, 30309, 30306, 30308, 30303, 30304]
-        proxy_codes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt", "lv"]
+        proxy_ids = [30025, 30300, 30301, 30307, 30302, 30305, 30309, 30306, 30308, 30303, 30304, 30310]
+        proxy_codes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt", "lv", "dk"]
 
         if as_string:
             return map(lambda i: str(i), proxy_ids)
@@ -371,9 +371,9 @@ class AddonSettings(object):
         """
 
         # This list is taken from the settings_templates.xml: geo_region
-        # 30074    |30306|30309|30308|30307|30303|30304|30301|30305|30302
-        # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se
-        values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se"]
+        # 30074    |30306|30309|30308|30307|30303|30304|30301|30305|30302|30310
+        # Disabled |be   |de   |ee   |en-gb|lt   |lv   |nl   |no   |se   |dk
+        values = [None, "be", "de", "ee", "en-gb", "lt", "lv", "nl", "no", "se", "dk"]
         value_index = AddonSettings.store(KODI).get_integer_setting("geo_region", default=0)
         current_geograffical_region = values[value_index]
 
