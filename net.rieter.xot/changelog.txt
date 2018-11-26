@@ -1,13 +1,12 @@
-[B]Retrospect v4.1.7~beta32 - Changelog - 2018-11-12[/B]
+[B]Retrospect v4.1.7~beta33 - Changelog - 2018-11-26[/B]
 
 [B]Framework related[/B]
-* Added: UriHandler.delete_cookie()
+* Fixed: Allow access to channel favorites from all locations (Fixes #1056)
+* Changed: Major rewrite to be PEP naming convention compliant for the core framework files.
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Updated: SVT textures thanks to Johan Asplund (Fixes #1049)
-* Fixed: moved to the new RTL XL API (Fixes #1052)
-* Fixed: Stievie login broke (Fixes 1053)
-* Fixed: some ViaFree videos that were just live did not play (Fixes #1050)
+* Fixed: NPO live radio streams (Fixes #1061)
+* Changed: Renamed Uitzendinggemist to NPO Start (Fixes #1059)
