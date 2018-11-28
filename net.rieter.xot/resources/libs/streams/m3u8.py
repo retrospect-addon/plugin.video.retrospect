@@ -19,9 +19,9 @@ class M3u8:
         pass
 
     @staticmethod
-    def get_subtitle(url, proxy=None, play_list_data=None, append_query_string=True):
+    def get_subtitle(url, proxy=None, play_list_data=None, append_query_string=True, language=None):  # NOSONAR
         data = play_list_data or UriHandler.open(url, proxy)
-        regex = '(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
+        regex = '(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*LANGUAGE="(\w+)"[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
         sub = ""
 
         qs = None
@@ -36,10 +36,15 @@ class M3u8:
             base = url
 
         needles = Regexer.do_regex(regex, data)
-        url_index = 1
+        url_index = 2
+        language_index = 1
         base_url_logged = False
         base_url = base[:base.rindex("/")]
         for n in needles:
+            if language is not None and n[language_index] != language:
+                Logger.debug("Found incorrect language: %s", n[language_index])
+                continue
+
             if "://" not in n[url_index]:
                 if not base_url_logged:
                     Logger.debug("Using base_url %s for M3u8", base_url)
@@ -84,7 +89,7 @@ class M3u8:
                                         key_value=key_value)
 
     @staticmethod
-    def get_streams_from_m3u8(url, proxy=None, headers=None,
+    def get_streams_from_m3u8(url, proxy=None, headers=None,                  # NOSONAR
                               append_query_string=False, map_audio=False,
                               play_list_data=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
