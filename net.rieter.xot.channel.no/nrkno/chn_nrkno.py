@@ -15,18 +15,17 @@ from logger import Logger
 
 
 class Channel(chn_class.Channel):
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.useAtom = False  # : The atom feeds just do not give all videos
@@ -35,17 +34,14 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.mainListUri = "#mainlist"
         self.baseUrl = "https://psapi.nrk.no"
-        # self.httpHeaders["app-version-android"] = "2500"
 
-        #self.swfUrl = "%s/public/swf/video/svtplayer-2013.23.swf" % (self.baseUrl,)
-
-        self._add_data_parser(self.mainListUri, preprocessor=self.CreateMainList)
+        self._add_data_parser(self.mainListUri, preprocessor=self.create_main_list)
 
         # See https://stsnapshottestwe.blob.core.windows.net/apidocumentation/documentation.html for
         # the url definitions
         self._add_data_parser("https://psapi.nrk.no/medium/tv/letters?", json=True,
                               name="Alfa Listing",
-                              parser=[], creator=self.CreateAlphaItem)
+                              parser=[], creator=self.create_alpha_item)
 
         self._add_data_parser("https://psapi.nrk.no/medium/tv/letters/", json=True,
                               name="Programs from AlphaListing",
@@ -53,7 +49,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://psapi.nrk.no/programs/", json=True,
                               name="Main program json video updater",
-                              updater=self.UpdateJsonVideoItem)
+                              updater=self.update_json_video_item)
 
         self._add_data_parsers(
             ["https://psapi.nrk.no/medium/tv/recommendedprograms",
@@ -63,42 +59,47 @@ class Channel(chn_class.Channel):
 
         self._add_data_parsers(["https://psapi.nrk.no/tv/live", "https://psapi.nrk.no/radio/live"],
                                json=True, name="Live items",
-                               parser=[], creator=self.CreateLiveChannelItem)
+                               parser=[], creator=self.create_live_channel_item)
         self._add_data_parser("https://psapi.nrk.no/playback/manifest/channel/",
-                              updater=self.UpdateLiveChannel)
+                              updater=self.update_live_channel)
 
         self._add_data_parser("https://psapi.nrk.no/medium/tv/categories", json=True,
                               name="Category listing",
-                              parser=[], creator=self.CreateCategoryItem)
+                              parser=[], creator=self.create_category_item)
         self._add_data_parser("https://psapi.nrk.no/medium/tv/categories/", json=True,
                               name="Category Items",
-                              parser=[], creator=self.CreateCategoryEpisodeItem)
+                              parser=[], creator=self.create_category_episode_item)
 
         # The new Series/Instalments API (https://psapi-catalog-prod-we.azurewebsites.net/swagger/index.html)
         self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/",
                               json=True, name="Main Series parser",
-                              parser=["_links", "seasons"], creator=self.CreateInstalmentSeasonItem)
+                              parser=["_links", "seasons"], creator=self.create_instalment_season_item)
 
         self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
                               match_type=ParserData.MatchRegex,
                               name="Videos for Serie parser - instalments",
                               parser=["_embedded", "instalments"],
-                              creator=self.CreateInstalmentVideoItem)
+                              creator=self.create_instalment_video_item)
         self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
                               match_type=ParserData.MatchRegex,
                               name="Videos for Serie parser - episodes",
                               parser=["_embedded", "episodes"],
-                              creator=self.CreateInstalmentVideoItem)
+                              creator=self.create_instalment_video_item)
+
+        self._add_data_parser("https://psapi-ne.nrk.no/autocomplete?q=", json=True,
+                              name="Search regex item",
+                              parser=["result", ],
+                              creator=self.create_search_item)
 
         # The old Series API (http://nrkpswebapi2ne.cloudapp.net/swagger/ui/index#/)
         self._add_data_parser("https://psapi.nrk.no/series/", json=True,
                               name="Main Series parser",
-                              parser=["seasons",], creator=self.CreateSeriesSeasonItem)
+                              parser=["seasons", ], creator=self.create_series_season_item)
 
         self._add_data_parser("https://psapi.nrk.no/series/[^/]+/seasons/", json=True,
                               match_type=ParserData.MatchRegex,
                               name="Videos for Serie parser",
-                              parser=[], creator=self.CreateSeriesVideoItem)
+                              parser=[], creator=self.create_series_video_item)
 
         self._add_data_parser("*", updater=self.update_video_item)
 
@@ -113,15 +114,8 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateMainList(self, data):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def create_main_list(self, data):
+        """ Performs pre-process actions for data processing and creates the main menu list
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -129,6 +123,11 @@ class Channel(chn_class.Channel):
         be created.
 
         The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -146,7 +145,8 @@ class Channel(chn_class.Channel):
             "Popular": "https://psapi.nrk.no/medium/tv/popularprogramssuper?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Recent": "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Categories": "https://psapi.nrk.no/medium/tv/categories?apiKey={}".format(self.__api_key),
-            "A - Å": "https://psapi.nrk.no/medium/tv/letters?apiKey={}".format(self.__api_key)
+            "A - Å": "https://psapi.nrk.no/medium/tv/letters?apiKey={}".format(self.__api_key),
+            "S&oslash;k": "#searchSite"
         }
         for name, url in links.iteritems():
             item = mediaitem.MediaItem(name, url)
@@ -159,7 +159,41 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateAlphaItem(self, result_set):
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
+        """
+
+        url = "https://psapi-ne.nrk.no/autocomplete?q=%s&apiKey={}".format(self.__api_key)
+        return chn_class.Channel.search_site(self, url)
+
+    def create_alpha_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the Alpha chars available. It uses
+        the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
         program_count = result_set.get("availableInternationally", 0)
         if program_count <= 0:
             return None
@@ -179,7 +213,20 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         return item
 
-    def CreateCategoryItem(self, result_set):
+    def create_category_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a category using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["displayValue"]
         category_id = result_set["id"]
         url = "https://psapi.nrk.no/medium/tv/categories/{}/indexelements?apiKey={}"\
@@ -191,7 +238,21 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         return item
 
-    def CreateCategoryEpisodeItem(self, result_set):
+    def create_category_episode_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a category list item
+        using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["title"]
 
         program_type = result_set.get("type", "???").lower()
@@ -199,9 +260,22 @@ class Channel(chn_class.Channel):
             Logger.debug("Item '%s' has type '%s'. Ignoring", title, program_type)
             return None
 
-        return self.CreateGenericItem(result_set, program_type)
+        return self.create_generic_item(result_set, program_type)
 
     def create_episode_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["title"]
 
         program_type = result_set.get("type", "???").lower()
@@ -209,12 +283,69 @@ class Channel(chn_class.Channel):
             Logger.debug("Item '%s' has type '%s'. Ignoring", title, program_type)
             return None
 
-        return self.CreateGenericItem(result_set, program_type)
+        return self.create_generic_item(result_set, program_type)
+
+    def create_search_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a search result using the result_set
+        from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        if "_source" not in result_set:
+            return None
+
+        return self.create_generic_item(result_set["_source"], "series")
 
     def create_video_item(self, result_set):
-        return self.CreateGenericItem(result_set, "programme")
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-    def CreateGenericItem(self, result_set, program_type):
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        return self.create_generic_item(result_set, "programme")
+
+    def create_generic_item(self, result_set, program_type):
+        """ Creates a MediaItem of type 'video' or 'folder' using the result_set from the regex and
+        a basic set of values.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["title"]
 
         if not result_set.get("hasOndemandRights", True):
@@ -246,13 +377,32 @@ class Channel(chn_class.Channel):
         if "image" not in result_set or "webImages" not in result_set["image"]:
             return item
 
+        # noinspection PyTypeChecker
         item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
 
         # see if there is a date?
         self.__set_date(result_set, item)
         return item
 
-    def CreateSeriesSeasonItem(self, result_set):
+    def create_series_season_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a season using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         title = "Sesong {}".format(result_set["name"])
         season_id = result_set["id"]
         if not result_set.get("hasOnDemandRightsEpisodes", True):
@@ -266,7 +416,25 @@ class Channel(chn_class.Channel):
         item.fanart = self.parentItem.fanart
         return item
 
-    def CreateSeriesVideoItem(self, result_set):
+    def create_series_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["title"]
         sub_title = result_set.get("episodeTitle", None)
         if sub_title:
@@ -279,6 +447,8 @@ class Channel(chn_class.Channel):
         url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["id"], self.__api_key)
         item = mediaitem.MediaItem(title, url)
         item.type = 'video'
+
+        # noinspection PyTypeChecker
         item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
         item.description = result_set.get("longDescription", "")
         if not item.description:
@@ -288,31 +458,61 @@ class Channel(chn_class.Channel):
         self.__set_date(result_set, item)
         return item
 
-    def CreateInstalmentSeasonItem(self, result_set):
+    def create_instalment_season_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a season using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["title"]
         season_id = result_set["name"]
         if title != season_id:
             title = "{} - {}".format(season_id, title)
 
-        # if not result_set.get("hasOnDemandRightsEpisodes", True):
-        #     return None
-
         url = "{}{}?apiKey={}".format(self.baseUrl, result_set["href"], self.__api_key)
 
-        # parent_url, qs = self.parentItem.url.split("?", 1)
-        # url = "{}/seasons/{}/Episodes?apiKey={}".format(parent_url, season_id, self.__api_key)
         item = mediaitem.MediaItem(title, url)
         item.type = 'folder'
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
         return item
 
-    def CreateInstalmentVideoItem(self, result_set):
+    def create_instalment_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str|dict] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         title = result_set["titles"]["title"]
         sub_title = result_set["titles"]["subtitle"]
-        # if sub_title and sub_title.strip():
-        #     title = "{} - {}".format(title, sub_title)
 
+        # noinspection PyTypeChecker
         if result_set.get("availability", {}).get("status", "available") != "available":
             Logger.debug("Found '%s' with a non-available status", title)
             return None
@@ -322,6 +522,8 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.thumb = self.__get_image(result_set["image"], "width", "url")
         item.fanart = self.parentItem.fanart
+
+        # noinspection PyTypeChecker
         item.isGeoLocked = result_set.get("usageRights", {}).get("geoBlock", {}).get("isGeoBlocked", False)
         if sub_title and sub_title.strip():
             item.description = sub_title
@@ -332,24 +534,67 @@ class Channel(chn_class.Channel):
             item.set_date(year, month, day)
         elif "usageRights" in result_set and "from" in result_set["usageRights"] and result_set["usageRights"]["from"] is not None:
             Logger.trace("Using 'usageRights.from.date' for date")
+            # noinspection PyTypeChecker
             date_value = result_set["usageRights"]["from"]["date"].split("+")[0]
             time_stamp = DateHelper.get_date_from_string(date_value, date_format="%Y-%m-%dT%H:%M:%S")
             item.set_date(*time_stamp[0:6])
 
         return item
 
-    def CreateLiveChannelItem(self, result_set):
+    def create_live_channel_item(self, result_set):
+        """ Creates a MediaItem of type 'video' for live video using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,dict|str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        # noinspection PyTypeChecker
         url = "{}{}?apiKey={}".format(self.baseUrl, result_set["_links"]["manifest"]["href"], self.__api_key)
 
-        live_data = result_set["_embedded"]["playback"]
+        live_data = result_set["_embedded"]["playback"]  # type: dict
         item = mediaitem.MediaItem(live_data["title"], url)
         item.type = "video"
         item.isLive = True
         item.isGeoLocked = live_data.get("isGeoBlocked")
+
+        # noinspection PyTypeChecker
         self.__get_image(live_data["posters"][0]["image"]["items"], "pixelWidth", "url")
         return item
 
-    def UpdateLiveChannel(self, item):
+    def update_live_channel(self, item):
+        """ Updates an existing live stream MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         headers = {}
         if self.localIP:
             headers.update(self.localIP)
@@ -366,7 +611,28 @@ class Channel(chn_class.Channel):
         else:
             return self.__update_live_video(item, manifest, headers)
 
-    def UpdateJsonVideoItem(self, item):
+    def update_json_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         headers = {}
         if self.localIP:
             headers.update(self.localIP)
@@ -389,7 +655,6 @@ class Channel(chn_class.Channel):
             else:
                 for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy, headers=headers):
                     item.complete = True
-                    # s = self.get_verifiable_video_url(s)
                     part.append_media_stream(s, b)
 
         if "timedTextSubtitlesUrl" in stream_data and stream_data["timedTextSubtitlesUrl"]:
@@ -401,7 +666,7 @@ class Channel(chn_class.Channel):
     def __update_live_audio(self, item, manifest, headers):
         video_info = manifest.get_value("playable", "assets", 0)
         url = video_info["url"]
-        # encrypted = video_info["encrypted"]
+        # Is it encrypted? encrypted = video_info["encrypted"]
         part = item.create_new_empty_media_part()
 
         # Adaptive add-on does not work with audio only
@@ -467,6 +732,7 @@ class Channel(chn_class.Channel):
         for image_data in images:
             src = image_data[url_attribute]
             width = image_data[width_attribute]
+            # No Fanart for now
             # if  width > max_width:
             #     item.fanart = src
             if max_width < width < 521:
