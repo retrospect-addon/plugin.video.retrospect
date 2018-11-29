@@ -1,12 +1,12 @@
-[B]Retrospect v4.1.7~beta33 - Changelog - 2018-11-26[/B]
+[B]Retrospect v4.1.7~beta34 - Changelog - 2018-11-29[/B]
 
 [B]Framework related[/B]
-* Fixed: Allow access to channel favorites from all locations (Fixes #1056)
-* Changed: Major rewrite to be PEP naming convention compliant for the core framework files.
+* Changed: InputStream Adaptive add-on is required now
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: NPO live radio streams (Fixes #1061)
-* Changed: Renamed Uitzendinggemist to NPO Start (Fixes #1059)
+* Fixed: Dplay.no had Swedish subs (Fixes #959)
+* Added: NRK.no search (Fixes #1062)
+* Added: Radio Veronica Live Stream (Fixes #1054)
