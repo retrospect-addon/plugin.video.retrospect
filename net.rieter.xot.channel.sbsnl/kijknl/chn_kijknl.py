@@ -2,6 +2,7 @@ import datetime
 
 import mediaitem
 import chn_class
+from helpers.languagehelper import LanguageHelper
 from helpers.subtitlehelper import SubtitleHelper
 from parserdata import ParserData
 
@@ -168,6 +169,27 @@ class Channel(chn_class.Channel):
         search.dontGroup = True
         search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         items.append(search)
+
+        if self.channelCode == "veronica":
+            live = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
+            live_radio = mediaitem.MediaItem("Radio Veronica {}".format(live), "")
+            live_radio.type = "video"
+            live_radio.icon = self.icon
+            live_radio.thumb = self.noImage
+            live_radio.dontGroup = True
+
+            part = live_radio.create_new_empty_media_part()
+            live_stream = "https://talparadiohls-i.akamaihd.net/hls/live/585615/VR-Veronica-1/playlist.m3u8"
+            if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
+                stream = part.append_media_stream(live_stream, 0)
+                M3u8.set_input_stream_addon_input(stream, self.proxy)
+                live_radio.complete = True
+            else:
+                for s, b in M3u8.get_streams_from_m3u8(live_stream, self.proxy):
+                    live_radio.complete = True
+                    part.append_media_stream(s, b)
+
+            items.append(live_radio)
 
         Logger.debug("Pre-Processing finished")
         return data, items
