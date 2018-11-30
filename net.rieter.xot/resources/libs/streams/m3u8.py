@@ -21,7 +21,7 @@ class M3u8:
     @staticmethod
     def get_subtitle(url, proxy=None, play_list_data=None, append_query_string=True, language=None):  # NOSONAR
         data = play_list_data or UriHandler.open(url, proxy)
-        regex = '(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*LANGUAGE="(\w+)"[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
+        regex = r'(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*LANGUAGE="(\w+)"[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
         sub = ""
 
         qs = None
@@ -132,16 +132,16 @@ class M3u8:
 
         # If we need audio
         if map_audio:
-            audio_needle = '(#\w[^:]+):TYPE=AUDIO()[^\r\n]+ID="([^"]+)"[^\n\r]+URI="([^"]+.m3u8[^"]*)"'
+            audio_needle = r'(#\w[^:]+):TYPE=AUDIO()[^\r\n]+ID="([^"]+)"[^\n\r]+URI="([^"]+.m3u8[^"]*)"'
             needles = Regexer.do_regex(audio_needle, data)
-            needle = '(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}(?:[^\r\n]*AUDIO="([^"]+)"){0,1}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)'
+            needle = r'(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}(?:[^\r\n]*AUDIO="([^"]+)"){0,1}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)'
             needles += Regexer.do_regex(needle, data)
             type_index = 0
             bitrate_index = 1
             id_index = 2
             url_index = 3
         else:
-            needle = "(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
+            needle = r"(#\w[^:]+)[^\n]+BANDWIDTH=(\d+)\d{3}[^\n]*\W+([^\n]+.m3u8[^\n\r]*)"
             needles = Regexer.do_regex(needle, data)
             type_index = 0
             bitrate_index = 1
