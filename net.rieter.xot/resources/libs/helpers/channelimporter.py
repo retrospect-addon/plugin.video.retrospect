@@ -272,7 +272,6 @@ class ChannelIndex:
         return categories
 
     def __deploy_new_channels(self):
-        # type: () -> bool
         """ Checks the deploy folder for new channels, if present, deploys them
 
         The last part of the folders in the deploy subfolder are considered the
@@ -283,6 +282,9 @@ class ChannelIndex:
         The folders are intially removed and then re-created. If the folder in
         the deploy does not have a addon.xml it will not be imported.
 
+        :return: Indication of new folders were deployed.
+        :rtype: bool
+
         """
 
         Logger.debug("Checking for new channels to deploy")
@@ -291,19 +293,24 @@ class ChannelIndex:
         deploy_path = os.path.join(Config.rootDir, "deploy")
         to_deploy = os.listdir(deploy_path)
 
-        # addons folder, different for Kodi and XBMC4Xbox
-        if envcontroller.EnvController.is_platform(Environments.Xbox):
+        # addons folder, different for Kodi and XBMC4Xbox, without a repo we should just use this.
+        if True or envcontroller.EnvController.is_platform(Environments.Xbox):
             target_folder = os.path.abspath(
                 os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
-            if not os.path.exists(target_folder):
-                os.mkdir(target_folder)
+            internal_channels = True
         else:
-            target_folder = os.path.abspath(os.path.join(Config.rootDir, ".."))
+            target_folder = os.path.abspath(
+                os.path.join(Config.rootDir, ".."))
+            internal_channels = False
 
         deployed = False
         for deploy in to_deploy:
             if deploy.startswith("."):
                 continue
+
+            if not os.path.exists(target_folder):
+                os.mkdir(target_folder)
+
             source_path = os.path.join(deploy_path, deploy)
 
             # find out if the scriptname is not net.rieter.xot and update
@@ -312,8 +319,14 @@ class ChannelIndex:
             destination_path = os.path.join(target_folder, dest_deploy)
             Logger.info("Deploying Channel Addon '%s' to '%s'", deploy, destination_path)
 
+            # should they be deleted it from the main add-ons folder
+            if internal_channels and os.path.isdir(os.path.join(Config.rootDir, "..", dest_deploy)):
+                Logger.info("Removing old add-on %s from %s", dest_deploy,
+                            os.path.join(Config.rootDir, ".."))
+                shutil.rmtree(os.path.join(Config.rootDir, "..", dest_deploy))
+
             if os.path.exists(destination_path):
-                Logger.info("Removing old channel at %s", dest_deploy)
+                Logger.info("Removing old channel at %s", destination_path)
                 shutil.rmtree(destination_path)
 
             # only update if there was a real addon
@@ -445,7 +458,7 @@ class ChannelIndex:
         with io.open(addon_file, 'r+', encoding='utf-8') as f:
             addon_xml = f.read()
 
-        pack_version = Regexer.do_regex('id="([^"]+)"\W+version="([^"]+)"', addon_xml)
+        pack_version = Regexer.do_regex('id="([^"]+)"\\W+version="([^"]+)"', addon_xml)
         if len(pack_version) > 0:
             # Get the first match
             pack_version = pack_version[0]
@@ -472,7 +485,8 @@ class ChannelIndex:
         """
 
         # different paths for Kodi and XBMC4Xbox
-        if envcontroller.EnvController.is_platform(Environments.Xbox):
+        # if envcontroller.EnvController.is_platform(Environments.Xbox) or :
+        if os.path.isdir(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH)):
             addon_path = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
         else:
             addon_path = os.path.abspath(os.path.join(Config.rootDir, ".."))
