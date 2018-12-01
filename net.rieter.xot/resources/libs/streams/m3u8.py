@@ -12,6 +12,9 @@ from urihandler import UriHandler
 from logger import Logger
 from regexer import Regexer
 from streams.adaptive import Adaptive
+from mediaitem import MediaItemPart
+from proxyinfo import ProxyInfo
+from addonsettings import AddonSettings
 
 
 class M3u8:
@@ -89,18 +92,67 @@ class M3u8:
                                         key_value=key_value)
 
     @staticmethod
+    def update_part_with_m3u8_streams(part, url,
+                                      encrypted=False,
+                                      proxy=None, headers=None,
+                                      map_audio=False):
+        """ Updates an existing MediaItemPart with M3u8 data either using the Adaptive Inputstream 
+        Add-on or with the built-in code.
+
+        :param MediaItemPart part:      The part to update
+        :param str url:                 The url to download
+        :param bool encrypted:          Is the stream encrypted?
+        :param dict[str,str] headers:   Possible HTTP Headers
+        :param ProxyInfo proxy:         The proxy to use for opening
+        :param bool map_audio:          Should audio tracks be mapped seperately?
+
+        :return: indication if updating was succesful.
+        :rtype: bool
+
+        """
+
+        input_stream = AddonSettings.use_adaptive_stream_add_on(encrypted)
+        if not input_stream and encrypted:
+            Logger.error("Cannot play encrypted stream without InputStream Adaptive with Encryption support!")
+            return False
+
+        if input_stream:
+            Logger.debug("Using InputStream Adaptive add-on for M3u8 playback.")
+            stream = part.append_media_stream(url, 0)
+            M3u8.set_input_stream_addon_input(stream, proxy, headers)
+            return True
+
+        complete = False
+        if map_audio:
+            Logger.debug("Using Retrospect code with Audio mapping for M3u8 playback.")
+            for s, b, a in M3u8.get_streams_from_m3u8(url, proxy, map_audio=True):
+                if a:
+                    audio_part = a.rsplit("-", 1)[-1]
+                    audio_part = "-%s" % (audio_part,)
+                    s = s.replace(".m3u8", audio_part)
+                part.append_media_stream(s, b)
+                complete = True
+        else:
+            Logger.debug("Using Retrospect code for M3u8 playback.")
+            for s, b in M3u8.get_streams_from_m3u8(url, proxy):
+                part.append_media_stream(s, b)
+                complete = True
+
+        return complete
+
+    @staticmethod
     def get_streams_from_m3u8(url, proxy=None, headers=None,                  # NOSONAR
                               append_query_string=False, map_audio=False,
                               play_list_data=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
-        @param headers:           (dict) Possible HTTP Headers
-        @param proxy:             (Proxy) The proxy to use for opening
-        @param url:               (String) The url to download
-        @param append_query_string: (boolean) should the existing query string be appended?
-        @param map_audio:          (boolean) map audio streams
-        @param play_list_data:      (string) data of an already retrieved M3u8
+        :param dict[str,str] headers:       Possible HTTP Headers
+        :param ProxyInfo proxy:             The proxy to use for opening
+        :param str url:                     The url to download
+        :param bool append_query_string:    Should the existing query string be appended?
+        :param bool map_audio:              Map audio streams
+        :param str play_list_data:          Data of an already retrieved M3u8
 
         Can be used like this:
 
