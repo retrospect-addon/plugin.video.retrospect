@@ -474,6 +474,7 @@ class MediaItem:
 
             # get the playlist item
             (stream, kodi_item) = part.get_kodi_play_list_item(self, bitrate, update_item_urls=update_item_urls)
+            log_text = "%s\n + %s" % (log_text, stream)
 
             stream_url = stream.Url
             kodi_params = dict()
