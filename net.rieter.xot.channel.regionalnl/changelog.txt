@@ -1,8 +1,9 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: Omroep Flevoland live streams (See #1032)
-* Fixed: RTV Drenthe live streams (See #1032)
+* Fixed: RTV Noord Live stream (Fixes #1065)
 
 [I]Previous changes[/I]
+* Fixed: Omroep Flevoland live streams (See #1032)
+* Fixed: RTV Drenthe live streams (See #1032)
 * Fixed: missed the MP4 streams for Flevoland (Fixes #1040)
 * Added: AT5 live stream (Fixes #1031)
 * Added: L1 live TV and Radio (See #1032)
