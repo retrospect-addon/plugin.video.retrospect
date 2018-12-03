@@ -655,11 +655,11 @@ msgid "Installing Widevine libraries using the 'InputStream Helper' add-on is do
 msgstr ""
 
 msgctxt "#30534"
-msgid "Installation of WideVine failed!"
+msgid "Installation of Widevine failed!"
 msgstr ""
 
 msgctxt "#30535"
-msgid "Installation of WideVine completed!"
+msgid "Installation of Widevine completed!"
 msgstr ""
 
 #<string id="30536"></string>

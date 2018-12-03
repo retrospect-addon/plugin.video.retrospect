@@ -146,7 +146,7 @@ msgstr "Premium/Betal"
 
 msgctxt "#30050"
 msgid "DRM Protected"
-msgstr "DRM skyddade"
+msgstr "DRM-skyddade"
 
 msgctxt "#30051"
 msgid "Hidden item"
@@ -570,23 +570,23 @@ msgstr "Uppdatera Retrospect"
 
 msgctxt "#30531"
 msgid "Missing 'InputStream Helper' add-on. Cannot install."
-msgstr ""
+msgstr "Tillägget 'InputStream Helper' saknas. Avbryter installationen"
 
 msgctxt "#30532"
 msgid "Install Widevine using 'InputStream Helper' add-on"
-msgstr ""
+msgstr "Installera Widevine via tillägget 'InputStream Helper'"
 
 msgctxt "#30533"
 msgid "Installing Widevine libraries using the 'InputStream Helper' add-on is done at your own risk and Retrospect is not responsible for any results. Nor is it guaranteed that Widevine will be installed correctly."
-msgstr ""
+msgstr "Att installera Widevine via tillägget 'InputStream Helper' görs på egen risk och Retrospect ansvarar inte för om något blir fel. Det kan inte garanteras att Widevine installeras korrekt."
 
 msgctxt "#30534"
-msgid "Installation of WideVine failed!"
-msgstr ""
+msgid "Installation of Widevine failed!"
+msgstr "Installation av Widevine misslyckades!"
 
 msgctxt "#30535"
-msgid "Installation of WideVine completed!"
-msgstr ""
+msgid "Installation of Widevine completed!"
+msgstr "Installationen av Widevine är klar!"
 
 msgctxt "#30537"
 msgid "Page"
@@ -594,7 +594,7 @@ msgstr "Sida"
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."
-msgstr "Den valda live-strömmen gick inte|att spela upp."
+msgstr "Den valda live-strömmen har inte|börjat ännu."
 
 msgctxt "#30539"
 msgid "Live stream"
@@ -602,7 +602,7 @@ msgstr "Live-sändning"
 
 msgctxt "#30540"
 msgid "Geo-blocked"
-msgstr "Geoblockerad"
+msgstr "Geo-blockerad"
 
 msgctxt "#30541"
 msgid "Queue item"

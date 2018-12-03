@@ -581,11 +581,11 @@ msgid "Installing Widevine libraries using the 'InputStream Helper' add-on is do
 msgstr "Het installeren van de Widevine bestanden met de 'InputStream Helper' add-on is op eigen risico en Retrospect is niet verantwoordelijk voor enig resultaat. Ook wordt het niet gegarandeerd dat Widevine succesvol kan worden geinstalleerd."
 
 msgctxt "#30534"
-msgid "Installation of WideVine failed!"
+msgid "Installation of Widevine failed!"
 msgstr "Widevine installatie mislukt!"
 
 msgctxt "#30535"
-msgid "Installation of WideVine completed!"
+msgid "Installation of Widevine completed!"
 msgstr "Widevine installatie gelukt"
 
 msgctxt "#30537"
