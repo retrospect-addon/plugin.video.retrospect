@@ -1,12 +1,12 @@
-[B]Retrospect v4.1.7~beta34 - Changelog - 2018-11-29[/B]
+[B]Retrospect v4.1.7~beta35 - Changelog - 2018-12-03[/B]
 
 [B]Framework related[/B]
-* Changed: InputStream Adaptive add-on is required now
+* Fixed: logging issue in MediaItem
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Dplay.no had Swedish subs (Fixes #959)
-* Added: NRK.no search (Fixes #1062)
-* Added: Radio Veronica Live Stream (Fixes #1054)
+* Fixed: Kijk.nl streams for Kodi Krypton (Fixes #1067)
+* Fixed: SVT Öppet arkiv playback (Fixes #1066)
+* Fixed: RTV Noord Live stream (Fixes #1065)
