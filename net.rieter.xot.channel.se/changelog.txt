@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Dplay.no had Swedish subs (Fixes #959)
+* Fixed: SVT Öppet arkiv playback (Fixes #1066)
 
 [I]Previous changes[/I]
+* Fixed: Dplay.no had Swedish subs (Fixes #959)
 * Updated: SVT textures thanks to Johan Asplund (Fixes #1049)
 * Added: DPlay.dk for Danish videos via the Dplay platform (Fixes #959)
 * Fixed: improper dates in Dplay.se and related channels (See #1042)

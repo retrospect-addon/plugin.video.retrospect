@@ -8,12 +8,8 @@ from config import Config
 
 from helpers.jsonhelper import JsonHelper
 from helpers.encodinghelper import EncodingHelper
-# from xbmcwrapper import XbmcWrapper
-# from helpers.languagehelper import LanguageHelper
-# from addonsettings import AddonSettings
 from helpers.htmlentityhelper import HtmlEntityHelper
 
-# from parserdata import ParserData
 from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
@@ -22,18 +18,17 @@ from urihandler import UriHandler
 
 class Channel(chn_class.Channel):
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "oppetarkivimage.png"
@@ -44,18 +39,20 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/public/swf/svtplayer-9017918b040e054d1e3c902fc13ceb5d.swf" % (self.baseUrl,)
 
         # setup the main parsing data
-        # self.episodeItemRegex = '<li[^>]+data[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
-        self.episodeItemRegex = '<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
+        self.episodeItemRegex = r'<li[^>]+data-genre="([^"]*)"[^>]+class="svtoa[^>]*>\W*<a[^>]+' \
+                                r'href="([^"]+)"[^>]*>([^<]+)</a>\W*</li>'
         self._add_data_parser(self.mainListUri,
-                              preprocessor=self.AddSearchAndGenres,
+                              preprocessor=self.add_search_and_genres,
                               parser=self.episodeItemRegex, creator=self.create_episode_item)
 
-        self.videoItemRegex = '<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>\W+(?:<h1[^>]+>([^<]*)' \
-                              '</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]' \
-                              '*>[^>]+</a></h\d>\W+<p class="svt-text-time[^>]+\W+([^>]+)'
+        self.videoItemRegex = r'<img[^>]+src="([^"]+)"[^>]+>\W+</noscript>\W+</figure>\W+<[^>]+>' \
+                              r'\W+(?:<h1[^>]+>([^<]*)</h1>\W+){0,1}<h\d[^>]+><a[^>]+title="' \
+                              r'([^"]+)[^>]+href="([^"]+video/(\d+)/[^"]*)"[^>]*>[^>]+</a></h\d>' \
+                              r'\W+<p class="svt-text-time[^>]+\W+([^>]+)'
         self._add_data_parser("*", parser=self.videoItemRegex, creator=self.create_video_item,
                               updater=self.update_video_item)
-        self.pageNavigationRegex = '<a href="(/[^?]+\?[^"]*sida=)(\d+)(&amp;sort=[^"]+)?'
+
+        self.pageNavigationRegex = r'<a href="(/[^?]+\?[^"]*sida=)(\d+)(&amp;sort=[^"]+)?'
         self.pageNavigationRegexIndex = 1
         self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
@@ -63,15 +60,8 @@ class Channel(chn_class.Channel):
         self.__genre = None
         return
 
-    def AddSearchAndGenres(self, data):
-        """Performs pre-process actions for data processing, in this case adding a search
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def add_search_and_genres(self, data):
+        """ Performs pre-process actions for data processing and adds a search option and genres.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -79,6 +69,11 @@ class Channel(chn_class.Channel):
         be created.
 
         The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -90,35 +85,36 @@ class Channel(chn_class.Channel):
             Logger.debug("Parsing a specific genre: %s", self.__genre)
             return data, items
 
-        searchItem = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
-        searchItem.complete = True
-        searchItem.thumb = self.noImage
-        searchItem.dontGroup = True
-        searchItem.fanart = self.fanart
-        # searchItem.set_date(2099, 1, 1, text="")
+        search_item = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
+        search_item.complete = True
+        search_item.thumb = self.noImage
+        search_item.dontGroup = True
+        search_item.fanart = self.fanart
+        # search_item.set_date(2099, 1, 1, text="")
         # -> No items have dates, so adding this will force a date sort in Retrospect
-        items.append(searchItem)
+        items.append(search_item)
 
-        genresItem = mediaitem.MediaItem("\a.: Genrer :.", "")
-        genresItem.complete = True
-        genresItem.thumb = self.noImage
-        genresItem.dontGroup = True
-        genresItem.fanart = self.fanart
-        items.append(genresItem)
+        genres_item = mediaitem.MediaItem("\a.: Genrer :.", "")
+        genres_item.complete = True
+        genres_item.thumb = self.noImage
+        genres_item.dontGroup = True
+        genres_item.fanart = self.fanart
+        items.append(genres_item)
 
         # find the actual genres
-        genreRegex = '<li[^>]+genre[^>]*><button[^>]+data-value="(?<genre>[^"]+)"[^>]*>(?<title>[^>]+)</button></li>'
-        genreRegex = Regexer.from_expresso(genreRegex)
-        genres = Regexer.do_regex(genreRegex, data)
+        genre_regex = '<li[^>]+genre[^>]*><button[^>]+data-value="(?<genre>[^"]+)"[^>]*>' \
+                      '(?<title>[^>]+)</button></li>'
+        genre_regex = Regexer.from_expresso(genre_regex)
+        genres = Regexer.do_regex(genre_regex, data)
         for genre in genres:
             if genre["genre"] == "all":
                 continue
-            genreItem = mediaitem.MediaItem(genre["title"], self.mainListUri)
-            genreItem.complete = True
-            genreItem.thumb = self.noImage
-            genreItem.fanart = self.fanart
-            genreItem.metaData = {"genre": genre["genre"]}
-            genresItem.items.append(genreItem)
+            genre_item = mediaitem.MediaItem(genre["title"], self.mainListUri)
+            genre_item.complete = True
+            genre_item.thumb = self.noImage
+            genre_item.fanart = self.fanart
+            genre_item.metaData = {"genre": genre["genre"]}
+            genres_item.items.append(genre_item)
 
         Logger.debug("Pre-Processing finished")
         return data, items
@@ -143,48 +139,46 @@ class Channel(chn_class.Channel):
         url = "http://www.oppetarkiv.se/sok/?q=%s"
         return chn_class.Channel.search_site(self, url)
 
-    def create_page_item(self, resultSet):
-        """Creates a MediaItem of type 'page' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(string) - the resultSet of the self.pageNavigationRegex
-
-        Returns:
-        A new MediaItem of type 'page'
+    def create_page_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|none
 
         """
 
-        item = chn_class.Channel.create_page_item(self, resultSet)
+        item = chn_class.Channel.create_page_item(self, result_set)
         item.url = "%s&embed=true" % (item.url,)
         return item
 
-    def create_episode_item(self, resultSet):
-        """Creates a new MediaItem for an episode
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        genres = resultSet[0]
+        genres = result_set[0]
         if self.__genre and self.__genre not in genres:
-            Logger.debug("Item '%s' filtered due to genre: %s", resultSet[2], genres)
+            Logger.debug("Item '%s' filtered due to genre: %s", result_set[2], genres)
             return None
 
-        url = resultSet[1]
+        url = result_set[1]
         if "&" in url:
             url = HtmlEntityHelper.convert_html_entities(url)
 
@@ -194,23 +188,17 @@ class Channel(chn_class.Channel):
         # get the ajax page for less bandwidth
         url = "%s?sida=1&amp;sort=tid_stigande&embed=true" % (url, )
 
-        item = mediaitem.MediaItem(resultSet[2], url)
+        item = mediaitem.MediaItem(result_set[2], url)
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
         return item
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -218,34 +206,39 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        thumbUrl = resultSet[0]
-        if thumbUrl.startswith("//"):
-            thumbUrl = "http:%s" % (thumbUrl, )
-        elif not thumbUrl.startswith("http"):
-            thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
-        Logger.trace(thumbUrl)
+        thumb_url = result_set[0]
+        if thumb_url.startswith("//"):
+            thumb_url = "http:%s" % (thumb_url, )
+        elif not thumb_url.startswith("http"):
+            thumb_url = "%s%s" % (self.baseUrl, thumb_url)
+        Logger.trace(thumb_url)
 
-        season = resultSet[1]
+        season = result_set[1]
         if season:
-            name = "%s - %s" % (season, resultSet[2])
+            name = "%s - %s" % (season, result_set[2])
         else:
-            name = resultSet[2]
+            name = result_set[2]
 
-        videoId = resultSet[4]
-        url = "http://www.oppetarkiv.se/video/%s?output=json" % (videoId,)
+        video_id = result_set[4]
+        url = "http://www.oppetarkiv.se/video/%s?output=json" % (video_id,)
         item = mediaitem.MediaItem(name, url)
         item.type = 'video'
         item.icon = self.icon
-        item.thumb = thumbUrl
+        item.thumb = thumb_url
 
-        date = resultSet[5]
-        dateKey = 'datetime="'
-        if dateKey in date:
-            date = date[date.index(dateKey) + len(dateKey):date.index("T")]
+        date = result_set[5]
+        date_key = 'datetime="'
+        if date_key in date:
+            date = date[date.index(date_key) + len(date_key):date.index("T")]
             date = date.split("-")
             year = date[0]
             month = date[1]
@@ -259,13 +252,7 @@ class Channel(chn_class.Channel):
         return item
 
     def update_video_item(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -279,56 +266,54 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy)
         json = JsonHelper(data, Logger.instance())
-        videoData = json.get_value("video")
-        if videoData:
+        video_data = json.get_value("video")
+        if video_data:
             part = item.create_new_empty_media_part()
             if self.localIP:
                 part.HttpHeaders.update(self.localIP)
 
             # get the videos
-            videoUrls = videoData.get("videoReferences")
-            for videoUrl in videoUrls:
+            video_urls = video_data.get("videoReferences")
+            for video_url in video_urls:
                 # Logger.Trace(videoUrl)
-                streamInfo = videoUrl['url']
-                if "manifest.f4m" in streamInfo:
+                stream_info = video_url['url']
+                if "manifest.f4m" in stream_info:
                     continue
-                elif "master.m3u8" in streamInfo:
-                    for s, b in M3u8.get_streams_from_m3u8(streamInfo, self.proxy, headers=part.HttpHeaders):
+                elif "master.m3u8" in stream_info:
+                    for s, b in M3u8.get_streams_from_m3u8(stream_info, self.proxy, headers=part.HttpHeaders):
                         item.complete = True
                         part.append_media_stream(s, b)
 
-                    #m3u8Data = UriHandler.open(streamInfo, proxy=self.proxy)
-
-                    #urls = Regexer.do_regex(self.mediaUrlRegex, m3u8Data)
-                    #Logger.Trace(urls)
-                    #for url in urls:
-                        #part.append_media_stream(url[1].strip(), url[0])
-
             # subtitles
-            subtitles = videoData.get("subtitleReferences")
-            if subtitles:
+            subtitles = video_data.get("subtitleReferences")
+            if subtitles and subtitles[0]["url"]:
                 Logger.trace(subtitles)
-                subUrl = subtitles[0]["url"]
-                fileName = "%s.srt" % (EncodingHelper.encode_md5(subUrl),)
-                subData = UriHandler.open(subUrl, proxy=self.proxy)
+                sub_url = subtitles[0]["url"]
+                file_name = "%s.srt" % (EncodingHelper.encode_md5(sub_url),)
+                sub_data = UriHandler.open(sub_url, proxy=self.proxy)
 
                 # correct the subs
-                regex = re.compile("^1(\d:)", re.MULTILINE)
-                subData = re.sub(regex, "0\g<1>", subData)
-                subData = re.sub("--> 1(\d):", "--> 0\g<1>:", subData)
+                regex = re.compile(r"^1(\d:)", re.MULTILINE)
+                sub_data = re.sub(regex, r"0\g<1>", sub_data)
+                sub_data = re.sub(r"--> 1(\d):", r"--> 0\g<1>:", sub_data)
 
-                localCompletePath = os.path.join(Config.cacheDir, fileName)
-                Logger.debug("Saving subtitle to: %s", localCompletePath)
-                f = open(localCompletePath, 'w')
-                f.write(subData)
-                f.close()
-                part.Subtitle = localCompletePath
+                local_complete_path = os.path.join(Config.cacheDir, file_name)
+                Logger.debug("Saving subtitle to: %s", local_complete_path)
+                with open(local_complete_path, 'w') as f:
+                    f.write(sub_data)
+
+                part.Subtitle = local_complete_path
 
             item.complete = True
 
