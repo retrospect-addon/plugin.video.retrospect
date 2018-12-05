@@ -36,8 +36,12 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self.episodeItemJson = ["abstracts", ]
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              preprocessor=self.add_live_streams,
+                              preprocessor=self.add_live_streams_and_recent,
                               parser=self.episodeItemJson, creator=self.create_episode_item)
+
+        self._add_data_parser("https://xlapi.rtl.nl/version=1/fun=gemist/model=svod/bcdate=",
+                              json=True,
+                              parser=["material", ], creator=self.create_recent_video_item)
 
         self.videoItemJson = ["material", ]
         self.folderItemJson = ["seasons", ]
@@ -68,7 +72,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def add_live_streams(self, data):
+    def add_live_streams_and_recent(self, data):
         """ Adds the live streams for RTL-Z.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
@@ -110,6 +114,55 @@ class Channel(chn_class.Channel):
         rtlz_live.items.append(stream_item)
         items.append(rtlz_live)
 
+        # Add recent items
+        data, recent_items = self.add_recent_items(data)
+        return data, recent_items
+
+    def add_recent_items(self, data):
+        """ Builds the "Recent" folder for this channel.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+
+        recent = mediaitem.MediaItem("\a .: Recent :.", "")
+        recent.type = "folder"
+        recent.complete = True
+        recent.dontGroup = True
+        items.append(recent)
+
+        today = datetime.datetime.now()
+        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        for i in range(0, 7, 1):
+            air_date = today - datetime.timedelta(i)
+            Logger.trace("Adding item for: %s", air_date)
+
+            # Determine a nice display date
+            day = days[air_date.weekday()]
+            if i == 0:
+                day = "Vandaag"
+            elif i == 1:
+                day = "Gisteren"
+            elif i == 2:
+                day = "Eergisteren"
+            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
+
+            # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
+            url = "https://xlapi.rtl.nl/version=1/fun=gemist/model=svod/bcdate=" \
+                  "{0:04d}{1:02d}{2:02d}/".format(air_date.year, air_date.month, air_date.day)
+            extra = mediaitem.MediaItem(title, url)
+            extra.complete = True
+            extra.icon = self.icon
+            extra.thumb = self.noImage
+            extra.dontGroup = True
+            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
+
+            recent.items.append(extra)
         return data, items
 
     def create_episode_item(self, result_set):
@@ -353,6 +406,69 @@ class Channel(chn_class.Channel):
             item.set_date(date_time.year, date_time.month, date_time.day,
                           date_time.hour, date_time.minute, date_time.second)
 
+        return item
+
+    def create_recent_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+
+        show_title = result_set["abstract_name"]
+        episode_title = result_set["title"]
+        title = "{} - {}".format(show_title, episode_title)
+        description = result_set.get("synopsis")
+
+        uuid = result_set["uuid"]
+        url = "http://www.rtl.nl/system/s4m/xldata/ux/%s?context=rtlxl&" \
+              "d=pc&fmt=adaptive&version=3" % (uuid, )
+        # The JSON urls do not yet work
+        # url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/" \
+        #       "fun=abstract/uuid=%s/fmt=smooth" % (uuid,)
+
+        item = mediaitem.MediaItem(title.title(), url)
+        item.type = "video"
+        item.description = description
+        item.thumb = "%s%s" % (self.posterBase, uuid,)
+
+        audience = result_set.get("audience")
+        Logger.debug("Found audience: %s", audience)
+        item.isGeoLocked = audience == "ALLEEN_NL"
+        # We can play the DRM stuff
+        # item.isDrmProtected = audience == "DRM"
+
+        station = result_set.get("station", None)
+        if station:
+            item.name = "{} ({})".format(item.name, station)
+            icon = self.largeIconSet.get(station.lower(), None)
+            if icon:
+                Logger.trace("Setting icon to: %s", icon)
+                item.icon = icon
+
+        # 2018-12-05T19:30:00.000Z
+        date_time = result_set.get("dateTime", None)
+        if date_time:
+            date_time = DateHelper.get_date_from_string(date_time[:-5], "%Y-%m-%dT%H:%M:%S")
+            # The time is in UTC, and the show as at UTC+1
+            date_time = datetime.datetime(*date_time[:6]) + datetime.timedelta(hours=1)
+            item.name = "{:02d}:{:02d}: {}".format(date_time.hour, date_time.minute, item.name)
+            item.set_date(date_time.year, date_time.month, date_time.day,
+                          date_time.hour, date_time.minute, date_time.second)
         return item
 
     def update_video_item(self, item):

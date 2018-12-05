@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: moved to the new RTL XL API (Fixes #1052)
+* Added: `Recent` items to RTL XL (Fixes #1069)
 
 [I]Previous changes[/I]
+* Fixed: moved to the new RTL XL API (Fixes #1052)
 * Fixed: sometimes a stream would not start at the beginning. Applying the VTM fix (See #820)
 * Removed: iRTL channel as it is no longer supported
 * Updated: RTL textures
