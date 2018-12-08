@@ -24,18 +24,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "vrtnuimage.png"
@@ -43,78 +42,75 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.vrt.be"
 
         # first regex is a bit tighter than the second one.
-        # episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<picture[^>]*>' \
+        # episode_regex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<picture[^>]*>' \
         #                '\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="[^"]*(?<thumburl>//[^ ]+) \d+x"' \
         #                '[\w\W]{0,1000}?(?:<div[^>]*data-brand="(?<channel>[^"]+)">[^>]*>\s*' \
         #                '<div[^>]*>\s*(?:<div[^>]*>[^>]+>\s*)?)?' \
         #                '<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
         #                '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
         #                '(?:</p>)?\W*</div>'
-        episodeRegex = '<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<picture[^>]*>' \
-                       '\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="[^"]*(?<thumburl>//[^ ]+) \d+x"' \
-                       '[\w\W]{0,1000}?(?:<div[^>]*data-brand="(?<channel>[^"]+)">' \
-                       '[\w\W]{0,200}?)?' \
-                       '<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
-                       '(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
-                       '(?:</p>)?\W*</div>'
-        episodeRegex = Regexer.from_expresso(episodeRegex)
+        episode_regex = r'<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<picture[^>]*>' \
+                        r'\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="[^"]*(?<thumburl>//[^ ]+) \d+x"' \
+                        r'[\w\W]{0,1000}?(?:<div[^>]*data-brand="(?<channel>[^"]+)">' \
+                        r'[\w\W]{0,200}?)?' \
+                        r'<h3[^>]*>(?<title>[^<]+)</h3>\s*(?:<p>)?' \
+                        r'(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?' \
+                        r'(?:</p>)?\W*</div>'
+        episode_regex = Regexer.from_expresso(episode_regex)
         self._add_data_parser(self.mainListUri, name="Main A-Z listing",
-                              preprocessor=self.AddCategories,
+                              preprocessor=self.add_categories,
                               match_type=ParserData.MatchExact,
-                              parser=episodeRegex, creator=self.create_episode_item)
+                              parser=episode_regex, creator=self.create_episode_item)
 
         self._add_data_parser("#channels", name="Main channel name listing",
-                              preprocessor=self.ListChannels)
+                              preprocessor=self.list_channels)
 
         self._add_data_parser("https://search.vrt.be/suggest?facets[categories]",
                               name="JSON Show Parser", json=True,
-                              parser=[], creator=self.CreateShowItem)
+                              parser=[], creator=self.create_show_item)
 
         self._add_data_parser("https://services.vrt.be/videoplayer/r/live.json", json=True,
                               name="Live streams parser",
-                              parser=[], creator=self.CreateLiveStream)
+                              parser=[], creator=self.create_live_stream)
         self._add_data_parsers(["http://live.stream.vrt.be/", "https://live-vrt.akamaized.net"],
                                name="Live streams updater",
-                               updater=self.UpdateLiveVideo)
-        self._add_data_parser("https://live-[^/]+\.vrtcdn\.be",
+                               updater=self.update_live_video)
+        self._add_data_parser(r"https://live-[^/]+\.vrtcdn\.be",
                               match_type=ParserData.MatchRegex,
                               name="Live streams updater",
-                              updater=self.UpdateLiveVideo)
+                              updater=self.update_live_video)
 
-        catregex = '<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
-                   '*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
-                   '(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
+        catregex = r'<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
+                   r'*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
+                   r'(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
         catregex = Regexer.from_expresso(catregex)
         self._add_data_parser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
                               match_type=ParserData.MatchExact,
                               parser=catregex,
-                              creator=self.CreateCategory)
+                              creator=self.create_category)
 
-        folderRegex = '<li class="vrt-labelnav--item "[^>]*>\s*<h2[^<]*>\s*<a[^>]*href="' \
-                      '(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
-        folderRegex = Regexer.from_expresso(folderRegex)
+        folder_regex = r'<li class="vrt-labelnav--item "[^>]*>\s*<h2[^<]*>\s*<a[^>]*href="' \
+                       r'(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
+        folder_regex = Regexer.from_expresso(folder_regex)
         self._add_data_parser("*", name="Folder/Season parser",
-                              parser=folderRegex, creator=self.create_folder_item)
+                              parser=folder_regex, creator=self.create_folder_item)
 
-        videoRegex = '<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
-                     '<div[^>]*>\W*<h[23][^>]*>\s*(?<title>[^<]+)\s*(?:<br />\s*)*</h[23]>\W*' \
-                     '<p[^>]*>\W*(?:<span[^>]*class="vrtnu-list--item-meta[^>]*>\W*(?<day>\d+)/' \
-                     '(?<month>\d+)[^<]*</span>\W*<span[^>]+>[^<]*</span>|)[^<]*<abbr' \
-                     '[\w\W]{0,1000}?<source srcset="[^"]+(?<thumburl>//[^ ]+)'
+        video_regex = r'<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
+                      r'<div[^>]*>\W*<h[23][^>]*>\s*(?<title>[^<]+)\s*(?:<br />\s*)*</h[23]>\W*' \
+                      r'<p[^>]*>\W*(?:<span[^>]*class="vrtnu-list--item-meta[^>]*>\W*(?<day>\d+)/' \
+                      r'(?<month>\d+)[^<]*</span>\W*<span[^>]+>[^<]*</span>|)[^<]*<abbr' \
+                      r'[\w\W]{0,1000}?<source srcset="[^"]+(?<thumburl>//[^ ]+)'
 
         # No need for a subtitle for now as it only includes the textual date
-        videoRegex = Regexer.from_expresso(videoRegex)
+        video_regex = Regexer.from_expresso(video_regex)
         self._add_data_parser("*", name="Video item parser",
-                              parser=videoRegex, creator=self.create_video_item)
+                              parser=video_regex, creator=self.create_video_item)
 
         # needs to be after the standard video item regex
-        singleVideoRegex = '<script type="application/ld\+json">\W+({[\w\W]+?})\s*</script'
-        # singleVideoRegex = '<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="(?<thumburl>' \
-        #                    '[^ ]+)[\w\W]{0,4000}<span[^>]+id="title"[^>]*>(?<title>[^<]+)</span>' \
-        #                    '\W*<span[^>]+>(?<description>[^<]+)'
-        singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
+        single_video_regex = r'<script type="application/ld\+json">\W+({[\w\W]+?})\s*</script'
+        single_video_regex = Regexer.from_expresso(single_video_regex)
         self._add_data_parser("*", name="Single video item parser",
-                              parser=singleVideoRegex, creator=self.CreateSingleVideoItem)
+                              parser=single_video_regex, creator=self.create_single_video_item)
 
         self._add_data_parser("*", updater=self.update_video_item, requires_logon=True)
 
@@ -191,22 +187,39 @@ class Channel(chn_class.Channel):
         return
 
     def log_on(self):
-        apiKey = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
+        """ Logs on to a website, using an url.
+
+        First checks if the channel requires log on. If so and it's not already
+        logged on, it should handle the log on. That part should be implemented
+        by the specific channel.
+
+        More arguments can be passed on, but must be handled by custom code.
+
+        After a successful log on the self.loggedOn property is set to True and
+        True is returned.
+
+        :return: indication if the login was successful.
+        :rtype: bool
+
+        """
+
+        api_key = "3_qhEcPa5JGFROVwu5SWKqJ4mVOIkwlFNMSKwzPDAh8QZOtHqu6L4nD5Q7lk0eXOOG"
 
         # Do we still have a valid short living token (1 hour)? If so, we have an active session.
-        shortLoginCookie = UriHandler.get_cookie("X-VRT-Token", ".vrt.be")
-        if shortLoginCookie is not None:
+        short_login_cookie = UriHandler.get_cookie("X-VRT-Token", ".vrt.be")
+        if short_login_cookie is not None:
             # The old X-VRT-Token expired after 1 year. We don't want that old cookie
-            shortLoginCookieCanLiveTooLong = DateHelper.get_date_from_posix(shortLoginCookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
-            if not shortLoginCookieCanLiveTooLong:
+            short_login_cookie_can_live_too_long = \
+                DateHelper.get_date_from_posix(short_login_cookie.expires) > datetime.datetime.now() + datetime.timedelta(hours=4)
+            if not short_login_cookie_can_live_too_long:
                 Logger.debug("Using existing VRT.be session.")
                 return True
 
         # Do we still have a valid long living token? If so, try to extend the session. We need the
         # original UIDSignature value for that. The 'vrtlogin-rt' and all other related cookies
         # are valid for a same period (1 year).
-        longLoginCookie = UriHandler.get_cookie("vrtlogin-rt", ".vrt.be")
-        if longLoginCookie is not None:
+        long_login_cookie = UriHandler.get_cookie("vrtlogin-rt", ".vrt.be")
+        if long_login_cookie is not None:
             # if we stored a valid user signature, we can use it, together with the 'gmid' and
             # 'ucid' cookies to extend the session and get new token data
             data = UriHandler.open("https://token.vrt.be/refreshtoken", proxy=self.proxy, no_cache=True)
@@ -236,15 +249,15 @@ class Channel(chn_class.Channel):
             "includeUserInfo": "true",
             "loginMode": "standard",
             "lang": "nl-inf",
-            "APIKey": apiKey,
+            "APIKey": api_key,
             "source": "showScreenSet",
             "sdk": "js_latest",
             "authMode": "cookie",
             "format": "json"
         }
-        logonData = UriHandler.open(url, data=data, proxy=self.proxy, no_cache=True)
-        userId, signature, signatureTimeStamp = self.__ExtractSessionData(logonData)
-        if userId is None or signature is None or signatureTimeStamp is None:
+        logon_data = UriHandler.open(url, data=data, proxy=self.proxy, no_cache=True)
+        user_id, signature, signature_time_stamp = self.__extract_session_data(logon_data)
+        if user_id is None or signature is None or signature_time_stamp is None:
             return False
 
         # We need to initialize the token retrieval which will redirect to the actual token
@@ -253,17 +266,28 @@ class Channel(chn_class.Channel):
 
         # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 hour. So we call the actual
         # perform_login url which will redirect and get cookies.
-        tokenData = {
-            "UID": userId,
+        token_data = {
+            "UID": user_id,
             "UIDSignature": signature,
-            "signatureTimestamp": signatureTimeStamp,
+            "signatureTimestamp": signature_time_stamp,
             "client_id": "vrtnu-site",
             "submit": "submit"
         }
-        UriHandler.open("https://login.vrt.be/perform_login", proxy=self.proxy, data=tokenData, no_cache=True)
+        UriHandler.open("https://login.vrt.be/perform_login", proxy=self.proxy, data=token_data, no_cache=True)
         return True
 
-    def AddCategories(self, data):
+    def add_categories(self, data):
+        """ Adds categories to the main listings.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         Logger.info("Performing Pre-Processing")
         items = []
 
@@ -287,8 +311,8 @@ class Channel(chn_class.Channel):
         live.isLive = True
         items.append(live)
 
-        channelText = LanguageHelper.get_localized_string(30010)
-        channels = mediaitem.MediaItem(".: %s :." % (channelText, ), "#channels")
+        channel_text = LanguageHelper.get_localized_string(30010)
+        channels = mediaitem.MediaItem(".: %s :." % (channel_text, ), "#channels")
         channels.fanart = self.fanart
         channels.thumb = self.noImage
         channels.icon = self.icon
@@ -298,7 +322,16 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def ListChannels(self, data):
+    def list_channels(self, data):
+        """ Lists all the available channels.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         items = []
 
         for name, meta in self.__channelData.iteritems():
@@ -317,55 +350,113 @@ class Channel(chn_class.Channel):
             items.append(channel)
         return data, items
 
-    def CreateCategory(self, resultSet):
+    def create_category(self, result_set):
+        """ Creates a new MediaItem for an category folder.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
         # https://search.vrt.be/suggest?facets[categories]=met-audiodescriptie
-        resultSet["url"] = "https://search.vrt.be/suggest?facets[categories]=%(catid)s" % resultSet
-        item = chn_class.Channel.create_folder_item(self, resultSet)
+        result_set["url"] = "https://search.vrt.be/suggest?facets[categories]=%(catid)s" % result_set
+        item = chn_class.Channel.create_folder_item(self, result_set)
         if item is not None and item.thumb and item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
 
         return item
 
-    def CreateLiveStream(self, resultSet):
+    def create_live_stream(self, result_set):
+        """ Creates a MediaItem of type 'video' for a live stream using the
+        result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         items = []
-        for keyValue, streamValue in resultSet.iteritems():
-            Logger.trace(streamValue)
+        for key_value, stream_value in result_set.iteritems():
+            Logger.trace(stream_value)
             # noinspection PyArgumentList
-            channelData = self.__channelData.get(keyValue, None)
-            if not channelData:
+            channel_data = self.__channelData.get(key_value, None)
+            if not channel_data:
                 continue
 
-            url = channelData["url"] if "url" in channelData else streamValue["hls"]
-            liveItem = mediaitem.MediaItem(channelData["title"], url)
-            liveItem.isLive = True
-            liveItem.type = 'video'
-            liveItem.fanart = channelData.get("fanart", self.fanart)
-            liveItem.thumb = channelData.get("icon", self.icon)
-            liveItem.icon = channelData.get("icon", self.icon)
-            items.append(liveItem)
+            url = channel_data["url"] if "url" in channel_data else stream_value["hls"]
+            live_item = mediaitem.MediaItem(channel_data["title"], url)
+            live_item.isLive = True
+            live_item.type = 'video'
+            live_item.fanart = channel_data.get("fanart", self.fanart)
+            live_item.thumb = channel_data.get("icon", self.icon)
+            live_item.icon = channel_data.get("icon", self.icon)
+            items.append(live_item)
         return items
 
-    def CreateShowItem(self, resultSet):
-        Logger.trace(resultSet)
-        if resultSet["targetUrl"].startswith("//"):
-            resultSet["url"] = "https:%(targetUrl)s" % resultSet
+    def create_show_item(self, result_set):
+        """ Creates a new MediaItem for an show.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+        if result_set["targetUrl"].startswith("//"):
+            result_set["url"] = "https:%(targetUrl)s" % result_set
         else:
-            resultSet["url"] = resultSet["targetUrl"]
-        resultSet["thumburl"] = resultSet["thumbnail"]
+            result_set["url"] = result_set["targetUrl"]
+        result_set["thumburl"] = result_set["thumbnail"]
 
-        return chn_class.Channel.create_episode_item(self, resultSet)
+        return chn_class.Channel.create_episode_item(self, result_set)
 
-    def create_episode_item(self, resultSet):
-        if self.__currentChannel is not None and resultSet["channel"] != self.__currentChannel:
-            Logger.debug("Skipping items due to channel mismatch: %s", resultSet)
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        if self.__currentChannel is not None and result_set["channel"] != self.__currentChannel:
+            Logger.debug("Skipping items due to channel mismatch: %s", result_set)
             return None
 
-        item = chn_class.Channel.create_episode_item(self, resultSet)
+        item = chn_class.Channel.create_episode_item(self, result_set)
         if item is None:
             return None
 
-        if resultSet["descriptionMore"]:
-            item.description += resultSet["descriptionMore"]
+        if result_set["descriptionMore"]:
+            item.description += result_set["descriptionMore"]
 
         # update artswork
         if item.thumb and item.thumb.startswith("//"):
@@ -375,44 +466,93 @@ class Channel(chn_class.Channel):
         item.fanart = self.fanart
         return item
 
-    def create_folder_item(self, resultSet):
-        item = chn_class.Channel.create_folder_item(self, resultSet)
+    def create_folder_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        item = chn_class.Channel.create_folder_item(self, result_set)
         if item is None:
             return None
 
         item.name = item.name.title()
         return item
 
-    def CreateSingleVideoItem(self, resultSet):
+    def create_single_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param str result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         if self.__hasAlreadyVideoItems:
             # we already have items, so don't show this one, it will be a duplicate
             return None
 
-        resultSet = resultSet.replace('\\x27', "'")
+        result_set = result_set.replace('\\x27', "'")
 
-        jsonData = JsonHelper(resultSet)
+        json_data = JsonHelper(result_set)
         url = self.parentItem.url
-        title = jsonData.get_value("name")
-        description = HtmlHelper.to_text(jsonData.get_value("description"))
+        title = json_data.get_value("name")
+        description = HtmlHelper.to_text(json_data.get_value("description"))
         item = mediaitem.MediaItem(title, url, type="video")
         item.description = description
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
         return item
 
-    def create_video_item(self, resultSet):
-        if "title" not in resultSet or resultSet["title"] is None:
-            resultSet["title"] = resultSet.pop("subtitle")
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-        resultSet["title"] = resultSet["title"].strip()
-        item = chn_class.Channel.create_video_item(self, resultSet)
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        if "title" not in result_set or result_set["title"] is None:
+            result_set["title"] = result_set.pop("subtitle")
+
+        result_set["title"] = result_set["title"].strip()
+        item = chn_class.Channel.create_video_item(self, result_set)
         if item is None:
             return None
 
-        if "day" in resultSet and resultSet["day"]:
-            if len(resultSet.get("year", "")) < 4:
-                resultSet["year"] = None
-            item.set_date(resultSet["year"] or DateHelper.this_year(), resultSet["month"], resultSet["day"])
+        if "day" in result_set and result_set["day"]:
+            if len(result_set.get("year", "")) < 4:
+                result_set["year"] = None
+            item.set_date(result_set["year"] or DateHelper.this_year(), result_set["month"], result_set["day"])
 
         if item.thumb.startswith("//"):
             item.thumb = "https:%s" % (item.thumb, )
@@ -421,13 +561,34 @@ class Channel(chn_class.Channel):
         item.fanart = self.parentItem.fanart
         return item
 
-    def UpdateLiveVideo(self, item):
+    def update_live_video(self, item):
+        """ Updates an existing live stream MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         if "m3u8" not in item.url:
             Logger.error("Cannot update live stream that is not an M3u8: %s", item.url)
 
         part = item.create_new_empty_media_part()
-        adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
-        if adaptiveAvailable:
+        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
+        if adaptive_available:
             stream = part.append_media_stream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             return item
@@ -441,91 +602,112 @@ class Channel(chn_class.Channel):
             part.append_media_stream(s, b)
         return item
 
-    def update_video_item(self, item):
+    def update_video_item(self, item):  # NOSONAR
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # we need to fetch the actual url as it might differ for single video items
-        data, secureUrl = UriHandler.header(item.url, proxy=self.proxy)
+        data, secure_url = UriHandler.header(item.url, proxy=self.proxy)
 
         # Get the MZID
-        secureUrl = secureUrl.rstrip("/")
-        secureUrl = "%s.mssecurevideo.json" % (secureUrl, )
-        data = UriHandler.open(secureUrl, proxy=self.proxy, additional_headers=item.HttpHeaders)
-        secureData = JsonHelper(data, logger=Logger.instance())
-        mzid = secureData.get_value(secureData.json.keys()[0], "videoid")
+        secure_url = secure_url.rstrip("/")
+        secure_url = "%s.mssecurevideo.json" % (secure_url, )
+        data = UriHandler.open(secure_url, proxy=self.proxy, additional_headers=item.HttpHeaders)
+        secure_data = JsonHelper(data, logger=Logger.instance())
+        mzid = secure_data.get_value(secure_data.json.keys()[0], "videoid")
 
         # region New URL retrieval with DRM protection
         # We need a player token
-        tokenData = UriHandler.open("https://media-services-public.vrt.be/"
-                                    "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
-                                    additional_headers={"Content-Type": "application/json"})
+        token_data = UriHandler.open("https://media-services-public.vrt.be/"
+                                     "vualto-video-aggregator-web/rest/external/v1/tokens", data="",
+                                     additional_headers={"Content-Type": "application/json"})
 
-        token = JsonHelper(tokenData).get_value("vrtPlayerToken")
+        token = JsonHelper(token_data).get_value("vrtPlayerToken")
 
-        assetUrl = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
-                   "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
+        asset_url = "https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/" \
+                    "external/v1/videos/{0}?vrtPlayerToken={1}&client=vrtvideo"\
             .format(HtmlEntityHelper.url_encode(mzid), HtmlEntityHelper.url_encode(token))
-        assetData = UriHandler.open(assetUrl, proxy=self.proxy, no_cache=True)
-        assetData = JsonHelper(assetData)
+        asset_data = UriHandler.open(asset_url, proxy=self.proxy, no_cache=True)
+        asset_data = JsonHelper(asset_data)
 
-        drmKey = assetData.get_value("drm")
-        drmProtected = drmKey is not None
-        adaptiveAvailable = AddonSettings.use_adaptive_stream_add_on(with_encryption=drmProtected)
+        drm_key = asset_data.get_value("drm")
+        drm_protected = drm_key is not None
+        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=drm_protected)
         part = item.create_new_empty_media_part()
         srt = None
-        for targetUrl in assetData.get_value("targetUrls"):
-            videoType = targetUrl["type"]
-            videoUrl = targetUrl["url"]
+        for target_url in asset_data.get_value("targetUrls"):
+            video_type = target_url["type"]
+            video_url = target_url["url"]
 
-            if videoType == "hls_aes" and drmProtected and adaptiveAvailable:
+            if video_type == "hls_aes" and drm_protected and adaptive_available:
                 # no difference in encrypted or not.
                 Logger.debug("Found HLS AES encrypted stream and a DRM key")
-                stream = part.append_media_stream(videoUrl, 0)
+                stream = part.append_media_stream(video_url, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy)
 
-            elif videoType == "hls" and not drmProtected:
+            elif video_type == "hls" and not drm_protected:
                 # no difference in encrypted or not.
-                if adaptiveAvailable:
+                if adaptive_available:
                     Logger.debug("Found standard HLS stream and without DRM protection")
-                    stream = part.append_media_stream(videoUrl, 0)
+                    stream = part.append_media_stream(video_url, 0)
                     M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
-                    m3u8Data = UriHandler.open(videoUrl, self.proxy)
-                    for s, b, a in M3u8.get_streams_from_m3u8(videoUrl, self.proxy,
-                                                              play_list_data=m3u8Data, map_audio=True):
+                    m3u8_data = UriHandler.open(video_url, self.proxy)
+                    for s, b, a in M3u8.get_streams_from_m3u8(video_url, self.proxy,
+                                                              play_list_data=m3u8_data, map_audio=True):
                         item.complete = True
                         if a:
-                            audioPart = a.rsplit("-", 1)[-1]
-                            audioPart = "-%s" % (audioPart, )
-                            s = s.replace(".m3u8", audioPart)
+                            audio_part = a.rsplit("-", 1)[-1]
+                            audio_part = "-%s" % (audio_part, )
+                            s = s.replace(".m3u8", audio_part)
                         part.append_media_stream(s, b)
 
-                    srt = M3u8.get_subtitle(videoUrl, play_list_data=m3u8Data, proxy=self.proxy)
+                    srt = M3u8.get_subtitle(video_url, play_list_data=m3u8_data, proxy=self.proxy)
                     if not srt:
                         continue
 
                     srt = srt.replace(".m3u8", ".vtt")
                     part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
-            elif videoType == "mpeg_dash" and adaptiveAvailable:
-                if not drmProtected:
+            elif video_type == "mpeg_dash" and adaptive_available:
+                if not drm_protected:
                     Logger.debug("Found standard MPD stream and without DRM protection")
-                    stream = part.append_media_stream(videoUrl, 1)
+                    stream = part.append_media_stream(video_url, 1)
                     Mpd.set_input_stream_addon_input(stream, self.proxy)
                 else:
-                    stream = part.append_media_stream(videoUrl, 1)
-                    encryptionJson = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'\
-                        .format(drmKey)
-                    encryptionKey = Mpd.get_license_key(
+                    stream = part.append_media_stream(video_url, 1)
+                    encryption_json = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'\
+                        .format(drm_key)
+                    encryption_key = Mpd.get_license_key(
                         key_url="https://widevine-proxy.drm.technology/proxy",
                         key_type="D",
-                        key_value=encryptionJson,
+                        key_value=encryption_json,
                         key_headers={"Content-Type": "text/plain;charset=UTF-8"}
                     )
-                    Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=encryptionKey)
+                    Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=encryption_key)
 
-            if videoType.startswith("hls") and srt is None:
-                srt = M3u8.get_subtitle(videoUrl, proxy=self.proxy)
+            if video_type.startswith("hls") and srt is None:
+                srt = M3u8.get_subtitle(video_url, proxy=self.proxy)
                 if srt:
                     srt = srt.replace(".m3u8", ".vtt")
                     part.Subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
@@ -534,14 +716,14 @@ class Channel(chn_class.Channel):
         # endregion
         return item
 
-    def __ExtractSessionData(self, logonData):
-        logonJson = JsonHelper(logonData)
-        resultCode = logonJson.get_value("statusCode")
-        if resultCode != 200:
-            Logger.error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
-                         logonJson.get_value("errorDetails"))
+    def __extract_session_data(self, logon_data):
+        logon_json = JsonHelper(logon_data)
+        result_code = logon_json.get_value("statusCode")
+        if result_code != 200:
+            Logger.error("Error loging in: %s - %s", logon_json.get_value("errorMessage"),
+                         logon_json.get_value("errorDetails"))
             return None, None, None
 
-        return logonJson.get_value("UID"), \
-            logonJson.get_value("UIDSignature"), \
-            logonJson.get_value("signatureTimestamp")
+        return logon_json.get_value("UID"), \
+            logon_json.get_value("UIDSignature"), \
+            logon_json.get_value("signatureTimestamp")
