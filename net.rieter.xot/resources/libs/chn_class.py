@@ -465,9 +465,7 @@ class Channel:
             raise LookupError("No ?P<title> or ?P<url> in result_set")
 
         # the URL
-        url = result_set["url"]
-        if not url.startswith("http"):
-            url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
+        url = self._prefix_urls(result_set["url"])
 
         # the title
         title = result_set["title"]
@@ -565,9 +563,7 @@ class Channel:
             raise LookupError("No ?P<title> or ?P<url> in result_set")
 
         # The URL
-        url = result_set["url"]
-        if not url.startswith("http"):
-            url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
+        url = self._prefix_urls(result_set["url"])
 
         # The title
         title = result_set["title"]
@@ -615,9 +611,7 @@ class Channel:
             raise LookupError("No ?P<title> or ?P<url> in result_set")
 
         # The URL
-        url = result_set["url"]
-        if not url.startswith("http"):
-            url = "%s/%s" % (self.baseUrl.rstrip('/'), url.lstrip('/'))
+        url = self._prefix_urls(result_set["url"])
 
         # The title
         if "subtitle" in result_set and result_set["subtitle"]:
@@ -628,11 +622,8 @@ class Channel:
             title = title.title()
 
         item = MediaItem(title, url)
+        item.thumb = self._prefix_urls(result_set.get("thumburl", ""))
         item.description = result_set.get("description", "")
-        item.thumb = result_set.get("thumburl", "")
-        if item.thumb and not item.thumb.startswith("http"):
-            item.thumb = "{}{}".format(self.baseUrl.rstrip('/'), item.thumb)
-
         item.icon = self.icon
         item.type = 'video'
         item.fanart = self.fanart
@@ -868,6 +859,33 @@ class Channel:
 
         setting = AddonSettings.get_channel_setting(self, setting_id, value_for_none)
         return setting
+
+    def _prefix_urls(self, url):
+        """ Prefixes URL that do not contain http/https components. Either with only http(s) if
+        they start with // or with the self.baseUrl if they start with /.
+
+        :param str url:     The url to prefix
+
+        :return: A correctly prefixed url
+        :rtype: str
+
+        """
+
+        if not url:
+            return url
+
+        # Catch the //<hostname>/<path> urls
+        if url.startswith("//"):
+            if self.baseUrl.startswith("https"):
+                url = "https:{}".format(url)
+            else:
+                url = "http:{}".format(url)
+
+        # Catch the /<path> urls
+        elif not url.startswith("http"):
+            url = "{}/{}".format(self.baseUrl.rstrip('/'), url.lstrip('/'))
+
+        return url
 
     def __get_data_parsers(self, url):
         """ Fetches a list of dataparsers that are valid for this URL. The Parsers and Creators can then
