@@ -388,6 +388,8 @@ class Channel(chn_class.Channel):
             # we already have items, so don't show this one, it will be a duplicate
             return None
 
+        resultSet = resultSet.replace('\\x27', "'")
+
         jsonData = JsonHelper(resultSet)
         url = self.parentItem.url
         title = jsonData.get_value("name")
@@ -407,7 +409,9 @@ class Channel(chn_class.Channel):
         if item is None:
             return None
 
-        if "day" in resultSet and resultSet["day"] and len(resultSet.get("year", "")) == 4:
+        if "day" in resultSet and resultSet["day"]:
+            if len(resultSet.get("year", "")) < 4:
+                resultSet["year"] = None
             item.set_date(resultSet["year"] or DateHelper.this_year(), resultSet["month"], resultSet["day"])
 
         if item.thumb.startswith("//"):
