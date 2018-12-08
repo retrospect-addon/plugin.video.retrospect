@@ -1,12 +1,12 @@
-[B]Retrospect v4.1.7~beta35 - Changelog - 2018-12-03[/B]
+[B]Retrospect v4.1.7~beta36 - Changelog - 2018-12-08[/B]
 
 [B]Framework related[/B]
-* Fixed: logging issue in MediaItem
+* Fixed: thumbs with url starting with `//` where not show correctly
 
 [B]GUI/Settings/Language related[/B]
--
+* Updated: minor Swedish language update
 
 [B]Channel related[/B]
-* Fixed: Kijk.nl streams for Kodi Krypton (Fixes #1067)
-* Fixed: SVT Öppet arkiv playback (Fixes #1066)
-* Fixed: RTV Noord Live stream (Fixes #1065)
+* Added: `Search` to RTL XL (See #1069)
+* Added: `Recent` items to RTL XL (Fixes #1069)
+* Fixed: Match some more dates for VRT.nu (Fixes #1070)

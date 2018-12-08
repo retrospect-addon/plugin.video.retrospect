@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="net.rieter.xot"
-        version="4.1.7~beta35"
+        version="4.1.7~beta36"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -114,18 +114,18 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v4.1.7~beta35 - Changelog - 2018-12-03[/B]
+        <news>[B]Retrospect v4.1.7~beta36 - Changelog - 2018-12-08[/B]
 
 [B]Framework related[/B]
-* Fixed: logging issue in MediaItem
+* Fixed: thumbs with url starting with `//` where not show correctly
 
 [B]GUI/Settings/Language related[/B]
--
+* Updated: minor Swedish language update
 
 [B]Channel related[/B]
-* Fixed: Kijk.nl streams for Kodi Krypton (Fixes #1067)
-* Fixed: SVT Öppet arkiv playback (Fixes #1066)
-* Fixed: RTV Noord Live stream (Fixes #1065)
+* Added: `Search` to RTL XL (See #1069)
+* Added: `Recent` items to RTL XL (Fixes #1069)
+* Fixed: Match some more dates for VRT.nu (Fixes #1070)
 </news>
     </extension>
 </addon>
