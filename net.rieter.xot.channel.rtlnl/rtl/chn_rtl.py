@@ -7,9 +7,11 @@ from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
+from helpers.htmlentityhelper import HtmlEntityHelper
 from streams.m3u8 import M3u8
 from parserdata import ParserData
 from helpers.datehelper import DateHelper
+from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -42,6 +44,13 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://xlapi.rtl.nl/version=1/fun=gemist/model=svod/bcdate=",
                               json=True,
                               parser=["material", ], creator=self.create_recent_video_item)
+
+        self._add_data_parser("https://search.rtl.nl/?typeRestriction=tvabstract", json=True,
+                              name="Search JSON matching shows",
+                              parser=["Abstracts", ], creator=self.create_search_program_item)
+        self._add_data_parser("https://search.rtl.nl/?typeRestriction=videoobject", json=True,
+                              name="Search JSON matching videos",
+                              parser=["Videos", ], creator=self.create_search_program_item)
 
         self.videoItemJson = ["material", ]
         self.folderItemJson = ["seasons", ]
@@ -163,6 +172,12 @@ class Channel(chn_class.Channel):
             extra.set_date(air_date.year, air_date.month, air_date.day, text="")
 
             recent.items.append(extra)
+
+        news = mediaitem.MediaItem("\a .: Zoeken :.", "#searchSite")
+        news.type = "folder"
+        news.complete = True
+        news.dontGroup = True
+        items.append(news)
         return data, items
 
     def create_episode_item(self, result_set):
@@ -405,6 +420,82 @@ class Channel(chn_class.Channel):
             date_time = DateHelper.get_date_from_posix(int(date_time))
             item.set_date(date_time.year, date_time.month, date_time.day,
                           date_time.hour, date_time.minute, date_time.second)
+
+        return item
+
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
+        """
+
+        items = []
+        needle = XbmcWrapper.show_key_board()
+        if not needle:
+            return []
+
+        Logger.debug("Searching for '%s'", needle)
+        # convert to HTML
+        needle = HtmlEntityHelper.url_encode(needle)
+
+        # Search Programma's
+        url = "https://search.rtl.nl/?typeRestriction=tvabstract&search={}&page=1&pageSize=99"
+        search_url = url.format(needle)
+        temp = mediaitem.MediaItem("Search", search_url)
+        items += self.process_folder_list(temp) or []
+
+        # Search Afleveringen -> no dates given, so this makes little sense
+        # url = "https://search.rtl.nl/?typeRestriction=videoobject&uitzending=true&search={}&page=1&pageSize=99"
+        # search_url = url.format(needle)
+        # temp = mediaitem.MediaItem("Search", search_url)
+        # items += self.process_folder_list(temp) or []
+
+        return items
+
+    def create_search_program_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+
+        title = result_set["Title"]
+        # Not used: uuid = result_set["Uuid"]
+        abstract_key = result_set["AbstractKey"]
+        url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=getseasons/ak={}".format(abstract_key)
+        item = mediaitem.MediaItem(title, url)
+        item.thumb = self.parentItem.thumb
+        item.fanart = self.parentItem.fanart
+
+        time_stamp = result_set["LastBroadcastDate"]  # =1546268400000
+        date_time = DateHelper.get_date_from_posix(int(time_stamp)/1000)
+        item.set_date(date_time.year, date_time.month, date_time.day,
+                      date_time.hour, date_time.minute, date_time.second)
 
         return item
 

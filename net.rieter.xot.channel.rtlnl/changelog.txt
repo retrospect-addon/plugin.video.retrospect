@@ -1,4 +1,5 @@
 ﻿[B]Changelog[/B]
+* Added: `Search` to RTL XL (See #1069)
 * Added: `Recent` items to RTL XL (Fixes #1069)
 
 [I]Previous changes[/I]
