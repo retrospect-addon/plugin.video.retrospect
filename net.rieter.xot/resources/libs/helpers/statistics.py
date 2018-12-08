@@ -45,7 +45,7 @@ class Statistics:
         """
 
         Statistics.__register_hit(Statistics.__STATISTICS,
-                                  "CDN", Config.TextureUrl, value=total_bytes)
+                                  "CDN", Config.textureUrl, value=total_bytes)
 
     @staticmethod
     def register_error(channel, title="Channel", item=None):
@@ -176,7 +176,6 @@ class Statistics:
                 data += "%s=%s&" % (k, v)
             data = data.rstrip("&")
 
-            # url = "http://www.rieter.net/net.rieter.xot.usage/%s/%s/?rnd=%s" % (action, value, rnd)
             Logger.debug("Sending statistics: %s", data)
 
             # now we need something async without caching

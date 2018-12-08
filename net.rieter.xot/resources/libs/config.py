@@ -25,14 +25,14 @@ class Config:
         __path = os.getcwd()
         pathDetection = "os.getcwd()"
 
-    # the XBMC libs return unicode info, so we need to convert this
+    # the Kodi libs return unicode info, so we need to convert this
     #noinspection PyArgumentEqualDefault
     __path = __path.decode('utf-8')
 
     # get rootDir, addonsDir and profileDir
-    rootDir = __path.replace(";", "")                        # : The root directory where XOT resides.
-    addonDir = os.path.split(rootDir)[-1]                    # : The add-on directory of XBMC.
-    rootDir = os.path.join(rootDir, '')                      # : The root directory where XOT resides.
+    rootDir = __path.replace(";", "")                        # : The root directory where Retrospect resides.
+    addonDir = os.path.split(rootDir)[-1]                    # : The add-on directory of Kodi.
+    rootDir = os.path.join(rootDir, '')                      # : The root directory where Retrospect resides.
 
     # determine the profile directory, where user data is stored.
     if xbmc.getCondVisibility("system.platform.xbox"):
@@ -52,12 +52,10 @@ class Config:
 
     appName = "Retrospect"                                   # : Name of the XOT application (could be overwritten from the addon.xml)
     cacheValidTime = 7 * 24 * 3600                           # : Time the cache files are valid in seconds.
-    webTimeOut = 30                                          # : Maximum wait time for HTTP requests.
 
     logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
     logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin
 
-    retroDb = os.path.join(profileDir, "retrospect.db")      # : Filename of the XOT DB file
     googleAnalyticsId = "UA-3902785-11"                      # : Google Analytics ID for statistics
 
     # must be single quotes for build script
@@ -70,9 +68,9 @@ class Config:
         #noinspection PyRedeclaration
         appName = str(addonentry.getAttribute("name"))        # : The name from the addon (from addon.xml)
 
-    UpdateUrl = "https://api.bitbucket.org/2.0/repositories/basrieter/xbmc-online-tv/downloads/"
+    updateUrl = "https://api.bitbucket.org/2.0/repositories/basrieter/xbmc-online-tv/downloads/"
 
-    TextureMode = "Cached"                                    # : The mode for the textures: Local, Remote or Cached
-    TextureUrl = "https://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
+    textureMode = "Cached"                                    # : The mode for the textures: Local, Remote or Cached
+    textureUrl = "https://cdn.rieter.net/net.rieter.xot.cdn"  # : The URL for the remote texture location
 
-    LogSenderApi = "1786d25d01392d572659bba76f95174f"         # : The Retrospect logsender API (Google Shortner API or PasteBinAPI)
+    logSenderApi = "1786d25d01392d572659bba76f95174f"         # : The Retrospect logsender API (Google Shortner API or PasteBinAPI)

@@ -52,7 +52,7 @@ class TextureHandler:
 
         """
 
-        mode = config.TextureMode.lower()
+        mode = config.textureMode.lower()
         if logger is not None:
             logger.trace("Creating '%s' Texture Mananger", mode)
 
@@ -61,10 +61,10 @@ class TextureHandler:
             TextureHandler.__TextureHandler = local.Local(logger)
         elif mode == Remote:
             import remote
-            TextureHandler.__TextureHandler = remote.Remote(config.TextureUrl, logger)
+            TextureHandler.__TextureHandler = remote.Remote(config.textureUrl, logger)
         elif mode == Cached:
             import cached
-            TextureHandler.__TextureHandler = cached.Cached(config.TextureUrl,
+            TextureHandler.__TextureHandler = cached.Cached(config.textureUrl,
                                                             config.profileDir, config.profileUri,
                                                             logger, uri_handler)
         else:

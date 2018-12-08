@@ -89,7 +89,7 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
-            up = Updater(Config.UpdateUrl, Config.version, UriHandler.instance(), Logger.instance())
+            up = Updater(Config.updateUrl, Config.version, UriHandler.instance(), Logger.instance())
             if up.is_new_version_available():
                 Logger.info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
@@ -574,12 +574,12 @@ class Plugin(ParameterParser):
                     w = XbmcDialogProgressWrapper(
                         "%s: %s" % (Config.appName, LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)),
                         LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle),
-                        # Config.TextureUrl
+                        # Config.textureUrl
                     )
                 else:
                     w = XbmcDialogProgressBgWrapper(
                         "%s: %s" % (Config.appName, LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle)),
-                        Config.TextureUrl
+                        Config.textureUrl
                     )
 
                 bytes_transfered = TextureHandler.instance().fetch_textures(w.progress_update)
@@ -781,7 +781,7 @@ class Plugin(ParameterParser):
 
         from helpers.logsender import LogSender
         sender_mode = 'pastebin'
-        log_sender = LogSender(Config.LogSenderApi, logger=Logger.instance(), mode=sender_mode)
+        log_sender = LogSender(Config.logSenderApi, logger=Logger.instance(), mode=sender_mode)
         try:
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostSuccessTitle)
             url_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)

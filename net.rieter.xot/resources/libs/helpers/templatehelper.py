@@ -48,10 +48,10 @@ class TemplateHelper:
     def get_offset(self, category_id, reference_id, setting_id, skip=0):
         """ Determines the offset from one setting to a reference settings.
 
-        :param str category_id:     Current category ID.
-        :param str reference_id:    The ID of the setting we are pointing to.
-        :param str setting_id:      The current setting ID.
-        :param int skip:            Should we skip a number of found matched settings?
+        :param str category_id:             Current category ID.
+        :param str|unicode reference_id:    The ID of the setting we are pointing to.
+        :param str setting_id:              The current setting ID.
+        :param int skip:                    Should we skip a number of found matched settings?
 
         :return: The offset for the setting with `reference_id` relative to the current setting with
                  `setting_id`.

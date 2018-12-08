@@ -138,9 +138,9 @@ class EnvController:
             info_string = "%s\n%s: %s" % (info_string, "PathDetection", config.pathDetection)
             info_string = "%s\n%s: %s" % (info_string, "Encoding", sys.getdefaultencoding())
             info_string = "%s\n%s: %s" % (info_string, "Repository", repo_name)
-            info_string = "%s\n%s: %s" % (info_string, "TextureMode", config.TextureMode)
-            if config.TextureUrl:
-                info_string = "%s\n%s: %s" % (info_string, "TextureUrl", config.TextureUrl)
+            info_string = "%s\n%s: %s" % (info_string, "textureMode", config.textureMode)
+            if config.textureUrl:
+                info_string = "%s\n%s: %s" % (info_string, "textureUrl", config.textureUrl)
 
             self.logger.info("Kodi Information:\n%s", info_string)
 
