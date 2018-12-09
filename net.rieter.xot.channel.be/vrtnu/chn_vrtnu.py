@@ -170,7 +170,7 @@ class Channel(chn_class.Channel):
                 "title": "KetNet Junior",
                 "metaCode": "ketnet-jr",
                 "fanart": TextureHandler.instance().get_texture_uri(self, "ketnetfanart.jpg"),
-                "thumb": TextureHandler.instance().get_texture_uri(self, "ketnetimage.png"),
+                "thumb": TextureHandler.instance().get_texture_uri(self, "ketnetimage.jpg"),
                 "icon": TextureHandler.instance().get_texture_uri(self, "ketnetlarge.png")
             }
         }
