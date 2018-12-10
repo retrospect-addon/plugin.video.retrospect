@@ -1,4 +1,3 @@
-# coding=utf-8
 import base64
 import random
 import time
@@ -29,18 +28,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.__api = None
@@ -58,31 +56,34 @@ class Channel(chn_class.Channel):
             # self.mainListUri = "https://vtm.be/feed/programs?format=json&type=all&only_with_video=true"
 
             # setup the main parsing data in case of HTML
-            recentRegex = '<a href="/(?<url>[^"]+)"[^>]*>\W+(?:<div[^>]+>\W+)+<img[^>]+src="(?<thumburl>[^"]+)"[^>]+>\W*<span[^>]*>\W*(?<subtitle>[^<]+)[\w\W]{0,300}?(?:<div[^>]+class="item-caption-program"[^>]*>(?<title>[^<]+)</div>\W*)</div>\W*</div>\W*</div>\W*</a'
-            # recentRegex = 'data-video-id="(?<url>\d+)"[^>]*>\W+<[^>]+>\W+<img[^>]*src="(?<thumburl>[^"]+)[^>]*>[\W\w]{0,1000}?class="item-caption-title"[^>]*>(?<subtitle>[^<]+)<[^>]+>\W*<[^>]+>\W*<a[^>]+>(?<title>[^<]+)'
-            recentRegex = Regexer.from_expresso(recentRegex)
+            recent_regex = r'<a href="/(?<url>[^"]+)"[^>]*>\W+(?:<div[^>]+>\W+)+<img[^>]+src="' \
+                           r'(?<thumburl>[^"]+)"[^>]+>\W*<span[^>]*>\W*(?<subtitle>[^<]+)' \
+                           r'[\w\W]{0,300}?(?:<div[^>]+class="item-caption-program"[^>]*>' \
+                           r'(?<title>[^<]+)</div>\W*)</div>\W*</div>\W*</div>\W*</a'
+            recent_regex = Regexer.from_expresso(recent_regex)
             self._add_data_parser("https://vtm.be/video/volledige-afleveringen/id",
                                   match_type=ParserData.MatchExact,
                                   name="Recent Items HTML Video Parser",
-                                  parser=recentRegex, creator=self.CreateVideoItemHtml)
+                                  parser=recent_regex, creator=self.create_video_item_html)
 
-            episodeRegex = '<li>\s*<a[^>]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>\s*</li>'
-            episodeRegex = Regexer.from_expresso(episodeRegex)
+            episode_regex = r'<li>\s*<a[^>]+href="(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>\s*</li>'
+            episode_regex = Regexer.from_expresso(episode_regex)
             self._add_data_parser("https://vtm.be/programmas/az",
                                   name="New VTM parser",
-                                  preprocessor=self.AddLiveChannel,
-                                  parser=episodeRegex, creator=self.CreateEpisodeItemHtml)
+                                  preprocessor=self.add_live_channel,
+                                  parser=episode_regex, creator=self.create_episode_item_html)
 
-            clip_regex = '<a[^>]+href="/(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
-            clip_regex = r'image-container">\W*<a[^>]+href="(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
+            clip_regex = r'image-container">\W*<a[^>]+href="(?<url>[^"]+)">[\W\w]{0,500}?<div ' \
+                         r'class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)' \
+                         r'[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
             clip_regex = Regexer.from_expresso(clip_regex)
             self._add_data_parser("*", name="New Video parser for VTM Clips",
-                                  parser=clip_regex, creator=self.CreateVideoItemHtml,
-                                  updater=self.UpdateHtmlClipItem)
+                                  parser=clip_regex, creator=self.create_video_item_html,
+                                  updater=self.update_html_clip_item)
 
             self._add_data_parser("*", name="New Video parser for VTM Videos", json=True,
-                                  preprocessor=self.ExtractVtmIdFromJson,
-                                  parser=["response", "videos"], creator=self.CreateVideoItemJson)
+                                  preprocessor=self.extract_vtm_id_from_json,
+                                  parser=["response", "videos"], creator=self.create_video_item_json)
 
         elif self.channelCode == "q2":
             self.__app = "q2"
@@ -95,21 +96,23 @@ class Channel(chn_class.Channel):
             # Uncomment the line below for full JSON listing, but it will contain many empty shows!
             self.mainListUri = "https://www.q2.be/video?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen"
 
-            htmlVideoRegex = '<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
-            htmlVideoRegex = Regexer.from_expresso(htmlVideoRegex)
+            html_video_regex = r'<a[^>]+class="cta-full[^>]+href="/(?<url>[^"]+)"[^>]*>[^<]*</a>' \
+                               r'\W*<span[^>]*>[^<]*</[^>]*\W*<div[^>]*>\W*<img[^>]+src="' \
+                               r'(?<thumburl>[^"]+)[\w\W]{0,1000}?<h3[^>]*>(?<title>[^<]+)'
+            html_video_regex = Regexer.from_expresso(html_video_regex)
             self._add_data_parser(
                 "https://www.q2.be/video/?f%5B0%5D=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&",
                 name="HTML Page Video Parser for Q2",
-                parser=htmlVideoRegex, creator=self.CreateVideoItemHtml)
+                parser=html_video_regex, creator=self.create_video_item_html)
 
-            htmlEpisodeRegex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
-            htmlEpisodeRegex = Regexer.from_expresso(htmlEpisodeRegex)
+            html_episode_regex = '<a[^>]+href="(?<url>[^"]+im_field_program[^"]+)"[^>]+>(?<title>[^(<]+)'
+            html_episode_regex = Regexer.from_expresso(html_episode_regex)
             self._add_data_parser("sm_field_video_origin_cms_longform%3AVolledige%20afleveringen",
                                   match_type=ParserData.MatchEnd,
                                   name="HTML Page Show Parser",
-                                  preprocessor=self.AddLiveChannel,
-                                  parser=htmlEpisodeRegex,
-                                  creator=self.CreateEpisodeItemHtml)
+                                  preprocessor=self.add_live_channel,
+                                  parser=html_episode_regex,
+                                  creator=self.create_episode_item_html)
 
         elif self.channelCode == "stievie":
             self.__app = "stievie"
@@ -118,72 +121,71 @@ class Channel(chn_class.Channel):
             self.noImage = "stievieimage.jpg"
             self.httpHeaders["Authorization"] = "apikey=%s" % (self.__apiKey, )
 
-            # self.mainListUri = "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0"
             self.mainListUri = "https://channels.medialaan.io/channels/v1/channels?preview=false"
             self._add_data_parser(self.mainListUri,
-                                  json=True,  # requiresLogon=True,  # if we need premium for channels
-                                  preprocessor=self.StievieMenu,
+                                  json=True,  # if we need premium for channels: requiresLogon=True,
+                                  preprocessor=self.stievie_menu,
                                   name="JSON Channel overview",
                                   parser=["response", "channels"],
-                                  creator=self.StievieCreateChannelItem)
+                                  creator=self.stievie_create_channel_item)
 
             self._add_data_parser("#channel", name="Channel menu parser",
-                                  preprocessor=self.StievieChannelMenu)
+                                  preprocessor=self.stievie_channel_menu)
 
             # main list parsing
             self._add_data_parser("https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0",
                                   json=True,
                                   name="Main program list parsing for Stievie",
-                                  # preprocessor=self.AddLiveChannel,
-                                  creator=self.StievieCreateEpisode,
+                                  # If we want to add live: preprocessor=self.add_live_channel,
+                                  creator=self.stievie_create_episode,
                                   parser=["response", "videos"])
 
             self._add_data_parser("https://epg.medialaan.io/epg/v2/", json=True,
                                   name="EPG Stievie parser",
-                                  creator=self.StievieCreateEpgItems,
+                                  creator=self.stievie_create_epg_items,
                                   parser=["channels", ])
 
             self._add_data_parser("https://vod.medialaan.io/vod/v2/programs?query=",
                                   name="Stievie Search Parser", json=True,
-                                  creator=self.StievieCreateEpisode,
+                                  creator=self.stievie_create_episode,
                                   parser=["response", "videos"])
 
         else:
             raise NotImplementedError("%s not supported yet" % (self.channelCode, ))
 
         self._add_data_parser(
-            "https://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
+            r"https://(?:vtm.be|www.q2.be)/video/?.+=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&.+id=\d+",
             match_type=ParserData.MatchRegex,
             name="HTML Page Video Updater",
             updater=self.update_video_item, requires_logon=True)
 
         self._add_data_parser("https://vtm.be/video/volledige-afleveringen/id/",
-                              name="HTML Page Video Updater New Style (AddMoreRecentVideos)",
+                              name="HTML Page Video Updater New Style (add_more_recent_videos)",
                               updater=self.update_video_item, requires_logon=True)
 
         # setup the main parsing data in case of JSON mainlist of the V2 API
         self._add_data_parser("/feed/programs?format=json&type=all&only_with_video=true",
                               match_type=ParserData.MatchEnd,
                               name="JSON Feed Show Parser for Medialaan",
-                              json=True, preprocessor=self.AddLiveChannelAndFetchAllData,
-                              creator=self.CreateEpisodeItemJson, parser=["response", "items"])
+                              json=True, preprocessor=self.add_live_channel_and_fetch_all_data,
+                              creator=self.create_episode_item_json, parser=["response", "items"])
 
         self._add_data_parser("https://vod.medialaan.io/vod/v2/videos/",
                               match_type=ParserData.MatchRegex,
                               name="JSON Video Updater for Medialaan",
-                              updater=self.UpdateVideoItemJson, requires_logon=True)
+                              updater=self.update_video_item_json, requires_logon=True)
 
         self._add_data_parser("https://vod.medialaan.io/vod/v2/videos?", json=True,
-                              preprocessor=self.AddVideoPageItemsJson,
-                              parser=["response", "videos"], creator=self.CreateVideoItemJson,
+                              preprocessor=self.add_video_page_items_json,
+                              parser=["response", "videos"], creator=self.create_video_item_json,
                               name="JSON Video Listing for Medialaan with programOID")
 
         self._add_data_parser("https://vod.medialaan.io/vod/v2/videos?", json=True,
                               name="JSON Video Updater for Medialaan with programOID",
-                              updater=self.UpdateVideoEpgItemJson, requires_logon=True)
+                              updater=self.update_video_epg_item_json, requires_logon=True)
 
         self._add_data_parser("#livestream", name="Live Stream Updater for Q2, VTM and Stievie",
-                              requires_logon=True, updater=self.UpdateLiveStream)
+                              requires_logon=True, updater=self.update_live_stream)
 
         # ===============================================================================================================
         # non standard items
@@ -232,13 +234,13 @@ class Channel(chn_class.Channel):
             "vtm": {}
         }
 
-        self.SetCookie()
+        self.__set_cookie()
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def SetCookie(self):
-        # Cookie: pwv=1; pws=functional|analytics|content_recommendation|targeted_advertising|social_media
+    def __set_cookie(self):
+        # Example: Cookie: pwv=1; pws=functional|analytics|content_recommendation|targeted_advertising|social_media
         domain = self.mainListUri.replace("https://", "").split("/", 1)[0]
         UriHandler.set_cookie(name="pwv", value="1", domain=domain)
         UriHandler.set_cookie(name="pws", value="functional|analytics|content_recommendation|targeted_advertising|social_media", domain=domain)
@@ -247,7 +249,7 @@ class Channel(chn_class.Channel):
         signature_settings = "mediaan_signature"
         login_token = AddonSettings.get_setting(signature_settings, store=LOCAL)
         api_key = "3_OEz9nzakKMkhPdUnz41EqSRfhJg5z9JXvS4wUORkqNf2M2c1wS81ilBgCewkot97"  # from Stievie
-        # api_key = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"  # from VTM
+        # from VTM:  api_key = "3_HZ0FtkMW_gOyKlqQzW5_0FHRC7Nd5XpXJZcDdXY4pk5eES2ZWmejRW5egwVm4ug-"
 
         # Common Query Parameters between the acounts.login and the accounts.getAccountInfo calls
         # "&include=profile%%2Cdata" \
@@ -266,7 +268,7 @@ class Channel(chn_class.Channel):
             account_info = UriHandler.open(account_info_url, proxy=self.proxy, no_cache=True)
 
             # See if it was successfull
-            if self.__ExtractSessionData(account_info, signature_settings):
+            if self.__extract_session_data(account_info, signature_settings):
                 return True
             Logger.warning("Failed to extend the VTM.be session.")
 
@@ -279,8 +281,6 @@ class Channel(chn_class.Channel):
             XbmcWrapper.show_dialog(
                 title=None,
                 lines=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
-                # notificationType=XbmcWrapper.Error,
-                # displayTime=5000
             )
             return False
         Logger.debug("Using: %s / %s", username, "*" * len(password))
@@ -323,11 +323,25 @@ class Channel(chn_class.Channel):
                               "&format=json" \
                               "&context=R{1}".format(api_key, context_id)
         login_response = UriHandler.open(login_retrieval_url, proxy=self.proxy, no_cache=True)
-        return self.__ExtractSessionData(login_response, signature_settings)
+        return self.__extract_session_data(login_response, signature_settings)
 
     # region Stievie listings/menus
-    def StievieMenu(self, data):
-        """ Creates the main Stievie menu """
+    def stievie_menu(self, data):
+        """ Creates the main Stievie menu.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
 
         items = []
         if not self.__adaptiveStreamingAvailable:
@@ -346,7 +360,23 @@ class Channel(chn_class.Channel):
         items.append(search)
         return data, items
 
-    def StievieChannelMenu(self, data):
+    def stievie_channel_menu(self, data):
+        """ Creates the main Stievie Channels menu.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         items = []
         live = MediaItem("Live %s" % (self.parentItem.name, ), "#livestream")
         live.isLive = True
@@ -363,90 +393,128 @@ class Channel(chn_class.Channel):
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels%5B%5D=vtm&channels%5B%5D=2be&channels%5B%5D=vitaya&channels%5B%5D=caz&channels%5B%5D=kzoom&channels%5B%5D=kadet&channels%5B%5D=qmusic
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
-        channelId = self.parentItem.metaData["channelId"]
-        channels = (channelId, )
+        channel_id = self.parentItem.metaData["channelId"]
+        channels = (channel_id, )
         query = "&channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
 
         today = datetime.datetime.now()
         days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
         for i in range(0, 7, 1):
-            airDate = today - datetime.timedelta(i)
-            Logger.trace("Adding item for: %s", airDate)
+            air_date = today - datetime.timedelta(i)
+            Logger.trace("Adding item for: %s", air_date)
 
-            day = days[airDate.weekday()]
+            day = days[air_date.weekday()]
             if i == 0:
                 day = "Vandaag"
             elif i == 1:
                 day = "Gisteren"
             elif i == 2:
                 day = "Eergisteren"
-            title = "%04d-%02d-%02d - %s" % (airDate.year, airDate.month, airDate.day, day)
-            url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (airDate.year, airDate.month, airDate.day, query)
+            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
+            url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (air_date.year, air_date.month, air_date.day, query)
 
             extra = MediaItem(title, url)
             extra.complete = True
             extra.icon = self.icon
             extra.thumb = self.noImage
             extra.dontGroup = True
-            extra.set_date(airDate.year, airDate.month, airDate.day, text="")
-            extra.metaData["airDate"] = airDate
+            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
+            extra.metaData["airDate"] = air_date
             items.append(extra)
 
         return data, items
 
-    def StievieCreateChannelItem(self, resultSet):
-        Logger.trace(resultSet)
+    def stievie_create_channel_item(self, result_set):
+        """ Creates a Channel MediaItem of type 'video' using the result_set from the regex.
 
-        if resultSet['premium'] and not self.__hasPremium:
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+
+        if result_set['premium'] and not self.__hasPremium:
             return None
 
-        item = MediaItem(resultSet["name"], "#channel")
-        item.description = resultSet.get("slogan", None)
-        item.metaData["channelId"] = resultSet["id"]
+        item = MediaItem(result_set["name"], "#channel")
+        item.description = result_set.get("slogan", None)
+        item.metaData["channelId"] = result_set["id"]
 
-        if "icons" in resultSet:
-            item.thumb = resultSet["icons"]["default"]
+        if "icons" in result_set:
+            # noinspection PyTypeChecker
+            item.thumb = result_set["icons"]["default"]
             if not item.thumb:
-                item.thumb = resultSet["icons"]["white"]
+                # noinspection PyTypeChecker
+                item.thumb = result_set["icons"]["white"]
         return item
 
-    def StievieCreateEpgItems(self, epg):
+    def stievie_create_epg_items(self, epg):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict epg: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
         Logger.trace(epg)
         Logger.debug("Processing EPG for channel %s", epg["id"])
 
         items = []
-        summerTime = time.localtime().tm_isdst
+        summer_time = time.localtime().tm_isdst
         now = datetime.datetime.now()
 
-        for resultSet in epg["items"]:
+        for result_set in epg["items"]:
             # if not resultSet["parentSeriesOID"]:
             #     continue
 
             # Does not always work
             # videoId = resultSet["epgId"].replace("-", "_")
             # url = "https://vod.medialaan.io/vod/v2/videos/%s_Stievie_free" % (videoId, )
-            videoId = resultSet["programOID"]
-            url = "https://vod.medialaan.io/vod/v2/videos?episodeIds=%s&limit=10&offset=0&sort=broadcastDate&sortDirection=asc" % (videoId, )
-            title = resultSet["title"]
-            if resultSet["episode"] and resultSet["season"]:
-                title = "%s - s%02de%02d" % (title, resultSet["season"], resultSet["episode"])
+            video_id = result_set["programOID"]
+            url = "https://vod.medialaan.io/vod/v2/videos?episodeIds=%s&limit=10&offset=0&sort=broadcastDate&sortDirection=asc" % (video_id, )
+            title = result_set["title"]
+            if result_set["episode"] and result_set["season"]:
+                title = "%s - s%02de%02d" % (title, result_set["season"], result_set["episode"])
 
-            if "startTime" in resultSet and resultSet["startTime"]:
-                dateTime = resultSet["startTime"]
-                dateValue = DateHelper.get_date_from_string(dateTime, date_format="%Y-%m-%dT%H:%M:%S.000Z")
+            if "startTime" in result_set and result_set["startTime"]:
+                date_time = result_set["startTime"]
+                date_value = DateHelper.get_date_from_string(date_time, date_format="%Y-%m-%dT%H:%M:%S.000Z")
                 # Convert to Belgium posix time stamp
-                dateValue2 = time.mktime(dateValue) + (1 + summerTime) * 60 * 60
+                date_value2 = time.mktime(date_value) + (1 + summer_time) * 60 * 60
                 # Conver the posix to a time stamp
-                startTime = DateHelper.get_date_from_posix(dateValue2)
+                start_time = DateHelper.get_date_from_posix(date_value2)
 
-                title = "%02d:%02d - %s" % (startTime.hour, startTime.minute, title)
+                title = "%02d:%02d - %s" % (start_time.hour, start_time.minute, title)
 
                 # Check for items in their black-out period
-                if "blackout" in resultSet and resultSet["blackout"]["enabled"]:
-                    blackoutDuration = resultSet["blackout"]["duration"]
-                    blackoutStart = startTime + datetime.timedelta(seconds=blackoutDuration)
-                    if blackoutStart < now:
-                        Logger.debug("Found item in Black-out period: %s (started at %s)", title, blackoutStart)
+                if "blackout" in result_set and result_set["blackout"]["enabled"]:
+                    blackout_duration = result_set["blackout"]["duration"]
+                    blackout_start = start_time + datetime.timedelta(seconds=blackout_duration)
+                    if blackout_start < now:
+                        Logger.debug("Found item in Black-out period: %s (started at %s)", title, blackout_start)
                         continue
 
             # else:
@@ -454,12 +522,13 @@ class Channel(chn_class.Channel):
 
             item = MediaItem(title, url)
             item.type = "video"
-            item.isGeoLocked = resultSet["geoblock"]
-            item.description = resultSet["shortDescription"]
+            item.isGeoLocked = result_set["geoblock"]
+            item.description = result_set["shortDescription"]
             # item.set_date(startTime.year, startTime.month, startTime.day)
 
-            if "images" in resultSet and resultSet["images"] and "styles" in resultSet["images"][0]:
-                images = resultSet["images"][0]["styles"]
+            if "images" in result_set and result_set["images"] and "styles" in result_set["images"][0]:
+                images = result_set["images"][0]["styles"]
+                # Fanart image
                 # if "1520x855" in images:
                 #     item.fanart = images["1520x855"]
                 if "400x225" in images:
@@ -469,16 +538,29 @@ class Channel(chn_class.Channel):
 
         return items
 
-    def StievieCreateEpisode(self, resultSet):
-        Logger.trace(resultSet)
-        title = resultSet['title']
+    def stievie_create_episode(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+        title = result_set['title']
         url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
               "&apikey=%s" \
               "&sort=broadcastDate&sortDirection=desc" \
-              "&programIds=%s" % (self.__apiKey, resultSet['id'],)
+              "&programIds=%s" % (self.__apiKey, result_set['id'],)
         item = MediaItem(title, url)
         item.fanart = self.fanart
-        item.thumb = self.__FindImage(resultSet,  self.noImage)
+        item.thumb = self.__find_image(result_set, self.noImage)
         return item
     # endregion
 
@@ -503,90 +585,125 @@ class Channel(chn_class.Channel):
         url = "https://vod.medialaan.io/vod/v2/programs?query=%s"
         return chn_class.Channel.search_site(self, url)
 
-    def AddLiveChannelAndFetchAllData(self, data):
-        data, items = self.AddLiveChannel(data)
+    def add_live_channel_and_fetch_all_data(self, data):
+        """ Preprocesses that data and adds live channels and fetches al related data via extra
+        json calls.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        data, items = self.add_live_channel(data)
 
         # The current issue with this is that the API is providing only the videos and not
         # the full episodes.
 
         json = JsonHelper(data)
-        jsonItems = json.get_value("response", "items")
+        json_items = json.get_value("response", "items")
         count = json.get_value("response", "total")
         for i in range(100, count, 100):
             url = "%s&from=%s" % (self.mainListUri, i)
             Logger.debug("Retrieving more items from: %s", url)
-            moreData = UriHandler.open(url, proxy=self.proxy)
-            moreJson = JsonHelper(moreData)
-            moreItems = moreJson.get_value("response", "items")
-            if moreItems:
-                jsonItems += moreItems
+            more_data = UriHandler.open(url, proxy=self.proxy)
+            more_json = JsonHelper(more_data)
+            more_items = more_json.get_value("response", "items")
+            if more_items:
+                json_items += more_items
 
+        Logger.debug("Added: %s extra items", len(json_items))
         return json, items
 
-    def CreateEpisodeItemJson(self, resultSet):
-        """Creates a new MediaItem for an episode
+    def create_episode_item_json(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
-       Arguments:
-       resultSet : list[string] - the resultSet of the self.episodeItemRegex
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
 
-       Returns:
-       A new MediaItem of type 'folder'
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
-       This method creates a new MediaItem from the Regular Expression or Json
-       results <resultSet>. The method should be implemented by derived classes
-       and are specific to the channel.
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
-       """
+        """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        title = resultSet['title']
+        title = result_set['title']
 
-        if resultSet["parent_series_oid"] is None:
+        if result_set["parent_series_oid"] is None:
             return None
-        # if not resultSet["is_featured"]:
+
+        # Exclude some items?
+        # if not result_set["is_featured"]:
         #     # most of them are empty anyways
         #     return None
-        # if resultSet.get("archived", False):
+        # if result_set.get("archived", False):
         #     return None
 
         url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
               "&apikey=%s" \
               "&sort=broadcastDate&sortDirection=desc" \
-              "&programIds=%s" % (self.__apiKey, resultSet['parent_series_oid'],)
+              "&programIds=%s" % (self.__apiKey, result_set['parent_series_oid'],)
 
         item = MediaItem(title, url)
         item.fanart = self.fanart
         item.thumb = self.noImage
-        item.description = resultSet.get('body', None)
+        item.description = result_set.get('body', None)
         if item.description:
             # Clean HTML
             item.description = item.description.replace("<br />", "\n\n")
             item.description = HtmlHelper.to_text(item.description)
 
-        if 'images' in resultSet and 'image' in resultSet['images']:
-            item.thumb = resultSet['images']['image'].get('full', self.noImage)
+        if 'images' in result_set and 'image' in result_set['images']:
+            # noinspection PyTypeChecker
+            item.thumb = result_set['images']['image'].get('full', self.noImage)
         return item
 
-    def AddVideoPageItemsJson(self, data):
+    def add_video_page_items_json(self, data):
+        """ Preprocesses that data and adds next page items.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         items = []
         json = JsonHelper(data)
-        currentOffset = json.get_value("request", "offset") or 0
-        itemsOnThisPage = len(json.get_value("response", "videos") or [])
-        totalItems = json.get_value("response", "total")
+        current_offset = json.get_value("request", "offset") or 0
+        items_on_this_page = len(json.get_value("response", "videos") or [])
+        total_items = json.get_value("response", "total")
 
-        if totalItems > currentOffset + itemsOnThisPage:
+        if total_items > current_offset + items_on_this_page:
             # add next page items
-            newOffset = currentOffset + itemsOnThisPage
-            seriesId = json.get_value("request", "programIds")[0]
+            new_offset = current_offset + items_on_this_page
+            series_id = json.get_value("request", "programIds")[0]
 
             url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
                   "&offset=%s" \
                   "&apikey=%s" \
                   "&sort=broadcastDate&sortDirection=desc" \
-                  "&programIds=%s" % (newOffset, self.__apiKey, seriesId,)
+                  "&programIds=%s" % (new_offset, self.__apiKey, series_id,)
 
-            # url = "https://vod.medialaan.io/api/1.0/list?app_id=%s&parentSeriesOID=%s&offset=%s" % (self.__app, seriesId, newOffset)
             more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             item = MediaItem(more, url)
             item.thumb = self.noImage
@@ -597,48 +714,139 @@ class Channel(chn_class.Channel):
 
         return json, items
 
-    def ExtractVtmIdFromJson(self, data):
-        showId = Regexer.do_regex('\["(\d{15})"', data)[0]
+    def extract_vtm_id_from_json(self, data):
+        """ Preprocesses data and extracts the VTM IDs from the json.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        show_id = Regexer.do_regex(r'\["(\d{15})"', data)[0]
         url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
               "&apikey=%s" \
               "&sort=broadcastDate&sortDirection=desc" \
-              "&programIds=%s" % (self.__apiKey, showId)
+              "&programIds=%s" % (self.__apiKey, show_id)
         data = UriHandler.open(url, proxy=self.proxy)
         return data, []
 
-    def CreateVideoItemJson(self, resultSet):
-        Logger.trace(resultSet)
+    def create_video_item_json(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-        if 'episode' in resultSet:
-            title = resultSet['episode']['title']
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+
+        if 'episode' in result_set:
+            # noinspection PyTypeChecker
+            title = result_set['episode']['title']
         else:
-            title = resultSet['title']
+            title = result_set['title']
 
-        url = "https://vod.medialaan.io/vod/v2/videos/%(id)s" % resultSet
+        url = "https://vod.medialaan.io/vod/v2/videos/%(id)s" % result_set
         item = MediaItem(title, url, type="video")
-        item.description = resultSet.get('text')
-        item.thumb = self.__FindImage(resultSet.get('episode', {}), self.parentItem.thumb)
+        item.description = result_set.get('text')
+        item.thumb = self.__find_image(result_set.get('episode', {}), self.parentItem.thumb)
 
         # broadcastDate=2018-05-31T18:39:36.840Z
-        created = DateHelper.get_date_from_string(resultSet['broadcastDate'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
+        created = DateHelper.get_date_from_string(result_set['broadcastDate'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
         item.set_date(*created[0:6])
 
         return item
 
-    def UpdateVideoItemJson(self, item):
-        videoId = item.url.rsplit("/", 1)[-1]
-        return self.__UpdateVideoItem(item, videoId)
+    def update_video_item_json(self, item):
+        """ Updates an existing MediaItem with more data.
 
-    def UpdateVideoEpgItemJson(self, item):
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        video_id = item.url.rsplit("/", 1)[-1]
+        return self.__update_video_item(item, video_id)
+
+    def update_video_epg_item_json(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
-        jsonData = JsonHelper(data)
-        videoId = jsonData.get_value("response", "videos", 0, "id")
-        return self.__UpdateVideoItem(item, videoId)
+        json_data = JsonHelper(data)
+        video_id = json_data.get_value("response", "videos", 0, "id")
+        return self.__update_video_item(item, video_id)
 
-    def AddLiveChannel(self, data):
+    def add_live_channel(self, data):
+        """ Preprocesses that data and adds live channels.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         Logger.info("Performing Pre-Processing")
-        # if self.channelCode != "vtm":
-        #     return data, []
 
         username = AddonSettings.get_setting("mediaan_username")
         if not username:
@@ -668,37 +876,37 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def CreateEpisodeItemHtml(self, resultSet):
+    def create_episode_item_html(self, result_set):
         """Creates a new MediaItem for an episode
 
        Arguments:
-       resultSet : list[string] - the resultSet of the self.episodeItemRegex
+       result_set : list[string] - the result_set of the self.episodeItemRegex
 
        Returns:
        A new MediaItem of type 'folder'
 
        This method creates a new MediaItem from the Regular Expression or Json
-       results <resultSet>. The method should be implemented by derived classes
+       results <result_set>. The method should be implemented by derived classes
        and are specific to the channel.
 
        """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        title = resultSet['title']
-        url = resultSet['url']
+        title = result_set['title']
+        url = result_set['url']
         if not url.startswith("http"):
             url = "%s%s" % (self.baseUrl, url)
         # Try to mix the Medialaan API with HTML is not working
-        # programId = resultSet['url'].split('%3A')[-1]
-        programId = title.rstrip()
-        if programId in self.__mappings.get(self.channelCode, {}):
-            seriesId = self.__mappings[self.channelCode][programId]
-            Logger.debug("Using JSON SeriesID '%s' for '%s' (%s)", seriesId, title, programId)
+        # programId = result_set['url'].split('%3A')[-1]
+        program_id = title.rstrip()
+        if program_id in self.__mappings.get(self.channelCode, {}):
+            series_id = self.__mappings[self.channelCode][program_id]
+            Logger.debug("Using JSON SeriesID '%s' for '%s' (%s)", series_id, title, program_id)
             url = "https://vod.medialaan.io/vod/v2/videos?limit=18" \
                   "&apikey=%s" \
                   "&sort=broadcastDate&sortDirection=desc" \
-                  "&programIds=%s" % (self.__apiKey, seriesId, )
+                  "&programIds=%s" % (self.__apiKey, series_id, )
         else:
             url = HtmlEntityHelper.strip_amp(url)
         # We need to convert the URL
@@ -710,37 +918,47 @@ class Channel(chn_class.Channel):
         item.thumb = self.noImage
         return item
 
-    def AddMoreRecentVideos(self, data):
+    def add_more_recent_videos(self, data):
+        """ Preprocesses the data and adds more recent videos.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         items = []
 
-        videoId = self.parentItem.url.rsplit("%3A", 1)[-1]
-        recentUrl = "https://vtm.be/block/responsive/medialaan_vod/program?offset=0&limit=10&program=%s" % (videoId, )
-        recentData = UriHandler.open(recentUrl, proxy=self.proxy)
+        video_id = self.parentItem.url.rsplit("%3A", 1)[-1]
+        recent_url = "https://vtm.be/block/responsive/medialaan_vod/program?offset=0&limit=10&program=%s" % (video_id, )
+        recent_data = UriHandler.open(recent_url, proxy=self.proxy)
 
         # https://vtm.be/video/volledige-afleveringen/id/257124125192000
-        regex = '<a href="/(?<url>[^"]+)"[^>]*>\W+<img[^>]+src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?' \
-                '<div class="item-date">(?<day>\d+)/(?<month>\d+)/(?<year>\d+)</div>\W+<[^>]+>\W+' \
-                '<div[^>]+class="item-caption-title">(?<title>[^<]+)'
+        regex = r'<a href="/(?<url>[^"]+)"[^>]*>\W+<img[^>]+src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?' \
+                r'<div class="item-date">(?<day>\d+)/(?<month>\d+)/(?<year>\d+)</div>\W+<[^>]+>\W+' \
+                r'<div[^>]+class="item-caption-title">(?<title>[^<]+)'
         regex = Regexer.from_expresso(regex)
-        results = Regexer.do_regex(regex, recentData)
+        results = Regexer.do_regex(regex, recent_data)
         for result in results:
             Logger.trace(result)
-            item = self.CreateVideoItemHtml(result)
+            item = self.create_video_item_html(result)
             items.append(item)
 
         return data, items
 
-    def CreateVideoItemHtml(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item_html(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -748,42 +966,41 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        title = resultSet['title']
+        title = result_set['title']
         if title:
             title = title.strip()
 
-        if 'subtitle' in resultSet and title:
-            title = "%s - %s" % (title, resultSet['subtitle'].strip())
-        elif 'subtitle' in resultSet:
-            title = resultSet['subtitle'].strip()
+        if 'subtitle' in result_set and title:
+            title = "%s - %s" % (title, result_set['subtitle'].strip())
+        elif 'subtitle' in result_set:
+            title = result_set['subtitle'].strip()
 
         if not title:
-            Logger.warning("Item without title found: %s", resultSet)
+            Logger.warning("Item without title found: %s", result_set)
             return None
 
-        url = resultSet["url"].replace('  ', ' ')
-        if not resultSet["url"].startswith("http"):
-            url = "%s/%s" % (self.baseUrl, resultSet["url"])
+        url = result_set["url"].replace('  ', ' ')
+        if not result_set["url"].startswith("http"):
+            url = "%s/%s" % (self.baseUrl, result_set["url"])
         item = MediaItem(title, url, type="video")
-        item.thumb = resultSet['thumburl']
+        item.thumb = result_set['thumburl']
         item.complete = False
 
-        if "year" in resultSet and resultSet["year"]:
-            item.set_date(resultSet["year"], resultSet["month"], resultSet["day"])
+        if "year" in result_set and result_set["year"]:
+            item.set_date(result_set["year"], result_set["month"], result_set["day"])
         return item
 
     def update_video_item(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -797,6 +1014,11 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
@@ -806,14 +1028,35 @@ class Channel(chn_class.Channel):
             return None
 
         data = UriHandler.open(item.url, proxy=self.proxy)
-        videoIdRegex = '"vodId":"([^"]+)"'
-        videoId = Regexer.do_regex(videoIdRegex, data)[0]
-        return self.__UpdateVideoItem(item, videoId)
+        video_id_regex = '"vodId":"([^"]+)"'
+        video_id = Regexer.do_regex(video_id_regex, data)[0]
+        return self.__update_video_item(item, video_id)
 
-    def UpdateLiveStream(self, item):
+    def update_live_stream(self, item):
+        """ Updates an existing Live Stream MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         Logger.debug("Updating Live stream")
         # let's request a token
-        token = self.__GetToken()
+        token = self.__get_token()
 
         # What is the channel name to play
         channel = self.channelCode
@@ -832,25 +1075,25 @@ class Channel(chn_class.Channel):
             auth.update(self.localIP)
 
         data = UriHandler.open(url, proxy=self.proxy, no_cache=True, additional_headers=auth)
-        jsonData = JsonHelper(data)
-        hls = jsonData.get_value("response", "url", "hls-aes-linear")
+        json_data = JsonHelper(data)
+        hls = json_data.get_value("response", "url", "hls-aes-linear")
         if not hls:
             return item
 
         # We can do this without DRM apparently.
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False) or True:
             # get the cookies
-            licenseServerUrl = jsonData.get_value("response", "drm", "format", "hls-aes", "licenseServerUrl")
-            UriHandler.open(licenseServerUrl, proxy=self.proxy, no_cache=True)
+            license_server_url = json_data.get_value("response", "drm", "format", "hls-aes", "licenseServerUrl")
+            UriHandler.open(license_server_url, proxy=self.proxy, no_cache=True)
             domain = ".license.medialaan.io"
-            channelPath = jsonData.get_value("response", "broadcast", "channel")
+            channel_path = json_data.get_value("response", "broadcast", "channel")
 
             # we need to fetch the specific cookies to pass on to the Adaptive add-on
-            if channelPath == "2be":
-                channelPath = "q2"
-            path = '/keys/{0}/aes'.format(channelPath)
+            if channel_path == "2be":
+                channel_path = "q2"
+            path = '/keys/{0}/aes'.format(channel_path)
             cookies = ["CloudFront-Key-Pair-Id", "CloudFront-Policy", "CloudFront-Signature"]
-            licenseKey = ""
+            license_key = ""
             for c in cookies:
                 cookie = UriHandler.get_cookie(c, domain, path=path)
                 if cookie is None:
@@ -858,117 +1101,165 @@ class Channel(chn_class.Channel):
                     return item
 
                 value = cookie.value
-                licenseKey = "{0}; {1}={2}".format(licenseKey, c, value)
+                license_key = "{0}; {1}={2}".format(license_key, c, value)
 
-            licenseKey = licenseKey[2:]
-            licenseKey = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.url_encode(licenseKey))
+            license_key = license_key[2:]
+            license_key = "|Cookie={0}|R{{SSM}}|".format(HtmlEntityHelper.url_encode(license_key))
             part = item.create_new_empty_media_part()
             stream = part.append_media_stream(hls, 0)
-            M3u8.set_input_stream_addon_input(stream, license_key=licenseKey)
+            M3u8.set_input_stream_addon_input(stream, license_key=license_key)
             item.complete = True
         else:
             Logger.error("Cannot play live-stream without encryption support.")
         return item
 
-    def UpdateHtmlClipItem(self, item):
-        data = UriHandler.open(item.url)
-        jsonData = Regexer.do_regex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
-        jsonData = JsonHelper(jsonData[-1])
-        videoInfo = jsonData.get_value('medialaan_player', )
+    def update_html_clip_item(self, item):
+        """ Updates an existing MediaItem with more data.
 
-        videoConfig = None
-        for key in videoInfo:
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = Regexer.do_regex(r"Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
+        json_data = JsonHelper(json_data[-1])
+        video_info = json_data.get_value('medialaan_player', )
+
+        video_config = None
+        for key in video_info:
             Logger.trace("Checking key: %s", key)
-            if "videoConfig" not in videoInfo[key]:
+            if "videoConfig" not in video_info[key]:
                 continue
 
-            videoConfig = videoInfo[key]['videoConfig']['video']
+            video_config = video_info[key]['videoConfig']['video']
             break
 
-        if not videoConfig:
+        if not video_config:
             Logger.error("No video info found.")
 
-        streams = videoConfig['formats']
+        streams = video_config['formats']
         for stream in streams:
-            streamUrl = stream['url']
+            stream_url = stream['url']
             if stream['type'] == "mp4":
-                item.append_single_stream(streamUrl, 0)
+                item.append_single_stream(stream_url, 0)
                 item.complete = True
 
         return item
 
-    def __FindImage(self, resultSet, fallback=None):
-        if "images" in resultSet and resultSet["images"]:
-            firstKey = resultSet["images"].keys()[0]
-            images = resultSet["images"][firstKey]
+    def __find_image(self, result_set, fallback=None):
+        if "images" in result_set and result_set["images"]:
+            first_key = result_set["images"].keys()[0]
+            images = result_set["images"][first_key]
             images = images.get("16_9_Landscape", images.get("default", {}))
             if "styles" in images and "large" in images["styles"]:
                 return images["styles"]["large"]
         return fallback
 
-    def __UpdateVideoItem(self, item, videoId):
-        # we need a token:
-        token = self.__GetToken()
+    def __update_video_item(self, item, video_id):
+        """ Updates an existing MediaItem with more data.
 
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+        :param str video_id: the video ID of the item to update.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        # we need a token:
+        token = self.__get_token()
+
+        # Set a fixed device ID?
         # deviceId = AddonSettings.get_client_id()
-        mediaUrl = "https://vod.medialaan.io/vod/v2/videos/" \
-                   "%s" \
-                   "/watch?deviceId=%s" % (
-                       videoId,
-                       uuid.uuid4()
-                   )
+        media_url = "https://vod.medialaan.io/vod/v2/videos/" \
+                    "%s" \
+                    "/watch?deviceId=%s" % (
+                        video_id,
+                        uuid.uuid4()
+                    )
 
         auth = "apikey=%s&access_token=%s" % (self.__apiKey, token)
         headers = {"Authorization": auth}
-        data = UriHandler.open(mediaUrl, proxy=self.proxy, additional_headers=headers)
+        data = UriHandler.open(media_url, proxy=self.proxy, additional_headers=headers)
 
-        jsonData = JsonHelper(data)
-        dashInfo = jsonData.get_value("response", "dash-cenc")
-        if self.__adaptiveStreamingAvailable and dashInfo:
+        json_data = JsonHelper(data)
+        dash_info = json_data.get_value("response", "dash-cenc")
+        if self.__adaptiveStreamingAvailable and dash_info:
             Logger.debug("Using Dash streams to playback")
-            dashInfo = jsonData.get_value("response", "dash-cenc")
-            licenseUrl = dashInfo["widevineLicenseServerURL"]
-            streamUrl = dashInfo["url"]
-            sessionId = jsonData.get_value("request", "access_token")
+            dash_info = json_data.get_value("response", "dash-cenc")
+            license_url = dash_info["widevineLicenseServerURL"]
+            stream_url = dash_info["url"]
+            session_id = json_data.get_value("request", "access_token")
 
-            licenseHeader = {
+            license_header = {
                 "merchant": "medialaan",
                 "userId": self.__userId,
-                "sessionId": sessionId
+                "sessionId": session_id
             }
-            licenseHeader = JsonHelper.dump(licenseHeader, False)
-            licenseHeaders = "x-dt-custom-data={0}&Content-Type=application/octstream".format(base64.b64encode(licenseHeader))
-            licenseKey = "{0}?specConform=true|{1}|R{{SSM}}|".format(licenseUrl, licenseHeaders or "")
+            license_header = JsonHelper.dump(license_header, False)
+            license_headers = "x-dt-custom-data={0}&Content-Type=application/octstream".format(base64.b64encode(license_header))
+            license_key = "{0}?specConform=true|{1}|R{{SSM}}|".format(license_url, license_headers or "")
 
             part = item.create_new_empty_media_part()
-            stream = part.append_media_stream(streamUrl, 0)
-            Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=licenseKey, license_type="com.widevine.alpha")
+            stream = part.append_media_stream(stream_url, 0)
+            Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=license_key, license_type="com.widevine.alpha")
             item.complete = True
         else:
             Logger.debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
 
-            m3u8Url = jsonData.get_value("response", "hls-encrypted", "url")
-            if not m3u8Url:
-                m3u8Url = jsonData.get_value("response", "uri")
-                # m3u8Url = jsonData.get_value("response", "hls-drm-uri")  # not supported by Kodi
+            m3u8_url = json_data.get_value("response", "hls-encrypted", "url")
+            if not m3u8_url:
+                m3u8_url = json_data.get_value("response", "uri")
+                # not supported by Kodi: m3u8_url = jsonData.get_value("response", "hls-drm-uri")
 
             part = item.create_new_empty_media_part()
             # Set the Range header to a proper value to make all streams start at the beginning. Make
             # sure that a complete TS part comes in a single call otherwise we get stuttering.
-            byteRange = 10 * 1024 * 1024
+            byte_range = 10 * 1024 * 1024
             Logger.debug("Setting an 'Range' http header of bytes=0-%d to force playback at the start "
-                         "of a stream and to include a full .ts part.", byteRange)
-            part.HttpHeaders["Range"] = 'bytes=0-%d' % (byteRange, )
+                         "of a stream and to include a full .ts part.", byte_range)
+            part.HttpHeaders["Range"] = 'bytes=0-%d' % (byte_range, )
 
-            for s, b in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy):
                 item.complete = True
-                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
 
         return item
 
-    def __GetToken(self):
-        """ Requests a playback token """
+    def __get_token(self):
+        """ Requests a playback token
+
+        :return: The token data
+        :rtype: str
+
+        """
         if not self.loggedOn:
             self.loggedOn = self.log_on()
         if not self.loggedOn:
@@ -985,25 +1276,25 @@ class Channel(chn_class.Channel):
             HtmlEntityHelper.url_encode(self.__apiKey),
             self.__sso)
         data = UriHandler.open(url, proxy=self.proxy, no_cache=True)
-        jsonData = JsonHelper(data)
-        return jsonData.get_value("response")
+        json_data = JsonHelper(data)
+        return json_data.get_value("response")
 
-    def __ExtractSessionData(self, logonData, signatureSettings):
-        logonJson = JsonHelper(logonData)
-        resultCode = logonJson.get_value("statusCode")
-        Logger.trace("Logging in returned: %s", resultCode)
-        if resultCode != 200:
-            Logger.error("Error loging in: %s - %s", logonJson.get_value("errorMessage"),
-                         logonJson.get_value("errorDetails"))
+    def __extract_session_data(self, logon_data, signature_settings):
+        logon_json = JsonHelper(logon_data)
+        result_code = logon_json.get_value("statusCode")
+        Logger.trace("Logging in returned: %s", result_code)
+        if result_code != 200:
+            Logger.error("Error loging in: %s - %s", logon_json.get_value("errorMessage"),
+                         logon_json.get_value("errorDetails"))
             return False
 
-        signatureSetting = logonJson.get_value("sessionInfo", "login_token")
-        if signatureSetting:
+        signature_setting = logon_json.get_value("sessionInfo", "login_token")
+        if signature_setting:
             Logger.info("Found 'login_token'. Saving it.")
-            AddonSettings.set_setting(signatureSettings, signatureSetting.split("|")[0], store=LOCAL)
+            AddonSettings.set_setting(signature_settings, signature_setting.split("|")[0], store=LOCAL)
 
-        self.__signature = logonJson.get_value("UIDSignature")
-        self.__userId = logonJson.get_value("UID")
-        self.__signatureTimeStamp = logonJson.get_value("signatureTimestamp")
-        self.__hasPremium = logonJson.get_value("premium")
+        self.__signature = logon_json.get_value("UIDSignature")
+        self.__userId = logon_json.get_value("UID")
+        self.__signatureTimeStamp = logon_json.get_value("signatureTimestamp")
+        self.__hasPremium = logon_json.get_value("premium")
         return True
