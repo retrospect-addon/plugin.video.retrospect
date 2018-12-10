@@ -1,12 +1,14 @@
-[B]Retrospect v4.1.7~beta36 - Changelog - 2018-12-08[/B]
+[B]Retrospect v4.1.7~beta37 - Changelog - 2018-12-10[/B]
 
 [B]Framework related[/B]
-* Fixed: thumbs with url starting with `//` where not show correctly
+* Changed: consistent naming of config.py
+* Removed: no longer used data in the config.py
+
 
 [B]GUI/Settings/Language related[/B]
-* Updated: minor Swedish language update
+-
 
 [B]Channel related[/B]
-* Added: `Search` to RTL XL (See #1069)
-* Added: `Recent` items to RTL XL (Fixes #1069)
-* Fixed: Match some more dates for VRT.nu (Fixes #1070)
+* PEP: Updated VTM.be channel
+* Fixed: some clips would not play (Fixes #1060)
+* Fixed: some textures for Belgium channels
