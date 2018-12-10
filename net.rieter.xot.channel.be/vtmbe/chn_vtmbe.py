@@ -74,6 +74,7 @@ class Channel(chn_class.Channel):
                                   parser=episodeRegex, creator=self.CreateEpisodeItemHtml)
 
             clip_regex = '<a[^>]+href="/(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
+            clip_regex = r'image-container">\W*<a[^>]+href="(?<url>[^"]+)">[\W\w]{0,500}?<div class="card-duration">[\W\w]{0,500}?<img[^>]*src="(?<thumburl>[^"]+)[\W\w]{0,1000}?<h3[^>]*>\s+<a[^>]+>(?<title>[^<]+)'
             clip_regex = Regexer.from_expresso(clip_regex)
             self._add_data_parser("*", name="New Video parser for VTM Clips",
                                   parser=clip_regex, creator=self.CreateVideoItemHtml,
@@ -874,7 +875,19 @@ class Channel(chn_class.Channel):
         jsonData = Regexer.do_regex("Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
         jsonData = JsonHelper(jsonData[-1])
         videoInfo = jsonData.get_value('medialaan_player', )
-        videoConfig = videoInfo[videoInfo.keys()[-1]]['videoConfig']['video']
+
+        videoConfig = None
+        for key in videoInfo:
+            Logger.trace("Checking key: %s", key)
+            if "videoConfig" not in videoInfo[key]:
+                continue
+
+            videoConfig = videoInfo[key]['videoConfig']['video']
+            break
+
+        if not videoConfig:
+            Logger.error("No video info found.")
+
         streams = videoConfig['formats']
         for stream in streams:
             streamUrl = stream['url']
