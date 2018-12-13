@@ -64,7 +64,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser("/live", match_type=ParserData.MatchEnd,
                               name="Main Live Stream HTML parser",
                               preprocessor=self.get_additional_live_items,
-                              parser='<a href="[^"]+/live/([^"]+)" class="npo-tile-link"[^>]+>[\w\W]{0,1000}?<img data-src="([^"]+)"[\w\W]{0,1000}?<h2>(?:Nu: )?([^<]+)</h2>\W+<p>(?:Straks: )?([^<]*)</p>',
+                              parser=r'<a href="[^"]+/live/([^"]+)" class="npo-tile-link"[^>]+>[\w\W]{0,1000}?<img data-src="([^"]+)"[\w\W]{0,1000}?<h2>(?:Nu: )?([^<]+)</h2>\W+<p>(?:Straks: )?([^<]*)</p>',
                               creator=self.create_live_tv,
                               updater=self.update_video_item_live)
 
@@ -91,8 +91,8 @@ class Channel(chn_class.Channel):
         self._add_data_parser("#alphalisting", preprocessor=self.alpha_listing)
 
         episode_parser = Regexer.from_expresso(
-            'id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+'
-            '<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
+            r'id="(?<powid>[^"]+)"[^>]*>\W*<a href="(?<url>[^"]+)" title="(?<title>[^"]+)"[^>]+\W+'
+            r'<div[^(>]+>\s*(?:<img[^>]+data-src="(?<thumburl>[^"]+)")?')
         self._add_data_parsers(["https://www.npostart.nl/media/series?page=", ],
                                name="Parser for main series overview pages",
                                preprocessor=self.extract_tiles,
@@ -101,11 +101,11 @@ class Channel(chn_class.Channel):
 
         # very similar parser as the Live Channels!
         video_parser = Regexer.from_expresso(
-            '<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/'
-            '(?<url>[^/"]+)" class="npo-tile-link"[^>]+data-scorecard=\'(?<videodata>[^\']*)\''
-            '[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
-            'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>'
-            '(?<subtitle>[^<]*)</p>')
+            r'<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/'
+            r'(?<url>[^/"]+)" class="npo-tile-link"[^>]+data-scorecard=\'(?<videodata>[^\']*)\''
+            r'[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
+            r'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>'
+            r'(?<subtitle>[^<]*)</p>')
         self._add_data_parsers(["https://www.npostart.nl/media/series/",
                                 "https://www.npostart.nl/search/extended",
                                 "https://www.npostart.nl/media/collections/"],
@@ -118,9 +118,9 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://www.npostart.nl/programmas",
                               match_type=ParserData.MatchExact,
                               name="Genres",
-                              parser='<a\W+class="close-dropdown"\W+href="/collectie/([^"]+)"\W+'
-                                     'title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+'
-                                     'data-argument="genreId',
+                              parser=r'<a\W+class="close-dropdown"\W+href="/collectie/([^"]+)"\W+'
+                                     r'title="([^"]+)"[^>]+data-value="([^"]+)"[^>]+'
+                                     r'data-argument="genreId',
                               creator=self.create_genre_item)
 
         # Favourites
@@ -135,10 +135,10 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_json_episode_item,
                               json=True)
 
-        tv_guide_regex = 'data-channel="(?<channel>[^"]+)"[^>]+data-title="(?<title>[^"]+)"[^>]+' \
-                         'data-id=\'(?<url>[^\']+)\'[^>]*>\W*<div[^>]*>\W+<p>\W+<span[^>]+time"' \
-                         '[^>]*>(?<hours>\d+):(?<minutes>\d+)</span>\W+<span[^<]+</span>\W+<span ' \
-                         'class="npo-epg-active"></span>\W+<span class="npo-epg-play"></span>'
+        tv_guide_regex = r'data-channel="(?<channel>[^"]+)"[^>]+data-title="(?<title>[^"]+)"[^>]+' \
+                         r'data-id=\'(?<url>[^\']+)\'[^>]*>\W*<div[^>]*>\W+<p>\W+<span[^>]+time"' \
+                         r'[^>]*>(?<hours>\d+):(?<minutes>\d+)</span>\W+<span[^<]+</span>\W+<span ' \
+                         r'class="npo-epg-active"></span>\W+<span class="npo-epg-play"></span>'
         tv_guide_regex = Regexer.from_expresso(tv_guide_regex)
         self._add_data_parser("https://www.npostart.nl/gids?date=",
                               parser=tv_guide_regex, creator=self.create_tv_guide_item)
@@ -207,7 +207,7 @@ class Channel(chn_class.Channel):
 
         json_data = JsonHelper(data)
         tiles = json_data.get_value("tiles")
-        if not isinstance(tiles,  (tuple, list)):
+        if not isinstance(tiles, (tuple, list)):
             Logger.debug("Found single tile data blob")
             new_data = tiles
         else:
@@ -258,7 +258,7 @@ class Channel(chn_class.Channel):
                 next_page = "%s&%s" % (next_page, query_string)
 
             title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            title = "\a.: %s :." % (title, )
+            title = "\a.: %s :." % (title,)
             more = mediaitem.MediaItem(title, next_page)
             more.thumb = self.parentItem.thumb
             more.fanart = self.parentItem.fanart
@@ -481,9 +481,9 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.do_regex('NPW.config.channels\s*=\s*([\w\W]+?),\s*NPW\.config\.', data)[-1].rstrip(";")
+        data = Regexer.do_regex(r'NPW.config.channels\s*=\s*([\w\W]+?),\s*NPW\.config\.', data)[-1].rstrip(";")
         # fixUp some json
-        data = re.sub('(\w+):([^/])', '"\\1":\\2', data)
+        data = re.sub(r'(\w+):([^/])', '"\\1":\\2', data)
         Logger.trace(data)
         return data, items
 
@@ -509,7 +509,7 @@ class Channel(chn_class.Channel):
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
-            sub_item = mediaitem.MediaItem(title_format % (char,), url_format % (char, ))
+            sub_item = mediaitem.MediaItem(title_format % (char,), url_format % (char,))
             sub_item.complete = True
             sub_item.icon = self.icon
             sub_item.thumb = self.noImage
@@ -1106,12 +1106,14 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         part.Subtitle = sub_title_path
 
-        for s, b in NpoStream.get_streams_from_npo(None, episode_id, proxy=self.proxy):
-            item.complete = True
-            part.append_media_stream(s, b)
-
-        if False and AddonSettings.use_adaptive_stream_add_on():
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=True):
+            part = item.create_new_empty_media_part()
             NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy)
+            item.complete = True
+        else:
+            for s, b in NpoStream.get_streams_from_npo(None, episode_id, proxy=self.proxy):
+                item.complete = True
+                part.append_media_stream(s, b)
 
         return item
 

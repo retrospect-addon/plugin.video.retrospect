@@ -51,11 +51,18 @@ class NpoStream:
             Logger.error("No url or streamId specified!")
             return
 
-        # https://www.npo.nl/player/KN_1693703 -> token
+        token_headers = {"x-requested-with": "XMLHttpRequest"}
+        token_headers.update(headers or {})
+        data = UriHandler.open("https://www.npostart.nl/api/token", proxy=proxy,
+                               additional_headers=token_headers)
+        token = JsonHelper(data).get_value("token")
+
+        post_data = {"_token": token}
         data = UriHandler.open("https://www.npostart.nl/player/{0}".format(episode_id),
-                               params="autoplay=1",
                                proxy=proxy,
-                               additional_headers=headers)
+                               additional_headers=headers,
+                               data=post_data)
+
         token = JsonHelper(data).get_value("token")
         Logger.trace("Found token %s", token)
 
@@ -69,18 +76,25 @@ class NpoStream:
 
         data = UriHandler.open(stream_data_url, proxy=proxy, additional_headers=headers)
         stream_data = JsonHelper(data)
-        license_url = stream_data.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
-        license_headers = stream_data.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
-        if license_headers:
-            license_headers = '&'.join(["{}={}".format(k, v) for k, v in license_headers.items()])
-
         stream_url = stream_data.get_value("stream", "src")
-        license_type = stream_data.get_value("stream", "keySystemOptions", 0, "name")
-        license_key = "{0}|{1}|R{{SSM}}|".format(license_url, license_headers or "")
+
+        # Encryption?
+        license_url = stream_data.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
+        if license_url:
+            Logger.info("Using encrypted Dash for NPO")
+            license_headers = stream_data.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
+            if license_headers:
+                license_headers = '&'.join(["{}={}".format(k, v) for k, v in license_headers.items()])
+            license_type = stream_data.get_value("stream", "keySystemOptions", 0, "name")
+            license_key = "{0}|{1}|R{{SSM}}|".format(license_url, license_headers or "")
+        else:
+            Logger.info("Using non-encrypted Dash for NPO")
+            license_type = None
+            license_key = None
 
         # Actually set the stream
         stream = part.append_media_stream(stream_url, 0)
-        M3u8.set_input_stream_addon_input(stream, proxy, headers)
+        # M3u8.set_input_stream_addon_input(stream, proxy, headers)
         Mpd.set_input_stream_addon_input(stream, proxy, headers,
                                          license_key=license_key,
                                          license_type=license_type)

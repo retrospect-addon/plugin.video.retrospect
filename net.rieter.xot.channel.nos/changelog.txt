@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO live radio streams (Fixes #1061)
-* Changed: renamed Uitzendinggemist to NPO Start (Fixes #1059)
+* Changed: use InputStream Adaptive for NPO (Fixes #1073)
 
 [I]Previous Changes[/I]
+* Fixed: NPO live radio streams (Fixes #1061)
+* Changed: renamed Uitzendinggemist to NPO Start (Fixes #1059)
 * Fixed: NOS.nl streams did not start (Fixes #1048)
 * Fixed: NPO shows within `Genres` would not list any items (Fixes #1037)
 * Fixed: no images for A-Z listing (Fixes #1010)
