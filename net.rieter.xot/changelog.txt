@@ -1,14 +1,11 @@
-[B]Retrospect v4.1.7~beta37 - Changelog - 2018-12-10[/B]
+[B]Retrospect v4.1.7~beta38 - Changelog - 2018-12-16[/B]
 
 [B]Framework related[/B]
-* Changed: consistent naming of config.py
-* Removed: no longer used data in the config.py
-
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* PEP: Updated VTM.be channel
-* Fixed: some clips would not play (Fixes #1060)
-* Fixed: some textures for Belgium channels
+* Changed: use InputStream Adaptive for NPO (Fixes #1073)
+* Fixed: SVT Categories (Fixes #1074)
