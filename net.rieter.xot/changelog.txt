@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7~beta38 - Changelog - 2018-12-16[/B]
+[B]Retrospect v4.1.7.38 - Changelog - 2018-12-16[/B]
 
 [B]Framework related[/B]
 -
