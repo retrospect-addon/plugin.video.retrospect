@@ -431,87 +431,87 @@ class _RequestsHandler(object):
 
         """
 
-        s = requests.session()
-        s.cookies = self.cookieJar
-        s.verify = not self.ignoreSslErrors
+        with requests.session() as s:
+            s.cookies = self.cookieJar
+            s.verify = not self.ignoreSslErrors
 
-        proxies = self.__get_proxies(proxy, uri)
-        headers = self.__get_headers(referer, additional_headers)
+            proxies = self.__get_proxies(proxy, uri)
+            headers = self.__get_headers(referer, additional_headers)
 
-        Logger.info("Performing a HEAD for %s", uri)
-        r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
-                   timeout=self.webTimeOut)
+            Logger.info("Performing a HEAD for %s", uri)
+            r = s.head(uri, proxies=proxies, headers=headers, allow_redirects=True,
+                       timeout=self.webTimeOut)
 
-        content_type = r.headers.get("Content-Type", "")
-        real_url = r.url
+            content_type = r.headers.get("Content-Type", "")
+            real_url = r.url
 
-        self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
-        if self.cookieJarFile:
-            # noinspection PyUnresolvedReferences
-            self.cookieJar.save()
+            self.status = UriStatus(code=r.status_code, url=uri, error=not r.ok, reason=r.reason)
+            if self.cookieJarFile:
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.save()
 
-        if r.ok:
-            Logger.info("%s resulted in '%s %s' (%s) for %s",
-                        r.request.method, r.status_code, r.reason, r.elapsed, r.url)
-            return content_type, real_url
-        else:
-            Logger.error("%s failed with in '%s %s' (%s) for %s",
-                         r.request.method, r.status_code, r.reason, r.elapsed, r.url)
-            return "", ""
+            if r.ok:
+                Logger.info("%s resulted in '%s %s' (%s) for %s",
+                            r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+                return content_type, real_url
+            else:
+                Logger.error("%s failed with in '%s %s' (%s) for %s",
+                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+                return "", ""
 
     # noinspection PyUnusedLocal
     def __requests(self, uri, proxy, params, data, json, referer,
                    additional_headers, no_cache, stream):
 
-        s = requests.session()
-        s.cookies = self.cookieJar
-        s.verify = not self.ignoreSslErrors
-        if self.cacheStore and not no_cache:
-            Logger.trace("Adding the %s to the request", self.cacheStore)
-            s.mount("https://", CacheHTTPAdapter(self.cacheStore))
-            s.mount("http://", CacheHTTPAdapter(self.cacheStore))
+        with requests.session() as s:
+            s.cookies = self.cookieJar
+            s.verify = not self.ignoreSslErrors
+            if self.cacheStore and not no_cache:
+                Logger.trace("Adding the %s to the request", self.cacheStore)
+                s.mount("https://", CacheHTTPAdapter(self.cacheStore))
+                s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
-        proxies = self.__get_proxies(proxy, uri)
-        if proxies is not None and "dns" in proxies:
-            s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
-                                                       logger=Logger.instance()))
+            proxies = self.__get_proxies(proxy, uri)
+            if proxies is not None and "dns" in proxies:
+                s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
+                                                           logger=Logger.instance()))
 
-        headers = self.__get_headers(referer, additional_headers)
+            headers = self.__get_headers(referer, additional_headers)
 
-        if params is not None:
-            # Old UriHandler behaviour. Set form header to keep compatible
-            if "content-type" not in headers:
-                headers["content-type"] = "application/x-www-form-urlencoded"
+            if params is not None:
+                # Old UriHandler behaviour. Set form header to keep compatible
+                if "content-type" not in headers:
+                    headers["content-type"] = "application/x-www-form-urlencoded"
 
-            Logger.info("Performing a POST with '%s' for %s", headers["content-type"], uri)
-            r = s.post(uri, data=params, proxies=proxies, headers=headers,
-                       stream=stream, timeout=self.webTimeOut)
-        elif data is not None:
-            # Normal Requests compatible data object
-            Logger.info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-            r = s.post(uri, data=data, proxies=proxies, headers=headers,
-                       stream=stream, timeout=self.webTimeOut)
-        elif json is not None:
-            Logger.info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-            r = s.post(uri, json=json, proxies=proxies, headers=headers,
-                       stream=stream, timeout=self.webTimeOut)
-        else:
-            Logger.info("Performing a GET for %s", uri)
-            r = s.get(uri, proxies=proxies, headers=headers,
-                      stream=stream, timeout=self.webTimeOut)
+                Logger.info("Performing a POST with '%s' for %s", headers["content-type"], uri)
+                r = s.post(uri, data=params, proxies=proxies, headers=headers,
+                           stream=stream, timeout=self.webTimeOut)
+            elif data is not None:
+                # Normal Requests compatible data object
+                Logger.info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
+                r = s.post(uri, data=data, proxies=proxies, headers=headers,
+                           stream=stream, timeout=self.webTimeOut)
+            elif json is not None:
+                Logger.info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
+                r = s.post(uri, json=json, proxies=proxies, headers=headers,
+                           stream=stream, timeout=self.webTimeOut)
+            else:
+                Logger.info("Performing a GET for %s", uri)
+                r = s.get(uri, proxies=proxies, headers=headers,
+                          stream=stream, timeout=self.webTimeOut)
 
-        if r.ok:
-            Logger.info("%s resulted in '%s %s' (%s) for %s",
-                        r.request.method, r.status_code, r.reason, r.elapsed, r.url)
-        else:
-            Logger.error("%s failed with '%s %s' (%s) for %s",
-                         r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+            if r.ok:
+                Logger.info("%s resulted in '%s %s' (%s) for %s",
+                            r.request.method, r.status_code, r.reason, r.elapsed, r.url)
+            else:
+                Logger.error("%s failed with '%s %s' (%s) for %s",
+                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
 
-        self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
-        if self.cookieJarFile:
-            # noinspection PyUnresolvedReferences
-            self.cookieJar.save()
-        return r
+            self.status = UriStatus(code=r.status_code, url=r.url, error=not r.ok, reason=r.reason)
+            if self.cookieJarFile:
+                # noinspection PyUnresolvedReferences
+                self.cookieJar.save()
+            return r
 
     def __get_headers(self, referer, additional_headers):
         headers = {}
