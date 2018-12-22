@@ -50,7 +50,8 @@ class Updater:
         """
 
         try:
-            self.onlineVersion = self.__get_online_version()
+            are_we_pre_release = self.currentVersion.buildType is not None
+            self.onlineVersion = self.__get_online_version(are_we_pre_release)
             if self.onlineVersion is None:
                 return False
 
@@ -60,28 +61,41 @@ class Updater:
             self.__logger.error("Error checking for updates", exc_info=True)
             return False
 
-    def __get_online_version(self):
+    def __get_online_version(self, include_alpha_beta=False):
         """ Retrieves the current online version.
+
+        :param bool include_alpha_beta: should we include alpha/beta releases?
 
         :return: Returns the current online version or `None` of no version was found.
         :rtype: None|Version
 
         """
+
         data = self.__uriHandler.open(self.updateUrl, no_cache=True)
         json_data = JsonHelper(data)
         online_downloads = list(filter(lambda d: self.__is_valid_update(d), json_data.get_value("values")))
         if len(online_downloads) == 0:
             return None
 
-        online_download = online_downloads[0]
-        online_parts = online_download['name'].rsplit(".", 1)[0].split("-")
-        if len(online_parts) < 2:
-            return None
+        max_version = None
+        for online_download in online_downloads:
+            online_parts = online_download['name'].rsplit(".", 1)[0].split("-")
+            if len(online_parts) < 2:
+                continue
 
-        # fix the problem that a ~ is preventing downloads on BitBucket
-        online_version_data = online_parts[1].replace("alpha", "~alpha").replace("beta", "~beta")
-        online_version = Version(online_version_data)
-        return online_version
+            # fix the problem that a ~ is preventing downloads on BitBucket
+            online_version_data = online_parts[1].replace("alpha", "~alpha").replace("beta", "~beta")
+            online_version = Version(online_version_data)
+
+            if not include_alpha_beta and online_version.buildType is not None:
+                self.__logger.trace("Ignoring %s", online_version)
+                continue
+
+            self.__logger.trace("Found possible version: %s", online_version)
+            if online_version > max_version:
+                max_version = online_version
+
+        return max_version
 
     def __is_valid_update(self, download):
         """ Checks if the found API entry is indeed an update.
