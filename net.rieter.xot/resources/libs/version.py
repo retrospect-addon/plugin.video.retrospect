@@ -60,6 +60,9 @@ class Comparable:
         
         """
 
+        if other is None:
+            return True
+
         return other < self
 
     def __ge__(self, other):
@@ -227,6 +230,9 @@ class Version(Comparable):
         """
 
         version_types = ["alpha", "beta"]
+
+        if other is None:
+            return False
 
         if not self.__none_is_zero(self.major) == self.__none_is_zero(other.major):
             return self.__none_is_zero(self.major) < self.__none_is_zero(other.major)
