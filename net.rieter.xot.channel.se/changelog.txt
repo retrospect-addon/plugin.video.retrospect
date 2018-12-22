@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: SVT Categories (Fixes #1074)
+* Fixed: Reverted #1074 SVT Categories (Fixes #1080)
 
 [I]Previous changes[/I]
+* Fixed: SVT Categories (Fixes #1074)
 * Fixed: SVT Öppet arkiv playback (Fixes #1066)
 * Fixed: Dplay.no had Swedish subs (Fixes #959)
 * Updated: SVT textures thanks to Johan Asplund (Fixes #1049)

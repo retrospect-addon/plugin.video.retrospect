@@ -76,8 +76,15 @@ class Channel(chn_class.Channel):
                               creator=self.create_json_genre)
 
         self._add_data_parser("https://www.svtplay.se/genre/",
-                              preprocessor=self.extract_apollo_json_data, json=True,
-                              name="Video/Folder parsers for items in a Genre/Tag")
+                              preprocessor=self.extract_json_data, json=True,
+                              name="Video/Folder parsers for items in a Genre/Tag",
+                              parser=["clusterPage", "titlesAndEpisodes"],
+                              creator=self.create_json_item)
+
+        # SVT reverted the Apollo stuff (See #1080)
+        # self._add_data_parser("https://www.svtplay.se/genre/",
+        #                       preprocessor=self.extract_apollo_json_data, json=True,
+        #                       name="Video/Folder parsers for items in a Genre/Tag")
 
         self._add_data_parser("https://www.svtplay.se/sok?q=", preprocessor=self.extract_json_data)
         self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
