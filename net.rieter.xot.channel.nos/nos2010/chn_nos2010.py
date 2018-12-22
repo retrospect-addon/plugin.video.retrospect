@@ -130,10 +130,17 @@ class Channel(chn_class.Channel):
                               creator=self.create_episode_item,
                               requires_logon=True)
 
-        # Alpha listing based on JSON interface
-        self._add_data_parser("%s/series.json" % (self.baseUrl,),
-                              parser=[], creator=self.create_json_episode_item,
-                              json=True)
+        # Alpha listing based on JSON API
+        self._add_data_parser("https://start-api.npo.nl/page/catalogue", json=True,
+                              parser=["components", 1, "data", "items"],
+                              creator=self.create_json_episode_item)
+
+        # New API endpoints:
+        # https://start-api.npo.nl/epg/2018-12-22?type=tv
+        # https://start-api.npo.nl/page/catalogue?az=C&pageSize=1000
+        # https://start-api.npo.nl/page/catalogue?pageSize=0
+        # https://start-api.npo.nl/page/catalogue?pageSize=500
+        # https://start-api.npo.nl/search?query=sinterklaas&pageSize=1000
 
         tv_guide_regex = r'data-channel="(?<channel>[^"]+)"[^>]+data-title="(?<title>[^"]+)"[^>]+' \
                          r'data-id=\'(?<url>[^\']+)\'[^>]*>\W*<div[^>]*>\W+<p>\W+<span[^>]+time"' \
@@ -300,23 +307,6 @@ class Channel(chn_class.Channel):
         # favs.set_date(2200, 1, 1, text="")
         # items.append(favs)
 
-        extra = mediaitem.MediaItem("Populair", "%s/episodes/popular.json" % (self.baseUrl,))
-        extra.complete = True
-        extra.icon = self.icon
-        extra.thumb = self.noImage
-        extra.dontGroup = True
-        extra.set_date(2200, 1, 1, text="")
-        items.append(extra)
-
-        # Tip Items
-        # extra = mediaitem.MediaItem("Tips", "%s/tips.json" % (self.baseUrl,))
-        # extra.complete = True
-        # extra.icon = self.icon
-        # extra.thumb = self.noImage
-        # extra.dontGroup = True
-        # extra.set_date(2200, 1, 1, text="")
-        # items.append(extra)
-
         extra = mediaitem.MediaItem("Live Radio",
                                     "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
@@ -334,13 +324,16 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Programma's (Hele lijst)", "%s/series.json" % (self.baseUrl,))
+        extra = mediaitem.MediaItem("Programma's (Hele lijst)",
+                                    "https://start-api.npo.nl/page/catalogue?pageSize=500")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
-        extra.description = "Volledige programma lijst van de NPO iOS/Android App."
+        extra.description = "Volledige programma lijst van NPO Start."
         extra.set_date(2200, 1, 1, text="")
+        extra.HttpHeaders["Apikey"] = "e45fe473feaf42ad9a215007c6aa5e7e"
+        # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         items.append(extra)
 
         extra = mediaitem.MediaItem("Genres", "https://www.npostart.nl/programmas")
@@ -411,14 +404,6 @@ class Channel(chn_class.Channel):
 
             items.append(extra)
 
-        extra = mediaitem.MediaItem("Recent", "%s/broadcasts/recent.json" % (self.baseUrl,))
-        extra.complete = True
-        extra.icon = self.icon
-        extra.thumb = self.noImage
-        extra.dontGroup = True
-        extra.set_date(2200, 1, 1, text="")
-
-        items.append(extra)
         return data, items
 
     def get_additional_live_items(self, data):
@@ -556,20 +541,19 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.trace("create_json_episode_item(%s)", result_set)
+        Logger.trace(result_set)
         if not result_set:
             return None
 
         # if we should not use the mobile listing and we have a non-mobile ID)
-        if 'mid' in result_set:
-            url = "https://www.npostart.nl/media/series/{mid}/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise".format(**result_set)
+        if 'id' in result_set:
+            url = "https://www.npostart.nl/media/series/{id}/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise".format(**result_set)
         else:
-            Logger.warning("Skipping (no 'mid' ID): %(name)s", result_set)
+            Logger.warning("Skipping (no '(m)id' ID): %(title)s", result_set)
             return None
 
-        name = result_set['name']
+        name = result_set['title']
         description = result_set.get('description', '')
-        thumb_url = result_set['image']
 
         item = mediaitem.MediaItem(name, url)
         item.type = 'folder'
@@ -581,10 +565,16 @@ class Channel(chn_class.Channel):
         # from NPO
         item.dontGroup = True
 
-        if thumb_url:
-            item.thumb = thumb_url
-        else:
-            item.thumb = self.noImage
+        if "images" not in result_set:
+            return item
+
+        images = result_set["images"]
+        for image_type, image_data in images.items():
+            if image_type == "original" and "tv" in image_data["formats"]:
+                    item.fanart = image_data["formats"]["tv"]["source"]
+            elif image_type == "grid.tile":
+                item.thumb = image_data["formats"]["tv"]["source"]
+
         return item
 
     # noinspection PyUnusedLocal
