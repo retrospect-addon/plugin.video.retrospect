@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7.38 - Changelog - 2018-12-16[/B]
+[B]Retrospect v4.1.7.39 - Changelog - 2018-12-22[/B]
 
 [B]Framework related[/B]
 -
@@ -7,5 +7,5 @@
 -
 
 [B]Channel related[/B]
-* Changed: use InputStream Adaptive for NPO (Fixes #1073)
-* Fixed: SVT Categories (Fixes #1074)
+* Fixed: NPO Complete listing (Fixes #1079)
+* Fixed: Reverted #1074 SVT Categories (Fixes #1080)
