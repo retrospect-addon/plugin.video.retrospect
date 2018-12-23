@@ -28,8 +28,19 @@ msgctxt "#30003"
 msgid "High"
 msgstr ""
 
-#<string id="30004"></string>
-#empty strings from id 30004 to 30008
+msgctxt "#30004"
+msgid "Release channel for update notifications"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Stable"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Alpha/Beta"
+msgstr ""
+
+#empty strings from id 30007 to 30008
 
 msgctxt "#30009"
 msgid "General"

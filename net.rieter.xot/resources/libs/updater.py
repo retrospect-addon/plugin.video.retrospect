@@ -18,13 +18,14 @@ from logger import Logger
 class Updater:
     __regex = None
 
-    def __init__(self, update_url, current_version, uri_handler, logger):
+    def __init__(self, update_url, current_version, uri_handler, logger, release_channel=True):
         """ Initiates a Updater class
 
-        :param str update_url:
-        :param Version current_version:
-        :param any uri_handler:
-        :param Logger logger:
+        :param str update_url:              The URL to look for updates.
+        :param Version current_version:     The current add-on version.
+        :param any uri_handler:             The URL handler
+        :param Logger logger:               A logger.
+        :param int release_channel:        What release track are we on? Stable or experimental?
         """
 
         if not update_url:
@@ -37,6 +38,7 @@ class Updater:
         self.updateUrl = update_url
         self.currentVersion = current_version
         self.onlineVersion = None
+        self.stableRelease = release_channel == 0
 
         self.__logger = logger
         self.__uriHandler = uri_handler
@@ -50,8 +52,10 @@ class Updater:
         """
 
         try:
-            are_we_pre_release = self.currentVersion.buildType is not None
-            self.onlineVersion = self.__get_online_version(are_we_pre_release)
+            # We don't determine this ourselves.
+            # are_we_pre_release = self.currentVersion.buildType is not None
+            include_experimental = not self.stableRelease
+            self.onlineVersion = self.__get_online_version(include_experimental)
             if self.onlineVersion is None:
                 return False
 

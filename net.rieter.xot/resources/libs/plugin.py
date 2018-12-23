@@ -89,7 +89,10 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates
-            up = Updater(Config.updateUrl, Config.version, UriHandler.instance(), Logger.instance())
+            up = Updater(Config.updateUrl, Config.version,
+                         UriHandler.instance(), Logger.instance(),
+                         AddonSettings.get_release_track())
+
             if up.is_new_version_available():
                 Logger.info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)

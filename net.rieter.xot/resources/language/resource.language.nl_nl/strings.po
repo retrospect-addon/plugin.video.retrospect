@@ -28,6 +28,19 @@ msgctxt "#30003"
 msgid "High"
 msgstr "Hoog"
 
+msgctxt "#30004"
+msgid "Release channel for update notifications"
+msgstr "Release kanaal voor update notificaties"
+
+msgctxt "#30005"
+msgid "Stable"
+msgstr "Stabiel"
+
+msgctxt "#30006"
+msgid "Alpha/Beta"
+msgstr "Alpha/Beta"
+
+#empty strings from id 30007 to 30008
 msgctxt "#30009"
 msgid "General"
 msgstr "Algemeen"
