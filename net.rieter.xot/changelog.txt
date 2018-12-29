@@ -1,11 +1,10 @@
 [B]Retrospect v4.1.7.39 - Changelog - 2018-12-22[/B]
 
 [B]Framework related[/B]
--
+* Changed: keep channels in the "channels" from the beginning.
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: NPO Complete listing (Fixes #1079)
-* Fixed: Reverted #1074 SVT Categories (Fixes #1080)
+-
