@@ -33,7 +33,6 @@
         <setting id="folders_as_video" type="bool" label="30087" default="false" />
         <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
         <setting id="folder_prefix" type="text" label="30043" default="" />
-        <setting id="hide_first_time_message" type="bool" label="30570" default="false" />
         <setting id="hide_fanart" type="bool" label="30086" default="false" />
         <setting id="ignore_ssl_errors" type="bool" label="30569" default="false" />
         <setting id="http_cache" type="bool" label="30031" default="true" />
@@ -47,6 +46,7 @@
 
     <category id="channels" label="30040">
         <setting id="show_categories" type="bool" label="30067" default="true" />
+        <setting id="hide_first_time_message" type="bool" label="30570" default="false" />
 
         <setting type="lsep" label="30060" />
         <!--<setting type="action" label="30598" action="RunScript(special://home/addons/net.rieter.xot/resources/menus/menu_enable.py)" option="close" />-->
