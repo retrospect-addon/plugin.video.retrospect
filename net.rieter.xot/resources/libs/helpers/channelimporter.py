@@ -11,6 +11,7 @@
 # ===============================================================================
 # Import the default modules
 # ===============================================================================
+import shutil
 import sys
 import os
 import io
@@ -285,6 +286,21 @@ class ChannelIndex:
         :rtype: bool
 
         """
+
+        # We keep the channels in the "channels" folder and don't move them anymore as we should
+        # not be changing the Kodi addon folder.
+
+        channel_path = os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH)
+        if not os.path.exists(channel_path):
+            Logger.info("Not cleaning up old add-on folders as there is no channel path: %s", channel_path)
+            return False
+
+        to_deploy = os.listdir(channel_path)
+        for deploy in to_deploy:
+            old_add_on_path = os.path.abspath(os.path.join(Config.rootDir, "..", deploy))
+            if os.path.isdir(old_add_on_path):
+                Logger.info("Removing old add-on %s from %s", deploy, old_add_on_path)
+                shutil.rmtree(old_add_on_path)
 
         return False
 
