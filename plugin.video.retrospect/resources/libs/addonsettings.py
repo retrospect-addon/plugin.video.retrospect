@@ -1048,7 +1048,7 @@ class AddonSettings(object):
         channels.sort()
 
         # Then we read the original file
-        filename_template = os.path.join(config.rootDir, "resources", "settings_template.xml")
+        filename_template = os.path.join(config.rootDir, "resources", "data", "settings_template.xml")
         # noinspection PyArgumentEqualDefault
         settings_xml = open(filename_template, "r")
         contents = settings_xml.read()
