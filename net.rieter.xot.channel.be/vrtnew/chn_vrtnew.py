@@ -1,6 +1,5 @@
 # coding:Cp1252
 
-import mediaitem
 import chn_class
 
 from parserdata import ParserData
@@ -8,6 +7,7 @@ from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
 from urihandler import UriHandler
+from mediaitem import MediaItem
 
 
 class Channel(chn_class.Channel):
@@ -15,18 +15,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         if self.channelCode == "redactie":
@@ -41,126 +40,142 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              parser='<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)" title="([^"]+)"\W*>',
+                              parser=r'<li[^>]*>\W*<a href="(/cm/[^"]+/videozone/programmas/[^"]+)'
+                                     r'" title="([^"]+)"\W*>',
                               creator=self.create_episode_item)
 
         self._add_data_parser("*", creator=self.create_video_item,
-                              parser='<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}<span class="video">\W*<img src="([^"]+)"')
+                              parser=r'<a href="(/cm/[^/]+/videozone/programmas/[^?"]+)"[^>]*>\W*'
+                                     r'<span[^>]+>([^<]+)</span>\W*(?:<span[^<]+</span>\W*){0,2}'
+                                     r'<span class="video">\W*<img src="([^"]+)"')
         self._add_data_parser("*", creator=self.create_video_item,
-                              parser='data-video-permalink="([^"]+)"[^>]*>\W+<span[^>]*>([^<]+)</span>\W+<span[^>]*>\W+<img[^>]*src="([^"]+)"', updater=self.update_video_item)
+                              parser=r'data-video-permalink="([^"]+)"[^>]*>\W+<span[^>]*>([^<]+)'
+                                     r'</span>\W+<span[^>]*>\W+<img[^>]*src="([^"]+)"',
+                              updater=self.update_video_item)
 
         self._add_data_parser("*", creator=self.create_page_item,
-                              parser='<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
+                              parser=r'<a href="([^"]+\?page=\d+)"[^>]+>(\d+)')
         self.pageNavigationRegexIndex = 1
 
-        self.mediaUrlRegex = 'data-video-((?:src|rtmp|iphone|mobile)[^=]*)="([^"]+)"\W+(?:data-video-[^"]+path="([^"]+)){0,1}'
+        self.mediaUrlRegex = r'data-video-((?:src|rtmp|iphone|mobile)[^=]*)="([^"]+)"\W+' \
+                             r'(?:data-video-[^"]+path="([^"]+)){0,1}'
+
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
     def pre_process_folder_list(self, data):
-        # Only get the first bit
-        seperatorIndex = data.find('<div class="splitter split24">')
-        data = data[:seperatorIndex]
-        return chn_class.Channel.pre_process_folder_list(self, data)
+        """ Performs pre-process actions for data processing.
 
-    def create_episode_item(self, resultSet):
-        """Creates a new MediaItem for an episode
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
 
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
+        The return values should always be instantiated in at least ("", []).
 
-        Returns:
-        A new MediaItem of type 'folder'
+        :param str data: The retrieve data that was loaded for the current item and URL.
 
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
-        url = "%s%s" % (self.baseUrl, resultSet[0])
-        name = resultSet[1]
+        # Only get the first bit
+        seperator_index = data.find('<div class="splitter split24">')
+        data = data[:seperator_index]
+        return chn_class.Channel.pre_process_folder_list(self, data)
 
-        item = mediaitem.MediaItem(name.capitalize(), url)
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        url = "%s%s" % (self.baseUrl, result_set[0])
+        name = result_set[1]
+
+        item = MediaItem(name.capitalize(), url)
         item.icon = self.icon
         item.type = "folder"
         item.complete = True
         return item
 
-    def create_folder_item(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
+    def create_folder_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
 
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
         item = None
         # not implemented yet
         return item
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focused or selected
+        self.update_video_item method is called if the item is focussed or selected
         for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        name = resultSet[1]
-        url = resultSet[0]
+        name = result_set[1]
+        url = result_set[0]
         if not url.startswith("http"):
-            url = "%s%s" % (self.baseUrl, resultSet[0])
+            url = "%s%s" % (self.baseUrl, result_set[0])
 
-        if len(resultSet) == 3:
-            thumb = resultSet[2]
+        if len(result_set) == 3:
+            thumb = result_set[2]
         else:
             thumb = ""
 
         if thumb and not thumb.startswith("http://"):
             thumb = "%s%s" % (self.baseUrl, thumb)
 
-        item = mediaitem.MediaItem(name, url)
+        item = MediaItem(name, url)
         item.thumb = thumb
         item.description = name
         item.icon = self.icon
         item.type = 'video'
         item.complete = False
 
-        nameParts = name.rsplit("/", 3)
-        # if name[-3] == name[-6] == "/":
-        #     year = int(name[-2:]) + 2000
-        #     month = name[-5:-3]
-        #     day = name[-8:-6]
-        if len(nameParts) == 3:
-            Logger.debug("Found possible date in name: %s", nameParts)
-            year = nameParts[2]
+        name_parts = name.rsplit("/", 3)
+        if len(name_parts) == 3:
+            Logger.debug("Found possible date in name: %s", name_parts)
+            year = name_parts[2]
             if len(year) == 2:
                 year = 2000 + int(year)
-            month = nameParts[1]
-            day = nameParts[0].rsplit(" ", 1)[1]
+            month = name_parts[1]
+            day = name_parts[0].rsplit(" ", 1)[1]
             Logger.trace("%s - %s - %s", year, month, day)
             item.set_date(year, month, day)
 
@@ -207,21 +222,15 @@ class Channel(chn_class.Channel):
                 flv = url[1]
                 bitrate = 750
             else:
-                flvServer = url[1]
-                flvPath = url[2]
+                flv_server = url[1]
+                flv_path = url[2]
 
                 if url[0] == "rtmp-server":
-                    flv = "%s//%s" % (flvServer, flvPath)
+                    flv = "%s//%s" % (flv_server, flv_path)
                     bitrate = 750
 
-                elif url[0] == "rtmpt-server":
-                    continue
-                    #flv = "%s//%s" % (flvServer, flvPath)
-                    #flv = self.get_verifiable_video_url(flv)
-                    #bitrate = 1500
-
                 elif url[0] == "iphone-server":
-                    flv = "%s/%s" % (flvServer, flvPath)
+                    flv = "%s/%s" % (flv_server, flv_path)
                     if not flv.endswith("playlist.m3u8"):
                         flv = "%s/playlist.m3u8" % (flv,)
 
@@ -232,11 +241,11 @@ class Channel(chn_class.Channel):
                     continue
 
                 elif url[0] == "mobile-server":
-                    flv = "%s/%s" % (flvServer, flvPath)
+                    flv = "%s/%s" % (flv_server, flv_path)
                     bitrate = 250
 
                 else:
-                    flv = "%s/%s" % (flvServer, flvPath)
+                    flv = "%s/%s" % (flv_server, flv_path)
                     bitrate = 0
 
             part.append_media_stream(flv, bitrate)
