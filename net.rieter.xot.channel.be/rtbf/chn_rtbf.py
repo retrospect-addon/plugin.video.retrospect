@@ -60,16 +60,16 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://www.rtbf.be/auvio/embed/direct",
                               updater=self.update_live_item)
 
-        video_regex = r'<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}?<time[^>]+' \
-                      r'datetime="(?<date>[^"]+)"[\w\W]{0,500}?<h4[^>]+>\W+<a[^>]+href="' \
-                      r'(?<url>[^<"]+=(?<videoId>\d+))"[^>]*>(?<title>[^<]+)</a>\W+</h4>\W+' \
-                      r'<h5[^>]+>(?<description>[^<]*)'
+        video_regex = r'<img[^>]*alt="(?<title>[^"]+)"[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>' \
+                      r'[\w\W]{0,1000}?<h4[^>]+>\W+<a[^>]+href="(?<url>[^<"]+=(?<videoId>\d+))"' \
+                      r'[^>]*>[^<]*</a>\W*</h4>\W*(?:<h5[^>]+>(?<description>[^<]*)</h5>|<div)' \
+                      r'[\w\W]{0,1000}?<time[^>]+datetime="(?<date>[^"]+)"'
         video_regex = Regexer.from_expresso(video_regex)
         self._add_data_parser("*", parser=video_regex, creator=self.create_video_item,
                               updater=self.update_video_item)
 
         self.pageNavigationRegexIndex = 1
-        page_regex = r'<li class="[^a][^"]+">\W+<a class="rtbf-pagination__link" ' \
+        page_regex = r'<li class="(?:|[^a][^"]+)">\W+<a class="rtbf-pagination__link" ' \
                      r'href="([^"]+&p=)(\d+)"'
         self._add_data_parser("*", parser=page_regex, creator=self.create_page_item)
 
