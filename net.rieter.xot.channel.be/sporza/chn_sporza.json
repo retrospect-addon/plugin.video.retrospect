@@ -9,7 +9,7 @@
       "channelcode": "sporza",
       "sortorder": 13,
       "language": "be",
-      "compatible": "Environments.All",
+      "compatible": "Environments.NoPlatform",
       "fanart": "sporzafanart.jpg"
     }
   ]
