@@ -120,7 +120,7 @@ class Channel(chn_class.Channel):
         client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
                         proxy=self.proxy, logger=Logger.instance())
         if refresh_token:
-            id_token = client.RenewToken(refresh_token)
+            id_token = client.renew_token(refresh_token)
             if id_token:
                 self.__idToken = id_token
                 return True
@@ -139,7 +139,7 @@ class Channel(chn_class.Channel):
             )
             return False
 
-        id_token, refresh_token = client.Authenticate(username, password)
+        id_token, refresh_token = client.authenticate(username, password)
         if not id_token or not refresh_token:
             Logger.error("Error getting a new token. Wrong password?")
             return False
