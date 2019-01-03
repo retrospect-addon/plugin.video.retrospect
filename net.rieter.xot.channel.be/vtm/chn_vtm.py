@@ -1,8 +1,8 @@
 # coding:Cp1252
 
-import mediaitem
 import chn_class
 from regexer import Regexer
+from mediaitem import MediaItem
 
 
 class Channel(chn_class.Channel):
@@ -10,18 +10,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "vtmimage.jpg"
@@ -34,16 +33,23 @@ class Channel(chn_class.Channel):
         self.episodeItemRegex = '<li><a[^>]+href="/([^"]+)" class="level-1[^>]+>([^<]+)</a>'
         self._add_data_parser(self.mainListUri, creator=self.create_episode_item, parser=self.episodeItemRegex)
 
-        self.videoItemRegex = '<article[^<]+has-video"[^>]*>\W*<a href="(?<Url>[^<"]+)"[^>]*>\W+<div[^<]+<img[^>]+' \
-                              'src="(?<Thumb>[^"]+)"[^>]*>[\w\W]{0,500}?<h3[^>]*>(?:\W+<span[^>]*>[^>]*>)?' \
-                              '(?<Title>[^<]+)</h3>\W+<div[^<]+<time[^>]+datetime="(?<DateTime>[^"]+)"[^<]+</time>\W*' \
-                              '</div>\W*<p[^>]+>*(?<Description>[^<]+)'
-        self.videoItemRegex = Regexer.from_expresso(self.videoItemRegex)
-        self._add_data_parser("*", creator=self.create_video_item, parser=self.videoItemRegex, updater=self.update_video_item)
+        video_item_regex = r'<article[^<]+has-video"[^>]*>\W*<a href="(?<Url>[^<"]+)"[^>]*>\W+' \
+                           r'<div[^<]+<img[^>]+src="(?<Thumb>[^"]+)"[^>]*>[\w\W]{0,500}?<h3[^>]*>' \
+                           r'(?:\W+<span[^>]*>[^>]*>)?(?<Title>[^<]+)</h3>\W+<div[^<]+<time[^>]+' \
+                           r'datetime="(?<DateTime>[^"]+)"[^<]+</time>\W*</div>\W*<p[^>]+>*' \
+                           r'(?<Description>[^<]+)'
+        video_item_regex = Regexer.from_expresso(video_item_regex)
+        self._add_data_parser("*", creator=self.create_video_item, parser=video_item_regex,
+                              updater=self.update_video_item)
 
-        stadionRegex = '<article[^>]*>\W*<div class="image is-video">\W*<a href="(?<Url>[^"]+)[^>]*>\W*<img[^>]+src="(?<Thumb>[^"]+)"[\w\W]{0,1000}?<h3 class="pagemanager-item-title">\W*<span>\W*<a[^>]*>(?<Title>[^<]+)[\w\W]{0,1000}?<div class="teaser">\W*<a[^>]+>(?<Description>[^<]+)'
-        stadionRegex = Regexer.from_expresso(stadionRegex)
-        self._add_data_parser("http://nieuws.vtm.be/stadion", parser=stadionRegex, creator=self.create_video_item, updater=self.update_video_item)
+        stadion_regex = r'<article[^>]*>\W*<div class="image is-video">\W*<a href="(?<Url>[^"]+)' \
+                        r'[^>]*>\W*<img[^>]+src="(?<Thumb>[^"]+)"[\w\W]{0,1000}?<h3 class=' \
+                        r'"pagemanager-item-title">\W*<span>\W*<a[^>]*>(?<Title>[^<]+)[\w\W]' \
+                        r'{0,1000}?<div class="teaser">\W*<a[^>]+>(?<Description>[^<]+)'
+        stadion_regex = Regexer.from_expresso(stadion_regex)
+        self._add_data_parser("http://nieuws.vtm.be/stadion",
+                              parser=stadion_regex, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         self.mediaUrlRegex = '<source[^>]+src="([^"]+)"[^>]+type="video/mp4"[^>]*/>'
         self.pageNavigationRegex = ''
@@ -58,23 +64,22 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def create_episode_item(self, resultSet):
-        """Creates a new MediaItem for an episode
-
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
         # dummy class
-        item = mediaitem.MediaItem(resultSet[1], "%s/%s" % (self.baseUrl, resultSet[0]))
+        item = MediaItem(result_set[1], "%s/%s" % (self.baseUrl, result_set[0]))
         item.complete = True
         item.icon = self.icon
         item.thumb = self.noImage
@@ -84,17 +89,11 @@ class Channel(chn_class.Channel):
             item.complete = False
         return item
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -102,49 +101,30 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        """
-        title = resultSet["Title"]
-        url = "%s%s" % (self.baseUrl, resultSet["Url"])
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
-        # thumbUrl = "%s%s%s" % (resultSet[0], resultSet[1], resultSet[2])
-        # year = resultSet[1]
-        # dayOrTime = resultSet[3]
-        # url = resultSet[4]
-        # title = resultSet[5]
-        #
-        item = mediaitem.MediaItem(title, url)
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        title = result_set["Title"]
+        url = "%s%s" % (self.baseUrl, result_set["Url"])
+
+        item = MediaItem(title, url)
         item.type = 'video'
-        item.thumb = resultSet["Thumb"]
-        item.description = resultSet.get("Description", None)
+        item.thumb = result_set["Thumb"]
+        item.description = result_set.get("Description", None)
         item.complete = False
 
-        if "DateTime" not in resultSet:
+        if "DateTime" not in result_set:
             return item
 
-        dateInfo = resultSet["DateTime"]
-        info = dateInfo.split("T")
-        dateInfo = info[0]
-        timeInfo = info[1]
-        dateInfo = dateInfo.split("-")
-        timeInfo = timeInfo.split(":")
-        item.set_date(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
-        # else:
-        #     item.thumb = self.noImage
-        #
-        # item.icon = self.icon
-        #
-        # if "/" in dayOrTime and year:
-        #     # date found
-        #     (day, month) = dayOrTime.split("/")
-        #     item.set_date(year, month, day, 0, 0, 0)
-        # elif "." in dayOrTime:
-        #     # time found for today
-        #     date = datetime.now()
-        #     day = date.day
-        #     month = date.month
-        #     year = date.year
-        #     (hour, minutes) = dayOrTime.split(".")
-        #     item.set_date(year, month, day, hour, minutes, 0)
-        # else:
-        #     Logger.Warning("Could not determine date for item '%s' with datestring='%s'", title, dayOrTime)
+        date_info = result_set["DateTime"]
+        info = date_info.split("T")
+        date_info = info[0]
+        time_info = info[1]
+        date_info = date_info.split("-")
+        time_info = time_info.split(":")
+        item.set_date(date_info[0], date_info[1], date_info[2], time_info[0], time_info[1], 0)
         return item
