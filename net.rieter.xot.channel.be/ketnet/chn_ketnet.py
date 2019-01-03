@@ -34,7 +34,7 @@ class Channel(chn_class.Channel):
             self.noImage = "ketnetimage.jpg"
             self.mainListUri = "https://www.ketnet.be/kijken"
             self.baseUrl = "https://www.ketnet.be"
-            self.mediaUrlRegex = r'playerConfig\W*=\W*(\{[\w\W]{0,2000}?);.vamp'
+            self.mediaUrlRegex = r'playerConfig\W*=\W*(\{[\w\W]{0,2000}?);(?:.vamp|playerConfig)'
 
         elif self.channelCode == "cobra":
             self.noImage = "cobraimage.png"
@@ -72,7 +72,7 @@ class Channel(chn_class.Channel):
     def select_video_section(self, data):
         """ Performs pre-process actions for data processing
 
-        :param str data: The retrieve data that was loaded for the current item and URL.
+        :param str|unicode data: The retrieve data that was loaded for the current item and URL.
 
         :return: A tuple of the data and a list of MediaItems that were generated.
         :rtype: tuple[str|JsonHelper,list[MediaItem]]
