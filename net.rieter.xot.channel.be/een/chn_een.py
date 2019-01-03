@@ -1,11 +1,5 @@
-﻿# coding:UTF-8
-#===============================================================================
-# Import the default modules
-#===============================================================================
+# coding:UTF-8
 
-#===============================================================================
-# Make global object available
-#===============================================================================
 import mediaitem
 import chn_class
 
@@ -21,18 +15,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "eenimage.png"
@@ -42,37 +35,35 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.een.be"
 
         # setup the main parsing data
-        self._add_data_parser(self.mainListUri, preprocessor=self.ExtractJson, json=True,
-                              parser=["data", ], creator=self.CreateShowItem)
+        self._add_data_parser(self.mainListUri, preprocessor=self.extract_json, json=True,
+                              parser=["data", ], creator=self.create_show_item)
 
-        videoParser = '<a class="card-teaser"[^>][^>]*href="(?<url>[^"]+)"[^>]*>\W+<div[^>]+' \
-                      'style="background-image: url\(\'(?<thumburl>[^\']+/(?<year>\d{4})/' \
-                      '(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*>\W+<div[^>]+_play[\w\W+]' \
-                      '{0,2000}?<div[^>]*>(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)' \
-                      '</h3>\W+<div[^>]*>\W+(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
-        videoParser = Regexer.from_expresso(videoParser)
+        video_parser = r'<a class="card-teaser"[^>][^>]*href="(?<url>[^"]+)"[^>]*>\W+<div[^>]+' \
+                       r'style="background-image: url\(\'(?<thumburl>[^\']+/(?<year>\d{4})/' \
+                       r'(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*>\W+<div[^>]+_play[\w\W+]' \
+                       r'{0,2000}?<div[^>]*>(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)' \
+                       r'</h3>\W+<div[^>]*>\W+(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
+        video_parser = Regexer.from_expresso(video_parser)
         self._add_data_parser("*", name="Links to teasers of videos (Card teaser)",
-                              # preprocessor=self.CropData,
-                              parser=videoParser, creator=self.create_video_item,
+                              parser=video_parser, creator=self.create_video_item,
                               updater=self.update_video_item)
 
-        videoParser = '<a[^>]*class="[^"]+-teaser"[^>]*background-image: url\(\'(?<thumburl>' \
-                      '[^\']+/(?<year>\d{4})/(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*href="' \
-                      '(?<url>[^"]+)"[^>]*>\W+<div[^>]+_play[\w\W+]{0,2000}?<div[^>]*>' \
-                      '(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>\W+' \
-                      '(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
-        videoParser = Regexer.from_expresso(videoParser)
+        video_parser = r'<a[^>]*class="[^"]+-teaser"[^>]*background-image: url\(\'(?<thumburl>' \
+                       r'[^\']+/(?<year>\d{4})/(?<month>\d{2})/(?<day>\d{2})/[^\']+)\'[^>]*href="' \
+                       r'(?<url>[^"]+)"[^>]*>\W+<div[^>]+_play[\w\W+]{0,2000}?<div[^>]*>' \
+                       r'(?<_title>[^>]*)</div>\W*<h3[^>]*>(?<title>[^<]+)</h3>\W+<div[^>]*>\W+' \
+                       r'(?:<span[^>]*>[^<]*</span>)?(?<description>[^<]+)'
+        video_parser = Regexer.from_expresso(video_parser)
         self._add_data_parser("*", name="Links to teasers of videos (Image Teaser)",
-                              # preprocessor=self.CropData,
-                              parser=videoParser, creator=self.create_video_item,
+                              parser=video_parser, creator=self.create_video_item,
                               updater=self.update_video_item)
 
-        singleVideoParser = '>(?<title>[^<]+)</h1>[\w\W]{0,2000}?(?:<h2>?<description>[^<]+)?' \
-                            '[\w\W]{0,1000}?data-video="(?<url>[^"]+)"[\w\W]{0,500}data-analytics' \
-                            '=\'{&quot;date&quot;:&quot;(?<year>\d+)-(?<month>\d+)-(?<day>\d+)'
-        singleVideoParser = Regexer.from_expresso(singleVideoParser)
+        single_video_parser = r'>(?<title>[^<]+)</h1>[\w\W]{0,2000}?(?:<h2>?<description>[^<]+)?' \
+                              r'[\w\W]{0,1000}?data-video="(?<url>[^"]+)"[\w\W]{0,500}data-analytics' \
+                              r'=\'{&quot;date&quot;:&quot;(?<year>\d+)-(?<month>\d+)-(?<day>\d+)'
+        single_video_parser = Regexer.from_expresso(single_video_parser)
         self._add_data_parser("*", name="Pages that contain only a single video",
-                              parser=singleVideoParser, creator=self.create_video_item)
+                              parser=single_video_parser, creator=self.create_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -83,11 +74,13 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def ExtractJson(self, data):
+    def extract_json(self, data):
         """ Extracts JSON data from pages
 
-        @param data: the HTML data
-        @return: the JSON part only
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -98,37 +91,52 @@ class Channel(chn_class.Channel):
         recent.dontGroup = True
         items.append(recent)
 
-        data = Regexer.do_regex('epgAZ\W+({"data"[\w\W]+?);<', data)[0]
+        data = Regexer.do_regex(r'epgAZ\W+({"data"[\w\W]+?);<', data)[0]
         return data, items
 
-    def CropData(self, data):
-        """ Removes unwanted HTML data
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-        @param data: the HTML data
-        @return: the JSON part only
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
 
         """
 
-        items = []
-        data = data[0: data.find('<div class="section section--12">')]
-        return data, items
+        if not result_set["url"].startswith("http"):
+            result_set["url"] = "https://mediazone.vrt.be/api/v1/een/assets/%(url)s" % result_set
 
-    def create_video_item(self, resultSet):
-        if not resultSet["url"].startswith("http"):
-            resultSet["url"] = "https://mediazone.vrt.be/api/v1/een/assets/%(url)s" % resultSet
-
-        item = chn_class.Channel.create_video_item(self, resultSet)
+        item = chn_class.Channel.create_video_item(self, result_set)
         item.fanart = self.parentItem.fanart
-        if "year" in resultSet and resultSet["year"]:
-            item.set_date(resultSet["year"], resultSet["month"], resultSet["day"])
+        if "year" in result_set and result_set["year"]:
+            item.set_date(result_set["year"], result_set["month"], result_set["day"])
         return item
 
-    def CreateShowItem(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item. 
+    def create_show_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a show using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         exclude = {
             11: "Dagelijkse Kost",
@@ -136,25 +144,27 @@ class Channel(chn_class.Channel):
             400: "Karakters",
             413: "Het weer"
         }
-        if resultSet["id"] in exclude.keys():
+        if result_set["id"] in exclude.keys():
             return None
 
         # # dummy class
         # url = "http://www.een.be/mediatheek/tag/%s"
-        item = mediaitem.MediaItem(resultSet["title"], resultSet["url"])
+        item = mediaitem.MediaItem(result_set["title"], result_set["url"])
         item.icon = self.icon
         item.type = "folder"
         item.complete = True
 
-        if "image" in resultSet and "data" in resultSet["image"]:
-            item.thumb = resultSet["image"]["data"]["url"]
-            item.fanart = resultSet["image"]["data"]["url"]
+        if "image" in result_set and "data" in result_set["image"]:
+            # noinspection PyTypeChecker
+            item.thumb = result_set["image"]["data"]["url"]
+            # noinspection PyTypeChecker
+            item.fanart = result_set["image"]["data"]["url"]
         return item
 
     def update_video_item(self, item):
         """
-        Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
-        and the Thumb! It should return a completed item. 
+        Accepts an item. It returns an updated item. Usually retrieves the MediaURL
+        and the Thumb! It should return a completed item.
         """
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
@@ -167,51 +177,21 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         if "mediazone.vrt.be" not in item.url:
             # Extract actual media data
-            videoId = Regexer.do_regex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
-            # if videoId.startswith("http"):
-            #     Logger.Info("Found direct stream. Not processing any further.")
-            #     part.append_media_stream(videoId, 0)
-            #     item.complete = True
-            #     return item
-
-            url = "https://mediazone.vrt.be/api/v1/een/assets/%s" % (videoId, )
+            video_id = Regexer.do_regex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
+            url = "https://mediazone.vrt.be/api/v1/een/assets/%s" % (video_id, )
             data = UriHandler.open(url, proxy=self.proxy)
 
         json = JsonHelper(data)
         urls = json.get_value("targetUrls")
-        for urlInfo in urls:
-            Logger.trace(urlInfo)
-            if urlInfo["type"].lower() != "hls":
+
+        for url_info in urls:
+            Logger.trace(url_info)
+            if url_info["type"].lower() != "hls":
                 continue
 
-            hlsUrl = urlInfo["url"]
-            for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
+            hls_url = url_info["url"]
+            for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy):
                 part.append_media_stream(s, b)
-
-        # urls = Regexer.do_regex(self.mediaUrlRegex, data)
-        # Logger.Trace(urls)
-        # part = item.create_new_empty_media_part()
-        # for url in urls:
-        #     if not url[1] == "":
-        #         mediaurl = "%s//%s" % (url[0], url[1])  # the extra slash in the url causes the application name in the RTMP stream to be "een" instead of "een/2011"
-        #     else:
-        #         mediaurl = url[0]
-        #
-        #     mediaurl = mediaurl.replace(" ", "%20")
-        #
-        #     if "rtmp" in mediaurl:
-        #         mediaurl = self.get_verifiable_video_url(mediaurl)
-        #         # In some cases the RTMPT does not work. Let's just try the RTMP first and then add the original if the RTMP version fails.
-        #         part.append_media_stream(mediaurl.replace("rtmpt://", "rtmp://"), 650)
-        #     elif "rtsp" in mediaurl:
-        #         part.append_media_stream(mediaurl, 600)
-        #     elif mediaurl.startswith("http") and "m3u8" in mediaurl:
-        #         # http://iphone.streampower.be/een_nogeo/_definst_/2013/08/1000_130830_placetobe_marjolein_Website_Een_M4V.m4v/playlist.m3u8
-        #         mediaurl = mediaurl.rstrip()
-        #         for s, b in M3u8.get_streams_from_m3u8(mediaurl, self.proxy):
-        #             part.append_media_stream(s, b)
-        #     else:
-        #         Logger.Warning("Media url was not recognised: %s", mediaurl)
 
         item.complete = True
         return item

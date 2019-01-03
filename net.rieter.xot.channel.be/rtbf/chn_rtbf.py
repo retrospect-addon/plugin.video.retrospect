@@ -1,10 +1,10 @@
 import chn_class
-import mediaitem
 
 from logger import Logger
 from regexer import Regexer
 from urihandler import UriHandler
 from parserdata import ParserData
+from mediaitem import MediaItem
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.datehelper import DateHelper
@@ -16,18 +16,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.noImage = "rtbfimage.png"
@@ -35,46 +34,44 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.mainListUri = "https://www.rtbf.be/auvio/emissions"
         self.baseUrl = "https://www.rtbf.be"
-        # self.swfUrl = "http://www.canvas.be/sites/all/libraries/player/PolymediaShowFX16.swf"
 
         # setup the main parsing data
-        episodeRegex = '<article[^>]+data-id="(?<id>(?<url>\d+))"[^>]*>\W+<figure[^>]+>\W+' \
-                       '<figcaption[^>]+>(?<title>[^{][^<]+)</figcaption>\W*<div[^>]*>\W*' \
-                       '<img[^>]*(?<thumburl>http[^"]+) \d+w"'
-        episodeRegex = Regexer.from_expresso(episodeRegex)
+        episode_regex = r'<article[^>]+data-id="(?<id>(?<url>\d+))"[^>]*>\W+<figure[^>]+>\W+' \
+                        r'<figcaption[^>]+>(?<title>[^{][^<]+)</figcaption>\W*<div[^>]*>\W*' \
+                        r'<img[^>]*(?<thumburl>http[^"]+) \d+w"'
+        episode_regex = Regexer.from_expresso(episode_regex)
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              preprocessor=self.AddCategoryAndLiveItems,
-                              parser=episodeRegex,
+                              preprocessor=self.add_category_and_live_items,
+                              parser=episode_regex,
                               creator=self.create_episode_item)
 
         self._add_data_parser("http://www.rtbf.be/news/api/menu?site=media", json=True,
                               match_type=ParserData.MatchExact,
-                              parser=["item", 3, "item"], creator=self.CreateCategory)
+                              parser=["item", 3, "item"], creator=self.create_category)
 
-        liveRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant</span> (?:sur )?(?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
-        liveRegex = Regexer.from_expresso(liveRegex)
+        live_regex = r'<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}Maintenant' \
+                     r'</span> (?:sur )?(?<channel>[^>]+)</div>\W*<h3[^>]*>\W*<a[^>]+href="' \
+                     r'(?<url>[^"]+=(?<liveId>\d+))"[^>]+title="(?<title>[^"]+)'
+        live_regex = Regexer.from_expresso(live_regex)
         self._add_data_parser("https://www.rtbf.be/auvio/direct/",
-                              parser=liveRegex,
+                              parser=live_regex,
                               creator=self.create_video_item)
 
         self._add_data_parser("https://www.rtbf.be/auvio/embed/direct",
-                              updater=self.UpdateLiveItem)
+                              updater=self.update_live_item)
 
-        videoRegex = '<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}?<time[^>]+' \
-                     'datetime="(?<date>[^"]+)"[\w\W]{0,500}?<h4[^>]+>\W+<a[^>]+href="' \
-                     '(?<url>[^<"]+=(?<videoId>\d+))"[^>]*>(?<title>[^<]+)</a>\W+</h4>\W+' \
-                     '<h5[^>]+>(?<description>[^<]*)'
-        videoRegex = Regexer.from_expresso(videoRegex)
-        self._add_data_parser("*",
-                              # preprocessor=self.ExtractVideoSection,
-                              parser=videoRegex, creator=self.create_video_item,
+        video_regex = r'<img[^>]*(?<thumburl>http[^"]+) \d+w"[^>]*>[\w\W]{0,1000}?<time[^>]+' \
+                      r'datetime="(?<date>[^"]+)"[\w\W]{0,500}?<h4[^>]+>\W+<a[^>]+href="' \
+                      r'(?<url>[^<"]+=(?<videoId>\d+))"[^>]*>(?<title>[^<]+)</a>\W+</h4>\W+' \
+                      r'<h5[^>]+>(?<description>[^<]*)'
+        video_regex = Regexer.from_expresso(video_regex)
+        self._add_data_parser("*", parser=video_regex, creator=self.create_video_item,
                               updater=self.update_video_item)
 
         self.pageNavigationRegexIndex = 1
-        pageRegex = '<li class="[^a][^"]+">\W+<a class="rtbf-pagination__link" href="([^"]+&p=)(\d+)"'
-        self._add_data_parser("*",
-                              # preprocessor=self.ExtractVideoSection,
-                              parser=pageRegex, creator=self.create_page_item)
+        page_regex = r'<li class="[^a][^"]+">\W+<a class="rtbf-pagination__link" ' \
+                     r'href="([^"]+&p=)(\d+)"'
+        self._add_data_parser("*", parser=page_regex, creator=self.create_page_item)
 
         self.swfUrl = "http://www.static.rtbf.be/rtbf/embed/js/vendor/jwplayer/jwplayer.flash.swf"
         # ==========================================================================================
@@ -84,15 +81,8 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here ===================
         return
 
-    def AddCategoryAndLiveItems(self, data):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def add_category_and_live_items(self, data):
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -101,18 +91,23 @@ class Channel(chn_class.Channel):
 
         The return values should always be instantiated in at least ("", []).
 
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
 
         Logger.info("Performing Pre-Processing")
         items = []
 
-        subItems = {
+        sub_items = {
             "\a.: Direct :.": "%s/auvio/direct/" % (self.baseUrl, ),
             "\a.: Cat&eacute;gories :.": "http://www.rtbf.be/news/api/menu?site=media"
         }
 
-        for k, v in subItems.iteritems():
-            item = mediaitem.MediaItem(k, v)
+        for k, v in sub_items.iteritems():
+            item = MediaItem(k, v)
             item.complete = True
             item.dontGroup = True
             items.append(item)
@@ -121,77 +116,136 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def create_episode_item(self, resultSet):
-        item = chn_class.Channel.create_episode_item(self, resultSet)
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        item = chn_class.Channel.create_episode_item(self, result_set)
         if item is None:
             return item
 
-        item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, resultSet["id"])
+        item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, result_set["id"])
         return item
 
-    def CreateCategory(self, resultSet):
-        resultSet = resultSet["@attributes"]
-        Logger.trace(resultSet)
+    def create_category(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set[str,any]: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        result_set = result_set["@attributes"]
+        Logger.trace(result_set)
         # http://www.rtbf.be/auvio/archives?caid=29&contentType=complete,extract,bonus
         # {
         # u'url': u'http://www.rtbf.be/auvio/categorie/sport/football?id=11',
         # u'expandorder': u'6', u'aliases': u'football', u'id': u'category-11',
         # u'name': u'Football'
         # }
-        cid = resultSet["id"].split("-")[-1]
+        cid = result_set["id"].split("-")[-1]
         url = "%s/auvio/archives?caid=%s&contentType=complete,extract,bonus" % (self.baseUrl, cid)
-        item = mediaitem.MediaItem(resultSet["name"], url)
+        item = MediaItem(result_set["name"], url)
         item.complete = True
         return item
-    #
-    # def CreateLiveChannelItem(self, resultSet):
-    #     item = chn_class.Channel.create_episode_item(self, resultSet)
+
+    # Not used for now:
+    # def create_live_channel_item(self, result_set):
+    #     item = chn_class.Channel.create_episode_item(self, result_set)
     #     if item is None:
     #         return item
     #
-    #     item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, resultSet["id"])
+    #     item.url = "%s/auvio/archives?pid=%s&contentType=complete" % (self.baseUrl, result_set["id"])
     #     return item
 
-    def create_page_item(self, resultSet):
-        item = chn_class.Channel.create_page_item(self, resultSet)
-        url = "%s/auvio/archives%s%s" % (self.baseUrl, HtmlEntityHelper.url_decode(resultSet[0]), resultSet[1])
+    def create_page_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|none
+
+        """
+
+        item = chn_class.Channel.create_page_item(self, result_set)
+        url = "%s/auvio/archives%s%s" % (self.baseUrl, HtmlEntityHelper.url_decode(result_set[0]), result_set[1])
         item.url = url
         return item
 
-    def create_video_item(self, resultSet):
-        item = chn_class.Channel.create_video_item(self, resultSet)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        item = chn_class.Channel.create_video_item(self, result_set)
         if item is None:
             return item
 
         # http://www.rtbf.be/auvio/embed/media?id=2101078&autoplay=1
-        if "videoId" in resultSet:
-            item.url = "%s/auvio/embed/media?id=%s" % (self.baseUrl, resultSet["videoId"])
-        elif "liveId" in resultSet:
-            item.name = "%s - %s" % (resultSet["channel"].strip(), item.name)
-            item.url = "%s/auvio/embed/direct?id=%s" % (self.baseUrl, resultSet["liveId"])
+        if "videoId" in result_set:
+            item.url = "%s/auvio/embed/media?id=%s" % (self.baseUrl, result_set["videoId"])
+        elif "liveId" in result_set:
+            item.name = "%s - %s" % (result_set["channel"].strip(), item.name)
+            item.url = "%s/auvio/embed/direct?id=%s" % (self.baseUrl, result_set["liveId"])
             item.isLive = True
 
-        if "date" in resultSet:
+        if "date" in result_set:
             # 2016-05-14T20:00:00+02:00 -> strip the hours
-            timeStamp = DateHelper.get_date_from_string(resultSet["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
-            item.set_date(*timeStamp[0:6])
+            time_stamp = DateHelper.get_date_from_string(
+                result_set["date"].rsplit("+")[0], "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*time_stamp[0:6])
 
         return item
 
     def update_video_item(self, item):
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
-        mediaRegex = 'data-media="([^"]+)"'
-        mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
-        mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
-        mediaInfo = JsonHelper(mediaInfo)
-        Logger.trace(mediaInfo)
+        media_regex = 'data-media="([^"]+)"'
+        media_info = Regexer.do_regex(media_regex, data)[0]
+        media_info = HtmlEntityHelper.convert_html_entities(media_info)
+        media_info = JsonHelper(media_info)
+        Logger.trace(media_info)
 
         # sources
         part = item.create_new_empty_media_part()
         # high, web, mobile, url
-        mediaSources = mediaInfo.json.get("sources", {})
-        for quality in mediaSources:
-            url = mediaSources[quality]
+        media_sources = media_info.json.get("sources", {})
+        for quality in media_sources:
+            url = media_sources[quality]
             if quality == "high":
                 bitrate = 2000
             elif quality == "web":
@@ -203,40 +257,44 @@ class Channel(chn_class.Channel):
             part.append_media_stream(url, bitrate)
 
         # geoLocRestriction
-        item.isGeoLocked = not mediaInfo.get_value("geoLocRestriction", fallback="world") == "world"
+        item.isGeoLocked = not media_info.get_value("geoLocRestriction", fallback="world") == "world"
         item.complete = True
         return item
 
-    def UpdateLiveItem(self, item):
+    def update_live_item(self, item):
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
-        mediaRegex = 'data-media="([^"]+)"'
-        mediaInfo = Regexer.do_regex(mediaRegex, data)[0]
-        mediaInfo = HtmlEntityHelper.convert_html_entities(mediaInfo)
-        mediaInfo = JsonHelper(mediaInfo)
-        Logger.trace(mediaInfo)
+        media_regex = 'data-media="([^"]+)"'
+        media_info = Regexer.do_regex(media_regex, data)[0]
+        media_info = HtmlEntityHelper.convert_html_entities(media_info)
+        media_info = JsonHelper(media_info)
+        Logger.trace(media_info)
         part = item.create_new_empty_media_part()
 
-        hlsUrl = mediaInfo.get_value("streamUrl")
-        if hlsUrl is not None and "m3u8" in hlsUrl:
-            Logger.debug("Found HLS url for %s: %s", mediaInfo.json["streamName"], hlsUrl)
-            # from debug.router import Router
-            # data = Router.get_via("be", hlsUrl, proxy=self.proxy)
-            for s, b in M3u8.get_streams_from_m3u8(hlsUrl, self.proxy):
+        hls_url = media_info.get_value("streamUrl")
+        if hls_url is not None and "m3u8" in hls_url:
+            Logger.debug("Found HLS url for %s: %s", media_info.json["streamName"], hls_url)
+
+            for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy):
                 part.append_media_stream(s, b)
                 item.complete = True
         else:
-            Logger.debug("No HLS url found for %s. Fetching RTMP Token.", mediaInfo.json["streamName"])
+            Logger.debug("No HLS url found for %s. Fetching RTMP Token.", media_info.json["streamName"])
             # fetch the token:
-            tokenUrl = "%s/api/media/streaming?streamname=%s" % (self.baseUrl, mediaInfo.json["streamName"])
-            tokenData = UriHandler.open(tokenUrl, proxy=self.proxy, additional_headers=item.HttpHeaders, no_cache=True)
-            tokenData = JsonHelper(tokenData)
-            token = tokenData.get_value("token")
-            Logger.debug("Found token '%s' for '%s'", token, mediaInfo.json["streamName"])
+            token_url = "%s/api/media/streaming?streamname=%s" \
+                        % (self.baseUrl, media_info.json["streamName"])
 
-            rtmpUrl = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" % (mediaInfo.json["streamName"], token, self.baseUrl)
-            rtmpUrl = self.get_verifiable_video_url(rtmpUrl)
-            part.append_media_stream(rtmpUrl, 0)
+            token_data = UriHandler.open(token_url, proxy=self.proxy,
+                                         additional_headers=item.HttpHeaders, no_cache=True)
+
+            token_data = JsonHelper(token_data)
+            token = token_data.get_value("token")
+            Logger.debug("Found token '%s' for '%s'", token, media_info.json["streamName"])
+
+            rtmp_url = "rtmp://rtmp.rtbf.be/livecast/%s?%s pageUrl=%s tcUrl=rtmp://rtmp.rtbf.be/livecast" \
+                       % (media_info.json["streamName"], token, self.baseUrl)
+            rtmp_url = self.get_verifiable_video_url(rtmp_url)
+            part.append_media_stream(rtmp_url, 0)
             item.complete = True
 
-        item.isGeoLocked = not mediaInfo.get_value("geoLocRestriction", fallback="world") == "world"
+        item.isGeoLocked = not media_info.get_value("geoLocRestriction", fallback="world") == "world"
         return item
