@@ -146,7 +146,7 @@ class Channel:
         self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
         return
 
-    def process_folder_list(self, item=None):
+    def process_folder_list(self, item=None):  # NOSONAR
         """Process the selected item and get's it's child items using the available dataparsers.
 
         Accepts an <item> and returns a list of MediaListems with at least name & url
@@ -366,8 +366,9 @@ class Channel:
 
             items = non_grouped + result.values()
 
-        Logger.trace("Found '%s' items", len(items))
-        return list(set(items))
+        unique_results = sorted(set(items), key=items.index)
+        Logger.trace("Found '%d' items of which '%d' are unique.", len(items), len(unique_results))
+        return unique_results
 
     def process_video_item(self, item):
         """ Process a video item using the required dataparsers

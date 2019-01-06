@@ -98,8 +98,9 @@ class Channel(chn_class.Channel):
         video_regex = r'<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year>\d*)/[^"]+)"[^>]*>\W*' \
                       r'<div[^>]*>\W*<h[23][^>]*>\s*(?<title>[^<]+)\s*(?:<br />\s*)*</h[23]>\W*' \
                       r'<p[^>]*>\W*(?:<span[^>]*class="vrtnu-list--item-meta[^>]*>\W*(?<day>\d+)/' \
-                      r'(?<month>\d+)[^<]*</span>\W*<span[^>]+>[^<]*</span>|)[^<]*<abbr' \
-                      r'[\w\W]{0,1000}?<source srcset="[^"]+(?<thumburl>//[^ ]+)'
+                      r'(?<month>\d+)[^<]*</span>\W*<span[^>]+>[^<]*</span>|)' \
+                      r'(\W*(?<subtitle>[^|]+)\W*\|)?[^<]*<abbr[\w\W]{0,1000}?' \
+                      r'<source srcset="[^"]+(?<thumburl>//[^ ]+)'
 
         # No need for a subtitle for now as it only includes the textual date
         video_regex = Regexer.from_expresso(video_regex)
@@ -549,6 +550,7 @@ class Channel(chn_class.Channel):
         if item is None:
             return None
 
+        item.description = result_set.get("subtitle", None)
         if "day" in result_set and result_set["day"]:
             if len(result_set.get("year", "")) < 4:
                 result_set["year"] = None
