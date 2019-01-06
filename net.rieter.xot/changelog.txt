@@ -1,10 +1,15 @@
-[B]Retrospect v4.1.7.39 - Changelog - 2018-12-22[/B]
+[B]Retrospect v4.1.7.40 - Changelog - 2019-01-06[/B]
 
 [B]Framework related[/B]
 * Changed: keep channels in the "channels" from the beginning.
+* Fixed: sorting order of listings (Fixes #1081)
+* Fixed: remove old channel paths from `addons` folder.
 
 [B]GUI/Settings/Language related[/B]
--
+* Changed: allow the user to set the release track for updates.
+* Changed: moved the "hide channel message" to another tab.
 
 [B]Channel related[/B]
--
+* Fixed: RTBF video/audio items did not show.
+* Fixed: json error in Ketnet.be.
+* Added: NPO End-User agreement text.
