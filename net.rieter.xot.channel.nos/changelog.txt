@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO Complete listing (Fixes #1079)
+* Fixed: subs would not show if InputStream Adaptive is enabled (Fixes #1082)
 
 [I]Previous Changes[/I]
+* Fixed: NPO Complete listing (Fixes #1079)
 * Changed: use InputStream Adaptive for NPO (Fixes #1073)
 * Fixed: NPO live radio streams (Fixes #1061)
 * Changed: renamed Uitzendinggemist to NPO Start (Fixes #1059)
