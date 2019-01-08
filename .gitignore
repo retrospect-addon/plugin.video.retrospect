@@ -5,6 +5,7 @@
 .scannerwork/**
 
 /net.rieter.xot/resources/libs/debug
+/net.rieter.xot/resources/libs/kodi_debug
 /net.rieter.xot/debugrun.py
 /net.rieter.xot/apiserver.py
 /net.rieter.xot/*.log
