@@ -29,9 +29,9 @@ class Channel(chn_class.Channel):
         self.noImage = "urplayimage.png"
 
         # setup the urls
-        self.mainListUri = "http://urplay.se/sok?product_type=series&rows=1000&start=0"
-        self.baseUrl = "http://urplay.se"
-        self.swfUrl = "http://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
+        self.mainListUri = "https://urplay.se/sok?product_type=series&rows=1000&start=0"
+        self.baseUrl = "https://urplay.se"
+        self.swfUrl = "https://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
 
         # programs
         programReg = 'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
@@ -41,10 +41,10 @@ class Channel(chn_class.Channel):
         self._add_data_parser(self.mainListUri,
                               name="Show parser with categories",
                               match_type=ParserData.MatchExact,
-                              preprocessor=self.AddCategories,
+                              preprocessor=self.AddCategoriesAndSearch,
                               parser=programReg, creator=self.create_episode_item)
 
-        self._add_data_parser("http://urplay.se/bladdra/",
+        self._add_data_parser("https://urplay.se/bladdra/",
                               name="Category show parser",
                               match_type=ParserData.MatchStart,
                               parser=programReg,
@@ -54,7 +54,7 @@ class Channel(chn_class.Channel):
         catReg = '<a[^>]+href="(?<url>[^"]+)">\W*<img[^>]+data-src="(?<thumburl>[^"]+)' \
                  '"[^>]*>\W*<span>(?<title>[^<]+)<'
         catReg = Regexer.from_expresso(catReg)
-        self._add_data_parser("http://urplay.se/", name="Category parser",
+        self._add_data_parser("https://urplay.se/", name="Category parser",
                               match_type=ParserData.MatchExact,
                               parser=catReg,
                               creator=self.CreateCategory)
@@ -69,11 +69,11 @@ class Channel(chn_class.Channel):
         singleVideoRegex = '<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
                            '"[^>]*>\W*<meta \w+="description" content="(?<description>[^"]+)"' \
                            '[^>]*>\W*<meta \w+="url" content="(?:[^"]+/(?<url>\w+/' \
-                           '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]+" ' \
+                           '(?<id>\d+)[^"]+))"[^>]*>\W*<meta \w+="thumbnailURL[^"]*" ' \
                            'content="(?<thumbnail>[^"]+)"[^>]*>\W+<meta \w+="uploadDate" ' \
                            'content="(?<date>[^"]+)"'
         singleVideoRegex = Regexer.from_expresso(singleVideoRegex)
-        self._add_data_parser("http://urplay.se/sok?product_type=program",
+        self._add_data_parser("https://urplay.se/sok?product_type=program",
                               parser=programReg, preprocessor=self.GetVideoSection,
                               creator=self.create_video_item, updater=self.update_video_item)
 
@@ -81,6 +81,9 @@ class Channel(chn_class.Channel):
                               creator=self.create_video_item, updater=self.update_video_item)
         self._add_data_parser("*", parser=singleVideoRegex, preprocessor=self.GetVideoSection,
                               creator=self.CreateSingleVideoItem, updater=self.update_video_item)
+
+        self._add_data_parser("https://urplay.se/search/json", json=True,
+                              parser=["programs"], creator=self.create_search_result)
 
         self.mediaUrlRegex = "urPlayer.init\(([^<]+)\);"
 
@@ -102,7 +105,7 @@ class Channel(chn_class.Channel):
         resultSet["url"] = "%s?rows=1000&start=0" % (resultSet["url"],)
         return self.create_folder_item(resultSet)
 
-    def AddCategories(self, data):
+    def AddCategoriesAndSearch(self, data):
         """Performs pre-process actions for data processing
 
         Arguments:
@@ -125,11 +128,12 @@ class Channel(chn_class.Channel):
         items = []
         maxItems = 200
         categories = {
-            # "\a.: Mest spelade :.": "http://urplay.se/Mest-spelade",
-            "\a.: Mest delade :.": "http://urplay.se/sok?product_type=program&query=&view=most_viewed&rows=%s&start=0" % (maxItems, ),
-            "\a.: Senaste :.": "http://urplay.se/sok?product_type=program&query=&view=latest&rows=%s&start=0" % (maxItems, ),
-            "\a.: Sista chansen :.": "http://urplay.se/sok?product_type=program&query=&view=default&rows=%s&start=0" % (maxItems, ),
-            "\a.: Kategorier :.": "http://urplay.se/"
+            # "\a.: Mest spelade :.": "https://urplay.se/Mest-spelade",
+            "\a.: Mest delade :.": "https://urplay.se/sok?product_type=program&query=&view=most_viewed&rows=%s&start=0" % (maxItems, ),
+            "\a.: Senaste :.": "https://urplay.se/sok?product_type=program&query=&view=latest&rows=%s&start=0" % (maxItems, ),
+            "\a.: Sista chansen :.": "https://urplay.se/sok?product_type=program&query=&view=default&rows=%s&start=0" % (maxItems, ),
+            "\a.: Kategorier :.": "https://urplay.se/",
+            "\a.: S&ouml;k :.": "searchSite"
         }
 
         for cat in categories:
@@ -142,6 +146,10 @@ class Channel(chn_class.Channel):
 
         Logger.debug("Pre-Processing finished")
         return data, items
+
+    def search_site(self, url=None):
+        url = "https://urplay.se/search/json?query=%s&product_type=program"
+        return chn_class.Channel.search_site(self, url)
 
     def create_episode_item(self, resultSet):
         """Creates a new MediaItem for an episode
@@ -160,13 +168,21 @@ class Channel(chn_class.Channel):
 
         title = "%(title)s" % resultSet
         url = "%s/%s" % (self.baseUrl, resultSet["url"])
-        fanart = "http://assets.ur.se/id/%(id)s/images/1_hd.jpg" % resultSet
-        thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
+        fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % resultSet
+        thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
         item = mediaitem.MediaItem(title, url)
         item.thumb = thumb
         item.description = "%(description)s\n%(description2)s" % resultSet
         item.fanart = fanart
         item.icon = self.icon
+        return item
+
+    def create_search_result(self, result_set):
+        Logger.trace(result_set)
+        url = "https://urplay.se/program/{slug}".format(**result_set)
+        item = mediaitem.MediaItem(result_set["title"], url)
+        item.thumb = "https://assets.ur.se/id/{ur_asset_id}/images/1_hd.jpg".format(**result_set)
+        item.fanart = "https://assets.ur.se/id/{ur_asset_id}/images/1_l.jpg".format(**result_set)
         return item
 
     def GetVideoSection(self, data):
@@ -244,7 +260,7 @@ class Channel(chn_class.Channel):
 
         title = resultSet["title"]
         url = "%s/%s" % (self.baseUrl, resultSet["url"])
-        thumb = "http://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
+        thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % resultSet
         item = mediaitem.MediaItem(title, url)
         item.type = "video"
         item.thumb = thumb
@@ -335,7 +351,7 @@ class Channel(chn_class.Channel):
         # generic server information
         proxy = json.get_value("streaming_config", "streamer", "redirect")
         if proxy is None:
-            proxyData = UriHandler.open("http://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, no_cache=True)
+            proxyData = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json", proxy=self.proxy, no_cache=True)
             proxyJson = JsonHelper(proxyData)
             proxy = proxyJson.get_value("redirect")
         Logger.trace("Found RTMP Proxy: %s", proxy)
@@ -369,7 +385,7 @@ class Channel(chn_class.Channel):
                 url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmpApplication, streamUrl)
                 url = self.get_verifiable_video_url(url)
             elif "_http" in streamType:
-                url = "http://%s/%smaster.m3u8" % (proxy, streamUrl)
+                url = "https://%s/%smaster.m3u8" % (proxy, streamUrl)
             else:
                 Logger.warning("Unsupported Stream Type: %s", streamType)
                 continue
@@ -383,7 +399,7 @@ class Channel(chn_class.Channel):
             default = caption["default"]
             url = caption["file"]
             if url.startswith("//"):
-                url = "http:%s" % (url, )
+                url = "https:%s" % (url, )
             Logger.debug("Found subtitle language: %s [Default=%s]", language, default)
             if "Svenska" in language:
                 Logger.debug("Selected subtitle language: %s", language)
