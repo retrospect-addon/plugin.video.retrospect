@@ -415,7 +415,7 @@ class Channel:
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
 
-        :param str url:     Url to use to search with a %s for the search parameters.
+        :param str|none url:     Url to use to search with a %s for the search parameters.
 
         :return: A list with search results as MediaItems.
         :rtype: list[MediaItem]
