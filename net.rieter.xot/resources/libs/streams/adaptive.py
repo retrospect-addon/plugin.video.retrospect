@@ -30,22 +30,15 @@ class Adaptive:
 
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
-        @type key_url: str
-        @param key_url: the URL where the license key can be obtained
+        :param str key_url:         The URL where the license key can be obtained.
+        :param str|none key_type:   Tthe key type (A, R, B, D or None for custom)
+        :param dict key_headers:    A dictionary that contains the HTTP headers to pass.
+        :param str key_value:       The value that is beging passed on as the key value.
+        :param str json_filter:     If specified selects that json element to extract the key response.
 
-        @type key_type: str
-        @param key_type: the key type (A, R, B or D)
+        :return: A formated license string that can be passed to the adaptive input add-on.
+        :rtype: str
 
-        @type key_headers: dict
-        @param key_headers: A dictionary that contains the HTTP headers to pass
-
-        @type key_value: str
-        @param key_value: the value that is beging passed on as the key value
-
-        @type json_filter: str
-        @param json_filter: if specified selects that json element to extract the key response.
-
-        @return:
         """
 
         header = ""
@@ -88,7 +81,7 @@ class Adaptive:
         Can be used like this:
 
             part = item.create_new_empty_media_part()
-            stream = part.append_media_stream(m3u8url, 0)
+            stream = part.append_media_stream(stream_url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy, self.headers)
             item.complete = True
 

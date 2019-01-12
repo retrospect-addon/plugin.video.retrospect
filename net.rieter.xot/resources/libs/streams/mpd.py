@@ -31,10 +31,32 @@ class Mpd:
                                                      service_certificate=service_certificate)
 
     @staticmethod
-    def get_license_key(key_url, key_type="R", key_headers=None, key_value=None):
-        # type: (str, str, dict, str) -> str
+    def get_license_key(key_url, key_type="R", key_headers=None, key_value=None, json_filter=""):
+        """ Generates a propery license key value
+
+        # A{SSM} -> not implemented
+        # R{SSM} -> raw format
+        # B{SSM} -> base64 format URL encoded (b{ssmm} will not URL encode)
+        # D{SSM} -> decimal format
+
+        The generic format for a LicenseKey is:
+        |<url>|<headers>|<key with placeholders>|<optional json filter>
+
+        The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
+
+        :param str key_url:         The URL where the license key can be obtained.
+        :param str|none key_type:   Tthe key type (A, R, B, D or None for custom)
+        :param dict key_headers:    A dictionary that contains the HTTP headers to pass.
+        :param str key_value:       The value that is beging passed on as the key value.
+        :param str json_filter:     If specified selects that json element to extract the key response.
+
+        :return: A formated license string that can be passed to the adaptive input add-on.
+        :rtype: str
+
+        """
 
         return Adaptive.get_license_key(key_url,
                                         key_type=key_type,
                                         key_headers=key_headers,
-                                        key_value=key_value)
+                                        key_value=key_value,
+                                        json_filter=json_filter)
