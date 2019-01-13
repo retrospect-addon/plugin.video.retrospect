@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Kijk.nl streams for Kodi Krypton (Fixes #1067)
+* Fixed: Kijk.nl new DRM protected streams did not work (Fixes #1085)
 
 [I]Previous changes[/I]
+* Fixed: Kijk.nl streams for Kodi Krypton (Fixes #1067)
 * Added: Radio Veronica Live Stream (Fixes #1054)
 * Fixed: Kijk.nl day listings (Fixes #963)
 * Added: Kijk.nl subtitles Added: option for kijk.nl to use encrypted Widevine streams (Fixes #962)

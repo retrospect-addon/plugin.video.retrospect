@@ -1,11 +1,11 @@
 import datetime
 
-import mediaitem
 import chn_class
 from helpers.languagehelper import LanguageHelper
 from helpers.subtitlehelper import SubtitleHelper
 from parserdata import ParserData
 
+from mediaitem import MediaItem
 from streams.m3u8 import M3u8
 from streams.mpd import Mpd
 from regexer import Regexer
@@ -14,6 +14,7 @@ from helpers.datehelper import DateHelper
 from logger import Logger
 from urihandler import UriHandler
 from addonsettings import AddonSettings
+from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -165,13 +166,13 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        others = mediaitem.MediaItem("\b.: Populair :.", "https://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
+        others = MediaItem("\b.: Populair :.", "https://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0")
         items.append(others)
 
-        days = mediaitem.MediaItem("\b.: Deze week :.", "#lastweek")
+        days = MediaItem("\b.: Deze week :.", "#lastweek")
         items.append(days)
 
-        search = mediaitem.MediaItem("\b.: Zoeken :.", "searchSite")
+        search = MediaItem("\b.: Zoeken :.", "searchSite")
         search.complete = True
         search.icon = self.icon
         search.thumb = self.noImage
@@ -181,7 +182,7 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "veronica":
             live = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
-            live_radio = mediaitem.MediaItem("Radio Veronica {}".format(live), "")
+            live_radio = MediaItem("Radio Veronica {}".format(live), "")
             live_radio.type = "video"
             live_radio.icon = self.icon
             live_radio.thumb = self.noImage
@@ -261,7 +262,7 @@ class Channel(chn_class.Channel):
                 day_name = days[date.weekday()]
                 title = day_name
 
-            date_item = mediaitem.MediaItem(title, url)
+            date_item = MediaItem(title, url)
             date_item.set_date(date.year, date.month, date.day)
             items.append(date_item)
 
@@ -351,7 +352,7 @@ class Channel(chn_class.Channel):
         # https://api.kijk.nl/v1/default/seasons/achtergeslotendeuren.net5/2/episodes?limit=100&offset=1
 
         url = "{episodesLink}?limit=100&offset=1".format(**result_set)
-        item = mediaitem.MediaItem(result_set["title"], url)
+        item = MediaItem(result_set["title"], url)
         item.fanart = self.parentItem.fanart
         item.thumb = self.parentItem.thumb
         return item
@@ -384,7 +385,7 @@ class Channel(chn_class.Channel):
         else:
             url = "https://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % result_set
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.description = result_set.get("synopsis", None)
 
         if "retina_image_pdp_header" in result_set["images"]:
@@ -460,7 +461,10 @@ class Channel(chn_class.Channel):
             item.name = result_set['seriesTitle']
 
         item.type = "video"
+        # Older URL
         item.url = "https://embed.kijk.nl/api/video/%(id)s?id=kijkapp&format=DASH&drm=CENC" % result_set
+        # New URL
+        # item.url = "https://embed.kijk.nl/video/%(id)s" % result_set
 
         if 'subtitle' in result_set:
             item.name = "{0} - {1}".format(item.name, result_set['subtitle'])
@@ -495,12 +499,16 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url, proxy=self.proxy,
-                               additional_headers={
-                                   "accept": "application/vnd.sbs.ovp+json; version=2.0"
-                               })
-        json = JsonHelper(data)
+        headers = {"accept": "application/vnd.sbs.ovp+json; version=2.0"}
+        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers)
 
+        if UriHandler.instance().status.code == 404:
+            Logger.warning("No normal stream found. Trying newer method")
+            new_url = item.url.replace("https://embed.kijk.nl/api/", "https://embed.kijk.nl/")
+            item.url = new_url[:new_url.index("?")]
+            return self.__update_encrypted_video(item)
+
+        json = JsonHelper(data)
         use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
         mpd_info = json.get_value("entitlements", "play")
 
@@ -564,6 +572,96 @@ class Channel(chn_class.Channel):
             return item
 
         return self.__update_video_from_brightcove(item, data, use_adaptive_with_encryption)
+
+    def __update_encrypted_video(self, item):
+        """ Updates video items that are encrypted. This could be the default for Krypton!
+
+        :param MediaItem item: The item to update.
+
+        :return: An updated item.
+        :rtype: MediaItem
+
+        """
+
+        use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(
+            with_encryption=True)
+
+        if not use_adaptive_with_encryption:
+            XbmcWrapper.show_dialog(
+                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
+                LanguageHelper.get_localized_string(LanguageHelper.DrmText))
+            return item
+
+        data = UriHandler.open(item.url, proxy=self.proxy)
+        start_needle = "var playerConfig ="
+        start_data = data.index(start_needle) + len(start_needle)
+        end_data = data.index("var talpaPlayer")
+        data = data[start_data:end_data].strip().rstrip(";")
+
+        json = JsonHelper(data)
+        has_drm_only = True
+        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
+        adaptive_available_encrypted = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
+
+        for play_list_entry in json.get_value("playlist"):
+            part = item.create_new_empty_media_part()
+            for source in play_list_entry["sources"]:
+                stream_type = source["type"]
+                stream_url = source["file"]
+                stream_drm = source.get("drm")
+
+                if not stream_drm:
+                    has_drm_only = False
+                    if stream_type == "m3u8":
+                        Logger.debug("Found non-encrypted M3u8 stream: %s", stream_url)
+                        M3u8.update_part_with_m3u8_streams(part, stream_url, proxy=self.proxy)
+                        item.complete = True
+                    elif stream_type == "dash" and adaptive_available:
+                        Logger.debug("Found non-encrypted Dash stream: %s", stream_url)
+                        stream = part.append_media_stream(stream_url, 1)
+                        Mpd.set_input_stream_addon_input(stream, proxy=self.proxy)
+                        item.complete = True
+                    else:
+                        Logger.debug("Unknown stream source: %s", source)
+
+                else:
+                    compatible_drm = "widevine"
+                    if compatible_drm not in stream_drm or stream_type != "dash":
+                        Logger.debug("Found encrypted %s stream: %s", stream_type, stream_url)
+                        continue
+
+                    Logger.debug("Found encrypted Dash stream: %s", stream_url)
+                    license_url = stream_drm[compatible_drm]["url"]
+                    pid = stream_drm[compatible_drm]["releasePid"]
+                    encryption_json = '{"getRawWidevineLicense":' \
+                                      '{"releasePid":"%s", "widevineChallenge":"b{SSM}"}' \
+                                      '}' % (pid,)
+
+                    headers = {
+                        "Content-Type": "application/json",
+                        "Origin": "https://embed.kijk.nl",
+                        "Referer": stream_url
+                    }
+
+                    encryption_key = Mpd.get_license_key(
+                        license_url, key_type=None, key_value=encryption_json, key_headers=headers)
+
+                    stream = part.append_media_stream(stream_url, 0)
+                    Mpd.set_input_stream_addon_input(
+                        stream, proxy=self.proxy, license_key=encryption_key)
+                    item.complete = True
+
+            subs = [s['file'] for s in play_list_entry.get("tracks", []) if s.get('kind') == "captions"]
+            if subs:
+                subtitle = SubtitleHelper.download_subtitle(subs[0], format="webvtt")
+                part.Subtitle = subtitle
+
+        if has_drm_only and not adaptive_available_encrypted:
+            XbmcWrapper.show_dialog(
+                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
+                LanguageHelper.get_localized_string(LanguageHelper.DrmText)
+            )
+        return item
 
     def __update_video_from_mpd(self, item, mpd_info, use_adaptive_with_encryption):
         """ Updates an existing MediaItem with more data based on an MPD stream.
