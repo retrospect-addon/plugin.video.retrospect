@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7.42 - Changelog - 2019-01-10[/B]
+[B]Retrospect v4.1.7.43 - Changelog - 2019-01-13[/B]
 
 [B]Framework related[/B]
 -
@@ -7,5 +7,4 @@
 -
 
 [B]Channel related[/B]
-* Added: search to UR Play (Fixes #1084).
-* Changed: UR Play now uses HTTPS.
+* Fixed: Kijk.nl new DRM protected streams did not work (Fixes #1085)
