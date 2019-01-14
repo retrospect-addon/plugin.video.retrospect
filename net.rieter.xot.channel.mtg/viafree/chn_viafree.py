@@ -1,10 +1,8 @@
-﻿# coding:UTF-8
 import datetime
 
-import mediaitem
 import chn_class
-# import proxyinfo
 
+from mediaitem import MediaItem
 from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
@@ -19,18 +17,17 @@ from streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # The following data was taken from http://playapi.mtgx.tv/v3/channels
@@ -104,26 +101,26 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://flvplayer.viastream.viasat.tv/flvplayer/play/swf/MTGXPlayer-1.8.swf"
 
         # New JSON page data
-        self._add_data_parser(self.mainListUri, preprocessor=self.ExtractJsonData,
+        self._add_data_parser(self.mainListUri, preprocessor=self.extract_json_data,
                               match_type=ParserData.MatchExact)
-        self._add_data_parser(self.mainListUri, preprocessor=self.ExtractCategoriesAndAddSearch, json=True,
-                              match_type=ParserData.MatchExact,
+        self._add_data_parser(self.mainListUri, preprocessor=self.extract_categories_and_add_search,
+                              json=True, match_type=ParserData.MatchExact,
                               parser=["allProgramsPage", "programs"],
-                              creator=self.CreateJsonEpisodeItem)
+                              creator=self.create_json_episode_item)
 
         # This is the new way, but more complex and some channels have items with missing
         # category slugs and is not compatible with the old method channels.
         self.useNewPages = False
         if self.useNewPages:
-            self._add_data_parser("*", preprocessor=self.ExtractJsonData)
-            self._add_data_parser("*", json=True, preprocessor=self.MergeSeasonData,
+            self._add_data_parser("*", preprocessor=self.extract_json_data)
+            self._add_data_parser("*", json=True, preprocessor=self.merge_season_data,
                                   # parser=["context", "dispatcher", "stores", "ContentPageProgramStore", "format", "videos", "0", "program"),
-                                  # creator=self.CreateJsonVideoItem
+                                  # creator=self.create_json_video_item
                                   )
 
             self._add_data_parser("http://playapi.mtgx.tv/", updater=self.update_video_item)
         else:
-            self._add_data_parser("*", parser=['_embedded', 'videos'], json=True, preprocessor=self.AddClips,
+            self._add_data_parser("*", parser=['_embedded', 'videos'], json=True, preprocessor=self.add_clips,
                                   creator=self.create_video_item, updater=self.update_video_item)
             self.pageNavigationJson = ["_links", "next"]
             self.pageNavigationJsonIndex = 0
@@ -131,17 +128,17 @@ class Channel(chn_class.Channel):
                                   parser=self.pageNavigationJson, creator=self.create_page_item)
 
         self._add_data_parser("https://playapi.mtgx.tv/v3/search?term=", json=True,
-                              parser=["_embedded", "formats"], creator=self.CreateJsonSearchItem)
+                              parser=["_embedded", "formats"], creator=self.create_json_search_item)
 
         self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
                               match_type=ParserData.MatchContains,
-                              parser=["data", "formats"], creator=self.CreateJsonEpisodeItem)
+                              parser=["data", "formats"], creator=self.create_json_episode_item)
         self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
                               match_type=ParserData.MatchContains,
-                              parser=["data", "clips"], creator=self.CreateJsonVideoItem)
+                              parser=["data", "clips"], creator=self.create_json_video_item)
         self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
                               match_type=ParserData.MatchContains,
-                              parser=["data", "episodes"], creator=self.CreateJsonVideoItem)
+                              parser=["data", "episodes"], creator=self.create_json_video_item)
         # ===============================================================================================================
         # non standard items
         self.episodeLabel = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
@@ -157,15 +154,20 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def ExtractCategoriesAndAddSearch(self, data):
+    def extract_categories_and_add_search(self, data):
         """ Extracts the Category information from the JSON data
 
-        @param data: the JSON data
-        @return: Unmodified JSON data
+        The return values should always be instantiated in at least ("", []).
+
+        :param JsonHelper data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
 
         Logger.info("Extracting Category Information")
-        dummyData, items = self.AddSearch(data)
+        dummy_data, items = self.add_search(data)
 
         # The data was already in a JsonHelper
         categories = data.get_value("categories")
@@ -175,132 +177,198 @@ class Channel(chn_class.Channel):
         Logger.debug("Extracting Category Information finished")
         return data, items
 
-    def ExtractJsonData(self, data):
+    def extract_json_data(self, data):
         """ Extracts the JSON data from the HTML page and passes it back to Retrospect.
 
-        @param data: the HTML data
-        @return: the JSON part of the HTML data
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
 
         Logger.info("Performing Pre-Processing")
         items = []
 
-        jsonData = Regexer.do_regex('__initialState__=([^<]+);\W+window.__config__', data)[0]
+        json_data = Regexer.do_regex(r'__initialState__=([^<]+);\W+window.__config__', data)[0]
         # the "RouteStore" has some weird functions, removing it.
-        # start = jsonData.index('"RouteStore"')
+        # start = json_data.index('"RouteStore"')
         # the need at least the 'ApplicationStore'
-        # end = jsonData.index('"ApplicationStore"')
-        # returnData = jsonData[0:start] + jsonData[end:]
-        returnData = jsonData
-        Logger.trace("Found Json:\n%s", returnData)
+        # end = json_data.index('"ApplicationStore"')
+        # returnData = json_data[0:start] + json_data[end:]
+        return_data = json_data
+        Logger.trace("Found Json:\n%s", return_data)
 
         # append categorie data
-        # catData = Regexer.do_regex('"categories":(\[.*?),"allProgramsPage', data)
-        # if catData:
-        #     catData = catData[0]
-        #     returnData = returnData[:-1] + ', "categories": ' + catData + '}'
+        # cat_data = Regexer.do_regex(r'"categories":(\[.*?),"allProgramsPage', data)
+        # if cat_data:
+        #     cat_data = cat_data[0]
+        #     return_data = return_data[:-1] + ', "categories": ' + cat_data + '}'
 
         # file('c:\\temp\\json.txt', 'w+').write(returnData)
-        return JsonHelper(returnData), items
+        return JsonHelper(return_data), items
 
-    def CreateJsonEpisodeItem(self, resultSet):
-        return self.__CreateJsonEpisodeItem(resultSet, checkChannel=True)
+    def create_json_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
-    def CreateJsonSearchItem(self, resultSet):
-        return self.__CreateJsonEpisodeItem(resultSet, checkChannel=False)
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
 
-    def MergeSeasonData(self, data):
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        return self.__create_json_episode_item(result_set, check_channel=True)
+
+    def create_json_search_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        return self.__create_json_episode_item(result_set, check_channel=False)
+
+    def merge_season_data(self, data):
+        """ Merge some season data to make it more easy for parsing.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
         items = []
 
-        jsonData = JsonHelper(data)
-        seasonFolders = jsonData.get_value("context", "dispatcher", "stores",
-                                           "ContentPageProgramStore", "format", "videos")
-        for season in seasonFolders:
-            for video in seasonFolders[season]['program']:
-                items.append(self.CreateJsonVideoItem(video))
+        json_data = JsonHelper(data)
+        season_folders = json_data.get_value("context", "dispatcher", "stores",
+                                             "ContentPageProgramStore", "format", "videos")
+        for season in season_folders:
+            for video in season_folders[season]['program']:
+                items.append(self.create_json_video_item(video))
 
         return data, items
 
-    def CreateJsonVideoItem(self, resultSet):
-        Logger.trace(resultSet)
-        url = "http://playapi.mtgx.tv/v3/videos/stream/%(id)s" % resultSet
-        item = mediaitem.MediaItem(resultSet["title"], url)
+    def create_json_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,any] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+        url = "http://playapi.mtgx.tv/v3/videos/stream/%(id)s" % result_set
+        item = MediaItem(result_set["title"], url)
         item.type = "video"
         item.thumb = self.parentItem.thumb
         item.icon = self.parentItem.icon
-        item.description = resultSet.get("summary", None)
+        item.description = result_set.get("summary", None)
 
-        airedAt = resultSet.get("airedAt", None)
-        if airedAt is None:
-            airedAt = resultSet.get("publishedAt", None)
-        if airedAt is not None:
+        aired_at = result_set.get("airedAt", None)
+        if aired_at is None:
+            aired_at = result_set.get("publishedAt", None)
+        if aired_at is not None:
             # 2016-05-20T15:05:00+00:00
-            airedAt = airedAt.split("+")[0].rstrip('Z')
-            timeStamp = DateHelper.get_date_from_string(airedAt, "%Y-%m-%dT%H:%M:%S")
-            item.set_date(*timeStamp[0:6])
+            aired_at = aired_at.split("+")[0].rstrip('Z')
+            time_stamp = DateHelper.get_date_from_string(aired_at, "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*time_stamp[0:6])
 
-        item.thumb = self.__GetThumbImage(resultSet.get("image"))
+        item.thumb = self.__get_thumb_image(result_set.get("image"))
 
         # webvttPath / samiPath
         # loginRequired
-        isPremium = resultSet.get("loginRequired", False)
-        if isPremium and AddonSettings.hide_premium_items():
+        is_premium = result_set.get("loginRequired", False)
+        if is_premium and AddonSettings.hide_premium_items():
             Logger.debug("Found premium item, hiding it.")
             return None
 
-        srt = resultSet.get("samiPath")
+        srt = result_set.get("samiPath")
         if not srt:
-            srt = resultSet.get("subtitles_webvtt")
+            srt = result_set.get("subtitles_webvtt")
         if srt:
             Logger.debug("Storing SRT/WebVTT path: %s", srt)
             part = item.create_new_empty_media_part()
             part.Subtitle = srt
         return item
 
-    def AddClips(self, data):
+    def add_clips(self, data):
+        """ Add an items that lists clips.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         Logger.info("Adding Clips Pre-Processing")
         items = []
 
         # if the main list was retrieve using json, are the current data is json, just determine
         # the clip URL
-        clipUrl = None
+        clip_url = None
         if data.lstrip().startswith("{"):
             if self.parentItem.url.endswith("type=program"):
                 # http://playapi.mtgx.tv/v3/videos?format=6723&order=-airdate&type=program
-                # http://playapi.mtgx.tv/v3/videos?format=6723&order=-updated&type=clip" % (dataId,)
-                clipUrl = self.parentItem.url.replace("type=program", "type=clip")
+                # http://playapi.mtgx.tv/v3/videos?format=6723&order=-updated&type=clip" % (data_id,)
+                clip_url = self.parentItem.url.replace("type=program", "type=clip")
         else:
             # now we determine the ID and load the json data
-            dataId = Regexer.do_regex('data-format-id="(\d+)"', data)[-1]
-            Logger.debug("Found FormatId = %s", dataId)
-            programUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (dataId,)
-            data = UriHandler.open(programUrl, proxy=self.proxy)
-            clipUrl = "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (dataId,)
+            data_id = Regexer.do_regex(r'data-format-id="(\d+)"', data)[-1]
+            Logger.debug("Found FormatId = %s", data_id)
+            program_url = \
+                "http://playapi.mtgx.tv/v3/videos?format=%s&order=-airdate&type=program" % (data_id,)
+            data = UriHandler.open(program_url, proxy=self.proxy)
+            clip_url = \
+                "http://playapi.mtgx.tv/v3/videos?format=%s&order=-updated&type=clip" % (data_id,)
 
-        if clipUrl is not None:
-            clipTitle = LanguageHelper.get_localized_string(LanguageHelper.Clips)
-            clipItem = mediaitem.MediaItem("\a.: %s :." % (clipTitle,), clipUrl)
-            clipItem.thumb = self.noImage
-            items.append(clipItem)
+        if clip_url is not None:
+            clip_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
+            clip_item = MediaItem("\a.: %s :." % (clip_title,), clip_url)
+            clip_item.thumb = self.noImage
+            items.append(clip_item)
 
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def AddSearch(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
-        Accepts an data from the process_folder_list method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
+    def add_search(self, data):
+        """ Adds a search item.
 
         The return values should always be instantiated in at least ("", []).
+
+        :param JsonHelper data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -309,11 +377,11 @@ class Channel(chn_class.Channel):
 
         title = "\a.: %s :." % (self.searchInfo.get(self.language, self.searchInfo["se"])[1], )
         Logger.trace("Adding search item: %s", title)
-        searchItem = mediaitem.MediaItem(title, "searchSite")
-        searchItem.thumb = self.noImage
-        searchItem.fanart = self.fanart
-        searchItem.dontGroup = True
-        items.append(searchItem)
+        search_item = MediaItem(title, "searchSite")
+        search_item.thumb = self.noImage
+        search_item.fanart = self.fanart
+        search_item.dontGroup = True
+        items.append(search_item)
 
         Logger.debug("Pre-Processing finished")
         return data, items
@@ -328,7 +396,7 @@ class Channel(chn_class.Channel):
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
 
-        :param str url:     Url to use to search with a %s for the search parameters.
+        :param str|none url:     Url to use to search with a %s for the search parameters.
 
         :return: A list with search results as MediaItems.
         :rtype: list[MediaItem]
@@ -349,43 +417,36 @@ class Channel(chn_class.Channel):
         Logger.debug("Using search url: %s", url)
         return chn_class.Channel.search_site(self, url)
 
-    def create_page_item(self, resultSet):
-        """Creates a MediaItem of type 'page' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(string) - the resultSet of the self.pageNavigationRegex
-
-        Returns:
-        A new MediaItem of type 'page'
+    def create_page_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|none
 
         """
 
         Logger.debug("Starting create_page_item")
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        url = resultSet["href"]
+        url = result_set["href"]
         page = url.rsplit("=", 1)[-1]
 
-        item = mediaitem.MediaItem(page, url)
+        item = MediaItem(page, url)
         item.type = "page"
         Logger.debug("Created '%s' for url %s", item.name, item.url)
         return item
 
-    def CreateSearchResult(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -393,132 +454,101 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        """
+        :param list[str]|dict[str,dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
-        Logger.trace(resultSet)
-        item = mediaitem.MediaItem(
-            resultSet["title"],
-            "http://playapi.mtgx.tv/v3/videos/stream/%s" % (resultSet["url"], )
-        )
-        item.type = "video"
-        item.thumb = resultSet["thumburl"]
-        item.complete = False
-        # item.description = resultSet["description"]
-        return item
-
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focussed or selected
-        for playback.
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        drmLocked = False
-        geoBlocked = resultSet["is_geo_blocked"]
-        # hideGeoBloced = AddonSettings().HideGeoLocked()
-        # if geoBlocked and hideGeoBloced:
-        #     Logger.Warning("GeoBlocked item")
-        #     return None
+        drm_locked = False
+        geo_blocked = result_set["is_geo_blocked"]
 
-        title = resultSet["title"]
-        if ("_links" not in resultSet or
-                "stream" not in resultSet["_links"] or
-                "href" not in resultSet["_links"]["stream"]):
+        title = result_set["title"]
+        if ("_links" not in result_set or
+                "stream" not in result_set["_links"] or
+                "href" not in result_set["_links"]["stream"]):
             Logger.warning("No streams found for %s", title)
             return None
 
         # the description
-        description = resultSet["description"].strip()  # The long version
-        summary = resultSet["summary"].strip()  # The short version
+        description = result_set["description"].strip()  # The long version
+        summary = result_set["summary"].strip()  # The short version
         # Logger.Trace("Comparing:\nDesc: %s\nSumm:%s", description, summary)
-        if description.startswith(summary):
-            pass
-        else:
+        if not description.startswith(summary):
             # the descripts starts with the summary. Don't show
             description = "%s\n\n%s" % (summary, description)
 
-        videoType = resultSet["type"]
-        if not videoType == "program":
-            title = "%s (%s)" % (title, videoType.title())
+        video_type = result_set["type"]
+        if not video_type == "program":
+            title = "%s (%s)" % (title, video_type.title())
 
-        elif resultSet["format_position"]["is_episodic"]:  # and resultSet["format_position"]["episode"] != "0":
+        elif result_set["format_position"]["is_episodic"]:  # and resultSet["format_position"]["episode"] != "0":
             # make sure we show the episodes and seaso
             # season = int(resultSet["format_position"]["season"])
-            episode = int(resultSet["format_position"]["episode"] or "0")
-            # name = "s%02de%02d" % (season, episode)
-            webisode = resultSet.get("webisode", False)
+            episode = int(result_set["format_position"]["episode"] or "0")
+            webisode = result_set.get("webisode", False)
 
             # if the name had the episode in it, translate it
             if episode > 0 and not webisode:
                 description = "%s\n\n%s" % (title, description)
-                title = "%s - %s %s %s %s" % (resultSet["format_title"],
+                title = "%s - %s %s %s %s" % (result_set["format_title"],
                                               self.seasonLabel,
-                                              resultSet["format_position"]["season"],
+                                              result_set["format_position"]["season"],
                                               self.episodeLabel,
-                                              resultSet["format_position"]["episode"])
+                                              result_set["format_position"]["episode"])
             else:
-                Logger.debug("Found episode number '0' for '%s', using name instead of episode number", title)
+                Logger.debug("Found episode number '0' for '%s', "
+                             "using name instead of episode number", title)
 
-        url = resultSet["_links"]["stream"]["href"]
-        item = mediaitem.MediaItem(title, url)
+        url = result_set["_links"]["stream"]["href"]
+        item = MediaItem(title, url)
 
-        dateInfo = None
-        dateFormat = "%Y-%m-%dT%H:%M:%S"
-        if "broadcasts" in resultSet and len(resultSet["broadcasts"]) > 0:
-            dateInfo = resultSet["broadcasts"][0]["air_at"]
+        date_info = None
+        date_format = "%Y-%m-%dT%H:%M:%S"
+        if "broadcasts" in result_set and len(result_set["broadcasts"]) > 0:
+            date_info = result_set["broadcasts"][0]["air_at"]
             Logger.trace("Date set from 'air_at'")
 
-            if "playable_from" in resultSet["broadcasts"][0]:
-                startDate = resultSet["broadcasts"][0]["playable_from"]
-                playableFrom = DateHelper.get_date_from_string(startDate[0:-6], dateFormat)
-                playableFrom = datetime.datetime(*playableFrom[0:6])
-                if playableFrom > datetime.datetime.now():
-                    drmLocked = True
+            if "playable_from" in result_set["broadcasts"][0]:
+                start_date = result_set["broadcasts"][0]["playable_from"]
+                playable_from = DateHelper.get_date_from_string(start_date[0:-6], date_format)
+                playable_from = datetime.datetime(*playable_from[0:6])
+                if playable_from > datetime.datetime.now():
+                    drm_locked = True
 
-        elif "publish_at" in resultSet:
-            dateInfo = resultSet["publish_at"]
+        elif "publish_at" in result_set:
+            date_info = result_set["publish_at"]
             Logger.trace("Date set from 'publish_at'")
 
-        if dateInfo is not None:
+        if date_info is not None:
             # publish_at=2007-09-02T21:55:00+00:00
-            info = dateInfo.split("T")
-            dateInfo = info[0]
-            timeInfo = info[1]
-            dateInfo = dateInfo.split("-")
-            timeInfo = timeInfo.split(":")
-            item.set_date(dateInfo[0], dateInfo[1], dateInfo[2], timeInfo[0], timeInfo[1], 0)
+            info = date_info.split("T")
+            date_info = info[0]
+            time_info = info[1]
+            date_info = date_info.split("-")
+            time_info = time_info.split(":")
+            item.set_date(date_info[0], date_info[1], date_info[2], time_info[0], time_info[1], 0)
 
         item.type = "video"
         item.complete = False
         item.icon = self.icon
-        item.isGeoLocked = geoBlocked
-        item.isDrmProtected = drmLocked
+        item.isGeoLocked = geo_blocked
+        item.isDrmProtected = drm_locked
 
-        thumbData = resultSet['_links'].get('image', None)
-        if thumbData is not None:
-            # item.thumbUrl = thumbData['href'].replace("{size}", "thumb")
-            item.thumb = self.__GetThumbImage(thumbData['href'])
+        thumb_data = result_set['_links'].get('image', None)
+        if thumb_data is not None:
+            # Older version
+            # item.thumbUrl = thumb_data['href'].replace("{size}", "thumb")
+            item.thumb = self.__get_thumb_image(thumb_data['href'])
 
         item.description = description
 
-        srt = resultSet.get("sami_path")
+        srt = result_set.get("sami_path")
         if not srt:
-            srt = resultSet.get("subtitles_webvtt")
+            srt = result_set.get("subtitles_webvtt")
         if srt:
             Logger.debug("Storing SRT/WebVTT path: %s", srt)
             part = item.create_new_empty_media_part()
@@ -526,35 +556,37 @@ class Channel(chn_class.Channel):
         return item
 
     def update_video_item(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
         data or retrieve it's real media-URL.
 
         The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
         * set at least one MediaItemPart with a single MediaStream.
         * set self.complete = True.
 
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
-        useKodiHls = AddonSettings.use_adaptive_stream_add_on()
+        use_kodi_hls = AddonSettings.use_adaptive_stream_add_on()
 
-        # User-agent (and possible other headers), should be consistent over all M3u8 requests (See #864)
+        # User-agent (and possible other headers), should be consistent over all
+        # M3u8 requests (See #864)
         headers = {}
-        if not useKodiHls:
+        if not use_kodi_hls:
             headers = {
-                "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
+                "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) "
+                              "Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
             }
         if self.localIP:
             headers.update(self.localIP)
@@ -566,9 +598,11 @@ class Channel(chn_class.Channel):
         if item.MediaItemParts:
             part = item.MediaItemParts[0]
             if part.Subtitle and part.Subtitle.endswith(".vtt"):
-                part.Subtitle = SubtitleHelper.download_subtitle(part.Subtitle, format="webvtt", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.download_subtitle(
+                    part.Subtitle, format="webvtt", proxy=self.proxy)
             else:
-                part.Subtitle = SubtitleHelper.download_subtitle(part.Subtitle, format="dcsubtitle", proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.download_subtitle(
+                    part.Subtitle, format="dcsubtitle", proxy=self.proxy)
         else:
             part = item.create_new_empty_media_part()
 
@@ -585,7 +619,7 @@ class Channel(chn_class.Channel):
             if url.startswith("http") and ".m3u8" in url:
                 # first see if there are streams in this file, else check the second location.
                 for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
-                    if useKodiHls:
+                    if use_kodi_hls:
                         strm = part.append_media_stream(url, 0)
                         M3u8.set_input_stream_addon_input(strm, headers=headers)
                         # Only the main M3u8 is needed
@@ -597,7 +631,7 @@ class Channel(chn_class.Channel):
                     Logger.warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
                     url = url.replace("manifest.m3u8", "master.m3u8")
                     for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
-                        if useKodiHls:
+                        if use_kodi_hls:
                             strm = part.append_media_stream(url, 0)
                             M3u8.set_input_stream_addon_input(strm, headers=headers)
                             # Only the main M3u8 is needed
@@ -610,17 +644,16 @@ class Channel(chn_class.Channel):
                 # https://cdn-subtitles-mtgx-tv.akamaized.net/pitcher/20xxxxxx/2039xxxx/203969xx/20396967/20396967-swt.xml&output=m3u8
                 if "uri=" in url and not part.Subtitle:
                     Logger.debug("Extracting subs from M3u8")
-                    subUrl = url.rsplit("uri=")[-1]
-                    subUrl = HtmlEntityHelper.url_decode(subUrl)
-                    subData = UriHandler.open(subUrl, proxy=self.proxy)
-                    # subUrl = None
-                    subs = filter(lambda line: line.startswith("http"), subData.split("\n"))
+                    sub_url = url.rsplit("uri=")[-1]
+                    sub_url = HtmlEntityHelper.url_decode(sub_url)
+                    sub_data = UriHandler.open(sub_url, proxy=self.proxy)
+                    subs = filter(lambda line: line.startswith("http"), sub_data.split("\n"))
                     if subs:
                         part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt', proxy=self.proxy)
 
             elif url.startswith("rtmp"):
                 # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4
-                oldUrl = url
+                old_url = url
                 if not url.endswith(".flv") and not url.endswith(".mp4"):
                     url += '.mp4'
 
@@ -630,8 +663,8 @@ class Channel(chn_class.Channel):
                     server, path = url.split("mp4:", 1)
                     url = "%s playpath=mp4:%s" % (server, path)
 
-                if oldUrl != url:
-                    Logger.debug("Updated URL from - to:\n%s\n%s", oldUrl, url)
+                if old_url != url:
+                    Logger.debug("Updated URL from - to:\n%s\n%s", old_url, url)
 
                 url = self.get_verifiable_video_url(url)
                 part.append_media_stream(url, q[1])
@@ -642,7 +675,7 @@ class Channel(chn_class.Channel):
             else:
                 part.append_media_stream(url, q[1])
 
-        if not useKodiHls:
+        if not use_kodi_hls:
             part.HttpHeaders.update(headers)
 
         if part.MediaStreams:
@@ -650,30 +683,56 @@ class Channel(chn_class.Channel):
         Logger.trace("Found mediaurl: %s", item)
         return item
 
-    def __CreateJsonEpisodeItem(self, resultSet, checkChannel=True):
-        Logger.trace(resultSet)
-        if checkChannel and self.channelId is not None and resultSet['channel'] not in self.channelId:
-            Logger.trace("Found item for wrong channel %s instead of %s", resultSet['channel'], self.channelId)
+    def __create_json_episode_item(self, result_set, check_channel=True):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,any] result_set: The result_set of the self.episodeItemRegex
+        :param bool check_channel:                 Compare channel ID's and ignore that that do
+                                                   not match.
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
+
+        """
+
+        Logger.trace(result_set)
+        if check_channel and self.channelId is not None and result_set['channel'] not in self.channelId:
+            Logger.trace("Found item for wrong channel %s instead of %s", result_set['channel'], self.channelId)
             return None
 
         # For now we keep using the API, otherwise we need to do more complex VideoItem parsing
         if self.useNewPages:
-            categorySlug = self.__categories[resultSet["category"]]["slug"]
-            url = "%s/%s/%s" % (self.baseUrl, categorySlug, resultSet['slug'])
+            category_slug = self.__categories[result_set["category"]]["slug"]
+            url = "%s/%s/%s" % (self.baseUrl, category_slug, result_set['slug'])
         else:
-            url = "http://playapi.mtgx.tv/v3/videos?format=%(id)s&order=-airdate&type=program" % resultSet
-        item = mediaitem.MediaItem(resultSet['title'], url)
+            url = "http://playapi.mtgx.tv/v3/videos?format=%(id)s&order=-airdate&type=program" % result_set
+        item = MediaItem(result_set['title'], url)
         item.icon = self.icon
-        item.thumb = self.__GetThumbImage(resultSet.get("image") or self.noImage)
-        # item.fanart = self.__GetThumbImage(resultSet.get("image") or self.fanart, fanartSize=True)
+        item.thumb = self.__get_thumb_image(result_set.get("image") or self.noImage)
+        # No fanart for now
+        # item.fanart = self.__get_thumb_image(resultSet.get("image") or self.fanart, fanartSize=True)
 
-        item.isGeoLocked = resultSet.get('onlyAvailableInSweden', False)
+        item.isGeoLocked = result_set.get('onlyAvailableInSweden', False)
         return item
 
-    def __GetThumbImage(self, url, fanartSize=False):
+    def __get_thumb_image(self, url, fanart_size=False):
+        """ Create a thumb image based on a URL template.
+
+        :param str url:             The URL template to use with {size} as a size placeholder.
+        :param bool fanart_size:    Should we fetch fanart-size (1280x720) images or normal thumbs.
+
+        :return: A full URL to a thumb or fanart image.
+        :rtyp: str
+
+        """
+
         if not url:
             return url
 
-        if fanartSize:
+        if fanart_size:
             return url.replace("{size}", "1280x720")
         return url.replace("{size}", "230x150")
