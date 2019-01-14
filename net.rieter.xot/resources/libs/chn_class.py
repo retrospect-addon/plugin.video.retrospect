@@ -157,7 +157,7 @@ class Channel:
         * parsing the data with the parsers
         * calling the creators for item creations
 
-        if the item is NOne, we assume that we are dealing with the first call for this channel and the mainlist uri
+        if the item is None, we assume that we are dealing with the first call for this channel and the mainlist uri
         is used.
 
         :param MediaItem|none item: The parent item.
