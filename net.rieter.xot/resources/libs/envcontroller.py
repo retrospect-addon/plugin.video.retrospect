@@ -12,6 +12,7 @@ import sys
 import time
 
 import xbmc
+import xbmcaddon
 
 from logger import Logger
 from environments import Environments
@@ -138,9 +139,10 @@ class EnvController:
             info_string = "%s\n%s: %s" % (info_string, "PathDetection", config.pathDetection)
             info_string = "%s\n%s: %s" % (info_string, "Encoding", sys.getdefaultencoding())
             info_string = "%s\n%s: %s" % (info_string, "Repository", repo_name)
-            info_string = "%s\n%s: %s" % (info_string, "textureMode", config.textureMode)
+            info_string = "%s\n%s: %s" % (info_string, "Widevine Path", self.widevine_lib())
+            info_string = "%s\n%s: %s" % (info_string, "TextureMode", config.textureMode)
             if config.textureUrl:
-                info_string = "%s\n%s: %s" % (info_string, "textureUrl", config.textureUrl)
+                info_string = "%s\n%s: %s" % (info_string, "TextureUrl", config.textureUrl)
 
             self.logger.info("Kodi Information:\n%s", info_string)
 
@@ -179,6 +181,38 @@ class EnvController:
             self.logger.debug("%s" % (dir_print,))
         except:
             self.logger.critical("Error printing folder %s", directory, exc_info=True)
+
+    def widevine_lib(self):
+        """ Retrieve the path of the Widevine libraries.
+
+        :return: The full path to either libwidevinecdm.so, widevinecdm.dll or libwidevinecdm.dylib
+        :rtype: str
+
+        """
+
+        try:
+            input_stream_adaptive_id = 'inputstream.adaptive'
+            if not xbmc.getCondVisibility('System.HasAddon("{}")'.format(input_stream_adaptive_id)):
+                return "<no-addon>"
+
+            addon = xbmcaddon.Addon(input_stream_adaptive_id)
+            decrypter_path_from_settings = addon.getSetting('DECRYPTERPATH')
+            if decrypter_path_from_settings:
+                cdm_path = xbmc.translatePath(decrypter_path_from_settings)
+            else:
+                cdm_path = os.path.join(xbmc.translatePath("special://home/"), "cdm")
+
+            if not os.path.isdir(cdm_path):
+                return "<none>"
+
+            Logger.debug("Found CDM folder: %s", cdm_path)
+            widevine_libs = [f for f in os.listdir(cdm_path) if f in
+                             ("libwidevinecdm.so", "widevinecdm.dll", "libwidevinecdm.dylib")]
+
+            return os.path.join(cdm_path, widevine_libs[0]) if len(widevine_libs) == 1 else "<none>"
+        except:
+            Logger.error("Error determining Widevine lib path.", exc_info=True)
+            return "<error>"
 
     @staticmethod
     def get_platform(return_name=False):
