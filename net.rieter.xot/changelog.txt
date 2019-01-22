@@ -1,10 +1,13 @@
-[B]Retrospect v4.1.7.43 - Changelog - 2019-01-13[/B]
+[B]Retrospect v4.1.7.44 - Changelog - 2019-01-22[/B]
 
 [B]Framework related[/B]
--
+* Fixed: resource leak in HTTP Sessions
+* Changed: log if the inputstream.adaptive is not installed
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Kijk.nl new DRM protected streams did not work (Fixes #1085)
+* Fixed: VRT.nu categories (Fixes #1091)v
+* PEP: updated Modern Time Group channels
+* PEP: German channels updated
