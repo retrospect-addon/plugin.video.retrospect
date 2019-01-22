@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: sorting order of listings (Fixes #1081)
+* Fixed: VRT.nu categories (Fixes #1091)
 
 [I]Previous Changes[/I]
+* Fixed: sorting order of listings (Fixes #1081)
 * Fixed: some clips would not play (Fixes #1060)
 * Fixed: Match some more dates for VRT.nu (Fixes #1070)
 * Fixed: Stievie login broke (Fixes 1053)

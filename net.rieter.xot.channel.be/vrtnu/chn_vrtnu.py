@@ -80,9 +80,8 @@ class Channel(chn_class.Channel):
                               name="Live streams updater",
                               updater=self.update_live_video)
 
-        catregex = r'<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?:\W*<div[^>]' \
-                   r'*>\W*){2}<picture[^>]*>\W+(?:<[^>]+>\W*){3}<source[^>]+srcset="' \
-                   r'(?<thumburl>[^ ]+)[\w\W]{0,2000}?<h\d[^>]+title"[^>]*>(?<title>[^<]+)'
+        catregex = r'<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>\W*<div[^>]*' \
+                   r'image="(?<thumburl>[^"]+)"[^<*]+</div>\W*<h2>(?<title>[^<]+)'
         catregex = Regexer.from_expresso(catregex)
         self._add_data_parser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
                               match_type=ParserData.MatchExact,
