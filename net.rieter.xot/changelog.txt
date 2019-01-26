@@ -1,13 +1,12 @@
-[B]Retrospect v4.1.7.44 - Changelog - 2019-01-22[/B]
+[B]Retrospect v4.1.7.45 - Changelog - 2019-01-26[/B]
 
 [B]Framework related[/B]
-* Fixed: resource leak in HTTP Sessions
-* Changed: log if the inputstream.adaptive is not installed
+* Updated: readme.md with more Widevine information (Fixes #1090)
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: VRT.nu categories (Fixes #1091)v
-* PEP: updated Modern Time Group channels
-* PEP: German channels updated
+* Fixed: VTM Nieuws did not play (Fixes #1092)
+* Changed: Hide VTM Nieuws from the VTM.be channel (See #1092)
+* Removed: De Redactie (See #1092)
