@@ -895,6 +895,9 @@ class Channel(chn_class.Channel):
 
         title = result_set['title']
         url = result_set['url']
+        if url.endswith("vtm-nieuws-0"):
+            return None
+
         if not url.startswith("http"):
             url = "%s%s" % (self.baseUrl, url)
         # Try to mix the Medialaan API with HTML is not working

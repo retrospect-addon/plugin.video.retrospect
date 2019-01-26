@@ -80,6 +80,18 @@ The kodi.log will tell you if you did not put them in the correct place or if yo
 
 _NOTE: for Kodi Krypton it seems that version 1.4.8.1008 is the last version that is compatible._
 
+For **ARM Devices** things might be a bit different. If you are running Android, you probably don't need to do anything at all and Widevine should work. However, if you are running Linux on ARM there is a different approach:
+
+1. Determine the last version of the libraries for ARM using this url: [https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf](https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf)
+1. From that configuration file, find the image for an ARM device that resembles your device. 
+    * Multiple successes have been reported using the the *Acer Chromebook R13* image.
+    * The device configuration section in the config file have an `url` field that contains a link to a recovery image. 
+    * In the case of the *Acer Chromebook R13* you can download the full recovery from this url: [https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_{version}_elm_recovery_stable-channel_mp.bin.zip](https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_11021.81.0_elm_recovery_stable-channel_mp.bin.zip).
+1. From that recovery image you will need the Widevine files located in `/opt/google/chrome/libwidevinecdm*.so`.
+1. These files need to be copied to the `<kodi-profile>/cdm` folder.
+
+_NOTE: Keep in mind that you might need to try multiple recovery images before you find a working one._ 
+
 # Copyrights and Licenses #
 *See also: http://www.rieter.net/content/xot/license/.*
 

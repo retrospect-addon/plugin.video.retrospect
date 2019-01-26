@@ -3,6 +3,9 @@
 import chn_class
 from regexer import Regexer
 from mediaitem import MediaItem
+from urihandler import UriHandler
+from helpers.jsonhelper import JsonHelper
+from logger import Logger
 
 
 class Channel(chn_class.Channel):
@@ -51,7 +54,6 @@ class Channel(chn_class.Channel):
                               parser=stadion_regex, creator=self.create_video_item,
                               updater=self.update_video_item)
 
-        self.mediaUrlRegex = '<source[^>]+src="([^"]+)"[^>]+type="video/mp4"[^>]*/>'
         self.pageNavigationRegex = ''
         self.pageNavigationRegexIndex = 0
 
@@ -127,4 +129,54 @@ class Channel(chn_class.Channel):
         date_info = date_info.split("-")
         time_info = time_info.split(":")
         item.set_date(date_info[0], date_info[1], date_info[2], time_info[0], time_info[1], 0)
+        return item
+
+    def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        NOTE: This is a 100% copy of the chn_vtmbe.Channel.update_html_clip_item
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = Regexer.do_regex(r"Drupal\.settings,\s*({[\w\W]+?})\);\s*//-->", data)
+        json_data = JsonHelper(json_data[-1])
+        video_info = json_data.get_value('medialaan_player', )
+
+        video_config = None
+        for key in video_info:
+            Logger.trace("Checking key: %s", key)
+            if "videoConfig" not in video_info[key]:
+                continue
+
+            video_config = video_info[key]['videoConfig']['video']
+            break
+
+        if not video_config:
+            Logger.error("No video info found.")
+
+        streams = video_config['formats']
+        for stream in streams:
+            stream_url = stream['url']
+            if stream['type'] == "mp4":
+                item.append_single_stream(stream_url, 0)
+                item.complete = True
+
         return item
