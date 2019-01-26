@@ -65,6 +65,17 @@ Retrospect will NOT auto-upate. So new version need to be installed manually.
 ### Playing Widevine DRM content ###
 Starting with Kodi Leia (Kodi 18) the playback of DRM protected streams is supported using the `input.adaptive` add-on. Kodi comes with this pre-installed, but by default it is disabled. So make sure that you **enable** it first. In order to play Widevine DRM files you will need to have the Google Widevine libraries installed. Android based devices have this as a native component, for Windows and Linux you will need to install them:
 
+The _Easy way_:
+
+1. Open the Retrospect add-on settings.
+1. Enable support for the InputStream Adaptive add-on within Retrospect by enabling `Use Kodi InputStream Adaptive add-on when possible`.
+1. Select **OK** to save the settings.
+1. Open the Retrospect add-on settings again.
+1. Go to `Install Widevine using InputStream Adaptive Helper add-on` en select this option.
+1. Complete the steps that the InputStream Adaptive Helper add-on give you.
+
+The _Manual way_:
+
 1. Determine the last version of the Widevine libraries: [https://dl.google.com/widevine-cdm/current.txt](https://dl.google.com/widevine-cdm/current.txt)
 1. Download the appropriate version for your OS/Kodi combination (replace the {version} with the most recent version):
     * 32-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-ia32.zip](https://dl.google.com/widevine-cdm/{version}-win-ia32.zip)
@@ -80,7 +91,7 @@ The kodi.log will tell you if you did not put them in the correct place or if yo
 
 _NOTE: for Kodi Krypton it seems that version 1.4.8.1008 is the last version that is compatible._
 
-For **ARM Devices** things might be a bit different. If you are running Android, you probably don't need to do anything at all and Widevine should work. However, if you are running Linux on ARM there is a different approach:
+For **ARM Devices** (Such as a Raspberry Pi) things might be a bit different. If you are running Android, you probably don't need to do anything at all and Widevine should work. However, if you are running Linux on ARM and the above method does not work, there is a different approach:
 
 1. Determine the last version of the libraries for ARM using this url: [https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf](https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf)
 1. From that configuration file, find the image for an ARM device that resembles your device. 
