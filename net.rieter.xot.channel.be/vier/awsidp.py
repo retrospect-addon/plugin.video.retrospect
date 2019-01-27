@@ -9,6 +9,7 @@ import datetime
 
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
+from logger import Logger
 
 
 class AwsIdp:
@@ -173,11 +174,7 @@ class AwsIdp:
         salt = challenge_parameters["SALT"]
         secret_block = challenge_parameters["SECRET_BLOCK"]
 
-        if sys.platform.startswith('win'):
-            format_string = "%a %b %#d %H:%M:%S UTC %Y"
-        else:
-            format_string = "%a %b %-d %H:%M:%S UTC %Y"
-        timestamp = datetime.datetime.utcnow().strftime(format_string)
+        timestamp = self.__get_current_timestamp()
 
         # Get a HKDF key for the password, SrpB and the Salt
         hkdf = self.__get_hkdf_key_for_password(
@@ -332,6 +329,30 @@ class AwsIdp:
     def __get_random(nbytes):
         random_hex = binascii.hexlify(os.urandom(nbytes))
         return AwsIdp.__hex_to_long(random_hex)
+
+    @staticmethod
+    def __get_current_timestamp():
+        """ Creates a timestamp with the correct English format.
+
+        :return: timestamp in format 'Sun Jan 27 19:00:04 UTC 2019'
+        :rtype: str
+
+        """
+
+        # We need US only data, so we cannot just do a strftime:
+        # Sun Jan 27 19:00:04 UTC 2019
+        months = [None,  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+        time_now = datetime.datetime.utcnow()
+        if sys.platform.startswith('win'):
+            format_string = "{} {} %#d %H:%M:%S UTC %Y".format(days[time_now.weekday()], months[time_now.month])
+        else:
+            format_string = "{} {} %-d %H:%M:%S UTC %Y".format(days[time_now.weekday()], months[time_now.month])
+
+        time_string = datetime.datetime.utcnow().strftime(format_string)
+        Logger.debug("AWS Auth Timestamp: %s", time_string)
+        return time_string
 
     def __str__(self):
         return "AWS IDP Client for:\nRegion: %s\nPoolId: %s\nAppId:  %s" % (
