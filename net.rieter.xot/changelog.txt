@@ -1,12 +1,10 @@
 [B]Retrospect v4.1.7.45 - Changelog - 2019-01-26[/B]
 
 [B]Framework related[/B]
-* Updated: readme.md with more Widevine information (Fixes #1090)
+* Fixed: On video playback error the busy dialog would not close and Kodi would wait for ever for Retrospect to finish (Fixes #1096)
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: VTM Nieuws did not play (Fixes #1092)
-* Changed: Hide VTM Nieuws from the VTM.be channel (See #1092)
-* Removed: De Redactie (See #1092)
+* Fixed: issue with AWS timestamp not being in English (Fixes #1094)

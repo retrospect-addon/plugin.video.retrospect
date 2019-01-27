@@ -128,132 +128,128 @@ class Plugin(ParameterParser):
         #        Start the plugin verion of the episode window
         #===============================================================================
         else:
-            try:
-                # Determine what stage we are in. Check that there are more than 2 Parameters
-                if len(self.params) > 1 and self.keywordChannel in self.params:
-                    # retrieve channel characteristics
-                    self.channelFile = os.path.splitext(self.params[self.keywordChannel])[0]
-                    self.channelCode = self.params[self.keywordChannelCode]
-                    Logger.debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
-                                 self.channelCode)
+            # Determine what stage we are in. Check that there are more than 2 Parameters
+            if len(self.params) > 1 and self.keywordChannel in self.params:
+                # retrieve channel characteristics
+                self.channelFile = os.path.splitext(self.params[self.keywordChannel])[0]
+                self.channelCode = self.params[self.keywordChannelCode]
+                Logger.debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
+                             self.channelCode)
 
-                    # import the channel
-                    channel_register = ChannelIndex.get_register()
-                    channel = channel_register.get_channel(self.channelFile, self.channelCode)
+                # import the channel
+                channel_register = ChannelIndex.get_register()
+                channel = channel_register.get_channel(self.channelFile, self.channelCode)
 
-                    if channel is not None:
-                        self.channelObject = channel
-                    else:
-                        Logger.critical("None or more than one channels were found, unable to continue.")
+                if channel is not None:
+                    self.channelObject = channel
+                else:
+                    Logger.critical("None or more than one channels were found, unable to continue.")
+                    return
+
+                # init the channel as plugin
+                self.channelObject.init_channel()
+                Logger.info("Loaded: %s", self.channelObject.channelName)
+
+            elif self.keywordCategory in self.params \
+                    or self.keywordAction in self.params and (
+                        self.params[self.keywordAction] == self.actionAllFavourites or
+                        self.params[self.keywordAction] == self.actionRemoveFavourite):
+                # no channel needed for these favourites actions.
+                pass
+
+            # ===============================================================================
+            # Vault Actions
+            # ===============================================================================
+            elif self.keywordAction in self.params and \
+                    self.params[self.keywordAction] in \
+                    (
+                        self.actionSetEncryptedValue,
+                        self.actionSetEncryptionPin,
+                        self.actionResetVault
+                    ):
+                try:
+                    # Import vault here, as it is only used here or in a channel
+                    # that supports it
+                    from vault import Vault
+
+                    action = self.params[self.keywordAction]
+                    if action == self.actionResetVault:
+                        Vault.reset()
                         return
 
-                    # init the channel as plugin
-                    self.channelObject.init_channel()
-                    Logger.info("Loaded: %s", self.channelObject.channelName)
+                    v = Vault()
+                    if action == self.actionSetEncryptionPin:
+                        v.change_pin()
+                    elif action == self.actionSetEncryptedValue:
+                        v.set_setting(self.params[self.keywordSettingId],
+                                      self.params.get(self.keywordSettingName, ""),
+                                      self.params.get(self.keywordSettingActionId, None))
+                finally:
+                    if self.keywordSettingTabFocus in self.params:
+                        AddonSettings.show_settings(self.params[self.keywordSettingTabFocus],
+                                                    self.params.get(
+                                                       self.keywordSettingSettingFocus, None))
+                return
 
-                elif self.keywordCategory in self.params \
-                        or self.keywordAction in self.params and (
-                            self.params[self.keywordAction] == self.actionAllFavourites or
-                            self.params[self.keywordAction] == self.actionRemoveFavourite):
-                    # no channel needed for these favourites actions.
-                    pass
+            elif self.keywordAction in self.params and \
+                    self.actionPostLog in self.params[self.keywordAction]:
+                self.__send_log()
+                return
 
-                # ===============================================================================
-                # Vault Actions
-                # ===============================================================================
-                elif self.keywordAction in self.params and \
-                        self.params[self.keywordAction] in \
-                        (
-                            self.actionSetEncryptedValue,
-                            self.actionSetEncryptionPin,
-                            self.actionResetVault
-                        ):
-                    try:
-                        # Import vault here, as it is only used here or in a channel
-                        # that supports it
-                        from vault import Vault
+            elif self.keywordAction in self.params and \
+                    self.actionProxy in self.params[self.keywordAction]:
 
-                        action = self.params[self.keywordAction]
-                        if action == self.actionResetVault:
-                            Vault.reset()
-                            return
-
-                        v = Vault()
-                        if action == self.actionSetEncryptionPin:
-                            v.change_pin()
-                        elif action == self.actionSetEncryptedValue:
-                            v.set_setting(self.params[self.keywordSettingId],
-                                          self.params.get(self.keywordSettingName, ""),
-                                          self.params.get(self.keywordSettingActionId, None))
-                    finally:
-                        if self.keywordSettingTabFocus in self.params:
-                            AddonSettings.show_settings(self.params[self.keywordSettingTabFocus],
-                                                        self.params.get(
-                                                           self.keywordSettingSettingFocus, None))
+                # do this here to not close the busy dialog on the SetProxy when
+                # a confirm box is shown
+                title = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirmTitle)
+                content = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirm)
+                if not XbmcWrapper.show_yes_no(title, content):
+                    Logger.warning("Stopping proxy update due to user intervention")
                     return
 
-                elif self.keywordAction in self.params and \
-                        self.actionPostLog in self.params[self.keywordAction]:
-                    self.__send_log()
-                    return
+                language = self.params.get(self.keywordLanguage, None)
+                proxy_id = self.params.get(self.keywordProxy, None)
+                local_ip = self.params.get(self.keywordLocalIP, None)
+                self.__set_proxy(language, proxy_id, local_ip)
+                return
 
-                elif self.keywordAction in self.params and \
-                        self.actionProxy in self.params[self.keywordAction]:
+            else:
+                Logger.critical("Error determining Plugin action")
+                return
 
-                    # do this here to not close the busy dialog on the SetProxy when
-                    # a confirm box is shown
-                    title = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirmTitle)
-                    content = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirm)
-                    if not XbmcWrapper.show_yes_no(title, content):
-                        Logger.warning("Stopping proxy update due to user intervention")
-                        return
+            #===============================================================================
+            # See what needs to be done.
+            #===============================================================================
+            if self.keywordAction not in self.params:
+                Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
+                return
 
-                    language = self.params.get(self.keywordLanguage, None)
-                    proxy_id = self.params.get(self.keywordProxy, None)
-                    local_ip = self.params.get(self.keywordLocalIP, None)
-                    self.__set_proxy(language, proxy_id, local_ip)
-                    return
+            elif self.params[self.keywordAction] == self.actionListCategory:
+                self.show_channel_list(self.params[self.keywordCategory])
 
-                else:
-                    Logger.critical("Error determining Plugin action")
-                    return
+            elif self.params[self.keywordAction] == self.actionConfigureChannel:
+                self.__configure_channel(self.channelObject)
 
-                #===============================================================================
-                # See what needs to be done.
-                #===============================================================================
-                if self.keywordAction not in self.params:
-                    Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
-                    return
+            elif self.params[self.keywordAction] == self.actionFavourites:
+                # we should show the favourites
+                self.show_favourites(self.channelObject)
 
-                elif self.params[self.keywordAction] == self.actionListCategory:
-                    self.show_channel_list(self.params[self.keywordCategory])
+            elif self.params[self.keywordAction] == self.actionAllFavourites:
+                self.show_favourites(None)
 
-                elif self.params[self.keywordAction] == self.actionConfigureChannel:
-                    self.__configure_channel(self.channelObject)
+            elif self.params[self.keywordAction] == self.actionListFolder:
+                # channelName and URL is present, Parse the folder
+                self.process_folder_list()
 
-                elif self.params[self.keywordAction] == self.actionFavourites:
-                    # we should show the favourites
-                    self.show_favourites(self.channelObject)
+            elif self.params[self.keywordAction] == self.actionPlayVideo:
+                self.play_video_item()
 
-                elif self.params[self.keywordAction] == self.actionAllFavourites:
-                    self.show_favourites(None)
+            elif not self.params[self.keywordAction] == "":
+                self.on_action_from_context_menu(self.params[self.keywordAction])
 
-                elif self.params[self.keywordAction] == self.actionListFolder:
-                    # channelName and URL is present, Parse the folder
-                    self.process_folder_list()
-
-                elif self.params[self.keywordAction] == self.actionPlayVideo:
-                    self.play_video_item()
-
-                elif not self.params[self.keywordAction] == "":
-                    self.on_action_from_context_menu(self.params[self.keywordAction])
-
-                else:
-                    Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
-                                   len(self.params), self.params)
-
-            except:
-                Logger.critical("Error parsing for add-on", exc_info=True)
+            else:
+                Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
+                               len(self.params), self.params)
 
         self.__fetch_textures()
         return
@@ -537,6 +533,11 @@ class Plugin(ParameterParser):
                                           LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
                                           XbmcWrapper.Error)
             Logger.critical("Could not playback the url", exc_info=True)
+
+            # We need to single Kodi that it failed and it should not wait longer. Either using a
+            # `raise` or with `xbmcplugin.endOfDirectory`. Doing the latter for now although we are
+            # not really playing.
+            xbmcplugin.endOfDirectory(self.handle, False)
 
         return
 
