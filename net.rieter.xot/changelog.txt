@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.7.45 - Changelog - 2019-01-26[/B]
+[B]Retrospect v4.1.7.46 - Changelog - 2019-01-28[/B]
 
 [B]Framework related[/B]
 * Fixed: On video playback error the busy dialog would not close and Kodi would wait for ever for Retrospect to finish (Fixes #1096)
