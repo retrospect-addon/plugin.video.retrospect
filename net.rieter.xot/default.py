@@ -77,6 +77,7 @@ def run_plugin():
     except:
         if log_file:
             log_file.critical("Error running plugin", exc_info=True)
+            log_file.close_log()
         raise
 
 
@@ -89,6 +90,7 @@ currentPath = Initializer.setup_python_paths()
 # from debug import remotedebugger
 # debugger = remotedebugger.RemoteDebugger()
 
+# Profile logging
 # import profile as cProfile
 # import cProfile
 # from debug import profilelinebyline as cProfile
