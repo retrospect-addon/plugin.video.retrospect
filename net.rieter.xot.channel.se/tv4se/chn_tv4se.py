@@ -6,7 +6,6 @@ import mediaitem
 import chn_class
 from addonsettings import AddonSettings
 from helpers.jsonhelper import JsonHelper
-# from helpers.subtitlehelper import SubtitleHelper
 
 from parserdata import ParserData
 from regexer import Regexer
@@ -19,18 +18,17 @@ from urihandler import UriHandler
 
 class Channel(chn_class.Channel):
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.__channelId = "tv4"
@@ -50,29 +48,35 @@ class Channel(chn_class.Channel):
         # self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
         #                    "&fl=nid,name,program_image&start=0"
 
-        self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
+        self.mainListUri = "http://webapi.tv4play.se/play/programs?is_active=true" \
+                           "&platform=tablet&per_page=1000" \
                            "&fl=nid,name,program_image,is_premium,updated_at,channel&start=0"
 
         self.baseUrl = "http://www.tv4play.se"
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
 
-        self.episodeItemJson = ["results",]
+        self.episodeItemJson = ["results", ]
         self._add_data_parser(self.mainListUri,
-                              preprocessor=self.AddCategoriesAndSpecials, json=True,
+                              preprocessor=self.add_categories_and_specials, json=True,
                               match_type=ParserData.MatchExact,  # No longer used:  requiresLogon=True,
                               parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self._add_data_parser("http://webapi.tv4play.se/play/categories.json", json=True, match_type=ParserData.MatchExact,
-                              parser=[], creator=self.CreateCategoryItem)
-        self._add_data_parser("http://webapi.tv4play.se/play/programs?platform=tablet&category=", json=True,
+        self._add_data_parser("http://webapi.tv4play.se/play/categories.json",
+                              json=True, match_type=ParserData.MatchExact,
+                              parser=[], creator=self.create_category_item)
+        self._add_data_parser("http://webapi.tv4play.se/play/programs?platform=tablet&category=",
+                              json=True,
                               parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/", updater=self.UpdateLiveItem)
-        self._add_data_parser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1", updater=self.UpdateLiveItem)
+        self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
+                              updater=self.update_live_item)
+        self._add_data_parser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1",
+                              updater=self.update_live_item)
 
-        self.videoItemJson = ["results",]
+        self.videoItemJson = ["results", ]
         self._add_data_parser("*", preprocessor=self.pre_process_folder_list, json=True,
-                              parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item)
+                              parser=self.videoItemJson, creator=self.create_video_item,
+                              updater=self.update_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -86,6 +90,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    # No logon for now
     # def log_on(self):
     #     """ Makes sure that we are logged on. """
     #
@@ -190,60 +195,53 @@ class Channel(chn_class.Channel):
     #     self.httpHeaders["Cookie"] = "JSESSIONID=%s; sessionToken=%s" % (vimondSessionToken, sessionToken)
     #     return True
 
-    def create_episode_item(self, resultSet):
-        """Creates a new MediaItem for an episode
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict result_set:   The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
-        # Logger.Trace(resultSet)
-        json = resultSet
+        # Logger.Trace(result_set)
+        json = result_set
         title = json["name"]
 
-        programId = json["nid"]
-        programId = HtmlEntityHelper.url_encode(programId)
-        url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&is_live=false&type=episode&" \
-              "page=1&node_nids=%s&start=0" % (self.maxPageSize, programId, )
+        program_id = json["nid"]
+        program_id = HtmlEntityHelper.url_encode(program_id)
+        url = "http://webapi.tv4play.se/play/video_assets" \
+              "?platform=tablet&per_page=%s&is_live=false&type=episode&" \
+              "page=1&node_nids=%s&start=0" % (self.maxPageSize, program_id, )
 
         if "channel" in json and json["channel"]:
-            channelId = json["channel"]["nid"]
-            Logger.trace("ChannelId found: %s", channelId)
+            # noinspection PyTypeChecker
+            channel_id = json["channel"]["nid"]
+            Logger.trace("ChannelId found: %s", channel_id)
         else:
-            channelId = "tv4"
-            Logger.warning("ChannelId NOT found. Assuming %s", channelId)
+            channel_id = "tv4"
+            Logger.warning("ChannelId NOT found. Assuming %s", channel_id)
 
         # match the exact channel or put them in TV4
-        isMatchForChannel = channelId.startswith(self.__channelId)
-        isMatchForChannel |= self.channelCode == "tv4se" and not channelId.startswith("sjuan") and not channelId.startswith("tv12")
-        if not isMatchForChannel:
-            Logger.debug("Channel mismatch for '%s': %s vs %s", title, channelId, self.channelCode)
+        is_match_for_channel = channel_id.startswith(self.__channelId)
+        is_match_for_channel |= self.channelCode == "tv4se" and not channel_id.startswith("sjuan") and not channel_id.startswith("tv12")
+        if not is_match_for_channel:
+            Logger.debug("Channel mismatch for '%s': %s vs %s", title, channel_id, self.channelCode)
             return None
 
         item = mediaitem.MediaItem(title, url)
-        # item.description = description
         item.icon = self.icon
-        item.thumb = resultSet.get("program_image", self.noImage)
-        item.isPaid = resultSet.get("is_premium", False)
+        item.thumb = result_set.get("program_image", self.noImage)
+        item.isPaid = result_set.get("is_premium", False)
         return item
 
-    def AddCategoriesAndSpecials(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def add_categories_and_specials(self, data):
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -252,13 +250,15 @@ class Channel(chn_class.Channel):
 
         The return values should always be instantiated in at least ("", []).
 
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
 
         Logger.info("Performing Pre-Processing")
         items = []
-
-        # if self.channelCode != "tv4se":
-        #     return data, items
 
         extras = {
             "\a.: S&ouml;k :.": (
@@ -288,16 +288,17 @@ class Channel(chn_class.Channel):
             today = datetime.datetime.now()
             days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"]
             for i in range(0, 7, 1):
-                startDate = today - datetime.timedelta(i)
-                endDate = startDate + datetime.timedelta(1)
+                start_date = today - datetime.timedelta(i)
+                end_date = start_date + datetime.timedelta(1)
 
-                day = days[startDate.weekday()]
+                day = days[start_date.weekday()]
                 if i == 0:
                     day = "Idag"
                 elif i == 1:
                     day = "Igår"
 
-                Logger.trace("Adding item for: %s - %s", startDate, endDate)
+                Logger.trace("Adding item for: %s - %s", start_date, end_date)
+                # Old URL:
                 # url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
                 #       "nyheterna,v%C3%A4der,ekonomi,lotto,sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s," \
                 #       "nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-g%C3%B6teborg,nyheterna-halland," \
@@ -310,22 +311,22 @@ class Channel(chn_class.Channel):
                 #       "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
                 url = "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=" \
                       "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
-                url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, startDate.strftime("%Y%m%d"), endDate.strftime("%Y%m%d"))
-                dayName = "\a.: %s :." % (day, )
-                extras[dayName] = (url, startDate, False)
+                url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
+                day_name = "\a.: %s :." % (day, )
+                extras[day_name] = (url, start_date, False)
 
         extras["\a.: Lives&#xE4;ndningar :."] = (
             "http://webapi.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&"
             "per_page=32&is_live=true&product_groups=2&type=episode&per_page=100", None, False)
 
         for name in extras:
-            url, date, isLive = extras[name]
+            url, date, is_live = extras[name]
             item = mediaitem.MediaItem(name, url)
             item.dontGroup = True
             item.complete = True
             item.thumb = self.noImage
             item.HttpHeaders = self.httpHeaders
-            item.isLive = isLive
+            item.isLive = is_live
 
             if date is not None:
                 item.set_date(date.year, date.month, date.day, 0, 0, 0, text=date.strftime("%Y-%m-%d"))
@@ -336,6 +337,7 @@ class Channel(chn_class.Channel):
         if not self.channelCode == "tv4se":
             return data, items
 
+        # Add Live TV
         # live = mediaitem.MediaItem("\a.: Live-TV :.",
         #                            "http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1@324055/master.m3u8",
         #                            type="video")
@@ -358,7 +360,7 @@ class Channel(chn_class.Channel):
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
 
-        :param str url:     Url to use to search with a %s for the search parameters.
+        :param str|none url:     Url to use to search with a %s for the search parameters.
 
         :return: A list with search results as MediaItems.
         :rtype: list[MediaItem]
@@ -369,25 +371,8 @@ class Channel(chn_class.Channel):
               "&sort_order=desc&type=episode&q=%%s&start=0" % (self.maxPageSize, )
         return chn_class.Channel.search_site(self, url)
 
-    # def FetchWithToken(self, data):
-    #     items = []
-    #     additionalHeaders = {}
-    #     for token in self.token:
-    #
-    #
-    #     data = UriHandler.open("https://personalization.services.tv4play.se/favorites", proxy=self.proxy,
-    #                            additionalHeaders=additionalHeaders)
-    #     return data, items
-
     def pre_process_folder_list(self, data):
-        """Performs pre-process actions for data processing/
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -395,6 +380,11 @@ class Channel(chn_class.Channel):
         be created.
 
         The return values should always be instantiated in at least ("", []).
+
+        :param str|unicode data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -406,51 +396,50 @@ class Channel(chn_class.Channel):
                 and "&page=1&" in self.parentItem.url \
                 and "node_nids=" in self.parentItem.url:
             # get the category ID
-            catStart = self.parentItem.url.rfind("node_nids=")
-            # catEnd = self.parentItem.url.rfind("&start")
-            catId = self.parentItem.url[catStart + 10:]
-            Logger.debug("Currently doing CatId: '%s'", catId)
+            cat_start = self.parentItem.url.rfind("node_nids=")
+            cat_id = self.parentItem.url[cat_start + 10:]
+            Logger.debug("Currently doing CatId: '%s'", cat_id)
 
             url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&" \
-                  "type=clip&page=1&node_nids=%s&start=0" % (self.maxPageSize, catId,)
-            clipsTitle = LanguageHelper.get_localized_string(LanguageHelper.Clips)
-            clips = mediaitem.MediaItem(clipsTitle, url)
+                  "type=clip&page=1&node_nids=%s&start=0" % (self.maxPageSize, cat_id,)
+            clips_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
+            clips = mediaitem.MediaItem(clips_title, url)
             clips.icon = self.icon
             clips.thumb = self.noImage
             clips.complete = True
             items.append(clips)
 
         # find the max number of items ("total_hits":2724)
-        totalItems = int(Regexer.do_regex('total_hits\W+(\d+)', data)[-1])
-        Logger.debug("Found total of %s items. Only showing %s.", totalItems, self.maxPageSize)
-        if totalItems > self.maxPageSize and "&page=1&" in self.parentItem.url:
+        total_items = int(Regexer.do_regex(r'total_hits\W+(\d+)', data)[-1])
+        Logger.debug("Found total of %s items. Only showing %s.", total_items, self.maxPageSize)
+        if total_items > self.maxPageSize and "&page=1&" in self.parentItem.url:
             # create a group item
-            moreTitle = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            more = mediaitem.MediaItem(moreTitle, "")
+            more_title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
+            more = mediaitem.MediaItem(more_title, "")
             more.icon = self.icon
             more.thumb = self.noImage
             more.complete = True
             items.append(more)
 
             # what are the total number of pages?
-            currentPage = 1
-            totalPages = int(math.ceil(1.0 * totalItems / self.maxPageSize))
+            current_page = 1
+            total_pages = int(math.ceil(1.0 * total_items / self.maxPageSize))
 
-            currentUrl = self.parentItem.url
+            current_url = self.parentItem.url
             needle = "&page="
-            while currentPage < totalPages:
+            while current_page < total_pages:
                 # what is the current page
-                currentPage += 1
+                current_page += 1
 
-                url = currentUrl.replace("%s1" % (needle, ), "%s%s" % (needle, currentPage))
-                Logger.debug("Adding next page: %s\n%s", currentPage, url)
-                page = mediaitem.MediaItem(str(currentPage), url)
+                url = current_url.replace("%s1" % (needle, ), "%s%s" % (needle, current_page))
+                Logger.debug("Adding next page: %s\n%s", current_page, url)
+                page = mediaitem.MediaItem(str(current_page), url)
                 page.icon = self.icon
                 page.thumb = self.noImage
                 page.type = "page"
                 page.complete = True
 
-                if totalPages == 2:
+                if total_pages == 2:
                     items = [page]
                     break
                 else:
@@ -459,17 +448,11 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -477,106 +460,104 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|none
+
         """
 
         Logger.trace('starting FormatVideoItem for %s', self.channelName)
-        # Logger.Trace(resultSet)
+        # Logger.Trace(result_set)
 
         # the vmanProgramId (like 1019976) leads to http://anytime.tv4.se/webtv/metafileFlash.smil?p=1019976&bw=1000&emulate=true&sl=true
-        programId = resultSet["id"]
+        program_id = result_set["id"]
         # Logger.Debug("ProgId = %s", programId)
 
-        url = "https://playback-api.b17g.net/media/%s?service=tv4&device=browser&protocol=hls" % (programId,)
-        name = resultSet["title"]
+        url = "https://playback-api.b17g.net/media/%s?service=tv4&device=browser&protocol=hls" % (program_id,)
+        name = result_set["title"]
 
         item = mediaitem.MediaItem(name, url)
-        item.description = resultSet["description"]
+        item.description = result_set["description"]
         if item.description is None:
             item.description = item.name
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
-        date = resultSet["broadcast_date_time"]
-        (datePart, timePart) = date.split("T")
-        (year, month, day) = datePart.split("-")
-        (hour, minutes, rest1, zone) = timePart.split(":")
+        date = result_set["broadcast_date_time"]
+        (date_part, time_part) = date.split("T")
+        (year, month, day) = date_part.split("-")
+        (hour, minutes, rest1, zone) = time_part.split(":")
         item.set_date(year, month, day, hour, minutes, 00)
-        broadcastDate = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes))
+        broadcast_date = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes))
 
-        thumbUrl = resultSet.get("image", resultSet.get("program_image"))
+        thumb_url = result_set.get("image", result_set.get("program_image"))
         # some images need to come via a proxy:
-        if thumbUrl and "://img.b17g.net/" in thumbUrl:
+        if thumb_url and "://img.b17g.net/" in thumb_url:
             item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
                          "&quality=90&resize=520x293&source={}"\
-                .format(HtmlEntityHelper.url_encode(thumbUrl))
+                .format(HtmlEntityHelper.url_encode(thumb_url))
         else:
-            item.thumb = thumbUrl
+            item.thumb = thumb_url
 
-        # premium = json["premium"] == "true"
-        availability = resultSet["availability"]
-        freePeriod = availability["availability_group_free"]
-        premiumPeriod = availability["availability_group_premium"]
+        availability = result_set["availability"]
+        # noinspection PyTypeChecker
+        free_period = availability["availability_group_free"]
+        # noinspection PyTypeChecker
+        premium_period = availability["availability_group_premium"]
 
         now = datetime.datetime.now()
-        if False and not premiumPeriod == "0":
+        if False and not premium_period == "0":
             # always premium
-            freeExpired = now - datetime.timedelta(days=99 * 365)
-        elif freePeriod == "30+" or freePeriod is None:
-            freeExpired = broadcastDate + datetime.timedelta(days=99 * 365)
+            free_expired = now - datetime.timedelta(days=99 * 365)
+        elif free_period == "30+" or free_period is None:
+            free_expired = broadcast_date + datetime.timedelta(days=99 * 365)
         else:
-            freeExpired = broadcastDate + datetime.timedelta(days=int(freePeriod))
+            free_expired = broadcast_date + datetime.timedelta(days=int(free_period))
         Logger.trace("Premium info for: %s\nPremium state: %s\nFree State:    %s\nBroadcast %s vs Expired %s",
-                     name, premiumPeriod, freePeriod, broadcastDate, freeExpired)
+                     name, premium_period, free_period, broadcast_date, free_expired)
 
-        if now > freeExpired:
-            # item.name = "%s [Premium-innehåll]" % (item.name,)
+        if now > free_expired:
             item.isPaid = True
 
         item.type = "video"
         item.complete = False
         item.icon = self.icon
-        item.isGeoLocked = resultSet["is_geo_restricted"]
-        item.isDrmProtected = resultSet["is_drm_protected"]
-        item.isLive = resultSet.get("is_live", False)
+        item.isGeoLocked = result_set["is_geo_restricted"]
+        item.isDrmProtected = result_set["is_drm_protected"]
+        item.isLive = result_set.get("is_live", False)
         if item.isLive:
             item.url = "{0}&is_live=true".format(item.url)
 
         return item
 
-    def CreateCategoryItem(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_category_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|none
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        cat = HtmlEntityHelper.url_encode(resultSet['nid'])
+        cat = HtmlEntityHelper.url_encode(result_set['nid'])
         url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
               "&fl=nid,name,program_image,category,logo,is_premium" \
               "&per_page=1000&is_active=true&start=0" % (cat, )
-        item = mediaitem.MediaItem(resultSet['name'], url)
+        item = mediaitem.MediaItem(result_set['name'], url)
         item.thumb = self.noImage
         item.type = 'folder'
         item.complete = True
         return item
 
     def update_video_item(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -589,6 +570,11 @@ class Channel(chn_class.Channel):
 
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
 
         """
 
@@ -609,30 +595,31 @@ class Channel(chn_class.Channel):
 
         # retrieve the mediaurl
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.localIP)
-        streamInfo = JsonHelper(data)
-        m3u8Url = streamInfo.get_value("playbackItem", "manifestUrl")
-        if m3u8Url is None:
+        stream_info = JsonHelper(data)
+        m3u8_url = stream_info.get_value("playbackItem", "manifestUrl")
+        if m3u8_url is None:
             return item
 
         part = item.create_new_empty_media_part()
 
         if AddonSettings.use_adaptive_stream_add_on() and False:
-            stream = part.append_media_stream(m3u8Url, 0)
+            stream = part.append_media_stream(m3u8_url, 0)
             M3u8.set_input_stream_addon_input(stream, self.proxy)
             item.complete = True
         else:
-            m3u8Data = UriHandler.open(m3u8Url, proxy=self.proxy, additional_headers=self.localIP)
-            for s, b, a in M3u8.get_streams_from_m3u8(m3u8Url, self.proxy, play_list_data=m3u8Data, map_audio=True):
+            m3u8_data = UriHandler.open(m3u8_url, proxy=self.proxy, additional_headers=self.localIP)
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy,
+                                                      play_list_data=m3u8_data, map_audio=True):
                 item.complete = True
                 if not item.isLive and "-video" not in s:
                     continue
 
                 if a and "-audio" not in s:
                     # remove any query parameters
-                    videoPart = s.rsplit("?", 1)[0]
-                    videoPart = videoPart.rsplit("-", 1)[-1]
-                    videoPart = "-%s" % (videoPart,)
-                    s = a.replace(".m3u8", videoPart)
+                    video_part = s.rsplit("?", 1)[0]
+                    video_part = video_part.rsplit("-", 1)[-1]
+                    video_part = "-%s" % (video_part,)
+                    s = a.replace(".m3u8", video_part)
                 part.append_media_stream(s, b)
 
         # subtitle = M3u8.get_subtitle(m3u8Url, playListData=m3u8Data)
@@ -643,14 +630,8 @@ class Channel(chn_class.Channel):
         #                                                     proxy=self.proxy)
         return item
 
-    def UpdateLiveItem(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+    def update_live_item(self, item):
+        """ Updates an existing MediaItem for a live stream with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -664,16 +645,22 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
-        Logger.debug('Starting UpdateLiveItem for %s (%s)', item.name, self.channelName)
+        Logger.debug('Starting update_live_item for %s (%s)', item.name, self.channelName)
 
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
 
-        spoofIp = self._get_setting("spoof_ip", "0.0.0.0")
-        if spoofIp:
-            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy, headers={"X-Forwarded-For": spoofIp}):
+        spoof_ip = self._get_setting("spoof_ip", "0.0.0.0")
+        if spoof_ip:
+            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy,
+                                                   headers={"X-Forwarded-For": spoof_ip}):
                 part.append_media_stream(s, b)
         else:
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):

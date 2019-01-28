@@ -1,5 +1,4 @@
 # coding:UTF-8
-
 import uuid
 import datetime
 
@@ -164,17 +163,17 @@ class Channel(chn_class.Channel):
                               parser=["data", ], creator=self.create_video_item)
 
         # Search
-        self._add_data_parser("http.+content/shows\?.+query=.+", match_type=ParserData.MatchRegex,
+        self._add_data_parser(r"http.+content/shows\?.+query=.+", match_type=ParserData.MatchRegex,
                               name="Search shows", json=True,
                               preprocessor=self.__get_images_from_meta_data,
                               parser=["data", ], creator=self.create_program_item)
 
-        self._add_data_parser("http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
+        self._add_data_parser(r"http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
                               name="Search videos", json=True,
                               preprocessor=self.__get_images_from_meta_data,
                               parser=["data", ], creator=self.create_video_item_with_show_title)
 
-        self._add_data_parser("http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
+        self._add_data_parser(r"http.+content/videos\?.+query=.+", match_type=ParserData.MatchRegex,
                               name="Search Pages", json=True,
                               parser=["meta", ], creator=self.create_page_item)
 
