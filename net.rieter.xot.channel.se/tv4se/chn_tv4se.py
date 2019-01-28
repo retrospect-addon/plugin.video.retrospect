@@ -502,8 +502,14 @@ class Channel(chn_class.Channel):
         item.set_date(year, month, day, hour, minutes, 00)
         broadcastDate = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes))
 
-        thumbUrl = resultSet["image"]
-        item.thumb = thumbUrl
+        thumbUrl = resultSet.get("image", resultSet.get("program_image"))
+        # some images need to come via a proxy:
+        if thumbUrl and "://img.b17g.net/" in thumbUrl:
+            item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+                         "&quality=90&resize=520x293&source={}"\
+                .format(HtmlEntityHelper.url_encode(thumbUrl))
+        else:
+            item.thumb = thumbUrl
 
         # premium = json["premium"] == "true"
         availability = resultSet["availability"]

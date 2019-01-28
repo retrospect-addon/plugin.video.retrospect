@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Added: search to UR Play (Fixes #1084).
-* Changed: UR Play now uses HTTPS.
+* Fixed: TV4 thumbs not showing (Fixes #1097)
 
 [I]Previous changes[/I]
+* Added: search to UR Play (Fixes #1084).
+* Changed: UR Play now uses HTTPS.
 * Fixed: Reverted #1074 SVT Categories (Fixes #1080)
 * Fixed: SVT Categories (Fixes #1074)
 * Fixed: SVT Öppet arkiv playback (Fixes #1066)
