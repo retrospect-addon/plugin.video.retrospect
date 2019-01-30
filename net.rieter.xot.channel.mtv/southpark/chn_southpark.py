@@ -1,6 +1,6 @@
-import mediaitem
 import chn_class
 
+from mediaitem import MediaItem
 from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
@@ -12,18 +12,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
 
@@ -33,7 +32,6 @@ class Channel(chn_class.Channel):
             self.noImage = "southparkimage.png"
             self.mainListUri = "http://www.southparkstudios.se/full-episodes/"
             self.baseUrl = "http://www.southparkstudios.se"
-            # self.proxy = proxyinfo.ProxyInfo("94.254.2.120", 80, "http")
             self.promotionId = None
         else:
             self.noImage = "southparkimage.png"
@@ -41,55 +39,48 @@ class Channel(chn_class.Channel):
             self.baseUrl = "http://www.southpark.nl"
 
         # setup the main parsing data
-        self.episodeItemRegex = '(?:data-promoId="([^"]+)"|<li[^>]*>\W*<a[^>]+href="([^"]+episodes/season[^"]+)">(\d+)</a>)'  # used for the ParseMainList
-        self.videoItemRegex = '(\{[^}]+)'
+        self.episodeItemRegex = r'(?:data-promoId="([^"]+)"|<li[^>]*>\W*<a[^>]+href="([^"]+episodes/season[^"]+)">(\d+)</a>)'  # used for the ParseMainList
+        self.videoItemRegex = r'(\{[^}]+)'
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def create_episode_item(self, resultSet):
-        """Creates a new MediaItem for an episode
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
-
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
 
         """
 
-        if not resultSet[0] == "":
-            self.promotionId = resultSet[0]
-            Logger.debug("Setting PromotionId to: %s", resultSet[0])
+        if not result_set[0] == "":
+            self.promotionId = result_set[0]
+            Logger.debug("Setting PromotionId to: %s", result_set[0])
             return None
 
         # <li><a href="(/guide/season/[^"]+)">(\d+)</a></li>
         # if (self.channelCode == "southpark"):
-        #    url = "%s/ajax/seasonepisode/%s" % (self.baseUrl, resultSet[2])
+        #    url = "%s/ajax/seasonepisode/%s" % (self.baseUrl, result_set[2])
         #    url = http://www.southpark.nl/feeds/full-episode/carousel/14/424b7b57-e459-4c9c-83ca-9b924350e94d
         # else:
-        url = "%s/feeds/full-episode/carousel/%s/%s" % (self.baseUrl, resultSet[2], self.promotionId)
+        url = "%s/feeds/full-episode/carousel/%s/%s" % (self.baseUrl, result_set[2], self.promotionId)
 
-        item = mediaitem.MediaItem("Season %02d" % int(resultSet[2]), url)
+        item = MediaItem("Season %02d" % int(result_set[2]), url)
         item.icon = self.icon
         item.complete = True
         return item
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -97,11 +88,16 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        # Logger.Debug(resultSet)
+        # Logger.Debug(result_set)
 
-        # data = resultSet.replace('" : "', '":"').replace("\\'", "'")
+        # data = result_set.replace('" : "', '":"').replace("\\'", "'")
         # helper = jsonhelper.JsonHelper(data)
         #
         # episodeNumber = helper.GetNamedValue("episodenumber")
@@ -113,7 +109,7 @@ class Channel(chn_class.Channel):
         #
         # title = "%s (%s)" % (helper.GetNamedValue("title"), episodeNumber)
         #
-        # item = mediaitem.MediaItem(title, url)
+        # item = MediaItem(title, url)
         # item.thumb = helper.GetNamedValue("thumbnail_190")
         # item.icon = self.icon
         # item.description = helper.GetNamedValue("description")
@@ -137,13 +133,7 @@ class Channel(chn_class.Channel):
         return None
 
     def update_video_item(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -157,16 +147,21 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         # 1 - get the overal config file
-        guidRegex = 'http://[^:]+/mgid:[^"]+:([0-9a-f-]+)"'
-        rtmpRegex = 'type="video/([^"]+)" bitrate="(\d+)">\W+<src>([^<]+)</src>'
+        guid_regex = 'http://[^:]+/mgid:[^"]+:([0-9a-f-]+)"'
+        rtmp_regex = r'type="video/([^"]+)" bitrate="(\d+)">\W+<src>([^<]+)</src>'
 
         data = UriHandler.open(item.url, proxy=self.proxy)
-        guids = Regexer.do_regex(guidRegex, data)
+        guids = Regexer.do_regex(guid_regex, data)
 
         item.MediaItemParts = []
         for guid in guids:
@@ -178,18 +173,18 @@ class Channel(chn_class.Channel):
 
             # http://www.southpark.nl/feeds/video-player/mediagen?uri=mgid%3Aarc%3Aepisode%3Acomedycentral.com%3Aeb2a53f7-e370-4049-a6a9-57c195367a92&suppressRegisterBeacon=true
             guid = HtmlEntityHelper.url_encode("mgid:arc:episode:comedycentral.com:%s" % (guid,))
-            infoUrl = "%s/feeds/video-player/mediagen?uri=%s&suppressRegisterBeacon=true" % (self.baseUrl, guid)
+            info_url = "%s/feeds/video-player/mediagen?uri=%s&suppressRegisterBeacon=true" % (self.baseUrl, guid)
 
             # 2- Get the GUIDS for the different ACTS
-            infoData = UriHandler.open(infoUrl, proxy=self.proxy)
-            rtmpStreams = Regexer.do_regex(rtmpRegex, infoData)
+            info_data = UriHandler.open(info_url, proxy=self.proxy)
+            rtmp_streams = Regexer.do_regex(rtmp_regex, info_data)
 
-            for rtmpStream in rtmpStreams:
+            for rtmp_stream in rtmp_streams:
                 # if this is the first stream for the part, create an new part
                 if part is None:
                     part = item.create_new_empty_media_part()
 
-                part.append_media_stream(self.get_verifiable_video_url(rtmpStream[2]), rtmpStream[1])
+                part.append_media_stream(self.get_verifiable_video_url(rtmp_stream[2]), rtmp_stream[1])
 
         item.complete = True
         Logger.trace("Media item updated: %s", item)

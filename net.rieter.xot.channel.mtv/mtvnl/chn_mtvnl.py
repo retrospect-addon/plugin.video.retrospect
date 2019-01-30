@@ -1,7 +1,6 @@
-import mediaitem
-# import contextmenu
 import chn_class
 
+from mediaitem import MediaItem
 from logger import Logger
 from parserdata import ParserData
 from urihandler import UriHandler
@@ -15,18 +14,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "mtvnlimage.png"
@@ -77,14 +75,14 @@ class Channel(chn_class.Channel):
                               parser=["data", "items"], creator=self.create_video_item)
 
         # Old API
-        self._add_data_parser("http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
+        self._add_data_parser(r"http://api.mtvnn.com/v2/site/[^/]+/\w+/franchises.json",
                               match_type=ParserData.MatchRegex,
                               name="V2 API show listing", json=True,
-                              parser=[], creator=self.CreateEpisodeItemJson)
-        self._add_data_parser("http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
+                              parser=[], creator=self.create_episode_item_json)
+        self._add_data_parser(r"http://api.mtvnn.com/v2/site/[^/]+/\w+/episodes.json",
                               match_type=ParserData.MatchRegex,
                               name="V2 API video listing", json=True,
-                              parser=[], creator=self.CreateVideoItemJson)
+                              parser=[], creator=self.create_video_item_json)
 
         self._add_data_parser("*", updater=self.update_video_item)
 
@@ -93,8 +91,8 @@ class Channel(chn_class.Channel):
         #     Logger.Debug("Doing a JSON version of MTV")
         #     self.episodeItemJson = ()
         #     self.videoItemJson = ()
-        #     self.create_episode_item = self.CreateEpisodeItemJson
-        #     self.create_video_item = self.CreateVideoItemJson
+        #     self.create_episode_item = self.create_episode_item_json
+        #     self.create_video_item = self.create_video_item_json
         # else:
         #     Logger.Debug("Doing a HTML version of MTV")
         #     self.episodeItemRegex = '<a href="/(shows/[^"]+)" title="([^"]+)"><img [^>]+src="([^"]+)"'  # used for the ParseMainList
@@ -104,26 +102,38 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def create_episode_item(self, resultSet):
-        Logger.trace(resultSet)
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
-        title = resultSet["title"]
-        # id = resultSet["id"]
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+
+        title = result_set["title"]
+        # The id = result_set["id"]
         url = "http://api.playplex.viacom.com/feeds/networkapp/intl/series/items/1.5/%s" \
               "?key=networkapp1.0&brand=mtv&platform=android&region=%s&version=2.2" % \
-              (resultSet["id"], self.__region)
-        # url = "http://api.playplex.viacom.com/feeds/networkapp/intl/series/clips/1.5/%(id)s" \
-        #       "?key=networkapp1.0&brand=mtv&platform=android&region=NL&version=2.2" % resultSet
-        item = mediaitem.MediaItem(title, url)
+              (result_set["id"], self.__region)
+        item = MediaItem(title, url)
         item.icon = self.icon
-        item.description = resultSet.get("description", None)
+        item.description = result_set.get("description", None)
         item.complete = True
 
-        images = resultSet.get("images", [])
+        images = result_set.get("images", [])
         if images:
             #  mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
             # http://playplex.mtvnimages.com/uri/mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
             for image in images:
+                # noinspection PyTypeChecker
                 if image["width"] > 500:
                     item.fanart = "http://playplex.mtvnimages.com/uri/%(url)s" % image
                 else:
@@ -131,13 +141,31 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def create_video_item(self, resultSet):
-        Logger.trace(resultSet)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-        title = resultSet["title"]
-        if "subTitle" in resultSet:
-            title = "%s - %s" % (title, resultSet["subTitle"])
-        mgid = resultSet["id"].split(":")[-1]
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param dict[str,dict|None] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+
+        title = result_set["title"]
+        if "subTitle" in result_set:
+            title = "%s - %s" % (title, result_set["subTitle"])
+        mgid = result_set["id"].split(":")[-1]
         url = "http://feeds.mtvnservices.com/od/feed/intl-mrss-player-feed" \
               "?mgid=mgid:arc:episode:mtvplay.com:%s" \
               "&ep=%s" \
@@ -146,15 +174,15 @@ class Channel(chn_class.Channel):
               "&arcEp=android.playplex.mtv.%s" \
               % (mgid, self.__backgroundServiceEp, self.__region.lower(), self.__region.lower())
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.type = "video"
         item.icon = self.icon
-        item.description = resultSet.get("description", None)
+        item.description = result_set.get("description", None)
 
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
         item.isGeoLocked = True
-        images = resultSet.get("images", [])
+        images = result_set.get("images", [])
         if images:
             # mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
             # http://playplex.mtvnimages.com/uri/mgid:file:gsp:scenic:/international/mtv.nl/playplex/dutch-ridiculousness/Dutch_Ridiculousness_Landscape.png
@@ -164,85 +192,72 @@ class Channel(chn_class.Channel):
                 else:
                     item.thumb = "http://playplex.mtvnimages.com/uri/%(url)s" % image
 
-        date = resultSet.get("originalAirDate", None)
+        date = result_set.get("originalAirDate", None)
         if not date:
-            date = resultSet.get("originalPublishDate", None)
+            date = result_set.get("originalPublishDate", None)
         if date:
-            timeStamp = date["timestamp"]
-            dateTime = DateHelper.get_date_from_posix(timeStamp)
-            item.set_date(dateTime.year, dateTime.month, dateTime.day, dateTime.hour,
-                          dateTime.minute,
-                          dateTime.second)
+            time_stamp = date["timestamp"]
+            date_time = DateHelper.get_date_from_posix(time_stamp)
+            item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
+                          date_time.minute,
+                          date_time.second)
 
         return item
 
-    def CreateEpisodeItemJson(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_episode_item_json(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focussed or selected
-        for playback.
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         # add  { to make it valid Json again. if it would be in the regex it would
         # not find all items
-        # data = JsonHelper("{%s" % (resultSet,))
+        # data = JsonHelper("{%s" % (result_set,))
 
         # title
-        localTitle = resultSet.get("local_title")
-        originalTitle = resultSet.get("original_name")
-        if localTitle == "" or localTitle is None:
-            title = originalTitle
-        elif originalTitle != localTitle:
-            title = "%s (%s)" % (localTitle, originalTitle)
+        local_title = result_set.get("local_title")
+        original_title = result_set.get("original_name")
+        if local_title == "" or local_title is None:
+            title = original_title
+        elif original_title != local_title:
+            title = "%s (%s)" % (local_title, original_title)
         else:
-            title = localTitle
+            title = local_title
 
         # the URL
-        serieId = resultSet["id"]
-        url = "%sepisodes.json?per=2147483647&franchise_id=%s" % (self.mainListUri[0:43], serieId)
+        serie_id = result_set["id"]
+        url = "%sepisodes.json?per=2147483647&franchise_id=%s" % (self.mainListUri[0:43], serie_id)
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.icon = self.icon
         item.complete = True
 
         # thumbs
-        if "image" in resultSet and resultSet["image"] is not None:
-            thumb = resultSet["image"]["riptide_image_id"]
+        if "image" in result_set and result_set["image"] is not None:
+            # noinspection PyTypeChecker
+            thumb = result_set["image"]["riptide_image_id"]
             thumb = "http://images.mtvnn.com/%s/original" % (thumb,)
             item.thumb = thumb
 
         # others
-        item.description = resultSet["local_long_description"]
-
-        # http://www.mtv.nl/shows/195-16-pregnant
+        item.description = result_set["local_long_description"]
         return item
 
-    def CreateVideoItemJson(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
+    def create_video_item_json(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-
-        This method creates a new MediaItem from the Regular Expression
-        results <resultSet>. The method should be implemented by derived classes
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -250,47 +265,52 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         # get the title
-        originalTitle = resultSet.get("original_title")
-        localTitle = resultSet.get("local_title")
+        original_title = result_set.get("original_title")
+        local_title = result_set.get("local_title")
         # Logger.Trace("%s - %s", originalTitle, localTitle)
-        if originalTitle == "":
-            title = localTitle
+        if original_title == "":
+            title = local_title
         else:
-            title = originalTitle
+            title = original_title
 
         # get the other meta data
-        playLists = resultSet.get("local_playlists", [])
-        videoMgid = None
-        for playList in playLists:
-            language = playList["language_code"]
+        play_lists = result_set.get("local_playlists", [])
+        video_mgid = None
+        for play_list in play_lists:
+            language = play_list["language_code"]
             if language == self.language:
                 Logger.trace("Found '%s' playlist, using this one.", language)
-                videoMgid = playList["id"]
+                video_mgid = play_list["id"]
                 break
             elif language == "en":
                 Logger.trace("Found '%s' instead of '%s' playlist", language, self.language)
-                videoMgid = playList["id"]
+                video_mgid = play_list["id"]
 
-        if videoMgid is None:
+        if video_mgid is None:
             Logger.error("No video MGID found for: %s", title)
             return None
 
-        url = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid:sensei:video:mtvnn.com:local_playlist-%s" % (videoMgid,)
+        url = "http://api.mtvnn.com/v2/mrss.xml?uri=mgid:sensei:video:mtvnn.com:local_playlist-%s" % (video_mgid,)
 
-        thumb = resultSet.get("riptide_image_id")
+        thumb = result_set.get("riptide_image_id")
         thumb = "http://images.mtvnn.com/%s/original" % (thumb,)
 
-        description = resultSet.get("local_long_description")
+        description = result_set.get("local_long_description")
 
-        date = resultSet.get("published_from")
+        date = result_set.get("published_from")
         date = date[0:10].split("-")
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.thumb = thumb
         item.description = description
         item.icon = self.icon
@@ -300,13 +320,7 @@ class Channel(chn_class.Channel):
         return item
 
     def update_video_item(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -320,6 +334,11 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
@@ -327,16 +346,17 @@ class Channel(chn_class.Channel):
         url = item.url
         data = UriHandler.open(url, proxy=self.proxy)
 
-        renditionsUrl = Regexer.do_regex('<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
-        renditionsUrl = HtmlEntityHelper.strip_amp(renditionsUrl)
-        renditionData = UriHandler.open(renditionsUrl, proxy=self.proxy)
-        videoItems = Regexer.do_regex('<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<', renditionData)
+        renditions_url = Regexer.do_regex(r'<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
+        renditions_url = HtmlEntityHelper.strip_amp(renditions_url)
+        rendition_data = UriHandler.open(renditions_url, proxy=self.proxy)
+        video_items = Regexer.do_regex(r'<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<',
+                                       rendition_data)
 
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
-        for videoItem in videoItems:
-            mediaUrl = self.get_verifiable_video_url(videoItem[1].replace("rtmpe", "rtmp"))
-            part.append_media_stream(mediaUrl, videoItem[0])
+        for video_item in video_items:
+            media_url = self.get_verifiable_video_url(video_item[1].replace("rtmpe", "rtmp"))
+            part.append_media_stream(media_url, video_item[0])
 
         item.complete = True
         return item
