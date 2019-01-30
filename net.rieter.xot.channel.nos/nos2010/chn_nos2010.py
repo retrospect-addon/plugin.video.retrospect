@@ -1,14 +1,12 @@
 import datetime
 import re
 
-import mediaitem
 import chn_class
-from helpers.jsonhelper import JsonHelper
-
-from regexer import Regexer
-from helpers import subtitlehelper
 
 from logger import Logger
+from regexer import Regexer
+from helpers import subtitlehelper
+from helpers.jsonhelper import JsonHelper
 from streams.npostream import NpoStream
 from streams.mpd import Mpd
 from urihandler import UriHandler
@@ -266,7 +264,7 @@ class Channel(chn_class.Channel):
 
             title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             title = "\a.: %s :." % (title,)
-            more = mediaitem.MediaItem(title, next_page)
+            more = MediaItem(title, next_page)
             more.thumb = self.parentItem.thumb
             more.fanart = self.parentItem.fanart
             more.HttpHeaders = http_headers
@@ -286,7 +284,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        search = mediaitem.MediaItem("Zoeken", "searchSite")
+        search = MediaItem("Zoeken", "searchSite")
         search.complete = True
         search.icon = self.icon
         search.thumb = self.noImage
@@ -296,7 +294,7 @@ class Channel(chn_class.Channel):
         items.append(search)
 
         # Favorite items that require login
-        # favs = mediaitem.MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
+        # favs = MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
         # favs.complete = True
         # favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
         #                    "wordt nog niet ondersteund."
@@ -307,8 +305,7 @@ class Channel(chn_class.Channel):
         # favs.set_date(2200, 1, 1, text="")
         # items.append(favs)
 
-        extra = mediaitem.MediaItem("Live Radio",
-                                    "http://radio-app.omroep.nl/player/script/player.js")
+        extra = MediaItem("Live Radio", "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -316,7 +313,7 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Live TV", "%s/live" % (self.baseUrlLive,))
+        extra = MediaItem("Live TV", "%s/live" % (self.baseUrlLive,))
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -324,8 +321,8 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Programma's (Hele lijst)",
-                                    "https://start-api.npo.nl/page/catalogue?pageSize=500")
+        extra = MediaItem("Programma's (Hele lijst)",
+                          "https://start-api.npo.nl/page/catalogue?pageSize=500")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -336,7 +333,7 @@ class Channel(chn_class.Channel):
         # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Genres", "https://www.npostart.nl/programmas")
+        extra = MediaItem("Genres", "https://www.npostart.nl/programmas")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -344,7 +341,7 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = mediaitem.MediaItem("Programma's (A-Z)", "#alphalisting")
+        extra = MediaItem("Programma's (A-Z)", "#alphalisting")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -353,7 +350,7 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        recent = mediaitem.MediaItem("Recent", "#recent")
+        recent = MediaItem("Recent", "#recent")
         recent.complete = True
         recent.icon = self.icon
         recent.thumb = self.noImage
@@ -393,7 +390,7 @@ class Channel(chn_class.Channel):
             # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
             url = "https://www.npostart.nl/gids?date=%04d-%02d-%02d&type=tv" % \
                   (air_date.year, air_date.month, air_date.day)
-            extra = mediaitem.MediaItem(title, url)
+            extra = MediaItem(title, url)
             extra.complete = True
             extra.icon = self.icon
             extra.thumb = self.noImage
@@ -448,7 +445,7 @@ class Channel(chn_class.Channel):
             for stream in live_streams:
                 Logger.debug("Adding video item to '%s' sub item list: %s", parent, stream)
                 live_data = live_streams[stream]
-                item = mediaitem.MediaItem(stream, live_data["url"])
+                item = MediaItem(stream, live_data["url"])
                 item.icon = parent.icon
                 item.thumb = live_data["thumb"]
                 item.type = 'video'
@@ -494,7 +491,7 @@ class Channel(chn_class.Channel):
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0":
             if char == "0":
                 char = "0-9"
-            sub_item = mediaitem.MediaItem(title_format % (char,), url_format % (char,))
+            sub_item = MediaItem(title_format % (char,), url_format % (char,))
             sub_item.complete = True
             sub_item.icon = self.icon
             sub_item.thumb = self.noImage
@@ -555,7 +552,7 @@ class Channel(chn_class.Channel):
         name = result_set['title']
         description = result_set.get('description', '')
 
-        item = mediaitem.MediaItem(name, url)
+        item = MediaItem(name, url)
         item.type = 'folder'
         item.icon = self.icon
         item.complete = True
@@ -626,7 +623,7 @@ class Channel(chn_class.Channel):
         Logger.trace(result_set)
         channel = result_set["channel"].replace("NED", "NPO ")
         title = "{0[hours]}:{0[minutes]} - {1} - {0[title]}".format(result_set, channel)
-        item = mediaitem.MediaItem(title, result_set["url"])
+        item = MediaItem(title, result_set["url"])
         item.icon = self.icon
         item.description = result_set["channel"]
         item.type = 'video'
@@ -748,7 +745,7 @@ class Channel(chn_class.Channel):
         # Filter the duplicates
         title = " - ".join(set(names))
 
-        item = mediaitem.MediaItem(title, video_id)
+        item = MediaItem(title, video_id)
         item.icon = self.icon
         item.type = 'video'
         item.complete = False
@@ -791,7 +788,7 @@ class Channel(chn_class.Channel):
         Logger.trace(result_set)
 
         url = "https://www.npostart.nl/media/collections/%s?page=1&tileMapping=normal&tileType=asset&pageType=collection" % (result_set[0],)
-        item = mediaitem.MediaItem(result_set[1], url)
+        item = MediaItem(result_set[1], url)
         item.thumb = self.parentItem.thumb
         item.icon = self.parentItem.icon
         item.type = 'folder'
@@ -836,7 +833,7 @@ class Channel(chn_class.Channel):
         else:
             description = "Nu: %s" % (result_set[3].strip(),)
 
-        item = mediaitem.MediaItem(name, "%s/live/%s" % (self.baseUrlLive, result_set[0]), type="video")
+        item = MediaItem(name, "%s/live/%s" % (self.baseUrlLive, result_set[0]), type="video")
         item.description = description
 
         if result_set[1].startswith("http"):
@@ -876,7 +873,7 @@ class Channel(chn_class.Channel):
         if name == "demo":
             return None
 
-        item = mediaitem.MediaItem(name, "", type="audio")
+        item = MediaItem(name, "", type="audio")
         item.thumb = self.parentItem.thumb
         item.icon = self.icon
         item.isLive = True

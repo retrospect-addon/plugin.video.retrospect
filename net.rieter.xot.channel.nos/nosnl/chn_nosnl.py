@@ -1,16 +1,15 @@
-import mediaitem
-import chn_class
 import time
 import base64
+import chn_class
 
+from logger import Logger
+from mediaitem import MediaItem
+from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from helpers.encodinghelper import EncodingHelper
 from helpers.datehelper import DateHelper
 from helpers.languagehelper import LanguageHelper
-
-from logger import Logger
 from streams.m3u8 import M3u8
-from urihandler import UriHandler
 
 
 class Channel(chn_class.Channel):
@@ -18,18 +17,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "nosnlimage.png"
@@ -40,50 +38,44 @@ class Channel(chn_class.Channel):
 
         # we need specific headers: APK:NosHttpClientHelper.java
         salt = int(time.time())
-        # key = "%sRM%%j%%l@g@w_A%%" % (salt,)
+        # Some more work for keys that seemed required.
         # Logger.Trace("Found Salt: %s and Key: %s", salt, key)
+        # key = "%sRM%%j%%l@g@w_A%%" % (salt,)
         # key = EncodingHelper.encode_md5(key, toUpper=False)
         # self.httpHeaders = {"X-NOS-App": "Google/x86;Android/4.4.4;nl.nos.app/3.1",
         #                     "X-NOS-Salt": salt,
         #                     "X-NOS-Key": key}
 
-        userAgent = "%s;%d;%s/%s;Android/%s;nl.nos.app/%s" % ("nos", salt, "Google", "Nexus", "6.0", "5.1.1")
-        string = ";UB}7Gaji==JPHtjX3@c%s" % (userAgent, )
+        user_agent = "%s;%d;%s/%s;Android/%s;nl.nos.app/%s" % ("nos", salt, "Google", "Nexus", "6.0", "5.1.1")
+        string = ";UB}7Gaji==JPHtjX3@c%s" % (user_agent, )
         string = EncodingHelper.encode_md5(string, to_upper=False).zfill(32)
-        xnos = string + base64.b64encode(userAgent)
+        xnos = string + base64.b64encode(user_agent)
         self.httpHeaders = {"X-Nos": xnos}
 
         self.baseUrl = "http://nos.nl"
 
         # setup the main parsing data
-        self._add_data_parser(self.mainListUri, preprocessor=self.GetCategories)
+        self._add_data_parser(self.mainListUri, preprocessor=self.get_categories)
         self._add_data_parser("*",
                               # No longer used: preprocessor=self.AddNextPage,
                               json=True,
                               parser=['items', ],
-                              creator=self.CreateJsonVideo, updater=self.UpdateJsonVideo)
+                              creator=self.create_json_video, updater=self.update_json_video)
         self._add_data_parser("*",
                               json=True,
-                              parser=['links',],
+                              parser=['links', ],
                               creator=self.create_page_item)
 
         #===============================================================================================================
         # non standard items
-        # self.__IgnoreCookieLaw()
+        # self.__ignore_cookie_law()
         self.__pageSize = 50
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def GetCategories(self, data):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def get_categories(self, data):
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -91,6 +83,11 @@ class Channel(chn_class.Channel):
         be created.
 
         The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -105,7 +102,7 @@ class Channel(chn_class.Channel):
         }
 
         for cat in cats:
-            item = mediaitem.MediaItem(cat, cats[cat])
+            item = MediaItem(cat, cats[cat])
             item.thumb = self.noImage
             item.icon = self.icon
             item.complete = True
@@ -114,29 +111,36 @@ class Channel(chn_class.Channel):
         Logger.debug("Creating categories finished")
         return data, items
 
-    def create_page_item(self, resultSet):
+    def create_page_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|None
+
+        """
+
         items = []
-        if 'next' in resultSet:
+        if 'next' in result_set:
             title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            url = resultSet['next']
-            item = mediaitem.MediaItem(title, url)
+            url = result_set['next']
+            item = MediaItem(title, url)
             item.fanart = self.parentItem.fanart
             item.thumb = self.parentItem.thumb
             items.append(item)
 
         return items
 
-    def CreateJsonVideo(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_json_video(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -144,42 +148,43 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param dict[str,any|None] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        videoId = resultSet['id']
-        # category = resultSet["maincategory"].title()
-        # subcategory = resultSet["subcategory"].title()
+        video_id = result_set['id']
 
-        url = "https://api.nos.nl/mobile/video/%s/phone.json" % (videoId, )
-        item = mediaitem.MediaItem(resultSet['title'], url, type="video")
+        # Categories to use
+        # category = result_set["maincategory"].title()
+        # subcategory = result_set["subcategory"].title()
+
+        url = "https://api.nos.nl/mobile/video/%s/phone.json" % (video_id, )
+        item = MediaItem(result_set['title'], url, type="video")
         item.icon = self.icon
-        if 'image' in resultSet:
-            images = resultSet['image']["formats"]
-            matchedImage = images[-1]
+        if 'image' in result_set:
+            images = result_set['image']["formats"]
+            matched_image = images[-1]
             for image in images:
                 if image["width"] >= 720:
-                    matchedImage = image
+                    matched_image = image
                     break
-            item.thumb = matchedImage["url"].values()[0]
+            item.thumb = matched_image["url"].values()[0]
 
-        item.description = resultSet["description"]
+        item.description = result_set["description"]
         item.complete = False
-        item.isGeoLocked = resultSet.get("geoprotection", False)
+        item.isGeoLocked = result_set.get("geoprotection", False)
 
         # set the date and time
-        date = resultSet["published_at"]
-        timeStamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
-        item.set_date(*timeStamp[0:6])
+        date = result_set["published_at"]
+        time_stamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
+        item.set_date(*time_stamp[0:6])
         return item
 
-    def UpdateJsonVideo(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+    def update_json_video(self, item):
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -193,13 +198,18 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
 
         Logger.debug('Starting update_video_item: %s', item.name)
 
         data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
-        jsonData = JsonHelper(data)
-        streams = jsonData.get_value("formats")
+        json_data = JsonHelper(data)
+        streams = json_data.get_value("formats")
         if not streams:
             return item
 
@@ -222,20 +232,19 @@ class Channel(chn_class.Channel):
                 )
                 item.complete = True
             # elif AddonSettings.use_adaptive_stream_add_on():
-            #     contentType, url = UriHandler.header(url, self.proxy)
+            #     content_type, url = UriHandler.header(url, self.proxy)
             #     stream = part.append_media_stream(url, 0)
             #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
             #     item.complete = True
             else:
-                contentType, url = UriHandler.header(url, self.proxy)
+                content_type, url = UriHandler.header(url, self.proxy)
                 for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
                     item.complete = True
-                    # s = self.get_verifiable_video_url(s)
                     part.append_media_stream(s, b)
 
         return item
 
-    def __IgnoreCookieLaw(self):
+    def __ignore_cookie_law(self):
         """ Accepts the cookies from UZG in order to have the site available """
 
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
