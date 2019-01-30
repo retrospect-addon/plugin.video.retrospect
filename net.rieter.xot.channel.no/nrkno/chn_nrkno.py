@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -223,7 +223,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -249,7 +249,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -272,7 +272,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -296,7 +296,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -342,7 +342,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -399,7 +399,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -431,7 +431,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -473,7 +473,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -505,7 +505,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str|dict] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -556,7 +556,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,dict|str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 

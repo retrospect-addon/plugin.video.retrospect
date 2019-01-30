@@ -106,7 +106,7 @@ class DateHelper:
 
         :param str month:           Name of the month.
         :param str language:        Language code (nl, en).
-        :param bool|none short:     Indicates the monthnames are short. Default: None
+        :param bool|None short:     Indicates the monthnames are short. Default: None
 
         :return: The month number.
         :rtype: int

@@ -205,7 +205,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set:   The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -360,7 +360,7 @@ class Channel(chn_class.Channel):
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
 
-        :param str|none url:     Url to use to search with a %s for the search parameters.
+        :param str|None url:     Url to use to search with a %s for the search parameters.
 
         :return: A list with search results as MediaItems.
         :rtype: list[MediaItem]
@@ -463,7 +463,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -540,7 +540,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 

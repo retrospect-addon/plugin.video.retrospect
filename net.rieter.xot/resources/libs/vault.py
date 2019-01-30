@@ -110,7 +110,7 @@ class Vault:
         """ Resets the Vault and Retrospect Machine key, making all encrypted values
         useless.
 
-        :rtype: none
+        :rtype: None
 
         """
 

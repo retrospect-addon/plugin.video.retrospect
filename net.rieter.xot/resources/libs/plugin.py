@@ -351,7 +351,7 @@ class Plugin(ParameterParser):
     def show_favourites(self, channel):
         """ Show the favourites (for a channel).
 
-        :param ChannelInfo|none channel:    The channel to show favourites for.
+        :param ChannelInfo|None channel:    The channel to show favourites for.
                                             Might be None to show all.
 
         """
@@ -617,7 +617,7 @@ class Plugin(ParameterParser):
         :param int handle:              The handle to add the sortmethod to.
         :param list[MediaItem] items:   The items that need to be sorted
 
-        :rtype: none
+        :rtype: None
 
         """
 
@@ -657,10 +657,10 @@ class Plugin(ParameterParser):
 
         favouritesList : Boolean   - Indication that the menu is for the favorites
 
-        :param Channel|none channel:    The channel from which to get the context menu items.
+        :param Channel|None channel:    The channel from which to get the context menu items.
                                         The channel might be None in case of some actions that
                                         do not require a channel.
-        :param MediaItem|none item:     The item to which the context menu belongs.
+        :param MediaItem|None item:     The item to which the context menu belongs.
 
         :return: A list of context menu names and their commands.
         :rtype: list[tuple[str,str]]

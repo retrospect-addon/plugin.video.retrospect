@@ -431,7 +431,7 @@ class MediaItem:
                                         playlist. Given in kbps.
         :param bool update_item_urls:   If specified, the Playlist items will have a path pointing
                                         to the actual stream
-        :param ProxyInfo|none proxy:    The proxy to set
+        :param ProxyInfo|None proxy:    The proxy to set
 
         :return: A Kodi Playlist for this MediaItem and a subtitle.
         :rtype: tuple[xbmc.PlayList, str]

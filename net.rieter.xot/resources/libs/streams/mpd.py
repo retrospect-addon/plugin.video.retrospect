@@ -45,7 +45,7 @@ class Mpd:
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
         :param str key_url:         The URL where the license key can be obtained.
-        :param str|none key_type:   Tthe key type (A, R, B, D or None for custom)
+        :param str|None key_type:   Tthe key type (A, R, B, D or None for custom)
         :param dict key_headers:    A dictionary that contains the HTTP headers to pass.
         :param str key_value:       The value that is beging passed on as the key value.
         :param str json_filter:     If specified selects that json element to extract the key response.

@@ -117,7 +117,7 @@ class Channel(chn_class.Channel):
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 

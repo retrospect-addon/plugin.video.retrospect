@@ -158,7 +158,7 @@ class Version(Comparable):
         
         :param str|unicode version: The version string.
 
-        :rtype: none
+        :rtype: None
 
         """
 

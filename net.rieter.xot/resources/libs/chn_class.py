@@ -160,7 +160,7 @@ class Channel:
         if the item is None, we assume that we are dealing with the first call for this channel and the mainlist uri
         is used.
 
-        :param MediaItem|none item: The parent item.
+        :param MediaItem|None item: The parent item.
 
         :return: A list of MediaItems that form the childeren of the <item>.
         :rtype: list[MediaItem]
@@ -415,7 +415,7 @@ class Channel:
         The %s the url will be replaced with an URL encoded representation of the
         text to search for.
 
-        :param str|none url:     Url to use to search with a %s for the search parameters.
+        :param str|None url:     Url to use to search with a %s for the search parameters.
 
         :return: A list with search results as MediaItems.
         :rtype: list[MediaItem]
@@ -450,7 +450,7 @@ class Channel:
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -514,7 +514,7 @@ class Channel:
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'page'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -548,7 +548,7 @@ class Channel:
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -596,7 +596,7 @@ class Channel:
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|none
+        :rtype: MediaItem|None
 
         """
 
@@ -714,7 +714,7 @@ class Channel:
         requested player.
 
         :param MediaItem item:      The item to start playing
-        :param int|none bitrate:    The requested bitrate in Kbps or None.
+        :param int|None bitrate:    The requested bitrate in Kbps or None.
 
         :return: A Kodi Playlist for this MediaItem and a subtitle.
         :rtype: tuple[xbmc.PlayList, str]

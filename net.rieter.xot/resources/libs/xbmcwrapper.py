@@ -153,7 +153,7 @@ class XbmcWrapper:
                           fallback=True, logger=None):
         """ Shows an Kodi Notification
 
-        :param str|none title:          The title to show.
+        :param str|None title:          The title to show.
         :param str|list[str] lines:     The content to show.
         :param str notification_type:   The type of notification: info, error, warning.
         :param int display_time:        Time to display the notification. Defaults to 1500 ms.
@@ -379,7 +379,7 @@ class XbmcWrapper:
         :param in play_state:         The desired play value (1 = start, 0 = stop).
         :param int timeout:         The time-out to wait for.
         :param any logger:          A `Logger` instance for logging.
-        :param str|none url:        The URL that should be playing.
+        :param str|None url:        The URL that should be playing.
 
         :return: indication if player has started or has stopped.
         :rtype: bool
