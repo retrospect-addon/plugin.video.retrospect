@@ -1,7 +1,7 @@
 # coding:UTF-8
 
 import chn_class
-import mediaitem
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
@@ -149,7 +149,7 @@ class Channel(chn_class.Channel):
             "S&oslash;k": "#searchSite"
         }
         for name, url in links.iteritems():
-            item = mediaitem.MediaItem(name, url)
+            item = MediaItem(name, url)
             item.icon = self.icon
             item.thumb = self.noImage
             item.complete = True
@@ -206,7 +206,7 @@ class Channel(chn_class.Channel):
               "apiKey={}".format(url_part, self.__api_key)
 
         title = LanguageHelper.get_localized_string(LanguageHelper.StartWith) % (title, )
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
@@ -231,7 +231,7 @@ class Channel(chn_class.Channel):
         category_id = result_set["id"]
         url = "https://psapi.nrk.no/medium/tv/categories/{}/indexelements?apiKey={}"\
             .format(category_id, self.__api_key)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
@@ -355,7 +355,7 @@ class Channel(chn_class.Channel):
         item_id = result_set["id"]
         if program_type == "programme":
             url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(item_id, self.__api_key)
-            item = mediaitem.MediaItem(title, url)
+            item = MediaItem(title, url)
             item.type = 'video'
         else:
             use_old_series_api = False
@@ -364,7 +364,7 @@ class Channel(chn_class.Channel):
             else:
                 url = "https://psapi.nrk.no/tv/catalog/series/{}?apiKey={}".format(item_id, self.__api_key)
 
-            item = mediaitem.MediaItem(title, url)
+            item = MediaItem(title, url)
             item.type = 'folder'
 
         item.icon = self.icon
@@ -410,7 +410,7 @@ class Channel(chn_class.Channel):
 
         parent_url, qs = self.parentItem.url.split("?", 1)
         url = "{}/seasons/{}/episodes?apiKey={}".format(parent_url, season_id, self.__api_key)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.type = 'folder'
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
@@ -445,7 +445,7 @@ class Channel(chn_class.Channel):
             return None
 
         url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["id"], self.__api_key)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.type = 'video'
 
         # noinspection PyTypeChecker
@@ -484,7 +484,7 @@ class Channel(chn_class.Channel):
 
         url = "{}{}?apiKey={}".format(self.baseUrl, result_set["href"], self.__api_key)
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.type = 'folder'
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
@@ -518,7 +518,7 @@ class Channel(chn_class.Channel):
             return None
 
         url = "https://psapi.nrk.no/programs/{}?apiKey={}".format(result_set["prfId"], self.__api_key)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.type = 'video'
         item.thumb = self.__get_image(result_set["image"], "width", "url")
         item.fanart = self.parentItem.fanart
@@ -564,7 +564,7 @@ class Channel(chn_class.Channel):
         url = "{}{}?apiKey={}".format(self.baseUrl, result_set["_links"]["manifest"]["href"], self.__api_key)
 
         live_data = result_set["_embedded"]["playback"]  # type: dict
-        item = mediaitem.MediaItem(live_data["title"], url)
+        item = MediaItem(live_data["title"], url)
         item.type = "video"
         item.isLive = True
         item.isGeoLocked = live_data.get("isGeoBlocked")
