@@ -147,7 +147,7 @@ class Channel:
         return
 
     def process_folder_list(self, item=None):  # NOSONAR
-        """Process the selected item and get's it's child items using the available dataparsers.
+        """ Process the selected item and get's it's child items using the available dataparsers.
 
         Accepts an <item> and returns a list of MediaListems with at least name & url
         set. The following actions are done:
