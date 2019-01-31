@@ -2,8 +2,8 @@
 import math
 import datetime
 
-import mediaitem
 import chn_class
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.jsonhelper import JsonHelper
 
@@ -234,7 +234,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Channel mismatch for '%s': %s vs %s", title, channel_id, self.channelCode)
             return None
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.icon = self.icon
         item.thumb = result_set.get("program_image", self.noImage)
         item.isPaid = result_set.get("is_premium", False)
@@ -321,7 +321,7 @@ class Channel(chn_class.Channel):
 
         for name in extras:
             url, date, is_live = extras[name]
-            item = mediaitem.MediaItem(name, url)
+            item = MediaItem(name, url)
             item.dontGroup = True
             item.complete = True
             item.thumb = self.noImage
@@ -338,7 +338,7 @@ class Channel(chn_class.Channel):
             return data, items
 
         # Add Live TV
-        # live = mediaitem.MediaItem("\a.: Live-TV :.",
+        # live = MediaItem("\a.: Live-TV :.",
         #                            "http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1@324055/master.m3u8",
         #                            type="video")
         # live.dontGroup = True
@@ -403,7 +403,7 @@ class Channel(chn_class.Channel):
             url = "http://webapi.tv4play.se/play/video_assets?platform=tablet&per_page=%s&" \
                   "type=clip&page=1&node_nids=%s&start=0" % (self.maxPageSize, cat_id,)
             clips_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
-            clips = mediaitem.MediaItem(clips_title, url)
+            clips = MediaItem(clips_title, url)
             clips.icon = self.icon
             clips.thumb = self.noImage
             clips.complete = True
@@ -415,7 +415,7 @@ class Channel(chn_class.Channel):
         if total_items > self.maxPageSize and "&page=1&" in self.parentItem.url:
             # create a group item
             more_title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            more = mediaitem.MediaItem(more_title, "")
+            more = MediaItem(more_title, "")
             more.icon = self.icon
             more.thumb = self.noImage
             more.complete = True
@@ -433,7 +433,7 @@ class Channel(chn_class.Channel):
 
                 url = current_url.replace("%s1" % (needle, ), "%s%s" % (needle, current_page))
                 Logger.debug("Adding next page: %s\n%s", current_page, url)
-                page = mediaitem.MediaItem(str(current_page), url)
+                page = MediaItem(str(current_page), url)
                 page.icon = self.icon
                 page.thumb = self.noImage
                 page.type = "page"
@@ -477,7 +477,7 @@ class Channel(chn_class.Channel):
         url = "https://playback-api.b17g.net/media/%s?service=tv4&device=browser&protocol=hls" % (program_id,)
         name = result_set["title"]
 
-        item = mediaitem.MediaItem(name, url)
+        item = MediaItem(name, url)
         item.description = result_set["description"]
         if item.description is None:
             item.description = item.name
@@ -550,7 +550,7 @@ class Channel(chn_class.Channel):
         url = "http://webapi.tv4play.se/play/programs?platform=tablet&category=%s" \
               "&fl=nid,name,program_image,category,logo,is_premium" \
               "&per_page=1000&is_active=true&start=0" % (cat, )
-        item = mediaitem.MediaItem(result_set['name'], url)
+        item = MediaItem(result_set['name'], url)
         item.thumb = self.noImage
         item.type = 'folder'
         item.complete = True

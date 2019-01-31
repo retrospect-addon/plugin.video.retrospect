@@ -2,14 +2,13 @@
 import os
 import re
 
-import mediaitem
 import chn_class
 from config import Config
 
+from mediaitem import MediaItem
 from helpers.jsonhelper import JsonHelper
 from helpers.encodinghelper import EncodingHelper
 from helpers.htmlentityhelper import HtmlEntityHelper
-
 from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
@@ -85,7 +84,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Parsing a specific genre: %s", self.__genre)
             return data, items
 
-        search_item = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
+        search_item = MediaItem("\a.: S&ouml;k :.", "searchSite")
         search_item.complete = True
         search_item.thumb = self.noImage
         search_item.dontGroup = True
@@ -94,7 +93,7 @@ class Channel(chn_class.Channel):
         # -> No items have dates, so adding this will force a date sort in Retrospect
         items.append(search_item)
 
-        genres_item = mediaitem.MediaItem("\a.: Genrer :.", "")
+        genres_item = MediaItem("\a.: Genrer :.", "")
         genres_item.complete = True
         genres_item.thumb = self.noImage
         genres_item.dontGroup = True
@@ -109,7 +108,7 @@ class Channel(chn_class.Channel):
         for genre in genres:
             if genre["genre"] == "all":
                 continue
-            genre_item = mediaitem.MediaItem(genre["title"], self.mainListUri)
+            genre_item = MediaItem(genre["title"], self.mainListUri)
             genre_item.complete = True
             genre_item.thumb = self.noImage
             genre_item.fanart = self.fanart
@@ -188,7 +187,7 @@ class Channel(chn_class.Channel):
         # get the ajax page for less bandwidth
         url = "%s?sida=1&amp;sort=tid_stigande&embed=true" % (url, )
 
-        item = mediaitem.MediaItem(result_set[2], url)
+        item = MediaItem(result_set[2], url)
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
@@ -230,7 +229,7 @@ class Channel(chn_class.Channel):
 
         video_id = result_set[4]
         url = "http://www.oppetarkiv.se/video/%s?output=json" % (video_id,)
-        item = mediaitem.MediaItem(name, url)
+        item = MediaItem(name, url)
         item.type = 'video'
         item.icon = self.icon
         item.thumb = thumb_url

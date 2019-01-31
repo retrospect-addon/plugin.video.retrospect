@@ -2,8 +2,8 @@
 import uuid
 import datetime
 
-import mediaitem
 import chn_class
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.jsonhelper import JsonHelper
@@ -261,14 +261,14 @@ class Channel(chn_class.Channel):
                 items.append(item)
 
         if self.recentUrl:
-            recent = mediaitem.MediaItem("\b.: Recent :.", self.recentUrl)
+            recent = MediaItem("\b.: Recent :.", self.recentUrl)
             recent.dontGroup = True
             recent.fanart = self.fanart
             items.append(recent)
 
         # live items
         if self.liveUrl:
-            live = mediaitem.MediaItem("\b.: Live :.", self.liveUrl)
+            live = MediaItem("\b.: Live :.", self.liveUrl)
             live.type = "video"
             live.dontGroup = True
             live.isGeoLocked = True
@@ -276,7 +276,7 @@ class Channel(chn_class.Channel):
             live.fanart = self.fanart
             items.append(live)
 
-        search = mediaitem.MediaItem("\a.: S&ouml;k :.", "searchSite")
+        search = MediaItem("\a.: S&ouml;k :.", "searchSite")
         search.type = "folder"
         search.dontGroup = True
         search.fanart = self.fanart
@@ -366,7 +366,7 @@ class Channel(chn_class.Channel):
 
         title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
         url = url_format.format(page + 1)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.fanart = self.parentItem.fanart
         item.thumb = self.parentItem.thumb
         return item
@@ -417,11 +417,11 @@ class Channel(chn_class.Channel):
             needle = HtmlEntityHelper.url_encode(needle)
 
             search_url = videos_url % (needle, )
-            temp = mediaitem.MediaItem("Search", search_url)
+            temp = MediaItem("Search", search_url)
             episodes = self.process_folder_list(temp)
 
             search_url = shows_url % (needle, )
-            temp = mediaitem.MediaItem("Search", search_url)
+            temp = MediaItem("Search", search_url)
             shows = self.process_folder_list(temp)
             return shows + episodes
 
@@ -668,7 +668,7 @@ class Channel(chn_class.Channel):
         # showSlug = video_info["alternateId"]
 
         url = url_format.format(item_id)
-        item = mediaitem.MediaItem(name, url)
+        item = MediaItem(name, url)
         item.description = video_info.get("description")
 
         geo_info = video_info.get("geoRestrictions", {"countries": ["world"]})
