@@ -1,6 +1,6 @@
 import datetime
-import mediaitem
 import chn_class
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.jsonhelper import JsonHelper
@@ -14,41 +14,42 @@ from urihandler import UriHandler
 
 class Channel(chn_class.Channel):
     """
-    THIS CHANNEL IS BASED ON THE PEPERZAKEN APPS FOR ANDROID
+    This channel is based on the peperzaken apps for Android
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # configure login stuff
         # setup the urls
         self.noImage = "flevoimage.png"
         self.mainListUri = "https://www.omroepflevoland.nl/block/missed/list?category=Gemist&page=1"
-        # self.mainListUri = "https://www.omroepflevoland.nl/block/missed/list?category=Gemist&type=televisie&page=1"
         self.baseUrl = "https://www.omroepflevoland.nl"
         self.channelBitrate = 780
 
-        videoItemRegex = '<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<div[^>]+background-image: url\(\'(?<thumburl>[^\']+)\'[^>]+>(?:[^>]+>){7}\W*<h5>(?<title>[^<]+)<[^>]*>\s*(?<date>\d+-\d+-\d+\s+\d+:\d+)(?:[^>]+>){11}\W*(?<description>[^<]+)</p>'
-        videoItemRegex = Regexer.from_expresso(videoItemRegex)
+        video_item_regex = r'<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<div[^>]+background-' \
+                           r'image: url\(\'(?<thumburl>[^\']+)\'[^>]+>(?:[^>]+>){7}\W*<h5>' \
+                           r'(?<title>[^<]+)<[^>]*>\s*(?<date>\d+-\d+-\d+\s+\d+:\d+)(?:[^>]+>)' \
+                           r'{11}\W*(?<description>[^<]+)</p>'
+        video_item_regex = Regexer.from_expresso(video_item_regex)
 
-        self._add_data_parser(self.mainListUri, preprocessor=self.AddLiveStreams,
-                              parser=videoItemRegex, creator=self.create_video_item)
+        self._add_data_parser(self.mainListUri, preprocessor=self.add_live_streams,
+                              parser=video_item_regex, creator=self.create_video_item)
 
-        self._add_data_parser("https://[^/]*.cloudfront.net/live/", updater=self.UpdateLiveUrls,
+        self._add_data_parser("https://[^/]*.cloudfront.net/live/", updater=self.update_live_urls,
                               match_type=ParserData.MatchRegex)
 
-        self._add_data_parser("*", preprocessor=self.AddLiveStreams,
-                              parser=videoItemRegex, creator=self.create_video_item,
+        self._add_data_parser("*", preprocessor=self.add_live_streams,
+                              parser=video_item_regex, creator=self.create_video_item,
                               updater=self.update_video_item)
 
         #===============================================================================================================
@@ -60,15 +61,8 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def AddLiveStreams(self, data):
-        """ Parses the xml data entry of the mainlist
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def add_live_streams(self, data):
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -77,41 +71,46 @@ class Channel(chn_class.Channel):
 
         The return values should always be instantiated in at least ("", []).
 
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
 
         items = []
         if self.parentItem is None:
-            liveItem = mediaitem.MediaItem(
+            live_item = MediaItem(
                 "\a.: Live TV :.",
                 "https://d5ms27yy6exnf.cloudfront.net/live/omroepflevoland/tv/index.m3u8"
             )
-            liveItem.icon = self.icon
-            liveItem.thumb = self.noImage
-            liveItem.type = 'video'
-            liveItem.dontGroup = True
+            live_item.icon = self.icon
+            live_item.thumb = self.noImage
+            live_item.type = 'video'
+            live_item.dontGroup = True
             now = datetime.datetime.now()
-            liveItem.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
-            items.append(liveItem)
+            live_item.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            items.append(live_item)
 
-            liveItem = mediaitem.MediaItem(
+            live_item = MediaItem(
                 "\a.: Live Radio :.",
                 "https://d5ms27yy6exnf.cloudfront.net/live/omroepflevoland/radio/index.m3u8"
             )
-            liveItem.icon = self.icon
-            liveItem.thumb = self.noImage
-            liveItem.type = 'video'
-            liveItem.dontGroup = True
+            live_item.icon = self.icon
+            live_item.thumb = self.noImage
+            live_item.type = 'video'
+            live_item.dontGroup = True
             now = datetime.datetime.now()
-            liveItem.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
-            items.append(liveItem)
+            live_item.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
+            items.append(live_item)
 
         # add "More"
         more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-        currentUrl = self.parentItem.url if self.parentItem is not None else self.mainListUri
-        url, page = currentUrl.rsplit("=", 1)
+        current_url = self.parentItem.url if self.parentItem is not None else self.mainListUri
+        url, page = current_url.rsplit("=", 1)
         url = "{}={}".format(url, int(page) + 1)
 
-        item = mediaitem.MediaItem(more, url)
+        item = MediaItem(more, url)
         item.thumb = self.noImage
         item.icon = self.icon
         item.fanart = self.fanart
@@ -120,21 +119,60 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def create_video_item(self, resultSet):
-        item = chn_class.Channel.create_video_item(self, resultSet)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        item = chn_class.Channel.create_video_item(self, result_set)
         if item is None:
             return item
 
-        timeStamp = DateHelper.get_date_from_string(resultSet["date"], "%d-%m-%Y %H:%M")
-        item.set_date(*timeStamp[0:6])
+        time_stamp = DateHelper.get_date_from_string(result_set["date"], "%d-%m-%Y %H:%M")
+        item.set_date(*time_stamp[0:6])
         return item
 
     def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         data = UriHandler.open(item.url, proxy=self.proxy)
-        jsonData = Regexer.do_regex("video.createPlayer\(JSON.parse\('([^']+)", data)[0]
-        jsonData = jsonData.decode('unicode-escape').encode('ascii')
-        jsonData = jsonData.replace("\\\\", "")
-        json = JsonHelper(jsonData)
+        json_data = Regexer.do_regex(r"video.createPlayer\(JSON.parse\('([^']+)", data)[0]
+        json_data = json_data.decode('unicode-escape').encode('ascii')
+        json_data = json_data.replace("\\\\", "")
+        json = JsonHelper(json_data)
         stream = json.get_value("file")
         if not stream:
             return item
@@ -148,17 +186,11 @@ class Channel(chn_class.Channel):
             part.append_media_stream(stream, 2500)
         elif ".m3u8" in stream:
             item.url = stream
-            return self.UpdateLiveUrls(item)
+            return self.update_live_urls(item)
         return item
 
-    def UpdateLiveUrls(self, item):
-        """Updates an existing MediaItem with more data.
-
-        Arguments:
-        item : MediaItem - the MediaItem that needs to be updated
-
-        Returns:
-        The original item with more data added to it's properties.
+    def update_live_urls(self, item):
+        """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
         could include opening the item's URL to fetch more data and then process that
@@ -171,6 +203,11 @@ class Channel(chn_class.Channel):
 
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
 
         """
 
@@ -185,7 +222,6 @@ class Channel(chn_class.Channel):
 
             for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
                 item.complete = True
-                # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
             item.complete = True
         return item

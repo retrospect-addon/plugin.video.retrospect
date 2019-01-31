@@ -1,7 +1,7 @@
 import urlparse
 
-import mediaitem
 import chn_class
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.languagehelper import LanguageHelper
@@ -154,7 +154,7 @@ class Channel(chn_class.Channel):
         items = []
         if self.liveUrl:
             Logger.debug("Adding live item")
-            live_item = mediaitem.MediaItem("\aLive TV", self.liveUrl)
+            live_item = MediaItem("\aLive TV", self.liveUrl)
             live_item.icon = self.icon
             live_item.thumb = self.noImage
             live_item.dontGroup = True
@@ -187,7 +187,7 @@ class Channel(chn_class.Channel):
         if self.liveUrl.endswith(".m3u8"):
             # We actually have a single stream.
             title = "{} - {}".format(self.channelName, LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId))
-            live_item = mediaitem.MediaItem(title, self.liveUrl)
+            live_item = MediaItem(title, self.liveUrl)
             live_item.type = 'video'
             live_item.icon = self.icon
             live_item.thumb = self.noImage
@@ -219,7 +219,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Adding live stream")
             title = streams.get('name') or "%s - Live TV" % (self.channelName, )
 
-            live_item = mediaitem.MediaItem(title, self.liveUrl)
+            live_item = MediaItem(title, self.liveUrl)
             live_item.type = 'video'
             live_item.complete = True
             live_item.icon = self.icon
@@ -317,7 +317,7 @@ class Channel(chn_class.Channel):
         if not link.startswith("http"):
             link = urlparse.urljoin(self.baseUrl, link)
 
-        item = mediaitem.MediaItem(title, link)
+        item = MediaItem(title, link)
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
@@ -354,7 +354,7 @@ class Channel(chn_class.Channel):
         if not url.startswith("http"):
             url = urlparse.urljoin(self.baseUrl, url)
 
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.thumb = self.noImage
 
         if media_link:

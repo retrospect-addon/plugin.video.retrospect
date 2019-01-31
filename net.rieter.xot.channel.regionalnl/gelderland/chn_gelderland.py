@@ -1,5 +1,5 @@
-import mediaitem
 import chn_class
+from mediaitem import MediaItem
 from helpers import datehelper
 
 
@@ -8,7 +8,7 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
+    def __init__(self, channel_info):
         """Initialisation of the class.
 
         WindowXMLDialog(self, xmlFilename, scriptPath[, defaultSkin, defaultRes]) -- Create a new WindowXMLDialog script.
@@ -25,7 +25,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "gelderlandimage.png"
@@ -36,12 +36,13 @@ class Channel(chn_class.Channel):
         self.swfUrl = "%s/design/channel/tv/swf/player.swf" % (self.baseUrl, )
 
         # setup the main parsing data
-        self.episodeItemRegex = '<a href="(/web/Uitzending-gemist-5/TV-1/Programmas/Programma.htm\?p=[^"]+)"\W*>\W*' \
-                                '<div[^>]+>\W+<img src="([^"]+)"[^>]+>\W+</div>\W+<div[^>]+>([^<]+)'
-        self.videoItemRegex = """<div class="videouitzending[^>]+\('([^']+)','[^']+','[^']+','[^']+','([^']+) (\d+) (\w+) (\d+)','([^']+)','([^']+)'"""
-        self.mediaUrlRegex = '<param\W+name="URL"\W+value="([^"]+)"'
-        self.pageNavigationRegex = '(/web/Uitzending-gemist-5/TV-1/Programmas/Programma.htm\?p=Debuzz&amp;pagenr=)' \
-                                   '(\d+)[^>]+><span>'
+        self.episodeItemRegex = r'<a href="(/web/Uitzending-gemist-5/TV-1/Programmas/' \
+                                r'Programma.htm\?p=[^"]+)"\W*>\W*<div[^>]+>\W+<img src="([^"]+)' \
+                                r'"[^>]+>\W+</div>\W+<div[^>]+>([^<]+)'
+        self.videoItemRegex = r"""<div class="videouitzending[^>]+\('([^']+)','[^']+','[^']+','[^']+','([^']+) (\d+) (\w+) (\d+)','([^']+)','([^']+)'"""
+        self.mediaUrlRegex = r'<param\W+name="URL"\W+value="([^"]+)"'
+        self.pageNavigationRegex = r'(/web/Uitzending-gemist-5/TV-1/Programmas/Programma.htm\?p=' \
+                                   r'Debuzz&amp;pagenr=)(\d+)[^>]+><span>'
         self.pageNavigationRegexIndex = 1
 
         #===============================================================================================================
@@ -53,61 +54,69 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
     
-    def create_episode_item(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item. 
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
         """
 
-        item = mediaitem.MediaItem(resultSet[2], "%s%s" % (self.baseUrl, resultSet[0]))
+        item = MediaItem(result_set[2], "%s%s" % (self.baseUrl, result_set[0]))
         item.icon = self.icon
-        item.thumb = "%s%s" % (self.baseUrl, resultSet[1])
+        item.thumb = "%s%s" % (self.baseUrl, result_set[1])
         item.complete = True
         return item
     
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-        
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-        
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-        
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes 
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
-        
+
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
         self.update_video_item method is called if the item is focussed or selected
         for playback.
-         
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        #Logger.Trace(resultSet)
+        #Logger.Trace(result_set)
         
-        thumbUrl = "%s%s" % (self.baseUrl, resultSet[6])
-        url = "%s%s" % (self.baseUrl, resultSet[5])
-        name = "%s %s %s %s" % (resultSet[1], resultSet[2], resultSet[3], resultSet[4])
+        thumb_url = "%s%s" % (self.baseUrl, result_set[6])
+        url = "%s%s" % (self.baseUrl, result_set[5])
+        name = "%s %s %s %s" % (result_set[1], result_set[2], result_set[3], result_set[4])
         
-        videoUrl = resultSet[0]
-        videoUrl = videoUrl.replace(" ", "%20")
-        #videoUrl = self.get_verifiable_video_url(videoUrl)
+        video_url = result_set[0]
+        video_url = video_url.replace(" ", "%20")
         # convert RTMP to HTTP
         #rtmp://media.omroepgelderland.nl         /uitzendingen/video/2012/07/120714 338 Carrie on.mp4
         #http://content.omroep.nl/omroepgelderland/uitzendingen/video/2012/07/120714 338 Carrie on.mp4
-        videoUrl = videoUrl.replace("rtmp://media.omroepgelderland.nl", "http://content.omroep.nl/omroepgelderland")
+        video_url = video_url.replace("rtmp://media.omroepgelderland.nl",
+                                      "http://content.omroep.nl/omroepgelderland")
         
-        item = mediaitem.MediaItem(name, url)
-        item.thumb = thumbUrl
+        item = MediaItem(name, url)
+        item.thumb = thumb_url
         item.icon = self.icon
         item.type = 'video'
-        item.append_single_stream(videoUrl)
+        item.append_single_stream(video_url)
         
         # set date
-        month = datehelper.DateHelper.get_month_from_name(resultSet[3], "nl", False)
-        day = resultSet[2]
-        year = resultSet[4]
+        month = datehelper.DateHelper.get_month_from_name(result_set[3], "nl", False)
+        day = result_set[2]
+        year = result_set[4]
         item.set_date(year, month, day)
         
         item.complete = True

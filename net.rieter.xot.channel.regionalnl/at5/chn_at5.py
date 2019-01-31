@@ -1,5 +1,6 @@
-import mediaitem
 import chn_class
+
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.datehelper import DateHelper
 from helpers.jsonhelper import JsonHelper
@@ -16,18 +17,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "at5image.png"
@@ -38,31 +38,30 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://www.at5.nl/embed/at5player.swf"
 
         # setup the main parsing data
-        epsideItemRegex = '<option value="(\d+)"[^>]*>([^<]+)'
+        epside_item_regex = r'<option value="(\d+)"[^>]*>([^<]+)'
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              parser=epsideItemRegex, creator=self.create_episode_item,
-                              preprocessor=self.AddLiveChannel)
+                              parser=epside_item_regex, creator=self.create_episode_item,
+                              preprocessor=self.add_live_channel)
 
         # Main video items
-        videoItemRegex = 'data-href="/(gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">' \
-                         '\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+' \
-                         '<div class="uitz_new_desc">(?:\W*<div[^>]*>){1,2}[^-]*-([^<]+)</div>' \
-                         '\W+div class="uitz_new_desc_title_time">\W+\w+ (\d+) (\w+) (\d+) (\d+):(\d+)'
+        video_item_regex = r'data-href="/(gemist/tv/\d+/(\d+)/[^"]+)"[^>]*>\W*<div class="uitz_new">' \
+                           r'\W*<div class="uitz_new_image">\W*<img src="([^"]+)[^>]*>\W+</div>\W+' \
+                           r'<div class="uitz_new_desc">(?:\W*<div[^>]*>){1,2}[^-]*-([^<]+)</div>' \
+                           r'\W+div class="uitz_new_desc_title_time">\W+\w+ (\d+) (\w+) (\d+) (\d+):(\d+)'
         self._add_data_parser("*",
-                              parser=videoItemRegex, creator=self.create_video_item,
+                              parser=video_item_regex, creator=self.create_video_item,
                               updater=self.update_video_item)
 
         # Paging
         self.pageNavigationRegexIndex = 1
-        pageNavigationRegex = '<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
-        self._add_data_parser("*",
-                              parser=pageNavigationRegex, creator=self.create_page_item)
+        page_navigation_regex = r'<a[^>]+href="([^"]+/)(\d+)"[^>]*>\W+gt;\W+</a>'
+        self._add_data_parser("*", parser=page_navigation_regex, creator=self.create_page_item)
 
-        self._add_data_parser("#livestream", updater=self.UpdateLiveStream)
+        self._add_data_parser("#livestream", updater=self.update_live_stream)
 
         #===============================================================================================================
         # non standard items
-        self.mediaUrlRegex = '.setup([^<]+);\W*</script>'
+        self.mediaUrlRegex = r'.setup([^<]+);\W*</script>'
 
         #===============================================================================================================
         # Test cases:
@@ -70,45 +69,64 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def create_episode_item(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item.
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
         """
 
-        item = mediaitem.MediaItem(resultSet[1], "%s/%s" % (self.mainListUri, resultSet[0]))
+        item = MediaItem(result_set[1], "%s/%s" % (self.mainListUri, result_set[0]))
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
         return item
 
-    def AddLiveChannel(self, data):
+    def add_live_channel(self, data):
+        """ Performs pre-process actions for data processing.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         Logger.info("Performing Pre-Processing")
         items = []
 
         title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
-        item = mediaitem.MediaItem("\a.: {} :.".format(title), "")
+        item = MediaItem("\a.: {} :.".format(title), "")
         item.type = "folder"
         items.append(item)
 
-        liveItem = mediaitem.MediaItem(title, "#livestream")
-        liveItem.type = "video"
-        liveItem.isLive = True
-        item.items.append(liveItem)
+        live_item = MediaItem(title, "#livestream")
+        live_item.type = "video"
+        live_item.isLive = True
+        item.items.append(live_item)
 
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -116,35 +134,61 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param list[str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        # vid = resultSet[1]
-        thumbUrl = resultSet[2]
-        title = resultSet[3].strip()
-        if "http" not in thumbUrl:
-            thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
+        thumb_url = result_set[2]
+        title = result_set[3].strip()
+        if "http" not in thumb_url:
+            thumb_url = "%s%s" % (self.baseUrl, thumb_url)
 
-        url = "%s/%s" % (self.baseUrl, resultSet[0])
-        item = mediaitem.MediaItem(title, url)
-        item.thumb = thumbUrl
+        url = "%s/%s" % (self.baseUrl, result_set[0])
+        item = MediaItem(title, url)
+        item.thumb = thumb_url
         item.icon = self.icon
         item.type = 'video'
         item.complete = False
 
-        day = resultSet[4]
-        month = resultSet[5]
+        day = result_set[4]
+        month = result_set[5]
         month = DateHelper.get_month_from_name(month, language="nl")
-        year = resultSet[6]
-        hour = resultSet[7]
-        minute = resultSet[8]
+        year = result_set[6]
+        hour = result_set[7]
+        minute = result_set[8]
         item.set_date(year, month, day, hour, minute, 0)
         return item
 
-    def UpdateLiveStream(self, item):
+    def update_live_stream(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
         Logger.debug("Updating the live stream")
-        url = "https://rrr.sz.xlcdn.com/?account=atvijf&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
+        url = "https://rrr.sz.xlcdn.com/?account=atvijf" \
+              "&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
@@ -157,14 +201,31 @@ class Channel(chn_class.Channel):
         return item
 
     def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
-        Accepts an item. It returns an updated item. Usually retrieves the MediaURL
-        and the Thumb! It should return a completed item.
-        """
+
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         data = UriHandler.open(item.url, proxy=self.proxy).decode('unicode_escape')
-        streams = Regexer.do_regex("file:\W+'([^']+)'", data)
+        streams = Regexer.do_regex(r"file:\W+'([^']+)'", data)
         part = item.create_new_empty_media_part()
         for s in streams:
             if "anifest" in s or "smil?" in s:
@@ -173,21 +234,17 @@ class Channel(chn_class.Channel):
             if s.startswith("rtmp"):
                 continue
 
-            bitrateAdd = 0
+            bitrate_add = 0
             if s.endswith(".m3u8"):
-                bitrateAdd = 200
+                bitrate_add = 200
 
             if "_hi.mp4" in s:
-                # if s.startswith("rtmp"):
-                #     s = self.get_verifiable_video_url(s)
-                part.append_media_stream(s, 2402 + bitrateAdd)
-                part.append_media_stream(s.replace("_hi.mp4", "_medium.mp4"), 1402 + bitrateAdd)
-                part.append_media_stream(s.replace("_hi.mp4", "_low.mp4"), 302 + bitrateAdd)
+                part.append_media_stream(s, 2402 + bitrate_add)
+                part.append_media_stream(s.replace("_hi.mp4", "_medium.mp4"), 1402 + bitrate_add)
+                part.append_media_stream(s.replace("_hi.mp4", "_low.mp4"), 302 + bitrate_add)
 
             elif "_medium.mp4" in s:
-                # if s.startswith("rtmp"):
-                #     s = self.get_verifiable_video_url(s)
-                part.append_media_stream(s, 1402 + bitrateAdd)
-                part.append_media_stream(s.replace("_medium.mp4", "_low.mp4"), 302 + bitrateAdd)
+                part.append_media_stream(s, 1402 + bitrate_add)
+                part.append_media_stream(s.replace("_medium.mp4", "_low.mp4"), 302 + bitrate_add)
         item.complete = True
         return item
