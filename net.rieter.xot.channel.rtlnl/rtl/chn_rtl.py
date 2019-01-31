@@ -1,8 +1,9 @@
 import datetime
 
-import mediaitem
+
 import chn_class
 
+from mediaitem import MediaItem
 from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
@@ -101,14 +102,14 @@ class Channel(chn_class.Channel):
         items = []
 
         # let's add the RTL-Z live stream
-        rtlz_live = mediaitem.MediaItem("RTL Z Live Stream", "")
+        rtlz_live = MediaItem("RTL Z Live Stream", "")
         rtlz_live.icon = self.icon
         rtlz_live.thumb = self.noImage
         rtlz_live.complete = True
         rtlz_live.isLive = True
         rtlz_live.dontGroup = True
 
-        stream_item = mediaitem.MediaItem("RTL Z: Live Stream", "http://www.rtl.nl/(config=RTLXLV2,channel=rtlxl,progid=rtlz,zone=inlineplayer.rtl.nl/rtlz,ord=0)/system/video/wvx/components/financien/rtlz/miMedia/livestream/rtlz_livestream.xml/1500.wvx")
+        stream_item = MediaItem("RTL Z: Live Stream", "http://www.rtl.nl/(config=RTLXLV2,channel=rtlxl,progid=rtlz,zone=inlineplayer.rtl.nl/rtlz,ord=0)/system/video/wvx/components/financien/rtlz/miMedia/livestream/rtlz_livestream.xml/1500.wvx")
         stream_item.icon = self.icon
         stream_item.thumb = self.noImage
         stream_item.complete = True
@@ -139,7 +140,7 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        recent = mediaitem.MediaItem("\a .: Recent :.", "")
+        recent = MediaItem("\a .: Recent :.", "")
         recent.type = "folder"
         recent.complete = True
         recent.dontGroup = True
@@ -164,7 +165,7 @@ class Channel(chn_class.Channel):
             # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
             url = "https://xlapi.rtl.nl/version=1/fun=gemist/model=svod/bcdate=" \
                   "{0:04d}{1:02d}{2:02d}/".format(air_date.year, air_date.month, air_date.day)
-            extra = mediaitem.MediaItem(title, url)
+            extra = MediaItem(title, url)
             extra.complete = True
             extra.icon = self.icon
             extra.thumb = self.noImage
@@ -173,7 +174,7 @@ class Channel(chn_class.Channel):
 
             recent.items.append(extra)
 
-        news = mediaitem.MediaItem("\a .: Zoeken :.", "#searchSite")
+        news = MediaItem("\a .: Zoeken :.", "#searchSite")
         news.type = "folder"
         news.complete = True
         news.dontGroup = True
@@ -199,7 +200,7 @@ class Channel(chn_class.Channel):
         title = result_set["name"]
         key = result_set.get("key", result_set["abstract_key"])
         url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=getseasons/ak=%s" % (key,)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.icon = self.icon
         item.fanart = self.fanart
         item.complete = True
@@ -277,7 +278,7 @@ class Channel(chn_class.Channel):
                 url = self.parentItem.url[:self.parentItem.url.rindex("=")]
                 url = "%s=%s" % (url, next_page)
                 Logger.trace(url)
-                page_item = mediaitem.MediaItem(str(next_page), url)
+                page_item = MediaItem(str(next_page), url)
                 page_item.type = "page"
                 page_item.complete = True
                 items.append(page_item)
@@ -319,7 +320,7 @@ class Channel(chn_class.Channel):
         key_value = result_set["key"]
         url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/ak=%s/sk=%s/pg=1" % (abstract_key, key_value)
 
-        item = mediaitem.MediaItem(title.title(), url)
+        item = MediaItem(title.title(), url)
         item.description = description
         item.thumb = "%s/%s.png" % (self.posterBase, key_value,)
         item.complete = True
@@ -402,7 +403,7 @@ class Channel(chn_class.Channel):
         # The JSON urls do not yet work
         # url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=abstract/uuid=%s/fmt=smooth" % (uuid,)
 
-        item = mediaitem.MediaItem(title.title(), url)
+        item = MediaItem(title.title(), url)
         item.type = "video"
         item.isPaid = premium_item
         item.description = description
@@ -452,13 +453,13 @@ class Channel(chn_class.Channel):
         # Search Programma's
         url = "https://search.rtl.nl/?typeRestriction=tvabstract&search={}&page=1&pageSize=99"
         search_url = url.format(needle)
-        temp = mediaitem.MediaItem("Search", search_url)
+        temp = MediaItem("Search", search_url)
         items += self.process_folder_list(temp) or []
 
         # Search Afleveringen -> no dates given, so this makes little sense
         # url = "https://search.rtl.nl/?typeRestriction=videoobject&uitzending=true&search={}&page=1&pageSize=99"
         # search_url = url.format(needle)
-        # temp = mediaitem.MediaItem("Search", search_url)
+        # temp = MediaItem("Search", search_url)
         # items += self.process_folder_list(temp) or []
 
         return items
@@ -488,7 +489,7 @@ class Channel(chn_class.Channel):
         # Not used: uuid = result_set["Uuid"]
         abstract_key = result_set["AbstractKey"]
         url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=getseasons/ak={}".format(abstract_key)
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
 
@@ -532,7 +533,7 @@ class Channel(chn_class.Channel):
         # url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/" \
         #       "fun=abstract/uuid=%s/fmt=smooth" % (uuid,)
 
-        item = mediaitem.MediaItem(title.title(), url)
+        item = MediaItem(title.title(), url)
         item.type = "video"
         item.description = description
         item.thumb = "%s%s" % (self.posterBase, uuid,)
