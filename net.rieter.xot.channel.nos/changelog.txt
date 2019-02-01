@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: subs would not show if InputStream Adaptive is enabled (Fixes #1082)
+* Added: Warning for Kodi installations without decryption support that want to play live streams in NPOO (See #1099)
 
 [I]Previous Changes[/I]
+* Fixed: subs would not show if InputStream Adaptive is enabled (Fixes #1082)
 * Fixed: NPO Complete listing (Fixes #1079)
 * Changed: use InputStream Adaptive for NPO (Fixes #1073)
 * Fixed: NPO live radio streams (Fixes #1061)

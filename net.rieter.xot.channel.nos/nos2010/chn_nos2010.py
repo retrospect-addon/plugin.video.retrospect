@@ -17,6 +17,7 @@ from helpers.htmlentityhelper import HtmlEntityHelper
 from vault import Vault
 from addonsettings import AddonSettings
 from mediaitem import MediaItem
+from xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -1009,6 +1010,12 @@ class Channel(chn_class.Channel):
                 json_urls = Regexer.do_regex('<npo-player media-id="([^"]+)"', html_data)
 
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
+            if not use_adaptive:
+                XbmcWrapper.show_dialog(
+                    LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
+                    LanguageHelper.get_localized_string(LanguageHelper.DrmText))
+                return item
+
             for episode_id in json_urls:
                 if use_adaptive:
                     return self.__update_dash_item(item, episode_id)
