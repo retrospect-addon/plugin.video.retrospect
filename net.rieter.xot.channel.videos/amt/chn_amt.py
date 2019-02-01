@@ -1,5 +1,5 @@
-import mediaitem
 import chn_class
+from mediaitem import MediaItem
 from helpers import datehelper
 from regexer import Regexer
 
@@ -12,48 +12,56 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
-        # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
+        # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.noImage = "amtimage.png"
 
         # setup the urls
         self.baseUrl = "http://trailers.apple.com"
         self.mainListUri = "http://trailers.apple.com/trailers/home/feeds/just_added.json"
-        # self.mainListUri = "http://trailers.apple.com/ca/home/feeds/most_pop.json"
 
         # setup the main parsing data
-        self._add_data_parser(self.mainListUri, parser=[], json=True, creator=self.create_episode_item)
-        self._add_data_parser("*", json=True, preprocessor=self.GetMovieId,
+        self._add_data_parser(self.mainListUri, parser=[], json=True,
+                              creator=self.create_episode_item)
+        self._add_data_parser("*", json=True, preprocessor=self.get_movie_id,
                               parser=["clips", ], creator=self.create_video_item)
 
-        # ====================================== Actual channel setup STOPS here =======================================
+        # ========================= Actual channel setup STOPS here ================================
         return
 
-    def create_episode_item(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item.
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict[str,Any] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
         """
 
-        Logger.trace(resultSet)
-        title = resultSet["title"]
-        date = resultSet["trailers"][0]["postdate"]
-        url = resultSet["trailers"][0]["url"]
-        thumbUrl = resultSet["poster"]
-        if "http:" not in thumbUrl:
-            thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
-        fanart = thumbUrl.replace("poster.jpg", "background.jpg")
+        Logger.trace(result_set)
+        title = result_set["title"]
+        date = result_set["trailers"][0]["postdate"]
+        url = result_set["trailers"][0]["url"]
+        thumb_url = result_set["poster"]
+        if "http:" not in thumb_url:
+            thumb_url = "%s%s" % (self.baseUrl, thumb_url)
+        fanart = thumb_url.replace("poster.jpg", "background.jpg")
 
         # get the url that shows all trailers/clips. Because the json
         # only shows the most recent one.
@@ -67,26 +75,37 @@ class Channel(chn_class.Channel):
         year = dates[3]
 
         # dummy class
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.icon = self.icon
-        item.thumb = thumbUrl.replace("poster.jpg", "poster-xlarge.jpg")
+        item.thumb = thumb_url.replace("poster.jpg", "poster-xlarge.jpg")
         item.fanart = fanart
         item.set_date(year, month, day)
         item.complete = True
         return item
 
-    def GetMovieId(self, data):
-        """ Extract the movie ID and replace the data with the correct JSON
+    def get_movie_id(self, data):
+        """ Performs pre-process actions for data processing.
 
-        @param data: the original data
-        @return: the new data
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
         """
+
         Logger.info("Performing Pre-Processing")
         items = []
 
-        movieId = Regexer.do_regex("movietrailers://movie/detail/(\d+)", data)[-1]
-        Logger.debug("Found Movie ID: %s", movieId)
-        url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movieId)
+        movie_id = Regexer.do_regex(r"movietrailers://movie/detail/(\d+)", data)[-1]
+        Logger.debug("Found Movie ID: %s", movie_id)
+        url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movie_id)
         data = UriHandler.open(url, proxy=self.proxy)
 
         # set it for logging purposes
@@ -95,17 +114,11 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
         If the item is completely processed an no further data needs to be fetched
@@ -113,16 +126,21 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
+        :param dict[str,Any] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
-        title = resultSet["title"]
+        title = result_set["title"]
         title = "%s - %s" % (self.parentItem.name, title)
 
-        thumb = resultSet["thumb"]
-        year, month, day = resultSet["posted"].split("-")
-        item = mediaitem.MediaItem(title, self.parentItem.url)
+        thumb = result_set["thumb"]
+        year, month, day = result_set["posted"].split("-")
+        item = MediaItem(title, self.parentItem.url)
         item.icon = self.icon
         item.description = self.parentItem.description
         item.type = 'video'
@@ -133,27 +151,27 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         part.HttpHeaders["User-Agent"] = "QuickTime/7.6 (qtver=7.6;os=Windows NT 6.0Service Pack 2)"
 
-        if "versions" in resultSet and "enus" in resultSet["versions"] and "sizes" in resultSet["versions"]["enus"]:
-            streams = resultSet["versions"]["enus"]["sizes"]
-            streamTypes = ("src", "srcAlt")
+        if "versions" in result_set and "enus" in result_set["versions"] and "sizes" in result_set["versions"]["enus"]:
+            streams = result_set["versions"]["enus"]["sizes"]
+            stream_types = ("src", "srcAlt")
             bitrates = {"hd1080": 8300, "hd720": 5300, "sd": 1200}
             for s in streams:
                 bitrate = bitrates.get(s, 0)
-                streamData = streams[s]
+                stream_data = streams[s]
 
                 # find all possible stream stream types
-                for t in streamTypes:
-                    if t in streamData:
-                        streamUrl = streamData[t]
-                        if streamUrl.endswith(".mov"):
+                for t in stream_types:
+                    if t in stream_data:
+                        stream_url = stream_data[t]
+                        if stream_url.endswith(".mov"):
                             # movs need to have a 'h' before the quality
-                            parts = streamUrl.rsplit("_", 1)
+                            parts = stream_url.rsplit("_", 1)
                             if len(parts) == 2:
                                 Logger.trace(parts)
-                                streamUrl = "%s_h%s" % (parts[0], parts[1])
-                            part.append_media_stream(streamUrl, bitrate)
+                                stream_url = "%s_h%s" % (parts[0], parts[1])
+                            part.append_media_stream(stream_url, bitrate)
                         else:
-                            part.append_media_stream(streamUrl, bitrate)
+                            part.append_media_stream(stream_url, bitrate)
                         item.complete = True
 
         return item

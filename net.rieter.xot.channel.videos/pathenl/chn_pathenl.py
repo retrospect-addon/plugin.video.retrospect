@@ -1,9 +1,9 @@
-﻿# coding:UTF-8
+# coding:UTF-8
 import datetime
 
-import mediaitem
 import chn_class
 
+from mediaitem import MediaItem
 from helpers.datehelper import DateHelper
 from logger import Logger
 from parserdata import ParserData
@@ -17,18 +17,17 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channelInfo):
-        """Initialisation of the class.
-
-        Arguments:
-        channelInfo: ChannelInfo - The channel info object to base this channel on.
+    def __init__(self, channel_info):
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
 
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
+
         """
 
-        chn_class.Channel.__init__(self, channelInfo)
+        chn_class.Channel.__init__(self, channel_info)
 
         if self.channelCode == "pathejson":
             # we need to add headers and stuff for the API
@@ -41,27 +40,29 @@ class Channel(chn_class.Channel):
                                 "Accept": "application/json"}
             self.mainListUri = "https://connect.pathe.nl/v1/cinemas"
 
-            self._add_data_parser("https://connect.pathe.nl/v1/cinemas", json=True, match_type=ParserData.MatchExact,
-                                  parser=[], creator=self.CreateCinema)
+            self._add_data_parser("https://connect.pathe.nl/v1/cinemas", json=True,
+                                  match_type=ParserData.MatchExact,
+                                  parser=[], creator=self.create_cinema)
             self._add_data_parser("/movies/nowplaying", json=True, match_type=ParserData.MatchEnd,
-                                  parser=[], creator=self.CreateMovie)
+                                  parser=[], creator=self.create_movie)
             self._add_data_parser("https://connect.pathe.nl/v1/movies/", json=True,
-                                  parser=['trailers'], creator=self.CreateTrailer)
-            self._add_data_parser("/schedules?date=", json=True, match_type=ParserData.MatchContains,
-                                  preprocessor=self.GetScheduleData, parser=['movies'], creator=self.CreateMovie)
+                                  parser=['trailers'], creator=self.create_trailer)
+            self._add_data_parser("/schedules?date=", json=True,
+                                  match_type=ParserData.MatchContains,
+                                  preprocessor=self.get_schedule_data,
+                                  parser=['movies'], creator=self.create_movie)
 
         elif self.channelCode == "pathe":
             self.mainListUri = "https://www.pathe.nl"
             self.baseUrl = "https://www.pathe.nl"
             # setup the main parsing data
             self.episodeItemRegex = '<li><a[^>]+href="(https://www.pathe.nl/bioscoop/[^"]+)"[^>]+>([^<]+)</a></li>'
-            self.folderItemRegex = '<li class="tab-item[^>]+>\W+<a[^>]+title="\w+ (\d+) (\w+) (\d+)"[^<]+' \
-                                   'href="([^#]+)#schedule[^>]*>(\w+)'
-            self.videoItemRegex = '<div class="schedule-movie">\W+<a[^>]+href="([^#]+)\#[^>]+"[^>]+' \
-                                  'title="([^"]+)"[^>]+>\W+<div[^>]+>\W+<img[^>]+src="([^"]+)"[^>]+>\W+</div>' \
-                                  '[\w\W]{0,1500}?<table class="table-schedule">([\w\W]{0,5000}?)</table>'
+            self.folderItemRegex = r'<li class="tab-item[^>]+>\W+<a[^>]+title="\w+ (\d+) (\w+) (\d+)"[^<]+' \
+                                   r'href="([^#]+)#schedule[^>]*>(\w+)'
+            self.videoItemRegex = r'<div class="schedule-movie">\W+<a[^>]+href="([^#]+)\#[^>]+"[^>]+' \
+                                  r'title="([^"]+)"[^>]+>\W+<div[^>]+>\W+<img[^>]+src="([^"]+)"[^>]+>\W+</div>' \
+                                  r'[\w\W]{0,1500}?<table class="table-schedule">([\w\W]{0,5000}?)</table>'
             self.mediaUrlRegex = 'file: "(http[^"]+)'
-
         else:
             raise NotImplementedError("Code %s is not implemented" % (self.channelCode,))
 
@@ -72,40 +73,40 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def CreateCinema(self, resultSet):
-        """Creates a new MediaItem for an episode
-
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_cinema(self, result_set):
+        """ Creates a new MediaItem for an episode.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
         """
-        Logger.trace(resultSet)
-        cinema = mediaitem.MediaItem(resultSet["name"], "")
+
+        Logger.trace(result_set)
+        cinema = MediaItem(result_set["name"], "")
         cinema.icon = self.icon
-        cinema.thumb = resultSet["image"].replace("nocropthumb/[format]/", "")
+        cinema.thumb = result_set["image"].replace("nocropthumb/[format]/", "")
         cinema.complete = True
 
-        nowPlayingUrl = "%s/cinemas/%s/movies/nowplaying" % (self.baseUrl, resultSet["id"])
-        nowPlaying = mediaitem.MediaItem("Trailers", nowPlayingUrl)
-        nowPlaying.icon = self.icon
+        now_playing_url = "%s/cinemas/%s/movies/nowplaying" % (self.baseUrl, result_set["id"])
+        now_playing = MediaItem("Trailers", now_playing_url)
+        now_playing.icon = self.icon
         # https://www.pathe.nl/nocropthumb/[format]/gfx_content/bioscoop/foto/pathe.nl_380x218px_amersfoort.jpg
-        nowPlaying.complete = True
-        nowPlaying.HttpHeaders = self.httpHeaders
-        cinema.items.append(nowPlaying)
+        now_playing.complete = True
+        now_playing.HttpHeaders = self.httpHeaders
+        cinema.items.append(now_playing)
 
         now = datetime.datetime.now()
         for i in range(0, 10):
             date = now + datetime.timedelta(days=i)
             title = "%s-%02d-%02d" % (date.year, date.month, date.day)
-            scheduleUrl = "%s/cinemas/%s/schedules?date=%s" % (self.baseUrl, resultSet["id"], title)
-            schedule = mediaitem.MediaItem("Agenda: %s" % (title,), scheduleUrl)
+            schedule_url = "%s/cinemas/%s/schedules?date=%s" % (self.baseUrl, result_set["id"], title)
+            schedule = MediaItem("Agenda: %s" % (title,), schedule_url)
             schedule.icon = self.icon
             schedule.complete = True
             schedule.thumb = cinema.thumb
@@ -113,37 +114,35 @@ class Channel(chn_class.Channel):
             cinema.items.append(schedule)
         return cinema
 
-    def CreateMovie(self, resultSet):
-        """Creates a new MediaItem for an episode
-
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_movie(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
 
         """
 
-        Logger.trace(resultSet)
-        movieId = resultSet['id']
-        url = "%s/movies/%s" % (self.baseUrl, movieId)
-        item = mediaitem.MediaItem(resultSet["name"], url)
+        Logger.trace(result_set)
+        movie_id = result_set['id']
+        url = "%s/movies/%s" % (self.baseUrl, movie_id)
+        item = MediaItem(result_set["name"], url)
         item.icon = self.icon
-        item.thumb = resultSet["thumb"].replace("nocropthumb/[format]/", "")
+        item.thumb = result_set["thumb"].replace("nocropthumb/[format]/", "")
         item.complete = True
         item.HttpHeaders = self.httpHeaders
 
         if self.scheduleData:
             Logger.debug("Adding schedule data")
-            # scheduleData = filter(lambda s: s['movieId'] == movieId, self.scheduleData)
-            scheduleData = [s for s in self.scheduleData if s['movieId'] == movieId]
+            schedule_data = [s for s in self.scheduleData if s['movieId'] == movie_id]
             schedule = ""
             day = ""
-            for s in scheduleData:
+            for s in schedule_data:
                 start = s['start']
                 day, start = start.split("T")
                 hour, minute, ignore = start.split(":", 2)
@@ -157,14 +156,15 @@ class Channel(chn_class.Channel):
                 schedule = "%s%s-%s, " % (schedule, start, end)
             item.description = "%s\n\n%s: %s" % (item.description, day, schedule.strip(', '))
 
-        item.description = "%s\n\n%s" % (item.description, resultSet.get('teaser', ""))
+        item.description = "%s\n\n%s" % (item.description, result_set.get('teaser', ""))
         if not item.description.endswith('.'):
             item.description = "%s." % (item.description, )
 
-        if "releaseDate" in resultSet:
-            item.description = "%s\n\nRelease datum: %s" % (item.description, resultSet["releaseDate"])
+        if "releaseDate" in result_set:
+            item.description = "%s\n\nRelease datum: %s" % (item.description, result_set["releaseDate"])
 
-        # date = resultSet.get('releaseDate', None)
+        # Dates?
+        # date = result_set.get('releaseDate', None)
         # if date is not None:
         #     year, month, day = date.split("-")
         #     item.set_date(year, month, day)
@@ -172,41 +172,38 @@ class Channel(chn_class.Channel):
         item.description = item.description.strip()
         return item
 
-    def CreateTrailer(self, resultSet):
-        """Creates a new MediaItem for an episode
-
-        Arguments:
-        resultSet : list[string] - the resultSet of the self.episodeItemRegex
-
-        Returns:
-        A new MediaItem of type 'folder'
+    def create_trailer(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
 
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
         url = self.parentItem.url
-        item = mediaitem.MediaItem(resultSet["caption"], url, "video")
+        item = MediaItem(result_set["caption"], url, "video")
         item.icon = self.icon
-        item.thumb = resultSet["still"].replace("nocropthumb/[format]/", "")
+        item.thumb = result_set["still"].replace("nocropthumb/[format]/", "")
         item.fanart = item.thumb
-        item.append_single_stream(resultSet['filename'])
+        item.append_single_stream(result_set['filename'])
         item.complete = True
         item.HttpHeaders = self.httpHeaders
         return item
 
-    def GetScheduleData(self, data):
-        """Performs pre-process actions for data processing
-
-        Arguments:
-        data : string - the retrieve data that was loaded for the current item and URL.
-
-        Returns:
-        A tuple of the data and a list of MediaItems that were generated.
-
+    def get_schedule_data(self, data):
+        """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -214,6 +211,11 @@ class Channel(chn_class.Channel):
         be created.
 
         The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -224,112 +226,120 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def create_episode_item(self, resultSet):
-        """
-        Accepts an arraylist of results. It returns an item. 
+    def create_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
         """
 
-        item = mediaitem.MediaItem(resultSet[1], resultSet[0])
+        item = MediaItem(result_set[1], result_set[0])
         item.icon = self.icon
         item.thumb = self.noImage
         item.complete = True
         return item
 
-    def create_folder_item(self, resultSet):
-        """Creates a MediaItem of type 'folder' using the resultSet from the regex.
-        
-        Arguments:
-        resultSet : tuple(strig) - the resultSet of the self.folderItemRegex
-        
-        Returns:
-        A new MediaItem of type 'folder'
-        
+    def create_folder_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes 
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
-         
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         if self.parentItem.url.endswith(str(DateHelper.this_year())):
             return None
 
-        url = "%s%s" % (self.baseUrl, resultSet[3])
-        name = resultSet[4]
+        url = "%s%s" % (self.baseUrl, result_set[3])
+        name = result_set[4]
 
-        item = mediaitem.MediaItem(name.title(), url)
+        item = MediaItem(name.title(), url)
         item.thumb = self.noImage
         item.icon = self.icon
 
-        day = resultSet[0]
-        month = resultSet[1]
+        day = result_set[0]
+        month = result_set[1]
         month = DateHelper.get_month_from_name(month, "nl", short=False)
-        year = resultSet[2]
+        year = result_set[2]
 
         item.set_date(year, month, day)
         item.complete = True
         return item
     
-    def create_video_item(self, resultSet):
-        """Creates a MediaItem of type 'video' using the resultSet from the regex.
-        
-        Arguments:
-        resultSet : tuple (string) - the resultSet of the self.videoItemRegex
-        
-        Returns:
-        A new MediaItem of type 'video' or 'audio' (despite the method's name)
-        
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
         This method creates a new MediaItem from the Regular Expression or Json
-        results <resultSet>. The method should be implemented by derived classes 
+        results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
-        
+
         If the item is completely processed an no further data needs to be fetched
         the self.complete property should be set to True. If not set to True, the
         self.update_video_item method is called if the item is focussed or selected
         for playback.
-         
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
         """
 
-        Logger.trace(resultSet)
+        Logger.trace(result_set)
 
         if not self.parentItem.url[-1].isdigit():
             # only video on folders for day
             return None
 
-        name = resultSet[1]
-        url = "%s%s" % (self.baseUrl, resultSet[0])
+        name = result_set[1]
+        url = "%s%s" % (self.baseUrl, result_set[0])
 
-        thumbUrl = resultSet[2]
-        if not thumbUrl.startswith("http"):
-            thumbUrl = "%s%s" % (self.baseUrl, thumbUrl)
+        thumb_url = result_set[2]
+        if not thumb_url.startswith("http"):
+            thumb_url = "%s%s" % (self.baseUrl, thumb_url)
         # https://www.pathe.nl/gfx_content/posters/clubvansinterklaas3p1.jpg
         # https://www.pathe.nl/nocropthumb/180x254/gfx_content/posters/clubvansinterklaas3p1.jpg
-        thumbUrl = thumbUrl.replace("nocropthumb/180x254/", "")
+        thumb_url = thumb_url.replace("nocropthumb/180x254/", "")
 
-        item = mediaitem.MediaItem(name, url)
-        item.thumb = thumbUrl
+        item = MediaItem(name, url)
+        item.thumb = thumb_url
         item.icon = self.icon
         item.type = 'video'
 
         # more description stuff
-        # description = "%s\n\n" % (resultSet[4],)
+        # description = "%s\n\n" % (result_set[4],)
         description = ""
         
-        timeTable = resultSet[3]
-        timeTableRegex = '<ul>\W+<li><b>([^<]+)</b></li>\W+<li>\w+ (\d+:\d+)</li>\W+<li>\w+ (\d+:\d+)</li>'
-        biosSet = False
-        for timeTableEntry in Regexer.do_regex(timeTableRegex, timeTable):
-            Logger.trace(timeTableEntry)
+        time_table = result_set[3]
+        time_table_regex = \
+            r'<ul>\W+<li><b>([^<]+)</b></li>\W+<li>\w+ (\d+:\d+)</li>\W+<li>\w+ (\d+:\d+)</li>'
+        bios_set = False
+        for time_table_entry in Regexer.do_regex(time_table_regex, time_table):
+            Logger.trace(time_table_entry)
 
-            bios = timeTableEntry[0]
-            if not biosSet:
+            bios = time_table_entry[0]
+            if not bios_set:
                 description = "%s%s: " % (description, bios)
-                biosSet = True
+                bios_set = True
 
-            startTime = timeTableEntry[1]
-            endTime = timeTableEntry[2]
-            description = "%s%s-%s, " % (description, startTime, endTime)
+            start_time = time_table_entry[1]
+            end_time = time_table_entry[2]
+            description = "%s%s-%s, " % (description, start_time, end_time)
 
         description = description.strip(', ')
         item.description = description.strip()
@@ -338,16 +348,33 @@ class Channel(chn_class.Channel):
         return item
     
     def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
         """
-        Accepts an item. It returns an updated item. Usually retrieves the MediaURL 
-        and the Thumb! It should return a completed item. 
-        """
+
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
         data = UriHandler.open(item.url, proxy=self.proxy)
         videos = Regexer.do_regex(self.mediaUrlRegex, data)
 
-        fanart = Regexer.do_regex('<div class="visual-image">\W+<img src="([^"]+)"', data)
+        fanart = Regexer.do_regex(r'<div class="visual-image">\W+<img src="([^"]+)"', data)
         if fanart:
             item.fanart = fanart[0]
 
@@ -357,28 +384,6 @@ class Channel(chn_class.Channel):
         
         item.complete = True
         return item
-
-    # def __JsonHandlerOpen(self, uri, proxy=None, maxBytes=0, params="", referer=None, additionalHeaders=None, noCache=False, progressCallback=None):
-    #     """ Used to append headers for the JSON api calls
-    #
-    #     @param uri:
-    #     @param proxy:
-    #     @param maxBytes:
-    #     @param params:
-    #     @param referer:
-    #     @param additionalHeaders:
-    #     @param noCache:
-    #     @param progressCallback:
-    #     @return:
-    #     """
-    #     Logger.Debug("Using Custom UriHandler with extra headers")
-    #     if additionalHeaders is None:
-    #         additionalHeaders = dict()
-    #
-    #     additionalHeaders["X-Client-Token"] = "2d1411a8ec9842988e2700a1e3180dd3"
-    #     additionalHeaders["Accept"] = "application/json"
-    #     return self.UriHandlerOpen(uri, proxy, maxBytes, params, referer, additionalHeaders, noCache, progressCallback)
-
 
 # https://connect.pathe.nl/v1/cinemas/8/schedules?date=2014-11-26
 
