@@ -6,7 +6,7 @@ This repository holds the main code for Retrospect. For more information of bug 
 There are a couple of ways to install and/or update Retrospect using this GIT repository:
 
 ### 1 - Installing and updating Retrospect the 'Easy way' ###
-If a `net.rieter.xot-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date.
+If a `plugin.video.retrospect-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date.
 
 This method can also be used to install new versions of Retrospect and thus upgrading older installs.  
 
@@ -14,20 +14,20 @@ This method can also be used to install new versions of Retrospect and thus upgr
 The installation comes down to putting the folders from the GIT repo (either via a _'GIT Clone'_ or _'Full Zip Download'_)in the Kodi add-on folder (very often: /home/<user>/.kodi/addons or c:\users\<user>\AppData\Roaming\Kodi\addons). The result should be that the *addons* folder now contains at least these folders:
 
 ```
- net.rieter.xot
- net.rieter.xot.channel.be
- net.rieter.xot.channel.mtg
- net.rieter.xot.channel.mtv
- net.rieter.xot.channel.nick
- net.rieter.xot.channel.no
- net.rieter.xot.channel.nos
- net.rieter.xot.channel.regionalnl
- net.rieter.xot.channel.rtlnl
- net.rieter.xot.channel.sbsnl
- net.rieter.xot.channel.se
- net.rieter.xot.channel.streams
- net.rieter.xot.channel.uk
- net.rieter.xot.channel.videos
+ plugin.video.retrospect
+ plugin.video.retrospect.channel.be
+ plugin.video.retrospect.channel.mtg
+ plugin.video.retrospect.channel.mtv
+ plugin.video.retrospect.channel.nick
+ plugin.video.retrospect.channel.no
+ plugin.video.retrospect.channel.nos
+ plugin.video.retrospect.channel.regionalnl
+ plugin.video.retrospect.channel.rtlnl
+ plugin.video.retrospect.channel.sbsnl
+ plugin.video.retrospect.channel.se
+ plugin.video.retrospect.channel.streams
+ plugin.video.retrospect.channel.uk
+ plugin.video.retrospect.channel.videos
 ```
 
 #### Option A - ....via 'GIT Clone' ####
@@ -112,7 +112,7 @@ Retrospect Framework by Bas Rieter is licensed under a Creative Commons Attribut
 All channels, skins and config.py (further called Retrospect Additions) are free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3 as published by the Free Software Foundation. Retrospect Additions are distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with Retrospect Additions. If not, see [1]. Kodi Add-on packages containing modified code must be given a different add-on identification to prevent confusion with the official packages.
 Distributing Retrospect
 
-The official add-on packages that are currently available within the official Retrospect Repository may not be distributed via other channels than the official Retrospect Repository. Only the official Retrospect Respository (net.rieter.xot.respository) package itself may be distributed and/or included within other Kodi (super) repositories.
+The official add-on packages that are currently available within the official Retrospect Repository may not be distributed via other channels than the official Retrospect Repository. Only the official Retrospect Respository (plugin.video.retrospect.respository) package itself may be distributed and/or included within other Kodi (super) repositories.
 
 ### Disclaimer ###
 Retrospect or Rieter.net are not connected to or in any other way affiliated with Kodi, Team Kodi, or the Kodi Foundation. Furthermore, any software, addons, or products offered by Retrospect or Rieter.net will receive no support in official Kodi channels, including the Kodi forums and various social networks.

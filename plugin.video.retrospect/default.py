@@ -100,7 +100,7 @@ currentPath = Initializer.setup_python_paths()
 # Path for ATV
 # statsPath = os.path.abspath("/private/var/mobile/retrospect.atv.pstat")
 # Path for rPi
-# statsPath = os.path.abspath("/home/pi/.kodi/addons/net.rieter.xot/retrospect.rpi.pstat")
+# statsPath = os.path.abspath("/home/pi/.kodi/addons/plugin.video.retrospect/retrospect.rpi.pstat")
 
 # Profiled run
 # cProfile.run("RunPlugin()", statsPath)

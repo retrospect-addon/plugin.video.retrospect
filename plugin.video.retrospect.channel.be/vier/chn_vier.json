@@ -32,7 +32,7 @@
     {
       "order": 2,
       "id": "viervijfzes_password_set",
-      "value": "id=\"viervijfzes_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=viervijfzes_password&amp;settingname=Vier/Vijf/Zes.be password&amp;tabfocus=102)\" option=\"close\""
+      "value": "id=\"viervijfzes_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?action=encryptsetting&amp;settingid=viervijfzes_password&amp;settingname=Vier/Vijf/Zes.be password&amp;tabfocus=102)\" option=\"close\""
     },
     {
       "order": 3,

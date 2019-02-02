@@ -12,13 +12,13 @@
         <setting id="show_cloaked_items" type="bool" label="30095" default="false" />
         <setting id="use_adaptive_addon" type="bool" label="30571" default="true" enable="System.HasAddon(inputstream.adaptive)" />
         <setting id="adaptive_addon_settings" subsetting="true" type="action" label="30578" action="Addon.OpenSettings(inputstream.adaptive)" option="close" enable="System.HasAddon(inputstream.adaptive)" visible="eq(-1,true)" />
-        <setting id="widevine_install" subsetting="true" type="action" label="30532" option="close" action="RunScript(special://home/addons/net.rieter.xot/resources/menus/menu_install_widevine.py,net.rieter.xot)" enable="System.HasAddon(script.module.inputstreamhelper)" visible="eq(-2,true)"/>
+        <setting id="widevine_install" subsetting="true" type="action" label="30532" option="close" action="RunScript(special://home/addons/plugin.video.retrospect/resources/menus/menu_install_widevine.py,plugin.video.retrospect)" enable="System.HasAddon(script.module.inputstreamhelper)" visible="eq(-2,true)"/>
 
         <setting type="lsep" label="30089" />
         <!-- we need the option="close" here to make sure we don't overwrite settings that were
              already done while updating the settings from the script -->
-        <setting id="set_pin" label="30091" type="action" action="RunScript(net.rieter.xot, 0, ?action=changepin&amp;tabfocus=100&amp;settingfocus=209)" option="close" />
-        <setting id="reset_vault" label="30092" type="action" action="RunScript(net.rieter.xot, 0, ?action=resetvault&amp;tabfocus=100&amp;settingfocus=210)" option="close" />
+        <setting id="set_pin" label="30091" type="action" action="RunScript(plugin.video.retrospect, 0, ?action=changepin&amp;tabfocus=100&amp;settingfocus=209)" option="close" />
+        <setting id="reset_vault" label="30092" type="action" action="RunScript(plugin.video.retrospect, 0, ?action=resetvault&amp;tabfocus=100&amp;settingfocus=210)" option="close" />
         <setting id="pin_label" type="text" label="30090" enable="false" />
 
         <setting type="lsep" label="30046" />
@@ -41,7 +41,7 @@
         <setting type="lsep" label="30098" />
         <setting id="send_statistics" type="bool" label="30052" default="true" />
         <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
-        <setting id="send_log" type="action" label="30598" action="RunScript(net.rieter.xot, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />
+        <setting id="send_log" type="action" label="30598" action="RunScript(plugin.video.retrospect, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />
     </category>
 
     <category id="channels" label="30040">
@@ -49,7 +49,7 @@
         <setting id="hide_first_time_message" type="bool" label="30570" default="false" />
 
         <setting type="lsep" label="30060" />
-        <!--<setting type="action" label="30598" action="RunScript(special://home/addons/net.rieter.xot/resources/menus/menu_enable.py)" option="close" />-->
+        <!--<setting type="action" label="30598" action="RunScript(special://home/addons/plugin.video.retrospect/resources/menus/menu_enable.py)" option="close" />-->
         <!-- start of channel selection -->
         <!-- This is just a template and should be replaced after the first run -->
         <!-- end of channel selection -->

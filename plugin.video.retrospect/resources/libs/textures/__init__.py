@@ -118,7 +118,7 @@ class TextureHandler:
 
     def _get_addon_id(self, channel):
         """ Determines the add-on ID from the add-on to which the channel belongs,
-        e.g.: net.rieter.xot.channel.be
+        e.g.: <!--import addon="plugin.video.retrospect" version="x.x.x" optional="false" /-->.channel.be
 
         @param channel: the channel to determine the CDN folder for.
 
@@ -135,7 +135,7 @@ class TextureHandler:
         return addon_id
 
     def _get_cdn_sub_folder(self, channel):
-        """ Determines the CDN folder, e.g.: net.rieter.xot.channel.be.canvas
+        """ Determines the CDN folder, e.g.: plugin.video.retrospect.channel.be.canvas
 
         @param channel: the channel to determine the CDN folder for.
 

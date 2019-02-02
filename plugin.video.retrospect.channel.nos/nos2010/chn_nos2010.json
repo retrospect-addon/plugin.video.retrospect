@@ -22,7 +22,7 @@
     },
     {
       "order": 2,
-      "value": "label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_password&amp;settingname=NPO.nl password&amp;tabfocus=102)\" option=\"close\"",
+      "value": "label=\"30093\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?action=encryptsetting&amp;settingid=channel_ED8FDB9C-3870-11E2-B1C2-192A6288709B_password&amp;settingname=NPO.nl password&amp;tabfocus=102)\" option=\"close\"",
       "id": "password_set"
     },
     {

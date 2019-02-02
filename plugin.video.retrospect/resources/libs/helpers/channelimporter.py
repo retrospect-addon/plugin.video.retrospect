@@ -277,7 +277,7 @@ class ChannelIndex:
         The last part of the folders in the deploy subfolder are considered the
         channel names. The other part is replaced with the <addon base name>.
         So if the deploy has a folder temp.channelOne and the addon is called
-        net.rieter.xot it will be deployed to net.rieter.xot.channel.channelOne.
+        plugin.video.retrospect it will be deployed to plugin.video.retrospect.channel.channelOne.
 
         The folders are intially removed and then re-created. If the folder in
         the deploy does not have a addon.xml it will not be imported.
@@ -333,7 +333,7 @@ class ChannelIndex:
         #
         #     source_path = os.path.join(deploy_path, deploy)
         #
-        #     # find out if the scriptname is not net.rieter.xot and update
+        #     # find out if the scriptname is not plugin.video.retrospect and update
         #     deploy_parts = deploy.split(".")
         #     dest_deploy = "%s.channel.%s" % (Config.addonDir, deploy_parts[-1])
         #     destination_path = os.path.join(target_folder, dest_deploy)

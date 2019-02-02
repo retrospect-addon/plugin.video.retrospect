@@ -51,7 +51,7 @@
     },
     {
       "order": 3,
-      "value": "id=\"mediaan_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(net.rieter.xot, 0, ?action=encryptsetting&amp;settingid=mediaan_password&amp;settingname=Mediaan Wachtwoord.be&amp;tabfocus=102)\" option=\"close\"",
+      "value": "id=\"mediaan_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?action=encryptsetting&amp;settingid=mediaan_password&amp;settingname=Mediaan Wachtwoord.be&amp;tabfocus=102)\" option=\"close\"",
       "id": "mediaan_password_set"
     },
     {
