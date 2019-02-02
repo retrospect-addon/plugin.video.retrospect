@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="net.rieter.xot.channel.nick"
+<addon id="plugin.video.retrospect.channel.nick"
        version="4.1.7.2"
        name="Retrospect Nickelodeon Channels"
        provider-name="Bas Rieter">

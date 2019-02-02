@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="net.rieter.xot.channel.rtlnl"
+<addon id="plugin.video.retrospect.channel.rtlnl"
        version="4.1.7.2"
        name="Retrospect Dutch RTL Channels"
        provider-name="Bas Rieter">
