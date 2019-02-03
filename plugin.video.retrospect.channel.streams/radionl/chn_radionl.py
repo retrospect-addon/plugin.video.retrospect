@@ -45,16 +45,17 @@ class Channel(chn_class.Channel):
         Logger.debug("Checking '%s' for data", data_path)
         if not os.path.isdir(data_path):
             Logger.info("No data found at '%s', downloading stream data", data_path)
-            url = "http://www.rieter.net/net.rieter.xot.repository/net.rieter.xot.channel.streams/" \
-                  "net.rieter.xot.channel.streams.radionl.data.zip"
+            url = "http://www.rieter.net/repository.retrospect/" \
+                  "plugin.video.retrospect.channel.streams/" \
+                  "plugin.video.retrospect.channel.streams.radionl.data.zip"
 
             # give the user feedback
             progress_dialog = XbmcDialogProgressWrapper(
                 "Downloading Data",
-                "net.rieter.xot.channel.streams.radionl.data.zip", url)
+                "plugin.video.retrospect.channel.streams.radionl.data.zip", url)
 
             # download the zipfile
-            zip_file = UriHandler.download(url, "net.rieter.xot.channel.streams.radionl.data.zip",
+            zip_file = UriHandler.download(url, "plugin.video.retrospect.channel.streams.radionl.data.zip",
                                            self.get_default_cache_path(), progress_dialog)
 
             # and unzip it
