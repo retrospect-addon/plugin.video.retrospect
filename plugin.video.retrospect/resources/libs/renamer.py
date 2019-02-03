@@ -15,14 +15,19 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
 
     old_add_on_id = "net.rieter.xot"
 
+    # If the profile already existed, just stop here.
     if os.path.isdir(new_profile):
         return
 
     import shutil
 
     old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
+
+    # If an old add-on with the old ID was found, disable and rename it.
     if os.path.isdir(old_add_on_path):
-        xbmc.log("Disabling add-on from {}".format(old_add_on_path), 1)
+        xbmc.log("Retrospect: Disabling add-on from {}".format(old_add_on_path), 1)
+
+        # Disable it.
         data = {
             "jsonrpc": "2.0",
             "method": "Addons.SetAddonEnabled",
@@ -31,25 +36,36 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
                 "enabled": False},
             "id": 1
         }
-        result = json.loads(xbmc.executeJSONRPC(json.dumps(data)))
-        if not result or len(result) == 0 or "error" in result[0]:
-            xbmc.log("Error disabling {}".format(old_add_on_id), xbmc.LOGERROR)
+        result = xbmc.executeJSONRPC(json.dumps(data))
+        xbmc.log(result, xbmc.LOGINFO)
+        result = json.loads(result)
+        if not result or "error" in result:
+            xbmc.log("Retrospect: Error disabling {}".format(old_add_on_id), xbmc.LOGERROR)
 
-        # shutil.rmtree(old_add_on_path)
-        # TODO: rename the addon
+        # Rename it.
+        old_add_on_xml = os.path.join(old_add_on_path, "addon.xml")
+        if os.path.exists(old_add_on_xml):
+            with io.open(old_add_on_xml, mode="r") as fp:
+                content = fp.read()
 
+            content = content.replace('name="Retrospect"', 'name="Retrospect OLD ID"')
+            with io.open(old_add_on_xml, mode='w+') as fp:
+                fp.write(content)
+
+    # If there was an old profile, migrate it.
     old_profile = os.path.join(new_profile, "..", old_add_on_id)
     if not os.path.exists(old_profile):
         return
 
-    xbmc.log("Cloning {} addon_data to {}".format(old_add_on_id, add_on_id), 1)
+    xbmc.log("Retrospect: Cloning {} addon_data to {}".format(old_add_on_id, add_on_id), 1)
     shutil.copytree(old_profile, new_profile, ignore=shutil.ignore_patterns("textures"))
 
+    # If there were local setttings, we need to migrate those too so the channel ID's are updated.
     local_settings_file = os.path.join(new_profile, "settings.json")
     if not os.path.exists(local_settings_file):
         return
 
-    xbmc.log("Migrating {}".format(local_settings_file), 1)
+    xbmc.log("Retrospect: Migrating {}".format(local_settings_file), 1)
     with io.open(local_settings_file, mode="rb") as fp:
         content = fp.read()
         settings = json.loads(content, encoding='utf-8')
@@ -58,7 +74,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
     channel_settings = {}
     for channel_id in channel_ids:
         new_channel_id = channel_id.replace(old_add_on_id, add_on_id)
-        xbmc.log("Renaming {} -> {}".format(channel_id, new_channel_id), 1)
+        xbmc.log("Retrospect: Renaming {} -> {}".format(channel_id, new_channel_id), 1)
         channel_settings[new_channel_id] = settings["channels"][channel_id]
 
     settings["channels"] = channel_settings
