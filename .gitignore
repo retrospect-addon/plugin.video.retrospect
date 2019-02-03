@@ -20,3 +20,5 @@
 /webinterface.*
 /screensaver.*
 /repository.*
+/plugin.*
+!/plugin.video.retrospect*
