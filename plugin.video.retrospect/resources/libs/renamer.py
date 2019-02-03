@@ -57,7 +57,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
     if not os.path.exists(old_profile):
         return
 
-    xbmc.log("Retrospect: Cloning {} addon_data to {}".format(old_add_on_id, add_on_id), 1)
+    xbmc.log("Retrospect: Migrating {} addon_data to {}".format(old_add_on_id, add_on_id), 1)
     shutil.copytree(old_profile, new_profile, ignore=shutil.ignore_patterns("textures"))
 
     # If there were local setttings, we need to migrate those too so the channel ID's are updated.
@@ -74,7 +74,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
     channel_settings = {}
     for channel_id in channel_ids:
         new_channel_id = channel_id.replace(old_add_on_id, add_on_id)
-        xbmc.log("Retrospect: Renaming {} -> {}".format(channel_id, new_channel_id), 1)
+        xbmc.log("Retrospect: - Renaming {} -> {}".format(channel_id, new_channel_id), 1)
         channel_settings[new_channel_id] = settings["channels"][channel_id]
 
     settings["channels"] = channel_settings
@@ -85,11 +85,11 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
     # fix the favourites
     favourites_path = os.path.join(new_profile, "favourites")
     if os.path.isdir(favourites_path):
-        xbmc.log("Updating favourites at {}".format(favourites_path), xbmc.LOGINFO)
+        xbmc.log("Retrospect: Updating favourites at {}".format(favourites_path), xbmc.LOGINFO)
         for fav in os.listdir(favourites_path):
             # plugin://net.rieter.xot/
             fav_path = os.path.join(favourites_path, fav)
-            xbmc.log("Updating favourite: {}".format(fav), xbmc.LOGINFO)
+            xbmc.log("Retrospect: - Updating favourite: {}".format(fav), xbmc.LOGINFO)
             with io.open(fav_path, mode='r', encoding='utf-8') as fp:
                 content = fp.read()
 
@@ -98,4 +98,5 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
             with io.open(fav_path, mode='w+', encoding='utf-8') as fp:
                 fp.write(content)
 
+    xbmc.log("Retrospect: Migration completed.")
     return
