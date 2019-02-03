@@ -20,10 +20,23 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
 
     import shutil
 
-    old_add_on_path = os.path.join(kodi_add_on_dir, "..", old_add_on_id)
+    old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
     if os.path.isdir(old_add_on_path):
-        xbmc.log("Removing add-on from {}".format(old_add_on_path), 1)
-        shutil.rmtree(old_add_on_path)
+        xbmc.log("Disabling add-on from {}".format(old_add_on_path), 1)
+        data = {
+            "jsonrpc": "2.0",
+            "method": "Addons.SetAddonEnabled",
+            "params": {
+                "addonid": old_add_on_id,
+                "enabled": False},
+            "id": 1
+        }
+        result = json.loads(xbmc.executeJSONRPC(json.dumps(data)))
+        if not result or len(result) == 0 or "error" in result[0]:
+            xbmc.log("Error disabling {}".format(old_add_on_id), xbmc.LOGERROR)
+
+        # shutil.rmtree(old_add_on_path)
+        # TODO: rename the addon
 
     old_profile = os.path.join(new_profile, "..", old_add_on_id)
     if not os.path.exists(old_profile):
@@ -36,7 +49,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
     if not os.path.exists(local_settings_file):
         return
 
-    xbmc.log("Migrating {} settings.json".format(add_on_id), 1)
+    xbmc.log("Migrating {}".format(local_settings_file), 1)
     with io.open(local_settings_file, mode="rb") as fp:
         content = fp.read()
         settings = json.loads(content, encoding='utf-8')
