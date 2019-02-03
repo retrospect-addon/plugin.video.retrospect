@@ -20,6 +20,9 @@ def run_plugin():
 
     try:
         from config import Config
+        from renamer import migrate_profile
+        migrate_profile(Config.profileDir, Config.addonId)
+
         from helpers.sessionhelper import SessionHelper
 
         # get a logger up and running
