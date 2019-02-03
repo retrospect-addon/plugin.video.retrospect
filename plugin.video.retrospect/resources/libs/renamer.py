@@ -45,11 +45,11 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
         # Rename it.
         old_add_on_xml = os.path.join(old_add_on_path, "addon.xml")
         if os.path.exists(old_add_on_xml):
-            with io.open(old_add_on_xml, mode="r") as fp:
+            with io.open(old_add_on_xml, mode="r", encoding='utf-8') as fp:
                 content = fp.read()
 
             content = content.replace('name="Retrospect"', 'name="Retrospect OLD ID"')
-            with io.open(old_add_on_xml, mode='w+') as fp:
+            with io.open(old_add_on_xml, mode='w+', encoding='utf-8') as fp:
                 fp.write(content)
 
     # If there was an old profile, migrate it.
@@ -81,5 +81,21 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
     with io.open(local_settings_file, mode='w+b') as fp:
         content = json.dumps(settings, indent=4, encoding='utf-8')
         fp.write(content)
+
+    # fix the favourites
+    favourites_path = os.path.join(new_profile, "favourites")
+    if os.path.isdir(favourites_path):
+        xbmc.log("Updating favourites at {}".format(favourites_path), xbmc.LOGINFO)
+        for fav in os.listdir(favourites_path):
+            # plugin://net.rieter.xot/
+            fav_path = os.path.join(favourites_path, fav)
+            xbmc.log("Updating favourite: {}".format(fav), xbmc.LOGINFO)
+            with io.open(fav_path, mode='r', encoding='utf-8') as fp:
+                content = fp.read()
+
+            content = content.replace("plugin://net.rieter.xot/",
+                                      "plugin://plugin.video.retrospect/")
+            with io.open(fav_path, mode='w+', encoding='utf-8') as fp:
+                fp.write(content)
 
     return
