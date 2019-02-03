@@ -17,7 +17,7 @@ class Remote(TextureHandler):
 
         self.__cdnUrl = cdn_url
         if not self.__cdnUrl:
-            self.__cdnUrl = "https://www.rieter.net/net.rieter.xot.cdn/"
+            self.__cdnUrl = "https://cdn.rieter.net/plugin.video.retrospect.cdn/"
 
     def purge_texture_cache(self, channel):
         """ Removes those entries from the textures cache that are no longer required.

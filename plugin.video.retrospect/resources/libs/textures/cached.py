@@ -34,7 +34,7 @@ class Cached(TextureHandler):
 
         self.__cdnUrl = cdn_url
         if not self.__cdnUrl:
-            self.__cdnUrl = "http://www.rieter.net/net.rieter.xot.cdn/"
+            self.__cdnUrl = "https://cdn.rieter.net/plugin.video.retrospect.cdn/"
 
         self.__channelTexturePath = os.path.join(cache_path, "textures")
         self.__channelTextureUri = "%s/%s" % (cache_uri, "textures")
