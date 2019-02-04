@@ -93,10 +93,10 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
             with io.open(fav_path, mode='r', encoding='utf-8') as fp:
                 content = fp.read()
 
-            content = content.replace("plugin://net.rieter.xot/",
-                                      "plugin://plugin.video.retrospect/")
+            content = content.replace("plugin://{}/".format(old_add_on_id),
+                                      "plugin://{}/".format(add_on_id))
             with io.open(fav_path, mode='w+', encoding='utf-8') as fp:
                 fp.write(content)
 
-    xbmc.log("Retrospect: Migration completed.")
+    xbmc.log("Retrospect: Migration completed.", xbmc.LOGINFO)
     return
