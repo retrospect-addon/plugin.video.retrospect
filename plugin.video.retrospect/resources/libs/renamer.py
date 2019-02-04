@@ -2,14 +2,16 @@ import os
 import io
 import json
 import xbmc
+import xbmcgui
 
 
-def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
+def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     """ Migrates the old user profile.
 
-    :param str|unicode new_profile:     The new profile folder
-    :param str|unicode add_on_id:       The new add-on id
-    :param str|unicode kodi_add_on_dir: The Kodi add-on dir
+    :param str|unicode new_profile:     The new profile folder.
+    :param str|unicode add_on_id:       The new add-on id.
+    :param str|unicode kodi_add_on_dir: The Kodi add-on dir.
+    :param str|unicode add_on_name:     The name of the current add-on.
 
     """
 
@@ -21,9 +23,11 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
 
     import shutil
 
-    old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
+    d = xbmcgui.Dialog()
+    d.notification(add_on_name, "Migrating add-on data to new format.", icon="info", time=5)
 
     # If an old add-on with the old ID was found, disable and rename it.
+    old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
     if os.path.isdir(old_add_on_path):
         xbmc.log("Retrospect: Disabling add-on from {}".format(old_add_on_path), 1)
 
@@ -48,9 +52,15 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir):
             with io.open(old_add_on_xml, mode="r", encoding='utf-8') as fp:
                 content = fp.read()
 
-            content = content.replace('name="Retrospect"', 'name="Retrospect OLD ID"')
-            with io.open(old_add_on_xml, mode='w+', encoding='utf-8') as fp:
-                fp.write(content)
+            if "<broken>" not in content:
+                xbmc.log("Retrospect: Marking add-on {} as broken".format(old_add_on_path), 1)
+                content = content.replace(
+                    '</language>',
+                    '</language>\n        '
+                    '<broken>New Add-on is used. Please install version 4.8 or higher.</broken>')
+                with io.open(old_add_on_xml, mode='w+', encoding='utf-8') as fp:
+                    fp.write(content)
+                xbmc.executebuiltin("UpdateLocalAddons")
 
     # If there was an old profile, migrate it.
     old_profile = os.path.join(new_profile, "..", old_add_on_id)
