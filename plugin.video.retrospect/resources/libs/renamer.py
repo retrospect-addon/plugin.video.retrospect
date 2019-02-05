@@ -63,11 +63,12 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
                 xbmc.executebuiltin("UpdateLocalAddons")
 
     # If there was an old profile, migrate it.
-    old_profile = os.path.join(new_profile, "..", old_add_on_id)
+    old_profile = os.path.abspath(os.path.join(new_profile, "..", old_add_on_id))
+    xbmc.log("Retrospect: old Profile located at {}".format(old_profile), xbmc.LOGINFO)
     if not os.path.exists(old_profile):
         return
 
-    xbmc.log("Retrospect: Migrating {} addon_data to {}".format(old_add_on_id, add_on_id), 1)
+    xbmc.log("Retrospect: Migrating addon_data {} to {}".format(old_profile, new_profile), 1)
     shutil.copytree(old_profile, new_profile, ignore=shutil.ignore_patterns("textures"))
 
     # If there were local setttings, we need to migrate those too so the channel ID's are updated.
