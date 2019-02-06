@@ -23,9 +23,6 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
 
     import shutil
 
-    d = xbmcgui.Dialog()
-    d.notification(add_on_name, "Migrating add-on data to new format.", icon="info", time=5)
-
     # If an old add-on with the old ID was found, disable and rename it.
     old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
     if os.path.isdir(old_add_on_path):
@@ -67,6 +64,9 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     xbmc.log("Retrospect: old Profile located at {}".format(old_profile), xbmc.LOGINFO)
     if not os.path.exists(old_profile):
         return
+
+    d = xbmcgui.Dialog()
+    d.notification(add_on_name, "Migrating add-on data to new format.", icon="info", time=5)
 
     xbmc.log("Retrospect: Migrating addon_data {} to {}".format(old_profile, new_profile), 1)
     shutil.copytree(old_profile, new_profile, ignore=shutil.ignore_patterns("textures"))
