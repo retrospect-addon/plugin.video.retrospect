@@ -481,6 +481,7 @@ class Plugin(ParameterParser):
                                               LanguageHelper.get_localized_string(LanguageHelper.NoStreamsId),
                                               XbmcWrapper.Error)
                 Logger.warning("Could not start playback due to missing streams. Item:\n%s", media_item)
+                xbmcplugin.endOfDirectory(self.handle, False)
                 return
 
             play_data = self.channelObject.play_video_item(media_item)
@@ -488,6 +489,7 @@ class Plugin(ParameterParser):
             Logger.debug("Continuing playback in plugin.py")
             if not play_data:
                 Logger.warning("play_video_item did not return valid playdata")
+                xbmcplugin.endOfDirectory(self.handle, False)
                 return
             else:
                 play_list, srt = play_data
@@ -523,6 +525,7 @@ class Plugin(ParameterParser):
                 kodi_player.setSubtitles(srt)
                 kodi_player.showSubtitles(show_subs)
 
+            xbmcplugin.endOfDirectory(self.handle, True)
         except:
             if media_item:
                 Statistics.register_error(self.channelObject, item=media_item)
