@@ -22,6 +22,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
         return
 
     import shutil
+    d = xbmcgui.Dialog()
 
     # If an old add-on with the old ID was found, disable and rename it.
     old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
@@ -58,6 +59,10 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
                 with io.open(old_add_on_xml, mode='w+', encoding='utf-8') as fp:
                     fp.write(content)
                 xbmc.executebuiltin("UpdateLocalAddons")
+            d.ok("Retrospect", "Retrospect changed add-on ID. After the migration has completed, "
+                               "restart Kodi to complete the change. After the restart update "
+                               "any shortcut you had to Retrospect. The Retrospect marked as <broken> "
+                               "can be uninstalled.")
 
     # If there was an old profile, migrate it.
     old_profile = os.path.abspath(os.path.join(new_profile, "..", old_add_on_id))
@@ -65,7 +70,6 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     if not os.path.exists(old_profile):
         return
 
-    d = xbmcgui.Dialog()
     d.notification(add_on_name, "Migrating add-on data to new format.", icon="info", time=5)
 
     xbmc.log("Retrospect: Migrating addon_data {} to {}".format(old_profile, new_profile), 1)
