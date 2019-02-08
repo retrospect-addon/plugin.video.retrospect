@@ -15,7 +15,7 @@ from logger import Logger
 from urihandler import UriHandler
 from addonsettings import AddonSettings
 from helpers.htmlentityhelper import HtmlEntityHelper
-from config import Config
+from retroconfig import Config
 
 
 class Statistics:

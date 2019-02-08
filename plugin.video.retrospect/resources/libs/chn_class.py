@@ -16,7 +16,7 @@ from mediaitem import MediaItem, MediaItemPart
 from regexer import Regexer
 from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
-from config import Config
+from retroconfig import Config
 from initializer import Initializer
 from logger import Logger
 from urihandler import UriHandler

@@ -19,7 +19,7 @@ def run_plugin():
     log_file = None
 
     try:
-        from config import Config
+        from retroconfig import Config
         from renamer import migrate_profile
         migrate_profile(Config.profileDir, Config.addonId, Config.rootDir, Config.appName)
 

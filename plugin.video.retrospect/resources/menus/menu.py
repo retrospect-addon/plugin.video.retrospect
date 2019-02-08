@@ -23,7 +23,7 @@ Initializer.set_unicode()
 Initializer.setup_python_paths()
 sys.path.remove(addOnPath)
 
-from config import Config
+from retroconfig import Config
 from logger import Logger
 Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                      Config.appName,

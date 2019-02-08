@@ -11,7 +11,7 @@ import time
 import os
 
 from regexer import Regexer
-from config import Config
+from retroconfig import Config
 from logger import Logger
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper

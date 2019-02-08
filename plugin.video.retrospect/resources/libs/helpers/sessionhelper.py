@@ -11,7 +11,7 @@
 import os
 import time
 
-from config import Config
+from retroconfig import Config
 
 
 class SessionHelper:

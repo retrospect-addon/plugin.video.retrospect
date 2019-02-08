@@ -14,7 +14,7 @@ import os
 import xbmcgui
 import xbmc
 
-from config import Config
+from retroconfig import Config
 from locker import LockWithDialog
 
 

@@ -16,7 +16,7 @@ import xbmc
 
 from logger import Logger                               # this has not further references
 from proxyinfo import ProxyInfo                         # this has not further references
-from config import Config                               # this has not further references
+from retroconfig import Config                               # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
 from settings import localsettings, kodisettings, settingsstore
 

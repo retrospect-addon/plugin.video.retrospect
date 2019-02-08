@@ -19,7 +19,7 @@ import envcontroller
 from logger import Logger
 from addonsettings import AddonSettings
 from locker import LockWithDialog
-from config import Config
+from retroconfig import Config
 from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
 from initializer import Initializer
 from favourites import Favourites

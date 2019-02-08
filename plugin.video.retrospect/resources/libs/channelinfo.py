@@ -20,7 +20,7 @@ from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
-from config import Config
+from retroconfig import Config
 from addonsettings import AddonSettings
 from helpers.languagehelper import LanguageHelper
 from textures import TextureHandler

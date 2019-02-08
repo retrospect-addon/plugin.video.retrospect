@@ -3,7 +3,7 @@ import os
 import re
 
 import chn_class
-from config import Config
+from retroconfig import Config
 
 from mediaitem import MediaItem
 from helpers.jsonhelper import JsonHelper

@@ -25,7 +25,7 @@ from regexer import Regexer
 from environments import Environments
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
-from config import Config
+from retroconfig import Config
 from channelinfo import ChannelInfo
 from logger import Logger
 from helpers.jsonhelper import JsonHelper

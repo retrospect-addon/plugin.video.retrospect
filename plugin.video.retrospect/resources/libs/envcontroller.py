@@ -16,7 +16,7 @@ import xbmcaddon
 
 from logger import Logger
 from environments import Environments
-from config import Config
+from retroconfig import Config
 
 # Only needed if we want to reinstate my own Kodi repository
 # from xbmcwrapper import XbmcWrapper
