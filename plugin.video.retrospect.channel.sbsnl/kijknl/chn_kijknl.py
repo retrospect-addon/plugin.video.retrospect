@@ -48,7 +48,7 @@ class Channel(chn_class.Channel):
             self.__channelId = "veronicatv"
 
         elif self.channelCode == 'sbs':
-            self.noImage = "sbs6image.png"
+            self.noImage = "sbs6image.jpg"
             self.__channelId = "sbs6"
 
         elif self.channelCode == 'sbs9':
