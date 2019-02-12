@@ -37,7 +37,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     # If an old add-on with the old ID was found, disable and rename it.
     old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
     if os.path.isdir(old_add_on_path):
-        xbmc.log("Retrospect: Disabling add-on from {}".format(old_add_on_path), 1)
+        xbmc.log("Retrospect: Disabling add-on from {}".format(old_add_on_path), log_level)
 
         # Disable it.
         data = {
@@ -61,18 +61,21 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
                 content = fp.read()
 
             if "<broken>" not in content:
-                xbmc.log("Retrospect: Marking add-on {} as broken".format(old_add_on_path), 1)
+                xbmc.log("Retrospect: Marking add-on {} as broken".format(old_add_on_path), log_level)
                 content = content.replace(
                     '</language>',
                     '</language>\n        '
                     '<broken>New Add-on is used. Please install version 4.8 or higher.</broken>')
                 with io.open(old_add_on_xml, mode='w+', encoding='utf-8') as fp:
                     fp.write(content)
-                xbmc.executebuiltin("UpdateLocalAddons")
-            d.ok("Retrospect", "Retrospect changed add-on ID. After the migration has completed, "
+            d.ok("Retrospect", "Retrospect changed add-on ID. The user data will now be migrated, "
+                               "so no data will be lost. After the migration has completed, "
                                "restart Kodi to complete the change. After the restart update "
                                "any shortcut you had to Retrospect. The Retrospect marked as <broken> "
                                "can be uninstalled.")
+
+        xbmc.log("Retrospect: Reloading all Kodi Add-ons information", log_level)
+        xbmc.executebuiltin("UpdateLocalAddons")
 
     # If there was an old profile, migrate it.
     old_profile = os.path.abspath(os.path.join(new_profile, "..", old_add_on_id))
