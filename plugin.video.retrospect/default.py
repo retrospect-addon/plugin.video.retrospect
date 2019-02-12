@@ -20,9 +20,6 @@ def run_plugin():
 
     try:
         from retroconfig import Config
-        from renamer import migrate_profile
-        migrate_profile(Config.profileDir, Config.addonId, Config.rootDir, Config.appName)
-
         from helpers.sessionhelper import SessionHelper
 
         # get a logger up and running
