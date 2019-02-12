@@ -3,6 +3,7 @@ import io
 import json
 import xbmc
 import xbmcgui
+import xbmcaddon
 
 # Initialize all the paths correctly
 from initializer import Initializer  # nopep8
@@ -25,10 +26,10 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     old_add_on_id = "net.rieter.xot"
     log_level = xbmc.LOGNOTICE
 
-    xbmc.log("Retrospect: Checking if migration of profile is required", xbmc.LOGDEBUG)
+    xbmc.log("{}: Checking if migration of profile is required".format(add_on_name), xbmc.LOGDEBUG)
     # If the profile already existed, just stop here.
     if os.path.isdir(new_profile):
-        xbmc.log("Retrospect: Profile already migrated", log_level)
+        xbmc.log("{}: Profile already migrated", log_level)
         return
 
     import shutil
@@ -37,7 +38,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     # If an old add-on with the old ID was found, disable and rename it.
     old_add_on_path = os.path.abspath(os.path.join(kodi_add_on_dir, "..", old_add_on_id))
     if os.path.isdir(old_add_on_path):
-        xbmc.log("Retrospect: Disabling add-on from {}".format(old_add_on_path), log_level)
+        xbmc.log("{}: Disabling add-on from {}".format(add_on_name, old_add_on_path), log_level)
 
         # Disable it.
         data = {
@@ -52,7 +53,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
         xbmc.log(result, log_level)
         result = json.loads(result)
         if not result or "error" in result:
-            xbmc.log("Retrospect: Error disabling {}".format(old_add_on_id), xbmc.LOGERROR)
+            xbmc.log("{}: Error disabling {}".format(add_on_name, old_add_on_id), xbmc.LOGERROR)
 
         # Rename it.
         old_add_on_xml = os.path.join(old_add_on_path, "addon.xml")
@@ -61,31 +62,31 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
                 content = fp.read()
 
             if "<broken>" not in content:
-                xbmc.log("Retrospect: Marking add-on {} as broken".format(old_add_on_path), log_level)
+                xbmc.log("{}: Marking add-on {} as broken".format(
+                    add_on_name, old_add_on_path), log_level)
+
                 content = content.replace(
                     '</language>',
                     '</language>\n        '
                     '<broken>New Add-on is used. Please install version 4.8 or higher.</broken>')
                 with io.open(old_add_on_xml, mode='w+', encoding='utf-8') as fp:
                     fp.write(content)
-            d.ok("Retrospect", "Retrospect changed add-on ID. The user data will now be migrated, "
-                               "so no data will be lost. After the migration has completed, "
-                               "restart Kodi to complete the change. After the restart update "
-                               "any shortcut you had to Retrospect. The Retrospect marked as <broken> "
-                               "can be uninstalled.")
+            text = xbmcaddon.Addon().getLocalizedString(30603)
+            d.ok(add_on_name, text)
 
-        xbmc.log("Retrospect: Reloading all Kodi Add-ons information", log_level)
+        xbmc.log("{}: Reloading all Kodi Add-ons information".format(add_on_name), log_level)
         xbmc.executebuiltin("UpdateLocalAddons")
 
     # If there was an old profile, migrate it.
     old_profile = os.path.abspath(os.path.join(new_profile, "..", old_add_on_id))
-    xbmc.log("Retrospect: old Profile located at {}".format(old_profile), log_level)
+    xbmc.log("{}: old Profile located at {}".format(add_on_name, old_profile), log_level)
     if not os.path.exists(old_profile):
         return
 
     d.notification(add_on_name, "Migrating add-on data to new format.", icon="info", time=5)
 
-    xbmc.log("Retrospect: Migrating addon_data {} to {}".format(old_profile, new_profile), log_level)
+    xbmc.log("{}: Migrating addon_data {} to {}".format(
+        add_on_name, old_profile, new_profile), log_level)
     shutil.copytree(old_profile, new_profile, ignore=shutil.ignore_patterns("textures"))
 
     # If there were local setttings, we need to migrate those too so the channel ID's are updated.
@@ -93,7 +94,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     if not os.path.exists(local_settings_file):
         return
 
-    xbmc.log("Retrospect: Migrating {}".format(local_settings_file), log_level)
+    xbmc.log("{}: Migrating {}".format(add_on_name, local_settings_file), log_level)
     with io.open(local_settings_file, mode="rb") as fp:
         content = fp.read()
         settings = json.loads(content, encoding='utf-8')
@@ -102,7 +103,8 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     channel_settings = {}
     for channel_id in channel_ids:
         new_channel_id = channel_id.replace(old_add_on_id, add_on_id)
-        xbmc.log("Retrospect: - Renaming {} -> {}".format(channel_id, new_channel_id), log_level)
+        xbmc.log("{}: - Renaming {} -> {}".format(
+            add_on_name, channel_id, new_channel_id), log_level)
         channel_settings[new_channel_id] = settings["channels"][channel_id]
 
     settings["channels"] = channel_settings
@@ -113,11 +115,11 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     # fix the favourites
     favourites_path = os.path.join(new_profile, "favourites")
     if os.path.isdir(favourites_path):
-        xbmc.log("Retrospect: Updating favourites at {}".format(favourites_path), log_level)
+        xbmc.log("{}: Updating favourites at {}".format(add_on_name, favourites_path), log_level)
         for fav in os.listdir(favourites_path):
             # plugin://net.rieter.xot/
             fav_path = os.path.join(favourites_path, fav)
-            xbmc.log("Retrospect: - Updating favourite: {}".format(fav), log_level)
+            xbmc.log("{}: - Updating favourite: {}".format(add_on_name, fav), log_level)
             with io.open(fav_path, mode='r', encoding='utf-8') as fp:
                 content = fp.read()
 
@@ -126,7 +128,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
             with io.open(fav_path, mode='w+', encoding='utf-8') as fp:
                 fp.write(content)
 
-    xbmc.log("Retrospect: Migration completed.", log_level)
+    xbmc.log("{}: Migration completed.".format(add_on_name), log_level)
     return
 
 

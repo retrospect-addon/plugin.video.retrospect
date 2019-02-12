@@ -897,3 +897,7 @@ msgstr ""
 msgctxt "#30602"
 msgid "Error posting logfile"
 msgstr ""
+
+msgctxt "#30603"
+msgid "Retrospect changed add-on ID. To prevent data loss, your user data will now be migrated. After this has been done, please restart Kodi to complete migration. After the restart update any shortcut you had to Retrospect. The Retrospect marked as <broken> can be uninstalled."
+msgstr ""
