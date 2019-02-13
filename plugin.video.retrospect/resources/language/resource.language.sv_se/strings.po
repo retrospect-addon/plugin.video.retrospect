@@ -819,3 +819,7 @@ msgstr "Misslyckades att ladda upp loggfilen: %s"
 msgctxt "#30602"
 msgid "Error posting logfile"
 msgstr "Misslyckades att ladda upp loggfilen"
+
+msgctxt "#30603"
+msgid "Retrospect changed add-on ID. To prevent data loss, your user data will now be migrated. After this has been done, please restart Kodi to complete migration. After the restart update any shortcut you had to Retrospect. The Retrospect marked as \"broken\" can be uninstalled."
+msgstr "Retrospect har fått nytt tilläggs-ID. För att du ska kunna behålla dina inställningar görs nu en migrering. När migreringen är klart, starta om Kodi för att slutföra den. Efter omstarten behöver eventuella genvägar till Retrospect göras om. Den Retrospect som är markerad \"trasig\" kan avinstalleras."
