@@ -107,6 +107,24 @@ class Channel(chn_class.Channel):
         # non standard items
         self.__meta_data_index_category = "category_id"
         self.__api_key = "d1381d92278a47c09066460f2522a67d"
+        self.__category_thumbs = {
+            "dokumentar": "https://gfx.nrk.no/i3DzcJ0XTcemgMb_ZyOlFwI-03NRFfBl9pUtzwTRQpTA",
+            "drama-serier": "https://gfx.nrk.no/2HMvppp-47PO0xSWBHM2ZwHm5xp6n_07t54E76ccl5eA",
+            "barn": "https://gfx.nrk.no/xwGsglO0bd4p2bYkTYGOIAE9UCgZSuiEgvFsQEJ3QSFA",
+            "kultur": "https://gfx.nrk.no/RtXpUdc9ChV4XFUuimLh9gLNN4-MmklT0Lvo83bzhI2Q",
+            "humor": "https://gfx.nrk.no/O1oNdMAAjFZkI3ees23gnAL8rZVCiB5eRJOZmkA-A3dg",
+            "underholdning": "https://gfx.nrk.no/ECDmornhSJq6RzV13BOgZwTZjdR4WIaWM2p5n8V6y6Jg",
+            "familie": "https://gfx.nrk.no/aRTqJveqSlE5XZooe6aqzABrNAShEei7kb3uWlxoJ0Zg",
+            "livsstil": "https://gfx.nrk.no/Uox8RfJvIbTXkZeSgrBf9QKLeW2mAsey4nIEwrKkIjsQ",
+            "natur": "https://gfx.nrk.no/0FeIb5ab4eTG-1AYqnZwoQiBwG4GdWUX7yNN2v5jcZvw",
+            "vitenskap": "https://gfx.nrk.no/rTUeAtQs-pqAmCI-gxrBFwVnXefxSaXv1BfsOpXskaCw",
+            "nyheter": "https://gfx.nrk.no/9MpRHSUAmv5G5bi9qdFw3gFHct6todw8sGE_n-KzU6kA",
+            "sport": "https://gfx.nrk.no/YGxIhtvVJQl777nAGEz94gjdA3nvQdwVMVHb5zMg22Vg",
+            "nrk-arkivet": "https://gfx.nrk.no/oWNng0oqTjx-SxPYaCrtZAxlBscGGu3-fV_7w-l6nDfg",
+            "samisk": "https://gfx.nrk.no/OaSWHWFVweeRJ1EigD7iMw_85pz4MH6OuJ1HyN3Wf5Yg",
+            "tegnspraak": "https://gfx.nrk.no/9u2UYEA2-VKZj4U9qT6njQelUZ2FFGE-oOy8f4ZlRP8g",
+            "synstolk": "https://gfx.nrk.no/LtU-m90topVMltAfXaFNqgKPNQ7wQioJTSZOhq-ltiDQ",
+        }
 
         # ==============================================================================================================
         # Test cases:
@@ -235,7 +253,7 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.type = 'folder'
         item.fanart = self.fanart
-        item.thumb = self.noImage
+        item.thumb = self.__category_thumbs.get(category_id.lower(), self.noImage)
         return item
 
     def create_category_episode_item(self, result_set):
