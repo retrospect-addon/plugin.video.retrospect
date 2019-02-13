@@ -4,16 +4,8 @@
 /**/*.lnk
 .scannerwork/**
 
-/net.rieter.xot/resources/libs/debug
-/net.rieter.xot/resources/libs/kodi_debug
-/net.rieter.xot/debugrun.py
-/net.rieter.xot/apiserver.py
-/net.rieter.xot/*.log
-/net.rieter.xot.channel.streams/radionl/data/*
-
 /metadata.*
 /packages
-/plugin.*
 /skin.*
 /script.*
 /service.xbmc.*
@@ -21,3 +13,12 @@
 /webinterface.*
 /screensaver.*
 /repository.*
+/plugin.*
+!/plugin.video.retrospect*
+
+/plugin.video.retrospect/resources/libs/debug
+/plugin.video.retrospect/resources/libs/kodi_debug
+/plugin.video.retrospect/debugrun.py
+/plugin.video.retrospect/apiserver.py
+/plugin.video.retrospect/*.log
+/plugin.video.retrospect.channel.streams/radionl/data/*
