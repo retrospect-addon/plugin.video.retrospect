@@ -117,7 +117,7 @@ class Updater:
 
         if Updater.__regex is None:
             Updater.__regex = re.compile(
-                "^net\.rieter\.xot-\d+\.\d+\.\d+(\.\d+)?(~?(alpha|beta)\d+)?\.zip",
+                r"^(?:plugin\.video\.retrospect|net\.rieter\.xot)-\d+\.\d+\.\d+(\.\d+)?(~?(alpha|beta)\d+)?\.zip",
                 re.IGNORECASE)
 
         return Updater.__regex.match(name) is not None
