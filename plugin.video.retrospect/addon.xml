@@ -117,19 +117,20 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v4.1.7.47 - Changelog - 2019-01-29[/B]
+        <news>[B]Retrospect v4.1.8.0 - Changelog - 2019-02-13[/B]
+
+!! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Fixed: On video playback error the busy dialog would not close and Kodi would wait for ever for Retrospect to finish (Fixes #1096)
-* Fixed: we missed some essential logging on a hard crash
+* Changed: renamed the add-on ID from net.rieter.xot to plugin.video.retrospect. This is more in line with Kodi conventions.
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: TV4 thumbs not showing (Fixes #1097)
-* Fixed: issue with AWS timestamp not being in English (Fixes #1094)
-
+* Added: Category thumbs for NRK.no (Fixes #1100)
+* Updated: NET5, SBS6 and SBS9 textures
+* Added: Warning for Kodi installations without decryption support that want to play live streams in NPOO (See #1099)
         </news>
         <assets>
             <icon>icon.png</icon>

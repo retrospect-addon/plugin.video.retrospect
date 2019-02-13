@@ -1,12 +1,14 @@
-[B]Retrospect v4.1.7.47 - Changelog - 2019-01-29[/B]
+[B]Retrospect v4.1.8.0 - Changelog - 2019-02-13[/B]
+
+!! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Fixed: On video playback error the busy dialog would not close and Kodi would wait for ever for Retrospect to finish (Fixes #1096)
-* Fixed: we missed some essential logging on a hard crash
+* Changed: renamed the add-on ID from net.rieter.xot to plugin.video.retrospect. This is more in line with Kodi conventions.
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: TV4 thumbs not showing (Fixes #1097)
-* Fixed: issue with AWS timestamp not being in English (Fixes #1094)
+* Added: Category thumbs for NRK.no (Fixes #1100)
+* Updated: NET5, SBS6 and SBS9 textures
+* Added: Warning for Kodi installations without decryption support that want to play live streams in NPOO (See #1099)
