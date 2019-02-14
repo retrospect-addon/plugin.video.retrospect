@@ -1,12 +1,13 @@
-[B]Retrospect v4.1.8.0 - Changelog - 2019-02-13[/B]
+[B]Retrospect v4.1.8.1 - Changelog - 2019-02-14[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
 * Changed: renamed the add-on ID from net.rieter.xot to plugin.video.retrospect. This is more in line with Kodi conventions.
+* Fixed: migration fixed if not local settings were present.
 
 [B]GUI/Settings/Language related[/B]
--
+* Updated: UK and NL translation.
 
 [B]Channel related[/B]
 * Added: Category thumbs for NRK.no (Fixes #1100)
