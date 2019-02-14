@@ -823,4 +823,4 @@ msgstr "Fout bij het vesturen"
 
 msgctxt "#30603"
 msgid "Retrospect changed add-on ID. To prevent data loss, your user data will now be migrated. After this has been done, please restart Kodi to complete migration. After the restart update any shortcut you had to Retrospect. The Retrospect marked as <broken> can be uninstalled."
-msgstr "De Retrospect add-on ID is veranderd. De gebruikers-data zal nu worden gemigreerd zodat deze behouden blijft. Nadat dit is afgerond dient Kodi herstart te worden. Na de migratie dienen shortcuts naar Retrospect bijgewerkt te worden. De Retrospect add-on die gemarkeerd is als <Defect> kan daarna worden verwijderd."
+msgstr "De Retrospect add-on ID is veranderd. De gebruikers-data zal nu worden gemigreerd zodat deze behouden blijft. Nadat dit is afgerond dient Kodi herstart te worden. Na de migratie dienen shortcuts naar Retrospect bijgewerkt te worden. De Retrospect add-on die gemarkeerd is als <Defect> onder \"My Add-ons\" kan daarna worden verwijderd."

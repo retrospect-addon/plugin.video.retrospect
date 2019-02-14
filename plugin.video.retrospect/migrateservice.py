@@ -92,26 +92,24 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
 
     # If there were local setttings, we need to migrate those too so the channel ID's are updated.
     local_settings_file = os.path.join(new_profile, "settings.json")
-    if not os.path.exists(local_settings_file):
-        return
+    if os.path.exists(local_settings_file):
+        xbmc.log("{}: Migrating {}.".format(add_on_name, local_settings_file), log_level)
+        with io.open(local_settings_file, mode="rb") as fp:
+            content = fp.read()
+            settings = json.loads(content, encoding='utf-8')
 
-    xbmc.log("{}: Migrating {}.".format(add_on_name, local_settings_file), log_level)
-    with io.open(local_settings_file, mode="rb") as fp:
-        content = fp.read()
-        settings = json.loads(content, encoding='utf-8')
+        channel_ids = settings.get("channels", {})
+        channel_settings = {}
+        for channel_id in channel_ids:
+            new_channel_id = channel_id.replace(old_add_on_id, add_on_id)
+            xbmc.log("{}: - Renaming {} -> {}.".format(
+                add_on_name, channel_id, new_channel_id), log_level)
+            channel_settings[new_channel_id] = settings["channels"][channel_id]
 
-    channel_ids = settings.get("channels", {})
-    channel_settings = {}
-    for channel_id in channel_ids:
-        new_channel_id = channel_id.replace(old_add_on_id, add_on_id)
-        xbmc.log("{}: - Renaming {} -> {}.".format(
-            add_on_name, channel_id, new_channel_id), log_level)
-        channel_settings[new_channel_id] = settings["channels"][channel_id]
-
-    settings["channels"] = channel_settings
-    with io.open(local_settings_file, mode='w+b') as fp:
-        content = json.dumps(settings, indent=4, encoding='utf-8')
-        fp.write(content)
+        settings["channels"] = channel_settings
+        with io.open(local_settings_file, mode='w+b') as fp:
+            content = json.dumps(settings, indent=4, encoding='utf-8')
+            fp.write(content)
 
     # fix the favourites
     favourites_path = os.path.join(new_profile, "favourites")
