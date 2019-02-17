@@ -392,7 +392,7 @@ class Plugin(ParameterParser):
 
             if len(media_items) == 0:
                 Logger.warning("process_folder_list returned %s items", len(media_items))
-                ok = self.__show_empty_information(media_items)
+                ok = self.__show_empty_information(media_items, favs=favorites is not None)
             else:
                 Logger.debug("process_folder_list returned %s items", len(media_items))
 
@@ -446,7 +446,7 @@ class Plugin(ParameterParser):
             xbmcplugin.setContent(handle=self.handle, content=self.contentType)
 
             xbmcplugin.endOfDirectory(self.handle, ok)
-        except:
+        except Exception as e:
             Statistics.register_error(self.channelObject)
             XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                           LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
@@ -760,13 +760,20 @@ class Plugin(ParameterParser):
         elif behaviour == "dummy" and not favs:
             # We should add a dummy items, but not for favs
             empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
-            empty_list_item.icon = self.channelObject.icon
-            empty_list_item.thumb = self.channelObject.noImage
-            empty_list_item.fanart = self.channelObject.fanart
+            if self.channelObject:
+                empty_list_item.icon = self.channelObject.icon
+                empty_list_item.thumb = self.channelObject.noImage
+                empty_list_item.fanart = self.channelObject.fanart
+            else:
+                icon = os.path.join(Config.rootDir, "icon.png")
+                fanart = os.path.join(Config.rootDir, "fanart.jpg")
+                empty_list_item.icon = icon
+                empty_list_item.thumb = fanart
+                empty_list_item.fanart = fanart
+
             empty_list_item.dontGroup = True
             empty_list_item.description = "This listing was left empty intentionally."
             empty_list_item.complete = True
-            empty_list_item.fanart = self.channelObject.fanart
             # add funny stream here?
             # part = empty_list_item.create_new_empty_media_part()
             # for s, b in YouTube.get_streams_from_you_tube("", self.channelObject.proxy):
