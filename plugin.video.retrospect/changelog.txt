@@ -1,15 +1,12 @@
-[B]Retrospect v4.1.8.1 - Changelog - 2019-02-14[/B]
+[B]Retrospect v4.1.8.2 - Changelog - 2019-02-18[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Changed: renamed the add-on ID from net.rieter.xot to plugin.video.retrospect. This is more in line with Kodi conventions.
-* Fixed: migration fixed if not local settings were present.
+* Fixed: Empty favourites list caused an error (Fixes #1104)
 
 [B]GUI/Settings/Language related[/B]
-* Updated: UK and NL translation.
+* Updated: Swedish translation (See #1105)
 
 [B]Channel related[/B]
-* Added: Category thumbs for NRK.no (Fixes #1100)
-* Updated: NET5, SBS6 and SBS9 textures
-* Added: Warning for Kodi installations without decryption support that want to play live streams in NPOO (See #1099)
+* Fixed: RTV Oost Live stream (Fixes #1106)
