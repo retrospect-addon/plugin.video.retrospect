@@ -1,12 +1,13 @@
-[B]Retrospect v4.1.8.2 - Changelog - 2019-02-18[/B]
+[B]Retrospect v4.1.8.3 - Changelog - 2019-02-20[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Fixed: Empty favourites list caused an error (Fixes #1104)
+-
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Swedish translation (See #1105)
+-
 
 [B]Channel related[/B]
-* Fixed: RTV Oost Live stream (Fixes #1106)
+* Fixed: Some ViaFree streams did not play (Fixes #1107)
+* Fixed: some radio live streams did not play (Fixes #1108)
