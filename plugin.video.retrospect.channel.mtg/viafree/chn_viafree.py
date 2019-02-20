@@ -652,22 +652,24 @@ class Channel(chn_class.Channel):
                         part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt', proxy=self.proxy)
 
             elif url.startswith("rtmp"):
-                # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4
-                old_url = url
-                if not url.endswith(".flv") and not url.endswith(".mp4"):
-                    url += '.mp4'
-
-                if "/mp4:" in url:
-                    # in this case we need to specifically set the path
-                    # url = url.replace('/mp4:', '//') -> don't do this, but specify the path
-                    server, path = url.split("mp4:", 1)
-                    url = "%s playpath=mp4:%s" % (server, path)
-
-                if old_url != url:
-                    Logger.debug("Updated URL from - to:\n%s\n%s", old_url, url)
-
-                url = self.get_verifiable_video_url(url)
-                part.append_media_stream(url, q[1])
+                continue
+                # These do no longer seem to work
+                # # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4
+                # old_url = url
+                # if not url.endswith(".flv") and not url.endswith(".mp4"):
+                #     url += '.mp4'
+                #
+                # if "/mp4:" in url:
+                #     # in this case we need to specifically set the path
+                #     # url = url.replace('/mp4:', '//') -> don't do this, but specify the path
+                #     server, path = url.split("mp4:", 1)
+                #     url = "%s playpath=mp4:%s" % (server, path)
+                #
+                # if old_url != url:
+                #     Logger.debug("Updated URL from - to:\n%s\n%s", old_url, url)
+                #
+                # url = self.get_verifiable_video_url(url)
+                # part.append_media_stream(url, q[1])
 
             elif "[empty]" in url:
                 Logger.debug("Found post-live url with '[empty]' in it. Ignoring this.")
