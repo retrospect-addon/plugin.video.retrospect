@@ -894,6 +894,7 @@ class Channel(chn_class.Channel):
                 continue
             item.url = "http://e.omroep.nl/metadata/%(url)s" % stream
             item.complete = False
+            item.type = "video"
             return item
 
         # else the radio streams
