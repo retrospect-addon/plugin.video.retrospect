@@ -29,9 +29,9 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         self.noImage = "24classicsimage.png"
-        self.mainListUri = "http://www.24classics.com/app/core/server_load.php?" \
+        self.mainListUri = "https://www.24classics.com/app/core/server_load.php?" \
                            "r=default&page=luister&serial=&subserial=&hook="
-        self.baseUrl = "http://www.24classics.com"
+        self.baseUrl = "https://www.24classics.com"
 
         # setup the main parsing data
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
@@ -100,8 +100,8 @@ class Channel(chn_class.Channel):
         description = result_set.get("description", "")
         description_nl = result_set.get("introduction_lan1", "")
         thumb = result_set["image_full"]
-        url = "http://www.24classics.com/app/core/server_load.php?" \
-              "r=default&page=luister&serial=&subserial=&hook=%(hook)s" % result_set
+        url = "https://www.24classics.com/app/core/server_load.php?" \
+              "r=default&page=luister&serial=&subserial=&hook=%s" % (result_set["hook"],)
 
         item = MediaItem(title, url)
         item.icon = self.icon
@@ -132,7 +132,7 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
         title = "%(composers)s - %(title)s" % result_set
-        url = "http://www.24classics.com/app/ajax/auth.php?serial=%(serial)s" % result_set
+        url = "https://www.24classics.com/app/ajax/auth.php?serial=%(serial)s" % result_set
 
         item = MediaItem(title, url)
         item.icon = self.icon

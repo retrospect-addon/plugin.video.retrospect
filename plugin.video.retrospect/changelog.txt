@@ -13,4 +13,4 @@
 * Fixed: Abort NPO stream checking if no URL is found (See #1114)
 * Fixed: NPO now uses Widevine streams only. Older items are no longer available without a paid account (Fixes #1114)
 * Fixed: Kijk.nl more DRM protected streams did not work (Fixes #1116)
-
+* Fixed: 24 Classic moved to https which broke the channel (Fixes #1111)
