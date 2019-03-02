@@ -523,7 +523,9 @@ class Plugin(ParameterParser):
                 XbmcWrapper.wait_for_player_to_start(kodi_player, logger=Logger.instance(), url=resolved_url)
 
                 kodi_player.setSubtitles(srt)
-                kodi_player.showSubtitles(show_subs)
+
+            # set the mode (if the InputStream Adaptive add-on is used, we also need to set it)
+            kodi_player.showSubtitles(show_subs)
 
             xbmcplugin.endOfDirectory(self.handle, True)
         except:

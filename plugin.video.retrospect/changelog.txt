@@ -4,6 +4,7 @@
 
 [B]Framework related[/B]
 * Fixed: On download error for subtitle, don't continue
+* Fixed: subtitle setting was ignore if InputStream Adaptive add-on was use for streams (See #1114)
 
 [B]GUI/Settings/Language related[/B]
 -
