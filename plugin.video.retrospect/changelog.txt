@@ -3,11 +3,11 @@
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
--
+* Fixed: On download error for subtitle, don't continue
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Some ViaFree streams did not play (Fixes #1107)
-* Fixed: some radio live streams did not play (Fixes #1108)
+* Fixed: Abort NPO stream checking if no URL is found (See #1114)
+* Fixed: NPO now uses Widevine streams only. Older items are no longer available without a paid account (Fixes #1114)

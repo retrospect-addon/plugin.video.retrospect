@@ -77,6 +77,8 @@ class NpoStream:
         data = UriHandler.open(stream_data_url, proxy=proxy, additional_headers=headers)
         stream_data = JsonHelper(data)
         stream_url = stream_data.get_value("stream", "src")
+        if stream_url is None:
+            return
 
         # Encryption?
         license_url = stream_data.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")

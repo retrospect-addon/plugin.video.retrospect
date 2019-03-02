@@ -8,7 +8,6 @@ from regexer import Regexer
 from helpers import subtitlehelper
 from helpers.jsonhelper import JsonHelper
 from streams.npostream import NpoStream
-from streams.mpd import Mpd
 from urihandler import UriHandler
 from helpers.datehelper import DateHelper
 from parserdata import ParserData
@@ -75,7 +74,7 @@ class Channel(chn_class.Channel):
                               updater=self.update_from_poms)
 
         # Standard updater
-        self._add_data_parser("*",
+        self._add_data_parser("*", requires_logon=True,
                               updater=self.update_video_item)
 
         # recent and popular stuff and other Json data
@@ -295,16 +294,16 @@ class Channel(chn_class.Channel):
         items.append(search)
 
         # Favorite items that require login
-        # favs = MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
-        # favs.complete = True
-        # favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
-        #                    "wordt nog niet ondersteund."
-        # favs.icon = self.icon
-        # favs.thumb = self.noImage
-        # favs.dontGroup = True
-        # favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        # favs.set_date(2200, 1, 1, text="")
-        # items.append(favs)
+        favs = MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
+        favs.complete = True
+        favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
+                           "wordt nog niet ondersteund."
+        favs.icon = self.icon
+        favs.thumb = self.noImage
+        favs.dontGroup = True
+        favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        favs.set_date(2200, 1, 1, text="")
+        items.append(favs)
 
         extra = MediaItem("Live Radio", "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
@@ -1010,17 +1009,8 @@ class Channel(chn_class.Channel):
             else:
                 json_urls = Regexer.do_regex('<npo-player media-id="([^"]+)"', html_data)
 
-            use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
-            if not use_adaptive:
-                XbmcWrapper.show_dialog(
-                    LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
-                    LanguageHelper.get_localized_string(LanguageHelper.DrmText))
-                return item
-
             for episode_id in json_urls:
-                if use_adaptive:
-                    return self.__update_dash_item(item, episode_id)
-                return self.__update_video_item(item, episode_id)
+                return self.__update_video_item(item, episode_id, False)
 
             Logger.warning("Cannot update live item: %s", item)
             return item
@@ -1028,46 +1018,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def __update_dash_item(self, item, episode_id):
-        """ Updates an existing MediaItem with more data based on Dash video encoding.
-
-        Used to update none complete MediaItems (self.complete = False). This
-        could include opening the item's URL to fetch more data and then process that
-        data or retrieve it's real media-URL.
-
-        The method should at least:
-        * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
-        * set self.complete = True.
-
-        if the returned item does not have a MediaItemPart then the self.complete flag
-        will automatically be set back to False.
-
-        :param MediaItem item:  the original MediaItem that needs updating.
-        :param str episode_id:  the ID of the episode.
-
-        :return: The original item with more data added to it's properties.
-        :rtype: MediaItem
-
-        """
-
-        url = "https://start-player.npo.nl/video/{0}/streams?profile=dash-widevine&" \
-              "quality=npo&streamType=livetv&mobile=0&ios=0&isChromecast=0".format(episode_id)
-        dash_data = UriHandler.open(url, proxy=self.proxy)
-        dash_json = JsonHelper(dash_data)
-        dash_url = dash_json.get_value("stream", "src")
-        dash_license_url = dash_json.get_value("stream", "keySystemOptions", 0, "options", "licenseUrl")
-        dash_headers = dash_json.get_value("stream", "keySystemOptions", 0, "options", "httpRequestHeaders")
-        dash_headers[u"Referer"] = unicode(url)
-        dash_license = Mpd.get_license_key(dash_license_url, key_headers=dash_headers, key_type="R")
-
-        part = item.create_new_empty_media_part()
-        stream = part.append_media_stream(dash_url, 0)
-        Mpd.set_input_stream_addon_input(stream, self.proxy, dash_headers, license_key=dash_license)
-        item.complete = True
-        return item
-
-    def __update_video_item(self, item, episode_id):
+    def __update_video_item(self, item, episode_id, fetch_subtitles=True):
         """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
@@ -1082,8 +1033,9 @@ class Channel(chn_class.Channel):
         if the returned item does not have a MediaItemPart then the self.complete flag
         will automatically be set back to False.
 
-        :param MediaItem item:  the original MediaItem that needs updating.
-        :param str episode_id:  the ID of the episode.
+        :param MediaItem item:          the original MediaItem that needs updating.
+        :param str episode_id:          the ID of the episode.
+        :param bool fetch_subtitles:    should we fetch the subtitles (not for live items).
 
         :return: The original item with more data added to it's properties.
         :rtype: MediaItem
@@ -1092,22 +1044,24 @@ class Channel(chn_class.Channel):
 
         Logger.trace("Using Generic update_video_item method")
 
-        # get the subtitle
-        sub_title_url = "http://tt888.omroep.nl/tt888/%s" % (episode_id,)
-        sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
-            sub_title_url, episode_id + ".srt", format='srt', proxy=self.proxy)
-
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
-        part.Subtitle = sub_title_path
+
+        # get the subtitle
+        if fetch_subtitles:
+            sub_title_url = "https://rs.poms.omroep.nl/v1/api/subtitles/%s/nl_NL/CAPTION.vtt" % (episode_id,)
+            sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
+                sub_title_url, episode_id + ".nl.srt", format='srt', proxy=self.proxy)
+            if sub_title_path:
+                part.Subtitle = sub_title_path
 
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=True):
             NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy)
             item.complete = True
         else:
-            for s, b in NpoStream.get_streams_from_npo(None, episode_id, proxy=self.proxy):
-                item.complete = True
-                part.append_media_stream(s, b)
+            XbmcWrapper.show_dialog(
+                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
+                LanguageHelper.get_localized_string(LanguageHelper.DrmText))
 
         return item
 

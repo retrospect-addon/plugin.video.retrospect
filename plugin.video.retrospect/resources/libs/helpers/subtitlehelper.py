@@ -86,6 +86,9 @@ class SubtitleHelper:
 
             Logger.trace("Opening Subtitle URL")
             raw = UriHandler.open(url, proxy=proxy)
+            if UriHandler.instance().status.error:
+                Logger.warning("Could not retrieve subtitle from %s", url)
+                return ""
 
             if raw == "":
                 Logger.warning("Empty Subtitle path found. Not setting subtitles.")
@@ -163,7 +166,7 @@ class SubtitleHelper:
 
         """
 
-        regex = '"startMillis":(\d+),"endMillis":(\d+),"text":"(.+?)(?=["] *,)'
+        regex = r'"startMillis":(\d+),"endMillis":(\d+),"text":"(.+?)(?=["] *,)'
         subs = Regexer.do_regex(regex, json_subtitle)
 
         # Init some stuff
@@ -172,7 +175,6 @@ class SubtitleHelper:
 
         for sub in subs:
             try:
-                # print sub
                 start = SubtitleHelper.__convert_to_time(sub[0])
                 end = SubtitleHelper.__convert_to_time(sub[1])
 
@@ -223,8 +225,8 @@ class SubtitleHelper:
 
         """
 
-        parse_regex = '<subtitle[^>]+spotnumber="(\d+)" timein="(\d+:\d+:\d+):(\d+)" ' \
-                      'timeout="(\d+:\d+:\d+):(\d+)"[^>]+>|<text[^>]+>([^<]+)</text>'
+        parse_regex = r'<subtitle[^>]+spotnumber="(\d+)" timein="(\d+:\d+:\d+):(\d+)" ' \
+                      r'timeout="(\d+:\d+:\d+):(\d+)"[^>]+>|<text[^>]+>([^<]+)</text>'
         parse_regex = parse_regex.replace('"', '["\']')
         subs = Regexer.do_regex(parse_regex, dc_subtitle)
 
@@ -312,7 +314,7 @@ class SubtitleHelper:
 
         """
 
-        pars_regex = '<p[^>]+begin="([^"]+)\.(\d+)"[^>]+end="([^"]+)\.(\d+)"[^>]*>([\w\W]+?)</p>'
+        pars_regex = r'<p[^>]+begin="([^"]+)\.(\d+)"[^>]+end="([^"]+)\.(\d+)"[^>]*>([\w\W]+?)</p>'
         subs = Regexer.do_regex(pars_regex, ttml)
 
         srt = ""
@@ -320,11 +322,9 @@ class SubtitleHelper:
 
         for sub in subs:
             try:
-                # print sub
                 start = "%s,%03d" % (sub[0], int(sub[1]))
                 end = "%s,%03d" % (sub[2], int(sub[3]))
                 text = sub[4].replace("<br />", "\n")
-                # text = sub[4].replace("<br />", "\n")
                 text = HtmlEntityHelper.convert_html_entities(text)
                 text = text.replace("\r\n", "")
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
@@ -350,11 +350,11 @@ class SubtitleHelper:
             text
 
         """
-        pars_regex = '<sync start="(\d+)"><p[^>]+>([^<]+)</p></sync>\W+<sync start="(\d+)">'
+        pars_regex = r'<sync start="(\d+)"><p[^>]+>([^<]+)</p></sync>\W+<sync start="(\d+)">'
         subs = Regexer.do_regex(pars_regex, sami)
 
         if len(subs) == 0:
-            pars_regex2 = '<sync start=(\d+)>\W+<p[^>]+>([^\n]+)\W+<sync start=(\d+)>'
+            pars_regex2 = r'<sync start=(\d+)>\W+<p[^>]+>([^\n]+)\W+<sync start=(\d+)>'
             subs = Regexer.do_regex(pars_regex2, sami)
 
         srt = ""
@@ -362,12 +362,10 @@ class SubtitleHelper:
 
         for sub in subs:
             try:
-                # print sub
                 start = SubtitleHelper.__convert_to_time(sub[0])
                 end = SubtitleHelper.__convert_to_time(sub[2])
                 text = sub[1]
                 text = HtmlEntityHelper.convert_html_entities(text)
-                # text = sub[1]
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text)
                 i += 1
             except:
