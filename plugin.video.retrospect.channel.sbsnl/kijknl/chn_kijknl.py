@@ -351,7 +351,7 @@ class Channel(chn_class.Channel):
         # }
         # https://api.kijk.nl/v1/default/seasons/achtergeslotendeuren.net5/2/episodes?limit=100&offset=1
 
-        url = "{episodesLink}?limit=100&offset=1".format(**result_set)
+        url = "{}?limit=100&offset=1".format(result_set["episodesLink"])
         item = MediaItem(result_set["title"], url)
         item.fanart = self.parentItem.fanart
         item.thumb = self.parentItem.thumb
@@ -381,7 +381,7 @@ class Channel(chn_class.Channel):
 
         use_season = False
         if use_season:
-            url = "https://api.kijk.nl/v2/templates/page/format/{id}".format(**result_set)
+            url = "https://api.kijk.nl/v2/templates/page/format/{}".format(result_set["id"])
         else:
             url = "https://api.kijk.nl/v1/default/sections/series-%(id)s_Episodes-season-0?limit=100&offset=0" % result_set
 
@@ -506,9 +506,15 @@ class Channel(chn_class.Channel):
             Logger.warning("No normal stream found. Trying newer method")
             new_url = item.url.replace("https://embed.kijk.nl/api/", "https://embed.kijk.nl/")
             item.url = new_url[:new_url.index("?")]
-            return self.__update_encrypted_video(item)
+            return self.__update_embedded_video(item)
 
         json = JsonHelper(data)
+        embed_url = json.get_value("metadata", "embedURL")
+        if embed_url:
+            Logger.warning("Embed URL found. Using that to determine the streams.")
+            item.url = embed_url
+            return self.__update_embedded_video(item)
+
         use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
         mpd_info = json.get_value("entitlements", "play")
 
@@ -573,7 +579,7 @@ class Channel(chn_class.Channel):
 
         return self.__update_video_from_brightcove(item, data, use_adaptive_with_encryption)
 
-    def __update_encrypted_video(self, item):
+    def __update_embedded_video(self, item):
         """ Updates video items that are encrypted. This could be the default for Krypton!
 
         :param MediaItem item: The item to update.
