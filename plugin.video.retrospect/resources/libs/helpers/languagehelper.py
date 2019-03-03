@@ -37,12 +37,7 @@ class LanguageHelper:
     BitrateSelection = 30020
 
     ChannelSelection = 30507
-    # InitializingId = 30531
-    # ImportCommonId = 30532
-    # DeterminSkinId = 30533
-    # CheckForUpdatesId = 30534
-    # RepoVerificationId = 30535
-    # CacheCheckId = 30536
+    WidevineLeiaRequired = 30536
 
     Page = 30537
     NoLiveStreamId = 30538

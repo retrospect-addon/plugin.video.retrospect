@@ -477,10 +477,12 @@ class AddonSettings(object):
         return client_id
 
     @staticmethod
-    def use_adaptive_stream_add_on(with_encryption=False):
+    def use_adaptive_stream_add_on(with_encryption=False, ignore_add_on_config=False):
         """ Should we use the Adaptive Stream add-on?
 
-        :param bool with_encryption: do we need to decrypte script
+        :param bool with_encryption:        do we need to decrypte script.
+        :param bool ignore_add_on_config:   ignore the Retrospect setting, use the InputStream
+                                            Adaptive add-onand only validate other criteria.
 
         :return: Indication whether the Adaptive Stream add-on is available.
         :rtype: bool
@@ -490,7 +492,12 @@ class AddonSettings(object):
         # check the Retrospect add-on setting perhaps?
         use_add_on = \
             AddonSettings.store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
-        if not use_add_on:
+
+        if ignore_add_on_config:
+            Logger.debug(
+                "Ignoring Retrospect setting use_adaptive_addon=%s and using it anyways.", use_add_on)
+
+        elif not use_add_on:
             Logger.info("Adaptive Stream add-on disabled from Retrospect settings")
             return use_add_on
 

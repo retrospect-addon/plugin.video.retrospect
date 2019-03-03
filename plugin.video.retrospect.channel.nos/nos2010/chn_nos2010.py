@@ -1055,13 +1055,14 @@ class Channel(chn_class.Channel):
             if sub_title_path:
                 part.Subtitle = sub_title_path
 
-        if AddonSettings.use_adaptive_stream_add_on(with_encryption=True):
+        if AddonSettings.use_adaptive_stream_add_on(
+                with_encryption=True, ignore_add_on_config=True):
             NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy)
             item.complete = True
         else:
             XbmcWrapper.show_dialog(
                 LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
-                LanguageHelper.get_localized_string(LanguageHelper.DrmText))
+                LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired))
 
         return item
 

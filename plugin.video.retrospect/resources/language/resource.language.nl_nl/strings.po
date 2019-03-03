@@ -601,6 +601,10 @@ msgctxt "#30535"
 msgid "Installation of Widevine completed!"
 msgstr "Widevine installatie gelukt"
 
+msgctxt "#30536"
+msgid "This stream requires Kodi Leia and Widevine libraries to be installed."
+msgstr "Deze stream heeft minimaal Kodi Leia nodig en geinstalleerde Widevine libraries."
+
 msgctxt "#30537"
 msgid "Page"
 msgstr "Pagina"

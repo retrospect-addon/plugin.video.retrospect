@@ -673,6 +673,10 @@ msgctxt "#30535"
 msgid "Installation of Widevine completed!"
 msgstr ""
 
+msgctxt "#30536"
+msgid "This stream requires Kodi Leia and Widevine libraries to be installed."
+msgstr ""
+
 #<string id="30536"></string>
 #empty string with id 30536
 

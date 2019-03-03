@@ -5,6 +5,7 @@
 [B]Framework related[/B]
 * Fixed: On download error for subtitle, don't continue
 * Fixed: subtitle setting was ignore if InputStream Adaptive add-on was use for streams (See #1114)
+* Changed: always use the InputStream Adaptive add-on for NPO Start and show a correct message if Kodi Leia is not found.
 
 [B]GUI/Settings/Language related[/B]
 -
