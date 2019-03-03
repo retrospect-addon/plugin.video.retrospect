@@ -308,10 +308,12 @@ class EnvController:
         """
 
         # let's import htis one here
-        import glob
+        import fnmatch
 
         try:
-            Logger.info("Cleaning up cache in '%s' that is older than %s days", path, cache_time / 24 / 3600)
+            Logger.info("Cleaning up cache in '%s' that is older than %s days",
+                        os.path.join(path, "**", mask), cache_time / 24 / 3600)
+
             if not os.path.exists(path):
                 Logger.info("Did not cleanup cache: folder does not exist")
                 return
@@ -320,18 +322,24 @@ class EnvController:
             file_count = 0
 
             #for item in os.listdir(path):
-            path_mask = os.path.join(path, mask)
-            for item in glob.glob(path_mask):
-                file_name = os.path.join(path, item)
-                if os.path.isfile(file_name):
-                    Logger.trace(file_name)
-                    file_count += 1
-                    create_time = os.path.getctime(file_name)
-                    if create_time + cache_time < time.time():
-                        os.remove(file_name)
-                        Logger.debug("Removed file: %s", file_name)
-                        delete_count += 1
-            Logger.info("Removed %s of %s files from cache in: '%s'", delete_count, file_count, path_mask)
+            current_dir = None
+            for root, dirs, files in os.walk(path):
+                if current_dir != root:
+                    Logger.debug("Cleaning cache folder: %s", root)
+                    current_dir = root
+
+                for basename in files:
+                    if fnmatch.fnmatch(basename, mask):
+                        filename = os.path.join(root, basename)
+                        Logger.trace("Inspecting: %s", filename)
+                        file_count += 1
+                        create_time = os.path.getctime(filename)
+                        if create_time + cache_time < time.time():
+                            os.remove(filename)
+                            Logger.debug("Removed file: %s", filename)
+                            delete_count += 1
+
+            Logger.info("Removed %s of %s files from cache in: '%s'", delete_count, file_count, path)
         except:
             Logger.critical("Error cleaning the cachefolder: %s", path, exc_info=True)
 
