@@ -3,15 +3,11 @@
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Fixed: On download error for subtitle, don't continue
-* Fixed: subtitle setting was ignore if InputStream Adaptive add-on was use for streams (See #1114)
-* Changed: always use the InputStream Adaptive add-on for NPO Start and show a correct message if Kodi Leia is not found.
+* Changed: use paste.kodi.tv for posting log files (1 MB limit)
+* Fixed: properly clean cache
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Abort NPO stream checking if no URL is found (See #1114)
-* Fixed: NPO now uses Widevine streams only. Older items are no longer available without a paid account (Fixes #1114)
-* Fixed: Kijk.nl more DRM protected streams did not work (Fixes #1116)
-* Fixed: 24 Classic moved to https which broke the channel (Fixes #1111)
+-

@@ -446,7 +446,7 @@ class Plugin(ParameterParser):
             xbmcplugin.setContent(handle=self.handle, content=self.contentType)
 
             xbmcplugin.endOfDirectory(self.handle, ok)
-        except Exception as e:
+        except Exception:
             Statistics.register_error(self.channelObject)
             XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                           LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
@@ -796,7 +796,7 @@ class Plugin(ParameterParser):
         """ Send log files via Pastbin or Gist. """
 
         from helpers.logsender import LogSender
-        sender_mode = 'pastebin'
+        sender_mode = 'hastebin'
         log_sender = LogSender(Config.logSenderApi, logger=Logger.instance(), mode=sender_mode)
         try:
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostSuccessTitle)

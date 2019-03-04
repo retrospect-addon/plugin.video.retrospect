@@ -6,7 +6,7 @@ from helpers.jsonhelper import JsonHelper
 
 
 class LogSender:
-    def __init__(self, api_key, logger=None, proxy=None, mode='gist'):
+    def __init__(self, api_key, logger=None, proxy=None, mode='hastebin'):
         """
         @param api_key: the API key for pastebin or gist
         @param logger: a possible Logger object
@@ -22,8 +22,13 @@ class LogSender:
         self.__proxy = proxy
 
         self.__mode = mode
+        self.__maxCharCount = None
+        self.__maxSize = None
+
         if mode == 'pastebin':
             self.__maxSize = 475 * 1024  # max is 500 kB but we play it safe
+        elif mode == 'hastebin':
+            self.__maxCharCount = 1000000
         elif mode == 'gist':
             self.__maxSize = 25 * 1024 * 1024  # max is 1000 kB for displaying, none for raw
         else:
@@ -100,6 +105,8 @@ class LogSender:
 
         if self.__mode == 'pastebin':
             return self.__send_paste_bin(name, code, expire, paste_format, user_key)
+        elif self.__mode == 'hastebin':
+            return self.__send_haste_bin(code)
         else:
             return self.__send_git_hub_gist(name, code)
 
@@ -165,7 +172,6 @@ class LogSender:
 
         if self.__logger:
             self.__logger.debug("Posting %d chars to pastebin.com", len(code))
-            # self.__logger.Trace("POST params: %s", post_params)
 
         data = UriHandler.open("http://pastebin.com/api/api_post.php", params=post_params,
                                proxy=self.__proxy)
@@ -178,22 +184,53 @@ class LogSender:
 
         return data
 
+    def __send_haste_bin(self, code):
+        """ Sends a logfile to paste.kodi.tv
+
+        :param str code:    The content to post
+        """
+
+        response = UriHandler.open("https://paste.kodi.tv/documents", data=code, proxy=self.__proxy)
+        json = JsonHelper(response)
+        key = json.get_value("key")
+        if not key:
+            raise IOError(json.get_value("message"))
+
+        url = "https://paste.kodi.tv/{}".format(key)
+
+        if self.__logger:
+            self.__logger.info("HasteBin Url: %s", url)
+        return url
+
     def __read_file_bytes(self, file_path):
         code = ""
         with open(file_path) as fp:
-            fp.seek(0, os.SEEK_END)
-            size = fp.tell()
-            fp.seek(0, os.SEEK_SET)
-            if size > self.__maxSize:
-                if self.__logger:
-                    self.__logger.warning("Filesize too large: %s, posting last %s kB",
-                                          size, self.__maxSize / 1024)
+            if self.__maxSize:
+                fp.seek(0, os.SEEK_END)
+                size = fp.tell()
+                fp.seek(0, os.SEEK_SET)
+                if size > self.__maxSize:
+                    if self.__logger:
+                        self.__logger.warning("Filesize too large: %s, posting last %s kB",
+                                              size, self.__maxSize / 1024)
 
-                # post the top so wwe have all the required data, and the bottom
-                top_bytes = 20
-                code += fp.read(top_bytes * 1024)
-                code += "\n%s\n" % ("*" * 100)
-                fp.seek(-(self.__maxSize - (top_bytes * 1024)), os.SEEK_END)
+                    # post the top so wwe have all the required data, and the bottom
+                    top_bytes = 20
+                    code += fp.read(top_bytes * 1024)
+                    code += "\n%s\n" % ("*" * 100)
+                    fp.seek(-(self.__maxSize - (top_bytes * 1024)), os.SEEK_END)
 
-            code += fp.read()
-        return code
+                code += fp.read()
+                return code
+
+            elif self.__maxCharCount:
+                code = fp.read()
+                if len(code) > self.__maxCharCount:
+                    lines = code.splitlines()
+                    result = "\n".join(lines[:100])
+                    result += "\n{}\n".format("*" * 100)
+                    result += code[-(self.__maxCharCount - len(result)) + 1:]
+                    return result
+                return code
+            else:
+                raise IndexError("No maximum size or char count set")
