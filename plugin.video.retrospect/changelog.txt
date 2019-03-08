@@ -5,6 +5,7 @@
 [B]Framework related[/B]
 * Changed: use paste.kodi.tv for posting log files (1 MB limit)
 * Fixed: properly clean cache
+* Fixed: favourite issue of no thumbs or fanart were present (Fixes #1123)
 
 [B]GUI/Settings/Language related[/B]
 -

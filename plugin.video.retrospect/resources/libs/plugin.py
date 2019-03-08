@@ -397,9 +397,17 @@ class Plugin(ParameterParser):
                 Logger.debug("process_folder_list returned %s items", len(media_items))
 
             kodi_items = []
+
+            if self.channelObject:
+                fallback_icon = self.channelObject.noImage
+                fallback_fanart = self.channelObject.fanart
+            else:
+                fallback_icon = os.path.join(Config.rootDir, "icon.png")
+                fallback_fanart = os.path.join(Config.rootDir, "fanart.jpg")
+
             for media_item in media_items:  # type: MediaItem
-                media_item.thumb = media_item.thumb or self.channelObject.noImage
-                media_item.fanart = media_item.fanart or self.channelObject.fanart
+                media_item.thumb = media_item.thumb or fallback_icon
+                media_item.fanart = media_item.fanart or fallback_fanart
 
                 if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
                     action = self.actionListFolder
