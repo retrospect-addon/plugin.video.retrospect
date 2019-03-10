@@ -3,12 +3,10 @@
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Changed: use paste.kodi.tv for posting log files (1 MB limit)
-* Fixed: properly clean cache
-* Fixed: favourite issue of no thumbs or fanart were present (Fixes #1123)
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
--
+* Updated: only show DRM warning for kijk.nl if there are only DRM streams.

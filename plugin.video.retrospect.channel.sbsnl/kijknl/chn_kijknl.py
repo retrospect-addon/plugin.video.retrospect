@@ -589,15 +589,6 @@ class Channel(chn_class.Channel):
 
         """
 
-        use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(
-            with_encryption=True)
-
-        if not use_adaptive_with_encryption:
-            XbmcWrapper.show_dialog(
-                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
-                LanguageHelper.get_localized_string(LanguageHelper.DrmText))
-            return item
-
         data = UriHandler.open(item.url, proxy=self.proxy)
         start_needle = "var playerConfig ="
         start_data = data.index(start_needle) + len(start_needle)
@@ -636,7 +627,7 @@ class Channel(chn_class.Channel):
                         Logger.debug("Found encrypted %s stream: %s", stream_type, stream_url)
                         continue
 
-                    Logger.debug("Found encrypted Dash stream: %s", stream_url)
+                    Logger.debug("Found Widevine encrypted Dash stream: %s", stream_url)
                     license_url = stream_drm[compatible_drm]["url"]
                     pid = stream_drm[compatible_drm]["releasePid"]
                     encryption_json = '{"getRawWidevineLicense":' \
@@ -665,7 +656,7 @@ class Channel(chn_class.Channel):
         if has_drm_only and not adaptive_available_encrypted:
             XbmcWrapper.show_dialog(
                 LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
-                LanguageHelper.get_localized_string(LanguageHelper.DrmText)
+                LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired)
             )
         return item
 
@@ -706,6 +697,11 @@ class Channel(chn_class.Channel):
             stream = part.append_media_stream(mpd_manifest_url, 0)
             Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=license_key)
             item.complete = True
+        else:
+            XbmcWrapper.show_dialog(
+                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
+                LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired)
+            )
 
         return item
 

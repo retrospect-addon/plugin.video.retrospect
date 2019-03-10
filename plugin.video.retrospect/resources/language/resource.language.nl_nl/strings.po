@@ -603,7 +603,7 @@ msgstr "Widevine installatie gelukt"
 
 msgctxt "#30536"
 msgid "This stream requires Kodi Leia and Widevine libraries to be installed."
-msgstr "Deze stream heeft minimaal Kodi Leia nodig en geinstalleerde Widevine libraries."
+msgstr "Deze stream heeft minimaal Kodi Leia, een ingeschakelde InputStream Adaptive add-on en geïnstalleerde Widevine libraries nodig. Deze laatste kunnen worden geïnstalleerd via de Retrospect add-on instellingen."
 
 msgctxt "#30537"
 msgid "Page"
