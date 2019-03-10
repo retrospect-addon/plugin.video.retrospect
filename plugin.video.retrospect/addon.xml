@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="4.1.8.6"
+        version="4.1.8.7"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -117,20 +117,19 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v4.1.8.6 - Changelog - 2019-03-09[/B]
+        <news>[B]Retrospect v4.1.8.7 - Changelog - 2019-03-10[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Changed: use paste.kodi.tv for posting log files (1 MB limit)
-* Fixed: properly clean cache
-* Fixed: favourite issue of no thumbs or fanart were present (Fixes #1123)
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
--
+* Updated: only show DRM warning for kijk.nl if there are only DRM streams.
+* Fixed: VTM.be parsing broke due to timestamps (Fixes #1128)
         </news>
         <assets>
             <icon>icon.png</icon>
