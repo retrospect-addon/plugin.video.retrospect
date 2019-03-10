@@ -772,7 +772,11 @@ class Channel(chn_class.Channel):
         item.thumb = self.__find_image(result_set.get('episode', {}), self.parentItem.thumb)
 
         # broadcastDate=2018-05-31T18:39:36.840Z
-        created = DateHelper.get_date_from_string(result_set['broadcastDate'].split(".")[0], "%Y-%m-%dT%H:%M:%S")
+        date = result_set.get('broadcastDate', None) or result_set.get('created', None)
+        if date is None:
+            return item
+
+        created = DateHelper.get_date_from_string(date.split(".")[0], "%Y-%m-%dT%H:%M:%S")
         item.set_date(*created[0:6])
 
         return item
@@ -1241,6 +1245,13 @@ class Channel(chn_class.Channel):
             if not m3u8_url:
                 m3u8_url = json_data.get_value("response", "uri")
                 # not supported by Kodi: m3u8_url = jsonData.get_value("response", "hls-drm-uri")
+
+            if not m3u8_url:
+                XbmcWrapper.show_dialog(
+                    LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
+                    LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired)
+                )
+                return item
 
             part = item.create_new_empty_media_part()
             # Set the Range header to a proper value to make all streams start at the beginning. Make

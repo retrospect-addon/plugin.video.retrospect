@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: issue with AWS timestamp not being in English (Fixes #1094)
+* Fixed: VTM.be parsing broke due to timestamps (Fixes #1128)
 
 [I]Previous Changes[/I]
+* Fixed: issue with AWS timestamp not being in English (Fixes #1094)
 * Fixed: VTM Nieuws did not play (Fixes #1092)
 * Changed: Hide VTM Nieuws from the VTM.be channel (See #1092)
 * Removed: De Redactie (See #1092)
