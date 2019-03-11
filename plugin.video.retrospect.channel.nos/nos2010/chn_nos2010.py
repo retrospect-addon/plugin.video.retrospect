@@ -101,7 +101,8 @@ class Channel(chn_class.Channel):
         video_parser = Regexer.from_expresso(
             r'<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/'
             r'(?<url>[^/"]+)" class="npo-tile-link"[^>]+data-scorecard=\'(?<videodata>[^\']*)\''
-            r'[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
+            r'[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[^>]+'
+            r'data-premium-from="(?<datePremium>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
             r'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>'
             r'(?<subtitle>[^<]*)</p>')
         self._add_data_parsers(["https://www.npostart.nl/media/series/",
@@ -666,12 +667,13 @@ class Channel(chn_class.Channel):
         # figure out the date
         try:
             date_time = result_set["subtitle"].strip().replace("  ", " ").split(" ")
+            date_premium = result_set["datePremium"]
 
             # For #933 we check for NOS Journaal
             if ":" in date_time[-1] and item.name == "NOS Journaal":
                 item.name = "{0} - {1}".format(item.name, date_time[-1])
 
-            if self.__determine_date_time_for_npo_item(item, date_time):
+            if self.__determine_date_time_for_npo_item(item, date_time, date_premium):
                 # We don't need the subtitle as it contained the date
                 # item.name = result_set["title"]   # won't work when sorting by name
                 Logger.trace("Date found in subtitle: %s", result_set.get("subtitle"))
@@ -1082,16 +1084,20 @@ class Channel(chn_class.Channel):
         UriHandler.set_cookie(name='npo_cc', value='30', domain='.npostart.nl')
         return
 
-    def __determine_date_time_for_npo_item(self, item, date_time):
+    def __determine_date_time_for_npo_item(self, item, date_time, date_premium):
         """
 
-        :param MediaItem item:          The current item
-        :param list[str|int] date_time:     The date time string items
+        :param MediaItem item:              The current item.
+        :param list[str|int] date_time:     The date time string items.
+        :param str date_premium:            The premium start date that we use to get the year from.
 
         :return: whether the date time was found
         :rtype: True
 
         """
+
+        if date_premium:
+            date_premium = DateHelper.get_date_from_string(date_premium, "%Y-%m-%dT%H:%M:%SZ")
 
         Logger.trace(date_time)
         if date_time[0].lower() == "gisteren":
@@ -1102,7 +1108,7 @@ class Channel(chn_class.Channel):
             item.set_date(date_time.year, date_time.month, date_time.day)
         elif ":" in date_time[-1]:
             if date_time[-2].isalpha():
-                year = datetime.datetime.now().year
+                year = date_premium.tm_year if date_premium else datetime.datetime.now().year
                 date_time.insert(-1, year)
             if item.name == "NOS Journaal":
                 item.name = "{0} - {1}".format(item.name, date_time[-1])

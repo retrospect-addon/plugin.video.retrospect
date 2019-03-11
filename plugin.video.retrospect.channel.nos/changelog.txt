@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO now uses Widevine streams only. Older items are no longer available without a paid account (Fixes #1114)
+* Fixed: some dates in the previous years did not show correct (Fixes #1129)
 
 [I]Previous Changes[/I]
+* Fixed: NPO now uses Widevine streams only. Older items are no longer available without a paid account (Fixes #1114)
 * Fixed: some radio live streams did not play (Fixes #1108)
 * Added: Warning for Kodi installations without decryption support that want to play live streams in NPOO (See #1099)
 * Fixed: subs would not show if InputStream Adaptive is enabled (Fixes #1082)

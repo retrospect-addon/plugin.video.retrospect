@@ -9,5 +9,4 @@
 -
 
 [B]Channel related[/B]
-* Updated: only show DRM warning for kijk.nl if there are only DRM streams.
-* Fixed: VTM.be parsing broke due to timestamps (Fixes #1128)
+* Fixed: some dates in the previous years did not show correct (Fixes #1129)
