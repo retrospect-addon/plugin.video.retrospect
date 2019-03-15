@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
 * Fixed: For some NPO live streams the audio stops after some time (Fixes #1134)
+* Fixed: timestamp issue with cookies in NPO Channel (Fixes #1136)
 
 [I]Previous Changes[/I]
 * Fixed: some dates in the previous years did not show correct (Fixes #1129)
