@@ -1059,7 +1059,7 @@ class Channel(chn_class.Channel):
 
         if AddonSettings.use_adaptive_stream_add_on(
                 with_encryption=True, ignore_add_on_config=True):
-            NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy)
+            NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
             item.complete = True
         else:
             XbmcWrapper.show_dialog(
