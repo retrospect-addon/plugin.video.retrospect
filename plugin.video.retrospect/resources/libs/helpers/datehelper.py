@@ -10,6 +10,7 @@
 import datetime
 import time
 
+
 #===============================================================================
 # Make global object available
 #===============================================================================
@@ -130,7 +131,15 @@ class DateHelper:
         @return:        a valid datetime.datetime object.
         """
 
-        return datetime.datetime.fromtimestamp(posix, tz)
+        # don't use use fromtimestamp to prevent errors like:
+        #   "ValueError: timestamp out of range for platform time_t"
+        # https://docs.python.org/3/library/datetime.html reads:
+        #   fromtimestamp() may raise OverflowError, if the timestamp is out of the range
+        #   of values supported by the platform C localtime() or gmtime() functions, and
+        #   OSError on localtime() or gmtime() failure. It's common for this to be restricted
+        #   to years in 1970 through 2038
+        # return datetime.datetime.fromtimestamp(posix, tz)
+        return datetime.datetime(1970, 1, 1, tzinfo=tz) + datetime.timedelta(seconds=posix)
 
     @staticmethod
     def get_date_from_string(value, date_format="%Y-%m-%dT%H:%M:%S+00:00"):

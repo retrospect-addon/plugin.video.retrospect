@@ -3,10 +3,10 @@
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
--
+* Fixed: fromtimestamp issue with out of range timestamps (See #1136)
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: some dates in the previous years did not show correct (Fixes #1129)
+* Fixed: timestamp issue with cookies in NPO Channel (Fixes #1136)
