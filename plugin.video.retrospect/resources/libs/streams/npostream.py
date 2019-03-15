@@ -14,6 +14,7 @@ from streams.mpd import Mpd
 from helpers.subtitlehelper import SubtitleHelper
 from urihandler import UriHandler
 from logger import Logger
+from proxyinfo import ProxyInfo
 
 
 class NpoStream:
@@ -26,13 +27,14 @@ class NpoStream:
         return SubtitleHelper.download_subtitle(sub_title_url, stream_id + ".srt", format='srt', proxy=proxy)
 
     @staticmethod
-    def add_mpd_stream_from_npo(url, episode_id, part, proxy=None, headers=None):
+    def add_mpd_stream_from_npo(url, episode_id, part, proxy=None, headers=None, live=False):
         """ Extracts the Dash streams for the given url or episode id
 
-        @param url:               (String) The url to download
-        @param episode_id:         (String) The NPO episode ID
-        @param headers:           (dict) Possible HTTP Headers
-        @param proxy:             (Proxy) The proxy to use for opening
+        :param str|None url:        The url to download
+        :param str episode_id:      The NPO episode ID
+        :param dict headers:        Possible HTTP Headers
+        :param ProxyInfo proxy:     The proxy to use for opening
+        :param bool live:           Is this a live stream?
 
         for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId, proxy=self.proxy):
             item.complete = True
@@ -99,7 +101,9 @@ class NpoStream:
         # M3u8.set_input_stream_addon_input(stream, proxy, headers)
         Mpd.set_input_stream_addon_input(stream, proxy, headers,
                                          license_key=license_key,
-                                         license_type=license_type)
+                                         license_type=license_type,
+                                         manifest_update=None if not live else "full")
+
         return
 
     @staticmethod

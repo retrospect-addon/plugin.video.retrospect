@@ -63,7 +63,8 @@ class Adaptive:
                                      license_type=None,
                                      max_bit_rate=None,
                                      persist_storage=False,
-                                     service_certificate=None):
+                                     service_certificate=None,
+                                     manifest_update=None):
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
@@ -77,6 +78,7 @@ class Adaptive:
         @param int max_bit_rate:        The maximum bitrate to use (optional)
         @param bool persist_storage:    Should we store certificates? And request server certificates?
         @param str service_certificate: Use the specified server certificate
+        :param str manifest_update:     How should the manifest be updated
 
         Can be used like this:
 
@@ -108,6 +110,8 @@ class Adaptive:
             strm.add_property("inputstream.adaptive.license_flags", "persistent_storage")
         if service_certificate is not None:
             strm.add_property("inputstream.adaptive.server_certificate", service_certificate)
+        if manifest_update:
+            strm.add_property("inputstream.adaptive.manifest_update_parameter", manifest_update)
 
         if headers:
             header = ""
