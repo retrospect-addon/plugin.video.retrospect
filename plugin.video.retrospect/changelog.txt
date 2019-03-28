@@ -1,13 +1,12 @@
-[B]Retrospect v4.1.8.9 - Changelog - 2019-03-16[/B]
+[B]Retrospect v4.1.8.10 - Changelog - 2019-03-28[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Fixed: fromtimestamp issue with out of range timestamps (See #1136)
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: timestamp issue with cookies in NPO Channel (Fixes #1136)
-* Fixed: For some NPO live streams the audio stops after some time (Fixes #1134)
+* Fixed: ViaFree changed their JSON and broke the main listing (Fixes #1139)
