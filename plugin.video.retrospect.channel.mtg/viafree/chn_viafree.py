@@ -105,7 +105,7 @@ class Channel(chn_class.Channel):
                               match_type=ParserData.MatchExact)
         self._add_data_parser(self.mainListUri, preprocessor=self.extract_categories_and_add_search,
                               json=True, match_type=ParserData.MatchExact,
-                              parser=["allProgramsPage", "programs"],
+                              parser=["page", "blocks", 0, "_embedded", "programs"],
                               creator=self.create_json_episode_item)
 
         # This is the new way, but more complex and some channels have items with missing
@@ -702,16 +702,24 @@ class Channel(chn_class.Channel):
         """
 
         Logger.trace(result_set)
-        if check_channel and self.channelId is not None and result_set['channel'] not in self.channelId:
-            Logger.trace("Found item for wrong channel %s instead of %s", result_set['channel'], self.channelId)
-            return None
+
+        # make sure we use ID as GUID
+        if "id" in result_set:
+            result_set["guid"] = result_set["id"]
+
+        if check_channel and self.channelId is not None:
+            channels = [int(c["guid"]) for c in result_set.get("channels", [])]
+            valid_channel_found = any([c for c in channels if c in self.channelId])
+            if not valid_channel_found:
+                Logger.trace("Found item for wrong channel %s instead of %s", channels, self.channelId)
+                return None
 
         # For now we keep using the API, otherwise we need to do more complex VideoItem parsing
         if self.useNewPages:
             category_slug = self.__categories[result_set["category"]]["slug"]
             url = "%s/%s/%s" % (self.baseUrl, category_slug, result_set['slug'])
         else:
-            url = "http://playapi.mtgx.tv/v3/videos?format=%(id)s&order=-airdate&type=program" % result_set
+            url = "http://playapi.mtgx.tv/v3/videos?format=%(guid)s&order=-airdate&type=program" % result_set
         item = MediaItem(result_set['title'], url)
         item.icon = self.icon
         item.thumb = self.__get_thumb_image(result_set.get("image") or self.noImage)

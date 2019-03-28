@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Some ViaFree streams did not play (Fixes #1107)
+* Fixed: ViaFree changed their JSON and broke the main listing (Fixes #1139)
 
 [I]Previous changes[/I]
+* Fixed: Some ViaFree streams did not play (Fixes #1107)
 * Fixed: some ViaFree videos that were just live did not play (Fixes #1050)
 * Fixed: ViaFree based channels without a season/episode number broken (Fixes #996)
 * Fixed: subtitle issue with some Swedish channels (Fixes #993)
