@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.8.10 - Changelog - 2019-03-28[/B]
+[B]Retrospect v4.1.8.11 - Changelog - 2019-04-01[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
@@ -9,4 +9,4 @@
 -
 
 [B]Channel related[/B]
-* Fixed: ViaFree changed their JSON and broke the main listing (Fixes #1139)
+* Fixed: VRT.nu changes broke parsing (Fixes #1140)
