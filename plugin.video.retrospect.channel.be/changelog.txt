@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: VTM.be parsing broke due to timestamps (Fixes #1128)
+* Fixed: VRT.nu changes broke parsing (Fixes #1140)
 
 [I]Previous Changes[/I]
+* Fixed: VTM.be parsing broke due to timestamps (Fixes #1128)
 * Fixed: issue with AWS timestamp not being in English (Fixes #1094)
 * Fixed: VTM Nieuws did not play (Fixes #1092)
 * Changed: Hide VTM Nieuws from the VTM.be channel (See #1092)
