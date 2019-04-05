@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: TV4 thumbs not showing (Fixes #1097)
+* Fixed: SVT videos had no audio (Fixes #1143). This fix requires the InputStream Adaptvie add-on to be installed and enabled within Retrospect.
 
 [I]Previous changes[/I]
+* Fixed: TV4 thumbs not showing (Fixes #1097)
 * Added: search to UR Play (Fixes #1084).
 * Changed: UR Play now uses HTTPS.
 * Fixed: Reverted #1074 SVT Categories (Fixes #1080)
