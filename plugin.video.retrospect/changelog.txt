@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.8.12 - Changelog - 2019-04-05[/B]
+[B]Retrospect v4.1.8.13 - Changelog - 2019-04-08[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
@@ -9,4 +9,4 @@
 -
 
 [B]Channel related[/B]
-* Fixed: SVT videos had no audio (Fixes #1143). This fix requires the InputStream Adaptvie add-on to be installed and enabled within Retrospect.
+* Fixed: NPO video would now show in some occasions.
