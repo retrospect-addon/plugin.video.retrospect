@@ -100,7 +100,7 @@ class Channel(chn_class.Channel):
         # very similar parser as the Live Channels!
         video_parser = Regexer.from_expresso(
             r'<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/'
-            r'(?<url>[^/"]+)" class="npo-tile-link"[^>]+data-scorecard=\'(?<videodata>[^\']*)\''
+            r'(?<url>[^/"]+)" class="npo-tile-link"[^>]+(?:data-scorecard=\'(?<videodata>[^\']*)\')?'
             r'[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[^>]+'
             r'data-premium-from="(?<datePremium>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
             r'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>'
@@ -654,14 +654,15 @@ class Channel(chn_class.Channel):
 
         item = chn_class.Channel.create_video_item(self, result_set)
 
-        # set the POW id
-        if result_set["videodata"]:
-            item.type = "video"
-            item.url = result_set["powid"]
-        else:
-            item.type = "folder"
-            item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
-            item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        # set the POW id based on either video of folder:
+        # This no longer works. Assuming video for now.
+        # if result_set["videodata"]:
+        item.type = "video"
+        item.url = result_set["powid"]
+        # else:
+        #     item.type = "folder"
+        #     item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
+        #     item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         item.isPaid = "premium" in result_set["class"]
 
         # figure out the date

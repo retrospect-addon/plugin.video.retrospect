@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: For some NPO live streams the audio stops after some time (Fixes #1134)
-* Fixed: timestamp issue with cookies in NPO Channel (Fixes #1136)
+* Fixed: NPO video would now show in some occasions.
 
 [I]Previous Changes[/I]
+* Fixed: For some NPO live streams the audio stops after some time (Fixes #1134)
+* Fixed: timestamp issue with cookies in NPO Channel (Fixes #1136)
 * Fixed: some dates in the previous years did not show correct (Fixes #1129)
 * Fixed: NPO now uses Widevine streams only. Older items are no longer available without a paid account (Fixes #1114)
 * Fixed: some radio live streams did not play (Fixes #1108)
