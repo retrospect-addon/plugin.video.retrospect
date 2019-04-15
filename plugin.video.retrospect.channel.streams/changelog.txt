@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: 24 Classic moved to https which broke the channel (Fixes #1111)
+Fixed: naming of Radio NL (Fixes #1147)
 
 [I]Previous changes[/I]
+* Fixed: 24 Classic moved to https which broke the channel (Fixes #1111)
 * Fixed: Radio 538 channel was completely broken again (Fixes #943)
 * Fixed: Radio 538 channel was completely broken
 * Added: 24Classics.com (Fixes #714)
