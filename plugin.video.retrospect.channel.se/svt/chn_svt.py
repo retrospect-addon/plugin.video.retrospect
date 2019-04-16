@@ -75,16 +75,16 @@ class Channel(chn_class.Channel):
                               parser=["clusters", "alphabetical"],
                               creator=self.create_json_genre)
 
-        self._add_data_parser("https://www.svtplay.se/genre/",
-                              preprocessor=self.extract_json_data, json=True,
-                              name="Video/Folder parsers for items in a Genre/Tag",
-                              parser=["clusterPage", "titlesAndEpisodes"],
-                              creator=self.create_json_item)
+        # self._add_data_parser("https://www.svtplay.se/genre/",
+        #                       preprocessor=self.extract_json_data, json=True,
+        #                       name="Video/Folder parsers for items in a Genre/Tag",
+        #                       parser=["clusterPage", "titlesAndEpisodes"],
+        #                       creator=self.create_json_item)
 
         # SVT reverted the Apollo stuff (See #1080)
-        # self._add_data_parser("https://www.svtplay.se/genre/",
-        #                       preprocessor=self.extract_apollo_json_data, json=True,
-        #                       name="Video/Folder parsers for items in a Genre/Tag")
+        self._add_data_parser("https://www.svtplay.se/genre/",
+                              preprocessor=self.extract_apollo_json_data, json=True,
+                              name="Video/Folder parsers for items in a Genre/Tag")
 
         self._add_data_parser("https://www.svtplay.se/sok?q=", preprocessor=self.extract_json_data)
         self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
@@ -959,6 +959,10 @@ class Channel(chn_class.Channel):
                 alt_index = url.find("m3u8?")
                 if alt_index > 0:
                     url = url[0:alt_index + 4]
+
+                if "-fmp4.m3u8" in url or "-lowbw.m3u8" in url:
+                    Logger.trace("Ignoring: %s", url)
+                    continue
 
                 M3u8.update_part_with_m3u8_streams(
                     part,
