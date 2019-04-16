@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.8.13 - Changelog - 2019-04-08[/B]
+[B]Retrospect v4.1.8.14 - Changelog - 2019-04-17[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
@@ -9,4 +9,7 @@
 -
 
 [B]Channel related[/B]
-* Fixed: NPO video would now show in some occasions.
+* Fixed: some SVT streams had a very low bitrate or had weird audio (Fixes #1150)
+* Fixed: SVT Genres (Fixes #1149)
+* Fixed: naming of Radio NL (Fixes #1147)
+* Changed: cache radio data in the profile cache folder
