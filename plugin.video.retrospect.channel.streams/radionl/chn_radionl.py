@@ -1,13 +1,8 @@
-#===============================================================================
-# Import the default modules
-#===============================================================================
 import os
 
-#===============================================================================
-# Make global object available
-#===============================================================================
 import chn_class
 
+from retroconfig import Config
 from mediaitem import MediaItem
 from logger import Logger
 from urihandler import UriHandler
@@ -41,10 +36,10 @@ class Channel(chn_class.Channel):
         # non standard items
 
         # download the stream data
-        data_path = os.path.join(self.path, "data")
-        Logger.debug("Checking '%s' for data", data_path)
-        if not os.path.isdir(data_path):
-            Logger.info("No data found at '%s', downloading stream data", data_path)
+        self.__data_path = os.path.join(Config.cacheDir, "radio_data")
+        Logger.debug("Checking '%s' for data", self.__data_path)
+        if not os.path.isdir(self.__data_path):
+            Logger.info("No data found at '%s', downloading stream data", self.__data_path)
             url = "http://www.rieter.net/repository.retrospect/" \
                   "plugin.video.retrospect.channel.streams/" \
                   "plugin.video.retrospect.channel.streams.radionl.data.zip"
@@ -59,10 +54,10 @@ class Channel(chn_class.Channel):
                                            self.get_default_cache_path(), progress_dialog)
 
             # and unzip it
-            ZipHelper.unzip(zip_file, data_path)
+            ZipHelper.unzip(zip_file, self.__data_path)
 
-            if os.path.isdir(data_path):
-                Logger.info("Data successfully downloaded to: %s", data_path)
+            if os.path.isdir(self.__data_path):
+                Logger.info("Data successfully downloaded to: %s", self.__data_path)
 
         #===============================================================================================================
         # Test cases:
@@ -91,11 +86,10 @@ class Channel(chn_class.Channel):
 
         # read the regional ones
         # noinspection PyUnresolvedReferences
-        data_path = os.path.abspath(os.path.join(__file__, '..', 'data'))
-        Logger.info("Radio stations located at: %s", data_path)
-        regionals = os.listdir(os.path.join(data_path, "Regionale Omroepen"))
+        Logger.info("Radio stations located at: %s", self.__data_path)
+        regionals = os.listdir(os.path.join(self.__data_path, "Regionale Omroepen"))
         for regional in regionals:
-            path = os.path.join(data_path, "Regionale Omroepen", regional)
+            path = os.path.join(self.__data_path, "Regionale Omroepen", regional)
             if not os.path.isdir(path):
                 continue
             item = MediaItem(regional, path)
@@ -103,11 +97,11 @@ class Channel(chn_class.Channel):
             items.append(item)
 
         # add the National ones
-        item = MediaItem("Nationale Radiozenders", os.path.join(data_path))
+        item = MediaItem("Nationale Radiozenders", os.path.join(self.__data_path))
         item.complete = True
         items.insert(0, item)
 
-        item = MediaItem("Webradio", os.path.join(data_path, "Webradio"))
+        item = MediaItem("Webradio", os.path.join(self.__data_path, "Webradio"))
         item.complete = True
         items.insert(0, item)
         return data, items

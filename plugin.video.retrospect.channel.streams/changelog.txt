@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
-Fixed: naming of Radio NL (Fixes #1147)
+* Fixed: naming of Radio NL (Fixes #1147)
+* Changed: cache radio data in the profile cache folder
 
 [I]Previous changes[/I]
 * Fixed: 24 Classic moved to https which broke the channel (Fixes #1111)
