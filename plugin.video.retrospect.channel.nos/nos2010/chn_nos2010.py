@@ -1100,18 +1100,19 @@ class Channel(chn_class.Channel):
         if date_premium:
             date_premium = DateHelper.get_date_from_string(date_premium, "%Y-%m-%dT%H:%M:%SZ")
 
-        Logger.trace(date_time)
-        if date_time[0].lower() == "gisteren":
+        Logger.trace("Date Parts: %s", date_time)
+
+        if date_time[-2].lower() == "gisteren":
             date_time = datetime.datetime.now() + datetime.timedelta(days=-1)
             item.set_date(date_time.year, date_time.month, date_time.day)
-        elif date_time[0].lower() == "vandaag":
+        elif date_time[-2].lower() == "vandaag":
             date_time = datetime.datetime.now()
             item.set_date(date_time.year, date_time.month, date_time.day)
         elif ":" in date_time[-1]:
             if date_time[-2].isalpha():
                 year = date_premium.tm_year if date_premium else datetime.datetime.now().year
                 date_time.insert(-1, year)
-            if item.name == "NOS Journaal":
+            if item.name.startswith("NOS Journaal"):
                 item.name = "{0} - {1}".format(item.name, date_time[-1])
             year = int(date_time[-2])
 
