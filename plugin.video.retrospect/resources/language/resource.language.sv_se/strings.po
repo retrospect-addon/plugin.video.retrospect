@@ -84,6 +84,10 @@ msgctxt "#30023"
 msgid "Never show"
 msgstr "Aldrig"
 
+msgctxt "#30024"
+msgid "Recent"
+msgstr "Senaste"
+
 msgctxt "#30025"
 msgid "None"
 msgstr "Inget"

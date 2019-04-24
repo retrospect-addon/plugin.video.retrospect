@@ -85,6 +85,10 @@ msgctxt "#30023"
 msgid "Never show"
 msgstr "Nooit tonen"
 
+msgctxt "#30024"
+msgid "Recent"
+msgstr "Recent"
+
 msgctxt "#30025"
 msgid "None"
 msgstr "Geen"

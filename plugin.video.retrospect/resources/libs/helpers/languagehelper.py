@@ -35,6 +35,7 @@ class LanguageHelper:
     RefreshListId = 30529
     CheckUpdatesId = 30530
     BitrateSelection = 30020
+    Recent = 30024
 
     ChannelSelection = 30507
     WidevineLeiaRequired = 30536

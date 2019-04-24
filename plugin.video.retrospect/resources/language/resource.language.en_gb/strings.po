@@ -88,7 +88,9 @@ msgctxt "#30023"
 msgid "Never show"
 msgstr ""
 
-#empty string with id 30024
+msgctxt "#30024"
+msgid "Recent"
+msgstr ""
 
 msgctxt "#30025"
 msgid "None"
@@ -676,9 +678,6 @@ msgstr ""
 msgctxt "#30536"
 msgid "This stream requires Kodi Leia, an enabled InputStream Adaptive add-on and the Widevine library to be installed. The latter can be installed from within the Retrospect add-on settings."
 msgstr ""
-
-#<string id="30536"></string>
-#empty string with id 30536
 
 msgctxt "#30537"
 msgid "Page"

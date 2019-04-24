@@ -6,7 +6,7 @@
 -
 
 [B]GUI/Settings/Language related[/B]
--
+* Added: translation for "Recent"
 
 [B]Channel related[/B]
-* Fixed: Date parsing in NPO Start (Fixes #1152)
+-
