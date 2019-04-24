@@ -261,7 +261,8 @@ class Channel(chn_class.Channel):
                 items.append(item)
 
         if self.recentUrl:
-            recent = MediaItem("\b.: Recent :.", self.recentUrl)
+            recent_text = LanguageHelper.get_localized_string(LanguageHelper.Recent)
+            recent = MediaItem("\b.: {} :.".format(recent_text), self.recentUrl)
             recent.dontGroup = True
             recent.fanart = self.fanart
             items.append(recent)
