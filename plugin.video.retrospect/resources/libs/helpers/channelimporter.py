@@ -669,6 +669,13 @@ class ChannelIndex:
             Logger.warning("Inconsisten version 'index' vs 'add-on': %s vs %s", first_version, Config.version)
             return False
 
+        first_path = channels[channels.keys()[0]][self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
+        if not first_path.startswith(Config.rootDir.rstrip(os.sep)):
+            Logger.warning("Inconsisten path for ChannelSet and main add-on:\n"
+                           "Channel: '%s'\n"
+                           "Add-on:  '%s'", first_path, Config.rootDir)
+            return False
+
         return True
 
     def __str__(self):
