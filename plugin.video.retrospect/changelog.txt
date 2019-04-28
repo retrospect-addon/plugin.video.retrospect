@@ -7,6 +7,7 @@
 * Fixed: rebuild channel index if the ChannelSet path is not consistent with the add-on path
 * Added: option to show an "All Favourites" item to the channel listing (Fixes #1102)
 * Added: option to auto start Retrospect on Kodi start (Fixes #1156)
+* Added: Extra "Advanced Settings" tab to the Retrospect add-on settings
 
 [B]GUI/Settings/Language related[/B]
 * Added: translation for "Recent"

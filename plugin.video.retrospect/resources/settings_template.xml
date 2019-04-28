@@ -28,21 +28,6 @@
         <setting id="hide_types" type="enum" label="30082" lvalues="30083|30084" default="1" />
         <setting id="geo_region" type="select" label="30085" lvalues="30074|30306|30309|30308|30307|30303|30304|30301|30305|30302" />
         <setting id="geo_label" type="text" label="30073" enable="false" />
-
-        <setting type="lsep" label="30055" />
-        <setting id="auto_run" type="bool" label="30027" default="false" />
-        <setting id="folders_as_video" type="bool" label="30087" default="false" />
-        <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
-        <setting id="folder_prefix" type="text" label="30043" default="" />
-        <setting id="hide_fanart" type="bool" label="30086" default="false" />
-        <setting id="ignore_ssl_errors" type="bool" label="30569" default="false" />
-        <setting id="http_cache" type="bool" label="30031" default="true" />
-        <setting id="release_channel" label="30004" type="enum" lvalues="30005|30006" default="0" />
-
-        <setting type="lsep" label="30098" />
-        <setting id="send_statistics" type="bool" label="30052" default="true" />
-        <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
-        <setting id="send_log" type="action" label="30598" action="RunScript(plugin.video.retrospect, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />
     </category>
 
     <category id="channels" label="30040">
@@ -69,5 +54,22 @@
         <!-- begin of channel settings -->
         <!-- This is just a template and should be replaced after the first run -->
         <!-- end of channel settings -->
+    </category>
+
+    <category id="advancedsettings" label="30055">
+        <!--<setting type="lsep" label="30055" />-->
+        <setting id="auto_run" type="bool" label="30027" default="false" />
+        <setting id="folders_as_video" type="bool" label="30087" default="false" />
+        <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
+        <setting id="folder_prefix" type="text" label="30043" default="" />
+        <setting id="hide_fanart" type="bool" label="30086" default="false" />
+        <setting id="ignore_ssl_errors" type="bool" label="30569" default="false" />
+        <setting id="http_cache" type="bool" label="30031" default="true" />
+        <setting id="release_channel" label="30004" type="enum" lvalues="30005|30006" default="0" />
+
+        <setting type="lsep" label="30098" />
+        <setting id="send_statistics" type="bool" label="30052" default="true" />
+        <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
+        <setting id="send_log" type="action" label="30598" action="RunScript(plugin.video.retrospect, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />
     </category>
 </settings>
