@@ -18,7 +18,7 @@
         <provides>video</provides>
     </extension>
 
-    <extension point="xbmc.service" library="migrateservice.py" />
+    <extension point="xbmc.service" library="retroservice.py" />
 
 
     <extension point="kodi.context.item">
@@ -122,13 +122,14 @@
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
--
+- Added: option to pass the manifest update mode to the InputStream Adaptive add-on for M3u8 streams
+- Fixed: rebuild channel index if the ChannelSet path is not consistent with the add-on path
 
 [B]GUI/Settings/Language related[/B]
--
+* Added: translation for "Recent"
 
 [B]Channel related[/B]
-* Fixed: Date parsing in NPO Start (Fixes #1152)
+-
 
         </news>
         <assets>

@@ -100,7 +100,9 @@ msgctxt "#30026"
 msgid "Group list if exceeds # folders"
 msgstr ""
 
-#empty string with id 30027
+msgctxt "#30027"
+msgid "Autorun Retrospect on Kodi start"
+msgstr ""
 
 msgctxt "#30028"
 msgid "Proxy"

@@ -97,6 +97,10 @@ msgctxt "#30026"
 msgid "Group list if exceeds # folders"
 msgstr "Groepeer lijst met meer dan # mappen"
 
+msgctxt "#30027"
+msgid "Autorun Retrospect on Kodi start"
+msgstr "Retrospect automatisch starten als Kodi start"
+
 msgctxt "#30028"
 msgid "Proxy"
 msgstr "Proxy"

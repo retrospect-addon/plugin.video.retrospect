@@ -131,5 +131,12 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     return
 
 
+def autorun_retrospect():
+    if xbmcaddon.Addon().getSetting("auto_run") == "true":
+        xbmc.executebuiltin('RunAddon(plugin.video.retrospect)')
+    return
+
+
 # Check for the migration
 migrate_profile(Config.profileDir, Config.addonId, Config.rootDir, Config.appName)
+autorun_retrospect()

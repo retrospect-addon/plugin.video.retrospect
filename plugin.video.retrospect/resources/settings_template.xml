@@ -30,6 +30,7 @@
         <setting id="geo_label" type="text" label="30073" enable="false" />
 
         <setting type="lsep" label="30055" />
+        <setting id="auto_run" type="bool" label="30027" default="false" />
         <setting id="folders_as_video" type="bool" label="30087" default="false" />
         <setting id="empty_folder" type="select" label="30075" default="2" lvalues="30076|30077|30078" />
         <setting id="folder_prefix" type="text" label="30043" default="" />
