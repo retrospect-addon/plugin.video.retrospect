@@ -2,6 +2,8 @@
 * Fixed: Added proper translation of "Recent" to the Swedish SBS Channels (Kanal 5, 9 and 11)
 
 [I]Previous changes[/I]
+* Fixed: some SVT streams had a very low bitrate or had weird audio (Fixes #1150)
+* Fixed: SVT Genres (Fixes #1149)
 * Fixed: SVT videos had no audio (Fixes #1143). This fix requires the InputStream Adaptvie add-on to be installed and enabled within Retrospect.
 * Fixed: TV4 thumbs not showing (Fixes #1097)
 * Added: search to UR Play (Fixes #1084).

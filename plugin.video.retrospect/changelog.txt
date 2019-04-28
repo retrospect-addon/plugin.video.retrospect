@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.8.15 - Changelog - 2019-04-19[/B]
+[B]Retrospect v4.1.8.16 - Changelog - 2019-04-28[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
