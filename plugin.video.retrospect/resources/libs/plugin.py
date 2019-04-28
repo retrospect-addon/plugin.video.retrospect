@@ -314,6 +314,30 @@ class Plugin(ParameterParser):
             channels = channel_register.get_channels()
 
             xbmc_items = []
+
+            # Should we show the "All Favourites"?
+            if AddonSettings.show_show_favourites_in_channel_list():
+                icon = os.path.join(Config.rootDir, "icon.png")
+                fanart = os.path.join(Config.rootDir, "fanart.jpg")
+                name = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesId)
+                kodi_item = xbmcgui.ListItem(name, name)
+
+                # set art
+                try:
+                    kodi_item.setIconImage(icon)
+                except:
+                    # it was deprecated
+                    pass
+                kodi_item.setArt({'thumb': icon, 'icon': icon})
+                kodi_item.setProperty(self.propertyRetrospect, "true")
+                kodi_item.setProperty(self.propertyRetrospectCategory, "true")
+
+                if not AddonSettings.hide_fanart():
+                    kodi_item.setArt({'fanart': fanart})
+
+                url = self._create_action_url(None, action=self.actionAllFavourites)
+                xbmc_items.append((url, kodi_item, True))
+
             for channel in channels:
                 if category and channel.category != category:
                     Logger.debug("Skipping %s (%s) due to category filter", channel.channelName, channel.category)

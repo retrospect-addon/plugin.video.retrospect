@@ -145,6 +145,10 @@ msgctxt "#30040"
 msgid "Channels"
 msgstr "Kanalen"
 
+msgctxt "#30041"
+msgid "Show \"All Favourites\" in main Channel listing"
+msgstr "Toon \"Alle Favorieten\" in het kanalenoverzicht"
+
 msgctxt "#30042"
 msgid "Enabled"
 msgstr "Ingeschakeld"

@@ -48,6 +48,7 @@
     <category id="channels" label="30040">
         <setting id="show_categories" type="bool" label="30067" default="true" />
         <setting id="hide_first_time_message" type="bool" label="30570" default="false" />
+        <setting id="show_favourites" type="bool" label="30041" default="false" />
 
         <setting type="lsep" label="30060" />
         <!--<setting type="action" label="30598" action="RunScript(special://home/addons/plugin.video.retrospect/resources/menus/menu_enable.py)" option="close" />-->

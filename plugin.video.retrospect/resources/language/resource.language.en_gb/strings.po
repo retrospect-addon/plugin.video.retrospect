@@ -152,8 +152,9 @@ msgctxt "#30040"
 msgid "Channels"
 msgstr ""
 
-#<string id="30041"></string>
-#empty string with id 30041
+msgctxt "#30041"
+msgid "Show \"All Favourites\" in main Channel listing"
+msgstr ""
 
 msgctxt "#30042"
 msgid "Enabled"

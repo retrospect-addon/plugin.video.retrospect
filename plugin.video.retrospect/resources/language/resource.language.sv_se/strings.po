@@ -144,6 +144,10 @@ msgctxt "#30040"
 msgid "Channels"
 msgstr "Kanaler"
 
+msgctxt "#30041"
+msgid "Show \"All Favourites\" in main Channel listing"
+msgstr "Visa \"Alla favoriter\" i kanallistan"
+
 msgctxt "#30042"
 msgid "Enabled"
 msgstr "Aktiverad"

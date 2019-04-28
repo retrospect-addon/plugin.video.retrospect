@@ -252,6 +252,17 @@ class AddonSettings(object):
         return AddonSettings.store(KODI).get_boolean_setting("show_categories")
 
     @staticmethod
+    def show_show_favourites_in_channel_list():
+        """ Returns an indication whether an "All Favourites" item is shown in the main channel list.
+
+        :rtype: bool
+        :return: Indication if we should show "All Favourites"
+
+        """
+
+        return AddonSettings.store(KODI).get_boolean_setting("show_favourites", default=False)
+
+    @staticmethod
     def show_drm_paid_warning():
         """ Should we show a DRM warning on DRM protected (^) items?
 
