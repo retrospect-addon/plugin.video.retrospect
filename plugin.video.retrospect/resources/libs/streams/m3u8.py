@@ -73,14 +73,17 @@ class M3u8:
                                      license_key=None, license_type=None,
                                      max_bit_rate=None,
                                      persist_storage=False,
-                                     service_certificate=None):
+                                     service_certificate=None,
+                                     manifest_update=None):
+
         return Adaptive.set_input_stream_addon_input(strm, proxy, headers,
                                                      manifest_type="hls",
                                                      license_key=license_key,
                                                      license_type=license_type,
                                                      max_bit_rate=max_bit_rate,
                                                      persist_storage=persist_storage,
-                                                     service_certificate=service_certificate)
+                                                     service_certificate=service_certificate,
+                                                     manifest_update=manifest_update)
 
     @staticmethod
     def get_license_key(key_url, key_type="R", key_headers=None, key_value=None):
