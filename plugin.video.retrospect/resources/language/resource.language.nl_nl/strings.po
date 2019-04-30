@@ -75,7 +75,7 @@ msgstr "Maximale stream bitrate"
 
 msgctxt "#30021"
 msgid "Subtitle mode"
-msgstr "Subtitle modus"
+msgstr "Ondertiteling modus"
 
 msgctxt "#30022"
 msgid "If available"
@@ -159,7 +159,7 @@ msgstr "Folder voorvoegsel"
 
 msgctxt "#30046"
 msgid "DRM/Geo-blocked/Premium filters"
-msgstr "DRM/GEO-geblokeerd/Premium filters"
+msgstr "DRM/GEO-geblokkeerd/Premium filters"
 
 msgctxt "#30048"
 msgid "Log level"
@@ -187,7 +187,7 @@ msgstr "Weergaven"
 
 msgctxt "#30055"
 msgid "Advanced"
-msgstr "Geadvanceerd"
+msgstr "Geavanceerd"
 
 msgctxt "#30059"
 msgid "Other Countries"
@@ -207,7 +207,7 @@ msgstr "HTTP"
 
 msgctxt "#30063"
 msgid "Channel to configure"
-msgstr "Kanaal om te configureren"
+msgstr "Kanaal om in te stellen"
 
 msgctxt "#30064"
 msgid "Proxy Group"
@@ -227,7 +227,7 @@ msgstr "Groepeer kanalen in categoriën"
 
 msgctxt "#30068"
 msgid "Active"
-msgstr "Active"
+msgstr "Actief"
 
 msgctxt "#30069"
 msgid "Channel Settings"
@@ -383,7 +383,7 @@ msgstr "Techniek"
 
 msgctxt "#30108"
 msgid "Other"
-msgstr "Overig"
+msgstr "Overige"
 
 msgctxt "#30199"
 msgid "10"
@@ -631,7 +631,7 @@ msgstr "Live uitzending"
 
 msgctxt "#30540"
 msgid "Geo-blocked"
-msgstr "Geo-geblokeerd"
+msgstr "Geo-geblokkeerd"
 
 msgctxt "#30541"
 msgid "Queue item"
@@ -835,7 +835,7 @@ msgstr "Fout bij het vesturen van de logfile: %s"
 
 msgctxt "#30602"
 msgid "Error posting logfile"
-msgstr "Fout bij het vesturen"
+msgstr "Fout bij het versturen"
 
 msgctxt "#30603"
 msgid "Retrospect changed add-on ID. To prevent data loss, your user data will now be migrated. After this has been done, please restart Kodi to complete migration. After the restart update any shortcut you had to Retrospect. The Retrospect marked as <broken> can be uninstalled."
