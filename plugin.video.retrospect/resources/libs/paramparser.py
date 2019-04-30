@@ -98,6 +98,13 @@ class ParameterParser(object):
         if action is None:
             raise Exception("action is required")
 
+        # catch the plugin:// url's for items and channels.
+        if item is not None and item.url.startswith("plugin://"):
+            return item.url
+
+        if item is None and channel is not None and channel.addonUrl is not None:
+            return channel.addonUrl
+
         params = dict()
         if channel:
             params[self.keywordChannel] = channel.moduleName

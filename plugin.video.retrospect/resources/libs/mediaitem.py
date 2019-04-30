@@ -351,6 +351,10 @@ class MediaItem:
         name = "%s%s" % (name, name_post_fix)
         name = self.__full_decode_text(name)
 
+        if self.url is not None and self.url.startswith("plugin://"):
+            other = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
+            name = "{0} {1} [COLOR gold]{2}[/COLOR]".format(name, unichr(187), other)
+
         if self.description is None:
             self.description = ''
 
