@@ -124,7 +124,7 @@ class ChannelInfo:
         name = HtmlEntityHelper.convert_html_entities(self.channelName)
         description = HtmlEntityHelper.convert_html_entities(self.channelDescription)
 
-        if self.addonUrl is not None:
+        if self.uses_external_addon:
             other = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
             name = "{0} {1} [COLOR gold]{2}[/COLOR]".format(name, unichr(187), other)
 
@@ -235,6 +235,10 @@ class ChannelInfo:
         """
 
         return TextureHandler.instance().get_texture_uri(self, image)
+
+    @property
+    def uses_external_addon(self):
+        return self.addonUrl is not None
 
     @staticmethod
     def from_json(path, version="x.x.x.x"):

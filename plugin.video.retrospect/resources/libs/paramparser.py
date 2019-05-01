@@ -102,7 +102,7 @@ class ParameterParser(object):
         if item is not None and item.url.startswith("plugin://"):
             return item.url
 
-        if item is None and channel is not None and channel.addonUrl is not None:
+        if item is None and channel is not None and channel.uses_external_addon:
             return channel.addonUrl
 
         params = dict()
