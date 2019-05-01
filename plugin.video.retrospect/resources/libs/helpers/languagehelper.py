@@ -36,6 +36,7 @@ class LanguageHelper:
     CheckUpdatesId = 30530
     BitrateSelection = 30020
     Recent = 30024
+    OtherAddon = 30007
 
     ChannelSelection = 30507
     WidevineLeiaRequired = 30536

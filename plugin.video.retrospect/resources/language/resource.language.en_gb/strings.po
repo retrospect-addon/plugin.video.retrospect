@@ -40,7 +40,11 @@ msgctxt "#30006"
 msgid "Alpha/Beta"
 msgstr ""
 
-#empty strings from id 30007 to 30008
+msgctxt "#30007"
+msgid "via other add-on"
+msgstr ""
+
+#empty strings from id 30008 to 30008
 
 msgctxt "#30009"
 msgid "General"

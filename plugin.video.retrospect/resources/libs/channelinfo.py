@@ -73,6 +73,7 @@ class ChannelInfo:
 
         self.settings = []
         self.localIPSupported = False
+        self.addonUrl = None
 
         self.icon = icon
         self.fanart = fanart
@@ -122,6 +123,10 @@ class ChannelInfo:
 
         name = HtmlEntityHelper.convert_html_entities(self.channelName)
         description = HtmlEntityHelper.convert_html_entities(self.channelDescription)
+
+        if self.uses_external_addon:
+            other = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
+            name = "{0} {1} [COLOR gold]{2}[/COLOR]".format(name, unichr(187), other)
 
         self.icon = self.__get_image_path(self.icon)
         item = xbmcgui.ListItem(name, description)
@@ -231,6 +236,10 @@ class ChannelInfo:
 
         return TextureHandler.instance().get_texture_uri(self, image)
 
+    @property
+    def uses_external_addon(self):
+        return self.addonUrl is not None
+
     @staticmethod
     def from_json(path, version="x.x.x.x"):
         """ Generates a list of ChannelInfo objects present in the json meta data file.
@@ -271,6 +280,7 @@ class ChannelInfo:
                                        eval(channel.get("compatible", "Environments.All")),
                                        channel.get("fanart", None))
             channel_info.firstTimeMessage = channel.get("message", None)
+            channel_info.addonUrl = channel.get("addonUrl", None)
             # Disable spoofing for the moment
             # channel_info.localIPSupported = channel.get("localIPSupported", False)
             channel_info.settings = settings

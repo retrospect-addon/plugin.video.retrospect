@@ -351,6 +351,10 @@ class MediaItem:
         name = "%s%s" % (name, name_post_fix)
         name = self.__full_decode_text(name)
 
+        if self.uses_external_addon:
+            other = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
+            name = "{0} {1} [COLOR gold]{2}[/COLOR]".format(name, unichr(187), other)
+
         if self.description is None:
             self.description = ''
 
@@ -515,6 +519,10 @@ class MediaItem:
             play_list.add(play_list_item[0], play_list_item[1])
 
         return play_list, srt
+
+    @property
+    def uses_external_addon(self):
+        return self.url is not None and self.url.startswith("plugin://")
 
     def __set_kodi_proxy_info(self, kodi_item, stream, stream_url, kodi_params, log_text, proxy):
         """ Updates a Kodi ListItem with the correct Proxy configuration taken from the ProxyInfo
