@@ -719,9 +719,9 @@ class MediaItem:
         # actually update it
         if description_addition:
             description_addition = ", ".join(description_addition)
-            description = "\n\n%s" % (description_addition, )
+            description = "\n\n[COLOR gold][I]%s[/I][/COLOR]" % (description_addition, )
         if title_postfix:
-            title = " %s" % ("".join(title_postfix), )
+            title = " [COLOR gold]%s[/COLOR]" % ("".join(title_postfix), )
 
         return title, description
 
