@@ -1,16 +1,13 @@
-[B]Retrospect v4.1.8.16 - Changelog - 2019-04-28[/B]
+[B]Retrospect v4.1.8.17 - Changelog - 2019-05-04[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Added: option to pass the manifest update mode to the InputStream Adaptive add-on for M3u8 streams
-* Fixed: rebuild channel index if the ChannelSet path is not consistent with the add-on path
-* Added: option to show an "All Favourites" item to the channel listing (Fixes #1102)
-* Added: option to auto start Retrospect on Kodi start (Fixes #1156)
-* Added: Extra "Advanced Settings" tab to the Retrospect add-on settings
+* Fixed: NPO radio would not list
 
 [B]GUI/Settings/Language related[/B]
-* Added: translation for "Recent"
+-
 
 [B]Channel related[/B]
--
+* Updated: show geo/drm warning symbols in yellow
+* Added: option to pass plugin:// url to item
