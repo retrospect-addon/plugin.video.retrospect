@@ -464,7 +464,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.do_regex(r'NPW.config.channels\s*=\s*([\w\W]+?),\s*NPW\.config\.', data)[-1].rstrip(";")
+        data = Regexer.do_regex(r'NPW.config.channels\s*=\s*([\w\W]+?);\s*NPW\.config\.comscore', data)[-1].rstrip(";")
         # fixUp some json
         data = re.sub(r'(\w+):([^/])', '"\\1":\\2', data)
         Logger.trace(data)

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Date parsing in NPO Start (Fixes #1152)
+* Fixed: NPO radio would not list
 
 [I]Previous Changes[/I]
+* Fixed: Date parsing in NPO Start (Fixes #1152)
 * Fixed: NPO video would now show in some occasions.
 * Fixed: For some NPO live streams the audio stops after some time (Fixes #1134)
 * Fixed: timestamp issue with cookies in NPO Channel (Fixes #1136)
