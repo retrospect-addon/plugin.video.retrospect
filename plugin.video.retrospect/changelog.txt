@@ -1,13 +1,13 @@
-[B]Retrospect v4.1.8.17 - Changelog - 2019-05-04[/B]
+[B]Retrospect v4.1.8.18 - Changelog - 2019-05-05[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
 [B]Framework related[/B]
-* Fixed: NPO radio would not list
+* Added: internal `urllib3` library to prevent performance issues (Fixes #1159)
+* Added: option to pass plugin:// url to item
 
 [B]GUI/Settings/Language related[/B]
--
+* Updated: show geo/drm warning symbols in yellow
 
 [B]Channel related[/B]
-* Updated: show geo/drm warning symbols in yellow
-* Added: option to pass plugin:// url to item
+* Fixed: NPO radio would not list
