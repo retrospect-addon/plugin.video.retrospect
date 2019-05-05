@@ -13,6 +13,7 @@ import cookielib
 import time
 from collections import namedtuple
 
+import urllib3
 import requests
 import requests.cookies
 import requests.utils
@@ -62,6 +63,7 @@ class UriHandler(object):
             )
 
             UriHandler.__handler = handler
+            Logger.debug(urllib3.__file__)
             Logger.info("Initialised: %s", handler)
         else:
             Logger.info("Re-using existing UriHandler: %s", UriHandler.__handler)
