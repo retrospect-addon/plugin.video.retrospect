@@ -513,7 +513,10 @@ class Channel(chn_class.Channel):
         if embed_url:
             Logger.warning("Embed URL found. Using that to determine the streams.")
             item.url = embed_url
-            return self.__update_embedded_video(item)
+            try:
+                return self.__update_embedded_video(item)
+            except:
+                Logger.warning("Failed to update embedded item:", exc_info=True)
 
         use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
         mpd_info = json.get_value("entitlements", "play")

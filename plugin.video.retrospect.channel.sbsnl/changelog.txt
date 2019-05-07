@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Updated: only show DRM warning for kijk.nl if there are only DRM streams.
+* Fixed: fallback to other streams if embedded stream configuration is missing for kijk.nl
 
 [I]Previous changes[/I]
+* Updated: only show DRM warning for kijk.nl if there are only DRM streams.
 * Fixed: Kijk.nl more DRM protected streams did not work (Fixes #1116)
 * Fixed: Kijk.nl new DRM protected streams did not work (Fixes #1085)
 * Fixed: Kijk.nl streams for Kodi Krypton (Fixes #1067)
