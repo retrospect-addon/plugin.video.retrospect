@@ -36,8 +36,8 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.omroepflevoland.nl"
         self.channelBitrate = 780
 
-        video_item_regex = r'<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<div[^>]+background-' \
-                           r'image: url\(\'(?<thumburl>[^\']+)\'[^>]+>(?:[^>]+>){7}\W*<h5>' \
+        video_item_regex = r'<a[^>]+href="(?<url>[^"]+)"(?:[^>]+>\W*){2}<picture[^>]+>\s*' \
+                           r'<source[^>]+srcset="(?<thumburl>[^"]+)"[^>]*>\s*(?:[^>]+>){9}\s*<h5>' \
                            r'(?<title>[^<]+)<[^>]*>\s*(?<date>\d+-\d+-\d+\s+\d+:\d+)(?:[^>]+>)' \
                            r'{11}\W*(?<description>[^<]+)</p>'
         video_item_regex = Regexer.from_expresso(video_item_regex)
@@ -169,13 +169,7 @@ class Channel(chn_class.Channel):
         """
 
         data = UriHandler.open(item.url, proxy=self.proxy)
-        json_data = Regexer.do_regex(r"video.createPlayer\(JSON.parse\('([^']+)", data)[0]
-        json_data = json_data.decode('unicode-escape').encode('ascii')
-        json_data = json_data.replace("\\\\", "")
-        json = JsonHelper(json_data)
-        stream = json.get_value("file")
-        if not stream:
-            return item
+        stream = Regexer.do_regex(r'data-file="([^"]+)+', data)[0]
 
         part = item.create_new_empty_media_part()
         if ".mp3" in stream:
