@@ -745,7 +745,7 @@ class MediaItem:
 
         elif self.__date != '' and not self.is_playable():
             # not playable items should always show date
-            name = "%s (%s)" % (name, self.__date)
+            name = "%s [COLOR=dimgray](%s)[/COLOR]" % (name, self.__date)
 
         folder_prefix = AddonSettings.get_folder_prefix()
         if self.type == "folder" and not folder_prefix == "":
