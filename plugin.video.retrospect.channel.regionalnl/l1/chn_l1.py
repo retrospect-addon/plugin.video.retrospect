@@ -4,7 +4,7 @@ from mediaitem import MediaItem
 from helpers import datehelper
 from helpers.languagehelper import LanguageHelper
 from logger import Logger
-from streams.npostream import NpoStream
+from streams.m3u8 import M3u8
 from urihandler import UriHandler
 from regexer import Regexer
 from helpers.jsonhelper import JsonHelper
@@ -216,16 +216,17 @@ class Channel(chn_class.Channel):
 
         """
 
-        if item.url == "#livetv":
-            episode_id = "LI_L1_716599"
-        else:
-            episode_id = "LI_L1_716685"
-
         part = item.create_new_empty_media_part()
-        for s, b in NpoStream.get_streams_from_npo(None, episode_id=episode_id, proxy=self.proxy):
-            item.complete = True
-            part.append_media_stream(s, b)
+        if item.url == "#livetv":
+            url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/tv/index.m3u8"
+            M3u8.update_part_with_m3u8_streams(part, url, encrypted=True, proxy=self.proxy)
+        else:
+            # the audio won't play with the InputStream Adaptive add-on.
+            url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/radio/index.m3u8"
+            for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
+                part.append_media_stream(s, b)
 
+        item.complete = True
         return item
 
     def update_video_item(self, item):
@@ -252,31 +253,29 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
-        javascript_urls = Regexer.do_regex(
-            r'<script type="text/javascript" src="(//l1.bbvms.com/p/\w+/c/\d+.js)"', data)
-        data_url = None
-        for javascript_url in javascript_urls:
-            data_url = javascript_url
-            if not data_url.startswith("http"):
-                data_url = "https:%s" % (data_url, )
+        if not item.url.endswith(".js"):
+            data = UriHandler.open(item.url, proxy=self.proxy)
+            data_id = Regexer.do_regex(r'data-id="(\d+)"[^>]+data-playout', data)
+            if data_id is None:
+                Logger.warning("Cannot find stream-id for L1 stream.")
+                return item
 
-        if not data_url:
-            return item
+            data_url = "https://l1.bbvms.com/p/video/c/{}.json".format(data_id[0])
+        else:
+            data_url = item.url
 
         data = UriHandler.open(data_url, proxy=self.proxy)
-        json_data = Regexer.do_regex(r'clipData\W*:([\w\W]{0,10000}?\}),"playerWidth', data)
-        Logger.trace(json_data)
-        json = JsonHelper(json_data[0], logger=Logger.instance())
+        json = JsonHelper(data, logger=Logger.instance())
         Logger.trace(json)
 
-        streams = json.get_value("assets")
+        base_url = json.get_value("publicationData", "defaultMediaAssetPath")
+        streams = json.get_value("clipData", "assets")
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
         for stream in streams:
             url = stream.get("src", None)
             if "://" not in url:
-                url = "http://static.l1.nl/bbw%s" % (url, )
+                url = "{}{}".format(base_url, url)
             bitrate = stream.get("bandwidth", None)
             if url:
                 part.append_media_stream(url, bitrate)

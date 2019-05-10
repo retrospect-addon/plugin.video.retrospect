@@ -2,6 +2,7 @@
 * Removed: ATV as it broke a long time ago
 * Fixed: AT5 would not work
 * Fixed: Omroep Flevoland
+* Fixed: L1 did not work at all
 
 [I]Previous changes[/I]
 * Fixed: RTV Oost Live stream (Fixes #1106)
