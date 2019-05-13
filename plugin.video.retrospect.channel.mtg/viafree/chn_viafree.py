@@ -170,9 +170,9 @@ class Channel(chn_class.Channel):
         dummy_data, items = self.add_search(data)
 
         # The data was already in a JsonHelper
-        categories = data.get_value("categories")
+        categories = data.get_value("page", "blocks", 0, "allPrograms", "categories")
         for category in categories:
-            self.__categories[category["id"]] = category
+            self.__categories[category["guid"]] = category
 
         Logger.debug("Extracting Category Information finished")
         return data, items
@@ -192,22 +192,10 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        json_data = Regexer.do_regex(r'__initialState__=([^<]+);\W+window.__config__', data)[0]
-        # the "RouteStore" has some weird functions, removing it.
-        # start = json_data.index('"RouteStore"')
-        # the need at least the 'ApplicationStore'
-        # end = json_data.index('"ApplicationStore"')
-        # returnData = json_data[0:start] + json_data[end:]
+        json_data = Regexer.do_regex(r'({\s*"config":\s*{[^<]+),\s*"startPage":\s*{', data)[0]
+        json_data += "}"
         return_data = json_data
         Logger.trace("Found Json:\n%s", return_data)
-
-        # append categorie data
-        # cat_data = Regexer.do_regex(r'"categories":(\[.*?),"allProgramsPage', data)
-        # if cat_data:
-        #     cat_data = cat_data[0]
-        #     return_data = return_data[:-1] + ', "categories": ' + cat_data + '}'
-
-        # file('c:\\temp\\json.txt', 'w+').write(returnData)
         return JsonHelper(return_data), items
 
     def create_json_episode_item(self, result_set):
@@ -716,8 +704,10 @@ class Channel(chn_class.Channel):
 
         # For now we keep using the API, otherwise we need to do more complex VideoItem parsing
         if self.useNewPages:
-            category_slug = self.__categories[result_set["category"]]["slug"]
-            url = "%s/%s/%s" % (self.baseUrl, category_slug, result_set['slug'])
+            raise NotImplementedError("The 'slug' part is no longer working")
+            # So this no longer works
+            # category_slug = self.__categories[result_set["category"]]["guid"]
+            # url = "%s/%s/%s" % (self.baseUrl, category_slug, result_set['slug'])
         else:
             url = "http://playapi.mtgx.tv/v3/videos?format=%(guid)s&order=-airdate&type=program" % result_set
         item = MediaItem(result_set['title'], url)
