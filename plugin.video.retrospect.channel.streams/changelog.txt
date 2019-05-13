@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: naming of Radio NL (Fixes #1147)
-* Changed: cache radio data in the profile cache folder
+* Removed: TV.nl channel as none of them worked anymore
 
 [I]Previous changes[/I]
+* Fixed: naming of Radio NL (Fixes #1147)
+* Changed: cache radio data in the profile cache folder
 * Fixed: 24 Classic moved to https which broke the channel (Fixes #1111)
 * Fixed: Radio 538 channel was completely broken again (Fixes #943)
 * Fixed: Radio 538 channel was completely broken
