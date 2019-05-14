@@ -1,4 +1,4 @@
-[B]Retrospect v4.1.8.19 - Changelog - 2019-05-13[/B]
+[B]Retrospect v4.1.8.20 - Changelog - 2019-05-15[/B]
 
 !! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
 
@@ -10,6 +10,7 @@
 * Updated: show geo/drm warning symbols in yellow
 
 [B]Channel related[/B]
+* Fixed: VRT.nu changes broke parsing....again (Fixes #1166)
 * Fixed: ViaFree changed their JSON....again....and broke the main listing (Fixes #1163)
 * Removed: TV.nl channel as none of them worked anymore
 * Fixed: L1 did not work at all
