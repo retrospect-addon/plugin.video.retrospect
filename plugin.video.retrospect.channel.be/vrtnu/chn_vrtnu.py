@@ -42,7 +42,7 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.vrt.be"
 
         # first regex is a bit tighter than the second one.
-        episode_regex = r'<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?:\W*<div[^>]*>\W*)<h3[^>]*>(?<title>[^<]+)</h3>\s*<div[^>]+>(?:<p>)?(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?(?:</p>)?\W*</div>\s*(?:<p[^>]*data-brand="(?<channel>[^"]+)"[^>]+>[^<]+</p>)?\s*(?:<img[\w\W]{0,100}?data-responsive-image="(?<thumburl>//[^" ]+)")?'
+        episode_regex = r'<a[^>]+href="(?<url>/vrtnu[^"]+)"[^>]*>(?<title>[^<]+)\s*</a>\s*</h3>\s*<div[^>]+>(?:<p>)?(?<description>[^<]*)(?:<br[^>]*>)?(?<descriptionMore>[^<]*)?(?:</p>)?\W*</div>\s*(?:<p[^>]*data-brand="(?<channel>[^"]+)"[^>]*>[^<]+</p>)?\s*(?:<img[\w\W]{0,100}?data-responsive-image="(?<thumburl>//[^" ]+)")?'
         episode_regex = Regexer.from_expresso(episode_regex)
         self._add_data_parser(self.mainListUri, name="Main A-Z listing",
                               preprocessor=self.add_categories,
@@ -67,7 +67,7 @@ class Channel(chn_class.Channel):
                               name="Live streams updater",
                               updater=self.update_live_video)
 
-        catregex = r'<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>\s*<div[^>]*>\s*<h3[^>]*>(?<title>[^<]+)</h3>\s*<img[\w\W]{0,100}?data-responsive-image="(?<thumburl>//[^" ]+)"'
+        catregex = r'<a[^>]+href="(?<url>/vrtnu/categorieen/(?<catid>[^"]+)/)"[^>]*>(?<title>[^<]+)\s*</a>\s*</h3>\s*<img[\w\W]{0,100}?data-responsive-image="(?<thumburl>//[^" ]+)"'
         catregex = Regexer.from_expresso(catregex)
         self._add_data_parser("https://www.vrt.be/vrtnu/categorieen/", name="Category parser",
                               match_type=ParserData.MatchExact,
@@ -298,7 +298,7 @@ class Channel(chn_class.Channel):
         items.append(live)
 
         channel_text = LanguageHelper.get_localized_string(30010)
-        channels = mediaitem.MediaItem(".: %s :." % (channel_text, ), "#channels")
+        channels = mediaitem.MediaItem("\a.: %s :." % (channel_text, ), "#channels")
         channels.fanart = self.fanart
         channels.thumb = self.noImage
         channels.icon = self.icon
