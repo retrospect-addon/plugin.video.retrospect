@@ -717,7 +717,7 @@ class Channel:
         :param int|None bitrate:    The requested bitrate in Kbps or None.
 
         :return: A Kodi Playlist for this MediaItem and a subtitle.
-        :rtype: tuple[xbmc.PlayList, str]
+        :rtype: xbmc.PlayList
 
         """
 
@@ -726,13 +726,13 @@ class Channel:
             bitrate = AddonSettings.get_max_stream_bitrate(self)
 
         # get the playlist
-        (play_list, srt) = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
+        play_list = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
 
         # call for statistics with timing
         Statistics.register_playback(self, item, Initializer.StartTime)
 
         # if the item urls have been updated, don't start playback, but return
-        return play_list, srt
+        return play_list
 
     def get_default_cache_path(self):
         """ Returns the default cache path for this channel.
