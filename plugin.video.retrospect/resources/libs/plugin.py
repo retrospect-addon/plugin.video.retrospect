@@ -516,15 +516,13 @@ class Plugin(ParameterParser):
                 xbmcplugin.endOfDirectory(self.handle, False)
                 return
 
-            play_data = self.channelObject.play_video_item(media_item)
+            play_list = self.channelObject.play_video_item(media_item)
 
             Logger.debug("Continuing playback in plugin.py")
-            if not play_data:
+            if not play_list:
                 Logger.warning("play_video_item did not return valid playdata")
                 xbmcplugin.endOfDirectory(self.handle, False)
                 return
-            else:
-                play_list, srt = play_data
 
             # Get the Kodi Player instance (let Kodi decide what player, see
             # http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)
@@ -548,15 +546,9 @@ class Plugin(ParameterParser):
                 Logger.info("Playing stream using Playlist method")
                 kodi_player.play(play_list)
 
-            # the set the subtitles
+            # Set the mode (if the InputStream Adaptive add-on is used, we also need to set it)
             show_subs = AddonSettings.use_subtitle()
-            if srt and (srt != ""):
-                Logger.info("Adding subtitle: %s and setting showSubtitles to %s", srt, show_subs)
-                XbmcWrapper.wait_for_player_to_start(kodi_player, logger=Logger.instance(), url=resolved_url)
-
-                kodi_player.setSubtitles(srt)
-
-            # set the mode (if the InputStream Adaptive add-on is used, we also need to set it)
+            XbmcWrapper.wait_for_player_to_start(kodi_player, logger=Logger.instance(), url=resolved_url)
             kodi_player.showSubtitles(show_subs)
 
             xbmcplugin.endOfDirectory(self.handle, True)

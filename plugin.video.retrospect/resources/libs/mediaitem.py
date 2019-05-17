@@ -438,12 +438,11 @@ class MediaItem:
         :param ProxyInfo|None proxy:    The proxy to set
 
         :return: A Kodi Playlist for this MediaItem and a subtitle.
-        :rtype: tuple[xbmc.PlayList, str]
+        :rtype: xbmc.PlayList
 
         """
 
         play_list = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-        srt = None
 
         play_list_items = []
         if not update_item_urls:
@@ -507,10 +506,6 @@ class MediaItem:
 
             index += 1
 
-            # for now we just add the last subtitle, this will not work if each
-            # part has it's own subtitles.
-            srt = part.Subtitle
-
         Logger.info(log_text)
 
         end_list = reduce(lambda x, y: "%s\n%s" % (x, y[0]), play_list_items, "Ended with Playlist Items (%s)" % (len(play_list_items),))
@@ -518,7 +513,7 @@ class MediaItem:
         for play_list_item in play_list_items:
             play_list.add(play_list_item[0], play_list_item[1])
 
-        return play_list, srt
+        return play_list
 
     @property
     def uses_external_addon(self):
@@ -894,6 +889,10 @@ class MediaItemPart:
         if update_item_urls:
             Logger.info("Updating Kodi playlist-item path: %s", stream.Url)
             item.setProperty("path", stream.Url)
+
+        if self.Subtitle:
+            Logger.debug("Adding subtitle to ListItem: %s", self.Subtitle)
+            item.setSubtitles([self.Subtitle,])
 
         return stream, item
 
