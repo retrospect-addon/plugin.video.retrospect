@@ -519,7 +519,7 @@ class Plugin(ParameterParser):
             play_list = self.channelObject.play_video_item(media_item)
 
             Logger.debug("Continuing playback in plugin.py")
-            if not play_list:
+            if play_list is None:
                 Logger.warning("play_video_item did not return valid playdata")
                 xbmcplugin.endOfDirectory(self.handle, False)
                 return
