@@ -118,7 +118,8 @@ class M3u8:
     def update_part_with_m3u8_streams(part, url,
                                       encrypted=False,
                                       proxy=None, headers=None,
-                                      map_audio=False):
+                                      map_audio=False,
+                                      bitrate=0):
         """ Updates an existing MediaItemPart with M3u8 data either using the Adaptive Inputstream 
         Add-on or with the built-in code.
 
@@ -128,6 +129,7 @@ class M3u8:
         :param dict[str,str] headers:   Possible HTTP Headers
         :param ProxyInfo proxy:         The proxy to use for opening
         :param bool map_audio:          Should audio tracks be mapped seperately?
+        :param int bitrate:             Initial bitrate to use. Will be overriden later.
 
         :return: indication if updating was succesful.
         :rtype: bool
@@ -141,7 +143,7 @@ class M3u8:
 
         if input_stream:
             Logger.debug("Using InputStream Adaptive add-on for M3u8 playback.")
-            stream = part.append_media_stream(url, 0)
+            stream = part.append_media_stream(url, bitrate)
             M3u8.set_input_stream_addon_input(stream, proxy, headers)
             return True
 
