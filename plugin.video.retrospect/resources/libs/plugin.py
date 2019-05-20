@@ -549,6 +549,12 @@ class Plugin(ParameterParser):
             # Set the mode (if the InputStream Adaptive add-on is used, we also need to set it)
             show_subs = AddonSettings.use_subtitle()
             XbmcWrapper.wait_for_player_to_start(kodi_player, logger=Logger.instance(), url=resolved_url)
+
+            # TODO: Apparently if we use the InputStream Adaptive, using the setSubtitles() causes sync issues.
+            available_subs = [p.Subtitle for p in media_item.MediaItemParts]
+            if show_subs and available_subs:
+                kodi_player.setSubtitles(available_subs[0])
+
             kodi_player.showSubtitles(show_subs)
 
             xbmcplugin.endOfDirectory(self.handle, True)

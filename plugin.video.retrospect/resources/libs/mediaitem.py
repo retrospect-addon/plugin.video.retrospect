@@ -890,7 +890,8 @@ class MediaItemPart:
             Logger.info("Updating Kodi playlist-item path: %s", stream.Url)
             item.setProperty("path", stream.Url)
 
-        if self.Subtitle:
+        # TODO: Apparently if we use the InputStream Adaptive, using the setSubtitles() causes sync issues.
+        if self.Subtitle and False:
             Logger.debug("Adding subtitle to ListItem: %s", self.Subtitle)
             item.setSubtitles([self.Subtitle,])
 
