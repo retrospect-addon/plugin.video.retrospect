@@ -93,8 +93,8 @@ msgid "Port"
 msgstr "Port"
 
 msgctxt "#30031"
-msgid "Cache HTTP requests (experimental)"
-msgstr "Mellomlagre HTTP-forespørsler (eksperimentelt)"
+msgid "Cache HTTP(S) requests"
+msgstr "Mellomlagre HTTP(S)-forespørsler"
 
 msgctxt "#30032"
 msgid "Channel Settings"

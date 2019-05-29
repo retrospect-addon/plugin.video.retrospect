@@ -113,8 +113,8 @@ msgid "Port"
 msgstr "Portnummer"
 
 msgctxt "#30031"
-msgid "Cache HTTP requests (experimental)"
-msgstr "Buffra HTTP-förfrågningar (experiment)"
+msgid "Cache HTTP(S) requests"
+msgstr "Buffra HTTP(S)-förfrågningar"
 
 msgctxt "#30032"
 msgid "Channel Settings"

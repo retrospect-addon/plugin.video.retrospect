@@ -93,8 +93,8 @@ msgid "Port"
 msgstr "Portti"
 
 msgctxt "#30031"
-msgid "Cache HTTP requests (experimental)"
-msgstr "HTTP-pyyntöjen välimuisti (kokeellinen)"
+msgid "Cache HTTP(S) requests"
+msgstr "HTTP(S)-pyyntöjen välimuisti"
 
 msgctxt "#30032"
 msgid "Channel Settings"

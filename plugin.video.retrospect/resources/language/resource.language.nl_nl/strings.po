@@ -119,8 +119,8 @@ msgid "Port"
 msgstr "Poort"
 
 msgctxt "#30031"
-msgid "Cache HTTP requests (experimental)"
-msgstr "Cache HTTP berichten (experimenteel)"
+msgid "Cache HTTP(S) requests"
+msgstr "Cache HTTP(S) berichten"
 
 msgctxt "#30032"
 msgid "Channel Settings"

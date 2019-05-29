@@ -121,7 +121,7 @@ msgid "Port"
 msgstr ""
 
 msgctxt "#30031"
-msgid "Cache HTTP requests (experimental)"
+msgid "Cache HTTP(S) requests"
 msgstr ""
 
 msgctxt "#30032"
