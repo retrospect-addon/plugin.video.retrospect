@@ -86,14 +86,17 @@ class Menu(ParameterParser):
         """
 
         valid_channels = ChannelIndex.get_register().get_channels(include_disabled=True)
-        channels_to_show = filter(lambda c: c.visible, valid_channels)
+        channels_to_show = [c for c in valid_channels if c.visible]
+        # The old way
+        # channels_to_show = filter(lambda c: c.visible, valid_channels)
 
-        selected_channels = filter(lambda c: c.enabled, channels_to_show)
-        selected_indices = map(lambda c: channels_to_show.index(c), selected_channels)
+        selected_channels = [c for c in channels_to_show if c.enabled]
+        selected_indices = list([channels_to_show.index(c) for c in selected_channels])
         Logger.debug("Currently selected channels: %s", selected_indices)
 
-        channel_to_show_names = map(lambda c: HtmlEntityHelper.convert_html_entities(c.channelName),
-                                    channels_to_show)
+        channel_to_show_names = [HtmlEntityHelper.convert_html_entities(c.channelName) for c in channels_to_show]
+        # The old way
+        # channel_to_show_names = list(map(lambda c: HtmlEntityHelper.convert_html_entities(c.channelName), channels_to_show))
 
         dialog = xbmcgui.Dialog()
         heading = LanguageHelper.get_localized_string(LanguageHelper.ChannelSelection)[:-1]
@@ -105,8 +108,8 @@ class Menu(ParameterParser):
         selected_channels = list(selected_channels)
         Logger.debug("New selected channels:       %s", selected_channels)
 
-        indices_to_remove = filter(lambda i: i not in selected_channels, selected_indices)
-        indices_to_add = filter(lambda i: i not in selected_indices, selected_channels)
+        indices_to_remove = [i for i in selected_indices if i not in selected_channels]
+        indices_to_add = [i for i in selected_channels if i not in selected_indices]
         for i in indices_to_remove:
             Logger.info("Hiding channel: %s", channels_to_show[i])
             AddonSettings.set_channel_visiblity(channels_to_show[i], False)
