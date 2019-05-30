@@ -72,13 +72,12 @@ class XmlHelper(TagHelperBase):
         regex = "<%s" % (node_tag,)
         
         for arg in args:
-            regex += '[^>]*%s\W*=\W*"%s"' % (arg.keys()[0], arg[arg.keys()[0]])
+            regex += r'[^>]*%s\W*=\W*"%s"' % (list(arg.keys())[0], arg[list(arg.keys())[0]])
             # just do one pass
 
-        regex += "[^>]*>([\w\W]+?)</%s>" % (node_tag,)
+        regex += r"[^>]*>([\w\W]+?)</%s>" % (node_tag,)
         Logger.trace("XmlRegex = %s", regex)
-        
-        #regex = '<%s>([^<]+)</%s>' % (nodeTag, nodeTag)
+
         results = Regexer.do_regex(regex, self.data)
         Logger.trace(results)
         return results
@@ -91,7 +90,5 @@ class XmlHelper(TagHelperBase):
         data : String - The data to strip from.
         
         """
-        
-        #Logger.Debug(data)
-        #Logger.Debug(data.replace("<![CDATA[","").replace("]]>",""))
+
         return data.replace("<![CDATA[", "").replace("]]>", "")

@@ -11,7 +11,7 @@ import base64
 import hashlib
 
 
-class EncodingHelper:
+class EncodingHelper(object):
     """Class that is intended to help with the encoding and decoding
     of text.
 
@@ -29,6 +29,7 @@ class EncodingHelper:
 
         """
 
+        # What to do with Encoding errors?
         #codecs.register_error('keep', EncodingHelper.__keep_handler)
         #self.decoder = decoder
         #self.encoder = encoder

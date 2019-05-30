@@ -14,17 +14,15 @@ import json
 
 
 #noinspection PyShadowingNames
-class JsonHelper:
+class JsonHelper(object):
     def __init__(self, data, logger=None):
         """Creates a class that wraps json.
 
-        Arguments:
-        data : string - JSON data to parse
-
-        Keyword Arguments:
-        Logger : Logger - If specified it is used for logging
+        :param str|unicode data:    JSON data to parse.
+        :param any logger:      If specified it is used for logging.
 
         """
+
         self.logger = logger
         self.data = data.strip()
         self.json = dict()
@@ -53,15 +51,13 @@ class JsonHelper:
         to be allowed, the string should be UTF-8 decoded because, Python will otherwise
         assume it to be ASCII.
 
-        Arguments:
-        test     : string  - the text to search for.
+        :param str|unicode text:    The text to search for.
+        :param bool do_quotes:      Should quotes be replaced?
 
-        Keyword Arguments:
-        doQuotes : Boolean - Should quotes be replaced
-
-        Returns text with all the \uXXXX values replaced with their Unicode
+        :return: Returns text with all the \\uXXXX values replaced with their Unicode
         characters. XXXX is considered a Hexvalue. It returns unichr(int(hex)). The
         returnvalue is UTF-8 byte encoded.
+        :rtype: str|unicode
 
         """
 
@@ -83,8 +79,10 @@ class JsonHelper:
     def __convert_quotes(text):
         """ Replaces escaped quotes with their none escaped ones.
 
-        Arguments:
-        text : String - The input text to clean.
+        :param str|unicode text:    The input text to clean.
+
+        :return: text with quotes converted.
+        :rtype: str|unicode
 
         """
 
@@ -98,18 +96,17 @@ class JsonHelper:
 
     @staticmethod
     def __special_chars_handler(match):
-        """ Helper method to replace \uXXXX with unichr(int(hex))
+        """ Helper method to replace \\uXXXX with unichr(int(hex))
 
-        Arguments:
-        match : RegexMatch - the matched element in which group(2) holds the
-                             hex value.
+        :param re.Match match:  The matched element in which group(2) holds the
+                                hex value.
 
-        Returns the Unicode character corresponding to the Hex value.
+        :return: Returns the Unicode character corresponding to the Hex value.
+        :rtype: chr
 
         """
 
         hex_string = "0x%s" % (match.group(2))
-        # print hexString
         hex_value = int(hex_string, 16)
         return unichr(hex_value)
 
@@ -117,10 +114,10 @@ class JsonHelper:
     def get_value(self, *args, **kwargs):
         """ Retrieves data from the JSON object based on the input parameters
 
-        @param args:    the dictionary keys, or list indexes
-        @param kwargs:  possible value = fallback and allows the specification of a fallback value
+        :param str args|int:    The dictionary keys, or list indexes.
+        :param any kwargs:      Possible value = fallback and allows the specification of a fallback value.
 
-        @return: the selected JSON object
+        :return: the selected JSON object
 
         """
 
@@ -141,27 +138,30 @@ class JsonHelper:
         return data
 
     @staticmethod
-    def dump(dictionary, pretty_print=True):
+    def dump(dictionary, pretty_print=True, sort_keys=False):
         """ Dumps a JSON object to a string
 
-        @param pretty_print:     (boolean) indicating if the format should be nice
-        @param dictionary: (string) the object to dump
+        :param bool pretty_print:       Indicating if the format should be nice.
+        :param dict|list dictionary:    The object to dump.
+        :param bool sort_keys:          Show we sort by keys?
 
-        @return: a valid JSON string
+        :return: a valid JSON string
+        :rtype: str
+
         """
 
         if pretty_print:
-            return json.dumps(dictionary, indent=4)
+            return json.dumps(dictionary, indent=4, sort_keys=sort_keys, ensure_ascii=False)
         else:
-            return json.dumps(dictionary)
+            return json.dumps(dictionary, sort_keys=sort_keys, ensure_ascii=False)
 
     @staticmethod
     def loads(json_data):
         """ Loads a JSON object to a valid object
 
-        @param json_data:   (string) the JSON data to load
+        :param str|unicode json_data:   The JSON data to load
+        :return: a valid JSON object
 
-        @return: a valid JSON object
         """
 
         return json.loads(json_data)

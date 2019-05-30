@@ -9,13 +9,14 @@
 #===============================================================================
 
 import os
+import io
 import shutil
 import zipfile
 
 from logger import Logger
 
 
-class ZipHelper:
+class ZipHelper(object):
     def __init__(self):
         pass
 
@@ -48,9 +49,8 @@ class ZipHelper:
                     if not os.path.exists(path):
                         os.makedirs(path)
                     Logger.debug("Extracting %s", file_name)
-                    outfile = open(file_name, 'wb')
-                    outfile.write(zip_file.read(name))
-                    outfile.close()
+                    with io.open(file_name, 'wb') as outfile:
+                        outfile.write(zip_file.read(name))
         except zipfile.BadZipfile:
             Logger.error("Invalid zipfile: %s", path, exc_info=True)
             if os.path.isfile(path):

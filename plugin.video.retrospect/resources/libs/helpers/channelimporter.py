@@ -8,13 +8,10 @@
 # San Francisco, California 94105, USA.
 # ===============================================================================
 
-# ===============================================================================
-# Import the default modules
-# ===============================================================================
-import shutil
 import sys
 import os
 import io
+import shutil
 import datetime
 import time
 
@@ -31,10 +28,11 @@ from logger import Logger
 from helpers.jsonhelper import JsonHelper
 from textures import TextureHandler
 from version import Version
-from helpers.stopwatch import StopWatch
+from .stopwatch import StopWatch
+from chn_class import Channel
 
 
-class ChannelIndex:
+class ChannelIndex(object):
     """ Class that handles the deploying and loading of available channels."""
 
     __channelIndexer = None  # : Property to store the channel indexer in.
@@ -69,7 +67,7 @@ class ChannelIndex:
         """ Initialize the importer by reading the channels from the channel
         resource folder and will start the import of the channels
 
-        It also deploys the channels from the retrospect\deploy folder.
+        It also deploys the channels from the retrospect/deploy folder.
 
         """
 
@@ -97,10 +95,12 @@ class ChannelIndex:
         If updated channels are found, the those channels are indexed and the
         channel index is rebuild.
 
-        @param class_name:       the chn_<name> class name
-        @param channel_code:     a possible channel code within the channel set
-        @param info_only:        only return the ChannelInfo
-        @return:                 a Channel object
+        :param str|unicode class_name:      The chn_<name> class name.
+        :param str|unicode channel_code:    A possible channel code within the channel set.
+        :param bool info_only:              Only return the ChannelInfo.
+
+        :return: a Channel object
+        :rtype: Channel
 
         """
 
@@ -118,9 +118,9 @@ class ChannelIndex:
 
         channel_infos = ChannelInfo.from_json(channel_set_info_path, channel_set_version)
         if channel_code is None:
-            channel_infos = filter(lambda ci: ci.channelCode is None, channel_infos)
+            channel_infos = [ci for ci in channel_infos if ci.channelCode is None]
         else:
-            channel_infos = filter(lambda ci: ci.channelCode == channel_code, channel_infos)
+            channel_infos = [ci for ci in channel_infos if ci.channelCode == channel_code]
 
         if len(channel_infos) != 1:
             Logger.error("Found none or more than 1 matches for '%s' and '%s' in the channel index.",
@@ -156,12 +156,12 @@ class ChannelIndex:
         If updated channels are found, the those channels are indexed and the
         channel index is rebuild.
 
-        @type include_disabled: boolean to indicate if we should include those channels that are
-                               explicitly disabled from the settings
+        :param bool include_disabled:   Boolean to indicate if we should include those channels
+                                        that are explicitly disabled from the settings.
+        :param dict kwargs:             Here for backward compatibility.
 
-        @type kwargs: here for backward compatibility
-
-        @return: a list of ChannelInfo objects of enabled channels.
+        :return: a list of ChannelInfo objects of enabled channels.
+        :rtype: list[ChannelInfo]
 
         """
 
@@ -248,8 +248,8 @@ class ChannelIndex:
             Logger.debug("No channel changes found. Skipping add-on configuration for channels.")
             # TODO: perhaps we should check that the settings.xml is correct and not broken?
 
-        valid_channels.sort()
-        visible_channels = filter(lambda c: c.visible and c.enabled, valid_channels)
+        valid_channels.sort(key=lambda c: c.sort_key)
+        visible_channels = [ci for ci in valid_channels if ci.visible and ci.enabled]
         Logger.info("Fetch a total of %d channels of which %d are visible.",
                     len(valid_channels),
                     len(visible_channels))
@@ -263,11 +263,17 @@ class ChannelIndex:
 
     def get_categories(self):
         # type: () -> set
-        """ Retrieves the available categories from the channels """
+        """ Retrieves the available categories from the channels. This list is dynamically generated
+        based on the active channels.
+
+        :return: A list of available categories for the channels.
+        :rtype: list[str|unicode]
+
+        """
 
         categories = set()
         channels = self.get_channels()
-        map(lambda c: categories.add(c.category), channels)
+        list([categories.add(c.category) for c in channels])
         Logger.debug("Found these categories: %s", ", ".join(categories))
         return categories
 
@@ -359,14 +365,15 @@ class ChannelIndex:
         # return deployed
 
     def __get_index(self):
-        # type: () -> dict
         """ Loads the channel index and if there is none, makes sure one is created.
 
         Checks:
         1. Existence of the index
         2. Channel add-ons in the index vs actual add-ons
 
-        @return:
+        :return: The current channel index.
+        :rtype: dict
+
         """
 
         # if it was not already re-index and the bit was set
@@ -382,7 +389,7 @@ class ChannelIndex:
             return self.__rebuild_index()
 
         try:
-            with io.open(self.__CHANNEL_INDEX, 'r', encoding='utf-8') as fd:
+            with io.open(self.__CHANNEL_INDEX, 'rt', encoding='utf-8') as fd:
                 data = fd.read()
 
             index_json = JsonHelper(data, logger=Logger.instance())
@@ -396,7 +403,6 @@ class ChannelIndex:
             return self.__rebuild_index()
 
     def __rebuild_index(self):
-        # type: () -> dict
         """ Rebuilds the channel index that contains all channels and performs all necessary steps:
 
         1. Find all channel add-on paths and determine the version of the channel add-on
@@ -406,9 +412,10 @@ class ChannelIndex:
                the included channels.
             c. Add all channels within the channel set to the channelIndex
 
-        @return: the new channel index dictionary object.
-
         Remark: this method only generates the index of the channels, it does not import at all!
+
+        :return: The current channel index.
+        :rtype: dict
 
         """
 
@@ -425,7 +432,7 @@ class ChannelIndex:
         # iterate all Retrospect Video Add-ons
         addon_path = self.__get_addon_path()
         channel_path_start = "%s.channel" % (Config.addonDir,)
-        add_ons = filter(lambda x: channel_path_start in x and "BUILD" not in x, os.listdir(addon_path))
+        add_ons = [x for x in os.listdir(addon_path) if channel_path_start in x and "BUILD" not in x]
         for add_on_dir in add_ons:
             index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(add_on_dir)
 
@@ -446,7 +453,7 @@ class ChannelIndex:
                     self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_add_on_path, channel_set, "%s.json" % (channel_set_id,))
                 }
 
-        with io.open(self.__CHANNEL_INDEX, 'w+b') as f:
+        with io.open(self.__CHANNEL_INDEX, 'wt+', encoding='utf-8') as f:
             f.write(JsonHelper.dump(index))
 
         # now we marked that we already re-indexed.
@@ -463,8 +470,10 @@ class ChannelIndex:
     def __validate_add_on_version(self, path):
         """ Parses the addon.xml file and checks if all is OK.
 
-        @param path: path to load the addon from
-        @return: the AddonId-Version
+        :param str|unicode path:    The path to load the addon from.
+
+        :return: the AddonId-Version
+        :rtype: tuple[str|unicode|none,str|unicode|none]
 
         """
 
@@ -475,7 +484,7 @@ class ChannelIndex:
             Logger.info("No addon.xml found at %s.", addon_file)
             return None, None
 
-        with io.open(addon_file, 'r+', encoding='utf-8') as f:
+        with io.open(addon_file, 'rt+', encoding='utf-8') as f:
             addon_xml = f.read()
 
         pack_version = Regexer.do_regex('id="([^"]+)"\\W+version="([^"]+)"', addon_xml)
@@ -497,10 +506,10 @@ class ChannelIndex:
             return None, None
 
     def __get_addon_path(self):
-        # type: () -> str
         """ Returns the path that holds all the Kodi add-ons. It differs for Xbox and other platforms.
 
-        @return: The add-on base path
+        :return: The add-on base path
+        :rtype: str|unicode
 
         """
 
@@ -514,20 +523,22 @@ class ChannelIndex:
         return addon_path
 
     def __is_channel_set_updated(self, channel_info):
-        # type: (ChannelInfo) -> bool
         """ Checks whether a channel set was updated.
 
-        @param channel_info: the channelInfo for a channel from the set
-        @rtype : boolean indicating if the channel was updated or not.
+        :param ChannelInfo channel_info: the channelInfo for a channel from the set
+
+        :return: indicating if the channel was updated or not.
+        :rtype : bool
 
         """
 
         compiled_name = "%s.pyc" % (channel_info.moduleName,)
         optimized_name = "%s.pyo" % (channel_info.moduleName,)
 
-        # show the first time message when no Optimezed (.pyo) and no Compiled (.pyc) files are there
-        if os.path.isfile(os.path.join(channel_info.path, compiled_name)) or os.path.isfile(
-                os.path.join(channel_info.path, optimized_name)):
+        # A channel set is updated if no Optimized (.pyo) and no Compiled (.pyc) files are
+        # there.
+        if os.path.isfile(os.path.join(channel_info.path, compiled_name)) or \
+                os.path.isfile(os.path.join(channel_info.path, optimized_name)):
             return False
 
         return True
@@ -602,17 +613,13 @@ class ChannelIndex:
         return
 
     def __show_first_time_message(self, channel_info):
-        # type: (ChannelInfo) -> None
-        """ Checks if it is the first time a channel is executed
-        and if a first time message is available it will be shown
+        """ Checks if it is the first time a channel is executed and if a first time message is
+        available it will be shown.
 
-        Arguments:
-        channelName : string - Name of the channelfile that is loaded
-        channelPath : string - Path of the channelfile
+        Shows a message dialog if the message should be shown.  Make sure that each line fits
+        in a single line of a Kodi Dialog box (50 chars).
 
-        Shows a message dialog if the message should be shown.
-
-        Make sure that each line fits in a single line of a Kodi Dialog box (50 chars)
+        :param ChannelInfo channel_info:    The ChannelInfo to show a message for.
 
         """
 
@@ -632,8 +639,11 @@ class ChannelIndex:
     def __is_index_consistent(self, index):
         """ A quick check if a given Channel Index is correct.
 
-        @param index: a index with Channel information
-        @return:      an indication (True/False) if the index is consistent.
+        :param dict index:  A index with Channel information.
+
+        :return: An indication (True/False) if the index is consistent.
+        :rtype: bool
+
         """
 
         if self.__CHANNEL_INDEX_CHANNEL_KEY not in index:
@@ -648,7 +658,7 @@ class ChannelIndex:
         indexed_channel_add_ons = index[self.__CHANNEL_INDEX_ADD_ONS_KEY]
         addon_path = self.__get_addon_path()
         channel_path_start = "%s.channel" % (Config.addonDir,)
-        add_ons = filter(lambda x: x.startswith(channel_path_start), os.listdir(addon_path))
+        add_ons = [x for x in os.listdir(addon_path) if x.startswith(channel_path_start)]
 
         # see if the numbers match
         if len(indexed_channel_add_ons) != len(add_ons):
@@ -663,13 +673,13 @@ class ChannelIndex:
 
         # Validate the version of the add-on and the channel-sets
         channels = index[self.__CHANNEL_INDEX_CHANNEL_KEY]
-        first_version = channels[channels.keys()[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
+        first_version = channels[list(channels.keys())[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
         first_version = Version(first_version)
         if not Config.version.equal_builds(first_version):
             Logger.warning("Inconsisten version 'index' vs 'add-on': %s vs %s", first_version, Config.version)
             return False
 
-        first_path = channels[channels.keys()[0]][self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
+        first_path = channels[list(channels.keys())[0]][self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
         if not first_path.startswith(Config.rootDir.rstrip(os.sep)):
             Logger.warning("Inconsisten path for ChannelSet and main add-on:\n"
                            "Channel: '%s'\n"
@@ -679,5 +689,11 @@ class ChannelIndex:
         return True
 
     def __str__(self):
-        # type: () -> str
-        return "ChannelIndex for %s (id=%s)" % (Config.profileDir, self.id)
+        """ String representation of the object.
+
+        :return: String representation of the object.
+        :type: str|unicode
+
+        """
+
+        return "ChannelIndex for {} (id={})".format(Config.profileDir, self.id)

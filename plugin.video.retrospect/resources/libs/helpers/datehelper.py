@@ -11,13 +11,7 @@ import datetime
 import time
 
 
-#===============================================================================
-# Make global object available
-#===============================================================================
-# from logger import Logger
-
-
-class DateHelper:
+class DateHelper(object):
     """Helper class to parse datenames into numbers"""
 
     def __init__(self):
@@ -27,6 +21,13 @@ class DateHelper:
 
     @staticmethod
     def this_year():
+        """ Returns the current year
+
+        :return: the current year.
+        :rtype: int
+
+        """
+
         now = datetime.datetime.now()
         return now.year
 
@@ -34,15 +35,14 @@ class DateHelper:
     def get_date_for_next_day(day, possibilities=None, tomorrow="Morgen", today="Vandaag"):
         """ Gets the date for the next Weekday (default ["ma", "di", "wo", "do", "vr", "za", "zo"]).
 
-        Arguments:
-        day : String - Weekday with that has in index in the "possibilities" parameter
+        :param str day:                 Weekday (present in "possibilities" parameter) to find
+                                        the actual date for.
+        :param list[str] possibilities: A list of possible day string values for monday to sunday.
+        :param str tomorrow:            A possible alternative str for the day `tomorrow`.
+        :param str today:               A possible alternative str for the day `today`.
 
-        Keywork Arguments:
-        possibilities : List   - List of possible weekdays.
-        today         : String - Value for today
-        tomorrow      : String - Value for tomorrow
-
-        Returns the date of the next "day".
+        :return: The datetime for when the next `day` occurs.
+        :rtype: datetime.datetime
 
         """
 
@@ -72,13 +72,13 @@ class DateHelper:
     def get_date_for_previous_day(day, possibilities=None, yesterday="Gisteren"):
         """ Gets the date for the previous Weekday (default ["ma", "di", "wo", "do", "vr", "za", "zo"]).
 
-        Arguments:
-        day : String - Weekday with that has in index in the "possibilities" parameter
+        :param str day:                 Weekday (present in "possibilities" parameter) to find
+                                        the actual date for.
+        :param list[str] possibilities: A list of possible day string values for monday to sunday.
+        :param str yesterday:           A possible alternative str for the day `yesterday`.
 
-        Keywork Arguments:
-        possibilities : List - List of possible weekdays.
-
-        Returns the date of the previous "day".
+        :return: Returns the date for the previous `day`.
+        :rtype: datetime.datetime
 
         """
 
@@ -107,7 +107,7 @@ class DateHelper:
 
         :param str month:           Name of the month.
         :param str language:        Language code (nl, en).
-        :param bool|None short:     Indicates the monthnames are short. Default: None
+        :param bool|None short:     Indicates the monthnames are short. Default: None.
 
         :return: The month number.
         :rtype: int
@@ -124,11 +124,14 @@ class DateHelper:
 
     @staticmethod
     def get_date_from_posix(posix, tz=None):
-        # type: (float, datetime.tzinfo) -> datetime.datetime
         """ Creates a datetime from a Posix Time stamp
 
-        @param posix:   the posix time stamp integer
-        @return:        a valid datetime.datetime object.
+        :param float posix:         The posix time stamp integer.
+        :param datetime.tzinfo tz:  A possible timezone info object.
+
+        :return: A valid datetime.datetime object for the given posix time stamp.
+        :rtype: datetime.datetime
+
         """
 
         # don't use use fromtimestamp to prevent errors like:
@@ -143,12 +146,7 @@ class DateHelper:
 
     @staticmethod
     def get_date_from_string(value, date_format="%Y-%m-%dT%H:%M:%S+00:00"):
-        # type: (str, str) -> time.struct_time
         """ Converts a formatted date-time string to a time struct.
-
-        @param value:       the string value to parse
-        @param date_format:  the format to use
-        @return:            a time.struct_time
 
         time.struct_time values:
         0 	tm_year 	(for example, 1993)
@@ -164,6 +162,12 @@ class DateHelper:
         The datetime.strptime does not work in Kodi. See:
         https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
 
+        :param str value:           The string value to parse
+        :param str date_format:     The format to use
+
+        :return: A time.struct_time for the parsed date and time
+        :rtype: time.struct_time
+
         """
 
         return time.strptime(value, date_format)
@@ -172,15 +176,15 @@ class DateHelper:
     def __get_month_from_name(month, language, short=True):
         """Gets the month number from the name.
 
-        Arguments:
-        month    : string - Name of the month
-        language : string - Language code (nl, en)
-
-        Keyword Arguments:
-        short : [opt] boolean - indicates the monthnames are short. Default: True
-
         Returns:
         the month number
+
+        :param str month:       Name of the month
+        :param str language:    Language code (nl, en)
+        :param bool short:      Indicates the monthnames are short. Default: True
+
+        :return: The month number for the give month name.
+        :rtype: int
 
         """
 

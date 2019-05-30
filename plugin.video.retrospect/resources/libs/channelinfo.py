@@ -8,14 +8,12 @@
 # San Francisco, California 94105, USA.
 # ===============================================================================
 
-# ===============================================================================
-# Import the default modules
-# ===============================================================================
-
-import io
 import os
+import io
 import sys
+
 import xbmcgui
+
 from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
@@ -26,7 +24,7 @@ from helpers.languagehelper import LanguageHelper
 from textures import TextureHandler
 
 
-class ChannelInfo:
+class ChannelInfo(object):
     def __init__(self, guid, name, description, icon, category, path,
                  channel_code=None, sort_order=255, language=None,
                  compatible_platforms=Environments.All, fanart=None):
@@ -81,6 +79,10 @@ class ChannelInfo:
         self.enabled = False                # enabled from the settings
         self.visible = False                # hidden/visible due to country settings
 
+    @property
+    def sort_key(self):
+        return "{0}-{1}".format(self.sortOrderPerCountry, self.channelName)
+
     def get_channel(self):
         """ Instantiates a channel from a ChannelInfo object 
 
@@ -91,7 +93,7 @@ class ChannelInfo:
         Logger.trace("Importing module %s from path %s", self.moduleName, self.path)
 
         sys.path.append(self.path)
-        exec ("import %s" % (self.moduleName,))
+        exec("import {}".format(self.moduleName))
 
         channel_command = '%s.Channel(self)' % (self.moduleName,)
         try:
@@ -202,26 +204,6 @@ class ChannelInfo:
             return False
 
         return self.guid == other.guid
-
-    def __cmp__(self, other):
-        """Compares to channels
-
-        :param ChannelInfo other: The other object to compare
-
-        :return: The return value is negative if self < other, zero if self == other and strictly
-                 positive if self > other
-        :rtype: int
-
-        """
-
-        if other is None:
-            return 1
-
-        comp_val = cmp(self.sortOrderPerCountry, other.sortOrderPerCountry)
-        if comp_val == 0:
-            comp_val = cmp(self.channelName, other.channelName)
-
-        return comp_val
 
     def __get_image_path(self, image):
         """ Tries to determine the path of an image
