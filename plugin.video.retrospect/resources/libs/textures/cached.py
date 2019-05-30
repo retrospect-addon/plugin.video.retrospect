@@ -11,6 +11,7 @@
 import hashlib
 import shutil
 import os
+import io
 
 from textures import TextureHandler
 
@@ -119,7 +120,7 @@ class Cached(TextureHandler):
         textures_total = len(self.__textureQueue)
         textures_completed = 0
 
-        for uri, texture_path in self.__textureQueue.iteritems():
+        for uri, texture_path in self.__textureQueue.items():
             self._logger.debug("Fetching texture for '%s' to '%s'", uri, texture_path)
             if os.path.isfile(uri):
                 shutil.copyfile(uri, texture_path)
@@ -130,7 +131,12 @@ class Cached(TextureHandler):
             textures_completed += 1
             file_name = os.path.split(texture_path)[-1]
 
-            if dialog_call_back(textures_completed, textures_total, int(100 * textures_completed / textures_total), False, file_name):
+            if dialog_call_back(
+                    textures_completed,
+                    textures_total,
+                    100 * textures_completed // textures_total,
+                    False,
+                    file_name):
                 self._logger.warning("Texture retrieval cancelled")
                 break
 
@@ -147,9 +153,8 @@ class Cached(TextureHandler):
 
         # read the md5 hashes
         addon_id = self._get_addon_id(channel)
-        fp = file(os.path.join(channel.path, "..", "%s.md5" % (addon_id, )))
-        lines = fp.readlines()
-        fp.close()
+        with io.open(os.path.join(channel.path, "..", "%s.md5" % (addon_id, )), 'rt', encoding='utf-8') as fd:
+            lines = fd.readlines()
 
         # get a lookup table
         textures = [reversed(line.rstrip().split(" ", 1)) for line in lines]
@@ -206,9 +211,12 @@ class Cached(TextureHandler):
 
         image_bytes = self.__uriHandler.open(uri, no_cache=True)
         if image_bytes:
-            fs = open(texture_path, mode='wb')
-            fs.write(image_bytes)
-            fs.close()
+            with io.open(texture_path, mode='wb') as fs:
+                if isinstance(image_bytes, bytes):
+                    fs.write(image_bytes)
+                else:
+                    fs.write(image_bytes.encode())
+
             self._logger.debug("Retrieved texture: %s", uri)
         else:
             # fallback to local cache.
