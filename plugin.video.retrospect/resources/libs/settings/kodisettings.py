@@ -10,7 +10,7 @@
 
 import xbmcaddon
 
-import settingsstore
+from . import settingsstore
 
 
 class KodiSettings(settingsstore.SettingsStore):
