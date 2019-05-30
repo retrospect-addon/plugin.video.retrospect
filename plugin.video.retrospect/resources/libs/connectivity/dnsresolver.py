@@ -28,12 +28,12 @@ class DnsResolver:
         s = socket.socket(type=socket.SOCK_DGRAM)
         q = self.__create_request(address)
         s.settimeout(10.0)
-        s.sendto(q, (self.__server, 53))
+        s.sendto(q.encode(), (self.__server, 53))
         r = s.recvfrom(1024)
         if types is None:
             return self.__parse_response(r[0])
         else:
-            return filter(lambda (x, y): x in types, self.__parse_response(r[0]))
+            return [t for t in self.__parse_response(r[0]) if t[0] in types]
 
     def __create_request(self, address):
         # noinspection PyListCreation
@@ -68,7 +68,7 @@ class DnsResolver:
             length = reader.read_integer(1)
             if length == 0:
                 break
-            reader.read_string(length)  # address_part
+            reader.read_bytes(length)  # address_part
             continue
         reader.read_integer()  # dns_type
         reader.read_integer()  # direction
@@ -99,7 +99,7 @@ class DnsResolver:
             self.__resumePoint = 0
 
         def read_integer(self, length=2):
-            val = self.read_string(length)
+            val = self.read_bytes(length)
             val = self.__byte_to_int(val)
             return val
 
@@ -117,12 +117,12 @@ class DnsResolver:
                     value += self.read_full_string()
                     self.__pointer = old_pointer
                     break
-                value += self.read_string(length)
+                value += self.read_bytes(length).decode()
                 value += "."
                 continue
             return value.strip('.')
 
-        def read_string(self, length):
+        def read_bytes(self, length):
             val = self.__byteString[self.__pointer:self.__pointer + length]
             self.__pointer += length
             return val

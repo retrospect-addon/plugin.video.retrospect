@@ -1,3 +1,13 @@
+# ===============================================================================
+# LICENSE Retrospect-Framework - CC BY-NC-ND
+# ===============================================================================
+# This work is licenced under the Creative Commons
+# Attribution-Non-Commercial-No Derivative Works 3.0 Unported License. To view a
+# copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
+# or send a letter to Creative Commons, 171 Second Street, Suite 300,
+# San Francisco, California 94105, USA.
+# ===============================================================================
+
 import requests
 import requests.cookies
 import requests.utils
@@ -17,12 +27,14 @@ class CacheHTTPAdapter(HTTPAdapter):
                  max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
         """ Creates a Caching HTTP Adapter for the Requests module.
 
-        @param cache_store:
-        @param pool_connections:
-        @param pool_maxsize:
-        @param max_retries:
-        @param pool_block:
+        :param StreamCache cache_store:     The Cache store to use.
+        :param int pool_connections:        Size of connection pool.
+        :param int pool_maxsize:            Maximum number of active connections.
+        :param int max_retries:             Maximum number of retries.
+        :param bool pool_block:             Use the default pool?
+
         """
+
         self.cache_store = cache_store        # type: StreamCache
 
         super(CacheHTTPAdapter, self).__init__(pool_connections, pool_maxsize, max_retries,
@@ -99,6 +111,15 @@ class CacheHTTPAdapter(HTTPAdapter):
         return resp
 
     def __extract_cache_data(self, headers):
+        """ Extracts cache data from the `cache-control` headers.
+
+        :param dict headers:    The HTTP headers.
+
+        :return: The cache data from the `cache-control` headers
+        :rtype: dict[str,str]
+
+        """
+
         cache_data = {}
 
         if "cache-control" in headers:
@@ -114,6 +135,7 @@ class CacheHTTPAdapter(HTTPAdapter):
                     cache_data[entry.strip().lower()] = True
 
         if "etag" in headers:
+            # Not used now.
             # if len(cache_data) == 0:
             #     # only an e-tag is present, we should make it stale after some time, less then the 3600 seconds
             #     cache_data['max-age'] = 60
@@ -125,15 +147,9 @@ class CacheHTTPAdapter(HTTPAdapter):
         return cache_data
 
     def __should_cache(self, res, cache_data):
-        # type: (requests.Response, dict) -> bool
         """ Returns whether a response should be cached for further use. It uses
         the "cache-control" header value and the type of response (https/2xx status)
         to determine if a response should be cached.
-
-        Arguments:
-        cache_data     : dict      - Cached data from the request
-
-        Returns True or False
 
         These Cache-Control parameters are used:
 
@@ -167,6 +183,12 @@ class CacheHTTPAdapter(HTTPAdapter):
 
         * proxy-revalidate - similar to must-revalidate, except that it only
         applies to proxy caches.
+
+        :param dict[str,str] cache_data: Cached data from the request
+
+        :returns: Indication if the request should be cached.
+        :rtype: bool
+
 
         """
 
@@ -231,7 +253,8 @@ class CacheHTTPAdapter(HTTPAdapter):
             "cache_data": cache_data
         }
         with self.cache_store.set(meta_key) as fp:
-            json.dump(data, fp, encoding='utf-8', indent=2)
+            json_str = json.dumps(data, indent=2)
+            fp.write(json_str.encode())
         Logger.trace(data)
 
         return
@@ -266,44 +289,8 @@ class CacheHTTPAdapter(HTTPAdapter):
 
     def __get_cache_keys(self, req):
         hash_tool = hashlib.md5()
-        hash_tool.update(req.url)
+        hash_tool.update(req.url.encode())
         key = hash_tool.hexdigest()
         body_file = "{0}.body".format(key)
         meta_file = "{0}.meta".format(key)
         return body_file, meta_file
-
-    # def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
-    #     Logger.Info("init_poolmanager")
-    #     super(CacheHTTPAdapter, self).init_poolmanager(connections, maxsize, block, **pool_kwargs)
-
-    # def proxy_manager_for(self, proxy, **proxy_kwargs):
-    #     Logger.Info("proxy_manager_for")
-    #     return super(CacheHTTPAdapter, self).proxy_manager_for(proxy, **proxy_kwargs)
-
-    # def cert_verify(self, conn, url, verify, cert):
-    #     Logger.Info("cert_verify")
-    #     return super(CacheHTTPAdapter, self).cert_verify(conn, url, verify, cert)
-
-    # def build_response(self, req, resp):
-    #     Logger.Info("build_response")
-    #     return super(CacheHTTPAdapter, self).build_response(req, resp)
-
-    # def get_connection(self, url, proxies=None):
-    #     Logger.Info("get_connection")
-    #     return super(CacheHTTPAdapter, self).get_connection(url, proxies)
-
-    # def close(self):
-    #     Logger.Info("close")
-    #     super(CacheHTTPAdapter, self).close()
-
-    # def request_url(self, request, proxies):
-    #     Logger.Info("request_url")
-    #     return super(CacheHTTPAdapter, self).request_url(request, proxies)
-
-    # def add_headers(self, request, **kwargs):
-    #     Logger.Info("add_headers")
-    #     super(CacheHTTPAdapter, self).add_headers(request, **kwargs)
-    #
-    # def proxy_headers(self, proxy):
-    #     Logger.Info("proxy_headers")
-    #     return super(CacheHTTPAdapter, self).proxy_headers(proxy)
