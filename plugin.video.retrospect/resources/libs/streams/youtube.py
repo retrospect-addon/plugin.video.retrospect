@@ -14,14 +14,15 @@ from logger import Logger
 from helpers.htmlentityhelper import HtmlEntityHelper
 from regexer import Regexer
 from urihandler import UriHandler
+from proxyinfo import ProxyInfo
 
 
-class YouTube:
+class YouTube(object):
     def __init__(self):
         """ Creates a Youtube Parsing class """
         pass
 
-# http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+    # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
     __YouTubeEncodings = {
         # Flash Video
         5: [314, "flv", "240p", "Sorenson H.263", "N/A", "0.25", "MP3", "64"],
@@ -56,12 +57,12 @@ class YouTube:
 
     @staticmethod
     def get_streams_from_you_tube(url, proxy=None, use_add_on=True):
-        """ Parsers standard YouTube videos and returns a list of tuples with streams and bitrates that can be used by
-        other methods
+        """ Parsers standard YouTube videos and returns a list of tuples with streams and
+        bitrates that can be used by other methods.
 
-        @param proxy:       Proxy   - The proxy to use for opening
-        @param url:         String  - The url to download
-        @param use_add_on:  Boolean - Should we use the Youtube add-on if available
+        :param ProxyInfo proxy:     The proxy to use for opening
+        :param str url:             The url to download
+        :param bool use_add_on:     Should we use the Youtube add-on if available
 
         Can be used like this:
 
@@ -70,6 +71,10 @@ class YouTube:
                 item.complete = True
                 # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
+
+        :return: a list of streams with their bitrate and optionally the audio streams.
+        :rtype: list[tuple[str,str]]
+
         """
 
         you_tube_streams = []
@@ -87,13 +92,15 @@ class YouTube:
             video_id = url.split("?v=")[-1]
             Logger.debug("Using Youtube ID '%s' retrieved from '%s'", video_id, url)
             # get the meta data url
-            url = "http://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (video_id, )
+            url = "https://www.youtube.com/get_video_info?hl=en_GB&asv=3&video_id=%s" % (video_id, )
 
         elif "get_video_info" not in url:
             Logger.error("Invalid Youtube URL specified: '%s'", url)
             return []
 
         data = UriHandler.open(url, proxy=proxy)
+        if isinstance(data, bytes):
+            data = data.decode()
         # get the stream data from the page
 
         # Up to 720p with audio and video combined.

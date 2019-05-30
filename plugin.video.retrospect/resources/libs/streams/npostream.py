@@ -17,12 +17,22 @@ from logger import Logger
 from proxyinfo import ProxyInfo
 
 
-class NpoStream:
+class NpoStream(object):
     def __init__(self):
         pass
 
     @staticmethod
     def get_subtitle(stream_id, proxy=None):
+        """ Downloads a subtitle for a POMS id.
+
+        :param str stream_id:   The POMS id.
+        :param ProxyInfo proxy: The proxy to use
+
+        :return: The full patch of the cached SRT file.
+        :rtype: str
+
+        """
+
         sub_title_url = "http://tt888.omroep.nl/tt888/%s" % (stream_id,)
         return SubtitleHelper.download_subtitle(sub_title_url, stream_id + ".srt", format='srt', proxy=proxy)
 

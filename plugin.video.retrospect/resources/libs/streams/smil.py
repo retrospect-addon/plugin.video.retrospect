@@ -8,20 +8,15 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-import string
-
 from regexer import Regexer
 
 
-class Smil:
+class Smil(object):
     """Class that could help with parsing of simple Smil files"""
     
     def __init__(self, data):
         """Creates a class object with Smil <data>
-        
-        Arguments:
-        data : string - Smil data to parse
-        
+
         Example data:
         
         <smil xmlns="http://www.w3.org/2001/SMIL20/Language">
@@ -37,16 +32,21 @@ class Smil:
               <video src="myStream1500K@54552" system-bitrate="1500000"/>
            </switch>
         </body>
-        
+
+        :param str data:    Smil data to parse.
+
         """
         
         self.data = data
     
     def get_base_url(self):
-        """Retrieves the BaseUrl from the Smil data.
+        """ Retrieves the BaseUrl from the Smil data.
         
         From the example data it would be http://mydomain.com
-        
+
+        :return: the base URL for the playlist.
+        :rtype: str
+
         """
         
         regex = '<meta base="([^"]+)" />'
@@ -54,7 +54,7 @@ class Smil:
         if len(results) > 0:
             return results[0]
         else:
-            regex = '<meta name="httpBase" content="([^"]+)"\W*/>'
+            regex = r'<meta name="httpBase" content="([^"]+)"\W*/>'
             results = Regexer.do_regex(regex, self.data)
             if len(results) > 0:
                 return results[0]
@@ -62,27 +62,34 @@ class Smil:
                 return ""
     
     def get_best_video(self):
-        """Returns a list of video's with the highest quality.
+        """ Returns a list of video's with the highest quality.
         
         In this case: myStream1500K@54552
-        
+
+        :return: The best available stream.
+        :rtype: str
+
         """
         
         urls = self.get_videos_and_bitrates()
         if urls is None:
             return ""
-        
-        urls.sort(lambda x, y: int(y[1]) - int(x[1]))
+
+        urls.sort(key=lambda u: -int(u[1]))
         return urls[0][0]
     
     def get_videos_and_bitrates(self):
-        """Returns a list of all video's and bitrates in the Smil file. 
+        """ Retrieves all video's and bitrates in the Smil file.
         
         In this case:
+
             ["myStream500K@54552", "500000"]
             ["myStream900K@54552", "900000"]
             ["myStream1500K@54552", "1500000"]
-        
+
+        :return: A list of all video's and bitrates in the Smil file.
+        :rtype: list[list[str,str]]
+
         """
         
         regex = '<video src="([^"]+)"[^>]+system-bitrate="([^"]+)"'
@@ -93,9 +100,14 @@ class Smil:
             return None
     
     def get_subtitle(self):
-        """ Retrieves the URL of the included subtitle"""
+        """ Retrieves the URL of the included subtitle
+
+        :return: The url for the subtitle
+        :rtype: str
+
+        """
         
-        regex = '<param\W*name="subtitle"[^>]*value="([^"]+)'
+        regex = r'<param\W*name="subtitle"[^>]*value="([^"]+)'
         urls = Regexer.do_regex(regex, self.data)
         
         for url in urls:
@@ -107,18 +119,17 @@ class Smil:
         return ""
     
     def strip_type_start(self, url):
-        """Strips the first part of an URL up to the first /
-        
-        Arguments: 
-        url : string - the URL to strip
-        
-        Returns:
-        The stripped URL, duh!
-        
+        """ Strips the first part of an URL up to the first /
+
         Example:
         mp4:/mp4root/2009-04-14/pid201_671978_T1L__671978_T6MP48_.mp4 -> /mp4root/2009-04-14/pid201_671978_T1L__671978_T6MP48_.mp4 
-           
+
+        :param str url:     The URL to strip.
+
+        :return: The url with the first part (until /) stripped, duh!
+        :rtype: str
+
         """
         
-        pos = string.find(url, '/')
-        return url[pos:] 
+        pos = url.find('/')
+        return url[pos:]
