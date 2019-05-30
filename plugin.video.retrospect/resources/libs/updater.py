@@ -15,7 +15,7 @@ from version import Version
 from logger import Logger
 
 
-class Updater:
+class Updater(object):
     __regex = None
 
     def __init__(self, update_url, current_version, uri_handler, logger, release_channel=True):
@@ -77,7 +77,7 @@ class Updater:
 
         data = self.__uriHandler.open(self.updateUrl, no_cache=True)
         json_data = JsonHelper(data)
-        online_downloads = list(filter(lambda d: self.__is_valid_update(d), json_data.get_value("values")))
+        online_downloads = [d for d in json_data.get_value("values") if self.__is_valid_update(d)]
         if len(online_downloads) == 0:
             return None
 

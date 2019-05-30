@@ -13,7 +13,7 @@ import re
 from logger import Logger
 
 
-class Regexer:
+class Regexer(object):
     """ Main regexer class """
 
     __compiledRegexes = dict()
@@ -72,7 +72,7 @@ class Regexer:
                 if "?P<" in r:
                     regex_results = Regexer.__do_dictionary_regex(r, data)
                     # add to the results with a count in front of the results
-                    results += map(lambda x: (count, x), regex_results)
+                    results += [(count, x) for x in regex_results]
                 else:
                     regex_results = Regexer.__do_regex(r, data)
                     if len(regex_results) <= 0:
@@ -80,14 +80,15 @@ class Regexer:
 
                     if isinstance(regex_results[0], (tuple, list)):
                         # is a tupe/list was returned, prepend it with the count
-                        results += map(lambda x: (count,) + x, regex_results)
+                        # noinspection PyTypeChecker
+                        results += [(count,) + x for x in regex_results]
                     else:
                         # create a tuple with the results
-                        results += map(lambda x: (count, x), regex_results)
+                        results += [(count, x) for x in regex_results]
                 # increase count
                 count += 1
             Logger.debug("Returning %s results", len(results))
-            return results
+            return list(results)
         except:
             Logger.critical('error regexing', exc_info=True)
             return []
@@ -124,7 +125,7 @@ class Regexer:
         
         compiled_regex = Regexer.__get_compiled_regex(regex)
         it = compiled_regex.finditer(data)
-        return map(lambda x: x.groupdict(), it)
+        return [x.groupdict() for x in it]
 
     @staticmethod
     def __get_compiled_regex(regex):

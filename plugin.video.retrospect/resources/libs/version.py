@@ -9,7 +9,7 @@
 #===============================================================================
 
 
-class Comparable:
+class Comparable(object):
     """ 
     Base Class for a simple comparison class. A derived class only needs to
     implement an __lt__(self, other) method. All the other required methods are
@@ -141,7 +141,7 @@ class Version(Comparable):
         """ Checks if two versions have the same version up until the revision 
         part of the version.
         
-        :param Version other:   The version to compare with.
+        :param Version|None other:   The version to compare with.
 
         :return: True if equal.
         :rtype: bool

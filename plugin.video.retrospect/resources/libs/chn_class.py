@@ -71,6 +71,7 @@ class Channel:
         self.moduleName = channel_info.moduleName
         self.compatiblePlatforms = channel_info.compatiblePlatforms
         self.sortOrder = channel_info.sortOrder
+        self.sortOrderPerCountry = channel_info.sortOrderPerCountry
         self.category = channel_info.category
         self.language = channel_info.language
         self.path = channel_info.path
@@ -146,6 +147,10 @@ class Channel:
         self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
         return
 
+    @property
+    def sort_key(self):
+        return "{0}-{1}".format(self.sortOrderPerCountry, self.channelName)
+
     def process_folder_list(self, item=None):  # NOSONAR
         """ Process the selected item and get's it's child items using the available dataparsers.
 
@@ -181,8 +186,9 @@ class Channel:
         # Determine the handlers and process
         data_parsers = self.__get_data_parsers(url)
         # Exclude the updaters only
-        data_parsers = filter(lambda p: not p.is_video_updater_only(), data_parsers)
-        if filter(lambda p: p.LogOnRequired, data_parsers):
+        data_parsers = [p for p in data_parsers if not p.is_video_updater_only()]
+
+        if [p for p in data_parsers if p.LogOnRequired]:
             Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.log_on()
 
@@ -212,7 +218,7 @@ class Channel:
             data = ""
 
         # first check if there is a generic pre-processor
-        pre_procs = filter(lambda p: p.is_generic_pre_processor(), data_parsers)
+        pre_procs = [p for p in data_parsers if p.is_generic_pre_processor()]
         num_pre_procs = len(pre_procs)
         Logger.trace("Processing %s Generic Pre-Processors DataParsers", num_pre_procs)
         if num_pre_procs > 1:
@@ -294,20 +300,20 @@ class Channel:
         old_count = len(items)
         if hide_drm_protected:
             Logger.debug("Hiding DRM items")
-            items = filter(lambda i: not i.isDrmProtected or i.type == type_to_exclude, items)
+            items = [i for i in items if not i.isDrmProtected or i.type == type_to_exclude]
         if hide_geo_locked:
             Logger.debug("Hiding GEO Locked items due to GEO region: %s", self.language)
-            items = filter(lambda i: not i.isGeoLocked or i.type == type_to_exclude, items)
+            items = [i for i in items if not i.isGeoLocked or i.type == type_to_exclude]
         if hide_premium:
             Logger.debug("Hiding Premium items")
-            items = filter(lambda i: not i.isPaid or i.type == type_to_exclude, items)
+            items = [i for i in items if not i.isPaid or i.type == type_to_exclude]
 
         cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.instance())
         if not AddonSettings.show_cloaked_items():
             Logger.debug("Hiding Cloaked items")
-            items = filter(lambda i: not cloaker.is_cloaked(i.url), items)
+            items = [i for i in items if not cloaker.is_cloaked(i.url)]
         else:
-            cloaked_items = filter(lambda i: cloaker.is_cloaked(i.url), items)
+            cloaked_items = [i for i in items if cloaker.is_cloaked(i.url)]
             for c in cloaked_items:
                 c.isCloaked = True
 
@@ -317,7 +323,7 @@ class Channel:
 
         # Check for grouping or not
         limit = AddonSettings.get_list_limit()
-        folder_items = filter(lambda x: x.type.lower() == "folder", items)
+        folder_items = [i for i in items if i.type.lower() == "folder"]
 
         # we should also de-duplicate before calculating
         folder_items = list(set(folder_items))
@@ -364,7 +370,7 @@ class Channel:
                     item = result[char]
                 item.items.append(sub_item)
 
-            items = non_grouped + result.values()
+            items = non_grouped + list(result.values())
 
         unique_results = sorted(set(items), key=items.index)
         Logger.trace("Found '%d' items of which '%d' are unique.", len(items), len(unique_results))
@@ -385,7 +391,7 @@ class Channel:
             Logger.error("No dataparsers found cannot update item.")
             return item
 
-        data_parsers = filter(lambda d: d.Updater is not None, data_parsers)
+        data_parsers = [d for d in data_parsers if d.Updater is not None]
         if len(data_parsers) < 1:
             Logger.warning("No DataParsers with Updaters found.")
             return item
@@ -616,6 +622,7 @@ class Channel:
 
         # The title
         if "subtitle" in result_set and result_set["subtitle"]:
+            # noinspection PyStringFormat
             title = "%(title)s - %(subtitle)s" % result_set
         else:
             title = result_set["title"]
@@ -930,8 +937,7 @@ class Channel:
             # filter them in order
             for key in keys:
                 # for each key we see if we have filtered results
-                data_parsers = filter(lambda p: p.matches(url),
-                                      self.dataParsers[key])
+                data_parsers = [d for d in self.dataParsers[key] if d.matches(url)]
                 if data_parsers:
                     Logger.trace("Found %s direct DataParsers matches", len(data_parsers))
                     break
@@ -958,6 +964,8 @@ class Channel:
         :param str url: The URL to match
 
         """
+
+        Logger.warning("Please Upgrade %s as it has no DataParsers", self)
 
         # Add the mainlist
         if url == self.mainListUri:
@@ -1033,23 +1041,3 @@ class Channel:
             return False
 
         return self.guid == other.guid
-
-    def __cmp__(self, other):
-        """Compares to channels
-
-        Arguments:
-        other : Channel - the other channel to compare to
-
-        Returns:
-        The return value is negative if self < other, zero if self == other and strictly positive if self > other
-
-        """
-
-        if other is None:
-            return 1
-
-        comp_val = cmp(self.sortOrder, other.sortOrder)
-        if comp_val == 0:
-            comp_val = cmp(self.channelName, self.channelName)
-
-        return comp_val

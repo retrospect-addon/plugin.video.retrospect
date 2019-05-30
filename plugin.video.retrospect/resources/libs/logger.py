@@ -69,7 +69,8 @@ class Logger:
         """
 
         if Logger.__logger is None:
-            Logger.__logger = Logger(log_file_name, application_name, min_log_level, append, dual_logger)
+            Logger.__logger = Logger(log_file_name, application_name, min_log_level, append,
+                                     dual_logger)
             # Logger.__logger.dualLog("CREATING LOGGER: {0}".format(Logger.__logger.id))
         else:
             Logger.warning("Cannot create a second logger instance!")
@@ -122,7 +123,8 @@ class Logger:
 
         # print to the Kodi logfile to tell the user the actual logfile path
         if self.dualLog:
-            dual_logger("%s :: Additional logging can be found in '%s'" % (self.applicationName, self.logFileName,), 1)
+            dual_logger("%s :: Additional logging can be found in '%s'" % (
+                self.applicationName, self.logFileName,), 1)
         return
 
     @staticmethod
@@ -259,7 +261,12 @@ class Logger:
             return
 
         # create old.log file
-        print("%s :: Cleaning up logfile: %s" % (self.applicationName, self.logFileName))
+        clean_up_message = "{} :: Cleaning up logfile: {}".format(self.applicationName, self.logFileName)
+        if self.logDual:
+            self.dualLog(clean_up_message, 1)
+        else:
+            print(clean_up_message)
+
         try:
             was_open = True
             self.close_log(log_closing=False)
@@ -369,7 +376,7 @@ class Logger:
             if not self.logDual:
                 traceback.print_exc()
                 return
-            
+
             self.dualLog("Retrospect Logger :: Error logging in Logger.py:")
             self.dualLog("---------------------------")
             self.dualLog(traceback.format_exc())

@@ -39,7 +39,9 @@ class Pickler:
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
 
     def de_pickle_media_item(self, hex_string):
-        """ De-serializes a serialized mediaitem
+        """ De-serializes a serialized mediaitem.
+
+        Warning: Pickling from Python2 to Python3 will not work.
 
         :param str|unicode hex_string: Base64 encoded string that should be decoded.
 
@@ -54,10 +56,8 @@ class Pickler:
 
         Logger.trace("DePickle: HexString: %s (might be truncated)", hex_string[0:256])
 
-        # Logger.Trace("DePickle: HexString: %s", hexString)
-        pickle_string = base64.b64decode(hex_string)
-        # Logger.Trace("DePickle: PickleString: %s", pickle_string)
-        pickle_item = pickle.loads(pickle_string)
+        pickle_string = base64.b64decode(hex_string)  # type: bytes
+        pickle_item = pickle.loads(pickle_string)  # type: object
         return pickle_item
 
     def pickle_media_item(self, item):
@@ -73,16 +73,14 @@ class Pickler:
             Logger.trace("Pickle Container cache hit: %s", item.guid)
             return self.__pickleContainer[item.guid]
 
-        pickle_string = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)
-        # Logger.Trace("Pickle: PickleString: %s", pickle_string)
-        hex_string = base64.b64encode(pickle_string)
+        pickle_string = pickle.dumps(item, protocol=pickle.HIGHEST_PROTOCOL)  # type: bytes
+        hex_bytes = base64.b64encode(pickle_string)  # type: bytes
+        hex_string = hex_bytes.decode()  # type: str
 
         # if not unquoted, we must replace the \n's for the URL
         hex_string = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsEncode[y]),
                             Pickler.__Base64CharsEncode.keys(),
                             hex_string)
-
-        # Logger.Trace("Pickle: HexString: %s", hex_string)
 
         self.__pickleContainer[item.guid] = hex_string
         return hex_string
@@ -97,7 +95,7 @@ class Pickler:
 
         :return: None if no error, or an error message if an error occurred.
         :rtype: str|None
-        
+
         """
 
         if logger is not None:

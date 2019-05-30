@@ -18,9 +18,11 @@ class Cloaker(object):
     def __init__(self, channel, settings_store, logger=None):
         """ Creates a Cloaker object that helps with cloaking objects
 
-        :param channel:         The ChannelInfo of the channel for which we need cloak information.
-        :param settings_store:   The settings store to use for retrieving the settings data.
-        :param logger:          A Logger object for logging purposes.
+        :param ChannelInfo channel:             The ChannelInfo of the channel for which we need
+                                                cloak information.
+        :param SettingsStore settings_store:    The settings store to use for retrieving the
+                                                settings data.
+        :param any logger:                      A Logger object for logging purposes.
 
         """
 

@@ -21,7 +21,7 @@ from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
 
 
-class Vault:
+class Vault(object):
     __Key = None
     __APPLICATION_KEY_SETTING = "application_key"
 
@@ -264,7 +264,6 @@ class Vault:
         return base64.b64encode(aes.encrypt(data))
 
     def __decrypt(self, data, key):
-        # type: (str, str) -> str
         """ Decrypts data based on the given encryption key.
 
         :param str data:    The data to decrypt.
@@ -289,11 +288,11 @@ class Vault:
 
         """
 
-        return ''.join(random.choice(string.digits + string.letters + string.punctuation)
+        return ''.join(random.choice(string.digits + string.ascii_letters + string.punctuation)
                        for _ in range(length))
 
     def __get_pbk(self, pin):
-        """ Gets the Password Based Key (PBK) based in the PIN.
+        """ Gets the Password Based Key (PBK) based on the PIN.
 
         :param str pin: The pin for the key.
 

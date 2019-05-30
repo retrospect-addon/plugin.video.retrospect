@@ -10,7 +10,6 @@
 
 import random
 
-
 from logger import Logger
 from pickler import Pickler
 
@@ -132,8 +131,8 @@ class ParameterParser(object):
         return url
 
     def __get_parameters(self, query_string):
-        """ Extracts the actual parameters as a dictionary from the passed in
-        querystring. This method takes the self.quotedPlus into account.
+        """ Extracts the actual parameters as a dictionary from the passed in querystring.
+        This method takes the self.quotedPlus into account.
 
         :param str query_string:    The querystring
 
@@ -143,20 +142,20 @@ class ParameterParser(object):
         """
         result = dict()
         query_string = query_string.strip('?')
-        if query_string != '':
-            try:
-                for pair in query_string.split("&"):
-                    (k, v) = pair.split("=")
-                    result[k] = v
+        if query_string == '':
+            return result
 
-                # if the channelcode was empty, it was stripped, add it again.
-                if self.keywordChannelCode not in result:
-                    Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s",
-                                 result)
-                    result[self.keywordChannelCode] = None
-            except:
-                Logger.critical("Cannot determine query strings from %s", query_string,
-                                exc_info=True)
-                raise
+        try:
+            for pair in query_string.split("&"):
+                (k, v) = pair.split("=")
+                result[k] = v
+
+            # if the channelcode was empty, it was stripped, add it again.
+            if self.keywordChannelCode not in result:
+                Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
+                result[self.keywordChannelCode] = None
+        except:
+            Logger.critical("Cannot determine query strings from %s", query_string, exc_info=True)
+            raise
 
         return result

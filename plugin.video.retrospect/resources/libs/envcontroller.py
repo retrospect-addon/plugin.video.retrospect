@@ -10,6 +10,7 @@
 import os
 import sys
 import time
+import struct
 
 import xbmc
 import xbmcaddon
@@ -368,23 +369,22 @@ class EnvController:
 
         """
 
+        is_x64 = struct.calcsize("P") == 8
+
         env = os.environ.get("OS", "win32")
         if env == "Linux":
-            # These don't work on all platforms
-            # (bits, type) = platform.architecture()
-            # if bits.count("64") > 0:
-            #     # first the bits of platform.architecture is checked
-            #     return "Linux64"
-            if sys.maxint >> 33:
-                # double check using the sys.maxint
-                # and see if more than 32 bits are present
+            if is_x64:
                 return "Linux64"
-            else:
-                return "Linux"
+            return "Linux"
+
         elif env == "OS X":
             return "OS X"
+
         else:
-            return "win32"
+            if is_x64:
+                return "Win64"
+
+            return "Win32"
 
     def __is_repo_available(self, config, return_name=False):
         """ Checks if the repository is available in Kodi and returns it's name.

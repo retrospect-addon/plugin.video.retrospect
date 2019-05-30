@@ -9,8 +9,8 @@
 #===============================================================================
 
 import os
-import cookielib
 import time
+from cookielib import Cookie, CookieJar, MozillaCookieJar
 from collections import namedtuple
 
 import urllib3
@@ -111,15 +111,15 @@ class UriHandler(object):
              referer=None, additional_headers=None, no_cache=False):
         """ Open an URL Async using a thread
 
-        :param str uri:                     The URI to download.
-        :param str params:                  Data to send with the request (open(uri, params)).
-        :param dict[str, any]|str data:     Data to send with the request (open(uri, data)).
-        :param dict[str, any] json:         Json to send with the request (open(uri, params)).
-        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
-                                            proxy server that should be used.
-        :param str referer:                 The http referer to use.
-        :param dict additional_headers:     The optional headers.
-        :param bool no_cache:               Should cache be disabled.
+        :param str uri:                   The URI to download.
+        :param str params|bytes:          Data to send with the request (open(uri, params)).
+        :param dict[str, any]|str data:   Data to send with the request (open(uri, data)).
+        :param dict[str, any] json:       Json to send with the request (open(uri, params)).
+        :param ProxyInfo proxy:           The address and port (proxy.address.ext:port) of a
+                                          proxy server that should be used.
+        :param str referer:               The http referer to use.
+        :param dict additional_headers:   The optional headers.
+        :param bool no_cache:             Should cache be disabled.
 
         :return: The data that was retrieved from the URI.
         :rtype: str|unicode
@@ -188,17 +188,17 @@ class UriHandler(object):
                      "domain: '%s'\n"
                      "path:   '%s'",
                      name, value, domain, path)
-        c = cookielib.Cookie(version=version, name=name, value=value,
-                             port=port, port_specified=port is not None,
-                             domain=domain, domain_specified=domain is not None,
-                             domain_initial_dot=domain_initial_dot,
-                             path=path, path_specified=path is not None,
-                             secure=secure,
-                             expires=expires,
-                             discard=False,
-                             comment=None,
-                             comment_url=None,
-                             rest={'HttpOnly': None})  # rfc2109=False)
+        c = Cookie(version=version, name=name, value=value,
+                   port=port, port_specified=port is not None,
+                   domain=domain, domain_specified=domain is not None,
+                   domain_initial_dot=domain_initial_dot,
+                   path=path, path_specified=path is not None,
+                   secure=secure,
+                   expires=expires,
+                   discard=False,
+                   comment=None,
+                   comment_url=None,
+                   rest={'HttpOnly': None})  # rfc2109=False)
         # the rfc2109 parameters is not valid in Python 2.4 (Xbox), so we ommit it.
         UriHandler.instance().cookieJar.set_cookie(c)
         return c
@@ -229,7 +229,7 @@ class UriHandler(object):
             return None
 
         # do a startswith search
-        cookies = filter(lambda c: c.name.startswith(name), cookies.itervalues())
+        cookies = [c for c in cookies.values() if c.name.startswith(name)]
         if not cookies:
             return None
         else:
@@ -293,13 +293,13 @@ class _RequestsHandler(object):
         self.id = int(time.time())
 
         if cookie_jar:
-            self.cookieJar = cookielib.MozillaCookieJar(cookie_jar)
+            self.cookieJar = MozillaCookieJar(cookie_jar)
             if not os.path.isfile(cookie_jar):
                 self.cookieJar.save()
             self.cookieJar.load()
             self.cookieJarFile = True
         else:
-            self.cookieJar = cookielib.CookieJar()
+            self.cookieJar = CookieJar()
             self.cookieJarFile = False
 
         self.cacheDir = cache_dir
@@ -365,7 +365,7 @@ class _RequestsHandler(object):
 
         retrieved_bytes = 0
         total_size = int(r.headers.get('Content-Length', '0').strip())
-        chunk_size = 1024 if total_size == 0 else total_size / 100
+        chunk_size = 1024 if total_size == 0 else total_size // 100
         cancel = False
         with open(download_path, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=chunk_size):
@@ -394,7 +394,7 @@ class _RequestsHandler(object):
 
         :param str uri:                         The URI to download.
         :param str params:                      Data to send with the request (open(uri, params)).
-        :param dict[str, any]|str data:         Data to send with the request (open(uri, data)).
+        :param dict[str, any]|str|bytes data:   Data to send with the request (open(uri, data)).
         :param dict[str, any] json:             Json to send with the request (open(uri, params)).
         :param ProxyInfo proxy:                 The address and port (proxy.address.ext:port) of a
                                                 proxy server that should be used.
@@ -412,21 +412,26 @@ class _RequestsHandler(object):
         if r is None:
             return ""
 
-        if r.encoding == 'ISO-8859-1' and "text" in r.headers.get("content-type", ""):
+        content_type = r.headers.get("content-type", "")
+        if r.encoding == 'ISO-8859-1' and "text" in content_type:
             # Requests defaults to ISO-8859-1 for all text content that does not specify an encoding
             Logger.debug("Found 'ISO-8859-1' for 'text' content-type. Using UTF-8 instead.")
             r.encoding = 'utf-8'
+
+        # We might need a better mechanism here.
+        if not r.encoding and content_type.lower() in ["application/json", "application/javascript"]:
+            return r.text
 
         return r.text if r.encoding else r.content
 
     def header(self, uri, proxy=None, referer=None, additional_headers=None):
         """ Retrieves header information only.
 
-        :param str uri:                     The URI to fetch the header from.
-        :param ProxyInfo proxy:             The address and port (proxy.address.ext:port) of a
-                                            proxy server that should be used.
-        :param str referer:                 The http referer to use.
-        :param dict additional_headers:     The optional headers.
+        :param str uri:                         The URI to fetch the header from.
+        :param ProxyInfo|none proxy:            The address and port (proxy.address.ext:port) of a
+                                                proxy server that should be used.
+        :param str|none referer:                The http referer to use.
+        :param dict|none additional_headers:    The optional headers.
 
         :return: Content-type and the URL to which a redirect could have occurred.
         :rtype: tuple[str,str]
@@ -518,7 +523,7 @@ class _RequestsHandler(object):
     def __get_headers(self, referer, additional_headers):
         headers = {}
         if additional_headers:
-            for k, v in additional_headers.iteritems():
+            for k, v in additional_headers.items():
                 headers[k.lower()] = v
 
         if "user-agent" not in headers:

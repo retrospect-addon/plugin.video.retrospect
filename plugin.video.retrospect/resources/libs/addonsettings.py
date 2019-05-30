@@ -9,9 +9,11 @@
 #===============================================================================
 
 import os
+import io
 import uuid
 import shutil
 import threading
+
 import xbmc
 
 from logger import Logger                               # this has not further references
@@ -51,8 +53,7 @@ class AddonSettings(object):
     def store(store_location):
         """ Returns the Singleton store object for the given type
 
-        :param store_location: Either the Kodi (KODI) store or in the Retrospect (LOCAL) store
-        :type store_location:  str
+        :param str|unicode store_location: Either the Kodi (KODI) store or in the Retrospect (LOCAL) store
 
         :return: An instance of the setting store
         :rtype:  settingsstore.SettingsStore
@@ -83,8 +84,8 @@ class AddonSettings(object):
     def __refresh(store_location):
         """ Removes the instance of the settings store causing a reload.
 
-        :param store_location: Either the Kodi (KODI) store or in the Retrospect (LOCAL) store
-        :type store_location:  str
+        :param str|unicode store_location:  Either the Kodi (KODI) store or in the
+                                            Retrospect (LOCAL) store
 
         """
 
@@ -361,7 +362,7 @@ class AddonSettings(object):
         proxy_codes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt", "lv", "dk"]
 
         if as_string:
-            return map(lambda i: str(i), proxy_ids)
+            return [str(i) for i in proxy_ids]
 
         if as_country_codes:
             return proxy_codes
@@ -889,7 +890,7 @@ class AddonSettings(object):
          * dk    - Danish
          * None  - Other languages
 
-        :param None|str language_code: one of the language codes that are listed.
+        :param None|str|unicode language_code:  one of the language codes that are listed.
 
         :rtype: bool
         :return: True if the channels should be shown. If the lookup does not match
@@ -1039,20 +1040,19 @@ class AddonSettings(object):
     def update_add_on_settings_with_channels(channels, config):
         """ updats the settings.xml to include all the channels
 
-        :param list[any] channels: The channels to add to the settings.xml
+        :param list[any] channels:  The channels to add to the settings.xml
         :param type[Config] config: The configuration object
 
         """
 
         # sort the channels
-        channels.sort()
+        channels.sort(key=lambda c: c.sort_key)
 
         # Then we read the original file
         filename_template = os.path.join(config.rootDir, "resources", "data", "settings_template.xml")
         # noinspection PyArgumentEqualDefault
-        settings_xml = open(filename_template, "r")
-        contents = settings_xml.read()
-        settings_xml.close()
+        with io.open(filename_template, "r", encoding="utf-8") as fp:
+            contents = fp.read()
 
         new_contents = AddonSettings.__update_add_on_settings_with_country_settings(contents, channels)
         new_contents, settings_offset_for_visibility, channels_with_settings = \
@@ -1085,9 +1085,9 @@ class AddonSettings(object):
             # Update the addonsettings.xml by first updating a temp xml file.
             Logger.debug("Creating new settings.xml file: %s", filename_temp)
             Logger.trace(new_contents)
-            settings_xml = open(filename_temp, "w+")
-            settings_xml.write(new_contents)
-            settings_xml.close()
+            with io.open(filename_temp, "w+", encoding='utf-8') as fp:
+                fp.write(new_contents)
+
             Logger.debug("Replacing existing settings.xml file: %s", filename)
             shutil.move(filename_temp, filename)
 
@@ -1097,19 +1097,15 @@ class AddonSettings(object):
                 shutil.copy(user_settings_backup, user_settings)
         except:
             Logger.error("Something went wrong trying to update the settings.xml", exc_info=True)
-            try:
-                settings_xml.close()
-            except:
-                pass
 
             #  clean up time file
             if os.path.isfile(filename_temp):
                 os.remove(filename_temp)
 
             # restore original settings
-            settings_xml = open(filename_temp, "w+")
-            settings_xml.write(contents)
-            settings_xml.close()
+            with io.open(filename_temp, "w+", encoding='utf-8') as fp:
+                fp.write(contents)
+
             shutil.move(filename_temp, filename)
             return
 
@@ -1137,7 +1133,7 @@ class AddonSettings(object):
         # Create new XML
         channel_selection_xml = '        <!-- start of active channels -->\n' \
                                 '        <setting id="config_channel" type="select" label="30040" values="'
-        channel_safe_names = "|".join(map(lambda c: c.safe_name, channels))
+        channel_safe_names = "|".join([c.safe_name for c in channels])
         channel_selection_xml = "%s%s" % (channel_selection_xml, channel_safe_names)
         channel_selection_xml = '%s" />' % (channel_selection_xml.rstrip("|"),)
 
@@ -1181,7 +1177,7 @@ class AddonSettings(object):
             if channel.settings:
                 # Sort the settings so they are really in the correct order, because this is not guaranteed by the
                 # json parser
-                channel.settings.sort(lambda a, b: cmp(a["order"], b["order"]))
+                channel.settings.sort(key=lambda a: a["order"])
                 for channel_settings in channel.settings:
                     setting_id = channel_settings["id"]
                     setting_value = channel_settings["value"]
@@ -1228,8 +1224,7 @@ class AddonSettings(object):
         xml_content = '\n        <!-- begin of channel settings -->\n'
         # Sort them to make the result more consistent
         # noinspection PyUnresolvedReferences
-        setting_keys = settings.keys()
-        setting_keys.sort()
+        setting_keys = sorted(settings.keys())
         for py_module in setting_keys:
             xml_content = '%s        <!-- %s.py -->\n' % (xml_content, py_module)
             for setting_xml_id, setting in settings[py_module]:
@@ -1247,8 +1242,8 @@ class AddonSettings(object):
     def __update_add_on_settings_with_country_settings(contents, channels):
         """ Adds the channel showing/hiding to the settings.xml
 
-        :param str contents: The current settings
-        :param list[any] channels: The available channels
+        :param str|unicode contents:    The current settings
+        :param list[any] channels:      The available channels
 
         :return: updated contents and the offset in visibility
         :rtype: str
@@ -1263,9 +1258,9 @@ class AddonSettings(object):
         channel_xml = '        <!-- start of channel selection -->\n'
 
         # the distinct list of languages from the channels
-        languages = map(lambda c: c.language, channels)
+        languages = [c.language for c in channels]
         languages = list(set(languages))
-        languages.sort()
+        languages.sort(key=lambda l: l or "")
         Logger.debug("Found languages: %s", languages)
 
         # get the labels and setting identifiers for those languages
@@ -1273,8 +1268,7 @@ class AddonSettings(object):
         for language in languages:
             language_lookup[language] = AddonSettings.__get_language_settings_id_and_label(language)
 
-        language_lookup_sorted_keys = language_lookup.keys()
-        language_lookup_sorted_keys.sort()
+        language_lookup_sorted_keys = sorted(language_lookup.keys(), key=lambda k: k or "")
 
         for language in language_lookup_sorted_keys:
             channel_xml = '%s        <setting id="%s" type="bool" label="%s" subsetting="false" default="true" />\n' \
@@ -1322,23 +1316,6 @@ class AddonSettings(object):
             return "show_other", 30300
         else:
             raise NotImplementedError("Language code not supported: '%s'" % (language_code,))
-
-    @staticmethod
-    def __sort_channels(x, y):
-        """ compares 2 channels based on language and then sortorder
-
-        :param x: Channel x
-        :param y: Channel y
-
-        :return: The compare result value
-        :rtype: int
-        """
-
-        value = cmp(x.language, y.language)
-        if value == 0:
-            return cmp(x.sortOrder, y.sortOrder)
-        else:
-            return value
 
     @staticmethod
     def print_setting_values():
