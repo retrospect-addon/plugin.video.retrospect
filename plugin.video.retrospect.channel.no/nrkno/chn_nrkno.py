@@ -1,4 +1,4 @@
-# coding:UTF-8
+# coding=utf-8  # NOSONAR
 
 import chn_class
 from mediaitem import MediaItem
@@ -166,7 +166,7 @@ class Channel(chn_class.Channel):
             "A - Å": "https://psapi.nrk.no/medium/tv/letters?apiKey={}".format(self.__api_key),
             "S&oslash;k": "#searchSite"
         }
-        for name, url in links.iteritems():
+        for name, url in links.items():
             item = MediaItem(name, url)
             item.icon = self.icon
             item.thumb = self.noImage
