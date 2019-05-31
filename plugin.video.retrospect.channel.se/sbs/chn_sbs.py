@@ -1,4 +1,4 @@
-# coding:UTF-8
+# coding=utf-8  # NOSONAR
 import uuid
 import datetime
 
@@ -684,11 +684,11 @@ class Channel(chn_class.Channel):
 
         # paid or not?
         if "contentPackages" in result_set["relationships"]:
-            item.isPaid = len(
+            item.isPaid = any(
                 filter(
                     lambda p: p["id"].lower() == "free", result_set["relationships"]["contentPackages"]["data"]
                 )
-            ) <= 0
+            )
         else:
             item.isPaid = False
 
