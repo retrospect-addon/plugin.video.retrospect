@@ -6,7 +6,6 @@ from regexer import Regexer
 from logger import Logger
 from streams.youtube import YouTube
 from urihandler import UriHandler
-from streams.brightcove import BrightCove
 
 
 class Channel(chn_class.Channel):
@@ -123,7 +122,7 @@ class Channel(chn_class.Channel):
                         item.complete = True
                         part.append_media_stream(s, b)
                 else:
-                    part.append_media_stream("%s%s" % (base_url, url[0]), bitrate=int(int(url[1]) / 1000))
+                    part.append_media_stream("%s%s" % (base_url, url[0]), bitrate=int(url[1]) // 1000)
                 item.complete = True
 
             Logger.trace("update_video_item complete: %s", item)
@@ -134,17 +133,6 @@ class Channel(chn_class.Channel):
         bright_cove_data = Regexer.do_regex(bright_cove_regex, data)
         Logger.trace(bright_cove_data)
         if len(bright_cove_data) > 0:
-            seed = "c5f9ae8729f7054d43187989ef3421531ee8678d"
-            object_data = bright_cove_data[0]
-            player_key = str(object_data[1])
-            video_id = int(object_data[0])
+            Logger.error("BrightCove AMF is no longer supported (no Py3 library)")
 
-            part = item.create_new_empty_media_part()
-            # But we need the IOS streams!
-            amf_helper = BrightCove(Logger.instance(), player_key, video_id, str(item.url), seed, proxy=self.proxy)
-            for stream, bitrate in amf_helper.get_stream_info(renditions="IOSRenditions"):
-                part.append_media_stream(stream, bitrate)
-                item.complete = True
-
-        # Logger.Error("Cannot find GUID in url: %s", item.url)
         return item
