@@ -569,7 +569,7 @@ class Channel(chn_class.Channel):
         images = result_set["images"]
         for image_type, image_data in images.items():
             if image_type == "original" and "tv" in image_data["formats"]:
-                    item.fanart = image_data["formats"]["tv"]["source"]
+                item.fanart = image_data["formats"]["tv"]["source"]
             elif image_type == "grid.tile":
                 item.thumb = image_data["formats"]["tv"]["source"]
 
