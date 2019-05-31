@@ -737,8 +737,9 @@ class Channel(chn_class.Channel):
 
         bright_cove_data = UriHandler.open(bright_cove_url, proxy=self.proxy, additional_headers=headers)
         bright_cove_json = JsonHelper(bright_cove_data)
-        streams = filter(lambda d: d["container"] == "M2TS",
-                         bright_cove_json.get_value("sources"))
+        streams = [d for d in bright_cove_json.get_value("sources") if d["container"] == "M2TS"]
+        # Old filter
+        # streams = filter(lambda d: d["container"] == "M2TS", bright_cove_json.get_value("sources"))
         if not streams:
             Logger.warning("Error extracting streams from BrightCove data: %s", item)
             return item
