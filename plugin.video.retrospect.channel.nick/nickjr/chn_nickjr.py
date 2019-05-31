@@ -1,4 +1,3 @@
-# coding=utf-8  # NOSONAR
 import chn_class
 
 from mediaitem import MediaItem
@@ -105,7 +104,7 @@ class Channel(chn_class.Channel):
 
         json = JsonHelper(json_data[0])
         result = []
-        for key, value in json.json.iteritems():
+        for key, value in json.json.items():
             result.append(value)
             value["title"] = key
 
