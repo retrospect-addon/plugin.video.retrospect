@@ -1,4 +1,4 @@
-import urlparse
+import urlparse as parse
 
 import chn_class
 from mediaitem import MediaItem
@@ -316,7 +316,7 @@ class Channel(chn_class.Channel):
 
         link = result_set.get("feedLink")
         if not link.startswith("http"):
-            link = urlparse.urljoin(self.baseUrl, link)
+            link = parse.urljoin(self.baseUrl, link)
 
         item = MediaItem(title, link)
         item.icon = self.icon
@@ -353,7 +353,7 @@ class Channel(chn_class.Channel):
         # equal
         url = result_set.get("contentLink") or media_link or self.baseUrl
         if not url.startswith("http"):
-            url = urlparse.urljoin(self.baseUrl, url)
+            url = parse.urljoin(self.baseUrl, url)
 
         item = MediaItem(title, url)
         item.thumb = self.noImage
@@ -372,7 +372,7 @@ class Channel(chn_class.Channel):
                 result_set.get("imageLink", None)
 
         if thumb_url and not thumb_url.startswith("http"):
-            thumb_url = urlparse.urljoin(self.baseUrl, thumb_url)
+            thumb_url = parse.urljoin(self.baseUrl, thumb_url)
 
         item.thumb = self.noImage
         if thumb_url:
