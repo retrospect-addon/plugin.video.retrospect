@@ -5,8 +5,8 @@
         provider-name="Bas Rieter">
 
     <requires>
-        <import addon="xbmc.metadata" version="1.0" />
-        <import addon="xbmc.python" version="2.23.0" />
+        <import addon="xbmc.metadata" version="2.1.0" />
+        <import addon="xbmc.python" version="2.25.0" />
         <import addon="script.module.requests" version="2.18.0" />
         <import addon="inputstream.adaptive" version="2.0.19" />
         <import addon="plugin.video.youtube" version="6.0.0" optional="true" />
