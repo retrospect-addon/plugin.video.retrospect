@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
         #         mapping[item["title"]] = item["parent_series_oid"]
         #     print json.dumps(mapping)
         #
-        # TODO: perhap we can do this dynamically?
+        # TODO: perhaps we can do this dynamically?
         # VTM: https://vtm.be/feed/programs?format=json&type=all&only_with_video=true
         # Q2: https://www.q2.be/feed/programs?format=json&type=all&only_with_video=true
 
@@ -1170,7 +1170,7 @@ class Channel(chn_class.Channel):
 
     def __find_image(self, result_set, fallback=None):
         if "images" in result_set and result_set["images"]:
-            first_key = result_set["images"].keys()[0]
+            first_key = list(result_set["images"].keys())[0]
             images = result_set["images"][first_key]
             images = images.get("16_9_Landscape", images.get("default", {}))
             if "styles" in images and "large" in images["styles"]:

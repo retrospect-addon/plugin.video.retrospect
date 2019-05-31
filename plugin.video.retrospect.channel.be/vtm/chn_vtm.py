@@ -1,5 +1,3 @@
-# coding:Cp1252
-
 import chn_class
 from regexer import Regexer
 from mediaitem import MediaItem

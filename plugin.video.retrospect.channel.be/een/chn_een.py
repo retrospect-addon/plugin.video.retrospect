@@ -1,8 +1,6 @@
-# coding:UTF-8
-
-import mediaitem
 import chn_class
 
+from mediaitem import MediaItem
 from regexer import Regexer
 from logger import Logger
 from streams.m3u8 import M3u8
@@ -85,7 +83,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        recent = mediaitem.MediaItem("\a .: Recent :.", "https://www.een.be/deze-week")
+        recent = MediaItem("\a .: Recent :.", "https://www.een.be/deze-week")
         recent.type = "folder"
         recent.complete = True
         recent.dontGroup = True
@@ -149,7 +147,7 @@ class Channel(chn_class.Channel):
 
         # # dummy class
         # url = "http://www.een.be/mediatheek/tag/%s"
-        item = mediaitem.MediaItem(result_set["title"], result_set["url"])
+        item = MediaItem(result_set["title"], result_set["url"])
         item.icon = self.icon
         item.type = "folder"
         item.complete = True

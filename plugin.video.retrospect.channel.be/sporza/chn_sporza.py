@@ -1,5 +1,3 @@
-# coding:Cp1252
-
 import chn_class
 
 from mediaitem import MediaItem

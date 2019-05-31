@@ -11,6 +11,7 @@ from helpers.datehelper import DateHelper
 from addonsettings import AddonSettings
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
+# noinspection PyUnresolvedReferences
 from awsidp import AwsIdp
 from vault import Vault
 
