@@ -1,20 +1,21 @@
-[B]Retrospect v4.1.8.20 - Changelog - 2019-05-15[/B]
-
-!! Due to the changing of the add-on ID, there is an extra add-on data migration step required. This happens as soon as you install the new version. !!
+[B]Retrospect v5.0.0.0~alpha5 - Changelog - 2019-06-01[/B]
 
 [B]Framework related[/B]
--
+* Py2/3: updated code to be compatible with both Python 2 and Python 3
+* Py2/3: use `backtothefuture` module to be 100% Python 3 compatible and keep performance high
+* Fixed: some code cleanup
+* Updated: disclaimer in addon.xml
+* Changed: moved the settings_template.xml to the /resources/data/ folder (See https://kodi.wiki/view/Add-on_structure)
+* Reverted: Partly reverted ad38d22f because it caused sync issues with subs if the InputStream Adaptive is used.
+* Updated: allow to specify an initial bitrate for HLS streams
+* Updated: use ListItem.setSubtitles for subtitle (See #1154)
 
 [B]GUI/Settings/Language related[/B]
-* Changed: dates are shown a bit more dim for folders
-* Updated: show geo/drm warning symbols in yellow
+* Changed: removed the &quot;experimental&quot; warning from the HTTP Caching settings
+* Updated: readme.md
+* Fixed: error with None check and xbmc.PlayList
 
 [B]Channel related[/B]
-* Fixed: VRT.nu changes broke parsing....again (Fixes #1166)
-* Fixed: ViaFree changed their JSON....again....and broke the main listing (Fixes #1163)
-* Removed: TV.nl channel as none of them worked anymore
-* Fixed: L1 did not work at all
-* Fixed: Omroep Flevoland
-* Removed: ATV as it broke a long time ago
-* Fixed: AT5 would not work
-* Fixed: fallback to other streams if embedded stream configuration is missing for kijk.nl
+* Fixed: BBC did not work at all
+
+
