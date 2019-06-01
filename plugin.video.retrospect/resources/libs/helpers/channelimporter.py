@@ -15,8 +15,11 @@ import shutil
 import datetime
 import time
 
-import envcontroller
+from backtothefuture import PY3
+if PY3:
+    import glob
 
+import envcontroller
 from addonsettings import AddonSettings
 from regexer import Regexer
 from environments import Environments
@@ -539,6 +542,11 @@ class ChannelIndex(object):
         # there.
         if os.path.isfile(os.path.join(channel_info.path, compiled_name)) or \
                 os.path.isfile(os.path.join(channel_info.path, optimized_name)):
+            return False
+
+        # If we run Python 3 and no files are in the Python3 __pycache__ folders a channel is
+        # also considered updated.
+        if PY3 and glob.glob(os.path.join(channel_info.path, "__pycache__", "*.py*")):
             return False
 
         return True

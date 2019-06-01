@@ -10,6 +10,8 @@
 
 import socket
 
+from backtothefuture import PY2
+
 
 class DnsResolver:
     def __init__(self, server):
@@ -128,4 +130,6 @@ class DnsResolver:
             return val
 
         def __byte_to_int(self, byte_string):
-            return int(byte_string.encode('hex'), 16)
+            if PY2:
+                return int(byte_string.encode('hex'), 16)
+            return int.from_bytes(byte_string, byteorder='big')

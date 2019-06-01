@@ -8,8 +8,15 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import re
-import urllib
-import htmlentitydefs
+
+from backtothefuture import PY2, PY3, unichr
+
+if PY2:
+    import urllib
+    import htmlentitydefs as htmldefs
+else:
+    import urllib.parse
+    import html.entities as htmldefs
 
 from logger import Logger
 
@@ -64,6 +71,9 @@ class HtmlEntityHelper(object):
 
         """
 
+        if PY3:
+            return urllib.parse.quote(url)
+
         if isinstance(url, unicode):
             Logger.trace("Unicode url: %s", url)
             return urllib.quote(url.encode())
@@ -82,7 +92,10 @@ class HtmlEntityHelper(object):
 
         """
 
-        return urllib.unquote(url)
+        if PY2:
+            return urllib.unquote(url)
+
+        return urllib.parse.unquote(url)
 
     @staticmethod
     def __convert_html_entities(html):
@@ -125,8 +138,8 @@ class HtmlEntityHelper(object):
                 return "'"
 
             else:
-                # Logger.Trace("%s: %s", entity.group(2), htmlentitydefs.name2codepoint[entity.group(2)])
-                return unichr(htmlentitydefs.name2codepoint[entity.group(2)])
+                # Logger.Trace("%s: %s", entity.group(2), htmldefs.name2codepoint[entity.group(2)])
+                return unichr(htmldefs.name2codepoint[entity.group(2)])
         except:
             Logger.error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
             return '&%s%s;' % (entity.group(1), entity.group(2))

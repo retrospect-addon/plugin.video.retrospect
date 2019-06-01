@@ -12,6 +12,8 @@
 import re
 import json
 
+from backtothefuture import unichr
+
 
 #noinspection PyShadowingNames
 class JsonHelper(object):
@@ -63,7 +65,7 @@ class JsonHelper(object):
 
         # special chars
         # unicode chars
-        clean_text = re.sub("(\\\u)(.{4})", JsonHelper.__special_chars_handler, text)
+        clean_text = re.sub("(\\\\u)(.{4})", JsonHelper.__special_chars_handler, text)
 
         # other replacements
         replacements = [("\\n", "\n"), ("\\r", "\r"), ("\\/", "/")]

@@ -15,6 +15,8 @@ import traceback
 import time
 import datetime
 
+from backtothefuture import PY2
+
 
 class Logger:
     LVL_CRITICAL = 50
@@ -362,8 +364,9 @@ class Logger:
                         msg)
                     self.logHandle.write(formatted_message)
             except UnicodeEncodeError:
-                formatted_message = formatted_message.encode('raw_unicode_escape')
-                self.logHandle.write(formatted_message)
+                if PY2:
+                    formatted_message = formatted_message.encode('raw_unicode_escape')
+                    self.logHandle.write(formatted_message)
                 raise
 
             # Finally close the filehandle
@@ -456,7 +459,10 @@ class Logger:
             # the file already exists. Now to prevent errors in Linux
             # we will open a file in Read + (Read and Update) mode
             # and set the pointer to the end.
-            self.logHandle = io.open(self.logFileName, "r+b")
+            if PY2:
+                self.logHandle = io.open(self.logFileName, "r+b")
+            else:
+                self.logHandle = io.open(self.logFileName, "r+", encoding='utf-8')
             self.logHandle.seek(0, 2)
             self.__write("XOT Logger :: Appending Existing logFile", level=Logger.LVL_INFO)
         else:
@@ -464,7 +470,10 @@ class Logger:
             if not os.path.isdir(log_dir):
                 os.makedirs(log_dir)
             # no file exists, so just create a new one for writing
-            self.logHandle = io.open(self.logFileName, "wb")
+            if PY2:
+                self.logHandle = io.open(self.logFileName, "wb")
+            else:
+                self.logHandle = io.open(self.logFileName, "w", encoding='utf-8')
 
         return
 

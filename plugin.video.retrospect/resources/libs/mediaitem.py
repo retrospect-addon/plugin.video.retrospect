@@ -9,13 +9,15 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+import os
 import datetime
-import time
-import random
+import binascii
+from functools import reduce
 
 import xbmc
 import xbmcgui
 
+from backtothefuture import unichr
 from addonsettings import AddonSettings
 from logger import Logger
 from helpers.htmlentityhelper import HtmlEntityHelper
@@ -569,12 +571,7 @@ class MediaItem:
     def __get_uuid(self):
         """ Generates a Unique Identifier based on Time and Random Integers """
 
-        t = long(time.time() * 1000)
-        r = long(random.random() * 100000000000000000L)
-        a = random.random() * 100000000000000000L
-        data = str(t) + ' ' + str(r) + ' ' + str(a)
-        data = EncodingHelper.encode_md5(data)
-        return data
+        return binascii.hexlify(os.urandom(16)).upper()
 
     def __full_decode_text(self, string_value):
         """ Decodes a byte encoded string with HTML content into Unicode String

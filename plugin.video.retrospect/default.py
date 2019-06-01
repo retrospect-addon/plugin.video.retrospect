@@ -90,7 +90,7 @@ currentPath = Initializer.setup_python_paths()
 # from debug import remotedebugger
 # debugger = remotedebugger.RemoteDebugger()
 
-# Profile logging
+# Debugging with profiler
 # import profile as cProfile
 # import cProfile
 # from debug import profilelinebyline as cProfile

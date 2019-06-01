@@ -14,6 +14,8 @@ import sys
 
 import xbmcgui
 
+
+from backtothefuture import unichr
 from environments import Environments
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper

@@ -12,6 +12,7 @@ import os
 import io
 import time
 
+from backtothefuture import unicode
 from retroconfig import Config
 
 

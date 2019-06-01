@@ -15,6 +15,7 @@ import random
 import string
 import hashlib
 
+from backtothefuture import PY2
 from logger import Logger
 from addonsettings import AddonSettings, LOCAL, KODI
 from xbmcwrapper import XbmcWrapper
@@ -261,7 +262,9 @@ class Vault(object):
 
         Logger.debug("Encrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
-        return base64.b64encode(aes.encrypt(data))
+        if PY2:
+            return base64.b64encode(aes.encrypt(data))
+        return base64.b64encode(aes.encrypt(data).encode())
 
     def __decrypt(self, data, key):
         """ Decrypts data based on the given encryption key.
@@ -276,7 +279,10 @@ class Vault(object):
 
         Logger.debug("Decrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
-        return aes.decrypt(base64.b64decode(data))
+
+        if PY2:
+            return aes.decrypt(base64.b64decode(data))
+        return aes.decrypt(base64.b64decode(data.encode()))
 
     def __get_new_key(self, length=32):
         """ Returns a random key.
@@ -302,8 +308,8 @@ class Vault(object):
         """
 
         salt = AddonSettings.get_client_id()
-        pbk = pyscrypt.hash(password=pin,
-                            salt=salt,
+        pbk = pyscrypt.hash(password=pin if PY2 else pin.encode(),
+                            salt=salt if PY2 else salt.encode(),
                             N=2 ** 7,  # should be so that Raspberry Pi can handle it
                             # N=1024,
                             r=1,

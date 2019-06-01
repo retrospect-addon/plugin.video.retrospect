@@ -96,17 +96,18 @@ class SubtitleHelper(object):
                 Logger.warning("Empty Subtitle path found. Not setting subtitles.")
                 return ""
 
-            # try to decode it
-            try:
-                raw = raw.decode()
-            except:
-                # fix some weird chars
+            # try to decode it as `raw` should be a string.
+            if isinstance(raw, bytes):
                 try:
-                    raw = raw.replace("\x96", "-")
+                    raw = raw.decode()
                 except:
-                    Logger.error("Error replacing some weird chars.")
-                Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
-                raw = raw.decode('unicode_escape')
+                    # fix some weird chars
+                    try:
+                        raw = raw.replace("\x96", "-")
+                    except:
+                        Logger.error("Error replacing some weird chars.")
+                    Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
+                    raw = raw.decode('unicode_escape')
 
             # do some auto detection
             if raw.startswith("WEBVTT") and format != "webvtt":
@@ -396,12 +397,14 @@ class SubtitleHelper(object):
         # convert the data, but now now
         result = ""
         m3u8_sub = UriHandler.open(sub_url, proxy=proxy)
-        # Again decode the data
-        try:
-            m3u8_sub = m3u8_sub.decode()
-        except:
-            Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
-            m3u8_sub = m3u8_sub.decode('unicode_escape')
+
+        if isinstance(m3u8_sub, bytes):
+            # Decode the data as it should be str
+            try:
+                m3u8_sub = m3u8_sub.decode()
+            except:
+                Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
+                m3u8_sub = m3u8_sub.decode('unicode_escape')
 
         for line in m3u8_sub.split("\n"):
             line = line.strip()

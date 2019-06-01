@@ -8,9 +8,15 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-# noinspection PyPep8Naming
-import cPickle as pickle
+from backtothefuture import PY2
+if PY2:
+    # noinspection PyPep8Naming,PyUnresolvedReferences
+    import cPickle as pickle
+else:
+    import pickle
+
 import base64
+from functools import reduce
 
 from logger import Logger
 

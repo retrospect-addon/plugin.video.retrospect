@@ -9,7 +9,12 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
-import urlparse
+from backtothefuture import PY2
+
+if PY2:
+    import urlparse as parse
+else:
+    import urllib.parse as parse
 
 from mediaitem import MediaItem, MediaItemPart
 
@@ -533,7 +538,7 @@ class Channel:
         total = HtmlEntityHelper.strip_amp(total)
 
         if not self.pageNavigationRegexIndex == '':
-            item = MediaItem(result_set[self.pageNavigationRegexIndex], urlparse.urljoin(self.baseUrl, total))
+            item = MediaItem(result_set[self.pageNavigationRegexIndex], parse.urljoin(self.baseUrl, total))
         else:
             item = MediaItem("0", "")
 

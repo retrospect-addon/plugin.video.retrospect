@@ -13,6 +13,7 @@ import shutil
 import os
 import io
 
+from backtothefuture import PY2
 from textures import TextureHandler
 
 
@@ -236,7 +237,7 @@ class Cached(TextureHandler):
 
         hash_object = hashlib.md5()
         with open(file_path, "rb") as fs:
-            for block in iter(lambda: fs.read(65536), ""):
+            for block in iter(lambda: fs.read(65536), "" if PY2 else b""):
                 hash_object.update(block)
         md5 = hash_object.hexdigest()
         return md5

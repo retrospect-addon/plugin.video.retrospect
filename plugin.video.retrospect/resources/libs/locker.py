@@ -8,8 +8,6 @@
 # San Francisco, California 94105, USA. 
 # ===============================================================================
 
-import sys
-
 import xbmc
 
 
@@ -60,12 +58,6 @@ class LockWithDialog(object):
             try:
                 response = wrapped_function(*args, **kwargs)
                 # time.sleep(2)
-            except Exception:
-                # re-raise the exception with the original traceback info
-                # see http://nedbatchelder.com/blog/200711/rethrowing_exceptions_in_python.html
-                error_info = sys.exc_info()
-                raise error_info[1], None, error_info[2]
-
             finally:
                 # Hide the busy Dialog
                 LockWithDialog.close_busy_dialog()

@@ -14,6 +14,7 @@ import os
 import xbmcgui
 import xbmc
 
+from backtothefuture import basestring
 from retroconfig import Config
 from locker import LockWithDialog
 

@@ -10,7 +10,12 @@
 
 import os
 import time
-from cookielib import Cookie, CookieJar, MozillaCookieJar
+
+from backtothefuture import PY2
+if PY2:
+    from cookielib import Cookie, CookieJar, MozillaCookieJar
+else:
+    from http.cookiejar import Cookie, CookieJar, MozillaCookieJar
 from collections import namedtuple
 
 import urllib3
@@ -365,7 +370,11 @@ class _RequestsHandler(object):
 
         retrieved_bytes = 0
         total_size = int(r.headers.get('Content-Length', '0').strip())
-        chunk_size = 1024 if total_size == 0 else total_size // 100
+        # There is an issue with the way Requests checks for input and it does not like the newInt.
+        if PY2:
+            chunk_size = 10 * 1024
+        else:
+            chunk_size = 1024 if total_size == 0 else total_size // 100
         cancel = False
         with open(download_path, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=chunk_size):
