@@ -13,8 +13,10 @@ import time
 
 from backtothefuture import PY2
 if PY2:
+    # noinspection PyCompatibility
     from cookielib import Cookie, CookieJar, MozillaCookieJar
 else:
+    # noinspection PyCompatibility
     from http.cookiejar import Cookie, CookieJar, MozillaCookieJar
 from collections import namedtuple
 

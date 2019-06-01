@@ -12,8 +12,10 @@
 from backtothefuture import PY2
 
 if PY2:
+    # noinspection PyUnresolvedReferences
     import urlparse as parse
 else:
+    # noinspection PyUnresolvedReferences
     import urllib.parse as parse
 
 from mediaitem import MediaItem, MediaItemPart

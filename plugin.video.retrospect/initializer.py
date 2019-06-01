@@ -26,7 +26,7 @@ class Initializer:
         if sys.version_info[0] > 2:
             return
 
-        # noinspection PyUnresolvedReferences
+        # noinspection PyUnresolvedReferences,PyCompatibility
         reload(sys)
         # noinspection PyUnresolvedReferences
         sys.setdefaultencoding("utf-8")  # @UndefinedVariable

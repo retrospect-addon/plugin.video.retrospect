@@ -15,6 +15,7 @@ if PY2:
     import urllib
     import htmlentitydefs as htmldefs
 else:
+    # noinspection PyUnresolvedReferences
     import urllib.parse
     import html.entities as htmldefs
 
@@ -72,6 +73,7 @@ class HtmlEntityHelper(object):
         """
 
         if PY3:
+            # noinspection PyUnresolvedReferences
             return urllib.parse.quote(url)
 
         if isinstance(url, unicode):
@@ -95,6 +97,7 @@ class HtmlEntityHelper(object):
         if PY2:
             return urllib.unquote(url)
 
+        # noinspection PyUnresolvedReferences
         return urllib.parse.unquote(url)
 
     @staticmethod

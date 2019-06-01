@@ -132,4 +132,5 @@ class DnsResolver:
         def __byte_to_int(self, byte_string):
             if PY2:
                 return int(byte_string.encode('hex'), 16)
+            # noinspection PyUnresolvedReferences
             return int.from_bytes(byte_string, byteorder='big')
