@@ -1,4 +1,10 @@
-import urlparse as parse
+from backtothefuture import PY2
+if PY2:
+    # noinspection PyUnresolvedReferences
+    import urlparse as parse
+else:
+    # noinspection PyUnresolvedReferences
+    import urllib.parse as parse
 
 import chn_class
 from mediaitem import MediaItem

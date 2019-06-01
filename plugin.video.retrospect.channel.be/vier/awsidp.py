@@ -7,6 +7,7 @@ import sys
 
 import datetime
 
+from backtothefuture import basestring
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
 from logger import Logger
