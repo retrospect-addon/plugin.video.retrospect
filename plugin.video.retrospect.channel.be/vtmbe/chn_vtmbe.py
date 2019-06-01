@@ -2,7 +2,6 @@ import base64
 import random
 import time
 import datetime
-import uuid
 
 import chn_class
 from helpers.htmlhelper import HtmlHelper
@@ -123,7 +122,7 @@ class Channel(chn_class.Channel):
 
             self.mainListUri = "https://channels.medialaan.io/channels/v1/channels?preview=false"
             self._add_data_parser(self.mainListUri,
-                                  json=True,  # if we need premium for channels: requiresLogon=True,
+                                  json=True, requires_logon=True,
                                   preprocessor=self.stievie_menu,
                                   name="JSON Channel overview",
                                   parser=["response", "channels"],
@@ -140,10 +139,15 @@ class Channel(chn_class.Channel):
                                   creator=self.stievie_create_episode,
                                   parser=["response", "videos"])
 
-            self._add_data_parser("https://epg.medialaan.io/epg/v2/", json=True,
-                                  name="EPG Stievie parser",
-                                  creator=self.stievie_create_epg_items,
-                                  parser=["channels", ])
+            # self._add_data_parser("https://epg.medialaan.io/epg/v2/", json=True,
+            #                       name="EPG Stievie parser",
+            #                       creator=self.stievie_create_epg_items,
+            #                       parser=["channels", ])
+
+            self._add_data_parser("https://epg.medialaan.io/epg/v3/", json=True,
+                                  name="EPG Stievie parser for API Version 3",
+                                  creator=self.stievie_create_epg_items_v3,
+                                  parser=["response", "broadcasts", ])
 
             self._add_data_parser("https://vod.medialaan.io/vod/v2/programs?query=",
                                   name="Stievie Search Parser", json=True,
@@ -193,6 +197,7 @@ class Channel(chn_class.Channel):
         self.__signatureTimeStamp = None
         self.__userId = None
         self.__hasPremium = False
+        self.__premium_channels = {}
         self.__adaptiveStreamingAvailable = \
             AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
 
@@ -395,12 +400,13 @@ class Channel(chn_class.Channel):
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
         channel_id = self.parentItem.metaData["channelId"]
         channels = (channel_id, )
-        query = "&channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
+        query = "channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
 
         today = datetime.datetime.now()
         days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
         for i in range(0, 7, 1):
             air_date = today - datetime.timedelta(i)
+            until_air_date = today - datetime.timedelta(i) + datetime.timedelta(1)
             Logger.trace("Adding item for: %s", air_date)
 
             day = days[air_date.weekday()]
@@ -411,7 +417,15 @@ class Channel(chn_class.Channel):
             elif i == 2:
                 day = "Eergisteren"
             title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
-            url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (air_date.year, air_date.month, air_date.day, query)
+            # url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (air_date.year, air_date.month, air_date.day, query)
+            # https://epg.medialaan.io/epg/v3/broadcasts?channels%5B%5D=zes&from=2019-05-29T03%3A00%3A00.000Z&until=2019-05-30T03%3A00%3A00.000Z
+
+            url = "https://epg.medialaan.io/epg/v3/broadcasts?%s&" \
+                  "from=%d-%02d-%02dT03%%3A00%%3A00.000Z&" \
+                  "until=%d-%02d-%02dT03%%3A00%%3A00.000Z" % (
+                    query,
+                    air_date.year, air_date.month, air_date.day,
+                    until_air_date.year, until_air_date.month, until_air_date.day)
 
             extra = MediaItem(title, url)
             extra.complete = True
@@ -460,7 +474,7 @@ class Channel(chn_class.Channel):
                 item.thumb = result_set["icons"]["white"]
         return item
 
-    def stievie_create_epg_items(self, epg):
+    def stievie_create_epg_items_v3(self, result_set):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -472,71 +486,139 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict epg: The result_set of the self.episodeItemRegex
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
 
         """
 
-        Logger.trace(epg)
-        Logger.debug("Processing EPG for channel %s", epg["id"])
+        Logger.trace(result_set)
 
-        items = []
+        episode_info = result_set["episode"]
+        video_id = episode_info.get("vodId")
+        if video_id is None:
+            return None
+
+        url = "https://vod.medialaan.io/vod/v2/videos/{}".format(video_id)
+
         summer_time = time.localtime().tm_isdst
         now = datetime.datetime.now()
 
-        for result_set in epg["items"]:
-            # if not resultSet["parentSeriesOID"]:
-            #     continue
+        title = episode_info["title"]
+        if episode_info["number"] and result_set["season"] and result_set["season"]["number"] < 1000:
+            title = "%s - s%02de%02d" % (title, result_set["season"]["number"], episode_info["number"])
 
-            # Does not always work
-            # videoId = resultSet["epgId"].replace("-", "_")
-            # url = "https://vod.medialaan.io/vod/v2/videos/%s_Stievie_free" % (videoId, )
-            video_id = result_set["programOID"]
-            url = "https://vod.medialaan.io/vod/v2/videos?episodeIds=%s&limit=10&offset=0&sort=broadcastDate&sortDirection=asc" % (video_id, )
-            title = result_set["title"]
-            if result_set["episode"] and result_set["season"]:
-                title = "%s - s%02de%02d" % (title, result_set["season"], result_set["episode"])
+        if "subtitle" in episode_info and episode_info["subtitle"]:
+            title = "{} - {}".format(title, episode_info["subtitle"])
 
-            if "startTime" in result_set and result_set["startTime"]:
-                date_time = result_set["startTime"]
-                date_value = DateHelper.get_date_from_string(date_time, date_format="%Y-%m-%dT%H:%M:%S.000Z")
-                # Convert to Belgium posix time stamp
-                date_value2 = time.mktime(date_value) + (1 + summer_time) * 60 * 60
-                # Conver the posix to a time stamp
-                start_time = DateHelper.get_date_from_posix(date_value2)
+        start_time = result_set["start"]["display"].split(".")[0]
+        start_time_tuple = DateHelper.get_date_from_string(start_time, date_format="%Y-%m-%dT%H:%M:%S")
+        start_time_dt = datetime.datetime(*start_time_tuple[:6])
+        # Correct for the UTC+0100 (or UTC+0200 in DST)
+        start_time_tz_dt = start_time_dt + datetime.timedelta(hours=1 + summer_time)
+        title = "%02d:%02d - %s" % (start_time_tz_dt.hour, start_time_tz_dt.minute, title)
 
-                title = "%02d:%02d - %s" % (start_time.hour, start_time.minute, title)
+        # Check for items in their black-out period
+        if "blackout" in result_set and result_set["blackout"]["enabled"]:
+            blackout_duration = result_set["blackout"]["duration"]
+            blackout_start = start_time_tz_dt + datetime.timedelta(seconds=blackout_duration)
+            if blackout_start < now:
+                Logger.debug("Found item in Black-out period: %s (started at %s)", title,
+                             blackout_start)
+                return None
 
-                # Check for items in their black-out period
-                if "blackout" in result_set and result_set["blackout"]["enabled"]:
-                    blackout_duration = result_set["blackout"]["duration"]
-                    blackout_start = start_time + datetime.timedelta(seconds=blackout_duration)
-                    if blackout_start < now:
-                        Logger.debug("Found item in Black-out period: %s (started at %s)", title, blackout_start)
-                        continue
+        item = MediaItem(title, url)
+        item.type = "video"
+        item.isGeoLocked = result_set["geoblock"]
+        item.description = episode_info["description"]
+        # item.set_date(startTime.year, startTime.month, startTime.day)
 
-            # else:
-            #     startTime = self.parentItem.metaData["airDate"]
+        if "images" in episode_info and episode_info["images"]:
+            for image_info in episode_info["images"]:
+                if image_info["resolution"] == "800x450":
+                    item.thumb = image_info["url"]
 
-            item = MediaItem(title, url)
-            item.type = "video"
-            item.isGeoLocked = result_set["geoblock"]
-            item.description = result_set["shortDescription"]
-            # item.set_date(startTime.year, startTime.month, startTime.day)
+        return item
 
-            if "images" in result_set and result_set["images"] and "styles" in result_set["images"][0]:
-                images = result_set["images"][0]["styles"]
-                # Fanart image
-                # if "1520x855" in images:
-                #     item.fanart = images["1520x855"]
-                if "400x225" in images:
-                    item.thumb = images["400x225"]
-
-            items.append(item)
-
-        return items
+    # The old V2 API code
+    # def stievie_create_epg_items(self, epg):
+    #     """ Creates a MediaItem of type 'video' using the result_set from the regex.
+    #
+    #     This method creates a new MediaItem from the Regular Expression or Json
+    #     results <result_set>. The method should be implemented by derived classes
+    #     and are specific to the channel.
+    #
+    #     If the item is completely processed an no further data needs to be fetched
+    #     the self.complete property should be set to True. If not set to True, the
+    #     self.update_video_item method is called if the item is focussed or selected
+    #     for playback.
+    #
+    #     :param list[str]|dict epg: The result_set of the self.episodeItemRegex
+    #
+    #     :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+    #     :rtype: MediaItem|None
+    #
+    #     """
+    #
+    #     Logger.trace(epg)
+    #     Logger.debug("Processing EPG for channel %s", epg["id"])
+    #
+    #     items = []
+    #     summer_time = time.localtime().tm_isdst
+    #     now = datetime.datetime.now()
+    #
+    #     for result_set in epg["items"]:
+    #         # if not resultSet["parentSeriesOID"]:
+    #         #     continue
+    #
+    #         # Does not always work
+    #         # videoId = resultSet["epgId"].replace("-", "_")
+    #         # url = "https://vod.medialaan.io/vod/v2/videos/%s_Stievie_free" % (videoId, )
+    #         video_id = result_set["programOID"]
+    #         url = "https://vod.medialaan.io/vod/v2/videos?episodeIds=%s&limit=10&offset=0&sort=broadcastDate&sortDirection=asc" % (video_id, )
+    #         title = result_set["title"]
+    #         if result_set["episode"] and result_set["season"]:
+    #             title = "%s - s%02de%02d" % (title, result_set["season"], result_set["episode"])
+    #
+    #         if "startTime" in result_set and result_set["startTime"]:
+    #             date_time = result_set["startTime"]
+    #             date_value = DateHelper.get_date_from_string(date_time, date_format="%Y-%m-%dT%H:%M:%S.000Z")
+    #             # Convert to Belgium posix time stamp
+    #             date_value2 = time.mktime(date_value) + (1 + summer_time) * 60 * 60
+    #             # Conver the posix to a time stamp
+    #             start_time = DateHelper.get_date_from_posix(date_value2)
+    #
+    #             title = "%02d:%02d - %s" % (start_time.hour, start_time.minute, title)
+    #
+    #             # Check for items in their black-out period
+    #             if "blackout" in result_set and result_set["blackout"]["enabled"]:
+    #                 blackout_duration = result_set["blackout"]["duration"]
+    #                 blackout_start = start_time + datetime.timedelta(seconds=blackout_duration)
+    #                 if blackout_start < now:
+    #                     Logger.debug("Found item in Black-out period: %s (started at %s)", title, blackout_start)
+    #                     continue
+    #
+    #         # else:
+    #         #     startTime = self.parentItem.metaData["airDate"]
+    #
+    #         item = MediaItem(title, url)
+    #         item.type = "video"
+    #         item.isGeoLocked = result_set["geoblock"]
+    #         item.description = result_set["shortDescription"]
+    #         # item.set_date(startTime.year, startTime.month, startTime.day)
+    #
+    #         if "images" in result_set and result_set["images"] and "styles" in result_set["images"][0]:
+    #             images = result_set["images"][0]["styles"]
+    #             # Fanart image
+    #             # if "1520x855" in images:
+    #             #     item.fanart = images["1520x855"]
+    #             if "400x225" in images:
+    #                 item.thumb = images["400x225"]
+    #
+    #         items.append(item)
+    #
+    #     return items
 
     def stievie_create_episode(self, result_set):
         """ Creates a new MediaItem for an episode.
@@ -1074,7 +1156,7 @@ class Channel(chn_class.Channel):
 
         url = "https://stream-live.medialaan.io/stream-live/v1/channels/%s/broadcasts/current/video/?deviceId=%s" % (
             channel,
-            uuid.uuid4()  # Could be a random int
+            AddonSettings.get_client_id().replace("-", "")  # Could be a random int
         )
 
         auth = {"Authorization": "apikey=%s&access_token=%s" % (self.__apiKey, token)}
@@ -1209,7 +1291,7 @@ class Channel(chn_class.Channel):
                     "%s" \
                     "/watch?deviceId=%s" % (
                         video_id,
-                        uuid.uuid4()
+                        AddonSettings.get_client_id().replace("-", "")
                     )
 
         auth = "apikey=%s&access_token=%s" % (self.__apiKey, token)
@@ -1302,6 +1384,12 @@ class Channel(chn_class.Channel):
                          logon_json.get_value("errorDetails"))
             return False
 
+        user_name = logon_json.get_value("profile", "email") or ""
+        user_name_configured = AddonSettings.get_setting("mediaan_username") or ""
+        if user_name.lower() != user_name_configured.lower():
+            Logger.warning("Username for Medialaan changed.")
+            return False
+
         signature_setting = logon_json.get_value("sessionInfo", "login_token")
         if signature_setting:
             Logger.info("Found 'login_token'. Saving it.")
@@ -1310,5 +1398,9 @@ class Channel(chn_class.Channel):
         self.__signature = logon_json.get_value("UIDSignature")
         self.__userId = logon_json.get_value("UID")
         self.__signatureTimeStamp = logon_json.get_value("signatureTimestamp")
-        self.__hasPremium = logon_json.get_value("premium")
+
+        self.__hasPremium = logon_json.get_value(
+            "data", "authorization", "Stievie_free", "subscription", "id") == "premium"
+        self.__premium_channels = logon_json.get_value(
+            "data", "authorization", "Stievie_free", "channels")
         return True
