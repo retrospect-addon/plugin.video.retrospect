@@ -13,7 +13,7 @@ import io
 import json
 import shutil
 
-import settingsstore
+from . import settingsstore
 
 
 class LocalSettings(settingsstore.SettingsStore):
@@ -124,12 +124,12 @@ class LocalSettings(settingsstore.SettingsStore):
             return
 
     def __store_settings(self):
-        if LocalSettings.__settings is None or not LocalSettings.__settings.keys():
+        if LocalSettings.__settings is None or not list(LocalSettings.__settings.keys()):
             raise ValueError("Empty settings object cannot save.")
 
         # open the file as binary file, as json.dumps will already encode as utf-8 bytes
         with io.open(self.local_settings_file, mode='w+b') as fp:
-            content = json.dumps(LocalSettings.__settings, indent=4, encoding='utf-8')
+            content = json.dumps(LocalSettings.__settings, indent=4).encode('utf-8')
             fp.write(content)
 
             # Print the content might expose secret settings. See self._secure_setting_ids

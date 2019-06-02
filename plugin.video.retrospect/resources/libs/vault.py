@@ -15,13 +15,14 @@ import random
 import string
 import hashlib
 
+from backtothefuture import PY2
 from logger import Logger
 from addonsettings import AddonSettings, LOCAL, KODI
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
 
 
-class Vault:
+class Vault(object):
     __Key = None
     __APPLICATION_KEY_SETTING = "application_key"
 
@@ -261,10 +262,11 @@ class Vault:
 
         Logger.debug("Encrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
-        return base64.b64encode(aes.encrypt(data))
+        if PY2:
+            return base64.b64encode(aes.encrypt(data))
+        return base64.b64encode(aes.encrypt(data).encode())
 
     def __decrypt(self, data, key):
-        # type: (str, str) -> str
         """ Decrypts data based on the given encryption key.
 
         :param str data:    The data to decrypt.
@@ -277,7 +279,10 @@ class Vault:
 
         Logger.debug("Decrypting with keysize: %s", len(key))
         aes = pyaes.AESModeOfOperationCTR(key)
-        return aes.decrypt(base64.b64decode(data))
+
+        if PY2:
+            return aes.decrypt(base64.b64decode(data))
+        return aes.decrypt(base64.b64decode(data.encode()))
 
     def __get_new_key(self, length=32):
         """ Returns a random key.
@@ -289,11 +294,11 @@ class Vault:
 
         """
 
-        return ''.join(random.choice(string.digits + string.letters + string.punctuation)
+        return ''.join(random.choice(string.digits + string.ascii_letters + string.punctuation)
                        for _ in range(length))
 
     def __get_pbk(self, pin):
-        """ Gets the Password Based Key (PBK) based in the PIN.
+        """ Gets the Password Based Key (PBK) based on the PIN.
 
         :param str pin: The pin for the key.
 
@@ -303,8 +308,8 @@ class Vault:
         """
 
         salt = AddonSettings.get_client_id()
-        pbk = pyscrypt.hash(password=pin,
-                            salt=salt,
+        pbk = pyscrypt.hash(password=pin if PY2 else pin.encode(),
+                            salt=salt if PY2 else salt.encode(),
                             N=2 ** 7,  # should be so that Raspberry Pi can handle it
                             # N=1024,
                             r=1,

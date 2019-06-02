@@ -1,7 +1,7 @@
 import datetime
 
 import chn_class
-import mediaitem
+from mediaitem import MediaItem
 from addonsettings import AddonSettings
 from helpers.htmlhelper import HtmlHelper
 from regexer import Regexer
@@ -282,14 +282,14 @@ class Channel(chn_class.Channel):
             Logger.info("Only showing items for channel: '%s'", self.__currentChannel)
             return data, items
 
-        cat = mediaitem.MediaItem("\a.: Categori&euml;n :.", "https://www.vrt.be/vrtnu/categorieen/")
+        cat = MediaItem("\a.: Categori&euml;n :.", "https://www.vrt.be/vrtnu/categorieen/")
         cat.fanart = self.fanart
         cat.thumb = self.noImage
         cat.icon = self.icon
         cat.dontGroup = True
         items.append(cat)
 
-        live = mediaitem.MediaItem("\a.: Live Streams :.", "https://services.vrt.be/videoplayer/r/live.json")
+        live = MediaItem("\a.: Live Streams :.", "https://services.vrt.be/videoplayer/r/live.json")
         live.fanart = self.fanart
         live.thumb = self.noImage
         live.icon = self.icon
@@ -298,7 +298,7 @@ class Channel(chn_class.Channel):
         items.append(live)
 
         channel_text = LanguageHelper.get_localized_string(30010)
-        channels = mediaitem.MediaItem("\a.: %s :." % (channel_text, ), "#channels")
+        channels = MediaItem("\a.: %s :." % (channel_text, ), "#channels")
         channels.fanart = self.fanart
         channels.thumb = self.noImage
         channels.icon = self.icon
@@ -320,11 +320,11 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        for name, meta in self.__channelData.iteritems():
+        for name, meta in self.__channelData.items():
             if "metaCode" not in meta:
                 continue
 
-            channel = mediaitem.MediaItem(meta["title"], self.mainListUri)
+            channel = MediaItem(meta["title"], self.mainListUri)
             # noinspection PyArgumentList
             channel.fanart = meta.get("fanart", self.fanart)
             # noinspection PyArgumentList
@@ -379,7 +379,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        for key_value, stream_value in result_set.iteritems():
+        for key_value, stream_value in result_set.items():
             Logger.trace(stream_value)
             # noinspection PyArgumentList
             channel_data = self.__channelData.get(key_value, None)
@@ -387,7 +387,7 @@ class Channel(chn_class.Channel):
                 continue
 
             url = channel_data["url"] if "url" in channel_data else stream_value["hls"]
-            live_item = mediaitem.MediaItem(channel_data["title"], url)
+            live_item = MediaItem(channel_data["title"], url)
             live_item.isLive = True
             live_item.type = 'video'
             live_item.fanart = channel_data.get("fanart", self.fanart)
@@ -502,7 +502,7 @@ class Channel(chn_class.Channel):
         url = self.parentItem.url
         title = json_data.get_value("name")
         description = HtmlHelper.to_text(json_data.get_value("description"))
-        item = mediaitem.MediaItem(title, url, type="video")
+        item = MediaItem(title, url, type="video")
         item.description = description
         item.thumb = self.parentItem.thumb
         item.fanart = self.parentItem.fanart
@@ -621,7 +621,7 @@ class Channel(chn_class.Channel):
         secure_url = "%s.mssecurevideo.json" % (secure_url, )
         data = UriHandler.open(secure_url, proxy=self.proxy, additional_headers=item.HttpHeaders)
         secure_data = JsonHelper(data, logger=Logger.instance())
-        mzid = secure_data.get_value(secure_data.json.keys()[0], "videoid")
+        mzid = secure_data.get_value(list(secure_data.json.keys())[0], "videoid")
 
         # region New URL retrieval with DRM protection
         # We need a player token

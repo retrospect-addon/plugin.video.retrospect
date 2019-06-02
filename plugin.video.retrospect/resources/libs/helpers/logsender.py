@@ -1,17 +1,31 @@
+# ===============================================================================
+# LICENSE Retrospect-Framework - CC BY-NC-ND
+# ===============================================================================
+# This work is licenced under the Creative Commons
+# Attribution-Non-Commercial-No Derivative Works 3.0 Unported License. To view a
+# copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
+# or send a letter to Creative Commons, 171 Second Street, Suite 300,
+# San Francisco, California 94105, USA.
+# ===============================================================================
+
 import os
+import io
 
 from helpers.htmlentityhelper import HtmlEntityHelper
 from urihandler import UriHandler
 from helpers.jsonhelper import JsonHelper
+from proxyinfo import ProxyInfo
 
 
-class LogSender:
+class LogSender(object):
     def __init__(self, api_key, logger=None, proxy=None, mode='hastebin'):
-        """
-        @param api_key: the API key for pastebin or gist
-        @param logger: a possible Logger object
-        @param proxy:  a possible proxy to use
-        @param mode:   either 'gist' or 'pastebin'        
+        """ Creates a LogSender object.
+
+        :param str|unicode api_key:     The API key for pastebin or gist.
+        :param any logger:              A possible Logger object.
+        :param ProxyInfo proxy:         A possible proxy to use.
+        :param str|unicode mode:        Either 'gist', 'hastebin' or 'pastebin'.
+
         """
 
         if not api_key:
@@ -36,6 +50,19 @@ class LogSender:
         return
 
     def send_file(self, name, file_path, expire='1M', paste_format=None, user_key=None):
+        """ Sends a single file to a service.
+
+        :param str|unicode name:            Name of the logfile paste/gist.
+        :param str|unicode|none file_path:  The file path of the file to upload.
+        :param str|unicode expire:          Expiration time.
+        :param str|unicode paste_format:    The format for the file.
+        :param str|unicode user_key:        The user API key.
+
+        :return: The result of the upload.
+        :rtype: any
+
+        """
+
         if not file_path:
             raise ValueError("No filename specified")
 
@@ -49,6 +76,16 @@ class LogSender:
         return self.send(name, code, expire, paste_format, user_key)
 
     def send_files(self, name, file_paths):
+        """ Sends multiple files.
+
+        :param str|unicode name:                Name for the gist/paste.
+        :param list[str|unicode] file_paths:    List of file paths.
+
+        :return: The result of the upload.
+        :rtype: any
+
+        """
+
         if self.__mode != "gist":
             raise ValueError("Invalid mode for multiple files")
 
@@ -98,6 +135,19 @@ class LogSender:
         return google_url
 
     def send(self, name, code, expire='1M', paste_format=None, user_key=None):
+        """ Sends a data to Github or Pastebin.com.
+
+        :param str|unicode name:            Name of the logfile paste/gist.
+        :param str code:                    The content to post.
+        :param str|unicode expire:          Expiration time.
+        :param str|unicode paste_format:    The format for the file.
+        :param str|unicode user_key:        The user API key.
+
+        :return: The result of the upload.
+        :rtype: any
+
+        """
+
         if not name:
             raise ValueError("Name missing")
         if not code:
@@ -111,6 +161,16 @@ class LogSender:
             return self.__send_git_hub_gist(name, code)
 
     def __send_git_hub_gist(self, name, code):
+        """ Send a file to a Github gist.
+
+        :param str|unicode name:            Name of the logfile paste/gist.
+        :param str code:                    The content to post.
+
+        :return: the ID of the gist
+        :rtype: int
+
+        """
+
         params = {
             "description": name,
             "public": False,
@@ -124,7 +184,7 @@ class LogSender:
             "Content-Type": "application/json"
         }
         post_data = JsonHelper.dump(params, pretty_print=False)
-        data = UriHandler.open("https://api.github.com/gists", params=post_data,
+        data = UriHandler.open("https://api.github.com/gists", params=post_data.encode(),
                                proxy=self.__proxy, additional_headers=headers)
         if not data:
             raise IOError("Error posting Gist to GitHub")
@@ -146,6 +206,19 @@ class LogSender:
         return JsonHelper(google_data).get_value("id")
 
     def __send_paste_bin(self, name, code, expire='1M', paste_format=None, user_key=None):
+        """ Send a file to pastebin.com
+
+        :param str|unicode name:            Name of the logfile paste/gist.
+        :param str code:                    The content to post.
+        :param str|unicode expire:          Expiration time.
+        :param str|unicode paste_format:    The format for the file.
+        :param str|unicode user_key:        The user API key.
+
+        :return: The result of the upload.
+        :rtype: any
+
+        """
+
         if not name:
             raise ValueError("Name missing")
         if not code:
@@ -165,10 +238,11 @@ class LogSender:
         if user_key:
             params['api_user_key'] = user_key
 
-        post_params = reduce(lambda x, y: "%s&%s=%s" % (
-            x,
-            y,
-            HtmlEntityHelper.url_encode(str(params[y]))), params.keys(), "").lstrip("&")
+        post_params = ""
+        for k in params.keys():
+            post_params = "{0}&{1}={2}".format(post_params, k,
+                                               HtmlEntityHelper.url_encode(str(params[k])))
+        post_params = post_params.lstrip("&")
 
         if self.__logger:
             self.__logger.debug("Posting %d chars to pastebin.com", len(code))
@@ -190,7 +264,7 @@ class LogSender:
         :param str code:    The content to post
         """
 
-        response = UriHandler.open("https://paste.kodi.tv/documents", data=code, proxy=self.__proxy)
+        response = UriHandler.open("https://paste.kodi.tv/documents", params=code.encode(), proxy=self.__proxy)
         json = JsonHelper(response)
         key = json.get_value("key")
         if not key:
@@ -203,8 +277,17 @@ class LogSender:
         return url
 
     def __read_file_bytes(self, file_path):
+        """ Reads bytes from a file.
+
+        :param str|unicode file_path:   The file to read.
+
+        :return: The bytes read.
+        :rtype: str
+
+        """
+
         code = ""
-        with open(file_path) as fp:
+        with io.open(file_path, 'r', encoding='utf-8') as fp:
             if self.__maxSize:
                 fp.seek(0, os.SEEK_END)
                 size = fp.tell()
@@ -218,7 +301,7 @@ class LogSender:
                     top_bytes = 20
                     code += fp.read(top_bytes * 1024)
                     code += "\n%s\n" % ("*" * 100)
-                    fp.seek(-(self.__maxSize - (top_bytes * 1024)), os.SEEK_END)
+                    fp.seek(size - (self.__maxSize - (top_bytes * 1024)), os.SEEK_SET)
 
                 code += fp.read()
                 return code

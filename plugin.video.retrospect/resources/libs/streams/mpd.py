@@ -11,7 +11,7 @@
 from streams.adaptive import Adaptive
 
 
-class Mpd:
+class Mpd(object):
     def __init__(self):
         pass
 
@@ -22,6 +22,29 @@ class Mpd:
                                      persist_storage=False,
                                      service_certificate=None,
                                      manifest_update=None):
+        """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
+        can be used by other methods.
+
+        :param strm:                    (MediaStream) the MediaStream to update
+        :param proxy:                   (Proxy) The proxy to use for opening
+        :param dict headers:            Possible HTTP Headers
+        :param str license_key:         The value of the license key request
+        :param str license_type:        The type of license key request used (see below)
+        :param int max_bit_rate:        The maximum bitrate to use (optional)
+        :param bool persist_storage:    Should we store certificates? And request server certificates?
+        :param str service_certificate: Use the specified server certificate
+
+        Can be used like this:
+
+            part = item.create_new_empty_media_part()
+            stream = part.append_media_stream(m3u8url, 0)
+            M3u8.set_input_stream_addon_input(stream, self.proxy, self.headers)
+            item.complete = True
+
+        if maxBitRate is not set, the bitrate will be configured via the normal generic Retrospect
+        or channel settings.
+
+        """
 
         return Adaptive.set_input_stream_addon_input(strm, proxy, headers,
                                                      manifest_type="mpd",
@@ -46,11 +69,12 @@ class Mpd:
 
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
-        :param str key_url:         The URL where the license key can be obtained.
-        :param str|None key_type:   Tthe key type (A, R, B, D or None for custom)
-        :param dict key_headers:    A dictionary that contains the HTTP headers to pass.
-        :param str key_value:       The value that is beging passed on as the key value.
-        :param str json_filter:     If specified selects that json element to extract the key response.
+        :param str key_url:                 The URL where the license key can be obtained.
+        :param str|None key_type:           The key type (A, R, B or D).
+        :param dict[str,str] key_headers:   A dictionary that contains the HTTP headers to pass.
+        :param str key_value:               The value that is beging passed on as the key value.
+        :param str json_filter:             If specified selects that json element to extract the
+                                            key response.
 
         :return: A formated license string that can be passed to the adaptive input add-on.
         :rtype: str

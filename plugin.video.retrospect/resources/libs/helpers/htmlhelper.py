@@ -22,37 +22,40 @@ class HtmlHelper(taghelperbase.TagHelperBase):
     def get_tag_content(self, tag, *args, **kwargs):
         """Gets the content of an HTML <tag> 
 
-        @param tag:     string     - name of tag to search for.
-        @param args:    dictionary - each argument is interpreted as a html
-                                     attribute. 'cls' is translated to class
-                                     attribute. The attribute with value None
-                                     is retrieved.
-        @param kwargs:
-          first_only:   boolean    - [opt] only return the first result. Default: True
-
-        @return: The content of the found tag. If no match is found an empty string is
-        returned.
-
         Example: ('div', {'cls':'test'}, {'id':'divTest'}) will match
+
         <div class="test" id="divTest">...content...</div>
+
+        :param str|unicode tag:                     Name of tag to search for.
+        :param dict[str|unicode,str|unicode] args:  Each argument is interpreted as a html
+                                     attribute. 'cls' is translated to class
+                                                    attribute. The attribute with value None \
+                                     is retrieved.
+        :param any kwargs:  Optional parameters.
+
+        :return: The content of the found tag. If no match is found an empty string is returned.
+        :rtype: str|unicode
+
+        Optional parameters:
+        bool first_only:    only return the first result. Default: True
 
         """
         
         first_only = True
-        if kwargs.keys().count("first_only") > 0:
+        if "first_only" in kwargs:
             first_only = kwargs["first_only"]
 
         html_regex = "<%s" % (tag,)
                 
         for arg in args:
-            name = arg.keys()[0]
-            value = arg[arg.keys()[0]]
+            name = list(arg.keys())[0]
+            value = arg[list(arg.keys())[0]]
 
             # to keep working with older versions where class could not be passed
             if name == "cls":
                 name = "class"
 
-            html_regex += '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
+            html_regex += r'[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
 
         html_regex += "[^>]*>([^<]+)</"
         result = Regexer.do_regex(html_regex, self.data)
@@ -66,11 +69,12 @@ class HtmlHelper(taghelperbase.TagHelperBase):
 
     @staticmethod
     def to_text(html):
-        # type: (str) -> object
         """ Converts HTML to text by replacing the HTML tags.
 
-        @param html: string - HTML text input
-        @return:     string - Plain text representation of the HTML
+        :param str|unicode html: string - HTML text input
+
+        :return: string - Plain text representation of the HTML
+        :rtype: str|unicode
 
         """
 
@@ -78,7 +82,7 @@ class HtmlHelper(taghelperbase.TagHelperBase):
             return html
 
         if not HtmlHelper.__ToTextRegex:
-            HtmlHelper.__ToTextRegex = re.compile('</?([^ >]+)(?: [^>]+)?>',
+            HtmlHelper.__ToTextRegex = re.compile(r'</?([^ >]+)(?: [^>]+)?>',
                                                   re.DOTALL + re.IGNORECASE)
 
         text = HtmlHelper.__ToTextRegex.sub(HtmlHelper.__html_replace, html)

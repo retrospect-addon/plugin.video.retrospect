@@ -106,7 +106,7 @@ class Channel(chn_class.Channel):
             "\a.: Cat&eacute;gories :.": "http://www.rtbf.be/news/api/menu?site=media"
         }
 
-        for k, v in sub_items.iteritems():
+        for k, v in sub_items.items():
             item = MediaItem(k, v)
             item.complete = True
             item.dontGroup = True

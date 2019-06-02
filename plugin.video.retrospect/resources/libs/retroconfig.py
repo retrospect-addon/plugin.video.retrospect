@@ -25,9 +25,10 @@ class Config:
         __path = os.getcwd()
         pathDetection = "os.getcwd()"
 
-    # the Kodi libs return unicode info, so we need to convert this
-    #noinspection PyArgumentEqualDefault
-    __path = __path.decode('utf-8')
+    if isinstance(__path, bytes):
+        # the Kodi libs return unicode info, so we need to convert this
+        #noinspection PyArgumentEqualDefault
+        __path = __path.decode('utf-8')
 
     # get rootDir, addonsDir and profileDir
     rootDir = __path.replace(";", "")                        # : The root directory where Retrospect resides.
@@ -43,9 +44,10 @@ class Config:
         profileUri = os.path.join("special://profile/addon_data/", addonDir)
 
     # the XBMC libs return unicode info, so we need to convert this
-    #noinspection PyArgumentEqualDefault
-    profileDir = profileDir.decode('utf-8')
-    profileUri = profileUri.decode('utf-8')
+    if isinstance(profileDir, bytes):
+        profileDir = profileDir.decode('utf-8')
+    if isinstance(profileUri, bytes):
+        profileUri = profileUri.decode('utf-8')
 
     cacheDir = os.path.join(profileDir, 'cache', '')         # : The cache directory.
     favouriteDir = os.path.join(profileDir, 'favourites')    # : The favourites directory

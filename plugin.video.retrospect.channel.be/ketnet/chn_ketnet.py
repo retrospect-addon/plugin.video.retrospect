@@ -1,7 +1,6 @@
-# coding:Cp1252
 import chn_class
-import mediaitem
 
+from mediaitem import MediaItem
 from helpers.languagehelper import LanguageHelper
 from regexer import Regexer
 from logger import Logger
@@ -96,7 +95,7 @@ class Channel(chn_class.Channel):
         json = JsonHelper(json_data[0])
         title = json.get_value("title")
         url = json.get_value("source", "hls")
-        item = mediaitem.MediaItem(title, url)
+        item = MediaItem(title, url)
         item.type = 'video'
         item.description = json.get_value("description", fallback=None)
         item.thumb = json.get_value("image", fallback=self.noImage)

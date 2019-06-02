@@ -7,8 +7,7 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
-# import threading
-# import time
+
 from datetime import datetime
 
 from logger import Logger
@@ -18,7 +17,7 @@ from helpers.htmlentityhelper import HtmlEntityHelper
 from retroconfig import Config
 
 
-class Statistics:
+class Statistics(object):
     __STATISTICS = "Statistics"
     __ERRORS = "Errors"
     __ACTION_PLAY = "Play"
@@ -89,7 +88,7 @@ class Statistics:
         duration = None
         if start_time:
             time_delta = (datetime.now() - start_time)
-            duration = time_delta.seconds * 1000 + (time_delta.microseconds / (10 ** 3))
+            duration = time_delta.seconds * 1000 + (time_delta.microseconds // (10 ** 3))
 
         Statistics.__register_hit(Statistics.__STATISTICS, channel.channelName,
                                   Statistics.__ACTION_CHANNEL,
@@ -115,7 +114,7 @@ class Statistics:
         time_delta = None
         if start_time:
             time_delta = (datetime.now() - start_time)
-            duration = time_delta.seconds * 1000 + (time_delta.microseconds / (10 ** 3)) + offset
+            duration = time_delta.seconds * 1000 + (time_delta.microseconds // (10 ** 3)) + offset
         Logger.trace("Duration set to: %s (%s, offset=%s)", duration, time_delta or "None", offset)
 
         action = "%s: %s" % (Statistics.__ACTION_PLAY, item.name)
@@ -172,7 +171,7 @@ class Statistics:
 
             url = "https://www.google-analytics.com/collect"
             data = ""
-            for k, v in post_data.iteritems():
+            for k, v in post_data.items():
                 data += "%s=%s&" % (k, v)
             data = data.rstrip("&")
 

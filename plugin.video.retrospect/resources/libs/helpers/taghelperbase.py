@@ -12,7 +12,7 @@ from regexer import Regexer
 from logger import Logger
 
 
-class TagHelperBase:
+class TagHelperBase(object):
     """Base class that holds the mutual code for XMLHelper and HTMLHelper"""
         
     def __init__(self, data):
@@ -56,8 +56,8 @@ class TagHelperBase:
         html_regex = '<%s' % (tag,)
         
         for arg in args:
-            name = arg.keys()[0]
-            value = arg[arg.keys()[0]]
+            name = list(arg.keys())[0]
+            value = arg[list(arg.keys())[0]]
             Logger.trace("Name: %s, Value: %s", name, value)
             
             # to keep working with older versions where class could not be passed
@@ -65,9 +65,9 @@ class TagHelperBase:
                 name = "class"
             
             if value is None:
-                html_regex += '[^>]*%s\W*=\W*["\']([^"\']+)["\']' % (name,)
+                html_regex += r'[^>]*%s\W*=\W*["\']([^"\']+)["\']' % (name,)
             else:
-                html_regex += '[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
+                html_regex += r'[^>]*%s\W*=\W*["\']%s["\']' % (name, value)
 
         html_regex += "[^>]*>"
         Logger.trace("HtmlRegex = %s", html_regex)

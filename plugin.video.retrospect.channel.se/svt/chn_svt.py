@@ -1,4 +1,4 @@
-# coding:UTF-8
+# coding=utf-8  # NOSONAR
 import datetime
 
 import chn_class
@@ -231,7 +231,7 @@ class Channel(chn_class.Channel):
             )
         }
 
-        for title, url in extra_items.iteritems():
+        for title, url in extra_items.items():
             new_item = MediaItem("\a.: %s :." % (title, ), url)
             new_item.complete = True
             new_item.thumb = self.noImage
@@ -244,7 +244,7 @@ class Channel(chn_class.Channel):
         new_item.thumb = self.noImage
         new_item.dontGroup = True
         new_item.set_date(2099, 1, 1, text="")
-        for title, (url, thumb) in category_items.iteritems():
+        for title, (url, thumb) in category_items.items():
             cat_item = MediaItem(title, url)
             cat_item.complete = True
             cat_item.thumb = thumb or self.noImage
@@ -551,7 +551,7 @@ class Channel(chn_class.Channel):
 
         json_data = JsonHelper(data)
         sections = json_data.get_value("relatedVideoContent", "relatedVideosAccordion")
-        sections = filter(lambda s: s['type'] not in self.__excludedTabs, sections)
+        sections = list(filter(lambda s: s['type'] not in self.__excludedTabs, sections))
 
         Logger.debug("Found %s folders/tabs", len(sections))
         if len(sections) == 1:
@@ -951,7 +951,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Found video item for format: %s", video_format)
 
             url = video['url']
-            if len(filter(lambda s: s.Url == url, part.MediaStreams)) > 0:
+            if any(filter(lambda s: s.Url == url, part.MediaStreams)):
                 Logger.debug("Skippping duplicate Stream url: %s", url)
                 continue
 

@@ -1,5 +1,3 @@
-import string
-
 import chn_class
 
 from mediaitem import MediaItem
@@ -211,7 +209,7 @@ class Channel(chn_class.Channel):
         needle = XbmcWrapper.show_key_board()
         if needle:
             #convert to HTML
-            needle = string.replace(needle, " ", "%20")
+            needle = needle.replace(" ", "%20")
             search_url = "http://www.dumpert.nl/search/V/%s/ " % (needle, )
             temp = MediaItem("Search", search_url)
             return self.process_folder_list(temp)

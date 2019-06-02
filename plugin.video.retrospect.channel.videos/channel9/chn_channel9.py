@@ -1,4 +1,10 @@
-import urlparse
+from backtothefuture import PY2
+if PY2:
+    # noinspection PyUnresolvedReferences
+    import urlparse as parse
+else:
+    # noinspection PyUnresolvedReferences
+    import urllib.parse as parse
 
 import chn_class
 
@@ -61,7 +67,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
+        url = parse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
         name = result_set[1]
 
         if name == "Tags":
@@ -123,7 +129,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
+        url = parse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
         item = MediaItem(result_set[self.pageNavigationRegexIndex], url)
         item.type = "page"
         item.complete = True
@@ -148,7 +154,7 @@ class Channel(chn_class.Channel):
 
         if len(result_set) > 3 and result_set[3] != "":
             Logger.debug("Sub category folder found.")
-            url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[3]))
+            url = parse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[3]))
             name = "\a.: %s :." % (result_set[4],)
             item = MediaItem(name, url)
             item.thumb = self.noImage
@@ -156,7 +162,7 @@ class Channel(chn_class.Channel):
             item.type = "folder"
             return item
 
-        url = urlparse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
+        url = parse.urljoin(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
         name = HtmlEntityHelper.convert_html_entities(result_set[1])
 
         helper = HtmlHelper(result_set[2])

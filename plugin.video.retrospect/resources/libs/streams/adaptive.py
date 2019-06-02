@@ -11,7 +11,7 @@
 from helpers.htmlentityhelper import HtmlEntityHelper
 
 
-class Adaptive:
+class Adaptive(object):
 
     def __init__(self):
         pass
@@ -30,11 +30,12 @@ class Adaptive:
 
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
-        :param str key_url:         The URL where the license key can be obtained.
-        :param str|None key_type:   Tthe key type (A, R, B, D or None for custom)
-        :param dict key_headers:    A dictionary that contains the HTTP headers to pass.
-        :param str key_value:       The value that is beging passed on as the key value.
-        :param str json_filter:     If specified selects that json element to extract the key response.
+        :param str key_url:                 The URL where the license key can be obtained.
+        :param str|None key_type:           The key type (A, R, B or D).
+        :param dict[str,str] key_headers:   A dictionary that contains the HTTP headers to pass.
+        :param str key_value:               The value that is beging passed on as the key value.
+        :param str json_filter:             If specified selects that json element to extract the
+                                            key response.
 
         :return: A formated license string that can be passed to the adaptive input add-on.
         :rtype: str
@@ -43,7 +44,7 @@ class Adaptive:
 
         header = ""
         if key_headers:
-            for k, v in list(key_headers.items()):
+            for k, v in key_headers.items():
                 header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.url_encode(v))
 
         if key_type in ("A", "R", "B"):
@@ -68,16 +69,16 @@ class Adaptive:
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
-        @param strm:                    (MediaStream) the MediaStream to update
-        @param proxy:                   (Proxy) The proxy to use for opening
-        @param dict headers:            Possible HTTP Headers
-        @param str addon:               Adaptive add-on to use
-        @param str manifest_type:       Type of manifest (hls/mpd)
-        @param str license_key:         The value of the license key request
-        @param str license_type:        The type of license key request used (see below)
-        @param int max_bit_rate:        The maximum bitrate to use (optional)
-        @param bool persist_storage:    Should we store certificates? And request server certificates?
-        @param str service_certificate: Use the specified server certificate
+        :param strm:                    (MediaStream) the MediaStream to update
+        :param proxy:                   (Proxy) The proxy to use for opening
+        :param dict headers:            Possible HTTP Headers
+        :param str addon:               Adaptive add-on to use
+        :param str manifest_type:       Type of manifest (hls/mpd)
+        :param str license_key:         The value of the license key request
+        :param str license_type:        The type of license key request used (see below)
+        :param int max_bit_rate:        The maximum bitrate to use (optional)
+        :param bool persist_storage:    Should we store certificates? And request server certificates?
+        :param str service_certificate: Use the specified server certificate
         :param str manifest_update:     How should the manifest be updated
 
         Can be used like this:
@@ -115,7 +116,7 @@ class Adaptive:
 
         if headers:
             header = ""
-            for k, v in list(headers.items()):
+            for k, v in headers.items():
                 header = "{0}&{1}={2}".format(header, k, HtmlEntityHelper.url_encode(v))
             strm.add_property("inputstream.adaptive.stream_headers", header.strip("&"))
 
@@ -123,6 +124,13 @@ class Adaptive:
 
     @staticmethod
     def set_max_bitrate(stream, max_bit_rate):
+        """ Sets the maximum bitrate for a stream.
+
+        :param MediaStream stream:  The stream to limit.
+        :param int max_bit_rate:    The maximum bitrate
+
+        """
+
         if not stream.Adaptive or max_bit_rate == 0:
             return
 

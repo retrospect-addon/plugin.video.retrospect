@@ -15,6 +15,8 @@ import traceback
 import time
 import datetime
 
+from backtothefuture import PY2
+
 
 class Logger:
     LVL_CRITICAL = 50
@@ -69,7 +71,8 @@ class Logger:
         """
 
         if Logger.__logger is None:
-            Logger.__logger = Logger(log_file_name, application_name, min_log_level, append, dual_logger)
+            Logger.__logger = Logger(log_file_name, application_name, min_log_level, append,
+                                     dual_logger)
             # Logger.__logger.dualLog("CREATING LOGGER: {0}".format(Logger.__logger.id))
         else:
             Logger.warning("Cannot create a second logger instance!")
@@ -122,7 +125,8 @@ class Logger:
 
         # print to the Kodi logfile to tell the user the actual logfile path
         if self.dualLog:
-            dual_logger("%s :: Additional logging can be found in '%s'" % (self.applicationName, self.logFileName,), 1)
+            dual_logger("%s :: Additional logging can be found in '%s'" % (
+                self.applicationName, self.logFileName,), 1)
         return
 
     @staticmethod
@@ -259,7 +263,12 @@ class Logger:
             return
 
         # create old.log file
-        print("%s :: Cleaning up logfile: %s" % (self.applicationName, self.logFileName))
+        clean_up_message = "{} :: Cleaning up logfile: {}".format(self.applicationName, self.logFileName)
+        if self.logDual:
+            self.dualLog(clean_up_message, 1)
+        else:
+            print(clean_up_message)
+
         try:
             was_open = True
             self.close_log(log_closing=False)
@@ -355,8 +364,9 @@ class Logger:
                         msg)
                     self.logHandle.write(formatted_message)
             except UnicodeEncodeError:
-                formatted_message = formatted_message.encode('raw_unicode_escape')
-                self.logHandle.write(formatted_message)
+                if PY2:
+                    formatted_message = formatted_message.encode('raw_unicode_escape')
+                    self.logHandle.write(formatted_message)
                 raise
 
             # Finally close the filehandle
@@ -369,7 +379,7 @@ class Logger:
             if not self.logDual:
                 traceback.print_exc()
                 return
-            
+
             self.dualLog("Retrospect Logger :: Error logging in Logger.py:")
             self.dualLog("---------------------------")
             self.dualLog(traceback.format_exc())
@@ -449,7 +459,10 @@ class Logger:
             # the file already exists. Now to prevent errors in Linux
             # we will open a file in Read + (Read and Update) mode
             # and set the pointer to the end.
-            self.logHandle = io.open(self.logFileName, "r+b")
+            if PY2:
+                self.logHandle = io.open(self.logFileName, "r+b")
+            else:
+                self.logHandle = io.open(self.logFileName, "r+", encoding='utf-8')
             self.logHandle.seek(0, 2)
             self.__write("XOT Logger :: Appending Existing logFile", level=Logger.LVL_INFO)
         else:
@@ -457,7 +470,10 @@ class Logger:
             if not os.path.isdir(log_dir):
                 os.makedirs(log_dir)
             # no file exists, so just create a new one for writing
-            self.logHandle = io.open(self.logFileName, "wb")
+            if PY2:
+                self.logHandle = io.open(self.logFileName, "wb")
+            else:
+                self.logHandle = io.open(self.logFileName, "w", encoding='utf-8')
 
         return
 

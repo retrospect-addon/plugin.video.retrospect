@@ -13,7 +13,7 @@ from logger import Logger
 from urihandler import UriHandler
 
 
-class Mms:
+class Mms(object):
     """Class that could help with parsing of simple MMS Stream files"""
     def __init__(self):
         """Creates a class object. Should not be used. There are only static
@@ -54,7 +54,7 @@ class Mms:
 
         Logger.debug("Parsing %s to find MMS", url)
         data = UriHandler.open(url, proxy=proxy)
-        urls = Regexer.do_regex("[Rr]ef\d=http://([^\r\n]+)", data)
+        urls = Regexer.do_regex(r"[Rr]ef\d=http://([^\r\n]+)", data)
 
         if len(urls) > index:
             return "mms://%s" % (urls[index],)
@@ -104,7 +104,7 @@ class Mms:
 
         Logger.debug("Parsing %s to find MMS", url)
         data = UriHandler.open(url, proxy=proxy)
-        urls = Regexer.do_regex('[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
+        urls = Regexer.do_regex(r'[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
 
         if len(urls) > 0:
             return "mms://%s" % (urls[0],)

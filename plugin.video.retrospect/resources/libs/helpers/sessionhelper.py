@@ -9,14 +9,15 @@
 #===============================================================================
 
 import os
+import io
 import time
 
+from backtothefuture import unicode
 from retroconfig import Config
 
 
-class SessionHelper:
+class SessionHelper(object):
     __TimeOut = 1 * 60 * 60
-    #__TimeOut = 10
 
     def __init__(self):
         # static only
@@ -39,11 +40,10 @@ class SessionHelper:
             logger.debug("Updating session at '%s'", SessionHelper.__get_session_path())
 
         if logger:
-            fd = open(SessionHelper.__get_session_path(), 'w')
-            fd.write(str(logger.minLogLevel))
-            fd.close()
+            with io.open(SessionHelper.__get_session_path(), mode='w', encoding='utf-8') as fd:
+                fd.write(unicode(logger.minLogLevel))
         else:
-            open(SessionHelper.__get_session_path(), 'w').close()
+            io.open(SessionHelper.__get_session_path(), 'w', encoding='utf-8').close()
 
     @staticmethod
     def clear_session(logger=None):
@@ -79,9 +79,9 @@ class SessionHelper:
         # required debug data. But we can only do that with a logger.
         if logger:
             try:
-                fd = open(SessionHelper.__get_session_path())
-                log_level = fd.readline()
-                fd.close()
+                with io.open(SessionHelper.__get_session_path(), mode='r', encoding='utf-8') as fd:
+                    log_level = fd.readline()
+
                 if not log_level == "":
                     # logger.Trace("Found previous loglevel: %s vs current: %s", logLevel, logger.minLogLevel)
                     new_log_level_found = not logger.minLogLevel == int(log_level)

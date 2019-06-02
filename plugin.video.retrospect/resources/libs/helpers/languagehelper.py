@@ -11,7 +11,7 @@
 from addonsettings import AddonSettings
 
 
-class LanguageHelper:
+class LanguageHelper(object):
     UnknownId = 1
     AllFavouritesId = 30500
     FavouriteId = 30501
@@ -39,6 +39,12 @@ class LanguageHelper:
     OtherAddon = 30007
 
     ChannelSelection = 30507
+    # Unused:
+    # InitializingId = 30531
+    # ImportCommonId = 30532
+    # DeterminSkinId = 30533
+    # CheckForUpdatesId = 30534
+    # RepoVerificationId = 30535
     WidevineLeiaRequired = 30536
 
     Page = 30537
@@ -126,10 +132,10 @@ class LanguageHelper:
     def get_localized_category(category_name):
         """ Translates the category name into the language that is used within Kodi.
 
-        @param str category_name: name of the category to lookup
+        :param str|unicode category_name:   Name of the category to lookup.
 
-        @rtype: str
-        @return: Returns the localized version of the category name
+        :return: Returns the localized version of the category name.
+        :rtype: str|unicode
 
         """
         string_id = LanguageHelper.__Categories.get(category_name, None)
@@ -142,10 +148,10 @@ class LanguageHelper:
     def get_full_language(language_id):
         """ Converts a language short ID to a localized Full language name.
 
-        @param str language_id: the sort ID for the language
+        :param @return: language_id:    The sort ID for the language.
 
-        @rtype: str
-        @return: The long language
+        :rtype: str|unicode
+        :return: The long language.
 
         Eg: nl -> Dutch, se -> Swedish
         """
@@ -157,12 +163,12 @@ class LanguageHelper:
     def get_localized_string(string_id, split_on_pipes=True, replace_pipes=False):
         """ Returns a localized Add-on string using the defined string_id.
 
-        @param int string_id:        The ID for the string
-        @param bool split_on_pipes:  If true, | cause a split and a list will be returned.
-        @param bool replace_pipes:   If true, | will be replaced by \n.
+        :param int string_id:        The ID for the string.
+        :param bool split_on_pipes:  If true, | cause a split and a list will be returned.
+        :param bool replace_pipes:   If true, | will be replaced by \n.
 
-        @rtype: str|list[str]
-        @return: localized Add-on string use the defined string_id.
+        :rtype: str|unicode|list[str|unicode]
+        :return: localized Add-on string use the defined string_id.
 
         """
 

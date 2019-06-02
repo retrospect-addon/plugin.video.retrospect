@@ -14,11 +14,12 @@ import os
 import xbmcgui
 import xbmc
 
+from backtothefuture import basestring
 from retroconfig import Config
 from locker import LockWithDialog
 
 
-class XbmcDialogProgressWrapper:
+class XbmcDialogProgressWrapper(object):
     def __init__(self, title, line1, line2=""):
         """ Initialises a XbmcDialogProgressWrapper that wraps an Kodi DialogProgress object.
 

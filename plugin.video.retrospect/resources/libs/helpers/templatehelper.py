@@ -1,9 +1,19 @@
+#===============================================================================
+# LICENSE Retrospect-Framework - CC BY-NC-ND
+#===============================================================================
+# This work is licenced under the Creative Commons
+# Attribution-Non-Commercial-No Derivative Works 3.0 Unported License. To view a
+# copy of this licence, visit http://creativecommons.org/licenses/by-nc-nd/3.0/
+# or send a letter to Creative Commons, 171 Second Street, Suite 300,
+# San Francisco, California 94105, USA.
+#===============================================================================
+
 import re
-from StringIO import StringIO
+import io
 from xml.etree import ElementTree
 
 
-class TemplateHelper:
+class TemplateHelper(object):
     def __init__(self, logger, template_path=None, template=None):
         """ Instantiates a new TemplateHelper class object. This object can walk a Kodi settings.xml
         file and modify it based on a template.
@@ -20,11 +30,11 @@ class TemplateHelper:
 
         self.__templateLines = []
         if template_path:
-            with file(template_path) as fp:
+            with io.open(template_path, "r", encoding="utf-8") as fp:
                 self.__templateLines = fp.readlines()
         else:
-            fp = StringIO(template)
-            self.__templateLines = fp.readlines()
+            with io.StringIO(template) as fp:
+                self.__templateLines = fp.readlines()
 
         if template_path:
             self.__template = ElementTree.parse(template_path)
@@ -85,7 +95,9 @@ class TemplateHelper:
             return settings_in_category.index(setting_id)
 
         self.__logger.warning("Multiple values found for setting_id %s, using #%s", setting_id, skip)
-        setting_indexes = filter(lambda s: s == setting_id, settings_in_category)
+        setting_indexes = [s for s in settings_in_category if s == setting_id]
+        # The old way:
+        # setting_indexes = filter(lambda s: s == setting_id, settings_in_category)
         if not setting_indexes:
             raise ValueError("No settings found for %s" % (setting_id,))
 
@@ -128,7 +140,7 @@ class TemplateHelper:
             if not line.strip() or "/>" not in line or line.strip().startswith("<!--"):
                 continue
 
-            element = ElementTree.fromstring(line)
+            element = ElementTree.fromstring(line.encode('utf-8'))
             element_id = element.attrib.get("id", ElementTree.tostring(element))
 
             if category is None:

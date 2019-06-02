@@ -1,4 +1,3 @@
-# coding:UTF-8
 import chn_class
 
 from mediaitem import MediaItem
@@ -230,7 +229,7 @@ class Channel(chn_class.Channel):
             Logger.warning("No video information found.")
             return None
 
-        video_infos = filter(lambda vi: vi["fullLength"], videos)
+        video_infos = [vi for vi in videos if vi["fullLength"]]
         if len(video_infos) > 0:
             video_info = video_infos[0]
         else:

@@ -7,7 +7,9 @@
 # or send a letter to Creative Commons, 171 Second Street, Suite 300,
 # San Francisco, California 94105, USA.
 #===============================================================================
+
 import time
+import io
 import os
 
 from regexer import Regexer
@@ -19,7 +21,7 @@ from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.encodinghelper import EncodingHelper
 
 
-class SubtitleHelper:
+class SubtitleHelper(object):
     """Helper class that is used for handling subtitle files."""
 
     # https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
@@ -94,17 +96,18 @@ class SubtitleHelper:
                 Logger.warning("Empty Subtitle path found. Not setting subtitles.")
                 return ""
 
-            # try to decode it
-            try:
-                raw = raw.decode()
-            except:
-                # fix some weird chars
+            # try to decode it as `raw` should be a string.
+            if isinstance(raw, bytes):
                 try:
-                    raw = raw.replace("\x96", "-")
+                    raw = raw.decode()
                 except:
-                    Logger.error("Error replacing some weird chars.")
-                Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
-                raw = raw.decode('unicode_escape')
+                    # fix some weird chars
+                    try:
+                        raw = raw.replace("\x96", "-")
+                    except:
+                        Logger.error("Error replacing some weird chars.")
+                    Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
+                    raw = raw.decode('unicode_escape')
 
             # do some auto detection
             if raw.startswith("WEBVTT") and format != "webvtt":
@@ -134,9 +137,9 @@ class SubtitleHelper:
                 for needle in replace:
                     srt = srt.replace(needle, replace[needle])
 
-            f = open(local_complete_path, 'w')
-            f.write(srt)
-            f.close()
+            with io.open(local_complete_path, 'w', encoding="utf-8") as f:
+                f.write(srt)
+
             Logger.info("Saved SRT as %s", local_complete_path)
             return local_complete_path
         except:
@@ -394,12 +397,14 @@ class SubtitleHelper:
         # convert the data, but now now
         result = ""
         m3u8_sub = UriHandler.open(sub_url, proxy=proxy)
-        # Again decode the data
-        try:
-            m3u8_sub = m3u8_sub.decode()
-        except:
-            Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
-            m3u8_sub = m3u8_sub.decode('unicode_escape')
+
+        if isinstance(m3u8_sub, bytes):
+            # Decode the data as it should be str
+            try:
+                m3u8_sub = m3u8_sub.decode()
+            except:
+                Logger.warning("Converting input to UTF-8 using 'unicode_escape'")
+                m3u8_sub = m3u8_sub.decode('unicode_escape')
 
         for line in m3u8_sub.split("\n"):
             line = line.strip()
@@ -429,6 +434,6 @@ class SubtitleHelper:
 
         """
         msecs = timestamp[-3:]
-        secs = int(timestamp) / 1000
+        secs = int(timestamp) // 1000
         sync = time.strftime("%H:%M:%S", time.gmtime(secs)) + ',' + msecs
         return sync

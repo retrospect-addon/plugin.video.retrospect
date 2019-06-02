@@ -1,4 +1,4 @@
-# coding:UTF-8
+# coding=utf-8  # NOSONAR
 import chn_class
 
 from mediaitem import MediaItem

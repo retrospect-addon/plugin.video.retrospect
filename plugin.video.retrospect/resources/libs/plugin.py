@@ -394,7 +394,7 @@ class Plugin(ParameterParser):
     def process_folder_list(self, favorites=None):
         """Wraps the channel.process_folder_list
 
-        :param list[MediaItem] favorites:
+        :param list[MediaItem]|None favorites:
 
         """
 
@@ -597,7 +597,8 @@ class Plugin(ParameterParser):
         function_string = "returnItem = self.channelObject.%s(item)" % (action,)
         Logger.debug("Calling '%s'", function_string)
         try:
-            exec function_string  # NOSONAR We just need this here.
+            # noinspection PyRedundantParentheses
+            exec(function_string)  # NOSONAR We just need this here.
         except:
             Logger.error("on_action_from_context_menu :: Cannot execute '%s'.", function_string, exc_info=True)
         return
@@ -662,7 +663,7 @@ class Plugin(ParameterParser):
             label_sort_method = xbmcplugin.SORT_METHOD_LABEL
 
         if items:
-            has_dates = len(filter(lambda i: i.has_date(), items)) > 0
+            has_dates = len(list([i for i in items if i.has_date()])) > 0
             if has_dates:
                 Logger.debug("Sorting method: Dates")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
@@ -671,7 +672,7 @@ class Plugin(ParameterParser):
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
                 return
 
-            has_tracks = len(filter(lambda i: i.has_track(), items)) > 0
+            has_tracks = len(list([i for i in items if i.has_track()])) > 0
             if has_tracks:
                 Logger.debug("Sorting method: Tracks")
                 xbmcplugin.addSortMethod(handle=handle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM)
@@ -837,12 +838,12 @@ class Plugin(ParameterParser):
             else:
                 paste_url = log_sender.send_files(Config.logFileNameAddon, files_to_send)
             XbmcWrapper.show_dialog(title, url_text % (paste_url,))
-        except Exception, e:
+        except Exception as e:
             Logger.error("Error sending %s", Config.logFileNameAddon, exc_info=True)
 
             title = LanguageHelper.get_localized_string(LanguageHelper.LogPostErrorTitle)
             error_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
-            error = error_text % (e.message,)
+            error = error_text % (str(e),)
             XbmcWrapper.show_dialog(title, error.strip(": "))
 
     @LockWithDialog(logger=Logger.instance())
@@ -880,7 +881,7 @@ class Plugin(ParameterParser):
                     local_ip, languages[local_ip],
                     language)
 
-        channels_in_country = filter(lambda c: c.language == language or language is None, channels)
+        channels_in_country = [c for c in channels if c.language == language or language is None]
         for channel in channels_in_country:
             Logger.debug("Setting Proxy for: %s", channel)
             AddonSettings.set_proxy_id_for_channel(channel, proxy_id)

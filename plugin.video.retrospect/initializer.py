@@ -23,6 +23,10 @@ class Initializer:
     def set_unicode():
         """Forces the environment to UTF-8"""
 
+        if sys.version_info[0] > 2:
+            return
+
+        # noinspection PyUnresolvedReferences,PyCompatibility
         reload(sys)
         # noinspection PyUnresolvedReferences
         sys.setdefaultencoding("utf-8")  # @UndefinedVariable
@@ -39,9 +43,11 @@ class Initializer:
         except:
             path = os.getcwd()
 
-        # the Kodi libs return unicode info, so we need to convert this
-        # noinspection PyArgumentEqualDefault
-        path = path.decode('utf-8')  # .encode('latin-1')
+        if isinstance(path, bytes):
+            # the Kodi libs return unicode encoded info, so we need to decode this back to string
+            # noinspection PyArgumentEqualDefault
+            path = path.decode('utf-8')
+
         # insert the path at the start to prevent other lib-add-ons to steal our class names
         sys.path.insert(0, os.path.join(path.replace(";", ""), 'resources', 'libs'))
         return path

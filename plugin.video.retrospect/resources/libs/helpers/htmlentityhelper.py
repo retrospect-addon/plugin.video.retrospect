@@ -8,17 +8,21 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 import re
-import string
-import urllib
-import htmlentitydefs
 
-#===============================================================================
-# Make global object available
-#===============================================================================
+from backtothefuture import PY2, PY3, unichr
+
+if PY2:
+    import urllib
+    import htmlentitydefs as htmldefs
+else:
+    # noinspection PyUnresolvedReferences
+    import urllib.parse
+    import html.entities as htmldefs
+
 from logger import Logger
 
 
-class HtmlEntityHelper:
+class HtmlEntityHelper(object):
     """Used for HTML converting"""
 
     def __init__(self):
@@ -30,25 +34,24 @@ class HtmlEntityHelper:
     def strip_amp(data):
         """Replaces the "&amp;" with "&"
 
-        Arguments:
-        data : string - data to search and replace in.
 
-        Returns:
-        the data with replaced values.
+        :param str data:     Data to search and replace in.
+
+        :return: The data with replaced values.
+        :rtype: str
 
         """
 
-        return string.replace(data, "&amp;", "&")
+        return data.replace("&amp;", "&")
 
     @staticmethod
     def convert_html_entities(html):
         """Convert the HTML entities into their real characters
 
-        Arguments:
-        html : string - The HTML to convert
+        :param str|None html: The HTML to convert.
 
-        Returns:
-        The HTML with converted characters
+        :return: The HTML with converted characters.
+        :rtype: str
 
         """
 
@@ -60,16 +63,18 @@ class HtmlEntityHelper:
 
     @staticmethod
     def url_encode(url):
-        # type: (str) -> str
         """Converts an URL in url encode characters
 
-        @type url: str
-        @param url: the data to URL encode.
+        :param str url: The data to URL encode.
 
-        @rtype: str
-        @return: Encoded URL like this. Example: '/~connolly/' yields '/%7econnolly/'.
+        :return: Encoded URL like this. Example: '/~connolly/' yields '/%7econnolly/'.
+        :rtype: str
 
         """
+
+        if PY3:
+            # noinspection PyUnresolvedReferences
+            return urllib.parse.quote(url)
 
         if isinstance(url, unicode):
             Logger.trace("Unicode url: %s", url)
@@ -80,45 +85,44 @@ class HtmlEntityHelper:
 
     @staticmethod
     def url_decode(url):
-        # type: (str) -> str
         """Converts an URL encoded text in plain text
 
-        @type url: str
-        @param url: the URL encoded text to decode to decode
+        :param str url:     The URL encoded text to decode to decode.
 
-        @rtype: str
-        @return: Decoded URL like this. Example: '/%7econnolly/' yields '/~connolly/'.
+        :return: Decoded URL like this. Example: '/%7econnolly/' yields '/~connolly/'.
+        :rtype: str
 
         """
 
-        return urllib.unquote(url)
+        if PY2:
+            return urllib.unquote(url)
+
+        # noinspection PyUnresolvedReferences
+        return urllib.parse.unquote(url)
 
     @staticmethod
     def __convert_html_entities(html):
         """Convert the entities in HTML using the HTMLEntityConverter into
         their real characters.
 
-        @type html: str
-        @param html: The HTML to convert
+        :param str html: The HTML to convert
 
-        @rtype: str
-        @return: The HTML with converted characters
+        :return: The HTML with converted characters
+        :rtype: str
 
         """
 
-        return re.sub("&(#?x?)(\w+?);", HtmlEntityHelper.__html_entity_converter, html)
+        return re.sub(r"&(#?x?)(\w+?);", HtmlEntityHelper.__html_entity_converter, html)
 
     @staticmethod
     def __html_entity_converter(entity):
         """Substitutes an HTML entity with the correct character
 
-        @type entity: re.MatchObject
-        @param entity: Value of the HTML entity without the '&'
+        :param re.MatchObject entity: Value of the HTML entity without the '&'
 
-        @rtype: str
-        @return: Replaces &#xx where 'x' is single digit, or &...; where '.' is a
+        :rtype: str
+        :return: Replaces &#xx where 'x' is single digit, or &...; where '.' is a
         character into the real character. That character is returned.
-
 
         """
 
@@ -137,8 +141,8 @@ class HtmlEntityHelper:
                 return "'"
 
             else:
-                # Logger.Trace("%s: %s", entity.group(2), htmlentitydefs.name2codepoint[entity.group(2)])
-                return unichr(htmlentitydefs.name2codepoint[entity.group(2)])
+                # Logger.Trace("%s: %s", entity.group(2), htmldefs.name2codepoint[entity.group(2)])
+                return unichr(htmldefs.name2codepoint[entity.group(2)])
         except:
             Logger.error("Error converting HTMLEntities: &%s%s", entity.group(1), entity.group(2), exc_info=True)
             return '&%s%s;' % (entity.group(1), entity.group(2))

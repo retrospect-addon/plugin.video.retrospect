@@ -63,20 +63,3 @@ class Environments:
             return "Apple Device"
         else:
             return "Unknown"
-
-
-if __name__ == "__main__":
-    printFormat = "%-10s - %s"
-    print(printFormat % ("NoPlatform", Environments.name(Environments.NoPlatform)))
-    print(printFormat % ("Unknown", Environments.name(Environments.Unknown)))
-    print(printFormat % ("Xbox", Environments.name(Environments.Xbox)))
-    print(printFormat % ("Linux", Environments.name(Environments.Linux)))
-    print(printFormat % ("Windows", Environments.name(Environments.Windows)))
-    print(printFormat % ("OSX", Environments.name(Environments.OSX)))
-    print(printFormat % ("ATV2", Environments.name(Environments.ATV2)))
-    print(printFormat % ("ATV2", Environments.name(Environments.TVOS)))
-    print(printFormat % ("IOS", Environments.name(Environments.IOS)))
-    print(printFormat % ("Android", Environments.name(Environments.Android)))
-    print(printFormat % ("Apple", Environments.name(Environments.Apple)))
-    print(printFormat % ("Google", Environments.name(Environments.Google)))
-    print(printFormat % ("All", Environments.name(Environments.All)))

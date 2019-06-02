@@ -9,11 +9,12 @@
 #===============================================================================
 
 from urihandler import UriHandler
+from proxyinfo import ProxyInfo
 from logger import Logger
 from regexer import Regexer
 
 
-class F4m:
+class F4m(object):
     def __init__(self):
         pass
 
@@ -22,9 +23,9 @@ class F4m:
         """ Parsers standard F4m lists and returns a list of tuples with streams and bitrates that can be used by
         other methods
 
-        @type headers: dict   - Possible HTTP Headers
-        @param proxy:  Proxy  - The proxy to use for opening
-        @param url:    String - The url to download
+        :param ProxyInfo proxy:         The proxy to use for opening.
+        :param str url:                 The url to download.
+        :param dict[str,str] headers:   Possible HTTP Headers.
 
         Can be used like this:
 

@@ -9,7 +9,7 @@
 #===============================================================================
 
 
-class ProxyInfo:
+class ProxyInfo(object):
     def __init__(self, proxy, port, scheme="http", username="", password=""):
         """ Retrieves a new ProxyInfo object
 

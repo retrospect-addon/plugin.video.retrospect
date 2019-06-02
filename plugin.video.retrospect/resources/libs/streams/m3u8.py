@@ -17,12 +17,26 @@ from proxyinfo import ProxyInfo
 from addonsettings import AddonSettings
 
 
-class M3u8:
+class M3u8(object):
     def __init__(self):
         pass
 
     @staticmethod
     def get_subtitle(url, proxy=None, play_list_data=None, append_query_string=True, language=None):  # NOSONAR
+        """ Retrieves a subtitle url either from a M3u8 file via HTTP or alternatively from a
+        M3u8 playlist string value (in case it was already retrieved).
+
+        :param str url:                     The M3u8 url that contains the subtitle information.
+        :param ProxyInfo proxy:             An optional proxy to use.
+        :param str play_list_data:          The data (in case the URL was already retrieved).
+        :param bool append_query_string:    Should we re-append the query string?
+        :param str language:                The language to select (if multiple are present).
+
+        :return: The subtitle url for the M3u8 file.
+        :rtype: str
+
+        """
+
         data = play_list_data or UriHandler.open(url, proxy)
         regex = r'(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*LANGUAGE="(\w+)"[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
         sub = ""
@@ -75,6 +89,29 @@ class M3u8:
                                      persist_storage=False,
                                      service_certificate=None,
                                      manifest_update=None):
+        """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
+        can be used by other methods.
+
+        :param strm:                    (MediaStream) the MediaStream to update
+        :param proxy:                   (Proxy) The proxy to use for opening
+        :param dict headers:            Possible HTTP Headers
+        :param str license_key:         The value of the license key request
+        :param str license_type:        The type of license key request used (see below)
+        :param int max_bit_rate:        The maximum bitrate to use (optional)
+        :param bool persist_storage:    Should we store certificates? And request server certificates?
+        :param str service_certificate: Use the specified server certificate
+
+        Can be used like this:
+
+            part = item.create_new_empty_media_part()
+            stream = part.append_media_stream(m3u8url, 0)
+            M3u8.set_input_stream_addon_input(stream, self.proxy, self.headers)
+            item.complete = True
+
+        if maxBitRate is not set, the bitrate will be configured via the normal generic Retrospect
+        or channel settings.
+
+        """
 
         return Adaptive.set_input_stream_addon_input(strm, proxy, headers,
                                                      manifest_type="hls",
@@ -99,10 +136,10 @@ class M3u8:
 
         The Widevine Decryption Key Identifier (KID) can be inserted via the placeholder {KID}
 
-        :param str key_url:         The URL where the license key can be obtained.
-        :param str|None key_type:   Tthe key type (A, R, B, D or None for custom)
-        :param dict key_headers:    A dictionary that contains the HTTP headers to pass.
-        :param str key_value:       The value that is beging passed on as the key value.
+        :param str key_url:                 The URL where the license key can be obtained.
+        :param str|None key_type:           The key type (A, R, B or D).
+        :param dict[str,str] key_headers:   A dictionary that contains the HTTP headers to pass.
+        :param str key_value:               The value that is beging passed on as the key value.
 
         :return: A formated license string that can be passed to the adaptive input add-on.
         :rtype: str
@@ -172,13 +209,6 @@ class M3u8:
         """ Parsers standard M3U8 lists and returns a list of tuples with streams and bitrates that
         can be used by other methods.
 
-        :param dict[str,str] headers:       Possible HTTP Headers
-        :param ProxyInfo proxy:             The proxy to use for opening
-        :param str url:                     The url to download
-        :param bool append_query_string:    Should the existing query string be appended?
-        :param bool map_audio:              Map audio streams
-        :param str play_list_data:          Data of an already retrieved M3u8
-
         Can be used like this:
 
             part = item.create_new_empty_media_part()
@@ -186,6 +216,16 @@ class M3u8:
                 item.complete = True
                 # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
+
+        :param dict[str,str] headers:       Possible HTTP Headers
+        :param ProxyInfo proxy:             The proxy to use for opening
+        :param str url:                     The url to download
+        :param bool append_query_string:    Should the existing query string be appended?
+        :param bool map_audio:              Map audio streams
+        :param str play_list_data:          Data of an already retrieved M3u8
+
+        :return: a list of streams with their bitrate and optionally the audio streams.
+        :rtype: list[tuple[str,str]|tuple[str,str,str]]
 
         """
 

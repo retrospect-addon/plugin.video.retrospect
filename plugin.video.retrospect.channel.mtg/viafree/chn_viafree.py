@@ -2,7 +2,7 @@ import datetime
 
 import chn_class
 
-from mediaitem import MediaItem
+from mediaitem import MediaItem, MediaItemPart
 from regexer import Regexer
 from logger import Logger
 from urihandler import UriHandler
@@ -594,8 +594,8 @@ class Channel(chn_class.Channel):
         else:
             part = item.create_new_empty_media_part()
 
-        for q in ("high", 3500), ("hls", 2700), ("medium", 2100):
-            url = json.get_value("streams", q[0])
+        for quality in ("high", 3500), ("hls", 2700), ("medium", 2100):
+            url = json.get_value("streams", quality[0])
             Logger.trace(url)
             if not url:
                 continue
@@ -605,65 +605,17 @@ class Channel(chn_class.Channel):
                 continue
 
             if url.startswith("http") and ".m3u8" in url:
-                # first see if there are streams in this file, else check the second location.
-                for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
-                    if use_kodi_hls:
-                        strm = part.append_media_stream(url, 0)
-                        M3u8.set_input_stream_addon_input(strm, headers=headers)
-                        # Only the main M3u8 is needed
-                        break
-                    else:
-                        part.append_media_stream(s, b)
-
-                if not part.MediaStreams and "manifest.m3u8" in url:
-                    Logger.warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
-                    url = url.replace("manifest.m3u8", "master.m3u8")
-                    for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
-                        if use_kodi_hls:
-                            strm = part.append_media_stream(url, 0)
-                            M3u8.set_input_stream_addon_input(strm, headers=headers)
-                            # Only the main M3u8 is needed
-                            break
-                        else:
-                            part.append_media_stream(s, b)
-
-                # check for subs
-                # https://mtgxse01-vh.akamaihd.net/i/201703/13/DCjOLN_1489416462884_427ff3d3_,48,260,460,900,1800,2800,.mp4.csmil/master.m3u8?__b__=300&hdnts=st=1489687185~exp=3637170832~acl=/*~hmac=d0e12e62c219d96798e5b5ef31b11fa848724516b255897efe9808c8a499308b&cc1=name=Svenska%20f%C3%B6r%20h%C3%B6rselskadade~default=no~forced=no~lang=sv~uri=https%3A%2F%2Fsubstitch.play.mtgx.tv%2Fsubtitle%2Fconvert%2Fxml%3Fsource%3Dhttps%3A%2F%2Fcdn-subtitles-mtgx-tv.akamaized.net%2Fpitcher%2F20xxxxxx%2F2039xxxx%2F203969xx%2F20396967%2F20396967-swt.xml%26output%3Dm3u8
-                # https://cdn-subtitles-mtgx-tv.akamaized.net/pitcher/20xxxxxx/2039xxxx/203969xx/20396967/20396967-swt.xml&output=m3u8
-                if "uri=" in url and not part.Subtitle:
-                    Logger.debug("Extracting subs from M3u8")
-                    sub_url = url.rsplit("uri=")[-1]
-                    sub_url = HtmlEntityHelper.url_decode(sub_url)
-                    sub_data = UriHandler.open(sub_url, proxy=self.proxy)
-                    subs = filter(lambda line: line.startswith("http"), sub_data.split("\n"))
-                    if subs:
-                        part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt', proxy=self.proxy)
+                self.__update_m3u8(url, part, headers, use_kodi_hls)
 
             elif url.startswith("rtmp"):
-                continue
-                # These do no longer seem to work
-                # # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4
-                # old_url = url
-                # if not url.endswith(".flv") and not url.endswith(".mp4"):
-                #     url += '.mp4'
-                #
-                # if "/mp4:" in url:
-                #     # in this case we need to specifically set the path
-                #     # url = url.replace('/mp4:', '//') -> don't do this, but specify the path
-                #     server, path = url.split("mp4:", 1)
-                #     url = "%s playpath=mp4:%s" % (server, path)
-                #
-                # if old_url != url:
-                #     Logger.debug("Updated URL from - to:\n%s\n%s", old_url, url)
-                #
-                # url = self.get_verifiable_video_url(url)
-                # part.append_media_stream(url, q[1])
+                self.__update_rtmp(url, part, quality)
 
             elif "[empty]" in url:
                 Logger.debug("Found post-live url with '[empty]' in it. Ignoring this.")
                 continue
+
             else:
-                part.append_media_stream(url, q[1])
+                part.append_media_stream(url, quality[1])
 
         if not use_kodi_hls:
             part.HttpHeaders.update(headers)
@@ -672,6 +624,78 @@ class Channel(chn_class.Channel):
             item.complete = True
         Logger.trace("Found mediaurl: %s", item)
         return item
+
+    def __update_m3u8(self, url, part, headers, use_kodi_hls):
+        """ Update a video that has M3u8 streams.
+
+        :param str url:                 The URL for the stream.
+        :param MediaItemPart part:      The new part that needs updating.
+        :param dict[str,str] headers:   The URL headers to use.
+        :param bool use_kodi_hls:       Should we use the InputStream Adaptive add-on?
+
+        """
+        # first see if there are streams in this file, else check the second location.
+        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
+            if use_kodi_hls:
+                strm = part.append_media_stream(url, 0)
+                M3u8.set_input_stream_addon_input(strm, headers=headers)
+                # Only the main M3u8 is needed
+                break
+            else:
+                part.append_media_stream(s, b)
+
+        if not part.MediaStreams and "manifest.m3u8" in url:
+            Logger.warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
+            url = url.replace("manifest.m3u8", "master.m3u8")
+            for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
+                if use_kodi_hls:
+                    strm = part.append_media_stream(url, 0)
+                    M3u8.set_input_stream_addon_input(strm, headers=headers)
+                    # Only the main M3u8 is needed
+                    break
+                else:
+                    part.append_media_stream(s, b)
+
+        # check for subs
+        # https://mtgxse01-vh.akamaihd.net/i/201703/13/DCjOLN_1489416462884_427ff3d3_,48,260,460,900,1800,2800,.mp4.csmil/master.m3u8?__b__=300&hdnts=st=1489687185~exp=3637170832~acl=/*~hmac=d0e12e62c219d96798e5b5ef31b11fa848724516b255897efe9808c8a499308b&cc1=name=Svenska%20f%C3%B6r%20h%C3%B6rselskadade~default=no~forced=no~lang=sv~uri=https%3A%2F%2Fsubstitch.play.mtgx.tv%2Fsubtitle%2Fconvert%2Fxml%3Fsource%3Dhttps%3A%2F%2Fcdn-subtitles-mtgx-tv.akamaized.net%2Fpitcher%2F20xxxxxx%2F2039xxxx%2F203969xx%2F20396967%2F20396967-swt.xml%26output%3Dm3u8
+        # https://cdn-subtitles-mtgx-tv.akamaized.net/pitcher/20xxxxxx/2039xxxx/203969xx/20396967/20396967-swt.xml&output=m3u8
+        if "uri=" in url and not part.Subtitle:
+            Logger.debug("Extracting subs from M3u8")
+            sub_url = url.rsplit("uri=")[-1]
+            sub_url = HtmlEntityHelper.url_decode(sub_url)
+            sub_data = UriHandler.open(sub_url, proxy=self.proxy)
+            subs = [line for line in sub_data.split("\n") if line.startswith("http")]
+            if subs:
+                part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt',
+                                                                 proxy=self.proxy)
+        return
+
+    def __update_rtmp(self, url, part, quality):
+        """ Update a video that has a RTMP stream.
+
+        :param str url:                 The URL for the stream.
+        :param MediaItemPart part:      The new part that needs updating.
+        :param tuple[str,int] quality:  A quality tuple with quality name and bitrate
+
+        """
+
+        # rtmp://mtgfs.fplive.net/mtg/mp4:flash/sweden/tv3/Esport/Esport/swe_skillcompetition.mp4.mp4
+        old_url = url
+        if not url.endswith(".flv") and not url.endswith(".mp4"):
+            url += '.mp4'
+
+        if "/mp4:" in url:
+            # in this case we need to specifically set the path
+            # url = url.replace('/mp4:', '//') -> don't do this, but specify the path
+            server, path = url.split("mp4:", 1)
+            url = "%s playpath=mp4:%s" % (server, path)
+
+        if old_url != url:
+            Logger.debug("Updated URL from - to:\n%s\n%s", old_url, url)
+
+        url = self.get_verifiable_video_url(url)
+        part.append_media_stream(url, quality[1])
+        return
 
     def __create_json_episode_item(self, result_set, check_channel=True):
         """ Creates a new MediaItem for an episode.

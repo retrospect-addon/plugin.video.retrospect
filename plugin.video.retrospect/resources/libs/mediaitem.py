@@ -9,13 +9,15 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 
+import os
 import datetime
-import time
-import random
+import binascii
+from functools import reduce
 
 import xbmc
 import xbmcgui
 
+from backtothefuture import unichr
 from addonsettings import AddonSettings
 from logger import Logger
 from helpers.htmlentityhelper import HtmlEntityHelper
@@ -25,6 +27,7 @@ from streams.adaptive import Adaptive
 from proxyinfo import ProxyInfo
 
 
+# Don't make this an MediaItem(object) as it breaks the pickles
 class MediaItem:
     """Main class that represent items that are retrieved in XOT. They are used
     to fill the lists and have MediaItemParts which have MediaStreams in this
@@ -281,16 +284,16 @@ class MediaItem:
         If the values form an invalid datetime value, the datetime value will be
         reset to their default values.
 
-        :param int|str year:        The year of the datetime.
-        :param int|str month:       The month of the datetime.
-        :param int|str day:         The day of the datetime.
-        :param int|str hour:        The hour of the datetime (Optional)
-        :param int|str minutes:     The minutes of the datetime (Optional)
-        :param int|str seconds:     The seconds of the datetime (Optional)
-        :param bool only_if_newer:  Update only if the new date is more recent then the
-                                    currently set one
-        :param str text:            If set it will overwrite the text in the date label the
-                                    datetime is also set.
+        :param int|str year:            The year of the datetime.
+        :param int|str month:           The month of the datetime.
+        :param int|str day:             The day of the datetime.
+        :param int|str|none hour:       The hour of the datetime (Optional)
+        :param int|str|none minutes:    The minutes of the datetime (Optional)
+        :param int|str|none seconds:     The seconds of the datetime (Optional)
+        :param bool only_if_newer:      Update only if the new date is more recent then the
+                                        currently set one
+        :param str text:                If set it will overwrite the text in the date label the
+                                        datetime is also set.
 
         :return: The datetime that was set.
         :rtype: datetime.datetime
@@ -490,8 +493,9 @@ class MediaItem:
                 kodi_params[k] = HtmlEntityHelper.url_encode(part.HttpHeaders[k])
 
             if kodi_params:
-                kodi_query_string = reduce(lambda x, y: "%s&%s=%s" %
-                                                        (x, y, kodi_params[y]), kodi_params.keys(), "").lstrip("&")
+                kodi_query_string = reduce(
+                    lambda x, y: "%s&%s=%s" % (x, y, kodi_params[y]), kodi_params.keys(), "")
+                kodi_query_string = kodi_query_string.lstrip("&")
                 Logger.debug("Adding Kodi Stream parameters: %s\n%s", kodi_params, kodi_query_string)
                 stream_url = "%s|%s" % (stream.Url, kodi_query_string)
 
@@ -523,13 +527,13 @@ class MediaItem:
         """ Updates a Kodi ListItem with the correct Proxy configuration taken from the ProxyInfo
         object.
 
-        :param xbmcgui.ListItem kodi_item:  The current Kodi ListItem.
-        :param MediaStream stream:          The current Stream object.
-        :param str stream_url:              The current Url for the Stream object (might have
-                                            been changed in the mean time by other calls)
-        :param dict[str,str] kodi_params:   A dictionary of Kodi Parameters.
-        :param str log_text:                The current text that will be logged.
-        :param ProxyInfo proxy:             The ProxyInfo object
+        :param xbmcgui.ListItem kodi_item:          The current Kodi ListItem.
+        :param MediaStream stream:                  The current Stream object.
+        :param str stream_url:                      The current Url for the Stream object (might have
+                                                    been changed in the mean time by other calls)
+        :param dict[str|unicode,str] kodi_params:   A dictionary of Kodi Parameters.
+        :param str|unicode log_text:                The current text that will be logged.
+        :param ProxyInfo proxy:                     The ProxyInfo object
 
         :return: The new log text
         :rtype: str
@@ -567,12 +571,7 @@ class MediaItem:
     def __get_uuid(self):
         """ Generates a Unique Identifier based on Time and Random Integers """
 
-        t = long(time.time() * 1000)
-        r = long(random.random() * 100000000000000000L)
-        a = random.random() * 100000000000000000L
-        data = str(t) + ' ' + str(r) + ' ' + str(a)
-        data = EncodingHelper.encode_md5(data)
-        return data
+        return binascii.hexlify(os.urandom(16)).upper()
 
     def __full_decode_text(self, string_value):
         """ Decodes a byte encoded string with HTML content into Unicode String
@@ -767,6 +766,7 @@ class MediaItem:
     #     return self.__dict__
 
 
+# Don't make this an MediaItem(object) as it breaks the pickles
 class MediaItemPart:
     """Class that represents a MediaItemPart"""
 
@@ -893,7 +893,7 @@ class MediaItemPart:
         # TODO: Apparently if we use the InputStream Adaptive, using the setSubtitles() causes sync issues.
         if self.Subtitle and False:
             Logger.debug("Adding subtitle to ListItem: %s", self.Subtitle)
-            item.setSubtitles([self.Subtitle,])
+            item.setSubtitles([self.Subtitle, ])
 
         return stream, item
 
@@ -911,7 +911,7 @@ class MediaItemPart:
         """
 
         # order the items by bitrate
-        self.MediaStreams.sort()
+        self.MediaStreams.sort(key=lambda s: s.Bitrate)
         best_stream = None
         best_distance = None
 
@@ -939,27 +939,6 @@ class MediaItemPart:
             return self.MediaStreams[0]
 
         return best_stream
-
-    def __cmp__(self, other):
-        """ Compares 2 items based on their appearance order:
-
-        * -1 : If the item is lower than the current one
-        *  0 : If the item is order is equal
-        *  1 : If the item is higher than the current one
-
-        The comparison is done base on the Name only.
-
-        :param MediaItemPart other:     The other part to compare to
-        :return: The comparison result.
-        :rtype: int
-
-        """
-
-        if other is None:
-            return -1
-
-        # compare names
-        return cmp(self.Name, other.Name)
 
     def __eq__(self, other):
         """ Checks 2 items for Equality. Equality takes into consideration:
@@ -1017,6 +996,7 @@ class MediaItemPart:
         return text
 
 
+# Don't make this an MediaItem(object) as it breaks the pickles
 class MediaStream:
     """Class that represents a Mediastream with <url> and a specific <bitrate>"""
 
@@ -1055,27 +1035,6 @@ class MediaStream:
 
         Logger.debug("Adding stream property: %s = %s", name, value)
         self.Properties.append((name, value))
-
-    def __cmp__(self, other):
-        """ Compares 2 items based on their bitrate:
-
-        * -1 : If the item is lower than the current one
-        *  0 : If the item is order is equal
-        *  1 : If the item is higher than the current one
-
-        The comparison is done base on the bitrate only.
-
-        :param MediaStream other:     The other part to compare to
-
-        :return: The comparison result.
-        :rtype: int
-
-        """
-
-        if other is None:
-            return -1
-
-        return cmp(self.Bitrate, other.Bitrate)
 
     def __eq__(self, other):
         """ Checks 2 items for Equality
