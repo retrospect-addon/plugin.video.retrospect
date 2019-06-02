@@ -22,7 +22,6 @@ from locker import LockWithDialog
 from retroconfig import Config
 from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
 from initializer import Initializer
-from favourites import Favourites
 from mediaitem import MediaItem
 from helpers.channelimporter import ChannelIndex
 from helpers.languagehelper import LanguageHelper
@@ -31,7 +30,6 @@ from helpers.statistics import Statistics
 from helpers.sessionhelper import SessionHelper
 from textures import TextureHandler
 from paramparser import ParameterParser
-from updater import Updater
 from urihandler import UriHandler
 from channelinfo import ChannelInfo
 
@@ -54,6 +52,7 @@ class Plugin(ParameterParser):
         """
 
         Logger.info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
+        # noinspection PyTypeChecker
         self.handle = int(handle)
 
         super(Plugin, self).__init__(addon_name, params)
@@ -88,7 +87,8 @@ class Plugin(ParameterParser):
             XbmcWrapper.show_notification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
                 Config.appName,), fallback=False, logger=Logger)
 
-            # check for updates
+            # check for updates. Using local import for performance
+            from updater import Updater
             up = Updater(Config.updateUrl, Config.version,
                          UriHandler.instance(), Logger.instance(),
                          AddonSettings.get_release_track())
@@ -387,6 +387,8 @@ class Plugin(ParameterParser):
         else:
             Logger.info("Showing favourites for: %s", channel)
 
+        # Local import for performance
+        from favourites import Favourites
         f = Favourites(Config.favouriteDir)
         favs = f.list(channel)
         self.process_folder_list(favs)
@@ -705,6 +707,11 @@ class Plugin(ParameterParser):
 
         context_menu_items = []
 
+        # Genenric, none-Python menu items that would normally cause an unwanted reload of the
+        # Python interpreter instance within Kodi.
+        refresh = LanguageHelper.get_localized_string(LanguageHelper.RefreshListId)
+        context_menu_items.append((refresh, 'XBMC.Container.Refresh()'))
+
         if item is None:
             return context_menu_items
 
@@ -868,11 +875,13 @@ class Plugin(ParameterParser):
         if proxy_id is None:
             proxy_id = languages.index(language)
         else:
+            # noinspection PyTypeChecker
             proxy_id = int(proxy_id)
 
         if local_ip is None:
             local_ip = languages.index(language)
         else:
+            # noinspection PyTypeChecker
             local_ip = int(local_ip)
 
         channels = ChannelIndex.get_register().get_channels()

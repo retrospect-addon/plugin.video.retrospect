@@ -21,7 +21,6 @@ else:
 from mediaitem import MediaItem, MediaItemPart
 
 from regexer import Regexer
-from cloaker import Cloaker
 from xbmcwrapper import XbmcWrapper
 from retroconfig import Config
 from initializer import Initializer
@@ -315,6 +314,8 @@ class Channel:
             Logger.debug("Hiding Premium items")
             items = [i for i in items if not i.isPaid or i.type == type_to_exclude]
 
+        # Local import for performance
+        from cloaker import Cloaker
         cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.instance())
         if not AddonSettings.show_cloaked_items():
             Logger.debug("Hiding Cloaked items")

@@ -27,6 +27,8 @@ from textures import TextureHandler
 
 
 class ChannelInfo(object):
+    __channel_cache = dict()
+
     def __init__(self, guid, name, description, icon, category, path,
                  channel_code=None, sort_order=255, language=None,
                  compatible_platforms=Environments.All, fanart=None):
@@ -235,6 +237,11 @@ class ChannelInfo(object):
         :rtype: list[ChannelInfo]
 
         """
+
+        if path in ChannelInfo.__channel_cache:
+            Logger.debug("Fetching ChannelInfo from ChannelInfo Cache for '%s'", path)
+            return ChannelInfo.__channel_cache[path]
+
         channel_infos = []
 
         with io.open(path, mode="r", encoding="utf-8") as json_file:
@@ -278,4 +285,5 @@ class ChannelInfo(object):
 
             channel_infos.append(channel_info)
 
+        ChannelInfo.__channel_cache[path] = channel_infos
         return channel_infos

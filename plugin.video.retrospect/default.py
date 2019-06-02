@@ -52,10 +52,6 @@ def run_plugin():
         if use_caching:
             cache_dir = Config.cacheDir
 
-        # determine the platform
-        from envcontroller import EnvController
-        from environments import Environments
-
         ignore_ssl_errors = AddonSettings.ignore_ssl_errors()
         UriHandler.create_uri_handler(cache_dir=cache_dir,
                                       cookie_jar=os.path.join(Config.profileDir, "cookiejar.dat"),
@@ -96,13 +92,13 @@ currentPath = Initializer.setup_python_paths()
 # from debug import profilelinebyline as cProfile
 
 # Path for PC
-# statsPath = os.path.abspath(os.path.join(currentPath, "../../DEV/retrospect.pc.pstat"))
+# statsPath = os.path.abspath(os.path.join(currentPath, "../DEV/retrospect.pc.leia.pstat"))
 # Path for ATV
 # statsPath = os.path.abspath("/private/var/mobile/retrospect.atv.pstat")
 # Path for rPi
 # statsPath = os.path.abspath("/home/pi/.kodi/addons/plugin.video.retrospect/retrospect.rpi.pstat")
 
 # Profiled run
-# cProfile.run("RunPlugin()", statsPath)
+# cProfile.run("run_plugin()", statsPath)
 # Normal run
 run_plugin()
