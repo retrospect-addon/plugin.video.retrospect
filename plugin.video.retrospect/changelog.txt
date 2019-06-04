@@ -1,4 +1,4 @@
-[B]Retrospect v5.0.0.0~alpha5 - Changelog - 2019-06-01[/B]
+[B]Retrospect v5.0.0.0~alpha6 - Changelog - 2019-06-04[/B]
 
 [B]Framework related[/B]
 * Py2/3: updated code to be compatible with both Python 2 and Python 3
@@ -11,7 +11,7 @@
 * Updated: use ListItem.setSubtitles for subtitle (See #1154)
 
 [B]GUI/Settings/Language related[/B]
-* Changed: removed the &quot;experimental&quot; warning from the HTTP Caching settings
+* Changed: removed the "experimental" warning from the HTTP Caching settings
 * Updated: readme.md
 * Fixed: error with None check and xbmc.PlayList
 
