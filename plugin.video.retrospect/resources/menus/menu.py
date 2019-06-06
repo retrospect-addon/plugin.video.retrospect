@@ -252,6 +252,39 @@ class Menu(ParameterParser):
                                               bitrate_options[selected_bitrate])
         return
 
+    def set_inputstream_adaptive(self):
+        """ Set the InputStream Adaptive for this channel """
+
+        if self.channelObject is None:
+            raise ValueError("Missing channel")
+
+        if not self.channelObject.adaptiveAddonSelectable:
+            Logger.warning("Cannot set InputStream Adaptive add-on mode for %s", self.channelObject)
+            return
+
+        current_mode = AddonSettings.get_adaptive_mode(self.channelObject)
+        mode_values = [None, True, False]
+        current_index = mode_values.index(current_mode)
+        mode_options = [
+            LanguageHelper.get_localized_string(LanguageHelper.Retrospect),
+            LanguageHelper.get_localized_string(LanguageHelper.Enabled),
+            LanguageHelper.get_localized_string(LanguageHelper.Disabled)
+        ]
+
+        dialog = xbmcgui.Dialog()
+        heading = LanguageHelper.get_localized_string(LanguageHelper.ChannelAdaptiveMode)
+        selected_index = dialog.select(heading, mode_options, preselect=current_index)
+        if selected_index < 0:
+            return
+        selected_value = mode_values[selected_index]
+
+        Logger.info("Changing InputStream Adaptive mode for %s from %s to %s",
+                    self.channelObject,
+                    mode_options[current_index],
+                    mode_options[selected_index])
+
+        AddonSettings.set_adaptive_mode(self.channelObject, selected_value)
+
     def __get_channel(self):
         chn = self.params.get(self.keywordChannel, None)
         code = self.params.get(self.keywordChannelCode, None)

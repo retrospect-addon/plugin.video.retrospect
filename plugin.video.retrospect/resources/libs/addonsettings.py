@@ -489,6 +489,29 @@ class AddonSettings(object):
         return client_id
 
     @staticmethod
+    def get_adaptive_mode(channel):
+        """ Get the channel behaviour for the InputStream Adaptive for the channel.
+
+        :param channel:     The channel to set the bitrate for
+
+        :rtype: str
+        :return: The bitrate for the channel as a string!
+        """
+        return AddonSettings.store(LOCAL).get_setting("adaptive_mode",
+                                                      channel,
+                                                      default=None)
+
+    @staticmethod
+    def set_adaptive_mode(channel, mode):
+        """ Set the maximum channel bitrate
+
+        :param channel:         The channel to set the bitrate for
+        :param bool|None mode:  The configured mode. None = respect the Retrospect settings.
+
+        """
+        AddonSettings.store(LOCAL).set_setting("adaptive_mode", mode, channel)
+
+    @staticmethod
     def use_adaptive_stream_add_on(with_encryption=False, ignore_add_on_config=False):
         """ Should we use the Adaptive Stream add-on?
 

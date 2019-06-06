@@ -44,7 +44,9 @@ msgctxt "#30007"
 msgid "via other add-on"
 msgstr ""
 
-#empty strings from id 30008 to 30008
+msgctxt "#30008"
+msgid "Retrospect"
+msgstr ""
 
 msgctxt "#30009"
 msgid "General"
@@ -57,8 +59,6 @@ msgstr ""
 msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
 msgstr ""
-
-#empty strings from id 30012 to 30015
 
 msgctxt "#30016"
 msgid "Sort by"
@@ -854,7 +854,11 @@ msgctxt "#30578"
 msgid "InputStream Adaptive add-on settings"
 msgstr ""
 
-#empty strings from id 30579 to 30589
+msgctxt "#30579"
+msgid "Channel InputStream add-on »"
+msgstr ""
+
+#empty strings from id 30580 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

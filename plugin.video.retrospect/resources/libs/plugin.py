@@ -349,6 +349,8 @@ class Plugin(ParameterParser):
                 item.setProperty(self.propertyRetrospectChannel, "true")
                 if channel.settings:
                     item.setProperty(self.propertyRetrospectChannelSetting, "true")
+                if channel.adaptiveAddonSelectable:
+                    item.setProperty(self.propertyRetrospectAdaptive, "true")
 
                 # Get the context menu items
                 context_menu_items = self.__get_context_menu_items(channel)

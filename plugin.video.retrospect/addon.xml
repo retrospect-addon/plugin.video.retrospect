@@ -77,6 +77,11 @@
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
                 </item>
 
+                <item library="resources\menus\menu_adaptive.py">
+                    <label>30579</label>
+                    <visible>ListItem.Property(RetrospectAdaptive)+System.HasAddon(inputstream.adaptive)</visible>
+                </item>
+
                 <item library="resources\menus\menu_channelsettings.py">
                     <label>30069</label>
                     <visible>ListItem.Property(RetrospectChannelSettings)+!ListItem.Property(RetrospectCategory)</visible>

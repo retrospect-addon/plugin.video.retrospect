@@ -80,8 +80,9 @@ class ChannelInfo(object):
         self.icon = icon
         self.fanart = fanart
         self.version = "x.x.x.x"
-        self.enabled = False                # enabled from the settings
-        self.visible = False                # hidden/visible due to country settings
+        self.enabled = False                  # enabled from the settings
+        self.visible = False                  # hidden/visible due to country settings
+        self.adaptiveAddonSelectable = False  # can the InputStream Adaptive be selected
 
     @property
     def sort_key(self):
@@ -272,6 +273,7 @@ class ChannelInfo(object):
                                        channel.get("fanart", None))
             channel_info.firstTimeMessage = channel.get("message", None)
             channel_info.addonUrl = channel.get("addonUrl", None)
+            channel_info.adaptiveAddonSelectable = channel.get("adaptiveAddonSelectable", False)
             # Disable spoofing for the moment
             # channel_info.localIPSupported = channel.get("localIPSupported", False)
             channel_info.settings = settings
