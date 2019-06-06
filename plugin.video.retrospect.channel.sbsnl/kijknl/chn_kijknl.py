@@ -190,7 +190,7 @@ class Channel(chn_class.Channel):
 
             part = live_radio.create_new_empty_media_part()
             live_stream = "https://talparadiohls-i.akamaihd.net/hls/live/585615/VR-Veronica-1/playlist.m3u8"
-            if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
+            if AddonSettings.use_adaptive_stream_add_on(with_encryption=False, channel=self):
                 stream = part.append_media_stream(live_stream, 0)
                 M3u8.set_input_stream_addon_input(stream, self.proxy)
                 live_radio.complete = True
@@ -518,7 +518,7 @@ class Channel(chn_class.Channel):
             except:
                 Logger.warning("Failed to update embedded item:", exc_info=True)
 
-        use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
+        use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True, channel=self)
         mpd_info = json.get_value("entitlements", "play")
 
         # is there MPD information in the API response?
@@ -528,7 +528,7 @@ class Channel(chn_class.Channel):
         # Try the plain M3u8 streams
         part = item.create_new_empty_media_part()
         m3u8_url = json.get_value("playlist")
-        use_adaptive = AddonSettings.use_adaptive_stream_add_on()
+        use_adaptive = AddonSettings.use_adaptive_stream_add_on(channel=self)
 
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url paramter instead of an empty m3u8 file
@@ -600,8 +600,8 @@ class Channel(chn_class.Channel):
 
         json = JsonHelper(data)
         has_drm_only = True
-        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
-        adaptive_available_encrypted = AddonSettings.use_adaptive_stream_add_on(with_encryption=True)
+        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=False, channel=self)
+        adaptive_available_encrypted = AddonSettings.use_adaptive_stream_add_on(with_encryption=True, channel=self)
 
         for play_list_entry in json.get_value("playlist"):
             part = item.create_new_empty_media_part()
@@ -614,7 +614,7 @@ class Channel(chn_class.Channel):
                     has_drm_only = False
                     if stream_type == "m3u8":
                         Logger.debug("Found non-encrypted M3u8 stream: %s", stream_url)
-                        M3u8.update_part_with_m3u8_streams(part, stream_url, proxy=self.proxy)
+                        M3u8.update_part_with_m3u8_streams(part, stream_url, proxy=self.proxy, channel=self)
                         item.complete = True
                     elif stream_type == "dash" and adaptive_available:
                         Logger.debug("Found non-encrypted Dash stream: %s", stream_url)

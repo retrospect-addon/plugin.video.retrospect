@@ -921,6 +921,9 @@ class Plugin(ParameterParser):
         elif media_item.isCloaked:
             kodi_item.setProperty(self.propertyRetrospectCloaked, "true")
 
+        if self.channelObject.adaptiveAddonSelectable:
+            kodi_item.setProperty(self.propertyRetrospectAdaptive, "true")
+
     def __show_warnings(self, media_item):
         """ Show playback warnings for this MediaItem
 

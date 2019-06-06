@@ -156,7 +156,8 @@ class M3u8(object):
                                       encrypted=False,
                                       proxy=None, headers=None,
                                       map_audio=False,
-                                      bitrate=0):
+                                      bitrate=0,
+                                      channel = None):
         """ Updates an existing MediaItemPart with M3u8 data either using the Adaptive Inputstream 
         Add-on or with the built-in code.
 
@@ -167,13 +168,15 @@ class M3u8(object):
         :param ProxyInfo proxy:         The proxy to use for opening
         :param bool map_audio:          Should audio tracks be mapped seperately?
         :param int bitrate:             Initial bitrate to use. Will be overriden later.
+        :param ChannelInfo channel:     If specified, the channel specific configuration is
+                                        considered.
 
         :return: indication if updating was succesful.
         :rtype: bool
 
         """
 
-        input_stream = AddonSettings.use_adaptive_stream_add_on(encrypted)
+        input_stream = AddonSettings.use_adaptive_stream_add_on(encrypted, channel=channel)
         if not input_stream and encrypted:
             Logger.error("Cannot play encrypted stream without InputStream Adaptive with Encryption support!")
             return False
