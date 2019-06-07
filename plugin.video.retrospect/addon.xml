@@ -49,7 +49,7 @@
 
                 <item library="resources\menus\menu_bitrate.py">
                     <label>30577</label>
-                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
                 <item library="resources\menus\menu_adaptive.py">

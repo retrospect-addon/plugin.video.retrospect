@@ -483,11 +483,11 @@ class Plugin(ParameterParser):
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except Exception:
+            Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             Statistics.register_error(self.channelObject)
             XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                           LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                                           XbmcWrapper.Error, 4000)
-            Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
 
     # @LockWithDialog(logger=Logger.instance())  No longer needed as Kodi will do this automatically
@@ -921,7 +921,7 @@ class Plugin(ParameterParser):
         elif media_item.isCloaked:
             kodi_item.setProperty(self.propertyRetrospectCloaked, "true")
 
-        if self.channelObject.adaptiveAddonSelectable:
+        if self.channelObject and self.channelObject.adaptiveAddonSelectable:
             kodi_item.setProperty(self.propertyRetrospectAdaptive, "true")
 
     def __show_warnings(self, media_item):
