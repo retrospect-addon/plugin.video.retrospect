@@ -40,7 +40,7 @@ class LanguageHelper(object):
     Enabled = 30042
     Disabled = 30074
     Retrospect = 30008
-    ChannelAdaptiveMode = 30579
+    ChannelAdaptiveMode = 30581
 
     ChannelSelection = 30507
     # Unused:

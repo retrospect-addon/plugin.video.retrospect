@@ -43,6 +43,26 @@
                 <visible>ListItem.Property(RetrospectCloaked)</visible>
             </item>
 
+            <!-- Channel settings -->
+            <menu>
+                <label>30580</label>
+
+                <item library="resources\menus\menu_bitrate.py">
+                    <label>30577</label>
+                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
+                </item>
+
+                <item library="resources\menus\menu_adaptive.py">
+                    <label>30579</label>
+                    <visible>ListItem.Property(RetrospectAdaptive)+System.HasAddon(inputstream.adaptive)</visible>
+                </item>
+
+                <item library="resources\menus\menu_channelsettings.py">
+                    <label>30069</label>
+                    <visible>ListItem.Property(RetrospectChannelSettings)+!ListItem.Property(RetrospectCategory)</visible>
+                </item>
+            </menu>
+
             <!-- Favorites menu -->
             <menu>
                 <label>30575</label>
@@ -71,21 +91,6 @@
             <!-- Retrospect Menu -->
             <menu>
                 <label>30572</label>
-
-                <item library="resources\menus\menu_bitrate.py">
-                    <label>30577</label>
-                    <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)</visible>
-                </item>
-
-                <item library="resources\menus\menu_adaptive.py">
-                    <label>30579</label>
-                    <visible>ListItem.Property(RetrospectAdaptive)+System.HasAddon(inputstream.adaptive)</visible>
-                </item>
-
-                <item library="resources\menus\menu_channelsettings.py">
-                    <label>30069</label>
-                    <visible>ListItem.Property(RetrospectChannelSettings)+!ListItem.Property(RetrospectCategory)</visible>
-                </item>
 
                 <item library="resources\menus\menu_channel_selection.py">
                     <label>30507</label>
