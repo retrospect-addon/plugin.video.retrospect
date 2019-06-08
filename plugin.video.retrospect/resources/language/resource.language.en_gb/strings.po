@@ -249,7 +249,7 @@ msgid "Active"
 msgstr ""
 
 msgctxt "#30069"
-msgid "Channel Settings"
+msgid "Settings"
 msgstr ""
 
 msgctxt "#30070"
@@ -859,7 +859,7 @@ msgid "InputStream add-on »"
 msgstr ""
 
 msgctxt "#30580"
-msgid "Channel Settings »"
+msgid "Channel Options »"
 msgstr ""
 
 msgctxt "#30581"

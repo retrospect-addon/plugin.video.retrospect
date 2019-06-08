@@ -81,7 +81,6 @@ class LanguageHelper(object):
     AddonsNotEnabledText = 30568
 
     Active = 30068
-    ShowChannelSettings = 30069
     InitChannelTitle = 30556
     InitChannelText = 30557
     FetchTexturesTitle = 30558
