@@ -157,7 +157,7 @@ class M3u8(object):
                                       proxy=None, headers=None,
                                       map_audio=False,
                                       bitrate=0,
-                                      channel = None):
+                                      channel=None):
         """ Updates an existing MediaItemPart with M3u8 data either using the Adaptive Inputstream 
         Add-on or with the built-in code.
 

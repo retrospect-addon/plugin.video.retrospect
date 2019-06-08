@@ -969,7 +969,9 @@ class Channel(chn_class.Channel):
                     url,
                     encrypted=False,
                     proxy=self.proxy,
-                    headers=part.HttpHeaders)
+                    headers=part.HttpHeaders,
+                    channel=self
+                )
                 # for s, b in M3u8.get_streams_from_m3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
                 #     part.append_media_stream(s, b)
 
