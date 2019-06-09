@@ -99,6 +99,6 @@ currentPath = Initializer.setup_python_paths()
 # statsPath = os.path.abspath("/home/pi/.kodi/addons/plugin.video.retrospect/retrospect.rpi.pstat")
 
 # Profiled run
-# cProfile.run("run_plugin()", statsPath)
+# cProfile.runctx("run_plugin()", globals(), locals(), statsPath)
 # Normal run
 run_plugin()
