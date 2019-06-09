@@ -285,6 +285,11 @@ class Menu(ParameterParser):
 
         AddonSettings.set_adaptive_mode(self.channelObject, selected_value)
 
+        # Refresh if we have a video item selected, so the cached urls are removed.
+        if self.keywordPickle in self.params:
+            Logger.debug("Refreshing list to clear URL caches")
+            self.refresh()
+
     def __get_channel(self):
         chn = self.params.get(self.keywordChannel, None)
         code = self.params.get(self.keywordChannelCode, None)

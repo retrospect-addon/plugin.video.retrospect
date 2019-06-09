@@ -10,7 +10,8 @@
       "sortorder": 3,
       "language": "se",
       "fanart": "tv3sefanart.png",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "FB34E1F0-2930-11DE-A339-255856D89593",
@@ -22,7 +23,8 @@
       "sortorder": 6,
       "language": "se",
       "fanart": "tv6viasatfanart.png",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "BDC1A5C5-2777-4D05-BB5B-742A88B89CC5",
@@ -34,7 +36,8 @@
       "sortorder": 8,
       "language": "se",
       "fanart": "tv8sefanart.jpg",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "584E7420-2867-11E3-AA01-F2806188709B",
@@ -46,7 +49,8 @@
       "sortorder": 10,
       "language": "se",
       "fanart": "tv10sefanart.png",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "FF998410-CAD5-4FDC-9E48-E28BC4E51BC4",
@@ -58,7 +62,8 @@
       "sortorder": 10,
       "language": "se",
       "fanart": "viafreesefanart.png",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "89673FF0-5EF3-11E0-8CC9-494DDFD72085",
@@ -70,7 +75,8 @@
       "sortorder": 3,
       "language": "no",
       "fanart": "tv3fanart.jpg",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "90DD5C88-5EF3-11E0-93A2-4D4DDFD72085",
@@ -82,7 +88,8 @@
       "sortorder": 4,
       "language": "no",
       "fanart": "viasat4fanart.jpg",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "3CD2662C-3C7A-4217-8375-079B2D850F27",
@@ -94,7 +101,8 @@
       "sortorder": 6,
       "language": "no",
       "fanart": "tv6viasatfanart.png",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     }
   ],
   "settings": [
