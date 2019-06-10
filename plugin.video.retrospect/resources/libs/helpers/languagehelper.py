@@ -37,6 +37,7 @@ class LanguageHelper(object):
     BitrateSelection = 30020
     Recent = 30024
     OtherAddon = 30007
+    ExpiresAt = 30033
 
     ChannelSelection = 30507
     # Unused:

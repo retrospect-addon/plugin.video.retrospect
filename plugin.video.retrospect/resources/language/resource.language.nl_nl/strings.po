@@ -44,8 +44,6 @@ msgctxt "#30007"
 msgid "via een andere add-on"
 msgstr ""
 
-#empty strings from id 30008 to 30008
-
 msgctxt "#30009"
 msgid "General"
 msgstr "Algemeen"
@@ -125,6 +123,10 @@ msgstr "Cache HTTP(S) berichten"
 msgctxt "#30032"
 msgid "Channel Settings"
 msgstr "Kanaal instellingen"
+
+msgctxt "#30033"
+msgid "Verloopt op"
+msgstr ""
 
 msgctxt "#30034"
 msgid "No channel selected"
@@ -619,7 +621,7 @@ msgid "Installation of Widevine completed!"
 msgstr "Widevine installatie gelukt"
 
 msgctxt "#30536"
-msgid "This stream requires Kodi Leia and Widevine libraries to be installed."
+msgid "This stream requires Kodi Leia, an enabled InputStream Adaptive add-on and the Widevine library to be installed. The latter can be installed from within the Retrospect add-on settings."
 msgstr "Deze stream heeft minimaal Kodi Leia, een ingeschakelde InputStream Adaptive add-on en geïnstalleerde Widevine libraries nodig. Deze laatste kunnen worden geïnstalleerd via de Retrospect add-on instellingen."
 
 msgctxt "#30537"

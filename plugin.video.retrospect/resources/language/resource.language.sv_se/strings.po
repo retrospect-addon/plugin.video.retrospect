@@ -40,6 +40,10 @@ msgctxt "#30006"
 msgid "Alpha/Beta"
 msgstr "Alpha/Beta"
 
+msgctxt "#30007"
+msgid "via other add-on"
+msgstr ""
+
 msgctxt "#30009"
 msgid "General"
 msgstr "Allmän"
@@ -119,6 +123,10 @@ msgstr "Buffra HTTP(S)-förfrågningar"
 msgctxt "#30032"
 msgid "Channel Settings"
 msgstr "Inställningar för kanaler"
+
+msgctxt "#30033"
+msgid "Expires at"
+msgstr "Kan ses till"
 
 msgctxt "#30034"
 msgid "No channel selected"
@@ -611,6 +619,10 @@ msgstr "Installation av Widevine misslyckades!"
 msgctxt "#30535"
 msgid "Installation of Widevine completed!"
 msgstr "Installationen av Widevine är klar!"
+
+msgctxt "#30536"
+msgid "This stream requires Kodi Leia, an enabled InputStream Adaptive add-on and the Widevine library to be installed. The latter can be installed from within the Retrospect add-on settings."
+msgstr ""
 
 msgctxt "#30537"
 msgid "Page"

@@ -133,6 +133,7 @@ class Channel(chn_class.Channel):
         # non standard items
         self.__thumbLookup = dict()
         self.__apollo_data = None
+        self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
         # ===============================================================================================================
         # Test cases:
@@ -714,6 +715,17 @@ class Channel(chn_class.Channel):
                 broad_cast_date = broad_cast_date.rsplit("+")[0]
             time_stamp = DateHelper.get_date_from_string(broad_cast_date, "%Y-%m-%dT%H:%M:%S")
             item.set_date(*time_stamp[0:6])
+
+        # Set the expire date
+        expire_date = result_set.get("expireDate")
+        if expire_date is not None:
+            expire_date = expire_date.split("+")[0].replace("T", " ")
+            item.description = \
+                "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
+
+        length = result_set.get("materialLength", 0)
+        if length > 0:
+            item.set_info_label("Duration", length)
         return item
 
     def create_category_item(self, result_set):
