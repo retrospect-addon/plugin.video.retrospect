@@ -1,4 +1,4 @@
-[B]Retrospect v5.0.0.0~alpha6 - Changelog - 2019-06-04[/B]
+[B]Retrospect v5.0.0.0~alpha7 - Changelog - 2019-06-06[/B]
 
 [B]Framework related[/B]
 * Py2/3: updated code to be compatible with both Python 2 and Python 3
