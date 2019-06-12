@@ -1,4 +1,4 @@
-[B]Retrospect v5.0.0.0~alpha7 - Changelog - 2019-06-06[/B]
+[B]Retrospect v5.0.0.0~alpha8 - Changelog - 2019-06-12[/B]
 
 [B]Framework related[/B]
 * Py2/3: updated code to be compatible with both Python 2 and Python 3
@@ -9,13 +9,21 @@
 * Reverted: Partly reverted ad38d22f because it caused sync issues with subs if the InputStream Adaptive is used.
 * Updated: allow to specify an initial bitrate for HLS streams
 * Updated: use ListItem.setSubtitles for subtitle (See #1154)
+* Changed: a bit of performance tuning that makes use of the `reuselanguageinvoker` feature of Kodi
+* Changed: some in code `import` statements that improve performance
+* Added: make the InputStream Adaptive configurable for certain channels
+* Fixed: Refresh list after changing the InputStream Adaptive settings to get rid of previous urls
 
 [B]GUI/Settings/Language related[/B]
 * Changed: removed the "experimental" warning from the HTTP Caching settings
 * Updated: readme.md
 * Fixed: error with None check and xbmc.PlayList
+* Updated: context menu restructured a bit
 
 [B]Channel related[/B]
 * Fixed: BBC did not work at all
-
+* Added: more Premium channel for Stievie (See #1030)
+* Added: Duration and Expire Date to SVT
+* Updated: AT5 and the ViaFree channels to select to use InputStream Adaptive or not
+* Updated: SVT can now select to use InputStream adaptive or not
 
