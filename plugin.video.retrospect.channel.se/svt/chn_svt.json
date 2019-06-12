@@ -11,7 +11,8 @@
       "language": "se",
       "compatible": "Environments.All",
       "fanart": "svtfanart.jpg",
-      "localIPSupported": true
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     }
   ],
   "settings": [

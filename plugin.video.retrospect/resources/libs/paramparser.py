@@ -66,6 +66,7 @@ class ParameterParser(object):
         self.propertyRetrospectCloaked = "RetrospectCloaked"
         self.propertyRetrospectCategory = "RetrospectCategory"
         self.propertyRetrospectFavorite = "RetrospectFavorite"
+        self.propertyRetrospectAdaptive = "RetrospectAdaptive"
 
         # determine the query parameters
         self.params = self.__get_parameters(params)

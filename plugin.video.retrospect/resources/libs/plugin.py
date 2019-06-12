@@ -349,6 +349,8 @@ class Plugin(ParameterParser):
                 item.setProperty(self.propertyRetrospectChannel, "true")
                 if channel.settings:
                     item.setProperty(self.propertyRetrospectChannelSetting, "true")
+                if channel.adaptiveAddonSelectable:
+                    item.setProperty(self.propertyRetrospectAdaptive, "true")
 
                 # Get the context menu items
                 context_menu_items = self.__get_context_menu_items(channel)
@@ -481,11 +483,11 @@ class Plugin(ParameterParser):
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except Exception:
+            Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             Statistics.register_error(self.channelObject)
             XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                           LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                                           XbmcWrapper.Error, 4000)
-            Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             xbmcplugin.endOfDirectory(self.handle, False)
 
     # @LockWithDialog(logger=Logger.instance())  No longer needed as Kodi will do this automatically
@@ -918,6 +920,9 @@ class Plugin(ParameterParser):
             kodi_item.setProperty(self.propertyRetrospectFavorite, "true")
         elif media_item.isCloaked:
             kodi_item.setProperty(self.propertyRetrospectCloaked, "true")
+
+        if self.channelObject and self.channelObject.adaptiveAddonSelectable:
+            kodi_item.setProperty(self.propertyRetrospectAdaptive, "true")
 
     def __show_warnings(self, media_item):
         """ Show playback warnings for this MediaItem

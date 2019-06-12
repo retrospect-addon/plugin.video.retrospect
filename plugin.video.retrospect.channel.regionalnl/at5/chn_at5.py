@@ -198,7 +198,7 @@ class Channel(chn_class.Channel):
         item.complete = True
         item.description = result_set.get("text")
         part = item.create_new_empty_media_part()
-        M3u8.update_part_with_m3u8_streams(part, url, proxy=self.proxy)
+        M3u8.update_part_with_m3u8_streams(part, url, proxy=self.proxy, channel=self)
 
         # Let's not do the time now
         time_stamp = result_set["created"]
@@ -235,11 +235,7 @@ class Channel(chn_class.Channel):
               "&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
 
         part = item.create_new_empty_media_part()
-        if AddonSettings.use_adaptive_stream_add_on():
-            stream = part.append_media_stream(url, 0)
-            M3u8.set_input_stream_addon_input(stream, self.proxy, item.HttpHeaders)
-        else:
-            for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
-                item.complete = True
-                part.append_media_stream(s, b)
+        item.complete = \
+            M3u8.update_part_with_m3u8_streams(part, url, proxy=self.proxy, channel=self)
+
         return item

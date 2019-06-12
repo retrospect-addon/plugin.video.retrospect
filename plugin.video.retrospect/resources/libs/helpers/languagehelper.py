@@ -38,6 +38,10 @@ class LanguageHelper(object):
     Recent = 30024
     OtherAddon = 30007
     ExpiresAt = 30033
+    Enabled = 30042
+    Disabled = 30074
+    Retrospect = 30008
+    ChannelAdaptiveMode = 30581
 
     ChannelSelection = 30507
     # Unused:
@@ -78,7 +82,6 @@ class LanguageHelper(object):
     AddonsNotEnabledText = 30568
 
     Active = 30068
-    ShowChannelSettings = 30069
     InitChannelTitle = 30556
     InitChannelText = 30557
     FetchTexturesTitle = 30558

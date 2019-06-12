@@ -82,6 +82,7 @@ class Channel:
         self.language = channel_info.language
         self.path = channel_info.path
         self.version = channel_info.version
+        self.adaptiveAddonSelectable = channel_info.adaptiveAddonSelectable
 
         # get the textures from the channelinfo and get their full uri's.
         self.icon = TextureHandler.instance().get_texture_uri(self, channel_info.icon)

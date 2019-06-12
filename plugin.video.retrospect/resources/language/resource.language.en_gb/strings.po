@@ -44,7 +44,9 @@ msgctxt "#30007"
 msgid "via other add-on"
 msgstr ""
 
-#empty strings from id 30008 to 30008
+msgctxt "#30008"
+msgid "Retrospect"
+msgstr ""
 
 msgctxt "#30009"
 msgid "General"
@@ -251,7 +253,7 @@ msgid "Active"
 msgstr ""
 
 msgctxt "#30069"
-msgid "Channel Settings"
+msgid "Settings"
 msgstr ""
 
 msgctxt "#30070"
@@ -840,14 +842,26 @@ msgid "Select Countries"
 msgstr ""
 
 msgctxt "#30577"
-msgid "Channel Bitrate »"
+msgid "Bitrate »"
 msgstr ""
 
 msgctxt "#30578"
 msgid "InputStream Adaptive add-on settings"
 msgstr ""
 
-#empty strings from id 30579 to 30589
+msgctxt "#30579"
+msgid "InputStream add-on »"
+msgstr ""
+
+msgctxt "#30580"
+msgid "Channel Options »"
+msgstr ""
+
+msgctxt "#30581"
+msgid "InputStream add-on usage"
+msgstr ""
+
+#empty strings from id 30582 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

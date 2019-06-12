@@ -18,7 +18,7 @@ import xbmc
 
 from logger import Logger                               # this has not further references
 from proxyinfo import ProxyInfo                         # this has not further references
-from retroconfig import Config                               # this has not further references
+from retroconfig import Config                          # this has not further references
 from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
 from settings import localsettings, kodisettings, settingsstore
 
@@ -489,15 +489,48 @@ class AddonSettings(object):
         return client_id
 
     @staticmethod
-    def use_adaptive_stream_add_on(with_encryption=False, ignore_add_on_config=False):
+    def get_adaptive_mode(channel):
+        """ Get the channel behaviour for the InputStream Adaptive for the channel.
+
+        :param channel:     The channel to set the bitrate for
+
+        :rtype: str
+        :return: The bitrate for the channel as a string!
+        """
+        return AddonSettings.store(LOCAL).get_setting("adaptive_mode",
+                                                      channel,
+                                                      default=None)
+
+    @staticmethod
+    def set_adaptive_mode(channel, mode):
+        """ Set the maximum channel bitrate
+
+        :param channel:         The channel to set the bitrate for
+        :param bool|None mode:  The configured mode. None = respect the Retrospect settings.
+
+        """
+        AddonSettings.store(LOCAL).set_setting("adaptive_mode", mode, channel)
+
+    @staticmethod
+    def use_adaptive_stream_add_on(with_encryption=False, ignore_add_on_config=False, channel=None):
         """ Should we use the Adaptive Stream add-on?
 
         :param bool with_encryption:        do we need to decrypte script.
         :param bool ignore_add_on_config:   ignore the Retrospect setting, use the InputStream
                                             Adaptive add-onand only validate other criteria.
+        :param ChannelInfo channel:         If specified, the channel specific configuration is
+                                            considered.
 
         :return: Indication whether the Adaptive Stream add-on is available.
         :rtype: bool
+
+                          | Channel settings
+                          |  None      False     True
+        ------------------+----------------------------
+        Retrospect  True  |  True     <False>    True
+                   False  |  False     False    <True>
+
+        So there are 2 exceptions to the normal conditions, indicated with <>
 
         """
 
@@ -505,13 +538,26 @@ class AddonSettings(object):
         use_add_on = \
             AddonSettings.store(KODI).get_boolean_setting("use_adaptive_addon", default=True)
 
+        channel_setting = None
+        if channel is not None and channel.adaptiveAddonSelectable:
+            channel_setting = AddonSettings.get_adaptive_mode(channel)
+
+        if channel_setting is False:
+            Logger.info("Adaptive Stream add-on disabled from Channel settings")
+            return False
+
         if ignore_add_on_config:
             Logger.debug(
                 "Ignoring Retrospect setting use_adaptive_addon=%s and using it anyways.", use_add_on)
 
+        # if the add-on was disabled, don't use it, unless specified by the channel setting
         elif not use_add_on:
-            Logger.info("Adaptive Stream add-on disabled from Retrospect settings")
-            return use_add_on
+            # check the channel setting, if it set to True, we should obey that and not return False
+            if channel_setting is not True:
+                Logger.info("Adaptive Stream add-on disabled from Retrospect settings")
+                return False
+
+            Logger.info("Adaptive Stream add-on is disabled from Retrospect settings but enabled from channel")
 
         # we should use it, so if we can't find it, it is not so OK.
         adaptive_add_on_id = "inputstream.adaptive"
@@ -795,6 +841,7 @@ class AddonSettings(object):
         """
 
         level = AddonSettings.store(KODI).get_integer_setting("log_level", default=2)
+        # noinspection PyTypeChecker
         return int(level) * 10
 
     @staticmethod

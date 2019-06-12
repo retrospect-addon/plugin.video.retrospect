@@ -10,7 +10,8 @@
       "sortorder": 6,
       "language": "nl",
       "compatible": "Environments.All",
-      "fanart": "sbs6fanart.jpg"
+      "fanart": "sbs6fanart.jpg",
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "658A5A36-60A4-11E2-A236-8CE36188709B",
@@ -22,7 +23,8 @@
       "sortorder": 5,
       "language": "nl",
       "compatible": "Environments.All",
-      "fanart": "net5fanart.jpg"
+      "fanart": "net5fanart.jpg",
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "6B32718A-60A4-11E2-87B1-A6E36188709B",
@@ -34,7 +36,8 @@
       "sortorder": 10,
       "language": "nl",
       "compatible": "Environments.All",
-      "fanart": "veronicafanart.png"
+      "fanart": "veronicafanart.png",
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "C77710DE-21B6-467A-A547-0F64C6C6186E",
@@ -46,7 +49,8 @@
       "sortorder": 9,
       "language": "nl",
       "compatible": "Environments.All",
-      "fanart": "sbs9fanart.jpg"
+      "fanart": "sbs9fanart.jpg",
+      "adaptiveAddonSelectable": true
     },
     {
       "guid": "271456ED-6E84-4FAB-A7AF-77A1C669F942",
@@ -58,7 +62,8 @@
       "sortorder": 5,
       "language": "nl",
       "compatible": "Environments.All",
-      "fanart": "kijkfanart.png"
+      "fanart": "kijkfanart.png",
+      "adaptiveAddonSelectable": true
     }
   ]
 }

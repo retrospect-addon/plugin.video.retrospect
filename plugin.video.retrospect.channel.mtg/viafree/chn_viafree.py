@@ -566,7 +566,7 @@ class Channel(chn_class.Channel):
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
-        use_kodi_hls = AddonSettings.use_adaptive_stream_add_on()
+        use_kodi_hls = AddonSettings.use_adaptive_stream_add_on(channel=self)
 
         # User-agent (and possible other headers), should be consistent over all
         # M3u8 requests (See #864)
