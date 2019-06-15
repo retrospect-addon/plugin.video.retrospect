@@ -497,6 +497,9 @@ class Channel(chn_class.Channel):
             if show_id:
                 show = self.showLookup[show_id]
                 item.name = "{0} - {1}".format(show, item.name)
+
+        if "videoDuration" in video_info:
+            item.set_info_label(MediaItem.LabelDuration, video_info["videoDuration"] / 1000)
         return item
 
     def update_channel_item(self, item):

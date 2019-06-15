@@ -725,7 +725,7 @@ class Channel(chn_class.Channel):
 
         length = result_set.get("materialLength", 0)
         if length > 0:
-            item.set_info_label("Duration", length)
+            item.set_info_label(MediaItem.LabelDuration, length)
         return item
 
     def create_category_item(self, result_set):
