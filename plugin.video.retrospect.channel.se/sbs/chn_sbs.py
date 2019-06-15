@@ -687,7 +687,7 @@ class Channel(chn_class.Channel):
 
         # paid or not?
         if "contentPackages" in result_set["relationships"]:
-            item.isPaid = any(
+            item.isPaid = not any(
                 filter(
                     lambda p: p["id"].lower() == "free", result_set["relationships"]["contentPackages"]["data"]
                 )
