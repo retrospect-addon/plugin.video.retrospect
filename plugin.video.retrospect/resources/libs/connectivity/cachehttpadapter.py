@@ -61,7 +61,7 @@ class CacheHTTPAdapter(HTTPAdapter):
                 self.__store_response(request, response, cache_data)
 
             if response.status_code == 304:
-                Logger.debug("304 Response found. Pro-Longing the %s", response.url)
+                Logger.debug("304 Response found. Prolonging the %s", response.url)
                 self.cache_store.cacheHits += 1
                 response = self.__get_cached_response(request, no_check=True)
         except:
@@ -98,13 +98,13 @@ class CacheHTTPAdapter(HTTPAdapter):
         valid_in_seconds = 3600
         if 'max-age' in cache_data:
             valid_in_seconds = cache_data['max-age']
-        if self.cache_store.is_expired(meta_key, valid_in_seconds):
-            Logger.debug("Expired Cache-Hit: %s", req.url)
-            return None
 
-        if self.__must_revalidate(cache_data):
-            Logger.debug("Stale-Cache hit found. Revalidating")
-            req.headers["If-None-Match"] = headers["etag"]
+        if self.cache_store.is_expired(meta_key, valid_in_seconds):
+            if self.__must_revalidate(cache_data):
+                Logger.debug("Stale-Cache hit found. Revalidating")
+                req.headers["If-None-Match"] = headers["etag"]
+            else:
+                Logger.debug("Expired Cache-Hit: %s", req.url)
             return None
 
         Logger.debug("Cache-Hit: %s", req.url)
