@@ -924,6 +924,9 @@ class Plugin(ParameterParser):
         if self.channelObject and self.channelObject.adaptiveAddonSelectable:
             kodi_item.setProperty(self.propertyRetrospectAdaptive, "true")
 
+        if self.channelObject and self.channelObject.hasSettings:
+            kodi_item.setProperty(self.propertyRetrospectChannelSetting, "true")
+
     def __show_warnings(self, media_item):
         """ Show playback warnings for this MediaItem
 
