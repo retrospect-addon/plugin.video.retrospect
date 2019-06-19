@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.0.0.0~alpha8"
+        version="5.0.0.0~beta1"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -122,7 +122,7 @@
         <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
         <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage caused to your system. Nor do we take responsibility for the content that can be watched via this add-on or any consequences of using this add-on to watch the content using the content provider's platforms.</disclaimer>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v5.0.0.0~alpha8 - Changelog - 2019-06-12[/B]
+        <news>[B]Retrospect v5.0.0.0~beta1 - Changelog - 2019-06-19[/B]
 
 [B]Framework related[/B]
 * Py2/3: updated code to be compatible with both Python 2 and Python 3
@@ -137,6 +137,7 @@
 * Changed: some in code `import` statements that improve performance
 * Added: make the InputStream Adaptive configurable for certain channels
 * Fixed: Refresh list after changing the InputStream Adaptive settings to get rid of previous urls
+* Fixed: Always show &quot;Channel Options -&gt; Settings&quot; in context menu if available for a channel
 
 [B]GUI/Settings/Language related[/B]
 * Changed: removed the &quot;experimental&quot; warning from the HTTP Caching settings
@@ -150,8 +151,10 @@
 * Added: Duration and Expire Date to SVT
 * Updated: AT5 and the ViaFree channels to select to use InputStream Adaptive or not
 * Updated: SVT can now select to use InputStream adaptive or not
-
-
+* Fixed: NPO genres would list shows as videos (Fixes #1172)
+* Added: Duration to DPlay
+* Fixed: Some DPlay items were shown as Paid, while there were not actually paid
+* Fixed: NPO genres would list shows as videos (Fixes #1172)
         </news>
         <assets>
             <icon>icon.png</icon>
