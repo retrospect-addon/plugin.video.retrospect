@@ -102,7 +102,7 @@ class Channel(chn_class.Channel):
             r'<div[^>]+class="(?<class>[^"]+)"[^>]+id="(?<powid>[^"]+)"[^>]*>\W*<a href="[^"]+/'
             r'(?<url>[^/"]+)" class="npo-tile-link"[^>]+(?:data-scorecard=\'(?<videodata>[^\']*)\')?'
             r'[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[^>]+'
-            r'data-premium-from="(?<datePremium>[^"]*)"[\w\W]{0,1000}?<img[^>]+'
+            r'data-premium-from="(?<datePremium>[^"]*)"(?<videoDetection>[\w\W]{0,1000}?)<img[^>]+'
             r'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>'
             r'(?<subtitle>[^<]*)</p>')
         self._add_data_parsers(["https://www.npostart.nl/media/series/",
@@ -656,13 +656,13 @@ class Channel(chn_class.Channel):
 
         # set the POW id based on either video of folder:
         # This no longer works. Assuming video for now.
-        # if result_set["videodata"]:
-        item.type = "video"
-        item.url = result_set["powid"]
-        # else:
-        #     item.type = "folder"
-        #     item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
-        #     item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        if "npo-asset-tile-timer" in result_set["videoDetection"]:
+            item.type = "video"
+            item.url = result_set["powid"]
+        else:
+            item.type = "folder"
+            item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
+            item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         item.isPaid = "premium" in result_set["class"]
 
         # figure out the date
