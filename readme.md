@@ -58,7 +58,7 @@ Download the complete GIT repo. Remove all existing Retrospect folders (**don't 
 In both situation run Retrospect at least once before accessing the Retrospect add-on settings. The initial run might take longer than usual, as Retrospect is initialising some stuff and downloads artwork.
 
 # ! Be advised ! #
-Retrospect will NOT auto-upate. So new version need to be installed manually. 
+Retrospect will NOT auto-update. So new version need to be installed manually. 
 
 # Troubleshooting #
 
