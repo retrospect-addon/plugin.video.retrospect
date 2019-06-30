@@ -118,9 +118,9 @@
     <extension point="xbmc.addon.metadata">
         <reuselanguageinvoker>true</reuselanguageinvoker>
         <platform>all</platform>
-        <summary lang="en">Retrospect (previously XBMC Online TV) is a plugin that allows the playback of a lot of TV shows that are available (legally) via the broadcasters websites.</summary>
-        <description lang="en">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
-        <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage caused to your system. Nor do we take responsibility for the content that can be watched via this add-on or any consequences of using this add-on to watch the content using the content provider's platforms.</disclaimer>
+        <summary lang="en_GB">Retrospect (previously XBMC Online TV) is a plugin that allows the playback of a lot of TV shows that are available (legally) via the broadcasters websites.</summary>
+        <description lang="en_GB">Retrospect uses the official websites of a lot of different broadcasting companies (mainly Dutch, Belgian, British and Swedish) to make their re-run episodes available on the Kodi platform. More information can be found at www.rieter.net.[CR][CR]Retrospect reports back usage statistics to our servers. This option can be disabled from the add-on settings.</description>
+        <disclaimer lang="en_GB">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage caused to your system. Nor do we take responsibility for the content that can be watched via this add-on or any consequences of using this add-on to watch the content using the content provider's platforms.</disclaimer>
         <language>en nl de se no lt lv fi</language>
         <news>[B]Retrospect v5.0.0.0~beta1 - Changelog - 2019-06-19[/B]
 

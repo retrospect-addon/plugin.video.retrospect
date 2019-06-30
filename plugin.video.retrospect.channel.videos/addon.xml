@@ -14,8 +14,8 @@
     </extension>
              
     <extension point="xbmc.addon.metadata">
-        <summary lang="en">Retrospect (a.k.a. XBMC Online TV) is an add-on that allows the playback of a lot of TV shows that are available (legally) via the broadcasters websites.</summary>
-        <description lang="en">Set of several video websites channels for Retrospect</description>
-        <disclaimer lang="en">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
+        <summary lang="en_GB">Retrospect (a.k.a. XBMC Online TV) is an add-on that allows the playback of a lot of TV shows that are available (legally) via the broadcasters websites.</summary>
+        <description lang="en_GB">Set of several video websites channels for Retrospect</description>
+        <disclaimer lang="en_GB">Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage cause to your system. Nor do we take responsibility for the content that can be watched via this add-on.</disclaimer>
     </extension>
 </addon>
