@@ -4,9 +4,10 @@
        name="Retrospect Norwegian Channels"
        provider-name="Bas Rieter">
 
-    <!--requires-->
+    <requires>
+        <import addon="xbmc.python" version="2.25.0" />
         <!--import addon="plugin.video.retrospect" version="x.x.x" optional="false" /-->
-    <!--/requires-->
+    </requires>
 
     <extension point="xbmc.python.pluginsource"
                library="">
