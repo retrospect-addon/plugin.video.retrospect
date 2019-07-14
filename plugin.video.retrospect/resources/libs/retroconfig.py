@@ -21,7 +21,8 @@ class Config:
         __addon = None  # : Free up the static variable to make sure it is garbage collected
         pathDetection = "addon.getAddonInfo('path')"
     except:
-        xbmc.log("Retrospect: using os.getcwd()", xbmc.LOGWARNING)
+        # This was a xbmc.LOGWARNING, but that is not allowed according to the Kodi add-on rules.
+        xbmc.log("Retrospect: using os.getcwd()", xbmc.LOGDEBUG)
         __path = os.getcwd()
         pathDetection = "os.getcwd()"
 

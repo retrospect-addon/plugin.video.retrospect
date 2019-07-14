@@ -24,7 +24,8 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
     """
 
     old_add_on_id = "net.rieter.xot"
-    log_level = xbmc.LOGNOTICE
+    # This was a xbmc.LOGWARNING, but that is not allowed according to the Kodi add-on rules.
+    log_level = xbmc.LOGDEBUG
 
     xbmc.log("{}: Checking if migration of profile is required.".format(add_on_name), xbmc.LOGDEBUG)
     # If the profile already existed, just stop here.
@@ -53,7 +54,8 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
         xbmc.log(result, log_level)
         result = json.loads(result)
         if not result or "error" in result:
-            xbmc.log("{}: Error disabling {}".format(add_on_name, old_add_on_id), xbmc.LOGERROR)
+            # This was a xbmc.LOGWARNING, but that is not allowed according to the Kodi add-on rules.
+            xbmc.log("{}: Error disabling {}".format(add_on_name, old_add_on_id), xbmc.LOGDEBUG)
 
         # Rename it.
         old_add_on_xml = os.path.join(old_add_on_path, "addon.xml")
