@@ -192,9 +192,9 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        json_data = Regexer.do_regex(r'({\s*"config":\s*{[^<]+),\s*"startPage":\s*{', data)[0]
-        json_data += "}"
-        return_data = json_data
+        json_data = Regexer.do_regex(r'("staticpages":\s*{[^<]+),\s*"translations":', data)[0]
+        # We need to put it in a JSON envelop as we are taking JSON from the 'middle'
+        return_data = "{{{0}}}".format(json_data)
         Logger.trace("Found Json:\n%s", return_data)
         return JsonHelper(return_data), items
 
