@@ -1,4 +1,6 @@
-[B]Retrospect v5.0.0.0~beta1 - Changelog - 2019-06-19[/B]
+[B]Retrospect v5.0.0.0~beta2 - Changelog - 2019-07-14[/B]
+
+A new beta version that fixes some channel problems and some Kodi repository compliancy.  
 
 [B]Framework related[/B]
 * Py2/3: updated code to be compatible with both Python 2 and Python 3
@@ -31,3 +33,4 @@
 * Added: Duration to DPlay
 * Fixed: Some DPlay items were shown as Paid, while there were not actually paid
 * Fixed: NPO genres would list shows as videos (Fixes #1172)
+* Fixed: ViaFree changed their JSON...again...and again...and broke the main listing (See #1163)
