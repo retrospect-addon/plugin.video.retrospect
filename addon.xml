@@ -11,6 +11,8 @@
         <import addon="inputstream.adaptive" version="2.0.19" />
         <import addon="plugin.video.youtube" version="6.0.0" optional="true" />
         <import addon="script.module.inputstreamhelper" version="0.3.5" />
+        <import addon="script.module.pyscrypt" version="1.6.2" />
+        <import addon="script.module.pyaes" version="1.6.1" />
     </requires>
 
     <extension  point="xbmc.python.pluginsource"
