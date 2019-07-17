@@ -16,6 +16,7 @@ A new version that fixes some channel problems and makes Retrospect ready for th
 * Added: make the InputStream Adaptive configurable for certain channels
 * Fixed: Refresh list after changing the InputStream Adaptive settings to get rid of previous urls
 * Fixed: Always show "Channel Options -> Settings" in context menu if available for a channel
+* Fixed: catch a rare case where an item has no url (See #1179)
 
 [B]GUI/Settings/Language related[/B]
 * Changed: removed the "experimental" warning from the HTTP Caching settings
@@ -24,6 +25,7 @@ A new version that fixes some channel problems and makes Retrospect ready for th
 * Updated: context menu restructured a bit
 
 [B]Channel related[/B]
+* Fixed: parsing of videos for KetNET (Fixes #1179)
 * Fixed: BBC did not work at all
 * Added: more Premium channel for Stievie (See #1030)
 * Added: Duration and Expire Date to SVT

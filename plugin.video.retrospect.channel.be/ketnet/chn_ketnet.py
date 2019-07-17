@@ -81,7 +81,7 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        end_of_section = data.rfind('<div class="grid-4">')
+        end_of_section = data.rfind('<div class="ketnet-abc-index">')
         if end_of_section > 0:
             data = data[:end_of_section]
 
@@ -94,7 +94,7 @@ class Channel(chn_class.Channel):
         Logger.trace(json_data[0])
         json = JsonHelper(json_data[0])
         title = json.get_value("title")
-        url = json.get_value("source", "hls")
+        url = json.get_value("source", "hls") or ""
         item = MediaItem(title, url)
         item.type = 'video'
         item.description = json.get_value("description", fallback=None)
