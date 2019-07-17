@@ -99,7 +99,7 @@ class ParameterParser(object):
             raise Exception("action is required")
 
         # catch the plugin:// url's for items and channels.
-        if item is not None and item.url.startswith("plugin://"):
+        if item is not None and item.url and item.url.startswith("plugin://"):
             return item.url
 
         if item is None and channel is not None and channel.uses_external_addon:
