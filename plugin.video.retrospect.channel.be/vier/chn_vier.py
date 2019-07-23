@@ -39,10 +39,10 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.vijf.be/programmas"
             self.baseUrl = "https://www.vijf.be"
 
-        # elif self.channelCode == "zesbe":
-        #     self.noImage = "zesimage.png"
-        #     self.mainListUri = "https://www.zestv.be/programmas"
-        #     self.baseUrl = "https://www.zestv.be"
+        elif self.channelCode == "zesbe":
+            self.noImage = "zesimage.png"
+            self.mainListUri = "https://www.zestv.be/programmas"
+            self.baseUrl = "https://www.zestv.be"
 
         else:
             self.noImage = "vierimage.png"

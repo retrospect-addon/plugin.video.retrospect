@@ -21,6 +21,17 @@
       "sortorder": 5,
       "language": "be",
       "fanart": "vijffanart.jpg"
+    },
+    {
+     "guid": "AF79856C-95E1-4181-8636-C479E447F092",
+      "name": "Zes",
+      "description": "Online uitzendingen van www.zes.be.",
+      "icon": "zesiconlight.png",
+      "category": "National",
+      "channelcode": "zesbe",
+      "sortorder": 6,
+      "language": "be",
+      "fanart": "zesfanart.jpg"
     }
   ],
   "settings": [

@@ -5,6 +5,7 @@ e99a7f7c68c19f3f8575ff50a75f60fc plugin.video.retrospect.channel.be.een/eenfanar
 8b74bfc433c3a1ef8a296004a61979a2 plugin.video.retrospect.channel.be.sporza/sporzaimage.jpg
 4e176a450a05762fe3ee131131bfd012 plugin.video.retrospect.channel.be.vier/vierfanart.jpg
 c54b19b912670b46934dc7b3c4ec3c70 plugin.video.retrospect.channel.be.vier/vijffanart.jpg
+20917c1e538f4d6af5c607d0f531b455 plugin.video.retrospect.channel.be.vier/zesfanart.jpg
 e99a7f7c68c19f3f8575ff50a75f60fc plugin.video.retrospect.channel.be.vrtnu/eenfanart.jpg
 51d20f0bb359833c1f26234021c371ab plugin.video.retrospect.channel.be.vrtnu/ketnetfanart.jpg
 811a5d7c2454e0c0e99dd61cce4a2bd9 plugin.video.retrospect.channel.be.vrtnu/ketnetimage.jpg
@@ -37,6 +38,9 @@ b52939fadeabc79a48b963ed807badb8 plugin.video.retrospect.channel.be.vier/vierico
 76859283c91425d5ebbd93d8803074f7 plugin.video.retrospect.channel.be.vier/vierimage.png
 4adea173884849e816863357a01ccc2c plugin.video.retrospect.channel.be.vier/vijficon.png
 b9cf97c575d1371a4995ee0b72652cc2 plugin.video.retrospect.channel.be.vier/vijfimage.png
+53afa88f2d0b33899f4d30d07a92f706 plugin.video.retrospect.channel.be.vier/zesicon.png
+16443b46e2802f27781aeeec8e088692 plugin.video.retrospect.channel.be.vier/zesiconlight.png
+7b4e1d18313dd7b5f920c74598d48b70 plugin.video.retrospect.channel.be.vier/zesimage.png
 c47b803804d7b025f97dc8d1b2589d57 plugin.video.retrospect.channel.be.vrtnu/canvasfanart.png
 650c7794834a602b7521cbfd76b0c312 plugin.video.retrospect.channel.be.vrtnu/canvasimage.png
 412e80ad18953177558252e6379ec0d7 plugin.video.retrospect.channel.be.vrtnu/canvaslarge.png
