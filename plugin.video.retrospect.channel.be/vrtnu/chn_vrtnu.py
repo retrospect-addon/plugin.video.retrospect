@@ -656,7 +656,7 @@ class Channel(chn_class.Channel):
                 # no difference in encrypted or not.
                 if adaptive_available:
                     Logger.debug("Found standard HLS stream and without DRM protection")
-                    stream = part.append_media_stream(video_url, 0)
+                    stream = part.append_media_stream(video_url, 2)
                     M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
                     m3u8_data = UriHandler.open(video_url, self.proxy)
