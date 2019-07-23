@@ -28,6 +28,11 @@
       "order": 3,
       "id": "password",
       "value": "default=\"\""
+    },
+    {
+      "order": 3,
+      "id": "hls_over_dash",
+      "value": "label=\"30099\" type=\"bool\" default=\"\""
     }
   ]
 }

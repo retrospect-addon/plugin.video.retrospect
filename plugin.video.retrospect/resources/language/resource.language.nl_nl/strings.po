@@ -356,6 +356,10 @@ msgctxt "#30098"
 msgid "Logging & Diagnostics"
 msgstr "Logbestanden & Diagnostiek"
 
+msgctxt "#30099"
+msgid "Prefer HLS over Dash for non-encrypted streams"
+msgstr "Gebruik HLS in plaats van Dash voor niet-encrypted streams"
+
 msgctxt "#30100"
 msgid "None"
 msgstr "Geen"

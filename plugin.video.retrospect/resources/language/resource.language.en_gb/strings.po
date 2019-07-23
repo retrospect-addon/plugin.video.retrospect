@@ -372,8 +372,9 @@ msgctxt "#30098"
 msgid "Logging & Diagnostics"
 msgstr ""
 
-# Categories
-# empty string with id 30099
+msgctxt "#30099"
+msgid "Use HLS instead of Dash for non-encrypted streams"
+msgstr ""
 
 msgctxt "#30100"
 msgid "None"

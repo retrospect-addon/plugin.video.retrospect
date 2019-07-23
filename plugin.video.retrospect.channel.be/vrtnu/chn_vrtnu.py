@@ -642,6 +642,10 @@ class Channel(chn_class.Channel):
         adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=drm_protected)
         part = item.create_new_empty_media_part()
         srt = None
+
+        # see if we prefer hls over dash
+        hls_prio = 2 if self._get_setting("hls_over_dash", False) else 0
+
         for target_url in asset_data.get_value("targetUrls"):
             video_type = target_url["type"]
             video_url = target_url["url"]
@@ -656,7 +660,7 @@ class Channel(chn_class.Channel):
                 # no difference in encrypted or not.
                 if adaptive_available:
                     Logger.debug("Found standard HLS stream and without DRM protection")
-                    stream = part.append_media_stream(video_url, 2)
+                    stream = part.append_media_stream(video_url, hls_prio)
                     M3u8.set_input_stream_addon_input(stream, self.proxy)
                 else:
                     m3u8_data = UriHandler.open(video_url, self.proxy)
