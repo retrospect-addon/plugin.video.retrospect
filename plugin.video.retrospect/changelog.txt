@@ -1,4 +1,4 @@
-[B]Retrospect v5.0.0.0~beta3 - Changelog - 2019-07-23[/B]
+[B]Retrospect v5.0.0.0~beta4 - Changelog - 2019-07-24[/B]
 
 A new version that fixes some channel problems and makes Retrospect ready for the Kodi repository.
 
@@ -25,6 +25,7 @@ A new version that fixes some channel problems and makes Retrospect ready for th
 * Updated: context menu restructured a bit
 
 [B]Channel related[/B]
+* Added: zestv.be channel (Fixes #1180)
 * Fixed: Prefer HLS over Dash streams for unencrypted VRT.nu streams (Fixes 1179)
 * Fixed: parsing of videos for KetNET (Fixes #1179)
 * Fixed: BBC did not work at all
