@@ -9,4 +9,4 @@
 #===============================================================================
 __all__ = ["encodinghelper", "htmlentityhelper", "stopwatch", "xmlhelper", "jsonhelper", "htmlhelper",
            "channelimporter", "jsonhelper", "datehelper", "taghelperbase", "languagehelper", "statistics",
-           "sessionhelper", "ziphelper", "logsender", "templatehelper"]
+           "sessionhelper", "logsender", "templatehelper"]
