@@ -11,7 +11,6 @@
 import sys
 import os
 import io
-import shutil
 import datetime
 import time
 
@@ -21,7 +20,6 @@ if PY3:
 
 import envcontroller
 from addonsettings import AddonSettings
-from regexer import Regexer
 from environments import Environments
 from xbmcwrapper import XbmcWrapper
 from helpers.languagehelper import LanguageHelper
@@ -85,7 +83,7 @@ class ChannelIndex(object):
         self.__allChannels = []  # list of all available channels
 
         self.__reindexed = False
-        self.__reindex = self.__deploy_new_channels()
+        self.__reindex = False
         self.__channelIndex = self.__get_index()
 
         self.validAt = datetime.datetime.now()
@@ -280,93 +278,6 @@ class ChannelIndex(object):
         Logger.debug("Found these categories: %s", ", ".join(categories))
         return categories
 
-    def __deploy_new_channels(self):
-        """ Checks the deploy folder for new channels, if present, deploys them
-
-        The last part of the folders in the deploy subfolder are considered the
-        channel names. The other part is replaced with the <addon base name>.
-        So if the deploy has a folder temp.channelOne and the addon is called
-        plugin.video.retrospect it will be deployed to plugin.video.retrospect.channel.channelOne.
-
-        The folders are intially removed and then re-created. If the folder in
-        the deploy does not have a addon.xml it will not be imported.
-
-        :return: Indication of new folders were deployed.
-        :rtype: bool
-
-        """
-
-        # We keep the channels in the "channels" folder and don't move them anymore as we should
-        # not be changing the Kodi addon folder.
-
-        channel_path = os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH)
-        if not os.path.exists(channel_path):
-            Logger.info("Not cleaning up old add-on folders as there is no channel path: %s", channel_path)
-            return False
-
-        to_deploy = os.listdir(channel_path)
-        for deploy in to_deploy:
-            old_add_on_path = os.path.abspath(os.path.join(Config.rootDir, "..", deploy))
-            if os.path.isdir(old_add_on_path):
-                Logger.info("Removing old add-on %s from %s", deploy, old_add_on_path)
-                shutil.rmtree(old_add_on_path)
-
-        return False
-
-        # We keep the channels in the "channels" folder and don't move them anymore as we should
-        # not be changing the Kodi addon folder.
-        #
-        # Logger.debug("Checking for new channels to deploy")
-        #
-        # # location of new channels and list of subfolders
-        # deploy_path = os.path.join(Config.rootDir, "deploy")
-        # to_deploy = os.listdir(deploy_path)
-        #
-        # # addons folder, different for Kodi and XBMC4Xbox, without a repo we should just use this.
-        # if True or envcontroller.EnvController.is_platform(Environments.Xbox):
-        #     target_folder = os.path.abspath(
-        #         os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
-        #     internal_channels = True
-        # else:
-        #     target_folder = os.path.abspath(
-        #         os.path.join(Config.rootDir, ".."))
-        #     internal_channels = False
-        #
-        # deployed = False
-        # for deploy in to_deploy:
-        #     if deploy.startswith("."):
-        #         continue
-        #
-        #     if not os.path.exists(target_folder):
-        #         os.mkdir(target_folder)
-        #
-        #     source_path = os.path.join(deploy_path, deploy)
-        #
-        #     # find out if the scriptname is not plugin.video.retrospect and update
-        #     deploy_parts = deploy.split(".")
-        #     dest_deploy = "%s.channel.%s" % (Config.addonDir, deploy_parts[-1])
-        #     destination_path = os.path.join(target_folder, dest_deploy)
-        #     Logger.info("Deploying Channel Addon '%s' to '%s'", deploy, destination_path)
-        #
-        #     # should they be deleted it from the main add-ons folder
-        #     if internal_channels and os.path.isdir(os.path.join(Config.rootDir, "..", dest_deploy)):
-        #         Logger.info("Removing old add-on %s from %s", dest_deploy,
-        #                     os.path.join(Config.rootDir, ".."))
-        #         shutil.rmtree(os.path.join(Config.rootDir, "..", dest_deploy))
-        #
-        #     if os.path.exists(destination_path):
-        #         Logger.info("Removing old channel at %s", destination_path)
-        #         shutil.rmtree(destination_path)
-        #
-        #     # only update if there was a real addon
-        #     if os.path.exists(os.path.join(source_path, "addon.xml")):
-        #         shutil.move(source_path, destination_path)
-        #     else:
-        #         shutil.rmtree(source_path)
-        #     deployed = True
-        #
-        # return deployed
-
     def __get_index(self):
         """ Loads the channel index and if there is none, makes sure one is created.
 
@@ -432,28 +343,26 @@ class ChannelIndex(object):
             self.__CHANNEL_INDEX_CHANNEL_KEY: {}
         }
 
-        # iterate all Retrospect Video Add-ons
-        addon_path = self.__get_addon_path()
-        channel_path_start = "%s.channel" % (Config.addonDir,)
-        add_ons = [x for x in os.listdir(addon_path) if channel_path_start in x and "BUILD" not in x]
-        for add_on_dir in add_ons:
-            index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(add_on_dir)
+        # iterate all Retrospect Channel Packages
+        channel_pack_base, channel_pack_folders = self.__get_channel_pack_folders()
+        for channel_pack_name in channel_pack_folders:
+            index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(channel_pack_name)
 
-            channel_add_on_path = os.path.join(addon_path, add_on_dir)
-            channel_add_on_id, channel_add_on_version = self.__validate_add_on_version(channel_add_on_path)
-            if channel_add_on_id is None:
+            channel_package_path = os.path.join(channel_pack_base, channel_pack_name)
+            channel_package_id, channel_add_on_version = self.__validate_and_get_add_on_version(channel_package_path)
+            if channel_package_id is None:
                 continue
 
-            channel_sets = os.listdir(channel_add_on_path)
+            channel_sets = os.listdir(channel_package_path)
             for channel_set in channel_sets:
-                if not os.path.isdir(os.path.join(channel_add_on_path, channel_set)):
+                if not os.path.isdir(os.path.join(channel_package_path, channel_set)):
                     continue
 
                 channel_set_id = "chn_%s" % (channel_set,)
                 Logger.debug("Found channel set '%s'", channel_set_id)
                 index[self.__CHANNEL_INDEX_CHANNEL_KEY][channel_set_id] = {
                     self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY: str(channel_add_on_version),
-                    self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_add_on_path, channel_set, "%s.json" % (channel_set_id,))
+                    self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_package_path, channel_set, "%s.json" % (channel_set_id,))
                 }
 
         with io.open(self.__CHANNEL_INDEX, 'wt+', encoding='utf-8') as f:
@@ -470,8 +379,8 @@ class ChannelIndex(object):
         envcontroller.EnvController.update_local_addons_in_kodi()
         return index
 
-    def __validate_add_on_version(self, path):
-        """ Parses the addon.xml file and checks if all is OK.
+    def __validate_and_get_add_on_version(self, path):
+        """ Parses the channelpack.json file and checks if all is OK.
 
         :param str|unicode path:    The path to load the addon from.
 
@@ -480,50 +389,52 @@ class ChannelIndex(object):
 
         """
 
-        addon_file = os.path.join(path, "addon.xml")
+        addon_file = os.path.join(path, "channelpack.json")
 
         # continue if no addon.xml exists
         if not os.path.isfile(addon_file):
-            Logger.info("No addon.xml found at %s.", addon_file)
+            Logger.info("No channelpack.json found at %s.", addon_file)
             return None, None
 
         with io.open(addon_file, 'rt+', encoding='utf-8') as f:
-            addon_xml = f.read()
+            channel_json = f.read()
 
-        pack_version = Regexer.do_regex('id="([^"]+)"\\W+version="([^"]+)"', addon_xml)
-        if len(pack_version) > 0:
-            # Get the first match
-            pack_version = pack_version[0]
-            package_id = pack_version[0]
-            package_version = Version(version=pack_version[1])
-            if Config.version.equal_builds(package_version):
-                Logger.info("Adding %s version %s", package_id, package_version)
-                return package_id, package_version
-            else:
-                Logger.warning("Skipping %s version %s: Versions do not match.",
-                               package_id, package_version)
-                return None, None
-        else:
-            Logger.critical("Cannot determine Channel Add-on version. Not loading Add-on @ '%s'.",
-                            path)
+        channels_data = JsonHelper(channel_json)
+        pack_version = channels_data.get_value("version")
+        package_id = channels_data.get_value("id")
+        if not pack_version or not package_id:
+            Logger.critical(
+                "Cannot determine Channel Pack version. Not loading Add-on @ '%s'.", path)
             return None, None
 
-    def __get_addon_path(self):
-        """ Returns the path that holds all the Kodi add-ons. It differs for Xbox and other platforms.
+        package_version = Version(version=pack_version)
+        if Config.version.equal_builds(package_version):
+            Logger.info("Adding %s version %s", package_id, package_version)
+            return package_id, package_version
+        else:
+            Logger.warning(
+                "Skipping %s version %s: Versions do not match.", package_id, package_version)
+            return None, None
 
-        :return: The add-on base path
-        :rtype: str|unicode
+    def __get_channel_pack_folders(self):
+        """ Returns the paths of all the avialable channel packs.
+
+        :return: All full paths to Retrospect channel packs.
+        :rtype: tuple[str|unicode, list[str|unicode]]
 
         """
 
-        # different paths for Kodi and XBMC4Xbox
-        # if envcontroller.EnvController.is_platform(Environments.Xbox) or :
         if os.path.isdir(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH)):
-            addon_path = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
+            channel_pack_base = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
+            channel_pack_start = "channel."
         else:
-            addon_path = os.path.abspath(os.path.join(Config.rootDir, ".."))
+            channel_pack_base = os.path.abspath(os.path.join(Config.rootDir, ".."))
+            channel_pack_start = "{}.channel".format(Config.addonId)
 
-        return addon_path
+        channel_pack_paths = [x for x in
+                              os.listdir(channel_pack_base)
+                              if channel_pack_start in x and "BUILD" not in x]
+        return channel_pack_base, channel_pack_paths
 
     def __is_channel_set_updated(self, channel_info):
         """ Checks whether a channel set was updated.
@@ -664,18 +575,16 @@ class ChannelIndex(object):
 
         # verify if the channels add-ons match, otherwise it is invalid anyways
         indexed_channel_add_ons = index[self.__CHANNEL_INDEX_ADD_ONS_KEY]
-        addon_path = self.__get_addon_path()
-        channel_path_start = "%s.channel" % (Config.addonDir,)
-        add_ons = [x for x in os.listdir(addon_path) if x.startswith(channel_path_start)]
+        channel_pack_paths = self.__get_channel_pack_folders()[1]
 
         # see if the numbers match
-        if len(indexed_channel_add_ons) != len(add_ons):
+        if len(indexed_channel_add_ons) != len(channel_pack_paths):
             Logger.warning("Channel Index Inconsistent: add-on count is not up to date (index=%s vs actual=%s).",
-                           len(indexed_channel_add_ons), len(add_ons))
+                           len(indexed_channel_add_ons), len(channel_pack_paths))
             return False
         # cross reference by putting them on a big pile and then get the distinct values (set) and
         # compare the length of the distinct values.
-        if len(set(indexed_channel_add_ons + add_ons)) != len(add_ons):
+        if len(set(indexed_channel_add_ons + channel_pack_paths)) != len(channel_pack_paths):
             Logger.warning("Channel Index Inconsistent: add-on content is not up to date.")
             return False
 

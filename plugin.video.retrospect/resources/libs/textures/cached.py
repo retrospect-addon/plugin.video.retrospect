@@ -14,6 +14,7 @@ import os
 import io
 
 from backtothefuture import PY2
+from helpers.jsonhelper import JsonHelper
 from textures import TextureHandler
 
 
@@ -153,14 +154,10 @@ class Cached(TextureHandler):
         self._logger.info("Purging Texture for: %s", channel.path)
 
         # read the md5 hashes
-        addon_id = self._get_addon_id(channel)
-        with io.open(os.path.join(channel.path, "..", "%s.md5" % (addon_id, )), 'rt', encoding='utf-8') as fd:
-            lines = fd.readlines()
+        with io.open(os.path.join(channel.path, "..", "channelpack.json"), 'rt', encoding='utf-8') as fd:
+            lines = fd.read()
 
-        # get a lookup table
-        textures = [reversed(line.rstrip().split(" ", 1)) for line in lines]
-        # noinspection PyTypeChecker
-        textures = dict(textures)
+        textures = JsonHelper(lines).get_value("textures")
 
         # remove items not in the textures.md5
         cdn_folder = self._get_cdn_sub_folder(channel)
