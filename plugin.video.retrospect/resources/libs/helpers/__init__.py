@@ -8,5 +8,5 @@
 # San Francisco, California 94105, USA.
 #===============================================================================
 __all__ = ["encodinghelper", "htmlentityhelper", "stopwatch", "xmlhelper", "jsonhelper", "htmlhelper",
-           "channelimporter", "jsonhelper", "datehelper", "taghelperbase", "languagehelper", "statistics",
+           "channelimporter", "jsonhelper", "datehelper", "taghelperbase", "languagehelper",
            "sessionhelper", "logsender", "templatehelper"]

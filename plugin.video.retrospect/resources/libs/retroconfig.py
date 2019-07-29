@@ -59,8 +59,6 @@ class Config:
     logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
     logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin
 
-    googleAnalyticsId = "UA-3902785-11"                      # : Google Analytics ID for statistics
-
     # must be single quotes for build script
     __addonXmlPath = os.path.join(rootDir, 'addon.xml')
     __addonXmlcontents = xml.dom.minidom.parse(__addonXmlPath)

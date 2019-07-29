@@ -23,7 +23,6 @@ from mediaitem import MediaItem, MediaItemPart
 from regexer import Regexer
 from xbmcwrapper import XbmcWrapper
 from retroconfig import Config
-from initializer import Initializer
 from logger import Logger
 from urihandler import UriHandler
 from parserdata import ParserData
@@ -32,7 +31,6 @@ from textures import TextureHandler
 from helpers.htmlentityhelper import HtmlEntityHelper
 from helpers.jsonhelper import JsonHelper
 from helpers.languagehelper import LanguageHelper
-from helpers.statistics import Statistics
 from addonsettings import AddonSettings, LOCAL
 from channelinfo import ChannelInfo
 
@@ -744,9 +742,6 @@ class Channel:
 
         # get the playlist
         play_list = item.get_kodi_play_list(bitrate, update_item_urls=True, proxy=self.proxy)
-
-        # call for statistics with timing
-        Statistics.register_playback(self, item, Initializer.StartTime)
 
         # if the item urls have been updated, don't start playback, but return
         return play_list
