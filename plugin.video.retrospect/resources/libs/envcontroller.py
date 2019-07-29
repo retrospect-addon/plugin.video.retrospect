@@ -179,8 +179,6 @@ class EnvController:
                 platform = Environments.Windows
             elif xbmc.getCondVisibility("system.platform.ios"):
                 platform = Environments.IOS
-            elif xbmc.getCondVisibility("system.platform.atv2"):
-                platform = Environments.ATV2
             elif xbmc.getCondVisibility("system.platform.tvos"):
                 platform = Environments.TVOS
             elif xbmc.getCondVisibility("system.platform.osx"):

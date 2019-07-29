@@ -20,15 +20,14 @@ class Environments:
     Linux = 4
     Windows = 8
     OSX = 16
-    ATV2 = 32
     IOS = 64
     Android = 128
     TVOS = 256          # such as ATV4
 
     # special groups
-    Apple = OSX | ATV2 | IOS | TVOS
+    Apple = OSX | IOS | TVOS
     Google = Android
-    All = Xbox | Linux | Windows | OSX | ATV2 | IOS | Android | TVOS
+    All = Xbox | Linux | Windows | OSX | IOS | Android | TVOS
 
     @staticmethod
     def name(environment):
@@ -51,8 +50,6 @@ class Environments:
             return "Linux"
         elif environment == Environments.IOS:
             return "iOS"
-        elif environment == Environments.ATV2:
-            return "Apple TV2"
         elif environment == Environments.TVOS:
             return "Apple TV OS"
         elif environment == Environments.Android:

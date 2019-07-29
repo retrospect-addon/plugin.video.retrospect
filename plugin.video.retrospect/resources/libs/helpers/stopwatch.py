@@ -12,11 +12,7 @@ import time
 
 
 class StopWatch(object):
-    """ Class for time measurements and performance
-    
-    ATV2 is about 30 slower then the DEV PC
-
-    """
+    """ Class for time measurements and performance """
     
     def __init__(self, name, logger):
         """Create an instance of a stopwatch with a certain logger
