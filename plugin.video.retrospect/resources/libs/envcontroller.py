@@ -40,12 +40,6 @@ class EnvController:
 
         self.logger = logger
 
-    @staticmethod
-    def update_local_addons_in_kodi():
-        """ Ask Kodi to update the list of local add-ons. """
-        Logger.info("Asking Kodi to update the local add-ons")
-        xbmc.executebuiltin("UpdateLocalAddons")
-
     # def are_addons_enabled(self, config):
     #     """ Checks if all Retrospect channel add-ons are enabled.
     #

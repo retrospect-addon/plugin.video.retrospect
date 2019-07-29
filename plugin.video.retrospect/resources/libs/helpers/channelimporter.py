@@ -376,7 +376,6 @@ class ChannelIndex(object):
                     len(index[self.__CHANNEL_INDEX_ADD_ONS_KEY]),
                     index)
 
-        envcontroller.EnvController.update_local_addons_in_kodi()
         return index
 
     def __validate_and_get_add_on_version(self, path):
