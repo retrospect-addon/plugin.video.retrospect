@@ -17,7 +17,6 @@ import requests.cookies
 import requests.utils
 
 from resources.lib.connectivity.cachehttpadapter import CacheHTTPAdapter
-from resources.lib.connectivity.dnshttpadapter import DnsResolverHTTPAdapter
 from resources.lib.connectivity.streamcache import StreamCache
 from resources.lib.logger import Logger
 from resources.lib.proxyinfo import ProxyInfo
@@ -490,9 +489,6 @@ class _RequestsHandler(object):
                 s.mount("http://", CacheHTTPAdapter(self.cacheStore))
 
             proxies = self.__get_proxies(proxy, uri)
-            if proxies is not None and "dns" in proxies:
-                s.mount("https://", DnsResolverHTTPAdapter(uri, proxies["dns"],
-                                                           logger=Logger.instance()))
 
             headers = self.__get_headers(referer, additional_headers)
 
