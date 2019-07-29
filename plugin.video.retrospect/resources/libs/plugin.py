@@ -97,10 +97,6 @@ class Plugin(ParameterParser):
                 notification = notification % (Config.appName, up.onlineVersion)
                 XbmcWrapper.show_notification(None, lines=notification, display_time=20000)
 
-            # check if the repository is available -> We don't need this now.
-            # env_ctrl.is_install_method_valid(Config)
-            # env_ctrl.are_addons_enabled(Config)
-
             # check for cache folder
             env_ctrl.cache_check()
 
