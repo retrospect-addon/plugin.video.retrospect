@@ -33,7 +33,7 @@ class Plugin(ActionParser):
 
         """
 
-        Logger.info("******** Starting %s add-on version %s/repo *********", Config.appName, Config.version)
+        Logger.info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
         # noinspection PyTypeChecker
 
         super(Plugin, self).__init__(addon_name, handle, params)

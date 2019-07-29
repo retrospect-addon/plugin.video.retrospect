@@ -38,7 +38,7 @@ Logger.instance().minLogLevel = AddonSettings.get_log_level()
 class Menu(ActionParser):
 
     def __init__(self, menu_action):
-        Logger.info("**** Starting menu '%s' for %s add-on version %s/repo ****",
+        Logger.info("**** Starting menu '%s' for %s add-on version %s ****",
                     menu_action, Config.appName, Config.version)
 
         # noinspection PyUnresolvedReferences
