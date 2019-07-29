@@ -156,7 +156,7 @@ class EnvController:
         """ Returns the platform that Kodi returns as it's host:
 
         * linux   - Normal Linux
-        * Xbox    - Native Xbox
+        * UWP     - Windows Store App
         * OS X    - Apple OS
         * Windows - Windows OS
         * unknown - in case it's undetermined
@@ -173,8 +173,8 @@ class EnvController:
             # it's in the .\xbmc\GUIInfoManager.cpp
             if xbmc.getCondVisibility("system.platform.linux"):
                 platform = Environments.Linux
-            elif xbmc.getCondVisibility("system.platform.xbox"):
-                platform = Environments.Xbox
+            elif xbmc.getCondVisibility("system.platform.uwp"):
+                platform = Environments.UWP
             elif xbmc.getCondVisibility("system.platform.windows"):
                 platform = Environments.Windows
             elif xbmc.getCondVisibility("system.platform.ios"):
@@ -297,7 +297,7 @@ class EnvController:
         * Linux   - Normal Linux
         * Linux64 - 64-bit Linux
         * OS X    - For Apple decices
-        * win32   - Windows / Native Xbox
+        * win32   - Windows / UWP
 
         :return: String representation for the current environment.
 

@@ -40,11 +40,7 @@ class ChannelIndex(object):
 
     @staticmethod
     def get_register():
-        """ Returns the current active channel register.
-
-        Used for backward compatibility with Xbox.
-
-        """
+        """ Returns the current active channel register. """
 
         valid_for = datetime.timedelta(minutes=1)
         # In Kodi Leia the Python instance is not killed and the ChannelRegister stays alive.

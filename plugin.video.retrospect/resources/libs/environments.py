@@ -16,7 +16,7 @@ class Environments:
 
     NoPlatform = 0
     Unknown = 1
-    Xbox = 2
+    UWP = 2
     Linux = 4
     Windows = 8
     OSX = 16
@@ -27,7 +27,7 @@ class Environments:
     # special groups
     Apple = OSX | IOS | TVOS
     Google = Android
-    All = Xbox | Linux | Windows | OSX | IOS | Android | TVOS
+    All = UWP | Linux | Windows | OSX | IOS | Android | TVOS
 
     @staticmethod
     def name(environment):
@@ -44,8 +44,8 @@ class Environments:
             return "OS X"
         elif environment == Environments.Windows:
             return "Windows"
-        elif environment == Environments.Xbox:
-            return "Xbox"
+        elif environment == Environments.UWP:
+            return "Windows Store App"
         elif environment == Environments.Linux:
             return "Linux"
         elif environment == Environments.IOS:
