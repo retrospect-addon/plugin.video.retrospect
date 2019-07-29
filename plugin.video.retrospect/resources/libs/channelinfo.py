@@ -137,11 +137,6 @@ class ChannelInfo(object):
 
         self.icon = self.__get_image_path(self.icon)
         item = xbmcgui.ListItem(name, description)
-        try:
-            item.setIconImage(self.icon)
-        except:
-            # it was deprecated
-            pass
         item.setArt({'thumb': self.icon, 'icon': self.icon})
 
         # http://mirrors.kodi.tv/docs/python-docs/14.x-helix/xbmcgui.html#ListItem-setInfo

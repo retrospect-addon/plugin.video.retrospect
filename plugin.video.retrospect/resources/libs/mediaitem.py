@@ -402,12 +402,6 @@ class MediaItem:
         else:
             item.setInfo(type="video", infoLabels=info_labels)
 
-        try:
-            item.setIconImage(self.icon)
-        except:
-            # it was deprecated
-            pass
-
         # now set all the art to prevent duplicate calls to Kodi
         if self.fanart and not AddonSettings.hide_fanart():
             item.setArt({'thumb': self.thumb, 'icon': self.icon, 'fanart': self.fanart})
