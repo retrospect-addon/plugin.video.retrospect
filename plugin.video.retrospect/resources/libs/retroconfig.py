@@ -71,8 +71,9 @@ class Config:
 
     updateUrl = "https://api.bitbucket.org/2.0/repositories/basrieter/xbmc-online-tv/downloads/"
 
-    textureMode = "Cached"                                    # : The mode for the textures: Local, Remote or Cached
-    textureUrl = \
-        "https://cdn.rieter.net/plugin.video.retrospect.cdn"  # : The URL for the remote texture location
+    textureMode = "Cached"                                    # : The mode for the textures: Local, Remote, Cached or Resources
+    textureUrl = "https://cdn.rieter.net/" \
+                 "resource.images.retrospect/resources"       # : The URL for the remote texture location
+    textureResource = "resource.images.retrospect"            # : The resource add-on to use for textures
 
     logSenderApi = "1786d25d01392d572659bba76f95174f"         # : The Retrospect logsender API (Google Shortner API or PasteBinAPI)

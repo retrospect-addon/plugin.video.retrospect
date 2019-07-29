@@ -18,6 +18,7 @@ __all__ = ["local", "remote", "cached", "TextureHandler"]
 Local = "local"
 Remote = "remote"
 Cached = "cached"
+Resources = "resources"
 
 
 class TextureHandler:
@@ -68,6 +69,9 @@ class TextureHandler:
             TextureHandler.__TextureHandler = cached.Cached(config.textureUrl,
                                                             config.profileDir, config.profileUri,
                                                             logger, uri_handler)
+        elif mode == Resources:
+            from . import resources
+            TextureHandler.__TextureHandler = resources.Resources(config.textureResource, logger)
         else:
             raise Exception("Invalide mode: %s" % (mode,))
 

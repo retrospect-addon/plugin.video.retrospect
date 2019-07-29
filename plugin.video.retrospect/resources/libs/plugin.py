@@ -611,6 +611,7 @@ class Plugin(ParameterParser):
                         Config.textureUrl
                     )
 
+                TextureHandler.instance().fetch_textures(w.progress_update)
             except:
                 Logger.error("Error fetching textures", exc_info=True)
             finally:
