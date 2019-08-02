@@ -32,7 +32,7 @@ class Config:
         __path = __path.decode('utf-8')
 
     # get rootDir, addonsDir and profileDir
-    rootDir = __path.replace(";", "")                        # : The root directory where Retrospect resides.
+    rootDir = __path.replace(";", "").rstrip(os.sep)         # : The root directory where Retrospect resides.
     addonDir = os.path.split(rootDir)[-1]                    # : The add-on directory of Kodi.
     rootDir = os.path.join(rootDir, '')                      # : The root directory where Retrospect resides.
 
