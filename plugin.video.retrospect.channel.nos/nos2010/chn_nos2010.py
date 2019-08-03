@@ -85,6 +85,16 @@ class Channel(chn_class.Channel):
         self._add_data_parser("#recent", name="Recent items list",
                               preprocessor=self.add_recent_items)
 
+        self._add_data_parser("https://start-api.npo.nl/media/series/", json=True,
+                              name="API based video items",
+                              parser=["items", ], creator=self.create_api_video_item,
+                              preprocessor=self.extract_api_pages)
+
+        self._add_data_parser("https://start-api.npo.nl/epg/", json=True,
+                              name="API based recent items",
+                              parser=[], creator=self.create_api_epg_item,
+                              preprocessor=self.extract_epi_epg_items)
+
         # Alpha listing and paging for that list
         self._add_data_parser("#alphalisting", preprocessor=self.alpha_listing)
 
@@ -154,6 +164,15 @@ class Channel(chn_class.Channel):
         # ===============================================================================================================
         # non standard items
         self.__NextPageAdded = False
+        self.__jsonApiKeyHeader = {"apikey": "e45fe473feaf42ad9a215007c6aa5e7e"}
+        self.__useJson = True
+        self.__pageSize = 500
+        self.__channelNames = {
+            "_101_": None,  # "NPO1 Extra", -> Mainly paid
+            "CULT": None,  # "NPO2 Extra", -> Mainly paid
+            "OPVO": None,  # "NPO Zappelin", -> Mainly paid
+            "NOSJ": "NPO Nieuws"
+        }
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -323,14 +342,15 @@ class Channel(chn_class.Channel):
         items.append(extra)
 
         extra = MediaItem("Programma's (Hele lijst)",
-                          "https://start-api.npo.nl/page/catalogue?pageSize=500")
+                          "https://start-api.npo.nl/page/catalogue?pageSize={}"
+                          .format(self.__pageSize))
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
         extra.dontGroup = True
         extra.description = "Volledige programma lijst van NPO Start."
         extra.set_date(2200, 1, 1, text="")
-        extra.HttpHeaders["Apikey"] = "e45fe473feaf42ad9a215007c6aa5e7e"
+        extra.HttpHeaders = self.__jsonApiKeyHeader
         # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         items.append(extra)
 
@@ -389,14 +409,21 @@ class Channel(chn_class.Channel):
             title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
 
             # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
-            url = "https://www.npostart.nl/gids?date=%04d-%02d-%02d&type=tv" % \
-                  (air_date.year, air_date.month, air_date.day)
+            if self.__useJson:
+                url = "https://start-api.npo.nl/epg/%04d-%02d-%02d?type=tv" % \
+                      (air_date.year, air_date.month, air_date.day)
+            else:
+                url = "https://www.npostart.nl/gids?date=%04d-%02d-%02d&type=tv" % \
+                      (air_date.year, air_date.month, air_date.day)
             extra = MediaItem(title, url)
             extra.complete = True
             extra.icon = self.icon
             extra.thumb = self.noImage
             extra.dontGroup = True
-            extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+            if self.__useJson:
+                extra.HttpHeaders = self.__jsonApiKeyHeader
+            else:
+                extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
             extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
             extra.set_date(air_date.year, air_date.month, air_date.day, text="")
 
@@ -486,6 +513,7 @@ class Channel(chn_class.Channel):
         # https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser
         # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=A&tileMapping=normal&tileType=teaser
         # https://www.npostart.nl/media/series?page=2&dateFrom=2014-01-01&az=0-9&tileMapping=normal&tileType=teaser
+        # https://start-api.npo.nl/media/series?az=0-9&pageSize=200
 
         title_format = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
         url_format = "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=%s&tileMapping=normal&tileType=teaser&pageType=catalogue"
@@ -518,10 +546,11 @@ class Channel(chn_class.Channel):
         item = chn_class.Channel.create_episode_item(self, result_set)
 
         # Update the URL
-        # https://www.npostart.nl/media/series/POW_03094258/episodes?page=2&tileMapping=dedicated&tileType=asset
-        url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
-        item.url = url
-        item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        item.url = self.__get_url_for_pom(result_set["powid"])
+        if self.__useJson:
+            item.HttpHeaders = self.__jsonApiKeyHeader
+        else:
+            item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         item.dontGroup = True
         return item
 
@@ -545,7 +574,7 @@ class Channel(chn_class.Channel):
 
         # if we should not use the mobile listing and we have a non-mobile ID)
         if 'id' in result_set:
-            url = "https://www.npostart.nl/media/series/{id}/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise".format(**result_set)
+            url = self.__get_url_for_pom(result_set['id'])
         else:
             Logger.warning("Skipping (no '(m)id' ID): %(title)s", result_set)
             return None
@@ -558,7 +587,10 @@ class Channel(chn_class.Channel):
         item.icon = self.icon
         item.complete = True
         item.description = description
-        item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        if self.__useJson:
+            item.HttpHeaders = self.__jsonApiKeyHeader
+        else:
+            item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         # This should always be a full list as we already have a default alphabet listing available
         # from NPO
         item.dontGroup = True
@@ -689,6 +721,151 @@ class Channel(chn_class.Channel):
             else:
                 Logger.warning("Cannot set date from 'data-from': %s", result_set["date"],
                                exc_info=True)
+
+        return item
+
+    def extract_api_pages(self, data):
+        """ Extracts the JSON tiles data from the HTML.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+        items = []
+
+        data = JsonHelper(data)
+        next_url = data.get_value("_links", "next", "href")
+        if next_url:
+            next_title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
+            item = MediaItem(next_title, next_url)
+            item.fanart = self.parentItem.fanart
+            item.complete = True
+            item.HttpHeaders = self.__jsonApiKeyHeader
+            items.append(item)
+
+        return data, items
+
+    def create_api_video_item(self, result_set, for_epg=False):
+        """ Creates a MediaItem of type 'video' using the result_set from the API calls:
+
+        - https://start-api.npo.nl/media/series/{POM_ID}/episodes
+        - https://start-api.npo.nl/page/franchise/{POM_ID}
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param bool for_epg: use this item in an EPG listing
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        if for_epg:
+            channel = result_set["channel"]
+            channel = self.__channelNames.get(channel, channel)
+            if not channel:
+                Logger.trace("Invalid EPG channel: %s", channel)
+                return None
+            name = "{} - {}".format(channel, result_set["title"])
+            if result_set["title"] != result_set["episodeTitle"]:
+                name = "{} - {}".format(name, result_set["episodeTitle"])
+        else:
+            name = result_set.get('episodeTitle')
+
+        description = result_set.get('descriptionLong')
+        if not description:
+            description = result_set.get('description')
+        video_id = result_set['id']
+
+        item = MediaItem(name, video_id)
+        item.description = description
+        item.type = "video"
+
+        date_format = "%Y-%m-%dT%H:%M:%SZ"
+        date = result_set.get('broadcastDate')
+        if date:
+            time_stamp = DateHelper.get_date_from_string(date, date_format=date_format)
+            if for_epg:
+                date_time = datetime.datetime(*time_stamp[:6]) + datetime.timedelta(hours=2)
+                item.name = "{:02}:{:02} - {}".format(
+                    date_time.hour, date_time.minute, item.name)
+            else:
+                item.set_date(*time_stamp[0:6])
+
+        item.isPaid = result_set.get("isOnlyOnNpoPlus", False)
+        availability = result_set.get("availability")
+        if not item.isPaid and availability and availability["to"]:
+            to_date = DateHelper.get_date_from_string(availability["to"], date_format=date_format)
+            to_datetime = datetime.datetime(*to_date[:6])
+            item.isPaid = to_datetime < datetime.datetime.now()
+
+        item.set_info_label("duration", result_set['duration'])
+
+        images = result_set["images"]
+        item.fanart = self.parentItem.fanart
+        for image_type, image_data in images.items():
+            if image_type == "original" and "original" in image_data["formats"]:
+                pass
+                # No fanart for now.
+                # item.fanart = image_data["formats"]["original"]["source"]
+            elif image_type == "grid.tile":
+                item.thumb = image_data["formats"]["web"]["source"]
+
+        return item
+
+    def extract_epi_epg_items(self, data):
+        """ Extracts the EPG items and wraps them in a JSON Helper objecgt.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        json = JsonHelper(data)
+        epg_data = []
+        for epg_item in json.get_value("epg"):
+            epg_data += epg_item.get("schedule", [])
+
+        json.json = epg_data
+        return json, []
+
+    def create_api_epg_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the API calls:
+
+        - https://start-api.npo.nl/media/series/{POM_ID}/episodes
+        - https://start-api.npo.nl/page/franchise/{POM_ID}
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        item = self.create_api_video_item(result_set["program"], for_epg=True)
 
         return item
 
@@ -1084,6 +1261,17 @@ class Channel(chn_class.Channel):
         UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
         UriHandler.set_cookie(name='npo_cc', value='30', domain='.npostart.nl')
         return
+
+    def __get_url_for_pom(self, pom):
+        if self.__useJson:
+            url = "https://start-api.npo.nl/media/series/{0}/episodes?pageSize={1}"\
+                .format(pom, self.__pageSize)
+            # The Franchise URL will give use seasons
+            # url = "https://start-api.npo.nl/page/franchise/{0}".format(result_set['id'])
+        else:
+            url = "https://www.npostart.nl/media/series/{0}/episodes?page=1" \
+                  "&tileMapping=dedicated&tileType=asset&pageType=franchise".format(pom)
+        return url
 
     def __determine_date_time_for_npo_item(self, item, date_time, date_premium):
         """

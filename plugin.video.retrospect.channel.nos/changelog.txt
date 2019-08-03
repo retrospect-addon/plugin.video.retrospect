@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: NPO genres would list shows as videos (Fixes #1172)
+* Fixed: using API now so we get descriptions for videos (Fixes #1182)
 
 [I]Previous Changes[/I]
+* Fixed: NPO genres would list shows as videos (Fixes #1172)
 * Fixed: NPO radio would not list
 * Fixed: Date parsing in NPO Start (Fixes #1152)
 * Fixed: NPO video would now show in some occasions.
