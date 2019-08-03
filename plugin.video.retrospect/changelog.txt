@@ -1,4 +1,4 @@
-[B]Retrospect v5.0.0.0~beta4 - Changelog - 2019-07-24[/B]
+[B]Retrospect v5.0.0.0~beta5 - Changelog - 2019-08-03[/B]
 
 A new version that fixes some channel problems and makes Retrospect ready for the Kodi repository.
 
@@ -17,6 +17,7 @@ A new version that fixes some channel problems and makes Retrospect ready for th
 * Fixed: Refresh list after changing the InputStream Adaptive settings to get rid of previous urls
 * Fixed: Always show "Channel Options -> Settings" in context menu if available for a channel
 * Fixed: catch a rare case where an item has no url (See #1179)
+* Fixed: Path detection issue with recent Kodi Nightlies
 
 [B]GUI/Settings/Language related[/B]
 * Changed: removed the "experimental" warning from the HTTP Caching settings
@@ -38,3 +39,5 @@ A new version that fixes some channel problems and makes Retrospect ready for th
 * Fixed: Some DPlay items were shown as Paid, while there were not actually paid
 * Fixed: NPO genres would list shows as videos (Fixes #1172)
 * Fixed: ViaFree changed their JSON...again...and again...and broke the main listing (See #1163)
+* Fixed: using API now so we get descriptions for videos (Fixes #1182)
+* Fixed: typoo in chn_vier.json (See #1180)
