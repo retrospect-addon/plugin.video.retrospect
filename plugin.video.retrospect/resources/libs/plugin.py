@@ -49,7 +49,7 @@ class Plugin(ParameterParser):
 
         """
 
-        Logger.info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
+        Logger.info("******** Starting %s add-on version %s/repo *********", Config.appName, Config.version)
         # noinspection PyTypeChecker
         self.handle = int(handle)
 
