@@ -2,6 +2,10 @@
 
 This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or https://www.rieter.net/content/.
 
+# Installing and updating Retrospect under *Kodi Leia* and up
+If you are using Kodi Leia then the installation is straight forward: you can install Retrospect and the dependencies from the Kodi repository. You will find Retrospect in the repository under the Video Add-ons. 
+Updating Retrospect will then automatically be done using the Kodi repository.
+
 # Installing Retrospect #
 There are a couple of ways to install and/or update Retrospect using this GIT repository:
 
