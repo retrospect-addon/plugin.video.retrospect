@@ -11,12 +11,14 @@
 import os
 from xbmcwrapper import XbmcWrapper
 from helpers.jsonhelper import JsonHelper
+from retroconfig import Config
 
 __all__ = ["local", "remote", "cached", "TextureHandler"]
 
 Local = "local"
 Remote = "remote"
 Cached = "cached"
+Resources = "resources"
 
 
 class TextureHandler:
@@ -67,6 +69,9 @@ class TextureHandler:
             TextureHandler.__TextureHandler = cached.Cached(config.textureUrl,
                                                             config.profileDir, config.profileUri,
                                                             logger, uri_handler)
+        elif mode == Resources:
+            from . import resources
+            TextureHandler.__TextureHandler = resources.Resources(config.textureResource, logger)
         else:
             raise Exception("Invalide mode: %s" % (mode,))
 
@@ -116,26 +121,8 @@ class TextureHandler:
         # Should be implemented
         pass
 
-    def _get_addon_id(self, channel):
-        """ Determines the add-on ID from the add-on to which the channel belongs,
-        e.g.: <!--import addon="plugin.video.retrospect" version="x.x.x" optional="false" /-->.channel.be
-
-        @param channel: the channel to determine the CDN folder for.
-
-        Remark: we cache some stuff for performance improvements
-
-        """
-
-        if channel.path in self.__addonIds:
-            return self.__addonIds[channel.path]
-
-        parts = channel.path.rsplit(os.sep, 2)[-2:]
-        addon_id = parts[0]
-        self.__addonIds[channel.path] = addon_id
-        return addon_id
-
     def _get_cdn_sub_folder(self, channel):
-        """ Determines the CDN folder, e.g.: plugin.video.retrospect.channel.be.canvas
+        """ Determines the CDN folder, e.g.: channel.be.canvas
 
         @param channel: the channel to determine the CDN folder for.
 
@@ -148,6 +135,8 @@ class TextureHandler:
 
         parts = channel.path.rsplit(os.sep, 2)[-2:]
         cdn = ".".join(parts)
+        if cdn.startswith(Config.addonId):
+            cdn = cdn[len(Config.addonId) + 1:]
         self.__cdnPaths[channel.path] = cdn
         return cdn
 

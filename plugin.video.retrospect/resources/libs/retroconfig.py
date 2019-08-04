@@ -59,8 +59,6 @@ class Config:
     logLevel = 10                                            # : Minimum log level that is being logged. (from logger.py) Defaults to Debug
     logFileNameAddon = "retrospect.log"                      # : Filename of the log file of the plugin
 
-    googleAnalyticsId = "UA-3902785-11"                      # : Google Analytics ID for statistics
-
     # must be single quotes for build script
     __addonXmlPath = os.path.join(rootDir, 'addon.xml')
     __addonXmlcontents = xml.dom.minidom.parse(__addonXmlPath)
@@ -73,8 +71,9 @@ class Config:
 
     updateUrl = "https://api.bitbucket.org/2.0/repositories/basrieter/xbmc-online-tv/downloads/"
 
-    textureMode = "Cached"                                    # : The mode for the textures: Local, Remote or Cached
-    textureUrl = \
-        "https://cdn.rieter.net/plugin.video.retrospect.cdn"  # : The URL for the remote texture location
+    textureMode = "Cached"                                    # : The mode for the textures: Local, Remote, Cached or Resources
+    textureUrl = "https://cdn.rieter.net/" \
+                 "resource.images.retrospect/resources"       # : The URL for the remote texture location
+    textureResource = "resource.images.retrospect"            # : The resource add-on to use for textures
 
     logSenderApi = "1786d25d01392d572659bba76f95174f"         # : The Retrospect logsender API (Google Shortner API or PasteBinAPI)

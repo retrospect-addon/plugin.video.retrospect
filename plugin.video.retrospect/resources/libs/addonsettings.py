@@ -434,17 +434,6 @@ class AddonSettings(object):
     #endregion
 
     @staticmethod
-    def send_usage_statistics():
-        """ returns true if the user allows usage statistics sending
-
-        :return: Indication if sending GA statistics is allowed.
-        :rtype: bool
-
-        """
-
-        return AddonSettings.store(KODI).get_boolean_setting("send_statistics", default=True)
-
-    @staticmethod
     def get_current_addon_xml_md5():
         """ Retrieves the current addons.xml.md5 content that was cached in the settings.
 

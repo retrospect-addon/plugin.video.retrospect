@@ -40,67 +40,6 @@ class EnvController:
 
         self.logger = logger
 
-    @staticmethod
-    def update_local_addons_in_kodi():
-        """ Ask Kodi to update the list of local add-ons. """
-        Logger.info("Asking Kodi to update the local add-ons")
-        xbmc.executebuiltin("UpdateLocalAddons")
-
-    # def are_addons_enabled(self, config):
-    #     """ Checks if all Retrospect channel add-ons are enabled.
-    #
-    #     :param Config config: The config object
-    #     :return: If channel add-ons are not enabled in Kodi, they will not be auto updated.
-    #     :rtype: bool
-    #     """
-    #
-    #     addon_dir = os.path.join(config.rootDir, "..")
-    #     for directory in os.listdir(addon_dir):
-    #         if not directory.startswith("%s.channel" % (config.addonId, )):
-    #             continue
-    #
-    #         installed = xbmc.getCondVisibility('System.HasAddon("%s")' % (directory,)) == 1
-    #         if not installed:
-    #             if not os.path.isfile(os.path.join(addon_dir, directory, "addon.xml")):
-    #                 # no add-on, continue
-    #                 continue
-    #
-    #             Logger.Warning("Add-on '%s' is not enabled in Kodi and will not be updated automatically", directory)
-    #
-    #             XbmcWrapper.show_dialog(
-    #                 LanguageHelper.get_localized_string(LanguageHelper.AddonsNotEnabledTitle),
-    #                 LanguageHelper.get_localized_string(LanguageHelper.AddonsNotEnabledText))
-    #             xbmc.executebuiltin("ActivateWindow(AddonBrowser, addons://user/all/, return)")
-    #             return False
-    #
-    #         Logger.Debug("Add-on '%s' is enabled in Kodi", directory)
-    #     return True
-    #
-    # def is_install_method_valid(self, config):
-    #     """ Validates that Retrospect is installed using the repository. If not
-    #     it will popup a dialog box.
-    #
-    #     Arguments:
-    #     :param Config config : The Retrospect config object.
-    #
-    #     :return: Indication of Retrospect was installed via the correct means.
-    #     :rtype: bool
-    #
-    #     """
-    #
-    #     repo_available = self.__is_repo_available(config)
-    #
-    #     if not repo_available:
-    #         # show alert
-    #         if self.logger:
-    #             self.logger.Warning("No Respository installed. Reminding user to install it.")
-    #
-    #         XbmcWrapper.show_dialog(LanguageHelper.get_localized_string(
-    #             LanguageHelper.RepoWarningId),
-    #             LanguageHelper.get_localized_string(LanguageHelper.RepoWarningDetailId))
-    #
-    #     return repo_available
-
     def print_retrospect_settings_and_folders(self, config, setting_info):
         """Prints out all the XOT related directories to the logFile.
 
@@ -126,8 +65,6 @@ class EnvController:
             version = xbmc.getInfoLabel("system.buildversion")
             build_date = xbmc.getInfoLabel("system.builddate")
 
-            repo_name = self.__is_repo_available(config, return_name=True)
-
             info_string = "%s: %s" % ("Version", version)
             info_string = "%s\n%s: %s" % (info_string, "BuildDate", build_date)
             info_string = "%s\n%s: %s" % (info_string, "Environment", self.__get_environment())
@@ -139,7 +76,6 @@ class EnvController:
             info_string = "%s\n%s: %s" % (info_string, "ProfilePath", config.profileDir)
             info_string = "%s\n%s: %s" % (info_string, "PathDetection", config.pathDetection)
             info_string = "%s\n%s: %s" % (info_string, "Encoding", sys.getdefaultencoding())
-            info_string = "%s\n%s: %s" % (info_string, "Repository", repo_name)
             info_string = "%s\n%s: %s" % (info_string, "Widevine Path", self.widevine_lib())
             info_string = "%s\n%s: %s" % (info_string, "TextureMode", config.textureMode)
             if config.textureUrl:
@@ -220,7 +156,7 @@ class EnvController:
         """ Returns the platform that Kodi returns as it's host:
 
         * linux   - Normal Linux
-        * Xbox    - Native Xbox
+        * UWP     - Windows Store App
         * OS X    - Apple OS
         * Windows - Windows OS
         * unknown - in case it's undetermined
@@ -237,14 +173,12 @@ class EnvController:
             # it's in the .\xbmc\GUIInfoManager.cpp
             if xbmc.getCondVisibility("system.platform.linux"):
                 platform = Environments.Linux
-            elif xbmc.getCondVisibility("system.platform.xbox"):
-                platform = Environments.Xbox
+            elif xbmc.getCondVisibility("system.platform.uwp"):
+                platform = Environments.UWP
             elif xbmc.getCondVisibility("system.platform.windows"):
                 platform = Environments.Windows
             elif xbmc.getCondVisibility("system.platform.ios"):
                 platform = Environments.IOS
-            elif xbmc.getCondVisibility("system.platform.atv2"):
-                platform = Environments.ATV2
             elif xbmc.getCondVisibility("system.platform.tvos"):
                 platform = Environments.TVOS
             elif xbmc.getCondVisibility("system.platform.osx"):
@@ -363,7 +297,7 @@ class EnvController:
         * Linux   - Normal Linux
         * Linux64 - 64-bit Linux
         * OS X    - For Apple decices
-        * win32   - Windows / Native Xbox
+        * win32   - Windows / UWP
 
         :return: String representation for the current environment.
 
@@ -385,49 +319,3 @@ class EnvController:
                 return "Win64"
 
             return "Win32"
-
-    def __is_repo_available(self, config, return_name=False):
-        """ Checks if the repository is available in Kodi and returns it's name.
-
-        :param Config config:   The configuration object of Retrospect
-        :param return_name:      If set to True the name of the repository will
-                                be returned or a label with the reason why no repo
-                                was found.
-        :return:
-        :rtype: bool|str
-
-        """
-
-        not_installed = "<not installed>"
-
-        if EnvController.is_platform(Environments.Xbox):
-            if self.logger:
-                self.logger.debug("Skipping repository check on Xbox.")
-
-            # on Xbox it's never installed. So always return True to make it all work
-            return not_installed if return_name else True
-
-        try:
-            repo_name = "%s.repository" % (config.addonId,)
-            repo_available = xbmc.getCondVisibility('System.HasAddon("%s")' % (repo_name,)) == 1
-
-            if self.logger:
-                self.logger.debug("Checking repository '%s'. Repository available=%s",
-                                  repo_name, repo_available)
-
-            if not return_name:
-                # return a boolean
-                return repo_available
-            elif repo_available:
-                # return the name if it was available
-                return repo_name
-            else:
-                # return not installed if non was available
-                return not_installed
-        except:
-            self.logger.error("Error determining Repository Status", exc_info=True)
-            if not return_name:
-                # in case of error, return True
-                return True
-            else:
-                return "<error>"

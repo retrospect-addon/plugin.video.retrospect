@@ -21,12 +21,10 @@ from addonsettings import AddonSettings
 from locker import LockWithDialog
 from retroconfig import Config
 from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
-from initializer import Initializer
 from mediaitem import MediaItem
 from helpers.channelimporter import ChannelIndex
 from helpers.languagehelper import LanguageHelper
 from helpers.stopwatch import StopWatch
-from helpers.statistics import Statistics
 from helpers.sessionhelper import SessionHelper
 from textures import TextureHandler
 from paramparser import ParameterParser
@@ -98,10 +96,6 @@ class Plugin(ParameterParser):
                 notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
                 notification = notification % (Config.appName, up.onlineVersion)
                 XbmcWrapper.show_notification(None, lines=notification, display_time=20000)
-
-            # check if the repository is available -> We don't need this now.
-            # env_ctrl.is_install_method_valid(Config)
-            # env_ctrl.are_addons_enabled(Config)
 
             # check for cache folder
             env_ctrl.cache_check()
@@ -471,7 +465,6 @@ class Plugin(ParameterParser):
 
             if selected_item is None and self.channelObject is not None:
                 # mainlist item register channel.
-                Statistics.register_channel_open(self.channelObject, Initializer.StartTime)
                 watcher.lap("Statistics send")
 
             watcher.stop()
@@ -484,7 +477,6 @@ class Plugin(ParameterParser):
             xbmcplugin.endOfDirectory(self.handle, ok)
         except Exception:
             Logger.error("Plugin::Error Processing FolderList", exc_info=True)
-            Statistics.register_error(self.channelObject)
             XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                           LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                                           XbmcWrapper.Error, 4000)
@@ -496,7 +488,6 @@ class Plugin(ParameterParser):
 
         Logger.debug("Playing videoitem using PlayListMethod")
 
-        media_item = None
         try:
             media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
@@ -509,7 +500,6 @@ class Plugin(ParameterParser):
             # validated the updated media_item
             if not media_item.complete or not media_item.has_media_item_parts():
                 Logger.warning("update_video_item returned an media_item that had media_item.complete = False:\n%s", media_item)
-                Statistics.register_error(self.channelObject, item=media_item)
 
             if not media_item.has_media_item_parts():
                 # the update failed or no items where found. Don't play
@@ -563,11 +553,6 @@ class Plugin(ParameterParser):
 
             xbmcplugin.endOfDirectory(self.handle, True)
         except:
-            if media_item:
-                Statistics.register_error(self.channelObject, item=media_item)
-            else:
-                Statistics.register_error(self.channelObject)
-
             XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                           LanguageHelper.get_localized_string(LanguageHelper.NoPlaybackId),
                                           XbmcWrapper.Error)
@@ -626,9 +611,7 @@ class Plugin(ParameterParser):
                         Config.textureUrl
                     )
 
-                bytes_transfered = TextureHandler.instance().fetch_textures(w.progress_update)
-                if bytes_transfered > 0:
-                    Statistics.register_cdn_bytes(bytes_transfered)
+                TextureHandler.instance().fetch_textures(w.progress_update)
             except:
                 Logger.error("Error fetching textures", exc_info=True)
             finally:
@@ -784,9 +767,6 @@ class Plugin(ParameterParser):
         :rtype: ok
 
         """
-
-        if self.channelObject:
-            Statistics.register_error(self.channelObject)
 
         if favs:
             title = LanguageHelper.get_localized_string(LanguageHelper.NoFavsId)

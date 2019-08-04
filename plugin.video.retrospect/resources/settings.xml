@@ -97,7 +97,6 @@
         <setting id="release_channel" label="30004" type="enum" lvalues="30005|30006" default="0" />
 
         <setting type="lsep" label="30098" />
-        <setting id="send_statistics" type="bool" label="30052" default="true" />
         <setting id="log_level" type="enum" label="30048" values="Trace|Debug|Info" default="2" />
         <setting id="send_log" type="action" label="30598" action="RunScript(plugin.video.retrospect, 0, ?action=postlog)" option="close" visible="eq(-1,0)|eq(-1,1)" />
     </category>

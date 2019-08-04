@@ -9,19 +9,12 @@ class Channel(chn_class.Channel):
     """
 
     def __init__(self, channel_info):
-        """Initialisation of the class.
-
-        WindowXMLDialog(self, xmlFilename, scriptPath[, defaultSkin, defaultRes]) -- Create a new WindowXMLDialog script.
-
-        xmlFilename     : string - the name of the xml file to look for.
-        scriptPath      : string - path to script. used to fallback to if the xml doesn't exist in the current skin. (eg os.getcwd())
-        defaultSkin     : [opt] string - name of the folder in the skins path to look in for the xml. (default='Default')
-        defaultRes      : [opt] string - default skins resolution. (default='720p')
-
-        *Note, skin folder structure is eg(resources/skins/Default/720p)
+        """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
         be overridden by any derived classes.
+
+        :param ChannelInfo channel_info: The channel info object to base this channel on.
 
         """
 
