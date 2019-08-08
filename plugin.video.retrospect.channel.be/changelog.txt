@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Prefer HLS over Dash streams for unencrypted VRT.nu streams (Fixes 1179)
+* Added: if no username was configured, log this as a warning (See #1187)
 
 [I]Previous Changes[/I]
+* Fixed: Prefer HLS over Dash streams for unencrypted VRT.nu streams (Fixes 1179)
 * Fixed: parsing of videos for KetNET (Fixes #1179)
 * Added: more Premium channel for Stievie (See #1030)
 * Fixed: VRT.nu changes broke parsing....again (Fixes #1166)
