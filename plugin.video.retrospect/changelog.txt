@@ -3,7 +3,8 @@
 ....
 
 [B]Framework related[/B]
--
+* Fixed: version number revision and build were reversed.
+* Fixed: only major and minor need to be equal for a channel to be compatible
 
 [B]GUI/Settings/Language related[/B]
 -

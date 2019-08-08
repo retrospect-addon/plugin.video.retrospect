@@ -403,7 +403,7 @@ class ChannelIndex(object):
             return None, None
 
         package_version = Version(version=pack_version)
-        if Config.version.equal_builds(package_version):
+        if Config.version.are_compatible(package_version):
             Logger.info("Adding %s version %s", package_id, package_version)
             return package_id, package_version
         else:
@@ -587,7 +587,7 @@ class ChannelIndex(object):
         channels = index[self.__CHANNEL_INDEX_CHANNEL_KEY]
         first_version = channels[list(channels.keys())[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
         first_version = Version(first_version)
-        if not Config.version.equal_builds(first_version):
+        if not Config.version.are_compatible(first_version):
             Logger.warning("Inconsisten version 'index' vs 'add-on': %s vs %s", first_version, Config.version)
             return False
 
