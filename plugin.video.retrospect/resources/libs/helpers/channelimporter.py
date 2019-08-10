@@ -419,12 +419,8 @@ class ChannelIndex(object):
 
         """
 
-        if os.path.isdir(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH)):
-            channel_pack_base = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
-            channel_pack_start = "channel."
-        else:
-            channel_pack_base = os.path.abspath(os.path.join(Config.rootDir, ".."))
-            channel_pack_start = "{}.channel".format(Config.addonId)
+        channel_pack_base = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
+        channel_pack_start = "channel."
 
         channel_pack_paths = [x for x in
                               os.listdir(channel_pack_base)
