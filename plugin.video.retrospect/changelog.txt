@@ -5,6 +5,7 @@
 [B]Framework related[/B]
 * Fixed: version number revision and build were reversed.
 * Fixed: only major and minor need to be equal for a channel to be compatible
+* Fixed: video items always showed channel settings even if a channel has no settings
 
 [B]GUI/Settings/Language related[/B]
 -
