@@ -42,10 +42,7 @@ msgstr "Alpha/beta"
 
 msgctxt "#30007"
 msgid "via other add-on"
-
-msgctxt "#30008"
-msgid "Retrospect"
-msgstr "Retrospect"
+msgid "via ett annat tillägg"
 
 msgctxt "#30009"
 msgid "General"
