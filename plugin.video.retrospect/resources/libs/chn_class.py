@@ -415,6 +415,11 @@ class Channel:
         if data_parser.LogOnRequired:
             Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.log_on()
+            if not self.loggedOn:
+                Logger.warning("Could not log on for: %s", self)
+                title = LanguageHelper.get_localized_string(LanguageHelper.LoginErrorTitle)
+                text = LanguageHelper.get_localized_string(LanguageHelper.LoginErrorText)
+                XbmcWrapper.show_dialog(title, text)
 
         Logger.debug("Processing Updater from %s", data_parser)
         return data_parser.Updater(item)

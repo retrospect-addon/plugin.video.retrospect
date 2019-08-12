@@ -60,7 +60,15 @@ msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
 msgstr ""
 
-# empty strings from id 30012 to 30015
+msgctxt "#30012"
+msgid "Login Failed"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Could not log on to the selected channel."
+msgstr ""
+
+# empty strings from id 30014 to 30015
 
 msgctxt "#30016"
 msgid "Sort by"

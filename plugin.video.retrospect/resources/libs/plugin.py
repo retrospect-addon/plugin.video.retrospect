@@ -491,11 +491,11 @@ class Plugin(ParameterParser):
         try:
             media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
-            # Any warning to show
-            self.__show_warnings(media_item)
-
             if not media_item.complete:
                 media_item = self.channelObject.process_video_item(media_item)
+
+            # Any warning to show
+            self.__show_warnings(media_item)
 
             # validated the updated media_item
             if not media_item.complete or not media_item.has_media_item_parts():

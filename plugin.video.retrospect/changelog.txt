@@ -6,6 +6,7 @@
 * Fixed: version number revision and build were reversed.
 * Fixed: only major and minor need to be equal for a channel to be compatible
 * Fixed: video items always showed channel settings even if a channel has no settings
+* Fixed: some more information when logging on to a channel fails
 
 [B]GUI/Settings/Language related[/B]
 -
