@@ -7,9 +7,12 @@
 * Fixed: only major and minor need to be equal for a channel to be compatible
 * Fixed: video items always showed channel settings even if a channel has no settings
 * Fixed: some more information when logging on to a channel fails
+* Updated: use 3 digit version number for channelpacks
 
 [B]GUI/Settings/Language related[/B]
--
+* Merged: Language corrections and additions for Swedish language (from Snaah/retrospect-snah)
 
 [B]Channel related[/B]
 * Added: if no username was configured, log this as a warning (See #1187)
+* Added: allow playback of NPO Plus content if you are logged in with an NPO Plus account (Fixes #1132)
+* Added: option to configure the use of the InputStream Adaptive add-on for RTL XL (Fixes #1184)
