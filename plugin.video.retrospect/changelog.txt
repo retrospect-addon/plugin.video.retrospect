@@ -11,6 +11,7 @@
 
 [B]GUI/Settings/Language related[/B]
 * Merged: Language corrections and additions for Swedish language (from Snaah/retrospect-snah)
+* Added: Breadcrumbs for current listing
 
 [B]Channel related[/B]
 * Added: if no username was configured, log this as a warning (See #1187)
