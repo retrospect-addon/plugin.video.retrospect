@@ -80,7 +80,7 @@ The _Easy way_:
 
 The _Manual way_:
 
-1. Determine the last version of the Widevine libraries: [https://dl.google.com/widevine-cdm/current.txt](https://dl.google.com/widevine-cdm/current.txt)
+1. Determine the last version of the Widevine libraries: [https://dl.google.com/widevine-cdm/versions.txt](https://dl.google.com/widevine-cdm/versions.txt)
 1. Download the appropriate version for your OS/Kodi combination (replace the {version} with the most recent version):
     * 32-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-ia32.zip](https://dl.google.com/widevine-cdm/{version}-win-ia32.zip)
     * 64-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-x64.zip](https://dl.google.com/widevine-cdm/{version}-win-x64.zip)
@@ -89,7 +89,7 @@ The _Manual way_:
 1. For Windows installation copy these files into your `<kodi-profile>\cdm` folder. Linux users need to install them manually (or they can use this [gist](https://gist.github.com/ruario/3c873d43eb20553d5014bd4d29fe37f1) ([Fork](https://gist.github.com/basrieter/44a463a97a60958c36435d54d50debb4)) to install it automatically).
 
 _Example:_
-> If the most recent version obtained via https://dl.google.com/widevine-cdm/current.txt is `1.4.9.1088`, then the download url for 64-bit windows is https://dl.google.com/widevine-cdm/1.4.9.1088-win-x64.zip.
+> If the most recent version obtained via https://dl.google.com/widevine-cdm/versions.txt is `4.10.1440.19`, then the download url for 64-bit windows is https://dl.google.com/widevine-cdm/4.10.1440.19-win-x64.zip.
 
 The kodi.log will tell you if you did not put them in the correct place or if you have copied the wrong version.
 
