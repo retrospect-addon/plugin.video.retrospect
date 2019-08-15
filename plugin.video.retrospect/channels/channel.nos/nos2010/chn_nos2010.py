@@ -1264,9 +1264,8 @@ class Channel(chn_class.Channel):
                 LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
                 LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired))
 
-        if item.isPaid:
-            if self.__has_premium():
-                item.isPaid = False
+        if item.isPaid and self.__has_premium():
+            item.isPaid = False
         return item
 
     def __ignore_cookie_law(self):
