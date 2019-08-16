@@ -3,18 +3,10 @@
 This new version fixes a number of channel related issues (RTL XL and NPO Start) and adds support for NPO Start Plus accounts that can be configured. Allow with these fixes some additional bugs were squashed. And while we were at it, we also updated some of the translations.
 
 [B]Framework related[/B]
-* Fixed: version number revision and build were reversed.
-* Fixed: only major and minor need to be equal for a channel to be compatible
-* Fixed: video items always showed channel settings even if a channel has no settings
-* Fixed: some more information when logging on to a channel fails
-* Updated: use 3 digit version number for channelpacks
-* Added: Breadcrumbs for current listing
-* Added: Install Widevine using the InputStream Helper for streams that require it
+-
 
 [B]GUI/Settings/Language related[/B]
-* Merged: Language corrections and additions for Swedish language (from Snaah/retrospect-snah)
+-
 
 [B]Channel related[/B]
-* Added: if no username was configured, log this as a warning (See #1187)
-* Added: allow playback of NPO Plus content if you are logged in with an NPO Plus account (Fixes #1132)
-* Added: option to configure the use of the InputStream Adaptive add-on for RTL XL (Fixes #1184)
+* Fixed: NPO Start shows logon error popup even if no account was specified for NPO Start
