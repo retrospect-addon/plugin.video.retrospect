@@ -1,6 +1,6 @@
-[B]Retrospect v5.0.1 - Changelog - 2019-08-15[/B]
+[B]Retrospect v5.0.2 - Changelog - 2019-08-16[/B]
 
-This new version fixes a number of channel related issues (RTL XL and NPO Start) and adds support for NPO Start Plus accounts that can be configured. Allow with these fixes some additional bugs were squashed. And while we were at it, we also updated some of the translations.
+A quick release for an annoying bug in NPO Start and the Retrospect vault under Kodi Matrix. Besides this, this new version fixes a number of channel related issues (RTL XL and NPO Start) and adds support for NPO Start Plus accounts that can be configured. Allow with these fixes some additional bugs were squashed. And while we were at it, we also updated some of the translations.
 
 [B]Framework related[/B]
 * Fixed: Python 3 issue with Vault
