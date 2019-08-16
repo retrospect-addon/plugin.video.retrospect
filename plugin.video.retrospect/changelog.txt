@@ -3,7 +3,7 @@
 This new version fixes a number of channel related issues (RTL XL and NPO Start) and adds support for NPO Start Plus accounts that can be configured. Allow with these fixes some additional bugs were squashed. And while we were at it, we also updated some of the translations.
 
 [B]Framework related[/B]
--
+* Fixed: Python 3 issue with Vault
 
 [B]GUI/Settings/Language related[/B]
 -
