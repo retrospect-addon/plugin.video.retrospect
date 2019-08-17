@@ -41,9 +41,27 @@ class LanguageHelper(object):
     Enabled = 30042
     Disabled = 30074
     Retrospect = 30008
+
+    Monday = 30190
+    Tuesday = 30191
+    Wednesday = 30192
+    Thursday = 30193
+    Friday = 30194
+    Saturday = 30195
+    Sunday = 30196
+
     ChannelAdaptiveMode = 30581
     LoginErrorTitle = 30012
     LoginErrorText = 30013
+
+    Search = 30350
+    Categories = 30351
+    TvShows = 30352
+    CurrentlyPlayingEpisodes = 30353
+    MostViewedEpisodes = 30354
+    MostRecentEpisodes = 30355
+    LiveTv = 30356
+    LiveRadio = 30357
 
     ChannelSelection = 30507
     # Unused:

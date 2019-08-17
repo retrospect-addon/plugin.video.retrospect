@@ -6,7 +6,7 @@ A quick release for an annoying bug in NPO Start and the Retrospect vault under 
 * Fixed: Python 3 issue with Vault
 
 [B]GUI/Settings/Language related[/B]
--
+* Added: translation for some common list item names
 
 [B]Channel related[/B]
 * Fixed: NPO Start shows logon error popup even if no account was specified for NPO Start
