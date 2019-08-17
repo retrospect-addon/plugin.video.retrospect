@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: Duration and Expire Date to SVT
+* Changed: restructured the TV4 Play main list a bit (Fixes #1193)
 
 [I]Previous changes[/I]
+* Added: Duration and Expire Date to SVT
 * Fixed: Added proper translation of "Recent" to the Swedish SBS Channels (Kanal 5, 9 and 11)
 * Fixed: some SVT streams had a very low bitrate or had weird audio (Fixes #1150)
 * Fixed: SVT Genres (Fixes #1149)

@@ -9,4 +9,5 @@ A quick release for an annoying bug in NPO Start and the Retrospect vault under 
 * Added: translation for some common list item names
 
 [B]Channel related[/B]
+* Changed: restructured the TV4 Play main list a bit (Fixes #1193)
 * Fixed: NPO Start shows logon error popup even if no account was specified for NPO Start
