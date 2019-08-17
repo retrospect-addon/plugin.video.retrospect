@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: allow playback of NPO Plus content if you are logged in with an NPO Plus account (Fixes #1132)
+* Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api
 
 [I]Previous Changes[/I]
+* Added: allow playback of NPO Plus content if you are logged in with an NPO Plus account (Fixes #1132)
 * Fixed: using API now so we get descriptions for videos (Fixes #1182)
 * Fixed: NPO genres would list shows as videos (Fixes #1172)
 * Fixed: NPO radio would not list
