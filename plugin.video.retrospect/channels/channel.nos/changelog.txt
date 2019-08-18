@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api
+* Fixed: some NPO Start shows don't have a title in the metadata, which broken parsing (Fixes #1196)
 
 [I]Previous Changes[/I]
+* Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api
 * Added: allow playback of NPO Plus content if you are logged in with an NPO Plus account (Fixes #1132)
 * Fixed: using API now so we get descriptions for videos (Fixes #1182)
 * Fixed: NPO genres would list shows as videos (Fixes #1172)

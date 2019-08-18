@@ -792,6 +792,8 @@ class Channel(chn_class.Channel):
                 name = "{} - {}".format(name, result_set["episodeTitle"])
         else:
             name = result_set.get('episodeTitle')
+            if not bool(name):
+                name = result_set.get('franchiseTitle')
 
         description = result_set.get('descriptionLong')
         if not description:
