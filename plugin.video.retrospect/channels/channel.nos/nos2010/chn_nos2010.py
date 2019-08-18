@@ -133,10 +133,23 @@ class Channel(chn_class.Channel):
                               creator=self.create_genre_item)
 
         # Favourites
-        self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites",
+        self._add_data_parser("https://www.npostart.nl/api/account/@me/profile",
+                              match_type=ParserData.MatchExact, json=True, requires_logon=True,
+                              name="Profile selection",
+                              parser=["profiles"], creator=self.create_profile_item)
+        self._add_data_parser("#list_profile",
+                              name="List favourites for profile",
+                              preprocessor=self.switch_profile,
+                              requires_logon=True)
+        self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites?",
                               preprocessor=self.extract_tiles,
                               parser=episode_parser,
                               creator=self.create_episode_item,
+                              requires_logon=True)
+        self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites/episodes?",
+                              preprocessor=self.extract_tiles,
+                              parser=video_parser,
+                              creator=self.create_npo_item,
                               requires_logon=True)
 
         # Alpha listing based on JSON API
@@ -205,16 +218,9 @@ class Channel(chn_class.Channel):
         if not bool(password):
             return False
 
-        # get a token (why?), cookies and an xsrf token
-        token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy, no_cache=True,
-                                additional_headers={"X-Requested-With": "XMLHttpRequest"})
-
-        json_token = JsonHelper(token)
-        token = json_token.get_value("token")
-        if not token:
+        xsrf_token = self.__get_xsrf_token()
+        if not xsrf_token:
             return False
-        xsrf_token = UriHandler.get_cookie("XSRF-TOKEN", "www.npostart.nl").value
-        xsrf_token = HtmlEntityHelper.url_decode(xsrf_token)
 
         data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
                                             HtmlEntityHelper.url_encode(password))
@@ -324,7 +330,8 @@ class Channel(chn_class.Channel):
         items.append(search)
 
         # Favorite items that require login
-        favs = MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
+        # favs = MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
+        favs = MediaItem("Favorieten", "https://www.npostart.nl/api/account/@me/profile")
         favs.complete = True
         favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
                            "wordt nog niet ondersteund."
@@ -537,6 +544,66 @@ class Channel(chn_class.Channel):
             sub_item.dontGroup = True
             sub_item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
             items.append(sub_item)
+        return data, items
+
+    def create_profile_item(self, result_set):
+        """ Creates a new MediaItem for a the profiles in NPO Start.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        profile_name = result_set.get("name")
+        item = MediaItem(profile_name, "#list_profile")
+        item.thumb = result_set.get("thumburl", None)
+        item.description = result_set.get("description", "")
+        item.complete = True
+        item.metaData["id"] = result_set["id"]
+        return item
+
+    def switch_profile(self, data):
+        """ Switches to the selected profile.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+        profile_id = self.parentItem.metaData.get("id", None)
+        if not profile_id:
+            return data, items
+
+        profile_data = {"id": profile_id, "pinCode": ""}
+
+        xsrf_token = self.__get_xsrf_token()
+        UriHandler.open("https://www.npostart.nl/api/account/@me/profile/switch",
+                        proxy=self.proxy, data=profile_data,
+                        additional_headers={
+                            "X-Requested-With": "XMLHttpRequest",
+                            "X-XSRF-TOKEN": xsrf_token,
+                            "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                        })
+
+        # Add the episodes/tvshows
+        epsisodes = MediaItem(
+            LanguageHelper.get_localized_string(LanguageHelper.Episodes),
+            "https://www.npostart.nl/ums/accounts/@me/favourites/episodes?page=1&dateFrom=2014-01-01&tileMapping=dedicated&tileType=asset")
+        items.append(epsisodes)
+
+        tvshows = MediaItem(
+            LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+            "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
+        items.append(tvshows)
         return data, items
 
     def create_episode_item(self, result_set):
@@ -1356,3 +1423,18 @@ class Channel(chn_class.Channel):
 
             item.set_date(date_time[2], month, date_time[0])
         return True
+
+    def __get_xsrf_token(self):
+        # get a token (why?), cookies and an xsrf token
+        token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy,
+                                no_cache=True,
+                                additional_headers={"X-Requested-With": "XMLHttpRequest"})
+
+        json_token = JsonHelper(token)
+        token = json_token.get_value("token")
+        if not token:
+            return None
+
+        xsrf_token = UriHandler.get_cookie("XSRF-TOKEN", "www.npostart.nl").value
+        xsrf_token = HtmlEntityHelper.url_decode(xsrf_token)
+        return xsrf_token

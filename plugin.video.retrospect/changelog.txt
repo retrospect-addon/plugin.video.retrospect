@@ -13,3 +13,4 @@ A quick release for an annoying bug in NPO Start and the Retrospect vault under 
 * Fixed: NPO Start shows logon error popup even if no account was specified for NPO Start
 * Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api
 * Fixed: some NPO Start shows don't have a title in the metadata, which broken parsing (Fixes #1196)
+* Added: support for more profiles in NPO start (Fixes #1197)

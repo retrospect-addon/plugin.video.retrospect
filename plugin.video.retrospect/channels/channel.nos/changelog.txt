@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
 * Fixed: some NPO Start shows don't have a title in the metadata, which broken parsing (Fixes #1196)
+* Added: support for more profiles in NPO start (Fixes #1197)
 
 [I]Previous Changes[/I]
 * Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api

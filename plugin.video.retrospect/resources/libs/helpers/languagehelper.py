@@ -62,6 +62,7 @@ class LanguageHelper(object):
     MostRecentEpisodes = 30355
     LiveTv = 30356
     LiveRadio = 30357
+    Episodes = 30358
 
     ChannelSelection = 30507
     # Unused:
