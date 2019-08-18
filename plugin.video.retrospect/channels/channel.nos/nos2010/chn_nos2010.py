@@ -71,7 +71,7 @@ class Channel(chn_class.Channel):
 
         # Use old urls with new Updater
         self._add_data_parser("http://e.omroep.nl/metadata/", name="e.omroep.nl classic parser",
-                              updater=self.update_from_poms)
+                              updater=self.update_from_poms, requires_logon=True)
 
         # Standard updater
         self._add_data_parser("*", requires_logon=True,
@@ -218,7 +218,7 @@ class Channel(chn_class.Channel):
         if not bool(password):
             return False
 
-        xsrf_token = self.__get_xsrf_token()
+        xsrf_token = self.__get_xsrf_token()[0]
         if not xsrf_token:
             return False
 
@@ -594,7 +594,7 @@ class Channel(chn_class.Channel):
 
         profile_data = {"id": profile_id, "pinCode": ""}
 
-        xsrf_token = self.__get_xsrf_token()
+        xsrf_token = self.__get_xsrf_token()[0]
         UriHandler.open("https://www.npostart.nl/api/account/@me/profile/switch",
                         proxy=self.proxy, data=profile_data,
                         additional_headers={
@@ -1346,6 +1346,23 @@ class Channel(chn_class.Channel):
 
         if item.isPaid and self.__has_premium():
             item.isPaid = False
+
+        # registering playback - The issue is that is linked to a profile, which we did not configure
+        # if self.loggedOn:
+        #     Logger.debug("Registering this playback with NPO")
+        #     xsrf_token, token = self.__get_xsrf_token()
+        #     data = {
+        #         "_token": token,
+        #         "progress": 10
+        #     }
+        #     UriHandler.open(
+        #         "https://www.npostart.nl/api/progress/VPWON_1267211",
+        #         proxy=self.proxy, data=data, additional_headers={
+        #             "X-Requested-With": "XMLHttpRequest",
+        #             "X-XSRF-TOKEN": xsrf_token,
+        #             "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+        #         }
+        #     )
         return item
 
     def __ignore_cookie_law(self):
@@ -1434,6 +1451,12 @@ class Channel(chn_class.Channel):
         return True
 
     def __get_xsrf_token(self):
+        """ Retrieves a JSON Token and XSRF token
+
+        :return: XSRF Token and JSON Token
+        :rtype: tuple[str|None,str|None]
+        """
+
         # get a token (why?), cookies and an xsrf token
         token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy,
                                 no_cache=True,
@@ -1442,8 +1465,8 @@ class Channel(chn_class.Channel):
         json_token = JsonHelper(token)
         token = json_token.get_value("token")
         if not token:
-            return None
+            return None, None
 
         xsrf_token = UriHandler.get_cookie("XSRF-TOKEN", "www.npostart.nl").value
         xsrf_token = HtmlEntityHelper.url_decode(xsrf_token)
-        return xsrf_token
+        return xsrf_token, token
