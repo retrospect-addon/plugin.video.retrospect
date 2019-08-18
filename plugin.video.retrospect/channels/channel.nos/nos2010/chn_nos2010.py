@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        search = MediaItem("Zoeken", "searchSite")
+        search = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.Search), "searchSite")
         search.complete = True
         search.icon = self.icon
         search.thumb = self.noImage
@@ -330,8 +330,8 @@ class Channel(chn_class.Channel):
         items.append(search)
 
         # Favorite items that require login
-        # favs = MediaItem("Favorieten", "https://www.npostart.nl/ums/accounts/@me/favourites?page=1&type=series&tileMapping=normal&tileType=teaser")
-        favs = MediaItem("Favorieten", "https://www.npostart.nl/api/account/@me/profile")
+        favs = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.FavouritesId),
+                         "https://www.npostart.nl/api/account/@me/profile")
         favs.complete = True
         favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
                            "wordt nog niet ondersteund."
@@ -342,7 +342,8 @@ class Channel(chn_class.Channel):
         favs.set_date(2200, 1, 1, text="")
         items.append(favs)
 
-        extra = MediaItem("Live Radio", "http://radio-app.omroep.nl/player/script/player.js")
+        extra = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
+                          "http://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -350,7 +351,8 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = MediaItem("Live TV", "%s/live" % (self.baseUrlLive,))
+        extra = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.LiveTv),
+                          "%s/live" % (self.baseUrlLive,))
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -358,9 +360,13 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = MediaItem("Programma's (Hele lijst)",
-                          "https://start-api.npo.nl/page/catalogue?pageSize={}"
-                          .format(self.__pageSize))
+        extra = MediaItem(
+            "{} ({})".format(
+                LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+                LanguageHelper.get_localized_string(LanguageHelper.FullList)
+            ),
+            "https://start-api.npo.nl/page/catalogue?pageSize={}".format(self.__pageSize))
+
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -371,7 +377,8 @@ class Channel(chn_class.Channel):
         # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         items.append(extra)
 
-        extra = MediaItem("Genres", "https://www.npostart.nl/programmas")
+        extra = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.Genres),
+                          "https://www.npostart.nl/programmas")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -379,7 +386,9 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        extra = MediaItem("Programma's (A-Z)", "#alphalisting")
+        extra = MediaItem(
+            "{} (A-Z)".format(LanguageHelper.get_localized_string(LanguageHelper.TvShows)),
+            "#alphalisting")
         extra.complete = True
         extra.icon = self.icon
         extra.thumb = self.noImage
@@ -388,7 +397,7 @@ class Channel(chn_class.Channel):
         extra.set_date(2200, 1, 1, text="")
         items.append(extra)
 
-        recent = MediaItem("Recent", "#recent")
+        recent = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.Recent), "#recent")
         recent.complete = True
         recent.icon = self.icon
         recent.thumb = self.noImage
@@ -410,7 +419,7 @@ class Channel(chn_class.Channel):
 
         items = []
         today = datetime.datetime.now()
-        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        days = LanguageHelper.get_days_list()
         for i in range(0, 7, 1):
             air_date = today - datetime.timedelta(i)
             Logger.trace("Adding item for: %s", air_date)
@@ -418,11 +427,11 @@ class Channel(chn_class.Channel):
             # Determine a nice display date
             day = days[air_date.weekday()]
             if i == 0:
-                day = "Vandaag"
+                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
             elif i == 1:
-                day = "Gisteren"
-            elif i == 2:
-                day = "Eergisteren"
+                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
+            # elif i == 2:
+            #     day = LanguageHelper.get_localized_string(LanguageHelper.DayBeforeYesterday)
             title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
 
             # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \

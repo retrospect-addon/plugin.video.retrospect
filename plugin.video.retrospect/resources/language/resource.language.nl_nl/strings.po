@@ -536,6 +536,14 @@ msgctxt "#30358"
 msgid "Afleveringen"
 msgstr ""
 
+msgctxt "#30359"
+msgid "Genres"
+msgstr ""
+
+msgctxt "#30360"
+msgid "Full list"
+msgstr "Hele lijst"
+
 msgctxt "#30401"
 msgid "Dutch"
 msgstr "Nederlands"

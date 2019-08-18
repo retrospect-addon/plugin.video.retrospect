@@ -570,7 +570,15 @@ msgctxt "#30358"
 msgid "Episodes"
 msgstr ""
 
-# empty strings from id 30359 to 30400
+msgctxt "#30359"
+msgid "Genres"
+msgstr ""
+
+msgctxt "#30360"
+msgid "Full list"
+msgstr ""
+
+# empty strings from id 30361 to 30400
 
 msgctxt "#30401"
 msgid "Dutch"
