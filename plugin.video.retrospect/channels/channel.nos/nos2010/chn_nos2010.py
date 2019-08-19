@@ -1337,7 +1337,15 @@ class Channel(chn_class.Channel):
 
         if AddonSettings.use_adaptive_stream_add_on(
                 with_encryption=True, ignore_add_on_config=True):
-            NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
+            error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
+            if bool(error):
+                XbmcWrapper.show_dialog(
+                    LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
+                    error)
+                # We don't want more errors to show
+                item.isPaid = False
+                return item
+
             item.complete = True
         else:
             XbmcWrapper.show_dialog(
