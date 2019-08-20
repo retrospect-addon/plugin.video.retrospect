@@ -432,7 +432,7 @@ class MediaItem:
 
             kodi_item = self.get_kodi_item()
             stream = part.get_media_stream_for_bitrate(bitrate)
-            Logger.info("Selected Stream: %s", stream)
+            Logger.info("Selected Stream:  %s", stream)
             if stream.Adaptive:
                 Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
 
@@ -440,13 +440,8 @@ class MediaItem:
             kodi_item.setProperty("path", stream.Url)
 
             # properties of the Part
-            for prop in part.Properties:
+            for prop in part.Properties + stream.Properties:
                 Logger.trace("Adding property: %s", prop)
-                kodi_item.setProperty(prop[0], prop[1])
-
-            # properties for the Stream
-            for prop in stream.Properties:
-                Logger.trace("Adding Kodi property: %s", prop)
                 kodi_item.setProperty(prop[0], prop[1])
 
             # TODO: Apparently if we use the InputStream Adaptive, using the setSubtitles() causes sync issues.
