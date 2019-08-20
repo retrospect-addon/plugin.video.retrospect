@@ -955,13 +955,13 @@ class Plugin(ParameterParser):
             Logger.debug("Adding existing PlayList item")
             play_list.add(current_play_list_items[i].getfilename(), current_play_list_items[i])
 
-        # The current item to play (we need to store te starting url for later
+        # The current item to play (we need to store te starting url for later)
         Logger.debug("Adding Main PlayList item")
         kodi_item, start_url = kodi_items.pop(0)
         play_list.add(start_url, kodi_item, start_index)
         xbmcplugin.setResolvedUrl(self.handle, True, kodi_item)
 
-        # now we add our own items
+        # now we add the rest of the Kodi ListItems for the other parts
         for kodi_item, stream_url in kodi_items:
             Logger.debug("Adding Additional PlayList item")
             play_list.add(stream_url, kodi_item, start_index)
