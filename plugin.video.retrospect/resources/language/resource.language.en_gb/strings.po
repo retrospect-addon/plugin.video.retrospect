@@ -91,7 +91,7 @@ msgid "Maximum Stream Bitrate"
 msgstr ""
 
 msgctxt "#30021"
-msgid "Subtitle mode"
+msgid "Show subtitles if they are available"
 msgstr ""
 
 msgctxt "#30022"

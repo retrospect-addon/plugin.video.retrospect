@@ -61,7 +61,7 @@ msgid "Maximum stream bitrate"
 msgstr "Toiston maksimi bittinopeus"
 
 msgctxt "#30021"
-msgid "Subtitle mode"
+msgid "Show subtitles if they are available"
 msgstr "Tekstityksen moodi"
 
 msgctxt "#30022"

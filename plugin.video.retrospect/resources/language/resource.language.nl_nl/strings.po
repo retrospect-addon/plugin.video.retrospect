@@ -77,8 +77,8 @@ msgid "Maximum Stream Bitrate"
 msgstr "Maximale stream bitrate"
 
 msgctxt "#30021"
-msgid "Subtitle mode"
-msgstr "Ondertiteling modus"
+msgid "Show subtitles if they are available"
+msgstr "Toon ondertiteling als deze beschikbaar is"
 
 msgctxt "#30022"
 msgid "If available"

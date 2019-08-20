@@ -4,6 +4,7 @@ A quick release for an annoying bug in NPO Start and the Retrospect vault under 
 
 [B]Framework related[/B]
 * Fixed: Python 3 issue with Vault
+* Changed: behaviour of enabling/disabling subtitles in Retrospect (Fixes #1204)
 
 [B]GUI/Settings/Language related[/B]
 * Added: translation for some common list item names
