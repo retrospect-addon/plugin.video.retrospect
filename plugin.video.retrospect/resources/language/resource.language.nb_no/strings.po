@@ -61,7 +61,7 @@ msgid "Maximum stream bitrate"
 msgstr "Maksimal strømbitrate"
 
 msgctxt "#30021"
-msgid "Show subtitles if they are available"
+msgid "Enable subtitles by default when available"
 msgstr "Bruk teksting"
 
 msgctxt "#30022"

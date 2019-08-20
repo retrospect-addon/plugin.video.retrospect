@@ -77,8 +77,8 @@ msgid "Maximum Stream Bitrate"
 msgstr "Högsta strömbitshastighet"
 
 msgctxt "#30021"
-msgid "Show subtitles if they are available"
-msgstr "Visa undertexter om de finns."
+msgid "Enable subtitles by default when available"
+msgstr "Aktivera undertexter som standard om de finns"
 
 msgctxt "#30022"
 msgid "If available"
