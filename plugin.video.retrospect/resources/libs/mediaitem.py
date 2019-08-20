@@ -437,7 +437,6 @@ class MediaItem:
                 Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
 
             # Set the actual stream path
-            Logger.info("Updating Kodi playlist-item path: %s", stream.Url)
             kodi_item.setProperty("path", stream.Url)
 
             # properties of the Part

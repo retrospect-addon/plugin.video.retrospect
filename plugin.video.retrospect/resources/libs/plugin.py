@@ -501,7 +501,7 @@ class Plugin(ParameterParser):
 
             # validated the updated media_item
             if not media_item.complete or not media_item.has_media_item_parts():
-                Logger.warning("update_video_item returned an media_item that had media_item.complete = False:\n%s", media_item)
+                Logger.warning("process_video_item returned an MediaItem that had MediaItem.complete = False:\n%s", media_item)
 
             if not media_item.has_media_item_parts():
                 # the update failed or no items where found. Don't play
