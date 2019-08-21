@@ -1,6 +1,6 @@
 # Retrospect - Public GIT Repository #
-[![Build Status](https://travis-ci.com/retrospect-addon/retrospect.svg?branch=master)](https://travis-ci.com/retrospect-addon/retrospect)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=retrospect-addon_retrospect&metric=alert_status)](https://sonarcloud.io/dashboard?id=retrospect-addon_retrospect)
+[![Build Status](https://travis-ci.com/retrospect-addon/plugin.video.retrospect.svg?branch=master)](https://travis-ci.com/retrospect-addon/plugin.video.retrospect)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=retrospect-addon:plugin.video.retrospect&metric=alert_status)](https://sonarcloud.io/dashboard?id=retrospect-addon:plugin.video.retrospect)
 
 
 This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or https://www.rieter.net/content/.
