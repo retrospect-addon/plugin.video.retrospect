@@ -1,9 +1,10 @@
 # Retrospect - Public GIT Repository #
+[![License](https://img.shields.io/badge/license-cc_by--nc--nd-brightgreen)](https://github.com/retrospect-addon/plugin.video.retrospect/blob/master/plugin.video.retrospect/license.txt)
 [![Build Status](https://travis-ci.com/retrospect-addon/plugin.video.retrospect.svg?branch=master)](https://travis-ci.com/retrospect-addon/plugin.video.retrospect)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=retrospect-addon:plugin.video.retrospect&metric=alert_status)](https://sonarcloud.io/dashboard?id=retrospect-addon:plugin.video.retrospect)
 
 
-This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or https://www.rieter.net/content/.
+This repository holds the main code for Retrospect. For more information of bug reporting please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
 # Installing and updating Retrospect under *Kodi Leia* and up
 If you are using Kodi Leia then the installation is straight forward: you can install Retrospect and the dependencies from the Kodi repository. You will find Retrospect in the repository under the Video Add-ons. 
@@ -41,7 +42,7 @@ The installation comes down to putting the folders from the GIT repo (either via
 Clone the Nightly GIT repository into a folder of your choice:
 
 ```
-git clone https://bitbucket.org/basrieter/xbmc-online-tv.git
+git clone https://github.com/retrospect-addon/plugin.video.retrospect.git
 ```
 
 The cloned GIT repository should contain the folders mentioned above. Now either `copy` or `symlink` (`junction` on Windows) each those folders into the Kodi Add-ons folder. I would suggest using symlinks or junctions so changes from a `git pull` are automatically available in Kodi. 
