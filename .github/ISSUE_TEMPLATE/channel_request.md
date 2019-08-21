@@ -2,7 +2,7 @@
 name: Channel Request
 about: Request a new channel to be added to Retrospect 
 title: ''
-labels: ''
+labels: channel
 assignees: ''
 
 ---
