@@ -1,4 +1,5 @@
 # Retrospect - Public GIT Repository #
+[![Build Status](https://travis-ci.com/retrospect-addon/retrospect.svg?branch=master)](https://travis-ci.com/retrospect-addon/retrospect)
 
 This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or https://www.rieter.net/content/.
 
