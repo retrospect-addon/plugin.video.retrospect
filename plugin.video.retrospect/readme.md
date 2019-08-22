@@ -449,5 +449,5 @@ sorted chronologically):
 - Pieter Unema
 - Peter Notebaert
 - Mjm De Frankrijker
-- Kris Provoost (Via Brickshop.nl)
+- Kris Provoost (via Brickshop.nl)
 - Lord_Drubibu (via World of Tanks) 
