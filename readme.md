@@ -6,67 +6,36 @@
 
 This repository holds the main code for Retrospect. For more information of bug reporting please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
-# Installing and updating Retrospect under *Kodi Leia* and up
-If you are using Kodi Leia then the installation is straight forward: you can install Retrospect and the dependencies from the Kodi repository. You will find Retrospect in the repository under the Video Add-ons. 
-Updating Retrospect will then automatically be done using the Kodi repository.
-
 # Installing Retrospect #
-There are a couple of ways to install and/or update Retrospect using this GIT repository:
+There are two ways to install Retrospect, depending on what version of Kodi you are using:
 
-### 1 - Installing and updating Retrospect the 'Easy way' ###
-If a `plugin.video.retrospect-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date.
+### Kodi Leia and later
+Let's start with the most recent version of Kodi: Leia (18.0) and newer version such as Matrix (19.0). Users running these version of Kodi can easy install Retrospect via the Kodi repository. Follow these steps (keep in mind they might slightly differ depending on your skin):
 
-This method can also be used to install new versions of Retrospect and thus upgrading older installs.  
+1. Go to Add-ons
+1. Add-on Browser
+1. Install from repository
+1. Video Add-ons
+1. Find _Retrospect_ and select it
+1. Hit _Install_ to install Retrospect
+1. Agree to install any dependencies that are needed
 
-### 2 - Installation of Retrospect the 'Advanced way' ###
-The installation comes down to putting the folders from the GIT repo (either via a _'GIT Clone'_ or _'Full Zip Download'_)in the Kodi add-on folder (very often: /home/<user>/.kodi/addons or c:\users\<user>\AppData\Roaming\Kodi\addons). The result should be that the *addons* folder now contains at least these folders:
+Make sure to enable the _Auto-Update_ option for Retrospect to automatically receive new updates.
 
-```
- plugin.video.retrospect
- plugin.video.retrospect.channel.be
- plugin.video.retrospect.channel.mtg
- plugin.video.retrospect.channel.mtv
- plugin.video.retrospect.channel.nick
- plugin.video.retrospect.channel.no
- plugin.video.retrospect.channel.nos
- plugin.video.retrospect.channel.regionalnl
- plugin.video.retrospect.channel.rtlnl
- plugin.video.retrospect.channel.sbsnl
- plugin.video.retrospect.channel.se
- plugin.video.retrospect.channel.streams
- plugin.video.retrospect.channel.uk
- plugin.video.retrospect.channel.videos
-```
+![alt text](./plugin.video.retrospect/resources/media/retrospect01.jpg "The Retrospect information screen")
 
-#### Option A - ....via 'GIT Clone' ####
-Clone the Nightly GIT repository into a folder of your choice:
+### Kodi Krypton    
+If you are running Kodi Krypton the only way to install Retrospect is to install it from a release zip file. This is because Retrospect is not in the Kodi repository for Krypton. Follow these steps (keep in mind they might slightly differ depending on your skin):
 
-```
-git clone https://github.com/retrospect-addon/plugin.video.retrospect.git
-```
+1. Download the latest release zip file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
+1. Open Kodi
+1. Go to Add-ons
+1. Add-on Browser
+1. Install from zip file
+1. Browse to the zip file you downloaded and install Retrospect
+1. Agree to install any dependencies that are needed
 
-The cloned GIT repository should contain the folders mentioned above. Now either `copy` or `symlink` (`junction` on Windows) each those folders into the Kodi Add-ons folder. I would suggest using symlinks or junctions so changes from a `git pull` are automatically available in Kodi. 
-
-#### Option B - ....via 'Full Zip Download' ####
-Download the complete GIT repo and extract it into the Kodi Add-on folder.
-
-#### Caution!
-Be aware that if you install it using *Option A* or *Option B* Kodi will **disable** the add-on by default and it will **not install any of the dependencies**. So you need to enable it manually and install all the dependencies by hand. Starting from Kodi Leia this is easier as it has a "View Dependencies" option of add-ons.   
-
-
-### 3 - Updating Retrospect ###
-
-#### Option A - ....via 'GIT Clone' ####
-Pull latest changes into your clone (located in the Kodi Add-on folder). After that remove all existing `*.pyc` and `*.pyo` files within the Retrospect folders (**don't skip this**).
-
-#### Option B - ....via 'Full Zip Download' ####
-Download the complete GIT repo. Remove all existing Retrospect folders (**don't skip this**) and extract the new ones it into the Kodi Add-on folder.
-
-#### Finalizing the update ####
-In both situation run Retrospect at least once before accessing the Retrospect add-on settings. The initial run might take longer than usual, as Retrospect is initialising some stuff and downloads artwork.
-
-# ! Be advised ! #
-Retrospect will NOT auto-update. So new version need to be installed manually. 
+Keep in mind, that because Retrospect is not in the Kodi repository it will not automagically update. Retrospect will notifiy you of new versions. You will then have to manually update you Retrospect add-on with the steps aboven.
 
 # Troubleshooting #
 
