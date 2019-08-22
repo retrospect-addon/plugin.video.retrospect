@@ -192,7 +192,7 @@ class XbmcWrapper:
             display_time = 1500
 
         # Get an icon
-        notification_icon = os.path.join(Config.rootDir, "icon.png")
+        notification_icon = Config.icon
         if os.path.exists(notification_icon):
             # change the separators
             notification_icon = notification_icon.replace("\\", "/")

@@ -144,8 +144,11 @@ A new release that contains a number of changes for the NPO Start channel that e
 
         </news>
         <assets>
-            <icon>icon.png</icon>
-            <fanart>fanart.jpg</fanart>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+            <screenshot>resources/media/retrospect01.jpg</screenshot>
+            <screenshot>resources/media/retrospect02.jpg</screenshot>
+            <screenshot>resources/media/retrospect03.jpg</screenshot>
         </assets>
     </extension>
 </addon>
