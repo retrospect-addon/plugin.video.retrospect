@@ -5,38 +5,28 @@
 [![License](https://img.shields.io/badge/license-cc_by--nc--nd-brightgreen)](https://github.com/retrospect-addon/plugin.video.retrospect/blob/master/plugin.video.retrospect/license.txt)
 [![Python](https://img.shields.io/badge/python-2.7%20%7C%203.6-blue)](https://kodi.tv/article/attention-addon-developers-migration-python-3)
 
-This repository holds the main code for Retrospect. For more information of bug reporting please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
+This repository holds the main code for Retrospect. For more information on bug reporting please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
 # Installing Retrospect #
 There are two ways to install Retrospect, depending on what version of Kodi you are using:
 
 ### Kodi Leia and later
-Let's start with the most recent version of Kodi: Leia (18.0) and newer version such as Matrix (19.0). Users running these version of Kodi can easy install Retrospect via the Kodi repository. Follow these steps (keep in mind they might slightly differ depending on your skin):
+Starting from Kodi Leia (v18), you can easy install Retrospect via the Kodi repository. Either search the add-ons in the Kodi repository for Retrospect and install it. More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
-1. Go to Add-ons
-1. Add-on Browser
-1. Install from repository
-1. Video Add-ons
-1. Find _Retrospect_ and select it
-1. Hit _Install_ to install Retrospect
-1. Agree to install any dependencies that are needed
-
-Make sure to enable the _Auto-Update_ option for Retrospect to automatically receive new updates.
+**Note:** Make sure that the _Auto-Update_ option for Retrospect is enabled to automagically receive new updates.
 
 ![alt text](./plugin.video.retrospect/resources/media/retrospect01.jpg "The Retrospect information screen")
 
 ### Kodi Krypton    
-If you are running Kodi Krypton the only way to install Retrospect is to install it from a release zip file. This is because Retrospect is not in the Kodi repository for Krypton. Follow these steps (keep in mind they might slightly differ depending on your skin):
+If you are running Kodi Krypton (v17) the only way to install Retrospect is to install it from a zip file. Follow these steps (keep in mind they might slightly differ depending on your skin):
 
-1. Download the latest release zip file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
-1. Open Kodi
-1. Go to Add-ons
-1. Add-on Browser
-1. Install from zip file
-1. Browse to the zip file you downloaded and install Retrospect
-1. Agree to install any dependencies that are needed
+1. Download the latest Retrospect zip file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
+1. Transfer the file to you Kodi system (_optional_)
+1. Install Retrospect from zip file
 
-Keep in mind, that because Retrospect is not in the Kodi repository it will not automagically update. Retrospect will notifiy you of new versions. You will then have to manually update you Retrospect add-on with the steps aboven.
+More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
+
+**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi 17 Krypton, it will not automagically update. Retrospect will notifiy you of new versions. You will then have to manually update you Retrospect add-on using the steps above.
 
 # Troubleshooting #
 
