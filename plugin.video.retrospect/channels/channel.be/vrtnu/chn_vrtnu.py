@@ -640,7 +640,8 @@ class Channel(chn_class.Channel):
 
         drm_key = asset_data.get_value("drm")
         drm_protected = drm_key is not None
-        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=drm_protected)
+        adaptive_available = AddonSettings.use_adaptive_stream_add_on(
+            with_encryption=drm_protected, channel=self)
         part = item.create_new_empty_media_part()
         srt = None
 
