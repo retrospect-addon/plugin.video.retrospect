@@ -531,22 +531,26 @@ class AddonSettings(object):
         if channel is not None and channel.adaptiveAddonSelectable:
             channel_setting = AddonSettings.get_adaptive_mode(channel)
 
+        # if the channel disables it we don't have an encrypted stream, then don't use it.
         if channel_setting is False:
-            Logger.info("Adaptive Stream add-on disabled from Channel settings")
-            return False
+            if not with_encryption:
+                Logger.info("Adaptive Stream add-on disabled from Channel settings")
+                return False
+            else:
+                Logger.info("Adaptive Stream add-on cannot be disabled from Channel settings for encrypted streams")
 
         if ignore_add_on_config:
             Logger.debug(
                 "Ignoring Retrospect setting use_adaptive_addon=%s and using it anyways.", use_add_on)
 
-        # if the add-on was disabled, don't use it, unless specified by the channel setting
         elif not use_add_on:
+            # if the add-on was disabled, don't use it, unless specified by the channel setting
             # check the channel setting, if it set to True, we should obey that and not return False
-            if channel_setting is not True:
+            if channel_setting is True:
+                Logger.info("Adaptive Stream add-on is disabled from Retrospect settings but enabled for channel")
+            else:
                 Logger.info("Adaptive Stream add-on disabled from Retrospect settings")
                 return False
-
-            Logger.info("Adaptive Stream add-on is disabled from Retrospect settings but enabled from channel")
 
         # we should use it, so if we can't find it, it is not so OK.
         adaptive_add_on_id = "inputstream.adaptive"
