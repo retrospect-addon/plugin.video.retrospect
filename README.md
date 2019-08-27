@@ -11,7 +11,7 @@ This repository holds the main code for Retrospect. For more information on bug 
 There are two ways to install Retrospect, depending on what version of Kodi you are using:
 
 ### Kodi Leia and later
-Starting from Kodi Leia (v18), you can easy install Retrospect via the Kodi repository. Either search the add-ons in the Kodi repository for Retrospect and install it. More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
+Starting from Kodi Leia (v18), you can easy install Retrospect via the Kodi repository. You can simply search the add-ons in the Kodi repository for Retrospect and install it. More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
 **Note:** Make sure that the _Auto-Update_ option for Retrospect is enabled to automagically receive new updates.
 
