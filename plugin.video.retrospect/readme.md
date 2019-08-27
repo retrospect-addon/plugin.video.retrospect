@@ -41,7 +41,7 @@ Dutch site. The add-on got its initial name from this site: ‘_Uitzending gemis
 Discussion about the add-on can be done in [this](https://forum.kodi.tv/showthread.php?tid=25522) 
 thread at the Kodi forums or in [this](https://gathering.tweakers.net/forum/list_messages/1643928/last) 
 thread at Tweakers.net (Dutch only). Issues regarding this script can be submitted at our issue 
-tracker at BitBucket.
+tracker at GitHub.
 
 3 - Changelog
 ----------------------------------------------------------------------------------------------------
