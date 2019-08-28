@@ -81,7 +81,7 @@ The official add-on package currently available within the official Kodi add-on 
 Retrospect or Rieter.net are not connected to or in any other way affiliated with Kodi, Team Kodi or the Kodi Foundation. Furthermore, any software, addons, or products offered by Retrospect or Rieter.net will receive no support in official Kodi channels, including the Kodi forums and various social networks.
 
 ### Rules & Terms ###
-As more and more people are starting to make channels for the Retrospect Framework, we want to lay out some rules and terms for the channels that we will host on this site. Please stick to them before asking us to post or link to them on the site:
+As more and more people are starting to make channels for Retrospect, we want to lay out some rules and terms for the channels that we will host on this site. Please stick to them before asking us to post or link to them on the site:
 
  1. We, the Retrospect team, are not responsible for any content that is displayed using the Retrospect Framework.
  1. We, the Retrospect team, do not support any kind of adult content for the Retrospect Framework nor will we host it on our servers.
