@@ -7,7 +7,6 @@
 
 This repository holds the main code for Retrospect. For more information on bug reporting please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
-
 # Installing Retrospect #
 There are two ways to install Retrospect, depending on what version of Kodi you are using:
 
@@ -51,7 +50,7 @@ The _Manual way_:
     * 64-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-x64.zip](https://dl.google.com/widevine-cdm/{version}-win-x64.zip)
     * 32-bit kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip](https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip)
     * 32-bit kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-x64.zip](https://dl.google.com/widevine-cdm/{version}-linux-x64.zip)
-1. For Windows, copy these files into your `<kodi-profile>\cdm` folder. This is by default located in '%USERPROFILE%\Appdata\Roaming\Kodi\cdm. Linux users need to install them manually (or they can use this [gist](https://gist.github.com/ruario/3c873d43eb20553d5014bd4d29fe37f1) ([Fork](https://gist.github.com/basrieter/44a463a97a60958c36435d54d50debb4)) to install it automatically).
+1. For Windows, copy these files into your `<kodi-profile>\cdm` Linux users need to install them manually (or they can use this [gist](https://gist.github.com/ruario/3c873d43eb20553d5014bd4d29fe37f1) ([Fork](https://gist.github.com/basrieter/44a463a97a60958c36435d54d50debb4)) to install it automatically).
 
 _Example:_
 > If the most recent version obtained via https://dl.google.com/widevine-cdm/versions.txt is `4.10.1440.19`, then the download url for 64-bit windows is https://dl.google.com/widevine-cdm/4.10.1440.19-win-x64.zip.
@@ -84,5 +83,5 @@ Retrospect or Rieter.net are not connected to or in any other way affiliated wit
 ### Rules & Terms ###
 As more and more people are starting to make channels for the Retrospect Framework, we want to lay out some rules and terms for the channels that we will host on this site. Please stick to them before asking us to post or link to them on the site:
 
- 1. We, the Retrospect Framework team, are not responsible for any content that is displayed using the Retrospect Framework.
- 1. We, the Retrospect Framework team, do not support any kind of adult content for the Retrospect Framework nor will we host it on our servers.
+ 1. We, the Retrospect team, are not responsible for any content that is displayed using the Retrospect Framework.
+ 1. We, the Retrospect team, do not support any kind of adult content for the Retrospect Framework nor will we host it on our servers.
