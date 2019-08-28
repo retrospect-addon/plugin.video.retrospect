@@ -83,5 +83,5 @@ Retrospect or Rieter.net are not connected to or in any other way affiliated wit
 ### Rules & Terms ###
 As more and more people are starting to make channels for Retrospect, we want to lay out some rules and terms for the channels that we will host on this site. Please stick to them before asking us to post or link to them on the site:
 
- 1. We, the Retrospect team, are not responsible for any content that is displayed using the Retrospect Framework.
- 1. We, the Retrospect team, do not support any kind of adult content for the Retrospect Framework nor will we host it on our servers.
+ 1. We, the Retrospect team, are not responsible for any content that is displayed using Retrospect.
+ 1. We, the Retrospect team, do not support any kind of adult content for Retrospect, nor will we host it on our servers.
