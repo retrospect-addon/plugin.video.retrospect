@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+
 import os
 import xml.dom.minidom
 
@@ -35,6 +37,8 @@ class Config:
     rootDir = __path.replace(";", "").rstrip(os.sep)         # : The root directory where Retrospect resides.
     addonDir = os.path.split(rootDir)[-1]                    # : The add-on directory of Kodi.
     rootDir = os.path.join(rootDir, '')                      # : The root directory where Retrospect resides.
+    icon = os.path.join(rootDir, "resources", "media", "icon.png")
+    fanart = os.path.join(rootDir, "resources", "media", "fanart.jpg")
 
     # determine the profile directory, where user data is stored.
     if xbmc.getCondVisibility("system.platform.xbox"):
@@ -69,7 +73,7 @@ class Config:
         #noinspection PyRedeclaration
         appName = str(addonentry.getAttribute("name"))        # : The name from the addon (from addon.xml)
 
-    updateUrl = "https://github.com/retrospect-addon/plugin.video.retrospect/releases"
+    updateUrl = "https://api.github.com/repos/retrospect-addon/plugin.video.retrospect/releases"
 
     textureMode = "Cached"                                    # : The mode for the textures: Local, Remote, Cached or Resources
     textureUrl = "https://cdn.rieter.net/" \

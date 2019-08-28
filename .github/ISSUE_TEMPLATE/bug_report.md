@@ -43,7 +43,8 @@ Steps to reproduce the behavior:
 ### Debuglog
 <!--- Put your text below this line -->
 <!--- A debuglog is always mandatory when creating an issue. Provide one! -->
-The debuglog can be found here:
+<!--- More info can be found here: https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Logging -->
+The **debug** retrospect.log can be found here:
 
 
 ### Screenshots 

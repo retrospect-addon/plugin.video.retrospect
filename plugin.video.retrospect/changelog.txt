@@ -1,20 +1,13 @@
-[B]Retrospect v5.0.2 - Changelog - 2019-08-16[/B]
+[B]Retrospect v5.0.4 - Changelog - 2019-08-28[/B]
 
-A quick release for an annoying bug in NPO Start and the Retrospect vault under Kodi Matrix. Besides this, this new version fixes a number of channel related issues (RTL XL and NPO Start) and adds support for NPO Start Plus accounts that can be configured. Allow with these fixes some additional bugs were squashed. And while we were at it, we also updated some of the translations.
+Mainly a release to update the Retrospect license from CC BY-NC-ND to CC BY-NC-SA.
 
 [B]Framework related[/B]
-* Fixed: Python 3 issue with Vault
-* Changed: behaviour of enabling/disabling subtitles in Retrospect (Fixes #1204)
+* Fixed: ignore Channel InputStream Adaptive settings if encryption is needed
+* Updated: license from CC-BY-NC-ND to CC-BY-NC-SA-4.0
 
 [B]GUI/Settings/Language related[/B]
-* Added: translation for some common list item names
-* Updated: NPO Start is now localized for most of the strings
-* Changed: cleanup of playback and playlist generation code
+-
 
 [B]Channel related[/B]
-* Changed: restructured the TV4 Play main list a bit (Fixes #1193)
-* Fixed: NPO Start shows logon error popup even if no account was specified for NPO Start
-* Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api
-* Fixed: some NPO Start shows don't have a title in the metadata, which broken parsing (Fixes #1196)
-* Added: support for more profiles in NPO start (Fixes #1197)
-* Added: Show NPO Start error messages to user (See #1197)
+* Added: Option to disable InputStream Adaptive for VRT.Nu (Fixes #1210)

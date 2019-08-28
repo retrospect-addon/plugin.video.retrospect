@@ -1,71 +1,32 @@
 # Retrospect - Public GIT Repository #
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/retrospect-addon/plugin.video.retrospect)](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
 [![Build Status](https://travis-ci.com/retrospect-addon/plugin.video.retrospect.svg?branch=master)](https://travis-ci.com/retrospect-addon/plugin.video.retrospect)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=retrospect-addon:plugin.video.retrospect&metric=alert_status)](https://sonarcloud.io/dashboard?id=retrospect-addon:plugin.video.retrospect)
+[![License](https://img.shields.io/badge/license-cc_by--nc--sa-brightgreen)](https://github.com/retrospect-addon/plugin.video.retrospect/blob/master/LICENSE.md)
+[![Python](https://img.shields.io/badge/python-2.7%20%7C%203.6-blue)](https://kodi.tv/article/attention-addon-developers-migration-python-3)
 
-
-This repository holds the main code for Retrospect. For more information of bug reporting please visit https://bitbucket.org/basrieter/xbmc-online-tv or https://www.rieter.net/content/.
-
-# Installing and updating Retrospect under *Kodi Leia* and up
-If you are using Kodi Leia then the installation is straight forward: you can install Retrospect and the dependencies from the Kodi repository. You will find Retrospect in the repository under the Video Add-ons. 
-Updating Retrospect will then automatically be done using the Kodi repository.
+This repository holds the main code for Retrospect. For more information on bug reporting please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
 # Installing Retrospect #
-There are a couple of ways to install and/or update Retrospect using this GIT repository:
+There are two ways to install Retrospect, depending on what version of Kodi you are using:
 
-### 1 - Installing and updating Retrospect the 'Easy way' ###
-If a `plugin.video.retrospect-x.x.x.zip` is available from the download section, this zip can be installed using Kodi's _Install from ZIP_ feature. Keep in mind that you these zip files may not always be up-to-date.
+### Kodi Leia and later
+Starting from Kodi Leia (v18), you can easy install Retrospect via the Kodi repository. You can simply search the add-ons in the Kodi repository for Retrospect and install it. More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
-This method can also be used to install new versions of Retrospect and thus upgrading older installs.  
+**Note:** Make sure that the _Auto-Update_ option for Retrospect is enabled to automagically receive new updates.
 
-### 2 - Installation of Retrospect the 'Advanced way' ###
-The installation comes down to putting the folders from the GIT repo (either via a _'GIT Clone'_ or _'Full Zip Download'_)in the Kodi add-on folder (very often: /home/<user>/.kodi/addons or c:\users\<user>\AppData\Roaming\Kodi\addons). The result should be that the *addons* folder now contains at least these folders:
+![alt text](./plugin.video.retrospect/resources/media/retrospect01.jpg "The Retrospect information screen")
 
-```
- plugin.video.retrospect
- plugin.video.retrospect.channel.be
- plugin.video.retrospect.channel.mtg
- plugin.video.retrospect.channel.mtv
- plugin.video.retrospect.channel.nick
- plugin.video.retrospect.channel.no
- plugin.video.retrospect.channel.nos
- plugin.video.retrospect.channel.regionalnl
- plugin.video.retrospect.channel.rtlnl
- plugin.video.retrospect.channel.sbsnl
- plugin.video.retrospect.channel.se
- plugin.video.retrospect.channel.streams
- plugin.video.retrospect.channel.uk
- plugin.video.retrospect.channel.videos
-```
+### Kodi Krypton    
+If you are running Kodi Krypton (v17) the only way to install Retrospect is to install it from a zip file. Follow these steps (keep in mind they might slightly differ depending on your skin):
 
-#### Option A - ....via 'GIT Clone' ####
-Clone the Nightly GIT repository into a folder of your choice:
+1. Download the latest Retrospect zip file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
+1. Transfer the file to you Kodi system (_optional_)
+1. Install Retrospect from zip file
 
-```
-git clone https://bitbucket.org/basrieter/xbmc-online-tv.git
-```
+More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
-The cloned GIT repository should contain the folders mentioned above. Now either `copy` or `symlink` (`junction` on Windows) each those folders into the Kodi Add-ons folder. I would suggest using symlinks or junctions so changes from a `git pull` are automatically available in Kodi. 
-
-#### Option B - ....via 'Full Zip Download' ####
-Download the complete GIT repo and extract it into the Kodi Add-on folder.
-
-#### Caution!
-Be aware that if you install it using *Option A* or *Option B* Kodi will **disable** the add-on by default and it will **not install any of the dependencies**. So you need to enable it manually and install all the dependencies by hand. Starting from Kodi Leia this is easier as it has a "View Dependencies" option of add-ons.   
-
-
-### 3 - Updating Retrospect ###
-
-#### Option A - ....via 'GIT Clone' ####
-Pull latest changes into your clone (located in the Kodi Add-on folder). After that remove all existing `*.pyc` and `*.pyo` files within the Retrospect folders (**don't skip this**).
-
-#### Option B - ....via 'Full Zip Download' ####
-Download the complete GIT repo. Remove all existing Retrospect folders (**don't skip this**) and extract the new ones it into the Kodi Add-on folder.
-
-#### Finalizing the update ####
-In both situation run Retrospect at least once before accessing the Retrospect add-on settings. The initial run might take longer than usual, as Retrospect is initialising some stuff and downloads artwork.
-
-# ! Be advised ! #
-Retrospect will NOT auto-update. So new version need to be installed manually. 
+**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi 17 Krypton, it will not automagically update. Retrospect will notifiy you of new versions. You will then have to manually update you Retrospect add-on using the steps above.
 
 # Troubleshooting #
 
@@ -111,13 +72,7 @@ For **ARM Devices** (Such as a Raspberry Pi) things might be a bit different. If
 _NOTE: Keep in mind that you might need to try multiple recovery images before you find a working one._ 
 
 # Copyrights and Licenses #
-*See also: http://www.rieter.net/content/xot/license/.*
-
-### Retrospect (Dual) License ###
-Retrospect Framework by Bas Rieter is licensed under a Creative Commons Attribution-Non-Commercial-No Derivative Works 3.0 Unported License. Files that belong to the Retrospect Framework have a disclaimer stating that they are licensed under the Creative Commons Attribution-Non-Commercial-No Derivative Works 3.0 Unported License.
-
-All channels, skins and config.py (further called Retrospect Additions) are free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3 as published by the Free Software Foundation. Retrospect Additions are distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with Retrospect Additions. If not, see [1]. Kodi Add-on packages containing modified code must be given a different add-on identification to prevent confusion with the official packages.
-Distributing Retrospect
+Retrospect is licensed under a _Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International_. See also: [LICENSE.md](./LICENSE.md)
 
 The official add-on packages that are currently available within the official Retrospect Repository may not be distributed via other channels than the official Retrospect Repository. Only the official Retrospect Respository (respository.retrospect) package itself may be distributed and/or included within other Kodi (super) repositories.
 
@@ -127,6 +82,6 @@ Retrospect or Rieter.net are not connected to or in any other way affiliated wit
 ### Rules & Terms ###
 As more and more people are starting to make channels for the Retrospect Framework, we want to lay out some rules and terms for the channels that we will host on this site. Please stick to them before asking us to post or link to them on the site:
 
- 1. We, the Retrospect Framework team, are not responsible for any content that is displayed using the Retrospect Framework.
- 1. We, the Retrospect Framework team, do not support any kind of Adult content for the Retrospect Framework nor will we host it on our servers.
+ 1. We, the Retrospect team, are not responsible for any content that is displayed using the Retrospect Framework.
+ 1. We, the Retrospect team, do not support any kind of Adult content for the Retrospect Framework nor will we host it on our servers.
 
