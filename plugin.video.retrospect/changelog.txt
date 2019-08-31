@@ -3,11 +3,10 @@
 Mainly a release to update the Retrospect license from CC BY-NC-ND to CC BY-NC-SA.
 
 [B]Framework related[/B]
-* Fixed: ignore Channel InputStream Adaptive settings if encryption is needed
-* Updated: license from CC-BY-NC-ND to CC-BY-NC-SA-4.0
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Added: Option to disable InputStream Adaptive for VRT.Nu (Fixes #1210)
+* Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
