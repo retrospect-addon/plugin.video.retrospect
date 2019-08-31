@@ -70,11 +70,11 @@ msgstr "Datum"
 
 msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
-msgstr "Visa DRM/betalvarningar innan uppspelning"
+msgstr "Visa DRM-varningar"
 
 msgctxt "#30020"
 msgid "Maximum Stream Bitrate"
-msgstr "Högsta bithastighet för strömmar"
+msgstr "Högsta strömbitshastighet"
 
 msgctxt "#30021"
 msgid "Enable subtitles by default when available"
@@ -242,7 +242,7 @@ msgstr "Kanalinställningar"
 
 msgctxt "#30070"
 msgid "Let Kodi determine bitrate if possible"
-msgstr "Låt Kodi välja bästa bithastighet"
+msgstr "Låt Kodi välja bästa strömbitshastighet"
 
 msgctxt "#30071"
 msgid "Set the proxy and local IP to all channels related to this country"
@@ -848,13 +848,12 @@ msgid "Select Countries"
 msgstr "Välj länder"
 
 msgctxt "#30577"
-msgid "Bitrate »"
-msgstr "Bithastighet »"
+msgid "Channel Bitrate »"
+msgstr "Strömbitshastighet för kanal »"
 
 msgctxt "#30578"
 msgid "InputStream Adaptive add-on settings"
 msgstr "Inställningar för InputStream Adaptive-tillägget"
-
 msgctxt "#30579"
 msgid "InputStream Adaptive add-on »"
 msgstr "InputStream Adaptive-tillägget »"
