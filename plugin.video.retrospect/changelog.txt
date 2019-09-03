@@ -10,3 +10,4 @@ Mainly a release to update the Retrospect license from CC BY-NC-ND to CC BY-NC-S
 
 [B]Channel related[/B]
 * Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
+* Fixed: VRT.nu did not parse folders (Fixes #1218)
