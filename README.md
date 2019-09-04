@@ -37,7 +37,7 @@ In order to play Widevine DRM files you will also need to have the `Google Widev
 The _Easy way_:
 
 1. Open the Retrospect add-on settings.
-1. On the starting screen, make sure `Use Kodi InputStream Adaptive add-on when possible` is enabled.
+1. Under the General tab, make sure `Use Kodi InputStream Adaptive add-on when possible` is enabled.
 1. Select `Install Widevine using InputStream Helper add-on`.
 1. Agree to the three following input boxes and let Widevine install.
 
@@ -64,8 +64,8 @@ For **ARM Devices** (such as Raspberry Pi) things might be a bit different. If y
 1. From that configuration file, find the image for an ARM device that resembles your device. 
     * The *Acer Chromebook R13* image has been reported as working for many devices.
     * The device configuration section in the config file has a `URL` field that contains a link to a recovery image.
-1.From that recovery image, you will need the Widevine files located in /opt/google/chrome/libwidevinecdm*.so.
-1.These files need to be copied to the `<kodi-profile>/cdm` folder.
+1. From that recovery image, you will need the Widevine files located in /opt/google/chrome/libwidevinecdm*.so.
+1. These files need to be copied to the `<kodi-profile>/cdm` folder.
 
 _NOTE: Keep in mind that you might need to try multiple recovery images before you find a working one._ 
 
