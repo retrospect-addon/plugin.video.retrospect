@@ -12,7 +12,9 @@ from helpers.jsonhelper import JsonHelper
 from helpers.datehelper import DateHelper
 from helpers.languagehelper import LanguageHelper
 from streams.m3u8 import M3u8
+from streams.mpd import Mpd
 from channelinfo import ChannelInfo
+from addonsettings import AddonSettings
 
 from logger import Logger
 from urihandler import UriHandler
@@ -43,11 +45,19 @@ class Channel(chn_class.Channel):
         # setup the intial listing based on Alphabeth and specials
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
                               preprocessor=self.add_live_items_and_genres)
-        # in case we use the All Titles and Singles
+
+        # in case we use the All Titles and Singles with the API
         self._add_data_parser("https://www.svtplay.se/api/all_titles_and_singles",
                               match_type=ParserData.MatchExact, json=True,
                               # not used: preprocessor=self.FetchThumbData,
                               parser=[], creator=self.merge_json_episode_item)
+
+        self._add_data_parser("https://www.svtplay.se/api/title?slug=",
+                              json=True, name="JSON API Videos",
+                              preprocessor=self.extract_article_id,
+                              parser=[], creator=self.create_json_item)
+
+        self._add_data_parser("https://api.svt.se/videoplayer-api/video/", updater=self.update_video_api_item)
 
         # setup channel listing based on JSON data
         self._add_data_parser("#kanaler",
@@ -69,7 +79,7 @@ class Channel(chn_class.Channel):
                               parser=["gridPage", "pagination"],
                               creator=self.create_json_page_item)
 
-        # genres (using JSON)
+        # TODO: genres (using JSON)
         self._add_data_parser("https://www.svtplay.se/genre",
                               preprocessor=self.extract_json_data, json=True,
                               name="Parser for dynamically parsing tags/genres from overview",
@@ -88,6 +98,7 @@ class Channel(chn_class.Channel):
                               preprocessor=self.extract_apollo_json_data, json=True,
                               name="Video/Folder parsers for items in a Genre/Tag")
 
+        # TODO: Searching
         self._add_data_parser("https://www.svtplay.se/sok?q=", preprocessor=self.extract_json_data)
         self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
                               parser=["searchPage", "episodes"],
@@ -96,12 +107,12 @@ class Channel(chn_class.Channel):
                               parser=["searchPage", "videosAndTitles"],
                               creator=self.create_json_item)
 
-        # slugged items for which we need to filter tab items
+        # TODO: slugged items for which we need to filter tab items
         self._add_data_parser(r"^https?://www.svtplay.se/[^?]+\?tab=",
                               match_type=ParserData.MatchRegex, json=True,
                               preprocessor=self.extract_slug_data, updater=self.update_video_html_item)
 
-        # Other Json items
+        # TODO: Other Json items
         self._add_data_parser("*", preprocessor=self.extract_json_data, json=True)
 
         self.__showSomeVideosInListing = True
@@ -112,7 +123,7 @@ class Channel(chn_class.Channel):
                               parser=["relatedVideoContent", "relatedVideosAccordion"],
                               creator=self.create_json_folder_item)
 
-        # And the old stuff
+        # TODO: And the old stuff
         cat_regex = Regexer.from_expresso(r'<article[^>]+data-title="(?<Title>[^"]+)"[^"]+'
                                           r'data-description="(?<Description>[^"]*)"[^>]+'
                                           r'data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)'
@@ -442,6 +453,28 @@ class Channel(chn_class.Channel):
 
         return item
 
+    # Used at the moment
+    def extract_article_id(self, data):
+        """ Extracts the correct article_id from the json and fetches the data for that id
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+        items = []
+
+        json = JsonHelper(data)
+        article_id = json.get_value("articleId")
+        if not article_id:
+            return None, items
+
+        url = "https://www.svtplay.se/api/title_episodes_by_article_id?articleId={}".format(article_id)
+        data = UriHandler.open(url, proxy=self.proxy)
+        return data, items
+
+    # Used at the moment
     def create_json_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
 
@@ -461,8 +494,9 @@ class Channel(chn_class.Channel):
         if "titleArticleId" in result_set:
             return None
 
-        url = "%s%s" % (self.baseUrl, result_set['contentUrl'],)
-        if "/video/" in url:
+        url = result_set['contentUrl']
+        url = "https://www.svtplay.se/api/title?slug={0}".format(url.strip("/"))
+        if "video/" in url:
             return None
 
         item = MediaItem(result_set['programTitle'], url)
@@ -670,19 +704,23 @@ class Channel(chn_class.Channel):
 
         item_type = result_set.get("contentType")
         if "contentUrl" in result_set:
-            url = result_set["contentUrl"]
+            if "versions" in result_set:
+                video_id = result_set["versions"][0]["id"]
+            else:
+                video_id = result_set["id"]
+            url = "https://api.svt.se/videoplayer-api/video/{}".format(video_id)
         else:
             url = result_set["url"]
         broad_cast_date = result_set.get("broadcastDate", None)
 
         if item_type in ("videoEpisod", "videoKlipp", "singel"):
-            if not url.startswith("/video/") and not url.startswith("/klipp/"):
+            if "/video/" not in url and "/klipp/" not in url:
                 Logger.warning("Found video item without a /video/ or /klipp/ url.")
                 return None
             item_type = "video"
             if "programVersionId" in result_set:
                 url = "https://www.svt.se/videoplayer-api/video/%s" % (result_set["programVersionId"],)
-            else:
+            elif not url.startswith("http"):
                 url = "%s%s" % (self.baseUrl, url)
         else:
             item_type = "folder"
@@ -953,13 +991,15 @@ class Channel(chn_class.Channel):
         if self.localIP:
             part.HttpHeaders.update(self.localIP)
 
+        use_input_stream = AddonSettings.use_adaptive_stream_add_on(channel=self)
+
         for video in videos:
             video_format = video.get("format", "")
             if not video_format:
                 video_format = video.get("playerType", "")
             video_format = video_format.lower()
 
-            if "dash" in video_format or "hds" in video_format:
+            if ("dash" in video_format and not video_format == "dash") or "hds" in video_format:
                 Logger.debug("Skipping video format: %s", video_format)
                 continue
             Logger.debug("Found video item for format: %s", video_format)
@@ -969,7 +1009,11 @@ class Channel(chn_class.Channel):
                 Logger.debug("Skippping duplicate Stream url: %s", url)
                 continue
 
-            if "m3u8" in url:
+            if video_format == "dash" and use_input_stream:
+                stream = part.append_media_stream(video['url'], 1)
+                Mpd.set_input_stream_addon_input(stream, self.proxy)
+
+            elif "m3u8" in url:
                 alt_index = url.find("m3u8?")
                 if alt_index > 0:
                     url = url[0:alt_index + 4]
@@ -986,8 +1030,6 @@ class Channel(chn_class.Channel):
                     headers=part.HttpHeaders,
                     channel=self
                 )
-                # for s, b in M3u8.get_streams_from_m3u8(url, proxy=self.proxy, headers=part.HttpHeaders):
-                #     part.append_media_stream(s, b)
 
             elif video["url"].startswith("rtmp"):
                 # just replace some data in the URL
