@@ -37,36 +37,38 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "svtimage.png"
 
-        # setup the urls
+        # Setup the urls
         self.mainListUri = "https://www.svtplay.se/api/all_titles_and_singles"
         self.baseUrl = "https://www.svtplay.se"
         self.swfUrl = "https://media.svt.se/swf/video/svtplayer-2016.01.swf"
 
-        # setup the intial listing based on Alphabeth and specials
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              preprocessor=self.add_live_items_and_genres)
-
-        # in case we use the All Titles and Singles with the API
+        # In case we use the All Titles and Singles with the API
         self._add_data_parser("https://www.svtplay.se/api/all_titles_and_singles",
                               match_type=ParserData.MatchExact, json=True,
-                              # not used: preprocessor=self.FetchThumbData,
-                              parser=[], creator=self.merge_json_episode_item)
+                              preprocessor=self.add_live_items_and_genres,
+                              parser=[], creator=self.create_json_episode_item)
 
         self._add_data_parser("https://www.svtplay.se/api/title?slug=",
                               json=True, name="JSON API Videos",
                               preprocessor=self.extract_article_id,
                               parser=[], creator=self.create_json_item)
 
-        self._add_data_parser("https://api.svt.se/videoplayer-api/video/", updater=self.update_video_api_item)
+        self._add_data_parser("https://api.svt.se/videoplayer-api/video/",
+                              updater=self.update_video_api_item)
 
-        # setup channel listing based on JSON data
+        # Setup channel listing based on JSON data
         self._add_data_parser("#kanaler",
                               preprocessor=self.load_channel_data,
                               json=True,
                               parser=["hits", ],
                               creator=self.create_channel_item)
 
-        # special pages (using JSON) using a generic pre-processor to extract the data
+        # Special pages (using JSON) using a generic pre-processor to extract the data
+        # Could also be done with
+        #   - https://www.svtplay.se/api/latest?page=1&excludedTagsString=lokalt
+        #   - https://www.svtplay.se/api/last_chance?page=1&excludedTagsString=lokalt
+        #   - https://www.svtplay.se/populara?sida=1
+        #   - https://www.svtplay.se/api/live?page=1&excludedTagsString=lokalt
         special_json_pages = r"^https?://www.svtplay.se/(senaste|sista-chansen|populara|live)\?sida=\d+$"
         self._add_data_parser(special_json_pages,
                               match_type=ParserData.MatchRegex, preprocessor=self.extract_json_data)
@@ -79,19 +81,14 @@ class Channel(chn_class.Channel):
                               parser=["gridPage", "pagination"],
                               creator=self.create_json_page_item)
 
-        # TODO: genres (using JSON)
-        self._add_data_parser("https://www.svtplay.se/genre",
-                              preprocessor=self.extract_json_data, json=True,
-                              name="Parser for dynamically parsing tags/genres from overview",
-                              match_type=ParserData.MatchExact,
-                              parser=["clusters", "alphabetical"],
-                              creator=self.create_json_genre)
+        # Genres/tags (using JSON)
+        self._add_data_parser("https://www.svtplay.se/api/clusters", json=True,
+                              name="Genre/Tags parser",
+                              parser=[], creator=self.create_json_tag_item)
 
-        # self._add_data_parser("https://www.svtplay.se/genre/",
-        #                       preprocessor=self.extract_json_data, json=True,
-        #                       name="Video/Folder parsers for items in a Genre/Tag",
-        #                       parser=["clusterPage", "titlesAndEpisodes"],
-        #                       creator=self.create_json_item)
+        self._add_data_parser("https://www.svtplay.se/api/cluster_titles_and_episodes?cluster=", json=True,
+                              name="Cluster List Generator",
+                              parser=[], creator=self.create_json_episode_item)
 
         # SVT reverted the Apollo stuff (See #1080)
         self._add_data_parser("https://www.svtplay.se/genre/",
@@ -144,7 +141,6 @@ class Channel(chn_class.Channel):
 
         # ===============================================================================================================
         # non standard items
-        self.__thumbLookup = dict()
         self.__apollo_data = None
         self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
@@ -267,7 +263,7 @@ class Channel(chn_class.Channel):
             new_item.items.append(cat_item)
         items.append(new_item)
 
-        new_item = MediaItem("\a.: Genrer/Taggar :.", "https://www.svtplay.se/genre")
+        new_item = MediaItem("\a.: Genrer/Taggar :.", "https://www.svtplay.se/api/clusters")
         new_item.complete = True
         new_item.thumb = self.noImage
         new_item.dontGroup = True
@@ -275,39 +271,6 @@ class Channel(chn_class.Channel):
         items.append(new_item)
 
         return data, items
-
-    # def FetchThumbData(self, data):
-    #     items = []
-    #
-    #     thumbData = UriHandler.open("https://www.svtplay.se/ajax/sok/forslag.json", proxy=self.proxy)
-    #     json = JsonHelper(thumbData)
-    #     for jsonData in json.get_value():
-    #         if "thumbnail" not in jsonData:
-    #             continue
-    #         self.__thumbLookup[jsonData["url"]] = jsonData["thumbnail"]
-    #
-    #     return data, items
-
-    def merge_json_episode_item(self, result_set):
-        """ Creates a new MediaItem for a json based episode.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        thumb = self.__thumbLookup.get(result_set["contentUrl"])
-        if thumb:
-            result_set["poster"] = thumb
-
-        item = self.create_json_episode_item(result_set)
-        return item
 
     # noinspection PyUnusedLocal
     def load_channel_data(self, data):
@@ -631,6 +594,32 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url)
         item.thumb = self.parentItem.thumb
         return item
+
+    def create_json_tag_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+        Logger.trace(result_set)
+
+        url = "https://www.svtplay.se/api/cluster_titles_and_episodes?cluster={}".format(result_set['slug'])
+
+        genre = MediaItem(result_set['name'], url)
+        genre.icon = self.icon
+        genre.description = result_set.get('description')
+        genre.fanart = result_set.get('backgroundImage') or self.parentItem.fanart
+        genre.fanart = self.__get_thumb(genre.fanart, thumb_size="/extralarge/")
+        genre.thumb = result_set.get('thumbnailImage') or self.noImage
+        genre.thumb = self.__get_thumb(genre.thumb)
+        return genre
 
     def create_json_genre(self, result_set):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
