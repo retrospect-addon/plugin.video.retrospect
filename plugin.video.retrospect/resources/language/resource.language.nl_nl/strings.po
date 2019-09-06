@@ -56,6 +56,14 @@ msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
 msgstr "Herstart van Retrospect nodig om te activeren."
 
+msgctxt "#30012"
+msgid "Inloggen mislukt"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Het is niet gelukt om in te loggen voor dit kanaal."
+msgstr ""
+
 msgctxt "#30016"
 msgid "Sort by"
 msgstr "Sorteren op"
@@ -544,6 +552,18 @@ msgctxt "#30360"
 msgid "Full list"
 msgstr "Hele lijst"
 
+msgctxt "#30361"
+msgid "Tags"
+msgstr "Tags"
+
+msgctxt "#30362"
+msgid "Last chance"
+msgstr "Laatste kans"
+
+msgctxt "#30363"
+msgid "Popular"
+msgstr "Populair"
+
 msgctxt "#30401"
 msgid "Dutch"
 msgstr "Nederlands"
@@ -867,6 +887,18 @@ msgstr "Kanaal Bitrate »"
 msgctxt "#30578"
 msgid "InputStream Adaptive add-on settings"
 msgstr "InputStream Adaptive stream add-on instellingen"
+
+msgctxt "#30579"
+msgid "InputStream Adaptive add-on »"
+msgstr ""
+
+msgctxt "#30580"
+msgid "Kanaal Opties »"
+msgstr ""
+
+msgctxt "#30581"
+msgid "InputStream Adaptive add-on gebruik"
+msgstr ""
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"
