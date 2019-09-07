@@ -184,14 +184,21 @@ class Channel(chn_class.Channel):
         items = []
 
         extra_items = {
-            "Kanaler": "#kanaler",
-            "Livesändningar": "https://www.svtplay.se/live?sida=1",
-
-            "S&ouml;k": "searchSite",
-            "Senaste program": "https://www.svtplay.se/senaste?sida=1",
-            "Sista chansen": "https://www.svtplay.se/sista-chansen?sida=1",
-            "Populära": "https://www.svtplay.se/populara?sida=1",
+            LanguageHelper.get_localized_string(LanguageHelper.LiveTv): "#kanaler",
+            LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): "https://www.svtplay.se/live?sida=1",
+            LanguageHelper.get_localized_string(LanguageHelper.Search): "searchSite",
+            LanguageHelper.get_localized_string(LanguageHelper.Recent): "https://www.svtplay.se/senaste?sida=1",
+            LanguageHelper.get_localized_string(LanguageHelper.LastChance): "https://www.svtplay.se/sista-chansen?sida=1",
+            LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): "https://www.svtplay.se/populara?sida=1",
         }
+
+        for title, url in extra_items.items():
+            new_item = MediaItem("\a.: %s :." % (title, ), url)
+            new_item.complete = True
+            new_item.thumb = self.noImage
+            new_item.dontGroup = True
+            new_item.set_date(2099, 1, 1, text="")
+            items.append(new_item)
 
         # https://www.svtplay.se/ajax/dokumentar/titlar?filterAccessibility=&filterRights=
         category_items = {
@@ -241,15 +248,8 @@ class Channel(chn_class.Channel):
             )
         }
 
-        for title, url in extra_items.items():
-            new_item = MediaItem("\a.: %s :." % (title, ), url)
-            new_item.complete = True
-            new_item.thumb = self.noImage
-            new_item.dontGroup = True
-            new_item.set_date(2099, 1, 1, text="")
-            items.append(new_item)
-
-        new_item = MediaItem("\a.: Kategorier :.", "https://www.svtplay.se/genre")
+        category_title = "\a.: {} :.".format(LanguageHelper.get_localized_string(LanguageHelper.Categories))
+        new_item = MediaItem(category_title, "https://www.svtplay.se/genre")
         new_item.complete = True
         new_item.thumb = self.noImage
         new_item.dontGroup = True
@@ -263,7 +263,11 @@ class Channel(chn_class.Channel):
             new_item.items.append(cat_item)
         items.append(new_item)
 
-        new_item = MediaItem("\a.: Genrer/Taggar :.", "https://www.svtplay.se/api/clusters")
+        genre_tags = "\a.: {}/{} :.".format(
+            LanguageHelper.get_localized_string(LanguageHelper.Genres),
+            LanguageHelper.get_localized_string(LanguageHelper.Tags)
+        )
+        new_item = MediaItem(genre_tags, "https://www.svtplay.se/api/clusters")
         new_item.complete = True
         new_item.thumb = self.noImage
         new_item.dontGroup = True
