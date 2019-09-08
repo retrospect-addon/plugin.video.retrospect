@@ -72,7 +72,7 @@ class Channel(chn_class.Channel):
         #   - https://www.svtplay.se/api/last_chance?page=1&excludedTagsString=lokalt
         #   - https://www.svtplay.se/populara?sida=1
         #   - https://www.svtplay.se/api/live?page=1&excludedTagsString=lokalt
-        special_json_pages = r"^https?://www.svtplay.se/(senaste|sista-chansen|populara|live)\?sida=\d+$"
+        special_json_pages = r"^https?://www.svtplay.se/(senaste|sista-chansen|populara|direkt)\?sida=\d+$"
         self._add_data_parser(special_json_pages,
                               match_type=ParserData.MatchRegex, preprocessor=self.extract_json_data)
         self._add_data_parser(special_json_pages,
@@ -102,34 +102,6 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://www.svtplay.se/api/search?q=", json=True,
                               parser=["videosAndTitles"],
                               creator=self.create_json_item_sok)
-
-        # TODO: slugged items for which we need to filter tab items
-        self._add_data_parser(r"^https?://www.svtplay.se/[^?]+\?tab=",
-                              match_type=ParserData.MatchRegex, json=True,
-                              preprocessor=self.extract_slug_data, updater=self.update_video_html_item)
-
-        # TODO: Other Json items
-        self._add_data_parser("*", preprocessor=self.extract_json_data, json=True)
-
-        self.__showSomeVideosInListing = True
-        self.__listedRelatedTab = "RELATED_VIDEO_TABS_LATEST"
-        self.__excludedTabs = ["RELATED_VIDEOS_ACCORDION_UPCOMING", ]
-        self._add_data_parser("*", json=True,
-                              preprocessor=self.list_some_videos,
-                              parser=["relatedVideoContent", "relatedVideosAccordion"],
-                              creator=self.create_json_folder_item)
-
-        # TODO: And the old stuff
-        cat_regex = Regexer.from_expresso(r'<article[^>]+data-title="(?<Title>[^"]+)"[^"]+'
-                                          r'data-description="(?<Description>[^"]*)"[^>]+'
-                                          r'data-broadcasted="(?:(?<Date1>[^ "]+) (?<Date2>[^. "]+)'
-                                          r'[ .](?<Date3>[^"]+))?"[^>]+data-abroad="'
-                                          r'(?<Abroad>[^"]+)"[^>]+>\W+<a[^>]+href="(?<Url>[^"]+)"'
-                                          r'[\w\W]{0,5000}?<img[^>]+src="(?<Thumb>[^"]+)')
-        self._add_data_parser("https://www.svtplay.se/barn",
-                              match_type=ParserData.MatchExact,
-                              preprocessor=self.strip_non_categories, parser=cat_regex,
-                              creator=self.create_category_item)
 
         # Update via HTML pages
         self._add_data_parser("https://www.svtplay.se/video/", updater=self.update_video_html_item)
@@ -183,7 +155,7 @@ class Channel(chn_class.Channel):
 
         extra_items = {
             LanguageHelper.get_localized_string(LanguageHelper.LiveTv): "https://www.svtplay.se/kanaler",
-            LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): "https://www.svtplay.se/live?sida=1",
+            LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): "https://www.svtplay.se/direkt?sida=1",
             LanguageHelper.get_localized_string(LanguageHelper.Search): "searchSite",
             LanguageHelper.get_localized_string(LanguageHelper.Recent): "https://www.svtplay.se/senaste?sida=1",
             LanguageHelper.get_localized_string(LanguageHelper.LastChance): "https://www.svtplay.se/sista-chansen?sida=1",
@@ -508,68 +480,6 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    # noinspection PyTypeChecker
-    def list_some_videos(self, data):
-        """ If there was a Lastest section in the data return those video files
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        items = []
-
-        if not self.__showSomeVideosInListing:
-            return data, items
-
-        json_data = JsonHelper(data)
-        sections = json_data.get_value("relatedVideoContent", "relatedVideosAccordion")
-        sections = list(filter(lambda s: s['type'] not in self.__excludedTabs, sections))
-
-        Logger.debug("Found %s folders/tabs", len(sections))
-        if len(sections) == 1:
-            # we should exclude that tab from the folders list and show the videos here
-            self.__listedRelatedTab = sections[0]["type"]
-            # otherwise the default "RELATED_VIDEO_TABS_LATEST" is used
-        Logger.debug("Excluded tab '%s' which will be show as videos", self.__listedRelatedTab)
-
-        for section in sections:
-            if not section["type"] == self.__listedRelatedTab:
-                continue
-
-            for video_data in section['videos']:
-                items.append(self.create_json_item(video_data))
-        return data, items
-
-    def create_json_folder_item(self, result_set):
-        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set),
-        if result_set["type"] == self.__listedRelatedTab and self.__showSomeVideosInListing:
-            return None
-        if result_set["type"] in self.__excludedTabs:
-            return None
-
-        slug = result_set["slug"]
-        title = result_set["name"]
-        url = "%s?tab=%s" % (self.parentItem.url, slug)
-        item = MediaItem(title, url)
-        item.thumb = self.parentItem.thumb
-        return item
-
     def create_json_tag_item(self, result_set):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
 
@@ -779,27 +689,6 @@ class Channel(chn_class.Channel):
         #     item.url = "%s?tab=program" % (item.url, )
 
         return item
-
-    def strip_non_categories(self, data):
-        """ Performs pre-process actions for data processing/
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        Logger.info("Performing Pre-Processing")
-
-        items = []
-        start = data.find('<div id="playJs-alphabetic-list"')
-        end = data.find('<div id="playJs-', start + 1)
-        if end == 0:
-            end = -1
-        data = data[start:end]
-        Logger.debug("Pre-Processing finished")
-        return data, items
 
     def extract_live_channel_data(self, data):
         """ Adds the channel items to the listing.
