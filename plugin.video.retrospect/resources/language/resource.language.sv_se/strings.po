@@ -525,15 +525,15 @@ msgstr "Senaste program"
 
 msgctxt "#30356"
 msgid "Live TV"
-msgstr "Live-sändning"
+msgstr "Kanaler"
 
 msgctxt "#30357"
 msgid "Live Radio"
-msgstr ""
+msgstr "Radiosändningar"
 
 msgctxt "#30358"
 msgid "Episodes"
-msgstr ""
+msgstr "Avsnitt"
 
 msgctxt "#30359"
 msgid "Genres"
@@ -541,7 +541,7 @@ msgstr "Genrer"
 
 msgctxt "#30360"
 msgid "Full list"
-msgstr ""
+msgstr "Alla program"
 
 msgctxt "#30361"
 msgid "Tags"

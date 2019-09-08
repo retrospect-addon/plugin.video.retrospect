@@ -541,12 +541,12 @@ msgid "Live Radio"
 msgstr "Live Radio"
 
 msgctxt "#30358"
-msgid "Afleveringen"
-msgstr ""
+msgid "Episodes"
+msgstr "Afleveringen"
 
 msgctxt "#30359"
 msgid "Genres"
-msgstr ""
+msgstr "Genres"
 
 msgctxt "#30360"
 msgid "Full list"
