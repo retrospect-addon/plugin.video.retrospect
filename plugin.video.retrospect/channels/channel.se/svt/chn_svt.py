@@ -167,7 +167,6 @@ class Channel(chn_class.Channel):
             new_item.complete = True
             new_item.thumb = self.noImage
             new_item.dontGroup = True
-            new_item.set_date(2099, 1, 1, text="")
             items.append(new_item)
 
         # https://www.svtplay.se/ajax/dokumentar/titlar?filterAccessibility=&filterRights=
@@ -223,13 +222,11 @@ class Channel(chn_class.Channel):
         new_item.complete = True
         new_item.thumb = self.noImage
         new_item.dontGroup = True
-        new_item.set_date(2099, 1, 1, text="")
         for title, (url, thumb) in category_items.items():
             cat_item = MediaItem(title, url)
             cat_item.complete = True
             cat_item.thumb = thumb or self.noImage
             cat_item.dontGroup = True
-            # cat_item.set_date(2099, 1, 1, text="")
             new_item.items.append(cat_item)
         items.append(new_item)
 
@@ -241,7 +238,6 @@ class Channel(chn_class.Channel):
         new_item.complete = True
         new_item.thumb = self.noImage
         new_item.dontGroup = True
-        new_item.set_date(2099, 1, 1, text="")
         items.append(new_item)
 
         return data, items

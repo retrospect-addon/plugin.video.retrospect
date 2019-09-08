@@ -343,8 +343,7 @@ class Channel(chn_class.Channel):
 
             if date is not None:
                 item.set_date(date.year, date.month, date.day, 0, 0, 0, text=date.strftime("%Y-%m-%d"))
-            else:
-                item.set_date(1901, 1, 1, 0, 0, 0, text="")
+
             items.append(item)
 
         if not self.channelCode == "tv4se":
