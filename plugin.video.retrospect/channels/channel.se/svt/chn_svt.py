@@ -56,12 +56,11 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://api.svt.se/videoplayer-api/video/",
                               updater=self.update_video_api_item)
 
-        # Setup channel listing based on JSON data
-        self._add_data_parser("#kanaler",
-                              preprocessor=self.load_channel_data,
-                              json=True,
-                              parser=["hits", ],
-                              creator=self.create_channel_item)
+        # Setup channel listing based on JSON data in the HTML
+        self._add_data_parser("https://www.svtplay.se/kanaler", match_type=ParserData.MatchExact,
+                              name="Live streams", json=True,
+                              preprocessor=self.extract_live_channel_data,
+                              parser=[], creator=self.create_channel_item)
 
         # Special pages (using JSON) using a generic pre-processor to extract the data
         # Could also be done with
@@ -95,14 +94,10 @@ class Channel(chn_class.Channel):
                               preprocessor=self.extract_apollo_json_data, json=True,
                               name="Video/Folder parsers for items in a Genre/Tag")
 
-        # TODO: Searching
-        self._add_data_parser("https://www.svtplay.se/sok?q=", preprocessor=self.extract_json_data)
-        self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
-                              parser=["searchPage", "episodes"],
-                              creator=self.create_json_item)
-        self._add_data_parser("https://www.svtplay.se/sok?q=", json=True,
-                              parser=["searchPage", "videosAndTitles"],
-                              creator=self.create_json_item)
+        # Searching
+        self._add_data_parser("https://www.svtplay.se/api/search?q=", json=True,
+                              parser=["videosAndTitles"],
+                              creator=self.create_json_item_sok)
 
         # TODO: slugged items for which we need to filter tab items
         self._add_data_parser(r"^https?://www.svtplay.se/[^?]+\?tab=",
@@ -137,7 +132,6 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://www.svtplay.se/klipp/", updater=self.update_video_html_item)
         # Update via the new API urls
         self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.update_video_api_item)
-        self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.update_video_api_item)
 
         # ===============================================================================================================
         # non standard items
@@ -168,7 +162,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "https://www.svtplay.se/sok?q=%s"
+        url = "https://www.svtplay.se/api/search?q=%s"
         return chn_class.Channel.search_site(self, url)
 
     def add_live_items_and_genres(self, data):
@@ -184,7 +178,7 @@ class Channel(chn_class.Channel):
         items = []
 
         extra_items = {
-            LanguageHelper.get_localized_string(LanguageHelper.LiveTv): "#kanaler",
+            LanguageHelper.get_localized_string(LanguageHelper.LiveTv): "https://www.svtplay.se/kanaler",
             LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): "https://www.svtplay.se/live?sida=1",
             LanguageHelper.get_localized_string(LanguageHelper.Search): "searchSite",
             LanguageHelper.get_localized_string(LanguageHelper.Recent): "https://www.svtplay.se/senaste?sida=1",
@@ -274,34 +268,6 @@ class Channel(chn_class.Channel):
         new_item.set_date(2099, 1, 1, text="")
         items.append(new_item)
 
-        return data, items
-
-    # noinspection PyUnusedLocal
-    def load_channel_data(self, data):
-        """ Adds the channel items to the listing.
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        items = []
-
-        now = datetime.datetime.now()
-        try:
-            server_time = UriHandler.open("https://www.svtplay.se/api/server_time",
-                                          proxy=self.proxy, no_cache=True)
-            server_time_json = JsonHelper(server_time)
-            server_time = server_time_json.get_value("time")
-        except:
-            Logger.error("Error determining server time", exc_info=True)
-            server_time = "%04d-%02d-%02dT%02d:%02d:%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
-
-        data = UriHandler.open(
-            "https://www.svtplay.se/api/channel_page?now=%s" % (server_time, ),
-            proxy=self.proxy)
         return data, items
 
     def extract_json_data(self, data):
@@ -479,7 +445,7 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         return item
 
-    def create_json_episode_item_sok(self, result_set):
+    def create_json_item_sok(self, result_set):
         """ Creates a new MediaItem for search results.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -493,22 +459,19 @@ class Channel(chn_class.Channel):
 
         """
 
-        Logger.trace(result_set)
-        url = result_set["url"]
-        if url.startswith("/video") or url.startswith("/genre") or url.startswith('/oppetarkiv'):
+        content_type = result_set["contentType"].lower()
+
+        if content_type == "titel":
+            return self.create_json_episode_item(result_set)
+        elif content_type == "videoepisod":
+            return self.create_json_item(result_set)
+        elif content_type == "singel":
+            return self.create_json_item(result_set)
+        elif content_type == "videoklipp":
+            return self.create_json_item(result_set)
+        else:
+            Logger.warning("Missing contentType: %s", content_type)
             return None
-
-        url = "%s%s" % (self.baseUrl, url, )
-        item = MediaItem(result_set['title'], url)
-        item.icon = self.icon
-        item.thumb = result_set.get("thumbnail", self.noImage)
-        if item.thumb.startswith("//"):
-            item.thumb = "https:%s" % (item.thumb, )
-        item.thumb = item.thumb.replace("/small/", "/large/")
-
-        item.isGeoLocked = result_set.get('onlyAvailableInSweden', False)
-        item.complete = True
-        return item
 
     def create_json_page_item(self, result_set):
         """ Creates a MediaItem of type 'page' using the result_set from the regex.
@@ -697,7 +660,7 @@ class Channel(chn_class.Channel):
 
         item_type = result_set.get("contentType")
         if "contentUrl" in result_set:
-            if "versions" in result_set:
+            if "versions" in result_set and bool(result_set["versions"]):
                 video_id = result_set["versions"][0]["id"]
             else:
                 video_id = result_set["id"]
@@ -830,6 +793,28 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
+    def extract_live_channel_data(self, data):
+        """ Adds the channel items to the listing.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        json_string, _ = self.extract_json_data(data)
+        json_data = JsonHelper(json_string)
+        channels = json_data.get_value("channelsPage", "schedule")
+        channel_list = []
+        for channel_name, channel_data in channels.items():
+            if "channel" not in channel_data:
+                continue
+            channel_list.append(channel_data)
+
+        json_data.json = channel_list
+        return json_data, []
+
     def create_channel_item(self, channel):
         """ Creates a MediaItem of type 'video' for a live channel using the result_set
         from the regex.
@@ -855,16 +840,11 @@ class Channel(chn_class.Channel):
         title = channel["programmeTitle"]
         episode = channel.get("episodeTitle", None)
         thumb = self.noImage
+        channel_title = channel["channelName"]
+        description = channel.get("description")
         channel_id = channel["channel"].lower()
-        if channel_id == "svtk":
-            channel_title = "Kunskapskanalen"
-            channel_id = "kunskapskanalen"
-        elif channel_id == "svtb":
-            channel_title = "Barnkanalen"
+        if channel_id == "svtbarn":
             channel_id = "barnkanalen"
-        else:
-            channel_title = channel["channel"]
-        description = channel.get("longDescription")
 
         date_format = "%Y-%m-%dT%H:%M:%S"
         start_time = DateHelper.get_date_from_string(channel["publishingTime"][:19], date_format)
