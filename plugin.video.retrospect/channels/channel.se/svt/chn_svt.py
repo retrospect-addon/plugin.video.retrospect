@@ -49,8 +49,12 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_json_episode_item)
 
         self._add_data_parser("https://www.svtplay.se/api/title?slug=",
-                              json=True, name="JSON API Videos",
+                              json=True, name="JSON API Videos via Slug",
                               preprocessor=self.extract_article_id,
+                              parser=[], creator=self.create_json_item)
+
+        self._add_data_parser("https://www.svtplay.se/api/title_episodes_by_article_id?articleId=",
+                              json=True, name="JSON API Videos via ArticleID",
                               parser=[], creator=self.create_json_item)
 
         self._add_data_parser("https://api.svt.se/videoplayer-api/video/",
@@ -89,7 +93,7 @@ class Channel(chn_class.Channel):
                               name="Cluster List Generator",
                               parser=[], creator=self.create_json_episode_item)
 
-        # SVT reverted the Apollo stuff (See #1080)
+        # Categories (SVT reverted the Apollo stuff (See #1080))
         self._add_data_parser("https://www.svtplay.se/genre/",
                               preprocessor=self.extract_apollo_json_data, json=True,
                               name="Video/Folder parsers for items in a Genre/Tag")
@@ -358,6 +362,10 @@ class Channel(chn_class.Channel):
 
         if item_type == "clip":
             url = "https://www.svtplay.se/klipp/{}/".format(result_set["id"])
+
+        elif "id" in result_set:
+            url = "https://www.svtplay.se/api/title_episodes_by_article_id?articleId={}".format(result_set['id'])
+
         elif "urls" in result_set:
             # noinspection PyTypeChecker
             url_data = self.__apollo_data[result_set["urls"]["id"]]
