@@ -509,27 +509,27 @@ msgstr "Kategorier"
 
 msgctxt "#30352"
 msgid "TV Shows"
-msgstr "Program"
+msgstr "TV-program"
 
 msgctxt "#30353"
 msgid "Currently Playing"
-msgstr "Visas just nu"
+msgstr "Livesändningar"
 
 msgctxt "#30354"
 msgid "Most viewed episodes"
-msgstr "Mest visade avsnitten"
+msgstr "Mest sedda avsnitt"
 
 msgctxt "#30355"
 msgid "Most recent episodes"
-msgstr "Senaste avsnitten"
+msgstr "Senaste avsnitt"
 
 msgctxt "#30356"
 msgid "Live TV"
-msgstr "Kanaler"
+msgstr "TV-kanaler"
 
 msgctxt "#30357"
 msgid "Live Radio"
-msgstr "Direktsänd Radio"
+msgstr "Radio"
 
 msgctxt "#30358"
 msgid "Episodes"
@@ -553,7 +553,7 @@ msgstr "Sista chansen"
 
 msgctxt "#30363"
 msgid "Popular"
-msgstr "Populärt"
+msgstr "Populära"
 
 msgctxt "#30401"
 msgid "Dutch"
