@@ -630,8 +630,10 @@ class Channel(chn_class.Channel):
         expire_date = result_set.get("expireDate")
         if expire_date is not None:
             expire_date = expire_date.split("+")[0].replace("T", " ")
-            item.description = \
-                "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
+            year = expire_date.split("-")[0]
+            if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
+                item.description = \
+                    "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
 
         length = result_set.get("materialLength", 0)
         if length > 0:

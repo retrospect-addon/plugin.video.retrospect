@@ -1,7 +1,9 @@
-﻿[B]Changelog[/B]
-* Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
+﻿﻿[B]Changelog[/B]
+* Fixed: listing of SVT shows did not work (Fixes #1217)
+* Fixed: invalid expire dates for OA items in SVT Play and set Geo protected warning (Fixes #1220)
 
 [I]Previous changes[/I]
+* Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
 * Changed: restructured the TV4 Play main list a bit (Fixes #1193)
 * Added: Duration and Expire Date to SVT
 * Fixed: Added proper translation of "Recent" to the Swedish SBS Channels (Kanal 5, 9 and 11)
