@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.0.4"
+        version="5.0.5"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -128,20 +128,21 @@
 
         <license>CC-BY-NC-SA-4.0</license>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v5.0.4 - Changelog - 2019-08-28[/B]
+        <news>[B]Retrospect v5.0.5 - Changelog - 2019-09-10[/B]
 
-Mainly a release to update the Retrospect license from CC BY-NC-ND to CC BY-NC-SA.
+Another small update to fix some channel related issues and update some translations.
 
 [B]Framework related[/B]
-* Fixed: ignore Channel InputStream Adaptive settings if encryption is needed
-* Updated: license from CC-BY-NC-ND to CC-BY-NC-SA-4.0
+* Fixed: don&#x27;t set weird dates, as they are shown in Kodi 18.4 and higher
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Added: Option to disable InputStream Adaptive for VRT.Nu (Fixes #1210)
-
+* Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
+* Fixed: VRT.nu did not parse folders (Fixes #1218)
+* Fixed: listing of SVT shows did not work (Fixes #1217)
+* Fixed: invalid expire dates for OA items in SVT Play and set Geo protected warning (Fixes #1220)
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
