@@ -3,13 +3,11 @@
 Another small update to fix some channel related issues and update some translations.
 
 [B]Framework related[/B]
-* Fixed: don't set weird dates, as they are shown in Kodi 18.4 and higher
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
-* Fixed: VRT.nu did not parse folders (Fixes #1218)
-* Fixed: listing of SVT shows did not work (Fixes #1217)
-* Fixed: invalid expire dates for OA items in SVT Play and set Geo protected warning (Fixes #1220)
+* Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)
+* Fixed: VTM.be did not parse all folders (Fixes #1222) Bas Rieter 11-9-2019 23:43
