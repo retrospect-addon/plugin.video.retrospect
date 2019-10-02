@@ -1,4 +1,4 @@
-[B]Retrospect v5.0.5 - Changelog - 2019-09-10[/B]
+[B]Retrospect v5.0.6 - Changelog - 2019-10-02[/B]
 
 Just a minor update with some fixes for some channels.
 
@@ -12,4 +12,4 @@ Just a minor update with some fixes for some channels.
 * Fixed: use Dumpert API as they updated their site
 * Fixed: UR Play updated their site and broke Retrospect (Fixes #1226)
 * Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)
-* Fixed: VTM.be did not parse all folders (Fixes #1222) Bas Rieter 11-9-2019 23:43
+* Fixed: VTM.be did not parse all folders (Fixes #1222)
