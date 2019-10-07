@@ -1,7 +1,8 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: UR Play updated their site and broke Retrospect (Fixes #1226)
+* Fixed: Kanal 9 and Kanal 11 fanart
 
 [I]Previous changes[/I]
+* Fixed: UR Play updated their site and broke Retrospect (Fixes #1226)
 * Fixed: listing of SVT shows did not work (Fixes #1217)
 * Fixed: invalid expire dates for OA items in SVT Play and set Geo protected warning (Fixes #1220)
 * Fixed: Swedish TV4, Sjuan and TV12 did not show subtitles (Fixes #1188)
