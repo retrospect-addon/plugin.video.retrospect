@@ -9,7 +9,4 @@ Just a minor update with some fixes for some channels.
 -
 
 [B]Channel related[/B]
-* Fixed: use Dumpert API as they updated their site
-* Fixed: UR Play updated their site and broke Retrospect (Fixes #1226)
-* Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)
-* Fixed: VTM.be did not parse all folders (Fixes #1222)
+* Added: Viafree's MTV and National Geographic channels (Fixes #1229)
