@@ -1,10 +1,11 @@
 ﻿[B]Changelog[/B]
+* Fixed: NPO listings broke (Fixes #1233)
+
+[I]Previous Changes[/I]
 * Fixed: some NPO Start shows don't have a title in the metadata, which broken parsing (Fixes #1196)
 * Added: support for more profiles in NPO start (Fixes #1197)
 * Updated: NPO Start is now localized for most of the strings
 * Added: Show NPO Start error messages to user (See #1197)
-
-[I]Previous Changes[/I]
 * Changed: removed NTR School TV for now as it is no longer working and they retired their JSON api
 * Added: allow playback of NPO Plus content if you are logged in with an NPO Plus account (Fixes #1132)
 * Fixed: using API now so we get descriptions for videos (Fixes #1182)
