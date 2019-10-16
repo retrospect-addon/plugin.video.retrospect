@@ -3,12 +3,10 @@
 Updates for NPO that completely broke and added MTV and National Geographic for Sweden.
 
 [B]Framework related[/B]
--
+* Fixed: possible issue with missing content-type that cause a byte object to return (See #1239)
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Added: Viafree's MTV and National Geographic channels (Fixes #1229)
-* Fixed: Kanal 9 and Kanal 11 fanart
-* Fixed: NPO listings broke (Fixes #1233)
+* Fixed: UR Play site changes broke the channel (Fixes #1237)

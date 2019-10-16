@@ -1,7 +1,8 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: Kanal 9 and Kanal 11 fanart
+* Fixed: UR Play site changes broke the channel (Fixes #1237)
 
 [I]Previous changes[/I]
+* Fixed: Kanal 9 and Kanal 11 fanart
 * Fixed: UR Play updated their site and broke Retrospect (Fixes #1226)
 * Fixed: listing of SVT shows did not work (Fixes #1217)
 * Fixed: invalid expire dates for OA items in SVT Play and set Geo protected warning (Fixes #1220)
