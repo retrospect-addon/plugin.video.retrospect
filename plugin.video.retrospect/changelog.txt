@@ -10,3 +10,4 @@ Updates for NPO that completely broke and added MTV and National Geographic for 
 
 [B]Channel related[/B]
 * Fixed: UR Play site changes broke the channel (Fixes #1237)
+* Changed: Try to extract a duration from the description (Fixes #1238)

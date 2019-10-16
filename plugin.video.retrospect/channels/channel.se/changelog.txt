@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Changed: Try to extract a duration from the description (Fixes #1238)
 * Fixed: UR Play site changes broke the channel (Fixes #1237)
 
 [I]Previous changes[/I]

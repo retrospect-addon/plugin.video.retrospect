@@ -50,6 +50,9 @@ class Channel(chn_class.Channel):
         item_regex = r'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
                      r'{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>\s*(?<description>[^<]+?)' \
                      r'\s*<span class="usp">(?<description2>[^<]+)'
+        item_regex = r'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
+                     r'{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>\s{0,4}(?<description>[^<]*?)' \
+                     r'\s+(?:(?<duration>\d{1,3})\smin\s.\s+)?<span class="usp">(?<description2>[^<]+)'
         item_regex = Regexer.from_expresso(item_regex)
 
         single_video_regex = r'<meta \w+="name" content="(?:[^:]+: )?(?<title>[^"]+)' \
@@ -269,7 +272,11 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
 
-        title = "%(title)s" % result_set
+        main_title = result_set.get("mainTitle")
+        if main_title:
+            title = "{} - {}".format(main_title, result_set["title"])
+        else:
+            title = "%(title)s" % result_set
         url = "%s/program/%s" % (self.baseUrl, result_set["slug"])
         fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
         thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
@@ -343,6 +350,10 @@ class Channel(chn_class.Channel):
         item.fanart = self.parentItem.fanart
         item.icon = self.icon
         item.complete = False
+
+        duration = result_set.get("duration")
+        if duration:
+            item.set_info_label("duration", int(duration) * 60)
 
         self.__videoItemFound = True
         return item
