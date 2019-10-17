@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Added: Expires at to SVT (Fixes #1213)
 * Fixed: TV4.se changed their API endpoint (Fixes #1240)
 * Changed: Try to extract a duration from the description (Fixes #1238)
 * Fixed: UR Play site changes broke the channel (Fixes #1237)
