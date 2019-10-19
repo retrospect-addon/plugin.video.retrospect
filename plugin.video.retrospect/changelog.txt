@@ -1,6 +1,6 @@
-[B]Retrospect v5.0.7 - Changelog - 2019-10-09[/B]
+[B]Retrospect v5.0.8 - Changelog - 2019-10-19[/B]
 
-Updates for NPO that completely broke and added MTV and National Geographic for Sweden.
+Fixed some Swedish channel related issues and a Python 3 issue for HTTP responses without encoding information.
 
 [B]Framework related[/B]
 * Fixed: possible issue with missing content-type that cause a byte object to return (See #1239)
