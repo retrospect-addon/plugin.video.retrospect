@@ -605,7 +605,7 @@ class _RequestsHandler(object):
             return True
 
     def __is_text_content_type(self, content_type):
-        return content_type.lower() in ["application/vnd.apple.mpegurl"]
+        return content_type.lower() in ["application/vnd.apple.mpegurl", "application/x-mpegurl"]
 
     def __str__(self):
         return "UriHandler [id={0}, useCaching={1}, ignoreSslErrors={2}]"\
