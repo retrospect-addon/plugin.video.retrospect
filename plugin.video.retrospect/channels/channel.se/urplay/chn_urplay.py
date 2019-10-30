@@ -1,16 +1,16 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-import chn_class
-from helpers.languagehelper import LanguageHelper
+from resources.lib import chn_class
+from resources.lib.helpers.languagehelper import LanguageHelper
 
-from mediaitem import MediaItem
-from parserdata import ParserData
-from regexer import Regexer
-from helpers import subtitlehelper
-from logger import Logger
-from urihandler import UriHandler
-from helpers.jsonhelper import JsonHelper
+from resources.lib.mediaitem import MediaItem
+from resources.lib.parserdata import ParserData
+from resources.lib.regexer import Regexer
+from resources.lib.helpers import subtitlehelper
+from resources.lib.logger import Logger
+from resources.lib.urihandler import UriHandler
+from resources.lib.helpers.jsonhelper import JsonHelper
 
 
 class Channel(chn_class.Channel):

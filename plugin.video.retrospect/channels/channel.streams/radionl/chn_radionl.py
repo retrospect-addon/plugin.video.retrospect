@@ -2,14 +2,14 @@
 
 import os
 
-import chn_class
+from resources.lib import chn_class
 
-from retroconfig import Config
-from mediaitem import MediaItem
-from logger import Logger
-from urihandler import UriHandler
-from helpers.ziphelper import ZipHelper
-from xbmcwrapper import XbmcDialogProgressWrapper
+from resources.lib.retroconfig import Config
+from resources.lib.mediaitem import MediaItem
+from resources.lib.logger import Logger
+from resources.lib.urihandler import UriHandler
+from resources.lib.helpers.ziphelper import ZipHelper
+from resources.lib.xbmcwrapper import XbmcDialogProgressWrapper
 
 
 class Channel(chn_class.Channel):

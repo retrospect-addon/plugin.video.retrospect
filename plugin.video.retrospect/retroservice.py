@@ -11,7 +11,7 @@ import xbmcaddon
 from initializer import Initializer  # nopep8
 Initializer.set_unicode()
 
-from retroconfig import Config
+from resources.lib.retroconfig import Config
 
 
 def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
