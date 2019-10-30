@@ -14,22 +14,22 @@ from initializer import Initializer
 Initializer.set_unicode()
 sys.path.remove(addOnPath)
 
-from retroconfig import Config
-from logger import Logger
+from resources.lib.retroconfig import Config
+from resources.lib.logger import Logger
 Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
                      Config.appName,
                      append=True,
                      dual_logger=lambda x, y=4: xbmc.log(x, y))
 
-from helpers.htmlentityhelper import HtmlEntityHelper
-from addonsettings import AddonSettings, LOCAL
-from favourites import Favourites
-from paramparser import ParameterParser
-from helpers.channelimporter import ChannelIndex
-from helpers.languagehelper import LanguageHelper
-from locker import LockWithDialog
-from cloaker import Cloaker
-from xbmcwrapper import XbmcWrapper
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.addonsettings import AddonSettings, LOCAL
+from resources.lib.favourites import Favourites
+from resources.lib.paramparser import ParameterParser
+from resources.lib.helpers.channelimporter import ChannelIndex
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.locker import LockWithDialog
+from resources.lib.cloaker import Cloaker
+from resources.lib.xbmcwrapper import XbmcWrapper
 Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
 

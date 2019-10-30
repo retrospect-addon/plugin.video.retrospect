@@ -4,7 +4,7 @@
 import re
 import json
 
-from backtothefuture import unichr
+from resources.lib.backtothefuture import unichr
 
 
 #noinspection PyShadowingNames

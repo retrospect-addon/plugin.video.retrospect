@@ -2,8 +2,8 @@
 
 import re
 
-from regexer import Regexer
-from helpers import taghelperbase
+from resources.lib.regexer import Regexer
+from resources.lib.helpers import taghelperbase
 
 
 class HtmlHelper(taghelperbase.TagHelperBase):

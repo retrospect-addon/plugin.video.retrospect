@@ -2,7 +2,7 @@
 import base64
 import hashlib
 
-from backtothefuture import PY3, unichr
+from resources.lib.backtothefuture import PY3, unichr
 
 
 class EncodingHelper(object):

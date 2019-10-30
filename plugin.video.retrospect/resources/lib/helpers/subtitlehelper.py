@@ -4,13 +4,13 @@ import time
 import io
 import os
 
-from regexer import Regexer
-from retroconfig import Config
-from logger import Logger
-from urihandler import UriHandler
-from helpers.jsonhelper import JsonHelper
-from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.encodinghelper import EncodingHelper
+from resources.lib.regexer import Regexer
+from resources.lib.retroconfig import Config
+from resources.lib.logger import Logger
+from resources.lib.urihandler import UriHandler
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.helpers.encodinghelper import EncodingHelper
 
 
 class SubtitleHelper(object):

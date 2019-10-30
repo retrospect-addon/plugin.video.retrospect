@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import os
-from xbmcwrapper import XbmcWrapper
-from helpers.jsonhelper import JsonHelper
-from retroconfig import Config
+from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.retroconfig import Config
 
 __all__ = ["local", "remote", "cached", "TextureHandler"]
 
@@ -62,8 +62,8 @@ class TextureHandler:
                                                             config.profileDir, config.profileUri,
                                                             logger, uri_handler)
         elif mode == Resources:
-            from . import resources
-            TextureHandler.__TextureHandler = resources.Resources(config.textureResource, logger)
+            from . import resourceaddon
+            TextureHandler.__TextureHandler = resourceaddon.Resources(config.textureResource, logger)
         else:
             raise Exception("Invalide mode: %s" % (mode,))
 

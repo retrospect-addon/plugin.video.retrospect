@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 import re
 
-from backtothefuture import PY2, PY3, unichr
+from resources.lib.backtothefuture import PY2, PY3, unichr
 
 if PY2:
     import urllib
@@ -11,7 +11,7 @@ else:
     import urllib.parse
     import html.entities as htmldefs
 
-from logger import Logger
+from resources.lib.logger import Logger
 
 
 class HtmlEntityHelper(object):

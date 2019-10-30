@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from regexer import Regexer
-from logger import Logger
+from resources.lib.regexer import Regexer
+from resources.lib.logger import Logger
 
 
 class TagHelperBase(object):

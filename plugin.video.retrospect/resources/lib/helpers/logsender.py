@@ -3,10 +3,10 @@
 import os
 import io
 
-from helpers.htmlentityhelper import HtmlEntityHelper
-from urihandler import UriHandler
-from helpers.jsonhelper import JsonHelper
-from proxyinfo import ProxyInfo
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.urihandler import UriHandler
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.proxyinfo import ProxyInfo
 
 
 class LogSender(object):

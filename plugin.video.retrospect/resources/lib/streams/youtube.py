@@ -2,11 +2,11 @@
 
 import xbmc
 
-from logger import Logger
-from helpers.htmlentityhelper import HtmlEntityHelper
-from regexer import Regexer
-from urihandler import UriHandler
-from proxyinfo import ProxyInfo
+from resources.lib.logger import Logger
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.regexer import Regexer
+from resources.lib.urihandler import UriHandler
+from resources.lib.proxyinfo import ProxyInfo
 
 
 class YouTube(object):

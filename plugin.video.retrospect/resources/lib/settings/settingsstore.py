@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from logger import Logger
+from resources.lib.logger import Logger
 
 
 class SettingsStore(object):

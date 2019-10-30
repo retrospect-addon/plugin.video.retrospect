@@ -6,23 +6,23 @@ import io
 import datetime
 import time
 
-from backtothefuture import PY3
+from resources.lib.backtothefuture import PY3
 if PY3:
     import glob
 
-import envcontroller
-from addonsettings import AddonSettings
-from environments import Environments
-from xbmcwrapper import XbmcWrapper
-from helpers.languagehelper import LanguageHelper
-from retroconfig import Config
-from channelinfo import ChannelInfo
-from logger import Logger
-from helpers.jsonhelper import JsonHelper
-from textures import TextureHandler
-from version import Version
-from .stopwatch import StopWatch
-from chn_class import Channel
+from resources.lib import envcontroller
+from resources.lib.addonsettings import AddonSettings
+from resources.lib.environments import Environments
+from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.retroconfig import Config
+from resources.lib.channelinfo import ChannelInfo
+from resources.lib.logger import Logger
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.textures import TextureHandler
+from resources.lib.version import Version
+from resources.lib.helpers.stopwatch import StopWatch
+from resources.lib.chn_class import Channel
 
 
 class ChannelIndex(object):

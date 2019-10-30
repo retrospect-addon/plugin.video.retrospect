@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from regexer import Regexer
+from resources.lib.regexer import Regexer
 
 
 class Smil(object):

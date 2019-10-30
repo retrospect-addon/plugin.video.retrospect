@@ -4,8 +4,8 @@ import os
 import io
 import time
 
-from backtothefuture import unicode
-from retroconfig import Config
+from resources.lib.backtothefuture import unicode
+from resources.lib.retroconfig import Config
 
 
 class SessionHelper(object):

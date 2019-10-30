@@ -2,7 +2,7 @@
 
 import os
 
-from textures import TextureHandler
+from resources.lib.textures import TextureHandler
 
 
 class Local(TextureHandler):

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from streams.adaptive import Adaptive
+from resources.lib.streams.adaptive import Adaptive
 
 
 class Mpd(object):
@@ -41,7 +41,7 @@ class Mpd(object):
         if license_key is not None:
             # Local import to make sure the overhead is low
             import inputstreamhelper
-            from logger import Logger
+            from resources.lib.logger import Logger
 
             is_helper = inputstreamhelper.Helper('mpd', drm=license_type)
             if is_helper.check_inputstream():

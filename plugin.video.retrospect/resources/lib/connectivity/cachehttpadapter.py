@@ -10,7 +10,7 @@ import json
 import hashlib
 
 from .streamcache import StreamCache
-from logger import Logger
+from resources.lib.logger import Logger
 
 
 class CacheHTTPAdapter(HTTPAdapter):

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from urihandler import UriHandler
-from proxyinfo import ProxyInfo
-from logger import Logger
-from regexer import Regexer
+from resources.lib.urihandler import UriHandler
+from resources.lib.proxyinfo import ProxyInfo
+from resources.lib.logger import Logger
+from resources.lib.regexer import Regexer
 
 
 class F4m(object):

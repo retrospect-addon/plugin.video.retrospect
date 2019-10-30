@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from helpers.jsonhelper import JsonHelper
-from regexer import Regexer
-from streams.m3u8 import M3u8
-from streams.mpd import Mpd
-from helpers.subtitlehelper import SubtitleHelper
-from urihandler import UriHandler
-from logger import Logger
-from proxyinfo import ProxyInfo
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.regexer import Regexer
+from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.mpd import Mpd
+from resources.lib.helpers.subtitlehelper import SubtitleHelper
+from resources.lib.urihandler import UriHandler
+from resources.lib.logger import Logger
+from resources.lib.proxyinfo import ProxyInfo
 
 
 class NpoStream(object):

@@ -2,7 +2,7 @@
 
 import socket
 
-from backtothefuture import PY2
+from resources.lib.backtothefuture import PY2
 
 
 class DnsResolver:

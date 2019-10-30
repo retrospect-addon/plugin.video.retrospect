@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from urihandler import UriHandler
-from logger import Logger
-from regexer import Regexer
-from streams.adaptive import Adaptive
-from mediaitem import MediaItemPart
-from proxyinfo import ProxyInfo
-from addonsettings import AddonSettings
+from resources.lib.urihandler import UriHandler
+from resources.lib.logger import Logger
+from resources.lib.regexer import Regexer
+from resources.lib.streams.adaptive import Adaptive
+from resources.lib.mediaitem import MediaItemPart
+from resources.lib.proxyinfo import ProxyInfo
+from resources.lib.addonsettings import AddonSettings
 
 
 class M3u8(object):

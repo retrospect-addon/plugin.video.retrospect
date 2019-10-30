@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from textures import TextureHandler
+from resources.lib.textures import TextureHandler
 
 
 class Resources(TextureHandler):

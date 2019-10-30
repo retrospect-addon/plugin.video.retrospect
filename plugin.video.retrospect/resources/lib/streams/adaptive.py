@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 
 
 class Adaptive(object):

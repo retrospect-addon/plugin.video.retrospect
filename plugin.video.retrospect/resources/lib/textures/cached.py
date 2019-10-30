@@ -5,9 +5,9 @@ import shutil
 import os
 import io
 
-from backtothefuture import PY2
-from helpers.jsonhelper import JsonHelper
-from textures import TextureHandler
+from resources.lib.backtothefuture import PY2
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.textures import TextureHandler
 
 
 class Cached(TextureHandler):
