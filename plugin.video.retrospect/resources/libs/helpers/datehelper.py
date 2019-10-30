@@ -12,6 +12,17 @@ class DateHelper(object):
         raise NotImplementedError("Just statics")
 
     @staticmethod
+    def is_dst(time_obj=time.localtime()):
+        """ Is Daylight Saving active for the given time
+
+        :param tuple[int] time_obj:
+        :return: If Daylight Saving is enabled for the time
+
+        """
+
+        return time_obj.tm_isdst
+
+    @staticmethod
     def this_year():
         """ Returns the current year
 

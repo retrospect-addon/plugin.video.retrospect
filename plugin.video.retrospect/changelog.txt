@@ -10,3 +10,4 @@ Fixed some Swedish channel related issues and a Python 3 issue for HTTP response
 
 [B]Channel related[/B]
 * Fixed: some TV4play.se streams are now DRM protected with Widevine (Fixes #1250)
+* Fixed: Times did not show correctly for NPO due to ending of DST

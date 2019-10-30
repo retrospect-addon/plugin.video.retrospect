@@ -1,5 +1,6 @@
 ﻿[B]Changelog[/B]
 * Fixed: NPO listings broke (Fixes #1233)
+* Fixed: Times did not show correctly for NPO due to ending of DST
 
 [I]Previous Changes[/I]
 * Fixed: some NPO Start shows don't have a title in the metadata, which broken parsing (Fixes #1196)

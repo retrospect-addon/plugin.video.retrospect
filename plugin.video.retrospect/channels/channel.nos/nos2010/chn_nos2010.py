@@ -189,6 +189,7 @@ class Channel(chn_class.Channel):
             "NOSJ": "NPO Nieuws"
         }
         self.__has_premium_cache = None
+        self.__is_dst = DateHelper.is_dst()
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
@@ -879,7 +880,8 @@ class Channel(chn_class.Channel):
         if date:
             time_stamp = DateHelper.get_date_from_string(date, date_format=date_format)
             if for_epg:
-                date_time = datetime.datetime(*time_stamp[:6]) + datetime.timedelta(hours=2)
+                time_delta = 2 if self.__is_dst else 1
+                date_time = datetime.datetime(*time_stamp[:6]) + datetime.timedelta(hours=time_delta)
                 item.name = "{:02}:{:02} - {}".format(
                     date_time.hour, date_time.minute, item.name)
             else:
