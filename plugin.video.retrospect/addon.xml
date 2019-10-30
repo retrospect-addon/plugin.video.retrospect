@@ -13,7 +13,7 @@
     </requires>
 
     <extension  point="xbmc.python.pluginsource"
-                library="default.py">
+                library="retroaddon.py">
         <provides>video</provides>
     </extension>
 
