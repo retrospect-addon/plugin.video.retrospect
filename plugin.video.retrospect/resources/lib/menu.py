@@ -12,7 +12,6 @@ sys.path.append(addOnPath)
 # setup some initial stuff
 from initializer import Initializer
 Initializer.set_unicode()
-sys.path.remove(addOnPath)
 
 from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
