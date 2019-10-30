@@ -8,11 +8,11 @@ import threading
 
 import xbmc
 
-from logger import Logger                               # this has not further references
-from proxyinfo import ProxyInfo                         # this has not further references
-from retroconfig import Config                          # this has not further references
-from helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
-from settings import localsettings, kodisettings, settingsstore
+from resources.lib.logger import Logger                               # this has not further references
+from resources.lib.proxyinfo import ProxyInfo                         # this has not further references
+from resources.lib.retroconfig import Config                          # this has not further references
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper   # Only has Logger as reference
+from resources.lib.settings import localsettings, kodisettings, settingsstore
 
 # Theoretically we could add a remote settings store too!
 KODI = "kodi"
@@ -582,7 +582,7 @@ class AddonSettings(object):
 
         # there are slow imports, so only do them here
         import platform
-        from envcontroller import EnvController
+        from resources.lib.envcontroller import EnvController
 
         # noinspection PyNoneFunctionAssignment
         version = AddonSettings.get_kodi_version()

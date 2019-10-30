@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from helpers.jsonhelper import JsonHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
 
 
 class Cloaker(object):

@@ -3,7 +3,7 @@
 import os
 import time
 
-from backtothefuture import PY2
+from resources.lib.backtothefuture import PY2
 if PY2:
     # noinspection PyCompatibility
     from cookielib import Cookie, CookieJar, MozillaCookieJar
@@ -17,11 +17,11 @@ import requests
 import requests.cookies
 import requests.utils
 
-from connectivity.cachehttpadapter import CacheHTTPAdapter
-from connectivity.dnshttpadapter import DnsResolverHTTPAdapter
-from connectivity.streamcache import StreamCache
-from logger import Logger
-from proxyinfo import ProxyInfo
+from resources.lib.connectivity.cachehttpadapter import CacheHTTPAdapter
+from resources.lib.connectivity.dnshttpadapter import DnsResolverHTTPAdapter
+from resources.lib.connectivity.streamcache import StreamCache
+from resources.lib.logger import Logger
+from resources.lib.proxyinfo import ProxyInfo
 
 
 UriStatus = namedtuple('UriStatus', [

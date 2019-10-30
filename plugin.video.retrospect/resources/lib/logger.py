@@ -7,7 +7,7 @@ import traceback
 import time
 import datetime
 
-from backtothefuture import PY2
+from resources.lib.backtothefuture import PY2
 
 
 class Logger:

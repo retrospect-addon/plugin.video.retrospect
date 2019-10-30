@@ -2,7 +2,7 @@
 
 import re
 
-from logger import Logger
+from resources.lib.logger import Logger
 
 
 class Regexer(object):

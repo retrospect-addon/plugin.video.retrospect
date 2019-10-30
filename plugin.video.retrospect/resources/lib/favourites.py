@@ -4,9 +4,9 @@ import glob
 import io
 import os
 
-from logger import Logger
-from pickler import Pickler
-from regexer import Regexer
+from resources.lib.logger import Logger
+from resources.lib.pickler import Pickler
+from resources.lib.regexer import Regexer
 
 
 class Favourites:

@@ -2,8 +2,8 @@
 
 import random
 
-from logger import Logger
-from pickler import Pickler
+from resources.lib.logger import Logger
+from resources.lib.pickler import Pickler
 
 
 class ParameterParser(object):

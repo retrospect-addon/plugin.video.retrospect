@@ -6,23 +6,23 @@ import xbmcplugin
 import xbmc
 import xbmcgui
 
-import envcontroller
-from logger import Logger
-from addonsettings import AddonSettings
-from locker import LockWithDialog
-from retroconfig import Config
-from xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
-from mediaitem import MediaItem
-from helpers.channelimporter import ChannelIndex
-from helpers.languagehelper import LanguageHelper
-from helpers.stopwatch import StopWatch
-from helpers.sessionhelper import SessionHelper
-from helpers.htmlentityhelper import HtmlEntityHelper
-from textures import TextureHandler
-from paramparser import ParameterParser
-from urihandler import UriHandler
-from channelinfo import ChannelInfo
-from chn_class import Channel
+from resources.lib import envcontroller
+from resources.lib.logger import Logger
+from resources.lib.addonsettings import AddonSettings
+from resources.lib.locker import LockWithDialog
+from resources.lib.retroconfig import Config
+from resources.lib.xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
+from resources.lib.mediaitem import MediaItem
+from resources.lib.helpers.channelimporter import ChannelIndex
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.helpers.stopwatch import StopWatch
+from resources.lib.helpers.sessionhelper import SessionHelper
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.textures import TextureHandler
+from resources.lib.paramparser import ParameterParser
+from resources.lib.urihandler import UriHandler
+from resources.lib.channelinfo import ChannelInfo
+from resources.lib.chn_class import Channel
 
 
 class Plugin(ParameterParser):
@@ -79,7 +79,7 @@ class Plugin(ParameterParser):
                 Config.appName,), fallback=False, logger=Logger)
 
             # check for updates. Using local import for performance
-            from updater import Updater
+            from resources.lib.updater import Updater
             up = Updater(Config.updateUrl, Config.version,
                          UriHandler.instance(), Logger.instance(),
                          AddonSettings.get_release_track())
@@ -157,7 +157,7 @@ class Plugin(ParameterParser):
                 try:
                     # Import vault here, as it is only used here or in a channel
                     # that supports it
-                    from vault import Vault
+                    from resources.lib.vault import Vault
 
                     action = self.params[self.keywordAction]
                     if action == self.actionResetVault:
@@ -377,7 +377,7 @@ class Plugin(ParameterParser):
             Logger.info("Showing favourites for: %s", channel)
 
         # Local import for performance
-        from favourites import Favourites
+        from resources.lib.favourites import Favourites
         f = Favourites(Config.favouriteDir)
         favs = f.list(channel)
         self.process_folder_list(favs)
@@ -799,7 +799,7 @@ class Plugin(ParameterParser):
     def __send_log(self):
         """ Send log files via Pastbin or Gist. """
 
-        from helpers.logsender import LogSender
+        from resources.lib.helpers.logsender import LogSender
         sender_mode = 'hastebin'
         log_sender = LogSender(Config.logSenderApi, logger=Logger.instance(), mode=sender_mode)
         try:

@@ -2,9 +2,9 @@
 
 import re
 
-from helpers.jsonhelper import JsonHelper
-from version import Version
-from logger import Logger
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.version import Version
+from resources.lib.logger import Logger
 
 
 class Updater(object):

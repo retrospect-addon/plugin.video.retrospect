@@ -1,7 +1,7 @@
 # coding=utf-8
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from backtothefuture import PY2
+from resources.lib.backtothefuture import PY2
 
 if PY2:
     # noinspection PyUnresolvedReferences
@@ -10,21 +10,21 @@ else:
     # noinspection PyUnresolvedReferences
     import urllib.parse as parse
 
-from mediaitem import MediaItem, MediaItemPart
+from resources.lib.mediaitem import MediaItem, MediaItemPart
 
-from regexer import Regexer
-from xbmcwrapper import XbmcWrapper
-from retroconfig import Config
-from logger import Logger
-from urihandler import UriHandler
-from parserdata import ParserData
-from textures import TextureHandler
+from resources.lib.regexer import Regexer
+from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.retroconfig import Config
+from resources.lib.logger import Logger
+from resources.lib.urihandler import UriHandler
+from resources.lib.parserdata import ParserData
+from resources.lib.textures import TextureHandler
 
-from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.jsonhelper import JsonHelper
-from helpers.languagehelper import LanguageHelper
-from addonsettings import AddonSettings, LOCAL
-from channelinfo import ChannelInfo
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.addonsettings import AddonSettings, LOCAL
+from resources.lib.channelinfo import ChannelInfo
 
 
 class Channel:
@@ -307,7 +307,7 @@ class Channel:
             items = [i for i in items if not i.isPaid or i.type == type_to_exclude]
 
         # Local import for performance
-        from cloaker import Cloaker
+        from resources.lib.cloaker import Cloaker
         cloaker = Cloaker(self, AddonSettings.store(LOCAL), logger=Logger.instance())
         if not AddonSettings.show_cloaked_items():
             Logger.debug("Hiding Cloaked items")

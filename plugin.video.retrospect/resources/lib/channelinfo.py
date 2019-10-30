@@ -7,15 +7,15 @@ import sys
 import xbmcgui
 
 
-from backtothefuture import unichr
-from environments import Environments
-from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.jsonhelper import JsonHelper
-from logger import Logger
-from retroconfig import Config
-from addonsettings import AddonSettings
-from helpers.languagehelper import LanguageHelper
-from textures import TextureHandler
+from resources.lib.backtothefuture import unichr
+from resources.lib.environments import Environments
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.logger import Logger
+from resources.lib.retroconfig import Config
+from resources.lib.addonsettings import AddonSettings
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.textures import TextureHandler
 
 
 class ChannelInfo(object):

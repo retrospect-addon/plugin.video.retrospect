@@ -6,9 +6,9 @@ import os
 import xbmcgui
 import xbmc
 
-from backtothefuture import basestring
-from retroconfig import Config
-from locker import LockWithDialog
+from resources.lib.backtothefuture import basestring
+from resources.lib.retroconfig import Config
+from resources.lib.locker import LockWithDialog
 
 
 class XbmcDialogProgressWrapper(object):

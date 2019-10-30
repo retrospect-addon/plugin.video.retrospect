@@ -5,7 +5,7 @@ import xml.dom.minidom
 
 import xbmc
 
-from version import Version
+from .version import Version
 
 
 class Config:

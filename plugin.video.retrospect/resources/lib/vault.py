@@ -7,12 +7,12 @@ import random
 import string
 import hashlib
 
-from backtothefuture import PY2
-from logger import Logger
-from addonsettings import AddonSettings, LOCAL, KODI
-from xbmcwrapper import XbmcWrapper
-from helpers.languagehelper import LanguageHelper
-from helpers.encodinghelper import EncodingHelper
+from resources.lib.backtothefuture import PY2
+from resources.lib.logger import Logger
+from resources.lib.addonsettings import AddonSettings, LOCAL, KODI
+from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.helpers.encodinghelper import EncodingHelper
 
 
 class Vault(object):

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from backtothefuture import PY2
+from resources.lib.backtothefuture import PY2
 if PY2:
     # noinspection PyPep8Naming,PyUnresolvedReferences
     import cPickle as pickle
@@ -10,7 +10,7 @@ else:
 import base64
 from functools import reduce
 
-from logger import Logger
+from resources.lib.logger import Logger
 
 
 class Pickler:

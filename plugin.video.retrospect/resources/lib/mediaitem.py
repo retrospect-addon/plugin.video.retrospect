@@ -8,14 +8,14 @@ from functools import reduce
 
 import xbmcgui
 
-from backtothefuture import unichr
-from addonsettings import AddonSettings
-from logger import Logger
-from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.encodinghelper import EncodingHelper
-from helpers.languagehelper import LanguageHelper
-from streams.adaptive import Adaptive
-from proxyinfo import ProxyInfo
+from resources.lib.backtothefuture import unichr
+from resources.lib.addonsettings import AddonSettings
+from resources.lib.logger import Logger
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.helpers.encodinghelper import EncodingHelper
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.streams.adaptive import Adaptive
+from resources.lib.proxyinfo import ProxyInfo
 
 
 # Don't make this an MediaItem(object) as it breaks the pickles

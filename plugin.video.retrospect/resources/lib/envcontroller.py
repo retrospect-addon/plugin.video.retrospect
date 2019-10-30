@@ -8,9 +8,9 @@ import struct
 import xbmc
 import xbmcaddon
 
-from logger import Logger
-from environments import Environments
-from retroconfig import Config
+from resources.lib.logger import Logger
+from resources.lib.environments import Environments
+from resources.lib.retroconfig import Config
 
 # Only needed if we want to reinstate my own Kodi repository
 # from xbmcwrapper import XbmcWrapper

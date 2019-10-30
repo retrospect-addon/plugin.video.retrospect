@@ -12,11 +12,11 @@ def run_plugin():
     log_file = None
 
     try:
-        from retroconfig import Config
-        from helpers.sessionhelper import SessionHelper
+        from resources.lib.retroconfig import Config
+        from resources.lib.helpers.sessionhelper import SessionHelper
 
         # get a logger up and running
-        from logger import Logger
+        from resources.lib.logger import Logger
 
         # only append if there are no active sessions
         if not SessionHelper.is_session_active():
@@ -30,9 +30,9 @@ def run_plugin():
                                         append=append_log_file,
                                         dual_logger=lambda x, y=4: xbmc.log(x, y))
 
-        from urihandler import UriHandler
+        from resources.lib.urihandler import UriHandler
 
-        from addonsettings import AddonSettings
+        from resources.lib.addonsettings import AddonSettings
         AddonSettings.set_language()
 
         from resources.lib.textures import TextureHandler
@@ -54,7 +54,7 @@ def run_plugin():
         TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.instance())
 
         # run the plugin
-        import plugin
+        from resources.lib import plugin
         plugin.Plugin(sys.argv[0], sys.argv[2], sys.argv[1])
 
         # make sure we leave no references behind
