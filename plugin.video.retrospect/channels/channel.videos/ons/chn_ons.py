@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-import chn_class
-from regexer import Regexer
-from mediaitem import MediaItem
+from resources.lib import chn_class
+from resources.lib.regexer import Regexer
+from resources.lib.mediaitem import MediaItem
 
 
 class Channel(chn_class.Channel):
@@ -78,8 +78,8 @@ class Channel(chn_class.Channel):
 
         """
 
-        from helpers.jsonhelper import JsonHelper
-        from urihandler import UriHandler
+        from resources.lib.helpers.jsonhelper import JsonHelper
+        from resources.lib.urihandler import UriHandler
 
         data = UriHandler.open(item.url, proxy=self.proxy)
         json_data = JsonHelper(data)
