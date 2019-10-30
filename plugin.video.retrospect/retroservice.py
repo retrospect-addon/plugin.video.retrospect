@@ -10,7 +10,6 @@ import xbmcaddon
 # Initialize all the paths correctly
 from initializer import Initializer  # nopep8
 Initializer.set_unicode()
-currentPath = Initializer.setup_python_paths()
 
 from retroconfig import Config
 

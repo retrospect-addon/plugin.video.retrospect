@@ -12,7 +12,6 @@ sys.path.append(addOnPath)
 # setup some initial stuff
 from initializer import Initializer
 Initializer.set_unicode()
-Initializer.setup_python_paths()
 sys.path.remove(addOnPath)
 
 from retroconfig import Config

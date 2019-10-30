@@ -73,7 +73,6 @@ def run_plugin():
 # setup the paths in Python
 from initializer import Initializer  # nopep8
 Initializer.set_unicode()
-currentPath = Initializer.setup_python_paths()
 
 # ANY OF THESE SETTINGS SHOULD ONLY BE ENABLED FOR DEBUGGING PURPOSES
 # from debug import remotedebugger
