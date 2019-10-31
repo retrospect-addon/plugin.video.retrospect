@@ -10,7 +10,7 @@ addOnPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.append(addOnPath)
 
 # setup some initial stuff
-from initializer import Initializer
+from resources.lib.initializer import Initializer
 Initializer.set_unicode()
 
 from resources.lib.retroconfig import Config

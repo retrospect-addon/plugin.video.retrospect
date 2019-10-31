@@ -8,7 +8,7 @@ import xbmcgui
 import xbmcaddon
 
 # Initialize all the paths correctly
-from initializer import Initializer  # nopep8
+from resources.lib.initializer import Initializer  # nopep8
 Initializer.set_unicode()
 
 from resources.lib.retroconfig import Config
