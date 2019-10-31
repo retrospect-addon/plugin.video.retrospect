@@ -6,7 +6,7 @@ import sys
 import xbmc
 
 
-def run_plugin():
+def run_addon():
     """ Runs Retrospect as a Video Add-On """
 
     log_file = None
@@ -91,6 +91,6 @@ Initializer.set_unicode()
 # statsPath = os.path.abspath("/home/pi/.kodi/addons/plugin.video.retrospect/retrospect.rpi.pstat")
 
 # Profiled run
-# cProfile.runctx("run_plugin()", globals(), locals(), statsPath)
+# cProfile.runctx("run_addon()", globals(), locals(), statsPath)
 # Normal run
-run_plugin()
+run_addon()
