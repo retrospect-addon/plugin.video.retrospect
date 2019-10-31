@@ -7,6 +7,7 @@ if PY2:
 else:
     import pickle
 
+import sys
 import base64
 from functools import reduce
 
@@ -46,6 +47,11 @@ class Pickler:
         :return: The object that was Pickled and Base64 encoded.
 
         """
+
+        # In order to not break any already pickled objects, we need to make sure that we have
+        if "mediaitem" not in sys.modules:
+            import resources.lib.mediaitem
+            sys.modules['mediaitem'] = resources.lib.mediaitem
 
         hex_string = hex_string.rstrip(' ')
         hex_string = reduce(lambda x, y: x.replace(y, Pickler.__Base64CharsDecode[y]),
