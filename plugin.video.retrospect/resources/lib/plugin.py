@@ -1,4 +1,4 @@
-# coding=utf-8
+# coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import os
@@ -507,7 +507,7 @@ class Plugin(ParameterParser):
             kodi_items = media_item.get_kodi_play_list_data(
                 AddonSettings.get_max_stream_bitrate(self.channelObject),
                 self.channelObject.proxy
-            )  # type: list[tuple[xbmcgui.ListItem, str]]
+            )
 
             Logger.debug("Continuing playback in plugin.py")
             if not bool(kodi_items):
@@ -910,6 +910,7 @@ class Plugin(ParameterParser):
                 message = LanguageHelper.get_localized_string(LanguageHelper.PaidText)
                 XbmcWrapper.show_dialog(title, message)
 
+    # noinspection PyUnusedLocal
     def __add_breadcrumb(self, handle, channel, selected_item, last_only=False):
         """ Updates the Kodi category with a breadcrumb to the current parent item
 

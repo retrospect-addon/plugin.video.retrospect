@@ -71,7 +71,7 @@ def run_addon():
 
 
 # setup the paths in Python
-from initializer import Initializer  # nopep8
+from resources.lib.initializer import Initializer  # nopep8
 Initializer.set_unicode()
 
 # ANY OF THESE SETTINGS SHOULD ONLY BE ENABLED FOR DEBUGGING PURPOSES

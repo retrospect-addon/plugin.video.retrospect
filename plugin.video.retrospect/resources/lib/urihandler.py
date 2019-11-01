@@ -5,7 +5,7 @@ import time
 
 from resources.lib.backtothefuture import PY2
 if PY2:
-    # noinspection PyCompatibility
+    # noinspection PyCompatibility,PyUnresolvedReferences
     from cookielib import Cookie, CookieJar, MozillaCookieJar
 else:
     # noinspection PyCompatibility

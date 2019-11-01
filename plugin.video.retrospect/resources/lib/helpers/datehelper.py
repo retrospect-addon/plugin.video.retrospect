@@ -15,7 +15,7 @@ class DateHelper(object):
     def is_dst(time_obj=time.localtime()):
         """ Is Daylight Saving active for the given time
 
-        :param tuple[int] time_obj:
+        :param time.struct_time time_obj:
         :return: If Daylight Saving is enabled for the time
 
         """

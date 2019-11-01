@@ -900,7 +900,7 @@ class Channel(chn_class.Channel):
         item.fanart = self.parentItem.fanart
         for image_type, image_data in images.items():
             if image_type == "original" and "original" in image_data["formats"]:
-                pass
+                continue
                 # No fanart for now.
                 # item.fanart = image_data["formats"]["original"]["source"]
             elif image_type == "grid.tile":

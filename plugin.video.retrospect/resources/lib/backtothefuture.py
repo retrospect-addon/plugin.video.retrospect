@@ -13,6 +13,7 @@ if PY3:
     # noinspection PyShadowingBuiltins
     basestring = str
 else:
+    # noinspection PyUnresolvedReferences
     import __builtin__
     # noinspection PyShadowingBuiltins
     unichr = __builtin__.unichr

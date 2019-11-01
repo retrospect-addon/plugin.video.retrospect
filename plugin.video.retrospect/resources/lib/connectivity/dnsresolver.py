@@ -67,7 +67,7 @@ class DnsResolver:
         reader.read_integer()  # dns_type
         reader.read_integer()  # direction
 
-        for i in range(0, answers):
+        for i in range(0, answers):  # NOSONAR
             reader.read_full_string()  # name
             answer_type = reader.read_integer()
             reader.read_integer()  # sdirection
@@ -75,7 +75,7 @@ class DnsResolver:
             length = reader.read_integer()
             address = []
             if answer_type == 1:
-                for s in range(0, length):
+                for s in range(0, length):  # NOSONAR
                     address.append(str(reader.read_integer(1)))
                 address = ".".join(address)
             elif answer_type == 5:

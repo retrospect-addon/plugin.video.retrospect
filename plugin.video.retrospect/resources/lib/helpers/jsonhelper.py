@@ -1,4 +1,4 @@
-# coding:UTF-8
+# coding:UTF-8  # NOSONAR
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import re

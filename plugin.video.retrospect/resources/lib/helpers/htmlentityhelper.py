@@ -5,6 +5,7 @@ from resources.lib.backtothefuture import PY2, PY3, unichr
 
 if PY2:
     import urllib
+    # noinspection PyUnresolvedReferences
     import htmlentitydefs as htmldefs
 else:
     # noinspection PyUnresolvedReferences
@@ -68,11 +69,14 @@ class HtmlEntityHelper(object):
             # noinspection PyUnresolvedReferences
             return urllib.parse.quote(url)
 
+        # noinspection PyUnresolvedReferences
         if isinstance(url, unicode):
             Logger.trace("Unicode url: %s", url)
+            # noinspection PyUnresolvedReferences
             return urllib.quote(url.encode())
         else:
             # this is the main time waster
+            # noinspection PyUnresolvedReferences
             return urllib.quote(url)
 
     @staticmethod
@@ -87,6 +91,7 @@ class HtmlEntityHelper(object):
         """
 
         if PY2:
+            # noinspection PyUnresolvedReferences
             return urllib.unquote(url)
 
         # noinspection PyUnresolvedReferences

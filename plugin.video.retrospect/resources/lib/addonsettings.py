@@ -1090,7 +1090,7 @@ class AddonSettings(object):
 
         # Now fill the templates, we only import here due to performance penalties of the
         # large number of imports.
-        from helpers.templatehelper import TemplateHelper
+        from resources.lib.helpers.templatehelper import TemplateHelper
         th = TemplateHelper(Logger.instance(), template=new_contents)
         new_contents = th.transform()
 

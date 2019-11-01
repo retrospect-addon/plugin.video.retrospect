@@ -1,4 +1,4 @@
-# coding=utf-8
+# coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import os
@@ -604,8 +604,6 @@ class MediaItem:
         if not other:
             return False
 
-        # if self.name == item.name and self.guid != item.guid:
-        #    Logger.Debug("Duplicate names, but different guid: %s (%s), %s (%s)", self.name, self.url, item.name, item.url)
         return self.guidValue == other.guidValue
 
     def __update_title_and_description_with_limitations(self):

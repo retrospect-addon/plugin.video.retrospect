@@ -48,9 +48,6 @@ class Channel(chn_class.Channel):
                               parser=["results"], creator=self.create_json_video_item)
 
         item_regex = r'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
-                     r'{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>\s*(?<description>[^<]+?)' \
-                     r'\s*<span class="usp">(?<description2>[^<]+)'
-        item_regex = r'href="/(?<url>[^/]+/(?<id>\d+)[^"]+)"[^>]*>[^<]+</a>\W+<figure>[\W\w]' \
                      r'{0,3000}?<h2[^>]*>(?<title>[^<]+)</h2>\W+<p[^>]+>\s{0,4}(?<description>[^<]*?)' \
                      r'\s+(?:(?<duration>\d{1,3})\smin\s.\s+)?<span class="usp">(?<description2>[^<]+)'
         item_regex = Regexer.from_expresso(item_regex)

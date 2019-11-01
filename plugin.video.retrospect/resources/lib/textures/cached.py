@@ -118,8 +118,6 @@ class Cached(TextureHandler):
             self._logger.debug("Fetching texture for '%s' to '%s'", uri, texture_path)
             if os.path.isfile(uri):
                 shutil.copyfile(uri, texture_path)
-                # import xbmc
-                # xbmc.sleep(100)
             else:
                 bytes_transfered += self.__fetch_texture(uri, texture_path)
             textures_completed += 1

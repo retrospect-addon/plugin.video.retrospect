@@ -286,13 +286,6 @@ class Channel(chn_class.Channel):
                     None, False
                 ),
             })
-            # if self.loggedOn:
-            #     extras.update({
-            #         "\a.: Favoriter :.": (
-            #             "http://www.tv4play.se/program/favourites",
-            #             None, True
-            #         ),
-            #     })
 
             today = datetime.datetime.now()
             days = [LanguageHelper.get_localized_string(LanguageHelper.Monday),
