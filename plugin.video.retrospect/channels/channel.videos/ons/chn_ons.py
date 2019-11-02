@@ -88,7 +88,7 @@ class Channel(chn_class.Channel):
         for stream_info in streams:
             name = stream_info["name"]
             # for now we only take the numbers as bitrate:
-            bitrate = int(filter(lambda x: x.isdigit(), name))
+            bitrate = int(''.join([x for x in name if x.isdigit()]))
             url = stream_info["source"]
             part.append_media_stream(url, bitrate)
             item.complete = True
