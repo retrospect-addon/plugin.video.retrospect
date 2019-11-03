@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Github version only
-from . import pyaes        #: Pure Python AES
-from . import pyscrypt     #: Pure Python SCrypt
+import pyaes        #: Pure Python AES
+import pyscrypt     #: Pure Python SCrypt
 
 import base64
 import random
