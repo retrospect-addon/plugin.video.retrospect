@@ -8,11 +8,10 @@ import xbmcgui
 import xbmcaddon
 
 # Initialize all the paths correctly
-from initializer import Initializer  # nopep8
+from resources.lib.initializer import Initializer  # nopep8
 Initializer.set_unicode()
-currentPath = Initializer.setup_python_paths()
 
-from retroconfig import Config
+from resources.lib.retroconfig import Config
 
 
 def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):

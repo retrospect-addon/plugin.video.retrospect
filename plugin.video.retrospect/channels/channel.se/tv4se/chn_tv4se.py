@@ -4,21 +4,21 @@
 import math
 import datetime
 
-import chn_class
-from mediaitem import MediaItem
-from addonsettings import AddonSettings
-from helpers.jsonhelper import JsonHelper
+from resources.lib import chn_class
+from resources.lib.mediaitem import MediaItem
+from resources.lib.addonsettings import AddonSettings
+from resources.lib.helpers.jsonhelper import JsonHelper
 
-from parserdata import ParserData
-from regexer import Regexer
-from helpers.htmlentityhelper import HtmlEntityHelper
-from helpers.languagehelper import LanguageHelper
-from logger import Logger
-from streams.mpd import Mpd
-from xbmcwrapper import XbmcWrapper
-from streams.m3u8 import M3u8
-from urihandler import UriHandler
-from helpers.subtitlehelper import SubtitleHelper
+from resources.lib.parserdata import ParserData
+from resources.lib.regexer import Regexer
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.logger import Logger
+from resources.lib.streams.mpd import Mpd
+from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.streams.m3u8 import M3u8
+from resources.lib.urihandler import UriHandler
+from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
 
 class Channel(chn_class.Channel):
@@ -286,13 +286,6 @@ class Channel(chn_class.Channel):
                     None, False
                 ),
             })
-            # if self.loggedOn:
-            #     extras.update({
-            #         "\a.: Favoriter :.": (
-            #             "http://www.tv4play.se/program/favourites",
-            #             None, True
-            #         ),
-            #     })
 
             today = datetime.datetime.now()
             days = [LanguageHelper.get_localized_string(LanguageHelper.Monday),
