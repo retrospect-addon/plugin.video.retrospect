@@ -1,9 +1,11 @@
-[B]Retrospect v5.0.8 - Changelog - 2019-10-19[/B]
+[B]Retrospect v5.1.0 - Changelog - 2019-11-03[/B]
 
-Fixed some Swedish channel related issues and a Python 3 issue for HTTP responses without encoding information.
+There was a major restructure of the add-on folders to make them Kodi compatible. Besides that, there
+were minor fixes in the TV4Play.se and NPO.nl channels and www.kijkenbijons.nl was added.
 
 [B]Framework related[/B]
 * Fixed: possible issue with missing content-type that cause a byte object to return (See #1239)
+* Changed: make the add-on structure in line with Kodi standards
 
 [B]GUI/Settings/Language related[/B]
 -
@@ -11,3 +13,4 @@ Fixed some Swedish channel related issues and a Python 3 issue for HTTP response
 [B]Channel related[/B]
 * Fixed: some TV4play.se streams are now DRM protected with Widevine (Fixes #1250)
 * Fixed: Times did not show correctly for NPO due to ending of DST
+* Added: ONS channel (See #1110)
