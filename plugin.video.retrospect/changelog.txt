@@ -10,6 +10,5 @@ were minor fixes in the TV4Play.se and NPO.nl channels and www.kijkenbijons.nl w
 -
 
 [B]Channel related[/B]
-* Fixed: some TV4play.se streams are now DRM protected with Widevine (Fixes #1250)
-* Fixed: Times did not show correctly for NPO due to ending of DST
-* Added: ONS channel (See #1110)
+* Fixed: add time to 'NPO Journaal' items (Fixes #1253)
+* Added: use pytz to generate dates on a 'broadcast-date' base (See #1251)
