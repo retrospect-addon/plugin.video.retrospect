@@ -4,8 +4,7 @@ There was a major restructure of the add-on folders to make them Kodi compatible
 were minor fixes in the TV4Play.se and NPO.nl channels and www.kijkenbijons.nl was added.
 
 [B]Framework related[/B]
-* Fixed: possible issue with missing content-type that cause a byte object to return (See #1239)
-* Changed: make the add-on structure in line with Kodi standards
+* Added: Timezone options to the DateHelper
 
 [B]GUI/Settings/Language related[/B]
 -
