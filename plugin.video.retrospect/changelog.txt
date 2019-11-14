@@ -1,10 +1,10 @@
-[B]Retrospect v5.1.0 - Changelog - 2019-11-03[/B]
+[B]Retrospect v5.1.1 - Changelog - 2019-11-14[/B]
 
-There was a major restructure of the add-on folders to make them Kodi compatible. Besides that, there
-were minor fixes in the TV4Play.se and NPO.nl channels and www.kijkenbijons.nl was added.
+There was a rather annoying bug in 5.1.0 that cause Retrospect to run twice each time. We also fixed the NPO Timestamp issue (again).
 
 [B]Framework related[/B]
 * Added: Timezone options to the DateHelper
+* Fixed: we actually ran the add-on twice after the latest 5.1.0 version
 
 [B]GUI/Settings/Language related[/B]
 -

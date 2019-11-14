@@ -5,7 +5,6 @@ import sys
 
 import xbmc
 
-
 # setup the paths in Python
 from resources.lib.initializer import Initializer  # nopep8
 Initializer.set_unicode()
