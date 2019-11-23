@@ -1,6 +1,7 @@
 ﻿[B]Changelog[/B]
 * Fixed: NOS.nl videos did not play (Fixes #1263)
 * Fixed: NPO EPG titles had trailing "-" chars
+* Fixed: incorrect NPO Plus indicators (Fixes #1257)
 
 [I]Previous Changes[/I]
 * Fixed: add time to 'NPO Journaal' items (Fixes #1253)

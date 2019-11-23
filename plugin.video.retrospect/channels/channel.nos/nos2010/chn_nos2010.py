@@ -898,7 +898,7 @@ class Channel(chn_class.Channel):
 
         item.isPaid = result_set.get("isOnlyOnNpoPlus", False)
         availability = result_set.get("availability")
-        if not item.isPaid and availability and availability["to"]:
+        if not item.isPaid and availability and availability["to"] and availability["to"] != availability["from"]:
             to_date = DateHelper.get_date_from_string(availability["to"], date_format=date_format)
             to_datetime = datetime.datetime(*to_date[:6])
             item.isPaid = to_datetime < datetime.datetime.now()
