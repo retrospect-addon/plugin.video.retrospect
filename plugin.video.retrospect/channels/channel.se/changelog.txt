@@ -1,7 +1,8 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: some TV4play.se streams are now DRM protected with Widevine (Fixes #1250)
+* Fixed: SVT major API rebuild (Fixes #1254)
 
 [I]Previous changes[/I]
+* Fixed: some TV4play.se streams are now DRM protected with Widevine (Fixes #1250)
 * Added: Expires at to SVT (Fixes #1213)
 * Fixed: TV4.se changed their API endpoint (Fixes #1240)
 * Changed: Try to extract a duration from the description (Fixes #1238)
