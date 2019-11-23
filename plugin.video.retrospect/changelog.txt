@@ -3,12 +3,10 @@
 There was a rather annoying bug in 5.1.0 that cause Retrospect to run twice each time. We also fixed the NPO Timestamp issue (again).
 
 [B]Framework related[/B]
-* Added: Timezone options to the DateHelper
-* Fixed: we actually ran the add-on twice after the latest 5.1.0 version
+-
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: add time to 'NPO Journaal' items (Fixes #1253)
-* Added: use pytz to generate dates on a 'broadcast-date' base (See #1251)
+* Fixed: NPO EPG titles had trailing "-" chars

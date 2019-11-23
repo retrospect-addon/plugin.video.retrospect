@@ -860,7 +860,7 @@ class Channel(chn_class.Channel):
                 Logger.trace("Invalid EPG channel: %s", channel)
                 return None
             name = "{} - {}".format(channel, result_set["title"])
-            if result_set["title"] != result_set["episodeTitle"]:
+            if result_set["episodeTitle"] and result_set["title"] != result_set["episodeTitle"]:
                 name = "{} - {}".format(name, result_set["episodeTitle"])
         else:
             name = result_set.get('episodeTitle')
