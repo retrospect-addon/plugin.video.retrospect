@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
 
         genre_tags = "\a.: {}/{} :.".format(
             LanguageHelper.get_localized_string(LanguageHelper.Genres),
-            LanguageHelper.get_localized_string(LanguageHelper.Tags)
+            LanguageHelper.get_localized_string(LanguageHelper.Tags).lower()
         )
 
         genre_url = self.__get_api_url("AllGenres", "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c", {})
@@ -180,6 +180,69 @@ class Channel(chn_class.Channel):
         genre_item.thumb = self.noImage
         genre_item.dontGroup = True
         items.append(genre_item)
+
+        category_items = {
+            "Drama": (
+                "drama",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/drama-d75cd2da2eecde36b3d60fad6b92ad42.jpg"
+            ),
+            "Dokumentär": (
+                "dokumentar",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/dokumentar-00599af62aa8009dbc13577eff894b8e.jpg"
+            ),
+            "Humor": (
+                "humor",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/humor-abc329317eedf789d2cca76151213188.jpg"
+            ),
+            "Livsstil": (
+                "livsstil",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/livsstil-2d9cd77d86c086fb8908ce4905b488b7.jpg"
+            ),
+            "Underhållning": (
+                "underhallning",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/underhallning-a60da5125e715d74500a200bd4416841.jpg"
+            ),
+            "Kultur": (
+                "kultur",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/kultur-93dca50ed1d6f25d316ac1621393851a.jpg"
+            ),
+            "Samhälle & Fakta": (
+                "samhalle-och-fakta",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/samhalle-och-fakta-3750657f72529a572f3698e01452f348.jpg"
+            ),
+            "Film": (
+                "film",
+                "https://www.svtstatic.se/image/medium/480/20888292/1548755428"
+            ),
+            "Barn": (
+                "barn",
+                "https://www.svtstatic.se/play/play5/images/categories/posters/barn-c17302a6f7a9a458e0043b58bbe8ab79.jpg"
+            ),
+            "Nyheter": (
+                "nyheter",
+                "https://www.svtstatic.se/play/play6/images/categories/posters/nyheter.e67ff1b5770152af4690ad188546f9e9.jpg"
+            ),
+            "Sport": (
+                "sport",
+                "https://www.svtstatic.se/play/play6/images/categories/posters/sport.98b65f6627e4addbc4177542035ea504.jpg"
+            )
+        }
+
+        category_title = "\a.: {} :.".format(
+            LanguageHelper.get_localized_string(LanguageHelper.Categories))
+        new_item = MediaItem(category_title, "https://www.svtplay.se/genre")
+        new_item.complete = True
+        new_item.thumb = self.noImage
+        new_item.dontGroup = True
+        for title, (category_id, thumb) in category_items.items():
+            # https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=GenreProgramsAO&variables={"genre": ["action-och-aventyr"]}&extensions={"persistedQuery": {"version": 1, "sha256Hash": "189b3613ec93e869feace9a379cca47d8b68b97b3f53c04163769dcffa509318"}}
+            cat_item = MediaItem(title, "#genre_item")
+            cat_item.complete = True
+            cat_item.thumb = thumb or self.noImage
+            cat_item.dontGroup = True
+            cat_item.metaData[self.__genre_id] = category_id
+            new_item.items.append(cat_item)
+        items.append(new_item)
 
         return data, items
 
