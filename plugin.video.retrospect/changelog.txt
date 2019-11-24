@@ -13,3 +13,4 @@ There was a rather annoying bug in 5.1.0 that cause Retrospect to run twice each
 * Fixed: NOS.nl videos did not play (Fixes #1263)
 * Fixed: SVT major API rebuild (Fixes #1254)
 * Fixed: incorrect NPO Plus indicators (Fixes #1257)
+* Fixed: NPO Token expiring before cookies expires (Possibly Fixes #1260)

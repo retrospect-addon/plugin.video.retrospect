@@ -196,14 +196,21 @@ class Channel(chn_class.Channel):
         return
 
     def log_on(self):
+        return self.__log_on(False)
+
+    def __log_on(self, force_log_off=False):
         """ Makes sure that we are logged on. """
 
         username = self._get_setting("username")
         previous_name = AddonSettings.get_channel_setting(self, "previous_username", store=LOCAL)
         log_out = previous_name != username
-        if log_out:
-            Logger.info("Username changed for NPO from '%s' to '%s'", previous_name, username)
+        if log_out or force_log_off:
+            if log_out:
+                Logger.info("Username changed for NPO from '%s' to '%s'", previous_name, username)
+            else:
+                Logger.info("Forcing a new login for NPO")
             UriHandler.delete_cookie(domain="www.npostart.nl")
+            UriHandler.delete_cookie(domain=".npostart.nl")
             AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
 
         if not username:
@@ -1345,6 +1352,10 @@ class Channel(chn_class.Channel):
         if AddonSettings.use_adaptive_stream_add_on(
                 with_encryption=True, ignore_add_on_config=True):
             error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
+            if bool(error) and self.__has_premium():
+                self.__log_on(force_log_off=True)
+                error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
+
             if bool(error):
                 XbmcWrapper.show_dialog(
                     LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
