@@ -1,6 +1,6 @@
-[B]Retrospect v5.1.1 - Changelog - 2019-11-14[/B]
+[B]Retrospect v5.1.2 - Changelog - 2019-11-25[/B]
 
-There was a rather annoying bug in 5.1.0 that cause Retrospect to run twice each time. We also fixed the NPO Timestamp issue (again).
+This update mainly contains channel fixes for NPO, NOS and the SVT channel.
 
 [B]Framework related[/B]
 -
