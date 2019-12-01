@@ -276,7 +276,7 @@ class Channel(chn_class.Channel):
             item = self.create_api_tvshow_type(result_set)
         elif api_type == "Single":
             item = self.create_api_single_type(result_set)
-        elif api_type == "Clip":
+        elif api_type == "Clip" or api_type == "Trailer":
             item = self.create_api_clip_type(result_set)
         elif api_type == "Episode":
             item = self.create_api_episode_type(result_set, add_parent_title)

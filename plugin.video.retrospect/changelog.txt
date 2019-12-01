@@ -9,8 +9,4 @@ This update mainly contains channel fixes for NPO, NOS and the SVT channel.
 -
 
 [B]Channel related[/B]
-* Fixed: NPO EPG titles had trailing "-" chars
-* Fixed: NOS.nl videos did not play (Fixes #1263)
-* Fixed: SVT major API rebuild (Fixes #1254)
-* Fixed: incorrect NPO Plus indicators (Fixes #1257)
-* Fixed: NPO Token expiring before cookies expires (Possibly Fixes #1260)
+* Fixed: SVT "trailer" type was not recognised
