@@ -1,5 +1,6 @@
 ﻿﻿[B]Changelog[/B]
 * Fixed: SVT "trailer" type was not recognised
+* Fixed: Timestamp issue with SVT
 
 [I]Previous changes[/I]
 * Fixed: SVT major API rebuild (Fixes #1254)

@@ -10,3 +10,4 @@ This update mainly contains channel fixes for NPO, NOS and the SVT channel.
 
 [B]Channel related[/B]
 * Fixed: SVT "trailer" type was not recognised
+* Fixed: Timestamp issue with SVT
