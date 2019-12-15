@@ -1,8 +1,9 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: SVT "trailer" type was not recognised
-* Fixed: Timestamp issue with SVT
+* Fixed: SVT live streams (Fixes #1266)
 
 [I]Previous changes[/I]
+* Fixed: SVT "trailer" type was not recognised
+* Fixed: Timestamp issue with SVT
 * Fixed: SVT major API rebuild (Fixes #1254)
 * Fixed: some TV4play.se streams are now DRM protected with Widevine (Fixes #1250)
 * Added: Expires at to SVT (Fixes #1213)

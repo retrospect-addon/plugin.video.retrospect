@@ -108,7 +108,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://www.svtplay.se/klipp/", updater=self.update_video_html_item)
 
         # Update via the new API urls
-        # self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.update_video_api_item)
+        self._add_data_parser("https://www.svt.se/videoplayer-api/", updater=self.update_video_api_item)
 
         # ===============================================================================================================
         # non standard items
