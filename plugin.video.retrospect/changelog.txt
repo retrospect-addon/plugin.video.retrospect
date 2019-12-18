@@ -12,3 +12,4 @@ This update mainly contains channel fixes for NPO, NOS and the SVT channel.
 * Fixed: SVT "trailer" type was not recognised
 * Fixed: Timestamp issue with SVT
 * Fixed: SVT live streams (Fixes #1266)
+* Fixed: UR Play did not list (Fixes #1267)
