@@ -6,7 +6,7 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 -
 
 [B]GUI/Settings/Language related[/B]
-* Changed: Added more view modes to the listings (Fixes #1268)
+* Changed: Added more view modes to the channel listings (Fixes #1268)
 * Fixed: Don't set dates in titles for Kodi Leia and up (See #1271)
 
 [B]Channel related[/B]
