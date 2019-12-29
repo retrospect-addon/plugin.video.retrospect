@@ -85,6 +85,7 @@ class Channel(chn_class.Channel):
         #===============================================================================================================
         # non standard items
         self.maxPageSize = 25  # The Android app uses a page size of 20
+        self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
         #===============================================================================================================
         # Test cases:
@@ -499,10 +500,15 @@ class Channel(chn_class.Channel):
         item.description = result_set["description"]
         if item.description is None:
             item.description = item.name
+
         if is_episodic:
             item.set_season_info(season, episode)
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
+        expire_date = result_set.get("expire_date_time")
+        if bool(expire_date):
+            self.__set_expire_time(expire_date, item)
+
         date = result_set["broadcast_date_time"]
         (date_part, time_part) = date.split("T")
         (year, month, day) = date_part.split("-")
@@ -695,6 +701,13 @@ class Channel(chn_class.Channel):
 
         item.complete = True
         return item
+
+    def __set_expire_time(self, expire_date, item):
+        expire_date = expire_date.split("+")[0].replace("T", " ")
+        year = expire_date.split("-")[0]
+        if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
+            item.description = \
+                "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
 
     def __update_dash_video(self, item, stream_info):
         """
