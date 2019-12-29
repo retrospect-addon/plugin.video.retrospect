@@ -114,6 +114,7 @@ class Channel(chn_class.Channel):
         # non standard items
         self.__folder_id = "folder_id"
         self.__genre_id = "genre_id"
+        self.__parent_images = "parent_thumb_data"
         self.__apollo_data = None
         self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
         self.__timezone = pytz.timezone("Europe/Stockholm")
@@ -362,8 +363,8 @@ class Channel(chn_class.Channel):
         item = MediaItem(result_set["name"], self.parentItem.url)
         item.metaData[self.__folder_id] = result_set["id"]
         item.metaData.update(self.parentItem.metaData)
-        item.thumb = self.__get_thumb(result_set["thumb_data"], width=720)
-        item.fanart = self.__get_thumb(result_set["thumb_data"])
+        item.thumb = self.__get_thumb(result_set[self.__parent_images], width=720)
+        item.fanart = self.__get_thumb(result_set[self.__parent_images])
         return item
 
     def create_api_teaser_type(self, result_set):
@@ -390,11 +391,19 @@ class Channel(chn_class.Channel):
 
         title = result_set.get("heading")
         sub_heading = result_set.get("subHeading")
-        if bool(sub_heading):
-            result_set["item"]["name"] = "{} - {}".format(title, sub_heading)
-        else:
-            result_set["item"]["name"] = title
+        new_result_set = result_set["item"]
 
+        if bool(sub_heading):
+            new_result_set["name"] = "{} - {}".format(title, sub_heading)
+        else:
+            new_result_set["name"] = title
+
+        # Transfer some items
+        new_result_set[self.__parent_images] = result_set.get(self.__parent_images)
+        if "images" in result_set:
+            images = result_set.get("images", {}).get("wide")
+            if images:
+                new_result_set["image"] = images
         item = self.create_api_typed_item(result_set["item"])
         return item
 
@@ -438,10 +447,15 @@ class Channel(chn_class.Channel):
         item.type = "video"
         item.set_info_label("duration", int(result_set.get("duration", 0)))
         item.isGeoLocked = result_set.get("restrictions", {}).get("onlyAvailableInSweden", False)
-        item.fanart = self.parentItem.fanart
+
+        parent_images = result_set.get(self.__parent_images)
+        if bool(parent_images):
+            item.fanart = self.__get_thumb(parent_images)
 
         if "image" in result_set:
             item.thumb = self.__get_thumb(result_set["image"], width=720)
+            if not bool(item.fanart):
+                item.fanart = self.__get_thumb(result_set["image"])
 
         valid_to = result_set.get("validTo", None)
         if valid_to:
@@ -503,7 +517,8 @@ class Channel(chn_class.Channel):
 
         image_info = result_set.get("image")
         if image_info:
-            item.thumb = self.__get_thumb(image_info)
+            item.thumb = self.__get_thumb(image_info, width=720)
+            item.fanart = self.__get_thumb(image_info)
         item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
         return item
 
@@ -602,20 +617,27 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(url, proxy=self.proxy)
         json_data = JsonHelper(data)
 
+        # Get the parent thumb info
+        parent_item_thumb_data = json_data.get_value("data", "listablesBySlug", 0, "image")
+
         possible_folders = json_data.get_value("data", "listablesBySlug", 0, "associatedContent")
         possible_folders = [p for p in possible_folders if p["id"] != "upcoming"]
+
         if self.__folder_id in self.parentItem.metaData:
             folder_id = self.parentItem.metaData[self.__folder_id]
             Logger.debug("Retrieving folder with id='%s'", folder_id)
             json_data.json = {"videos": [f for f in possible_folders if f["id"] == folder_id][0]["items"]}
-            return json_data, items
 
-        thumb_data = json_data.get_value("data", "listablesBySlug", 0, "image")
-        if len(possible_folders) == 1:
+        elif len(possible_folders) == 1:
             json_data.json = {"videos": possible_folders[0]["items"]}
+
         else:
             json_data.json = {"folders": possible_folders}
-            [folder.update({"thumb_data": thumb_data}) for folder in json_data.json["folders"]]
+
+        if "folders" in json_data.json:
+            [folder.update({self.__parent_images: parent_item_thumb_data}) for folder in json_data.json["folders"]]
+        if "videos" in json_data.json:
+            [video.update({self.__parent_images: parent_item_thumb_data}) for video in json_data.json["videos"]]
 
         return json_data, items
 

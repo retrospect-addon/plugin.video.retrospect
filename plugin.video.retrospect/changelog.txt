@@ -13,3 +13,4 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Fixed: Timestamp issue with SVT
 * Fixed: SVT live streams (Fixes #1266)
 * Fixed: UR Play did not list (Fixes #1267)
+* Updated: thumbs/fanart for SVT, TV4 and DPlay (See #1268)

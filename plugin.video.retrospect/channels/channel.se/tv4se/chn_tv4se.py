@@ -241,6 +241,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url)
         item.icon = self.icon
         item.thumb = result_set.get("program_image", self.noImage)
+        item.fanart = result_set.get("program_image", self.fanart)
         item.isPaid = result_set.get("is_premium", False)
         return item
 
@@ -412,7 +413,8 @@ class Channel(chn_class.Channel):
             clips_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
             clips = MediaItem(clips_title, url)
             clips.icon = self.icon
-            clips.thumb = self.noImage
+            clips.thumb = self.parentItem.thumb
+            clips.fanart = self.parentItem.fanart
             clips.complete = True
             items.append(clips)
 
@@ -430,6 +432,7 @@ class Channel(chn_class.Channel):
 
             # what are the total number of pages?
             current_page = 1
+            # noinspection PyTypeChecker
             total_pages = int(math.ceil(1.0 * total_items / self.maxPageSize))
 
             current_url = self.parentItem.url
@@ -499,6 +502,7 @@ class Channel(chn_class.Channel):
         item.set_date(year, month, day, hour, minutes, 00)
         broadcast_date = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes))
 
+        item.fanart = self.parentItem.fanart
         thumb_url = result_set.get("image", result_set.get("program_image"))
         # some images need to come via a proxy:
         if thumb_url and "://img.b17g.net/" in thumb_url:

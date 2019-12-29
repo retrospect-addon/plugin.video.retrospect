@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Updated: thumbs/fanart for SVT, TV4 and DPlay (See #1268)
 * Fixed: UR Play did not list (Fixes #1267)
 * Fixed: SVT live streams (Fixes #1266)
 
