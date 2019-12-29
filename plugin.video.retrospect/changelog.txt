@@ -6,7 +6,7 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 -
 
 [B]GUI/Settings/Language related[/B]
--
+* Changed: added more view modes to the listings (Fixes #1268)
 
 [B]Channel related[/B]
 * Fixed: SVT "trailer" type was not recognised
