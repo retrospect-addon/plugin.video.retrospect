@@ -15,3 +15,4 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Fixed: SVT live streams (Fixes #1266)
 * Fixed: UR Play did not list (Fixes #1267)
 * Updated: thumbs/fanart for SVT, TV4 and DPlay (See #1268)
+* Added: Add season/episode info instead of "del #" to TV4 (See #1271)

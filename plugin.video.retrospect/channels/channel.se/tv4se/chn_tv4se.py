@@ -488,11 +488,19 @@ class Channel(chn_class.Channel):
         # url = "https://playback-api.b17g.net/media/%s?service=tv4&device=browser&protocol=hls" % (program_id,)
         url = "https://playback-api.b17g.net/media/%s?service=tv4&device=browser&protocol=dash" % (program_id,)
         name = result_set["title"]
+        season = result_set.get("season", 0)
+        episode = result_set.get("episode", 0)
+        is_episodic = 0 < season < 1900 and not episode == 0
+        if is_episodic:
+            name = result_set["title"].split("del")[0]
+            name = "{} - s{:02d}e{:02d}".format(name, season, episode)
 
         item = MediaItem(name, url)
         item.description = result_set["description"]
         if item.description is None:
             item.description = item.name
+        if is_episodic:
+            item.set_season_info(season, episode)
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
         date = result_set["broadcast_date_time"]

@@ -1,7 +1,6 @@
 ﻿﻿[B]Changelog[/B]
 * Updated: thumbs/fanart for SVT, TV4 and DPlay (See #1268)
-* Fixed: UR Play did not list (Fixes #1267)
-* Fixed: SVT live streams (Fixes #1266)
+* Added: Add season/episode info instead of "del #" to TV4 (See #1271)
 
 [I]Previous changes[/I]
 * Fixed: SVT "trailer" type was not recognised
