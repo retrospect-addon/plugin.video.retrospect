@@ -557,6 +557,7 @@ class Channel(chn_class.Channel):
         if item.isDrmProtected:
             item.url = "{}&drm=widevine&is_drm=true".format(item.url)
 
+        item.set_info_label("duration", int(result_set.get("duration", 0)))
         return item
 
     def create_category_item(self, result_set):

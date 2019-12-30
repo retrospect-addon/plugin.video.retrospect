@@ -17,3 +17,4 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Updated: thumbs/fanart for SVT, TV4 and DPlay (See #1268)
 * Added: Add season/episode info instead of "del #" to TV4 (See #1271)
 * Added: Expire date to TV4 items (See #1271 and Fixes #1269)
+* Added: Duration to TV4 shows (See #1271)
