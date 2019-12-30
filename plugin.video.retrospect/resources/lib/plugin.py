@@ -58,7 +58,6 @@ class Plugin(ParameterParser):
         self.channelFile = ""
         self.channelCode = None
 
-        # self.contentType = "tvshows"
         self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
 
         # are we in session?

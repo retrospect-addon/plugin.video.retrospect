@@ -19,3 +19,6 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Added: Add season/episode info instead of "del #" to TV4 (See #1271)
 * Added: Expire date to TV4 items (See #1271 and Fixes #1269)
 * Added: Duration to TV4 shows (See #1271)
+* Updated: Artwork for ViaFree (Fixes #1272)
+* Added: Expire date for ViaFree (Fixes #1272)
+* Changed: Moved to sXXeXX for seasons for ViaFree (Fixes #1272)
