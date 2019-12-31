@@ -978,7 +978,8 @@ class Channel(chn_class.Channel):
 
                 part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(sub_url,
                                                                                 format="srt",
-                                                                                proxy=self.proxy)
+                                                                                proxy=self.proxy,
+                                                                                replace={"&amp;": "&"})
                 # stop when finding one
                 break
 
