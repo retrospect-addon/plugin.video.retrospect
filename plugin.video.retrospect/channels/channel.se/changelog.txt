@@ -4,6 +4,8 @@
 * Added: Expire date to TV4 items (See #1271 and Fixes #1269)
 * Added: Duration to TV4 shows (See #1271)
 * Fixed: &amp; in SVT subtitles
+* Added: Missing fanart and thumbs to SVT (Fixes #1273)
+* Fixed: `Filmer` category and missing ones in SVT (Fixes #1273)
 
 [I]Previous changes[/I]
 * Fixed: SVT "trailer" type was not recognised

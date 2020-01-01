@@ -23,3 +23,5 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Added: Expire date for ViaFree (Fixes #1272)
 * Changed: Moved to sXXeXX for seasons for ViaFree (Fixes #1272)
 * Fixed: &amp; in SVT subtitles
+* Added: Missing fanart and thumbs to SVT (Fixes #1273)
+* Fixed: `Filmer` category and missing ones in SVT (Fixes #1273)

@@ -186,47 +186,63 @@ class Channel(chn_class.Channel):
         category_items = {
             "Drama": (
                 "drama",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/drama-d75cd2da2eecde36b3d60fad6b92ad42.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166155/1458037803"
             ),
             "Dokumentär": (
                 "dokumentar",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/dokumentar-00599af62aa8009dbc13577eff894b8e.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166209/1458037873"
             ),
             "Humor": (
                 "humor",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/humor-abc329317eedf789d2cca76151213188.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166065/1458037609"
             ),
             "Livsstil": (
                 "livsstil",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/livsstil-2d9cd77d86c086fb8908ce4905b488b7.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166101/1458037687"
             ),
             "Underhållning": (
                 "underhallning",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/underhallning-a60da5125e715d74500a200bd4416841.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166041/1458037574"
             ),
             "Kultur": (
                 "kultur",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/kultur-93dca50ed1d6f25d316ac1621393851a.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166119/1458037729"
             ),
             "Samhälle & Fakta": (
                 "samhalle-och-fakta",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/samhalle-och-fakta-3750657f72529a572f3698e01452f348.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166173/1458037837"
             ),
-            "Film": (
-                "film",
+            "Filmer": (
+                "filmer",
                 "https://www.svtstatic.se/image/medium/480/20888292/1548755428"
             ),
             "Barn": (
                 "barn",
-                "https://www.svtstatic.se/play/play5/images/categories/posters/barn-c17302a6f7a9a458e0043b58bbe8ab79.jpg"
+                "https://www.svtstatic.se/image/medium/480/22702778/1560934663"
             ),
             "Nyheter": (
                 "nyheter",
-                "https://www.svtstatic.se/play/play6/images/categories/posters/nyheter.e67ff1b5770152af4690ad188546f9e9.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166089/1458037651"
             ),
             "Sport": (
                 "sport",
-                "https://www.svtstatic.se/play/play6/images/categories/posters/sport.98b65f6627e4addbc4177542035ea504.jpg"
+                "https://www.svtstatic.se/image/medium/480/7166143/1458037766"
+            ),
+            "Serier": (
+                "serier",
+                "https://www.svtstatic.se/image/medium/480/20888260/1548755402"
+            ),
+            "Reality": (
+                "reality",
+                "https://www.svtstatic.se/image/medium/480/21866138/1555059667"
+            ),
+            "Ung": (
+                "ung-i-play",
+                "https://www.svtstatic.se/image/medium/480/20888300/1548755484"
+            ),
+            "Musik": (
+                "musik",
+                "https://www.svtstatic.se/image/medium/480/19417384/1537791920"
             )
         }
 
@@ -309,7 +325,12 @@ class Channel(chn_class.Channel):
         item.metaData["slug"] = url
         item.icon = self.icon
         item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
-        item.description = result_set.get('description')
+        item.description = result_set.get('longDescription')
+
+        image_info = result_set.get("image")
+        if image_info:
+            item.thumb = self.__get_thumb(image_info, width=720)
+            item.fanart = self.__get_thumb(image_info)
         return item
 
     def create_api_tvshow_type(self, result_set):
