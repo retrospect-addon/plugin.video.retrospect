@@ -478,6 +478,13 @@ class Channel(chn_class.Channel):
             if not bool(item.fanart):
                 item.fanart = self.__get_thumb(result_set["image"])
 
+        valid_from = result_set.get("validFrom", None)
+        if valid_from:
+            # Remove the Timezone information
+            valid_from = valid_from.split("+")[0]
+            valid_from_date = DateHelper.get_date_from_string(valid_from, "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*valid_from_date[0:6])
+
         valid_to = result_set.get("validTo", None)
         if valid_to:
             self.__set_expire_time(valid_to, item)
