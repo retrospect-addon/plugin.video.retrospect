@@ -2,6 +2,7 @@
 * Updated: Artwork for ViaFree (Fixes #1272)
 * Added: Expire date for ViaFree (Fixes #1272)
 * Changed: Moved to sXXeXX for seasons for ViaFree (Fixes #1272)
+* Updated: a bit more season info for ViaFree (See #1272)
 
 [I]Previous changes[/I]
 * Added: Viafree's MTV and National Geographic channels (Fixes #1229)

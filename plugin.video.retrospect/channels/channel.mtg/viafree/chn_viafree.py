@@ -489,15 +489,17 @@ class Channel(chn_class.Channel):
 
         elif result_set["format_position"]["is_episodic"]:  # and resultSet["format_position"]["episode"] != "0":
             # make sure we show the episodes and seaso
-            # season = int(resultSet["format_position"]["season"]) --> is already an int
+            season = result_set["format_position"].get("season", 0)
             episode = int(result_set["format_position"]["episode"] or "0")
-            webisode = result_set.get("webisode", False)
+
+            # Was it a webisode?
+            # webisode = result_set.get("webisode", False)
 
             # if the name had the episode in it, translate it
-            if episode > 0 and not webisode:
+            if episode > 0 and season >0:  # and not webisode:
                 description = "%s\n\n%s" % (title, description)
                 title = "{0} - s{1:02d}e{2:02d}".format(result_set["format_title"],
-                                                        result_set["format_position"]["season"],
+                                                        season,
                                                         episode)
             else:
                 Logger.debug("Found episode '0' or websido '%s': using name instead of episode number", title)
