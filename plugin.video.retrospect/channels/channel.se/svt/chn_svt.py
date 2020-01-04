@@ -114,6 +114,7 @@ class Channel(chn_class.Channel):
         # non standard items
         self.__folder_id = "folder_id"
         self.__genre_id = "genre_id"
+        self.__filter_subheading = "filter_subheading"
         self.__parent_images = "parent_thumb_data"
         self.__apollo_data = None
         self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
@@ -138,37 +139,46 @@ class Channel(chn_class.Channel):
 
         items = []
 
+        # Specify the name, url and whether or not to filter out some subheadings:
         extra_items = {
-            LanguageHelper.get_localized_string(LanguageHelper.LiveTv): "https://www.svtplay.se/kanaler",
+            LanguageHelper.get_localized_string(LanguageHelper.LiveTv): (
+                "https://www.svtplay.se/kanaler",
+                False),
 
-            LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes):
+            LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
                 self.__get_api_url("GridPage",
                                    "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
                                    variables={"selectionId": "live"}),
+                True),
 
-            LanguageHelper.get_localized_string(LanguageHelper.Search): "searchSite",
+            LanguageHelper.get_localized_string(LanguageHelper.Search): (
+                "searchSite", False),
 
-            LanguageHelper.get_localized_string(LanguageHelper.Recent):
+            LanguageHelper.get_localized_string(LanguageHelper.Recent): (
                 self.__get_api_url("GridPage",
                                    "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
                                    variables={"selectionId": "latest"}),
+                False),
 
-            LanguageHelper.get_localized_string(LanguageHelper.LastChance):
+            LanguageHelper.get_localized_string(LanguageHelper.LastChance): (
                 self.__get_api_url("GridPage",
                                    "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
                                    variables={"selectionId": "lastchance"}),
+                False),
 
-            LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes):
+            LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
                 self.__get_api_url("GridPage",
                                    "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
                                    variables={"selectionId": "popular"}),
+                False)
         }
 
-        for title, url in extra_items.items():
+        for title, (url, include_subheading) in extra_items.items():
             new_item = MediaItem("\a.: %s :." % (title, ), url)
             new_item.complete = True
             new_item.thumb = self.noImage
             new_item.dontGroup = True
+            new_item.metaData[self.__filter_subheading] = include_subheading
             items.append(new_item)
 
         genre_tags = "\a.: {}/{} :.".format(
@@ -257,6 +267,7 @@ class Channel(chn_class.Channel):
             cat_item = MediaItem(title, "#genre_item")
             cat_item.complete = True
             cat_item.thumb = thumb or self.noImage
+            cat_item.fanart = thumb or self.fanart
             cat_item.dontGroup = True
             cat_item.metaData[self.__genre_id] = category_id
             new_item.items.append(cat_item)
@@ -414,10 +425,19 @@ class Channel(chn_class.Channel):
         sub_heading = result_set.get("subHeading")
         new_result_set = result_set["item"]
 
+        new_result_set["name"] = title
+        # We need to get rid of some subheadings for which we already have information elsewhere.
         if bool(sub_heading):
             new_result_set["name"] = "{} - {}".format(title, sub_heading)
-        else:
-            new_result_set["name"] = title
+            # See if we need to filter out some of the headings? Defaults to True
+            if self.parentItem.metaData.get(self.__filter_subheading, True) and (
+                    "Idag" in sub_heading
+                    or "Ikväll" in sub_heading
+                    or "Igår" in sub_heading
+                    or sub_heading.endswith(" min")
+                    or sub_heading.endswith(" tim")):
+                Logger.trace("Ignoring subheading: %s", sub_heading)
+                new_result_set["name"] = title
 
         # Transfer some items
         new_result_set[self.__parent_images] = result_set.get(self.__parent_images)
@@ -479,7 +499,13 @@ class Channel(chn_class.Channel):
                 item.fanart = self.__get_thumb(result_set["image"])
 
         valid_from = result_set.get("validFrom", None)
-        if valid_from:
+        if bool(valid_from) and valid_from.endswith("Z"):
+            # We need to change the timezone
+            valid_from_date = DateHelper.get_datetime_from_string(valid_from[:-1], time_zone="UTC")
+            valid_from_date = valid_from_date.astimezone(self.__timezone)
+            item.set_date(valid_from_date.year, valid_from_date.month, valid_from_date.day,
+                          valid_from_date.hour, valid_from_date.minute, valid_from_date.second)
+        elif bool(valid_from):
             # Remove the Timezone information
             valid_from = valid_from.split("+")[0]
             valid_from_date = DateHelper.get_date_from_string(valid_from, "%Y-%m-%dT%H:%M:%S")
@@ -511,6 +537,18 @@ class Channel(chn_class.Channel):
                 minute = start_time.tm_min
 
             item.name = "{:02}:{:02} - {}".format(hour, minute, item.name)
+
+        season_info = result_set.get("positionInSeason")
+        if bool(season_info):
+            Logger.debug("Found season info: %s", season_info)
+            try:
+                episode_info = season_info.split(" ")
+                if not len(episode_info) == 5:
+                    return item
+
+                item.set_season_info(episode_info[1], episode_info[4])
+            except:
+                Logger.warning("Failed to set season info: %s", season_info, exc_info=True)
 
         return item
 

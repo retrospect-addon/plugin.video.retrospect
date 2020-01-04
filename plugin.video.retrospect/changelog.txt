@@ -26,3 +26,4 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Added: Missing fanart and thumbs to SVT (Fixes #1273)
 * Fixed: `Filmer` category and missing ones in SVT (Fixes #1273)
 * Added: Date to some videos (See #1273)
+* Changed: Filter titles for some videos to not include a date or time (See #1273)
