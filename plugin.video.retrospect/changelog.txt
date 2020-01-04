@@ -29,3 +29,4 @@ This update mainly contains channel fixes for the SVT and UR Play channel.
 * Changed: Filter titles for some videos to not include a date or time (See #1273)
 * Added: Some season information to shows that have it in SVT (See #1273)
 * Updated: a bit more season info for ViaFree (See #1272)
+* Fixed: We removed too much episode information in ee9358b0 (See #1271)

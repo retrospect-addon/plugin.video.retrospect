@@ -493,8 +493,13 @@ class Channel(chn_class.Channel):
         episode = result_set.get("episode", 0)
         is_episodic = 0 < season < 1900 and not episode == 0
         if is_episodic:
-            name = result_set["title"].split("del")[0]
-            name = "{} - s{:02d}e{:02d}".format(name, season, episode)
+            name, episode_text = result_set["title"].split(" del ", 1)
+            episode_text = episode_text.lstrip("0123456789")
+            if episode_text:
+                episode_text = episode_text.lstrip(" -")
+                name = "{} - s{:02d}e{:02d} - {}".format(name, season, episode, episode_text)
+            else:
+                name = "{} - s{:02d}e{:02d}".format(name, season, episode, episode_text)
 
         item = MediaItem(name, url)
         item.description = result_set["description"]

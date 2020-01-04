@@ -9,6 +9,7 @@
 * Added: Date to some videos (See #1273)
 * Changed: Filter titles for some videos to not include a date or time (See #1273)
 * Added: Some season information to shows that have it in SVT (See #1273)
+* Fixed: We removed too much episode information in ee9358b0 (See #1271)
 
 [I]Previous changes[/I]
 * Fixed: SVT "trailer" type was not recognised
