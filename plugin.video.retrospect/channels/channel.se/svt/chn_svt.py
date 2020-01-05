@@ -434,6 +434,7 @@ class Channel(chn_class.Channel):
                     "Idag" in sub_heading
                     or "Ikväll" in sub_heading
                     or "Igår" in sub_heading
+                    or sub_heading.endswith(" sek")
                     or sub_heading.endswith(" min")
                     or sub_heading.endswith(" tim")):
                 Logger.trace("Ignoring subheading: %s", sub_heading)
@@ -550,7 +551,7 @@ class Channel(chn_class.Channel):
                 item.name = "s{:02}e{:02} - {}".format(
                     int(episode_info[1]),
                     int(episode_info[4]),
-                    item.name)
+                    result_set.get("nameRaw", item.name) or item.name)
             except:
                 Logger.warning("Failed to set season info: %s", season_info, exc_info=True)
 
