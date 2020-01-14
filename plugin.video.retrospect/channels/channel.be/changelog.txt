@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)
-* Fixed: VTM.be did not parse all folders (Fixes #1222)
+* Fixed: VRT.nu updated some HTML pages (Fixes #1276)
 
 [I]Previous Changes[/I]
+* Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)
+* Fixed: VTM.be did not parse all folders (Fixes #1222)
 * Fixed: VRT.nu did not parse folders (Fixes #1218)
 * Added: if no username was configured, log this as a warning (See #1187)
 * Fixed: Prefer HLS over Dash streams for unencrypted VRT.nu streams (Fixes 1179)
