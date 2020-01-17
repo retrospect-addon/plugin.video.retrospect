@@ -604,7 +604,7 @@ class Channel(chn_class.Channel):
 
     # noinspection PyTypeChecker
     def __update_image_lookup(self, json_data):
-        images = filter(lambda a: a["type"] == "image" and a["attributes"]["kind"] == "default", json_data.get_value("included"))
+        images = filter(lambda a: a["type"] == "image" and a["attributes"]["kind"] != "poster", json_data.get_value("included"))
         images = {str(image["id"]): image["attributes"]["src"] for image in images}
 
         shows = filter(lambda a: a["type"] == "show", json_data.get_value("included"))
