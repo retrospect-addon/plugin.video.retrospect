@@ -10,3 +10,5 @@ This update contains some appearances fixes to both Retrospect and some Swedish 
 
 [B]Channel related[/B]
 * Fixed: VRT.nu updated some HTML pages (Fixes #1276)
+* Updated: thumbs/fanart for DPlay (Fixes #1277)
+* Fixed: Kanal 5 and DPlay did not work (Fixes #1275)
