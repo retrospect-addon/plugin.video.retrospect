@@ -14,3 +14,4 @@ This update contains some appearances fixes to both Retrospect and some Swedish 
 * Fixed: Kanal 5 and DPlay did not work (Fixes #1275)
 * Fixed: Use RTMPE for NickJr (Fixes #1279)
 * Fixed: Use HLS for Nickelodeon (Fixes #1279)
+* Fixed: TV4 Play thumbs and fanart (Fixes #1280)
