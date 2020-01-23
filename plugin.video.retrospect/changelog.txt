@@ -9,9 +9,4 @@ This update contains a fix for VRT.nu that broken, Nickelodeon and more appearan
 -
 
 [B]Channel related[/B]
-* Fixed: VRT.nu updated some HTML pages (Fixes #1276)
-* Updated: thumbs/fanart for DPlay (Fixes #1277)
-* Fixed: Kanal 5 and DPlay did not work (Fixes #1275)
-* Fixed: Use RTMPE for NickJr (Fixes #1279)
-* Fixed: Use HLS for Nickelodeon (Fixes #1279)
-* Fixed: TV4 Play thumbs and fanart (Fixes #1280)
+* Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
