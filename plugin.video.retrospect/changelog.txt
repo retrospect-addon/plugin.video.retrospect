@@ -1,6 +1,6 @@
-[B]Retrospect v5.1.5 - Changelog - 2020-01-22[/B]
+[B]Retrospect v5.1.6 - Changelog - 2020-01-23[/B]
 
-This update contains a fix for VRT.nu that broken, Nickelodeon and more appearances fixes for Swedish channels.
+This update contains a fix for VRT.nu that broken again!
 
 [B]Framework related[/B]
 -
