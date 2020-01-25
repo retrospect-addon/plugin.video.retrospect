@@ -15,7 +15,7 @@ Starting from Kodi Leia (v18), you can easily install Retrospect from the offici
 
 **Note:** Make sure the _Auto-Update_ option for Retrospect is enabled to automagically receive new updates.
 
-![alt text](./plugin.video.retrospect/resources/media/retrospect01.jpg "The Retrospect information screen")
+![alt text](./resources/media/retrospect01.jpg "The Retrospect information screen")
 
 ### Kodi Krypton    
 If you are running Kodi Krypton (v17) the only way to install Retrospect is to install it from a zip file. Follow these steps (keep in mind they might slightly differ depending on your skin):
