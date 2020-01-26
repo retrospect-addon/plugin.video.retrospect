@@ -4,21 +4,5 @@
 /**/*.lnk
 .scannerwork/**
 
-/metadata.*
-/packages
-/skin.*
-/script.*
-/service.xbmc.*
-/weather.*
-/webinterface.*
-/screensaver.*
-/repository.*
-/plugin.*
-!/plugin.video.retrospect*
-
-/plugin.video.retrospect/resources/libs/debug
-/plugin.video.retrospect/resources/libs/kodi_debug
-/plugin.video.retrospect/debugrun.py
-/plugin.video.retrospect/apiserver.py
-/plugin.video.retrospect/*.log
-/plugin.video.retrospect.channel.streams/radionl/data/*
+/debugrun.py
+/apiserver.py
