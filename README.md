@@ -494,3 +494,14 @@ sorted chronologically):
 - Mjm De Frankrijker
 - Kris Provoost (via Brickshop.nl)
 - Lord_Drubibu (via World of Tanks) 
+- Christian Johansson
+- Johan Johansson
+- Tpj Mulder
+- André De Winkel
+- Dejan Dozic
+- Henrique Gomes
+- Carl Gärde
+- Stefan Zetterberg
+- Mgj Van Munnen
+- Per Karlsson
+- Peter Werkander
