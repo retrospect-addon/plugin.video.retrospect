@@ -505,3 +505,4 @@ sorted chronologically):
 - Mgj Van Munnen
 - Per Karlsson
 - Peter Werkander
+- Erik Koole
