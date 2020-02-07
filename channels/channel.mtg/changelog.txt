@@ -1,10 +1,11 @@
 ﻿[B]Changelog[/B]
+* Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
+
+[I]Previous changes[/I]
 * Updated: Artwork for ViaFree (Fixes #1272)
 * Added: Expire date for ViaFree (Fixes #1272)
 * Changed: Moved to sXXeXX for seasons for ViaFree (Fixes #1272)
 * Updated: a bit more season info for ViaFree (See #1272)
-
-[I]Previous changes[/I]
 * Added: Viafree's MTV and National Geographic channels (Fixes #1229)
 * Fixed: ViaFree changed their JSON...again...and again...and broke the main listing (Fixes #1163)
 * Fixed: ViaFree changed their JSON....again....and broke the main listing (Fixes #1163)
