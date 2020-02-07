@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Added: Category thumbs for NRK.no (Fixes #1100)
+* Fixed: Most recent shows were not working for NRK.no (Fixes #1274)
 
 [I]Previous changes[/I]
+* Added: Category thumbs for NRK.no (Fixes #1100)
 * Added: NRK.no search (Fixes #1062)
 * Fixed: Using other NRK.no API (Fixes #1033)
 * Fixed: NRK.no listings (Fixes #1033)
