@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Fixed: missing video item type 'Variant' caused missing episodes (Fixes #1284)
 * Updated: thumbs/fanart for DPlay (Fixes #1277)
 * Fixed: Kanal 5 and DPlay did not work (Fixes #1275)
 * Fixed: TV4 Play thumbs and fanart (Fixes #1280)

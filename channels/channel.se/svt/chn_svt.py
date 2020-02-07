@@ -307,7 +307,7 @@ class Channel(chn_class.Channel):
             item = self.create_api_single_type(result_set)
         elif api_type == "Clip" or api_type == "Trailer":
             item = self.create_api_clip_type(result_set)
-        elif api_type == "Episode":
+        elif api_type == "Episode" or api_type == "Variant":
             item = self.create_api_episode_type(result_set, add_parent_title)
         elif api_type == "SearchHit":
             item = self.create_api_typed_item(result_set["item"], add_parent_title=True)

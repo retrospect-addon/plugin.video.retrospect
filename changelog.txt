@@ -9,5 +9,6 @@ This update contains a fix for VRT.nu that broken again!
 -
 
 [B]Channel related[/B]
+* Fixed: missing video item type 'Variant' caused missing episodes (Fixes #1284)
 * Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
 * Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
