@@ -212,6 +212,15 @@ class MediaItem:
         self.__timestamp = datetime.datetime.min
         self.__date = ""
 
+    def has_info(self):
+        """ Indicator to show that this item has additional InfoLabels
+
+        :return: whether or not there are infolabels
+        :rtype: bool
+
+        """
+        return bool(self.__infoLabels)
+
     def set_info_label(self, label, value):
         """ Set a Kodi InfoLabel and its value.
 

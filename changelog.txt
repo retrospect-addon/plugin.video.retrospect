@@ -6,7 +6,7 @@ This update contains a fix for VRT.nu that broken again!
 -
 
 [B]GUI/Settings/Language related[/B]
--
+* Added: context menu to show the video info dialog (See #1288)
 
 [B]Channel related[/B]
 * Fixed: Most recent shows were not working for NRK.no (Fixes #1274)
