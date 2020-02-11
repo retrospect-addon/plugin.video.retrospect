@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: use Dumpert API as they updated their site
+* Added: More meta info to Apple Movie Trailers (Fixes #1288)
 
 [I]Previous changes[/I]
+* Fixed: use Dumpert API as they updated their site
 * Fixed: Dumpert video's were not playing (Fixes #1039)
 * Fixed: Eredivisie Live moved to Dash streams (Fixes #987)
 * Fixed: support Youtube streams from Dumpert

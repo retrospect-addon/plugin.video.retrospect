@@ -15,3 +15,4 @@ This update contains a fix for VRT.nu that broken again!
 * Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
 * Fixed: SVT Live channels (Fixes #1289)
 * Fixed: Missing subtitles for some videos on SVT (Fixes #1283)
+* Added: More meta info to Apple Movie Trailers (Fixes #1288)
