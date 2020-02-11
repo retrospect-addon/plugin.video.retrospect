@@ -1,10 +1,12 @@
 ﻿﻿[B]Changelog[/B]
+* Fixed: SVT Live channels (Fixes #1289)
+* Fixed: Missing subtitles for some videos on SVT (Fixes #1283)
 * Fixed: missing video item type 'Variant' caused missing episodes (Fixes #1284)
+
+[I]Previous changes[/I]
 * Updated: thumbs/fanart for DPlay (Fixes #1277)
 * Fixed: Kanal 5 and DPlay did not work (Fixes #1275)
 * Fixed: TV4 Play thumbs and fanart (Fixes #1280)
-
-[I]Previous changes[/I]
 * Updated: thumbs/fanart for SVT, TV4 and DPlay (See #1268)
 * Added: Add season/episode info instead of "del #" to TV4 (See #1271)
 * Added: Expire date to TV4 items (See #1271 and Fixes #1269)
