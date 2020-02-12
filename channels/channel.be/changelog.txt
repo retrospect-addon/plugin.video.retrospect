@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
+* Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
 
 [I]Previous Changes[/I]
+* Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
 * Fixed: VRT.nu updated some HTML pages (Fixes #1276)
 * Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)
 * Fixed: VTM.be did not parse all folders (Fixes #1222)

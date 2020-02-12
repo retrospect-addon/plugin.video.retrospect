@@ -20,3 +20,4 @@ This update contains a fix for VRT.nu that broken again!
 * Fixed: franchise name to NPO videos in case it differs from the main show (Fixes #1291)
 * Added: seasons and episodes to items of NPO (See #1291)
 * Fixed: Remove AT5 HTML tags in description (Fixes #1292)
+* Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
