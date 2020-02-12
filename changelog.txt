@@ -1,6 +1,8 @@
-[B]Retrospect v5.1.6 - Changelog - 2020-01-23[/B]
+[B]Retrospect v5.1.7 - Changelog - 2020-02-12[/B]
 
-This update contains a fix for VRT.nu that broken again!
+This update contains fixes for a number of channels (Dutch, Swedish, Belgian and Norwegian). We
+also added some small improvements such as "air date" infolabels and a new context menu entry to
+show the video information dialog window.
 
 [B]Framework related[/B]
 -
