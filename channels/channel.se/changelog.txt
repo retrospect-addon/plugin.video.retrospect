@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Fixed: UR Play broke (Fixes #1286)
 * Fixed: SVT Live channels (Fixes #1289)
 * Fixed: Missing subtitles for some videos on SVT (Fixes #1283)
 * Fixed: missing video item type 'Variant' caused missing episodes (Fixes #1284)

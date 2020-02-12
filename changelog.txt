@@ -21,3 +21,4 @@ This update contains a fix for VRT.nu that broken again!
 * Added: seasons and episodes to items of NPO (See #1291)
 * Fixed: Remove AT5 HTML tags in description (Fixes #1292)
 * Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
+* Fixed: UR Play broke (Fixes #1286)
