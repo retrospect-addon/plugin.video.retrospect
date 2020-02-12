@@ -83,6 +83,7 @@ class Channel(chn_class.Channel):
         # ==========================================================================================
         # Channel specific stuff
         self.__idToken = None
+        self.__meta_playlist = "current_playlist";
         self.__no_clips = False
 
         # ==========================================================================================
@@ -200,25 +201,42 @@ class Channel(chn_class.Channel):
             hero_json.json = {}
 
         current = self.parentItem.metaData.get("current_playlist", None)
-        start_at_playlist = 1
-        if current:
-            current_list = [l for l in hero_playlists if l["id"] == current]
-            if current_list:
-                # we are listing a subfolder, put that one on index 0 and then also
-                hero_playlists.insert(0, current_list[0])
-                start_at_playlist = 0
-                self.__no_clips = True
+        if current == "clips":
+            Logger.debug("Found 'clips' metadata, only listing clips")
+            hero_json.json = {}
+            return hero_json, items
 
-        for playlist in hero_playlists[start_at_playlist:]:
-            if current and playlist["id"] == current:
-                Logger.trace("Skipping playlist '%s' as it is the one we are listing", playlist["title"])
-                continue
+        if current is None:
+            # Add clips folder
+            clip_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
+            clips = MediaItem("\a.: %s :." % (clip_title,), self.parentItem.url)
+            clips.fanart = self.parentItem.fanart
+            clips.thumb = self.parentItem.thumb
+            clips.metaData[self.__meta_playlist] = "clips"
+            self.__no_clips = True
+            items.append(clips)
 
-            folder = MediaItem(playlist["title"], self.parentItem.url)
-            folder.fanart = self.parentItem.fanart
-            folder.thumb = self.parentItem.thumb
-            folder.metaData["current_playlist"] = playlist["id"]
-            items.append(folder)
+        # See if there are seasons to show
+        if len(hero_playlists) == 1:
+            # first items, list all, except if there is only a single season
+            Logger.debug("Only one folder playlist found. Listing that one")
+            return hero_json, items
+
+        if current is None:
+            # list all folders
+            for playlist in hero_playlists:
+                folder = self.create_folder_item(playlist)
+                items.append(folder)
+            # clear the json item to prevent further listing
+            hero_json.json = {}
+            return hero_json, items
+
+        # list the correct folder
+        current_list = [l for l in hero_playlists if l["id"] == current]
+        if current_list:
+            # we are listing a subfolder, put that one on index 0 and then also
+            hero_playlists.insert(0, current_list[0])
+            self.__no_clips = True
 
         Logger.debug("Pre-Processing finished")
         return hero_json, items
@@ -243,6 +261,26 @@ class Channel(chn_class.Channel):
         item = self.create_folder_item(result_set)
         item.type = "page"
         return item
+
+    def create_folder_item(self, result_set):
+        """ Creates a MediaItem of type 'page' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'page'.
+        :rtype: MediaItem|None
+
+        """
+
+        folder = MediaItem(result_set["title"], self.parentItem.url)
+        folder.fanart = self.parentItem.fanart
+        folder.thumb = self.parentItem.thumb
+        folder.metaData["current_playlist"] = result_set["id"]
+        return folder
 
     def extract_page_data(self, data):
         """ Performs pre-process actions for data processing.
