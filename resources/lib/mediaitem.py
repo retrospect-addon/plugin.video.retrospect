@@ -366,6 +366,7 @@ class MediaItem:
         if kodi_date:
             info_labels["Date"] = kodi_date
             info_labels["Year"] = kodi_year
+            info_labels["Aired"] = kodi_date
         if self.type != "audio":
             info_labels["Plot"] = description
 
