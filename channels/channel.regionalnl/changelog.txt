@@ -1,10 +1,11 @@
 ﻿﻿[B]Changelog[/B]
+* Fixed: Remove AT5 HTML tags in description (Fixes #1292)
+
+[I]Previous changes[/I]
 * Removed: ATV as it broke a long time ago
 * Fixed: AT5 would not work
 * Fixed: Omroep Flevoland
 * Fixed: L1 did not work at all
-
-[I]Previous changes[/I]
 * Fixed: RTV Oost Live stream (Fixes #1106)
 * Fixed: RTV Noord Live stream (Fixes #1065)
 * Fixed: Omroep Flevoland live streams (See #1032)
