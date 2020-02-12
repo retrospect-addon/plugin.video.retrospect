@@ -1506,7 +1506,8 @@ class Channel(chn_class.Channel):
 
         """
 
-        show_title = result_set["title"]
+        # We need to strip the : because some shows have them and they make no sense.
+        show_title = result_set["title"].strip(":")
         episode_title = result_set["episodeTitle"]
         if for_epg:
             channel = result_set["channel"]
