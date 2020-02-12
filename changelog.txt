@@ -16,3 +16,5 @@ This update contains a fix for VRT.nu that broken again!
 * Fixed: SVT Live channels (Fixes #1289)
 * Fixed: Missing subtitles for some videos on SVT (Fixes #1283)
 * Added: More meta info to Apple Movie Trailers (Fixes #1288)
+* Fixed: franchise name to NPO videos in case it differs from the main show (Fixes #1291)
+* Added: seasons and episodes to items of NPO (See #1291)
