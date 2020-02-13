@@ -1,4 +1,5 @@
 ﻿[B]Changelog[/B]
+* Fixed: refactoring broke NPO 'recent items' (Fixes #1295)
 * Fixed: franchise name to NPO videos in case it differs from the main show (Fixes #1291)
 * Added: seasons and episodes to items of NPO (See #1291)
 

@@ -12,6 +12,7 @@ show the video information dialog window.
 * Added: show "air date" as InfoLabel if a date is available
 
 [B]Channel related[/B]
+* Fixed: refactoring broke NPO 'recent items' (Fixes #1295)
 * Fixed: Most recent shows were not working for NRK.no (Fixes #1274)
 * Fixed: missing video item type 'Variant' caused missing episodes (Fixes #1284)
 * Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
