@@ -482,6 +482,8 @@ class Plugin(ParameterParser):
     def play_video_item(self):
         """ Starts the videoitem using a playlist. """
 
+        from resources.lib import player
+
         Logger.debug("Playing videoitem using PlayListMethod")
 
         try:
@@ -526,16 +528,14 @@ class Plugin(ParameterParser):
 
             # Set the mode (if the InputStream Adaptive add-on is used, we also need to set it)
             show_subs = AddonSettings.show_subtitles()
-            # Get the Kodi Player instance (let Kodi decide what player, see
-            # http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)
-            kodi_player = xbmc.Player()
-            XbmcWrapper.wait_for_player_to_start(kodi_player, logger=Logger.instance(), url=start_url)
 
             # TODO: Apparently if we use the InputStream Adaptive, using the setSubtitles() causes sync issues.
             available_subs = [p.Subtitle for p in media_item.MediaItemParts]
-            if available_subs:
-                kodi_player.setSubtitles(available_subs[0])
-            kodi_player.showSubtitles(show_subs)
+
+            # Get the Kodi Player instance (let Kodi decide what player, see
+            # http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)
+            kodi_player = player.Player(show_subs=show_subs, subs=available_subs)
+            kodi_player.waitForPlayBack(url=start_url, time_out=10)
 
             xbmcplugin.endOfDirectory(self.handle, True)
         except:
