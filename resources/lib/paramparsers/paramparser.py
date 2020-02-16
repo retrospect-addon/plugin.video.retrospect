@@ -37,13 +37,40 @@ class ParamParser(object):
 
         """
 
-        raise NotImplementedError
+        # First do some initial and generic checks
+        if action is None:
+            raise Exception("action is required")
+
+        # catch the plugin:// url's for items and channels.
+        if item is not None and item.url and item.url.startswith("plugin://"):
+            return item.url
+
+        if item is None and channel is not None and channel.uses_external_addon:
+            return channel.addonUrl
+
+        # Then create a specific URL
+        return self._create_url(channel, action, item, category)
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
 
         :return: dict() of keywords and values.
-        :rtype: dict[str,str|None]
+        :rtype: dict[str,str|None|MediaItem]
+
+        """
+
+        raise NotImplementedError
+
+    def _create_url(self, channel, action, item=None, category=None):
+        """ Creates an URL that includes an action.
+
+        :param ChannelInfo|Channel|None channel:    The channel object to use for the URL.
+        :param str action:                          Action to create an url for
+        :param MediaItem item:                      The media item to add
+        :param str category:                        The category to use.
+
+        :return: a complete action url with all keywords and values
+        :rtype: str|unicode
 
         """
 
