@@ -3,19 +3,23 @@
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.chn_class import Channel
 from resources.lib.mediaitem import MediaItem
+from resources.lib.paramparsers.parameter import Parameter
 from resources.lib.pickler import Pickler
 
 
 class ParamParser(object):
-    def __init__(self, addon_name):
+    def __init__(self, addon_name, url):
         """ Creates a base ParamParser object.
 
         :param str addon_name:  The name of the add-on
+        :param str url:         The url to parse
 
         """
 
         # determine the query parameters
-        self.pluginName = addon_name
+        self._pluginName = addon_name
+        self._params = dict()
+        self._url = url
 
         # We need a picker for this instance
         self._pickler = Pickler()
@@ -23,10 +27,10 @@ class ParamParser(object):
     def create_url(self, channel, action, item=None, category=None):
         """ Creates an URL that includes an action.
 
-        :param ChannelInfo|Channel channel:     The channel object to use for the URL.
-        :param str action:                      Action to create an url for
-        :param MediaItem item:                  The media item to add
-        :param str category:                    The category to use.
+        :param ChannelInfo|Channel|None channel:    The channel object to use for the URL.
+        :param str action:                          Action to create an url for
+        :param MediaItem item:                      The media item to add
+        :param str category:                        The category to use.
 
         :return: a complete action url with all keywords and values
         :rtype: str|unicode
@@ -35,10 +39,8 @@ class ParamParser(object):
 
         raise NotImplementedError
 
-    def parse_url(self, url):
+    def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
-
-        :param str url:     The url to parse
 
         :return: dict() of keywords and values.
         :rtype: dict[str,str|None]
@@ -46,3 +48,14 @@ class ParamParser(object):
         """
 
         raise NotImplementedError
+
+    def __str__(self):
+        """ Returns a string representation of the current object."""
+
+        str_dict = dict(self._params)
+        if Parameter.ITEM in str_dict:
+            del str_dict[Parameter.ITEM]
+
+        return "Plugin Params: {} ({})\n" \
+               "Name:   {}\n" \
+               "Url:    {}".format(str_dict, len(str_dict), self._pluginName, self._url or "<None>")

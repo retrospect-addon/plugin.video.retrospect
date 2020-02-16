@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 
-class Parameters(object):
+class Parameter(object):
     PICKLE = "pickle"                       # : Used for the pickle item
+    ITEM = "item"                           # : Used for the pickle item
     ACTION = "action"                       # : Used for specifying the action
     CHANNEL = "channel"                     # : Used for the channel
     CHANNEL_CODE = "channelcode"            # : Used for the channelcode
@@ -15,4 +16,4 @@ class Parameters(object):
     SETTING_SETTING_FOCUS = "settingfocus"  # : Used for setting the setting control to focus after changing a setting
     LANGUAGE = "lang"                       # : Used for the 2 char language information
     PROXY = "proxy"                         # : Used so set the proxy index
-    LOCALIP = "localip"                     # : Used to set the local ip index
+    LOCAL_IP = "localip"                    # : Used to set the local ip index

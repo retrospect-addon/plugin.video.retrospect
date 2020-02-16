@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 
-class Actions(object):
+class Action(object):
     FAVOURITES = "favourites"                  # : Used to show favorites for a channel
-    ALLFAVOURITES = "allfavourites"            # : Used to show all favorites
+    ALL_FAVOURITES = "allfavourites"            # : Used to show all favorites
     REMOVE_FAVOURITE = "removefromfavourites"  # : Used to remove items from favorites
     ADD_FAVOURITE = "addtofavourites"          # : Used to add items to favorites
     DOWNLOAD_VIDEO = "downloadVideo"           # : Used to download a video item

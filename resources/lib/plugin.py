@@ -10,6 +10,9 @@ from resources.lib import envcontroller
 from resources.lib.logger import Logger
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.locker import LockWithDialog
+from resources.lib.paramparsers import get_parser
+from resources.lib.paramparsers.action import Action
+from resources.lib.paramparsers.parameter import Parameter
 from resources.lib.retroconfig import Config
 from resources.lib.xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper, XbmcDialogProgressBgWrapper
 from resources.lib.mediaitem import MediaItem
@@ -19,13 +22,12 @@ from resources.lib.helpers.stopwatch import StopWatch
 from resources.lib.helpers.sessionhelper import SessionHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.textures import TextureHandler
-from resources.lib.paramparser import ParameterParser
 from resources.lib.urihandler import UriHandler
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.chn_class import Channel
 
 
-class Plugin(ParameterParser):
+class Plugin(object):
     """ Main Plugin Class
 
     This class makes it possible to access all the XOT channels as a Kodi Add-on
@@ -45,13 +47,12 @@ class Plugin(ParameterParser):
         Logger.info("******** Starting %s add-on version %s/repo *********", Config.appName, Config.version)
         # noinspection PyTypeChecker
         self.handle = int(handle)
+        self.pluginName = addon_name
 
-        super(Plugin, self).__init__(addon_name, params)
-        Logger.debug("Plugin Params: %s (%s)\n"
-                     "Handle:      %s\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params),
-                     self.handle, self.pluginName, params)
+        # parse the parameters
+        self.param_parser = get_parser(parameters=params, add_on_name=addon_name)
+        self.params = self.param_parser.parse_url()
+        Logger.debug(self.param_parser)
 
         # Container Properties
         self.propertyRetrospect = "Retrospect"
@@ -126,10 +127,10 @@ class Plugin(ParameterParser):
         #===============================================================================
         else:
             # Determine what stage we are in. Check that there are more than 2 Parameters
-            if len(self.params) > 1 and self.keywordChannel in self.params:
+            if len(self.params) > 1 and Parameter.CHANNEL in self.params:
                 # retrieve channel characteristics
-                self.channelFile = os.path.splitext(self.params[self.keywordChannel])[0]
-                self.channelCode = self.params[self.keywordChannelCode]
+                self.channelFile = os.path.splitext(self.params[Parameter.CHANNEL])[0]
+                self.channelCode = self.params[Parameter.CHANNEL_CODE]
                 Logger.debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
                              self.channelCode)
 
@@ -147,54 +148,54 @@ class Plugin(ParameterParser):
                 self.channelObject.init_channel()
                 Logger.info("Loaded: %s", self.channelObject.channelName)
 
-            elif self.keywordCategory in self.params \
-                    or self.keywordAction in self.params and (
-                        self.params[self.keywordAction] == self.actionAllFavourites or
-                        self.params[self.keywordAction] == self.actionRemoveFavourite):
+            elif Parameter.CATEGORY in self.params \
+                    or Parameter.ACTION in self.params and (
+                    self.params[Parameter.ACTION] == Action.ALL_FAVOURITES or
+                    self.params[Parameter.ACTION] == Action.REMOVE_FAVOURITE):
                 # no channel needed for these favourites actions.
                 pass
 
             # ===============================================================================
             # Vault Actions
             # ===============================================================================
-            elif self.keywordAction in self.params and \
-                    self.params[self.keywordAction] in \
+            elif Parameter.ACTION in self.params and \
+                    self.params[Parameter.ACTION] in \
                     (
-                        self.actionSetEncryptedValue,
-                        self.actionSetEncryptionPin,
-                        self.actionResetVault
+                            Action.SET_ENCRYPTED_VALUE,
+                            Action.SET_ENCRYPTION_PIN,
+                            Action.RESET_VAULT
                     ):
                 try:
                     # Import vault here, as it is only used here or in a channel
                     # that supports it
                     from resources.lib.vault import Vault
 
-                    action = self.params[self.keywordAction]
-                    if action == self.actionResetVault:
+                    action = self.params[Parameter.ACTION]
+                    if action == Action.RESET_VAULT:
                         Vault.reset()
                         return
 
                     v = Vault()
-                    if action == self.actionSetEncryptionPin:
+                    if action == Action.SET_ENCRYPTION_PIN:
                         v.change_pin()
-                    elif action == self.actionSetEncryptedValue:
-                        v.set_setting(self.params[self.keywordSettingId],
-                                      self.params.get(self.keywordSettingName, ""),
-                                      self.params.get(self.keywordSettingActionId, None))
+                    elif action == Action.SET_ENCRYPTED_VALUE:
+                        v.set_setting(self.params[Parameter.SETTING_ID],
+                                      self.params.get(Parameter.SETTING_NAME, ""),
+                                      self.params.get(Parameter.SETTING_ACTION_ID, None))
                 finally:
-                    if self.keywordSettingTabFocus in self.params:
-                        AddonSettings.show_settings(self.params[self.keywordSettingTabFocus],
+                    if Parameter.SETTING_TAB_FOCUS in self.params:
+                        AddonSettings.show_settings(self.params[Parameter.SETTING_TAB_FOCUS],
                                                     self.params.get(
-                                                       self.keywordSettingSettingFocus, None))
+                                                        Parameter.SETTING_SETTING_FOCUS, None))
                 return
 
-            elif self.keywordAction in self.params and \
-                    self.actionPostLog in self.params[self.keywordAction]:
+            elif Parameter.ACTION in self.params and \
+                    Action.POST_LOG in self.params[Parameter.ACTION]:
                 self.__send_log()
                 return
 
-            elif self.keywordAction in self.params and \
-                    self.actionProxy in self.params[self.keywordAction]:
+            elif Parameter.ACTION in self.params and \
+                    Action.PROXY in self.params[Parameter.ACTION]:
 
                 # do this here to not close the busy dialog on the SetProxy when
                 # a confirm box is shown
@@ -204,9 +205,9 @@ class Plugin(ParameterParser):
                     Logger.warning("Stopping proxy update due to user intervention")
                     return
 
-                language = self.params.get(self.keywordLanguage, None)
-                proxy_id = self.params.get(self.keywordProxy, None)
-                local_ip = self.params.get(self.keywordLocalIP, None)
+                language = self.params.get(Parameter.LANGUAGE, None)
+                proxy_id = self.params.get(Parameter.PROXY, None)
+                local_ip = self.params.get(Parameter.LOCAL_IP, None)
                 self.__set_proxy(language, proxy_id, local_ip)
                 return
 
@@ -217,32 +218,32 @@ class Plugin(ParameterParser):
             #===============================================================================
             # See what needs to be done.
             #===============================================================================
-            if self.keywordAction not in self.params:
+            if Parameter.ACTION not in self.params:
                 Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
                 return
 
-            elif self.params[self.keywordAction] == self.actionListCategory:
-                self.show_channel_list(self.params[self.keywordCategory])
+            elif self.params[Parameter.ACTION] == Action.LIST_CATEGORY:
+                self.show_channel_list(self.params[Parameter.CATEGORY])
 
-            elif self.params[self.keywordAction] == self.actionConfigureChannel:
+            elif self.params[Parameter.ACTION] == Action.CONFIGURE_CHANNEL:
                 self.__configure_channel(self.channelObject)
 
-            elif self.params[self.keywordAction] == self.actionFavourites:
+            elif self.params[Parameter.ACTION] == Action.FAVOURITES:
                 # we should show the favourites
                 self.show_favourites(self.channelObject)
 
-            elif self.params[self.keywordAction] == self.actionAllFavourites:
+            elif self.params[Parameter.ACTION] == Action.ALL_FAVOURITES:
                 self.show_favourites(None)
 
-            elif self.params[self.keywordAction] == self.actionListFolder:
+            elif self.params[Parameter.ACTION] == Action.LIST_FOLDER:
                 # channelName and URL is present, Parse the folder
                 self.process_folder_list()
 
-            elif self.params[self.keywordAction] == self.actionPlayVideo:
+            elif self.params[Parameter.ACTION] == Action.PLAY_VIDEO:
                 self.play_video_item()
 
-            elif not self.params[self.keywordAction] == "":
-                self.on_action_from_context_menu(self.params[self.keywordAction])
+            elif not self.params[Parameter.ACTION] == "":
+                self.on_action_from_context_menu(self.params[Parameter.ACTION])
 
             else:
                 Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
@@ -284,7 +285,7 @@ class Plugin(ParameterParser):
             if not AddonSettings.hide_fanart():
                 kodi_item.setArt({'fanart': fanart})
 
-            url = self._create_action_url(None, action=self.actionListCategory, category=category)
+            url = self.param_parser.create_url(None, action=Action.LIST_CATEGORY, category=category)
             kodi_items.append((url, kodi_item, True))
 
         # Logger.Trace(kodi_items)
@@ -332,7 +333,7 @@ class Plugin(ParameterParser):
                 if not AddonSettings.hide_fanart():
                     kodi_item.setArt({'fanart': fanart})
 
-                url = self._create_action_url(None, action=self.actionAllFavourites)
+                url = self.param_parser.create_url(None, action=Action.ALL_FAVOURITES)
                 xbmc_items.append((url, kodi_item, True))
 
             for channel in channels:
@@ -353,7 +354,7 @@ class Plugin(ParameterParser):
                 context_menu_items = self.__get_context_menu_items(channel)
                 item.addContextMenuItems(context_menu_items)
                 # Get the URL for the item
-                url = self._create_action_url(channel, action=self.actionListFolder)
+                url = self.param_parser.create_url(channel, action=Action.LIST_FOLDER)
 
                 # Append to the list of Kodi Items
                 xbmc_items.append((url, item, True))
@@ -402,10 +403,7 @@ class Plugin(ParameterParser):
         Logger.info("Plugin::process_folder_list Doing process_folder_list")
         try:
             ok = True
-
-            selected_item = None
-            if self.keywordPickle in self.params:
-                selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+            selected_item = self.params.get(Parameter.ITEM)
 
             if favorites is None:
                 watcher = StopWatch("Plugin process_folder_list", Logger.instance())
@@ -435,10 +433,10 @@ class Plugin(ParameterParser):
                 media_item.fanart = media_item.fanart or fallback_fanart
 
                 if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
-                    action = self.actionListFolder
+                    action = Action.LIST_FOLDER
                     folder = True
                 elif media_item.is_playable():
-                    action = self.actionPlayVideo
+                    action = Action.PLAY_VIDEO
                     folder = False
                 else:
                     Logger.critical("Plugin::process_folder_list: Cannot determine what to add")
@@ -456,7 +454,7 @@ class Plugin(ParameterParser):
                 # Get the action URL
                 url = media_item.actionUrl
                 if url is None:
-                    url = self._create_action_url(self.channelObject, action=action, item=media_item)
+                    url = self.param_parser.create_url(self.channelObject, action=action, item=media_item)
 
                 # Add them to the list of Kodi items
                 kodi_items.append((url, kodi_item, folder))
@@ -493,8 +491,7 @@ class Plugin(ParameterParser):
         Logger.debug("Playing videoitem using PlayListMethod")
 
         try:
-            media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
-
+            media_item = self.params[Parameter.ITEM]
             if not media_item.complete:
                 media_item = self.channelObject.process_video_item(media_item)
 
@@ -568,7 +565,7 @@ class Plugin(ParameterParser):
         """
         Logger.debug("Performing Custom Contextmenu command: %s", action)
 
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.params[Parameter.ITEM]
         if not item.complete:
             Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
             item = self.channelObject.process_video_item(item)
@@ -725,7 +722,7 @@ class Plugin(ParameterParser):
                     Logger.warning("No method for: %s", menu_item)
                     continue
 
-                cmd_url = self._create_action_url(channel, action=menu_item.functionName, item=item)
+                cmd_url = self.param_parser.create_url(channel, action=menu_item.functionName, item=item)
                 cmd = "XBMC.RunPlugin(%s)" % (cmd_url,)
                 title = "Retro: %s" % (menu_item.label,)
                 Logger.trace("Adding command: %s | %s", title, cmd)

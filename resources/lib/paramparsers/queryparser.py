@@ -1,4 +1,8 @@
+from random import random
+
 from resources.lib.logger import Logger
+from resources.lib.paramparsers.action import Action
+from resources.lib.paramparsers.parameter import Parameter
 from resources.lib.paramparsers.paramparser import ParamParser
 
 from resources.lib.channelinfo import ChannelInfo
@@ -7,39 +11,98 @@ from resources.lib.mediaitem import MediaItem
 
 
 class QueryParser(ParamParser):
-    def __init__(self, addon_name):
-        """ Creates a QueryParser object for parsing of pre 5.2 url's
+    def __init__(self, addon_name, url):
+        """ Creates a base ParamParser object.
 
-            :param str addon_name:  The name of the add-on
+        :param str addon_name:  The name of the add-on
+        :param str url:         The url to parse
 
         """
-        super(QueryParser, self).__init__(addon_name)
+
+        super(QueryParser, self).__init__(addon_name, url)
 
     def create_url(self, channel, action, item=None, category=None):
-        """ Creates an URL that includes an action in the form of query parameters
+        """ Creates an URL that includes an action.
 
-        :param ChannelInfo|Channel channel:     The channel object to use for the URL.
-        :param str action:                      Action to create an url for
-        :param MediaItem item:                  The media item to add
-        :param str category:                    The category to use.
+        :param ChannelInfo|Channel|None channel:    The channel object to use for the URL.
+        :param str action:                          Action to create an url for
+        :param MediaItem item:                      The media item to add
+        :param str category:                        The category to use.
 
         :return: a complete action url with all keywords and values
         :rtype: str|unicode
 
         """
 
-        raise NotImplementedError
+        if action is None:
+            raise Exception("action is required")
 
-    def parse_url(self, url):
+        # catch the plugin:// url's for items and channels.
+        if item is not None and item.url and item.url.startswith("plugin://"):
+            return item.url
+
+        if item is None and channel is not None and channel.uses_external_addon:
+            return channel.addonUrl
+
+        params = dict()
+        if channel:
+            params[Parameter.CHANNEL] = channel.moduleName
+            if channel.channelCode:
+                params[Parameter.CHANNEL_CODE] = channel.channelCode
+
+        params[Parameter.ACTION] = action
+
+        # it might have an item or not
+        if item is not None:
+            params[Parameter.PICKLE] = self._pickler.pickle_media_item(item)
+
+            if action == Action.PLAY_VIDEO and item.isLive:
+                params[Parameter.RANDOM_LIVE] = random.randint(10000, 99999)
+
+        if category:
+            params[Parameter.CATEGORY] = category
+
+        url = "%s?" % (self._pluginName,)
+        for k in params.keys():
+            url = "%s%s=%s&" % (url, k, params[k])
+
+        url = url.strip('&')
+        # Logger.Trace("Created url: '%s'", url)
+        return url
+
+    def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
 
-        :param str url:     The url to parse
+        Note: If a pickled item was present, that item will be depickled.
 
         :return: dict() of keywords and values.
         :rtype: dict[str,str|None]
 
         """
 
-        Logger.debug("Parsing parameters from: %s", url)
+        Logger.debug("Parsing parameters from: %s", self._url)
+        self._params = dict()
 
-        raise NotImplementedError
+        url = self._url.strip('?')
+        if url == '':
+            return self._params
+
+        try:
+            for pair in url.split("&"):
+                (k, v) = pair.split("=")
+                self._params[k] = v
+
+            # if the channelcode was empty, it was stripped, add it again.
+            if Parameter.CHANNEL_CODE not in self._params:
+                Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", self._params)
+                self._params[Parameter.CHANNEL_CODE] = None
+        except:
+            Logger.critical("Cannot determine query strings from %s", url, exc_info=True)
+            raise
+
+        pickle = self._params.get(Parameter.PICKLE)
+        if pickle:
+            Logger.debug("Found Pickle: %s", pickle)
+            self._params[Parameter.ITEM] = self._pickler.de_pickle_media_item(pickle)
+
+        return self._params
