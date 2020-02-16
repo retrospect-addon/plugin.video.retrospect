@@ -24,6 +24,7 @@ class Player(xbmc.Player):
         self.__monitor = xbmc.Monitor()
         self.__playBackEventsTriggered = False
         self.__playPlayBackEndedEventsTriggered = False
+        self.__pollInterval = 1.0
 
     def waitForPlayBack(self, url=None, time_out=30):
         """ Blocks the call until playback is started.
@@ -42,17 +43,22 @@ class Player(xbmc.Player):
             Logger.debug("Player: Already Playing")
             return
 
-        for i in range(0, time_out):
-            if self.__monitor.abortRequested() or self.__is_url_playing(url):
-                if self.__monitor.abortRequested():
-                    Logger.debug("Player: Abort requested (%s)", i)
-                    return
-                else:
-                    Logger.debug("Player: PlayBack started (%s)", i)
-                    return
+        # noinspection PyTypeChecker
+        for i in range(0, int(time_out / self.__pollInterval)):
+            if self.__monitor.abortRequested():
+                Logger.debug("Player: Abort requested (%s)", i * self.__pollInterval)
+                return
 
-            self.__monitor.waitForAbort(1)
-            Logger.trace("Player: Waiting for an abort (%s)", i)
+            if self.__is_url_playing(url):
+                Logger.debug("Player: PlayBack started (%s)", i * self.__pollInterval)
+                return
+
+            if self.__playPlayBackEndedEventsTriggered:
+                Logger.warning("Player: PlayBackEnded triggered while waiting for start.")
+                return
+
+            self.__monitor.waitForAbort(self.__pollInterval)
+            Logger.trace("Player: Waiting for an abort (%s)", i * self.__pollInterval)
 
         Logger.warning("Player: time-out occurred waiting for playback (%s)", time_out)
         return
@@ -82,23 +88,25 @@ class Player(xbmc.Player):
 
         Logger.debug("Player: Showing subtitles")
         self.showSubtitles(self.show_subs)
-
-        self.__playBackEventsTriggered = True
-        self.__playPlayBackEndedEventsTriggered = False
+        self.__playback_started()
 
     def onPlayBackEnded(self):
         """ Will be called when [Kodi] stops playing a file """
-        Logger.trace("Player: [onPlayBackEnded] called")
 
-        self.__playBackEventsTriggered = False
-        self.__playPlayBackEndedEventsTriggered = True
+        Logger.trace("Player: [onPlayBackEnded] called")
+        self.__playback_stopped()
 
     def onPlayBackStopped(self):
         """ Will be called when [user] stops Kodi playing a file """
-        Logger.trace("Player: [onPlayBackStopped] called")
 
-        self.__playBackEventsTriggered = False
-        self.__playPlayBackEndedEventsTriggered = True
+        Logger.trace("Player: [onPlayBackStopped] called")
+        self.__playback_stopped()
+
+    def onPlayBackError(self):
+        """ Will be called when playback stops due to an error. """
+
+        Logger.trace("Player: [onPlayBackError] called")
+        self.__playback_stopped()
 
     # Triggered both on stop and start
     # def onAVChange(self):
@@ -107,6 +115,18 @@ class Player(xbmc.Player):
     #     self.__playBackEventsTriggered = False
     #     self.__playPlayBackEndedEventsTriggered = True
     # endregion
+
+    def __playback_stopped(self):
+        """ Sets the correct flags after playback stopped """
+
+        self.__playBackEventsTriggered = False
+        self.__playPlayBackEndedEventsTriggered = True
+
+    def __playback_started(self):
+        """ Sets the correct flags after playback started """
+
+        self.__playBackEventsTriggered = True
+        self.__playPlayBackEndedEventsTriggered = False
 
     def __is_url_playing(self, url):
         """ Checks whether the given url is playing
