@@ -50,16 +50,6 @@ class ParameterParser(object):
         self.actionPostLog = "postlog"                                  # : Used for sending log files to pastebin.com
         self.actionProxy = "setproxy"                                   # : Used for setting a proxy
 
-        self.propertyRetrospect = "Retrospect"
-        self.propertyRetrospectChannel = "RetrospectChannel"
-        self.propertyRetrospectChannelSetting = "RetrospectChannelSettings"
-        self.propertyRetrospectFolder = "RetrospectFolder"
-        self.propertyRetrospectVideo = "RetrospectVideo"
-        self.propertyRetrospectCloaked = "RetrospectCloaked"
-        self.propertyRetrospectCategory = "RetrospectCategory"
-        self.propertyRetrospectFavorite = "RetrospectFavorite"
-        self.propertyRetrospectAdaptive = "RetrospectAdaptive"
-
         # determine the query parameters
         self.params = self.__get_parameters(params)
         self.pluginName = addon_name

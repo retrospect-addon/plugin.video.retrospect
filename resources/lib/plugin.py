@@ -53,6 +53,17 @@ class Plugin(ParameterParser):
                      "Query:       %s", self.params, len(self.params),
                      self.handle, self.pluginName, params)
 
+        # Container Properties
+        self.propertyRetrospect = "Retrospect"
+        self.propertyRetrospectChannel = "RetrospectChannel"
+        self.propertyRetrospectChannelSetting = "RetrospectChannelSettings"
+        self.propertyRetrospectFolder = "RetrospectFolder"
+        self.propertyRetrospectVideo = "RetrospectVideo"
+        self.propertyRetrospectCloaked = "RetrospectCloaked"
+        self.propertyRetrospectCategory = "RetrospectCategory"
+        self.propertyRetrospectFavorite = "RetrospectFavorite"
+        self.propertyRetrospectAdaptive = "RetrospectAdaptive"
+
         # channel objects
         self.channelObject = None
         self.channelFile = ""
