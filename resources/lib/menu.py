@@ -6,6 +6,10 @@ import xbmc
 import xbmcgui
 
 # we need to import the initializer
+from resources.lib.paramparsers import get_parser
+from resources.lib.paramparsers.action import Action
+from resources.lib.paramparsers.parameter import Parameter
+
 addOnPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.append(addOnPath)
 
@@ -23,7 +27,6 @@ Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.favourites import Favourites
-from resources.lib.paramparser import ParameterParser
 from resources.lib.helpers.channelimporter import ChannelIndex
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.locker import LockWithDialog
@@ -32,7 +35,7 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
 
-class Menu(ParameterParser):
+class Menu(object):
 
     def __init__(self, action):
         Logger.info("**** Starting menu '%s' for %s add-on version %s/repo ****",
@@ -49,18 +52,14 @@ class Menu(ParameterParser):
         name, params = params.split("?", 1)
         params = "?{0}".format(params)
 
-        # Main constructor parses
-        super(Menu, self).__init__(name, params)
+        # Parse the parameters
+        self.param_parser = get_parser(parameters=params, add_on_name=name)
+        self.params = self.param_parser.parse_url()
+        Logger.debug(self.param_parser)
 
+        # Get the main items we need.
         self.channelObject = self.__get_channel()
-        Logger.debug("Plugin Params: %s (%s)\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params), self.pluginName, params)
-
-        if self.keywordPickle in self.params:
-            self.mediaItem = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
-        else:
-            self.mediaItem = None
+        self.mediaItem = self.params.get(Parameter.ITEM)
 
     def hide_channel(self):
         """ Hides a specific channel """
@@ -143,9 +142,9 @@ class Menu(ParameterParser):
         """
 
         # it's just the channel, so only add the favourites
-        cmd_url = self._create_action_url(
+        cmd_url = self.param_parser.create_url(
             None if all_favorites else self.channelObject,
-            action=self.actionAllFavourites if all_favorites else self.actionFavourites
+            action=Action.ALL_FAVOURITES if all_favorites else Action.FAVOURITES
         )
 
         xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmd_url))
@@ -154,22 +153,21 @@ class Menu(ParameterParser):
     def add_favourite(self):
         """ Adds the selected item to the favourites. The opens the favourite list. """
 
-        # remove the item
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
-        # no need for dates in the favourites
-        # item.clear_date()
+        item = self.params[Parameter.ITEM]
         Logger.debug("Adding favourite: %s", item)
+
+        # No need for dates in the favourites
+        # item.clear_date()
 
         f = Favourites(Config.favouriteDir)
         if item.is_playable():
-            action = self.actionPlayVideo
+            action = Action.PLAY_VIDEO
         else:
-            action = self.actionListFolder
+            action = Action.LIST_FOLDER
 
-        # add the favourite
         f.add(self.channelObject,
               item,
-              self._create_action_url(self.channelObject, action, item))
+              self.param_parser.create_url(self.channelObject, action, item))
 
         # we are finished, so just open the Favorites
         self.favourites()
@@ -178,8 +176,7 @@ class Menu(ParameterParser):
     def remove_favourite(self):
         """ Remove the selected favourite and then refresh the favourite list. """
 
-        # remove the item
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.params[Parameter.ITEM]
         Logger.debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
         f.remove(item)
@@ -194,8 +191,8 @@ class Menu(ParameterParser):
     def toggle_cloak(self):
         """ Toggles the cloaking (showing/hiding) of the selected folder. """
 
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
-        Logger.info("Cloaking current item: %s", item)
+        item = self.params[Parameter.ITEM]
+        Logger.info("(Un)cloaking current item: %s", item)
         c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.instance())
 
         if c.is_cloaked(item.url):
@@ -276,13 +273,13 @@ class Menu(ParameterParser):
         AddonSettings.set_adaptive_mode(self.channelObject, selected_value)
 
         # Refresh if we have a video item selected, so the cached urls are removed.
-        if self.keywordPickle in self.params:
+        if Parameter.PICKLE in self.params:
             Logger.debug("Refreshing list to clear URL caches")
             self.refresh()
 
     def __get_channel(self):
-        chn = self.params.get(self.keywordChannel, None)
-        code = self.params.get(self.keywordChannelCode, None)
+        chn = self.params.get(Parameter.CHANNEL, None)
+        code = self.params.get(Parameter.CHANNEL_CODE, None)
         if not chn:
             return None
 

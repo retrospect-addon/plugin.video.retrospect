@@ -1,4 +1,3 @@
-from resources.lib.logger import Logger
 from resources.lib.paramparsers.paramparser import ParamParser
 
 from resources.lib.channelinfo import ChannelInfo
