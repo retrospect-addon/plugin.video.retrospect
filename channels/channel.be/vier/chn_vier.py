@@ -83,7 +83,7 @@ class Channel(chn_class.Channel):
         # ==========================================================================================
         # Channel specific stuff
         self.__idToken = None
-        self.__meta_playlist = "current_playlist";
+        self.__meta_playlist = "current_playlist"
         self.__no_clips = False
 
         # ==========================================================================================

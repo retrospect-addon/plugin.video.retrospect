@@ -54,6 +54,7 @@ class DnsResolverHTTPAdapter(HTTPAdapter):
         # Add the original host to make SSL verification pass
         if self.__url_parts[0] == "https":
             pool_kwargs['assert_hostname'] = self.__original_host_name
+        # noinspection PyArgumentList
         super(DnsResolverHTTPAdapter, self).init_poolmanager(connections, maxsize, block,
                                                              **pool_kwargs)
 
