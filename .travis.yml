@@ -10,7 +10,7 @@ before_script:
 
 # command to run our tests
 script:
-  - kodi-addon-checker --branch=leia $([ "$TRAVIS_PULL_REQUEST" != "false" ] && echo --PR $(git diff --diff-filter=d --name-only HEAD~ | grep / | cut -d / -f1 | sort | uniq))
+  - kodi-addon-checker --branch=leia .
 
 notifications:
   webhooks: https://www.travisbuddy.com/
