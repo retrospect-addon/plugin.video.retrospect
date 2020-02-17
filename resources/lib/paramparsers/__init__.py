@@ -7,19 +7,19 @@ from resources.lib.paramparsers.uriparser import UriParser
 from resources.lib.paramparsers.paramparser import ParamParser
 
 
-def get_parser(parameters, add_on_name):
+def get_parser(uri, add_on_name=None):
     """ Returns a specific ParamParser object to parse objects
 
-    :param str parameters:   The parameters to parse
+    :param str uri:          The uri or part of the uri to parse
     :param str add_on_name:  The add-on name
 
     :return: a ParamParser for the URL
     :rtype: ParamParser
     """
 
-    if parameters.startswith("/"):
-        return UriParser(add_on_name, parameters)
-    elif parameters.startswith("?") or not parameters:
-        return QueryParser(add_on_name, parameters)
+    if "?" in uri or not uri:
+        return QueryParser(uri, add_on_name)
+    elif not uri.startswith("?"):
+        return UriParser(uri, add_on_name)
     else:
-        raise IndexError("Cannot find parser for {}".format(parameters))
+        raise IndexError("Cannot find parser for {}".format(uri))

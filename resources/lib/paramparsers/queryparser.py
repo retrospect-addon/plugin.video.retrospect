@@ -13,15 +13,25 @@ from resources.lib.mediaitem import MediaItem
 
 
 class QueryParser(ParamParser):
-    def __init__(self, addon_name, url):
+    def __init__(self, url, addon_name=None):
         """ Creates a base ParamParser object.
 
-        :param str addon_name:  The name of the add-on
         :param str url:         The url to parse
+        :param str addon_name:  The name of the add-on
 
         """
 
-        super(QueryParser, self).__init__(addon_name, url)
+        super(QueryParser, self).__init__()
+
+        # See if it was a full url or if it was already cut up:
+        if addon_name:
+            self._addon_name = addon_name
+            self._url = url
+        else:
+            # Only a full url
+            parts = url.split("?", 1)
+            self._addon_name = parts[0]
+            self._url = "?{}".format(parts[1])
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
@@ -33,7 +43,7 @@ class QueryParser(ParamParser):
 
         """
 
-        Logger.debug("Parsing parameters from: %s", self._url)
+        Logger.debug("Parsing query parameters from: %s", self._url)
         self._params = dict()
 
         url = self._url.strip('?')
@@ -91,7 +101,7 @@ class QueryParser(ParamParser):
         if category:
             params[Parameter.CATEGORY] = category
 
-        url = "%s?" % (self._pluginName,)
+        url = "%s?" % (self._addon_name,)
         for k in params.keys():
             url = "%s%s=%s&" % (url, k, params[k])
 
@@ -101,4 +111,3 @@ class QueryParser(ParamParser):
 
     def __str__(self):
         return "Query-{}".format(super(QueryParser, self).__str__())
-

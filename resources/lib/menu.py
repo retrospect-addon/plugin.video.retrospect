@@ -44,16 +44,13 @@ class Menu(object):
         # noinspection PyUnresolvedReferences
         self.kodiItem = sys.listitem
 
-        params = self.kodiItem.getPath()
-        if not params:
+        item_path = self.kodiItem.getPath()
+        if not item_path:
             self.channelObject = None
             return
 
-        name, params = params.split("?", 1)
-        params = "?{0}".format(params)
-
         # Parse the parameters
-        self.param_parser = get_parser(parameters=params, add_on_name=name)
+        self.param_parser = get_parser(uri=item_path)
         self.params = self.param_parser.parse_url()
         Logger.debug(self.param_parser)
 
