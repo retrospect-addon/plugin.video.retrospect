@@ -8,9 +8,10 @@ from resources.lib.pickler import Pickler
 
 
 class ParamParser(object):
-    def __init__(self, add_on_path, query):
+    def __init__(self, add_on_id, add_on_path, query):
         """ Creates a base ParamParser object.
 
+        :param str add_on_id:    The id of the add-on
         :param str query:        The url to parse
         :param str add_on_path:  The add-on plugin-uri (the plugin://....) part
 
@@ -19,6 +20,7 @@ class ParamParser(object):
         # determine the query parameters
         self._addon_path = add_on_path
         self._query = query
+        self._addon_id = add_on_id
 
         # the resulting parameters
         self._params = dict()

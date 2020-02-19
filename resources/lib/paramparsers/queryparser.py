@@ -13,15 +13,16 @@ from resources.lib.mediaitem import MediaItem
 
 
 class QueryParser(ParamParser):
-    def __init__(self, add_on_path, query):
-        """ Creates a base ParamParser object.
+    def __init__(self, add_on_id, add_on_path, query):
+        """ Creates a base QueryParser object.
 
+        :param str add_on_id:    The id of the add-on
         :param str query:        The url to parse
         :param str add_on_path:  The add-on plugin-uri (the plugin://....) part
 
         """
 
-        super(QueryParser, self).__init__(add_on_path, query.lstrip("?"))
+        super(QueryParser, self).__init__(add_on_id, add_on_path, query.lstrip("?"))
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
