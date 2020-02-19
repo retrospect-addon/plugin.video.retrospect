@@ -21,10 +21,11 @@ class UriParser(ParamParser):
         """ Creates a base ParamParser object.
 
         :param str url:         The url to parse
-        :param str addon_name:  The name of the add-on
+        :param str addon_name:  The add-on plugin-uri (the plugin://....) part
 
         """
 
+        Logger.trace("%s + %s", addon_name, url)
         super(UriParser, self).__init__()
 
         # Kodi does not split the path from the add-on part. It eithers comes via the
