@@ -50,7 +50,7 @@ class Menu(object):
             return
 
         # Parse the parameters
-        self.param_parser = get_parser(uri=item_path)
+        self.param_parser = get_parser(full_url=item_path)
         self.params = self.param_parser.parse_url()
         Logger.debug(self.param_parser)
 

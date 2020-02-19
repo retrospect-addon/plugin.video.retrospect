@@ -50,7 +50,7 @@ class Plugin(object):
         self.pluginName = addon_name
 
         # parse the parameters
-        self.param_parser = get_parser(uri=params, add_on_name=addon_name)
+        self.param_parser = get_parser(add_on_path=addon_name, query=params)
         self.params = self.param_parser.parse_url()
         Logger.debug(self.param_parser)
 

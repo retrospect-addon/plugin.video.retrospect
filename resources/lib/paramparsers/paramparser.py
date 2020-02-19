@@ -8,13 +8,20 @@ from resources.lib.pickler import Pickler
 
 
 class ParamParser(object):
-    def __init__(self):
-        """ Creates a base ParamParser object. """
+    def __init__(self, add_on_path, query):
+        """ Creates a base ParamParser object.
+
+        :param str query:        The url to parse
+        :param str add_on_path:  The add-on plugin-uri (the plugin://....) part
+
+        """
 
         # determine the query parameters
-        self._addon_name = None
+        self._addon_path = add_on_path
+        self._query = query
+
+        # the resulting parameters
         self._params = dict()
-        self._url = None
 
         # We need a picker for this instance
         self._pickler = Pickler()
@@ -78,6 +85,8 @@ class ParamParser(object):
         if Parameter.ITEM in str_dict:
             del str_dict[Parameter.ITEM]
 
+        full_url = "{}{}{}".format(self._addon_path, "?" if self._query else "", self._query)
         return "Plugin Params: {} ({})\n" \
-               "Name:   {}\n" \
-               "Url:    {}".format(str_dict, len(str_dict), self._addon_name, self._url or "<None>")
+               "Url:   {}\n" \
+               "Path:  {}\n" \
+               "Query: {}".format(str_dict, len(str_dict), full_url, self._addon_path, self._query or "<None>")

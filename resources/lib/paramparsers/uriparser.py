@@ -17,28 +17,28 @@ URL_MAP = {
 
 
 class UriParser(ParamParser):
-    def __init__(self, url, addon_name=None):
+    def __init__(self, add_on_path, query):
         """ Creates a base ParamParser object.
 
-        :param str url:         The url to parse
-        :param str addon_name:  The add-on plugin-uri (the plugin://....) part
+        :param str query:          The url to parse
+        :param str add_on_path:  The add-on plugin-uri (the plugin://....) part
 
         """
 
-        Logger.trace("%s + %s", addon_name, url)
-        super(UriParser, self).__init__()
+        super(UriParser, self).__init__(add_on_path, query)
 
         # Kodi does not split the path from the add-on part. It eithers comes via the
         # the add-on name (plugin) or via the url (menu call)
-        if addon_name:
-            url_parts = addon_name.split("/", 3)
+        if add_on_path:
+            url_parts = add_on_path.split("/", 3)
         else:
-            url_parts = url.split("/", 3)
+            url_parts = query.split("/", 3)
 
         # determine the query parameters
         self._pluginName = "{}//{}/".format(url_parts[0], url_parts[2])
         self._params = dict()
         self._url = url_parts[3]
+        raise NotImplementedError
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.

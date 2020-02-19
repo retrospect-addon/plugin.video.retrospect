@@ -13,26 +13,15 @@ from resources.lib.mediaitem import MediaItem
 
 
 class QueryParser(ParamParser):
-    def __init__(self, url, addon_name=None):
+    def __init__(self, add_on_path, query):
         """ Creates a base ParamParser object.
 
-        :param str url:         The url to parse
-        :param str addon_name:  The add-on plugin-uri (the plugin://....) part
+        :param str query:        The url to parse
+        :param str add_on_path:  The add-on plugin-uri (the plugin://....) part
 
         """
 
-        Logger.trace("%s + %s", addon_name, url)
-        super(QueryParser, self).__init__()
-
-        # See if it was a full url or if it was already cut up:
-        if addon_name:
-            self._addon_name = addon_name
-            self._url = url.strip("?")
-        else:
-            # Only a full url
-            parts = url.split("?", 1)
-            self._addon_name = parts[0]
-            self._url = parts[1]
+        super(QueryParser, self).__init__(add_on_path, query.lstrip("?"))
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
@@ -44,14 +33,13 @@ class QueryParser(ParamParser):
 
         """
 
-        Logger.debug("Parsing query parameters from: %s", self._url)
         self._params = dict()
 
-        if self._url == '':
+        if self._query == '':
             return self._params
 
         try:
-            for pair in self._url.split("&"):
+            for pair in self._query.split("&"):
                 (k, v) = pair.split("=")
                 self._params[k] = v
 
@@ -60,7 +48,7 @@ class QueryParser(ParamParser):
                 Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", self._params)
                 self._params[Parameter.CHANNEL_CODE] = None
         except:
-            Logger.critical("Cannot determine query strings from %s", self._url, exc_info=True)
+            Logger.critical("Cannot determine query strings from %s", self._query, exc_info=True)
             raise
 
         pickle = self._params.get(Parameter.PICKLE)
@@ -101,7 +89,7 @@ class QueryParser(ParamParser):
         if category:
             params[Parameter.CATEGORY] = category
 
-        url = "%s?" % (self._addon_name,)
+        url = "%s?" % (self._addon_path,)
         for k in params.keys():
             url = "%s%s=%s&" % (url, k, params[k])
 
