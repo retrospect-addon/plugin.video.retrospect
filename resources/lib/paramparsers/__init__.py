@@ -30,11 +30,15 @@ def get_parser(add_on_id, full_url=None, add_on_path=None, query=None):
 
     if query:
         return QueryParser(add_on_id, add_on_path, query)
-    elif add_on_path.count("/") == 3:
-        # the parser to use for add-on entry
+
+    elif add_on_path.count("/") == 3 and add_on_path.endswith("/"):
+        # the parser to use for add-on entry, this should basically
+        # be  plugin://plugin.video.retrospect/
         return QueryParser(add_on_id, add_on_path, query)
+
     elif add_on_path:
         return UriParser(add_on_id, add_on_path, query)
+
     else:
         raise IndexError("Cannot find parser for {}{}{}".
                          format(add_on_path, "?" if query else "", query))

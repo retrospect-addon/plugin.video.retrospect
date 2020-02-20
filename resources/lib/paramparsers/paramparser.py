@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from resources.lib.channelinfo import ChannelInfo
-from resources.lib.chn_class import Channel
-from resources.lib.mediaitem import MediaItem
 from resources.lib.paramparsers.parameter import Parameter
 from resources.lib.pickler import Pickler
+
+from resources.lib.chn_class import Channel
+from resources.lib.channelinfo import ChannelInfo
+from resources.lib.mediaitem import MediaItem
 
 
 class ParamParser(object):

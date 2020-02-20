@@ -2,11 +2,11 @@
 
 import random
 
+from resources.lib.logger import Logger
 from resources.lib.paramparsers.action import Action
 from resources.lib.paramparsers.parameter import Parameter
 from resources.lib.paramparsers.paramparser import ParamParser
 
-from resources.lib.logger import Logger
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.chn_class import Channel
 from resources.lib.mediaitem import MediaItem
