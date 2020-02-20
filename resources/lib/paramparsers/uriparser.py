@@ -16,6 +16,12 @@ URL_MAP = {
         Parameter.CHANNEL_CODE: 1,
         Parameter.PICKLE: -2,
     },
+    Action.PLAY_VIDEO: {
+        Parameter.CHANNEL: 0,
+        Parameter.CHANNEL_CODE: 1,
+        Parameter.PICKLE: -2,
+    },
+
     Action.LIST_CATEGORY: {
         Parameter.CATEGORY: 0,
     }
