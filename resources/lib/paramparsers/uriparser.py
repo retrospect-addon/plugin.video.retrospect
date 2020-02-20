@@ -14,7 +14,7 @@ URL_MAP = {
     Action.LIST_FOLDER: {
         Parameter.CHANNEL: 0,
         Parameter.CHANNEL_CODE: 1,
-        Parameter.PICKLE: 2,
+        Parameter.PICKLE: -2,
     },
     Action.LIST_CATEGORY: {
         Parameter.CATEGORY: 0,
@@ -56,7 +56,15 @@ class UriParser(ParamParser):
             raise NotImplementedError("Action '{}' is not implemented".format(action))
 
         for parameter, idx in parameters.items():
-            self._params[parameter] = url_parts[idx] or None
+            # Check of optional parameters
+            if idx < 0:
+                idx = -idx
+                if len(url_parts) <= idx:
+                    continue
+            try:
+                self._params[parameter] = url_parts[idx] or None
+            except IndexError as ex:
+                raise ValueError("Missing parameter: {}".format(parameter), ex)
 
         pickle = self._params.get(Parameter.PICKLE)
         if pickle:
