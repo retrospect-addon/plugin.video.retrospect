@@ -84,13 +84,16 @@ class UriParser(ParamParser):
         if action == Action.ALL_FAVOURITES:
             return "plugin://{}/{}".format(self._addon_id, action)
 
-        if action == Action.LIST_FOLDER:
-            pickle = None
-            if item:
-                pickle = self._pickler.pickle_media_item(item)
+        if action == Action.LIST_FOLDER and item is not None:
+            pickle = self._pickler.pickle_media_item(item)
             return "plugin://{}/{}/{}/{}/{}".format(
                 self._addon_id, action,
                 channel.moduleName, channel.channelCode or "", pickle or "")
+
+        elif action == Action.LIST_FOLDER:
+            return "plugin://{}/{}/{}/{}".format(
+                self._addon_id, action,
+                channel.moduleName, channel.channelCode or "")
 
         raise NotImplementedError("Action '{}' is not implemented".format(action))
 
