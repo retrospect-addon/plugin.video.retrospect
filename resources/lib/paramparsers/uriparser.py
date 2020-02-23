@@ -1,31 +1,12 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
-
 from resources.lib.logger import Logger
 from resources.lib.paramparsers.action import Action
 from resources.lib.paramparsers.parameter import Parameter
-from resources.lib.paramparsers.paramparser import ParamParser
+from resources.lib.paramparsers.paramparser import ParamParser, URL_MAP
 
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.chn_class import Channel
 from resources.lib.mediaitem import MediaItem
-
-# The main URL mapping if parameters.
-URL_MAP = {
-    Action.LIST_FOLDER: {
-        Parameter.CHANNEL: 0,
-        Parameter.CHANNEL_CODE: 1,
-        Parameter.PICKLE: -2,
-    },
-    Action.PLAY_VIDEO: {
-        Parameter.CHANNEL: 0,
-        Parameter.CHANNEL_CODE: 1,
-        Parameter.PICKLE: -2,
-    },
-
-    Action.LIST_CATEGORY: {
-        Parameter.CATEGORY: 0,
-    }
-}
 
 
 class UriParser(ParamParser):
@@ -58,18 +39,23 @@ class UriParser(ParamParser):
         self._params[Parameter.ACTION] = action
 
         parameters = URL_MAP.get(action)
-        if not parameters:
+        if parameters is None:
             raise NotImplementedError("Action '{}' is not implemented".format(action))
 
         for parameter, idx in parameters.items():
             # Check of optional parameters
-            if idx < 0:
+            is_optional = self._is_optional(parameters, parameter)
+            if is_optional:
                 idx = -idx
-                if len(url_parts) <= idx:
-                    continue
+
             try:
                 self._params[parameter] = url_parts[idx] or None
             except IndexError as ex:
+                if is_optional:
+                    Logger.trace(
+                        "Found optional parameters '%s' for '%s' in %s, ignoring",
+                        parameter, action, self._addon_path)
+                    continue
                 raise ValueError("Missing parameter: {}".format(parameter), ex)
 
         pickle = self._params.get(Parameter.PICKLE)
@@ -78,23 +64,6 @@ class UriParser(ParamParser):
             self._params[Parameter.ITEM] = self._pickler.de_pickle_media_item(pickle)
 
         return self._params
-
-        # This does not work yet.
-        # params = self._addon_path.split("/")
-        # params_count = len(params)
-        # for param, param_idx in URL_MAP.items():
-        #     # if the index is higher than the parameter count, stop
-        #     if param_idx >= params_count:
-        #         continue
-        #
-        #     self._params[param] = params[param_idx] or None
-        #
-        # # If there was an item, de-pickle it
-        # pickle = self._params.get(Parameter.PICKLE)
-        # if pickle:
-        #     self._params[Parameter.ITEM] = self._pickler.de_pickle_media_item(pickle)
-        #
-        # return self._params
 
     def _create_url(self, channel, action, item=None, category=None):
         """ Creates an URL that includes an action.

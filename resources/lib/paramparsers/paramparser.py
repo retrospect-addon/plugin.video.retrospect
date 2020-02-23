@@ -1,11 +1,31 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
-
+from resources.lib.paramparsers.action import Action
 from resources.lib.paramparsers.parameter import Parameter
 from resources.lib.pickler import Pickler
 
 from resources.lib.chn_class import Channel
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.mediaitem import MediaItem
+
+
+# The main URL mapping if parameters.
+URL_MAP = {
+    Action.LIST_FOLDER: {
+        Parameter.CHANNEL: 0,
+        Parameter.CHANNEL_CODE: 1,
+        Parameter.PICKLE: -2
+    },
+    Action.PLAY_VIDEO: {
+        Parameter.CHANNEL: 0,
+        Parameter.CHANNEL_CODE: 1,
+        Parameter.PICKLE: 2,
+    },
+    Action.ALL_FAVOURITES: {
+    },
+    Action.LIST_CATEGORY: {
+        Parameter.CATEGORY: 0,
+    }
+}
 
 
 class ParamParser(object):
@@ -80,6 +100,20 @@ class ParamParser(object):
         """
 
         raise NotImplementedError
+
+    def _is_optional(self, action_config, parameter):
+        """ Returns an indication whether the parameter is an optional one in the configuration.
+
+        :param dict[string,int] action_config:  The configuration to use
+        :param str parameter:                   The Parameter name to check
+
+        :return: indication whether the parameters is an optional one
+
+        """
+        # Check of optional parameters (negative IDX and last of the configured parameters)
+        idx = action_config[parameter]
+        is_optional = idx < 0 and len(action_config) == -idx + 1
+        return is_optional
 
     def __str__(self):
         """ Returns a string representation of the current object."""

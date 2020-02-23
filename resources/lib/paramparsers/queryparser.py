@@ -5,7 +5,7 @@ import random
 from resources.lib.logger import Logger
 from resources.lib.paramparsers.action import Action
 from resources.lib.paramparsers.parameter import Parameter
-from resources.lib.paramparsers.paramparser import ParamParser
+from resources.lib.paramparsers.paramparser import ParamParser, URL_MAP
 
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.chn_class import Channel
@@ -39,18 +39,36 @@ class QueryParser(ParamParser):
         if self._query == '':
             return self._params
 
-        try:
-            for pair in self._query.split("&"):
-                (k, v) = pair.split("=")
-                self._params[k] = v
+        url_parameters = dict()
+        for pair in self._query.split("&"):
+            (k, v) = pair.split("=")
+            url_parameters[k] = v
+        if Parameter.CHANNEL_CODE not in url_parameters:
+            # Being backwards compatible
+            url_parameters[Parameter.CHANNEL_CODE] = ""
 
-            # if the channelcode was empty, it was stripped, add it again.
-            if Parameter.CHANNEL_CODE not in self._params:
-                Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", self._params)
-                self._params[Parameter.CHANNEL_CODE] = None
-        except:
-            Logger.critical("Cannot determine query strings from %s", self._query, exc_info=True)
-            raise
+        action = url_parameters.get(Parameter.ACTION)
+        if action is None:
+            raise ValueError("Missing 'Action' parameters")
+        self._params[Parameter.ACTION] = action
+
+        parameters = URL_MAP.get(action)
+        if parameters is None:
+            raise NotImplementedError("Action '{}' is not implemented".format(action))
+
+        for parameter, idx in parameters.items():
+            # Check of optional parameters (negative IDX and last of the configured parameters)
+            is_optional = self._is_optional(parameters, parameter)
+
+            try:
+                self._params[parameter] = url_parameters[parameter] or None
+            except KeyError as ex:
+                if is_optional:
+                    Logger.trace(
+                        "Found optional parameters '%s' for '%s' in %s, ignoring",
+                        parameter, action, self._query)
+                    continue
+                raise ValueError("Missing parameter: {}".format(parameter), ex)
 
         pickle = self._params.get(Parameter.PICKLE)
         if pickle:
@@ -75,8 +93,7 @@ class QueryParser(ParamParser):
         params = dict()
         if channel:
             params[Parameter.CHANNEL] = channel.moduleName
-            if channel.channelCode:
-                params[Parameter.CHANNEL_CODE] = channel.channelCode
+            params[Parameter.CHANNEL_CODE] = channel.channelCode or ""
 
         params[Parameter.ACTION] = action
 
