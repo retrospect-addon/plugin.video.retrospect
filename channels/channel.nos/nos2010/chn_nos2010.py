@@ -234,6 +234,7 @@ class Channel(chn_class.Channel):
         v = Vault()
         password = v.get_channel_setting(self.guid, "password")
         if not bool(password):
+            Logger.warning("No password found for %s", self)
             return False
 
         xsrf_token = self.__get_xsrf_token()[0]
