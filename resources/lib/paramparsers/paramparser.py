@@ -20,10 +20,24 @@ URL_MAP = {
         Parameter.CHANNEL_CODE: 1,
         Parameter.PICKLE: 2,
     },
-    Action.ALL_FAVOURITES: {
-    },
+    Action.ALL_FAVOURITES: {},
     Action.LIST_CATEGORY: {
         Parameter.CATEGORY: 0,
+    },
+    Action.RESET_VAULT: {
+        Parameter.SETTING_TAB_FOCUS: 0,
+        Parameter.SETTING_SETTING_FOCUS: -1,
+    },
+    Action.SET_ENCRYPTION_PIN: {
+        Parameter.SETTING_TAB_FOCUS: 0,
+        Parameter.SETTING_SETTING_FOCUS: -1,
+    },
+    Action.SET_ENCRYPTED_VALUE: {
+        Parameter.SETTING_ID: 0,
+        Parameter.SETTING_NAME: 1,
+        Parameter.SETTING_TAB_FOCUS: 2,
+        Parameter.SETTING_SETTING_FOCUS: -3,
+        Parameter.SETTING_ACTION_ID: -4,
     }
 }
 
@@ -109,10 +123,13 @@ class ParamParser(object):
 
         :return: indication whether the parameters is an optional one
 
+        Initially only the last of the configured parameters could be optional. Now more can be
+        but it will not work if they are not the last ones.
+
         """
-        # Check of optional parameters (negative IDX and last of the configured parameters)
+        # Check of optional parameters (negative IDX)
         idx = action_config[parameter]
-        is_optional = idx < 0 and len(action_config) == -idx + 1
+        is_optional = idx < 0  # and len(action_config) == -idx + 1
         return is_optional
 
     def __str__(self):
