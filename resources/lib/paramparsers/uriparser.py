@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
+
+import random
+
 from resources.lib.logger import Logger
 from resources.lib.paramparsers.action import Action
 from resources.lib.paramparsers.parameter import Parameter
@@ -20,6 +23,7 @@ class UriParser(ParamParser):
         """
 
         super(UriParser, self).__init__(add_on_id, add_on_path, query)
+        Logger.debug("Parsing uri: %s", self._addon_path)
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
@@ -94,6 +98,16 @@ class UriParser(ParamParser):
             return "plugin://{}/{}/{}/{}".format(
                 self._addon_id, action,
                 channel.moduleName, channel.channelCode or "")
+
+        elif action == Action.PLAY_VIDEO:
+            pickle = self._pickler.pickle_media_item(item)
+            uri = "plugin://{}/{}/{}/{}/{}".format(
+                self._addon_id, action,
+                channel.moduleName, channel.channelCode or "", pickle or "")
+            if item.isLive:
+                uri = "{}/{}".format(uri, random.randint(10000, 99999))
+
+            return uri
 
         raise NotImplementedError("Action '{}' is not implemented".format(action))
 

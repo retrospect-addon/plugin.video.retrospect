@@ -23,6 +23,7 @@ class QueryParser(ParamParser):
         """
 
         super(QueryParser, self).__init__(add_on_id, add_on_path, query.lstrip("?"))
+        Logger.debug("Parsing query: %s", self._query)
 
     def parse_url(self):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.
@@ -112,7 +113,7 @@ class QueryParser(ParamParser):
             url = "%s%s=%s&" % (url, k, params[k])
 
         url = url.strip('&')
-        # Logger.Trace("Created url: '%s'", url)
+        # Logger.trace("Created url: '%s'", url)
         return url
 
     def __str__(self):
