@@ -94,7 +94,8 @@ class QueryParser(ParamParser):
         params = dict()
         if channel:
             params[Parameter.CHANNEL] = channel.moduleName
-            params[Parameter.CHANNEL_CODE] = channel.channelCode or ""
+            if channel.channelCode:
+                params[Parameter.CHANNEL_CODE] = channel.channelCode
 
         params[Parameter.ACTION] = action
 
