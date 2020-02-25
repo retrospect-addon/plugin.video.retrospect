@@ -77,7 +77,8 @@ class AwsIdp:
             "Content-Type": "application/x-amz-json-1.1"
         }
         auth_response = UriHandler.open(self.url, proxy=self.__proxy,
-                                        params=auth_data, additional_headers=auth_headers)
+                                        params=auth_data, additional_headers=auth_headers,
+                                        force_text=True)
         auth_response_json = JsonHelper(auth_response)
         challenge_parameters = auth_response_json.get_value("ChallengeParameters")
         if self.__logger:
@@ -98,7 +99,8 @@ class AwsIdp:
             "Content-Type": "application/x-amz-json-1.1"
         }
         auth_response = UriHandler.open(self.url, proxy=self.__proxy,
-                                        params=challenge_data, additional_headers=challenge_headers)
+                                        params=challenge_data, additional_headers=challenge_headers,
+                                        force_text=True)
 
         auth_response_json = JsonHelper(auth_response)
         if "message" in auth_response_json.json:
