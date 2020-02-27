@@ -333,20 +333,16 @@ class MediaItem:
         """
 
         # Update name and descriptions
-        name_post_fix, description_post_fix = self.__update_title_and_description_with_limitations()
+        name_post_fix, description_pre_fix = self.__update_title_and_description_with_limitations()
 
         name = self.__get_title(name)
-        name = "%s%s" % (name, name_post_fix)
+        name = "%s %s" % (name, name_post_fix)
         name = self.__full_decode_text(name)
-
-        if self.uses_external_addon:
-            other = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
-            name = "{0} {1} [COLOR gold]{2}[/COLOR]".format(name, unichr(187), other)
 
         if self.description is None:
             self.description = ''
 
-        description = "%s%s" % (self.description.lstrip(), description_post_fix)
+        description = "%s\n\n%s" % (description_pre_fix, self.description)
         description = self.__full_decode_text(description)
         if description is None:
             description = ""
@@ -628,7 +624,7 @@ class MediaItem:
         drm_lock = "^"       # ^
         paid = "&ordf;"     # ª
         cloaked = "&uml;"   # ¨
-        description_addition = []
+        description_prefix = []
         title_postfix = []
 
         description = ""
@@ -636,30 +632,37 @@ class MediaItem:
 
         if self.isDrmProtected:
             title_postfix.append(drm_lock)
-            description_addition.append(
+            description_prefix.append(
                 LanguageHelper.get_localized_string(LanguageHelper.DrmProtected))
 
         if self.isGeoLocked:
             title_postfix.append(geo_lock)
-            description_addition.append(
+            description_prefix.append(
                 LanguageHelper.get_localized_string(LanguageHelper.GeoLockedId))
 
         if self.isPaid:
             title_postfix.append(paid)
-            description_addition.append(
+            description_prefix.append(
                 LanguageHelper.get_localized_string(LanguageHelper.PremiumPaid))
 
         if self.isCloaked:
             title_postfix.append(cloaked)
-            description_addition.append(
+            description_prefix.append(
                 LanguageHelper.get_localized_string(LanguageHelper.HiddenItem))
 
+        if self.uses_external_addon:
+            external = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
+            external = " {} [COLOR gold]{}[/COLOR]".format(unichr(187), external)
+            title_postfix.append(external)
+
         # actually update it
-        if description_addition:
-            description_addition = ", ".join(description_addition)
-            description = "\n\n[COLOR gold][I]%s[/I][/COLOR]" % (description_addition, )
+        if description_prefix:
+            description_prefix = " | ".join(description_prefix)
+            description = "[COLOR gold][I]%s[/I][/COLOR]" % (description_prefix.rstrip(), )
+
         if title_postfix:
-            title = " [COLOR gold]%s[/COLOR]" % ("".join(title_postfix), )
+            title = "".join(title_postfix)
+            title = "[COLOR gold]%s[/COLOR]" % (title.lstrip(), )
 
         return title, description
 
