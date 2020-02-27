@@ -1,10 +1,11 @@
 ﻿﻿[B]Changelog[/B]
+* Removed: premium Norwegian channels (Fixes #1300)
+
+[I]Previous changes[/I]
 * Fixed: UR Play broke (Fixes #1286)
 * Fixed: SVT Live channels (Fixes #1289)
 * Fixed: Missing subtitles for some videos on SVT (Fixes #1283)
 * Fixed: missing video item type 'Variant' caused missing episodes (Fixes #1284)
-
-[I]Previous changes[/I]
 * Updated: thumbs/fanart for DPlay (Fixes #1277)
 * Fixed: Kanal 5 and DPlay did not work (Fixes #1275)
 * Fixed: TV4 Play thumbs and fanart (Fixes #1280)
