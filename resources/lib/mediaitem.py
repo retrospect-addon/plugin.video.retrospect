@@ -38,6 +38,7 @@ class MediaItem:
 
     LabelTrackNumber = "TrackNumber"
     LabelDuration = "Duration"
+    ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
     def __dir__(self):
         """ Required in order for the Pickler().Validate to work! """
@@ -95,6 +96,7 @@ class MediaItem:
 
         self.__date = ""                          # : value show in interface
         self.__timestamp = datetime.datetime.min  # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
+        self.__expires = ""                       # : string representation of the expire time of an item.
 
         self.type = type                          # : video, audio, folder, append, page, playlist
         self.dontGroup = False                    # : if set to True this item will not be auto grouped.
@@ -247,6 +249,15 @@ class MediaItem:
         self.__infoLabels["Episode"] = int(episode)
         self.__infoLabels["Season"] = int(season)
         return
+
+    def set_expire_datetime(self, datetime_value):
+        """ Sets the datetime value until when the item can be streamed.
+
+        :param str datetime_value:  String representation of the datetime value
+
+        """
+
+        self.__expires = datetime_value
 
     def set_date(self, year, month, day,
                  hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):
@@ -654,6 +665,10 @@ class MediaItem:
             external = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
             external = " {} [COLOR gold]{}[/COLOR]".format(unichr(187), external)
             title_postfix.append(external)
+
+        if self.__expires:
+            expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires)
+            description_prefix.append(expires)
 
         # actually update it
         if description_prefix:

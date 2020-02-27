@@ -717,8 +717,7 @@ class Channel(chn_class.Channel):
         expire_date = expire_date.split("+")[0].replace("T", " ")
         year = expire_date.split("-")[0]
         if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
-            item.description = \
-                "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
+            item.set_expire_datetime(expire_date)
 
     def __update_dash_video(self, item, stream_info):
         """
