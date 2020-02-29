@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
+* Fixed: Stievie became VTM Go. Removing content for now (Fixes #1310)
 
 [I]Previous Changes[/I]
+* Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
 * Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
 * Fixed: VRT.nu updated some HTML pages (Fixes #1276)
 * Fixed: Use Dash for VRT.nu live streams and show subtitles (Fixes #1223)

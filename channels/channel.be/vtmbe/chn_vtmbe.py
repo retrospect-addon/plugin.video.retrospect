@@ -354,9 +354,10 @@ class Channel(chn_class.Channel):
         if not self.__adaptiveStreamingAvailable:
             return data, items
 
-        programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
-        programs.dontGroup = True
-        items.append(programs)
+        # No more programs. Stievie became VTM GO
+        # programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
+        # programs.dontGroup = True
+        # items.append(programs)
 
         search = MediaItem("Zoeken", "searchSite")
         search.complete = True
@@ -399,43 +400,44 @@ class Channel(chn_class.Channel):
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels%5B%5D=vtm&channels%5B%5D=2be&channels%5B%5D=vitaya&channels%5B%5D=caz&channels%5B%5D=kzoom&channels%5B%5D=kadet&channels%5B%5D=qmusic
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-04-25&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
         # https://epg.medialaan.io/epg/v2/schedule?date=2017-05-04&channels[]=vtm&channels[]=2be&channels[]=vitaya&channels[]=caz&channels[]=kzoom&channels[]=kadet&channels[]=qmusic
-        channel_id = self.parentItem.metaData["channelId"]
-        channels = (channel_id, )
-        query = "channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
 
-        today = datetime.datetime.now()
-        days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
-        for i in range(0, 7, 1):
-            air_date = today - datetime.timedelta(i)
-            until_air_date = today - datetime.timedelta(i) + datetime.timedelta(1)
-            Logger.trace("Adding item for: %s", air_date)
-
-            day = days[air_date.weekday()]
-            if i == 0:
-                day = "Vandaag"
-            elif i == 1:
-                day = "Gisteren"
-            elif i == 2:
-                day = "Eergisteren"
-            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
-            # url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (air_date.year, air_date.month, air_date.day, query)
-            # https://epg.medialaan.io/epg/v3/broadcasts?channels%5B%5D=zes&from=2019-05-29T03%3A00%3A00.000Z&until=2019-05-30T03%3A00%3A00.000Z
-
-            url = "https://epg.medialaan.io/epg/v3/broadcasts?%s&" \
-                  "from=%d-%02d-%02dT03%%3A00%%3A00.000Z&" \
-                  "until=%d-%02d-%02dT03%%3A00%%3A00.000Z" % (
-                    query,
-                    air_date.year, air_date.month, air_date.day,
-                    until_air_date.year, until_air_date.month, until_air_date.day)
-
-            extra = MediaItem(title, url)
-            extra.complete = True
-            extra.icon = self.icon
-            extra.thumb = self.noImage
-            extra.dontGroup = True
-            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
-            extra.metaData["airDate"] = air_date
-            items.append(extra)
+        # No more EPG items as Stievie became VTM GO
+        # channel_id = self.parentItem.metaData["channelId"]
+        # channels = (channel_id, )
+        # query = "channels%%5B%%5D=%s" % ("&channels%5B%5D=".join(channels), )
+        # today = datetime.datetime.now()
+        # days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
+        # for i in range(0, 7, 1):
+        #     air_date = today - datetime.timedelta(i)
+        #     until_air_date = today - datetime.timedelta(i) + datetime.timedelta(1)
+        #     Logger.trace("Adding item for: %s", air_date)
+        #
+        #     day = days[air_date.weekday()]
+        #     if i == 0:
+        #         day = "Vandaag"
+        #     elif i == 1:
+        #         day = "Gisteren"
+        #     elif i == 2:
+        #         day = "Eergisteren"
+        #     title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
+        #     # url = "https://epg.medialaan.io/epg/v2/schedule?date=%d-%02d-%02d%s" % (air_date.year, air_date.month, air_date.day, query)
+        #     # https://epg.medialaan.io/epg/v3/broadcasts?channels%5B%5D=zes&from=2019-05-29T03%3A00%3A00.000Z&until=2019-05-30T03%3A00%3A00.000Z
+        #
+        #     url = "https://epg.medialaan.io/epg/v3/broadcasts?%s&" \
+        #           "from=%d-%02d-%02dT03%%3A00%%3A00.000Z&" \
+        #           "until=%d-%02d-%02dT03%%3A00%%3A00.000Z" % (
+        #             query,
+        #             air_date.year, air_date.month, air_date.day,
+        #             until_air_date.year, until_air_date.month, until_air_date.day)
+        #
+        #     extra = MediaItem(title, url)
+        #     extra.complete = True
+        #     extra.icon = self.icon
+        #     extra.thumb = self.noImage
+        #     extra.dontGroup = True
+        #     extra.set_date(air_date.year, air_date.month, air_date.day, text="")
+        #     extra.metaData["airDate"] = air_date
+        #     items.append(extra)
 
         return data, items
 

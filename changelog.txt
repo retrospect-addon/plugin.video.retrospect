@@ -9,10 +9,13 @@ show the video information dialog window.
 * Added: option for UriHandler to open a link as text (utf-8) in case no encoding was specified.
 * Fixed: Amazon AWS sign-in
 * Changed: json should always be text not bytes
+* Updated: a bit more logging if no data was found for decryption
 * Added: Check to see if external add-on is installed
 
 [B]GUI/Settings/Language related[/B]
--
+* Translated: Dutch(nl_NL) translations
+* Translated: Swedish (sv_SE) translations
 
 [B]Channel related[/B]
+* Fixed: Stievie became VTM Go. Removing content for now (Fixes #1310)
 * Removed: premium Norwegian channels (Fixes #1300)
