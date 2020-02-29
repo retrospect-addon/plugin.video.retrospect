@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import os
-import datetime
+from datetime import datetime
 import binascii
 from functools import reduce
 
@@ -95,8 +95,8 @@ class MediaItem:
         self.icon = ""                            # : low quality icon for list
 
         self.__date = ""                          # : value show in interface
-        self.__timestamp = datetime.datetime.min  # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
-        self.__expires = ""                       # : string representation of the expire time of an item.
+        self.__timestamp = datetime.min           # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
+        self.__expires_datetime = None            # : datetime value of the expire time
 
         self.type = type                          # : video, audio, folder, append, page, playlist
         self.dontGroup = False                    # : if set to True this item will not be auto grouped.
@@ -206,12 +206,12 @@ class MediaItem:
 
         """
 
-        return self.__timestamp > datetime.datetime.min
+        return self.__timestamp > datetime.min
 
     def clear_date(self):
         """ Resets the date (used for favourites for example). """
 
-        self.__timestamp = datetime.datetime.min
+        self.__timestamp = datetime.min
         self.__date = ""
 
     def has_info(self):
@@ -250,14 +250,25 @@ class MediaItem:
         self.__infoLabels["Season"] = int(season)
         return
 
-    def set_expire_datetime(self, datetime_value):
+    def set_expire_datetime(self, timestamp, year=0, month=0, day=0, hour=0, minutes=0, seconds=0):
         """ Sets the datetime value until when the item can be streamed.
 
-        :param str datetime_value:  String representation of the datetime value
+        :param datetime|None timestamp: A full datetime object.
+        :param int|str year:            The year of the datetime.
+        :param int|str month:           The month of the datetime.
+        :param int|str day:             The day of the datetime.
+        :param int|str|None hour:       The hour of the datetime (Optional)
+        :param int|str|None minutes:    The minutes of the datetime (Optional)
+        :param int|str|None seconds:    The seconds of the datetime (Optional)
 
         """
 
-        self.__expires = datetime_value
+        if timestamp is not None:
+            self.__expires_datetime = timestamp
+            return
+
+        self.__expires_datetime = datetime(
+            int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
 
     def set_date(self, year, month, day,
                  hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):
@@ -292,7 +303,7 @@ class MediaItem:
                                         datetime is also set.
 
         :return: The datetime that was set.
-        :rtype: datetime.datetime
+        :rtype: datetime
 
         """
 
@@ -308,10 +319,10 @@ class MediaItem:
             date_time_format = date_format + " %H:%M"
 
             if hour is None and minutes is None and seconds is None:
-                time_stamp = datetime.datetime(int(year), int(month), int(day))
+                time_stamp = datetime(int(year), int(month), int(day))
                 date = time_stamp.strftime(date_format)
             else:
-                time_stamp = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
+                time_stamp = datetime(int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
                 date = time_stamp.strftime(date_time_format)
 
             if only_if_newer and self.__timestamp > time_stamp:
@@ -325,7 +336,7 @@ class MediaItem:
 
         except ValueError:
             Logger.error("Error setting date: Year=%s, Month=%s, Day=%s, Hour=%s, Minutes=%s, Seconds=%s", year, month, day, hour, minutes, seconds, exc_info=True)
-            self.__timestamp = datetime.datetime.min
+            self.__timestamp = datetime.min
             self.__date = ""
 
         return self.__timestamp
@@ -360,7 +371,7 @@ class MediaItem:
 
         # the Kodi ListItem date
         # date: string (%d.%m.%Y / 01.01.2009) - file date
-        if self.__timestamp > datetime.datetime.min:
+        if self.__timestamp > datetime.min:
             kodi_date = self.__timestamp.strftime("%d.%m.%Y")
             kodi_year = self.__timestamp.year
         else:
@@ -641,8 +652,8 @@ class MediaItem:
         description = ""
         title = ""
 
-        if self.__expires:
-            expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires)
+        if self.__expires_datetime is not None:
+            expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires_datetime.strftime("%Y-%m-%d %H:%M"))
             description_prefix.append(expires)
 
         if self.isDrmProtected:
@@ -669,7 +680,6 @@ class MediaItem:
             external = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
             external = " {} [COLOR gold]{}[/COLOR]".format(unichr(187), external)
             title_postfix.append(external)
-
 
         # actually update it
         if description_prefix:

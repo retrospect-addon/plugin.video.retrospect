@@ -5,6 +5,7 @@ import math
 import datetime
 
 from resources.lib import chn_class
+from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.mediaitem import MediaItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -714,10 +715,18 @@ class Channel(chn_class.Channel):
         return item
 
     def __set_expire_time(self, expire_date, item):
-        expire_date = expire_date.split("+")[0].replace("T", " ")
-        year = expire_date.split("-")[0]
+        """ Parses and sets the correct expire date.
+
+        :param str expire_date:  The expire date value
+        :param MediaItem item:   The item to update
+
+        """
+
+        expire_date = expire_date.split("+")[0]  # .replace("T", " ")
+        year = expire_date.split("-", 1)[0]
         if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
-            item.set_expire_datetime(expire_date)
+            expire_date = DateHelper.get_datetime_from_string(expire_date)
+            item.set_expire_datetime(timestamp=expire_date)
 
     def __update_dash_video(self, item, stream_info):
         """
