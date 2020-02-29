@@ -641,6 +641,10 @@ class MediaItem:
         description = ""
         title = ""
 
+        if self.__expires:
+            expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires)
+            description_prefix.append(expires)
+
         if self.isDrmProtected:
             title_postfix.append(drm_lock)
             description_prefix.append(
@@ -666,13 +670,10 @@ class MediaItem:
             external = " {} [COLOR gold]{}[/COLOR]".format(unichr(187), external)
             title_postfix.append(external)
 
-        if self.__expires:
-            expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires)
-            description_prefix.append(expires)
 
         # actually update it
         if description_prefix:
-            description_prefix = " | ".join(description_prefix)
+            description_prefix = "\n".join(description_prefix)
             description = "[COLOR gold][I]%s[/I][/COLOR]" % (description_prefix.rstrip(), )
 
         if title_postfix:
