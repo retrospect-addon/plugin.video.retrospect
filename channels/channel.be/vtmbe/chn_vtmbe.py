@@ -955,12 +955,13 @@ class Channel(chn_class.Channel):
         item.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
 
-        if self.channelCode == "vtm":
-            recent = MediaItem("\a.: Recent :.", "https://vtm.be/video/volledige-afleveringen/id")
-            item.fanart = self.fanart
-            item.thumb = self.noImage
-            item.dontGroup = True
-            items.append(recent)
+        # No more recent items
+        # if self.channelCode == "vtm":
+        #     recent = MediaItem("\a.: Recent :.", "https://vtm.be/video/volledige-afleveringen/id")
+        #     item.fanart = self.fanart
+        #     item.thumb = self.noImage
+        #     item.dontGroup = True
+        #     items.append(recent)
 
         Logger.debug("Pre-Processing finished")
         return data, items
