@@ -86,7 +86,6 @@ class Channel(chn_class.Channel):
         #===============================================================================================================
         # non standard items
         self.maxPageSize = 25  # The Android app uses a page size of 20
-        self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
         #===============================================================================================================
         # Test cases:

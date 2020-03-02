@@ -364,7 +364,11 @@ class MediaItem:
         if self.description is None:
             self.description = ''
 
-        description = "%s\n\n%s" % (description_pre_fix, self.description)
+        if description_pre_fix != "":
+            description = "%s\n\n%s" % (description_pre_fix, self.description)
+        else:
+            description = self.description
+
         description = self.__full_decode_text(description)
         if description is None:
             description = ""
