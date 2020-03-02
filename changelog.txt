@@ -9,6 +9,7 @@ show the video information dialog window.
 * Added: option for UriHandler to open a link as text (utf-8) in case no encoding was specified.
 * Fixed: Amazon AWS sign-in
 * Changed: json should always be text not bytes
+* Added: Check to see if external add-on is installed
 
 [B]GUI/Settings/Language related[/B]
 -

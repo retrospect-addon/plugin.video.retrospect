@@ -8,7 +8,6 @@ from functools import reduce
 
 import xbmcgui
 
-from resources.lib.backtothefuture import unichr
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.logger import Logger
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -340,8 +339,8 @@ class MediaItem:
         name = self.__full_decode_text(name)
 
         if self.uses_external_addon:
-            other = LanguageHelper.get_localized_string(LanguageHelper.OtherAddon)
-            name = "{0} {1} [COLOR gold]{2}[/COLOR]".format(name, unichr(187), other)
+            from resources.lib.xbmcwrapper import XbmcWrapper
+            name = XbmcWrapper.get_external_add_on_label(self.url).format(name)
 
         if self.description is None:
             self.description = ''
