@@ -32,7 +32,7 @@
       "icon": "stievielogo.png",
       "category": "National",
       "channelcode": "stievie",
-      "compatible": "Environments.NoPlatform",
+      "addonUrl": "plugin://plugin.video.vtm.go/",
       "sortorder": 11,
       "language": "be",
       "fanart": "stieviefanart2.jpg",

@@ -17,5 +17,5 @@ show the video information dialog window.
 * Translated: Swedish (sv_SE) translations
 
 [B]Channel related[/B]
-* Fixed: Stievie became VTM Go. Removing content for now (Fixes #1310)
+* Fixed: Stievie became VTM GO. Link content to new VTM GO add-on (Fixes #1310)
 * Removed: premium Norwegian channels (Fixes #1300)

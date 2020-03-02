@@ -1,5 +1,5 @@
 ﻿[B]Changelog[/B]
-* Fixed: Stievie became VTM Go. Removing content for now (Fixes #1310)
+* Fixed: Stievie became VTM GO. Link content to new VTM GO add-on (Fixes #1310)
 
 [I]Previous Changes[/I]
 * Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
