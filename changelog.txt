@@ -6,7 +6,9 @@ also added some small improvements such as "air date" infolabels and a new conte
 show the video information dialog window.
 
 [B]Framework related[/B]
--
+* Added: option for UriHandler to open a link as text (utf-8) in case no encoding was specified.
+* Fixed: Amazon AWS sign-in
+* Changed: json should always be text not bytes
 
 [B]GUI/Settings/Language related[/B]
 -
