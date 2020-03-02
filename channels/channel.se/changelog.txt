@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Changed: Move 'expire' date to MediaItem (Fixes #1301)
 * Removed: premium Norwegian channels (Fixes #1300)
 
 [I]Previous changes[/I]

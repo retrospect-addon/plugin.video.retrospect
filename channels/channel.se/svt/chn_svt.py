@@ -117,7 +117,6 @@ class Channel(chn_class.Channel):
         self.__filter_subheading = "filter_subheading"
         self.__parent_images = "parent_thumb_data"
         self.__apollo_data = None
-        self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
         self.__timezone = pytz.timezone("Europe/Stockholm")
 
         # ===============================================================================================================
@@ -324,7 +323,7 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
@@ -351,7 +350,7 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
@@ -411,7 +410,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -461,7 +460,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
         :param bool add_parent_title: Should the parent's title be included?
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
@@ -569,7 +568,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -605,7 +604,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -941,8 +940,8 @@ class Channel(chn_class.Channel):
         expire_date = expire_date.split("+")[0].replace("T", " ")
         year = expire_date.split("-")[0]
         if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
-            item.description = \
-                "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
+            expire_date = DateHelper.get_datetime_from_string(expire_date, date_format="%Y-%m-%d %H:%M:%S")
+            item.set_expire_datetime(timestamp=expire_date)
 
     def __get_thumb(self, thumb_data, width=1920):
         """ Generates a full thumbnail url based on the "id" and "changed" values in a thumbnail

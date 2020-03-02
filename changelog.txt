@@ -9,7 +9,7 @@ show the video information dialog window.
 -
 
 [B]GUI/Settings/Language related[/B]
--
+* Changed: Move 'expire' date to MediaItem (Fixes #1301)
 
 [B]Channel related[/B]
 * Removed: premium Norwegian channels (Fixes #1300)
