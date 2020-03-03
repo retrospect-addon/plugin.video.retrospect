@@ -156,7 +156,6 @@ class Channel(chn_class.Channel):
         self.episodeLabel = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
         self.seasonLabel = LanguageHelper.get_localized_string(LanguageHelper.SeasonId)
         self.__categories = {}
-        self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
         # ===============================================================================================================
         # Test Cases
@@ -499,7 +498,7 @@ class Channel(chn_class.Channel):
             # webisode = result_set.get("webisode", False)
 
             # if the name had the episode in it, translate it
-            if episode > 0 and season >0:  # and not webisode:
+            if episode > 0 and season > 0:  # and not webisode:
                 description = "%s\n\n%s" % (title, description)
                 title = "{0} - s{1:02d}e{2:02d}".format(result_set["format_title"],
                                                         season,
@@ -793,5 +792,5 @@ class Channel(chn_class.Channel):
         expire_date = expire_date.split("+")[0].replace("T", " ")
         year = expire_date.split("-")[0]
         if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
-            item.description = \
-                "{}\n\n{}: {}".format(item.description or "", self.__expires_text, expire_date)
+            expire_date = DateHelper.get_datetime_from_string(expire_date, date_format="%Y-%m-%d %H:%M:%S")
+            item.set_expire_datetime(timestamp=expire_date)

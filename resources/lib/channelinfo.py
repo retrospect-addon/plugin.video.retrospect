@@ -124,7 +124,7 @@ class ChannelInfo(object):
 
         if self.uses_external_addon:
             from resources.lib.xbmcwrapper import XbmcWrapper
-            name = XbmcWrapper.get_external_add_on_label(self.addonUrl).format(name)
+            name = "{} {}".format(name, XbmcWrapper.get_external_add_on_label(self.addonUrl))
 
         self.icon = self.__get_image_path(self.icon)
         item = xbmcgui.ListItem(name, description)

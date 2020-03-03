@@ -107,7 +107,6 @@ class Channel(chn_class.Channel):
         }
 
         self.__timezone = pytz.timezone("Europe/Amsterdam")
-        self.__expires_text = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
         self.__episode_text = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
         #===========================================================================================
         # Test cases:
@@ -290,7 +289,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -353,10 +352,7 @@ class Channel(chn_class.Channel):
                 end_date_time = DateHelper.get_datetime_from_string(
                     end_date, date_format="%Y-%m-%dT%H:%M:%SZ", time_zone="UTC")
                 end_date_time = end_date_time.astimezone(self.__timezone)
-                item.description = "{}\n\n{}: {:%Y-%m-%d %H:%M}".format(
-                    item.description or "",
-                    self.__expires_text,
-                    end_date_time)
+                item.set_expire_datetime(end_date_time)
 
         return item
 

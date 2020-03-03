@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
+* Changed: Move 'expire' date to MediaItem (Fixes #1301)
 
 [I]Previous changes[/I]
+* Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
 * Updated: Artwork for ViaFree (Fixes #1272)
 * Added: Expire date for ViaFree (Fixes #1272)
 * Changed: Moved to sXXeXX for seasons for ViaFree (Fixes #1272)

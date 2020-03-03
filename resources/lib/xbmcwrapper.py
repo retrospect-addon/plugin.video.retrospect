@@ -149,8 +149,7 @@ class XbmcWrapper:
             add_on_name = add_on_id
             via = LanguageHelper.get_localized_string(LanguageHelper.MissingAddon)
 
-        add_on_label = "{0} {1} [COLOR gold]{2} '{3}'[/COLOR]".format(
-            "{}", unichr(187), via, add_on_name)
+        add_on_label = "{0} [COLOR gold]{1} '{2}'[/COLOR]".format(unichr(187), via, add_on_name)
         XbmcWrapper.__add_on_name_lookup[add_on_id] = add_on_label
         return add_on_label
 
