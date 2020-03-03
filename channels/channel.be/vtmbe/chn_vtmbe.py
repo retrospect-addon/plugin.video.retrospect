@@ -358,13 +358,13 @@ class Channel(chn_class.Channel):
         # programs = MediaItem("\b.: Programma's :.", "https://vod.medialaan.io/vod/v2/programs?offset=0&limit=0")
         # programs.dontGroup = True
         # items.append(programs)
-
-        search = MediaItem("Zoeken", "searchSite")
-        search.complete = True
-        search.icon = self.icon
-        search.thumb = self.noImage
-        search.dontGroup = True
-        items.append(search)
+        #
+        # search = MediaItem("Zoeken", "searchSite")
+        # search.complete = True
+        # search.icon = self.icon
+        # search.thumb = self.noImage
+        # search.dontGroup = True
+        # items.append(search)
         return data, items
 
     def stievie_channel_menu(self, data):
@@ -465,9 +465,13 @@ class Channel(chn_class.Channel):
         if result_set['premium'] and not self.__hasPremium:
             return None
 
-        item = MediaItem(result_set["name"], "#channel")
+        item = MediaItem(result_set["name"], "#livestream")
         item.description = result_set.get("slogan", None)
         item.metaData["channelId"] = result_set["id"]
+        item.type = "video"
+        item.isLive = True
+        item.isPaid = True  # result_set.get("premium", False)  All content requires a premium account
+        item.isGeoLocked = True
 
         if "icons" in result_set:
             # noinspection PyTypeChecker
@@ -1148,6 +1152,8 @@ class Channel(chn_class.Channel):
         """
 
         Logger.debug("Updating Live stream")
+        item.isPaid = item.isPaid and not self.__hasPremium
+
         # let's request a token
         token = self.__get_token()
 
