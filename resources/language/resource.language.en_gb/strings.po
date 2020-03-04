@@ -342,9 +342,7 @@ msgctxt "#30087"
 msgid "Mix folders and streams while sorting"
 msgstr ""
 
-msgctxt "#30088"
-msgid "Finnish"
-msgstr ""
+# empty string with id 30088
 
 msgctxt "#30089"
 msgid "Password Vault"
