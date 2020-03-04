@@ -11,6 +11,7 @@ show the video information dialog window.
 * Changed: json should always be text not bytes
 * Updated: a bit more logging if no data was found for decryption
 * Added: Check to see if external add-on is installed
+* Added: Generic functionality to check for local or remote texture
 
 [B]GUI/Settings/Language related[/B]
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
