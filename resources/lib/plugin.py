@@ -761,17 +761,6 @@ class Plugin(ParameterParser):
         elif behaviour == "dummy" and not favs:
             # We should add a dummy items, but not for favs
             empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
-            if self.channelObject:
-                empty_list_item.icon = self.channelObject.icon
-                empty_list_item.thumb = self.channelObject.noImage
-                empty_list_item.fanart = self.channelObject.fanart
-            else:
-                icon = Config.icon
-                fanart = Config.fanart
-                empty_list_item.icon = icon
-                empty_list_item.thumb = fanart
-                empty_list_item.fanart = fanart
-
             empty_list_item.dontGroup = True
             empty_list_item.description = "This listing was left empty intentionally."
             empty_list_item.complete = True
