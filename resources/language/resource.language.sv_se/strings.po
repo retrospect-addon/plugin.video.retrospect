@@ -344,8 +344,8 @@ msgid "Mix folders and streams while sorting"
 msgstr "Blanda mappar och strömmar vid sorteringen"
 
 msgctxt "#30088"
-msgid "Finnish"
-msgstr "Finska"
+msgid "Show thumbnail as fanart if no fanart is available"
+msgstr "Visa miniatyrbild som fanart om ingen fanart är tillgänglig"
 
 msgctxt "#30089"
 msgid "Password Vault"
