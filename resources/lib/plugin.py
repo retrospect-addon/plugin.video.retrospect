@@ -412,16 +412,8 @@ class Plugin(ParameterParser):
 
             kodi_items = []
 
-            if self.channelObject:
-                fallback_icon = self.channelObject.noImage
-                fallback_fanart = self.channelObject.fanart
-            else:
-                fallback_icon = Config.icon
-                fallback_fanart = Config.fanart
-
             for media_item in media_items:  # type: MediaItem
-                media_item.thumb = media_item.thumb or fallback_icon
-                media_item.fanart = media_item.fanart or fallback_fanart
+                self.__update_artwork(media_item, self.channelObject)
 
                 if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
                     action = self.actionListFolder
@@ -969,3 +961,43 @@ class Plugin(ParameterParser):
             play_list.add(current_play_list_items[i].getfilename(), current_play_list_items[i])
 
         return start_url
+
+    def __update_artwork(self, media_item, channel):
+        """ Updates the fanart and icon of a MediaItem if thoses are missing.
+
+        :param MediaItem media_item:    The item to update
+        :param Channel channel:         A possible selected channel
+
+        """
+
+        if media_item is None:
+            return
+
+        if channel:
+            # take the channel values
+            fallback_icon = self.channelObject.icon
+            fallback_thumb = self.channelObject.noImage
+            fallback_fanart = self.channelObject.fanart
+            parent_item = channel.parentItem
+        else:
+            # else the Retrospect ones
+            fallback_icon = Config.icon
+            fallback_thumb = Config.fanart
+            fallback_fanart = Config.fanart
+            parent_item = None
+
+        if parent_item is not None:
+            fallback_thumb = parent_item.thumb or fallback_thumb
+            fallback_fanart = parent_item.fanart or fallback_fanart
+
+        # keep it or use the fallback
+        media_item.icon = media_item.icon or fallback_icon
+        media_item.thumb = media_item.thumb or fallback_thumb
+        media_item.fanart = media_item.fanart or fallback_fanart
+
+        if AddonSettings.use_thumbs_as_fanart() and \
+                TextureHandler.instance().is_texture_or_empty(media_item.fanart) and \
+                not TextureHandler.instance().is_texture_or_empty(media_item.thumb):
+            media_item.fanart = media_item.thumb
+
+        return

@@ -33,7 +33,7 @@ class Local(TextureHandler):
         self._logger.trace("Resolved texture '%s' to '%s'", file_name, return_value)
         return return_value
 
-    def is_texture(self, uri):
+    def is_texture_or_empty(self, uri):
         """ Returns whether the uri points to a local resource or remote
 
         :param str uri: The URI for the texture

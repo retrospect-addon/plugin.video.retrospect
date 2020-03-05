@@ -342,7 +342,9 @@ msgctxt "#30087"
 msgid "Mix folders and streams while sorting"
 msgstr ""
 
-# empty string with id 30088
+msgctxt "#30088"
+msgid "Show thumbnail as fanart if no fanart is available"
+msgstr ""
 
 msgctxt "#30089"
 msgid "Password Vault"

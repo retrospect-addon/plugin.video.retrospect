@@ -17,6 +17,7 @@ show the video information dialog window.
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
 * Translated: Dutch(nl_NL) translations
 * Translated: Swedish (sv_SE) translations
+* Added: Add-on setting that allows the showing of thumbs as fanart if no fanart is present
 
 [B]Channel related[/B]
 * Fixed: Stievie became VTM GO. Only live streams are available (Fixes #1310)
