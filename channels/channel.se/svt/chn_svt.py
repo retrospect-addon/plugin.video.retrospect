@@ -175,7 +175,6 @@ class Channel(chn_class.Channel):
         for title, (url, include_subheading) in extra_items.items():
             new_item = MediaItem("\a.: %s :." % (title, ), url)
             new_item.complete = True
-            new_item.thumb = self.noImage
             new_item.dontGroup = True
             new_item.metaData[self.__filter_subheading] = include_subheading
             items.append(new_item)
@@ -188,7 +187,6 @@ class Channel(chn_class.Channel):
         genre_url = self.__get_api_url("AllGenres", "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c", {})
         genre_item = MediaItem(genre_tags, genre_url)
         genre_item.complete = True
-        genre_item.thumb = self.noImage
         genre_item.dontGroup = True
         items.append(genre_item)
 
@@ -259,7 +257,6 @@ class Channel(chn_class.Channel):
             LanguageHelper.get_localized_string(LanguageHelper.Categories))
         new_item = MediaItem(category_title, "https://www.svtplay.se/genre")
         new_item.complete = True
-        new_item.thumb = self.noImage
         new_item.dontGroup = True
         for title, (category_id, thumb) in category_items.items():
             # https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=GenreProgramsAO&variables={"genre": ["action-och-aventyr"]}&extensions={"persistedQuery": {"version": 1, "sha256Hash": "189b3613ec93e869feace9a379cca47d8b68b97b3f53c04163769dcffa509318"}}
@@ -333,7 +330,6 @@ class Channel(chn_class.Channel):
         url = result_set["urls"]["svtplay"]
         item = MediaItem(result_set['name'], "#program_item")
         item.metaData["slug"] = url
-        item.icon = self.icon
         item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
         item.description = result_set.get('longDescription')
 
@@ -363,7 +359,6 @@ class Channel(chn_class.Channel):
         url = result_set["urls"]["svtplay"]
         item = MediaItem(result_set['name'], "#program_item")
         item.metaData["slug"] = url
-        item.icon = self.icon
         item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
         item.description = result_set.get('description')
         image_info = result_set.get("image")
@@ -495,8 +490,6 @@ class Channel(chn_class.Channel):
 
         if "image" in result_set:
             item.thumb = self.__get_thumb(result_set["image"], width=720)
-            if not bool(item.fanart):
-                item.fanart = self.__get_thumb(result_set["image"])
 
         valid_from = result_set.get("validFrom", None)
         if bool(valid_from) and valid_from.endswith("Z"):
@@ -660,8 +653,6 @@ class Channel(chn_class.Channel):
         """
 
         item = MediaItem(result_set["name"], "#genre_item")
-        item.fanart = self.fanart
-        item.thumb = self.noImage
         item.metaData[self.__genre_id] = result_set["id"]
         return item
 

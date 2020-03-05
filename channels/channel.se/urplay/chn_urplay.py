@@ -174,9 +174,7 @@ class Channel(chn_class.Channel):
         for cat in categories:
             title = "\a.: {} :.".format(LanguageHelper.get_localized_string(cat))
             item = MediaItem(title, categories[cat])
-            item.thumb = self.noImage
             item.complete = True
-            item.icon = self.icon
             item.dontGroup = True
             items.append(item)
 
@@ -274,7 +272,6 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         item.description = result_set.get("description")
         item.fanart = fanart
-        item.icon = self.icon
         return item
 
     def create_video_item_json(self, result_set):
@@ -312,11 +309,9 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, url)
         item.type = "video"
-        item.icon = self.icon
         item.description = result_set['description']
         item.complete = False
 
-        item.fanart = self.parentItem.fanart
         images = result_set["image"]
         thumb_fanart = None
         for dimension, url in images.items():

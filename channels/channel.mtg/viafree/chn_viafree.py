@@ -287,8 +287,6 @@ class Channel(chn_class.Channel):
         url = "http://playapi.mtgx.tv/v3/videos/stream/%(id)s" % result_set
         item = MediaItem(result_set["title"], url)
         item.type = "video"
-        item.thumb = self.parentItem.thumb
-        item.icon = self.parentItem.icon
         item.description = result_set.get("summary", None)
 
         aired_at = result_set.get("airedAt", None)
@@ -354,8 +352,6 @@ class Channel(chn_class.Channel):
         if clip_url is not None:
             clip_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
             clip_item = MediaItem("\a.: %s :." % (clip_title,), clip_url)
-            clip_item.thumb = self.parentItem.thumb
-            clip_item.fanart = self.parentItem.fanart
             items.append(clip_item)
 
         Logger.debug("Pre-Processing finished")
@@ -379,8 +375,6 @@ class Channel(chn_class.Channel):
         title = "\a.: %s :." % (self.searchInfo.get(self.language, self.searchInfo["se"])[1], )
         Logger.trace("Adding search item: %s", title)
         search_item = MediaItem(title, "searchSite")
-        search_item.thumb = self.noImage
-        search_item.fanart = self.fanart
         search_item.dontGroup = True
         items.append(search_item)
 
@@ -440,8 +434,6 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(page, url)
         item.type = "page"
-        item.thumb = self.parentItem.thumb
-        item.fanart = self.parentItem.fanart
 
         Logger.trace("Created '%s' for url %s", item.name, item.url)
         return item
@@ -537,12 +529,9 @@ class Channel(chn_class.Channel):
 
         item.type = "video"
         item.complete = False
-        item.icon = self.icon
         item.isGeoLocked = geo_blocked
         item.isDrmProtected = drm_locked
 
-        item.thumb = self.parentItem.thumb
-        item.fanart = self.parentItem.fanart
         thumb_data = result_set['_links'].get('image', None)
         if thumb_data is not None:
             # Older version
@@ -758,8 +747,6 @@ class Channel(chn_class.Channel):
         else:
             url = "http://playapi.mtgx.tv/v3/videos?format=%(guid)s&order=-airdate&type=program" % result_set
         item = MediaItem(result_set['title'], url)
-        item.icon = self.icon
-        item.thumb = self.noImage
         if "images" in result_set and "landscape" in result_set["images"]:
             image_url = result_set["images"]["landscape"]["href"]
             item.thumb = self.__get_thumb_image(image_url)

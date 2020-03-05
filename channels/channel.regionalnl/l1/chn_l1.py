@@ -177,10 +177,8 @@ class Channel(chn_class.Channel):
         title = result_set[6]
 
         item = MediaItem(title, url)
-        item.thumb = self.noImage
         if thumb_url:
             item.thumb = thumb_url
-        item.icon = self.icon
         item.type = 'video'
 
         if result_set[3]:

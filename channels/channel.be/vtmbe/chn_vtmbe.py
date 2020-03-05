@@ -361,8 +361,6 @@ class Channel(chn_class.Channel):
         #
         # search = MediaItem("Zoeken", "searchSite")
         # search.complete = True
-        # search.icon = self.icon
-        # search.thumb = self.noImage
         # search.dontGroup = True
         # items.append(search)
         return data, items
@@ -390,7 +388,6 @@ class Channel(chn_class.Channel):
         live.type = "video"
         live.description = self.parentItem.description
         live.metaData = self.parentItem.metaData
-        live.thumb = self.parentItem.thumb
         items.append(live)
 
         if not self.__adaptiveStreamingAvailable:
@@ -432,8 +429,6 @@ class Channel(chn_class.Channel):
         #
         #     extra = MediaItem(title, url)
         #     extra.complete = True
-        #     extra.icon = self.icon
-        #     extra.thumb = self.noImage
         #     extra.dontGroup = True
         #     extra.set_date(air_date.year, air_date.month, air_date.day, text="")
         #     extra.metaData["airDate"] = air_date
@@ -648,7 +643,6 @@ class Channel(chn_class.Channel):
               "&sort=broadcastDate&sortDirection=desc" \
               "&programIds=%s" % (self.__apiKey, result_set['id'],)
         item = MediaItem(title, url)
-        item.fanart = self.fanart
         item.thumb = self.__find_image(result_set, self.noImage)
         return item
     # endregion
@@ -746,8 +740,6 @@ class Channel(chn_class.Channel):
               "&programIds=%s" % (self.__apiKey, result_set['parent_series_oid'],)
 
         item = MediaItem(title, url)
-        item.fanart = self.fanart
-        item.thumb = self.noImage
         item.description = result_set.get('body', None)
         if item.description:
             # Clean HTML
@@ -795,9 +787,6 @@ class Channel(chn_class.Channel):
 
             more = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             item = MediaItem(more, url)
-            item.thumb = self.noImage
-            item.icon = self.icon
-            item.fanart = self.parentItem.fanart
             item.complete = True
             items.append(item)
 
@@ -953,8 +942,6 @@ class Channel(chn_class.Channel):
             item = MediaItem("Live Q2", "#livestream")
         item.type = "video"
         item.isLive = True
-        item.fanart = self.fanart
-        item.thumb = self.noImage
         now = datetime.datetime.now()
         item.set_date(now.year, now.month, now.day, now.hour, now.minute, now.second)
         items.append(item)
@@ -962,8 +949,6 @@ class Channel(chn_class.Channel):
         # No more recent items
         # if self.channelCode == "vtm":
         #     recent = MediaItem("\a.: Recent :.", "https://vtm.be/video/volledige-afleveringen/id")
-        #     item.fanart = self.fanart
-        #     item.thumb = self.noImage
         #     item.dontGroup = True
         #     items.append(recent)
 
@@ -1011,8 +996,6 @@ class Channel(chn_class.Channel):
         # http://vtm.be/video/?amp%3Bf[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie&f[0]=sm_field_video_origin_cms_longform%3AVolledige%20afleveringen&f[1]=sm_field_program_active%3AAlloo%20bij%20de%20Wegpolitie
 
         item = MediaItem(title, url)
-        item.fanart = self.fanart
-        item.thumb = self.noImage
         return item
 
     def add_more_recent_videos(self, data):
