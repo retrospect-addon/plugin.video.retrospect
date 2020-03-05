@@ -762,7 +762,6 @@ class Plugin(ParameterParser):
             # We should add a dummy items, but not for favs
             empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
             empty_list_item.dontGroup = True
-            empty_list_item.description = "This listing was left empty intentionally."
             empty_list_item.complete = True
             # add funny stream here?
             # part = empty_list_item.create_new_empty_media_part()
