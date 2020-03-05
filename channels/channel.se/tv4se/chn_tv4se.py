@@ -85,7 +85,7 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        self.maxPageSize = 25  # The Android app uses a page size of 20
+        self.maxPageSize = 100  # The Android app uses a page size of 20
 
         #===============================================================================================================
         # Test cases:
