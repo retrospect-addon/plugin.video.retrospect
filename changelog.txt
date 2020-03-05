@@ -18,4 +18,5 @@ show the video information dialog window.
 * Translated: Swedish (sv_SE) translations
 
 [B]Channel related[/B]
+* Fixed: Stievie became VTM GO. Only live streams are available (Fixes #1310)
 * Removed: premium Norwegian channels (Fixes #1300)
