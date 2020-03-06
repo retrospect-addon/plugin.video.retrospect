@@ -1,4 +1,5 @@
 ﻿[B]Changelog[/B]
+* Fixed: Some missing artwork in ViaFree.se (Fixes #1311)
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
 
 [I]Previous changes[/I]

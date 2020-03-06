@@ -716,9 +716,8 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,any] result_set: The result_set of the self.episodeItemRegex
-        :param bool check_channel:                 Compare channel ID's and ignore that that do
-                                                   not match.
+        :param dict[str,any] result_set: The result_set of the self.episodeItemRegex
+        :param bool check_channel:       Compare channel ID's and ignore that that do not match.
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
@@ -747,12 +746,20 @@ class Channel(chn_class.Channel):
         else:
             url = "http://playapi.mtgx.tv/v3/videos?format=%(guid)s&order=-airdate&type=program" % result_set
         item = MediaItem(result_set['title'], url)
+
+        # Find the possible images
         if "images" in result_set and "landscape" in result_set["images"]:
             image_url = result_set["images"]["landscape"]["href"]
             item.thumb = self.__get_thumb_image(image_url)
             item.fanart = self.__get_thumb_image(image_url, True)
+
         elif "image" in result_set:
             item.thumb = self.__get_thumb_image(result_set["image"])
+
+        elif "_links" in result_set and "image" in result_set["_links"]:
+            thumb_data = result_set["_links"]["image"]
+            item.thumb = self.__get_thumb_image(thumb_data['href'])
+            item.fanart = self.__get_thumb_image(thumb_data['href'], True)
 
         item.isGeoLocked = result_set.get('onlyAvailableInSweden', False)
         return item
