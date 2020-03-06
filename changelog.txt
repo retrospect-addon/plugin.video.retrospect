@@ -11,12 +11,15 @@ show the video information dialog window.
 * Changed: json should always be text not bytes
 * Updated: a bit more logging if no data was found for decryption
 * Added: Check to see if external add-on is installed
+* Added: Generic functionality to check for local or remote texture
 
 [B]GUI/Settings/Language related[/B]
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
 * Translated: Dutch(nl_NL) translations
 * Translated: Swedish (sv_SE) translations
+* Added: Add-on setting that allows the showing of thumbs as fanart if no fanart is present
 
 [B]Channel related[/B]
 * Fixed: Stievie became VTM GO. Only live streams are available (Fixes #1310)
 * Removed: premium Norwegian channels (Fixes #1300)
+* Changed: page size to 100 for TV4 Play.se (Fixes #1313)

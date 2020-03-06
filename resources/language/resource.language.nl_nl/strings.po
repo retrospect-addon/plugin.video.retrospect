@@ -343,8 +343,8 @@ msgid "Mix folders and streams while sorting"
 msgstr "Mix folders en streams bij het sorteren"
 
 msgctxt "#30088"
-msgid "Finnish"
-msgstr "Fins"
+msgid "Show thumbnail as fanart if no fanart is available"
+msgstr "Gebruik thumbnails als fanart indien er geen fanart aanwezig is"
 
 msgctxt "#30089"
 msgid "Password Vault"
