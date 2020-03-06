@@ -23,3 +23,5 @@ show the video information dialog window.
 * Fixed: Stievie became VTM GO. Only live streams are available (Fixes #1310)
 * Removed: premium Norwegian channels (Fixes #1300)
 * Changed: page size to 100 for TV4 Play.se (Fixes #1313)
+* Added: duration to `single` item type (Fixes 1312)
+* Fixed: Some missing artwork in ViaFree.se (Fixes #1311)

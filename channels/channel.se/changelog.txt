@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Added: duration to `single` item type (Fixes 1312)
 * Changed: page size to 100 for TV4 Play.se (Fixes #1313)
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
 * Removed: premium Norwegian channels (Fixes #1300)
