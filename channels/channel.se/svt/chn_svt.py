@@ -583,6 +583,10 @@ class Channel(chn_class.Channel):
             item.thumb = self.__get_thumb(image_info, width=720)
             item.fanart = self.__get_thumb(image_info)
         item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
+
+        duration = int(result_set.get("duration", 0))
+        if duration > 0:
+            item.set_info_label("duration", duration)
         return item
 
     def create_api_clip_type(self, result_set):
