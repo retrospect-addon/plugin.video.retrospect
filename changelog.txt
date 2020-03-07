@@ -1,17 +1,17 @@
-[B]Retrospect v5.1.8 - Changelog - 2020-02-13[/B]
+[B]Retrospect v5.1.9 - Changelog - 2020-03-07[/B]
 
-This is a quick fix for an NPO issue. It also contains from version 5.1.7:
-That update contains fixes for a number of channels (Dutch, Swedish, Belgian and Norwegian). We
-also added some small improvements such as "air date" infolabels and a new context menu entry to
-show the video information dialog window.
+This release focus on some generic GUI stuff, that makes things appear a bit nicer:
+
+ * You can now enable the setting "Show thumbnail as fanart if no fanart is available" to fallback to the thumbnail as fanart instead of the channel's fanart.
+ * We introduced a standard way of showing the "expire" date of an item
+ * And we clarified some things in the GUI, such as when another add-on is used to display content or when an items is geographically restricted.
+
+Besides this we fixed the following channels: L1, TV4Play.se and Stievie.be.
 
 [B]Framework related[/B]
 * Added: option for UriHandler to open a link as text (utf-8) in case no encoding was specified.
 * Fixed: Amazon AWS sign-in
-* Changed: json should always be text not bytes
-* Updated: a bit more logging if no data was found for decryption
 * Added: Check to see if external add-on is installed
-* Added: Generic functionality to check for local or remote texture
 
 [B]GUI/Settings/Language related[/B]
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
