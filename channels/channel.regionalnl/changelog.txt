@@ -1,7 +1,8 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: Remove AT5 HTML tags in description (Fixes #1292)
+* Fixed: L1 Video items parsing (Fixes #1324)
 
 [I]Previous changes[/I]
+* Fixed: Remove AT5 HTML tags in description (Fixes #1292)
 * Removed: ATV as it broke a long time ago
 * Fixed: AT5 would not work
 * Fixed: Omroep Flevoland
