@@ -17,3 +17,4 @@ Besides this we fixed the following channels: L1, TV4Play.se and Stievie.be.
 [B]Channel related[/B]
 * Fixed: TV4 episodic items would breakt without "del" in title
 * Fixed: ViaFree.se streams no longer worked (Fixes #1329)
+* Fixed: Omroep Gelderland (Fixes #1331)
