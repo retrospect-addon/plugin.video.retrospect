@@ -1,8 +1,9 @@
 ﻿[B]Changelog[/B]
-* Fixed: Some missing artwork in ViaFree.se (Fixes #1311)
-* Changed: Move 'expire' date to MediaItem (Fixes #1301)
+* Fixed: ViaFree.se streams no longer worked (Fixes #1329)
 
 [I]Previous changes[/I]
+* Fixed: Some missing artwork in ViaFree.se (Fixes #1311)
+* Changed: Move 'expire' date to MediaItem (Fixes #1301)
 * Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
 * Updated: Artwork for ViaFree (Fixes #1272)
 * Added: Expire date for ViaFree (Fixes #1272)
