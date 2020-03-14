@@ -126,6 +126,10 @@ class ParameterParser(object):
 
         """
 
+        if channel is None and parent_item is None:
+            # we should not use the store
+            return None
+
         return channel.guid if parent_item is None else parent_item.guid
 
     def __get_parameters(self, query_string):

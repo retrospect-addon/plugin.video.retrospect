@@ -408,8 +408,8 @@ class Plugin(ParameterParser):
                 selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
             # determine the parent guid
-            parent_guid = self._get_parent_guid(self.channelObject, selected_item)
 
+            parent_guid = self._get_parent_guid(self.channelObject, selected_item)
             if favorites is None:
                 watcher = StopWatch("Plugin process_folder_list", Logger.instance())
                 media_items = self.channelObject.process_folder_list(selected_item)
@@ -462,7 +462,7 @@ class Plugin(ParameterParser):
             ok = ok and xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
             watcher.lap("items send to Kodi")
 
-            if ok and favorites is None:
+            if ok and parent_guid is not None:
                 self._pickler.store_media_items(parent_guid, selected_item, media_items)
 
             watcher.stop()
