@@ -15,7 +15,6 @@ from functools import reduce
 
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
-from resources.lib.helpers.jsonhelper import JsonHelper
 
 
 class Pickler:
@@ -37,9 +36,10 @@ class Pickler:
         "+": "%2b",
     }
 
-    def __init__(self):
+    def __init__(self, pickle_store_path=None):
         # store some vars for speed optimization
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
+        self.__pickle_store_path = pickle_store_path
 
     def de_pickle_media_item(self, hex_string):
         """ De-serializes a serialized mediaitem.
@@ -51,6 +51,9 @@ class Pickler:
         :return: The object that was Pickled and Base64 encoded.
 
         """
+
+        if "--" in hex_string:
+            return self.__retrieve_media_item_from_store(hex_string)
 
         # In order to not break any already pickled objects, we need to make sure that we have
         if "mediaitem" not in sys.modules:
@@ -130,39 +133,63 @@ class Pickler:
         # We are good
         return None
 
-    def store_media_items(self, store_path, parent, children, channel_guid=None):
+    def store_media_items(self, store_guid, parent, children):
         """ Store the MediaItems in the given store path
 
-        :param str store_path:              The path where to store it
+        :param str store_guid:              The guid used for storage
         :param MediaItem parent:            The parent item
         :param list[MediaItem] children:    The child items
-        :param str channel_guid:            The guid of the channel
 
         :rtype: str
-        :returns: the guid of the parent item
 
         """
 
-        parent_guid = parent.guid if parent else channel_guid
-        if parent_guid is None:
+        if self.__pickle_store_path is None:
+            raise ValueError("Cannot find pickle store path")
+
+        if store_guid is None:
             raise ValueError("No parent and not channel guid specified")
 
         children = children or []
 
         # The path is constructed like this for abcdef01-xxxx-xxxx-xxxx-xxxxxxxxxxxx:
         # <storepath>/ab/cd/abcdef01-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        pickles_file = "{}.json".format(parent_guid.lower())
-        pickles_dir = os.path.join(store_path, "pickles", parent_guid[0:2], parent_guid[2:4])
-        pickles_path = os.path.join(pickles_dir, pickles_file)
+        pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
+        Logger.debug("PickleStore: write to '%s'", pickles_path)
 
         if not os.path.isdir(pickles_dir):
             os.makedirs(pickles_dir)
 
         content = {
-            "parent": self.pickle_media_item(parent) if parent is not None else None,
-            "children": {item.guid.lower(): self.pickle_media_item(item) for item in children}
+            "parent": parent,
+            "children": {item.guid: item for item in children}
         }
-        with io.open(pickles_path, "w+", encoding='utf-8') as fp:
-            fp.write(JsonHelper.dump(content, pretty_print=True))
+        with io.open(pickles_path, "wb+") as fp:
+            pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
-        return parent_guid
+        return
+
+    def __retrieve_media_item_from_store(self, storage_location):
+        store_guid, item_guid = storage_location.split("--")
+        pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
+        Logger.debug("PickleStore: reading from '%s'", pickles_path)
+
+        try:
+            with io.open(pickles_path, "rb") as fp:
+                content = pickle.load(fp)
+        except:
+            Logger.error("Error opening '%s'", pickles_path, exc_info=True)
+            return None
+
+        items = content.get("children")
+        item_pickle = items.get(item_guid)
+        return item_pickle
+
+    def __get_pickle_path(self, store_guid):
+        # file storage is always lower case
+        store_guid = store_guid.lower()
+        pickles_file = "{}.store".format(store_guid)
+        pickles_dir = os.path.join(
+            self.__pickle_store_path, "pickles", store_guid[0:2], store_guid[2:4])
+        pickles_path = os.path.join(pickles_dir, pickles_file)
+        return pickles_dir, pickles_path

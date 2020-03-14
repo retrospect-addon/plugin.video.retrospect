@@ -2,6 +2,7 @@
 
 import random
 
+from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
 from resources.lib.pickler import Pickler
 
@@ -55,9 +56,9 @@ class ParameterParser(object):
         self.pluginName = addon_name
 
         # We need a picker for this instance
-        self._pickler = Pickler()
+        self._pickler = Pickler(Config.profileDir)
 
-    def _create_action_url(self, channel, action, item=None, category=None):
+    def _create_action_url(self, channel, action, item=None, store_id=None, category=None):
         """ Creates an URL that includes an action.
 
         Arguments:
@@ -67,10 +68,11 @@ class ParameterParser(object):
         Keyword Arguments:
         item : MediaItem -
 
-        :param ChannelInfo|Channel channel:     The channel object to use for the URL.
+        :param ChannelInfo|Channel channel:     The channel object to use for the URL
         :param str action:                      Action to create an url for
         :param MediaItem item:                  The media item to add
-        :param str category:                    The category to use.
+        :param str store_id:                    The ID of the pickle store
+        :param str category:                    The category to use
 
         :return: a complete action url with all keywords and values
         :rtype: str|unicode
@@ -97,7 +99,7 @@ class ParameterParser(object):
 
         # it might have an item or not
         if item is not None:
-            params[self.keywordPickle] = self._pickler.pickle_media_item(item)
+            params[self.keywordPickle] = "{}--{}".format(store_id, item.guid)
 
             if action == self.actionPlayVideo and item.isLive:
                 params[self.keywordRandomLive] = random.randint(10000, 99999)
@@ -112,6 +114,19 @@ class ParameterParser(object):
         url = url.strip('&')
         # Logger.Trace("Created url: '%s'", url)
         return url
+
+    def _get_parent_guid(self, channel, parent_item):
+        """ Returns the parent guid of an item
+
+        :param channel:         The parent channel object
+        :param parent_item:     The parent items
+
+        :return: a guid of either the parent channel or item
+        :rtype: str
+
+        """
+
+        return channel.guid if parent_item is None else parent_item.guid
 
     def __get_parameters(self, query_string):
         """ Extracts the actual parameters as a dictionary from the passed in querystring.

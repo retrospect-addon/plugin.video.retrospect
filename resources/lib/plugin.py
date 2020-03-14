@@ -407,6 +407,9 @@ class Plugin(ParameterParser):
             if self.keywordPickle in self.params:
                 selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
 
+            # determine the parent guid
+            parent_guid = self._get_parent_guid(self.channelObject, selected_item)
+
             if favorites is None:
                 watcher = StopWatch("Plugin process_folder_list", Logger.instance())
                 media_items = self.channelObject.process_folder_list(selected_item)
@@ -448,7 +451,7 @@ class Plugin(ParameterParser):
                 # Get the action URL
                 url = media_item.actionUrl
                 if url is None:
-                    url = self._create_action_url(self.channelObject, action=action, item=media_item)
+                    url = self._create_action_url(self.channelObject, action=action, item=media_item, store_id=parent_guid)
 
                 # Add them to the list of Kodi items
                 kodi_items.append((url, kodi_item, folder))
@@ -460,8 +463,7 @@ class Plugin(ParameterParser):
             watcher.lap("items send to Kodi")
 
             if ok and favorites is None:
-                self._pickler.store_media_items(Config.profileDir, selected_item, media_items,
-                                                channel_guid=self.channelObject.guid)
+                self._pickler.store_media_items(parent_guid, selected_item, media_items)
 
             watcher.stop()
 
