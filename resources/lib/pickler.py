@@ -11,6 +11,7 @@ import os
 import io
 import sys
 import base64
+import gzip
 from functools import reduce
 
 from resources.lib.logger import Logger
@@ -40,6 +41,7 @@ class Pickler:
         # store some vars for speed optimization
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
         self.__pickle_store_path = pickle_store_path
+        self.__gzip = True
 
     def de_pickle_media_item(self, hex_string):
         """ De-serializes a serialized mediaitem.
@@ -164,8 +166,13 @@ class Pickler:
             "parent": parent,
             "children": {item.guid: item for item in children}
         }
-        with io.open(pickles_path, "wb+") as fp:
-            pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
+        if not self.__gzip:
+            with io.open(pickles_path, "wb+") as fp:
+                pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            with gzip.GzipFile(pickles_path, 'wb+') as fp:
+                fp.write(pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL))
 
         return
 
@@ -175,8 +182,13 @@ class Pickler:
         Logger.debug("PickleStore: reading from '%s'", pickles_path)
 
         try:
-            with io.open(pickles_path, "rb") as fp:
-                content = pickle.load(fp)
+            if self.__gzip:
+                with gzip.GzipFile(pickles_path, "rb") as fp:
+                    pickle_bytes = fp.read()
+                    content = pickle.loads(pickle_bytes)
+            else:
+                with io.open(pickles_path, "rb") as fp:
+                    content = pickle.load(fp)
         except:
             Logger.error("Error opening '%s'", pickles_path, exc_info=True)
             return None
@@ -188,7 +200,12 @@ class Pickler:
     def __get_pickle_path(self, store_guid):
         # file storage is always lower case
         store_guid = store_guid.lower()
-        pickles_file = "{}.store".format(store_guid)
+
+        if self.__gzip:
+            pickles_file = "{}.store.gz".format(store_guid)
+        else:
+            pickles_file = "{}.store".format(store_guid)
+
         pickles_dir = os.path.join(
             self.__pickle_store_path, "pickles", store_guid[0:2], store_guid[2:4])
         pickles_path = os.path.join(pickles_dir, pickles_file)
