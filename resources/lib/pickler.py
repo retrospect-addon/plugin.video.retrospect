@@ -7,11 +7,15 @@ if PY2:
 else:
     import pickle
 
+import os
+import io
 import sys
 import base64
 from functools import reduce
 
 from resources.lib.logger import Logger
+from resources.lib.mediaitem import MediaItem
+from resources.lib.helpers.jsonhelper import JsonHelper
 
 
 class Pickler:
@@ -125,3 +129,40 @@ class Pickler:
 
         # We are good
         return None
+
+    def store_media_items(self, store_path, parent, children, channel_guid=None):
+        """ Store the MediaItems in the given store path
+
+        :param str store_path:              The path where to store it
+        :param MediaItem parent:            The parent item
+        :param list[MediaItem] children:    The child items
+        :param str channel_guid:            The guid of the channel
+
+        :rtype: str
+        :returns: the guid of the parent item
+
+        """
+
+        parent_guid = parent.guid if parent else channel_guid
+        if parent_guid is None:
+            raise ValueError("No parent and not channel guid specified")
+
+        children = children or []
+
+        # The path is constructed like this for abcdef01-xxxx-xxxx-xxxx-xxxxxxxxxxxx:
+        # <storepath>/ab/cd/abcdef01-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        pickles_file = "{}.json".format(parent_guid.lower())
+        pickles_dir = os.path.join(store_path, "pickles", parent_guid[0:2], parent_guid[2:4])
+        pickles_path = os.path.join(pickles_dir, pickles_file)
+
+        if not os.path.isdir(pickles_dir):
+            os.makedirs(pickles_dir)
+
+        content = {
+            "parent": self.pickle_media_item(parent) if parent is not None else None,
+            "children": {item.guid.lower(): self.pickle_media_item(item) for item in children}
+        }
+        with io.open(pickles_path, "w+", encoding='utf-8') as fp:
+            fp.write(JsonHelper.dump(content, pretty_print=True))
+
+        return parent_guid

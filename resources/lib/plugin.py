@@ -454,13 +454,14 @@ class Plugin(ParameterParser):
                 kodi_items.append((url, kodi_item, folder))
 
             watcher.lap("Kodi Items generated")
+
             # add items but if OK was False, keep it like that
             ok = ok and xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
             watcher.lap("items send to Kodi")
 
-            if selected_item is None and self.channelObject is not None:
-                # mainlist item register channel.
-                watcher.lap("Statistics send")
+            if ok and favorites is None:
+                self._pickler.store_media_items(Config.profileDir, selected_item, media_items,
+                                                channel_guid=self.channelObject.guid)
 
             watcher.stop()
 
