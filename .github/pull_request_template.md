@@ -1,14 +1,3 @@
----
-name: Channel Request
-about: Request a new channel to be added to Retrospect 
-title: ''
-labels: channel
-assignees: ''
-
----
-
-## Pull Request
-
 ### Functional description
 <!--- Give a clear explaination of the change, fix or new feature 
 that this pull request contains -->
