@@ -11,7 +11,6 @@ import os
 import io
 import sys
 import base64
-import gzip
 from functools import reduce
 
 from resources.lib.logger import Logger
@@ -135,6 +134,28 @@ class Pickler:
         # We are good
         return None
 
+    def purge_store(self, age=30):
+        """ Purges all files older than xx days.
+
+        :param int age:     The age (in days) for pickles to be purged
+
+        """
+
+        if self.__pickle_store_path is None:
+            return
+
+        import glob
+        import time
+        Logger.info("PickleStore: purging store items older than %d days", age)
+
+        pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store.gz")
+        cache_time = age * 30 * 24 * 60 * 60
+        for filename in glob.glob(pickles_path):
+            create_time = os.path.getctime(filename)
+            if create_time + cache_time < time.time():
+                os.remove(filename)
+                Logger.debug("PickleStore: Removed file '%s'", filename)
+
     def store_media_items(self, store_guid, parent, children):
         """ Store the MediaItems in the given store path
 
@@ -171,6 +192,7 @@ class Pickler:
             with io.open(pickles_path, "wb+") as fp:
                 pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
         else:
+            import gzip
             with gzip.GzipFile(pickles_path, 'wb+') as fp:
                 fp.write(pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL))
 
@@ -183,6 +205,7 @@ class Pickler:
 
         try:
             if self.__gzip:
+                import gzip
                 with gzip.GzipFile(pickles_path, "rb") as fp:
                     pickle_bytes = fp.read()
                     content = pickle.loads(pickle_bytes)
