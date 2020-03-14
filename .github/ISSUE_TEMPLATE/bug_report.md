@@ -13,23 +13,29 @@ assignees: ''
 
 ## Bug report
 ### Describe the bug
-Here is a clear and concise description of what the problem is:
 <!--- Provide a more detailed introduction to the issue itself, and why you consider it to be a bug -->
 <!--- A bug report that is not clear will be closed -->
 <!--- Put your text below this line -->
 
+<!--- Put your text above this line -->
+
 ## Expected Behavior
-Here is a clear and concise description of what was expected to happen:
 <!--- Tell us what should happen -->
 <!--- Put your text below this line -->
+
+<!--- Put your text above this line -->
 
 ## Actual Behavior
 <!--- Tell us what happens instead -->
 <!--- Put your text below this line -->
 
+<!--- Put your text above this line -->
+
 ## Possible Fix
 <!--- Not obligatory, but suggest a fix or reason for the bug -->
 <!--- Put your text below this line -->
+
+<!--- Put your text above this line -->
 
 ### To Reproduce
 Steps to reproduce the behavior:
@@ -48,13 +54,15 @@ The **debug** retrospect.log can be found here:
 
 
 ### Screenshots 
-Here are some links or screenshots to help explain the problem:
-<!--- Put your text below this line -->
+<!--- Put your screenshots below this line -->
+
+<!--- Put your screenshots above this line -->
 
 ## Additional context or screenshots (if appropriate)
-Here is some additional context or explanation that might help:
 <!--- How has this bug affected you? What were you trying to accomplish? -->
 <!--- Put your text below this line -->
+
+<!--- Put your text above this line -->
 
 ### Your Environment
 Used Operating system:

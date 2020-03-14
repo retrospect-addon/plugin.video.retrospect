@@ -6,9 +6,12 @@ labels: channel
 assignees: ''
 
 ---
+
 ## Channel Request
 ### What Channel would you like to add and why?
 <!--- Put your text below this line -->
+
+<!--- Put your text above this line -->
 
 ### Provide some details for the channel
 - Name of the channel in English:
@@ -26,3 +29,5 @@ assignees: ''
 ### Additional information
 <!--- Please provide any additional information that could be of use -->
 <!--- Put your text below this line -->
+
+<!--- Put your text above this line -->
