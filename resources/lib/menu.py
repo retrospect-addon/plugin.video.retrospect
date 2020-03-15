@@ -155,7 +155,8 @@ class Menu(ParameterParser):
         """ Adds the selected item to the favourites. The opens the favourite list. """
 
         # remove the item
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.mediaItem
+
         # no need for dates in the favourites
         # item.clear_date()
         Logger.debug("Adding favourite: %s", item)
@@ -179,7 +180,7 @@ class Menu(ParameterParser):
         """ Remove the selected favourite and then refresh the favourite list. """
 
         # remove the item
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.mediaItem
         Logger.debug("Removing favourite: %s", item)
         f = Favourites(Config.favouriteDir)
         f.remove(item)
@@ -194,7 +195,7 @@ class Menu(ParameterParser):
     def toggle_cloak(self):
         """ Toggles the cloaking (showing/hiding) of the selected folder. """
 
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.mediaItem
         Logger.info("Cloaking current item: %s", item)
         c = Cloaker(self.channelObject, AddonSettings.store(LOCAL), logger=Logger.instance())
 
