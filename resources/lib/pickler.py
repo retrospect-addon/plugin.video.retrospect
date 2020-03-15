@@ -13,6 +13,7 @@ import sys
 import base64
 from functools import reduce
 
+from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
 
@@ -36,6 +37,8 @@ class Pickler:
         "+": "%2b",
     }
 
+    __store_separator = "--"
+
     def __init__(self, pickle_store_path=None):
         # store some vars for speed optimization
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
@@ -53,7 +56,7 @@ class Pickler:
 
         """
 
-        if "--" in hex_string:
+        if Pickler.__store_separator in hex_string:
             return self.__retrieve_media_item_from_store(hex_string)
 
         # In order to not break any already pickled objects, we need to make sure that we have
@@ -134,25 +137,35 @@ class Pickler:
         # We are good
         return None
 
-    def purge_store(self, age=30):
+    def purge_store(self, addon_id, age=30):
         """ Purges all files older than xx days.
 
-        :param int age:     The age (in days) for pickles to be purged
+        :param str addon_id: The ID of this add-on
+        :param int age:      The age (in days) for pickles to be purged
 
         """
 
         if self.__pickle_store_path is None:
             return
 
+        Logger.info("PickleStore: Purging store items older than %d days", age)
+
+        # Retrieve the store_id's for the favourites
+        favourite_pickle_stores = self.__get_kodi_favourites(addon_id)
+
+        # Local imports to increase speed
         import glob
         import time
-        Logger.info("PickleStore: purging store items older than %d days", age)
 
         pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store.gz")
         cache_time = age * 30 * 24 * 60 * 60
         for filename in glob.glob(pickles_path):
             create_time = os.path.getctime(filename)
+            pickle_store_id = os.path.split(filename)[1].split(".", 1)[0]
             if create_time + cache_time < time.time():
+                if pickle_store_id in favourite_pickle_stores:
+                    Logger.debug("PickleStore: Skipping purge of favourite '%s'", filename)
+                    continue
                 os.remove(filename)
                 Logger.debug("PickleStore: Removed file '%s'", filename)
 
@@ -199,7 +212,7 @@ class Pickler:
         return
 
     def __retrieve_media_item_from_store(self, storage_location):
-        store_guid, item_guid = storage_location.split("--")
+        store_guid, item_guid = storage_location.split(Pickler.__store_separator)
         pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
         Logger.debug("PickleStore: reading %s from '%s'", item_guid, pickles_path)
 
@@ -233,3 +246,51 @@ class Pickler:
             self.__pickle_store_path, "pickles", store_guid[0:2], store_guid[2:4])
         pickles_path = os.path.join(pickles_dir, pickles_file)
         return pickles_dir, pickles_path
+
+    def __get_kodi_favourites(self, addon_id):
+        """ Retrieves the PickleStore ID's corresponding to Kodi Favourites using the json RPC
+
+        :return: A set of PickleStore ID's
+        :rtype: set(str)
+
+        """
+
+        import json
+        import xbmc
+
+        # Use a set() for performance
+        favourite_pickle_stores = set()
+
+        # Do the RPC
+        req = {
+            "jsonrpc": "2.0",
+            "method": "Favourites.GetFavourites",
+            "params": [None, ["path", "windowparameter"]],
+            "id": 1
+        }
+        rpc_result = xbmc.executeJSONRPC(json.dumps(req))
+        Logger.trace("PickleStore: Received favourites '%s'", rpc_result)
+        rpc_result_data = json.loads(rpc_result)
+        favourites = rpc_result_data.get("result", {}).get("favourites")
+        if not favourites:
+            return favourite_pickle_stores
+
+        # Start of the add-on url
+        addon_url = "plugin://{}".format(addon_id)
+
+        for fav in favourites:
+            fav_name = fav.get("title", "")
+            fav_path = fav.get("path", fav.get("windowparameter")) or ""
+            if not fav_path.startswith(addon_url):
+                continue
+
+            # Is it a favourite with a PickleStore ID?
+            pickle_store_id = Regexer.do_regex(
+                r"pickle=([^&]+){}[^&]+".format(Pickler.__store_separator), fav_path)
+            if not pickle_store_id:
+                continue
+
+            Logger.debug("PickleStore: Found favourite: %s (%s)", fav_name, fav_path)
+            favourite_pickle_stores.add(pickle_store_id[0].lower())
+
+        return favourite_pickle_stores

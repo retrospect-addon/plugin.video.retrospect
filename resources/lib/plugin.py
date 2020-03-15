@@ -102,7 +102,7 @@ class Plugin(ParameterParser):
             env_ctrl.cache_clean_up(Config.cacheDir, Config.cacheValidTime)
 
             # empty picklestore
-            self._pickler.purge_store()
+            self._pickler.purge_store(Config.addonId)
 
         # create a session
         SessionHelper.create_session(Logger.instance())
