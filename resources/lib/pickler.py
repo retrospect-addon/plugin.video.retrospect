@@ -201,7 +201,7 @@ class Pickler:
     def __retrieve_media_item_from_store(self, storage_location):
         store_guid, item_guid = storage_location.split("--")
         pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
-        Logger.debug("PickleStore: reading from '%s'", pickles_path)
+        Logger.debug("PickleStore: reading %s from '%s'", item_guid, pickles_path)
 
         try:
             if self.__gzip:

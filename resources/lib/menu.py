@@ -50,12 +50,10 @@ class Menu(ParameterParser):
         params = "?{0}".format(params)
 
         # Main constructor parses
-        super(Menu, self).__init__(name, params)
+        super(Menu, self).__init__(name, -1, params)
 
         self.channelObject = self.__get_channel()
-        Logger.debug("Plugin Params: %s (%s)\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params), self.pluginName, params)
+        Logger.debug(self)
 
         if self.keywordPickle in self.params:
             self.mediaItem = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])

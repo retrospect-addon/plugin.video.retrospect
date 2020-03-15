@@ -8,10 +8,11 @@ from resources.lib.pickler import Pickler
 
 
 class ParameterParser(object):
-    def __init__(self, addon_name, params):
+    def __init__(self, addon_name, handle, params):
         """
 
         :param str addon_name:  The name of the add-on
+        :param int handle:      The handle for this run
         :param str params:      The parameteters used to start the ParameterParser
 
         """
@@ -51,7 +52,10 @@ class ParameterParser(object):
         self.actionPostLog = "postlog"                                  # : Used for sending log files to pastebin.com
         self.actionProxy = "setproxy"                                   # : Used for setting a proxy
 
+        self.handle = int(handle)
+
         # determine the query parameters
+        self._params = params
         self.params = self.__get_parameters(params)
         self.pluginName = addon_name
 
@@ -161,3 +165,9 @@ class ParameterParser(object):
             raise
 
         return result
+
+    def __str__(self):
+        return "Plugin Params: {} ({})\n" \
+               "Handle:      {}\n" \
+               "Name:        {}\n" \
+               "Query:       {}".format(self.params, len(self.params), self.handle, self.pluginName, self._params)

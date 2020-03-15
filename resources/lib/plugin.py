@@ -44,14 +44,9 @@ class Plugin(ParameterParser):
 
         Logger.info("******** Starting %s add-on version %s/repo *********", Config.appName, Config.version)
         # noinspection PyTypeChecker
-        self.handle = int(handle)
 
-        super(Plugin, self).__init__(addon_name, params)
-        Logger.debug("Plugin Params: %s (%s)\n"
-                     "Handle:      %s\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params),
-                     self.handle, self.pluginName, params)
+        super(Plugin, self).__init__(addon_name, handle, params)
+        Logger.debug(self)
 
         # Container Properties
         self.propertyRetrospect = "Retrospect"
