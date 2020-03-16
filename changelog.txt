@@ -9,7 +9,7 @@ This release focus on some generic GUI stuff, that makes things appear a bit nic
 Besides this we fixed the following channels: L1, TV4Play.se and Stievie.be.
 
 [B]Framework related[/B]
--
+* Fixed: Issue where empty subtitle files could be stored after download (Fixes #1338)
 
 [B]GUI/Settings/Language related[/B]
 -
