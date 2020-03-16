@@ -43,7 +43,7 @@ class Pickler:
         # store some vars for speed optimization
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
         self.__pickle_store_path = pickle_store_path
-        self.__gzip = True
+        self.__gzip = False
 
     def de_pickle_media_item(self, hex_string):
         """ De-serializes a serialized mediaitem.
@@ -157,7 +157,11 @@ class Pickler:
         import glob
         import time
 
-        pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store.gz")
+        if self.__gzip:
+            pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store.gz")
+        else:
+            pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store")
+
         cache_time = age * 30 * 24 * 60 * 60
         for filename in glob.glob(pickles_path):
             create_time = os.path.getctime(filename)
@@ -201,13 +205,13 @@ class Pickler:
             "children": {item.guid: item for item in children}
         }
 
-        if not self.__gzip:
-            with io.open(pickles_path, "wb+") as fp:
-                pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
-        else:
+        if self.__gzip:
             import gzip
             with gzip.GzipFile(pickles_path, 'wb+') as fp:
                 fp.write(pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL))
+        else:
+            with io.open(pickles_path, "wb+") as fp:
+                pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
         return
 
