@@ -65,6 +65,13 @@ class ParameterParser(object):
         # Field for property
         self.__media_item = None
 
+        # For remote debugging and log reading purpose we need the full pickle string.
+        if Logger.instance().minLogLevel <= Logger.LVL_DEBUG \
+                and self.media_item is not None \
+                and self._pickler.is_pickle_store_id(self.params[self.keywordPickle]):
+            Logger.debug("Replacing PickleStore pickle '%s' with full pickle", self.params[self.keywordPickle])
+            self.params[self.keywordPickle] = self._pickler.pickle_media_item(self.media_item)
+
     @property
     def media_item(self):
 

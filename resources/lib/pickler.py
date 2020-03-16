@@ -56,7 +56,7 @@ class Pickler:
 
         """
 
-        if Pickler.__store_separator in hex_string:
+        if self.is_pickle_store_id(hex_string):
             return self.__retrieve_media_item_from_store(hex_string)
 
         # In order to not break any already pickled objects, we need to make sure that we have
@@ -191,7 +191,7 @@ class Pickler:
         # The path is constructed like this for abcdef01-xxxx-xxxx-xxxx-xxxxxxxxxxxx:
         # <storepath>/ab/cd/abcdef01-xxxx-xxxx-xxxx-xxxxxxxxxxxx
         pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
-        Logger.debug("PickleStore: write to '%s'", pickles_path)
+        Logger.debug("PickleStore: Write to '%s'", pickles_path)
 
         if not os.path.isdir(pickles_dir):
             os.makedirs(pickles_dir)
@@ -211,10 +211,20 @@ class Pickler:
 
         return
 
+    def is_pickle_store_id(self, pickle):
+        """ Checks if a Pickle string is an actual pickle or a reference to a PickleStore entry
+
+        :param str pickle:  The Pickle value.
+
+        :return: Indicator if the pickle is a referece to a PickleStore
+        :rtype: bool
+        """
+        return self.__store_separator in pickle
+
     def __retrieve_media_item_from_store(self, storage_location):
         store_guid, item_guid = storage_location.split(Pickler.__store_separator)
         pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
-        Logger.debug("PickleStore: reading %s from '%s'", item_guid, pickles_path)
+        Logger.debug("PickleStore: Reading %s from '%s'", item_guid, pickles_path)
 
         try:
             if self.__gzip:
