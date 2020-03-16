@@ -401,13 +401,12 @@ class Plugin(ParameterParser):
         try:
             ok = True
 
-            selected_item = None
-            if self.keywordPickle in self.params:
-                selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+            # read the item from the parameters
+            selected_item = self.media_item
 
             # determine the parent guid
-
             parent_guid = self._get_parent_guid(self.channelObject, selected_item)
+
             if favorites is None:
                 watcher = StopWatch("Plugin process_folder_list", Logger.instance())
                 media_items = self.channelObject.process_folder_list(selected_item)
@@ -486,7 +485,7 @@ class Plugin(ParameterParser):
         Logger.debug("Playing videoitem using PlayListMethod")
 
         try:
-            media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+            media_item = self.media_item
 
             if not media_item.complete:
                 media_item = self.channelObject.process_video_item(media_item)
@@ -561,7 +560,7 @@ class Plugin(ParameterParser):
         """
         Logger.debug("Performing Custom Contextmenu command: %s", action)
 
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.media_item
         if not item.complete:
             Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
             item = self.channelObject.process_video_item(item)

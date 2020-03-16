@@ -62,6 +62,17 @@ class ParameterParser(object):
         # We need a picker for this instance
         self._pickler = Pickler(Config.profileDir)
 
+        # Field for property
+        self.__media_item = None
+
+    @property
+    def media_item(self):
+
+        if self.__media_item is None and self.keywordPickle in self.params:
+            self.__media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+
+        return self.__media_item
+
     def _create_action_url(self, channel, action, item=None, store_id=None, category=None):
         """ Creates an URL that includes an action.
 
