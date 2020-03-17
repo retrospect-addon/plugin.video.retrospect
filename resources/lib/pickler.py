@@ -43,7 +43,11 @@ class Pickler:
         # store some vars for speed optimization
         self.__pickleContainer = dict()  # : storage for pickled items to prevent duplicate pickling
         self.__pickle_store_path = pickle_store_path
-        self.__gzip = False
+        self.__compress = True
+        if self.__compress:
+            self.__ext = "store.z"
+        else:
+            self.__ext = "store"
 
     def de_pickle_media_item(self, hex_string):
         """ De-serializes a serialized mediaitem.
@@ -157,10 +161,8 @@ class Pickler:
         import glob
         import time
 
-        if self.__gzip:
-            pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store.gz")
-        else:
-            pickles_path = os.path.join(self.__pickle_store_path, "pickles", "*", "*", "*.store")
+        pickles_path = os.path.join(
+            self.__pickle_store_path, "pickles", "*", "*", "*.{}".format(self.__ext))
 
         cache_time = age * 30 * 24 * 60 * 60
         for filename in glob.glob(pickles_path):
@@ -205,10 +207,11 @@ class Pickler:
             "children": {item.guid: item for item in children}
         }
 
-        if self.__gzip:
-            import gzip
-            with gzip.GzipFile(pickles_path, 'wb+') as fp:
-                fp.write(pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL))
+        if self.__compress:
+            pickle_content = pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL)
+            import zlib
+            with io.open(pickles_path, 'wb+') as fp:
+                fp.write(zlib.compress(pickle_content, zlib.Z_BEST_COMPRESSION))
         else:
             with io.open(pickles_path, "wb+") as fp:
                 pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
@@ -231,10 +234,10 @@ class Pickler:
         Logger.debug("PickleStore: Reading %s from '%s'", item_guid, pickles_path)
 
         try:
-            if self.__gzip:
-                import gzip
-                with gzip.GzipFile(pickles_path, "rb") as fp:
-                    pickle_bytes = fp.read()
+            if self.__compress:
+                import zlib
+                with io.open(pickles_path, 'rb') as fp:
+                    pickle_bytes = zlib.decompress(fp.read())
                     content = pickle.loads(pickle_bytes)
             else:
                 with io.open(pickles_path, "rb") as fp:
@@ -250,11 +253,7 @@ class Pickler:
     def __get_pickle_path(self, store_guid):
         # file storage is always lower case
         store_guid = store_guid.lower()
-
-        if self.__gzip:
-            pickles_file = "{}.store.gz".format(store_guid)
-        else:
-            pickles_file = "{}.store".format(store_guid)
+        pickles_file = "{}.{}".format(store_guid, self.__ext)
 
         pickles_dir = os.path.join(
             self.__pickle_store_path, "pickles", store_guid[0:2], store_guid[2:4])
