@@ -44,14 +44,20 @@ class Plugin(ParameterParser):
 
         Logger.info("******** Starting %s add-on version %s/repo *********", Config.appName, Config.version)
         # noinspection PyTypeChecker
-        self.handle = int(handle)
 
-        super(Plugin, self).__init__(addon_name, params)
-        Logger.debug("Plugin Params: %s (%s)\n"
-                     "Handle:      %s\n"
-                     "Name:        %s\n"
-                     "Query:       %s", self.params, len(self.params),
-                     self.handle, self.pluginName, params)
+        super(Plugin, self).__init__(addon_name, handle, params)
+        Logger.debug(self)
+
+        # Container Properties
+        self.propertyRetrospect = "Retrospect"
+        self.propertyRetrospectChannel = "RetrospectChannel"
+        self.propertyRetrospectChannelSetting = "RetrospectChannelSettings"
+        self.propertyRetrospectFolder = "RetrospectFolder"
+        self.propertyRetrospectVideo = "RetrospectVideo"
+        self.propertyRetrospectCloaked = "RetrospectCloaked"
+        self.propertyRetrospectCategory = "RetrospectCategory"
+        self.propertyRetrospectFavorite = "RetrospectFavorite"
+        self.propertyRetrospectAdaptive = "RetrospectAdaptive"
 
         # channel objects
         self.channelObject = None
@@ -94,6 +100,9 @@ class Plugin(ParameterParser):
 
             # do some cache cleanup
             env_ctrl.cache_clean_up(Config.cacheDir, Config.cacheValidTime)
+
+            # empty picklestore
+            self._pickler.purge_store(Config.addonId)
 
         # create a session
         SessionHelper.create_session(Logger.instance())
@@ -392,9 +401,11 @@ class Plugin(ParameterParser):
         try:
             ok = True
 
-            selected_item = None
-            if self.keywordPickle in self.params:
-                selected_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+            # read the item from the parameters
+            selected_item = self.media_item
+
+            # determine the parent guid
+            parent_guid = self._get_parent_guid(self.channelObject, selected_item)
 
             if favorites is None:
                 watcher = StopWatch("Plugin process_folder_list", Logger.instance())
@@ -437,19 +448,19 @@ class Plugin(ParameterParser):
                 # Get the action URL
                 url = media_item.actionUrl
                 if url is None:
-                    url = self._create_action_url(self.channelObject, action=action, item=media_item)
+                    url = self._create_action_url(self.channelObject, action=action, item=media_item, store_id=parent_guid)
 
                 # Add them to the list of Kodi items
                 kodi_items.append((url, kodi_item, folder))
 
             watcher.lap("Kodi Items generated")
+
             # add items but if OK was False, keep it like that
             ok = ok and xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
             watcher.lap("items send to Kodi")
 
-            if selected_item is None and self.channelObject is not None:
-                # mainlist item register channel.
-                watcher.lap("Statistics send")
+            if ok and parent_guid is not None:
+                self._pickler.store_media_items(parent_guid, selected_item, media_items)
 
             watcher.stop()
 
@@ -474,7 +485,7 @@ class Plugin(ParameterParser):
         Logger.debug("Playing videoitem using PlayListMethod")
 
         try:
-            media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+            media_item = self.media_item
 
             if not media_item.complete:
                 media_item = self.channelObject.process_video_item(media_item)
@@ -549,7 +560,7 @@ class Plugin(ParameterParser):
         """
         Logger.debug("Performing Custom Contextmenu command: %s", action)
 
-        item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        item = self.media_item
         if not item.complete:
             Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
             item = self.channelObject.process_video_item(item)
