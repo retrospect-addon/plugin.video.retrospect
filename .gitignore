@@ -1,5 +1,6 @@
 *.pyo
 *.pyc
+*.udm
 #/**/Thumbs.db
 /**/*.lnk
 .scannerwork/**

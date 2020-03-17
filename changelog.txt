@@ -1,12 +1,6 @@
-[B]Retrospect v5.1.9 - Changelog - 2020-03-07[/B]
+[B]Retrospect v5.2.0 - Changelog - 2020-03-18[/B]
 
-This release focus on some generic GUI stuff, that makes things appear a bit nicer:
-
- * You can now enable the setting "Show thumbnail as fanart if no fanart is available" to fallback to the thumbnail as fanart instead of the channel's fanart.
- * We introduced a standard way of showing the "expire" date of an item
- * And we clarified some things in the GUI, such as when another add-on is used to display content or when an items is geographically restricted.
-
-Besides this we fixed the following channels: L1, TV4Play.se and Stievie.be.
+In this version of Retrospect we fixed some minor bugs in channels and introduced two new major changes. The first one is related to the way we detect whether playback started: we now properly inherit from the Kodi classes instead of having our own code. Secondly, we finally got rid of our `pickle` data in the item's urls. This caused minor updates to items, such as images or dates, to make Kodi see the items as new, because the `pickle` in its url changed. We now store a reference to a pickled file in the Retrospect user data folder.
 
 [B]Framework related[/B]
 * Fixed: Issue where empty subtitle files could be stored after download (Fixes #1338)
