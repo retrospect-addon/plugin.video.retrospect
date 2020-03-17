@@ -11,6 +11,7 @@ Besides this we fixed the following channels: L1, TV4Play.se and Stievie.be.
 [B]Framework related[/B]
 * Fixed: Issue where empty subtitle files could be stored after download (Fixes #1338)
 * Removed: The url no longer contains the full pickle of an item. Instead, it only contains a reference to an item that is located on disk (Fixes #1261)
+* Changed: use child class of `xbmc.Player` to detect playback start and stop
 
 [B]GUI/Settings/Language related[/B]
 -
