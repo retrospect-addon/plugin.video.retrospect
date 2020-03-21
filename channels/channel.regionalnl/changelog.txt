@@ -1,7 +1,8 @@
 ﻿﻿[B]Changelog[/B]
-* Fixed: Omroep Gelderland (Fixes #1331)
+* Fixed: descriptions of AT5 had HTML tags (Fixes #1343)
 
 [I]Previous changes[/I]
+* Fixed: Omroep Gelderland (Fixes #1331)
 * Fixed: L1 Video items parsing (Fixes #1324)
 * Fixed: Remove AT5 HTML tags in description (Fixes #1292)
 * Removed: ATV as it broke a long time ago
