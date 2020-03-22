@@ -1,9 +1,10 @@
 ﻿[B]Changelog[/B]
+* Fixed: issue with naming of episodes without title (Fixes #1345)
+
+[I]Previous Changes[/I]
 * Fixed: refactoring broke NPO 'recent items' (Fixes #1295)
 * Fixed: franchise name to NPO videos in case it differs from the main show (Fixes #1291)
 * Added: seasons and episodes to items of NPO (See #1291)
-
-[I]Previous Changes[/I]
 * Fixed: NOS.nl videos did not play (Fixes #1263)
 * Fixed: NPO EPG titles had trailing "-" chars
 * Fixed: incorrect NPO Plus indicators (Fixes #1257)
