@@ -3,14 +3,12 @@
 In this version of Retrospect we fixed some minor bugs in channels and introduced two new major changes. The first one is related to the way we detect whether playback started: we now properly inherit from the Kodi classes instead of having our own code. Secondly, we finally got rid of our `pickle` data in the item's urls. This caused minor updates to items, such as images or dates, to make Kodi see the items as new, because the `pickle` in its url changed. We now store a reference to a pickled file in the Retrospect user data folder.
 
 [B]Framework related[/B]
-* Fixed: Issue where empty subtitle files could be stored after download (Fixes #1338)
-* Removed: The url no longer contains the full pickle of an item. Instead, it only contains a reference to an item that is located on disk (Fixes #1261)
-* Changed: use child class of `xbmc.Player` to detect playback start and stop
+* Fixed: handle versions with +matrix
+* Added: Vualto class to handle both VRT.Nu and KetNet
 
 [B]GUI/Settings/Language related[/B]
 -
 
 [B]Channel related[/B]
-* Fixed: TV4 episodic items would breakt without "del" in title
-* Fixed: ViaFree.se streams no longer worked (Fixes #1329)
-* Fixed: Omroep Gelderland (Fixes #1331)
+* Fixed: descriptions of AT5 had HTML tags (Fixes #1343)
+* Fixed: KetNet streams broke (Fixes #1344)
