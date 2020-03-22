@@ -175,6 +175,10 @@ class Version(Comparable):
 
         """
 
+        # Remove the +matrix/+leia
+        if "+" in version:
+            version, _ = version.split("+")
+
         if "~" in version:
             version, self.buildType = version.split("~")
 
