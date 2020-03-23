@@ -3,7 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - master
+      - 'issue-*'
+      - 'feature-*'
+      - '!kodi-repo-py3'
   pull_request:
     branches:
       - master
@@ -15,6 +18,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+        kodi-branch: [krypton, leia]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -28,4 +32,4 @@ jobs:
           pip install kodi-addon-checker
       - name: Run kodi-addon-checker
         run: |
-          kodi-addon-checker --branch=leia .
+          kodi-addon-checker --branch=${{ matrix.kodi-branch }} .
