@@ -93,7 +93,7 @@ def migrate_profile(new_profile, add_on_id, kodi_add_on_dir, add_on_name):
         add_on_name, old_profile, new_profile), log_level)
     shutil.copytree(old_profile, new_profile, ignore=shutil.ignore_patterns("textures"))
 
-    # If there were local setttings, we need to migrate those too so the channel ID's are updated.
+    # If there were local settings, we need to migrate those too so the channel ID's are updated.
     local_settings_file = os.path.join(new_profile, "settings.json")
     if os.path.exists(local_settings_file):
         xbmc.log("{}: Migrating {}.".format(add_on_name, local_settings_file), log_level)

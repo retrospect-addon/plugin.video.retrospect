@@ -20,7 +20,7 @@ assignees: ''
 - If available link to the Android app for the VOD content of channel:
 - Link to the logo of the channel
  
-### Check which features should be implementend
+### Check which features should be implemented
 - [ ] Video on-demand content
 - [ ] TV live streams
 - [ ] Use your account for the VOD services from Retrospect

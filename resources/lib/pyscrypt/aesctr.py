@@ -202,7 +202,7 @@ class AESCounterModeOfOperation(object):
         return chars_to_bytes(encrypted)
 
     def decrypt(self, crypttext):
-        # AES-CTR is symetric
+        # AES-CTR is symmetric
         return self.encrypt(crypttext)
 
 

@@ -678,7 +678,7 @@ class Plugin(ParameterParser):
 
         context_menu_items = []
 
-        # Genenric, none-Python menu items that would normally cause an unwanted reload of the
+        # Generic, none-Python menu items that would normally cause an unwanted reload of the
         # Python interpreter instance within Kodi.
         refresh = LanguageHelper.get_localized_string(LanguageHelper.RefreshListId)
         context_menu_items.append((refresh, 'XBMC.Container.Refresh()'))
