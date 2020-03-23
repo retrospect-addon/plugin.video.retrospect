@@ -57,7 +57,7 @@ def pbkdf2_single(password, salt, key_length, prf):
     '''Returns the result of the Password-Based Key Derivation Function 2 with
        a single iteration (i.e. count = 1).
 
-       prf - a psuedorandom function
+       prf - a pseudorandom function
 
        See http://en.wikipedia.org/wiki/PBKDF2
     '''
@@ -234,7 +234,7 @@ def hash(password, salt, N, r, p, dkLen):
     # Scrypt implementation. Significant thanks to https://github.com/wg/scrypt
     if N < 2 or (N & (N - 1)): raise ValueError('Scrypt N must be a power of 2 greater than 1')
 
-    # A psuedorandom function
+    # A pseudorandom function
     prf = lambda k, m: hmac.new(key = k, msg = m, digestmod = hashlib.sha256).digest()
 
     # convert into integers

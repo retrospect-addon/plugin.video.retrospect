@@ -39,9 +39,9 @@ If you are running Kodi Krypton (v17) the only way to install Retrospect is to i
 
 More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
-**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi Krypton (v17), it will not automagically update. Retrospect will notifiy you of new versions. You will then have to manually update Retrospect using the steps above.
+**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi Krypton (v17), it will not automagically update. Retrospect will notify you of new versions. You will then have to manually update Retrospect using the steps above.
 
-# Contritbuting #
+# Contributing #
 You can help developing Retrospect via our [Github](https://github.com/retrospect-addon/plugin.video.retrospect) page and/or help translating Retrospect via [Transifex](https://www.transifex.com/retrospect/public/) (A big thanks to Transifex for providing an OS license).
 
 # Troubleshooting #
