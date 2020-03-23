@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
-      - 'issue-*'
-      - 'feature-*'
+      - '**'
       - '!kodi-repo-py3'
   pull_request:
     branches:
