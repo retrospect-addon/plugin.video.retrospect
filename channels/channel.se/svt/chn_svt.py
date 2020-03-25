@@ -119,6 +119,9 @@ class Channel(chn_class.Channel):
         self.__apollo_data = None
         self.__timezone = pytz.timezone("Europe/Stockholm")
 
+        self.__show_videos = True
+        self.__show_folders = True
+
         # ===============================================================================================================
         # Test cases:
         #   Affaren Ramel: just 1 folder -> should only list videos
@@ -138,8 +141,16 @@ class Channel(chn_class.Channel):
 
         items = []
 
+        self.__show_folders = self.parentItem is None      # this is the main listing
+        self.__show_videos = self.parentItem is not None   # got here via subfolder of the main listing
+
+        if not self.__show_folders:
+            return data, items
+
         # Specify the name, url and whether or not to filter out some subheadings:
         extra_items = {
+            LanguageHelper.get_localized_string(LanguageHelper.Clips): (self.mainListUri, False),
+
             LanguageHelper.get_localized_string(LanguageHelper.LiveTv): (
                 "https://www.svtplay.se/kanaler",
                 False),
@@ -299,14 +310,18 @@ class Channel(chn_class.Channel):
             item = self.create_api_genre_type(result_set)
         elif api_type == "TvShow" or api_type == "KidsTvShow":
             item = self.create_api_tvshow_type(result_set)
+
+        # Search Result
+        elif api_type == "SearchHit":
+            item = self.create_api_typed_item(result_set["item"], add_parent_title=True)
+
+        # Video items
         elif api_type == "Single":
             item = self.create_api_single_type(result_set)
         elif api_type == "Clip" or api_type == "Trailer":
             item = self.create_api_clip_type(result_set)
         elif api_type == "Episode" or api_type == "Variant":
             item = self.create_api_episode_type(result_set, add_parent_title)
-        elif api_type == "SearchHit":
-            item = self.create_api_typed_item(result_set["item"], add_parent_title=True)
         else:
             Logger.warning("Missing type: %s", api_type)
             return None
@@ -326,6 +341,9 @@ class Channel(chn_class.Channel):
         :rtype: MediaItem|None
 
         """
+
+        if not self.__show_folders:
+            return None
 
         url = result_set["urls"]["svtplay"]
         item = MediaItem(result_set['name'], "#program_item")
@@ -356,6 +374,9 @@ class Channel(chn_class.Channel):
 
         """
 
+        if not self.__show_folders:
+            return None
+
         url = result_set["urls"]["svtplay"]
         item = MediaItem(result_set['name'], "#program_item")
         item.metaData["slug"] = url
@@ -382,6 +403,9 @@ class Channel(chn_class.Channel):
             __typename=Selection
 
         """
+
+        if not self.__show_folders:
+            return None
 
         if result_set["type"].lower() == "upcoming":
             return None
@@ -414,6 +438,9 @@ class Channel(chn_class.Channel):
             __typename=Teaser
 
         """
+
+        if not self.__show_folders:
+            return None
 
         title = result_set.get("heading")
         sub_heading = result_set.get("subHeading")
@@ -465,6 +492,9 @@ class Channel(chn_class.Channel):
             __typename=Episode
 
         """
+
+        if not self.__show_videos:
+            return None
 
         svt_video_id = result_set.get("videoSvtId", result_set.get("svtId", None))
         if svt_video_id:
@@ -571,6 +601,9 @@ class Channel(chn_class.Channel):
 
         """
 
+        if not self.__show_videos:
+            return None
+
         title = result_set['name']
         url = '{}{}'.format(self.baseUrl, result_set['urls']['svtplay'])
 
@@ -610,6 +643,12 @@ class Channel(chn_class.Channel):
             __typename=Episode
 
         """
+
+        if not self.__show_videos:
+            return None
+
+        if not self.__show_videos:
+            return None
 
         title = result_set['name']
         svt_video_id = result_set.get("videoSvtId", result_set.get("svtId", None))
@@ -655,6 +694,9 @@ class Channel(chn_class.Channel):
             __typename=Genre
 
         """
+
+        if not self.__show_folders:
+            return None
 
         item = MediaItem(result_set["name"], "#genre_item")
         item.metaData[self.__genre_id] = result_set["id"]
