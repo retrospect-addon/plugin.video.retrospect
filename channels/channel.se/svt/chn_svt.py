@@ -39,18 +39,30 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "svtimage.png"
 
-        # Setup the urls
-
-        self.mainListUri = self.__get_api_url(
+        self.__show_program_folder = self._get_setting("show_programs_folder", "true") == "true"
+        self.__program_url = self.__get_api_url(
             "ProgramsListing", "1eeb0fb08078393c17658c1a22e7eea3fbaa34bd2667cec91bbc4db8d778580f", {})
 
+        if self.__show_program_folder:
+            self.mainListUri = "#mainlist"
+        else:
+            self.mainListUri = self.__program_url
+
+        # Setup the urls
         self.baseUrl = "https://www.svtplay.se"
         self.swfUrl = "https://media.svt.se/swf/video/svtplayer-2016.01.swf"
 
-        # In case we use the All Titles and Singles with the API
-        self._add_data_parser("https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=ProgramsListing",
+        # If we have a separate listing for the mainlist (#mainlist) then only run a preprocessor
+        # that generates the list
+        self._add_data_parser("#mainlist", preprocessor=self.add_live_items_and_genres)
+
+        # If there is an actual url, then include the pre-processor:
+        self._add_data_parser(self.__program_url,
+                              preprocessor=self.add_live_items_and_genres)
+        # And the other video items depending on the url.
+        self._add_data_parser(self.__program_url,
                               match_type=ParserData.MatchStart, json=True,
-                              preprocessor=self.add_live_items_and_genres,
+                              preprocessor=self.folders_or_clips,
                               parser=["data", "programAtillO", "flat"],
                               creator=self.create_api_typed_item)
 
@@ -141,16 +153,8 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        self.__show_folders = self.parentItem is None      # this is the main listing
-        self.__show_videos = self.parentItem is not None   # got here via subfolder of the main listing
-
-        if not self.__show_folders:
-            return data, items
-
         # Specify the name, url and whether or not to filter out some subheadings:
         extra_items = {
-            LanguageHelper.get_localized_string(LanguageHelper.Clips): (self.mainListUri, False),
-
             LanguageHelper.get_localized_string(LanguageHelper.LiveTv): (
                 "https://www.svtplay.se/kanaler",
                 False),
@@ -279,6 +283,51 @@ class Channel(chn_class.Channel):
             cat_item.metaData[self.__genre_id] = category_id
             new_item.items.append(cat_item)
         items.append(new_item)
+
+        if self.__show_program_folder:
+            clips = MediaItem(
+                "\a.: {} :.".format(LanguageHelper.get_localized_string(LanguageHelper.Clips)),
+                self.__program_url
+            )
+            clips.metaData["list_type"] = "videos"
+            items.append(clips)
+
+            progs = MediaItem(
+                LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+                self.__program_url)
+            progs.metaData["list_type"] = "folders"
+            items.append(progs)
+
+            # Clean up the titles
+            for item in items:
+                item.name = item.name.strip("\a.:")
+
+        return data, items
+
+    def folders_or_clips(self, data):
+        """ Adds the Live items, Channels and Last Episodes to the listing.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+        if self.parentItem:
+            list_type = self.parentItem.metaData.get("list_type")
+            if list_type == "folders":
+                self.__show_folders = True
+                self.__show_videos = False
+            elif list_type == "videos":
+                self.__show_folders = False
+                self.__show_videos = True
+
+        # For now we either show all or none.
+        # else:
+        #     self.__show_folders = True
+        #     self.__show_videos = False
 
         return data, items
 
