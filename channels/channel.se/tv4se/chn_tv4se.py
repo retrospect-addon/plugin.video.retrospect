@@ -61,17 +61,27 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser(self.mainListUri, preprocessor=self.add_categories_and_specials)
 
+        program_graph_ql = self.__get_api_url("ProgramSearch", "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1")
+        self._add_data_parser(program_graph_ql, json=True,
+                              name="JSON GraphQL program parser",
+                              parser=["data", "programSearch", "programs"],
+                              creator=self.create_api_typed_item)
+
+        self._add_data_parser("https://graphql.tv4play.se/graphql?operationName=CategoryPage",
+                              name="Category GraphQL", json=True,
+                              preprocessor=self.filter_graph_ql_for_categories,
+                              parser=["programs"],
+                              creator=self.create_api_typed_item)
+
         self.episodeItemJson = ["results", ]
         self._add_data_parser("https://api.tv4play.se/play/programs?", json=True,
                               # No longer used:  requiresLogon=True,
                               parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self._add_data_parser("https://api.tv4play.se/play/categories.json",
-                              json=True, match_type=ParserData.MatchExact,
-                              parser=[], creator=self.create_category_item)
-        self._add_data_parser("https://api.tv4play.se/play/programs?platform=tablet&category=",
-                              json=True,
-                              parser=self.episodeItemJson, creator=self.create_episode_item)
+        self._add_data_parser(
+            "https://www.tv4play.se/", match_type=ParserData.MatchExact,
+            parser=Regexer.from_expresso(r'<a[^>]+href="/kategori/(?<nid>[^"]+)"[^>]*>(?<name>[^>]+)<'),
+            creator=self.create_category_item)
 
         self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
                               updater=self.update_live_item)
@@ -245,6 +255,95 @@ class Channel(chn_class.Channel):
         item.isPaid = result_set.get("is_premium", False)
         return item
 
+    def create_api_typed_item(self, result_set):
+        """ Creates a new MediaItem based on the __typename attribute.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        api_type = result_set["__typename"]
+        Logger.trace("%s: %s", api_type, result_set)
+
+        if api_type == "Program":
+            item = self.create_api_program_type(result_set)
+        elif api_type == "ProgramCard":
+            item = self.create_api_program_type(result_set.get("program"))
+        else:
+            Logger.warning("Missing type: %s", api_type)
+            return None
+
+        return item
+
+    def create_api_program_type(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set:   The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        # Logger.Trace(result_set)
+        json = result_set
+        title = json["name"]
+
+        program_id = json["nid"]
+        program_id = HtmlEntityHelper.url_encode(program_id)
+        url = "https://api.tv4play.se/play/video_assets" \
+              "?platform=tablet&per_page=%s&is_live=false&type=episode&" \
+              "page=1&node_nids=%s&start=0" % (self.maxPageSize, program_id, )
+
+        item = MediaItem(title, url)
+        item.thumb = result_set.get("images", {}).get("main16x9")
+        if item.thumb is not None:
+            item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+                         "&quality=90&resize=520x293&source={}"\
+                .format(HtmlEntityHelper.url_encode(item.thumb))
+
+        item.fanart = result_set.get("image")
+        if item.fanart is not None:
+            item.fanart = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+                         "&quality=90&resize=1280x720&source={}" \
+                .format(HtmlEntityHelper.url_encode(item.fanart))
+
+        item.isPaid = result_set.get("is_premium", False)
+        return item
+
+    def filter_graph_ql_for_categories(self, data):
+        """ Filters the 'panels' in the json to be a `ExpandableProgramList`.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+
+        # Find the ExpandableProgramList
+        json_data = JsonHelper(data)
+        panels = json_data.get_value("data", "page", "panels")
+        for panel in panels:
+            if panel.get("__typename") == "ExpandableProgramList":
+                json_data.json = panel
+                break
+
+        return json_data, items
+
     def add_categories_and_specials(self, data):
         """ Performs pre-process actions for data processing.
 
@@ -278,8 +377,15 @@ class Channel(chn_class.Channel):
         # Channel 4 specific items
         if self.channelCode == "tv4se":
             extras.update({
+                LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
+                    self.__get_api_url(
+                        "ProgramSearch",
+                        "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1"
+                    ),
+                    None, False
+                ),
                 LanguageHelper.get_localized_string(LanguageHelper.Categories): (
-                    "https://api.tv4play.se/play/categories.json", None, False
+                    "https://www.tv4play.se/", None, False
                 ),
                 LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
                     "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
@@ -575,10 +681,13 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
 
-        cat = HtmlEntityHelper.url_encode(result_set['nid'])
-        url = "https://api.tv4play.se/play/programs?platform=tablet&category=%s" \
-              "&fl=nid,name,program_image,category,logo,is_premium" \
-              "&per_page=1000&is_active=true&start=0" % (cat, )
+        # We decode, but it can't be `unicode` as urllib.unquote will auto decode to `latin1`.
+        cat = HtmlEntityHelper.url_decode(str(result_set['nid']))
+        url = self.__get_api_url(
+            "CategoryPage",
+            "af5d3fd1a0a57608dca2f031580d80528c17d96fd146adf8a6449d3114ca2174",
+            variables={"id": cat, "assetId": None}
+        )
         item = MediaItem(result_set['name'], url)
         item.type = 'folder'
         item.complete = True
@@ -714,6 +823,32 @@ class Channel(chn_class.Channel):
         if len(year) == 4 and int(year) < datetime.datetime.now().year + 50:
             expire_date = DateHelper.get_datetime_from_string(expire_date)
             item.set_expire_datetime(timestamp=expire_date)
+
+    def __get_api_url(self, operation, hash_value, variables=None):
+        """ Generates a GraphQL url
+
+        :param str operation:   The operation to use
+        :param str hash_value:  The hash of the Query
+        :param dict variables:  Any variables to pass
+
+        :return: A GraphQL string
+        :rtype: str
+
+        """
+
+        extensions = {"persistedQuery": {"version": 1, "sha256Hash": hash_value}}
+        extensions = HtmlEntityHelper.url_encode(JsonHelper.dump(extensions, pretty_print=False))
+
+        final_vars = {"order_by": "NAME", "per_page": 1000}
+        if variables:
+            final_vars = variables
+        final_vars = HtmlEntityHelper.url_encode(JsonHelper.dump(final_vars, pretty_print=False))
+
+        url = "https://graphql.tv4play.se/graphql?" \
+              "operationName={}&" \
+              "variables={}&" \
+              "extensions={}".format(operation, final_vars, extensions)
+        return url
 
     def __update_dash_video(self, item, stream_info):
         """
