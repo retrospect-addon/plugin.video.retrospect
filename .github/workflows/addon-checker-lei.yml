@@ -1,14 +1,9 @@
-name: CI
+name: matrix
 
 on:
   push:
     branches:
-      - '**'
-      - '!kodi-repo'
-      - '!kodi-repo-py3'
-  pull_request:
-    branches:
-      - master
+      - 'kodi-repo'
 
 jobs:
   check-addon:
@@ -16,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kodi-branch: [krypton, leia]
+        kodi-branch: [leia]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
