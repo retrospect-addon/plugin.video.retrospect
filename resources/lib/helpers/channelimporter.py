@@ -532,7 +532,7 @@ class ChannelIndex(object):
                             channel_info.firstTimeMessage, channel_info.moduleName)
 
                 title = LanguageHelper.get_localized_string(LanguageHelper.ChannelMessageId)
-                XbmcWrapper.show_dialog(title, channel_info.firstTimeMessage.split("|"))
+                XbmcWrapper.show_dialog(title, channel_info.firstTimeMessage)
             else:
                 Logger.debug("Not showing first time message due to add-on setting set to '%s'.",
                              hide_first_time)

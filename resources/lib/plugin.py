@@ -588,8 +588,7 @@ class Plugin(ParameterParser):
                 if textures_to_retrieve > 4:
                     w = XbmcDialogProgressWrapper(
                         "%s: %s" % (Config.appName, LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)),
-                        LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle),
-                        # Config.textureUrl
+                        LanguageHelper.get_localized_string(LanguageHelper.FetchTexturesTitle)
                     )
                 else:
                     w = XbmcDialogProgressBgWrapper(

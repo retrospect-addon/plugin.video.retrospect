@@ -5,6 +5,7 @@ In this version of Retrospect we fixed some minor bugs in channels and introduce
 [B]Framework related[/B]
 * Fixed: handle versions with +matrix
 * Added: Vualto class to handle both VRT.Nu and KetNet
+* Removed: deprecated Kodi ABI methods
 
 [B]GUI/Settings/Language related[/B]
 -
