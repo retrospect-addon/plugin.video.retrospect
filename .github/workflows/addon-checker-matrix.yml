@@ -1,4 +1,4 @@
-name: matrix
+name: matrix-repo
 
 on:
   push:

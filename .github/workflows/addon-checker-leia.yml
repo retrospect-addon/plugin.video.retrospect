@@ -1,4 +1,4 @@
-name: leia
+name: leia-repo
 
 on:
   push:
