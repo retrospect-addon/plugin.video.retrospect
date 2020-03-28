@@ -549,11 +549,11 @@ msgid "Categories"
 msgstr ""
 
 msgctxt "#30352"
-msgid "TV Shows"
+msgid "TV shows"
 msgstr ""
 
 msgctxt "#30353"
-msgid "Currently Playing"
+msgid "Currently playing"
 msgstr ""
 
 msgctxt "#30354"
@@ -963,10 +963,14 @@ msgid "InputStream Adaptive add-on usage"
 msgstr ""
 
 msgctxt "#30582"
-msgid "Split programs and clips in separate folders"
+msgid "Split TV shows and single episodes in separate folders"
 msgstr ""
 
-# empty strings from id 30583 to 30589
+msgctxt "#30583"
+msgid "Single episodes"
+msgstr ""
+
+# empty strings from id 30584 to 30589
 
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"

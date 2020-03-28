@@ -287,7 +287,7 @@ class Channel(chn_class.Channel):
 
         if self.__show_program_folder:
             clips = MediaItem(
-                "\a.: {} :.".format(LanguageHelper.get_localized_string(LanguageHelper.Clips)),
+                "\a.: {} :.".format(LanguageHelper.get_localized_string(LanguageHelper.SingleEpisodes)),
                 self.__program_url
             )
             items.append(clips)
