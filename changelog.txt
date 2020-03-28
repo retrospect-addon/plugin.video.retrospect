@@ -7,7 +7,7 @@ In this version of Retrospect we fixed some minor bugs in channels and introduce
 * Added: Vualto class to handle both VRT.Nu and KetNet
 
 [B]GUI/Settings/Language related[/B]
--
+* Fixed: if items are grouped in folders, make sure those appear at the top (See #1326)
 
 [B]Channel related[/B]
 * Fixed: Live channel for SVT moved to GraphQL (See #1326)
