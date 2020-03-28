@@ -43,7 +43,7 @@ class Channel(chn_class.Channel):
         self.__program_url = self.__get_api_url(
             "ProgramsListing", "1eeb0fb08078393c17658c1a22e7eea3fbaa34bd2667cec91bbc4db8d778580f", {})
 
-        if self.__show_program_folder:
+        if self.__show_program_folder or True:
             self.mainListUri = "#mainlist"
         else:
             self.mainListUri = self.__program_url
@@ -284,23 +284,25 @@ class Channel(chn_class.Channel):
             new_item.items.append(cat_item)
         items.append(new_item)
 
+        progs = MediaItem(
+            LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+            self.__program_url)
+        items.append(progs)
+
         if self.__show_program_folder:
             clips = MediaItem(
                 "\a.: {} :.".format(LanguageHelper.get_localized_string(LanguageHelper.Clips)),
                 self.__program_url
             )
-            clips.metaData["list_type"] = "videos"
             items.append(clips)
 
-            progs = MediaItem(
-                LanguageHelper.get_localized_string(LanguageHelper.TvShows),
-                self.__program_url)
+            # split the item types
+            clips.metaData["list_type"] = "videos"
             progs.metaData["list_type"] = "folders"
-            items.append(progs)
 
-            # Clean up the titles
-            for item in items:
-                item.name = item.name.strip("\a.:")
+        # Clean up the titles
+        for item in items:
+            item.name = item.name.strip("\a.: ")
 
         return data, items
 

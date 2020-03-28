@@ -963,7 +963,7 @@ msgid "InputStream Adaptive add-on usage"
 msgstr ""
 
 msgctxt "#30582"
-msgid "Show programs and clips in separate folders"
+msgid "Split programs and clips in separate folders"
 msgstr ""
 
 # empty strings from id 30583 to 30589
