@@ -1,4 +1,5 @@
 ﻿﻿[B]Changelog[/B]
+* Fixed: Live channel for SVT moved to GraphQL (See #1326)
 * Changed: move clips from main list of SVT into their own folder (Fixes #1326)
 
 [I]Previous changes[/I]

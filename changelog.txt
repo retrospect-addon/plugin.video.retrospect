@@ -10,6 +10,7 @@ In this version of Retrospect we fixed some minor bugs in channels and introduce
 -
 
 [B]Channel related[/B]
+* Fixed: Live channel for SVT moved to GraphQL (See #1326)
 * Fixed: descriptions of AT5 had HTML tags (Fixes #1343)
 * Fixed: KetNet streams broke (Fixes #1344)
 * Fixed: issue with naming of episodes without title (Fixes #1345)

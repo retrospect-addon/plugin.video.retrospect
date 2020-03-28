@@ -42,11 +42,7 @@ class Channel(chn_class.Channel):
         self.__show_program_folder = self._get_setting("show_programs_folder", "true") == "true"
         self.__program_url = self.__get_api_url(
             "ProgramsListing", "1eeb0fb08078393c17658c1a22e7eea3fbaa34bd2667cec91bbc4db8d778580f", {})
-
-        if self.__show_program_folder or True:
-            self.mainListUri = "#mainlist"
-        else:
-            self.mainListUri = self.__program_url
+        self.mainListUri = "#mainlist"
 
         # Setup the urls
         self.baseUrl = "https://www.svtplay.se"
@@ -56,9 +52,9 @@ class Channel(chn_class.Channel):
         # that generates the list
         self._add_data_parser("#mainlist", preprocessor=self.add_live_items_and_genres)
 
-        # If there is an actual url, then include the pre-processor:
-        self._add_data_parser(self.__program_url,
-                              preprocessor=self.add_live_items_and_genres)
+        # # If there is an actual url, then include the pre-processor:
+        # self._add_data_parser(self.__program_url,
+        #                       preprocessor=self.add_live_items_and_genres)
         # And the other video items depending on the url.
         self._add_data_parser(self.__program_url,
                               match_type=ParserData.MatchStart, json=True,
@@ -102,10 +98,10 @@ class Channel(chn_class.Channel):
                               creator=self.create_api_typed_item)
 
         # Setup channel listing based on JSON data in the HTML
-        self._add_data_parser("https://www.svtplay.se/kanaler", match_type=ParserData.MatchExact,
+        self._add_data_parser("https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=ChannelsQuery",
                               name="Live streams", json=True,
-                              preprocessor=self.extract_live_channel_data,
-                              parser=[], creator=self.create_channel_item)
+                              parser=["data", "channels", "channels"],
+                              creator=self.create_channel_item)
 
         # Searching
         self._add_data_parser("https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=SearchPage",
@@ -156,7 +152,7 @@ class Channel(chn_class.Channel):
         # Specify the name, url and whether or not to filter out some subheadings:
         extra_items = {
             LanguageHelper.get_localized_string(LanguageHelper.LiveTv): (
-                "https://www.svtplay.se/kanaler",
+                self.__get_api_url("ChannelsQuery", "65ceeccf67cc8334bc14eb495eb921cffebf34300562900076958856e1a58d37", {}),
                 False),
 
             LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
@@ -831,7 +827,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict channel: The result_set of the self.episodeItemRegex
+        :param dict channel: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -840,37 +836,47 @@ class Channel(chn_class.Channel):
 
         Logger.trace(channel)
 
-        title = channel["programmeTitle"]
-        episode = channel.get("episodeTitle", None)
-        thumb = self.noImage
-        channel_title = channel["displayName"]
-        description = channel.get("longDescription")
-        channel_id = channel["urlName"]
+        # Channel data
+        channel_title = channel["name"]
+        channel_id = channel["id"]
         if channel_id == "svtb":
             channel_id = "barnkanalen"
         elif channel_id == "svtk":
             channel_id = "kunskapskanalen"
 
+        # Running data
+        running = channel["running"]
+        title = running["name"]
+        episode = running.get("subHeading", None)
+        thumb = self.__get_thumb(running["image"], width=720)
         date_format = "%Y-%m-%dT%H:%M:%S"
-        start_time = DateHelper.get_date_from_string(channel["publishingTime"][:19], date_format)
-        end_time = DateHelper.get_date_from_string(channel["publishingEndTime"][:19], date_format)
+        start_time = DateHelper.get_date_from_string(running["start"][:19], date_format)
+        end_time = DateHelper.get_date_from_string(running["end"][:19], date_format)
+        description = running.get("description")
 
         if episode:
             title = "%s: %s - %s (%02d:%02d - %02d:%02d)" \
                     % (channel_title, title, episode,
                        start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
+            description = "{:02d}:{:02d} - {:02d}:{:02d}: {} - {}\n\n{}".format(
+                start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min,
+                title, episode or "", description)
         else:
             title = "%s: %s (%02d:%02d - %02d:%02d)" \
                     % (channel_title, title,
                        start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
+            description = "{:02d}:{:02d} - {:02d}:{:02d}: {}\n\n{}".format(
+                start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min,
+                title, description)
+
         channel_item = MediaItem(
             title,
-            "https://www.svt.se/videoplayer-api/video/ch-%s" % (channel_id.lower(),)
+            "https://www.svt.se/videoplayer-api/video/%s" % (channel_id.lower(),)
         )
         channel_item.type = "video"
-        channel_item.description = description
         channel_item.isLive = True
         channel_item.isGeoLocked = True
+        channel_item.description = description
 
         channel_item.thumb = thumb
         if "episodeThumbnailIds" in channel and channel["episodeThumbnailIds"]:
@@ -925,9 +931,8 @@ class Channel(chn_class.Channel):
 
         """
 
-        json_string, _ = self.extract_json_data(data)
-        json_data = JsonHelper(json_string)
-        channels = json_data.get_value("guidePage", "channels")
+        json_data = JsonHelper(data)
+        channels = json_data.get_value("data", "channels", "channels")
         channel_list = {}
 
         # get a dictionary with channels
