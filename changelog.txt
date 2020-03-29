@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.0 - Changelog - 2020-03-18[/B]
+[B]Retrospect v5.2.1 - Changelog - 2020-03-28[/B]
 
-In this version of Retrospect we fixed some minor bugs in channels and introduced two new major changes. The first one is related to the way we detect whether playback started: we now properly inherit from the Kodi classes instead of having our own code. Secondly, we finally got rid of our `pickle` data in the item's urls. This caused minor updates to items, such as images or dates, to make Kodi see the items as new, because the `pickle` in its url changed. We now store a reference to a pickled file in the Retrospect user data folder.
+This version removes some methods from the Kodi Python ABI that have been removed. Because of this, Retrospect broke on Kodi Matrix. Besides this, a number of channel related issues were resolved.
 
 [B]Framework related[/B]
 * Fixed: handle versions with +matrix
