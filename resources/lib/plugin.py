@@ -38,7 +38,7 @@ class Plugin(ParameterParser):
 
         :param str addon_name:      The add-on name.
         :param str params:          The input parameters from the query string.
-        :param int handle:          The Kodi directory handle.
+        :param int|str handle:      The Kodi directory handle.
 
         """
 

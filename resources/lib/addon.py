@@ -72,24 +72,3 @@ def run_addon():
             log_file.critical("Error running plugin", exc_info=True)
             log_file.close_log()
         raise
-
-# ANY OF THESE SETTINGS SHOULD ONLY BE ENABLED FOR DEBUGGING PURPOSES
-# from debug import remotedebugger
-# debugger = remotedebugger.RemoteDebugger()
-
-# Debugging with profiler
-# import profile as cProfile
-# import cProfile
-# from debug import profilelinebyline as cProfile
-
-# Path for PC
-# statsPath = os.path.abspath(os.path.join(currentPath, "../DEV/retrospect.pc.leia.pstat"))
-# Path for ATV
-# statsPath = os.path.abspath("/private/var/mobile/retrospect.atv.pstat")
-# Path for rPi
-# statsPath = os.path.abspath("/home/pi/.kodi/addons/plugin.video.retrospect/retrospect.rpi.pstat")
-
-# Profiled run
-# cProfile.runctx("run_addon()", globals(), locals(), statsPath)
-# Normal run
-# run_addon()
