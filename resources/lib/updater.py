@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-import re
-
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.version import Version
 from resources.lib.logger import Logger
@@ -97,60 +95,3 @@ class Updater(object):
                 max_version = online_version
 
         return max_version
-
-    def __get_online_version_from_bitbucket(self, include_alpha_beta=False):
-        """ Retrieves the current online version.
-
-        :param bool include_alpha_beta: should we include alpha/beta releases?
-
-        :return: Returns the current online version or `None` of no version was found.
-        :rtype: None|Version
-
-        """
-
-        data = self.__uriHandler.open(self.updateUrl, no_cache=True)
-        json_data = JsonHelper(data)
-        online_downloads = [d for d in json_data.get_value("values") if self.__is_valid_update(d)]
-        if len(online_downloads) == 0:
-            return None
-
-        max_version = None
-        for online_download in online_downloads:
-            online_parts = online_download['name'].rsplit(".", 1)[0].split("-")
-            if len(online_parts) < 2:
-                continue
-
-            # fix the problem that a ~ is preventing downloads on BitBucket
-            online_version_data = online_parts[1].replace("alpha", "~alpha").replace("beta", "~beta")
-            online_version = Version(online_version_data)
-
-            if not include_alpha_beta and online_version.buildType is not None:
-                self.__logger.trace("Ignoring %s", online_version)
-                continue
-
-            self.__logger.trace("Found possible version: %s", online_version)
-            if online_version > max_version:
-                max_version = online_version
-
-        return max_version
-
-    def __is_valid_update(self, download):
-        """ Checks if the found API entry is indeed an update.
-
-        :param dict[str, Any] download: The information from the API.
-
-        :return: Indication if the found download indeed points to a download.
-        :rtype: bool
-
-        """
-
-        name = download.get("name")
-        if name is None:
-            return False
-
-        if Updater.__regex is None:
-            Updater.__regex = re.compile(
-                r"^(?:plugin\.video\.retrospect|net\.rieter\.xot)-\d+\.\d+\.\d+(\.\d+)?(~?(alpha|beta)\d+)?\.zip",
-                re.IGNORECASE)
-
-        return Updater.__regex.match(name) is not None

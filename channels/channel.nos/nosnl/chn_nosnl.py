@@ -70,7 +70,6 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        # self.__ignore_cookie_law()
         self.__pageSize = 50
 
         # ====================================== Actual channel setup STOPS here =======================================
@@ -236,12 +235,3 @@ class Channel(chn_class.Channel):
             else:
                 M3u8.update_part_with_m3u8_streams(part, url, proxy=self.proxy, channel=self)
         return item
-
-    def __ignore_cookie_law(self):
-        """ Accepts the cookies from UZG in order to have the site available """
-
-        Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
-
-        # a second cookie seems to be required
-        UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.nos.nl')
-        return
