@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: KetNet streams broke (Fixes #1344)
+* Fixed: VRT.nu had some missing episodes (Fixes #1351)
 
 [I]Previous Changes[/I]
+* Fixed: KetNet streams broke (Fixes #1344)
 * Fixed: Stievie became VTM GO. Only live streams are available (Fixes #1310)
 * Fixed: Vier/Vijf/Zes.be broke (Fixes #1290)
 * Fixed: VRT.nu updated some HTML pages again! (Fixes #1281)
