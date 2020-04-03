@@ -1,3 +1,3 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-__all__ = ["addonaction"]
+__all__ = ["addonaction", "channellistaction", "categoryaction", "vaultaction", "keyword"]

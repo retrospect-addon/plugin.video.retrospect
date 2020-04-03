@@ -4,6 +4,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.chn_class import Channel
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
+from resources.lib.paramparser import ParameterParser
 
 
 class AddonAction(object):
