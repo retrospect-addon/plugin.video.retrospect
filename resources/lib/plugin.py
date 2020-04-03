@@ -110,14 +110,15 @@ class Plugin(ParameterParser):
         #===============================================================================
         #        Start the plugin version of progwindow
         #===============================================================================
+        action = None
         if len(self.params) == 0:
-
-            # Show initial start if not in a session
-            # now show the list
+            # Show initial start if not in a session now show the list
+            from resources.lib.actions.categoryaction import CategoryAction
+            from resources.lib.actions.channellistaction import ChannelListAction
             if AddonSettings.show_categories():
-                self.show_categories()
+                action = CategoryAction(self)
             else:
-                self.show_channel_list()
+                action = ChannelListAction(self)
 
         #===============================================================================
         #        Start the plugin verion of the episode window
@@ -246,50 +247,12 @@ class Plugin(ParameterParser):
                 Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
                                len(self.params), self.params)
 
+        # Execute the action
+        if action is not None:
+            action.execute()
+
         self.__fetch_textures()
         return
-
-    def show_categories(self):
-        """ Displays the show_categories that are currently available in XOT as a directory
-        listing.
-
-        :return: indication if all succeeded.
-        :rtype: bool
-
-        """
-
-        Logger.info("Plugin::show_categories")
-        channel_register = ChannelIndex.get_register()
-        categories = channel_register.get_categories()
-
-        kodi_items = []
-        icon = Config.icon
-        fanart = Config.fanart
-        for category in categories:
-            name = LanguageHelper.get_localized_category(category)
-            kodi_item = xbmcgui.ListItem(name, name)
-
-            # set art
-            try:
-                kodi_item.setIconImage(icon)
-            except:
-                # it was deprecated
-                pass
-            kodi_item.setArt({'thumb': icon, 'icon': icon})
-            kodi_item.setProperty(self.propertyRetrospect, "true")
-            kodi_item.setProperty(self.propertyRetrospectCategory, "true")
-
-            if not AddonSettings.hide_fanart():
-                kodi_item.setArt({'fanart': fanart})
-
-            url = self._create_action_url(None, action=self.actionListCategory, category=category)
-            kodi_items.append((url, kodi_item, True))
-
-        # Logger.Trace(kodi_items)
-        ok = xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
-        xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_LABEL)
-        xbmcplugin.endOfDirectory(self.handle, ok)
-        return ok
 
     def show_channel_list(self, category=None):
         """ Displays the channels that are currently available in XOT as a directory
@@ -330,7 +293,7 @@ class Plugin(ParameterParser):
                 if not AddonSettings.hide_fanart():
                     kodi_item.setArt({'fanart': fanart})
 
-                url = self._create_action_url(None, action=self.actionAllFavourites)
+                url = self.create_action_url(None, action=self.actionAllFavourites)
                 xbmc_items.append((url, kodi_item, True))
 
             for channel in channels:
@@ -351,7 +314,7 @@ class Plugin(ParameterParser):
                 context_menu_items = self.__get_context_menu_items(channel)
                 item.addContextMenuItems(context_menu_items)
                 # Get the URL for the item
-                url = self._create_action_url(channel, action=self.actionListFolder)
+                url = self.create_action_url(channel, action=self.actionListFolder)
 
                 # Append to the list of Kodi Items
                 xbmc_items.append((url, item, True))
@@ -448,7 +411,7 @@ class Plugin(ParameterParser):
                 # Get the action URL
                 url = media_item.actionUrl
                 if url is None:
-                    url = self._create_action_url(self.channelObject, action=action, item=media_item, store_id=parent_guid)
+                    url = self.create_action_url(self.channelObject, action=action, item=media_item, store_id=parent_guid)
 
                 # Add them to the list of Kodi items
                 kodi_items.append((url, kodi_item, folder))
@@ -716,7 +679,7 @@ class Plugin(ParameterParser):
                     Logger.warning("No method for: %s", menu_item)
                     continue
 
-                cmd_url = self._create_action_url(channel, action=menu_item.functionName, item=item)
+                cmd_url = self.create_action_url(channel, action=menu_item.functionName, item=item)
                 cmd = "XBMC.RunPlugin(%s)" % (cmd_url,)
                 title = "Retro: %s" % (menu_item.label,)
                 Logger.trace("Adding command: %s | %s", title, cmd)

@@ -80,7 +80,7 @@ class ParameterParser(object):
 
         return self.__media_item
 
-    def _create_action_url(self, channel, action, item=None, store_id=None, category=None):
+    def create_action_url(self, channel, action, item=None, store_id=None, category=None):
         """ Creates an URL that includes an action.
 
         Arguments:
