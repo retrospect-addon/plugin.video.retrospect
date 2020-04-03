@@ -29,7 +29,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.locker import LockWithDialog
 from resources.lib.cloaker import Cloaker
 from resources.lib.xbmcwrapper import XbmcWrapper
-from resources.lib.actions import keywords
+from resources.lib.actions import keyword
 
 Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
@@ -272,13 +272,13 @@ class Menu(ParameterParser):
         AddonSettings.set_adaptive_mode(self.channelObject, selected_value)
 
         # Refresh if we have a video item selected, so the cached urls are removed.
-        if keywords.PICKLE in self.params:
+        if keyword.PICKLE in self.params:
             Logger.debug("Refreshing list to clear URL caches")
             self.refresh()
 
     def __get_channel(self):
-        chn = self.params.get(keywords.CHANNEL, None)
-        code = self.params.get(keywords.CHANNEL_CODE, None)
+        chn = self.params.get(keyword.CHANNEL, None)
+        code = self.params.get(keyword.CHANNEL_CODE, None)
         if not chn:
             return None
 

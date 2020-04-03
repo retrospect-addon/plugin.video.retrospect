@@ -205,7 +205,8 @@ class Plugin(ParameterParser):
                 return
 
             elif self.params[keyword.ACTION] == self.actionListCategory:
-                self.show_channel_list(self.params[keyword.CATEGORY])
+                from resources.lib.actions.channellistaction import ChannelListAction
+                addon_action = ChannelListAction(self, self.params[keyword.CATEGORY])
 
             elif self.params[keyword.ACTION] == self.actionConfigureChannel:
                 self.__configure_channel(self.channelObject)
@@ -237,84 +238,6 @@ class Plugin(ParameterParser):
 
         self.__fetch_textures()
         return
-
-    def show_channel_list(self, category=None):
-        """ Displays the channels that are currently available in XOT as a directory
-        listing.
-
-        :param str category:    The category to show channels for
-
-        """
-
-        if category:
-            Logger.info("Plugin::show_channel_list for %s", category)
-        else:
-            Logger.info("Plugin::show_channel_list")
-        try:
-            # only display channels
-            channel_register = ChannelIndex.get_register()
-            channels = channel_register.get_channels()
-
-            xbmc_items = []
-
-            # Should we show the "All Favourites"?
-            if AddonSettings.show_show_favourites_in_channel_list():
-                icon = Config.icon
-                fanart = Config.fanart
-                name = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesId)
-                kodi_item = xbmcgui.ListItem(name, name)
-
-                # set art
-                try:
-                    kodi_item.setIconImage(icon)
-                except:
-                    # it was deprecated
-                    pass
-                kodi_item.setArt({'thumb': icon, 'icon': icon})
-                kodi_item.setProperty(self.propertyRetrospect, "true")
-                kodi_item.setProperty(self.propertyRetrospectCategory, "true")
-
-                if not AddonSettings.hide_fanart():
-                    kodi_item.setArt({'fanart': fanart})
-
-                url = self.create_action_url(None, action=self.actionAllFavourites)
-                xbmc_items.append((url, kodi_item, True))
-
-            for channel in channels:
-                if category and channel.category != category:
-                    Logger.debug("Skipping %s (%s) due to category filter", channel.channelName, channel.category)
-                    continue
-
-                # Get the Kodi item
-                item = channel.get_kodi_item()
-                item.setProperty(self.propertyRetrospect, "true")
-                item.setProperty(self.propertyRetrospectChannel, "true")
-                if channel.settings:
-                    item.setProperty(self.propertyRetrospectChannelSetting, "true")
-                if channel.adaptiveAddonSelectable:
-                    item.setProperty(self.propertyRetrospectAdaptive, "true")
-
-                # Get the context menu items
-                context_menu_items = self.__get_context_menu_items(channel)
-                item.addContextMenuItems(context_menu_items)
-                # Get the URL for the item
-                url = self.create_action_url(channel, action=self.actionListFolder)
-
-                # Append to the list of Kodi Items
-                xbmc_items.append((url, item, True))
-
-            # Add the items
-            ok = xbmcplugin.addDirectoryItems(self.handle, xbmc_items, len(xbmc_items))
-
-            # Just let Kodi display the order we give.
-            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED)
-            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_TITLE)
-            xbmcplugin.addSortMethod(handle=self.handle, sortMethod=xbmcplugin.SORT_METHOD_GENRE)
-            xbmcplugin.setContent(handle=self.handle, content="tvshows")
-            xbmcplugin.endOfDirectory(self.handle, ok)
-        except:
-            xbmcplugin.endOfDirectory(self.handle, False)
-            Logger.critical("Error fetching channels for plugin", exc_info=True)
 
     def show_favourites(self, channel):
         """ Show the favourites (for a channel).
