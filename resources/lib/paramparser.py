@@ -5,7 +5,7 @@ import random
 from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
 from resources.lib.pickler import Pickler
-from resources.lib.actions import keywords
+from resources.lib.actions import keyword
 
 
 class ParameterParser(object):
@@ -53,15 +53,15 @@ class ParameterParser(object):
         # For remote debugging and log reading purpose we need the full pickle string.
         if Logger.instance().minLogLevel <= Logger.LVL_DEBUG \
                 and self.media_item is not None \
-                and self._pickler.is_pickle_store_id(self.params[keywords.PICKLE]):
-            Logger.debug("Replacing PickleStore pickle '%s' with full pickle", self.params[keywords.PICKLE])
-            self.params[keywords.PICKLE] = self._pickler.pickle_media_item(self.media_item)
+                and self._pickler.is_pickle_store_id(self.params[keyword.PICKLE]):
+            Logger.debug("Replacing PickleStore pickle '%s' with full pickle", self.params[keyword.PICKLE])
+            self.params[keyword.PICKLE] = self._pickler.pickle_media_item(self.media_item)
 
     @property
     def media_item(self):
 
-        if self.__media_item is None and keywords.PICKLE in self.params:
-            self.__media_item = self._pickler.de_pickle_media_item(self.params[keywords.PICKLE])
+        if self.__media_item is None and keyword.PICKLE in self.params:
+            self.__media_item = self._pickler.de_pickle_media_item(self.params[keyword.PICKLE])
 
         return self.__media_item
 
@@ -98,21 +98,21 @@ class ParameterParser(object):
 
         params = dict()
         if channel:
-            params[keywords.CHANNEL] = channel.moduleName
+            params[keyword.CHANNEL] = channel.moduleName
             if channel.channelCode:
-                params[keywords.CHANNEL_CODE] = channel.channelCode
+                params[keyword.CHANNEL_CODE] = channel.channelCode
 
-        params[keywords.ACTION] = action
+        params[keyword.ACTION] = action
 
         # it might have an item or not
         if item is not None:
-            params[keywords.PICKLE] = "{}--{}".format(store_id, item.guid)
+            params[keyword.PICKLE] = "{}--{}".format(store_id, item.guid)
 
             if action == self.actionPlayVideo and item.isLive:
-                params[keywords.RANDOM_LIVE] = random.randint(10000, 99999)
+                params[keyword.RANDOM_LIVE] = random.randint(10000, 99999)
 
         if category:
-            params[keywords.CATEGORY] = category
+            params[keyword.CATEGORY] = category
 
         url = "%s?" % (self.pluginName, )
         for k in params.keys():
@@ -160,9 +160,9 @@ class ParameterParser(object):
                 result[k] = v
 
             # if the channelcode was empty, it was stripped, add it again.
-            if keywords.CHANNEL_CODE not in result:
+            if keyword.CHANNEL_CODE not in result:
                 Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
-                result[keywords.CHANNEL_CODE] = None
+                result[keyword.CHANNEL_CODE] = None
         except:
             Logger.critical("Cannot determine query strings from %s", query_string, exc_info=True)
             raise
