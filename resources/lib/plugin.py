@@ -173,7 +173,9 @@ class Plugin(ParameterParser):
 
             elif keyword.ACTION in self.params and \
                     self.actionPostLog in self.params[keyword.ACTION]:
-                self.__send_log()
+                from resources.lib.actions.logaction import LogAction
+                addon_action = LogAction(self)
+                addon_action.execute()
                 return
 
             elif keyword.ACTION in self.params and \
@@ -657,30 +659,6 @@ class Plugin(ParameterParser):
         XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                       title, XbmcWrapper.Error, 2500)
         return ok
-
-    @LockWithDialog(logger=Logger.instance())
-    def __send_log(self):
-        """ Send log files via Pastbin or Gist. """
-
-        from resources.lib.helpers.logsender import LogSender
-        sender_mode = 'hastebin'
-        log_sender = LogSender(Config.logSenderApi, logger=Logger.instance(), mode=sender_mode)
-        try:
-            title = LanguageHelper.get_localized_string(LanguageHelper.LogPostSuccessTitle)
-            url_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
-            files_to_send = [Logger.instance().logFileName, Logger.instance().logFileName.replace(".log", ".old.log")]
-            if sender_mode != "gist":
-                paste_url = log_sender.send_file(Config.logFileNameAddon, files_to_send[0])
-            else:
-                paste_url = log_sender.send_files(Config.logFileNameAddon, files_to_send)
-            XbmcWrapper.show_dialog(title, url_text % (paste_url,))
-        except Exception as e:
-            Logger.error("Error sending %s", Config.logFileNameAddon, exc_info=True)
-
-            title = LanguageHelper.get_localized_string(LanguageHelper.LogPostErrorTitle)
-            error_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostError)
-            error = error_text % (str(e),)
-            XbmcWrapper.show_dialog(title, error.strip(": "))
 
     @LockWithDialog(logger=Logger.instance())
     def __set_proxy(self, language, proxy_id, local_ip):
