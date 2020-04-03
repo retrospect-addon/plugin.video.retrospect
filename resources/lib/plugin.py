@@ -194,7 +194,8 @@ class Plugin(ParameterParser):
                 addon_action = ChannelListAction(self, self.params[keyword.CATEGORY])
 
             elif self.params[keyword.ACTION] == self.actionConfigureChannel:
-                self.__configure_channel(self.channelObject)
+                from resources.lib.actions.configurechannelaction import ConfigureChannelAction
+                addon_action = ConfigureChannelAction(self, self.channelObject)
 
             elif self.params[keyword.ACTION] == self.actionFavourites:
                 # we should show the favourites
@@ -459,19 +460,6 @@ class Plugin(ParameterParser):
                     # always close the progress bar
                     w.close()
         return
-
-    def __configure_channel(self, channel_info):
-        """ Shows the current channels settings dialog.
-
-        :param ChannelInfo channel_info:    The channel info for the channel
-
-        """
-
-        if not channel_info:
-            Logger.warning("Cannot configure channel without channel info")
-
-        Logger.info("Configuring channel: %s", channel_info)
-        AddonSettings.show_channel_settings(channel_info)
 
     def __add_sort_method_to_handle(self, handle, items=None):
         """ Add a sort method to the plugin output. It takes the Add-On settings into
