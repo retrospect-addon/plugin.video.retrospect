@@ -5,6 +5,7 @@ import random
 from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
 from resources.lib.pickler import Pickler
+from resources.lib.actions import keywords
 
 
 class ParameterParser(object):
@@ -18,22 +19,6 @@ class ParameterParser(object):
         """
 
         Logger.debug("Parsing parameters from: %s", params)
-
-        # Url Keywords
-        self.keywordPickle = "pickle"                                   # : Used for the pickle item
-        self.keywordAction = "action"                                   # : Used for specifying the action
-        self.keywordChannel = "channel"                                 # : Used for the channel
-        self.keywordChannelCode = "channelcode"                         # : Used for the channelcode
-        self.keywordCategory = "category"                               # : Used for the category
-        self.keywordRandomLive = "rnd"                                  # : Used for randomizing live items
-        self.keywordSettingId = "settingid"                             # : Used for setting an encrypted setting
-        self.keywordSettingActionId = "settingactionid"                 # : Used for passing the actionid for the encryption
-        self.keywordSettingName = "settingname"                         # : Used for setting an encrypted settings display name
-        self.keywordSettingTabFocus = "tabfocus"                        # : Used for setting the tabcontrol to focus after changing a setting
-        self.keywordSettingSettingFocus = "settingfocus"                # : Used for setting the setting control to focus after changing a setting
-        self.keywordLanguage = "lang"                                   # : Used for the 2 char language information
-        self.keywordProxy = "proxy"                                     # : Used so set the proxy index
-        self.keywordLocalIP = "localip"                                 # : Used to set the local ip index
 
         # Url Actions
         self.actionFavourites = "favourites"                            # : Used to show favorites for a channel
@@ -68,15 +53,15 @@ class ParameterParser(object):
         # For remote debugging and log reading purpose we need the full pickle string.
         if Logger.instance().minLogLevel <= Logger.LVL_DEBUG \
                 and self.media_item is not None \
-                and self._pickler.is_pickle_store_id(self.params[self.keywordPickle]):
-            Logger.debug("Replacing PickleStore pickle '%s' with full pickle", self.params[self.keywordPickle])
-            self.params[self.keywordPickle] = self._pickler.pickle_media_item(self.media_item)
+                and self._pickler.is_pickle_store_id(self.params[keywords.PICKLE]):
+            Logger.debug("Replacing PickleStore pickle '%s' with full pickle", self.params[keywords.PICKLE])
+            self.params[keywords.PICKLE] = self._pickler.pickle_media_item(self.media_item)
 
     @property
     def media_item(self):
 
-        if self.__media_item is None and self.keywordPickle in self.params:
-            self.__media_item = self._pickler.de_pickle_media_item(self.params[self.keywordPickle])
+        if self.__media_item is None and keywords.PICKLE in self.params:
+            self.__media_item = self._pickler.de_pickle_media_item(self.params[keywords.PICKLE])
 
         return self.__media_item
 
@@ -113,21 +98,21 @@ class ParameterParser(object):
 
         params = dict()
         if channel:
-            params[self.keywordChannel] = channel.moduleName
+            params[keywords.CHANNEL] = channel.moduleName
             if channel.channelCode:
-                params[self.keywordChannelCode] = channel.channelCode
+                params[keywords.CHANNEL_CODE] = channel.channelCode
 
-        params[self.keywordAction] = action
+        params[keywords.ACTION] = action
 
         # it might have an item or not
         if item is not None:
-            params[self.keywordPickle] = "{}--{}".format(store_id, item.guid)
+            params[keywords.PICKLE] = "{}--{}".format(store_id, item.guid)
 
             if action == self.actionPlayVideo and item.isLive:
-                params[self.keywordRandomLive] = random.randint(10000, 99999)
+                params[keywords.RANDOM_LIVE] = random.randint(10000, 99999)
 
         if category:
-            params[self.keywordCategory] = category
+            params[keywords.CATEGORY] = category
 
         url = "%s?" % (self.pluginName, )
         for k in params.keys():
@@ -175,9 +160,9 @@ class ParameterParser(object):
                 result[k] = v
 
             # if the channelcode was empty, it was stripped, add it again.
-            if self.keywordChannelCode not in result:
+            if keywords.CHANNEL_CODE not in result:
                 Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
-                result[self.keywordChannelCode] = None
+                result[keywords.CHANNEL_CODE] = None
         except:
             Logger.critical("Cannot determine query strings from %s", query_string, exc_info=True)
             raise

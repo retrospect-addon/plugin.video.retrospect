@@ -23,6 +23,7 @@ from resources.lib.paramparser import ParameterParser
 from resources.lib.urihandler import UriHandler
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.chn_class import Channel
+from resources.lib.actions import keyword
 
 
 class Plugin(ParameterParser):
@@ -110,25 +111,25 @@ class Plugin(ParameterParser):
         #===============================================================================
         #        Start the plugin version of progwindow
         #===============================================================================
-        action = None
+        addon_action = None
         if len(self.params) == 0:
             # Show initial start if not in a session now show the list
-            from resources.lib.actions.categoryaction import CategoryAction
-            from resources.lib.actions.channellistaction import ChannelListAction
             if AddonSettings.show_categories():
-                action = CategoryAction(self)
+                from resources.lib.actions.categoryaction import CategoryAction
+                addon_action = CategoryAction(self)
             else:
-                action = ChannelListAction(self)
+                from resources.lib.actions.channellistaction import ChannelListAction
+                addon_action = ChannelListAction(self)
 
         #===============================================================================
         #        Start the plugin verion of the episode window
         #===============================================================================
         else:
             # Determine what stage we are in. Check that there are more than 2 Parameters
-            if len(self.params) > 1 and self.keywordChannel in self.params:
+            if len(self.params) > 1 and keyword.CHANNEL in self.params:
                 # retrieve channel characteristics
-                self.channelFile = os.path.splitext(self.params[self.keywordChannel])[0]
-                self.channelCode = self.params[self.keywordChannelCode]
+                self.channelFile = os.path.splitext(self.params[keyword.CHANNEL])[0]
+                self.channelCode = self.params[keyword.CHANNEL_CODE]
                 Logger.debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
                              self.channelCode)
 
@@ -146,54 +147,37 @@ class Plugin(ParameterParser):
                 self.channelObject.init_channel()
                 Logger.info("Loaded: %s", self.channelObject.channelName)
 
-            elif self.keywordCategory in self.params \
-                    or self.keywordAction in self.params and (
-                        self.params[self.keywordAction] == self.actionAllFavourites or
-                        self.params[self.keywordAction] == self.actionRemoveFavourite):
+            elif keyword.CATEGORY in self.params \
+                    or keyword.ACTION in self.params and (
+                        self.params[keyword.ACTION] == self.actionAllFavourites or
+                        self.params[keyword.ACTION] == self.actionRemoveFavourite):
                 # no channel needed for these favourites actions.
                 pass
 
             # ===============================================================================
             # Vault Actions
             # ===============================================================================
-            elif self.keywordAction in self.params and \
-                    self.params[self.keywordAction] in \
+            elif keyword.ACTION in self.params and \
+                    self.params[keyword.ACTION] in \
                     (
                         self.actionSetEncryptedValue,
                         self.actionSetEncryptionPin,
                         self.actionResetVault
                     ):
-                try:
-                    # Import vault here, as it is only used here or in a channel
-                    # that supports it
-                    from resources.lib.vault import Vault
+                action = self.params[keyword.ACTION]
 
-                    action = self.params[self.keywordAction]
-                    if action == self.actionResetVault:
-                        Vault.reset()
-                        return
-
-                    v = Vault()
-                    if action == self.actionSetEncryptionPin:
-                        v.change_pin()
-                    elif action == self.actionSetEncryptedValue:
-                        v.set_setting(self.params[self.keywordSettingId],
-                                      self.params.get(self.keywordSettingName, ""),
-                                      self.params.get(self.keywordSettingActionId, None))
-                finally:
-                    if self.keywordSettingTabFocus in self.params:
-                        AddonSettings.show_settings(self.params[self.keywordSettingTabFocus],
-                                                    self.params.get(
-                                                       self.keywordSettingSettingFocus, None))
+                from resources.lib.actions.vaultaction import VaultAction
+                addon_action = VaultAction(self, action)
+                addon_action.execute()
                 return
 
-            elif self.keywordAction in self.params and \
-                    self.actionPostLog in self.params[self.keywordAction]:
+            elif keyword.ACTION in self.params and \
+                    self.actionPostLog in self.params[keyword.ACTION]:
                 self.__send_log()
                 return
 
-            elif self.keywordAction in self.params and \
-                    self.actionProxy in self.params[self.keywordAction]:
+            elif keyword.ACTION in self.params and \
+                    self.actionProxy in self.params[keyword.ACTION]:
 
                 # do this here to not close the busy dialog on the SetProxy when
                 # a confirm box is shown
@@ -203,9 +187,9 @@ class Plugin(ParameterParser):
                     Logger.warning("Stopping proxy update due to user intervention")
                     return
 
-                language = self.params.get(self.keywordLanguage, None)
-                proxy_id = self.params.get(self.keywordProxy, None)
-                local_ip = self.params.get(self.keywordLocalIP, None)
+                language = self.params.get(keyword.LANGUAGE, None)
+                proxy_id = self.params.get(keyword.PROXY, None)
+                local_ip = self.params.get(keyword.LOCAL_IP, None)
                 self.__set_proxy(language, proxy_id, local_ip)
                 return
 
@@ -216,40 +200,40 @@ class Plugin(ParameterParser):
             #===============================================================================
             # See what needs to be done.
             #===============================================================================
-            if self.keywordAction not in self.params:
+            if keyword.ACTION not in self.params:
                 Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
                 return
 
-            elif self.params[self.keywordAction] == self.actionListCategory:
-                self.show_channel_list(self.params[self.keywordCategory])
+            elif self.params[keyword.ACTION] == self.actionListCategory:
+                self.show_channel_list(self.params[keyword.CATEGORY])
 
-            elif self.params[self.keywordAction] == self.actionConfigureChannel:
+            elif self.params[keyword.ACTION] == self.actionConfigureChannel:
                 self.__configure_channel(self.channelObject)
 
-            elif self.params[self.keywordAction] == self.actionFavourites:
+            elif self.params[keyword.ACTION] == self.actionFavourites:
                 # we should show the favourites
                 self.show_favourites(self.channelObject)
 
-            elif self.params[self.keywordAction] == self.actionAllFavourites:
+            elif self.params[keyword.ACTION] == self.actionAllFavourites:
                 self.show_favourites(None)
 
-            elif self.params[self.keywordAction] == self.actionListFolder:
+            elif self.params[keyword.ACTION] == self.actionListFolder:
                 # channelName and URL is present, Parse the folder
                 self.process_folder_list()
 
-            elif self.params[self.keywordAction] == self.actionPlayVideo:
+            elif self.params[keyword.ACTION] == self.actionPlayVideo:
                 self.play_video_item()
 
-            elif not self.params[self.keywordAction] == "":
-                self.on_action_from_context_menu(self.params[self.keywordAction])
+            elif not self.params[keyword.ACTION] == "":
+                self.on_action_from_context_menu(self.params[keyword.ACTION])
 
             else:
                 Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
                                len(self.params), self.params)
 
         # Execute the action
-        if action is not None:
-            action.execute()
+        if addon_action is not None:
+            addon_action.execute()
 
         self.__fetch_textures()
         return
