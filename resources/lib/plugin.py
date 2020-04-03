@@ -178,23 +178,6 @@ class Plugin(ParameterParser):
                 addon_action.execute()
                 return
 
-            elif keyword.ACTION in self.params and \
-                    self.actionProxy in self.params[keyword.ACTION]:
-
-                # do this here to not close the busy dialog on the SetProxy when
-                # a confirm box is shown
-                title = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirmTitle)
-                content = LanguageHelper.get_localized_string(LanguageHelper.ProxyChangeConfirm)
-                if not XbmcWrapper.show_yes_no(title, content):
-                    Logger.warning("Stopping proxy update due to user intervention")
-                    return
-
-                language = self.params.get(keyword.LANGUAGE, None)
-                proxy_id = self.params.get(keyword.PROXY, None)
-                local_ip = self.params.get(keyword.LOCAL_IP, None)
-                self.__set_proxy(language, proxy_id, local_ip)
-                return
-
             else:
                 Logger.critical("Error determining Plugin action")
                 return
@@ -659,51 +642,6 @@ class Plugin(ParameterParser):
         XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
                                       title, XbmcWrapper.Error, 2500)
         return ok
-
-    @LockWithDialog(logger=Logger.instance())
-    def __set_proxy(self, language, proxy_id, local_ip):
-        """ Sets the proxy and local IP configuration for channels.
-
-        :param str language:    The language for what channels to update.
-        :param int proxy_id:    The proxy index to use.
-        :param int local_ip:    The local_ip index to use.
-        
-        If no proxy_id is specified (None) then the proxy_id will be determined based on language
-        If no local_ip is specified (None) then the local_ip will be determined based on language
-        
-        """
-
-        languages = AddonSettings.get_available_countries(as_country_codes=True)
-
-        if language is not None and language not in languages:
-            Logger.warning("Missing language: %s", language)
-            return
-
-        if proxy_id is None:
-            proxy_id = languages.index(language)
-        else:
-            # noinspection PyTypeChecker
-            proxy_id = int(proxy_id)
-
-        if local_ip is None:
-            local_ip = languages.index(language)
-        else:
-            # noinspection PyTypeChecker
-            local_ip = int(local_ip)
-
-        channels = ChannelIndex.get_register().get_channels()
-        Logger.info("Setting proxy='%s' (%s) and local_ip='%s' (%s) for country '%s'",
-                    proxy_id, languages[proxy_id],
-                    local_ip, languages[local_ip],
-                    language)
-
-        channels_in_country = [c for c in channels if c.language == language or language is None]
-        for channel in channels_in_country:
-            Logger.debug("Setting Proxy for: %s", channel)
-            AddonSettings.set_proxy_id_for_channel(channel, proxy_id)
-            if channel.localIPSupported:
-                Logger.debug("Setting Local IP for: %s", channel)
-                AddonSettings.set_local_ip_for_channel(channel, local_ip)
 
     def __set_kodi_properties(self, kodi_item, media_item, is_folder, is_favourite):
         """ Sets any Kodi related properties.
