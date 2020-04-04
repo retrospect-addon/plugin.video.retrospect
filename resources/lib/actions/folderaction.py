@@ -30,7 +30,7 @@ class FolderAction(AddonAction):
 
         super(FolderAction, self).__init__(parameter_parser)
 
-        if channel is None:
+        if channel is None and favorites is None:
             raise ValueError("No Channel specified for folder to list")
 
         self.__channel = channel

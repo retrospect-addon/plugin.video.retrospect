@@ -41,9 +41,6 @@ class Plugin(ParameterParser):
         super(Plugin, self).__init__(addon_name, handle, params)
         Logger.debug(self)
 
-        # channel objects
-        channel_object = None
-
         # are we in session?
         session_active = SessionHelper.is_session_active(Logger.instance())
 
@@ -85,10 +82,10 @@ class Plugin(ParameterParser):
         # create a session
         SessionHelper.create_session(Logger.instance())
 
-        #===============================================================================
-        #        Start the plugin version of progwindow
-        #===============================================================================
+        # Default values
         addon_action = None
+        channel_object = None
+
         if len(self.params) == 0:
             # Show initial start if not in a session now show the list
             if AddonSettings.show_categories():
@@ -103,12 +100,12 @@ class Plugin(ParameterParser):
         #===============================================================================
         else:
             # Determine what stage we are in. Check that there are more than 2 Parameters
-            if len(self.params) > 1 and keyword.CHANNEL in self.params:
+            if keyword.CHANNEL in self.params:
                 # retrieve channel characteristics
                 channel_file = os.path.splitext(self.params[keyword.CHANNEL])[0]
                 channel_code = self.params[keyword.CHANNEL_CODE]
-                Logger.debug("Found Channel data in URL: channel='%s', code='%s'", channel_file,
-                             channel_code)
+                Logger.debug("Found Channel data in URL: channel='%s', code='%s'",
+                             channel_file, channel_code)
 
                 # import the channel
                 channel_register = ChannelIndex.get_register()
@@ -123,13 +120,6 @@ class Plugin(ParameterParser):
                 # init the channel as plugin
                 channel_object.init_channel()
                 Logger.info("Loaded: %s", channel_object.channelName)
-
-            elif keyword.CATEGORY in self.params \
-                    or keyword.ACTION in self.params and (
-                        self.params[keyword.ACTION] == action.ALL_FAVOURITES or
-                        self.params[keyword.ACTION] == action.REMOVE_FAVOURITE):
-                # no channel needed for these favourites actions.
-                pass
 
             # ===============================================================================
             # Vault Actions
@@ -148,13 +138,6 @@ class Plugin(ParameterParser):
                 addon_action.execute()
                 return
 
-            elif keyword.ACTION in self.params and \
-                    action.POST_LOG in self.params[keyword.ACTION]:
-                from resources.lib.actions.logaction import LogAction
-                addon_action = LogAction(self)
-                addon_action.execute()
-                return
-
             else:
                 Logger.critical("Error determining Plugin action")
                 return
@@ -162,9 +145,14 @@ class Plugin(ParameterParser):
             #===============================================================================
             # See what needs to be done.
             #===============================================================================
+            # From here we need the "action" keyword to be present
             if keyword.ACTION not in self.params:
                 Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
                 return
+
+            if self.params[keyword.ACTION] == action.POST_LOG:
+                from resources.lib.actions.logaction import LogAction
+                addon_action = LogAction(self)
 
             elif self.params[keyword.ACTION] == action.LIST_CATEGORY:
                 from resources.lib.actions.channellistaction import ChannelListAction
