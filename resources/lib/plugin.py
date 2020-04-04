@@ -15,6 +15,7 @@ from resources.lib.textures import TextureHandler
 from resources.lib.paramparser import ParameterParser
 from resources.lib.urihandler import UriHandler
 from resources.lib.actions import keyword
+from resources.lib.actions import action
 
 
 class Plugin(ParameterParser):
@@ -129,8 +130,8 @@ class Plugin(ParameterParser):
 
             elif keyword.CATEGORY in self.params \
                     or keyword.ACTION in self.params and (
-                        self.params[keyword.ACTION] == self.actionAllFavourites or
-                        self.params[keyword.ACTION] == self.actionRemoveFavourite):
+                        self.params[keyword.ACTION] == action.ALL_FAVOURITES or
+                        self.params[keyword.ACTION] == action.REMOVE_FAVOURITE):
                 # no channel needed for these favourites actions.
                 pass
 
@@ -140,19 +141,19 @@ class Plugin(ParameterParser):
             elif keyword.ACTION in self.params and \
                     self.params[keyword.ACTION] in \
                     (
-                        self.actionSetEncryptedValue,
-                        self.actionSetEncryptionPin,
-                        self.actionResetVault
+                        action.SET_ENCRYPTED_VALUE,
+                        action.SET_ENCRYPTION_PIN,
+                        action.RESET_VAULT
                     ):
-                action = self.params[keyword.ACTION]
+                action_value = self.params[keyword.ACTION]
 
                 from resources.lib.actions.vaultaction import VaultAction
-                addon_action = VaultAction(self, action)
+                addon_action = VaultAction(self, action_value)
                 addon_action.execute()
                 return
 
             elif keyword.ACTION in self.params and \
-                    self.actionPostLog in self.params[keyword.ACTION]:
+                    action.POST_LOG in self.params[keyword.ACTION]:
                 from resources.lib.actions.logaction import LogAction
                 addon_action = LogAction(self)
                 addon_action.execute()
@@ -169,29 +170,29 @@ class Plugin(ParameterParser):
                 Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
                 return
 
-            elif self.params[keyword.ACTION] == self.actionListCategory:
+            elif self.params[keyword.ACTION] == action.LIST_CATEGORY:
                 from resources.lib.actions.channellistaction import ChannelListAction
                 addon_action = ChannelListAction(self, self.params[keyword.CATEGORY])
 
-            elif self.params[keyword.ACTION] == self.actionConfigureChannel:
+            elif self.params[keyword.ACTION] == action.CONFIGURE_CHANNEL:
                 from resources.lib.actions.configurechannelaction import ConfigureChannelAction
                 addon_action = ConfigureChannelAction(self, self.channelObject)
 
-            elif self.params[keyword.ACTION] == self.actionFavourites:
+            elif self.params[keyword.ACTION] == action.CHANNEL_FAVOURITES:
                 # we should show the favourites
                 from resources.lib.actions.favouritesaction import ShowFavouritesAction
                 addon_action = ShowFavouritesAction(self, self.channelObject)
 
-            elif self.params[keyword.ACTION] == self.actionAllFavourites:
+            elif self.params[keyword.ACTION] == action.ALL_FAVOURITES:
                 from resources.lib.actions.favouritesaction import ShowFavouritesAction
                 addon_action = ShowFavouritesAction(self, None)
 
-            elif self.params[keyword.ACTION] == self.actionListFolder:
+            elif self.params[keyword.ACTION] == action.LIST_FOLDER:
                 # channelName and URL is present, Parse the folder
                 from resources.lib.actions.folderaction import FolderAction
                 addon_action = FolderAction(self, self.channelObject, self.media_item)
 
-            elif self.params[keyword.ACTION] == self.actionPlayVideo:
+            elif self.params[keyword.ACTION] == action.PLAY_VIDEO:
                 from resources.lib.actions.videoaction import VideoAction
                 addon_action = VideoAction(self, self.channelObject, self.media_item)
 
@@ -226,7 +227,7 @@ class Plugin(ParameterParser):
             if not item.complete:
                 Logger.warning("update_video_item returned an item that had item.complete = False:\n%s", item)
 
-        # invoke
+        # invoke the call
         function_string = "returnItem = self.channelObject.%s(item)" % (action,)
         Logger.debug("Calling '%s'", function_string)
         try:

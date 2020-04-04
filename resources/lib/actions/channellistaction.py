@@ -10,6 +10,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.paramparser import ParameterParser
 from resources.lib.retroconfig import Config
+from resources.lib.actions import action
 
 
 class ChannelListAction(AddonAction):
@@ -60,7 +61,7 @@ class ChannelListAction(AddonAction):
                     kodi_item.setArt({'fanart': fanart})
 
                 url = self.parameter_parser.create_action_url(
-                    None, action=self.parameter_parser.actionAllFavourites)
+                    None, action=action.ALL_FAVOURITES)
                 xbmc_items.append((url, kodi_item, True))
 
             for channel in channels:
@@ -83,7 +84,7 @@ class ChannelListAction(AddonAction):
                 item.addContextMenuItems(context_menu_items)
                 # Get the URL for the item
                 url = self.parameter_parser.create_action_url(
-                    channel, action=self.parameter_parser.actionListFolder)
+                    channel, action=action.LIST_FOLDER)
 
                 # Append to the list of Kodi Items
                 xbmc_items.append((url, item, True))
