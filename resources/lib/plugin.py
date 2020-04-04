@@ -42,11 +42,7 @@ class Plugin(ParameterParser):
         Logger.debug(self)
 
         # channel objects
-        self.channelObject = None
-        self.channelFile = ""
-        self.channelCode = None
-
-        self.methodContainer = dict()   # : storage for the inspect.getmembers(channel) method. Improves performance
+        channel_object = None
 
         # are we in session?
         session_active = SessionHelper.is_session_active(Logger.instance())
@@ -109,24 +105,24 @@ class Plugin(ParameterParser):
             # Determine what stage we are in. Check that there are more than 2 Parameters
             if len(self.params) > 1 and keyword.CHANNEL in self.params:
                 # retrieve channel characteristics
-                self.channelFile = os.path.splitext(self.params[keyword.CHANNEL])[0]
-                self.channelCode = self.params[keyword.CHANNEL_CODE]
-                Logger.debug("Found Channel data in URL: channel='%s', code='%s'", self.channelFile,
-                             self.channelCode)
+                channel_file = os.path.splitext(self.params[keyword.CHANNEL])[0]
+                channel_code = self.params[keyword.CHANNEL_CODE]
+                Logger.debug("Found Channel data in URL: channel='%s', code='%s'", channel_file,
+                             channel_code)
 
                 # import the channel
                 channel_register = ChannelIndex.get_register()
-                channel = channel_register.get_channel(self.channelFile, self.channelCode)
+                channel = channel_register.get_channel(channel_file, channel_code)
 
                 if channel is not None:
-                    self.channelObject = channel
+                    channel_object = channel
                 else:
                     Logger.critical("None or more than one channels were found, unable to continue.")
                     return
 
                 # init the channel as plugin
-                self.channelObject.init_channel()
-                Logger.info("Loaded: %s", self.channelObject.channelName)
+                channel_object.init_channel()
+                Logger.info("Loaded: %s", channel_object.channelName)
 
             elif keyword.CATEGORY in self.params \
                     or keyword.ACTION in self.params and (
@@ -176,28 +172,30 @@ class Plugin(ParameterParser):
 
             elif self.params[keyword.ACTION] == action.CONFIGURE_CHANNEL:
                 from resources.lib.actions.configurechannelaction import ConfigureChannelAction
-                addon_action = ConfigureChannelAction(self, self.channelObject)
+                addon_action = ConfigureChannelAction(self, channel_object)
 
             elif self.params[keyword.ACTION] == action.CHANNEL_FAVOURITES:
                 # we should show the favourites
                 from resources.lib.actions.favouritesaction import ShowFavouritesAction
-                addon_action = ShowFavouritesAction(self, self.channelObject)
+                addon_action = ShowFavouritesAction(self, channel_object)
 
             elif self.params[keyword.ACTION] == action.ALL_FAVOURITES:
                 from resources.lib.actions.favouritesaction import ShowFavouritesAction
                 addon_action = ShowFavouritesAction(self, None)
 
             elif self.params[keyword.ACTION] == action.LIST_FOLDER:
-                # channelName and URL is present, Parse the folder
+                # channelName and U.lib.aRL is present, Parse the folder
                 from resources.lib.actions.folderaction import FolderAction
-                addon_action = FolderAction(self, self.channelObject, self.media_item)
+                addon_action = FolderAction(self, channel_object)
 
             elif self.params[keyword.ACTION] == action.PLAY_VIDEO:
                 from resources.lib.actions.videoaction import VideoAction
-                addon_action = VideoAction(self, self.channelObject, self.media_item)
+                addon_action = VideoAction(self, channel_object)
 
             elif not self.params[keyword.ACTION] == "":
-                self.on_action_from_context_menu(self.params[keyword.ACTION])
+                from resources.lib.actions.contextaction import ContextMenuAction
+                addon_action = ContextMenuAction(
+                    self, channel_object, self.params[keyword.ACTION])
 
             else:
                 Logger.warning("Number of parameters (%s) or parameter (%s) values not implemented",
@@ -208,33 +206,6 @@ class Plugin(ParameterParser):
             addon_action.execute()
 
         self.__fetch_textures()
-        return
-
-    def on_action_from_context_menu(self, action):
-        """Peforms the action from a custom contextmenu
-
-        Arguments:
-        action : String - The name of the method to call
-
-        """
-        Logger.debug("Performing Custom Contextmenu command: %s", action)
-
-        item = self.media_item
-        if not item.complete:
-            Logger.debug("The contextmenu action requires a completed item. Updating %s", item)
-            item = self.channelObject.process_video_item(item)
-
-            if not item.complete:
-                Logger.warning("update_video_item returned an item that had item.complete = False:\n%s", item)
-
-        # invoke the call
-        function_string = "returnItem = self.channelObject.%s(item)" % (action,)
-        Logger.debug("Calling '%s'", function_string)
-        try:
-            # noinspection PyRedundantParentheses
-            exec(function_string)  # NOSONAR We just need this here.
-        except:
-            Logger.error("on_action_from_context_menu :: Cannot execute '%s'.", function_string, exc_info=True)
         return
 
     def __fetch_textures(self):

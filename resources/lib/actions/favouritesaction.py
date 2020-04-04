@@ -2,7 +2,7 @@
 
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.actions.folderaction import FolderAction
-from resources.lib.channelinfo import ChannelInfo
+from resources.lib.chn_class import Channel
 from resources.lib.logger import Logger
 from resources.lib.paramparser import ParameterParser
 from resources.lib.retroconfig import Config
@@ -14,7 +14,7 @@ class ShowFavouritesAction(AddonAction):
 
         :param ParameterParser parameter_parser:  a ParameterParser object to is used to parse and
                                                    create urls
-        :param ChannelInfo|None channel_object:   The channel to show favourites for.
+        :param Channel|None channel_object:       The channel to show favourites for.
                                                    Might be None to show all.
 
         """

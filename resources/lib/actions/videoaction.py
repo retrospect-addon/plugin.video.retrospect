@@ -8,24 +8,29 @@ from resources.lib.chn_class import Channel
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.locker import LockWithDialog
 from resources.lib.logger import Logger
+from resources.lib.paramparser import ParameterParser
 from resources.lib.xbmcwrapper import XbmcWrapper
 
 
 class VideoAction(AddonAction):
-    def __init__(self, parameter_parser, channel, media_item):
+    def __init__(self, parameter_parser, channel):
         """ Starts the videoitem using a playlist.
 
         :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
                                                    and create urls
         :param Channel channel:                   The channel info for the channel
-        :param MediaItem|None media_item:
 
         """
 
         super(VideoAction, self).__init__(parameter_parser)
 
-        self.__media_item = media_item
+        if channel is None:
+            raise ValueError("No Channel specified for video to play")
+        if parameter_parser.media_item is None:
+            raise ValueError("No MediaItem to play")
+
         self.__channel = channel
+        self.__media_item = parameter_parser.media_item
 
     def execute(self):
         from resources.lib import player

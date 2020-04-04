@@ -5,6 +5,7 @@ from resources.lib.actions import action
 
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
+from resources.lib.chn_class import Channel
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.stopwatch import StopWatch
@@ -17,21 +18,23 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 
 
 class FolderAction(AddonAction):
-    def __init__(self, parameter_parser, channel, media_item=None, favorites=None):
+    def __init__(self, parameter_parser, channel, favorites=None):
         """Wraps the channel.process_folder_list
 
         :param ParameterParser parameter_parser:  a ParameterParser object to is used to parse and
                                                    create urls
-        :param ChannelInfo channel:               The channel info for the channel
-        :param MediaItem|None media_item:
-        :param list[MediaItem]|None favorites:
+        :param Channel channel:                   The channel info for the channel
+        :param list[MediaItem]|None favorites:    Possible list of existing favourites to show
 
         """
 
         super(FolderAction, self).__init__(parameter_parser)
 
+        if channel is None:
+            raise ValueError("No Channel specified for folder to list")
+
         self.__channel = channel
-        self.__media_item = media_item
+        self.__media_item = parameter_parser.media_item
         self.__favorites = favorites
 
     def execute(self):

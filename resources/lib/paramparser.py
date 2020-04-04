@@ -7,6 +7,7 @@ from resources.lib.logger import Logger
 from resources.lib.pickler import Pickler
 from resources.lib.actions import keyword
 from resources.lib.actions.action import PLAY_VIDEO
+from resources.lib.mediaitem import MediaItem
 
 
 class ParameterParser(object):
@@ -43,6 +44,12 @@ class ParameterParser(object):
 
     @property
     def media_item(self):
+        """ The current MediaItem
+
+        :returns: The current MediaItem
+        :rtype: MediaItem
+
+        """
 
         if self.__media_item is None and keyword.PICKLE in self.params:
             self.__media_item = self.pickler.de_pickle_media_item(self.params[keyword.PICKLE])

@@ -8,7 +8,7 @@ from resources.lib.paramparser import ParameterParser
 
 
 class AddonAction(object):
-    __methodContainer = dict()
+    __methodContainer = dict()  # : storage for the inspect.getmembers(channel) method. Improves performance
 
     def __init__(self, parameter_parser):
         """ Base class for add-on actions
