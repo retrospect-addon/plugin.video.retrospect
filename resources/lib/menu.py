@@ -30,15 +30,16 @@ from resources.lib.locker import LockWithDialog
 from resources.lib.cloaker import Cloaker
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.actions import keyword
+from resources.lib.actions import action
 
 Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
 
 class Menu(ParameterParser):
 
-    def __init__(self, action):
+    def __init__(self, menu_action):
         Logger.info("**** Starting menu '%s' for %s add-on version %s/repo ****",
-                    action, Config.appName, Config.version)
+                    menu_action, Config.appName, Config.version)
 
         # noinspection PyUnresolvedReferences
         self.kodiItem = sys.listitem
@@ -140,7 +141,7 @@ class Menu(ParameterParser):
         # it's just the channel, so only add the favourites
         cmd_url = self.create_action_url(
             None if all_favorites else self.channelObject,
-            action=self.actionAllFavourites if all_favorites else self.actionFavourites
+            action=action.ALL_FAVOURITES if all_favorites else action.CHANNEL_FAVOURITES
         )
 
         xbmc.executebuiltin("Container.Update({0})".format(cmd_url))
@@ -158,14 +159,14 @@ class Menu(ParameterParser):
 
         f = Favourites(Config.favouriteDir)
         if item.is_playable():
-            action = self.actionPlayVideo
+            action_value = action.PLAY_VIDEO
         else:
-            action = self.actionListFolder
+            action_value = action.LIST_FOLDER
 
         # add the favourite
         f.add(self.channelObject,
               item,
-              self.create_action_url(self.channelObject, action, item))
+              self.create_action_url(self.channelObject, action_value, item))
 
         # we are finished, so just open the Favorites
         self.favourites()
