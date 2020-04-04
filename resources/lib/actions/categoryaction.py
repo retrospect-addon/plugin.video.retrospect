@@ -3,6 +3,7 @@
 import xbmcgui
 import xbmcplugin
 
+from resources.lib.actions import action
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.languagehelper import LanguageHelper
@@ -56,7 +57,7 @@ class CategoryAction(AddonAction):
                 kodi_item.setArt({'fanart': fanart})
 
             url = self.parameter_parser.create_action_url(
-                None, action=self.parameter_parser.actionListCategory, category=category)
+                None, action=action.LIST_CATEGORY, category=category)
             kodi_items.append((url, kodi_item, True))
 
         # Logger.Trace(kodi_items)

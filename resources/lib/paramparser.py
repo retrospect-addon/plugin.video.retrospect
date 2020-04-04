@@ -6,6 +6,7 @@ from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
 from resources.lib.pickler import Pickler
 from resources.lib.actions import keyword
+from resources.lib.actions.action import PLAY_VIDEO
 
 
 class ParameterParser(object):
@@ -19,23 +20,6 @@ class ParameterParser(object):
         """
 
         Logger.debug("Parsing parameters from: %s", params)
-
-        # Url Actions
-        self.actionFavourites = "favourites"                            # : Used to show favorites for a channel
-        self.actionAllFavourites = "allfavourites"                      # : Used to show all favorites
-        self.actionRemoveFavourite = "removefromfavourites"             # : Used to remove items from favorites
-        self.actionAddFavourite = "addtofavourites"                     # : Used to add items to favorites
-        self.actionDownloadVideo = "downloadVideo"                      # : Used to download a video item
-        self.actionPlayVideo = "playvideo"                              # : Used to play a video item
-        self.actionUpdateChannels = "updatechannels"                    # : Used to update channels
-        self.actionListFolder = "listfolder"                            # : Used to list a folder
-        self.actionListCategory = "listcategory"                        # : Used to show the channels from a category
-        self.actionConfigureChannel = "configurechannel"                # : Used to configure a channel
-        self.actionSetEncryptionPin = "changepin"                       # : Used for setting an application pin
-        self.actionSetEncryptedValue = "encryptsetting"                 # : Used for setting an application pin
-        self.actionResetVault = "resetvault"                            # : Used for resetting the vault
-        self.actionPostLog = "postlog"                                  # : Used for sending log files to pastebin.com
-        self.actionProxy = "setproxy"                                   # : Used for setting a proxy
 
         self.handle = int(handle)
 
@@ -108,7 +92,7 @@ class ParameterParser(object):
         if item is not None:
             params[keyword.PICKLE] = "{}--{}".format(store_id, item.guid)
 
-            if action == self.actionPlayVideo and item.isLive:
+            if action == PLAY_VIDEO and item.isLive:
                 params[keyword.RANDOM_LIVE] = random.randint(10000, 99999)
 
         if category:
