@@ -45,7 +45,7 @@ class ParameterParser(object):
         self.pluginName = addon_name
 
         # We need a picker for this instance
-        self._pickler = Pickler(Config.profileDir)
+        self.pickler = Pickler(Config.profileDir)
 
         # Field for property
         self.__media_item = None
@@ -53,15 +53,15 @@ class ParameterParser(object):
         # For remote debugging and log reading purpose we need the full pickle string.
         if Logger.instance().minLogLevel <= Logger.LVL_DEBUG \
                 and self.media_item is not None \
-                and self._pickler.is_pickle_store_id(self.params[keyword.PICKLE]):
+                and self.pickler.is_pickle_store_id(self.params[keyword.PICKLE]):
             Logger.debug("Replacing PickleStore pickle '%s' with full pickle", self.params[keyword.PICKLE])
-            self.params[keyword.PICKLE] = self._pickler.pickle_media_item(self.media_item)
+            self.params[keyword.PICKLE] = self.pickler.pickle_media_item(self.media_item)
 
     @property
     def media_item(self):
 
         if self.__media_item is None and keyword.PICKLE in self.params:
-            self.__media_item = self._pickler.de_pickle_media_item(self.params[keyword.PICKLE])
+            self.__media_item = self.pickler.de_pickle_media_item(self.params[keyword.PICKLE])
 
         return self.__media_item
 
@@ -122,7 +122,7 @@ class ParameterParser(object):
         # Logger.Trace("Created url: '%s'", url)
         return url
 
-    def _get_parent_guid(self, channel, parent_item):
+    def get_parent_guid(self, channel, parent_item):
         """ Returns the parent guid of an item
 
         :param channel:         The parent channel object
