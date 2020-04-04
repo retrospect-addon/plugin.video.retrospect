@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+
 PICKLE = "pickle"                       # : Used for the pickle item
 ACTION = "action"                       # : Used for specifying the action
 CHANNEL = "channel"                     # : Used for the channel

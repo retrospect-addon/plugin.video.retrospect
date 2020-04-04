@@ -3,6 +3,7 @@
 from resources.lib.actions import keyword
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
+from resources.lib.actions import action
 
 
 class VaultAction(AddonAction):
@@ -27,14 +28,14 @@ class VaultAction(AddonAction):
             # that supports it
             from resources.lib.vault import Vault
 
-            if self.vault_action == self.parameter_parser.actionResetVault:
+            if self.vault_action == action.RESET_VAULT:
                 Vault.reset()
                 return
 
             v = Vault()
-            if self.vault_action == self.parameter_parser.actionSetEncryptionPin:
+            if self.vault_action == action.SET_ENCRYPTION_PIN:
                 v.change_pin()
-            elif self.vault_action == self.parameter_parser.actionSetEncryptedValue:
+            elif self.vault_action == action.SET_ENCRYPTED_VALUE:
                 v.set_setting(self.params[keyword.SETTING_ID],
                               self.params.get(keyword.SETTING_NAME, ""),
                               self.params.get(keyword.SETTING_ACTION_ID, None))

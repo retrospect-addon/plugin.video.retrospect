@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import xbmcplugin
+from resources.lib.actions import action
 
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
@@ -64,10 +65,10 @@ class FolderAction(AddonAction):
                 self.__update_artwork(media_item, self.__channel)
 
                 if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
-                    action = self.parameter_parser.actionListFolder
+                    action_value = action.LIST_FOLDER
                     folder = True
                 elif media_item.is_playable():
-                    action = self.parameter_parser.actionPlayVideo
+                    action_value = action.PLAY_VIDEO
                     folder = False
                 else:
                     Logger.critical("Plugin::process_folder_list: Cannot determine what to add")
@@ -86,7 +87,7 @@ class FolderAction(AddonAction):
                 url = media_item.actionUrl
                 if url is None:
                     url = self.parameter_parser.create_action_url(
-                        self.__channel, action=action, item=media_item, store_id=parent_guid)
+                        self.__channel, action=action_value, item=media_item, store_id=parent_guid)
 
                 # Add them to the list of Kodi items
                 kodi_items.append((url, kodi_item, folder))
