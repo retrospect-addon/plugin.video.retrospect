@@ -23,7 +23,7 @@ Logger.create_logger(os.path.join(Config.profileDir, Config.logFileNameAddon),
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.favourites import Favourites
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 from resources.lib.helpers.channelimporter import ChannelIndex
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.locker import LockWithDialog
@@ -35,7 +35,7 @@ from resources.lib.actions import action
 Logger.instance().minLogLevel = AddonSettings.get_log_level()
 
 
-class Menu(ParameterParser):
+class Menu(ActionParser):
 
     def __init__(self, menu_action):
         Logger.info("**** Starting menu '%s' for %s add-on version %s/repo ****",

@@ -17,8 +17,8 @@ class CategoryAction(AddonAction):
         """ Displays the channels that are currently available in XOT as a directory
         listing.
 
-        :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
-                                                   and create urls
+        :param ActionParser parameter_parser:  A ActionParser object to is used to parse
+                                                and create urls
         """
 
         super(CategoryAction, self).__init__(parameter_parser)

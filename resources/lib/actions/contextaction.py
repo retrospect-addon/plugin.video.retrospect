@@ -3,17 +3,17 @@
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.chn_class import Channel
 from resources.lib.logger import Logger
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 
 
 class ContextMenuAction(AddonAction):
     def __init__(self, parameter_parser, channel, action):
         """ Peforms the action from a custom contextmenu
 
-        :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
-                                                   and create urls
-        :param Channel channel:                   The channel info for the channel
-        :param str action:                        The name of the method to call
+        :param ActionParser parameter_parser:  A ActionParser object to is used to parse
+                                                and create urls
+        :param Channel channel:                The channel info for the channel
+        :param str action:                     The name of the method to call
 
         """
 

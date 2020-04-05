@@ -4,7 +4,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.chn_class import Channel
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 
 
 class AddonAction(object):
@@ -13,7 +13,7 @@ class AddonAction(object):
     def __init__(self, parameter_parser):
         """ Base class for add-on actions
 
-        :param ParameterParser parameter_parser:  a ParameterParser object to is used to parse and
+        :param ActionParser parameter_parser:  a ActionParser object to is used to parse and
                                                    create urls
 
         """
@@ -30,7 +30,7 @@ class AddonAction(object):
 
         self.parameter_parser = parameter_parser
         if self.parameter_parser is None:
-            raise ValueError("Missing ParameterParser")
+            raise ValueError("Missing ActionParser")
 
         self.handle = self.parameter_parser.handle
 
@@ -40,11 +40,9 @@ class AddonAction(object):
     def _get_context_menu_items(self, channel, item=None):
         """ Retrieves the custom context menu items to display.
 
-        favouritesList : Boolean   - Indication that the menu is for the favorites
-
         :param Channel|None channel:    The channel from which to get the context menu items.
-                                        The channel might be None in case of some actions that
-                                        do not require a channel.
+                                         The channel might be None in case of some actions that
+                                         do not require a channel.
         :param MediaItem|None item:     The item to which the context menu belongs.
 
         :return: A list of context menu names and their commands.

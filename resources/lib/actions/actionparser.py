@@ -10,13 +10,13 @@ from resources.lib.actions.action import PLAY_VIDEO
 from resources.lib.mediaitem import MediaItem
 
 
-class ParameterParser(object):
+class ActionParser(object):
     def __init__(self, addon_name, handle, params):
         """
 
         :param str addon_name:  The name of the add-on
         :param int handle:      The handle for this run
-        :param str params:      The parameters used to start the ParameterParser
+        :param str params:      The parameters used to start the ActionParser
 
         """
 

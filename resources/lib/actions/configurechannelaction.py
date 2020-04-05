@@ -3,16 +3,16 @@
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.logger import Logger
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 
 
 class ConfigureChannelAction(AddonAction):
     def __init__(self, parameter_parser, channel_info):
         """ Shows the current channels settings dialog.
 
-        :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
-                                                   and create urls
-        :param ChannelInfo channel_info:          The channel info for the channel
+        :param ActionParser parameter_parser:  A ActionParser object to is used to parse
+                                                and create urls
+        :param ChannelInfo channel_info:       The channel info for the channel
 
         """
 

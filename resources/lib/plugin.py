@@ -12,13 +12,13 @@ from resources.lib.helpers.channelimporter import ChannelIndex
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.sessionhelper import SessionHelper
 from resources.lib.textures import TextureHandler
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 from resources.lib.urihandler import UriHandler
 from resources.lib.actions import keyword
 from resources.lib.actions import action
 
 
-class Plugin(ParameterParser):
+class Plugin(ActionParser):
     """ Main Plugin Class
 
     This class makes it possible to access all the XOT channels as a Kodi Add-on
@@ -82,7 +82,7 @@ class Plugin(ParameterParser):
         # create a session
         SessionHelper.create_session(Logger.instance())
 
-    def run(self):  # NOSONAR complexity
+    def run(self):
         addon_action = None
         channel_object = None
 

@@ -11,7 +11,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.stopwatch import StopWatch
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 from resources.lib.retroconfig import Config
 from resources.lib.textures import TextureHandler
 from resources.lib.xbmcwrapper import XbmcWrapper
@@ -21,10 +21,10 @@ class FolderAction(AddonAction):
     def __init__(self, parameter_parser, channel, favorites=None):
         """Wraps the channel.process_folder_list
 
-        :param ParameterParser parameter_parser:  a ParameterParser object to is used to parse and
-                                                   create urls
-        :param Channel channel:                   The channel info for the channel
-        :param list[MediaItem]|None favorites:    Possible list of existing favourites to show
+        :param ActionParser parameter_parser:      A ActionParser object to is used to parse and
+                                                    create urls
+        :param Channel channel:                    The channel info for the channel
+        :param list[MediaItem]|None favorites:     Possible list of existing favourites to show
 
         """
 

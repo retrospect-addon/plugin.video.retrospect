@@ -11,9 +11,9 @@ class VaultAction(AddonAction):
         """ Displays the channels that are currently available in XOT as a directory
         listing.
 
-        :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
-                                                   and create urls
-        :param str vault_action:                  The action to perform in the vault
+        :param ActionParser parameter_parser:  A ActionParser object to is used to parse
+                                                and create urls
+        :param str vault_action:               The action to perform in the vault
 
         """
 

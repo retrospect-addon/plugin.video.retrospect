@@ -8,7 +8,7 @@ from resources.lib.chn_class import Channel
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.locker import LockWithDialog
 from resources.lib.logger import Logger
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 from resources.lib.xbmcwrapper import XbmcWrapper
 
 
@@ -16,9 +16,9 @@ class VideoAction(AddonAction):
     def __init__(self, parameter_parser, channel):
         """ Starts the videoitem using a playlist.
 
-        :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
-                                                   and create urls
-        :param Channel channel:                   The channel info for the channel
+        :param ActionParser parameter_parser:  A ActionParser object to is used to parse
+                                                and create urls
+        :param Channel channel:                The channel info for the channel
 
         """
 

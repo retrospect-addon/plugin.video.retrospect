@@ -8,7 +8,7 @@ from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.channelimporter import ChannelIndex
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
-from resources.lib.paramparser import ParameterParser
+from resources.lib.actions.actionparser import ActionParser
 from resources.lib.retroconfig import Config
 from resources.lib.actions import action
 
@@ -18,9 +18,9 @@ class ChannelListAction(AddonAction):
         """ Displays the channels that are currently available in XOT as a directory
         listing.
 
-        :param ParameterParser parameter_parser:  A ParameterParser object to is used to parse
-                                                   and create urls
-        :param str category:                      The category to show channels for
+        :param ActionParser parameter_parser:  A ActionParser object to is used to parse
+                                                and create urls
+        :param str category:                   The category to show channels for
 
         """
 
