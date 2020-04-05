@@ -26,7 +26,7 @@ class Plugin(ParameterParser):
 
     """
 
-    def __init__(self, addon_name, params, handle=0):  # NOSONAR complexity
+    def __init__(self, addon_name, params, handle=0):
         """ Initialises the plugin with given arguments.
 
         :param str addon_name:      The add-on name.
@@ -82,7 +82,7 @@ class Plugin(ParameterParser):
         # create a session
         SessionHelper.create_session(Logger.instance())
 
-        # Default values
+    def run(self):  # NOSONAR complexity
         addon_action = None
         channel_object = None
 
@@ -95,11 +95,8 @@ class Plugin(ParameterParser):
                 from resources.lib.actions.channellistaction import ChannelListAction
                 addon_action = ChannelListAction(self)
 
-        #===============================================================================
-        #        Start the plugin verion of the episode window
-        #===============================================================================
         else:
-            # Determine what stage we are in. Check that there are more than 2 Parameters
+            # Determine what action to perform based on the parameters
             if keyword.CHANNEL in self.params:
                 # retrieve channel characteristics
                 channel_file = os.path.splitext(self.params[keyword.CHANNEL])[0]
@@ -121,27 +118,6 @@ class Plugin(ParameterParser):
                 channel_object.init_channel()
                 Logger.info("Loaded: %s", channel_object.channelName)
 
-            # ===============================================================================
-            # Vault Actions
-            # ===============================================================================
-            elif keyword.ACTION in self.params and \
-                    self.params[keyword.ACTION] in \
-                    (
-                        action.SET_ENCRYPTED_VALUE,
-                        action.SET_ENCRYPTION_PIN,
-                        action.RESET_VAULT
-                    ):
-                action_value = self.params[keyword.ACTION]
-
-                from resources.lib.actions.vaultaction import VaultAction
-                addon_action = VaultAction(self, action_value)
-                addon_action.execute()
-                return
-
-            else:
-                Logger.critical("Error determining Plugin action")
-                return
-
             #===============================================================================
             # See what needs to be done.
             #===============================================================================
@@ -150,7 +126,13 @@ class Plugin(ParameterParser):
                 Logger.critical("Action parameters missing from request. Parameters=%s", self.params)
                 return
 
-            if self.params[keyword.ACTION] == action.POST_LOG:
+            if self.params[keyword.ACTION] in \
+                    (action.SET_ENCRYPTED_VALUE, action.SET_ENCRYPTION_PIN, action.RESET_VAULT):
+                action_value = self.params[keyword.ACTION]
+                from resources.lib.actions.vaultaction import VaultAction
+                addon_action = VaultAction(self, action_value)
+
+            elif self.params[keyword.ACTION] == action.POST_LOG:
                 from resources.lib.actions.logaction import LogAction
                 addon_action = LogAction(self)
 

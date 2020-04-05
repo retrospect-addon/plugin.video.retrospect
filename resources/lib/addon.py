@@ -59,7 +59,8 @@ def run_addon():
 
         # run the plugin
         from resources.lib import plugin
-        plugin.Plugin(sys.argv[0], sys.argv[2], sys.argv[1])
+        p = plugin.Plugin(sys.argv[0], sys.argv[2], sys.argv[1])
+        p.run()
 
         # make sure we leave no references behind
         AddonSettings.clear_cached_addon_settings_object()
