@@ -680,7 +680,7 @@ class Plugin(ParameterParser):
         # Generic, none-Python menu items that would normally cause an unwanted reload of the
         # Python interpreter instance within Kodi.
         refresh = LanguageHelper.get_localized_string(LanguageHelper.RefreshListId)
-        context_menu_items.append((refresh, 'XBMC.Container.Refresh()'))
+        context_menu_items.append((refresh, 'Container.Refresh()'))
 
         if item is None:
             return context_menu_items
@@ -717,7 +717,7 @@ class Plugin(ParameterParser):
                     continue
 
                 cmd_url = self._create_action_url(channel, action=menu_item.functionName, item=item)
-                cmd = "XBMC.RunPlugin(%s)" % (cmd_url,)
+                cmd = "RunPlugin(%s)" % (cmd_url,)
                 title = "Retro: %s" % (menu_item.label,)
                 Logger.trace("Adding command: %s | %s", title, cmd)
                 context_menu_items.append((title, cmd))

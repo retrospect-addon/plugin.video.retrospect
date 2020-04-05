@@ -141,7 +141,7 @@ class Menu(ParameterParser):
             action=self.actionAllFavourites if all_favorites else self.actionFavourites
         )
 
-        xbmc.executebuiltin("XBMC.Container.Update({0})".format(cmd_url))
+        xbmc.executebuiltin("Container.Update({0})".format(cmd_url))
 
     @LockWithDialog(logger=Logger.instance())
     def add_favourite(self):
@@ -183,7 +183,7 @@ class Menu(ParameterParser):
 
     def refresh(self):
         """ Refreshes the current Kodi list """
-        xbmc.executebuiltin("XBMC.Container.Refresh()")
+        xbmc.executebuiltin("Container.Refresh()")
 
     def toggle_cloak(self):
         """ Toggles the cloaking (showing/hiding) of the selected folder. """
