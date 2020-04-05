@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'kodi-repo-py3'
+      - 'kodi-matrix'
+      - 'kodi-matrix+'
 
 jobs:
   check-addon:
