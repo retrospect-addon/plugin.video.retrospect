@@ -51,7 +51,7 @@ class Channel(chn_class.Channel):
         user_agent = "%s;%d;%s/%s;Android/%s;nl.nos.app/%s" % ("nos", salt, "Google", "Nexus", "6.0", "5.1.1")
         string = ";UB}7Gaji==JPHtjX3@c%s" % (user_agent, )
         string = EncodingHelper.encode_md5(string, to_upper=False).zfill(32)
-        xnos = string + base64.b64encode(user_agent)
+        xnos = string + base64.b64encode(user_agent.encode('utf-8')).decode('utf-8')
         self.httpHeaders = {"X-Nos": xnos}
 
         self.baseUrl = "http://nos.nl"
@@ -167,7 +167,7 @@ class Channel(chn_class.Channel):
                 if image["width"] >= 720:
                     matched_image = image
                     break
-            item.thumb = matched_image["url"].values()[0]
+            item.thumb = list(matched_image["url"].values())[0]
 
         item.description = result_set["description"]
         item.complete = False
@@ -213,7 +213,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
         urls = []
         for stream in streams:
-            url = stream["url"].values()[-1]
+            url = list(stream["url"].values())[-1]
             if url in urls:
                 # duplicate url, ignore
                 continue
