@@ -10,3 +10,4 @@ sonar-project.properties export-ignore
 # Channel textures
 /channels/**/*.png export-ignore
 /channels/**/*.jpg export-ignore
+/**/changelog.txt export-ignore
