@@ -1,0 +1,13 @@
+requests
+markdown
+future
+# We need version 1.0.18 of xmlschema, newer won't work with Python 2.7
+xmlschema==1.0.18
+flask
+flask_cors
+kodi-addon-checker
+pyaes
+pyscrypt
+pyperclip
+pytz
+gitpython
