@@ -24,10 +24,7 @@ class LogAction(AddonAction):
             url_text = LanguageHelper.get_localized_string(LanguageHelper.LogPostLogUrl)
             files_to_send = [Logger.instance().logFileName,
                              Logger.instance().logFileName.replace(".log", ".old.log")]
-            if sender_mode != "gist":
-                paste_url = log_sender.send_file(Config.logFileNameAddon, files_to_send[0])
-            else:
-                paste_url = log_sender.send_files(Config.logFileNameAddon, files_to_send)
+            paste_url = log_sender.send_file(Config.logFileNameAddon, files_to_send[0])
             XbmcWrapper.show_dialog(title, url_text % (paste_url,))
         except Exception as e:
             Logger.error("Error sending %s", Config.logFileNameAddon, exc_info=True)
