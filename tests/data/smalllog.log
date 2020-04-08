@@ -1,0 +1,191 @@
+20190304 19:45:12 - [INFO    ] - addonsettings.py     - 399  - Setting language from None to English
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: http_cache='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: ignore_ssl_errors='true'
+20190304 19:45:12 - [DEBUG   ] - urihandler.py        - 307  - Opened Cache store [F:\Kodi\Kodi DEV\portable_data\userdata\addon_data\plugin.video.retrospect\cache\www]
+20190304 19:45:12 - [WARNING ] - urihandler.py        - 315  - Ignoring all SSL errors in Python
+20190304 19:45:12 - [INFO    ] - urihandler.py        - 65   - Initialised: UriHandler [id=1551725112, useCaching=Cache store [F:\Kodi\Kodi DEV\portable_data\userdata\addon_data\plugin.video.retrospect\cache\www], ignoreSslErrors=True]
+20190304 19:45:12 - [TRACE   ] - __init__.py          - 57   - Creating 'cached' Texture Mananger
+20190304 19:45:12 - [INFO    ] - plugin.py            - 56   - *********** Starting Retrospect add-on version 4.1.8.5 ***********
+20190304 19:45:12 - [DEBUG   ] - paramparser.py       - 27   - Parsing parameters from:
+20190304 19:45:12 - [DEBUG   ] - plugin.py            - 64   - Plugin Params: {} (0)
+20190304 19:45:12 - [DEBUG   ] - plugin.py            - 64   - | Handle:      1
+20190304 19:45:12 - [DEBUG   ] - plugin.py            - 64   - | Name:        plugin://plugin.video.retrospect/
+20190304 19:45:12 - [DEBUG   ] - plugin.py            - 64   - + Query:
+20190304 19:45:12 - [DEBUG   ] - sessionhelper.py     - 66   - Checking for active sessions (60.00 minutes / 1.00 hours).
+20190304 19:45:12 - [DEBUG   ] - sessionhelper.py     - 107  - Found expired session at 'F:\Kodi\Kodi DEV\portable_data\userdata\addon_data\plugin.video.retrospect\xot.session.lock' which was modified 1116.77 minutes (18.61 hours) ago
+20190304 19:45:12 - [INFO    ] - plugin.py            - 82   - Add-On start detected. Performing startup actions.
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 255  - Current platform determined to be: Windows
+20190304 19:45:12 - [DEBUG   ] - envcontroller.py     - 416  - Checking repository 'plugin.video.retrospect.repository'. Repository available=False
+20190304 19:45:12 - [DEBUG   ] - envcontroller.py     - 208  - Found CDM folder: F:\Kodi\Kodi DEV\portable_data\cdm
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - Kodi Information:
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Version: 18.1 Git:20190217-8cfdc895f3
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | BuildDate: 2019-02-17
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Environment: win32
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Platform: Windows
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Python Version: 2.7.13
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Retrospect Version: 4.1.8.5
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | AddonID: plugin.video.retrospect
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Path: F:\Kodi\Kodi DEV\portable_data\addons\plugin.video.retrospect\
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | ProfilePath: F:\Kodi\Kodi DEV\portable_data\userdata\addon_data\plugin.video.retrospect
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | PathDetection: addon.getAddonInfo('path')
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Encoding: utf-8
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Repository: <not installed>
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | Widevine Path: F:\Kodi\Kodi DEV\portable_data\cdm\widevinecdm.dll
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - | TextureMode: Cached
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 147  - + TextureUrl: https://cdn.rieter.net/plugin.video.retrospect.cdn
+20190304 19:45:12 - [TRACE   ] - localsettings.py     - 71   - Local Setting: client_id='<no of your business>'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: stream_bitrate='20000'
+20190304 19:45:12 - [DEBUG   ] - addonsettings.py     - 665  - Using the Retrospect Default Bitrate: 20000
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: subtitle_mode='0'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: http_cache='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: folder_prefix=''
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: folders_as_video='false'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: empty_folder='2'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: list_limit='7'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: log_level='0'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: ignore_ssl_errors='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: geo_region='0'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: hide_types='1'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_drm_warning='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: hide_drm='false'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: hide_premium='false'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_cloaked_items='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_dutch='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_swedish='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_lithuanian='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_latvian='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_engb='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_german='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_finnish='true'
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: show_other='true'
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - Retrospect Settings:
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | ClientId: 5cf8d900-b705-11e5-9027-000272c24b90
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | MaxStreamBitrate: 20000
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | use_subtitle: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | cache_http_responses: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Folder Prefx: ''
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Mix Folders & Videos: False
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Empty List Behaviour: dummy
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | ListLimit: 1000
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Loglevel: 0
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Ignore SSL Errors: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Geo Location: None
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Filter Folders: False
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | DRM/Paid Warning: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Hide DRM Items: False
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Hide Premium Items: False
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show Cloaked Items: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show Dutch: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show Swedish: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show Lithuanian: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show Latvian: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show British: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show German: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - | Show Finnish: True
+20190304 19:45:12 - [INFO    ] - envcontroller.py     - 150  - + Show Other languages: True
+20190304 19:45:12 - [TRACE   ] - kodisettings.py      - 63   - Kodi Setting: log_level='0'
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking .externalToolBuilders
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking .git
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking .gitignore
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking .gitmodules
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking .idea
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking .vpython
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking ADDONS
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking BUILD
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking CDN
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking DEV
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking inputstream.adaptive
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.album.universal
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.artists.universal
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.allmusic.com
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.fanart.tv
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.htbackdrops.com
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.imdb.com
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.musicbrainz.org
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.theaudiodb.com
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.common.themoviedb.org
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.musicvideos.theaudiodb.com
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.themoviedb.org
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.tvdb.com
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking metadata.tvshows.themoviedb.org
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking MODULES
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking net.rieter.autobackup
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking net.rieter.thumbnails
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking packages
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.iplayer
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.iplayerwww
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.nlhardwareinfo
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.nrk
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.be
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.de
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.mtg
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.mtv
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.nick
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.no
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.nos
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.regionalnl
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.rtlnl
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.sbsnl
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.se
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.streams
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.uk
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.channel.videos
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.userdata.dev
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.retrospect.userdata.nightly
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 169  - Now walking DirectoryPrinter
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.rtlxl
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.svtplay
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.uzg
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.vrt.nu
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking plugin.video.youtube
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking readme.md
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking repository.retrospect
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking repository.retrospect.www
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking repository.xbmc.org
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking retrospect.collection.nl
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking retrospect.collection.se
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.advanced.wol
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.dev.example
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.beautifulsoup
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.beautifulsoup4
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.bottle
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.certifi
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.chardet
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.future
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.html5lib
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.idna
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.inputstreamhelper
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.iso8601
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.kodi-six
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.parsedom
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.pydevd
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.requests
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.routing
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.six
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.urllib3
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.module.xbmcswift2
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.pydoc-html-generator
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking script.pypredefcom
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking service.addondata.sync
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking service.xbmc.versioncheck
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking skin.confluence
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking skin.confluence.kids
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking temp
+20190304 19:45:12 - [TRACE   ] - envcontroller.py     - 165  - Checking WIKI

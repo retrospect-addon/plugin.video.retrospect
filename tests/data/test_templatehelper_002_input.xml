@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <category id="first" label="30065">
+        <setting id="selected_country_2" label="30096" type="labelenum" lvalues="30059|30056|30057|30058|30037|30054" />
+        <setting type="lsep" label="30059" visible="eq(%selected_country_2%,0)" />
+    </category>
+    <category id="second" label="30065">
+        <setting id="selected_country" label="30096" type="labelenum" lvalues="30059|30056|30057|30058|30037|30054" />
+
+        <setting type="lsep" label="30059" visible="eq(%selected_country%,0)" />
+        <setting id="other_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(%selected_country%,0)" />
+        <setting subsetting="true" id="other_proxy_server" type="text" label="30029" default="" visible="!eq(%other_proxy_type%,0)+eq(%selected_country%,0)" />
+        <setting subsetting="true" id="other_proxy_port" type="number" label="30030" default="8080" visible="eq(%other_proxy_type%,1)+eq(%selected_country%,0)" />
+        <setting subsetting="true" id="other_proxy_username" type="text" label="30035" default="" visible="eq(%other_proxy_type%,1)+eq(%selected_country%,0)" />
+        <setting subsetting="true" id="other_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(%other_proxy_type%,1)+eq(%selected_country%,0)" />
+        <setting id="other_local_ip" type="ipaddress" label="30079" default="" visible="false" />
+
+        <setting type="lsep" label="30056" visible="eq(%selected_country%,1)" /><!-- test -->
+        <!--<setting id="nl_proxy_set_all" type="action" label="30071" action="RunScript(plugin.video.retrospect, 0, ?action=setproxy&amp;lang=nl)" visible="eq(%selected_country%,1)" />-->
+        <setting id="nl_proxy_set_all" type="action" label="30071" action="RunScript(plugin.video.retrospect, 0, ?action=setproxy&amp;lang=nl)" visible="eq(%selected_country%,1)" />
+        <setting id="nl_proxy_type" type="labelenum" label="30072" default="" lvalues="30025|30062|30066" visible="eq(-10,1)" />
+        <setting subsetting="true" id="nl_proxy_server" type="text" label="30029" default="" visible="!eq(-1,0)+eq(-11,1)"/>
+        <setting subsetting="true" id="nl_proxy_port" type="number" label="30030" default="8080" visible="eq(-2,1)+eq(-12,1)" />
+        <setting subsetting="true" id="nl_proxy_username" type="text" label="30035" default="" visible="eq(-3,1)+eq(-13,1)" />
+        <setting subsetting="true" id="nl_proxy_password"  type="text" option="hidden" label="30036" default="" visible="eq(-4,1)+eq(-14,1)" />
+        <setting id="nl_local_ip" type="ipaddress" label="30079" default="" visible="eq(-15,1)" />
+    </category>
+</settings>
