@@ -11,3 +11,6 @@ sonar-project.properties export-ignore
 /channels/**/*.png export-ignore
 /channels/**/*.jpg export-ignore
 /**/changelog.txt export-ignore
+
+# Exclude tests
+/tests/
