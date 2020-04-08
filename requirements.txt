@@ -11,3 +11,4 @@ pyscrypt
 pyperclip
 pytz
 gitpython
+pytest
