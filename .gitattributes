@@ -13,5 +13,5 @@ sonar-project.properties export-ignore
 /**/changelog.txt export-ignore
 
 # Exclude tests
-/tests/
-requirements.txt
+/tests/ export-ignore
+requirements.txt export-ignore
