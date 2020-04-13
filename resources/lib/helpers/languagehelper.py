@@ -35,6 +35,8 @@ class LanguageHelper(object):
     Disabled = 30074
     Retrospect = 30008
     MissingAddon = 30015
+    UpdateRequired = 30044
+    UpdateToNewKodi = 30045
 
     Monday = 30190
     Tuesday = 30191
