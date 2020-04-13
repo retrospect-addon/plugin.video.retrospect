@@ -293,7 +293,7 @@ class Menu(ActionParser):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
-            Logger.critical("Error in menu handling: %s", exc_val.message, exc_info=True)
+            Logger.critical("Error in menu handling: %s", str(exc_val), exc_info=True)
 
         # make sure we leave no references behind
         AddonSettings.clear_cached_addon_settings_object()
