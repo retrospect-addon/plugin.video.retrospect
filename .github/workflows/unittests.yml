@@ -18,14 +18,29 @@ jobs:
         python-version: [ 2.7, 3.7, 3.8 ]
     steps:
       - uses: actions/checkout@v2
+        with: 
+          path: addons/plugin.video.retrospect
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          cd addons/plugin.video.retrospect
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Setup Kodi directory structure
+        run: |
+          cd addons
+          mkdir plugin.video.youtube
+          dir
+      - name: Install SAKE
+        run: |
+          git clone https://github.com/retrospect-addon/kodi.emulator.ascii.git kodi.emulator.ascii
+          dir
       - name: Run unit tests
         run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii
+          export KODI_PROFILE=$GITHUB_WORKSPACE/addons/plugin.video.retrospect/tests/data/userdata/
+          cd addons/plugin.video.retrospect
           pytest -v --color=yes
