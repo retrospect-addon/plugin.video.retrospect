@@ -5,6 +5,7 @@ This version removes some methods from the Kodi Python ABI that have been remove
 [B]Framework related[/B]
 * Removed: some debugging code
 * Changed: moved a large part of the code from plugin.py into different `actions`
+* Fixed: internal Youtube parsing
 
 [B]GUI/Settings/Language related[/B]
 _None_
