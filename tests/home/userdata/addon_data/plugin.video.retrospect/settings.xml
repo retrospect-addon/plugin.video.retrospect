@@ -1,2 +1,3 @@
 <settings version="2">
+    <setting id="list_limit">0</setting>
 </settings>

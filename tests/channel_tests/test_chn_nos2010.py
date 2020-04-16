@@ -1,26 +1,12 @@
-import unittest
+# SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-from resources.lib.logger import Logger
-from resources.lib.textures import TextureHandler
-from resources.lib.retroconfig import Config
-from resources.lib.urihandler import UriHandler
+from tests.channel_tests.channeltest import ChannelTest
 
 
-class TestCloaker(unittest.TestCase):
+class TestNpoChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestCloaker, self).__init__(methodName)
-        self.channel = None
-
-    @classmethod
-    def setUpClass(cls):
-        Logger.create_logger(None, str(cls), min_log_level=0)
-        UriHandler.create_uri_handler(ignore_ssl_errors=False)
-        TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.instance())
-
-    def setUp(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        self.channel = ChannelIndex.get_register().get_channel("chn_nos2010", "uzgjson")
+        super(TestNpoChannel, self).__init__(methodName)
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
@@ -28,3 +14,53 @@ class TestCloaker(unittest.TestCase):
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
         self.assertEqual(len(items), 8, "No items found in mainlist")
+
+    def test_live_radio(self):
+        self._test_url("http://radio-app.omroep.nl/player/script/player.js", 8)
+
+    def test_live_tv(self):
+        self._test_url("https://www.npostart.nl/live", 10)
+
+    def test_categories(self):
+        self._test_url("https://www.npostart.nl/programmas", 5)
+
+    def test_recent_week_list(self):
+        self._test_url("#recent", 7)
+
+    def test_alpha_listing(self):
+        self._test_url("#alphalisting", 27)
+
+    def test_alpha_sub_listing(self):
+        self._test_url(
+            "https://www.npostart.nl/media/series?page=1&dateFrom=2014-01-01&az=A&"
+            "tileMapping=normal&tileType=teaser&pageType=catalogue",
+            headers={"X-Requested-With": "XMLHttpRequest"},
+            expected_results=50
+        )
+
+    def test_full_alpha_list(self):
+        self._test_url(
+            "https://start-api.npo.nl/page/catalogue?pageSize=25",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=25, exact_results=True
+        )
+
+    def test_full_alpha_sub_list(self):
+        items = self._test_url(
+            "https://start-api.npo.nl/media/series/BV_101396526/episodes?pageSize=5",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=5
+        )
+        # More pages should be preeent (requested 5, will be more there)
+        folders = [item for item in items if item.type == "folder"]
+        self.assertGreaterEqual(len(folders), 1)
+
+    def test_tv_show_listing(self):
+        items = self._test_url(
+            "https://start-api.npo.nl/media/series/NOSjnl2000/episodes?pageSize=10",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=11, exact_results=True
+        )
+        # More pages should be preeent (requested 5, will be more there)
+        folders = [item for item in items if item.type == "folder"]
+        self.assertGreaterEqual(len(folders), 1)
