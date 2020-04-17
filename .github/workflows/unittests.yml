@@ -33,4 +33,5 @@ jobs:
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii
           export KODI_HOME=$GITHUB_WORKSPACE/tests/home
+          export KODI_INTERACTIVE=0
           pytest -v --color=yes

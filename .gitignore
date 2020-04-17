@@ -7,3 +7,6 @@
 
 /debugrun.py
 /apiserver.py
+
+# Test items
+/tests/home/userdata
