@@ -11,8 +11,10 @@ from resources.lib.urihandler import UriHandler
 
 class ChannelTest(unittest.TestCase):
     # noinspection PyPep8Naming
-    def __init__(self, methodName):  # NOSONAR
+    def __init__(self, methodName, channel, code):  # NOSONAR
         super(ChannelTest, self).__init__(methodName)
+        self._channel = channel
+        self._code = code
         self.channel = None
 
     @classmethod
@@ -27,7 +29,7 @@ class ChannelTest(unittest.TestCase):
     def setUp(self):
         """ Setup a new and clean channel """
         from resources.lib.helpers.channelimporter import ChannelIndex
-        self.channel = ChannelIndex.get_register().get_channel("chn_nos2010", "uzgjson")
+        self.channel = ChannelIndex.get_register().get_channel(self._channel, self._code)
 
     @classmethod
     def tearDownClass(cls):
