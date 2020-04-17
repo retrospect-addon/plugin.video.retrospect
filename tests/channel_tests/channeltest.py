@@ -2,6 +2,7 @@
 
 import unittest
 
+from resources.lib.envcontroller import EnvController
 from resources.lib.logger import Logger
 from resources.lib.textures import TextureHandler
 from resources.lib.retroconfig import Config
@@ -21,13 +22,18 @@ class ChannelTest(unittest.TestCase):
         Logger.create_logger(None, str(cls), min_log_level=0)
         UriHandler.create_uri_handler(ignore_ssl_errors=False)
         TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.instance())
+        EnvController.cache_check()
 
     def setUp(self):
         """ Setup a new and clean channel """
         from resources.lib.helpers.channelimporter import ChannelIndex
         self.channel = ChannelIndex.get_register().get_channel("chn_nos2010", "uzgjson")
 
-    def _test_url(self, url, expected_results=None, exact_results=False, headers=None):
+    @classmethod
+    def tearDownClass(cls):
+        Logger.instance().close_log()
+
+    def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None):
         self.assertIsNotNone(self.channel)
         item = self._get_media_item(url)
         item.HttpHeaders.update(headers or {})
@@ -38,6 +44,13 @@ class ChannelTest(unittest.TestCase):
         else:
             self.assertGreaterEqual(len(items), expected_results)
         return items
+
+    def _test_video_url(self, url, headers=None):
+        self.assertIsNotNone(self.channel)
+        item = self._get_media_item(url)
+        item.HttpHeaders.update(headers or {})
+        item = self.channel.process_video_item(item)
+        self.assertTrue(item.has_media_item_parts())
 
     def _get_media_item(self, url, name=None):
         from resources.lib.mediaitem import MediaItem
