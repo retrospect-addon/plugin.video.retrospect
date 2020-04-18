@@ -32,7 +32,20 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 100)
+        self.assertGreater(len(items), 50)
+
+    def test_main_list_none_kijk(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        self.channel = ChannelIndex.get_register().get_channel(self._channel, "sbs")
+        self.test_main_list()
+
+    def test_main_list_graphql(self):
+        self._test_folder_url(
+            "https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes%3A%5BSERIES%5D"
+            "%2Climit%3A1000%29%7Bitems%7B__typename%2Ctitle%2Cdescription%2Cguid%2Cupdated%2C"
+            "seriesTvSeasons%7Bid%7D%2CimageMedia%7Burl%2Clabel%7D%7D%7D%7D",
+            expected_results=100
+        )
 
     def test_last_week(self):
         self._test_folder_url("#lastweek", expected_results=7, exact_results=True)
@@ -58,3 +71,10 @@ class TestKijkNlChannel(ChannelTest):
     def test_update_embedded_mpd_encrypted_video(self):
         self._test_video_url(
             "https://embed.kijk.nl/api/video/P74c4ckPaE9?id=kijkapp&format=DASH&drm=CENC")
+
+    def test_graphql_multi_season_show(self):
+        self._test_folder_url(
+            "https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid%3A%22C5IYffeeRR8%22%29"
+            "%7Bitems%7BseriesTvSeasons%7Bid%2Ctitle%2CseasonNumber%2C__typename%7D%7D%7D%7D",
+            expected_results=3
+        )

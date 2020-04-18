@@ -3,6 +3,7 @@
 import datetime
 
 from resources.lib import chn_class
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.parserdata import ParserData
@@ -61,6 +62,18 @@ class Channel(chn_class.Channel):
 
         else:
             self.noImage = "kijkimage.png"
+            self.mainListUri = self.__get_api_query_url(
+                "programs(programTypes:[SERIES],limit:1000)",
+                "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},imageMedia{url,label}}}")
+
+        self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes",
+                              name="Main GraphQL Program parser", json=True,
+                              parser=["data", "programs", "items"], creator=self.create_api_typed_item)
+
+        self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid",
+                              name="Main GraphQL season parser", json=True,
+                              parser=["data", "programs", "items", 0, "seriesTvSeasons"],
+                              creator=self.create_api_typed_item)
 
         # setup the main parsing data
         self._add_data_parser("https://api.kijk.nl/v1/default/sections/programs-abc",
@@ -757,3 +770,199 @@ class Channel(chn_class.Channel):
             item.complete = True
             part.append_media_stream(s, b)
         return item
+
+    #region GraphQL data
+    # noinspection PyUnusedLocal
+    def create_api_typed_item(self, result_set, add_parent_title=False):
+        """ Creates a new MediaItem based on the __typename attribute.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param bool add_parent_title: Should the parent's title be included?
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        api_type = result_set["__typename"].lower()
+        custom_type = result_set.get("type")
+        Logger.trace("%s: %s", api_type, result_set)
+
+        item = None
+        if custom_type is not None:
+            # Use the kijk.nl custom type
+            if custom_type == "EPISODE":
+                item = self.create_api_episode_type(result_set)
+            else:
+                Logger.warning("Missing type: %s", api_type)
+                return None
+
+        if api_type == "program":
+            item = self.create_api_program_type(result_set)
+        elif api_type == "tvseason":
+            item = self.create_api_tvseason_type(result_set)
+        else:
+            Logger.warning("Missing type: %s", api_type)
+            return None
+
+        return item
+
+    def create_api_program_type(self, result_set):
+        """ Creates a new MediaItem for an program.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        title = result_set["title"]
+        if title is None:
+            return None
+
+        seasons = result_set["seriesTvSeasons"]
+        if len(seasons) == 0:
+            return None
+
+        if len(seasons) == 1:
+            # List the videos in that season
+            season_id = seasons[0]["id"].rsplit("/", 1)[-1]
+            url = self.__get_api_persisted_url(
+                "programs",
+                "76458972ecff15df43ab75bd550d6a85ffd0e90fee2c267d14df087065ee37e2",
+                variables={"tvSeasonId": season_id, "programTypes": "EPISODE", "skip": 0,
+                           "limit": 100})
+        else:
+            # Fetch the season information
+            url = self.__get_api_query_url(
+                query='programs(guid:"{}")'.format(result_set["guid"]),
+                fields="{items{seriesTvSeasons{id,title,seasonNumber,__typename}}}"
+            )
+
+        item = MediaItem(result_set["title"], url)
+        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
+        item.description = result_set.get("description")
+
+        # In the mainlist we should set the fanart too
+        if self.parentItem is None:
+            item.fanart = item.thumb
+
+        return item
+
+    def create_api_tvseason_type(self, result_set):
+        """ Creates a new MediaItem for an TV Season.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        season_number = result_set["seasonNumber"]
+        title = LanguageHelper.get_localized_string(LanguageHelper.SeasonId)
+        title = "{} {:02d}".format(title, season_number)
+
+        season_id = result_set["id"].rsplit("/", 1)[-1]
+        url = self.__get_api_persisted_url(
+            "programs",
+            "76458972ecff15df43ab75bd550d6a85ffd0e90fee2c267d14df087065ee37e2",
+            variables={"tvSeasonId": season_id, "programTypes": "EPISODE", "skip": 0,
+                       "limit": 100})
+
+        item = MediaItem(title, url)
+        return item
+
+    def create_api_episode_type(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        # This URL gives the URL that contains the show info with Season ID's
+        url = self.__get_api_persisted_url(
+            "programs", "75b30eb09d4ac7786d52151064ed6f3a36ccbd7c9141664503d090e8f0ce7c46",
+            variables={"guid": result_set["guid"]}
+        )
+        title = result_set["title"]
+        if title is None:
+            return None
+
+        item = MediaItem(result_set["title"], url)
+        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
+
+        # In the mainlist we should set the fanart too
+        if self.parentItem is None:
+            item.fanart = item.thumb
+
+        return item
+
+    # noinspection PyUnusedLocal
+    def __get_thumb(self, thumb_data, width=1920):
+        """ Generates a full thumbnail url based on the "id" and "changed" values in a thumbnail
+        data object from the API.
+
+        :param list[dict[str, string]] thumb_data: The data for the thumb
+
+        :return: full string url
+        :rtype: str
+        """
+
+        if not bool(thumb_data):
+            return
+
+        for thumb in thumb_data:
+            if "_landscape" in thumb["label"]:
+                return thumb["url"]
+
+        # If it fails, return the first one.
+        return thumb_data[0].get("url")
+
+    def __get_api_query_url(self, query, fields):
+        result = "query{%s%s}" % (query, fields)
+        return "https://graph.kijk.nl/graphql?query={}".format(HtmlEntityHelper.url_encode(result))
+
+    def __get_api_persisted_url(self, operation, hash_value, variables):
+        """ Generates a GraphQL url
+
+        :param str operation:   The operation to use
+        :param str hash_value:  The hash of the Query
+        :param dict variables:  Any variables to pass
+
+        :return: A GraphQL string
+        :rtype: str
+
+        """
+
+        extensions = {"persistedQuery": {"version": 1, "sha256Hash": hash_value}}
+        extensions = HtmlEntityHelper.url_encode(JsonHelper.dump(extensions, pretty_print=False))
+
+        variables = HtmlEntityHelper.url_encode(JsonHelper.dump(variables, pretty_print=False))
+
+        url = "https://graph.kijk.nl/graphql?" \
+              "operationName={}&" \
+              "variables={}&" \
+              "extensions={}".format(operation, variables, extensions)
+        return url
+    #endregion
