@@ -93,7 +93,12 @@ class Channel(chn_class.Channel):
                                   name="GraphQL season listing parsing", json=True,
                                   parser=["data", "programs", "items"], creator=self.create_api_typed_item)
 
-            self._add_data_parser("https://graph.kijk.nl/graphql", updater=self.update_graphql_item)
+            self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bsearch",
+                                  name="GraphQL search", json=True,
+                                  parser=["data", "search", "items"], creator=self.create_api_typed_item)
+
+            self._add_data_parser("https://graph.kijk.nl/graphql-video",
+                                  updater=self.update_graphql_item)
 
         # setup the main parsing data
         self._add_data_parser("https://api.kijk.nl/v1/default/sections/programs-abc",
@@ -254,7 +259,15 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "https://api.kijk.nl/v1/default/searchresultsgrouped?search=%s"
+        if self.channelCode is None:
+            url = self.__get_api_query_url(
+                "search(searchParam:\"----\",programTypes:[SERIES,EPISODE],limit:50)",
+                "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},"
+                "imageMedia{url,label},type,sources{type,file,drm},seasonNumber,"
+                "tvSeasonEpisodeNumber,series{title},lastPubDate}}"
+            ).replace("%", "%%").replace("----", "%s")
+        else:
+            url = "https://api.kijk.nl/v1/default/searchresultsgrouped?search=%s"
         return chn_class.Channel.search_site(self, url)
 
     def list_dates(self, data):
@@ -832,6 +845,10 @@ class Channel(chn_class.Channel):
         )
         items.append(recent)
 
+        search_title = LanguageHelper.get_localized_string(LanguageHelper.Search)
+        search = MediaItem("\b.: {} :.".format(search_title), "#searchSite")
+        items.append(search)
+
         return data, items
 
     def add_graphql_recents(self, data):
@@ -893,6 +910,8 @@ class Channel(chn_class.Channel):
             # Use the kijk.nl custom type
             if custom_type == "EPISODE":
                 item = self.create_api_episode_type(result_set)
+            elif custom_type == "SERIES":
+                item = self.create_api_program_type(result_set)
             else:
                 Logger.warning("Missing type: %s", api_type)
                 return None
@@ -998,7 +1017,7 @@ class Channel(chn_class.Channel):
         """
 
         # This URL gives the URL that contains the show info with Season ID's
-        url = "https://graph.kijk.nl/graphql"
+        url = "https://graph.kijk.nl/graphql-video"
 
         if not result_set.get("sources"):
             return None
@@ -1011,7 +1030,7 @@ class Channel(chn_class.Channel):
         if title is None:
             serie_title = result_set["series"]["title"]
             title = title_format.format(season_number, episode_number, serie_title)
-        else:
+        elif season_number is not None and episode_number is not None:
             title = title_format.format(season_number, episode_number, title)
 
         item = MediaItem(title, url, type="video")

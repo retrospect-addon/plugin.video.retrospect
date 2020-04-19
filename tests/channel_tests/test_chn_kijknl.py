@@ -93,11 +93,12 @@ class TestKijkNlChannel(ChannelTest):
         self._test_folder_url("#recentgraphql", expected_results=7, exact_results=True)
 
     def test_graphql_mpd_video(self):
-        item = self._get_media_item("https://graph.kijk.nl/graphql")
+        item = self._get_media_item("https://graph.kijk.nl/graphql-video")
         item.metaData["sources"] = [
             {
                 "type": "dash",
-                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/index.mpd",
+                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-"
+                        "7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/index.mpd",
                 "drm": None,
                 "__typename": "Source"
             }
@@ -106,11 +107,12 @@ class TestKijkNlChannel(ChannelTest):
         self.assertTrue(item.has_media_item_parts())
 
     def test_graphql_m3u8_video(self):
-        item = self._get_media_item("https://graph.kijk.nl/graphql")
+        item = self._get_media_item("https://graph.kijk.nl/graphql-video")
         item.metaData["sources"] = [
             {
                 "type": "m3u8",
-                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/master.m3u8",
+                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-"
+                        "7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/master.m3u8",
                 "drm": None,
                 "__typename": "Source"
             }
@@ -119,15 +121,17 @@ class TestKijkNlChannel(ChannelTest):
         self.assertTrue(item.has_media_item_parts())
 
     def test_graphql_drm_video(self):
-        item = self._get_media_item("https://graph.kijk.nl/graphql")
+        item = self._get_media_item("https://graph.kijk.nl/graphql-video")
         item.metaData["sources"] = [
             {
                 "type": "dash",
-                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/index.mpd",
+                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-"
+                        "7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/index.mpd",
                 "drm": {
                     "widevine": {
                         "releasePid": "dBujAGhE20a7",
-                        "url": "https://widevine.entitlement.theplatform.eu/wv/web/ModularDrm?releasePid=dBujAGhE20a7&form=json&schema=1.0",
+                        "url": "https://widevine.entitlement.theplatform.eu/wv/web/ModularDrm?"
+                               "releasePid=dBujAGhE20a7&form=json&schema=1.0",
                         "certificateUrl": None,
                         "processSpcUrl": None
                     }
@@ -137,3 +141,21 @@ class TestKijkNlChannel(ChannelTest):
         ]
         item = self.channel.process_video_item(item)
         self.assertTrue(item.has_media_item_parts())
+
+    def test_graphql_search(self):
+        self._test_folder_url(
+            "https://graph.kijk.nl/graphql?query=query%7Bsearch%28searchParam%3A%22wegmi%22"
+            "%2CprogramTypes%3A%5BSERIES%2CEPISODE%5D%2Climit%3A50%29%7Bitems%7B__typename"
+            "%2Ctitle%2Cdescription%2Cguid%2Cupdated%2CseriesTvSeasons%7Bid%7D%2CimageMedia"
+            "%7Burl%2Clabel%7D%2Ctype%2Csources%7Btype%2Cfile%2Cdrm%7D%2CseasonNumber"
+            "%2CtvSeasonEpisodeNumber%2Cseries%7Btitle%7D%2ClastPubDate%7D%7D%7D",
+            expected_results=5)
+
+    def test_graphql_search_2(self):
+        self._test_folder_url(
+            "https://graph.kijk.nl/graphql?query=query%7Bsearch%28searchParam%3A%22lief%22"
+            "%2CprogramTypes%3A%5BSERIES%2CEPISODE%5D%2Climit%3A50%29%7Bitems%7B__typename"
+            "%2Ctitle%2Cdescription%2Cguid%2Cupdated%2CseriesTvSeasons%7Bid%7D%2CimageMedia"
+            "%7Burl%2Clabel%7D%2Ctype%2Csources%7Btype%2Cfile%2Cdrm%7D%2CseasonNumber"
+            "%2CtvSeasonEpisodeNumber%2Cseries%7Btitle%7D%2ClastPubDate%7D%7D%7D",
+            expected_results=5)
