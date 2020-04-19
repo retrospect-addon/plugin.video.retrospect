@@ -66,14 +66,20 @@ class Channel(chn_class.Channel):
                 "programs(programTypes:[SERIES],limit:1000)",
                 "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},imageMedia{url,label}}}")
 
-        self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes",
-                              name="Main GraphQL Program parser", json=True,
-                              parser=["data", "programs", "items"], creator=self.create_api_typed_item)
+            self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes",
+                                  name="Main GraphQL Program parser", json=True,
+                                  parser=["data", "programs", "items"], creator=self.create_api_typed_item)
 
-        self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid",
-                              name="Main GraphQL season parser", json=True,
-                              parser=["data", "programs", "items", 0, "seriesTvSeasons"],
-                              creator=self.create_api_typed_item)
+            self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid",
+                                  name="Main GraphQL season parser", json=True,
+                                  parser=["data", "programs", "items", 0, "seriesTvSeasons"],
+                                  creator=self.create_api_typed_item)
+
+            self._add_data_parser("https://graph.kijk.nl/graphql?operationName=programs",
+                                  name="GraphQL season listing parsing", json=True,
+                                  parser=["data", "programs", "items"], creator=self.create_api_typed_item)
+
+            self._add_data_parser("https://graph.kijk.nl/graphql", updater=self.update_graphql_item)
 
         # setup the main parsing data
         self._add_data_parser("https://api.kijk.nl/v1/default/sections/programs-abc",
@@ -116,6 +122,7 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
+        self.__hls_over_dash = self._get_setting("hls_over_dash", False)
 
         #===============================================================================================================
         # Test cases:
@@ -800,6 +807,7 @@ class Channel(chn_class.Channel):
             else:
                 Logger.warning("Missing type: %s", api_type)
                 return None
+            return item
 
         if api_type == "program":
             item = self.create_api_program_type(result_set)
@@ -901,21 +909,103 @@ class Channel(chn_class.Channel):
         """
 
         # This URL gives the URL that contains the show info with Season ID's
-        url = self.__get_api_persisted_url(
-            "programs", "75b30eb09d4ac7786d52151064ed6f3a36ccbd7c9141664503d090e8f0ce7c46",
-            variables={"guid": result_set["guid"]}
-        )
-        title = result_set["title"]
-        if title is None:
+        url = "https://graph.kijk.nl/graphql"
+
+        if not result_set.get("sources"):
             return None
 
-        item = MediaItem(result_set["title"], url)
+        title = result_set["title"]
+        season_number = result_set.get("seasonNumber")
+        episode_number = result_set.get("tvSeasonEpisodeNumber")
+        if title is None:
+            serie_title = result_set["series"]["title"]
+            title = "s{:02d}e{:02d} - {}".format(season_number, episode_number, serie_title)
+        else:
+            title = "s{:02d}e{:02d} - {}".format(season_number, episode_number, title)
+
+        item = MediaItem(title, url, type="video")
         item.thumb = self.__get_thumb(result_set.get("imageMedia"))
+        item.description = result_set.get("longDescription", result_set.get("description"))
+        item.set_info_label("duration", int(result_set.get("duration", 0)))
+        item.set_info_label("genre", result_set.get("displayGenre"))
 
-        # In the mainlist we should set the fanart too
-        if self.parentItem is None:
-            item.fanart = item.thumb
+        updated = result_set["lastPubDate"] / 1000
+        date_time = DateHelper.get_date_from_posix(updated)
+        item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
+                      date_time.minute,
+                      date_time.second)
 
+        # Find the media streams
+        item.metaData["sources"] = result_set["sources"]
+        item.metaData["subtitles"] = result_set.get("tracks", [])
+
+        # DRM only
+        no_drm_items = [src for src in result_set["sources"] if not src["drm"]]
+        item.isDrmProtected = len(no_drm_items) == 0
+        return item
+
+    def update_graphql_item(self, item):
+        """ Updates video items that are encrypted. This could be the default for Krypton!
+
+        :param MediaItem item: The item to update.
+
+        :return: An updated item.
+        :rtype: MediaItem
+
+        """
+
+        sources = item.metaData["sources"]
+        part = item.create_new_empty_media_part()
+
+        for src in sources:
+            stream_type = src["type"]
+            url = src["file"]
+            drm = src["drm"]
+
+            if stream_type == "dash" and not drm:
+                bitrate = 0 if self.__hls_over_dash else 2
+                stream = part.append_media_stream(url, bitrate)
+                item.complete = Mpd.set_input_stream_addon_input(
+                    stream, self.proxy)
+
+            elif stream_type == "dash" and drm and "widevine" in drm:
+                bitrate = 0 if self.__hls_over_dash else 1
+                stream = part.append_media_stream(url, bitrate)
+
+                # fetch the authentication token:
+                url = self.__get_api_persisted_url("drmToken", "634c83ae7588a877e2bb67d078dda618cfcfc70ac073aef5e134e622686c0bb6", variables={})
+                token_data = UriHandler.open(url, proxy=self.proxy, no_cache=True)
+                token_json = JsonHelper(token_data)
+                token = token_json.get_value("data", "drmToken", "token")
+
+                # we need to POST to this url using this wrapper:
+                key_url = drm["widevine"]["url"]
+                release_pid = drm["widevine"]["releasePid"]
+                encryption_json = '{{"getRawWidevineLicense":{{"releasePid":"{}","widevineChallenge":"b{{SSM}}"}}}}'.format(release_pid)
+                encryption_key = Mpd.get_license_key(
+                    key_url=key_url,
+                    key_type="b",
+                    key_value=encryption_json,
+                    key_headers={"Content-Type": "application/json", "authorization": "Basic {}".format(token)}
+                )
+                Mpd.set_input_stream_addon_input(stream, license_key=encryption_key)
+                item.complete = True
+
+            elif stream_type == "m3u8" and not drm:
+                bitrate = 2 if self.__hls_over_dash else 0
+                item.complete = M3u8.update_part_with_m3u8_streams(
+                    part, url, proxy=self.proxy, channel=self, bitrate=bitrate)
+
+            else:
+                Logger.debug("Found incompatible stream: %s", src)
+
+        subtitle = None
+        for sub in item.metaData.get("subtitles", []):
+            subtitle = sub["file"]
+        part.Subtitle = subtitle
+
+        # If we are here, we can playback.
+        item.isDrmProtected = False
         return item
 
     # noinspection PyUnusedLocal
