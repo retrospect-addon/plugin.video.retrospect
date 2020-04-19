@@ -68,11 +68,17 @@ class Channel(chn_class.Channel):
 
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes",
                                   name="Main GraphQL Program parser", json=True,
+                                  preprocessor=self.add_graphql_extras,
                                   parser=["data", "programs", "items"], creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid",
                                   name="Main GraphQL season parser", json=True,
                                   parser=["data", "programs", "items", 0, "seriesTvSeasons"],
+                                  creator=self.create_api_typed_item)
+
+            self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7BtrendingPrograms",
+                                  name="GraphQL trending parser", json=True,
+                                  parser=["data", "trendingPrograms"],
                                   creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?operationName=programs",
@@ -784,6 +790,33 @@ class Channel(chn_class.Channel):
         return item
 
     #region GraphQL data
+    def add_graphql_extras(self, data):
+        """ Adds additional items to the main listings
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+        if self.parentItem is not None:
+            return data, items
+
+        popular_url = self.__get_api_query_url(
+            "trendingPrograms",
+            "{__typename,title,description,guid,updated,seriesTvSeasons{id},imageMedia{url,label}}"
+        )
+        popular_title = LanguageHelper.get_localized_string(LanguageHelper.Popular)
+        popular = MediaItem(
+            "\a.: {} :.".format(popular_title),
+            popular_url
+        )
+        items.append(popular)
+
+        return data, items
+
     # noinspection PyUnusedLocal
     def create_api_typed_item(self, result_set, add_parent_title=False):
         """ Creates a new MediaItem based on the __typename attribute.
