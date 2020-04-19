@@ -13,3 +13,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: VRT.nu had some missing episodes (Fixes #1351)
 * Fixed: NOS.nl issue with Kodi Matrix
+* Updated: Kijk.nl moved to a GraphQL backend

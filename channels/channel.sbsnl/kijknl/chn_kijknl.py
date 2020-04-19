@@ -75,12 +75,12 @@ class Channel(chn_class.Channel):
                                   parser=["data", "programs", "items"], creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid",
-                                  name="Main GraphQL season parser", json=True,
+                                  name="Main GraphQL season overview parser", json=True,
                                   parser=["data", "programs", "items", 0, "seriesTvSeasons"],
                                   creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7BprogramsByDate",
-                                  name="Main GraphQL season parser", json=True,
+                                  name="Main GraphQL programs per date parser", json=True,
                                   parser=["data", "programsByDate", 0, "items"],
                                   creator=self.create_api_typed_item)
 
@@ -90,7 +90,7 @@ class Channel(chn_class.Channel):
                                   creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?operationName=programs",
-                                  name="GraphQL season listing parsing", json=True,
+                                  name="GraphQL season video listing parsing", json=True,
                                   parser=["data", "programs", "items"], creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bsearch",
@@ -141,8 +141,7 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        self.__hls_over_dash = self._get_setting("hls_over_dash", False)
-
+        
         #===============================================================================================================
         # Test cases:
         #  Piets Weer: no clips
@@ -1066,6 +1065,7 @@ class Channel(chn_class.Channel):
 
         sources = item.metaData["sources"]
         part = item.create_new_empty_media_part()
+        hls_over_dash = self._get_setting("hls_over_dash", False)
 
         for src in sources:
             stream_type = src["type"]
@@ -1073,13 +1073,13 @@ class Channel(chn_class.Channel):
             drm = src["drm"]
 
             if stream_type == "dash" and not drm:
-                bitrate = 0 if self.__hls_over_dash else 2
+                bitrate = 0 if hls_over_dash else 2
                 stream = part.append_media_stream(url, bitrate)
                 item.complete = Mpd.set_input_stream_addon_input(
                     stream, self.proxy)
 
             elif stream_type == "dash" and drm and "widevine" in drm:
-                bitrate = 0 if self.__hls_over_dash else 1
+                bitrate = 0 if hls_over_dash else 1
                 stream = part.append_media_stream(url, bitrate)
 
                 # fetch the authentication token:
@@ -1102,7 +1102,7 @@ class Channel(chn_class.Channel):
                 item.complete = True
 
             elif stream_type == "m3u8" and not drm:
-                bitrate = 2 if self.__hls_over_dash else 0
+                bitrate = 2 if hls_over_dash else 0
                 item.complete = M3u8.update_part_with_m3u8_streams(
                     part, url, proxy=self.proxy, channel=self, bitrate=bitrate)
 

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: fallback to other streams if embedded stream configuration is missing for kijk.nl
+* Updated: Kijk.nl moved to a GraphQL backend
 
 [I]Previous changes[/I]
+* Fixed: fallback to other streams if embedded stream configuration is missing for kijk.nl
 * Updated: only show DRM warning for kijk.nl if there are only DRM streams.
 * Fixed: Kijk.nl more DRM protected streams did not work (Fixes #1116)
 * Fixed: Kijk.nl new DRM protected streams did not work (Fixes #1085)
