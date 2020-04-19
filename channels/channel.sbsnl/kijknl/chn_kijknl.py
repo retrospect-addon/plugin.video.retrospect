@@ -609,6 +609,11 @@ class Channel(chn_class.Channel):
         """
 
         data = UriHandler.open(item.url, proxy=self.proxy)
+        if UriHandler.instance().status.code == 404:
+            title, message = Regexer.do_regex(r'<h1>([^<]+)</h1>\W+<p>([^<]+)<', data)[0]
+            XbmcWrapper.show_dialog(title, message)
+            return item
+
         start_needle = "var playerConfig ="
         start_data = data.index(start_needle) + len(start_needle)
         end_data = data.index("var talpaPlayer")
