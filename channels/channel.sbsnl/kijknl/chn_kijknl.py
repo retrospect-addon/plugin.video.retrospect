@@ -66,6 +66,9 @@ class Channel(chn_class.Channel):
                 "programs(programTypes:[SERIES],limit:1000)",
                 "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},imageMedia{url,label}}}")
 
+            self._add_data_parser("#recentgraphql", preprocessor=self.add_graphql_recents,
+                                  name="GraphQL Recent listing")
+
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes",
                                   name="Main GraphQL Program parser", json=True,
                                   preprocessor=self.add_graphql_extras,
@@ -74,6 +77,11 @@ class Channel(chn_class.Channel):
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid",
                                   name="Main GraphQL season parser", json=True,
                                   parser=["data", "programs", "items", 0, "seriesTvSeasons"],
+                                  creator=self.create_api_typed_item)
+
+            self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7BprogramsByDate",
+                                  name="Main GraphQL season parser", json=True,
+                                  parser=["data", "programsByDate", 0, "items"],
                                   creator=self.create_api_typed_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?query=query%7BtrendingPrograms",
@@ -815,6 +823,49 @@ class Channel(chn_class.Channel):
         )
         items.append(popular)
 
+        # https://graph.kijk.nl/graphql?operationName=programsByDate&variables={"date":"2020-04-19","numOfDays":7}&extensions={"persistedQuery":{"version":1,"sha256Hash":"1445cc0d283e10fa21fcdf95b127207d5f8c22834c1d0d17df1aacb8a9da7a8e"}}
+        recent_url = "#recentgraphql"
+        recent_title = LanguageHelper.get_localized_string(LanguageHelper.Recent)
+        recent = MediaItem(
+            "\a.: {} :.".format(recent_title),
+            recent_url
+        )
+        items.append(recent)
+
+        return data, items
+
+    def add_graphql_recents(self, data):
+        items = []
+
+        today = datetime.datetime.now()
+        days = LanguageHelper.get_days_list()
+        for i in range(0, 7, 1):
+            air_date = today - datetime.timedelta(i)
+            Logger.trace("Adding item for: %s", air_date)
+
+            # Determine a nice display date
+            day = days[air_date.weekday()]
+            if i == 0:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
+            elif i == 1:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
+            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
+
+            recent_url = self.__get_api_query_url(
+                "programsByDate(date:\"{:04d}-{:02d}-{:02d}\",numOfDays:0)".format(
+                    air_date.year, air_date.month, air_date.day),
+                "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},"
+                "imageMedia{url,label},type,sources{type,drm,file},series{title},seasonNumber,"
+                "tvSeasonEpisodeNumber,lastPubDate}}"
+            )
+            extra = MediaItem(title, recent_url)
+            extra.complete = True
+            extra.dontGroup = True
+            extra.metaData["title_format"] = "{2} - s{0:02d}e{1:02d}"
+            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
+
+            items.append(extra)
+
         return data, items
 
     # noinspection PyUnusedLocal
@@ -955,11 +1006,13 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         season_number = result_set.get("seasonNumber")
         episode_number = result_set.get("tvSeasonEpisodeNumber")
+
+        title_format = self.parentItem.metaData.get("title_format", "s{0:02d}e{1:02d} - {2}")
         if title is None:
             serie_title = result_set["series"]["title"]
-            title = "s{:02d}e{:02d} - {}".format(season_number, episode_number, serie_title)
+            title = title_format.format(season_number, episode_number, serie_title)
         else:
-            title = "s{:02d}e{:02d} - {}".format(season_number, episode_number, title)
+            title = title_format.format(season_number, episode_number, title)
 
         item = MediaItem(title, url, type="video")
         item.thumb = self.__get_thumb(result_set.get("imageMedia"))

@@ -89,6 +89,9 @@ class TestKijkNlChannel(ChannelTest):
             expected_results=2
         )
 
+    def test_graphql_recent(self):
+        self._test_folder_url("#recentgraphql", expected_results=7, exact_results=True)
+
     def test_graphql_mpd_video(self):
         item = self._get_media_item("https://graph.kijk.nl/graphql")
         item.metaData["sources"] = [
