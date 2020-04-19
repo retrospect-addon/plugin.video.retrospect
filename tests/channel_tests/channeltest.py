@@ -33,6 +33,8 @@ class ChannelTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        from resources.lib.addonsettings import AddonSettings
+        AddonSettings.clear_cached_addon_settings_object()
         Logger.instance().close_log()
 
     def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None):
