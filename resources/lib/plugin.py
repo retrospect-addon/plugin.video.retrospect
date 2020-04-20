@@ -82,7 +82,7 @@ class Plugin(ActionParser):
         # create a session
         SessionHelper.create_session(Logger.instance())
 
-    def run(self):
+    def run(self):  # NOSONAR
         addon_action = None
         channel_object = None
 
@@ -135,6 +135,10 @@ class Plugin(ActionParser):
             elif self.params[keyword.ACTION] == action.POST_LOG:
                 from resources.lib.actions.logaction import LogAction
                 addon_action = LogAction(self)
+
+            elif self.params[keyword.ACTION] == action.CLEANUP:
+                from resources.lib.actions.cleanaction import CleanAction
+                addon_action = CleanAction(self)
 
             elif self.params[keyword.ACTION] == action.LIST_CATEGORY:
                 from resources.lib.actions.channellistaction import ChannelListAction

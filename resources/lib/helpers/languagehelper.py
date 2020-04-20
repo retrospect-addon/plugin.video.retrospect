@@ -125,6 +125,8 @@ class LanguageHelper(object):
     LogPostSuccessTitle = 30600
     LogPostError = 30601
     LogPostErrorTitle = 30602
+    CleanupCache = 30604
+    CleanupConfirmation = 30605
 
     Today = 30551
     Yesterday = 30552

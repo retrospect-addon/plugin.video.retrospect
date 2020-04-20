@@ -1053,8 +1053,8 @@ msgstr ""
 "onleesbaar maken. Doorgaan met resetten?"
 
 msgctxt "#30598"
-msgid "Send retrospect.log"
-msgstr "Stuur retrospect.log"
+msgid "Send retrospect.log »"
+msgstr "Stuur retrospect.log »"
 
 msgctxt "#30599"
 msgid ""

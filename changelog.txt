@@ -6,6 +6,7 @@ This version removes some methods from the Kodi Python ABI that have been remove
 * Removed: some debugging code
 * Changed: moved a large part of the code from plugin.py into different `actions`
 * Fixed: internal Youtube parsing
+* Added: option to clean up Retrospect cache and session files
 
 [B]GUI/Settings/Language related[/B]
 _None_

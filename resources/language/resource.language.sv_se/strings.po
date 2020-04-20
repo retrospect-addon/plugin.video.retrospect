@@ -1049,8 +1049,8 @@ msgstr ""
 "säker?"
 
 msgctxt "#30598"
-msgid "Send retrospect.log"
-msgstr "Skicka retrospect.log"
+msgid "Send retrospect.log »"
+msgstr "Skicka retrospect.log »"
 
 msgctxt "#30599"
 msgid ""

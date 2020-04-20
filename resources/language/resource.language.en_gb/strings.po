@@ -1014,7 +1014,7 @@ msgid "Resetting the vault will invalidate all existing encrypted values. Are yo
 msgstr ""
 
 msgctxt "#30598"
-msgid "Send retrospect.log"
+msgid "Send retrospect.log »"
 msgstr ""
 
 msgctxt "#30599"
@@ -1035,4 +1035,12 @@ msgstr ""
 
 msgctxt "#30603"
 msgid "Retrospect changed add-on ID. To prevent data loss, your user data will now be migrated. After this has been done, please restart Kodi to complete migration. After the restart update any shortcut you had to Retrospect. The Retrospect marked as \"broken\" in \"My add-ons\" can be uninstalled."
+msgstr ""
+
+msgctxt "#30604"
+msgid "Clean-up cache and cookies »"
+msgstr ""
+
+msgctxt "#30605"
+msgid "Are you sure you want to clean all of Retrospect's cache and cookies? This action cannot be undone."
 msgstr ""
