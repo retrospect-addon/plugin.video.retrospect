@@ -70,7 +70,6 @@ class ChannelInfo(object):
 
         self.icon = icon
         self.fanart = fanart
-        self.version = "x.x.x.x"
         self.enabled = False                  # enabled from the settings
         self.visible = False                  # hidden/visible due to country settings
         self.adaptiveAddonSelectable = False  # can the InputStream Adaptive be selected
@@ -157,13 +156,13 @@ class ChannelInfo(object):
         """
 
         if self.channelCode is None:
-            return "%s [%s-%s=%s, %s=%s, %s, %s] (Order: %s)" % (
-                self.channelName, self.id, self.version, self.enabled, self.language,
+            return "%s [%s=%s, %s=%s, %s, %s] (Order: %s)" % (
+                self.channelName, self.id, self.enabled, self.language,
                 self.visible, self.category, self.guid, self.sortOrderPerCountry
             )
         else:
-            return "%s (%s) [%s-%s=%s, %s=%s, %s, %s] (Order: %s)" % (
-                self.channelName, self.channelCode, self.id, self.version, self.enabled,
+            return "%s (%s) [%s=%s, %s=%s, %s, %s] (Order: %s)" % (
+                self.channelName, self.channelCode, self.id, self.enabled,
                 self.language, self.visible, self.category, self.guid, self.sortOrderPerCountry
             )
 
@@ -214,11 +213,10 @@ class ChannelInfo(object):
         return self.addonUrl is not None
 
     @staticmethod
-    def from_json(path, version="x.x.x.x"):
+    def from_json(path):
         """ Generates a list of ChannelInfo objects present in the json meta data file.
 
         :param str path: The path of the json file.
-        :param str version: Version of the channel set that contains the channel info file.
 
         :return: The channel info objects within the json file.
         :rtype: list[ChannelInfo]
@@ -235,7 +233,7 @@ class ChannelInfo(object):
             json_data = json_file.read()
 
         json = JsonHelper(json_data, logger=Logger.instance())
-        channels = json.get_value("channels")
+        channels = json.get_value("channels")  # type: dict
 
         if "settings" in json.json:
             settings = json.get_value("settings")
@@ -263,7 +261,6 @@ class ChannelInfo(object):
             # Disable spoofing for the moment
             # channel_info.localIPSupported = channel.get("localIPSupported", False)
             channel_info.settings = settings
-            channel_info.version = version
 
             # validate a bit
             if channel_info.channelCode == "None":
