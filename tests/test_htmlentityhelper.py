@@ -1,4 +1,6 @@
 # coding=utf-8  # NOSONAR
+# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+
 from future.utils import PY2
 
 import unittest
@@ -413,6 +415,7 @@ class TestHtmlEntityHelper(unittest.TestCase):
             ["*", u"*", "%2A", "%2A"],
             ["+", u"+", "%2B", "%2B"],
             [",", u",", "%2C", "%2C"],
+            # Not used in encoding
             # ["-", u"-", "%2D", "%2D"],
             # [".", u".", "%2E", "%2E"],
             # ["/", u"/", "%2F", "%2F"],
@@ -433,6 +436,7 @@ class TestHtmlEntityHelper(unittest.TestCase):
             [">", u">", "%3E", "%3E"],
             ["?", u"?", "%3F", "%3F"],
             ["@", u"@", "%40", "%40"],
+            # Not used in encoding
             # ["A", u"A", "%41", "%41"],
             # ["B", u"B", "%42", "%42"],
             # ["C", u"C", "%43", "%43"],
@@ -465,6 +469,7 @@ class TestHtmlEntityHelper(unittest.TestCase):
             ["^", u"^", "%5E", "%5E"],
             # ["_", u"_", "%5F", "%5F"],
             ["`", u"`", "%60", "%60"],
+            # Not used in encoding
             # ["a", u"a", "%61", "%61"],
             # ["b", u"b", "%62", "%62"],
             # ["c", u"c", "%63", "%63"],
@@ -494,7 +499,8 @@ class TestHtmlEntityHelper(unittest.TestCase):
             ["{", u"{", "%7B", "%7B"],
             ["|", u"|", "%7C", "%7C"],
             ["}", u"}", "%7D", "%7D"],
-            # ["~", u"~", "%7E", "%7E"],  # is considere safe in Python 3
+            # Not used in encoding, is considere safe in Python 3
+            # ["~", u"~", "%7E", "%7E"],
             # [" ", u" ", "%7F", "%7F"],
             # ["`", u"`", "%80", "%E2%82%AC"],
             # ["", u"", "%81", "%81"],
@@ -511,6 +517,7 @@ class TestHtmlEntityHelper(unittest.TestCase):
             ["Œ", u"Œ", "%8C", "%C5%92"],
             # ["", u"", "%8D", "%C5%8D"],
             ["Ž", u"Ž", "%8E", "%C5%BD"],
+            # is considere safe in Python 3
             # ["", u"", "%8F", "%8F"],
             # ["", u"", "%90", "%C2%90"],
             ["‘", u"‘", "%91", "%E2%80%98"],
