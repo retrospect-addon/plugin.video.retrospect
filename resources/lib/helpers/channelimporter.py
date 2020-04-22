@@ -2,7 +2,6 @@
 
 import sys
 import os
-import io
 import datetime
 import time
 
@@ -18,9 +17,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.retroconfig import Config
 from resources.lib.channelinfo import ChannelInfo
 from resources.lib.logger import Logger
-from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.textures import TextureHandler
-from resources.lib.version import Version
 from resources.lib.helpers.stopwatch import StopWatch
 from resources.lib.chn_class import Channel
 
@@ -61,18 +58,10 @@ class ChannelIndex(object):
         """
 
         self.__INTERNAL_CHANNEL_PATH = "channels"
-        self.__CHANNEL_INDEX_CHANNEL_KEY = "channels"
-        self.__CHANNEL_INDEX_ADD_ONS_KEY = "add-ons"
-        self.__CHANNEL_INDEX_CHANNEL_INFO_KEY = "info"
-        self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY = "version"
-        self.__CHANNEL_INDEX = os.path.join(Config.profileDir, "channelindex.json")
+        self.__CHANNEL_SET_START = "channel."
 
         # initialise the collections
-        self.__allChannels = []  # list of all available channels
-
-        self.__reindexed = False
-        self.__reindex = False
-        self.__channelIndex = self.__get_index()
+        self.__allChannels = []  # list of all available channels, used for deduplications
 
         self.validAt = datetime.datetime.now()
         self.id = int(time.time())
@@ -93,19 +82,16 @@ class ChannelIndex(object):
 
         """
 
-        channel_set = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY].get(class_name, None)
-        if channel_set is None:
-            Logger.error("Could not find info for channelClass '%s'.", class_name)
+        channel_path, channel_sets = self.__get_channel_pack_folders()
+        set_name = class_name[4:]
+        channel_set = [cs for cs in channel_sets if cs.endswith(".{}".format(set_name))]
+        if len(channel_set) > 1:
+            Logger.error("Found multiple channel sets for channelClass '%s'.", class_name)
             return None
 
-        channel_set_info_path = channel_set[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
-        channel_set_version = channel_set[self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
-        if not os.path.isfile(channel_set_info_path) and not self.__reindexed:
-            Logger.warning("Missing channel_set file: %s.", channel_set_info_path)
-            self.__rebuild_index()
-            return self.get_channel(class_name, channel_code)
-
-        channel_infos = ChannelInfo.from_json(channel_set_info_path, channel_set_version)
+        channel_set = channel_set[0]
+        channel_set_info_path = os.path.join(channel_path, channel_set, "{}.json".format(class_name))
+        channel_infos = ChannelInfo.from_json(channel_set_info_path)
         if channel_code is None:
             channel_infos = [ci for ci in channel_infos if ci.channelCode is None]
         else:
@@ -119,14 +105,7 @@ class ChannelIndex(object):
             Logger.debug("Found single channel in the channel index: %s.", channel_infos[0])
 
         if self.__is_channel_set_updated(channel_infos[0]):
-            # let's see if the index has already been updated this section, of not, do it and
-            # restart the ChannelRetrieval.
-            if not self.__reindexed:
-                # rebuild and restart
-                Logger.warning("Re-index channel index due to channel_set update: %s.", channel_set_info_path)
-                self.__rebuild_index()
-            else:
-                Logger.warning("Found updated channel_set: %s.", channel_set_info_path)
+            Logger.warning("Found updated channel_set: %s.", channel_set_info_path)
 
             # new we should init all channels by loading them all, just to be sure that all is ok
             Logger.debug("Going to fetching all channels to init them all.")
@@ -166,31 +145,15 @@ class ChannelIndex(object):
         channels_updated = False
         country_visibility = {}
 
-        for channel_set in self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY]:
-            channel_set = self.__channelIndex[self.__CHANNEL_INDEX_CHANNEL_KEY][channel_set]
-            channel_set_info_path = channel_set[self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
-            channel_set_version = channel_set[self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
-
-            # Check if file exists. If not, rebuild index
-            if not os.path.isfile(channel_set_info_path) and not self.__reindexed:
-                Logger.warning("Missing channelSet file: %s.", channel_set_info_path)
-                self.__rebuild_index()
-                return self.get_channels()
-
-            channel_infos = ChannelInfo.from_json(channel_set_info_path, channel_set_version)
+        channel_path, channel_sets = self.__get_channel_pack_folders()
+        for channel_set in channel_sets:
+            channel_name = channel_set.rsplit(".", 1)[-1]
+            channel_json = "chn_{}.json".format(channel_name)
+            channel_set_info_path = os.path.join(channel_path, channel_set, channel_json)
+            channel_infos = ChannelInfo.from_json(channel_set_info_path)
 
             # Check if the channel was updated
             if self.__is_channel_set_updated(channel_infos[0]):
-                # let's see if the index has already been updated this section, of not, do it and
-                # restart the ChannelRetrieval.
-                if not self.__reindexed:
-                    # rebuild and restart
-                    Logger.warning("Re-index channel index due to channelSet update: %s.", channel_set_info_path)
-                    self.__rebuild_index()
-                    return self.get_channels()
-                else:
-                    Logger.warning("Found updated channelSet: %s.", channel_set_info_path)
-
                 if not channels_updated:
                     # this was the first update found (otherwise channelsUpdated was True) show a message:
                     title = LanguageHelper.get_localized_string(LanguageHelper.InitChannelTitle)
@@ -266,143 +229,6 @@ class ChannelIndex(object):
         Logger.debug("Found these categories: %s", ", ".join(categories))
         return categories
 
-    def __get_index(self):
-        """ Loads the channel index and if there is none, makes sure one is created.
-
-        Checks:
-        1. Existence of the index
-        2. Channel add-ons in the index vs actual add-ons
-
-        :return: The current channel index.
-        :rtype: dict
-
-        """
-
-        # if it was not already re-index and the bit was set
-        if self.__reindex:
-            if self.__reindexed:
-                Logger.warning("Forced re-index set, but a re-index was already done previously. Not Rebuilding.")
-            else:
-                Logger.info("Forced re-index set. Rebuilding.")
-                return self.__rebuild_index()
-
-        if not os.path.isfile(self.__CHANNEL_INDEX):
-            Logger.info("No index file found at '%s'. Rebuilding.", self.__CHANNEL_INDEX)
-            return self.__rebuild_index()
-
-        try:
-            with io.open(self.__CHANNEL_INDEX, 'rt', encoding='utf-8') as fd:
-                data = fd.read()
-
-            index_json = JsonHelper(data, logger=Logger.instance())
-            Logger.debug("Loaded index from '%s'.", self.__CHANNEL_INDEX)
-
-            if not self.__is_index_consistent(index_json.json):
-                return self.__rebuild_index()
-            return index_json.json
-        except:
-            Logger.critical("Error reading channel index. Rebuilding.", exc_info=True)
-            return self.__rebuild_index()
-
-    def __rebuild_index(self):
-        """ Rebuilds the channel index that contains all channels and performs all necessary steps:
-
-        1. Find all channel add-on paths and determine the version of the channel add-on
-        2. For all channel sets in the add-on:
-            a. See if it is a new channel set (pyo and pyc check)
-            b. If so, initialise the channel set and then perform the first time actions on
-               the included channels.
-            c. Add all channels within the channel set to the channelIndex
-
-        Remark: this method only generates the index of the channels, it does not import at all!
-
-        :return: The current channel index.
-        :rtype: dict
-
-        """
-
-        if self.__reindexed:
-            Logger.error("Channel index was already re-indexed this run. Not doing it again.")
-            return self.__channelIndex
-
-        Logger.info("Rebuilding the channel index.")
-        index = {
-            self.__CHANNEL_INDEX_ADD_ONS_KEY: [],
-            self.__CHANNEL_INDEX_CHANNEL_KEY: {}
-        }
-
-        # iterate all Retrospect Channel Packages
-        channel_pack_base, channel_pack_folders = self.__get_channel_pack_folders()
-        for channel_pack_name in channel_pack_folders:
-            index[self.__CHANNEL_INDEX_ADD_ONS_KEY].append(channel_pack_name)
-
-            channel_package_path = os.path.join(channel_pack_base, channel_pack_name)
-            channel_package_id, channel_add_on_version = self.__validate_and_get_add_on_version(channel_package_path)
-            if channel_package_id is None:
-                continue
-
-            channel_sets = os.listdir(channel_package_path)
-            for channel_set in channel_sets:
-                if not os.path.isdir(os.path.join(channel_package_path, channel_set)):
-                    continue
-
-                channel_set_id = "chn_%s" % (channel_set,)
-                Logger.debug("Found channel set '%s'", channel_set_id)
-                index[self.__CHANNEL_INDEX_CHANNEL_KEY][channel_set_id] = {
-                    self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY: str(channel_add_on_version),
-                    self.__CHANNEL_INDEX_CHANNEL_INFO_KEY: os.path.join(channel_package_path, channel_set, "%s.json" % (channel_set_id,))
-                }
-
-        with io.open(self.__CHANNEL_INDEX, 'wt+', encoding='utf-8') as f:
-            f.write(JsonHelper.dump(index))
-
-        # now we marked that we already re-indexed.
-        self.__reindexed = True
-        self.__channelIndex = index
-        Logger.info("Rebuilding channel index completed with %d channelSets and %d add-ons: %s.",
-                    len(index[self.__CHANNEL_INDEX_CHANNEL_KEY]),
-                    len(index[self.__CHANNEL_INDEX_ADD_ONS_KEY]),
-                    index)
-
-        return index
-
-    def __validate_and_get_add_on_version(self, path):
-        """ Parses the channelpack.json file and checks if all is OK.
-
-        :param str|unicode path:    The path to load the addon from.
-
-        :return: the AddonId-Version
-        :rtype: tuple[str|unicode|none,str|unicode|none]
-
-        """
-
-        addon_file = os.path.join(path, "channelpack.json")
-
-        # continue if no addon.xml exists
-        if not os.path.isfile(addon_file):
-            Logger.info("No channelpack.json found at %s.", addon_file)
-            return None, None
-
-        with io.open(addon_file, 'rt+', encoding='utf-8') as f:
-            channel_json = f.read()
-
-        channels_data = JsonHelper(channel_json)
-        pack_version = channels_data.get_value("version")
-        package_id = channels_data.get_value("id")
-        if not pack_version or not package_id:
-            Logger.critical(
-                "Cannot determine Channel Pack version. Not loading Add-on @ '%s'.", path)
-            return None, None
-
-        package_version = Version(version=pack_version)
-        if Config.version.are_compatible(package_version):
-            Logger.info("Adding %s version %s", package_id, package_version)
-            return package_id, package_version
-        else:
-            Logger.warning(
-                "Skipping %s version %s: Versions do not match.", package_id, package_version)
-            return None, None
-
     def __get_channel_pack_folders(self):
         """ Returns the paths of all the available channel packs.
 
@@ -412,11 +238,10 @@ class ChannelIndex(object):
         """
 
         channel_pack_base = os.path.abspath(os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH))
-        channel_pack_start = "channel."
 
         channel_pack_paths = [x for x in
                               os.listdir(channel_pack_base)
-                              if channel_pack_start in x and "BUILD" not in x]
+                              if self.__CHANNEL_SET_START in x and "BUILD" not in x]
         return channel_pack_base, channel_pack_paths
 
     def __is_channel_set_updated(self, channel_info):
@@ -537,56 +362,6 @@ class ChannelIndex(object):
                 Logger.debug("Not showing first time message due to add-on setting set to '%s'.",
                              hide_first_time)
         return
-
-    def __is_index_consistent(self, index):
-        """ A quick check if a given Channel Index is correct.
-
-        :param dict index:  A index with Channel information.
-
-        :return: An indication (True/False) if the index is consistent.
-        :rtype: bool
-
-        """
-
-        if self.__CHANNEL_INDEX_CHANNEL_KEY not in index:
-            Logger.warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_CHANNEL_INFO_KEY)
-            return False
-
-        if self.__CHANNEL_INDEX_ADD_ONS_KEY not in index:
-            Logger.warning("Channel Index Inconsistent: missing '%s' key.", self.__CHANNEL_INDEX_ADD_ONS_KEY)
-            return False
-
-        # verify if the channels add-ons match, otherwise it is invalid anyways
-        indexed_channel_add_ons = index[self.__CHANNEL_INDEX_ADD_ONS_KEY]
-        channel_pack_paths = self.__get_channel_pack_folders()[1]
-
-        # see if the numbers match
-        if len(indexed_channel_add_ons) != len(channel_pack_paths):
-            Logger.warning("Channel Index Inconsistent: add-on count is not up to date (index=%s vs actual=%s).",
-                           len(indexed_channel_add_ons), len(channel_pack_paths))
-            return False
-        # cross reference by putting them on a big pile and then get the distinct values (set) and
-        # compare the length of the distinct values.
-        if len(set(indexed_channel_add_ons + channel_pack_paths)) != len(channel_pack_paths):
-            Logger.warning("Channel Index Inconsistent: add-on content is not up to date.")
-            return False
-
-        # Validate the version of the add-on and the channel-sets
-        channels = index[self.__CHANNEL_INDEX_CHANNEL_KEY]
-        first_version = channels[list(channels.keys())[0]][self.__CHANNEL_INDEX_CHANNEL_VERSION_KEY]
-        first_version = Version(first_version)
-        if not Config.version.are_compatible(first_version):
-            Logger.warning("Inconsistent version 'index' vs 'add-on': %s vs %s", first_version, Config.version)
-            return False
-
-        first_path = channels[list(channels.keys())[0]][self.__CHANNEL_INDEX_CHANNEL_INFO_KEY]
-        if not first_path.startswith(Config.rootDir.rstrip(os.sep)):
-            Logger.warning("Inconsistent path for ChannelSet and main add-on:\n"
-                           "Channel: '%s'\n"
-                           "Add-on:  '%s'", first_path, Config.rootDir)
-            return False
-
-        return True
 
     def __str__(self):
         """ String representation of the object.
