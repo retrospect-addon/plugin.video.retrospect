@@ -1116,7 +1116,9 @@ class AddonSettings(object):
             user_settings_backup = os.path.join(Config.profileDir, "settings.old.xml")
             Logger.debug("Backing-up user settings: %s", user_settings_backup)
             if os.path.isfile(user_settings):
-                shutil.copy(user_settings, user_settings_backup)
+                if os.path.isfile(user_settings_backup):
+                    os.remove(user_settings_backup)
+                shutil.copyfile(user_settings, user_settings_backup)
             else:
                 Logger.warning("No user settings found at: %s", user_settings)
 
@@ -1127,12 +1129,16 @@ class AddonSettings(object):
                 fp.write(new_contents)
 
             Logger.debug("Replacing existing settings.xml file: %s", filename)
+            if os.path.isfile(filename):
+                os.remove(filename)
             shutil.move(filename_temp, filename)
 
             # restore the user profile settings.xml file when needed
             if os.path.isfile(user_settings) and os.stat(user_settings).st_size != os.stat(user_settings_backup).st_size:
                 Logger.critical("User settings.xml was overwritten during setttings update. Restoring from %s", user_settings_backup)
-                shutil.copy(user_settings_backup, user_settings)
+                if os.path.isfile(user_settings):
+                    os.remove(user_settings)
+                shutil.copyfile(user_settings_backup, user_settings)
         except:
             Logger.error("Something went wrong trying to update the settings.xml", exc_info=True)
 
@@ -1144,6 +1150,8 @@ class AddonSettings(object):
             with io.open(filename_temp, "w+", encoding='utf-8') as fp:
                 fp.write(contents)
 
+            if os.path.isfile(filename):
+                os.remove(filename)
             shutil.move(filename_temp, filename)
             return
 

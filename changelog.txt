@@ -5,15 +5,10 @@ This new version of Retrospect mainly has some under the hood changes. These sho
 Besides this, the kijk.nl channel was updated to use the new GraphQL backend and NOS.nl and VRT.nu were fixed.
 
 [B]Framework related[/B]
-* Removed: some debugging code
-* Changed: moved a large part of the code from plugin.py into different `actions`
-* Fixed: internal Youtube parsing
-* Added: option to clean up Retrospect cache and session files
+* Fixed: issue where shutil.copy() or shutil.move() no longer overrides existing files in Py3
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: VRT.nu had some missing episodes (Fixes #1351)
-* Fixed: NOS.nl issue with Kodi Matrix
-* Updated: Kijk.nl moved to a GraphQL backend
+_None_
