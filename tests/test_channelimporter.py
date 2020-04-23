@@ -10,12 +10,6 @@ class TestChannelImporter(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         Logger.create_logger(None, str(cls), min_log_level=0)
-        from resources.lib.textures import TextureHandler
-        from resources.lib.retroconfig import Config
-        from resources.lib.urihandler import UriHandler
-
-        UriHandler.create_uri_handler(ignore_ssl_errors=False)
-        TextureHandler.set_texture_handler(Config, Logger.instance(), UriHandler.instance())
 
         # Set the Local TextureHandler as default
         from resources.lib.textures import TextureHandler
@@ -55,7 +49,8 @@ class TestChannelImporter(unittest.TestCase):
         from resources.lib.helpers.channelimporter import ChannelIndex
         instance = ChannelIndex.get_register()
 
-        channel = instance.get_channel("chn_nos2010", "uzgjson")
+        # Fetch a simple channel
+        channel = instance.get_channel("chn_svt", "svt")
         self.assertIsNotNone(channel)
-        channel = instance.get_channel("chn_nos2010", "uzgjson2")
+        channel = instance.get_channel("chn_svt", "svt2")
         self.assertIsNone(channel)

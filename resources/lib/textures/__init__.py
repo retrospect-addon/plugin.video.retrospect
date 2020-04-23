@@ -170,8 +170,7 @@ class TextureHandler:
         if channel_path in self.__cdnPaths:
             return self.__cdnPaths[channel_path]
 
-        parts = channel_path.rsplit(os.sep, 2)[-2:]
-        cdn = ".".join(parts)
+        cdn = channel_path.rsplit(os.sep, 1)[-1]
         if cdn.startswith(Config.addonId):
             cdn = cdn[len(Config.addonId) + 1:]
         self.__cdnPaths[channel_path] = cdn

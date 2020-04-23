@@ -1,0 +1,409 @@
+{
+  "textures": {
+    "channel.be.een": {
+      "eenfanart.jpg": "e99a7f7c68c19f3f8575ff50a75f60fc",
+      "eenimage.png": "7826714d7714150b52b61828e1b1c222",
+      "eenlarge.png": "c1bbc8fc7c42c25cd0f31ca9fa715bed"
+    },
+    "channel.be.ketnet": {
+      "ketnetfanart.jpg": "51d20f0bb359833c1f26234021c371ab",
+      "ketnetimage.jpg": "811a5d7c2454e0c0e99dd61cce4a2bd9",
+      "cobraimage.png": "d70a81c2953bf1467e5d6c2adda6baee",
+      "cobralarge.png": "e7c0837e1ae3896d7d217cde67382526",
+      "ketnetlarge.png": "1ca862fab9919f315c569debd3b02af7"
+    },
+    "channel.be.sporza": {
+      "sporzafanart.jpg": "918faab4802372635a298694fb54f4f6",
+      "sporzaimage.jpg": "8b74bfc433c3a1ef8a296004a61979a2",
+      "sporzalarge.png": "db57062e5f5f870f10a2c066520a0675"
+    },
+    "channel.be.vier": {
+      "vierfanart.jpg": "4e176a450a05762fe3ee131131bfd012",
+      "vijffanart.jpg": "c54b19b912670b46934dc7b3c4ec3c70",
+      "zesfanart.jpg": "20917c1e538f4d6af5c607d0f531b455",
+      "viericon.png": "b52939fadeabc79a48b963ed807badb8",
+      "vierimage.png": "76859283c91425d5ebbd93d8803074f7",
+      "vijficon.png": "4adea173884849e816863357a01ccc2c",
+      "vijfimage.png": "b9cf97c575d1371a4995ee0b72652cc2",
+      "zesicon.png": "53afa88f2d0b33899f4d30d07a92f706",
+      "zesiconlight.png": "16443b46e2802f27781aeeec8e088692",
+      "zesimage.png": "7b4e1d18313dd7b5f920c74598d48b70"
+    },
+    "channel.be.vrtnu": {
+      "eenfanart.jpg": "e99a7f7c68c19f3f8575ff50a75f60fc",
+      "ketnetfanart.jpg": "51d20f0bb359833c1f26234021c371ab",
+      "ketnetimage.jpg": "811a5d7c2454e0c0e99dd61cce4a2bd9",
+      "mnmfanart.jpg": "5432d822735721812439e449ba2b06a4",
+      "mnmimage.jpg": "49967435f86b8ff13b8ef91199489bb3",
+      "sporzafanart.jpg": "918faab4802372635a298694fb54f4f6",
+      "sporzaimage.jpg": "8b74bfc433c3a1ef8a296004a61979a2",
+      "stubrufanart.jpg": "b31f355ab8ed57b2dc55a3f285ef196a",
+      "stubruimage.jpg": "dbe625e6d78495dd2bdef2f8fc8cb58c",
+      "vrtnufanart.jpg": "df478c1636c945ac4321c39011575fda",
+      "canvasfanart.png": "c47b803804d7b025f97dc8d1b2589d57",
+      "canvasimage.png": "650c7794834a602b7521cbfd76b0c312",
+      "canvaslarge.png": "412e80ad18953177558252e6379ec0d7",
+      "eenimage.png": "7826714d7714150b52b61828e1b1c222",
+      "eenlarge.png": "c1bbc8fc7c42c25cd0f31ca9fa715bed",
+      "ketnetlarge.png": "1ca862fab9919f315c569debd3b02af7",
+      "mnmicon.png": "2f635338e0fac81e83b305231a54e58d",
+      "sporzalarge.png": "db57062e5f5f870f10a2c066520a0675",
+      "stubruicon.png": "e8e51afaceb0460fc441078f6616c3a6",
+      "vrtnuicon.png": "b60e0157484a1df3245055bdef1f49bb",
+      "vrtnuimage.png": "f4c3064af896f12e72e1fb59b2931d2a"
+    },
+    "channel.be.vtm": {
+      "vtmfanart.jpg": "db6d224ee77be9ee2a66d5ad3b37c2a0",
+      "vtmimage.jpg": "e235d7e4ac9eb32f2021d9248bcf344b",
+      "vtmlarge.png": "c0a55112bc62ae94861bd9dcce7b15a4"
+    },
+    "channel.be.vtmbe": {
+      "q2befanart.jpg": "f9ecf7505e84cca19709dcea601fcae8",
+      "q2beimage.jpg": "e042dce836a1c40a7482ca1d04382e7b",
+      "stieviefanart.jpg": "72ead65601b6db87fd7dd4df29f8df66",
+      "stieviefanart2.jpg": "4fe017da6f31cf342566ae38df78bb98",
+      "stievieimage.jpg": "b7ad490a3cb6745d8b96a4c45a0b183d",
+      "vtmbefanart.jpg": "642a874e4589884ccad382f6f557de60",
+      "vtmbeimage.jpg": "71b1d00ef9e565d33d901ed91e8c0da0",
+      "q2belogo.png": "aa1d2d8e4af476274b356bcd58f244d9",
+      "stievielogo.png": "4e21c380ffc6c068302f0f8862d579eb",
+      "vtmbelogo.png": "8ecbdcf638e902673c34f7b6398116f5"
+    },
+    "channel.de.srf": {
+      "srffanart.jpg": "a403956b8829c54c7df6d7df5606e5bc",
+      "srffanart3.jpg": "424652fc701c24d5cd94e2d4d8edf30a",
+      "srf1.png": "40bbbd20115dbe3bdb565824213c3dc3",
+      "srf2.png": "5a070b7d6e4ef64bd9f02aa10b5b4663",
+      "srficon.png": "ff284de660f3a8c818220de0c2247e46",
+      "srfimage.png": "14610767fb527db2c352b6e38523aa71",
+      "srfinfo.png": "7502c2bfa3d31f93d3885eae4a32188f"
+    },
+    "channel.mtg.tvse": {
+      "tv3ltfanart.jpg": "cb51d4c3777d47675e784844891ea928",
+      "tv3lvfanart.jpg": "8f36b6cedd0691eadce1211fc34053dc",
+      "tv8ltfanart.jpg": "82d334cb9ebc82571a5fc0bd7ed5c2cb",
+      "tv3eefanart.png": "6fe0398d06e9fb3fe174836f81a75d12",
+      "tv3eelarge.png": "163c22503aa8c3b254e6825a20743299",
+      "tv3ltimage.png": "eb7cbf3178eabbef69c0086fff671897",
+      "tv3ltlarge.png": "e7faca36afdad2a1e0932916b689dd1b",
+      "tv3lvimage.png": "36d9ab9d59bd4cda1c6a66d5bcf8d0ae",
+      "tv3lvlarge.png": "580eabe8ac89527ddbba47f554688cbc",
+      "tv3noimage.png": "f75e08c6c264a18513ad455a81b2f4a6",
+      "tv6eefanart.png": "c550a87e97b250edc5aea9668a2f587a",
+      "tv6eelarge.png": "de4920223f6b573800a709693cd44f01",
+      "tv6large.png": "ed3f23762aaa0e9d8dfbf4a4ebed63eb",
+      "tv6ltimage.png": "a9f755c4224e374461b5c0860649de78",
+      "tv6ltlarge.png": "c5ba00d2b8c0d7746a4c81cc4e69c3bf",
+      "tv6seimage.png": "9653afbd09b820a32386d04a3e55ec02",
+      "tv6viasatfanart.png": "76fe54b39a4594ab3d5f25bed2cc030d",
+      "tv8ltlarge.png": "ac9579992979d0247a6aebe57a2c94d6",
+      "tv8seimage.png": "aa55005c10ad33e93ae1134c9007b128"
+    },
+    "channel.mtg.viafree": {
+      "mtvfanart2.jpg": "256792d58de0c066505266ef8ade34b4",
+      "nationalgeographic.jpg": "f98f60e3c63ba92d9590bca0cb3c23ab",
+      "ngnoimage.jpg": "d7338fb4627c2dfb38ee3e99f2d652d8",
+      "tv3fanart.jpg": "b13c56f1037fb42814cadcfad3a9deee",
+      "tv3nofanart.jpg": "526852d5ba7f9a3e72db7e788fd152f8",
+      "tv3nofanart2.jpg": "7d1fe2698e17a4bba81cd607b47c3954",
+      "tv8sefanart.jpg": "963e0d42cabe7a76ff7b9c56b0e17cdf",
+      "viasat4fanart.jpg": "128040ba3057d7aca04ef85991f3ccab",
+      "mtvimage.png": "ec8b1b46f315b43e8897cccf38ea8d90",
+      "mtvlarge.png": "eeeb40ab6da0acddacc04b655119082d",
+      "nationalgeographic.png": "1fce4bd3414f01286fbced70750fc1ac",
+      "tv10sefanart.png": "e74a97bfffdaff768564301bf84ff272",
+      "tv10seimage.png": "abe1fd42f22da0568adfaeed4357615b",
+      "tv10selarge.png": "cac33a2f090e59a614275c340ae8d5c1",
+      "tv3noimage.png": "f75e08c6c264a18513ad455a81b2f4a6",
+      "tv3nolarge.png": "f6b8f3f8cf6e3fe513f7dd64e57ef5f4",
+      "tv3sefanart.png": "f7fc3710385c9782a1f001fa3e77285a",
+      "tv3seimage.png": "aaa45a2e2a6a0091a20dd780500610c3",
+      "tv3selarge.png": "79e28ff59791543bcbbde7818221f076",
+      "tv6large.png": "ed3f23762aaa0e9d8dfbf4a4ebed63eb",
+      "tv6seimage.png": "9653afbd09b820a32386d04a3e55ec02",
+      "tv6viasatfanart.png": "76fe54b39a4594ab3d5f25bed2cc030d",
+      "tv8seimage.png": "aa55005c10ad33e93ae1134c9007b128",
+      "tv8selarge.png": "e1703f253cdaae6d78ad0b757299a4c1",
+      "viafreeimage.png": "8e4ae5f5bb32f422af933d4bcd83cd76",
+      "viafreese.png": "61fbc790c6f92ef2d828898f31a18ee8",
+      "viafreesefanart.png": "6b561d919a8d2b3f2fe87a0dfb660205",
+      "viasat4noimage.png": "823e7e29f8c99d5a9ea04f33a354f5f9",
+      "viasat4nolarge.png": "b3a698c1dc2380e04cff30a5bfe82b8e"
+    },
+    "channel.mtv.mtvnl": {
+      "mtvfanart.jpg": "6138a5524e8eeec6637b60daa0955714",
+      "mtvfanart2.jpg": "256792d58de0c066505266ef8ade34b4",
+      "mtvnlimage.png": "ec8b1b46f315b43e8897cccf38ea8d90",
+      "mtvnllarge.png": "eeeb40ab6da0acddacc04b655119082d"
+    },
+    "channel.nick.nickelodeon": {
+      "nickfanart.jpg": "665bd6007b2099beabc3cb9d051e6050",
+      "nickelodeonimage.png": "f00147795469ed090504c5b72a7caeb2",
+      "nickelodeonlarge.png": "dc472aa091392c9dccf388feb158ccd3",
+      "nickjrimage.png": "acb0ae3d7bdd591c474d1db569e03b4f",
+      "nickjrlarge.png": "da8c5ace75d177e60474ff6c9631d222"
+    },
+    "channel.nick.nickjr": {
+      "nickfanart.jpg": "665bd6007b2099beabc3cb9d051e6050",
+      "nickjrfanart.jpg": "7b7a6c13892225ab999f766d50c50ecb",
+      "nickjrimage.jpg": "c6dc3b8f06f5255c4b7f928abcd44017",
+      "nickelodeonimage.png": "f00147795469ed090504c5b72a7caeb2",
+      "nickelodeonlarge.png": "dc472aa091392c9dccf388feb158ccd3",
+      "nickjrlarge.png": "da8c5ace75d177e60474ff6c9631d222"
+    },
+    "channel.no.nrkno": {
+      "nrkfanart.jpg": "3b3df86edb7e6f20ecdbf77679b7b964",
+      "nrknoimage.png": "97130b4c02374dc4784e27135fbe8441",
+      "nrknolarge.png": "3f91fb3dcdb03715d4d10d75f7cdd0a7"
+    },
+    "channel.nos.nos2010": {
+      "nosfanart.jpg": "7397f29df1f86111c076cdcd015173a1",
+      "nosfanart2.jpg": "8baf9e12664ac0dec783773a11fb32bb",
+      "nosfanart3.jpg": "68cbc240df45373d83f892ad1eb55a97",
+      "nosfanart4.jpg": "6cc979f507f5bc5f6e1ad42e28da64c4",
+      "1large.png": "651eb593fdb0476afdc32aa1fa49b6ac",
+      "2large.png": "8e29745c38da024acdbe8a5df1f2c3e6",
+      "3large.png": "f986976bc983df08f0937c4da06829e9",
+      "nosimage.png": "7acff73c5fbc8554797250edf8ec05fb",
+      "npolarge.png": "ba5a994c57d5ac07274dbf7e8695504c",
+      "radio1.png": "ca04dd41150c0ece0a1cd66537751e69",
+      "radio2.png": "d266248e835c993d0b683ff9df83bee2",
+      "radio6.png": "db6aad7941bafd2ade05aa0d33b82bbc",
+      "zapimage.png": "0ce3026eb74ba8c320bfbeab97b718c4",
+      "zappelinimage.png": "b85203b25f4c8f3a8967e7e1d4ded943",
+      "zappelinlarge.png": "5a9722d07a50b3ddf954cfefd1cd0254",
+      "zapplarge.png": "5ed2333bd4713dee7134b12ec39114f6"
+    },
+    "channel.nos.nosnl": {
+      "nosfanart.jpg": "7773ffa2916d6f07829c84d1673d729d",
+      "nosnlimage.png": "c4503da915728577f769537e292c345f",
+      "nosnllarge.png": "139c5cb6f7d973d0d9ac932d36f98e1c"
+    },
+    "channel.nos.schooltv": {
+      "schooltvfanart.jpg": "6c2cbc2aef2f74c162aafac4555fb574",
+      "schooltvimage.jpg": "c10d93339c2023017150f348dcaf5ac3",
+      "schooltvlarge.png": "9dc438eeec3a5105576c92ded658b4aa"
+    },
+    "channel.regionalnl.at5": {
+      "at5fanart.jpg": "b0ecf807fcc933e88305cbc071c0ad5c",
+      "at5image.png": "b38ca0dd3c2da45ebbd458d20619258f",
+      "at5large.png": "0f2bd8ae5d3035030ac19cd6fad3a52f"
+    },
+    "channel.regionalnl.flevo": {
+      "flevofanart.jpg": "2b9c66d86a8f3431666460107cad98c3",
+      "flevoimage.png": "5739a9a44ec03804507ce18d4a525b47",
+      "flevolarge.png": "6fa930d075df2ab3a563beb88f9e08b6"
+    },
+    "channel.regionalnl.l1": {
+      "l1fanart.jpg": "c8fa3216f6480ffe8479549a36529aaf",
+      "l1image.png": "6cb8c6cff49ac1cbc84e3295523aab6e",
+      "l1large.png": "4c5c989652417030384c75d5593f6456"
+    },
+    "channel.regionalnl.lokaal": {
+      "omroepgelderlandfanart.jpg": "238979763420065778fa94a52a053509",
+      "omroepwestfanart.jpg": "685ccab8441dd68fc3966e8f2670541b",
+      "omropfryslanfanart.jpg": "56f0e2caedb3414c156fb24a2a50f238",
+      "rtvdrenthefanart.jpg": "9b17249d72fb50e9a2f9c96aa7b17165",
+      "rtvnhfanart.jpg": "1808c5fd3dd6607bfeb35267e3a69653",
+      "rtvoostfanart.jpg": "78fcb000e6f4817bd76b37c34d0bd1d0",
+      "omroepbrabantfanart.png": "e302ec753b50d2c971addd8ee02a33a8",
+      "omroepbrabantimage.png": "b1196b5cf23393eb1fbdb93c004a5233",
+      "omroepbrabantlarge.png": "562d7563fa3a2a0fe50306dc5ee2bff3",
+      "omroepgelderlandimage.png": "fb3b8daa6464d6bba3ae99dc1e89ec12",
+      "omroepgelderlandlarge.png": "bbe1cc1108f635c146d5f3786cb7cb51",
+      "omroepwestimage.png": "7e88bbaa4b4db9a7177c6a2735bd9b60",
+      "omroepwestlarge.png": "cc613b8ac5665043fc14eb495e98324c",
+      "omropfryslanimage.png": "ed0ef405470b910df60274ec78beed69",
+      "omropfryslanlarge.png": "2cb7f034f0a5d7d077e846845b720df8",
+      "rtvdrentheimage.png": "60ebc78f10a3f94c2cb6df91dfe90fea",
+      "rtvdrenthelarge.png": "e990eacb8d23fbfd450640588992872c",
+      "rtvnhimage.png": "21cced82a5337a3f4216c453132b5055",
+      "rtvnhlarge.png": "c4ff85ce908be16b64f2186377938d37",
+      "rtvnoordfanart.png": "bc8e40a652a1752b50e4b8418ccf9537",
+      "rtvnoordimage.png": "e1cbd229a59aca1b77a3c548c67c98c3",
+      "rtvnoordlarge.png": "c3cf6760786783fd3f9a66cbb8627d07",
+      "rtvoostimage.png": "cd2dc61c2a042457ddef5b812e7d24ec",
+      "rtvoostlarge.png": "c4a8ebd591ec2f0b2f5c406891b15ded",
+      "rtvrijnmondfanart.png": "9e1b36adb4ecb7589df7f6bbd41ee10c",
+      "rtvrijnmondimage.png": "d584a2b78389ced77a98cf5741b80dc2",
+      "rtvrijnmondlarge.png": "7c7a698a38bcea11899e1452d5167355"
+    },
+    "channel.regionalnl.rpoapp": {
+      "omroepzeelandfanart.jpg": "0456c0fe11b9d934f1060a3eca07a554",
+      "omroepzeelandimage.png": "aeb0fba6f08d4f431cad56c1eb7f4237",
+      "omroepzeelandlarge.png": "2970e32b22bb591870ceb17536535692",
+      "rtvutrechtfanart.png": "0f6f598a18d75d873993f3d6f124a006",
+      "rtvutrechtimage.png": "281d8faa950c4bfe2ee2f49981eedbbd",
+      "rtvutrechtlarge.png": "f2d6857334e5825a52320e81ec8f2156"
+    },
+    "channel.sbsnl.kijknl": {
+      "net5fanart.jpg": "b1b55db8fef4e59f74413dd11d1d21e8",
+      "sbs6fanart.jpg": "de93531e18f9c0cbf21e7c4962fe0325",
+      "sbs6image.jpg": "9da440937bce453497bd50d60241f1e0",
+      "sbs9fanart.jpg": "1cdf2c0edf987a2ee58e8b480068237f",
+      "kijkfanart.png": "a0d61579eb8c65b3fbe4543eebb6baa1",
+      "kijkimage.png": "cf29cf3a36eb3d23e40b08d758ea0d51",
+      "kijklarge.png": "2d008856e6b17b29c950e2ad262b760f",
+      "net5image.png": "d5ff69a373ba9ce905f4af8b5aeae3b0",
+      "net5large.png": "9dbd4d7ceb89ba93f7b044655a176e34",
+      "sbs6image.png": "bf4781cfdee320de1bfd0f708926461c",
+      "sbs6large.png": "85cb9e886e1e74c8b6d896d8dda3057e",
+      "sbs9fanart.png": "1d2623df5cef42c4e28bef154527aed1",
+      "sbs9image.png": "dea349ec6381cc9e5765ff04f139e4b9",
+      "sbs9large.png": "a7afe54c5252a276cf6b5e052ca0cf77",
+      "veronicafanart.png": "b90114d085eed7e26c59912202cdef31",
+      "veronicaimage.png": "e50fe1453e2e9576d0ddb96a72f46469",
+      "veronicalarge.png": "aeaca96300c388719f94bb97f966426c"
+    },
+    "channel.se.oppetarkiv": {
+      "oppetarkivfanart.jpg": "903bc29217bc40ecae55af098dc17e08",
+      "oppetarkivimage.png": "040ea363b49a1a50a57360b9276d90bb",
+      "oppetarkivlarge.png": "4409a324e669351da20d6ac375c6b7ea"
+    },
+    "channel.se.sbs": {
+      "dplayfanart.jpg": "88f9bb12ca35416f66c2b4f2d27ab0d8",
+      "kanal5fanart.jpg": "f9a94784209abfbb6314ae9529c1bacc",
+      "tv11fanart.jpg": "24c6aa0ee1f7a49089f9e8b2929c194a",
+      "tv11seimage.jpg": "aa685f708e272c69b41c4df5583a5da7",
+      "tvnorgefanart.jpg": "eb7367fa25418f3b5c401135e80c889c",
+      "animalplanetnorgelarge.png": "c0a0324cd75d11eda2316a9cf319cde5",
+      "discoverynorgelarge.png": "bc950a5a864a13235e11175ce25a2048",
+      "discoverysciencenorgelarge.png": "7471ed07f99a39476a532e1b0f1b2808",
+      "dplayfanart.png": "f2acd6984bb38466f08082e4b696e04e",
+      "dplayimage.png": "33ce9dbc98c4541db151dd49e0187c70",
+      "dplaylarge.png": "0926757305f3860000c98fd4ae147c7b",
+      "femnorgelarge.png": "5e71b3d4c776cb19dfb3e8b19fbcd356",
+      "investigationdiscoverynorgelarge.png": "181545e4136cfda53e8fed3dd26e473c",
+      "maxnorgelarge.png": "1c3e7e1d539fcc119e8202caa99350c4",
+      "tlcnorgelarge.png": "a8d776a9cf11a21063230dc9f5b662a6",
+      "tv11selarge.png": "852022244db88d9d77190fcb2b30c307",
+      "tv5seimage.png": "865fd03c49a5310e5104947985fe9cbf",
+      "tv5selarge.png": "f7ba72a2e8d2862171caf7a26cf45d82",
+      "tv9seimage.png": "d34dc51763c34f9e23e2b1ba2026ae58",
+      "tv9selarge.png": "57e4de890e38d4731911c6e8faaf16e5",
+      "tv9selarge2014.png": "2a41681ee04fec38a2e04aee3787165b",
+      "tvnorgeimage.png": "6f36df635290e00716de79f8c1a1dc0a",
+      "tvnorgelarge.png": "a11edb43ed79d434630617b06d3efb31",
+      "voxnorgelarge.png": "a7ccb8f20c350f0576581715395e0bcf"
+    },
+    "channel.se.svt": {
+      "svtfanart.jpg": "0b0fd16222b633104456f2453f069c55",
+      "svtimage.png": "f970d10a567262c51f3b92a1a6787d65",
+      "svtlarge.png": "70be2caa0de9e9eec3077e8ee2109668"
+    },
+    "channel.se.tv4se": {
+      "tv12playfanart.jpg": "c33cb14d63f95ae080b683a6e394c640",
+      "tv4playsefanart.jpg": "eb2aa61408ee89b97b0ca731835a9828",
+      "tv12image.png": "1fb4f8df02b867386adc65c5d69a7fe4",
+      "tv12large.png": "507a52fffb7f684e2476ef62bcdc77cb",
+      "tv4image.png": "546e191974cc67f2cc98f6a4133175d8",
+      "tv4large.png": "0d74a68714236fa509ea7ee3f415453e",
+      "tv7fanart.png": "288c500a83f9477fdae0f9840f3bdbfc",
+      "tv7image.png": "636351c2feb083c86fe5609bbb1e1578",
+      "tv7large.png": "6705d6417e0b5118c5005ff94fa7c0eb"
+    },
+    "channel.se.urplay": {
+      "urplayfanart.jpg": "7c71823198ce9c0eabd52ddb373ebe91",
+      "urplayimage.png": "782af83e5106b4392018f337b3b74646",
+      "urplaylarge.png": "1a934bdf39c1af83616f07b570542ffe"
+    },
+    "channel.streams.radio538": {
+      "radio538fanart.jpg": "b973540d8e6c83e8b218bcd0f4c58ffe",
+      "radio538image.png": "9d14902c01864ed13c011815d226aebf",
+      "radio538large.png": "0c5bbce1f01eee86c4d0bb1ba698a559"
+    },
+    "channel.videos.amt": {
+      "applemovietrailersfanart.jpg": "881038572b21f04891d34fbff4e0f31d",
+      "applemovietrailersfanart2.jpg": "d4faa4401fdee5b84c20e0299486b0dc",
+      "amtimage.png": "56f05c4ac604ab5a397a05e97a417526",
+      "amtlarge.png": "2f90b81c42e51efc51b12a76f7d8b2a1"
+    },
+    "channel.videos.dumpert": {
+      "dumpertfanart.jpg": "dc9f928a30cf855d960db7659ddf7108",
+      "dumperticonlarge.png": "a23ae273ee7017a7671dd7891d9ee25e",
+      "dumpertimage.png": "c30251d6ac264f7ab387b43ed1ec288b"
+    },
+    "channel.videos.eredivisie": {
+      "eredivisieimage.jpg": "8570578adbebd22118014ea4c2ea72f5",
+      "eredivisielivefanart.jpg": "c5077d558d50e18d6661cfad78f45ba7",
+      "eredivisielivefanart2.jpg": "bca92207284dd3b843c584b6800ff11f",
+      "foxsportfanart.jpg": "664e7a3d672e4c6cdcc19402a2d2619f",
+      "eredivisieimage.png": "27feb8072164836d8cb456674f0b5e84",
+      "eredivisielarge.png": "a06423accbbc7f27cf47ab58a8bcd785",
+      "foxsportlarge.png": "7fe48c57543ad1176c898dfc7c42e55a"
+    },
+    "channel.videos.extreme": {
+      "extremefanart.jpg": "e890567623640cba73d41e1e98c3e3a7",
+      "extremeimage.png": "7355562d4df93e8f3c29594fb1e67bb2",
+      "extremelarge.png": "e865b410ee63f14b3fe70cd77abe8e52"
+    },
+    "channel.videos.hardwareinfo": {
+      "hardwareinfofanart.jpg": "9057486d45b664e787951992014ad673",
+      "hardwareinfoimage.png": "1ba8392c4d72c5606bcd81ffa2fcc63d",
+      "hardwareinfolarge.png": "cdf1a119f1c5c44b2b3c4210bfa6e095"
+    },
+    "channel.videos.ons": {
+      "onsfanart.jpg": "fcd787dc39207f4b2c124e371e608128",
+      "onsimage.jpg": "88c3315af202d5e9f959639f49f03bd2",
+      "onsicon.png": "d1df54431b762a5c7823745bb250001d"
+    },
+    "channel.videos.pathenl": {
+      "pathefanart.jpg": "84b46ebb90fce3e0c01cfd39cee5d649",
+      "patheimage.png": "a371da4e972b3144975271ecb8a0db02",
+      "pathelarge.png": "7f568cbd9dc1d0d86799f7e3c85ea5eb"
+    },
+    "channel.videos.twit": {
+      "twitfanart.jpg": "bb8502fbf668d954a8068f7617de0a92",
+      "twitimage.png": "ae15e53675b576ff12ba5ea71e5b1927",
+      "twitlarge.png": "3e0c5534f845004f141f7ebcd84d7176"
+    },
+    "channel.be.rtbf": {
+      "rtbffanart.png": "de3c446d18353afdedb2e5d1c14d33f7",
+      "rtbficon.png": "f572175fe389e1dca6a71b088a104b5c",
+      "rtbfimage.png": "dcfed4f186454e6df601cbf95b777595"
+    },
+    "channel.mtv.southpark": {
+      "southparkimage.png": "1d4705cd4835cd451a71fbeeea3a2366",
+      "southparklarge.png": "ff3427802003a036803214b888f0f066"
+    },
+    "channel.regionalnl.gelderland": {
+      "gelderlandimage.png": "e2c26c73806616ccd77587d5807b477e",
+      "gelderlandlarge.png": "0df0c30cc374db19ef305d3df8df33a2"
+    },
+    "channel.rtlnl.rtl": {
+      "rtl.png": "46f410339e8e23162a5dc0075fbae1fb",
+      "rtl4large.png": "c48507f68edc430c086c3bf8912dff2f",
+      "rtl5large.png": "6cd7ce52a19ae670cbddd333cf9baec3",
+      "rtl7large.png": "bca2df05c1b13648d22f35812f6ceabe",
+      "rtl8large.png": "606ef68602e40ae1b1a1fe06b3e042f9",
+      "rtlfanart.png": "3f6d077caf0997eeff549747382a90b8",
+      "rtlimage.png": "6fcf685e21ee2b95429709fe4417f8d7",
+      "rtllarge.png": "c9a87fc1d2f6201ef2956ef4d61a2c94"
+    },
+    "channel.streams.24classic": {
+      "24classicfanart.png": "7f37cbec71ec71744fd1dc230831432b",
+      "24classicsicon.png": "a15adc41b4cbb357cc63205aa37c6917",
+      "24classicsimage.png": "0bb70d8c5227163d2bbbec2a3f9c78cf"
+    },
+    "channel.uk.bbc": {
+      "bbc1large.png": "b0fdb57f5b1df337691ffe9b64820a3c",
+      "bbc2large.png": "294185e907e938fb7128f569a627969f",
+      "bbc3large.png": "5e3a9fd08bd6e9af679b48a4c854bc6e",
+      "bbc4large.png": "f0fdde27da353a946e2acfb88027874a",
+      "bbcalbalarge.png": "74fc402d2041040c0be19eebb4a2fdd0",
+      "bbcfanart.png": "2a0679fdfa7157d6bc9ffab3c6678efd",
+      "bbchdlarge.png": "fa25ee6f3132e31e5316b550467fbab7",
+      "bbciplayerimage.png": "05330ba5f7c92b74a7c9b81620076dd0",
+      "bbciplayerlarge.png": "28a06cb46fa4dca72dfb86a5ce99a9bf",
+      "bbcnewslarge.png": "3a1498b687278223ba207fabf0800726",
+      "bbcparliamentlarge.png": "078e489fdc62777f29cc5d046fe2514b",
+      "cbbclarge.png": "e573cb2f4b7de1d47a660a461cc83b4c",
+      "cbeebieslarge.png": "8f0ee5b4e9fe965d9ffc45a68669c15a"
+    },
+    "channel.videos.channel9": {
+      "channel9fanart.png": "787ba28ff9bdcc30f3aeb5608a57469e",
+      "channel9image.png": "e17e62d9fcf65c9e214716ad3aa9d716",
+      "channel9large.png": "7960631f0cd5a462a5fc49d8ef30b9dc"
+    }
+  }
+}

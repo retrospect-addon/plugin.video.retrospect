@@ -43,10 +43,10 @@ class ChannelInfo(object):
 
         # set the path info
         self.path = os.path.dirname(path)
-        path_parts = path.split(os.sep)
+        path_parts = path.rsplit(os.sep, 2)
         self.moduleName = os.path.splitext(path_parts[-1])[0]
 
-        self.id = ("%s.%s.%s" % (path_parts[-3], path_parts[-2], channel_code or "")).rstrip(".")
+        self.id = ("%s.%s" % (path_parts[-2], channel_code or "")).rstrip(".")
         # TODO: the GUID could be replaced by the self.id in the future.
         self.guid = guid
         self.channelName = name
