@@ -99,15 +99,16 @@ class Cached(TextureHandler):
     def fetch_textures(self, dialog_call_back=None):
         """ Fetches all the needed textures
 
-        @param dialog_call_back:  Callback method with signature
-                                  Function(self, retrieved, total, perc, completed, status)
+        :param dialog_call_back:    Callback method with signature
+                                     Function(self, retrieved, total, perc, completed, status)
 
-        @return: the number of bytes fetched
+        :return: the number of bytes fetched
+        :rtype: int
 
         """
 
         if len(self.__textureQueue) == 0:
-            return
+            return 0
 
         self._logger.info("Fetching missing textures.")
 
@@ -124,7 +125,7 @@ class Cached(TextureHandler):
             textures_completed += 1
             file_name = os.path.split(texture_path)[-1]
 
-            if dialog_call_back(
+            if dialog_call_back and dialog_call_back(
                     textures_completed,
                     textures_total,
                     100 * textures_completed // textures_total,
