@@ -16,7 +16,7 @@ class TestLocalTextures(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.channel_path = os.path.abspath(os.path.join(".", "channels", "channel.nos", "nos2010"))
+        self.channel_path = os.path.abspath(os.path.join(".", "channels", "channel.nos.nos2010"))
 
     def tearDown(self):
         pass

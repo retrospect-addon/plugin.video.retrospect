@@ -22,7 +22,7 @@ class TestCachedTextures(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.channel_path = os.path.abspath(os.path.join(".", "channels", "channel.nos", "nos2010"))
+        self.channel_path = os.path.abspath(os.path.join(".", "channels", "channel.nos.nos2010"))
         self.texture_dir = os.path.abspath(os.path.join(
             "tests", "home", "userdata", "addon_data", "plugin.video.retrospect", "textures"))
         if os.path.isdir(self.texture_dir):

@@ -54,3 +54,9 @@ class TestChannelImporter(unittest.TestCase):
         self.assertIsNotNone(channel)
         channel = instance.get_channel("chn_svt", "svt2")
         self.assertIsNone(channel)
+
+    def test_categories(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        instance = ChannelIndex.get_register()
+        cats = instance.get_categories()
+        self.assertGreaterEqual(len(cats), 7)
