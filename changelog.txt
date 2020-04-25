@@ -13,3 +13,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: Kijk.nl PersistedQueries seem unstable
 * Fixed: Include "standalone" video's for Dplay (Fixes #1361)
+* Fixed: For some ViaFree streams no subtitles were present (Fixes #1362)

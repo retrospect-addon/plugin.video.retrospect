@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Fixed: ViaFree.se streams no longer worked (Fixes #1329)
+* Fixed: For some ViaFree streams no subtitles were present (Fixes #1362)
 
 [I]Previous changes[/I]
+* Fixed: ViaFree.se streams no longer worked (Fixes #1329)
 * Fixed: Some missing artwork in ViaFree.se (Fixes #1311)
 * Changed: Move 'expire' date to MediaItem (Fixes #1301)
 * Updated: MTG Viafree channel - enhance look and feel (Fixes #1285)
