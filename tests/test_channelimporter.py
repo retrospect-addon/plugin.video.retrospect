@@ -45,6 +45,17 @@ class TestChannelImporter(unittest.TestCase):
         channels = instance.get_channels()
         self.assertGreater(len(channels), 50)
 
+    def test_unique_channel_sets(self):
+        channel_sets = os.listdir("channels")
+        for channel_set in channel_sets:
+            if not os.path.isdir(os.path.join("channels", channel_set)):
+                continue
+
+            channel_class = channel_set.rsplit(".", 1)[-1]
+            similar_sets = \
+                [c for c in channel_sets if c.endswith(".{}".format(channel_class))]
+            self.assertListEqual([channel_set], similar_sets)
+
     def test_channel(self):
         from resources.lib.helpers.channelimporter import ChannelIndex
         instance = ChannelIndex.get_register()
