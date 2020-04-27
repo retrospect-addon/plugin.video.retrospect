@@ -11,6 +11,8 @@ from resources.lib.mediaitem import MediaItem
 
 
 class ActionParser(object):
+    __lookup = {"chn_nos2010": "channel.nos.nos2010"}
+
     def __init__(self, addon_name, handle, params):
         """
 
@@ -155,6 +157,8 @@ class ActionParser(object):
                 id_parts = result[keyword.CHANNEL].split("-")
                 result[keyword.CHANNEL] = id_parts[0]
                 result[keyword.CHANNEL_CODE] = id_parts[1]
+            elif keyword.CHANNEL in result and "." not in result[keyword.CHANNEL]:
+                result[keyword.CHANNEL] = ActionParser.__lookup[result[keyword.CHANNEL]]
 
             if keyword.CHANNEL_CODE not in result:
                 Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
