@@ -66,13 +66,13 @@ class ChannelIndex(object):
         self.id = int(time.time())
         return
 
-    def get_channel(self, class_name, channel_code, info_only=False):
+    def get_channel(self, channel_id, channel_code, info_only=False):
         """ Fetches a single channel for a given className and channelCode
 
         If updated channels are found, the those channels are indexed and the
         channel index is rebuild.
 
-        :param str|unicode class_name:      The chn_<name> class name.
+        :param str|unicode channel_id:      The chn_<name> class name.
         :param str|unicode channel_code:    A possible channel code within the channel set.
         :param bool info_only:              Only return the ChannelInfo.
 
@@ -83,7 +83,7 @@ class ChannelIndex(object):
 
         # determine the channel folder
         channel_path = os.path.join(Config.rootDir, self.__INTERNAL_CHANNEL_PATH)
-        channel_pack, channel_set = class_name.rsplit(".", 1)
+        channel_pack, channel_set = channel_id.rsplit(".", 1)
         channel_set_info_path = os.path.join(channel_path, channel_pack, channel_set, "chn_{}.json".format(channel_set))
 
         channel_infos = ChannelInfo.from_json(channel_set_info_path)
@@ -94,7 +94,7 @@ class ChannelIndex(object):
 
         if len(channel_infos) != 1:
             Logger.error("Found none or more than 1 matches for '%s' and '%s' in the channel index.",
-                         class_name, channel_code or "None")
+                         channel_id, channel_code or "None")
             return None
         else:
             Logger.debug("Found single channel in the channel index: %s.", channel_infos[0])
@@ -105,7 +105,7 @@ class ChannelIndex(object):
             # new we should init all channels by loading them all, just to be sure that all is ok
             Logger.debug("Going to fetching all channels to init them all.")
             self.get_channels()
-            return self.get_channel(class_name, channel_code)
+            return self.get_channel(channel_id, channel_code)
 
         if info_only:
             return channel_infos[0]

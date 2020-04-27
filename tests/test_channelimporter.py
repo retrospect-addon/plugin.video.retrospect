@@ -50,7 +50,7 @@ class TestChannelImporter(unittest.TestCase):
         instance = ChannelIndex.get_register()
 
         # Fetch a simple channel
-        channel = instance.get_channel("chn_svt", "svt")
+        channel = instance.get_channel("channel.se.svt", "svt")
         self.assertIsNotNone(channel)
-        channel = instance.get_channel("chn_svt", "svt2")
+        channel = instance.get_channel("channel.se.svt", "svt2")
         self.assertIsNone(channel)
