@@ -89,7 +89,7 @@ class ActionParser(object):
 
         params = dict()
         if channel:
-            params[keyword.CHANNEL] = channel.moduleName
+            params[keyword.CHANNEL] = channel.url_id
             if channel.channelCode:
                 params[keyword.CHANNEL_CODE] = channel.channelCode
 
@@ -151,6 +151,11 @@ class ActionParser(object):
                 result[k] = v
 
             # if the channelcode was empty, it was stripped, add it again.
+            if keyword.CHANNEL in result and "-" in result[keyword.CHANNEL]:
+                id_parts = result[keyword.CHANNEL].split("-")
+                result[keyword.CHANNEL] = id_parts[0]
+                result[keyword.CHANNEL_CODE] = id_parts[1]
+
             if keyword.CHANNEL_CODE not in result:
                 Logger.debug("Adding ChannelCode=None as it was missing from the dict: %s", result)
                 result[keyword.CHANNEL_CODE] = None

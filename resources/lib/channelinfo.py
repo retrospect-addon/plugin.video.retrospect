@@ -47,6 +47,8 @@ class ChannelInfo(object):
         self.moduleName = os.path.splitext(path_parts[-1])[0]
 
         self.id = ("%s.%s.%s" % (path_parts[-3], path_parts[-2], channel_code or "")).rstrip(".")
+        self.url_id = ("%s.%s-%s" % (path_parts[-3], path_parts[-2], channel_code or "")).rstrip("-")
+
         # TODO: the GUID could be replaced by the self.id in the future.
         self.guid = guid
         self.channelName = name
