@@ -6,6 +6,7 @@ Besides this, the kijk.nl channel was updated to use the new GraphQL backend and
 
 [B]Framework related[/B]
 * Fixed: issue where shutil.copy() or shutil.move() no longer overrides existing files in Py3
+* Fixed: issue where an empty favourite list would replace the PickleStore cache for the mainlist (Fixes #1365)
 
 [B]GUI/Settings/Language related[/B]
 _None_
