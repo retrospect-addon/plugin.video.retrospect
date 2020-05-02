@@ -9,7 +9,6 @@ from resources.lib.backtothefuture import PY3
 if PY3:
     import glob
 
-from resources.lib import envcontroller
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.helpers.languagehelper import LanguageHelper
@@ -133,9 +132,6 @@ class ChannelIndex(object):
         self.__allChannels = []
         valid_channels = []
 
-        # What platform are we
-        platform = envcontroller.EnvController.get_platform()
-
         channels_updated = False
         country_visibility = {}
 
@@ -174,7 +170,6 @@ class ChannelIndex(object):
                         continue
                     self.__allChannels.append(channel_info)
 
-                    # valid channel for this platform ?
                     if channel_info.ignore:
                         Logger.warning("Not loading: %s -> ignored in the channel set", channel_info)
                         continue
