@@ -54,3 +54,11 @@ class TestChannelImporter(unittest.TestCase):
         self.assertIsNotNone(channel)
         channel = instance.get_channel("channel.se.svt", "svt2")
         self.assertIsNone(channel)
+
+    def test_ignored_channel(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        instance = ChannelIndex.get_register()
+
+        # Fetch a simple channel
+        channel = instance.get_channel("channel.nos.schooltv", "schooltv")
+        self.assertIsNone(channel)

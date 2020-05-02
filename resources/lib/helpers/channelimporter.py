@@ -97,7 +97,8 @@ class ChannelIndex(object):
         else:
             Logger.debug("Found single channel in the channel index: %s.", channel_infos[0])
 
-        if self.__is_channel_set_updated(channel_infos[0]):
+        channel_info = channel_infos[0]
+        if self.__is_channel_set_updated(channel_info):
             Logger.warning("Found updated channel_set: %s.", channel_set_info_path)
 
             # new we should init all channels by loading them all, just to be sure that all is ok
@@ -105,10 +106,14 @@ class ChannelIndex(object):
             self.get_channels()
             return self.get_channel(channel_id, channel_code)
 
-        if info_only:
-            return channel_infos[0]
+        if channel_info.ignore:
+            Logger.warning("Channel %s is ignored in channel set", channel_info)
+            return None
 
-        return channel_infos[0].get_channel()
+        if info_only:
+            return channel_info
+
+        return channel_info.get_channel()
 
     # noinspection PyUnusedLocal
     def get_channels(self, include_disabled=False, **kwargs):  # NOSONAR
