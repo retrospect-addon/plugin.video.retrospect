@@ -7,7 +7,6 @@ import sys
 import xbmcgui
 
 
-from resources.lib.environments import Environments
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
@@ -22,7 +21,7 @@ class ChannelInfo(object):
 
     def __init__(self, guid, name, description, icon, category, path,
                  channel_code=None, sort_order=255, language=None,
-                 compatible_platforms=Environments.All, fanart=None):
+                 ignore=False, fanart=None):
         """ Creates a ChannelInfo object with basic information for a channel
 
         :param str guid:                    A unique GUID.
@@ -32,11 +31,10 @@ class ChannelInfo(object):
         :param str category:                The category it belongs to.
         :param str path:                    Path of the channel.
         :param str channel_code:            A code that distinguishes a channel within a module.
-                                            Default is None.
+                                             Default is None.
         :param int sort_order:              The sortorder (0-255). Default is 255.
         :param str language:                The language of the channel. Default is None.
-        :param int compatible_platforms:    The supported Platform ID taken from Environments.
-                                            Default is Environments.All
+        :param bool ignore:                 Should the channel be ignored? Defaults to False
         :param str fanart:                  A fanart url/path.
 
         """
@@ -56,7 +54,7 @@ class ChannelInfo(object):
         self.channelDescription = description
 
         self.category = category
-        self.compatiblePlatforms = compatible_platforms
+        self.ignore = ignore
         self.language = language
         self.sortOrder = sort_order
         # I am Dutch, sorry about that
@@ -176,9 +174,9 @@ class ChannelInfo(object):
 
         """
 
-        return "%s @ %s\nmoduleName: %s\nicon: %s\ncompatiblePlatforms: %s" % (
+        return "%s @ %s\nmoduleName: %s\nicon: %s\nignore: %s" % (
             self, self.path, self.moduleName,
-            self.icon, self.compatiblePlatforms
+            self.icon, self.ignore
         )
 
     def __eq__(self, other):
@@ -255,7 +253,7 @@ class ChannelInfo(object):
                                        channel.get("channelcode", None),
                                        channel.get("sortorder", 255),
                                        channel.get("language", None),
-                                       eval(channel.get("compatible", "Environments.All")),
+                                       channel.get("ignore", False),
                                        channel.get("fanart", None))
             channel_info.firstTimeMessage = channel.get("message", None)
             channel_info.addonUrl = channel.get("addonUrl", None)

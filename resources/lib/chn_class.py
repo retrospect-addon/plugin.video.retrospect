@@ -66,7 +66,7 @@ class Channel:
         self.channelCode = channel_info.channelCode
         self.channelDescription = channel_info.channelDescription
         self.moduleName = channel_info.moduleName
-        self.compatiblePlatforms = channel_info.compatiblePlatforms
+        self.ignore = channel_info.ignore
         self.sortOrder = channel_info.sortOrder
         self.sortOrderPerCountry = channel_info.sortOrderPerCountry
         self.category = channel_info.category

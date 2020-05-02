@@ -1,8 +1,6 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
-import os
-
 from resources.lib import envcontroller
 from resources.lib.logger import Logger
 from resources.lib.addonsettings import AddonSettings

@@ -11,7 +11,6 @@ if PY3:
 
 from resources.lib import envcontroller
 from resources.lib.addonsettings import AddonSettings
-from resources.lib.environments import Environments
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.retroconfig import Config
@@ -176,9 +175,8 @@ class ChannelIndex(object):
                     self.__allChannels.append(channel_info)
 
                     # valid channel for this platform ?
-                    if not channel_info.compatiblePlatforms & platform == platform:
-                        Logger.warning("Not loading: %s -> platform '%s' is not compatible.",
-                                       channel_info, Environments.name(platform))
+                    if channel_info.ignore:
+                        Logger.warning("Not loading: %s -> ignored in the channel set", channel_info)
                         continue
                     valid_channels.append(channel_info)
 
