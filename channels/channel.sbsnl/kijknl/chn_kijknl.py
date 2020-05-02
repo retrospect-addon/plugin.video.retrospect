@@ -806,8 +806,7 @@ class Channel(chn_class.Channel):
         if use_adaptive_with_encryption:
             Logger.info("Using InputStreamAddon for playback of HLS stream")
             strm = part.append_media_stream(stream_url, 0)
-            strm.add_property("inputstreamaddon", "inputstream.adaptive")
-            strm.add_property("inputstream.adaptive.manifest_type", "hls")
+            M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
             item.complete = True
             return item
 

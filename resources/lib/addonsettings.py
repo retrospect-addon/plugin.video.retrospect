@@ -41,6 +41,10 @@ class AddonSettings(object):
     __language_strings = {}
     __language_current = None
 
+    KodiMatrix = 19
+    KodiLeia = 18
+    KodiKrypton = 17
+
     @staticmethod
     def store(store_location):
         """ Returns the Singleton store object for the given type
@@ -564,7 +568,7 @@ class AddonSettings(object):
             Logger.warning("Adaptive Stream add-on '%s' is not installed/enabled.", adaptive_add_on_id)
             return False
 
-        kodi_leia = AddonSettings.is_min_version(18)
+        kodi_leia = AddonSettings.is_min_version(AddonSettings.KodiLeia)
         Logger.info("Adaptive Stream add-on '%s' %s decryption support was found.",
                     adaptive_add_on_id, "with" if kodi_leia else "without")
 
@@ -877,7 +881,7 @@ class AddonSettings(object):
         AddonSettings.store(KODI).set_setting("config_channel", channel_name)
 
         # show settings and focus on the channel settings tab
-        if AddonSettings.is_min_version(18):
+        if AddonSettings.is_min_version(AddonSettings.KodiLeia):
             return AddonSettings.show_settings(-98)
         else:
             return AddonSettings.show_settings(102)
