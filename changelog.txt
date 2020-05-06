@@ -1,12 +1,11 @@
-[B]Retrospect v5.2.2 - Changelog - 2020-04-22[/B]
+[B]Retrospect v5.2.3 - Changelog - 2020-05-07[/B]
 
-This new version of Retrospect mainly has some under the hood changes. These should not change functionality of Retrospect.
-
-Besides this, the kijk.nl channel was updated to use the new GraphQL backend and NOS.nl and VRT.nu were fixed.
+This new version of Retrospect fixes some channel related issues and some minor core refactoring.
 
 [B]Framework related[/B]
 * Fixed: issue where shutil.copy() or shutil.move() no longer overrides existing files in Py3
 * Fixed: issue where an empty favourite list would replace the PickleStore cache for the mainlist (Fixes #1365)
+* Changed: Use `inputstream` instead of `inputstreamaddon` for Matrix and up
 
 [B]GUI/Settings/Language related[/B]
 _None_
