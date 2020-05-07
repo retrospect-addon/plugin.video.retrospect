@@ -11,6 +11,11 @@ class TestChannelImporter(unittest.TestCase):
     def setUpClass(cls):
         Logger.create_logger(None, str(cls), min_log_level=0)
 
+        # Set the Local TextureHandler as default
+        from resources.lib.textures import TextureHandler
+        from resources.lib.textures.local import Local
+        TextureHandler._TextureHandler__TextureHandler = Local(Logger.instance())
+
     @classmethod
     def tearDownClass(cls):
         from resources.lib.addonsettings import AddonSettings
@@ -39,4 +44,13 @@ class TestChannelImporter(unittest.TestCase):
         instance = ChannelIndex.get_register()
         channels = instance.get_channels()
         self.assertGreater(len(channels), 50)
-        self.assertTrue(os.path.isfile(self.index_json))
+
+    def test_channel(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        instance = ChannelIndex.get_register()
+
+        # Fetch a simple channel
+        channel = instance.get_channel("chn_svt", "svt")
+        self.assertIsNotNone(channel)
+        channel = instance.get_channel("chn_svt", "svt2")
+        self.assertIsNone(channel)

@@ -1,7 +1,8 @@
 ﻿[B]Changelog[/B]
-* Updated: Kijk.nl moved to a GraphQL backend
+* Fixed: Kijk.nl PersistedQueries seem unstable
 
 [I]Previous changes[/I]
+* Updated: Kijk.nl moved to a GraphQL backend
 * Fixed: fallback to other streams if embedded stream configuration is missing for kijk.nl
 * Updated: only show DRM warning for kijk.nl if there are only DRM streams.
 * Fixed: Kijk.nl more DRM protected streams did not work (Fixes #1116)
