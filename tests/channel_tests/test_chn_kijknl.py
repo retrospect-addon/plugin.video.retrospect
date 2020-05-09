@@ -27,6 +27,18 @@ class TestKijkNlChannel(ChannelTest):
         chn = ChannelIndex.get_register().get_channel(self._channel, "net5")
         self.assertIsNotNone(chn)
 
+    def test_json_video_update_embedded(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        self.channel = ChannelIndex.get_register().get_channel(self._channel, "sbs")
+        self._test_video_url(
+            "https://embed.kijk.nl/api/video/vW4tShkyXsd?id=kijkapp&format=DASH&drm=CENC")
+
+    def test_json_video_update_404_embedded(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        self.channel = ChannelIndex.get_register().get_channel(self._channel, "sbs")
+        self._test_video_url(
+            "https://embed.kijk.nl/api/video/S0t2RpYw4Ts?id=kijkapp&format=DASH&drm=CENC")
+
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
