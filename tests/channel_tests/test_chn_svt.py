@@ -6,7 +6,7 @@ from tests.channel_tests.channeltest import ChannelTest
 class TestSvtChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestSvtChannel, self).__init__(methodName, "chn_svt", "svt")
+        super(TestSvtChannel, self).__init__(methodName, "channel.se.svt", "svt")
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)

@@ -5,7 +5,7 @@ from tests.channel_tests.channeltest import ChannelTest
 class TestKijkNlChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestKijkNlChannel, self).__init__(methodName, "chn_kijknl", None)
+        super(TestKijkNlChannel, self).__init__(methodName, "channel.sbsnl.kijknl", None)
 
     def test_sbs6(self):
         from resources.lib.helpers.channelimporter import ChannelIndex
