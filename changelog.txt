@@ -5,6 +5,7 @@ This new version of Retrospect fixes some channel related issues and some minor 
 [B]Framework related[/B]
 * Changed: the full channel ID's are now added to the url's
 * Changed: load channels based on their full ID's instead of the channelindex.json
+* Added: option to set a level for showing notifications
 
 [B]GUI/Settings/Language related[/B]
 _None_
