@@ -138,8 +138,6 @@ class ActionParser(object):
         params = dict()
         if channel:
             params[keyword.CHANNEL] = channel.url_id
-            if channel.channelCode:
-                params[keyword.CHANNEL_CODE] = channel.channelCode
 
         params[keyword.ACTION] = action
 
