@@ -579,7 +579,7 @@ class Channel(chn_class.Channel):
         now = int(time.time())
         b64_now = binascii.b2a_base64(str(now).encode()).decode().strip()
 
-        user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
                      "(KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
         device_id = AddonSettings.get_client_id().replace("-", "")
         window_id = "{}|{}".format(
@@ -628,7 +628,7 @@ class Channel(chn_class.Channel):
             "public_key": "FE296399-FDEA-2EA2-8CD5-50F6E3157ECA",
             "site": "https://client-api.arkoselabs.com",
             "userbrowser": user_agent,
-            "simulate_rate_limit": "0   ",
+            "simulate_rate_limit": "0",
             "simulated": "0",
             "rnd": "{}".format(random.random())
         }
@@ -643,8 +643,8 @@ class Channel(chn_class.Channel):
             proxy=self.proxy, data=req_data,
             additional_headers={"user-agent": user_agent}, no_cache=True
         )
-        arkrose_json = JsonHelper(arkose_data)
-        arkose_token = arkrose_json.get_value("token")
+        arkose_json = JsonHelper(arkose_data)
+        arkose_token = arkose_json.get_value("token")
         if "rid=" not in arkose_token:
             Logger.error("Error logging in. Invalid Arkose token.")
             return False

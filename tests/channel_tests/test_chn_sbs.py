@@ -4,6 +4,7 @@ import os
 import pyaes
 import json
 import random
+import unittest
 
 from tests.channel_tests.channeltest import ChannelTest
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -16,6 +17,43 @@ class TestSbsSeChannel(ChannelTest):
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
+
+    # Not needed for now
+    def test_decryption_with_parameters02(self):
+        # Input
+        ct = "yoJubXCMly3biJVFZukkGIXLzXtpRoniFhde6b1MQQQvb4ecYUTHVnKiXYqnzJC82p9we0Pn0FcuJm+J9LUDCu4/tfE9o32TeNiDG4VI3esb/iIGBSdDhnjGJ5QNbUdVYYoCdV7/GTaOSs8Ix92VuJVl41WPylUQdn1ZOjXjcEp4EtipBRcV2/j4SY8Gk51RU9bV7pdFtXEwGMnMWl08/jBC0WVC36+x87VKOF51TsyDBxP89ybWU0PHkS937bsrwr89Z2I16JVw+Z2IM/5BMjn0HX6D0k7TM1fMJnnIuA3CqZ0najgAWoH78q+OJAEYDmJ3GGGv3B0lrQ+IzgpfCiBR2wG2wLU8j9Zcdbtfg8LeJqp3IA7yxZisPeVrD1zfPS758zzTiob6e9kYccqzi9sDoyYZ8fsKhu+H8kkhHL9krpT6s39w/u7ShyIjwR5RcFn3zi78co6Tcqr3xO6JjYoPM4uJxnTkaC7N3OhNkpQ="
+        encrypted_bytes = binascii.a2b_base64(ct)
+        iv_hex = "926491ac7254468d7b6f762abd984d64"
+        salt_hex = "0800836fce998a89"
+        salt_bytes = binascii.unhexlify(salt_hex)
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
+
+        # Expected result
+        unencrypted = '[{"value": "js", "key": "api_type"}, {"value": 1, "key": "p"}, {"value": "f9ed92276be229265a13429b8040c7c2", "key": "f"}, {"value": "MTU4OTE1MTI3Nw==", "key": "n"}, {"value": "1c60fa75de782a38bab5b24582bfd857|03c4b2b2c40c6ddc67badb3705b4ff13", "key": "wh"}, {"value": 1, "key": "cs"}, {"value": "{\\"HL\\":41,\\"NCE\\":true,\\"DMTO\\":1,\\"DOTO\\":1}", "key": "jsbd"}]'
+        key_hex = "bb4ac50fcdae55b85614a434e8cf510bb504fa5860110b4b8b867481fcca9693"
+        timestamp_expected = 1589133600
+
+        # Do the work
+        timestamp = 1589151277
+        timestamp = timestamp - (timestamp % (60*60*6))
+        self.assertEqual(timestamp_expected, timestamp)
+
+        key_str = "{}{}".format(user_agent, timestamp)
+        key_iv = self.channel._Channel__evp_kdf(
+            key_str.encode(), salt_bytes, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5")
+
+        result_key = binascii.hexlify(key_iv["key"]).decode()
+        result_iv = binascii.hexlify(key_iv["iv"]).decode()
+        self.assertEqual(iv_hex, result_iv)
+        self.assertEqual(key_hex, result_key)
+
+        # We can use PyAES in Feed mode
+        decrypter = pyaes.Decrypter(pyaes.AESModeOfOperationCBC(key_iv["key"], key_iv["iv"]))
+        back = decrypter.feed(encrypted_bytes)
+        # Again, make a final call to flush any remaining bytes and strip padding
+        back += decrypter.feed()
+
+        self.assertEqual(unencrypted, back.decode())
 
     def test_decryption_with_parameters(self):
         # Input
@@ -116,14 +154,16 @@ class TestSbsSeChannel(ChannelTest):
         result = self.__transform_murmur(murmur)
         self.assertEqual(expected, result)
 
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_login(self):
         self.assertTrue(
             self.channel.log_on(os.environ['DPLAY_USERNAME'], os.environ['DPLAY_PASSWORD']))
 
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_login_code(self):
         import time
 
-        user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
                      "(KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
         device_id = binascii.hexlify(os.urandom(16)).decode()
         window_id = "{}|{}".format(
@@ -209,11 +249,11 @@ class TestSbsSeChannel(ChannelTest):
         bda_base64 = binascii.b2a_base64(bda_str.encode())
 
         req_dict = {
-            "bda": bda_base64.decode(),
+            "bda": bda_base64.decode().rstrip(),
             "public_key": "FE296399-FDEA-2EA2-8CD5-50F6E3157ECA",
             "site": "https://client-api.arkoselabs.com",
             "userbrowser": user_agent,
-            "simulate_rate_limit": "0   ",
+            "simulate_rate_limit": "0",
             "simulated": "0",
             "rnd": "{}".format(random.random())
         }
@@ -226,13 +266,16 @@ class TestSbsSeChannel(ChannelTest):
 
         import requests
         s = requests.sessions.session()
-        arkrose_json = s.post(
+        resp = s.post(
             url="https://client-api.arkoselabs.com/fc/gt2/public_key/FE296399-FDEA-2EA2-8CD5-50F6E3157ECA",
             data=req_data,
-            headers={"user-agent": user_agent}
-        ).json()
-        print(arkrose_json)
-        arkose_token = arkrose_json["token"]
+            headers={
+                "user-agent": user_agent,
+                # "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            }
+        )
+        arkose_json = resp.json()
+        arkose_token = arkose_json["token"]
         self.assertTrue("rid=" in arkose_token, "Invalid Arkose Token")
 
         data = s.get("https://disco-api.dplay.se/token?realm=dplayse&deviceId={}&shortlived=true".format(device_id))
