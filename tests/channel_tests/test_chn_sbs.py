@@ -109,54 +109,69 @@ class TestSbsSeChannel(ChannelTest):
         self.assertEqual(len(key), len(result_key))
         self.assertEqual(key, result_key)
 
+    def test_murmurhash_special(self):
+        expected = "05351185b52593d76ae5d04d963fe5a5"
+        murmur = "0xd79325b585113505a5e53f964dd0e56aL"
+
+        result = self.__transform_murmur(murmur)
+        self.assertEqual(expected, result)
+
     def test_login(self):
         import time
 
         user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
                      "(KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
         device_id = "91bc57b20229990a496a7ac3d14d4fcb"
+        window_id = "{}|{}".format(
+            binascii.hexlify(os.urandom(16)).decode(), binascii.hexlify(os.urandom(16)).decode())
 
         now = int(time.time())
         b64_now = binascii.b2a_base64(str(now).encode()).decode().strip()
 
-        data = '[{"key":"api_type","value":"js"},{"key":"p","value":1},{"key":"f","value":"' + device_id + \
-               '"},{"key":"n","value":"' + b64_now + \
-               '"},{"key":"wh","value":"dd865a948064df918ad0bf458955392d|5d76839801bc5904a4f12f1731a7b6d1"},' \
-               '{"key":"fe","value":["DNT:1","L:en-NL","D:24","PR:1","S:1920,1080","AS:1920,1040",' \
-               '"TO:-120","SS:true","LS:true","IDB:true","B:false","ODB:true","CPUC:unknown","PK:Win32",' \
-               '"CFP:-1424337346","FR:false","FOS:false","FB:false","JSF:Arial,Arial Black,Arial Narrow,' \
-               'Book Antiqua,Bookman Old Style,Calibri,Cambria,Cambria Math,Century,Century Gothic,Century Schoolbook,' \
-               'Comic Sans MS,Consolas,Courier,Courier New,Garamond,Georgia,Helvetica,Impact,' \
-               'Lucida Bright,Lucida Calligraphy,Lucida Console,Lucida Fax,Lucida Handwriting,Lucida Sans,' \
-               'Lucida Sans Typewriter,Lucida Sans Unicode,Microsoft Sans Serif,Monotype Corsiva,MS Gothic,' \
-               'MS PGothic,MS Reference Sans Serif,MS Sans Serif,MS Serif,Palatino Linotype,Segoe Print,Segoe Script,Segoe UI,' \
-               'Segoe UI Light,Segoe UI Semibold,Segoe UI Symbol,Tahoma,Times,Times New Roman,Trebuchet MS,' \
-               'Verdana,Wingdings,Wingdings 2,Wingdings 3","P:Chrome PDF Plugin,Chrome PDF Viewer,Native Client",' \
-               '"T:1,false,false","H:12","SWF:false"]},{"key":"ife_hash","value":"05351185b52593d76ae5d04d963fe5a5"},' \
-               '{"key":"cs","value":1},{"key":"jsbd","value":"{\\"HL\\":41,\\"NCE\\":true,\\"DMTO\\":1,\\"DOTO\\":1}"}]'
-        # data = '[{"key":"api_type","value":"js"},{"key":"p","value":1},{"key":"f","value":"91bc57b20229990a496a7ac3d14d4fcb"},{"key":"n","value":"MTU4OTA2NDQ0OA=="},{"key":"wh","value":"dd865a948064df918ad0bf458955392d|5d76839801bc5904a4f12f1731a7b6d1"},{"key":"fe","value":["DNT:1","L:en-NL","D:24","PR:1","S:1920,1080","AS:1920,1040","TO:-120","SS:true","LS:true","IDB:true","B:false","ODB:true","CPUC:unknown","PK:Win32","CFP:-1424337346","FR:false","FOS:false","FB:false","JSF:Arial,Arial Black,Arial Narrow,Book Antiqua,Bookman Old Style,Calibri,Cambria,Cambria Math,Century,Century Gothic,Century Schoolbook,Comic Sans MS,Consolas,Courier,Courier New,Garamond,Georgia,Helvetica,Impact,Lucida Bright,Lucida Calligraphy,Lucida Console,Lucida Fax,Lucida Handwriting,Lucida Sans,Lucida Sans Typewriter,Lucida Sans Unicode,Microsoft Sans Serif,Monotype Corsiva,MS Gothic,MS PGothic,MS Reference Sans Serif,MS Sans Serif,MS Serif,Palatino Linotype,Segoe Print,Segoe Script,Segoe UI,Segoe UI Light,Segoe UI Semibold,Segoe UI Symbol,Tahoma,Times,Times New Roman,Trebuchet MS,Verdana,Wingdings,Wingdings 2,Wingdings 3","P:Chrome PDF Plugin,Chrome PDF Viewer,Native Client","T:1,false,false","H:12","SWF:false"]},{"key":"ife_hash","value":"05351185b52593d76ae5d04d963fe5a5"},{"key":"cs","value":1},{"key":"jsbd","value":"{\\"HL\\":10,\\"NCE\\":true,\\"DMTO\\":1,\\"DOTO\\":1}"}]'
-        # Actually do this
-        # data2 = [
-        #     {"key": "api_type", "value": "js"},
-        #     {"key": "p", "value": 1},
-        #     {"key": "f", "value": device_id},
-        #     {"key": "n", "value": b64_now},
-        #     {"key": "wh", "value": "dd865a948064df918ad0bf458955392d|5d76839801bc5904a4f12f1731a7b6d1"},
-        #     {"key": "fe", "value": [
-        #         "DNT:1", "L:en-GB", "D:24", "PR:1", "S:1920,1080", "AS:1920,1040", "TO:-120",
-        #         "SS:true", "LS:true", "IDB:true", "B:false", "ODB:true", "CPUC:unknown", "PK:Win32",
-        #         "CFP:-1424337346", "FR:false", "FOS:false", "FB:false", "JSF:Arial,Arial Black,Arial Narrow, Book Antiqua,Bookman Old Style,Calibri,Cambria,Cambria Math,Century,Century Gothic,Century Schoolbook,' \
-        #                'Comic Sans MS,Consolas,Courier,Courier New,Garamond,Georgia,Helvetica,Impact,' \
-        #                'Lucida Bright,Lucida Calligraphy,Lucida Console,Lucida Fax,Lucida Handwriting,Lucida Sans,' \
-        #                'Lucida Sans Typewriter,Lucida Sans Unicode,Microsoft Sans Serif,Monotype Corsiva,MS Gothic,' \
-        #                'MS PGothic,MS Reference Sans Serif,MS Sans Serif,MS Serif,Palatino Linotype,Segoe Print,Segoe Script,Segoe UI,' \
-        #                'Segoe UI Light,Segoe UI Semibold,Segoe UI Symbol,Tahoma,Times,Times New Roman,Trebuchet MS,' \
-        #                'Verdana,Wingdings,Wingdings 2,Wingdings 3",
-        #                "P:Chrome PDF Plugin,Chrome PDF Viewer,Native Client", ' \
-        #                '"T:1,false,false", "H:12", "SWF:false"]},
-        #     {"key": "ife_hash", "value": "05351185b52593d76ae5d04d963fe5a5"}
+        # region Browser properties seem optional
+        # fe = [
+        #     "DNT:1",
+        #     "L:en-NL",
+        #     "D:24",
+        #     "PR:1",
+        #     "S:1920,1080",
+        #     "AS:1920,1040",
+        #     "TO:-120",
+        #     "SS:true",
+        #     "LS:true",
+        #     "IDB:true",
+        #     "B:false",
+        #     "ODB:true",
+        #     "CPUC:unknown",
+        #     "PK:Win32",
+        #     "CFP:-1424337346",
+        #     "FR:false",
+        #     "FOS:false",
+        #     "FB:false",
+        #     "JSF:Arial,Arial Black,Arial Narrow,Book Antiqua,Bookman Old Style,Calibri,Cambria,Cambria Math,Century,Century Gothic,Century Schoolbook,Comic Sans MS,Consolas,Courier,Courier New,Garamond,Georgia,Helvetica,Impact,Lucida Bright,Lucida Calligraphy,Lucida Console,Lucida Fax,Lucida Handwriting,Lucida Sans,Lucida Sans Typewriter,Lucida Sans Unicode,Microsoft Sans Serif,Monotype Corsiva,MS Gothic,MS PGothic,MS Reference Sans Serif,MS Sans Serif,MS Serif,Palatino Linotype,Segoe Print,Segoe Script,Segoe UI,Segoe UI Light,Segoe UI Semibold,Segoe UI Symbol,Tahoma,Times,Times New Roman,Trebuchet MS,Verdana,Wingdings,Wingdings 2,Wingdings 3",
+        #     "P:Chrome PDF Plugin,Chrome PDF Viewer,Native Client",
+        #     "T:1,false,false",
+        #     "H:12",
+        #     "SWF:false"
         # ]
-        # data = json.dumps(data)
+        # fs_murmur_value = ", ".join(fe)
+        # # Murmur (x64 128-bit) from fs_murmur_value via https://asecuritysite.com/encryption/mur
+        # fs_murmur = "0xfa204e6c7927d156f9b50d837b6cb295L"
+        # fs_murmur_hash = self.__transform_murmur(fs_murmur)
+        #endregion
+
+        data = [
+            {"key": "api_type", "value": "js"},
+            {"key": "p", "value": 1},                       # constant
+            {"key": "f", "value": device_id},               # browser instance ID
+            {"key": "n", "value": b64_now},                 # base64 encoding of time.now()
+            {"key": "wh", "value": window_id},              # WindowHandle ID
+            # {"key": "fe", "value": fe},                     # browser properties
+            # {"key": "ife_hash", "value": fs_murmur_hash},   # hash of browser properties
+            {"key": "cs", "value": 1},                      # canvas supported 0/1
+            {"key": "jsbd", "value": "{\"HL\":41,\"NCE\":true,\"DMTO\":1,\"DOTO\":1}"}
+        ]
+        data_value = json.dumps(data)
 
         stamp = now - (now % (60*60*6))
         password = "{}{}".format(user_agent, stamp)
@@ -167,7 +182,7 @@ class TestSbsSeChannel(ChannelTest):
         iv = key_iv["iv"]
 
         encrypter = pyaes.Encrypter(pyaes.AESModeOfOperationCBC(key, iv))
-        encrypted = encrypter.feed(data)
+        encrypted = encrypter.feed(data_value)
         # Again, make a final call to flush any remaining bytes and strip padding
         encrypted += encrypter.feed()
 
@@ -237,6 +252,16 @@ class TestSbsSeChannel(ChannelTest):
         me = s.get("https://disco-api.dplay.se/users/me")
         print(me.json())
         self.assertLessEqual(me.status_code, 399)
+
+    def __transform_murmur(self, murmur):
+        murmur = murmur.rstrip("L")
+        if murmur.startswith("0x"):
+            murmur = murmur[2:]
+        n = 2
+        pairs = [murmur[i:i+n] for i in range(0, len(murmur), n)]
+
+        return pairs[7] + pairs[6] + pairs[5] + pairs[4] + pairs[3] + pairs[2] + pairs[1] + pairs[0] + \
+            pairs[15] + pairs[14] + pairs[13] + pairs[12] + pairs[11] + pairs[10] + pairs[9] + pairs[8]
 
     def __evp_kdf(self, passwd, salt, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5"):
         """
