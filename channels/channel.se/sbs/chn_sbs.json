@@ -134,5 +134,31 @@
       "language": "dk",
       "fanart": "dplayfanart.jpg"
     }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "value": "type=\"text\" label=\"30094\" default=\"\"",
+      "id": "dplay_username",
+      "channels": [
+        "230A2F56-572B-470B-AD53-AFD20A768D54"
+      ]
+    },
+    {
+      "order": 2,
+      "value": "label=\"30093\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?action=encryptsetting&amp;settingid=channel_{channel_guid}_dplay_password&amp;settingname=Dplay password&amp;tabfocus=102)\" option=\"close\"",
+      "id": "dplay_password_set",
+      "channels": [
+        "230A2F56-572B-470B-AD53-AFD20A768D54"
+      ]
+    },
+    {
+      "order": 3,
+      "value": "default=\"\"",
+      "id": "dplay_password",
+      "channels": [
+        "230A2F56-572B-470B-AD53-AFD20A768D54"
+      ]
+    }
   ]
 }

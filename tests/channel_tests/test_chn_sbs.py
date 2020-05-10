@@ -37,7 +37,7 @@ class TestSbsSeChannel(ChannelTest):
         self.assertEqual(timestamp_expected, timestamp)
 
         key_str = "{}{}".format(user_agent, timestamp)
-        key_iv = self.__evp_kdf(
+        key_iv = self.channel._Channel__evp_kdf(
             key_str.encode(), salt_bytes, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5")
 
         result_key = binascii.hexlify(key_iv["key"]).decode()
@@ -99,7 +99,7 @@ class TestSbsSeChannel(ChannelTest):
         iv = "330891851a4617eb5644a577d0860c11"
         key = "19520dc1c574c58f2b142da0260c7c538c2ffd6ef174c6b913537ffb63319edc"
 
-        key_iv = self.__evp_kdf(
+        key_iv = self.channel._Channel__evp_kdf(
             password.encode(), salt_bytes, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5")
         result_key = binascii.hexlify(key_iv["key"]).decode()
         result_iv = binascii.hexlify(key_iv["iv"]).decode()
@@ -109,7 +109,7 @@ class TestSbsSeChannel(ChannelTest):
         self.assertEqual(len(key), len(result_key))
         self.assertEqual(key, result_key)
 
-    def test_murmurhash_special(self):
+    def test_murmurhash_shuffle(self):
         expected = "05351185b52593d76ae5d04d963fe5a5"
         murmur = "0xd79325b585113505a5e53f964dd0e56aL"
 
@@ -117,6 +117,10 @@ class TestSbsSeChannel(ChannelTest):
         self.assertEqual(expected, result)
 
     def test_login(self):
+        self.assertTrue(
+            self.channel.log_on(os.environ['DPLAY_USERNAME'], os.environ['DPLAY_PASSWORD']))
+
+    def test_login_code(self):
         import time
 
         user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
@@ -177,7 +181,7 @@ class TestSbsSeChannel(ChannelTest):
         password = "{}{}".format(user_agent, stamp)
 
         salt_bytes = os.urandom(8)
-        key_iv = self.__evp_kdf(password.encode(), salt_bytes, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5")
+        key_iv = self.channel._Channel__evp_kdf(password.encode(), salt_bytes, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5")
         key = key_iv["key"]
         iv = key_iv["iv"]
 
@@ -229,8 +233,8 @@ class TestSbsSeChannel(ChannelTest):
         api_token = api_json["data"]["attributes"]["token"]
         print(api_token)
 
-        dplay_username = os. environ['DPLAY_USERNAME']
-        dplay_password = os. environ['DPLAY_PASSWORD']
+        dplay_username = os.environ['DPLAY_USERNAME']
+        dplay_password = os.environ['DPLAY_PASSWORD']
         creds = {"credentials": {"username": dplay_username, "password": dplay_password}}
         res = s.post(
             url="https://disco-api.dplay.se/login",
@@ -262,52 +266,3 @@ class TestSbsSeChannel(ChannelTest):
 
         return pairs[7] + pairs[6] + pairs[5] + pairs[4] + pairs[3] + pairs[2] + pairs[1] + pairs[0] + \
             pairs[15] + pairs[14] + pairs[13] + pairs[12] + pairs[11] + pairs[10] + pairs[9] + pairs[8]
-
-    def __evp_kdf(self, passwd, salt, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5"):
-        """
-        https://gist.github.com/adrianlzt/d5c9657e205b57f687f528a5ac59fe0e
-
-        https://github.com/Shani-08/ShaniXBMCWork2/blob/master/plugin.video.serialzone/jscrypto.py
-
-        :param byte passwd:
-        :param byte salt:
-        :param int key_size:
-        :param int iv_size:
-        :param int iterations:
-        :param str hash_algorithm:
-
-        :return:
-
-        """
-
-        import hashlib
-
-        target_key_size = key_size + iv_size
-        derived_bytes = b""
-        number_of_derived_words = 0
-        block = None
-        hasher = hashlib.new(hash_algorithm)
-
-        while number_of_derived_words < target_key_size:
-            if block is not None:
-                hasher.update(block)
-
-            hasher.update(passwd)
-            hasher.update(salt)
-            block = hasher.digest()
-
-            hasher = hashlib.new(hash_algorithm)
-
-            for _ in range(1, iterations):
-                hasher.update(block)
-                block = hasher.digest()
-                hasher = hashlib.new(hash_algorithm)
-
-            derived_bytes += block[0: min(len(block), (target_key_size - number_of_derived_words) * 4)]
-
-            number_of_derived_words += len(block)/4
-
-        return {
-            "key": derived_bytes[0: key_size * 4],
-            "iv": derived_bytes[key_size * 4:]
-        }

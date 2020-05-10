@@ -12,4 +12,4 @@ This new version of Retrospect fixes some channel related issues and some minor 
 _None_
 
 [B]Channel related[/B]
-_None_
+* Added: option to specify a login for Dplay.se (Fixes #1364)
