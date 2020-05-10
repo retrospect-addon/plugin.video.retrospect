@@ -125,7 +125,7 @@ class TestSbsSeChannel(ChannelTest):
 
         user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
                      "(KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
-        device_id = "91bc57b20229990a496a7ac3d14d4fcb"
+        device_id = binascii.hexlify(os.urandom(16)).decode()
         window_id = "{}|{}".format(
             binascii.hexlify(os.urandom(16)).decode(), binascii.hexlify(os.urandom(16)).decode())
 
@@ -176,9 +176,11 @@ class TestSbsSeChannel(ChannelTest):
             {"key": "jsbd", "value": "{\"HL\":41,\"NCE\":true,\"DMTO\":1,\"DOTO\":1}"}
         ]
         data_value = json.dumps(data)
+        print(data_value)
 
         stamp = now - (now % (60*60*6))
         password = "{}{}".format(user_agent, stamp)
+        print(password)
 
         salt_bytes = os.urandom(8)
         key_iv = self.channel._Channel__evp_kdf(password.encode(), salt_bytes, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5")
@@ -192,9 +194,14 @@ class TestSbsSeChannel(ChannelTest):
 
         salt_hex = binascii.hexlify(salt_bytes)
         iv_hex = binascii.hexlify(iv)
+
+        print(salt_hex)
+        print(iv_hex)
+        print(binascii.hexlify(key))
+
         encrypted_b64 = binascii.b2a_base64(encrypted)
         bda = {
-            "ct": encrypted_b64.decode(),
+            "ct": encrypted_b64.decode().strip(),
             "iv": iv_hex.decode(),
             "s": salt_hex.decode()
         }

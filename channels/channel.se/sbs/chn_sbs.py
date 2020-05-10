@@ -581,7 +581,7 @@ class Channel(chn_class.Channel):
 
         user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
                      "(KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
-        device_id = "91bc57b20229990a496a7ac3d14d4fcb"
+        device_id = AddonSettings.get_client_id().replace("-", "")
         window_id = "{}|{}".format(
             binascii.hexlify(os.urandom(16)).decode(), binascii.hexlify(os.urandom(16)).decode())
 
