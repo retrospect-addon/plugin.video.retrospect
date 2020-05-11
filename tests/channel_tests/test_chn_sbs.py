@@ -307,6 +307,31 @@ class TestSbsSeChannel(ChannelTest):
         print(me.json())
         self.assertLessEqual(me.status_code, 399)
 
+    def test_show_video_list(self):
+        self._test_folder_url(
+            "https://disco-api.dplay.se/content/videos?decorators=viewingHistory&include="
+            "images%2CprimaryChannel%2Cshow&filter%5BvideoType%5D=EPISODE%2CLIVE%2CFOLLOW_UP%"
+            "2CSTANDALONE&filter%5Bshow.id%5D=3724&page%5Bsize%5D=100&page%5Bnumber%5D=1&sort="
+            "-seasonNumber%2C-episodeNumber%2CvideoType%2CearliestPlayableStart", 20)
+
+    def test_item_premium_no_datelimit(self):
+        result_set = json.loads('{"relationships":{"contentPackages":{"data":[{"type":"package","id":"Premium"}]}},"attributes":{"geoRestrictions":{"mode":"permit","countries":["world"]}}}')
+        paid, logon = self.channel._is_paid_or_logged_on_item(result_set)
+        self.assertTrue(paid)
+        self.assertTrue(logon)
+
+    def test_video_registered_and_premium_should_be_registerd(self):
+        result_set = json.loads('{"attributes":{"availabilityWindows":[{"package":"Registered","playableStart":"2020-01-15T19:00:00Z"},{"package":"Premium","playableStart":"2020-01-15T19:00:00Z"}],"geoRestrictions":{"countries":["world"],"mode":"permit"},"packages":["Registered","Premium"],"path":"vagens-hjaltar/valdsam-kollision-hade-anglavakt","publishStart":"2020-01-15T19:00:00Z","rights":{"embeddable":false}},"relationships":{"contentPackages":{"data":[{"id":"Premium","type":"package"},{"id":"Registered","type":"package"}]}},"type":"video"}')
+        paid, logon = self.channel._is_paid_or_logged_on_item(result_set)
+        self.assertFalse(paid)
+        self.assertTrue(logon)
+
+    def test_video_free_premium_should_be_free_nologon(self):
+        result_set = json.loads('{"attributes":{"availabilityWindows":[{"package":"Premium","playableStart":"2020-03-26T23:00:00Z"},{"package":"Free","playableStart":"2020-03-26T23:00:00Z"}],"geoRestrictions":{"countries":["world"],"mode":"permit"},"packages":["Premium","Free"]}}')
+        paid, logon = self.channel._is_paid_or_logged_on_item(result_set)
+        self.assertFalse(paid)
+        self.assertFalse(logon)
+
     def __transform_murmur(self, murmur):
         murmur = murmur.rstrip("L")
         if murmur.startswith("0x"):

@@ -212,6 +212,7 @@ class Channel(chn_class.Channel):
         self.imageLookup = {}
         self.showLookup = {}
         self.__REQUIRES_LOGIN = "requires_login"
+        self.__now = datetime.datetime.utcnow()
 
         #===========================================================================================
         # Test cases:
@@ -752,6 +753,47 @@ class Channel(chn_class.Channel):
         part.Subtitle = SubtitleHelper.download_subtitle(vtt_url, format='srt', proxy=self.proxy)
         return item
 
+    def _is_paid_or_logged_on_item(self, result_set):
+        """ Check whether an item is paid or not?
+
+        :param dict result_set:
+
+        :return: Indication if the item is paid?
+        :rtype: tuple[bool,bool]
+
+        """
+
+        active = set()
+        date_format = "%Y-%m-%dT%H:%M:%SZ"
+
+        availability_windows = result_set.get("attributes", {}).get("availabilityWindows")
+
+        if availability_windows is not None:
+            for availability in availability_windows:
+                start = availability["playableStart"]
+                start_date = DateHelper.get_datetime_from_string(start, date_format)
+                end = availability.get("playableEnd")
+                if end is None:
+                    end_date = datetime.datetime.max
+                else:
+                    end_date = DateHelper.get_datetime_from_string(end, date_format)
+                package = availability["package"].lower()
+
+                if start_date < self.__now < end_date:
+                    active.add(package)
+        else:
+            content_packages = result_set.get("relationships", {}).get("contentPackages")
+            if content_packages is not None:
+                for account_info in result_set["relationships"]["contentPackages"]["data"]:
+                    account_type = account_info.get("id", "free").lower()
+                    active.add(account_type)
+
+        if "free" in active:
+            return False, False
+        if "registered" in active:
+            return False, True
+        return True, True
+
     def __get_images_from_meta_data(self, data):
         items = []
         data = JsonHelper(data)
@@ -846,23 +888,9 @@ class Channel(chn_class.Channel):
                 Logger.warning("No thumb found for %s", thumb_id)
 
         # paid or not?
-        if "contentPackages" in result_set["relationships"]:
-            available_for = []
-            for account_info in result_set["relationships"]["contentPackages"]["data"]:
-                account_type = account_info.get("id", "free").lower()
-                available_for.append(account_type)
-                if account_type == "free":
-                    break
-                if account_type == "premium":
-                    item.isPaid = True
-                elif account_type == "registered":
-                    item.isPaid = False
-                    item.metaData[self.__REQUIRES_LOGIN] = True
-                    break
-                else:
-                    Logger.warning("Unknown account type: %s", account_type)
-        else:
-            item.isPaid = False
+        item.isPaid, logon_required = self._is_paid_or_logged_on_item(result_set)
+        if logon_required:
+            item.metaData[self.__REQUIRES_LOGIN] = True
 
         return item
 
