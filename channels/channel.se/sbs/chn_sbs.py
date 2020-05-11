@@ -659,8 +659,8 @@ class Channel(chn_class.Channel):
         if username is None and password is None:
             from resources.lib.vault import Vault
             v = Vault()
-            username = self._get_setting("dplay_username")
-            password = v.get_channel_setting(self.guid, "dplay_password")
+            username = AddonSettings.get_setting("dplayse_username")
+            password = v.get_setting("dplayse_password")
 
         dplay_username = username
         dplay_password = password
