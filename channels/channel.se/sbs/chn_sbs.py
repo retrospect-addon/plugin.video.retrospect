@@ -213,6 +213,7 @@ class Channel(chn_class.Channel):
         self.showLookup = {}
         self.__REQUIRES_LOGIN = "requires_login"
         self.__now = datetime.datetime.utcnow()
+        self.__has_premium = False
 
         #===========================================================================================
         # Test cases:
@@ -559,12 +560,9 @@ class Channel(chn_class.Channel):
 
         """
 
-        me = UriHandler.open("https://disco-api.dplay.se/users/me", proxy=self.proxy, no_cache=True)
-        if UriHandler.instance().status.code < 300:
-            logged_in = not JsonHelper(me).get_value("data", "attributes", "anonymous")
-            if logged_in:
-                Logger.debug("Already logged in")
-                return True
+        username = username or AddonSettings.get_setting("dplayse_username")
+        if self.__is_already_logged_on(username):
+            return True
 
         # Local import to not slow down any other stuff
         import os
@@ -656,10 +654,9 @@ class Channel(chn_class.Channel):
             proxy=self.proxy, no_cache=True
         )
 
-        if username is None and password is None:
+        if username is None or password is None:
             from resources.lib.vault import Vault
             v = Vault()
-            username = AddonSettings.get_setting("dplayse_username")
             password = v.get_setting("dplayse_password")
 
         dplay_username = username
@@ -719,6 +716,10 @@ class Channel(chn_class.Channel):
 
         video_data = JsonHelper(video_data)
         video_info = video_data.get_value("data", "attributes")
+        errors = video_data.get_value("errors")
+        Logger.error("Error updating items: %s", errors)
+        if errors:
+            return item
 
         part = item.create_new_empty_media_part()
 
@@ -751,6 +752,10 @@ class Channel(chn_class.Channel):
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
         vtt_url = vtt_url.replace("-prog_index.m3u8", "-0.vtt")
         part.Subtitle = SubtitleHelper.download_subtitle(vtt_url, format='srt', proxy=self.proxy)
+
+        # if the user has premium, don't show any warnings
+        if self.__has_premium:
+            item.isPaid = False
         return item
 
     def _is_paid_or_logged_on_item(self, result_set):
@@ -793,6 +798,35 @@ class Channel(chn_class.Channel):
         if "registered" in active:
             return False, True
         return True, True
+
+    def __is_already_logged_on(self, username):
+        """ Check if the given user is logged on and sets what packages he/she has.
+
+        :param str username:
+        :return: Indicator if the user is alreadly logged in
+        :rtype: bool
+
+        """
+
+        me = UriHandler.open("https://disco-api.dplay.se/users/me", proxy=self.proxy, no_cache=True)
+        if UriHandler.instance().status.code >= 300:
+            return False
+
+        account_data = JsonHelper(me)
+        signed_in_user = account_data.get_value("data", "attributes", "username")
+        if signed_in_user is not None and signed_in_user != username:
+            # Log out
+            UriHandler.open("https://disco-api.dplay.se/logout", data="", proxy=self.proxy, no_cache=True)
+            return False
+
+        logged_in = not account_data.get_value("data", "attributes", "anonymous")
+        if logged_in:
+            Logger.debug("Already logged in")
+            packages = account_data.get_value("data", "attributes", "packages", fallback=[])
+            self.__has_premium = "Premium" in packages
+            return True
+        else:
+            return False
 
     def __get_images_from_meta_data(self, data):
         items = []
