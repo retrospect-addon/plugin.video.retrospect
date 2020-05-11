@@ -314,6 +314,13 @@ class TestSbsSeChannel(ChannelTest):
             "2CSTANDALONE&filter%5Bshow.id%5D=3724&page%5Bsize%5D=100&page%5Bnumber%5D=1&sort="
             "-seasonNumber%2C-episodeNumber%2CvideoType%2CearliestPlayableStart", 20)
 
+    def test_mainlist(self):
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 50)
+
+    def test_update_video_item(self):
+        self._test_video_url("https://disco-api.dplay.se/playback/videoPlaybackInfo/125461")
+
     def test_item_premium_no_datelimit(self):
         result_set = json.loads('{"relationships":{"contentPackages":{"data":[{"type":"package","id":"Premium"}]}},"attributes":{"geoRestrictions":{"mode":"permit","countries":["world"]}}}')
         paid, logon = self.channel._is_paid_or_logged_on_item(result_set)
