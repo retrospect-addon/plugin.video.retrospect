@@ -11,4 +11,4 @@ This new version of Retrospect fixes some channel related issues and some minor 
 _None_
 
 [B]Channel related[/B]
-_None_
+* Fixed: NPO Live streams (Fixes #1374)
