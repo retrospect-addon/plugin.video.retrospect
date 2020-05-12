@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.x - Changelog - 2020-05-07[/B]
+[B]Retrospect v5.2.4 - Changelog - 2020-05-12[/B]
 
-This new version of Retrospect fixes some channel related issues and some minor core refactoring.
+This new version of Retrospect shuffles some of the channel load logic and mostly fixes an issue in the NPO live channels.
 
 [B]Framework related[/B]
 * Changed: the full channel ID's are now added to the url's
