@@ -20,12 +20,13 @@ class Authenticator(object):
         self.__hander = handler
 
     def log_on(self, username, password):
-        pass
-
-    def is_authenticated(self, username):
-        """ Check if the user with the given name is currently authenticated.
+        """ Peforms the logon of a user.
 
         :param str username:    The username
+        :param str password:    The password to use
+
+        :returns: An indication of a successful login.
+        :rtype: bool
 
         """
 
