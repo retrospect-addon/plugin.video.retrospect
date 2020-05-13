@@ -3,12 +3,11 @@
 This new version of Retrospect shuffles some of the channel load logic and mostly fixes an issue in the NPO live channels.
 
 [B]Framework related[/B]
-* Changed: the full channel ID's are now added to the url's
-* Changed: load channels based on their full ID's instead of the channelindex.json
-* Added: option to set a level for showing notifications
+* Added: option to limit certain settings to only some channel in a channel set
+* Added: option to generate a channel guid for a setting in a channel set
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO Live streams (Fixes #1374)
+* Added: option to specify a login for Dplay.se (Fixes #1364)

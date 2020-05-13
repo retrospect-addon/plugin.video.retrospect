@@ -30,6 +30,9 @@ jobs:
         run: |
           git clone https://github.com/retrospect-addon/kodi.emulator.ascii.git kodi.emulator.ascii
       - name: Run unit tests
+        env:
+          _DPLAY_USERNAME: ${{ secrets.DplayUsername }}
+          _DPLAY_PASSWORD: ${{ secrets.DplayPassword }}
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii
           export KODI_HOME=$GITHUB_WORKSPACE/tests/home
