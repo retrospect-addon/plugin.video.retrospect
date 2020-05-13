@@ -11,3 +11,4 @@ _None_
 
 [B]Channel related[/B]
 * Added: option to specify a login for Dplay.se (Fixes #1364)
+* Fixed: don't group special folders for kijk.nl (Fixes #1377)
