@@ -43,7 +43,9 @@ class ArkoseHandler(AuthenticationHandler):
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
                      "(KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
         window_id = "{}|{}".format(
-            binascii.hexlify(os.urandom(16)).decode(), binascii.hexlify(os.urandom(16)).decode())
+            binascii.hexlify(os.urandom(16)).decode(),
+            binascii.hexlify(os.urandom(16)).decode()
+        ).lower()
 
         now = int(time.time())
         b64_now = binascii.b2a_base64(str(now).encode()).decode().strip()
@@ -113,8 +115,8 @@ class ArkoseHandler(AuthenticationHandler):
         encrypted_b64 = binascii.b2a_base64(encrypted)
         bda = {
             "ct": encrypted_b64.decode().rstrip(),
-            "iv": iv_hex.decode(),
-            "s": salt_hex.decode()
+            "iv": iv_hex.decode().lower(),
+            "s": salt_hex.decode().lower()
         }
         bda_str = json.dumps(bda)
         bda_base64 = binascii.b2a_base64(bda_str.encode())
