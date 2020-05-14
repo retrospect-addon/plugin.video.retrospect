@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
+import binascii
 import os
 import unittest
 
+from resources.lib.authentication.arkosehandler import ArkoseHandler
+from resources.lib.authentication.authenticator import Authenticator
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
 
@@ -13,6 +16,8 @@ class TestAuthenticator(unittest.TestCase):
         super(TestAuthenticator, self).__init__(methodName)
 
         self.user_name = os.environ.get("DPLAY_USERNAME")
+        self.password = os.environ.get("DPLAY_PASSWORD")
+        self.device_id = binascii.hexlify(os.urandom(16)).decode()
 
     @classmethod
     def setUpClass(cls):
@@ -27,4 +32,55 @@ class TestAuthenticator(unittest.TestCase):
         pass
 
     def setUp(self):
-        pass
+        if UriHandler.get_cookie("st", "disco-api.dplay.se"):
+            UriHandler.delete_cookie(domain="disco-api.dplay.se")
+
+    def test_init_authenticator_no_handler(self):
+        with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
+            Authenticator(None)
+
+    def test_init_authenticator_incorrect_type(self):
+        with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
+            Authenticator("handler")
+
+    def test_init_authenticator(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        self.assertIsNotNone(a)
+
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
+    def test_current_user(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        h_user = h.authenticated_user()
+        a_user = a.authenticated_user()
+        self.assertEqual(h_user, a_user)
+
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
+    def test_log_on(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
+    def test_log_off(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+        a.log_off(self.user_name)
+        self.assertIsNone(a.authenticated_user())
+
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
+    def test_log_on_without_log_off(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+        user_name = self.user_name.replace("lf@m", "lf2@m")
+        res = a.log_on(user_name, self.password)
+        self.assertTrue(res.logged_on)
+        self.assertEqual(user_name, a.authenticated_user())

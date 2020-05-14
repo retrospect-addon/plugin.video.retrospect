@@ -182,10 +182,10 @@ class ArkoseHandler(AuthenticationHandler):
     def authenticated_user(self):
         """ Check if the user with the given name is currently authenticated.
 
-        :returns: a AuthenticationResult with the account data
-        :rtype: AuthenticationResult
+         :returns: a AuthenticationResult with the account data
+         :rtype: str
 
-        """
+         """
 
         UriHandler.open(
             "https://disco-api.dplay.se/token?realm=dplayse&deviceId={}&shortlived=true"
@@ -219,14 +219,15 @@ class ArkoseHandler(AuthenticationHandler):
 
         https://github.com/Shani-08/ShaniXBMCWork2/blob/master/plugin.video.serialzone/jscrypto.py
 
-        :param byte passwd:
-        :param byte salt:
-        :param int key_size:
-        :param int iv_size:
-        :param int iterations:
-        :param str hash_algorithm:
+        :param byte passwd:             The password bytes used for the key derivation.
+        :param byte salt:               The salt bytes used for the key derivation.
+        :param int key_size:            The size of the key (defaults to 8 bytes).
+        :param int iv_size:             The size of the initialization vector (defaults to 4 bytes).
+        :param int iterations:          The number of iterations to perform.
+        :param str hash_algorithm:      The hashing algorithm to use (from hashlib)
 
-        :return:
+        :return: A dictionry with 'key' and 'iv' bytes.
+        :rtype: dict[str, bytes]
 
         """
 

@@ -39,7 +39,7 @@ class AuthenticationHandler(object):
         """ Check if the user with the given name is currently authenticated.
 
         :returns: a AuthenticationResult with the account data
-        :rtype: AuthenticationResult
+        :rtype: str
 
         """
 

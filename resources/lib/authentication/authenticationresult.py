@@ -12,3 +12,9 @@ class AuthenticationResult:
 
         self.logged_on = logged_on
         self.has_premium = has_premium
+
+    def __str__(self):
+        if not self.logged_on:
+            return "Not logged on"
+
+        return "Logged on with premium rights" if self.has_premium else "Logged on as normal user"
