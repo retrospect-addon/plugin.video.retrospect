@@ -318,8 +318,13 @@ class TestSbsSeChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 50)
 
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing updating without credentials")
     def test_update_video_item(self):
-        self._test_video_url("https://disco-api.dplay.se/playback/videoPlaybackInfo/125461")
+        self.test_login()
+        url = "https://disco-api.dplay.se/playback/videoPlaybackInfo/125461"
+        item = self._get_media_item(url)
+        item = self.channel.process_video_item(item)
+        self.assertTrue(item.has_media_item_parts())
 
     def test_item_premium_no_datelimit(self):
         result_set = json.loads('{"relationships":{"contentPackages":{"data":[{"type":"package","id":"Premium"}]}},"attributes":{"geoRestrictions":{"mode":"permit","countries":["world"]}}}')
