@@ -47,6 +47,9 @@ class AuthenticationHandler(object):
 
         :param str username:    The username to log off
 
+        :returns: Indication of success
+        :rtype: bool
+
         """
 
         raise NotImplementedError

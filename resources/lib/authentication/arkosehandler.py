@@ -24,7 +24,7 @@ class ArkoseHandler(AuthenticationHandler):
 
         device_id = device_id.lower().replace("-", "")
 
-        if len(device_id) > 32:
+        if len(device_id) != 32:
             raise ValueError("Invalid Device ID. Must be length 32 without dashes and lowercase.")
 
         super(ArkoseHandler, self).__init__(realm, device_id)
@@ -203,9 +203,13 @@ class ArkoseHandler(AuthenticationHandler):
 
         :param str username:    The username to log off
 
+        :returns: Indication of success
+        :rtype: bool
+
         """
 
-        raise NotImplementedError
+        UriHandler.open("https://disco-api.dplay.se/logout", data="", no_cache=True)
+        return 200 <= UriHandler.instance().status.code <= 210
 
     def __evp_kdf(self, passwd, salt, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5"):
         """
