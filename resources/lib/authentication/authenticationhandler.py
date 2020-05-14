@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
+from resources.lib.authentication.authenticationresult import AuthenticationResult
+
 
 class AuthenticationHandler(object):
     def __init__(self, realm, device_id):
@@ -27,16 +29,17 @@ class AuthenticationHandler(object):
         :param str username:    The username
         :param str password:    The password to use
 
-        :returns: An indication of a successful login.
-        :rtype: bool
+        :returns: a AuthenticationResult with the result of the log on
+        :rtype: AuthenticationResult
 
         """
         raise NotImplementedError
 
-    def is_authenticated(self, username):
+    def authenticated_user(self):
         """ Check if the user with the given name is currently authenticated.
 
-        :param str username:    The username
+        :returns: a AuthenticationResult with the account data
+        :rtype: AuthenticationResult
 
         """
 

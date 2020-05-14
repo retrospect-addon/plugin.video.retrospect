@@ -49,22 +49,22 @@ class TestArkoseHandler(unittest.TestCase):
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_invalid_username(self):
         a = ArkoseHandler("dplay.se", TestArkoseHandler.DeviceId)
-        logged_on = a.log_on("nobody", "secret")
-        self.assertFalse(logged_on)
+        res = a.log_on("nobody", "secret")
+        self.assertFalse(res.logged_on)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_is_authenticated(self):
         a = ArkoseHandler("dplay.se", TestArkoseHandler.DeviceId)
-        authenticated = a.is_authenticated(self.user_name)
-        self.assertFalse(authenticated)
+        res = a.authenticated_user()
+        self.assertIsNone(res)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_is_authenticated_after_login(self):
         a = ArkoseHandler("dplay.se", TestArkoseHandler.DeviceId)
         logged_on = a.log_on(self.user_name, self.password)
         self.assertTrue(logged_on)
-        authenticated = a.is_authenticated(self.user_name)
-        self.assertTrue(authenticated)
+        authenticated = a.authenticated_user()
+        self.assertEqual(self.user_name, authenticated)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_log_on(self):
@@ -78,7 +78,7 @@ class TestArkoseHandler(unittest.TestCase):
         logged_on = a.log_on(self.user_name, self.password)
         self.assertTrue(logged_on)
         a.log_off(self.user_name)
-        self.assertFalse(a.is_authenticated(self.user_name))
+        self.assertIsNone(a.authenticated_user())
 
     def test_short_device_id(self):
         with self.assertRaises(ValueError):

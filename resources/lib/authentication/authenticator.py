@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 from .authenticationhandler import AuthenticationHandler
+from .authenticationresult import AuthenticationResult
 
 
 class Authenticator(object):
@@ -26,11 +27,17 @@ class Authenticator(object):
         :param str password:    The password to use
 
         :returns: An indication of a successful login.
-        :rtype: bool
+        :rtype: AuthenticationResult
 
         """
 
-        raise NotImplementedError
+        # are we logged on already?
+        logged_on_user = self.__hander.authenticated_user()
+        if logged_on_user != username:
+            self.__hander.log_off(logged_on_user)
+
+        res = self.__hander.log_on(username, password)
+        return res
 
     def log_off(self, username):
         """ Check if the user with the given name is currently authenticated.

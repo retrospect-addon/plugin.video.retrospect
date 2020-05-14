@@ -7,6 +7,7 @@ import time
 import json
 
 from resources.lib.authentication.authenticationhandler import AuthenticationHandler
+from resources.lib.authentication.authenticationresult import AuthenticationResult
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
@@ -35,8 +36,8 @@ class ArkoseHandler(AuthenticationHandler):
         :param str username:    The username
         :param str password:    The password to use
 
-        :returns: An indication of a successful login.
-        :rtype: bool
+        :returns: a AuthenticationResult with the result of the log on
+        :rtype: AuthenticationResult
 
         """
 
@@ -146,7 +147,7 @@ class ArkoseHandler(AuthenticationHandler):
         arkose_token = arkose_json.get_value("token")
         if "rid=" not in arkose_token:
             Logger.error("Error logging in. Invalid Arkose token.")
-            return False
+            return AuthenticationResult(False)
         Logger.debug("Succesfully required a login token from Arkose.")
 
         # New we need to access the API of Dplay for logging in
@@ -173,15 +174,16 @@ class ArkoseHandler(AuthenticationHandler):
                                  json=creds, additional_headers=headers)
         if UriHandler.instance().status.code > 299:
             Logger.error("Failed to log in: %s", result)
-            return False
+            return AuthenticationResult(False)
 
         Logger.debug("Succesfully logged in")
-        return True
+        return AuthenticationResult(True)
 
-    def is_authenticated(self, username):
+    def authenticated_user(self):
         """ Check if the user with the given name is currently authenticated.
 
-        :param str username:    The username
+        :returns: a AuthenticationResult with the account data
+        :rtype: AuthenticationResult
 
         """
 
@@ -192,11 +194,11 @@ class ArkoseHandler(AuthenticationHandler):
 
         me = UriHandler.open("https://disco-api.dplay.se/users/me", no_cache=True)
         if UriHandler.instance().status.code >= 300:
-            return False
+            return None
 
         account_data = JsonHelper(me)
         signed_in_user = account_data.get_value("data", "attributes", "username")
-        return signed_in_user == username
+        return signed_in_user
 
     def log_off(self, username):
         """ Check if the user with the given name is currently authenticated.
