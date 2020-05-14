@@ -66,8 +66,10 @@ class TestNpoChannel(ChannelTest):
         self.assertGreaterEqual(len(folders), 1)
 
     def test_guide_day_list(self):
+        import datetime
+        day = datetime.datetime.now() - datetime.timedelta(days=1)
         self._test_folder_url(
-            "https://start-api.npo.nl/epg/2020-04-13?type=tv",
+            "https://start-api.npo.nl/epg/{:04d}-{:02d}-{:02d}?type=tv".format(day.year, day.month, day.day),
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
             expected_results=25
         )
