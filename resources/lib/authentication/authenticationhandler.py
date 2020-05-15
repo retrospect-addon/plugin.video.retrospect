@@ -8,7 +8,7 @@ class AuthenticationHandler(object):
         """ Initializes a handler for the authentication provider
 
         :param str realm:
-        :param str device_id:
+        :param str|None device_id:
 
         """
 
