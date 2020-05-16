@@ -37,11 +37,11 @@ class AuthenticationHandler(object):
         """
         raise NotImplementedError
 
-    def authenticated_user(self):
+    def active_authentication(self):
         """ Check if the user with the given name is currently authenticated.
 
-        :returns: a AuthenticationResult with the account data
-        :rtype: str
+        :returns: a AuthenticationResult with the account data.
+        :rtype: AuthenticationResult
 
         """
 

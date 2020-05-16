@@ -32,26 +32,35 @@ class Authenticator(object):
 
         """
 
-        logged_on_user = self.__hander.authenticated_user()
+        if not username or not password:
+            raise ValueError("No username and/or password specified")
+
+        res = self.__hander.active_authentication()
+        logged_on_user = res.username
+
+        # Check if existing ones
         if logged_on_user and logged_on_user != username:
-            Logger.warning("Existing user (%s) found. Logging of first",
+            Logger.warning("Existing but different authenticated user (%s) found. Logging of first.",
                            self.__safe_log(logged_on_user))
             self.__hander.log_off(logged_on_user)
 
-        Logger.warning("Logging on user: %s",
-                       self.__safe_log(username))
+        elif logged_on_user and logged_on_user == username:
+            Logger.warning("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
+            return res
+
+        Logger.warning("Logging on user: %s", self.__safe_log(username))
         res = self.__hander.log_on(username, password)
         return res
 
-    def authenticated_user(self):
+    def active_authentication(self):
         """ Check if the user with the given name is currently authenticated.
 
         :returns: a AuthenticationResult with the account data
-        :rtype: str
+        :rtype: AuthenticationResult
 
         """
 
-        return self.__hander.authenticated_user()
+        return self.__hander.active_authentication()
 
     def log_off(self, username, force=True):
         """ Check if the user with the given name is currently authenticated.
@@ -60,15 +69,18 @@ class Authenticator(object):
 
         """
 
-        logged_on_user = self.__hander.authenticated_user()
+        res = self.__hander.active_authentication()
+        if not res.logged_on:
+            Logger.debug("User was not logged on.")
+            return
+
+        logged_on_user = res.username
         if logged_on_user is not None and (force or logged_on_user == username):
             res = self.__hander.log_off(logged_on_user)
             if res:
                 Logger.debug("Logged off successfully")
             else:
                 Logger.error("Log off failed")
-        else:
-            Logger.debug("User was not logged on.")
 
     def __safe_log(self, text):
         return "".join([text[i] if i % 2 == 0 else "*" for i in range(0, len(text))])

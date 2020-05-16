@@ -147,7 +147,7 @@ class ArkoseHandler(AuthenticationHandler):
         arkose_token = arkose_json.get_value("token")
         if "rid=" not in arkose_token:
             Logger.error("Error logging in. Invalid Arkose token.")
-            return AuthenticationResult(False)
+            return AuthenticationResult(None)
         Logger.debug("Succesfully required a login token from Arkose.")
 
         # New we need to access the API of Dplay for logging in
@@ -174,16 +174,17 @@ class ArkoseHandler(AuthenticationHandler):
                                  json=creds, additional_headers=headers)
         if UriHandler.instance().status.code > 299:
             Logger.error("Failed to log in: %s", result)
-            return AuthenticationResult(False)
+            return AuthenticationResult(None)
 
+        # TODO: premium
         Logger.debug("Succesfully logged in")
-        return AuthenticationResult(True)
+        return AuthenticationResult(username)
 
-    def authenticated_user(self):
+    def active_authentication(self):
         """ Check if the user with the given name is currently authenticated.
 
-         :returns: a AuthenticationResult with the account data
-         :rtype: str
+        :returns: a AuthenticationResult with the account data.
+        :rtype: AuthenticationResult
 
          """
 
@@ -194,11 +195,17 @@ class ArkoseHandler(AuthenticationHandler):
 
         me = UriHandler.open("https://disco-api.dplay.se/users/me", no_cache=True)
         if UriHandler.instance().status.code >= 300:
-            return None
+            return AuthenticationResult(None)
 
         account_data = JsonHelper(me)
         signed_in_user = account_data.get_value("data", "attributes", "username")
-        return signed_in_user
+        if not signed_in_user:
+            return AuthenticationResult(None)
+
+        packages = account_data.get_value("data", "attributes", "packages", fallback=[])
+        has_premium = "Premium" in packages
+
+        return AuthenticationResult(signed_in_user, existing_login=True, has_premium=has_premium)
 
     def log_off(self, username):
         """ Check if the user with the given name is currently authenticated.

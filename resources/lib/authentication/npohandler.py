@@ -4,6 +4,7 @@ import json
 from resources.lib.authentication.authenticationhandler import AuthenticationHandler
 from resources.lib.authentication.authenticationresult import AuthenticationResult
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
 
 
@@ -43,7 +44,8 @@ class NpoHandler(AuthenticationHandler):
 
         authenticate_cookie = UriHandler.get_cookie('isAuthenticatedUser', "www.npostart.nl")
         if not authenticate_cookie or authenticate_cookie.value != "1":
-            return AuthenticationResult(False)
+            Logger.error("No NPO `isAuthenticatedUser` cookie found after login.")
+            return AuthenticationResult(None)
 
         subscription_cookie = UriHandler.get_cookie("subscription", "www.npostart.nl")
         has_premium = False
@@ -53,13 +55,13 @@ class NpoHandler(AuthenticationHandler):
         success = not UriHandler.instance().status.error
         if success:
             self._store_current_user_in_settings(username)
-        return AuthenticationResult(success, has_premium)
+        return AuthenticationResult(username, has_premium=has_premium)
 
-    def authenticated_user(self):
+    def active_authentication(self):
         """ Check if the user with the given name is currently authenticated.
 
         :returns: a AuthenticationResult with the account data
-        :rtype: str
+        :rtype: AuthenticationResult
 
         """
 
@@ -69,7 +71,7 @@ class NpoHandler(AuthenticationHandler):
                 authenticate_cookie.is_expired() or \
                 authenticate_cookie.value != "1":
             self._store_current_user_in_settings(None)
-            return None
+            return AuthenticationResult(None)
 
         # See if we can retrieve our profile
         xsrf_token = self.__get_xsrf_token()
@@ -85,9 +87,14 @@ class NpoHandler(AuthenticationHandler):
         if UriHandler.instance().status.error:
             # Not logged on anymore
             self._store_current_user_in_settings(None)
-            return None
+            return AuthenticationResult(None)
 
-        return self._get_current_user_in_settings()
+        subscription_cookie = UriHandler.get_cookie("subscription", "www.npostart.nl")
+        has_premium = False
+        if subscription_cookie:
+            has_premium = subscription_cookie.value == "npoplus"
+        return AuthenticationResult(self._get_current_user_in_settings(),
+                                    existing_login=True, has_premium=has_premium)
 
     def log_off(self, username):
         """ Check if the user with the given name is currently authenticated.

@@ -6,6 +6,7 @@ import unittest
 
 from resources.lib.authentication.arkosehandler import ArkoseHandler
 from resources.lib.authentication.authenticator import Authenticator
+from resources.lib.authentication.npohandler import NpoHandler
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
 
@@ -50,13 +51,26 @@ class TestAuthenticator(unittest.TestCase):
         a = Authenticator(h)
         self.assertIsNotNone(a)
 
+    def test_login_no_username(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        with self.assertRaises(ValueError):
+            a.log_on("", "secret")
+
+    def test_login_no_password(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        with self.assertRaises(ValueError):
+            a.log_on("username", "")
+
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_current_user(self):
         h = ArkoseHandler("dplay.se", self.device_id)
         a = Authenticator(h)
-        h_user = h.authenticated_user()
-        a_user = a.authenticated_user()
-        self.assertEqual(h_user, a_user)
+        a.log_on(self.user_name, self.password)
+        h_user = h.active_authentication()
+        a_user = a.active_authentication()
+        self.assertEqual(h_user.username, a_user.username)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_log_on(self):
@@ -66,13 +80,35 @@ class TestAuthenticator(unittest.TestCase):
         self.assertTrue(res.logged_on)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
+    def test_log_on_twice(self):
+        h = ArkoseHandler("dplay.se", self.device_id)
+        a = Authenticator(h)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+        self.assertTrue(res.existing_login)
+
+    @unittest.skipIf("NPO_USERNAME" not in os.environ, "Not testing login without credentials")
+    def test_log_on_twice_npo(self):
+        self.user_name = os.environ.get("NPO_USERNAME")
+        self.password = os.environ.get("NPO_PASSWORD")
+        h = NpoHandler("npo.nl")
+        a = Authenticator(h)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+        res = a.log_on(self.user_name, self.password)
+        self.assertTrue(res.logged_on)
+        self.assertTrue(res.existing_login)
+
+    @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_log_off(self):
         h = ArkoseHandler("dplay.se", self.device_id)
         a = Authenticator(h)
         res = a.log_on(self.user_name, self.password)
         self.assertTrue(res.logged_on)
         a.log_off(self.user_name)
-        self.assertIsNone(a.authenticated_user())
+        self.assertIsFalse(a.active_authentication().logged_on)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_log_on_without_log_off(self):
@@ -83,4 +119,4 @@ class TestAuthenticator(unittest.TestCase):
         user_name = self.user_name.replace("lf@m", "lf2@m")
         res = a.log_on(user_name, self.password)
         self.assertTrue(res.logged_on)
-        self.assertEqual(user_name, a.authenticated_user())
+        self.assertEqual(user_name, a.active_authentication().username)
