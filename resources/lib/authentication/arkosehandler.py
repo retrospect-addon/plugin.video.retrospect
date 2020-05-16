@@ -176,22 +176,27 @@ class ArkoseHandler(AuthenticationHandler):
             Logger.error("Failed to log in: %s", result)
             return AuthenticationResult(None)
 
-        # TODO: premium
         Logger.debug("Succesfully logged in")
-        return AuthenticationResult(username)
+        info = self.active_authentication()
+        info.existing_login = False
+        return info
 
-    def active_authentication(self):
+    def active_authentication(self, skip_token=False):
         """ Check if the user with the given name is currently authenticated.
 
-        :returns: a AuthenticationResult with the account data.
+        :param bool skip_token: Should we fetch a API token first in order make use of the API or
+                                 not? In the later case we should already have one.
+
+        :return: a AuthenticationResult with the account data.
         :rtype: AuthenticationResult
 
          """
 
-        UriHandler.open(
-            "https://disco-api.dplay.se/token?realm=dplayse&deviceId={}&shortlived=true"
-            .format(self._device_id), no_cache=True
-        )
+        if not skip_token:
+            UriHandler.open(
+                "https://disco-api.dplay.se/token?realm=dplayse&deviceId={}&shortlived=true"
+                .format(self._device_id), no_cache=True
+            )
 
         me = UriHandler.open("https://disco-api.dplay.se/users/me", no_cache=True)
         if UriHandler.instance().status.code >= 300:
