@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
+from resources.lib.addonsettings import AddonSettings
+from resources.lib.addonsettings import LOCAL
 from resources.lib.authentication.authenticationresult import AuthenticationResult
 
 
@@ -20,7 +22,7 @@ class AuthenticationHandler(object):
         return
 
     @property
-    def domain(self):
+    def realm(self):
         return self._realm
 
     def log_on(self, username, password):
@@ -56,3 +58,25 @@ class AuthenticationHandler(object):
         """
 
         raise NotImplementedError
+
+    def _store_current_user_in_settings(self, username):
+        """ Store the current user in the local settings.
+
+        :param str|None username: The currently authenticated user
+
+        Can be used if there is no other means of retrieving the currently authenticated user.
+
+        """
+
+        store = AddonSettings.store(LOCAL)
+        store.set_setting("{}:authenticated_user".format(self._realm), username)
+
+    def _get_current_user_in_settings(self):
+        """ Retrieves the current user in the local settings.
+
+        Can be used if there is no other means of retrieving the currently authenticated user.
+
+        """
+
+        store = AddonSettings.store(LOCAL)
+        return store.get_setting("{}:authenticated_user".format(self._realm), default=None)
