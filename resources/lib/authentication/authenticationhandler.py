@@ -59,6 +59,19 @@ class AuthenticationHandler(object):
 
         raise NotImplementedError
 
+    def get_authentication_token(self):
+        """ Returns a token that can be used for authentication of the current session.
+
+
+
+        The user needs to be logged in for this.
+
+        :return: An authentication token.
+        :rtype: str
+
+        """
+        raise NotImplementedError
+
     def _store_current_user_in_settings(self, username):
         """ Store the current user in the local settings.
 

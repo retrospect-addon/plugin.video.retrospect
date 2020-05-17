@@ -38,7 +38,6 @@ class TestNpoHandler(unittest.TestCase):
         a = NpoHandler("npo.nl")
         self.assertIsNotNone(a)
 
-    @unittest.skipIf("NPO_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_invalid_username(self):
         a = NpoHandler("npo.nl")
         res = a.log_on("nobody", "secret")
