@@ -176,7 +176,7 @@ class UriHandler(object):
         :param int expires:             Integer expiry date in seconds since epoch, or None.
 
         :return: The new cookie.
-        :rtype: cookielib.Cookie
+        :rtype: http.cookiejar.Cookie
         """
 
         Logger.debug("Setting a cookie with this data:\n"
@@ -211,7 +211,7 @@ class UriHandler(object):
         :param bool match_start:    Should only match the start of a name?
 
         :return: the found cookie or
-        :rtype: cookielib.Cookie|None
+        :rtype: http.cookiejar.Cookie|None
 
         """
 
