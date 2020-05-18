@@ -116,7 +116,7 @@
     </extension>
 
     <extension point="xbmc.addon.metadata">
-        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <reuselanguageinvoker>false</reuselanguageinvoker>
         <platform>all</platform>
 
         <summary lang="en_GB">Retrospect enables playback of re-runs/catch-ups of TV shows available online.</summary>
