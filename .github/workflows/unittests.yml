@@ -37,6 +37,8 @@ jobs:
         env:
           _DPLAY_USERNAME: ${{ secrets.DplayUsername }}
           _DPLAY_PASSWORD: ${{ secrets.DplayPassword }}
+          NPO_USERNAME: ${{ secrets.NpoUsername }}
+          NPO_PASSWORD: ${{ secrets.NpoPassword }}
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii
           export KODI_HOME=$GITHUB_WORKSPACE/tests/home
