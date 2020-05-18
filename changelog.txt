@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.4 - Changelog - 2020-05-12[/B]
+[B]Retrospect v5.2.5 - Changelog - 2020-05-18[/B]
 
-This new version of Retrospect shuffles some of the channel load logic and mostly fixes an issue in the NPO live channels.
+This version of Retrospect fixes some login related issues for VRT.nu and Dplay.se and squashes a minor bug for kijk.nl.
 
 [B]Framework related[/B]
 * Added: option to limit certain settings to only some channel in a channel set

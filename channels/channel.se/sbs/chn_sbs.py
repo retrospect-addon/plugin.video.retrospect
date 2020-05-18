@@ -932,8 +932,6 @@ class Channel(chn_class.Channel):
         """
         https://gist.github.com/adrianlzt/d5c9657e205b57f687f528a5ac59fe0e
 
-        https://github.com/Shani-08/ShaniXBMCWork2/blob/master/plugin.video.serialzone/jscrypto.py
-
         :param byte passwd:
         :param byte salt:
         :param int key_size:
