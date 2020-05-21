@@ -6,3 +6,4 @@ pyaes
 pyscrypt
 pytz
 pytest
+sakee
