@@ -1,0 +1,16 @@
+{
+  "id": "libTextures",
+  "jsonrpc": "2.0",
+  "result": {
+    "textures": [
+      {
+        "textureid": 4626,
+        "url": "image://special%3a%2f%2fprofile%2faddon_data%2f/image1.jpg"
+      },
+      {
+        "textureid": 8763,
+        "url": "image://special%3a%2f%2fprofile%2faddon_data%2f/image2.jpg"
+      }
+    ]
+  }
+}

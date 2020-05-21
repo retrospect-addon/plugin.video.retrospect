@@ -1,0 +1,28 @@
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "favourites": [
+      {
+        "title": "Watching Movies",
+        "type": "window",
+        "windowparameter": "special://profile/playlists/video/Watching - Movies.xsp"
+      },
+      {
+        "title": "Retrospect",
+        "type": "window",
+        "windowparameter": "plugin://plugin.video.retrospect/"
+      },
+      {
+        "title": "YouTube",
+        "type": "window",
+        "windowparameter": "plugin://plugin.video.youtube/"
+      }
+    ],
+    "limits": {
+      "end": 3,
+      "start": 0,
+      "total": 3
+    }
+  }
+}
