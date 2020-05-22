@@ -128,7 +128,10 @@ class GigyaHandler(AuthenticationHandler):
 
         """
 
-        raise NotImplementedError
+        # clean older data
+        UriHandler.delete_cookie(domain=".gigya.com")
+        AddonSettings.set_setting(self.__setting_signature, "", store=LOCAL)
+        return True
 
     def __extract_session_data(self, logon_data):
         """
