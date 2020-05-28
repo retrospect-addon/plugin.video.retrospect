@@ -657,41 +657,57 @@ class MediaItem:
 
         if self.__expires_datetime is not None:
             expires = "{}: {}".format(MediaItem.ExpiresAt, self.__expires_datetime.strftime("%Y-%m-%d %H:%M"))
-            description_prefix.append(expires)
+            description_prefix.append(("gold", expires))
 
         if self.isDrmProtected:
-            title_postfix.append(drm_lock)
+            title_postfix.append(("gold", drm_lock))
             description_prefix.append(
-                LanguageHelper.get_localized_string(LanguageHelper.DrmProtected))
+                ("gold", LanguageHelper.get_localized_string(LanguageHelper.DrmProtected))
+            )
 
         if self.isGeoLocked:
-            title_postfix.append(geo_lock)
+            title_postfix.append(("aqua", geo_lock))
             description_prefix.append(
-                LanguageHelper.get_localized_string(LanguageHelper.GeoLockedId))
+                ("aqua", LanguageHelper.get_localized_string(LanguageHelper.GeoLockedId))
+            )
 
         if self.isPaid:
-            title_postfix.append(paid)
+            title_postfix.append(("gold", paid))
             description_prefix.append(
-                LanguageHelper.get_localized_string(LanguageHelper.PremiumPaid))
+                ("gold", LanguageHelper.get_localized_string(LanguageHelper.PremiumPaid))
+            )
 
         if self.isCloaked:
-            title_postfix.append(cloaked)
+            title_postfix.append(("gold", cloaked))
             description_prefix.append(
-                LanguageHelper.get_localized_string(LanguageHelper.HiddenItem))
+                ("gold", LanguageHelper.get_localized_string(LanguageHelper.HiddenItem))
+            )
 
         if self.uses_external_addon:
             from resources.lib.xbmcwrapper import XbmcWrapper
             external = XbmcWrapper.get_external_add_on_label(self.url)
-            title_postfix.append(external)
+            title_postfix.append(("gold", external))
+
+        def __color_text(texts, text_format="[COLOR {}]{}[/COLOR]"):
+            """
+
+            :param list[tuple[str, str]] texts:     The color and text (in tuple)
+            :param str text_format:                 The format used for filling
+
+            :return: A Kodi compatible color coded string.
+            :rtype: str
+
+            See https://forum.kodi.tv/showthread.php?tid=210837
+            """
+
+            return "".join([text_format.format(clr, text.lstrip()) for clr, text in texts])
 
         # actually update it
         if description_prefix:
-            description_prefix = "\n".join(description_prefix)
-            description = "[COLOR gold][I]%s[/I][/COLOR]" % (description_prefix.rstrip(), )
+            description = __color_text(description_prefix)
 
         if title_postfix:
-            title = "".join(title_postfix)
-            title = "[COLOR gold]%s[/COLOR]" % (title.lstrip(), )
+            title = __color_text(title_postfix)
 
         return title, description
 
