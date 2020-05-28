@@ -13,3 +13,4 @@ _None_
 * Added: option to specify a login for Dplay.se (Fixes #1364)
 * Fixed: don't group special folders for kijk.nl (Fixes #1377)
 * Fixed: VRT.nu changed their login code (Fixes #1379)
+* Fixed: Nick Jr stream resolving (Fixes #1382)
