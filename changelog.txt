@@ -14,3 +14,4 @@ This version of Retrospect fixes some login related issues for VRT.nu and Dplay.
 * Fixed: Don't group special folders for kijk.nl (Fixes #1377)
 * Fixed: VRT.nu changed their login code (Fixes #1379)
 * Added: Try to add a geo-locked indicator to NPO Start (See #1380)
+* Fixed: Nick Jr stream resolving (Fixes #1382)
