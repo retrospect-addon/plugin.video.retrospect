@@ -16,3 +16,4 @@ This version of Retrospect fixes some login related issues for VRT.nu and Dplay.
 * Fixed: VRT.nu changed their login code (Fixes #1379)
 * Added: Try to add a geo-locked indicator to NPO Start (See #1380)
 * Fixed: Nick Jr stream resolving (Fixes #1382)
+* Changed: Enabled Dolby Digital audio stream for SVT.se
