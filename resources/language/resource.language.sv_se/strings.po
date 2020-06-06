@@ -98,7 +98,7 @@ msgid "Show DRM/Paid warning before playback"
 msgstr "Visa DRM-/betalvarningar innan uppspelning"
 
 msgctxt "#30020"
-msgid "Maximum Stream Bitrate"
+msgid "Maximum stream bitrate [I][COLOR=gray](overrides IA setting)[/COLOR][/I]"
 msgstr "Högsta bithastighet för strömmar"
 
 msgctxt "#30021"
