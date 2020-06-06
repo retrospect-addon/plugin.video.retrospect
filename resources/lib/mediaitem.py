@@ -444,7 +444,7 @@ class MediaItem:
 
         Logger.info("Creating playlist items for Bitrate: %s kbps\n%s", bitrate, self)
 
-        if not bool(bitrate):
+        if bitrate is None:
             raise ValueError("Bitrate not specified")
 
         play_list_data = []
@@ -455,8 +455,7 @@ class MediaItem:
 
             kodi_item = self.get_kodi_item()
             stream = part.get_media_stream_for_bitrate(bitrate)
-            Logger.info("Selected Stream:  %s", stream)
-            if stream.Adaptive:
+            if stream.Adaptive and bitrate > 0:
                 Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
 
             # Set the actual stream path
@@ -490,6 +489,7 @@ class MediaItem:
                 Logger.debug("Adding Kodi Stream parameters: %s\n%s", header_params, kodi_query_string)
                 stream_url = "%s|%s" % (stream.Url, kodi_query_string)
 
+            Logger.info("Playing Stream:  %s", stream)
             play_list_data.append((kodi_item, stream_url))
 
         return play_list_data
@@ -852,6 +852,11 @@ class MediaItemPart:
         self.MediaStreams.sort(key=lambda s: s.Bitrate)
         best_stream = None
         best_distance = None
+
+        if bitrate == 0:
+            # return the highest one
+            Logger.debug("Returning the higest bitrate stream")
+            return self.MediaStreams[-1]
 
         for stream in self.MediaStreams:
             if stream.Bitrate is None:
