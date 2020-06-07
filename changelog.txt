@@ -3,17 +3,13 @@
 This version of Retrospect fixes some login related issues for VRT.nu and Dplay.se and squashes a minor bug for kijk.nl.
 
 [B]Framework related[/B]
-* Added: Option to limit certain settings to only some channel in a channel set
-* Added: Option to generate a channel guid for a setting in a channel set
 * Fixed: Some Kodi Matrix Python API changes (Fixes #1384)
+* Changed: By default no bitrates are limited. This can be changed via the Retrospect add-on settings
 
 [B]GUI/Settings/Language related[/B]
 * Added: Different color for "Geo-locked" items
 
 [B]Channel related[/B]
-* Added: Option to specify a login for Dplay.se (Fixes #1364)
-* Fixed: Don't group special folders for kijk.nl (Fixes #1377)
-* Fixed: VRT.nu changed their login code (Fixes #1379)
 * Added: Try to add a geo-locked indicator to NPO Start (See #1380)
 * Fixed: Nick Jr stream resolving (Fixes #1382)
 * Changed: Enabled Dolby Digital audio stream for SVT.se
