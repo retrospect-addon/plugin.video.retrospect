@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
+import os
+import unittest
 
 from tests.channel_tests.channeltest import ChannelTest
 
@@ -84,4 +86,9 @@ class TestNpoChannel(ChannelTest):
 
     def test_update_stream_pow(self):
         url = "POW_04508304"
+        self._test_video_url(url)
+
+    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
+    def test_update_stream_live(self):
+        url = "https://www.npostart.nl/live/npo-1"
         self._test_video_url(url)
