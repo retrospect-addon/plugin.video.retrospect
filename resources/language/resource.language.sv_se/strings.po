@@ -1,6 +1,7 @@
 # Kodi Media Center language file
 # Translators:
 # Bas Rieter <basrieter@gmail.com>, 2020
+# Snah <dynggrep@gmail.com>, 2020
 # Sopor, 2020
 # 
 msgid ""
@@ -99,7 +100,7 @@ msgstr "Visa DRM-/betalvarningar innan uppspelning"
 
 msgctxt "#30020"
 msgid "Maximum Stream Bitrate [COLOR=gray](0=disabled)[/COLOR]"
-msgstr "Högsta bithastighet för strömmar"
+msgstr "Maximal strömbithastighet [COLOR=gray](0=inaktiverad)[/COLOR]"
 
 msgctxt "#30021"
 msgid "Enable subtitles by default when available"
@@ -1086,3 +1087,31 @@ msgstr ""
 "måste Kodi startas om. Efter omstarten måste eventuella genvägar till "
 "Retrospect förnyas. Du kan avinstallera den Retrospect som är markerad som "
 "\"trasig\" i \"Mina tillägg\"."
+
+msgctxt "#30604"
+msgid "Clean-up cache and cookies »"
+msgstr "Rensa cache och kakor"
+
+msgctxt "#30605"
+msgid ""
+"Are you sure you want to clean all of Retrospect's cache and cookies? This "
+"action cannot be undone."
+msgstr ""
+"Är du säker på att du helt vill rensa Retrospects cache och kakor? Detta kan"
+" inte ångras."
+
+msgctxt "#30606"
+msgid "Minimum level for showing notifications"
+msgstr "Minsta nivå för att visa aviseringar"
+
+msgctxt "#30607"
+msgid "Info"
+msgstr "Info"
+
+msgctxt "#30608"
+msgid "Warning"
+msgstr "Varning"
+
+msgctxt "#30609"
+msgid "Error"
+msgstr "Fel"
