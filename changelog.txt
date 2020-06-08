@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.5 - Changelog - 2020-05-18[/B]
+[B]Retrospect v5.2.6 - Changelog - 2020-06-09[/B]
 
-This version of Retrospect fixes some login related issues for VRT.nu and Dplay.se and squashes a minor bug for kijk.nl.
+This new version of Retrospect addresses a number of channel bugs. Besides this the behavior of the bitrate limiting was changed and by default no limit is set. Users can still change this via the add-on settings. There was also a fix for changed Kodi Matrix Python API.
 
 [B]Framework related[/B]
 * Fixed: Some Kodi Matrix Python API changes (Fixes #1384)
