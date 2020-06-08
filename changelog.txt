@@ -5,6 +5,7 @@ This version of Retrospect fixes some login related issues for VRT.nu and Dplay.
 [B]Framework related[/B]
 * Fixed: Some Kodi Matrix Python API changes (Fixes #1384)
 * Changed: By default no bitrates are limited. This can be changed via the Retrospect add-on settings
+* Fixed: A bug was introduced to that sometimes sets an empty subtitle to the Kodi player (Fixes #1390)
 
 [B]GUI/Settings/Language related[/B]
 * Added: Different color for "Geo-locked" items
