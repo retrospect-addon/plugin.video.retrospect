@@ -123,6 +123,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual("", url)
         self.assertEqual("", content_type)
 
+    @unittest.skip("Error in httpbin.org causes 404: https://github.com/postmanlabs/httpbin/issues/617")
     def test_head_redirect(self):
         UriHandler.create_uri_handler()
 
@@ -132,6 +133,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(url, 'http://httpbin.org/get')
         self.assertEqual(200, UriHandler.instance().status.code)
 
+    @unittest.skip("Error in httpbin.org causes 404: https://github.com/postmanlabs/httpbin/issues/617")
     def test_head_double_redirect(self):
         UriHandler.create_uri_handler()
 
