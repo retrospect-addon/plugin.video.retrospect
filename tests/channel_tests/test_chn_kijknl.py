@@ -93,7 +93,7 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_graphql_season_list(self):
         self._test_folder_url(
-            "https://graph.kijk.nl/graphql?query=query%7Bprograms%28tvSeasonId%3A%22117406760354"
+            "https://graph.kijk.nl/graphql?query=query%7Bprograms%28tvSeasonId%3A%22113154600206"
             "%22%2CprogramTypes%3AEPISODE%2Cskip%3A0%2Climit%3A100%29%7Bitems%7B__typename%2Ctitle"
             "%2Cdescription%2Cguid%2Cupdated%2CseriesTvSeasons%7Bid%7D%2CimageMedia%7Burl%2Clabel"
             "%7D%2Ctype%2Csources%7Btype%2Cdrm%2Cfile%7D%2Cseries%7Btitle%7D%2CseasonNumber"
