@@ -3,15 +3,10 @@
 This new version of Retrospect addresses a number of channel bugs. Besides this the behavior of the bitrate limiting was changed and by default no limit is set. Users can still change this via the add-on settings. There was also a fix for changed Kodi Matrix Python API.
 
 [B]Framework related[/B]
-* Fixed: Some Kodi Matrix Python API changes (Fixes #1384)
-* Changed: By default no bitrates are limited. This can be changed via the Retrospect add-on settings
-* Fixed: A bug was introduced to that sometimes sets an empty subtitle to the Kodi player (Fixes #1390)
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Added: Different color for "Geo-locked" items
+* Fixed: Regression bug that caused the description prefixes to not be on a new line
 
 [B]Channel related[/B]
-* Added: Try to add a geo-locked indicator to NPO Start (See #1380)
-* Fixed: Nick Jr stream resolving (Fixes #1382)
-* Changed: Enabled Dolby Digital audio stream for SVT.se
-* Fixed: NPO Live streams that contain GEO locked content would not play at all (Fixes #1389)
+_None_
