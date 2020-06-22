@@ -42,7 +42,7 @@ class Channel(chn_class.Channel):
         self.recentUrl = None      # : the url for most recent items
 
         if self.channelCode == "wosnl":
-            self.noImage = "wosnlimage.png"
+            self.noImage = "wosnlimage.jpg"
             self.mainListUri = "https://media.wos.nl/retrospect/wos4retrospect.json"
             self.baseUrl = "https://media.wos.nl/retrospect/"
             self.liveUrl = "https://ms2.mx-cd.net/dtv-11/99-660295/WOS.smil/playlist.m3u8"
