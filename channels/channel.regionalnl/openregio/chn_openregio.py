@@ -156,39 +156,17 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
 
-        media_link = result_set.get("ipadLink")
         title = result_set.get("title")
-
-        # it seems overkill, but not all items have a contentLink and of we set
-        # the url to self.baseUrl it will be a duplicate item if the titles are
-        # equal
-        url = result_set.get("contentLink") or media_link or self.baseUrl
-        if not url.startswith("http"):
-            url = parse.urljoin(self.baseUrl, url)
+        url = result_set.get("contentLink")
 
         item = MediaItem(title, url)
-
-        if media_link:
-            item.append_single_stream(media_link, self.channelBitrate)
-
-        # get the thumbs from multiple locations
-        thumb_urls = result_set.get("images", None)
-        thumb_url = None
-        if thumb_urls:
-            # noinspection PyUnresolvedReferences
-            thumb_url = \
-                thumb_urls[0].get("fullScreenLink", None) or \
-                thumb_urls[0].get("previewLink", None) or \
-                result_set.get("imageLink", None)
-
-        if thumb_url and not thumb_url.startswith("http"):
-            thumb_url = parse.urljoin(self.baseUrl, thumb_url)
-
-        if thumb_url:
-            item.thumb = thumb_url
-
+        item.thumb = result_set.get("image")
         item.type = 'video'
         item.description = HtmlHelper.to_text(result_set.get("text"))
+
+        media_link = result_set.get("video")
+        if media_link:
+            item.append_single_stream(media_link, self.channelBitrate)
 
         posix = result_set.get("timestamp", None)
         if posix:
@@ -200,6 +178,7 @@ class Channel(chn_class.Channel):
                           broadcast_date.minute,
                           broadcast_date.second)
 
+        item.set_info_label("duration", result_set.get("duration", 0))
         item.complete = True
         return item
 
