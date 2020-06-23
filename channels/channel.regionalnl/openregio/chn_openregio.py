@@ -192,7 +192,7 @@ class Channel(chn_class.Channel):
         url = result_set.get("contentLink")
 
         item = MediaItem(title, url)
-        item.thumb = result_set.get("image")
+        item.thumb = result_set.get("image", result_set.get("imageLink"))
         item.type = 'video'
         item.description = HtmlHelper.to_text(result_set.get("text"))
 
