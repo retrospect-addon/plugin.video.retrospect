@@ -9,7 +9,8 @@
       "channelcode": "wosnl",
       "sortorder": 100,
       "language": "nl",
-      "fanart": "wosnlfanart.jpg"
+      "fanart": "wosnlfanart.jpg",
+      "adaptiveAddonSelectable": true
     }
   ]
 }

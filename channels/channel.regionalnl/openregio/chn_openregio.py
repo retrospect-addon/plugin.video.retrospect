@@ -45,7 +45,7 @@ class Channel(chn_class.Channel):
             self.noImage = "wosnlimage.jpg"
             self.mainListUri = "https://media.wos.nl/retrospect/wos4retrospect.json"
             self.baseUrl = "https://media.wos.nl/retrospect/"
-            self.liveUrl = "https://ms2.mx-cd.net/dtv-11/99-660295/WOS.smil/playlist.m3u8"
+            self.liveUrl = "https://rss.wos.nl/stream/wos-stream.php"
             self.recentUrl = "https://media.wos.nl/retrospect/latest.json"
             self.channelBitrate = 1350
 
@@ -54,13 +54,17 @@ class Channel(chn_class.Channel):
 
         # setup the main parsing data
         self._add_data_parser(self.mainListUri, json=True,
+                              name="Mainlist parser",
                               preprocessor=self.add_other_items, match_type=ParserData.MatchExact,
                               parser=[], creator=self.create_episode_item)
+
+        self._add_data_parser("https://rss.wos.nl/stream/wos-stream.php", json=True,
+                              name="Live stream parser",
+                              parser=[], creator=self.create_live_item)
 
         self._add_data_parser("*", json=True,
                               parser=["items"], creator=self.create_video_item,
                               updater=self.update_video_item)
-        # ====================================== Actual channel setup STOPS here =======================================
         return
 
     def add_other_items(self, data):
@@ -85,7 +89,6 @@ class Channel(chn_class.Channel):
             Logger.debug("Adding live item")
             live_title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
             live_item = MediaItem("\a{}".format(live_title), self.liveUrl)
-            live_item.type = "video"
             live_item.dontGroup = True
             items.append(live_item)
 
@@ -97,6 +100,34 @@ class Channel(chn_class.Channel):
             items.append(recent_item)
 
         return data, items
+
+    def create_live_item(self, result_set):
+        """ Creates a new MediaItem for an live item.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        title = result_set.get("Title")
+        link = result_set.get("PreferredHQURL")
+
+        item = MediaItem(title, link)
+        item.type = "video"
+        item.isLive = True
+        item.fanart = result_set.get('LargeArtWorkUrl')
+        item.thumb = result_set.get('ScreenshotUrl')
+
+        if "radio" in title.lower():
+            item.type = "audio"
+        return item
 
     def create_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
@@ -206,7 +237,13 @@ class Channel(chn_class.Channel):
 
         Logger.debug("Updating a (Live) video item")
 
-        if ".m3u8" in item.url:
+        if item.type == "audio":
+            part = item.create_new_empty_media_part()
+            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
+                item.complete = True
+                part.append_media_stream(s, b)
+
+        elif ".m3u8" in item.url:
             part = item.create_new_empty_media_part()
             item.complete = M3u8.update_part_with_m3u8_streams(
                 part, item.url, channel=self, encrypted=False)
