@@ -7,6 +7,7 @@ _None_
 
 [B]GUI/Settings/Language related[/B]
 * Fixed: Regression bug that caused the description prefixes to not be on a new line
+* Changed: sorting code optimized and added an sort by 'episode' option that users can select per folder
 
 [B]Channel related[/B]
 _None_
