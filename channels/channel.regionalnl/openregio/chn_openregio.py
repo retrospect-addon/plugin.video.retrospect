@@ -155,6 +155,7 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, link)
         item.thumb = result_set.get("image")
+        item.description = result_set.get("text")
         item.complete = True
 
         timestamp = result_set.get("timestamp")
