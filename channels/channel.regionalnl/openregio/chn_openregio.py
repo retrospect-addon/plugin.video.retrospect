@@ -196,7 +196,7 @@ class Channel(chn_class.Channel):
         item.type = 'video'
         item.description = HtmlHelper.to_text(result_set.get("text"))
 
-        media_link = result_set.get("video")
+        media_link = result_set.get("video", result_set.get("ipadLink"))
         if media_link:
             item.append_single_stream(media_link, self.channelBitrate)
 
