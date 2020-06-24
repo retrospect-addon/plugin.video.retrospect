@@ -450,6 +450,14 @@ class TestUriHandler(unittest.TestCase):
         cookie = UriHandler.get_cookie(cookie_name, cookie_domain)
         self.assertIsNotNone(cookie, msg="Cookie was not persisted on disk")
 
+    def test_clear_cookies(self):
+        UriHandler.create_uri_handler()
+        UriHandler.set_cookie(name="ipsum", domain="domain.com")
+        UriHandler.set_cookie(name="ipsum2", domain="domain2.com")
+        self.assertGreaterEqual(len(UriHandler.instance().cookieJar._cookies), 2)
+        UriHandler.clear_cookies()
+        self.assertDictEqual(UriHandler.instance().cookieJar._cookies, {})
+
     def test_no_cookies(self):
         UriHandler.create_uri_handler()
 
