@@ -43,10 +43,10 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "wosnl":
             self.noImage = "wosnlimage.jpg"
-            self.mainListUri = "https://media.wos.nl/retrospect/wos4retrospect.json"
+            self.mainListUri = "https://media.wos.nl/retrospect/wos/wos-index.json"
             self.baseUrl = "https://media.wos.nl/retrospect/"
             self.liveUrl = "https://rss.wos.nl/stream/wos-stream.php"
-            self.recentUrl = "https://media.wos.nl/retrospect/latest.json"
+            self.recentUrl = "https://media.wos.nl/retrospect/wos/wos-latest.json"
             self.channelBitrate = 1350
 
         else:
