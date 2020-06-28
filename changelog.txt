@@ -10,4 +10,4 @@ This new version of Retrospect addresses a number of channel bugs. Besides this 
 * Changed: sorting code optimized and added an sort by 'episode' option that users can select per folder
 
 [B]Channel related[/B]
-_None_
+* Fixed: VRT.nu could not log in any more (Fixes #1400)
