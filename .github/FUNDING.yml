@@ -9,4 +9,4 @@ community_bridge: # Replace with a single Community Bridge project-name e.g., cl
 liberapay: # Replace with a single Liberapay username
 issuehunt: # Replace with a single IssueHunt username
 otechie: # Replace with a single Otechie username
-custom: ["https://www.paypal.com/donate/?token=qtIEok3kkRXjs07GBtWehSyIhaorJ-ghXLbRh1oS1V5mS6Tu8azvUBF3_Ll6wdQPIhn2nG&country.x=GB&locale.x=GB", "https://www.rieter.net/content/#Please_sir_can_you_spare_a_dollar"]
+custom: ["https://www.rieter.net/content/#Please_sir_can_you_spare_a_dollar"]
