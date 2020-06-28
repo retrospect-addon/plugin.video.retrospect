@@ -7,38 +7,6 @@ class TestKijkNlChannel(ChannelTest):
     def __init__(self, methodName):  # NOSONAR
         super(TestKijkNlChannel, self).__init__(methodName, "channel.sbsnl.kijknl", None)
 
-    def test_sbs6(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        chn = ChannelIndex.get_register().get_channel(self._channel, "sbs")
-        self.assertIsNotNone(chn)
-
-    def test_sbs9(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        chn = ChannelIndex.get_register().get_channel(self._channel, "sbs9")
-        self.assertIsNotNone(chn)
-
-    def test_veronica(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        chn = ChannelIndex.get_register().get_channel(self._channel, "veronica")
-        self.assertIsNotNone(chn)
-
-    def test_net5(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        chn = ChannelIndex.get_register().get_channel(self._channel, "net5")
-        self.assertIsNotNone(chn)
-
-    def test_json_video_update_embedded(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        self.channel = ChannelIndex.get_register().get_channel(self._channel, "sbs")
-        self._test_video_url(
-            "https://embed.kijk.nl/api/video/vW4tShkyXsd?id=kijkapp&format=DASH&drm=CENC")
-
-    def test_json_video_update_404_embedded(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        self.channel = ChannelIndex.get_register().get_channel(self._channel, "sbs")
-        self._test_video_url(
-            "https://embed.kijk.nl/api/video/S0t2RpYw4Ts?id=kijkapp&format=DASH&drm=CENC")
-
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
@@ -46,27 +14,8 @@ class TestKijkNlChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 50)
 
-    def test_main_list_none_kijk(self):
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        self.channel = ChannelIndex.get_register().get_channel(self._channel, "sbs")
-        self.test_main_list()
-
     def test_last_week(self):
         self._test_folder_url("#lastweek", expected_results=7, exact_results=True)
-
-    def test_week_day(self):
-        self._test_folder_url("https://api.kijk.nl/v1/default/sections/missed-all-20191011",
-                              expected_results=10)
-
-    def test_main_list_html(self):
-        with self.assertRaises(ValueError):
-            self._test_folder_url("https://www.kijk.nl/programmas",
-                                  expected_results=0, exact_results=True)
-
-    def test_poplular(self):
-        self._test_folder_url(
-            "https://api.kijk.nl/v2/default/sections/popular_PopularVODs?offset=0",
-            expected_results=50)
 
     def test_update_embedded_mpd_video(self):
         self._test_video_url(

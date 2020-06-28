@@ -11,3 +11,4 @@ This new version of Retrospect addresses a number of channel bugs. Besides this 
 
 [B]Channel related[/B]
 * Fixed: VRT.nu could not log in any more (Fixes #1400)
+* Removed: SBS6, SBS9, Veronica, NET5 as they all moved to kijk.nl (Fixes #1401)
