@@ -49,6 +49,13 @@ class Channel(chn_class.Channel):
             self.recentUrl = "https://media.wos.nl/retrospect/wos/wos-latest.json"
             self.channelBitrate = 1350
 
+        elif self.channelCode == "dtvnl":
+            self.noImage = "dtvnlimage.jpg"
+            self.mainListUri = "https://media.wos.nl/retrospect/dtvnieuws/dtvnieuws-index.json"
+            self.baseUrl = "https://media.wos.nl/retrospect/"
+            self.recentUrl = "https://media.wos.nl/retrospect/dtvnieuws/dtvnieuws-latest.json"
+            self.channelBitrate = 1350
+
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 

@@ -11,6 +11,18 @@
       "language": "nl",
       "fanart": "wosnlfanart.jpg",
       "adaptiveAddonSelectable": true
+    },
+    {
+      "guid": "BE475CCB-1031-4B8E-B69E-F5DA3CA33BCA",
+      "name": "DTV Oss-Bernheze, ’s-Hertogenbosch en Uden",
+      "description": "DTV Uitzendinggemist",
+      "icon": "dtvnlicon.png",
+      "category": "Regional",
+      "channelcode": "dtvnl",
+      "sortorder": 100,
+      "language": "nl",
+      "fanart": "dtvnlfanart.jpg",
+      "adaptiveAddonSelectable": true
     }
   ]
 }
