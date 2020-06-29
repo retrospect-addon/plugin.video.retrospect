@@ -37,24 +37,40 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.channelBitrate = 850  # : the default bitrate
-        self.liveUrl = None        # : the live url if present
-        self.recentUrl = None      # : the url for most recent items
+        self.channelBitrate = 1350  # : the default bitrate
+        self.liveUrl = None         # : the live url if present
+        self.recentUrl = None       # : the url for most recent items
 
         if self.channelCode == "wosnl":
             self.noImage = "wosnlimage.jpg"
             self.mainListUri = "https://media.wos.nl/retrospect/wos/wos-index.json"
             self.baseUrl = "https://media.wos.nl/retrospect/"
-            self.liveUrl = "https://rss.wos.nl/stream/wos-stream.php"
+            self.liveUrl = "https://media.wos.nl/stream/wos/live.php"
             self.recentUrl = "https://media.wos.nl/retrospect/wos/wos-latest.json"
-            self.channelBitrate = 1350
 
         elif self.channelCode == "dtvnl":
             self.noImage = "dtvnlimage.jpg"
             self.mainListUri = "https://media.wos.nl/retrospect/dtvnieuws/dtvnieuws-index.json"
             self.baseUrl = "https://media.wos.nl/retrospect/"
             self.recentUrl = "https://media.wos.nl/retrospect/dtvnieuws/dtvnieuws-latest.json"
-            self.channelBitrate = 1350
+
+        elif self.channelCode == "venlonl":
+            self.noImage = "venlonlimage.jpg"
+            self.mainListUri = "https://media.wos.nl/retrospect/omroepvenlo/omroepvenlo-index.json"
+            self.baseUrl = "https://media.wos.nl/retrospect/"
+            self.recentUrl = "https://media.wos.nl/retrospect/omroepvenlo/omroepvenlo-latest.json"
+
+        elif self.channelCode == "horstnl":
+            self.noImage = "horstnlimage.jpg"
+            self.mainListUri = "https://media.wos.nl/retrospect/omroephorstaandemaas/omroephorstaandemaas-index.json"
+            self.baseUrl = "https://media.wos.nl/retrospect/"
+            self.recentUrl = "https://media.wos.nl/retrospect/omroephorstaandemaas/omroephorstaandemaas-latest.json"
+
+        elif self.channelCode == "studio040":
+            self.noImage = "studio040image.jpg"
+            self.mainListUri = "https://media.wos.nl/retrospect/studio040/studio040-index.json"
+            self.baseUrl = "https://media.wos.nl/retrospect/"
+            self.recentUrl = "https://media.wos.nl/retrospect/studio040/studio040-latest.json"
 
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
@@ -65,7 +81,7 @@ class Channel(chn_class.Channel):
                               preprocessor=self.add_other_items, match_type=ParserData.MatchExact,
                               parser=[], creator=self.create_episode_item)
 
-        self._add_data_parser("https://rss.wos.nl/stream/wos-stream.php", json=True,
+        self._add_data_parser("https://media.wos.nl/stream/wos/live.php", json=True,
                               name="Live stream parser",
                               parser=[], creator=self.create_live_item)
 
@@ -123,14 +139,15 @@ class Channel(chn_class.Channel):
         """
 
         Logger.trace(result_set)
-        title = result_set.get("Title")
-        link = result_set.get("PreferredHQURL")
+        title = result_set.get("title")
+        link = result_set.get("streamurl")
 
         item = MediaItem(title, link)
-        item.type = "video"
+        stream_type = result_set["type"]
+        item.type = "video" if stream_type == "tv" else "audio"
         item.isLive = True
-        item.fanart = result_set.get('LargeArtWorkUrl')
-        item.thumb = result_set.get('ScreenshotUrl')
+        item.thumb = result_set.get('screenshot')
+        item.fanart = result_set.get('image')
 
         if "radio" in title.lower():
             item.type = "audio"
@@ -196,16 +213,12 @@ class Channel(chn_class.Channel):
         Logger.trace(result_set)
 
         title = result_set.get("title")
-        url = result_set.get("contentLink")
+        media_link = result_set.get("video", result_set.get("ipadLink"))
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, media_link)
         item.thumb = result_set.get("image", result_set.get("imageLink"))
         item.type = 'video'
         item.description = HtmlHelper.to_text(result_set.get("text"))
-
-        media_link = result_set.get("video", result_set.get("ipadLink"))
-        if media_link:
-            item.append_single_stream(media_link, self.channelBitrate)
 
         posix = result_set.get("timestamp", None)
         if posix:
@@ -218,7 +231,6 @@ class Channel(chn_class.Channel):
                           broadcast_date.second)
 
         item.set_info_label("duration", result_set.get("duration", 0))
-        item.complete = True
         return item
 
     def update_video_item(self, item):
@@ -246,10 +258,8 @@ class Channel(chn_class.Channel):
         Logger.debug("Updating a (Live) video item")
 
         if item.type == "audio":
-            part = item.create_new_empty_media_part()
-            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
-                item.complete = True
-                part.append_media_stream(s, b)
+            item.append_single_stream(item.url, 0)
+            item.complete = True
 
         elif ".m3u8" in item.url:
             part = item.create_new_empty_media_part()
@@ -257,5 +267,7 @@ class Channel(chn_class.Channel):
                 part, item.url, channel=self, encrypted=False)
 
         elif item.url.endswith(".mp4"):
+            item.append_single_stream(item.url, self.channelBitrate)
             item.complete = True
+
         return item
