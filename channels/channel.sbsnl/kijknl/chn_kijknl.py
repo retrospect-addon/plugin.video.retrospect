@@ -96,7 +96,7 @@ class Channel(chn_class.Channel):
         self.__video_fields = \
             "{items{__typename,title,description,guid,updated,seriesTvSeasons{id}," \
             "imageMedia{url,label},type,sources{type,drm,file},series{title}," \
-            "seasonNumber,tvSeasonEpisodeNumber,lastPubDate,duration,displayGenre}}"
+            "seasonNumber,tvSeasonEpisodeNumber,lastPubDate,duration,displayGenre,tracks{type,file}}}"
         
         #===============================================================================================================
         # Test cases:
@@ -529,9 +529,7 @@ class Channel(chn_class.Channel):
             recent_url = self.__get_api_query_url(
                 "programsByDate(date:\"{:04d}-{:02d}-{:02d}\",numOfDays:0)".format(
                     air_date.year, air_date.month, air_date.day),
-                "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},"
-                "imageMedia{url,label},type,sources{type,drm,file},series{title},seasonNumber,"
-                "tvSeasonEpisodeNumber,lastPubDate}}"
+                self.__video_fields
             )
             extra = MediaItem(title, recent_url)
             extra.complete = True
@@ -651,9 +649,7 @@ class Channel(chn_class.Channel):
         season_id = result_set["id"].rsplit("/", 1)[-1]
         url = self.__get_api_query_url(
             query='programs(tvSeasonId:"{}",programTypes:EPISODE,skip:0,limit:100)'.format(season_id),
-            fields="{items{__typename,title,description,guid,updated,seriesTvSeasons{id},"
-                   "imageMedia{url,label},type,sources{type,drm,file},series{title},seasonNumber,"
-                   "tvSeasonEpisodeNumber,lastPubDate}}")
+            fields=self.__video_fields)
 
         item = MediaItem(title, url)
         return item
