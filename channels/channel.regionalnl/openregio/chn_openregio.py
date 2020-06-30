@@ -180,6 +180,8 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, link)
         item.thumb = result_set.get("image")
         item.description = result_set.get("text")
+        if item.description is not None:
+            item.description = item.description.replace("<br>", "\n")
         item.complete = True
 
         timestamp = result_set.get("timestamp")
