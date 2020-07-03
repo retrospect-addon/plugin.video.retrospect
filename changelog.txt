@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.6 - Changelog - 2020-06-09[/B]
+[B]Retrospect v5.2.7 - Changelog - 2020-07-04[/B]
 
-This new version of Retrospect addresses a number of channel bugs. Besides this the behavior of the bitrate limiting was changed and by default no limit is set. Users can still change this via the add-on settings. There was also a fix for changed Kodi Matrix Python API.
+This new version of Retrospect addresses a number of small issues in Retrospect. It also fixes a number of channel related bugs for kijk.nl, vrt.nu and NPO.
 
 [B]Framework related[/B]
 * Fixed: cleaning up cache and cookies sometimes did not clean cookies
