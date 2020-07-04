@@ -73,6 +73,11 @@ class Channel(chn_class.Channel):
                               parser=["programs"],
                               creator=self.create_api_typed_item)
 
+        self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7Bmenu",
+                              name="Category Listing GraphQL", json=True,
+                              parser=["data", "menu", "pages"],
+                              creator=self.create_api_category_item)
+
         self.episodeItemJson = ["results", ]
         self._add_data_parser("https://api.tv4play.se/play/programs?", json=True,
                               # No longer used:  requiresLogon=True,
@@ -82,6 +87,13 @@ class Channel(chn_class.Channel):
             "https://www.tv4play.se/", match_type=ParserData.MatchExact,
             parser=Regexer.from_expresso(r'<a[^>]+href="/kategori/(?<nid>[^"]+)"[^>]*>(?<name>[^>]+)<'),
             creator=self.create_category_item)
+
+        self._add_data_parser("https://api.tv4play.se/play/categories.json",
+                              json=True, match_type=ParserData.MatchExact,
+                              parser=[], creator=self.create_category_item)
+        self._add_data_parser("https://api.tv4play.se/play/programs?platform=tablet&category=",
+                              json=True,
+                              parser=self.episodeItemJson, creator=self.create_episode_item)
 
         self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
                               updater=self.update_live_item)
@@ -255,6 +267,30 @@ class Channel(chn_class.Channel):
         item.isPaid = result_set.get("is_premium", False)
         return item
 
+    def create_api_category_item(self, result_set):
+        """ Creates a new MediaItem for category listing items
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+        Logger.trace(result_set)
+        title = result_set["title"]
+        cat = HtmlEntityHelper.url_decode(str(result_set['id']))
+        url = self.__get_api_url(
+            "CategoryPage",
+            "af5d3fd1a0a57608dca2f031580d80528c17d96fd146adf8a6449d3114ca2174",
+            variables={"id": cat, "assetId": None}
+        )
+        item = MediaItem(title, url)
+        return item
+
     def create_api_typed_item(self, result_set):
         """ Creates a new MediaItem based on the __typename attribute.
 
@@ -307,7 +343,7 @@ class Channel(chn_class.Channel):
               "page=1&node_nids=%s&start=0" % (self.maxPageSize, program_id, )
 
         item = MediaItem(title, url)
-        item.thumb = result_set.get("images", {}).get("main16x9")
+        item.thumb = (result_set.get("images", {}) or {}).get("main16x9")
         if item.thumb is not None:
             item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
                          "&quality=90&resize=520x293&source={}"\
@@ -385,7 +421,8 @@ class Channel(chn_class.Channel):
                     None, False
                 ),
                 LanguageHelper.get_localized_string(LanguageHelper.Categories): (
-                    "https://www.tv4play.se/", None, False
+                    "https://graphql.tv4play.se/graphql?query=query"
+                    "%7Bmenu%7Bpages%7Btitle%2Cid%2CmetaTitle%2CmetaDescription%7D%7D%7D", None, False
                 ),
                 LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
                     "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
