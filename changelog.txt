@@ -3,14 +3,10 @@
 This new version of Retrospect addresses a number of small issues in Retrospect. It also fixes a number of channel related bugs for kijk.nl, vrt.nu and NPO.
 
 [B]Framework related[/B]
-* Fixed: cleaning up cache and cookies sometimes did not clean cookies
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Regression bug that caused the description prefixes to not be on a new line
-* Changed: sorting code optimized and added an sort by 'episode' option that users can select per folder
+_None_
 
 [B]Channel related[/B]
-* Fixed: VRT.nu could not log in any more (Fixes #1400)
-* Removed: SBS6, SBS9, Veronica, NET5 as they all moved to kijk.nl (Fixes #1401)
-* Fixed: Kijk.nl subtitles were missing (Fixes #1402)
-* Fixed: Too many episodes show as geo restricted in NPO
+* Fixed: Pathe.nl missing thumbs caused some trailers to not list
