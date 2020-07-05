@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 from resources.lib.backtothefuture import PY2
+from resources.lib.urihandler import UriHandler
+
 if PY2:
     # noinspection PyUnresolvedReferences
     import urlparse as parse
@@ -39,6 +41,7 @@ class Channel(chn_class.Channel):
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.channelBitrate = 1350  # : the default bitrate
         self.liveUrl = None         # : the live url if present
+        self.liveUrls = None        # : a collection of live streams
         self.recentUrl = None       # : the url for most recent items
 
         if self.channelCode == "wosnl":
@@ -53,6 +56,12 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://media.wos.nl/retrospect/dtvnieuws/dtvnieuws-index.json"
             self.baseUrl = "https://media.wos.nl/retrospect/"
             self.recentUrl = "https://media.wos.nl/retrospect/dtvnieuws/dtvnieuws-latest.json"
+            self.liveUrls = {
+                "Dtv Oss & Bernheze": "https://rrr.sz.xlcdn.com/?account=dtvmaasland&file=dtv1&type=live&service=wowza&output=playlist.m3u8&format=jsonp",
+                "Dtv Den Bosch": "https://rrr.sz.xlcdn.com/?account=dtvmaasland&file=dtv2&type=live&service=wowza&output=playlist.m3u8&format=jsonp",
+                "Dtv Uden": "https://rrr.sz.xlcdn.com/?account=dtvmaasland&file=dtv2&type=live&service=wowza&output=playlist.m3u8&format=jsonp",
+                "Mfm Radio": "https://rrr.sz.xlcdn.com/?account=dtvmaasland&file=mfm1&type=live&service=icecast&format=jsonp"
+            }
 
         elif self.channelCode == "venlonl":
             self.noImage = "venlonlimage.jpg"
@@ -85,6 +94,9 @@ class Channel(chn_class.Channel):
                               name="Live stream parser",
                               parser=[], creator=self.create_live_item)
 
+        self._add_data_parser("https://rrr.sz.xlcdn.com/?account=",
+                              updater=self.update_live_item)
+
         self._add_data_parser("*", json=True,
                               parser=["items"], creator=self.create_video_item,
                               updater=self.update_video_item)
@@ -108,7 +120,20 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        if self.liveUrl:
+
+        if self.liveUrls:
+            live_title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
+            live_item = MediaItem("\a{}".format(live_title), "")
+            live_item.dontGroup = True
+            items.append(live_item)
+
+            for name, url in self.liveUrls.items():
+                item = MediaItem(name, url)
+                item.type = "video"
+                item.isLive = True
+                live_item.items.append(item)
+
+        elif self.liveUrl:
             Logger.debug("Adding live item")
             live_title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
             live_item = MediaItem("\a{}".format(live_title), self.liveUrl)
@@ -234,6 +259,38 @@ class Channel(chn_class.Channel):
 
         item.set_info_label("duration", result_set.get("duration", 0))
         return item
+
+    def update_live_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        if "icecast" in item.url:
+            item.type = "audio"
+
+        data = UriHandler.open(item.url)
+        stream_info = JsonHelper(data)
+        url = stream_info.get_value("data")
+        item.url = url
+
+        return self.update_video_item(item)
 
     def update_video_item(self, item):
         """ Updates an existing MediaItem with more data.
