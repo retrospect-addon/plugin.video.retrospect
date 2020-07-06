@@ -10,3 +10,5 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Pathe.nl missing thumbs caused some trailers to not list
+* Fixed: UR Play changed date format which broke parsing (Fixes #1403)
+* Fixed: Cleanup the titles in UR Play for recent and popular lists
