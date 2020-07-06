@@ -338,12 +338,14 @@ class Channel(chn_class.Channel):
             end_date = result_set["accessiblePlatforms"]["urplay"]["endTime"]
 
             if start_date:
+                start_date = start_date.replace(".000Z", "Z")
                 date_time = DateHelper.get_datetime_from_string(
                     start_date, date_format="%Y-%m-%dT%H:%M:%SZ", time_zone="UTC")
                 date_time = date_time.astimezone(self.__timezone)
                 item.set_date(date_time.year, date_time.month, date_time.day,
                               date_time.hour, date_time.minute, date_time.second)
             if end_date:
+                end_date = end_date.replace(".000Z", "Z")
                 end_date_time = DateHelper.get_datetime_from_string(
                     end_date, date_format="%Y-%m-%dT%H:%M:%SZ", time_zone="UTC")
                 end_date_time = end_date_time.astimezone(self.__timezone)
