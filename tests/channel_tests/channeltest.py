@@ -55,6 +55,7 @@ class ChannelTest(unittest.TestCase):
         item.HttpHeaders.update(headers or {})
         item = self.channel.process_video_item(item)
         self.assertTrue(item.has_media_item_parts())
+        self.assertTrue(item.complete)
         return item
 
     def _get_media_item(self, url, name=None):
