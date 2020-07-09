@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.2.7"
+        version="5.2.8"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -129,22 +129,26 @@
 
         <license>CC-BY-NC-SA-4.0</license>
         <language>en nl de se no lt lv fi</language>
-        <news>[B]Retrospect v5.2.7 - Changelog - 2020-07-04[/B]
+        <news>[B]Retrospect v5.2.8 - Changelog - 2020-07-09[/B]
 
-This new version of Retrospect addresses a number of small issues in Retrospect. It also fixes a number of channel related bugs for kijk.nl, vrt.nu and NPO.
+A small release for Retrospect that includes a number of new Dutch regional channels and fixes some minor issues with some of the existing channels.
 
 [B]Framework related[/B]
-* Fixed: cleaning up cache and cookies sometimes did not clean cookies
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Regression bug that caused the description prefixes to not be on a new line
-* Changed: sorting code optimized and added an sort by &#x27;episode&#x27; option that users can select per folder
+_None_
 
 [B]Channel related[/B]
-* Fixed: VRT.nu could not log in any more (Fixes #1400)
-* Removed: SBS6, SBS9, Veronica, NET5 as they all moved to kijk.nl (Fixes #1401)
-* Fixed: Kijk.nl subtitles were missing (Fixes #1402)
-* Fixed: Too many episodes show as geo restricted in NPO
+* Added: WOS regional videos
+* Added: DTV Nieuws regional videos
+* Added: Omroep Venlo
+* Added: Omroep Horst aan de Maas
+* Added: Studio 040
+* Fixed: Pathe.nl missing thumbs caused some trailers to not list
+* Fixed: UR Play changed date format which broke parsing (Fixes #1403)
+* Fixed: Cleanup the titles in UR Play for recent and popular lists
+* Fixed: AT5 updated their API which broke listings (Fixes #1406)
 
         </news>
         <assets>

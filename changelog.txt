@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.7 - Changelog - 2020-07-04[/B]
+[B]Retrospect v5.2.8 - Changelog - 2020-07-09[/B]
 
-This new version of Retrospect addresses a number of small issues in Retrospect. It also fixes a number of channel related bugs for kijk.nl, vrt.nu and NPO.
+A small release for Retrospect that includes a number of new Dutch regional channels and fixes some minor issues with some of the existing channels.
 
 [B]Framework related[/B]
 _None_
