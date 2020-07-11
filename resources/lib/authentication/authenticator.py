@@ -3,6 +3,7 @@
 from .authenticationhandler import AuthenticationHandler
 from .authenticationresult import AuthenticationResult
 from ..logger import Logger
+from ..vault import Vault
 
 
 class Authenticator(object):
@@ -21,19 +22,23 @@ class Authenticator(object):
 
         self.__hander = handler
 
-    def log_on(self, username, password):
-        """ Peforms the logon of a user.
+    def log_on(self, username, password=None, setting_id=None, channel_guid=None):
+        """ Peforms the logon of a user. Either with the specified password or via a lookup
 
-        :param str username:    The username
-        :param str password:    The password to use
+        :param str username:             The username
+        :param str|None password:        The password to use
+        :param str|None setting_id:      The ID of the setting where the password is stored
+        :param str|None channel_guid:    The GUID of the channel, if the password is stored in a
+                                          channel setting.
 
         :returns: An indication of a successful login.
         :rtype: AuthenticationResult
 
         """
 
-        if not username or not password:
-            raise ValueError("No username and/or password specified")
+        if not username:
+            Logger.debug("No username specified")
+            return AuthenticationResult(None)
 
         res = self.__hander.active_authentication()
         logged_on_user = res.username
@@ -48,7 +53,18 @@ class Authenticator(object):
             Logger.warning("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
             return res
 
-        Logger.warning("Logging on user: %s", self.__safe_log(username))
+        if password is None:
+            Logger.warning("Logging on user: %s", self.__safe_log(username))
+            v = Vault()
+            if channel_guid:
+                password = v.get_channel_setting(channel_guid, setting_id)
+            else:
+                password = v.get_setting(setting_id)
+
+        if not password:
+            Logger.error("No password specified")
+            return AuthenticationResult(None)
+
         res = self.__hander.log_on(username, password)
         return res
 

@@ -54,14 +54,14 @@ class TestAuthenticator(unittest.TestCase):
     def test_login_no_username(self):
         h = ArkoseHandler("dplay.se", self.device_id)
         a = Authenticator(h)
-        with self.assertRaises(ValueError):
-            a.log_on("", "secret")
+        res = a.log_on("", "secret")
+        self.assertFalse(res.logged_on)
 
     def test_login_no_password(self):
         h = ArkoseHandler("dplay.se", self.device_id)
         a = Authenticator(h)
-        with self.assertRaises(ValueError):
-            a.log_on("username", "")
+        res = a.log_on("username", "")
+        self.assertFalse(res.logged_on)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_current_user(self):
@@ -108,7 +108,7 @@ class TestAuthenticator(unittest.TestCase):
         res = a.log_on(self.user_name, self.password)
         self.assertTrue(res.logged_on)
         a.log_off(self.user_name)
-        self.assertIsFalse(a.active_authentication().logged_on)
+        self.assertFalse(a.active_authentication().logged_on)
 
     @unittest.skipIf("DPLAY_USERNAME" not in os.environ, "Not testing login without credentials")
     def test_log_on_without_log_off(self):
