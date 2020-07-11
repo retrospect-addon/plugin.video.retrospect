@@ -5,6 +5,8 @@ import pytz
 import re
 
 from resources.lib import chn_class
+from resources.lib.authentication.authenticator import Authenticator
+from resources.lib.authentication.npohandler import NpoHandler
 
 from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
@@ -16,8 +18,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
-from resources.lib.vault import Vault
-from resources.lib.addonsettings import AddonSettings, LOCAL
+from resources.lib.addonsettings import AddonSettings
 from resources.lib.mediaitem import MediaItem
 from resources.lib.xbmcwrapper import XbmcWrapper
 
@@ -200,6 +201,7 @@ class Channel(chn_class.Channel):
         }
 
         # ====================================== Actual channel setup STOPS here =======================================
+        self.__auth = Authenticator(NpoHandler("npostart"))
         return
 
     def log_on(self):
@@ -209,48 +211,15 @@ class Channel(chn_class.Channel):
         """ Makes sure that we are logged on. """
 
         username = self._get_setting("username")
-        previous_name = AddonSettings.get_channel_setting(self, "previous_username", store=LOCAL)
-        log_out = previous_name != username
-        if log_out or force_log_off:
-            if log_out:
-                Logger.info("Username changed for NPO from '%s' to '%s'", previous_name, username)
-            else:
-                Logger.info("Forcing a new login for NPO")
-            UriHandler.delete_cookie(domain="www.npostart.nl")
-            UriHandler.delete_cookie(domain=".npostart.nl")
-            AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
-
         if not username:
             Logger.info("No user name for NPO, not logging in")
-            UriHandler.delete_cookie(domain="www.npostart.nl")
-            return True
-
-        cookie = UriHandler.get_cookie("isAuthenticatedUser", "www.npostart.nl")
-        if cookie and not log_out:
-            expire_date = DateHelper.get_date_from_posix(float(cookie.expires))
-            Logger.info("Found existing valid NPO token (valid until: %s)", expire_date)
-            return True
-
-        v = Vault()
-        password = v.get_channel_setting(self.guid, "password")
-        if not bool(password):
-            Logger.warning("No password found for %s", self)
             return False
 
-        xsrf_token = self.__get_xsrf_token()[0]
-        if not xsrf_token:
-            return False
+        if force_log_off:
+            self.__auth.log_off(username, force=True)
 
-        data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
-                                            HtmlEntityHelper.url_encode(password))
-        UriHandler.open("https://www.npostart.nl/api/login", proxy=self.proxy, no_cache=True,
-                        additional_headers={
-                            "X-Requested-With": "XMLHttpRequest",
-                            "X-XSRF-TOKEN": xsrf_token
-                        },
-                        params=data)
-
-        return not UriHandler.instance().status.error
+        result = self.__auth.log_on(username, "password", channel_guid=self.guid)
+        return result.logged_on
 
     def extract_tiles(self, data):  # NOSONAR
         """ Extracts the JSON tiles data from the HTML.
