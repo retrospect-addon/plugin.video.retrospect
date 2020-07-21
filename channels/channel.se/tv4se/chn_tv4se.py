@@ -10,7 +10,6 @@ from resources.lib.mediaitem import MediaItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.jsonhelper import JsonHelper
 
-from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
@@ -67,30 +66,20 @@ class Channel(chn_class.Channel):
                               parser=["data", "programSearch", "programs"],
                               creator=self.create_api_typed_item)
 
-        self._add_data_parser("https://graphql.tv4play.se/graphql?operationName=CategoryPage",
-                              name="Category GraphQL", json=True,
-                              preprocessor=self.filter_graph_ql_for_categories,
-                              parser=["programs"],
+        self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7BprogramSearch",
+                              name="JSON GraphQL manual program search", json=True,
+                              parser=["data", "programSearch", "programs"],
                               creator=self.create_api_typed_item)
 
-        self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7Bmenu",
-                              name="Category Listing GraphQL", json=True,
-                              parser=["data", "menu", "pages"],
-                              creator=self.create_api_category_item)
+        self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7Btags%7D",
+                              name="Tag overview", json=True,
+                              parser=["data", "tags"], creator=self.create_api_tag)
 
         self.episodeItemJson = ["results", ]
         self._add_data_parser("https://api.tv4play.se/play/programs?", json=True,
                               # No longer used:  requiresLogon=True,
                               parser=self.episodeItemJson, creator=self.create_episode_item)
 
-        self._add_data_parser(
-            "https://www.tv4play.se/", match_type=ParserData.MatchExact,
-            parser=Regexer.from_expresso(r'<a[^>]+href="/kategori/(?<nid>[^"]+)"[^>]*>(?<name>[^>]+)<'),
-            creator=self.create_category_item)
-
-        self._add_data_parser("https://api.tv4play.se/play/categories.json",
-                              json=True, match_type=ParserData.MatchExact,
-                              parser=[], creator=self.create_category_item)
         self._add_data_parser("https://api.tv4play.se/play/programs?platform=tablet&category=",
                               json=True,
                               parser=self.episodeItemJson, creator=self.create_episode_item)
@@ -267,28 +256,27 @@ class Channel(chn_class.Channel):
         item.isPaid = result_set.get("is_premium", False)
         return item
 
-    def create_api_category_item(self, result_set):
-        """ Creates a new MediaItem for category listing items
+    def create_api_tag(self, result_set):
+        """ Creates a new MediaItem for tag listing items
 
         This method creates a new MediaItem from the Regular Expression or Json
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+        :param str result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
 
         """
+
         Logger.trace(result_set)
-        title = result_set["title"]
-        cat = HtmlEntityHelper.url_decode(str(result_set['id']))
-        url = self.__get_api_url(
-            "CategoryPage",
-            "af5d3fd1a0a57608dca2f031580d80528c17d96fd146adf8a6449d3114ca2174",
-            variables={"id": cat, "assetId": None}
-        )
-        item = MediaItem(title, url)
+        query = 'query{programSearch(tag:"%s",per_page:1000){__typename,programs' \
+                '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres},' \
+                'totalHits}}' % (result_set, )
+        query = HtmlEntityHelper.url_encode(query)
+        url = "https://graphql.tv4play.se/graphql?query={}".format(query)
+        item = MediaItem(result_set, url)
         return item
 
     def create_api_typed_item(self, result_set):
@@ -421,8 +409,7 @@ class Channel(chn_class.Channel):
                     None, False
                 ),
                 LanguageHelper.get_localized_string(LanguageHelper.Categories): (
-                    "https://graphql.tv4play.se/graphql?query=query"
-                    "%7Bmenu%7Bpages%7Btitle%2Cid%2CmetaTitle%2CmetaDescription%7D%7D%7D", None, False
+                    "https://graphql.tv4play.se/graphql?query=query%7Btags%7D", None, False
                 ),
                 LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
                     "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
@@ -700,34 +687,6 @@ class Channel(chn_class.Channel):
             item.url = "{}&drm=widevine&is_drm=true".format(item.url)
 
         item.set_info_label("duration", int(result_set.get("duration", 0)))
-        return item
-
-    def create_category_item(self, result_set):
-        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set)
-
-        # We decode, but it can't be `unicode` as urllib.unquote will auto decode to `latin1`.
-        cat = HtmlEntityHelper.url_decode(str(result_set['nid']))
-        url = self.__get_api_url(
-            "CategoryPage",
-            "af5d3fd1a0a57608dca2f031580d80528c17d96fd146adf8a6449d3114ca2174",
-            variables={"id": cat, "assetId": None}
-        )
-        item = MediaItem(result_set['name'], url)
-        item.type = 'folder'
-        item.complete = True
         return item
 
     def update_video_item(self, item):

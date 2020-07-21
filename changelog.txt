@@ -9,12 +9,4 @@ A small release for Retrospect that includes a number of new Dutch regional chan
 _None_
 
 [B]Channel related[/B]
-* Added: WOS regional videos
-* Added: DTV Nieuws regional videos
-* Added: Omroep Venlo
-* Added: Omroep Horst aan de Maas
-* Added: Studio 040
-* Fixed: Pathe.nl missing thumbs caused some trailers to not list
-* Fixed: UR Play changed date format which broke parsing (Fixes #1403)
-* Fixed: Cleanup the titles in UR Play for recent and popular lists
-* Fixed: AT5 updated their API which broke listings (Fixes #1406)
+* Fixed: Use GraphQL for tags/categories (Fixes #1340)
