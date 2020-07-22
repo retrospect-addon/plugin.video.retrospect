@@ -105,7 +105,8 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # non standard items
-        self.maxPageSize = 100  # The Android app uses a page size of 20
+        self.__maxPageSize = 100  # The Android app uses a page size of 20
+        self.__program_fields = '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres}'
 
         #===============================================================================================================
         # Test cases:
@@ -242,7 +243,7 @@ class Channel(chn_class.Channel):
         program_id = HtmlEntityHelper.url_encode(program_id)
         url = "https://api.tv4play.se/play/video_assets" \
               "?platform=tablet&per_page=%s&is_live=false&type=episode&" \
-              "page=1&node_nids=%s&start=0" % (self.maxPageSize, program_id, )
+              "page=1&node_nids=%s&start=0" % (self.__maxPageSize, program_id,)
 
         if "channel" in json and json["channel"]:
             # noinspection PyTypeChecker
@@ -281,8 +282,8 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
         query = 'query{programSearch(tag:"%s",per_page:1000){__typename,programs' \
-                '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres},' \
-                'totalHits}}' % (result_set, )
+                '%s,' \
+                'totalHits}}' % (result_set, self.__program_fields)
         query = HtmlEntityHelper.url_encode(query)
         url = "https://graphql.tv4play.se/graphql?query={}".format(query)
         item = MediaItem(result_set, url)
@@ -337,45 +338,25 @@ class Channel(chn_class.Channel):
         program_id = HtmlEntityHelper.url_encode(program_id)
         url = "https://api.tv4play.se/play/video_assets" \
               "?platform=tablet&per_page=%s&is_live=false&type=episode&" \
-              "page=1&node_nids=%s&start=0" % (self.maxPageSize, program_id, )
+              "page=1&node_nids=%s&start=0" % (self.__maxPageSize, program_id,)
 
         item = MediaItem(title, url)
-        item.thumb = (result_set.get("images", {}) or {}).get("main16x9")
+        item.description = result_set.get("description", None)
+
+        item.thumb = result_set.get("image")
         if item.thumb is not None:
             item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
-                         "&quality=90&resize=520x293&source={}"\
+                         "&quality=70&resize=520x293&source={}"\
                 .format(HtmlEntityHelper.url_encode(item.thumb))
 
         item.fanart = result_set.get("image")
         if item.fanart is not None:
             item.fanart = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
-                         "&quality=90&resize=1280x720&source={}" \
+                         "&quality=70&resize=1280x720&source={}" \
                 .format(HtmlEntityHelper.url_encode(item.fanart))
 
         item.isPaid = result_set.get("is_premium", False)
         return item
-
-    def filter_graph_ql_for_categories(self, data):
-        """ Filters the 'panels' in the json to be a `ExpandableProgramList`.
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        items = []
-
-        # Find the ExpandableProgramList
-        json_data = JsonHelper(data)
-        panels = json_data.get_value("data", "page", "panels")
-        for panel in panels:
-            if panel.get("__typename") == "ExpandableProgramList":
-                json_data.json = panel
-                break
-
-        return json_data, items
 
     def add_categories_and_specials(self, data):
         """ Performs pre-process actions for data processing.
@@ -398,12 +379,15 @@ class Channel(chn_class.Channel):
         items = []
 
         # TV4 Group specific items
+        query = 'query{programSearch(per_page:1000){__typename,programs' \
+                '%s,' \
+                'totalHits}}' % (self.__program_fields,)
+        query = HtmlEntityHelper.url_encode(query)
+        tv_shows_url = "https://graphql.tv4play.se/graphql?query={}".format(query)
+
         extras = {
             LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
-                self.__get_api_url(
-                    "ProgramSearch",
-                    "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1"
-                ),
+                tv_shows_url,
                 None, False
             ),
             LanguageHelper.get_localized_string(LanguageHelper.Categories): (
@@ -411,7 +395,7 @@ class Channel(chn_class.Channel):
             ),
             LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
                 "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
-                "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.maxPageSize,),
+                "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.__maxPageSize,),
                 None, False
             ),
         }
@@ -480,7 +464,7 @@ class Channel(chn_class.Channel):
         """
 
         url = "https://api.tv4play.se/play/video_assets?platform=tablet&per_page=%s&page=1" \
-              "&sort_order=desc&type=episode&q=%%s&start=0" % (self.maxPageSize, )
+              "&sort_order=desc&type=episode&q=%%s&start=0" % (self.__maxPageSize,)
         return chn_class.Channel.search_site(self, url)
 
     def pre_process_folder_list(self, data):
@@ -513,7 +497,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Currently doing CatId: '%s'", cat_id)
 
             url = "https://api.tv4play.se/play/video_assets?platform=tablet&per_page=%s&" \
-                  "type=clip&page=1&node_nids=%s&start=0" % (self.maxPageSize, cat_id,)
+                  "type=clip&page=1&node_nids=%s&start=0" % (self.__maxPageSize, cat_id,)
             clips_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
             clips = MediaItem(clips_title, url)
             clips.complete = True
@@ -521,8 +505,8 @@ class Channel(chn_class.Channel):
 
         # find the max number of items ("total_hits":2724)
         total_items = int(Regexer.do_regex(r'total_hits\W+(\d+)', data)[-1])
-        Logger.debug("Found total of %s items. Only showing %s.", total_items, self.maxPageSize)
-        if total_items > self.maxPageSize and "&page=1&" in self.parentItem.url:
+        Logger.debug("Found total of %s items. Only showing %s.", total_items, self.__maxPageSize)
+        if total_items > self.__maxPageSize and "&page=1&" in self.parentItem.url:
             # create a group item
             more_title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
             more = MediaItem(more_title, "")
@@ -532,7 +516,7 @@ class Channel(chn_class.Channel):
             # what are the total number of pages?
             current_page = 1
             # noinspection PyTypeChecker
-            total_pages = int(math.ceil(1.0 * total_items / self.maxPageSize))
+            total_pages = int(math.ceil(1.0 * total_items / self.__maxPageSize))
 
             current_url = self.parentItem.url
             needle = "&page="
@@ -625,7 +609,7 @@ class Channel(chn_class.Channel):
         # some images need to come via a proxy:
         if thumb_url and "://img.b17g.net/" in thumb_url:
             item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
-                         "&quality=90&resize=520x293&source={}"\
+                         "&quality=70&resize=520x293&source={}"\
                 .format(HtmlEntityHelper.url_encode(thumb_url))
         else:
             item.thumb = thumb_url
