@@ -37,15 +37,26 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.__channelId = "tv4"
-        if self.channelCode == "tv4segroup" or self.channelCode == "tv4se":
+        self.mainListUri = "https://api.tv4play.se/play/programs?is_active=true&platform=tablet" \
+                           "&per_page=1000" \
+                           "&fl=nid,name,program_image,is_premium,updated_at,channel&start=0"
+
+        if self.channelCode == "tv4segroup":
+            self.noImage = "tv4image.png"
+            self.mainListUri = "#mainlisting"
+
+        elif self.channelCode == "tv4se":
             self.noImage = "tv4image.png"
             self.__channelId = "tv4"
+
         elif self.channelCode == "tv7se":
             self.noImage = "tv7image.png"
             self.__channelId = "sjuan"
+
         elif self.channelCode == "tv12se":
             self.noImage = "tv12image.png"
             self.__channelId = "tv12"
+
         else:
             raise Exception("Invalid channel code")
 
@@ -53,12 +64,10 @@ class Channel(chn_class.Channel):
         # self.mainListUri = "https://api.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
         #                    "&fl=nid,name,program_image&start=0"
 
-        self.mainListUri = "#mainlisting"
-
         self.baseUrl = "http://www.tv4play.se"
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
 
-        self._add_data_parser(self.mainListUri, preprocessor=self.add_categories_and_specials)
+        self._add_data_parser("#mainlisting", preprocessor=self.add_categories_and_specials)
 
         program_graph_ql = self.__get_api_url("ProgramSearch", "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1")
         self._add_data_parser(program_graph_ql, json=True,
@@ -388,75 +397,54 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
+        # TV4 Group specific items
         extras = {
-            LanguageHelper.get_localized_string(LanguageHelper.Search): ("searchSite", None, False),
             LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
-                "https://api.tv4play.se/play/programs?is_active=true&platform=tablet"
-                "&per_page=1000&fl=nid,name,program_image,is_premium,updated_at,channel&start=0",
-                None,
-                False
-            )
+                self.__get_api_url(
+                    "ProgramSearch",
+                    "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1"
+                ),
+                None, False
+            ),
+            LanguageHelper.get_localized_string(LanguageHelper.Categories): (
+                "https://graphql.tv4play.se/graphql?query=query%7Btags%7D", None, False
+            ),
+            LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
+                "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
+                "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.maxPageSize,),
+                None, False
+            ),
         }
 
-        # Channel 4 specific items
-        if self.channelCode == "tv4segroup":
-            extras.update({
-                LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
-                    self.__get_api_url(
-                        "ProgramSearch",
-                        "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1"
-                    ),
-                    None, False
-                ),
-                LanguageHelper.get_localized_string(LanguageHelper.Categories): (
-                    "https://graphql.tv4play.se/graphql?query=query%7Btags%7D", None, False
-                ),
-                LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
-                    "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
-                    "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.maxPageSize,),
-                    None, False
-                ),
-            })
+        today = datetime.datetime.now()
+        days = [LanguageHelper.get_localized_string(LanguageHelper.Monday),
+                LanguageHelper.get_localized_string(LanguageHelper.Tuesday),
+                LanguageHelper.get_localized_string(LanguageHelper.Wednesday),
+                LanguageHelper.get_localized_string(LanguageHelper.Thursday),
+                LanguageHelper.get_localized_string(LanguageHelper.Friday),
+                LanguageHelper.get_localized_string(LanguageHelper.Saturday),
+                LanguageHelper.get_localized_string(LanguageHelper.Sunday)]
+        for i in range(0, 7, 1):
+            start_date = today - datetime.timedelta(i)
+            end_date = start_date + datetime.timedelta(1)
 
-            today = datetime.datetime.now()
-            days = [LanguageHelper.get_localized_string(LanguageHelper.Monday),
-                    LanguageHelper.get_localized_string(LanguageHelper.Tuesday),
-                    LanguageHelper.get_localized_string(LanguageHelper.Wednesday),
-                    LanguageHelper.get_localized_string(LanguageHelper.Thursday),
-                    LanguageHelper.get_localized_string(LanguageHelper.Friday),
-                    LanguageHelper.get_localized_string(LanguageHelper.Saturday),
-                    LanguageHelper.get_localized_string(LanguageHelper.Sunday)]
-            for i in range(0, 7, 1):
-                start_date = today - datetime.timedelta(i)
-                end_date = start_date + datetime.timedelta(1)
+            day = days[start_date.weekday()]
+            if i == 0:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
+            elif i == 1:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
 
-                day = days[start_date.weekday()]
-                if i == 0:
-                    day = LanguageHelper.get_localized_string(LanguageHelper.Today)
-                elif i == 1:
-                    day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
-
-                Logger.trace("Adding item for: %s - %s", start_date, end_date)
-                # Old URL:
-                # url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=" \
-                #       "nyheterna,v%C3%A4der,ekonomi,lotto,sporten,nyheterna-blekinge,nyheterna-bor%C3%A5s," \
-                #       "nyheterna-dalarna,nyheterna-g%C3%A4vle,nyheterna-g%C3%B6teborg,nyheterna-halland," \
-                #       "nyheterna-helsingborg,nyheterna-j%C3%B6nk%C3%B6ping,nyheterna-kalmar,nyheterna-link%C3%B6ping," \
-                #       "nyheterna-lule%C3%A5,nyheterna-malm%C3%B6,nyheterna-norrk%C3%B6ping,nyheterna-skaraborg," \
-                #       "nyheterna-skellefte%C3%A5,nyheterna-stockholm,nyheterna-sundsvall,nyheterna-ume%C3%A5," \
-                #       "nyheterna-uppsala,nyheterna-v%C3%A4rmland,nyheterna-v%C3%A4st,nyheterna-v%C3%A4ster%C3%A5s," \
-                #       "nyheterna-v%C3%A4xj%C3%B6,nyheterna-%C3%B6rebro,nyheterna-%C3%B6stersund,tv4-tolken," \
-                #       "fotbollskanalen-europa" \
-                #       "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
-                url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=" \
-                      "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
-                url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
-                extras[day] = (url, start_date, False)
+            Logger.trace("Adding item for: %s - %s", start_date, end_date)
+            url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=" \
+                  "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
+            url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
+            extras[day] = (url, start_date, False)
 
         extras[LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes)] = (
             "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&"
             "per_page=32&is_live=true&product_groups=2&type=episode&per_page=100", None, False)
 
+        # Actually add the extra items
         for name in extras:
             title = name
             url, date, is_live = extras[name]
@@ -470,19 +458,6 @@ class Channel(chn_class.Channel):
                 item.set_date(date.year, date.month, date.day, 0, 0, 0, text=date.strftime("%Y-%m-%d"))
 
             items.append(item)
-
-        if not self.channelCode == "tv4segroup":
-            return data, items
-
-        # Add Live TV
-        # live = MediaItem("\a.: Live-TV :.",
-        #                            "http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1@324055/master.m3u8",
-        #                            type="video")
-        # live.dontGroup = True
-        # # live.isDrmProtected = True
-        # live.isGeoLocked = True
-        # live.isLive = True
-        # items.append(live)
 
         Logger.debug("Pre-Processing finished")
         return data, items
