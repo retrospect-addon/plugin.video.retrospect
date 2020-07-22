@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.__channelId = "tv4"
-        if self.channelCode == "tv4se":
+        if self.channelCode == "tv4segroup" or self.channelCode == "tv4se":
             self.noImage = "tv4image.png"
             self.__channelId = "tv4"
         elif self.channelCode == "tv7se":
@@ -399,7 +399,7 @@ class Channel(chn_class.Channel):
         }
 
         # Channel 4 specific items
-        if self.channelCode == "tv4se":
+        if self.channelCode == "tv4segroup":
             extras.update({
                 LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
                     self.__get_api_url(
@@ -471,7 +471,7 @@ class Channel(chn_class.Channel):
 
             items.append(item)
 
-        if not self.channelCode == "tv4se":
+        if not self.channelCode == "tv4segroup":
             return data, items
 
         # Add Live TV
