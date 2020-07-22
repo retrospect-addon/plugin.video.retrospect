@@ -3,7 +3,7 @@
 A small release for Retrospect that includes a number of new Dutch regional channels and fixes some minor issues with some of the existing channels.
 
 [B]Framework related[/B]
-_None_
+* Added: Option for post-processing of retrieved items
 
 [B]GUI/Settings/Language related[/B]
 _None_
