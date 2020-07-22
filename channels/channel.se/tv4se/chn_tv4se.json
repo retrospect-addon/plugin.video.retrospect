@@ -3,7 +3,7 @@
     {
       "guid": "98506F58-CD6F-11DE-99BA-187F55D89593",
       "name": "TV4",
-      "description": "Sändningar från TV4Play.se.",
+      "description": "Sändningar från TV4 (TV4Play.se).",
       "icon": "tv4large.png",
       "category": "National",
       "channelcode": "tv4se",

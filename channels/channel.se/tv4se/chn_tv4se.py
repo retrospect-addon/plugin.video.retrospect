@@ -420,13 +420,13 @@ class Channel(chn_class.Channel):
 
             Logger.trace("Adding item for: %s - %s", start_date, end_date)
             url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=" \
-                  "&platform=tablet&per_page=32&is_live=false&product_groups=2&type=episode&per_page=100"
+                  "&platform=tablet&is_live=false&product_groups=2&type=episode&per_page=100"
             url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
             extras[day] = (url, start_date, False)
 
         extras[LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes)] = (
             "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&"
-            "per_page=32&is_live=true&product_groups=2&type=episode&per_page=100", None, False)
+            "is_live=true&product_groups=2&type=episode&per_page=100", None, False)
 
         # Actually add the extra items
         for name in extras:
