@@ -386,6 +386,7 @@ class Channel(chn_class.Channel):
         tv_shows_url = "https://graphql.tv4play.se/graphql?query={}".format(query)
 
         extras = {
+            LanguageHelper.get_localized_string(LanguageHelper.Search): ("searchSite", None, False),
             LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
                 tv_shows_url,
                 None, False
