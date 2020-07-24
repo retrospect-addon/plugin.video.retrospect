@@ -14,7 +14,7 @@
     {
       "guid": "68E5476E-DC92-4312-9C57-29FCE428EF20",
       "name": "TV4 Play",
-      "description": "Sändningar från TV4Play.se\n\nInnehåller kanalerna TV4, Sjuan och TV12",
+      "description": "Innehåller kanalerna TV4, Sjuan och TV12. Här kan du också söka, lista mest visade avsnitt, se kategorier, titta på livesändningar och lista program utifrån veckodag.",
       "icon": "tv4large.png",
       "category": "National",
       "channelcode": "tv4segroup",
