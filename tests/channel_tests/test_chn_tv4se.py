@@ -39,9 +39,13 @@ class TestTv4Channel(ChannelTest):
         self._test_folder_url(url, expected_results=5)
 
     def test_yesterday(self):
-        url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&is_live=false&product_groups=2&type=episode&per_page=100&broadcast_from={:04d}{:02d}{:02d}&broadcast_to=20200722&"
-        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-        url = url.format(yesterday.year, yesterday.month, yesterday.day)
+        url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet" \
+              "&is_live=false&product_groups=2&type=episode&per_page=100" \
+              "&broadcast_from={:04d}{:02d}{:02d}" \
+              "&broadcast_to={:04d}{:02d}{:02d}&"
+        today = datetime.datetime.now()
+        yesterday = today - datetime.timedelta(days=1)
+        url = url.format(yesterday.year, yesterday.month, yesterday.day, today.year, today.month, today.day)
         items = self._test_folder_url(url, expected_results=25)
 
         # Check the date
