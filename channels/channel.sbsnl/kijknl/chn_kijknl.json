@@ -3,7 +3,9 @@
     {
       "guid": "60948038-60A4-11E2-B01B-8BE36188709B",
       "name": "SBS 6",
-      "description": "Online uitzendingen van SBS6 via kijk.nl.",
+      "description": {
+        "en": "Online uitzendingen van SBS6 via kijk.nl."
+      },
       "icon": "sbs6large.png",
       "category": "National",
       "channelcode": "sbs",
@@ -16,7 +18,9 @@
     {
       "guid": "658A5A36-60A4-11E2-A236-8CE36188709B",
       "name": "Net 5",
-      "description": "Online uitzendingen van NET5 via kijk.nl.",
+      "description": {
+        "en": "Online uitzendingen van NET5 via kijk.nl."
+      },
       "icon": "net5large.png",
       "category": "National",
       "channelcode": "net5",
@@ -29,7 +33,9 @@
     {
       "guid": "6B32718A-60A4-11E2-87B1-A6E36188709B",
       "name": "Veronica",
-      "description": "Uitzendingen van Veronica via kijk.nl.",
+      "description": {
+        "en": "Uitzendingen van Veronica via kijk.nl."
+      },
       "icon": "veronicalarge.png",
       "category": "National",
       "channelcode": "veronica",
@@ -42,7 +48,9 @@
     {
       "guid": "C77710DE-21B6-467A-A547-0F64C6C6186E",
       "name": "SBS 9",
-      "description": "Uitzendingen van SBS9 via kijk.nl.",
+      "description": {
+        "en": "Uitzendingen van SBS9 via kijk.nl."
+      },
       "icon": "sbs9large.png",
       "category": "National",
       "channelcode": "sbs9",
@@ -55,7 +63,10 @@
     {
       "guid": "271456ED-6E84-4FAB-A7AF-77A1C669F942",
       "name": "Kijk.nl",
-      "description": "Alle uitzendingen van kijk.nl.",
+      "description": {
+        "en": "All NET5, SBS6, SBS9 &amp; Veronica broadcasts available via kijk.nl.",
+        "nl": "Alle NET5, SBS6, SBS9 &amp; Veronica uitzendingen van kijk.nl."
+      },
       "icon": "kijklarge.png",
       "category": "National",
       "channelcode": null,

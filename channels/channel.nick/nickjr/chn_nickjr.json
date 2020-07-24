@@ -3,7 +3,9 @@
     {
       "guid": "48DDDDCB-5500-4422-8AFC-8312B72E1ABA",
       "name": "Nick Jr.",
-      "description": "Afleveringen van NickJr.nl",
+      "description": {
+        "en": "Afleveringen van NickJr.nl"
+      },
       "icon": "nickjrlarge.png",
       "category": "Kids",
       "channelcode": "nickjrnl",
@@ -14,7 +16,9 @@
     {
       "guid": "27A74E50-838B-4F0D-98DE-82E7403567C8",
       "name": "Nick Jr. International",
-      "description": "Episodes from NickJr International",
+      "description": {
+        "en": "Episodes from NickJr International"
+      },
       "icon": "nickjrlarge.png",
       "category": "Kids",
       "channelcode": "nickjrintl",
@@ -25,7 +29,9 @@
     {
       "guid": "8D1E5858-F926-11E1-BE1C-90F66188709B",
       "name": "Nickelodeon (Sverige)",
-      "description": "Sändningar från Nickelodeon.se.",
+      "description": {
+        "en": "Sändningar från Nickelodeon.se."
+      },
       "icon": "nickelodeonlarge.png",
       "category": "Kids",
       "channelcode": "nickse",

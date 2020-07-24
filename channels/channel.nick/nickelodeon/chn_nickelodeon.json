@@ -3,7 +3,9 @@
     {
       "guid": "8D4EBAE8-F3C6-11DD-92EE-F2FE55D89593",
       "name": "Nickelodeon",
-      "description": "Afleveringen van Nickelodeon",
+      "description": {
+        "en": "Afleveringen van Nickelodeon"
+      },
       "icon": "nickelodeonlarge.png",
       "category": "Kids",
       "channelcode": "nickelodeon",
@@ -14,7 +16,9 @@
     {
       "guid": "47AA717E-F919-11E1-977F-0DEC6188709B",
       "name": "Nickelodeon (Norge)",
-      "description": "Sendinger fra Nickelodeon.no.",
+      "description": {
+        "en": "Sendinger fra Nickelodeon.no."
+      },
       "icon": "nickelodeonlarge.png",
       "category": "Kids",
       "channelcode": "nickno",

@@ -3,7 +3,10 @@
     {
       "guid": "15D92364-42F4-11DD-AF9B-7BFF55D89593",
       "name": "RTL XL (RTL 4,5,7 &amp; 8)",
-      "description": "Uitzendingen van de zenders RTL 4,5,7 &amp; 8.",
+      "description": {
+        "en": "Broadcasts of the channels RTL 4,5,7 &amp; 8.",
+        "nl": "Uitzendingen van de zenders RTL 4,5,7 &amp; 8."
+      },
       "icon": "rtl.png",
       "category": "National",
       "sortorder": 4,

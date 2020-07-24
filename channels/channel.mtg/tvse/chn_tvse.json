@@ -3,7 +3,9 @@
     {
       "guid": "8D9FBD00-2284-11E0-8957-55B8DFD72085",
       "name": "TV3 Play (Latvija)",
-      "description": "Sändningar från TV3Play.lv",
+      "description": {
+        "en": "Sändningar från TV3Play.lv"
+      },
       "icon": "tv3lvlarge.png",
       "category": "National",
       "channelcode": "tv3lv",
@@ -15,7 +17,9 @@
     {
       "guid": "45527F0C-91FE-11E1-942B-5AB5BBE59B18",
       "name": "TV3 Play (Eesti)",
-      "description": "TV3Play.ee episoodid",
+      "description": {
+        "en": "TV3Play.ee episoodid"
+      },
       "icon": "tv3eelarge.png",
       "category": "National",
       "channelcode": "tv3ee",
@@ -27,7 +31,9 @@
     {
       "guid": "82D73241-284B-4326-9E32-AFEF3C439951",
       "name": "TV6 Play (Eesti)",
-      "description": "TV6Play.ee episoodid",
+      "description": {
+        "en": "TV6Play.ee episoodid"
+      },
       "icon": "tv6eelarge.png",
       "category": "National",
       "channelcode": "tv6ee",
@@ -39,7 +45,9 @@
     {
       "guid": "7FEDC7EA-2281-11E0-8F30-67B5DFD72085",
       "name": "TV3 Play (Lietuva)",
-      "description": "TV3Play.lt web.tv",
+      "description": {
+        "en": "TV3Play.lt web.tv"
+      },
       "icon": "tv3ltlarge.png",
       "category": "National",
       "channelcode": "tv3lt",
@@ -51,7 +59,9 @@
     {
       "guid": "49A02D20-2283-11E0-8771-2AB7DFD72085",
       "name": "TV6 Play (Lietuva)",
-      "description": "TV6Play.lt web.tv",
+      "description": {
+        "en": "TV6Play.lt web.tv"
+      },
       "icon": "tv6large.png",
       "category": "National",
       "channelcode": "tv6lt",
@@ -63,7 +73,9 @@
     {
       "guid": "1F41C7FB-D3EC-4C4A-84BD-E063A8F6FFAD",
       "name": "TV8 Play (Lietuva)",
-      "description": "TV8Play.lt web.tv",
+      "description": {
+        "en": "TV8Play.lt web.tv"
+      },
       "icon": "tv8ltlarge.png",
       "category": "National",
       "channelcode": "tv8lt",

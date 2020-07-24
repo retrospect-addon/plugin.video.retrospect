@@ -3,7 +3,9 @@
     {
       "guid": "7F92EAEE-6066-4ED5-911A-2C3DCF964D19",
       "name": "VTM.be",
-      "description": "Online uitzendingen van VTM.be.",
+      "description": {
+        "en": "Online uitzendingen van VTM.be."
+      },
       "icon": "vtmbelogo.png",
       "category": "National",
       "channelcode": "vtm",
@@ -15,7 +17,9 @@
     {
       "guid": "01C7064B-7E7A-4742-A042-E6F2F4EC5966",
       "name": "Q2.be",
-      "description": "Online uitzendingen van Q2.be.",
+      "description": {
+        "en": "Online uitzendingen van Q2.be."
+      },
       "icon": "q2belogo.png",
       "category": "National",
       "channelcode": "q2",
@@ -28,7 +32,9 @@
     {
       "guid": "61AA2559-7D64-40A2-A3BE-56DD3F6BBD4A",
       "name": "Stievie",
-      "description": "Online uitzendingen van Stievie.",
+      "description": {
+        "en": "Online uitzendingen van Stievie."
+      },
       "icon": "stievielogo.png",
       "category": "National",
       "channelcode": "stievie",

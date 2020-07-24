@@ -4,7 +4,9 @@
 
       "guid": "BD113683-233A-46EB-962D-98B3C02EB738",
       "name": "RTV Utrecht",
-      "description": "RTV Utrecht Uitzendinggemist",
+      "description": {
+        "en": "RTV Utrecht Uitzendinggemist"
+      },
       "icon": "rtvutrechtlarge.png",
       "category": "Regional",
       "channelcode": "rtvutrecht",
@@ -15,7 +17,9 @@
     {
       "guid": "8B4A56C7-44D5-40C2-A890-2287C4C1D74B",
       "name": "Omroep Zeeland",
-      "description": "Omroep Zeeland Uitzendinggemist",
+      "description": {
+        "en": "Omroep Zeeland Uitzendinggemist"
+      },
       "icon": "omroepzeelandlarge.png",
       "category": "Regional",
       "channelcode": "omroepzeeland",

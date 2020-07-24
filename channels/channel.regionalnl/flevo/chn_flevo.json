@@ -3,7 +3,9 @@
     {
       "guid": "D74952F3-B72B-4AF9-83E6-9394D37D786E",
       "name": "Omroep Flevoland",
-      "description": "Omroep Flevoland Uitzendinggemist",
+      "description": {
+        "en": "Omroep Flevoland Uitzendinggemist"
+      },
       "icon": "flevolarge.png",
       "category": "Regional",
       "channelcode": "rtvutrecht",
