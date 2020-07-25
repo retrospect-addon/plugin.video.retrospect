@@ -419,7 +419,7 @@ class AddonSettings(object):
 
         if AddonSettings.__language_current is None:
             AddonSettings.__language_current = xbmc.getLanguage(xbmc.ISO_639_1, region=False)
-            Logger.debug("Setting GUI language to: %s", AddonSettings.__language_current)
+            Logger.info("Setting GUI language to: %s", AddonSettings.__language_current)
 
         return AddonSettings.__language_current
 

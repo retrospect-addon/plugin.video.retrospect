@@ -4,12 +4,14 @@
       "guid": "52230AF6-FBA9-11DD-87D4-15B656D89593",
       "name": "Extreme.com",
       "description": {
-        "en": "Extreme.com movies"
+        "en": "Extreme.com movies",
+        "nl": "Extreme.com videos"
       },
       "icon": "extremelarge.png",
       "category": "Sport",
       "channelcode": "extreme",
-      "fanart": "extremefanart.jpg"
+      "fanart": "extremefanart.jpg",
+      "ignore": true
     }
   ]
 }

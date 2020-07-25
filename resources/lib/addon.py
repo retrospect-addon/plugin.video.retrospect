@@ -38,6 +38,9 @@ def run_addon():
         from resources.lib.addonsettings import AddonSettings
         from resources.lib.textures import TextureHandler
 
+        # update the loglevel
+        Logger.instance().minLogLevel = AddonSettings.get_log_level()
+
         use_caching = AddonSettings.cache_http_responses()
         cache_dir = None
         if use_caching:

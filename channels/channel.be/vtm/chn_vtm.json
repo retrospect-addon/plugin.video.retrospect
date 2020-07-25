@@ -4,7 +4,8 @@
       "guid": "66756700-6255-4973-AFFB-A1DE4FAF8678",
       "name": "VTM Nieuws",
       "description": {
-        "en": "Online uitzendingen van VTM Nieuws."
+        "en": "Online videos and episodes from VTM Nieuws.",
+        "nl": "Online uitzendingen van VTM Nieuws."
       },
       "icon": "vtmlarge.png",
       "category": "National",

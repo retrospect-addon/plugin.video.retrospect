@@ -4,7 +4,8 @@
       "guid": "3AF9C61E-88B2-11E1-A03F-08F6BAE59B18",
       "name": "SVT Play",
       "description": {
-        "en": "Sändningar från Sveriges Television (SVTPlay.se)."
+        "en": "Broadcasts and shows from the Sveriges Television (SVTPlay.se).",
+        "sv": "Sändningar från Sveriges Television (SVTPlay.se)."
       },
       "icon": "svtlarge.png",
       "category": "National",
@@ -12,7 +13,6 @@
       "sortorder": 0,
       "language": "se",
       "fanart": "svtfanart.jpg",
-      "localIPSupported": true,
       "adaptiveAddonSelectable": true
     }
   ],

@@ -4,7 +4,8 @@
       "guid": "71128378-B6BA-11E0-A68A-1B434824019B",
       "name": "Sporza",
       "description": {
-        "en": "Online uitzendingen van www.sporza.be."
+        "en": "Online broadcasted episodes from www.sporza.be.",
+        "nl": "Online uitzendingen van www.sporza.be."
       },
       "icon": "sporzalarge.png",
       "category": "National",

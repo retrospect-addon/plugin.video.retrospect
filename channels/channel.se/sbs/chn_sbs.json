@@ -4,7 +4,8 @@
       "guid": "C72D24F6-5FAE-11E0-9935-5F41E0D72085",
       "name": "Kanal 5",
       "description": {
-        "en": "Sändningar från Kanal 5 (Dplay.se)."
+        "en": "Broadcasts and show from Kanal 5 (Dplay.se).",
+        "sv": "Sändningar från Kanal 5 (Dplay.se)."
       },
       "icon": "tv5selarge.png",
       "category": "National",
@@ -17,7 +18,8 @@
       "guid": "32B4A9AB-583C-4F78-A057-6D79C797B45C",
       "name": "Kanal 9",
       "description": {
-        "en": "Sändningar från Kanal 9 (Dplay.se)."
+        "en": "Broadcasts and show from Kanal 9 (Dplay.se).",
+        "sv": "Sändningar från Kanal 9 (Dplay.se)."
       },
       "icon": "tv9selarge2014.png",
       "category": "National",
@@ -30,7 +32,8 @@
       "guid": "64E1CA5E-BC3C-4763-9A63-02BE76754BD3",
       "name": "Kanal 11",
       "description": {
-        "en": "Sändningar från Kanal 11 (Dplay.se)."
+        "en": "Broadcasts and show from Kanal 11 (Dplay.se).",
+        "sv": "Sändningar från Kanal 11 (Dplay.se)."
       },
       "icon": "tv11selarge.png",
       "category": "National",
@@ -43,7 +46,8 @@
       "guid": "230A2F56-572B-470B-AD53-AFD20A768D54",
       "name": "Dplay (Sverige)",
       "description": {
-        "en": "Sändningar från Dplay.se."
+        "en": "Broadcasts and show from Dplay.se.",
+        "sv": "Sändningar från Dplay.se."
       },
       "icon": "dplaylarge.png",
       "category": "National",
@@ -56,7 +60,8 @@
       "guid": "90C8695D-23AE-45B5-BD51-CEA780A770B0",
       "name": "Dplay (Norge)",
       "description": {
-        "en": "Sendinger fra Dplay.no."
+        "en": "Broadcasts and show from Dplay.no.",
+        "no": "Sendinger fra Dplay.no."
       },
       "icon": "dplaylarge.png",
       "category": "National",
@@ -69,7 +74,8 @@
       "guid": "E0D572B5-D992-4F90-960E-F0D82A8C9E51",
       "name": "TVNorge",
       "description": {
-        "en": "Sendinger fra TVNorge (Dplay.no)."
+        "en": "Broadcasts and show from TVNorge (Dplay.no).",
+        "no": "Sendinger fra TVNorge (Dplay.no)."
       },
       "icon": "tvnorgelarge.png",
       "category": "National",
@@ -82,7 +88,8 @@
       "guid": "AA14585A-F519-42FF-824B-7ABAC76F18FD",
       "name": "Max (Norge)",
       "description": {
-        "en": "Sendinger fra Max (Dplay.no)."
+        "en": "Broadcasts and show from Max (Dplay.no).",
+        "no": "Sendinger fra Max (Dplay.no)."
       },
       "icon": "maxnorgelarge.png",
       "category": "National",
@@ -95,7 +102,8 @@
       "guid": "94951B96-77FD-4519-8AE2-55C6133CB9EC",
       "name": "FEM",
       "description": {
-        "en": "Sendinger fra FEM (Dplay.no)."
+        "en": "Broadcasts and show from FEM (Dplay.no).",
+        "no": "Sendinger fra FEM (Dplay.no)."
       },
       "icon": "femnorgelarge.png",
       "category": "National",
@@ -108,7 +116,8 @@
       "guid": "79B3216B-3485-4522-B963-38D0F452C032",
       "name": "VOX",
       "description": {
-        "en": "Sendinger fra VOX (Dplay.no)."
+        "en": "Broadcasts and show from VOX (Dplay.no).",
+        "no": "Sendinger fra VOX (Dplay.no)."
       },
       "icon": "voxnorgelarge.png",
       "category": "National",
@@ -121,7 +130,8 @@
       "guid": "A4F6C1DA-A485-4504-B6C2-840E5548E87D",
       "name": "Discovery Science (Norge)",
       "description": {
-        "en": "Sendinger fra Discovery Science (Dplay.no)."
+        "en": "Broadcasts and show from Discovery Science (Dplay.no).",
+        "no": "Sendinger fra Discovery Science (Dplay.no)."
       },
       "icon": "discoverysciencenorgelarge.png",
       "category": "National",
@@ -135,7 +145,8 @@
       "guid": "1A272A28-3655-4991-B983-5EEBC1282534",
       "name": "Discovery World (Norge)",
       "description": {
-        "en": "Sendinger fra Discovery World (Dplay.no)."
+        "en": "Broadcasts and show from Discovery World (Dplay.no).",
+        "no": "Sendinger fra Discovery World (Dplay.no)."
       },
       "icon": "discoverynorgelarge.png",
       "category": "National",
@@ -149,7 +160,8 @@
       "guid": "5141DFDF-3B9D-4368-8943-2F8D500BC2D1",
       "name": "Dplay (Danmark)",
       "description": {
-        "en": "Udsendelser fra Dplay.dk."
+        "en": "Broadcasts and show from Dplay.dk.",
+        "da": "Udsendelser fra Dplay.dk."
       },
       "icon": "dplaylarge.png",
       "category": "National",
