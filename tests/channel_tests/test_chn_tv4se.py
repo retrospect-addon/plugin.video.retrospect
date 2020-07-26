@@ -32,7 +32,7 @@ class TestTv4Channel(ChannelTest):
 
     def test_recents(self):
         url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&per_page=32&is_live=true&product_groups=2&type=episode&per_page=100"
-        self._test_folder_url(url, expected_results=5)
+        self._test_folder_url(url, expected_results=2)
 
     def test_popular(self):
         url = "https://api.tv4play.se/play/video_assets/most_viewed?type=episode&platform=tablet&is_live=false&per_page=100&start=0"
