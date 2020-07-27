@@ -824,11 +824,15 @@ class Channel:
 
         :param list[str] urls:              The URLs that triggers these handlers
         :param str name:                    The name of the DataParser
-        :param function preprocessor:       The pre-processor called
+        :param preprocessor:                The pre-processor called
+        :type preprocessor:                 (str) -> (str|JsonHelper,list[MediaItem])
         :param str|list[str|int] parser:    The parser (regex or json)
-        :param function creator:            The creator called with the results from the parser
-        :param function updater:            The updater called for updating a item
-        :param function postprocessor:      The post-processor called
+        :param creator:                     The creator called with the results from the parser
+        :type creator:                      (list[str]|dict) -> MediaItem|None
+        :param updater:                     The updater called for updating a item
+        :type updater:                      MediaItem -> MediaItem
+        :param postprocessor:               The post-processor called
+        :type postprocessor:                (JsonHelper|str,list[MediaItems]) -> list[MediaItems]
         :param bool json:                   Indication whether the parsers are JSON (True) or Regex (False)
         :param str match_type:              The type of matching to use
         :param bool requires_logon:         Do we need to be logged on?
@@ -847,13 +851,17 @@ class Channel:
                          json=False, match_type=ParserData.MatchStart, requires_logon=False):
         """ Adds a DataParser to the handlers dictionary
 
-        :param function preprocessor:       The pre-processor called
+        :param preprocessor:                The pre-processor called
+        :type preprocessor:                 (str) -> (str|JsonHelper,list[MediaItem])
         :param str name:                    The name of the DataParser
         :param str url:                     The URLs that triggers these handlers
         :param str|list[str|int] parser:    The parser (regex or json)
-        :param function creator:            The creator called with the results from the parser
-        :param function updater:            The updater called for updating a item
-        :param function postprocessor:      The post-processor called
+        :param creator:                     The creator called with the results from the parser
+        :type creator:                      (list[str]|dict) -> MediaItem|None
+        :param updater:                     The updater called for updating a item
+        :type updater:                      MediaItem -> MediaItem
+        :param postprocessor:               The post-processor called
+        :type postprocessor:                (JsonHelper|str,list[MediaItems]) -> list[MediaItems]
         :param bool json:                   Indication whether the parsers are JSON (True) or Regex (False)
         :param str match_type:              The type of matching to use
         :param bool requires_logon:         Do we need to be logged on?
