@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: Use GraphQL for tags/categories (Fixes #1340)
 * Added: Separate TV4 Group channel for TV4play.se (Fixes# 965)
+* Fixed: Nickelodeon did not list (Fixes #1412)
