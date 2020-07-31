@@ -49,10 +49,24 @@ class Channel(chn_class.Channel):
                               preprocessor=self.extract_json_episodes,
                               parser=['items'], creator=self.create_json_episode_item)
 
-        self._add_data_parser("https://www.nickelodeon.n[ol]/shows/", name="JSON video creator",
+        self._add_data_parser("https://www.nickelodeon.n[ol]/shows/",
+                              name="JSON Retriever for videos",
                               match_type=ParserData.MatchRegex,
-                              json=True, preprocessor=self.extract_json_video,
+                              json=True, preprocessor=self.extract_json_video)
+
+        self._add_data_parser("https://www.nickelodeon.n[ol]/shows/", name="JSON video creator",
+                              match_type=ParserData.MatchRegex, json=True,
                               parser=["items"], creator=self.create_json_video_item)
+
+        self._add_data_parser("https://www.nickelodeon.n[ol]/shows/", name="JSON season creator",
+                              match_type=ParserData.MatchRegex,  json=True,
+                              parser=["seasons"], creator=self.create_json_season_item)
+
+        self._add_data_parser("/api/context/mgid%3Aarc%3Aseason%3A", name="JSON API Videos",
+                              match_type=ParserData.MatchContains, json=True,
+                              parser=["items"], creator=self.create_json_video_item)
+
+        self._add_data_parser("*", name="Generic Updater", updater=self.update_video_item)
 
         #===============================================================================================================
         # Test cases:
@@ -85,11 +99,35 @@ class Channel(chn_class.Channel):
 
         data = Regexer.do_regex(r'window.__DATA__ = ([\w\W]+?});\s*window.__PUSH_STATE__', data)[0]
         json_data = JsonHelper(data)
+        # Get the main content container
         main_container = [m for m in json_data.get_value("children") if m["type"] == "MainContainer"]
+
+        # Extract seasons
+        seasons = []
+        if not self.parentItem.metaData.get("is_season", False):
+            seasons = [
+                lst["props"]["items"]
+                for lst in main_container[0]["children"]
+                if lst["type"] == "SeasonSelector"
+            ]
+            if seasons:
+                seasons = [s for s in seasons[0] if s["url"]]
+
+        # Find the actual
         line_lists = [lst for lst in main_container[0]["children"] if lst["type"] == "LineList"]
         for line_list in line_lists:
             if line_list.get("props", {}).get("type") == "video-guide":
                 json_data.json = line_list["props"]
+
+                # Get the actual full episode list
+                all_episodes = json_data.get_value("filters", "items", 0, "url")
+                url_all_episodes = "{}{}".format(self.baseUrl, all_episodes)
+                data = UriHandler.open(url_all_episodes)
+                json_data = JsonHelper(data)
+
+                # And append seasons
+                if seasons:
+                    json_data.json["seasons"] = seasons
                 return json_data, items
 
         Logger.warning("Cannot extract video items")
@@ -148,6 +186,30 @@ class Channel(chn_class.Channel):
         item.thumb = result_set.get("media", {}).get("image", {}).get("url")
         return item
 
+    def create_json_season_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a season using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        url = "{}{}".format(self.baseUrl, result_set["url"])
+        item = MediaItem(result_set["label"], url)
+        item.metaData["is_season"] = True
+        return item
+
     def create_json_video_item(self, result_set):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
@@ -169,12 +231,16 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
         meta = result_set["meta"]
-        name = meta["header"]["title"]["text"]
-        sub_heading = meta["subHeader"]
-        title = "{} - {}".format(name, sub_heading)
-        url = "{}{}".format(self.baseUrl, result_set["url"])
+        name = meta["header"]["title"]
+        if isinstance(name, dict):
+            name = name["text"]
 
-        item = MediaItem(title, url)
+        sub_heading = meta.get("subHeader")
+        if sub_heading:
+            name = "{} - {}".format(name, sub_heading)
+
+        url = "{}{}".format(self.baseUrl, result_set["url"])
+        item = MediaItem(name, url)
         item.type = "video"
         item.description = meta.get("description")
         item.thumb = result_set.get("media", {}).get("image", {}).get("url")
