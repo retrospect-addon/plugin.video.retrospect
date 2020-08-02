@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.8 - Changelog - 2020-07-09[/B]
+[B]Retrospect v5.2.9 - Changelog - 2020-08-02[/B]
 
-A small release for Retrospect that includes a number of new Dutch regional channels and fixes some minor issues with some of the existing channels.
+A bug fix release for Retrospect that fixes some minor issues with some of the existing channels. It also adds some minor stuff under the hood.
 
 [B]Framework related[/B]
 * Added: Option for post-processing of retrieved items
