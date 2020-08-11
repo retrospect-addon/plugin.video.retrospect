@@ -1,15 +1,12 @@
 [B]Retrospect v5.2.9 - Changelog - 2020-08-02[/B]
 
-A bug fix release for Retrospect that fixes some minor issues with some of the existing channels. It also adds some minor stuff under the hood.
+...
 
 [B]Framework related[/B]
-* Added: Option for post-processing of retrieved items
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Use GraphQL for tags/categories (Fixes #1340)
-* Added: Separate TV4 Group channel for TV4play.se (Fixes# 965)
-* Fixed: Nickelodeon did not list (Fixes #1412)
-* Added: 'Latest news' option to SVT
+* Changed: Add browser fingerprint to DPlay log in (Fixes #1413)
