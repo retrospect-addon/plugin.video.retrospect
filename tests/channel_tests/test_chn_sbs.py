@@ -172,36 +172,18 @@ class TestSbsSeChannel(ChannelTest):
         now = int(time.time())
         b64_now = binascii.b2a_base64(str(now).encode()).decode().strip()
 
-        # region Browser properties seem optional
-        # fe = [
-        #     "DNT:1",
-        #     "L:en-NL",
-        #     "D:24",
-        #     "PR:1",
-        #     "S:1920,1080",
-        #     "AS:1920,1040",
-        #     "TO:-120",
-        #     "SS:true",
-        #     "LS:true",
-        #     "IDB:true",
-        #     "B:false",
-        #     "ODB:true",
-        #     "CPUC:unknown",
-        #     "PK:Win32",
-        #     "CFP:-1424337346",
-        #     "FR:false",
-        #     "FOS:false",
-        #     "FB:false",
-        #     "JSF:Arial,Arial Black,Arial Narrow,Book Antiqua,Bookman Old Style,Calibri,Cambria,Cambria Math,Century,Century Gothic,Century Schoolbook,Comic Sans MS,Consolas,Courier,Courier New,Garamond,Georgia,Helvetica,Impact,Lucida Bright,Lucida Calligraphy,Lucida Console,Lucida Fax,Lucida Handwriting,Lucida Sans,Lucida Sans Typewriter,Lucida Sans Unicode,Microsoft Sans Serif,Monotype Corsiva,MS Gothic,MS PGothic,MS Reference Sans Serif,MS Sans Serif,MS Serif,Palatino Linotype,Segoe Print,Segoe Script,Segoe UI,Segoe UI Light,Segoe UI Semibold,Segoe UI Symbol,Tahoma,Times,Times New Roman,Trebuchet MS,Verdana,Wingdings,Wingdings 2,Wingdings 3",
-        #     "P:Chrome PDF Plugin,Chrome PDF Viewer,Native Client",
-        #     "T:1,false,false",
-        #     "H:12",
-        #     "SWF:false"
-        # ]
+        # region Browser fingerprint
+        fe = ["DNT:1", "L:en-NL", "D:24", "PR:1", "S:1920,1080", "AS:1920,1040", "TO:-120",
+              "SS:true", "LS:true", "IDB:true", "B:false", "ODB:true", "CPUC:unknown",
+              "PK:Win32", "CFP:-1524337346", "FR:false", "FOS:false", "FB:false", "JSF:", "P:",
+              "T:1,false,false", "H:12", "SWF:false"]
+
+        # Concatenate with the brower fingerprint parameters
         # fs_murmur_value = ", ".join(fe)
-        # # Murmur (x64 128-bit) from fs_murmur_value via https://asecuritysite.com/encryption/mur
-        # fs_murmur = "0xfa204e6c7927d156f9b50d837b6cb295L"
-        # fs_murmur_hash = self.__transform_murmur(fs_murmur)
+
+        # Murmur (x64 128-bit) from fs_murmur_value via https://asecuritysite.com/encryption/mur with seed=38
+        fs_murmur = "0xbe1081539b0c53d615d5fa5bf8949392L"
+        fs_murmur_hash = self.__transform_murmur(fs_murmur)
         #endregion
 
         data = [
@@ -210,8 +192,8 @@ class TestSbsSeChannel(ChannelTest):
             {"key": "f", "value": device_id},               # browser instance ID
             {"key": "n", "value": b64_now},                 # base64 encoding of time.now()
             {"key": "wh", "value": window_id},              # WindowHandle ID
-            # {"key": "fe", "value": fe},                     # browser properties
-            # {"key": "ife_hash", "value": fs_murmur_hash},   # hash of browser properties
+            {"key": "fe", "value": fe},                     # browser properties
+            {"key": "ife_hash", "value": fs_murmur_hash},   # hash of browser properties
             {"key": "cs", "value": 1},                      # canvas supported 0/1
             {"key": "jsbd", "value": "{\"HL\":41,\"NCE\":true,\"DMTO\":1,\"DOTO\":1}"}
         ]
