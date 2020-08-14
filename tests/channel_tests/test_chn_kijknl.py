@@ -30,7 +30,7 @@ class TestKijkNlChannel(ChannelTest):
             "https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes%3A%5BSERIES%5D"
             "%2Climit%3A10%29%7Bitems%7B__typename%2Ctitle%2Cdescription%2Cguid%2Cupdated%2C"
             "seriesTvSeasons%7Bid%7D%2CimageMedia%7Burl%2Clabel%7D%7D%7D%7D",
-            expected_results=10
+            expected_results=8
         )
 
     def test_graphql_multi_season_show(self):
