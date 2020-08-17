@@ -12,3 +12,4 @@ _None_
 * Changed: Add browser fingerprint to DPlay log in (Fixes #1413)
 * Fixed: Issue where Nickelodeon would break on missing images
 * Fixed: Pathe.nl updated their API version
+* Fixed: DRM token could not always be retrieved for kijk.nl
