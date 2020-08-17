@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.9 - Changelog - 2020-08-02[/B]
+[B]Retrospect v5.2.10 - Changelog - 2020-08-17[/B]
 
-...
+Just some minor fixes for DPlay.se, Nickelodeon, Pathe.nl and kijk.nl.
 
 [B]Framework related[/B]
 _None_
