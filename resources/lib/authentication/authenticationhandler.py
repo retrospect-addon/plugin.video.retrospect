@@ -62,8 +62,6 @@ class AuthenticationHandler(object):
     def get_authentication_token(self):
         """ Returns a token that can be used for authentication of the current session.
 
-
-
         The user needs to be logged in for this.
 
         :return: An authentication token.

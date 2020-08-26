@@ -5,9 +5,10 @@ class AuthenticationResult:
     def __init__(self, username, has_premium=False, existing_login=False):
         """ Log on result object
 
-        :param str|None username:
-        :param bool existing_login:
-        :param bool has_premium:
+        :param str|None username:       The user name that is used for logging in.
+        :param bool existing_login:     Indication whether the user was already logged in and this
+                                         was just a the renew of the authentication session.
+        :param bool has_premium:        Indication whether the user has a premium/paid account.
 
         """
 

@@ -37,7 +37,7 @@ class Authenticator(object):
         """
 
         if not username:
-            Logger.debug("No username specified")
+            Logger.error("No username specified")
             return AuthenticationResult(None)
 
         res = self.__hander.active_authentication()
