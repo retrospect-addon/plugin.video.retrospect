@@ -37,6 +37,8 @@ jobs:
         env:
           _DPLAY_USERNAME: ${{ secrets.DplayUsername }}
           _DPLAY_PASSWORD: ${{ secrets.DplayPassword }}
+          RTLXL_USERNAME: ${{ secrets.RtlXlUsername }}
+          RTLXL_PASSWORD: ${{ secrets.RtlXlPassword }}
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii
           export KODI_HOME=$GITHUB_WORKSPACE/tests/home
