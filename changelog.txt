@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: SVT Play could not resolve Single Episode videos (Fixes #1414)
 * Fixed: RTL XL requires logging in since this week (Fixes #1416)
+* Fixed: NPO Genres broke
