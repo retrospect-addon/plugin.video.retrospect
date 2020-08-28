@@ -12,7 +12,6 @@ from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.xbmcwrapper import XbmcWrapper
-from resources.lib.helpers.languagehelper import LanguageHelper
 
 
 class Channel(chn_class.Channel):
@@ -107,12 +106,16 @@ class Channel(chn_class.Channel):
         handler = RtlXlHandler("rtlxl.nl", "3_R0XjstXd4MpkuqdK3kKxX20icLSE3FB27yQKl4zQVjVpqmgSyRCPKKLGdn5kjoKq")
         self.__authenticator = Authenticator(handler)
 
+        # Always try to log on. If the username was changed to empty, we should clear the current
+        # log in.
         username = self._get_setting("rtlxl_username", value_for_none=None)
-        if not username:
-            XbmcWrapper.show_dialog(None, LanguageHelper.MissingCredentials)
-            return False
-
         result = self.__authenticator.log_on(username=username, channel_guid=self.guid, setting_id="rtlxl_password")
+
+        if not username:
+            Logger.info("No username for RTL specified. Not logging in.")
+            # Return True to prevent unwanted messages
+            return True
+
         return result.logged_on
 
     def add_live_streams_and_recent(self, data):

@@ -36,14 +36,10 @@ class Authenticator(object):
 
         """
 
-        if not username:
-            Logger.error("No username specified")
-            return AuthenticationResult(None)
-
         res = self.__hander.active_authentication()
         logged_on_user = res.username
 
-        # Check if existing ones
+        # Check if the existing log in is the same as the requested one.
         if logged_on_user and logged_on_user != username:
             Logger.warning("Existing but different authenticated user (%s) found. Logging of first.",
                            self.__safe_log(logged_on_user))
@@ -53,8 +49,13 @@ class Authenticator(object):
             Logger.warning("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
             return res
 
+        if not username:
+            Logger.warning("No username specified")
+            return AuthenticationResult(None)
+
+        Logger.info("Logging on user: %s", self.__safe_log(username))
         if password is None:
-            Logger.warning("Logging on user: %s", self.__safe_log(username))
+            Logger.info("Retrieving password for user: %s", self.__safe_log(username))
             v = Vault()
             if channel_guid:
                 password = v.get_channel_setting(channel_guid, setting_id)
