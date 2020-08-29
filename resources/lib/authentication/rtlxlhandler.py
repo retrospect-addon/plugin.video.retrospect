@@ -129,7 +129,7 @@ class RtlXlHandler(AuthenticationHandler):
 
         """
 
-        token_data = UriHandler.open("https://api.rtl.nl/rtlxl/token/api/2/token")
+        token_data = UriHandler.open("https://api.rtl.nl/rtlxl/token/api/2/token", no_cache=True)
         token_json = JsonHelper(token_data)
         token = token_json.get_value("accessToken")
         return token
