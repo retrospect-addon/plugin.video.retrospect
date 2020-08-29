@@ -10,7 +10,7 @@
       "language": "nl",
       "message": "De meeste streams van RTL Gemist zijn beschermd met behulp van DRM. Deze items kunnen enkel binnen Nederland worden afgespeeld.",
       "fanart": "rtlfanart.png",
-      "adaptiveAddonSelectable": true
+      "adaptiveAddonSelectable": false
     }
   ],
   "settings": [
