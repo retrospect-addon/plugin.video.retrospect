@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.10 - Changelog - 2020-08-17[/B]
+[B]Retrospect v5.2.11 - Changelog - 2020-08-29[/B]
 
-...
+A minor update that includes fixes for RTL XL, SVT Play, NPO Start and Nickelodeon channels.
 
 [B]Framework related[/B]
 _None_
