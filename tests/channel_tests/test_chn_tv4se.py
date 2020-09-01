@@ -28,7 +28,7 @@ class TestTv4Channel(ChannelTest):
 
     def test_category_tv_show_list(self):
         url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28tag%3A%22Humor%22%2Cper_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%7D%2CtotalHits%7D%7D"
-        self._test_folder_url(url, expected_results=25)
+        self._test_folder_url(url, expected_results=20)
 
     def test_recents(self):
         url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&per_page=32&is_live=true&product_groups=2&type=episode&per_page=100"
