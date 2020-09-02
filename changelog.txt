@@ -9,7 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: SVT Play could not resolve Single Episode videos (Fixes #1414)
-* Fixed: RTL XL requires logging in since this week (Fixes #1416)
-* Fixed: NPO Genres broke
-* Fixed: Nickelodeon would fail on shows with an empty season
+* Fixed: "Amsterdam Vandaag" was missing from the AT5 channel (Fixes #1418)
