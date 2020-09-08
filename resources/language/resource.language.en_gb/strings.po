@@ -227,7 +227,17 @@ msgctxt "#30053"
 msgid "Appearance"
 msgstr ""
 
-# empty string with id 30054
+msgctxt "#30054"
+msgid "[COLOR gold][B]The Vault[/B][/COLOR]\n\n"
+"'The Vault' enables storing sensitive data in a more secure way. How does this work:\n\n"
+"* The users selects a simple Vault PIN that is used as the main code for accessing the Vault data.\n"
+"* This PIN can be rather simple and short and easy to remember: for example 3145.\n"
+"* That PIN is then used to generate a much stronger encryption key using Scrypt. As user you will not need to know this key.\n"
+"* Whenever sensitive data is being [B]stored[/B], the user will be asked for their PIN first, then the actual data to store.\n"
+"* Whenever that sensitive data is being [B]retrieved[/B], the user will only be asked for their PIN. That PIN is then used to securely fetch the actual data.\n\n"
+"[COLOR gold][B]Resetting the Vault[/B][/COLOR]\n\n"
+"If a user has forgotten the PIN, there is no way of recovering the data. The only solution is to reset the Vault and pick a new PIN and generate a new Vault Key. [B]This will invalidate all encrypted data[/B]. This data must be entered again."
+msgstr ""
 
 msgctxt "#30055"
 msgid "Advanced"

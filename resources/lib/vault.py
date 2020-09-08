@@ -34,6 +34,8 @@ class Vault(object):
             # was there a key? No, let's initialize it.
             if key is None:
                 Logger.warning("No Application Key present. Initializing a new one.")
+                XbmcWrapper.show_text(30089, 30054)
+
                 key = self.__get_new_key()
                 if not self.change_pin(key):
                     raise RuntimeError("Error creating Application Key.")
