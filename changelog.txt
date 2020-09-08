@@ -10,4 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: "Amsterdam Vandaag" was missing from the AT5 channel (Fixes #1418)
-va
+* Added: More explanation for the Retrospect Vault.
