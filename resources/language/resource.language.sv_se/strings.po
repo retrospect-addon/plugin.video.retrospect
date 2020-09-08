@@ -56,7 +56,7 @@ msgstr "Retrospect"
 
 msgctxt "#30009"
 msgid "General"
-msgstr "Allmän"
+msgstr "Allmänt"
 
 msgctxt "#30010"
 msgid "Channels"
@@ -614,7 +614,7 @@ msgstr "Populära"
 
 msgctxt "#30364"
 msgid "Latest news"
-msgstr "Senaste nyhetsprogram"
+msgstr "Senaste nytt"
 
 # empty strings from id 30365 to 30400
 msgctxt "#30401"
