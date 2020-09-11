@@ -49,9 +49,9 @@ class TestTv4Channel(ChannelTest):
         items = self._test_folder_url(url, expected_results=25)
 
         # Check the date
-        self.assertEqual(yesterday.day, items[0]._MediaItem__timestamp.day)
-        self.assertEqual(yesterday.month, items[0]._MediaItem__timestamp.month)
-        self.assertEqual(yesterday.year, items[0]._MediaItem__timestamp.year)
+        self.assertEqual(yesterday.day, items[1]._MediaItem__timestamp.day)
+        self.assertEqual(yesterday.month, items[1]._MediaItem__timestamp.month)
+        self.assertEqual(yesterday.year, items[1]._MediaItem__timestamp.year)
 
     def test_tv_show_videos(self):
         url = "https://api.tv4play.se/play/video_assets?platform=tablet&per_page=100&is_live=false&type=episode&page=1&node_nids=nyheterna&start=0"
