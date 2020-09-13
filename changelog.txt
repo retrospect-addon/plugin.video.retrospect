@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: "Amsterdam Vandaag" was missing from the AT5 channel (Fixes #1418)
 * Fixed: Some SVT videos would not play.
+* Fixed: SVT Oppet Arkiv could not play all streams (Fixes #1421)
