@@ -285,7 +285,8 @@ class Channel(chn_class.Channel):
                 "dash": 2,
                 "dash-avc-51": 3,
                 "hls": 0,
-                "hls-ts-avc-51": 1
+                "hls-ts-avc-51": 1,
+                "ios": 0
             }
             for video_info in video_infos:
 
@@ -295,7 +296,7 @@ class Channel(chn_class.Channel):
                     Logger.debug("Ignoring %s: %s", video_type, video_url)
                     continue
 
-                if "hls" in video_type:
+                if "hls" in video_type or "ios" in video_type:
                     M3u8.update_part_with_m3u8_streams(part, video_url)
 
                 elif "dash" in video_type:
