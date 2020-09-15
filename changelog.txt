@@ -12,3 +12,4 @@ _None_
 * Fixed: "Amsterdam Vandaag" was missing from the AT5 channel (Fixes #1418)
 * Fixed: Some SVT videos would not play.
 * Fixed: SVT Oppet Arkiv could not play all streams (Fixes #1421)
+* Fixed: Updated the NPO Start subtitle url (Fixes #1424)
