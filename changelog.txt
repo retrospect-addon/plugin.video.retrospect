@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.11 - Changelog - 2020-08-29[/B]
+[B]Retrospect v5.2.12 - Changelog - 2020-09-17[/B]
 
-A minor update that includes fixes for RTL XL, SVT Play, NPO Start and Nickelodeon channels.
+This update contains fixes for AT5, SVT, TV4, SVT Oppet Arkiv and NPO. It also adds a bit more clarification on the Retrospect Vault that is used to secure credentials.
 
 [B]Framework related[/B]
 _None_
