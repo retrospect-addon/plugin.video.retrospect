@@ -6,7 +6,7 @@ A minor update that includes fixes for RTL XL, SVT Play, NPO Start and Nickelode
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Fixed: Issue with grouping of items that start with HTML entities
 
 [B]Channel related[/B]
 * Fixed: "Amsterdam Vandaag" was missing from the AT5 channel (Fixes #1418)
