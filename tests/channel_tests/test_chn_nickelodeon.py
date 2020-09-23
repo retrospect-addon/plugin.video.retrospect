@@ -20,7 +20,7 @@ class TestNickelodeonChannel(ChannelTest):
 
     def test_show_list_more_pages(self):
         url = "https://www.nickelodeon.nl/shows/65kecx/de-legende-van-korra"
-        self._test_folder_url(url, expected_results=10)
+        self._test_folder_url(url, expected_results=5)
 
     def test_show_list_with_seasons(self):
         url = "https://www.nickelodeon.nl/shows/76ypv4/spongebob"
