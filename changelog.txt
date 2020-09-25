@@ -6,12 +6,7 @@ This update contains fixes for AT5, SVT, TV4, SVT Oppet Arkiv and NPO. It also a
 _None_
 
 [B]GUI/Settings/Language related[/B]
-* Added: More explanation for the Retrospect Vault.
-* Fixed: Issue with grouping of items that start with HTML entities
+_None_
 
 [B]Channel related[/B]
-* Fixed: "Amsterdam Vandaag" was missing from the AT5 channel (Fixes #1418)
-* Fixed: Some SVT videos would not play.
-* Fixed: SVT Oppet Arkiv could not play all streams (Fixes #1421)
-* Fixed: Updated the NPO Start subtitle url (Fixes #1424)
-* Added: More explanation for the Retrospect Vault.
+* Fixed: DPlay login broke. Should now work for Swedish IP's (Fixes #1426)
