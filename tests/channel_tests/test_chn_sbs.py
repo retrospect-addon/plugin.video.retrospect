@@ -173,16 +173,16 @@ class TestSbsSeChannel(ChannelTest):
         b64_now = binascii.b2a_base64(str(now).encode()).decode().strip()
 
         # region Browser fingerprint
-        fe = ["DNT:1", "L:en-NL", "D:24", "PR:1", "S:1920,1080", "AS:1920,1040", "TO:-120",
+        fe = ["DNT:unknown", "L:en-US", "D:24", "PR:1", "S:1920,975", "AS:1920,935", "TO:-120",
               "SS:true", "LS:true", "IDB:true", "B:false", "ODB:true", "CPUC:unknown",
-              "PK:Win32", "CFP:-1524337346", "FR:false", "FOS:false", "FB:false", "JSF:", "P:",
-              "T:1,false,false", "H:12", "SWF:false"]
+              "PK:Win32", "CFP:990181251", "FR:false", "FOS:false", "FB:false", "JSF:Arial",
+              "P:Chrome PDF Plugin", "T:0,false,false", "H:4", "SWF:false"]
 
         # Concatenate with the brower fingerprint parameters
         # fs_murmur_value = ", ".join(fe)
 
         # Murmur (x64 128-bit) from fs_murmur_value via https://asecuritysite.com/encryption/mur with seed=38
-        fs_murmur = "0xbe1081539b0c53d615d5fa5bf8949392L"
+        fs_murmur = "0x17396979e149bf48ecba009d8506045bL"
         fs_murmur_hash = self.__transform_murmur(fs_murmur)
         #endregion
 
