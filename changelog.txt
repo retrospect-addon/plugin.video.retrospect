@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.12 - Changelog - 2020-09-17[/B]
+[B]Retrospect v5.2.13 - Changelog - 2020-09-29[/B]
 
-This update contains fixes for AT5, SVT, TV4, SVT Oppet Arkiv and NPO. It also adds a bit more clarification on the Retrospect Vault that is used to secure credentials.
+This update contains fixes for DPlay login, missing items for VRT.nu and 1080p Kijk.nl streams.
 
 [B]Framework related[/B]
 _None_
