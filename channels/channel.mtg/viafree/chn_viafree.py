@@ -99,6 +99,11 @@ class Channel(chn_class.Channel):
             self.noImage = "viasat4noimage.png"
             self.channelId = (1337,)
 
+        elif self.channelCode == "viafreeno":
+            self.mainListUri = "https://www.viafree.no/programmer"
+            self.noImage = "viafreethumb.png"
+            self.channelId = None
+
         self.baseUrl = self.mainListUri.rsplit("/", 1)[0]
         self.searchInfo = {
             "se": ["sok", "S&ouml;k"],

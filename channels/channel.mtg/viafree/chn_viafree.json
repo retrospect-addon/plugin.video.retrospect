@@ -129,6 +129,19 @@
       "fanart": "tv6viasatfanart.png",
       "localIPSupported": true,
       "adaptiveAddonSelectable": true
+    },
+    {
+      "guid": "281E8079-33E7-4C4F-85F6-A04F3A7D5B92",
+      "name": "ViaFree (Norge)",
+      "description": "Sendinger fra ViaFree (Viafree.no).",
+      "icon": "viafreese.png",
+      "category": "National",
+      "channelcode": "viafreeno",
+      "sortorder": 6,
+      "language": "no",
+      "fanart": "viafreefanart.png",
+      "localIPSupported": true,
+      "adaptiveAddonSelectable": true
     }
   ],
   "settings": [
