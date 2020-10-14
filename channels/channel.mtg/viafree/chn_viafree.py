@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         elif self.channelCode == "no3":
             self.mainListUri = "https://www.viafree.no/programmer"
             self.noImage = "tv3noimage.png"
-            self.channelId = (1550, 6100, 6101)
+            self.channelId = (1550, 6100, 6101, 8000)
 
         elif self.channelCode == "no4":
             self.mainListUri = "https://www.viafree.no/programmer"
