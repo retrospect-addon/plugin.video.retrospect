@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         elif self.channelCode == "no3":
             self.mainListUri = "https://www.viafree.no/programmer"
             self.noImage = "tv3noimage.png"
-            self.channelId = (1550, 6100, 6101)
+            self.channelId = (1550, 6100, 6101, 8000)
 
         elif self.channelCode == "no4":
             self.mainListUri = "https://www.viafree.no/programmer"
@@ -98,6 +98,11 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.viafree.no/programmer"
             self.noImage = "viasat4noimage.png"
             self.channelId = (1337,)
+
+        elif self.channelCode == "viafreeno":
+            self.mainListUri = "https://www.viafree.no/programmer"
+            self.noImage = "viafreethumb.png"
+            self.channelId = None
 
         self.baseUrl = self.mainListUri.rsplit("/", 1)[0]
         self.searchInfo = {
