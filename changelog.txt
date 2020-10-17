@@ -12,3 +12,4 @@ _None_
 * Fixed: TV3 Play (Norge) had missing shows (Fixes #1430)
 * Added: ViaFree (Norge) channel with all ViaFree.no content (See #1430)
 * Fixed: Wrong subtitle language selected for ViaFree (Fixes #1431)
+* Fixed: Hide the description for SVT Play channels (Fixes #1422)
