@@ -5,6 +5,8 @@ import shutil
 import unittest
 
 import xbmc
+import xbmcvfs
+
 from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
 from resources.lib.textures.cached import Cached
@@ -58,7 +60,7 @@ class TestCachedTextures(unittest.TestCase):
         self.assertEqual(bytes_transfered, 0)
 
         # Check if files were actually fetched.
-        os_url = xbmc.translatePath(url)
+        os_url = xbmcvfs.translatePath(url)
         self.assertTrue(os.path.isabs(os_url))
         self.assertTrue(os.path.isfile(os_url))
         self.assertEqual(local_path, os_url)
@@ -77,7 +79,7 @@ class TestCachedTextures(unittest.TestCase):
         self.assertGreater(bytes_transfered, 0)
 
         # Check if files were actually fetched.
-        os_url = xbmc.translatePath(url)
+        os_url = xbmcvfs.translatePath(url)
         self.assertTrue(os.path.isabs(os_url))
         self.assertTrue(os.path.isfile(os_url))
         self.assertEqual(local_path, os_url)
@@ -118,7 +120,7 @@ class TestCachedTextures(unittest.TestCase):
         texture._purge_texture_cache(self.channel_path)
         self.assertFalse(os.path.isfile(local_path_1))
         self.assertFalse(os.path.isfile(local_path_2))
-        self.assertTrue(os.path.isfile(xbmc.translatePath(valid_path)))
+        self.assertTrue(os.path.isfile(xbmcvfs.translatePath(valid_path)))
 
     def test_cached_is_texture_empty(self):
         texture = self._get_texture_handler()

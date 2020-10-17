@@ -3,7 +3,7 @@
 .....
 
 [B]Framework related[/B]
-_None_
+* Changed: use `xbmcvfs.translatePath` instead of `xbmc.translatePath`
 
 [B]GUI/Settings/Language related[/B]
 _None_
