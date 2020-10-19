@@ -6,11 +6,11 @@ from resources.lib import chn_class
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
 from resources.lib.mediaitem import MediaItem
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
-from resources.lib.helpers import subtitlehelper
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -424,8 +424,9 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.open(item.url, proxy=self.proxy)
         # Extract stream JSON data from HTML
-        streams = Regexer.do_regex(self.mediaUrlRegex, data)
+        streams = Regexer.do_regex(r'Player"[^>]+data-react-props="({[^"]+})"', data)
         json_data = streams[0]
+        json_data = HtmlEntityHelper.convert_html_entities(json_data)
         json = JsonHelper(json_data, logger=Logger.instance())
         Logger.trace(json.json)
 
@@ -457,75 +458,93 @@ class Channel(chn_class.Channel):
         # u'file_http_hd': u'urplay/_definst_/mp4: 178000-178999/178963-7.mp4/',
 
         # generic server information
-        proxy = json.get_value("streaming_config", "streamer", "redirect")
-        if proxy is None:
-            proxy_data = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json",
-                                         proxy=self.proxy, no_cache=True)
-            proxy_json = JsonHelper(proxy_data)
-            proxy = proxy_json.get_value("redirect")
+        proxy_data = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json",
+                                     proxy=self.proxy, no_cache=True)
+        proxy_json = JsonHelper(proxy_data)
+        proxy = proxy_json.get_value("redirect")
         Logger.trace("Found RTMP Proxy: %s", proxy)
 
-        rtmp_application = json.get_value("streaming_config", "rtmp", "application")
-        Logger.trace("Found RTMP Application: %s", rtmp_application)
+        stream_infos = json.get_value("currentProduct", "streamingInfo")
+        part = item.create_new_empty_media_part()
+        for stream_type, stream_info in stream_infos.items():
+            Logger.trace(stream_info)
+            default_stream = stream_info.get("default", False)
+            bitrates = {"mp3": 400, "m4a": 250, "sd": 1200, "hd": 2000, "tt": None}
+            for quality, bitrate in bitrates.items():
+                stream = stream_info.get(quality)
+                if stream is None:
+                    continue
+                stream_url = stream["location"]
+                if quality == "tt":
+                    part.Subtitle = SubtitleHelper.download_subtitle(
+                        stream_url, format="webvtt", proxy=self.proxy)
+                    continue
 
-        # find all streams
-        for stream_type in streams:
-            if stream_type not in json.json:
-                Logger.debug("%s was not found as stream.", stream_type)
-                continue
-
-            bitrate = streams[stream_type]
-            stream_url = json.get_value(stream_type)
-            Logger.trace(stream_url)
-            if not stream_url:
-                Logger.debug("%s was found but was empty as stream.", stream_type)
-                continue
-
-            if stream_url.startswith("se/") or ":se/" in stream_url:
-                # or json.get_value("only_in_sweden"): -> will be in the future
-
-                only_sweden = True
-                Logger.warning("Streams are only available in Sweden: onlySweden=%s", only_sweden)
-                # No need to replace the se/ part. Just log.
-                # streamUrl = streamUrl.replace("se/", "", 1)
-
-            # although all urls can be handled via RTMP, let's not do that and make
-            # the HTTP ones HTTP
-            always_rtmp = False
-            if always_rtmp or "_rtmp" in stream_type:
-                url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmp_application, stream_url)
-                url = self.get_verifiable_video_url(url)
-            elif "_http" in stream_type:
+                bitrate = bitrate if default_stream else bitrate + 1
                 url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
-            else:
-                Logger.warning("Unsupported Stream Type: %s", stream_type)
-                continue
-            part.append_media_stream(url.strip("/"), bitrate)
+                part.append_media_stream(url, bitrate)
 
-        # get the subtitles
-        captions = json.get_value("subtitles")
-        subtitle = None
-        for caption in captions:
-            language = caption["label"]
-            default = caption["default"]
-            url = caption["file"]
-            if url.startswith("//"):
-                url = "https:%s" % (url, )
-            Logger.debug("Found subtitle language: %s [Default=%s]", language, default)
-            if "Svenska" in language:
-                Logger.debug("Selected subtitle language: %s", language)
-                file_name = caption["file"]
-                file_name = file_name[file_name.rindex("/") + 1:] + ".srt"
-                if url.endswith("vtt"):
-                    subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
-                        url, file_name, "webvtt", proxy=self.proxy)
-                else:
-                    subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
-                        url, file_name, "ttml", proxy=self.proxy)
-                break
-
-        if subtitle is not None:
-            part.Subtitle = subtitle
+        # rtmp_application = json.get_value("streaming_config", "rtmp", "application")
+        # Logger.trace("Found RTMP Application: %s", rtmp_application)
+        #
+        # # find all streams
+        # for stream_type in streams:
+        #     if stream_type not in json.json:
+        #         Logger.debug("%s was not found as stream.", stream_type)
+        #         continue
+        #
+        #     bitrate = streams[stream_type]
+        #     stream_url = json.get_value(stream_type)
+        #     Logger.trace(stream_url)
+        #     if not stream_url:
+        #         Logger.debug("%s was found but was empty as stream.", stream_type)
+        #         continue
+        #
+        #     if stream_url.startswith("se/") or ":se/" in stream_url:
+        #         # or json.get_value("only_in_sweden"): -> will be in the future
+        #
+        #         only_sweden = True
+        #         Logger.warning("Streams are only available in Sweden: onlySweden=%s", only_sweden)
+        #         # No need to replace the se/ part. Just log.
+        #         # streamUrl = streamUrl.replace("se/", "", 1)
+        #
+        #     # although all urls can be handled via RTMP, let's not do that and make
+        #     # the HTTP ones HTTP
+        #     always_rtmp = False
+        #     if always_rtmp or "_rtmp" in stream_type:
+        #         url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmp_application, stream_url)
+        #         url = self.get_verifiable_video_url(url)
+        #     elif "_http" in stream_type:
+        #         url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
+        #     else:
+        #         Logger.warning("Unsupported Stream Type: %s", stream_type)
+        #         continue
+        #     part.append_media_stream(url.strip("/"), bitrate)
+        #
+        # # get the subtitles
+        # captions = json.get_value("subtitles")
+        # subtitle = None
+        # for caption in captions:
+        #     language = caption["label"]
+        #     default = caption["default"]
+        #     url = caption["file"]
+        #     if url.startswith("//"):
+        #         url = "https:%s" % (url, )
+        #     Logger.debug("Found subtitle language: %s [Default=%s]", language, default)
+        #     if "Svenska" in language:
+        #         Logger.debug("Selected subtitle language: %s", language)
+        #         file_name = caption["file"]
+        #         file_name = file_name[file_name.rindex("/") + 1:] + ".srt"
+        #         if url.endswith("vtt"):
+        #             subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
+        #                 url, file_name, "webvtt", proxy=self.proxy)
+        #         else:
+        #             subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
+        #                 url, file_name, "ttml", proxy=self.proxy)
+        #         break
+        #
+        # if subtitle is not None:
+        #     part.Subtitle = subtitle
 
         item.complete = True
         return item
