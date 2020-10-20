@@ -21,4 +21,26 @@ class TestUrPlayChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 300, "No items found in mainlist")
+        self.assertGreaterEqual(len(items), 1000, "No items found in mainlist")
+
+    def test_category(self):
+        url = "https://urplay.se/api/bff/v1/search?" \
+              "main_genre_must_not[]=forelasning&" \
+              "main_genre_must_not[]=panelsamtal&" \
+              "platform=urplay&" \
+              "rows={}&" \
+              "sab_category=utbildning%20%26%20media&" \
+              "singles_and_series=true&" \
+              "start={}&" \
+              "view=title"
+        self._test_folder_url(url, expected_results=150, exact_results=False)
+
+    def test_category_radio(self):
+        url = "https://urplay.se/api/bff/v1/search?" \
+                "type=programradio&" \
+                "platform=urplay&" \
+                "rows={}&" \
+                "singles_and_series=true&" \
+                "start={}&" \
+                "view=title"
+        self._test_folder_url(url, expected_results=150, exact_results=False)

@@ -59,7 +59,8 @@ class Channel(chn_class.Channel):
         self._add_data_parser("*", updater=self.update_video_item)
 
         # Categories
-        cat_reg = r'<a[^>]+href="(?<url>/blad[^"]+/(?<slug>[^"]+))"[^>]*>(?<title>[^<]+)<'
+        cat_reg = r'<a[^>]+href="(?<url>/blad[^"]+/(?<slug>[^"]+))"[^>]*>' \
+                  r'(?:<svg[\w\W]{0,2000}?</svg>)?(?<title>[^<]+)<'
         cat_reg = Regexer.from_expresso(cat_reg)
         self._add_data_parser("https://urplay.se/", name="Category parser",
                               match_type=ParserData.MatchExact,
@@ -67,8 +68,13 @@ class Channel(chn_class.Channel):
                               creator=self.create_category_item)
 
         self._add_data_parsers(["https://urplay.se/api/bff/v1/search?play_category",
-                                "https://urplay.se/api/bff/v1/search?response_type=category"],
+                                "https://urplay.se/api/bff/v1/search?main_genre",
+                                "https://urplay.se/api/bff/v1/search?response_type=category",
+                                "https://urplay.se/api/bff/v1/search?type=programradio",
+                                "https://urplay.se/api/bff/v1/search?age=",
+                                "https://urplay.se/api/bff/v1/search?response_type=limited"],
                                name="Category content", json=True,
+                               preprocessor=self.merge_category_items,
                                parser=["results"], creator=self.create_json_item)
 
         # Searching
@@ -82,28 +88,155 @@ class Channel(chn_class.Channel):
         #===========================================================================================
         # non standard items
         self.__videoItemFound = False
+
+        # There is either a slug lookup or an url lookup
         self.__cateogory_slugs = {
-            "dokumentarfilmer": "dokument%C3%A4rfilmer",
-            "forelasningar": "f%C3%B6rel%C3%A4sningar",
-            "kultur-och-historia": "kultur%20och%20historia",
-            "reality-och-livsstil": "reality%20och%20livsstil",
-            "samhalle": "samh%C3%A4lle"
         }
+
         self.__cateogory_urls = {
-            "radio": "https://urplay.se/api/bff/v1/search?response_type=category"
-                     "&singles_and_series=true"
-                     "&rows=1000&start=0"
-                     "&type=programradio&view=title",
-            "syntolkat": "https://urplay.se/api/bff/v1/search?response_type=category"
-                         "&singles_and_series=true"
-                         "&rows=1000&start=0"
-                         "&view=title"
-                         "&with_audio_description=true",
-            "teckensprak": "https://urplay.se/api/bff/v1/search?response_type=category"
-                           "&language=sgn-SWE"
-                           "&rows=1000&start=0"
-                           "&view=title"                         
-                           "&singles_and_series=true&view=title"
+            "alla-program":
+                "https://urplay.se/api/bff/v1/search?"
+                "response_type=limited&"
+                "product_type=series&"
+                "rows={}&start={}&view=title",
+
+            "barn":
+                "https://urplay.se/api/bff/v1/search?"
+                "age=children&"
+                "platform=urplay&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}"
+                "&view=title",
+
+            "dokumentarfilmer":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre[]=dokument%C3%A4rfilm&main_genre[]=dokument%C3%A4rserie&"
+                # "platform=urplay&"
+                "singles_and_series=true&view=title&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}"
+                "&view=title",
+
+            "drama":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre[]=drama&main_genre[]=kortfilm&main_genre[]=fiktiva%20ber%C3%A4ttelser&"
+                "platform=urplay&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "forelasningar":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre[]=f%C3%B6rel%C3%A4sning&main_genre[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "halsa-och-relationer":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&"
+                "main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=kropp%20%26%20sinne&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+            
+            "kultur-och-historia":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=kultur%20%26%20historia&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "natur-och-resor":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=natur%20%26%20resor&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "radio":
+                "https://urplay.se/api/bff/v1/search?"
+                "type=programradio&"
+                "platform=urplay&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "samhalle":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=samh%C3%A4lle&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "sprak":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=spr%C3%A5k&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "syntolkat":
+                "https://urplay.se/api/bff/v1/search?"
+                "response_type=category&"
+                "is_audio_described=true&"
+                "platform=urplay&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "teckensprak":
+                "https://urplay.se/api/bff/v1/search?"
+                "response_type=category&"
+                "language=sgn-SWE&"
+                "platform=urplay&"
+                "rows={}&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "utbildning-och-media":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&"
+                "main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=utbildning%20%26%20media&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title",
+
+            "vetenskap":
+                "https://urplay.se/api/bff/v1/search?"
+                "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
+                "platform=urplay&"
+                "rows={}&"
+                "sab_category=vetenskap%20%26%20teknik&"
+                "singles_and_series=true&"
+                "start={}&"
+                "view=title"
         }
 
         self.__timezone = pytz.timezone("Europe/Amsterdam")
@@ -114,6 +247,15 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here ===================
         return
+
+    def merge_category_items(self, data):
+        items = []
+        url = self.parentItem.url
+        if "{" not in url:
+            return data, items
+
+        data = self.__iterate_results(url, max_iterations=10, results_per_page=150)
+        return data, items
 
     def create_category_item(self, result_set):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
@@ -134,18 +276,12 @@ class Channel(chn_class.Channel):
 
         slug = result_set["slug"]
         url = self.__cateogory_urls.get(slug)
-        slug = self.__cateogory_slugs.get(slug, slug)
 
         if url is None:
-            result_set["url"] = "https://urplay.se/api/bff/v1/search?play_category={}" \
-                                "&response_type=category" \
-                                "&rows=1000" \
-                                "&singles_and_series=true" \
-                                "&start=0" \
-                                "&view=title".format(slug)
-        else:
-            result_set["url"] = url
+            Logger.warning("Missing category in list: %s", slug)
+            return None
 
+        result_set["url"] = url
         return chn_class.Channel.create_folder_item(self, result_set)
 
     # noinspection PyUnusedLocal
@@ -525,9 +661,13 @@ class Channel(chn_class.Channel):
             url = url_format.format(results_per_page, p * results_per_page)
             data = UriHandler.open(url)
             json_data = JsonHelper(data)
+            result_items = json_data.get_value("results", fallback=[])
             if results is None:
                 results = json_data
             else:
-                results.json["results"] += json_data.get_value("results", fallback=[])
+                results.json["results"] += result_items
+
+            if len(result_items) < results_per_page:
+                break
 
         return results or ""
