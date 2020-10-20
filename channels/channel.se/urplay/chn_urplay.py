@@ -34,7 +34,7 @@ class Channel(chn_class.Channel):
         self.noImage = "urplayimage.png"
 
         # setup the urls
-        self.mainListUri = "https://urplay.se/api/bff/v1/search?product_type=series&rows=10000&start=0"
+        self.mainListUri = "#mainlist_merge"
         self.baseUrl = "https://urplay.se"
         self.swfUrl = "https://urplay.se/assets/jwplayer-6.12-17973009ab259c1dea1258b04bde6e53.swf"
 
@@ -42,7 +42,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser(self.mainListUri, json=True,
                               name="Show parser with categories",
                               match_type=ParserData.MatchExact,
-                              preprocessor=self.add_categories_and_search,
+                              preprocessor=self.merge_add_categories_and_search,
                               parser=["results"], creator=self.create_episode_json_item)
 
         # Match Videos (programs)
@@ -148,7 +148,8 @@ class Channel(chn_class.Channel):
 
         return chn_class.Channel.create_folder_item(self, result_set)
 
-    def add_categories_and_search(self, data):
+    # noinspection PyUnusedLocal
+    def merge_add_categories_and_search(self, data):
         """ Adds some generic items such as search and categories to the main listing.
 
         The return values should always be instantiated in at least ("", []).
@@ -162,7 +163,15 @@ class Channel(chn_class.Channel):
 
         Logger.info("Performing Pre-Processing")
         items = []
-        max_items = 200
+        max_items = 150
+
+        # merge the main list items:
+        data = self.__iterate_results(
+            "https://urplay.se/api/bff/v1/search?product_type=series&rows={}&start={}",
+            results_per_page=max_items,
+            max_iterations=11
+        )
+
         categories = {
             LanguageHelper.Popular: "https://urplay.se/api/bff/v1/search?product_type=program&query=&rows={}&start=0&view=most_viewed".format(max_items),
             LanguageHelper.MostRecentEpisodes: "https://urplay.se/api/bff/v1/search?product_type=program&rows={}&start=0&view=published".format(max_items),
@@ -431,31 +440,6 @@ class Channel(chn_class.Channel):
         Logger.trace(json.json)
 
         item.MediaItemParts = []
-        part = item.create_new_empty_media_part()
-
-        streams = {
-            # No longer used I think
-            "file_flash": 900,
-            "file_mobile": 750,
-            "file_hd": 2000,
-            "file_html5": 850,
-            "file_html5_hd": 2400,
-
-            'file_rtmp': 900,
-            'file_rtmp_hd': 2400,
-            'file_http_sub': 750,
-            'file_http': 900,
-            'file_http_sub_hd': 2400,
-            'file_http_hd': 2500
-        }
-
-        # u'file_rtmp_hd': u'urplay/mp4: 178000-178999/178963-7.mp4',
-        # u'file_rtmp': u'urplay/mp4: 178000-178999/178963-11.mp4',
-        #
-        # u'file_http': u'urplay/_definst_/mp4: 178000-178999/178963-11.mp4/',
-        # u'file_http_sub_hd': u'urplay/_definst_/mp4: 178000-178999/178963-25.mp4/',
-        # u'file_http_sub': u'urplay/_definst_/mp4: 178000-178999/178963-28.mp4/',
-        # u'file_http_hd': u'urplay/_definst_/mp4: 178000-178999/178963-7.mp4/',
 
         # generic server information
         proxy_data = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json",
@@ -483,68 +467,6 @@ class Channel(chn_class.Channel):
                 bitrate = bitrate if default_stream else bitrate + 1
                 url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
                 part.append_media_stream(url, bitrate)
-
-        # rtmp_application = json.get_value("streaming_config", "rtmp", "application")
-        # Logger.trace("Found RTMP Application: %s", rtmp_application)
-        #
-        # # find all streams
-        # for stream_type in streams:
-        #     if stream_type not in json.json:
-        #         Logger.debug("%s was not found as stream.", stream_type)
-        #         continue
-        #
-        #     bitrate = streams[stream_type]
-        #     stream_url = json.get_value(stream_type)
-        #     Logger.trace(stream_url)
-        #     if not stream_url:
-        #         Logger.debug("%s was found but was empty as stream.", stream_type)
-        #         continue
-        #
-        #     if stream_url.startswith("se/") or ":se/" in stream_url:
-        #         # or json.get_value("only_in_sweden"): -> will be in the future
-        #
-        #         only_sweden = True
-        #         Logger.warning("Streams are only available in Sweden: onlySweden=%s", only_sweden)
-        #         # No need to replace the se/ part. Just log.
-        #         # streamUrl = streamUrl.replace("se/", "", 1)
-        #
-        #     # although all urls can be handled via RTMP, let's not do that and make
-        #     # the HTTP ones HTTP
-        #     always_rtmp = False
-        #     if always_rtmp or "_rtmp" in stream_type:
-        #         url = "rtmp://%s/%s/?slist=mp4:%s" % (proxy, rtmp_application, stream_url)
-        #         url = self.get_verifiable_video_url(url)
-        #     elif "_http" in stream_type:
-        #         url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
-        #     else:
-        #         Logger.warning("Unsupported Stream Type: %s", stream_type)
-        #         continue
-        #     part.append_media_stream(url.strip("/"), bitrate)
-        #
-        # # get the subtitles
-        # captions = json.get_value("subtitles")
-        # subtitle = None
-        # for caption in captions:
-        #     language = caption["label"]
-        #     default = caption["default"]
-        #     url = caption["file"]
-        #     if url.startswith("//"):
-        #         url = "https:%s" % (url, )
-        #     Logger.debug("Found subtitle language: %s [Default=%s]", language, default)
-        #     if "Svenska" in language:
-        #         Logger.debug("Selected subtitle language: %s", language)
-        #         file_name = caption["file"]
-        #         file_name = file_name[file_name.rindex("/") + 1:] + ".srt"
-        #         if url.endswith("vtt"):
-        #             subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
-        #                 url, file_name, "webvtt", proxy=self.proxy)
-        #         else:
-        #             subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
-        #                 url, file_name, "ttml", proxy=self.proxy)
-        #         break
-        #
-        # if subtitle is not None:
-        #     part.Subtitle = subtitle
 
         item.complete = True
         return item
@@ -582,3 +504,30 @@ class Channel(chn_class.Channel):
             item.set_info_label("duration", result_set["duration"] * 60)
             item.type = "video"
         return item
+
+    def __iterate_results(self, url_format, results_per_page=150, max_iterations=10):
+        """ Retrieves the full dataset for a multi-set search action.
+
+        :param str url_format:             The url format with start and count placeholders
+        :param int results_per_page:       The maximum results per request
+        :param int max_iterations:         The maximum number of iterations
+
+        :returns A Json response with all results
+        :rtype JsonHelper
+
+        Url format should be like:
+            https://urplay.se/api/bff/v1/search?product_type=series&rows={}&start={}
+
+        """
+
+        results = None
+        for p in range(0, max_iterations):
+            url = url_format.format(results_per_page, p * results_per_page)
+            data = UriHandler.open(url)
+            json_data = JsonHelper(data)
+            if results is None:
+                results = json_data
+            else:
+                results.json["results"] += json_data.get_value("results", fallback=[])
+
+        return results or ""

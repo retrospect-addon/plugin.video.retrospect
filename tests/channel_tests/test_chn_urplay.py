@@ -15,3 +15,10 @@ class TestUrPlayChannel(ChannelTest):
     def test_video_audio(self):
         url = "https://urplay.se/program/216777-ajatuksia-suomeksi-unelmaelama"
         self._test_video_url(url)
+
+    def test_channel_exists(self):
+        self.assertIsNotNone(self.channel)
+
+    def test_main_list(self):
+        items = self.channel.process_folder_list(None)
+        self.assertGreaterEqual(len(items), 300, "No items found in mainlist")

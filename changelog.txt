@@ -14,3 +14,4 @@ _None_
 * Fixed: Wrong subtitle language selected for ViaFree (Fixes #1431)
 * Fixed: Hide the description for SVT Play channels (Fixes #1422)
 * Fixed: UR Play (Sweden) not playing (Fixes #1435)
+* Fixed: UR Play (Sweden) main list items were missing (See #1435)
