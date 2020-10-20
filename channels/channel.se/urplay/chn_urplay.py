@@ -249,6 +249,15 @@ class Channel(chn_class.Channel):
         return
 
     def merge_category_items(self, data):
+        """ Merge the multipage category result items into a single list.
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
         items = []
         url = self.parentItem.url
         if "{" not in url:
