@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 import unittest
+import xbmc
 
 from resources.lib.envcontroller import EnvController
 from resources.lib.logger import Logger
@@ -62,3 +63,10 @@ class ChannelTest(unittest.TestCase):
         from resources.lib.mediaitem import MediaItem
         item = MediaItem(name or "test_item", url)
         return item
+
+    def _set_keyboard_input(self, *words):
+        kb = xbmc.Keyboard()
+        kb.get_keyboard_stub().reset()
+
+        for word in words:
+            kb.get_keyboard_stub().add_input(word)
