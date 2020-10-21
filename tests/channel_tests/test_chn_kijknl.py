@@ -20,7 +20,7 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_update_embedded_mpd_video(self):
         self._test_video_url(
-            "https://embed.kijk.nl/api/video/4kibjRMBhWJI?id=kijkapp&format=DASH&drm=CENC")
+            "https://embed.kijk.nl/api/video/vhlbVj34UM9?id=kijkapp&format=DASH&drm=CENC")
 
     def test_update_embedded_mpd_encrypted_video(self):
         self._test_video_url(
