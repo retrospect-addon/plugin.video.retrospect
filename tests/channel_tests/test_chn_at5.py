@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
-from tests.channel_tests.channeltest import ChannelTest
+
+from . channeltest import ChannelTest
 
 
 class TestAt5Channel(ChannelTest):

@@ -4,7 +4,6 @@ import os
 import shutil
 import unittest
 
-import xbmc
 import xbmcvfs
 
 from resources.lib.retroconfig import Config

@@ -3,7 +3,7 @@ import os
 import unittest
 import datetime
 
-from tests.channel_tests.channeltest import ChannelTest
+from . channeltest import ChannelTest
 
 
 class TestPatheChannel(ChannelTest):

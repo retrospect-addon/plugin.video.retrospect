@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: CC-BY-NC-SA-4.0
-import unittest
 
-from tests.channel_tests.channeltest import ChannelTest
+from . channeltest import ChannelTest
 
 
 class TestOpenRegioChannel(ChannelTest):

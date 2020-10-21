@@ -6,7 +6,8 @@ import json
 import random
 import unittest
 
-from tests.channel_tests.channeltest import ChannelTest
+from . channeltest import ChannelTest
+
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 
 

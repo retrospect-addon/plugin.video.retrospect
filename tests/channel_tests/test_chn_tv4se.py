@@ -3,7 +3,7 @@ import datetime
 import os
 import unittest
 
-from tests.channel_tests.channeltest import ChannelTest
+from . channeltest import ChannelTest
 
 
 class TestTv4Channel(ChannelTest):
