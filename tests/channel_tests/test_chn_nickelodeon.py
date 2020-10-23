@@ -23,13 +23,13 @@ class TestNickelodeonChannel(ChannelTest):
         self._test_folder_url(url, expected_results=5)
 
     def test_show_list_with_seasons(self):
-        url = "https://www.nickelodeon.nl/shows/76ypv4/spongebob"
+        url = "https://www.nickelodeon.nl/shows/0fvug8/fairly-odd-parents"
         items = self._test_folder_url(url, expected_results=2)
         seasons = [i for i in items if i.type == "folder"]
         self.assertGreaterEqual(len(seasons), 1)
 
     def test_season_listing(self):
-        url = "https://www.nickelodeon.nl/shows/spongebob/sdpe3c/seizoen-seasonnumber-8"
+        url = "https://www.nickelodeon.nl/shows/fairly-odd-parents/648uxx/seizoen-seasonnumber-8"
         self._test_folder_url(url, expected_results=5)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
