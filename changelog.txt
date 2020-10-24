@@ -3,7 +3,7 @@
 Some Swedish channels had to be updated, as did NRK.no. During the fix, a small bug surfaced that had to be squashed.
 
 [B]Framework related[/B]
-_None_
+* Changed: Don't generate settings.xml if no template is present.
 
 [B]GUI/Settings/Language related[/B]
 * Fixed: Some channels without settings did appear with settings in the context menu.

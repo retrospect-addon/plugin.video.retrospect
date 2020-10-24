@@ -1113,6 +1113,10 @@ class AddonSettings(object):
 
         # Then we read the original file
         filename_template = os.path.join(config.rootDir, "resources", "data", "settings_template.xml")
+        if not os.path.isfile(filename_template):
+            Logger.debug("No template present in '%s'. Skipping generation.", filename_template)
+            return
+
         # noinspection PyArgumentEqualDefault
         with io.open(filename_template, "r", encoding="utf-8") as fp:
             contents = fp.read()
