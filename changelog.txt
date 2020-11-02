@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.14 - Changelog - 2020-10-20[/B]
+[B]Retrospect v5.2.15 - Changelog - 2020-11-02[/B]
 
-This update introduces a new feature that allows the translation of channel descriptions. This will result in the descriptions to be in the same language as the Kodi GUI. Besides this some minor channel fixes were done for the UR Play (Swedish) and ViaFree (Norwegian) channels.
+This is a quick fix update for VRT.nu that broke with current site changes.
 
 [B]Framework related[/B]
 _None_
