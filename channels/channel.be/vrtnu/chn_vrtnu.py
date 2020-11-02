@@ -74,8 +74,7 @@ class Channel(chn_class.Channel):
                               parser=[":items", "par", ":items", "categories", "items"],
                               creator=self.create_category)
 
-        folder_regex = r'<li class="vrt-labelnav--item "[^>]*>\s*(?:<h2[^<]*>\s*)?<a[^>]*href="' \
-                       r'(?<url>[^"]+)"[^>]*>(?<title>[^<]+)</a>'
+        folder_regex = r'<li class="vrt-labelnav--item "[^>]*>\s*(?:<h2[^<]*>\s*)?<a[^>]*href="(?<url>[^"]+)"[^>]*>(?:\W*<nui[^>]*>\W*)?(?<title>[^<]+)</'
         folder_regex = Regexer.from_expresso(folder_regex)
         self._add_data_parser("*", name="Folder/Season parser",
                               parser=folder_regex, creator=self.create_folder_item)
