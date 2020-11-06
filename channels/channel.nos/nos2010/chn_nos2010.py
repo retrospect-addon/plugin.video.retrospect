@@ -474,15 +474,15 @@ class Channel(chn_class.Channel):
                     "thumb": self.get_image_location("radio2.png")
                     # "thumb": "http://www.radio2.nl/image/rm/48254/NPO_RD2_Logo_RGB_1200dpi.jpg?width=848&height=477"
                 },
-                "Radio 6 Live": {
-                    "url": "http://e.omroep.nl/metadata/LI_RADIO6_300883",
-                    # "thumb": "http://www.radio6.nl/data/thumb/abc_media_image/3000/3882/w500.1daa0.png"
-                    "thumb": self.get_image_location("radio6.png")
-                },
                 "Radio 1 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RADIO1_300877",
                     # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
                     "thumb": self.get_image_location("radio1.png")
+                },
+                "Radio 4 Live": {
+                    "url": "http://e.omroep.nl/metadata/LI_RA4_698901",
+                    # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
+                    "thumb": self.get_image_location("radio4.png")
                 },
             }
 
