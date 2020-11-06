@@ -1,5 +1,6 @@
 {
   "textures": {
+    "channel.nos.nos2010/funx.jpg": "ea91d0d84949b79b07cb8b12ecb43367",
     "channel.nos.nos2010/nosfanart.jpg": "7397f29df1f86111c076cdcd015173a1",
     "channel.nos.nos2010/nosfanart2.jpg": "8baf9e12664ac0dec783773a11fb32bb",
     "channel.nos.nos2010/nosfanart3.jpg": "68cbc240df45373d83f892ad1eb55a97",
@@ -10,6 +11,7 @@
     "channel.nos.nos2010/1large.png": "651eb593fdb0476afdc32aa1fa49b6ac",
     "channel.nos.nos2010/2large.png": "8e29745c38da024acdbe8a5df1f2c3e6",
     "channel.nos.nos2010/3large.png": "f986976bc983df08f0937c4da06829e9",
+    "channel.nos.nos2010/funx.png": "b60dcc790b5e381875048a8723d2294b",
     "channel.nos.nos2010/nosimage.png": "7acff73c5fbc8554797250edf8ec05fb",
     "channel.nos.nos2010/npolarge.png": "ba5a994c57d5ac07274dbf7e8695504c",
     "channel.nos.nos2010/radio1.png": "ca04dd41150c0ece0a1cd66537751e69",

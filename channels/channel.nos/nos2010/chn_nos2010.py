@@ -481,9 +481,12 @@ class Channel(chn_class.Channel):
                 },
                 "Radio 4 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RA4_698901",
-                    # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
                     "thumb": self.get_image_location("radio4.png")
                 },
+                "FunX": {
+                    "url": "http://e.omroep.nl/metadata/LI_3FM_603983",
+                    "thumb": self.get_image_location("funx.jpg")
+                }
             }
 
             for stream in live_streams:
