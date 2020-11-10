@@ -11,3 +11,6 @@ _None_
 [B]Channel related[/B]
 * Fixed: VRT.nu changed stream urls which broke the channel (Fixes 1440)
 * Fixed: Folders were no longer showing for VRT.nu (Fixes 1440)
+* Updated: NPO artwork (See #1441)
+* Added: FunX live video stream (Fixes #1441)
+* Added: Radio4 live video stream (Fixes #1441)
