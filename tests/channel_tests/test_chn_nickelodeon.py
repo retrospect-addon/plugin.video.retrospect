@@ -29,7 +29,7 @@ class TestNickelodeonChannel(ChannelTest):
         self.assertGreaterEqual(len(seasons), 1)
 
     def test_season_listing(self):
-        url = "https://www.nickelodeon.nl/shows/fairly-odd-parents/kgsbfr/seizoen-seasonnumber-9"
+        url = "https://www.nickelodeon.nl/shows/spongebob/z5of77/seizoen-seasonnumber-6"
         self._test_folder_url(url, expected_results=5)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
