@@ -6,76 +6,76 @@
 [![Python](https://img.shields.io/badge/python-2.7%20%7C%203.6-blue?logo=python)](https://kodi.tv/article/attention-addon-developers-migration-python-3)
 [![Transifex](https://img.shields.io/badge/transifex-en|nl|sv|no|fi-blueviolet)](https://www.transifex.com/retrospect/public/)
 
-This repository holds the main code for Retrospect. For more information on bug reporting, please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
+This repository holds the main code for Retrospect. For more info on reporting bugs, please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
 # Introduction #
 Retrospect (Previously XBMC Online TV) is a Kodi video add-on which allows you to watch streams of 
-a number of free and publicly available online TV stream sites.
+a number of gratis publicly available online TV stream sites.
 
-It originally started the streams from [www.uitzendinggemist.nl](https://npostart.nl) which is a 
-Dutch site. The add-on got its initial name from this site: ‘_Uitzending gemist_’ means 
+It all started with the streams from the Dutch site [www.uitzendinggemist.nl](https://npostart.nl).
+The add-on got its initial name from this site: ‘_Uitzending gemist_’ meaning 
 ‘_missed broadcast_’ in Dutch.
 
-Discussion about the add-on can be done in [this](https://forum.kodi.tv/showthread.php?tid=25522) 
-thread at the Kodi forums or in [this](https://gathering.tweakers.net/forum/list_messages/1643928/last) 
-thread at Tweakers.net (Dutch only). Issues regarding this script can be submitted at our issue 
-tracker at GitHub.
+Discuss the add-on can be done at [the Kodi forums thread](https://forum.kodi.tv/showthread.php?tid=25522),
+or at [the Tweakers.net thread](https://gathering.tweakers.net/forum/list_messages/1643928/last) (Dutch only).
+Issues regarding this script can be submitted at our issue tracker at GitHub.
 
 # Installing Retrospect #
-There are two ways to install Retrospect, depending on what version of Kodi you are using.
+There are two ways of installing Retrospect, (depending on the Kodi version you are using).
 
 ### Kodi Leia and later
-Starting from Kodi Leia (v18), you can easily install Retrospect from the official Kodi add-on repository. Simply use the search function in the add-ons section to find `Retrospect` and install it. More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
+Starting from Kodi Leia (v18), you can install Retrospect from the official Kodi add-on repository. Use the search function in the add-ons section to find `Retrospect` and install it. Detailed info can be found in the [Retrospect wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
-**Note:** Make sure the _Auto-Update_ option for Retrospect is enabled to automagically receive new updates.
+**Note:** Make sure the _Auto-Update_ option for Retrospect is turned on to automagically receive new updates.
 
 ![alt text](./resources/media/retrospect01.jpg "The Retrospect information screen")
 
 ### Kodi Krypton    
-If you are running Kodi Krypton (v17) the only way to install Retrospect is to install it from a zip file. Follow these steps (keep in mind they might slightly differ depending on your skin):
-1. Download the latest Retrospect zip file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
+If you are running Kodi Krypton (v17) the only way to install Retrospect is to install it from a ZIP file. Follow these steps (keep in mind they might slightly differ depending on your skin):
+1. Download the latest Retrospect ZIP file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
 1. Transfer the file to your Kodi system (_optional_).
-1. Use `Install from zip file` in Kodi to install Retrospect.
+1. Use `Install from ZIP file` in Kodi to install Retrospect.
 
-More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
+More detailed info can be found in the [Retrospect wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
-**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi Krypton (v17), it will not automagically update. Retrospect will notify you of new versions. You will then have to manually update Retrospect using the steps above.
+**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi Krypton (v17), it will not automagically update.
+Retrospect will notify you of new versions. You will then have to manually update Retrospect using the steps above.
 
 # Contributing #
-You can help developing Retrospect via our [Github](https://github.com/retrospect-addon/plugin.video.retrospect) page and/or help translating Retrospect via [Transifex](https://www.transifex.com/retrospect/public/) (A big thanks to Transifex for providing an OS license).
+You can help developing Retrospect via our [GitHub](https://github.com/retrospect-addon/plugin.video.retrospect) page, and/or help translating Retrospect via [Hosted Weblate](https://hosted.weblate.org/projects/retrospect/#components) (A big thanks to Weblate for their services).
 
 # Troubleshooting #
 
 ### Playing Widevine DRM content ###
-Starting from Kodi Leia (v18) playback of DRM protected streams is supported using the add-on `InputStream Adaptive`, which is automatically installed when you install Retrospect.
+Starting from Kodi Leia (v18), playback of DRM protected streams is supported using the add-on `InputStream Adaptive`, which is automatically installed along with Retrospect.
 
-In order to play Widevine DRM files you will also need to have the `Google Widevine libraries` installed. Android based devices have this as a native component, for Windows and Linux you will need to install them:
+In order to play Widevine DRM files you will also need to have the `Google Widevine libraries` installed. Android based devices have this installed as a native component, for Windows and Linux you have to install them first:
 
 The _Easy way_:
 
 1. Open the Retrospect add-on settings.
-1. Under the General tab, make sure `Use Kodi InputStream Adaptive add-on when possible` is enabled.
+1. Under the "General" tab, make sure `Use Kodi InputStream Adaptive add-on when possible` is on.
 1. Select `Install Widevine using InputStream Helper add-on`.
-1. Agree to the three following input boxes and let Widevine install.
+1. Agree to the three following input boxes to install Widevine.
 
 The _Manual way_:
 
-1. Determine the latest version of the Widevine libraries: [https://dl.google.com/widevine-cdm/versions.txt](https://dl.google.com/widevine-cdm/versions.txt)
+1. Determine what the latest version of the Widevine libraries is: [https://dl.google.com/widevine-cdm/versions.txt](https://dl.google.com/widevine-cdm/versions.txt)
 1. Download the appropriate version for your OS/Kodi combination (replace the {version} with the most recent version):
-    * 32-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-ia32.zip](https://dl.google.com/widevine-cdm/{version}-win-ia32.zip)
-    * 64-bit kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-x64.zip](https://dl.google.com/widevine-cdm/{version}-win-x64.zip)
-    * 32-bit kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip](https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip)
-    * 32-bit kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-x64.zip](https://dl.google.com/widevine-cdm/{version}-linux-x64.zip)
+    * 32-bit Kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-ia32.zip](https://dl.google.com/widevine-cdm/{version}-win-ia32.zip)
+    * 64-bit Kodi on Windows: [https://dl.google.com/widevine-cdm/{version}-win-x64.zip](https://dl.google.com/widevine-cdm/{version}-win-x64.zip)
+    * 32-bit Kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip](https://dl.google.com/widevine-cdm/{version}-linux-ia32.zip)
+    * 32-bit Kodi on Linux: [https://dl.google.com/widevine-cdm/{version}-linux-x64.zip](https://dl.google.com/widevine-cdm/{version}-linux-x64.zip)
 1. For Windows, copy these files into your `<kodi-profile>\cdm` folder. Linux users need to install them manually (or they can use this [gist](https://gist.github.com/ruario/3c873d43eb20553d5014bd4d29fe37f1) ([Fork](https://gist.github.com/basrieter/44a463a97a60958c36435d54d50debb4)) to install it automatically).
 
 _Example:_
-> If the most recent version obtained via https://dl.google.com/widevine-cdm/versions.txt is `4.10.1440.19`, then the download URL for 64-bit windows is https://dl.google.com/widevine-cdm/4.10.1440.19-win-x64.zip.
+> If the most recent version obtained via https://dl.google.com/widevine-cdm/versions.txt is `4.10.1582.2`, the download URL for 64-bit windows is https://dl.google.com/widevine-cdm/4.10.1582.2-win-x64.zip.
 
-The kodi.log will tell you if you did not put them in the correct place or if you have copied the wrong version.
+The kodi.log will tell you if you did not put them in the correct place, or copied the wrong version.
 
-_NOTE: for Kodi Krypton it seems that version 1.4.8.1008 is the last version that is compatible._
+_Note: For Kodi Krypton, it seems that version 1.4.8.1008 is the last compatible version._
 
-For **ARM Devices** (such as Raspberry Pi) things might be a bit different. If you are running Android, you probably don't need to do anything at all as Widevine is natively supported. However, if you are running Linux on ARM and the above method does not work, there is a different approach:
+On **ARM Devices** (such as the Raspberry Pi) things are a bit different. If you are running Android, you probably don't need to do anything, as Widevine is natively supported. However, if you are running Linux on ARM and the above method does not work, do this:
 
 1. Determine the latest version of the libraries for ARM using this URL: [https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf](https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf)
 1. From that configuration file, find the image for an ARM device that resembles your device. 
@@ -84,24 +84,23 @@ For **ARM Devices** (such as Raspberry Pi) things might be a bit different. If y
 1. From that recovery image, you will need the Widevine files located in /opt/google/chrome/libwidevinecdm*.so.
 1. These files need to be copied to the `<kodi-profile>/cdm` folder.
 
-_NOTE: Keep in mind that you might need to try multiple recovery images before you find a working one._ 
+_Note: Keep in mind you might need to try multiple recovery images before you find a working one._ 
 
 # Acknowledgement #
-The first idea for Retrospect/XBMC Online TV/XOT-Uzg came from a script by
-BaKMaN.
+The first idea for Retrospect/XBMC Online TV/XOT-Uzg came from a script by BaKMaN.
 
 # Copyrights and Licenses #
-Retrospect is licensed under a _Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International_, see: [LICENSE.md](./LICENSE.md)
+Retrospect is licensed _Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International_, see: [LICENSE.md](./LICENSE.md)
 
-The official add-on package for Retrospect may not be distributed via other repositories than the official Kodi add-on repository.
+The official add-on package for Retrospect is not distributed via other repositories than the official Kodi add-on repository.
 
 ### Disclaimer ###
-Retrospect or Rieter.net are not connected to or in any other way affiliated with Kodi, Team Kodi or the XBMC Foundation. Furthermore, any software, addons, or products offered by Retrospect or Rieter.net will only receive support in its [Kodi forum](https://forum.kodi.tv/showthread.php?tid=25522) and [Github repository](https://github.com/retrospect-addon/plugin.video.retrospect).
+Retrospect or Rieter.net are not connected to or in any other way affiliated with Kodi, Team Kodi or the XBMC Foundation. Furthermore, any software, addons, or products offered by Retrospect or Rieter.net will only receive support in its [Kodi forum](https://forum.kodi.tv/showthread.php?tid=25522) and [GitHub repository](https://github.com/retrospect-addon/plugin.video.retrospect).
 
 ### Rules & Terms ###
-As more and more people are starting to make channels for Retrospect, we want to lay out some rules and terms for the channels which we will host. Please stick to them before asking us to merge your work with the master branch:
+With more people adding channels for Retrospect, here are some rules and terms for channels we will host. Please ensure your channel qualifies before asking for it to be merged with the master branch:
 
-1. We, the Retrospect team, are not responsible for any content that is displayed using the Retrospect Framework.
+1. We, the Retrospect team, are not responsible for any content displayed using the Retrospect Framework.
 1. We, the Retrospect team, do not support any kind of adult content for Retrospect, nor will we host it on our servers.
 
 # Donations #
