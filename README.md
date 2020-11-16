@@ -98,7 +98,7 @@ The official add-on package for Retrospect is not distributed via other reposito
 Retrospect or Rieter.net are not connected to or in any other way affiliated with Kodi, Team Kodi or the XBMC Foundation. Furthermore, any software, addons, or products offered by Retrospect or Rieter.net will only receive support in its [Kodi forum](https://forum.kodi.tv/showthread.php?tid=25522) and [GitHub repository](https://github.com/retrospect-addon/plugin.video.retrospect).
 
 ### Rules & Terms ###
-With more people adding channels for Retrospect, here are some rules and terms for channels we will host. Please ensure your channel qualifies before asking for it to be merged with the master branch:
+Please ensure any channel you want to add qualifies before asking for it to be included or doing the work to make it so:
 
 1. We, the Retrospect team, are not responsible for any content displayed using the Retrospect Framework.
 1. We, the Retrospect team, do not support any kind of adult content for Retrospect, nor will we host it on our servers.
