@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 __all__ = ["test_version", "test_updater", "test_urihandler", "test_datehelper", "test_jsonhelper"]
 
