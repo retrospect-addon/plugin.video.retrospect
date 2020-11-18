@@ -10,7 +10,7 @@ This repository holds the main code for Retrospect. For more info on reporting b
 
 # Introduction #
 Retrospect (Previously XBMC Online TV) is a Kodi video add-on which allows you to watch streams of 
-a number of gratis publicly available online TV stream sites.
+a number of publicly available and gratis online TV stream sites.
 
 It all started with the streams from the Dutch site [www.uitzendinggemist.nl](https://npostart.nl).
 The add-on got its initial name from this site: ‘_Uitzending gemist_’ meaning 
