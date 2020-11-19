@@ -9,7 +9,7 @@
 This repository holds the main code for Retrospect. For more info on reporting bugs, please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
 # Introduction #
-Retrospect (Previously XBMC Online TV) is a Kodi video add-on which allows you to watch streams of 
+Retrospect is a Kodi video add-on allowing you to watch streams from 
 a number of publicly available and gratis online TV and video-streaming sites.
 
 It all started with the streams from the Dutch site [www.uitzendinggemist.nl](https://npostart.nl).
