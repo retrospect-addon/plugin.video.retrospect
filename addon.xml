@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.2.15"
+        version="5.2.16"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -129,19 +129,21 @@
 
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.2.15 - Changelog - 2020-11-02[/B]
+        <news>[B]Retrospect v5.2.16 - Changelog - 2020-11-21[/B]
 
-This is a quick fix update for VRT.nu that broke with current site changes.
+This version of Retrospect fixes a minor NPO issue and contains a new OS license: GPL3-or-later.
 
 [B]Framework related[/B]
-_None_
+* Changed: License was updated to `GPL-3.0-or-later`
 
 [B]GUI/Settings/Language related[/B]
-* Added: Option to set the TV Show Title to MediaItems.
+* Updated: Swedish translation
+* Updated: Dutch translation
 
 [B]Channel related[/B]
-* Fixed: VRT.nu changed stream urls which broke the channel (Fixes 1440)
-* Fixed: Folders were no longer showing for VRT.nu (Fixes 1440)
+* Updated: NPO artwork (See #1441)
+* Added: FunX live video stream (Fixes #1441)
+* Added: Radio4 live video stream (Fixes #1441)
 
         </news>
         <assets>
