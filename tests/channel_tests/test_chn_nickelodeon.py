@@ -23,7 +23,7 @@ class TestNickelodeonChannel(ChannelTest):
         self._test_folder_url(url, expected_results=5)
 
     def test_show_list_with_seasons(self):
-        url = "https://www.nickelodeon.nl/shows/0fvug8/fairly-odd-parents"
+        url = "https://www.nickelodeon.nl/shows/1rak95/huize-herrie"
         items = self._test_folder_url(url, expected_results=2)
         seasons = [i for i in items if i.type == "folder"]
         self.assertGreaterEqual(len(seasons), 1)
