@@ -84,6 +84,11 @@ class Channel(chn_class.Channel):
                               name="Tag overview", json=True,
                               parser=["data", "tags"], creator=self.create_api_tag)
 
+        self._add_data_parser("https://graphql.tv4play.se/graphql?operationName=cdp",
+                              name="GraphQL video listing", json=True,
+                              parser=["data", "program", "panels", 0, "videoList", "videoAssets"],
+                              creator=self.create_api_typed_item)
+
         self.episodeItemJson = ["results", ]
         self._add_data_parser("https://api.tv4play.se/play/programs?", json=True,
                               # No longer used:  requiresLogon=True,
@@ -310,6 +315,8 @@ class Channel(chn_class.Channel):
             item = self.create_api_program_type(result_set)
         elif api_type == "ProgramCard":
             item = self.create_api_program_type(result_set.get("program"))
+        elif api_type == "VideoAsset":
+            item = self.create_api_video_asset_type(result_set)
         else:
             Logger.warning("Missing type: %s", api_type)
             return None
@@ -334,11 +341,12 @@ class Channel(chn_class.Channel):
         json = result_set
         title = json["name"]
 
+        # https://graphql.tv4play.se/graphql?operationName=cdp&variables={"nid":"100-penisar"}&extensions={"persistedQuery":{"version":1,"sha256Hash":"255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774"}}
         program_id = json["nid"]
-        program_id = HtmlEntityHelper.url_encode(program_id)
-        url = "https://api.tv4play.se/play/video_assets" \
-              "?platform=tablet&per_page=%s&is_live=false&type=episode&" \
-              "page=1&node_nids=%s&start=0" % (self.__maxPageSize, program_id,)
+        url = self.__get_api_url(
+            operation="cdp",
+            hash_value="255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774",
+            variables={"nid": program_id})
 
         item = MediaItem(title, url)
         item.description = result_set.get("description", None)
@@ -356,6 +364,95 @@ class Channel(chn_class.Channel):
                 .format(HtmlEntityHelper.url_encode(item.fanart))
 
         item.isPaid = result_set.get("is_premium", False)
+        return item
+
+    def create_api_video_asset_type(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace('starting FormatVideoItem for %s', self.channelName)
+
+        program_id = result_set["id"]
+        url = "https://playback-api.b17g.net/media/{}?service=tv4&device=browser&protocol=dash".\
+            format(program_id)
+
+        name = result_set["title"]
+        season = result_set.get("season", 0)
+        episode = result_set.get("episode", 0)
+        is_episodic = 0 < season < 1900 and not episode == 0
+        if is_episodic:
+            episode_text = None
+            if " del " in name:
+                name, episode_text = name.split(" del ", 1)
+                episode_text = episode_text.lstrip("0123456789")
+
+            if episode_text:
+                episode_text = episode_text.lstrip(" -")
+                name = "{} - s{:02d}e{:02d} - {}".format(name, season, episode, episode_text)
+            else:
+                name = "{} - s{:02d}e{:02d}".format(name, season, episode)
+
+        item = MediaItem(name, url)
+        item.description = result_set["description"]
+        if item.description is None:
+            item.description = item.name
+
+        if is_episodic:
+            item.set_season_info(season, episode)
+
+        # premium_expire_date_time=2099-12-31T00:00:00+01:00
+        expire_in_days = result_set.get("daysLeftInService", 0)
+        if expire_in_days > 0:
+            item.set_expire_datetime(
+                timestamp=datetime.datetime.now() + datetime.timedelta(days=expire_in_days))
+
+        date = result_set["broadcastDateTime"]
+        broadcast_date = DateHelper.get_datetime_from_string(date, "%Y-%m-%dT%H:%M:%SZ", "UTC")
+        item.set_date(broadcast_date.year,
+                      broadcast_date.month,
+                      broadcast_date.day,
+                      broadcast_date.hour,
+                      broadcast_date.minute,
+                      0)
+
+        item.fanart = result_set.get("program_image", self.parentItem.fanart)
+        thumb_url = result_set.get("image", result_set.get("program_image"))
+        # some images need to come via a proxy:
+        if thumb_url and "://img.b17g.net/" in thumb_url:
+            item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+                         "&quality=70&resize=520x293&source={}" \
+                .format(HtmlEntityHelper.url_encode(thumb_url))
+        else:
+            item.thumb = thumb_url
+
+        item.type = "video"
+        item.complete = False
+        item.isGeoLocked = True
+        item.isPaid = not result_set.get("freemium", True)
+        item.isDrmProtected = result_set["is_drm_protected"]
+        item.isLive = result_set.get("is_live", False)
+        if item.isLive:
+            item.name = "{}:{} - {}".format(broadcast_date.hour, broadcast_date.minute, name)
+            item.url = "{0}&is_live=true".format(item.url)
+        if item.isDrmProtected:
+            item.url = "{}&drm=widevine&is_drm=true".format(item.url)
+
+        item.set_info_label("duration", int(result_set.get("duration", 0)))
         return item
 
     def add_categories_and_specials(self, data):
@@ -386,7 +483,7 @@ class Channel(chn_class.Channel):
         tv_shows_url = "https://graphql.tv4play.se/graphql?query={}".format(query)
 
         extras = {
-            LanguageHelper.get_localized_string(LanguageHelper.Search): ("searchSite", None, False),
+            # LanguageHelper.get_localized_string(LanguageHelper.Search): ("searchSite", None, False),
             LanguageHelper.get_localized_string(LanguageHelper.TvShows): (
                 tv_shows_url,
                 None, False
@@ -394,45 +491,46 @@ class Channel(chn_class.Channel):
             LanguageHelper.get_localized_string(LanguageHelper.Categories): (
                 "https://graphql.tv4play.se/graphql?query=query%7Btags%7D", None, False
             ),
-            LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
-                "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
-                "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.__maxPageSize,),
-                None, False
-            ),
+            # LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
+            #     "https://api.tv4play.se/play/video_assets/most_viewed?type=episode"
+            #     "&platform=tablet&is_live=false&per_page=%s&start=0" % (self.__maxPageSize,),
+            #     None, False
+            # ),
         }
 
-        today = datetime.datetime.now()
-        days = [LanguageHelper.get_localized_string(LanguageHelper.Monday),
-                LanguageHelper.get_localized_string(LanguageHelper.Tuesday),
-                LanguageHelper.get_localized_string(LanguageHelper.Wednesday),
-                LanguageHelper.get_localized_string(LanguageHelper.Thursday),
-                LanguageHelper.get_localized_string(LanguageHelper.Friday),
-                LanguageHelper.get_localized_string(LanguageHelper.Saturday),
-                LanguageHelper.get_localized_string(LanguageHelper.Sunday)]
-        for i in range(0, 7, 1):
-            start_date = today - datetime.timedelta(i)
-            end_date = start_date + datetime.timedelta(1)
-
-            day = days[start_date.weekday()]
-            if i == 0:
-                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
-            elif i == 1:
-                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
-
-            Logger.trace("Adding item for: %s - %s", start_date, end_date)
-            url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=" \
-                  "&platform=tablet&is_live=false&product_groups=2&type=episode&per_page=100"
-            url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
-            extras[day] = (url, start_date, False)
-
-        extras[LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes)] = (
-            "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&"
-            "is_live=true&product_groups=2&type=episode&per_page=100", None, False)
+        # No more extras
+        # today = datetime.datetime.now()
+        # days = [LanguageHelper.get_localized_string(LanguageHelper.Monday),
+        #         LanguageHelper.get_localized_string(LanguageHelper.Tuesday),
+        #         LanguageHelper.get_localized_string(LanguageHelper.Wednesday),
+        #         LanguageHelper.get_localized_string(LanguageHelper.Thursday),
+        #         LanguageHelper.get_localized_string(LanguageHelper.Friday),
+        #         LanguageHelper.get_localized_string(LanguageHelper.Saturday),
+        #         LanguageHelper.get_localized_string(LanguageHelper.Sunday)]
+        # for i in range(0, 7, 1):
+        #     start_date = today - datetime.timedelta(i)
+        #     end_date = start_date + datetime.timedelta(1)
+        #
+        #     day = days[start_date.weekday()]
+        #     if i == 0:
+        #         day = LanguageHelper.get_localized_string(LanguageHelper.Today)
+        #     elif i == 1:
+        #         day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
+        #
+        #     Logger.trace("Adding item for: %s - %s", start_date, end_date)
+        #     url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=" \
+        #           "&platform=tablet&is_live=false&product_groups=2&type=episode&per_page=100"
+        #     url = "%s&broadcast_from=%s&broadcast_to=%s&" % (url, start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
+        #     extras[day] = (url, start_date, False)
+        #
+        # extras[LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes)] = (
+        #     "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&"
+        #     "is_live=true&product_groups=2&type=episode&per_page=100", None, False)
 
         # Actually add the extra items
         for name in extras:
             title = name
-            url, date, is_live = extras[name]
+            url, date, is_live = extras[name]   # type: str, datetime.datetime, bool
             item = MediaItem(title, url)
             item.dontGroup = True
             item.complete = True

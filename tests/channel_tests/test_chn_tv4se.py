@@ -16,7 +16,7 @@ class TestTv4Channel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 12, "Incorrect number of items in mainlist")
+        self.assertEqual(len(items), 2, "Incorrect number of items in mainlist")
 
     def test_tv_show_list(self):
         url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28per_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%7D%2CtotalHits%7D%7D"
@@ -30,14 +30,17 @@ class TestTv4Channel(ChannelTest):
         url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28tag%3A%22Humor%22%2Cper_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%7D%2CtotalHits%7D%7D"
         self._test_folder_url(url, expected_results=20)
 
+    @unittest.skip("Currenlty not available")
     def test_recents(self):
         url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet&per_page=32&is_live=true&product_groups=2&type=episode&per_page=100"
         self._test_folder_url(url, expected_results=2)
 
+    @unittest.skip("Currenlty not available")
     def test_popular(self):
         url = "https://api.tv4play.se/play/video_assets/most_viewed?type=episode&platform=tablet&is_live=false&per_page=100&start=0"
         self._test_folder_url(url, expected_results=5)
 
+    @unittest.skip("Currenlty not available")
     def test_yesterday(self):
         url = "https://api.tv4play.se/play/video_assets?exclude_node_nids=&platform=tablet" \
               "&is_live=false&product_groups=2&type=episode&per_page=100" \
@@ -53,6 +56,7 @@ class TestTv4Channel(ChannelTest):
         self.assertEqual(yesterday.month, items[1]._MediaItem__timestamp.month)
         self.assertEqual(yesterday.year, items[1]._MediaItem__timestamp.year)
 
+    @unittest.skip("Currenlty not available")
     def test_tv_show_videos(self):
         url = "https://api.tv4play.se/play/video_assets?platform=tablet&per_page=100&is_live=false&type=episode&page=1&node_nids=nyheterna&start=0"
         self._test_folder_url(url, expected_results=5)
@@ -62,24 +66,32 @@ class TestTv4Channel(ChannelTest):
         url = "https://playback-api.b17g.net/media/13281470?service=tv4&device=browser&protocol=dash"
         self._test_video_url(url)
 
+    @unittest.skip("Currenlty not available")
     def test_tv4_channel(self):
         from resources.lib.helpers.channelimporter import ChannelIndex
         chn = ChannelIndex.get_register().get_channel(self._channel, "tv4se")
         self.assertIsNotNone(chn)
         self.assertEqual("tv4se", chn.channelCode)
 
+    @unittest.skip("Currenlty not available")
     def test_sjuan_channel(self):
         from resources.lib.helpers.channelimporter import ChannelIndex
         chn = ChannelIndex.get_register().get_channel(self._channel, "tv7se")
         self.assertIsNotNone(chn)
         self.assertEqual("tv7se", chn.channelCode)
 
+    @unittest.skip("Currenlty not available")
     def test_tv12_channel(self):
         from resources.lib.helpers.channelimporter import ChannelIndex
         chn = ChannelIndex.get_register().get_channel(self._channel, "tv12se")
         self.assertIsNotNone(chn)
         self.assertEqual("tv12se", chn.channelCode)
 
+    @unittest.skip("Currenlty not available")
     def test_tv4_main_list(self):
         url = "https://api.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000&fl=nid,name,program_image,is_premium,updated_at,channel&start=0"
         self._test_folder_url(url, expected_results=50)
+
+    def test_tv4play_graph_video_list(self):
+        url = "https://graphql.tv4play.se/graphql?operationName=cdp&variables=%7B%22nid%22%3A%20%22112-f%C3%B6rst-p%C3%A5-plats-australien%22%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%22255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774%22%7D%7D"
+        self._test_folder_url(url, expected_results=10)
