@@ -16,7 +16,7 @@ class TestTv4Channel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 2, "Incorrect number of items in mainlist")
+        self.assertEqual(len(items), 7, "Incorrect number of items in mainlist")
 
     def test_tv_show_list(self):
         url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28per_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%7D%2CtotalHits%7D%7D"
