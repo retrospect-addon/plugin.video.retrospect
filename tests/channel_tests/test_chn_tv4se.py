@@ -16,10 +16,10 @@ class TestTv4Channel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 7, "Incorrect number of items in mainlist")
+        self.assertGreaterEqual(len(items), 7, "Incorrect number of items in mainlist")
 
     def test_tv_show_list(self):
-        url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28per_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%7D%2CtotalHits%7D%7D"
+        url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28per_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%2CvideoPanels%7Bid%2Cname%7D%7D%2CtotalHits%7D%7D"
         self._test_folder_url(url, expected_results=100)
 
     def test_category_list(self):
@@ -27,7 +27,7 @@ class TestTv4Channel(ChannelTest):
         self._test_folder_url(url, expected_results=5)
 
     def test_category_tv_show_list(self):
-        url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28tag%3A%22Humor%22%2Cper_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%7D%2CtotalHits%7D%7D"
+        url = "https://graphql.tv4play.se/graphql?query=query%7BprogramSearch%28tag%3A%22Humor%22%2Cper_page%3A1000%29%7B__typename%2Cprograms%7B__typename%2Cdescription%2CdisplayCategory%2Cid%2Cimage%2Cimages%7Bmain16x9%7D%2Cname%2Cnid%2Cgenres%2CvideoPanels%7Bid%2Cname%7D%7D%2CtotalHits%7D%7D"
         self._test_folder_url(url, expected_results=20)
 
     @unittest.skip("Currenlty not available")
@@ -93,5 +93,9 @@ class TestTv4Channel(ChannelTest):
         self._test_folder_url(url, expected_results=50)
 
     def test_tv4play_graph_video_list(self):
-        url = "https://graphql.tv4play.se/graphql?operationName=cdp&variables=%7B%22nid%22%3A%20%22112-f%C3%B6rst-p%C3%A5-plats-australien%22%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%22255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774%22%7D%7D"
+        url = "https://graphql.tv4play.se/graphql?query=%7BvideoPanel%28id%3A%20%226xCXrYiuiC2lSqs6jfIZIM%22%29%7Bname%2CvideoList%28limit%3A%20100%29%7BtotalHits%2CvideoAssets%7Btitle%2Cid%2Cdescription%2Cseason%2Cepisode%2CdaysLeftInService%2CbroadcastDateTime%2Cimage%2Cfreemium%2CdrmProtected%2Clive%2Cduration%7D%7D%7D%7D"
         self._test_folder_url(url, expected_results=10)
+
+    def test_list_with_seasons_folders(self):
+        url = "https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid%3A%22intelligence%22%29%7Bname%2Cdescription%2CvideoPanels%7Bid%2Cname%2Csubheading%2CassetType%7D%7D%7D"
+        self._test_folder_url(url, expected_results=1)

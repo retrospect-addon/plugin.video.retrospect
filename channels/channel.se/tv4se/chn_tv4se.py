@@ -39,7 +39,7 @@ class Channel(chn_class.Channel):
         self.__channelId = "tv4"
         self.mainListUri = self.__get_api_query(
             '{indexPage{panels{__typename,...on SwipeModule{title,subheading,cards{__typename,'
-            '... on ProgramCard{title,program{name,id,nid,description,image}}}}}}}')
+            '... on ProgramCard{title,program{name,id,nid,description,image,videoPanels{id}}}}}}}}')
 
         if self.channelCode == "tv4segroup":
             self.noImage = "tv4image.png"
@@ -67,34 +67,31 @@ class Channel(chn_class.Channel):
         self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
 
         self._add_data_parser(self.mainListUri, json=True,
+                              name="GraphQL mainlist parser",
                               preprocessor=self.add_categories_and_specials,
                               parser=["data", "indexPage", "panels"],
                               creator=self.create_api_typed_item)
 
-        program_graph_ql = self.__get_api_url("ProgramSearch", "78cdda0280f7e6b21dea52021406cc44ef0ce37102cb13571804b1a5bd3b9aa1")
-        self._add_data_parser(program_graph_ql, json=True,
-                              name="JSON GraphQL program parser",
-                              parser=["data", "programSearch", "programs"],
-                              creator=self.create_api_typed_item)
-
-        self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7BprogramSearch",
-                              name="JSON GraphQL manual program search", json=True,
-                              parser=["data", "programSearch", "programs"],
-                              creator=self.create_api_typed_item)
-
+        # noinspection PyTypeChecker
         self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7Btags%7D",
                               name="Tag overview", json=True,
                               parser=["data", "tags"], creator=self.create_api_tag)
 
-        self._add_data_parser("https://graphql.tv4play.se/graphql?operationName=cdp",
-                              name="GraphQL video listing", json=True,
-                              parser=["data", "program", "panels", 0, "videoList", "videoAssets"],
-                              creator=self.create_api_typed_item)
+        self._add_data_parser("https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid",
+                              name="GraphQL seasons/folders for program listing", json=True,
+                              parser=["data", "program", "videoPanels"],
+                              creator=self.create_api_videopanel_type)
 
-        self._add_data_parser("https://graphql.tv4play.se/graphql?query=%7BprogramSearch",
-                              name="GraphQL search results", json=True,
-                              parser=["data", "programSearch", "programs"],
-                              creator=self.create_api_typed_item)
+        self._add_data_parser("https://graphql.tv4play.se/graphql?query=%7BvideoPanel%28id%3A",
+                              name="GraphQL single season/folder listing", json=True,
+                              parser=["data", "videoPanel", "videoList", "videoAssets"],
+                              creator=self.create_api_video_asset_type)
+
+        self._add_data_parsers(["https://graphql.tv4play.se/graphql?query=query%7BprogramSearch",
+                                "https://graphql.tv4play.se/graphql?query=%7BprogramSearch"],
+                               name="GraphQL search results and show listings", json=True,
+                               parser=["data", "programSearch", "programs"],
+                               creator=self.create_api_typed_item)
 
         self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
                               updater=self.update_live_item)
@@ -109,7 +106,8 @@ class Channel(chn_class.Channel):
         #===============================================================================================================
         # non standard items
         self.__maxPageSize = 100  # The Android app uses a page size of 20
-        self.__program_fields = '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres}'
+        self.__program_fields = '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres,videoPanels{id}}'
+        self.__season_count_meta = "season_count"
 
         #===============================================================================================================
         # Test cases:
@@ -272,6 +270,8 @@ class Channel(chn_class.Channel):
             item = self.create_api_video_asset_type(result_set)
         elif api_type == "SwipeModule":
             item = self.create_api_swipefolder_type(result_set)
+        elif api_type == "VideoPanel":
+            item = self.create_api_videopanel_type(result_set)
         else:
             Logger.warning("Missing type: %s", api_type)
             return None
@@ -292,16 +292,23 @@ class Channel(chn_class.Channel):
 
         """
 
-        # Logger.Trace(result_set)
         json = result_set
         title = json["name"]
 
         # https://graphql.tv4play.se/graphql?operationName=cdp&variables={"nid":"100-penisar"}&extensions={"persistedQuery":{"version":1,"sha256Hash":"255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774"}}
         program_id = json["nid"]
-        url = self.__get_api_url(
-            operation="cdp",
-            hash_value="255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774",
-            variables={"nid": program_id})
+
+        sub_folders = len(result_set["videoPanels"])
+        if sub_folders > 1:
+            # Only list the seasons/folders
+            url = self.__get_api_query('{program(nid:"%s"){name,description,videoPanels{id,name,subheading,assetType}}}' % (program_id,))
+        elif sub_folders == 0:
+            return None
+        else:
+            # Directly show the season or folder as main one
+            Logger.trace(result_set)
+            single_season_id = result_set["videoPanels"][0]["id"]
+            url = self.__get_api_folder_url(single_season_id)
 
         item = MediaItem(title, url)
         item.description = result_set.get("description", None)
@@ -319,6 +326,27 @@ class Channel(chn_class.Channel):
                 .format(HtmlEntityHelper.url_encode(item.fanart))
 
         item.isPaid = result_set.get("is_premium", False)
+
+        return item
+
+    def create_api_videopanel_type(self, result_set):
+        """ Creates a new MediaItem for a folder listing
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        title = result_set["name"]
+        folder_id = result_set["id"]
+        url = self.__get_api_folder_url(folder_id)
+        item = MediaItem(title, url)
         return item
 
     def create_api_swipefolder_type(self, result_set):
@@ -345,8 +373,6 @@ class Channel(chn_class.Channel):
             title = LanguageHelper.get_localized_string(LanguageHelper.Popular)
         elif title.startswith("Nyheter"):
             title = LanguageHelper.get_localized_string(LanguageHelper.LatestNews)
-        else:
-            return None
 
         item = MediaItem(title, "")
         for card in result_set["cards"]:
@@ -408,7 +434,7 @@ class Channel(chn_class.Channel):
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
         expire_in_days = result_set.get("daysLeftInService", 0)
-        if expire_in_days > 0:
+        if 0 < expire_in_days < 10000:
             item.set_expire_datetime(
                 timestamp=datetime.datetime.now() + datetime.timedelta(days=expire_in_days))
 
@@ -435,8 +461,8 @@ class Channel(chn_class.Channel):
         item.complete = False
         item.isGeoLocked = True
         item.isPaid = not result_set.get("freemium", True)
-        item.isDrmProtected = result_set["is_drm_protected"]
-        item.isLive = result_set.get("is_live", False)
+        item.isDrmProtected = result_set["drmProtected"]
+        item.isLive = result_set.get("live", False)
         if item.isLive:
             item.name = "{}:{} - {}".format(broadcast_date.hour, broadcast_date.minute, name)
             item.url = "{0}&is_live=true".format(item.url)
@@ -865,7 +891,7 @@ class Channel(chn_class.Channel):
             expire_date = DateHelper.get_datetime_from_string(expire_date)
             item.set_expire_datetime(timestamp=expire_date)
 
-    def __get_api_url(self, operation, hash_value, variables=None):
+    def __get_api_url(self, operation, hash_value, variables=None):  # NOSONAR
         """ Generates a GraphQL url
 
         :param str operation:   The operation to use
@@ -893,6 +919,12 @@ class Channel(chn_class.Channel):
 
     def __get_api_query(self, query):
         return "https://graphql.tv4play.se/graphql?query={}".format(HtmlEntityHelper.url_encode(query))
+
+    def __get_api_folder_url(self, folder_id):
+        return self.__get_api_query(
+            '{videoPanel(id: "%s"){name,videoList(limit: 100){totalHits,videoAssets'
+            '{title,id,description,season,episode,daysLeftInService,broadcastDateTime,image,'
+            'freemium,drmProtected,live,duration}}}}' % (folder_id,))
 
     def __update_dash_video(self, item, stream_info):
         """
