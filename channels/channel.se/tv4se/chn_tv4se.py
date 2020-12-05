@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import math
+import pytz
 import datetime
 
 from resources.lib import chn_class
@@ -115,6 +116,7 @@ class Channel(chn_class.Channel):
         self.__maxPageSize = 100  # The Android app uses a page size of 20
         self.__program_fields = '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres,videoPanels{id}}'
         self.__season_count_meta = "season_count"
+        self.__timezone = pytz.timezone("Europe/Stockholm")
 
         #===============================================================================================================
         # Test cases:
@@ -436,6 +438,7 @@ class Channel(chn_class.Channel):
 
         date = result_set["broadcastDateTime"]
         broadcast_date = DateHelper.get_datetime_from_string(date, "%Y-%m-%dT%H:%M:%SZ", "UTC")
+        broadcast_date = broadcast_date.astimezone(self.__timezone)
         item.set_date(broadcast_date.year,
                       broadcast_date.month,
                       broadcast_date.day,
@@ -460,7 +463,7 @@ class Channel(chn_class.Channel):
         item.isDrmProtected = result_set["drmProtected"]
         item.isLive = result_set.get("live", False)
         if item.isLive:
-            item.name = "{}:{} - {}".format(broadcast_date.hour, broadcast_date.minute, name)
+            item.name = "{:02d}:{:02d} - {}".format(broadcast_date.hour, broadcast_date.minute, name)
             item.url = "{0}&is_live=true".format(item.url)
         if item.isDrmProtected:
             item.url = "{}&drm=widevine&is_drm=true".format(item.url)
@@ -804,7 +807,7 @@ class Channel(chn_class.Channel):
         item.isDrmProtected = result_set["is_drm_protected"]
         item.isLive = result_set.get("is_live", False)
         if item.isLive:
-            item.name = "{}:{} - {}".format(hour, minutes, name)
+            item.name = "{:02d}:{:02d} - {}".format(hour, minutes, name)
             item.url = "{0}&is_live=true".format(item.url)
         if item.isDrmProtected:
             item.url = "{}&drm=widevine&is_drm=true".format(item.url)
