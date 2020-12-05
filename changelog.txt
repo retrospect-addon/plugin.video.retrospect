@@ -3,13 +3,11 @@
 This version of Retrospect fixes a minor NPO issue and contains a new OS license: GPL3-or-later.
 
 [B]Framework related[/B]
-* Changed: License was updated to `GPL-3.0-or-later`
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Swedish translation
-* Updated: Dutch translation
+* Updated: Use [CR] instead of \n in translations
+* Added: translation using Weblate (Kodi instance) (#1449)
 
 [B]Channel related[/B]
-* Updated: NPO artwork (See #1441)
-* Added: FunX live video stream (Fixes #1441)
-* Added: Radio4 live video stream (Fixes #1441)
+* Fixed: TV4 Play (Sweden) Playback broken (Fixes #1454)
