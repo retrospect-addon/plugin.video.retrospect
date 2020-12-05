@@ -39,7 +39,7 @@ class Channel(chn_class.Channel):
         self.__channelId = "tv4"
         self.mainListUri = self.__get_api_query(
             '{indexPage{panels{__typename,...on SwipeModule{title,subheading,cards{__typename,'
-            '... on ProgramCard{title,program{name,id,nid,description,image,videoPanels{id}}}}}}}}')
+            '... on ProgramCard{title,program{name,id,nid,description,image}}}}}}}')
 
         if self.channelCode == "tv4segroup":
             self.noImage = "tv4image.png"
@@ -79,6 +79,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid",
                               name="GraphQL seasons/folders for program listing", json=True,
+                              preprocessor=self.detect_single_folder,
                               parser=["data", "program", "videoPanels"],
                               creator=self.create_api_videopanel_type)
 
@@ -92,6 +93,10 @@ class Channel(chn_class.Channel):
                                name="GraphQL search results and show listings", json=True,
                                parser=["data", "programSearch", "programs"],
                                creator=self.create_api_typed_item)
+
+        self._add_data_parser("https://www.tv4play.se/_next", json=True,
+                              name="Specific Program list API",
+                              parser=[], creator=self.create_api_typed_item)
 
         self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
                               updater=self.update_live_item)
@@ -297,18 +302,7 @@ class Channel(chn_class.Channel):
 
         # https://graphql.tv4play.se/graphql?operationName=cdp&variables={"nid":"100-penisar"}&extensions={"persistedQuery":{"version":1,"sha256Hash":"255449d35b5679b2cb5a9b85e63afd532c68d50268ae2740ae82f24d83a84774"}}
         program_id = json["nid"]
-
-        sub_folders = len(result_set["videoPanels"])
-        if sub_folders > 1:
-            # Only list the seasons/folders
-            url = self.__get_api_query('{program(nid:"%s"){name,description,videoPanels{id,name,subheading,assetType}}}' % (program_id,))
-        elif sub_folders == 0:
-            return None
-        else:
-            # Directly show the season or folder as main one
-            Logger.trace(result_set)
-            single_season_id = result_set["videoPanels"][0]["id"]
-            url = self.__get_api_folder_url(single_season_id)
+        url = self.__get_api_query('{program(nid:"%s"){name,description,videoPanels{id,name,subheading,assetType}}}' % (program_id,))
 
         item = MediaItem(title, url)
         item.description = result_set.get("description", None)
@@ -472,6 +466,40 @@ class Channel(chn_class.Channel):
         item.set_info_label("duration", int(result_set.get("duration", 0)))
         return item
 
+    def detect_single_folder(self, data):
+        """ Performs pre-process actions and detect single folder items
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        json_data = JsonHelper(data)
+        panels = json_data.get_value("data", "program", "videoPanels")
+        if len(panels) != 1:
+            return data, []
+
+        items = []
+        item = self.create_api_videopanel_type(panels[0])
+        data = UriHandler.open(item.url)
+        json_data = JsonHelper(data)
+        assets = json_data.get_value("data", "videoPanel", "videoList", "videoAssets")
+        for asset in assets:
+            item = self.create_api_video_asset_type(asset)
+            if item:
+                items.append(item)
+
+        return "", items
+
     def add_categories_and_specials(self, data):
         """ Performs pre-process actions for data processing.
 
@@ -498,6 +526,8 @@ class Channel(chn_class.Channel):
                 'totalHits}}' % (self.__program_fields,)
         query = HtmlEntityHelper.url_encode(query)
         tv_shows_url = "https://graphql.tv4play.se/graphql?query={}".format(query)
+        # TODO: use this new url
+        # tv_shows_url = "https://www.tv4play.se/_next/data/ss-4G6Rv-ZEyGL978Ro6Z/allprograms.json"
 
         extras = {
             LanguageHelper.get_localized_string(LanguageHelper.Search): ("searchSite", None, False),
