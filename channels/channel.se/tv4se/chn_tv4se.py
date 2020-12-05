@@ -96,7 +96,9 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://www.tv4play.se/_next", json=True,
                               name="Specific Program list API",
-                              parser=[], creator=self.create_api_typed_item)
+                              preprocessor=self.extract_tv_show_list,
+                              parser=["pageProps", "initialApolloState"],
+                              creator=self.create_api_typed_item)
 
         self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
                               updater=self.update_live_item)
@@ -466,6 +468,27 @@ class Channel(chn_class.Channel):
         item.set_info_label("duration", int(result_set.get("duration", 0)))
         return item
 
+    def extract_tv_show_list(self, data):
+        """ Performs pre-process actions and converts the dictionary to a proper list
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        json_data = JsonHelper(data)
+        json_data.json["pageProps"]["initialApolloState"] = list(json_data.json["pageProps"]["initialApolloState"].values())
+        return json_data, []
+
     def detect_single_folder(self, data):
         """ Performs pre-process actions and detect single folder items
 
@@ -520,14 +543,13 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        # TV4 Group specific items
-        query = 'query{programSearch(per_page:1000){__typename,programs' \
-                '%s,' \
-                'totalHits}}' % (self.__program_fields,)
-        query = HtmlEntityHelper.url_encode(query)
-        tv_shows_url = "https://graphql.tv4play.se/graphql?query={}".format(query)
-        # TODO: use this new url
-        # tv_shows_url = "https://www.tv4play.se/_next/data/ss-4G6Rv-ZEyGL978Ro6Z/allprograms.json"
+        # GraphQL url for TV Shows time out a lot
+        # query = 'query{programSearch(per_page:1000){__typename,programs' \
+        #         '%s,' \
+        #         'totalHits}}' % (self.__program_fields,)
+        # query = HtmlEntityHelper.url_encode(query)
+        # tv_shows_url = "https://graphql.tv4play.se/graphql?query={}".format(query)
+        tv_shows_url = "https://www.tv4play.se/_next/data/ss-4G6Rv-ZEyGL978Ro6Z/allprograms.json"
 
         extras = {
             LanguageHelper.get_localized_string(LanguageHelper.Search): ("searchSite", None, False),
