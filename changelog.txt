@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.17 - Changelog - 2020-12-06[/B]
+[B]Retrospect v5.2.18 - Changelog - 2020-12-09[/B]
 
-A new version with fixes for TV4 Play (Sweden) and Kijk.nl. We also started using the Kodi Weblate for translations which enables us to have more translations for the add-on.
+A new version with fixes for TV4 Play (Sweden) (twice) and Kijk.nl. We also started using the Kodi Weblate for translations which enables us to have more translations for the add-on.
 
 [B]Framework related[/B]
 _None_
