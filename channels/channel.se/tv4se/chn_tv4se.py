@@ -460,7 +460,8 @@ class Channel(chn_class.Channel):
         item.type = "video"
         item.complete = False
         item.isGeoLocked = True
-        item.isPaid = not result_set.get("freemium", True)
+        # For now, none are paid.
+        # item.isPaid = not result_set.get("freemium", False)
         item.isDrmProtected = result_set["drmProtected"]
         item.isLive = result_set.get("live", False)
         if item.isLive:
