@@ -373,7 +373,7 @@ class Channel(chn_class.Channel):
         elif title.startswith("Nyheter"):
             title = LanguageHelper.get_localized_string(LanguageHelper.LatestNews)
 
-        item = MediaItem(title, "")
+        item = MediaItem(title, "swipe://{}".format(HtmlEntityHelper.url_encode(title)))
         for card in result_set["cards"]:
             child = self.create_api_typed_item(card)
             if not child:
