@@ -45,7 +45,11 @@ class Channel(chn_class.Channel):
         self.__nyheter_url = self.__get_api_url(
             "GenreLists", "90dca0b51b57904ccc59a418332e43e17db21c93a2346d1c73e05583a9aa598c",
             variables={"genre": ["nyheter"]})
-        self.mainListUri = "#mainlist"
+
+        if self.channelCode == "oppetarkiv":
+            self.mainListUri = "#genre_item"
+        else:
+            self.mainListUri = "#mainlist"
 
         # Setup the urls
         self.baseUrl = "https://www.svtplay.se"
@@ -810,10 +814,15 @@ class Channel(chn_class.Channel):
 
     # noinspection PyUnusedLocal
     def fetch_genre_api_data(self, data):
+        if self.channelCode == "oppetarkiv" and self.parentItem is None:
+            genre = "oppet-arkiv"
+        else:
+            genre = self.parentItem.metaData[self.__genre_id]
+
         url = self.__get_api_url(
             "GenreProgramsAO",
             "189b3613ec93e869feace9a379cca47d8b68b97b3f53c04163769dcffa509318",
-            {"genre": [self.parentItem.metaData[self.__genre_id]]}
+            {"genre": [genre]}
         )
 
         data = UriHandler.open(url, proxy=self.proxy)
