@@ -6,10 +6,7 @@ A new version with fixes for TV4 Play (Sweden) (twice) and Kijk.nl. We also star
 _None_
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Use [CR] instead of \n in translations
-* Added: translation using Weblate (Kodi instance) (#1449)
+* Fixed: Some channels without settings did appear with settings in the context menu.
 
 [B]Channel related[/B]
-* Fixed: TV4 Play (Sweden) Playback broken (Fixes #1454)
-* Fixed: Some seasons would not list in Kijk.nl (Fixes #1455)
-* Fixed: TV4 Play (Sweden) broke again (Fixes #1454)
+_None_
