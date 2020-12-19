@@ -9,4 +9,4 @@ _None_
 * Fixed: Some channels without settings did appear with settings in the context menu.
 
 [B]Channel related[/B]
-_None_
+* Fixed: NRK.no did not play newer streams (Fixes #1459)
