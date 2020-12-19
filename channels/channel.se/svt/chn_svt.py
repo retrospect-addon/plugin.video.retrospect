@@ -317,6 +317,10 @@ class Channel(chn_class.Channel):
         for item in items:
             item.name = item.name.strip("\a.: ")
 
+        oppet_arkiv = MediaItem("Öppet arkiv", "#genre_item")
+        oppet_arkiv.metaData[self.__genre_id] = "oppet-arkiv"
+        items.append(oppet_arkiv)
+
         return data, items
 
     def folders_or_clips(self, data):
