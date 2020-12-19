@@ -28,6 +28,7 @@ class TestNickelodeonChannel(ChannelTest):
         seasons = [i for i in items if i.type == "folder"]
         self.assertGreaterEqual(len(seasons), 1)
 
+    @unittest.skip("Nickelodeon keeps changing the season names and url")
     def test_season_listing(self):
         url = "https://www.nickelodeon.nl/shows/spongebob/z5of77/seizoen-seasonnumber-6"
         self._test_folder_url(url, expected_results=2)
