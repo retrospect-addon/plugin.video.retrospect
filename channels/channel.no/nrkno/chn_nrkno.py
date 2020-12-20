@@ -5,7 +5,6 @@ from resources.lib import chn_class
 from resources.lib.mediaitem import MediaItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.parserdata import ParserData
@@ -305,7 +304,7 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str]|dict[str,Any] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
@@ -664,12 +663,13 @@ class Channel(chn_class.Channel):
         for sub in stream_data["subtitles"]:
             sub_url = None
             sub_type = sub["type"]
-            if sub_type == "ttv" or sub_type == "vtt":
+            default_sub = sub["defaultOn"]
+            if default_sub:
                 sub_url = sub["webVtt"]
                 sub_type = "webvtt"  # set Retrospect type
 
             if sub_url:
-                part.Subtitle = SubtitleHelper.download_subtitle(sub_url, sub_type)
+                part.Subtitle = SubtitleHelper.download_subtitle(sub_url, format=sub_type)
                 break
 
         return item
