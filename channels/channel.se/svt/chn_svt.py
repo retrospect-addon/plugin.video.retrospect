@@ -231,26 +231,6 @@ class Channel(chn_class.Channel):
                 "humor",
                 "https://www.svtstatic.se/image/medium/480/7166065/1458037609"
             ),
-            "Livsstil": (
-                "livsstil",
-                "https://www.svtstatic.se/image/medium/480/7166101/1458037687"
-            ),
-            "Underhållning": (
-                "underhallning",
-                "https://www.svtstatic.se/image/medium/480/7166041/1458037574"
-            ),
-            "Kultur": (
-                "kultur",
-                "https://www.svtstatic.se/image/medium/480/7166119/1458037729"
-            ),
-            "Samhälle & Fakta": (
-                "samhalle-och-fakta",
-                "https://www.svtstatic.se/image/medium/480/7166173/1458037837"
-            ),
-            "Filmer": (
-                "filmer",
-                "https://www.svtstatic.se/image/medium/480/20888292/1548755428"
-            ),
             "Barn": (
                 "barn",
                 "https://www.svtstatic.se/image/medium/480/22702778/1560934663"
@@ -267,17 +247,45 @@ class Channel(chn_class.Channel):
                 "serier",
                 "https://www.svtstatic.se/image/medium/480/20888260/1548755402"
             ),
+            "Scen": (
+                "scen",
+                "https://www.svtstatic.se/image/medium/480/26157824/1585127128"
+            ),
+            "Livsstil & reality": (
+                "livsstil-och-reality",
+                "https://www.svtstatic.se/image/medium/480/21866138/1555059667"
+            ),
+            "Underhållning": (
+                "underhallning",
+                "https://www.svtstatic.se/image/medium/480/7166041/1458037574"
+            ),
+            "Filmer": (
+                "filmer",
+                "https://www.svtstatic.se/image/medium/480/20888292/1548755428"
+            ),
+            "Kultur": (
+                "kultur",
+                "https://www.svtstatic.se/image/medium/480/7166119/1458037729"
+            ),
+            "Samhälle & fakta": (
+                "samhalle-och-fakta",
+                "https://www.svtstatic.se/image/medium/480/7166173/1458037837"
+            ),
             "Reality": (
                 "reality",
                 "https://www.svtstatic.se/image/medium/480/21866138/1555059667"
             ),
-            "Ung": (
-                "ung-i-play",
-                "https://www.svtstatic.se/image/medium/480/20888300/1548755484"
-            ),
             "Musik": (
                 "musik",
                 "https://www.svtstatic.se/image/medium/480/19417384/1537791920"
+            ),
+            "Djur & natur": (
+                "djur-och-natur",
+                "https://www.svtstatic.se/image/medium/480/29184042/1605884325"
+            ),
+            "Öppet arkiv": (
+                "oppet-arkiv",
+                "https://www.svtstatic.se/image/medium/480/14077904/1497449020"
             )
         }
 
