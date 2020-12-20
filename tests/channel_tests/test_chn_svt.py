@@ -13,7 +13,7 @@ class TestSvtChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 11, "No items found in mainlist")
+        self.assertEqual(len(items), 12, "No items found in mainlist")
 
     def test_main_program_list(self):
         self._test_folder_url(
