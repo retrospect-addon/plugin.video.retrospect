@@ -94,6 +94,11 @@ class Channel(chn_class.Channel):
                                parser=["data", "programSearch", "programs"],
                                creator=self.create_api_typed_item)
 
+        self._add_data_parser("https://graphql.tv4play.se/graphql?operationName=LiveVideos",
+                              name="GraphQL currently playing", json=True,
+                              parser=["data", "liveVideos", "videoAssets"],
+                              creator=self.create_api_typed_item)
+
         # self._add_data_parser("https://www.tv4play.se/_next", json=True,
         self._add_data_parser("https://www.tv4play.se/alla-program", json=True,
                               name="Specific Program list API",
@@ -458,7 +463,11 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = True
         # For now, none are paid.
         # item.isPaid = not result_set.get("freemium", False)
-        item.isDrmProtected = result_set["drmProtected"]
+        if "drmProtected" in result_set:
+            item.isDrmProtected = result_set["drmProtected"]
+        elif "is_drm_protected" in result_set:
+            item.isDrmProtected = result_set["is_drm_protected"]
+
         item.isLive = result_set.get("live", False)
         if item.isLive:
             item.name = "{:02d}:{:02d} - {}".format(broadcast_date.hour, broadcast_date.minute, name)
@@ -557,6 +566,10 @@ class Channel(chn_class.Channel):
             LanguageHelper.get_localized_string(LanguageHelper.Categories): (
                 "https://graphql.tv4play.se/graphql?query=query%7Btags%7D", None, False
             ),
+            LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
+                self.__get_api_url("LiveVideos", "9b3d0d2f039089311cde2989760744844f7c4bb5033b0ce5643676ee60cb0901"),
+                None, False
+            )
         }
 
         # No more extras
