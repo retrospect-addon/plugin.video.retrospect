@@ -67,6 +67,7 @@ class LanguageHelper(object):
     Popular = 30363
     LatestNews = 30364
     Movies = 30365
+    AvailableFrom = 30366
 
     ChannelSelection = 30507
     # Unused:

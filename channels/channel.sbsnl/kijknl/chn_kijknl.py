@@ -679,7 +679,9 @@ class Channel(chn_class.Channel):
         date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__timezone_utc)
         date_stamp = date_stamp.astimezone(self.__timezone)
         if date_stamp > datetime.datetime.now(tz=self.__timezone):
-            return None
+            available = LanguageHelper.get_localized_string(LanguageHelper.AvailableFrom)
+            item.name = "{} - [COLOR=gold]{} {:%Y-%m-%d}[/COLOR]".format(
+                title, available, date_stamp)
         item.set_date(date_stamp.year, date_stamp.month, date_stamp.day)
 
         # In the main list we should set the fanart too
