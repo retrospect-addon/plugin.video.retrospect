@@ -80,6 +80,9 @@ class Channel(chn_class.Channel):
             self._add_data_parser("https://graph.kijk.nl/graphql-video",
                                   updater=self.update_graphql_item)
 
+            self._add_data_parser("https://graph.kijk.nl/graphql?operationName=programs",
+                                  updater=self.update_graphql_movie)
+
         else:
             raise ValueError("Channel with code '{}' not supported".format(self.channelCode))
 
@@ -508,6 +511,17 @@ class Channel(chn_class.Channel):
         search.dontGroup = True
         items.append(search)
 
+        movie_url = self.__get_api_persisted_url(
+            "programs", "b6f65688f7e1fbe22aae20816d24ca5dcea8c86c8e72d80b462a345b5b70fa41",
+            variables={"programTypes": "MOVIE", "limit": 100}
+        )
+        movies = MediaItem(
+            ".: {} :.".format(
+                LanguageHelper.get_localized_string(LanguageHelper.Movies))
+            , movie_url)
+        movies.dontGroup = True
+        items.append(movies)
+
         return data, items
 
     def add_graphql_recents(self, data):
@@ -569,6 +583,8 @@ class Channel(chn_class.Channel):
                 item = self.create_api_episode_type(result_set)
             elif custom_type == "SERIES":
                 item = self.create_api_program_type(result_set)
+            elif custom_type == "MOVIE":
+                item = self.create_api_movie_type(result_set)
             else:
                 Logger.warning("Missing type: %s", api_type)
                 return None
@@ -622,6 +638,39 @@ class Channel(chn_class.Channel):
         item = MediaItem(result_set["title"], url)
         item.thumb = self.__get_thumb(result_set.get("imageMedia"))
         item.description = result_set.get("description")
+
+        # In the main list we should set the fanart too
+        if self.parentItem is None:
+            item.fanart = item.thumb
+
+        return item
+
+    def create_api_movie_type(self, result_set):
+        """ Creates a new MediaItem for an program.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        title = result_set["title"]
+        if title is None:
+            return None
+
+        url = self.__get_api_persisted_url(
+            "programs", "b6f65688f7e1fbe22aae20816d24ca5dcea8c86c8e72d80b462a345b5b70fa41",
+            variables={"programTypes": "MOVIE", "guid": result_set["guid"]})
+
+        item = MediaItem(result_set["title"], url)
+        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
+        item.description = result_set.get("description")
+        item.type = "video"
 
         # In the main list we should set the fanart too
         if self.parentItem is None:
@@ -706,6 +755,22 @@ class Channel(chn_class.Channel):
         no_drm_items = [src for src in result_set["sources"] if not src["drm"]]
         item.isDrmProtected = len(no_drm_items) == 0
         return item
+
+    def update_graphql_movie(self, item):
+        """ Updates video items that are encrypted. This could be the default for Krypton!
+
+        :param MediaItem item: The item to update.
+
+        :return: An updated item.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = JsonHelper(data)
+        sources = json_data.get_value("data", "programs", "items", 0, "sources")
+        item.metaData["sources"] = sources
+        return self.update_graphql_item(item)
 
     def update_graphql_item(self, item):
         """ Updates video items that are encrypted. This could be the default for Krypton!
