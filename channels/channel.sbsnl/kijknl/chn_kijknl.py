@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
+import pytz
 
 from resources.lib import chn_class
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -101,7 +102,9 @@ class Channel(chn_class.Channel):
             "imageMedia{url,label},type,sources{type,drm,file},series{title}," \
             "seasonNumber,tvSeasonEpisodeNumber,lastPubDate,duration,displayGenre,tracks{type,file}}}"
         self.__list_limit = 150
-        
+        self.__timezone = pytz.timezone("Europe/Amsterdam")
+        self.__timezone_utc = pytz.timezone("UTC")
+
         #===============================================================================================================
         # Test cases:
 
@@ -671,6 +674,13 @@ class Channel(chn_class.Channel):
         item.thumb = self.__get_thumb(result_set.get("imageMedia"))
         item.description = result_set.get("description")
         item.type = "video"
+
+        time_stamp = result_set["epgDate"] / 1000
+        date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__timezone_utc)
+        date_stamp = date_stamp.astimezone(self.__timezone)
+        if date_stamp > datetime.datetime.now(tz=self.__timezone):
+            return None
+        item.set_date(date_stamp.year, date_stamp.month, date_stamp.day)
 
         # In the main list we should set the fanart too
         if self.parentItem is None:
