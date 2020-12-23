@@ -782,6 +782,8 @@ class Channel(chn_class.Channel):
         json_data = JsonHelper(data)
         sources = json_data.get_value("data", "programs", "items", 0, "sources")
         item.metaData["sources"] = sources
+        subs = json_data.get_value("data", "programs", "items", 0, "tracks", fallback=[])
+        item.metaData["subtitles"] = subs
         return self.update_graphql_item(item)
 
     def update_graphql_item(self, item):
