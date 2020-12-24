@@ -9,7 +9,4 @@ _None_
 * Fixed: Some channels without settings did appear with settings in the context menu.
 
 [B]Channel related[/B]
-* Fixed: UR Play moved to TTML subtitles, instead of WebSRT.
-* Changed: Moved Oppet Arkiv to SVT channel code as they are merging
-* Fixed: NRK.no did not play newer streams (Fixes #1459)
-* Updated: SVT Play categories (Fixes #1461)
+* Fixed: Some vier.be clips did not play (See #1463)

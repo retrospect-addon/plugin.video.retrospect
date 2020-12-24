@@ -451,7 +451,7 @@ class Channel(chn_class.Channel):
 
     def __update_video(self, item, data):
         if not item.url.startswith("https://api.viervijfzes.be/content/"):
-            regex = 'data-videoid="([^"]+)'
+            regex = 'data-video-*id="([^"]+)'
             m3u8_url = Regexer.do_regex(regex, data)[-1]
             # we either have an URL now or an uuid
         else:
