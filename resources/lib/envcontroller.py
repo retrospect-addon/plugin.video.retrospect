@@ -143,7 +143,7 @@ class EnvController:
             else:
                 cdm_path = os.path.join(translatePath("special://home/"), "cdm")
 
-            if not os.path.isdir(cdm_path):
+            if not xbmcvfs.exists(cdm_path):
                 return "<none>"
 
             Logger.debug("Found CDM folder: %s", cdm_path)
@@ -226,9 +226,9 @@ class EnvController:
         """
 
         # check for cache folder. If not present. Create it!
-        if not os.path.exists(Config.cacheDir):
+        if not xbmcvfs.exists(Config.cacheDir):
             Logger.info("Creating cache folder at: %s", Config.cacheDir)
-            os.makedirs(Config.cacheDir)
+            xbmcvfs.mkdirs(Config.cacheDir)
             return False
 
         return True
@@ -254,7 +254,7 @@ class EnvController:
             Logger.info("Cleaning up cache in '%s' that is older than %s days",
                         os.path.join(path, "**", mask), cache_time / 24 / 3600)
 
-            if not os.path.exists(path):
+            if not xbmcvfs.exists(path):
                 Logger.info("Did not cleanup cache: folder does not exist")
                 return
 
@@ -275,7 +275,7 @@ class EnvController:
                         file_count += 1
                         create_time = os.path.getctime(filename)
                         if create_time + cache_time < time.time():
-                            os.remove(filename)
+                            xbmcvfs.delete(filename)
                             Logger.debug("Removed file: %s", filename)
                             delete_count += 1
 
