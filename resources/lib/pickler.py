@@ -8,11 +8,13 @@ else:
     import pickle
 
 import os
-import io
 import sys
 import base64
 from functools import reduce
 
+import xbmcvfs
+
+from resources.lib.helpers import kodivfs
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
@@ -172,7 +174,7 @@ class Pickler:
                 if pickle_store_id in favourite_pickle_stores:
                     Logger.debug("PickleStore: Skipping purge of favourite '%s'", filename)
                     continue
-                os.remove(filename)
+                xbmcvfs.delete(filename)
                 Logger.debug("PickleStore: Removed file '%s'", filename)
 
     def store_media_items(self, store_guid, parent, children):
@@ -199,22 +201,22 @@ class Pickler:
         pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
         Logger.debug("PickleStore: Write to '%s'", pickles_path)
 
-        if not os.path.isdir(pickles_dir):
-            os.makedirs(pickles_dir)
+        if not xbmcvfs.exists(pickles_dir):
+            xbmcvfs.mkdirs(pickles_dir)
 
         content = {
             "parent": parent,
             "children": {item.guid: item for item in children}
         }
 
+        pickle_content = pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL)
         if self.__compress:
-            pickle_content = pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL)
             import zlib
-            with io.open(pickles_path, 'wb+') as fp:
+            with kodivfs.File(pickles_path, 'w') as fp:
                 fp.write(zlib.compress(pickle_content, zlib.Z_BEST_COMPRESSION))
         else:
-            with io.open(pickles_path, "wb+") as fp:
-                pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
+            with kodivfs.File(pickles_path, 'w') as fp:
+                fp.write(pickle_content)
 
         return
 
@@ -236,12 +238,12 @@ class Pickler:
         try:
             if self.__compress:
                 import zlib
-                with io.open(pickles_path, 'rb') as fp:
-                    pickle_bytes = zlib.decompress(fp.read())
+                with kodivfs.File(pickles_path) as fp:
+                    pickle_bytes = zlib.decompress(fp.readBytes())
                     content = pickle.loads(pickle_bytes)
             else:
-                with io.open(pickles_path, "rb") as fp:
-                    content = pickle.load(fp)
+                with kodivfs.File(pickles_path) as fp:
+                    content = pickle.loads(fp.readBytes())
         except:
             Logger.error("Error opening '%s'", pickles_path, exc_info=True)
             return None
