@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
-import io
-
+from resources.lib.helpers import kodivfs
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -172,7 +171,7 @@ class LogSender(object):
         """
 
         code = ""
-        with io.open(file_path, 'r', encoding='utf-8') as fp:
+        with kodivfs.File(file_path) as fp:
             if self.__maxSize:
                 fp.seek(0, os.SEEK_END)
                 size = fp.tell()
