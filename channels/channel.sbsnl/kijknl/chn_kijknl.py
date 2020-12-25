@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
+import pytz
 
 from resources.lib import chn_class
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -80,6 +81,9 @@ class Channel(chn_class.Channel):
             self._add_data_parser("https://graph.kijk.nl/graphql-video",
                                   updater=self.update_graphql_item)
 
+            self._add_data_parser("https://graph.kijk.nl/graphql?operationName=programs",
+                                  updater=self.update_graphql_item)
+
         else:
             raise ValueError("Channel with code '{}' not supported".format(self.channelCode))
 
@@ -98,7 +102,9 @@ class Channel(chn_class.Channel):
             "imageMedia{url,label},type,sources{type,drm,file},series{title}," \
             "seasonNumber,tvSeasonEpisodeNumber,lastPubDate,duration,displayGenre,tracks{type,file}}}"
         self.__list_limit = 150
-        
+        self.__timezone = pytz.timezone("Europe/Amsterdam")
+        self.__timezone_utc = pytz.timezone("UTC")
+
         #===============================================================================================================
         # Test cases:
 
@@ -508,6 +514,17 @@ class Channel(chn_class.Channel):
         search.dontGroup = True
         items.append(search)
 
+        movie_url = self.__get_api_persisted_url(
+            "programs", "b6f65688f7e1fbe22aae20816d24ca5dcea8c86c8e72d80b462a345b5b70fa41",
+            variables={"programTypes": "MOVIE", "limit": 100}
+        )
+        movies = MediaItem(
+            ".: {} :.".format(
+                LanguageHelper.get_localized_string(LanguageHelper.Movies))
+            , movie_url)
+        movies.dontGroup = True
+        items.append(movies)
+
         return data, items
 
     def add_graphql_recents(self, data):
@@ -569,6 +586,8 @@ class Channel(chn_class.Channel):
                 item = self.create_api_episode_type(result_set)
             elif custom_type == "SERIES":
                 item = self.create_api_program_type(result_set)
+            elif custom_type == "MOVIE":
+                item = self.create_api_movie_type(result_set)
             else:
                 Logger.warning("Missing type: %s", api_type)
                 return None
@@ -627,6 +646,54 @@ class Channel(chn_class.Channel):
         if self.parentItem is None:
             item.fanart = item.thumb
 
+        return item
+
+    def create_api_movie_type(self, result_set):
+        """ Creates a new MediaItem for an program.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        title = result_set["title"]
+        if title is None:
+            return None
+
+        url = self.__get_api_persisted_url(
+            "programs", "b6f65688f7e1fbe22aae20816d24ca5dcea8c86c8e72d80b462a345b5b70fa41",
+            variables={"programTypes": "MOVIE", "guid": result_set["guid"]})
+
+        item = MediaItem(result_set["title"], url)
+        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
+        item.description = result_set.get("description")
+        item.type = "video"
+        item.set_info_label("duration", int(result_set.get("duration", 0) or 0))
+        item.set_info_label("genre", result_set.get("displayGenre"))
+
+        time_stamp = result_set["epgDate"] / 1000
+        date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__timezone_utc)
+        date_stamp = date_stamp.astimezone(self.__timezone)
+        if date_stamp > datetime.datetime.now(tz=self.__timezone):
+            available = LanguageHelper.get_localized_string(LanguageHelper.AvailableFrom)
+            item.name = "{} - [COLOR=gold]{} {:%Y-%m-%d}[/COLOR]".format(
+                title, available, date_stamp)
+        item.set_date(date_stamp.year, date_stamp.month, date_stamp.day)
+
+        # In the main list we should set the fanart too
+        if self.parentItem is None:
+            item.fanart = item.thumb
+
+        sources = result_set.get("sources")
+        item.metaData["sources"] = sources
+        subs = result_set.get("tracks")
+        item.metaData["subtitles"] = subs
         return item
 
     def create_api_tvseason_type(self, result_set):
