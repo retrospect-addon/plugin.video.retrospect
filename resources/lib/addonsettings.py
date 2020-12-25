@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
-import io
 import uuid
-import shutil
 import threading
 
 import xbmc
+import xbmcvfs
 
+from resources.lib.helpers import kodivfs
 from resources.lib.logger import Logger                               # this has not further references
 from resources.lib.proxyinfo import ProxyInfo                         # this has not further references
 from resources.lib.retroconfig import Config                          # this has not further references
@@ -1113,8 +1113,8 @@ class AddonSettings(object):
 
         # Then we read the original file
         filename_template = os.path.join(config.rootDir, "resources", "data", "settings_template.xml")
-        # noinspection PyArgumentEqualDefault
-        with io.open(filename_template, "r", encoding="utf-8") as fp:
+
+        with kodivfs.File(filename_template) as fp:
             contents = fp.read()
 
         new_contents = AddonSettings.__update_add_on_settings_with_country_settings(contents, channels)
@@ -1140,44 +1140,45 @@ class AddonSettings(object):
             user_settings = os.path.join(Config.profileDir, "settings.xml")
             user_settings_backup = os.path.join(Config.profileDir, "settings.old.xml")
             Logger.debug("Backing-up user settings: %s", user_settings_backup)
-            if os.path.isfile(user_settings):
-                if os.path.isfile(user_settings_backup):
-                    os.remove(user_settings_backup)
-                shutil.copyfile(user_settings, user_settings_backup)
+            if xbmcvfs.exists(user_settings):
+                if xbmcvfs.exists(user_settings_backup):
+                    xbmcvfs.delete(user_settings_backup)
+                xbmcvfs.copyfile(user_settings, user_settings_backup)
             else:
                 Logger.warning("No user settings found at: %s", user_settings)
 
             # Update the addonsettings.xml by first updating a temp xml file.
             Logger.debug("Creating new settings.xml file: %s", filename_temp)
             Logger.trace(new_contents)
-            with io.open(filename_temp, "w+", encoding='utf-8') as fp:
-                fp.write(new_contents)
+            with kodivfs.File(filename_temp, "w") as fp:
+                fp.write(new_contents.encode('utf-8'))
 
             Logger.debug("Replacing existing settings.xml file: %s", filename)
-            if os.path.isfile(filename):
-                os.remove(filename)
-            shutil.move(filename_temp, filename)
+            if xbmcvfs.exists(filename):
+                xbmcvfs.delete(filename)
+            xbmcvfs.rename(filename_temp, filename)
 
             # restore the user profile settings.xml file when needed
-            if os.path.isfile(user_settings) and os.stat(user_settings).st_size != os.stat(user_settings_backup).st_size:
+            if xbmcvfs.exists(user_settings) and \
+                    xbmcvfs.Stat(user_settings).st_size != xbmcvfs.Stat(user_settings_backup).st_size:
                 Logger.critical("User settings.xml was overwritten during setttings update. Restoring from %s", user_settings_backup)
-                if os.path.isfile(user_settings):
-                    os.remove(user_settings)
-                shutil.copyfile(user_settings_backup, user_settings)
+                if xbmcvfs.exists(user_settings):
+                    xbmcvfs.delete(user_settings)
+                xbmcvfs.rename(user_settings_backup, user_settings)
         except:
             Logger.error("Something went wrong trying to update the settings.xml", exc_info=True)
 
             #  clean up time file
-            if os.path.isfile(filename_temp):
-                os.remove(filename_temp)
+            if xbmcvfs.exists(filename_temp):
+                xbmcvfs.delete(filename_temp)
 
             # restore original settings
-            with io.open(filename_temp, "w+", encoding='utf-8') as fp:
-                fp.write(contents)
+            with kodivfs.File(filename_temp, "w") as fp:
+                fp.write(contents.encode('utf-8'))
 
-            if os.path.isfile(filename):
-                os.remove(filename)
-            shutil.move(filename_temp, filename)
+            if xbmcvfs.exists(filename):
+                xbmcvfs.delete(filename)
+            xbmcvfs.rename(filename_temp, filename)
             return
 
         Logger.info("Settings.xml updated successfully. Reloading settings.")
