@@ -91,10 +91,13 @@ class Logger:
         self.minLogLevel = min_log_level
         self.dualLog = dual_logger
         self.logDual = dual_logger is not None
-        self.logEntryCount = 0
-        self.flushInterval = 5 if log_file_name is not None else 1
         self.encoding = 'utf-8'
         self.applicationName = application_name
+
+        # Buffering (due to the lack of it in xbmcvfs)
+        self.__buffer = []
+        self.__buffer_size = 0
+        self.flushInterval = 10 if log_file_name is not None else 1
 
         self.id = int(time.time())
         self.timeFormat = "%Y%m%d %H:%M:%S"
@@ -242,10 +245,18 @@ class Logger:
             # self.dualLog("CURRENT LOGGER after: {0}".format(Logger.instance() or "none"))
             # self.dualLog("CLOSING LOGGER: {0}".format(self.id))
 
-        # self.logHandle.flush()
+        self.flush()
         if self.logHandle is not sys.stdout:
             self.logHandle.close()
             del self.logHandle
+
+    def flush(self):
+        """ Flushes the internal buffer to the output stream. """
+
+        buffer = self.__buffer
+        self.__buffer_size = 0
+        self.__buffer = []
+        self.__write_log("".join(buffer))
 
     def clean_up_log(self):
         """ Closes an old log file and creates a new one.
@@ -329,7 +340,7 @@ class Logger:
             # noinspection PyArgumentList
             msg = self.__process_exc_info(msg, **kwargs)
 
-            # now split lines and write everyline into the logfile:
+            # now split lines and write every line into the logfile:
             lines = msg.splitlines()
             line_count = len(lines)
 
@@ -354,7 +365,7 @@ class Logger:
                             source_file,
                             source_line_number,
                             line)
-                        self.__write_log(formatted_message)
+                        self.__buffer.append(formatted_message)
                 else:
                     formatted_message = self.logFormat % (
                         timestamp,
@@ -362,18 +373,17 @@ class Logger:
                         source_file,
                         source_line_number,
                         msg)
-                    self.__write_log(formatted_message)
+                    self.__buffer.append(formatted_message)
             except UnicodeEncodeError:
                 if PY2:
                     formatted_message = formatted_message.encode('raw_unicode_escape')
-                    self.__write_log(formatted_message)
+                    self.__buffer.append(formatted_message)
                 raise
 
-            # Finally close the filehandle
-            self.logEntryCount += 1
-            if self.logEntryCount % self.flushInterval == 0:
-                self.logEntryCount = 0
-                # self.logHandle.flush()
+            # Finally flush the filehandle
+            self.__buffer_size += 1
+            if self.__buffer_size % self.flushInterval == 0:
+                self.flush()
             return
         except:
             if not self.logDual:
