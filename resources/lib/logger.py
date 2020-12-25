@@ -1,13 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
-import io
 import sys
 import traceback
 import time
 import datetime
 
+import xbmcvfs
+
 from resources.lib.backtothefuture import PY2
+from resources.lib.helpers import kodivfs
 
 
 class Logger:
@@ -85,15 +87,13 @@ class Logger:
         """
 
         self.logFileName = log_file_name
-        self.fileMode = "a"
-        self.fileFlags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
 
         self.minLogLevel = min_log_level
         self.dualLog = dual_logger
         self.logDual = dual_logger is not None
         self.logEntryCount = 0
         self.flushInterval = 5 if log_file_name is not None else 1
-        self.encoding = 'cp1252'
+        self.encoding = 'utf-8'
         self.applicationName = application_name
 
         self.id = int(time.time())
@@ -242,7 +242,7 @@ class Logger:
             # self.dualLog("CURRENT LOGGER after: {0}".format(Logger.instance() or "none"))
             # self.dualLog("CLOSING LOGGER: {0}".format(self.id))
 
-        self.logHandle.flush()
+        # self.logHandle.flush()
         if self.logHandle is not sys.stdout:
             self.logHandle.close()
 
@@ -275,10 +275,10 @@ class Logger:
 
         (file_name, extension) = os.path.splitext(self.logFileName)
         old_file_name = "%s.old%s" % (file_name, extension)
-        if os.path.exists(self.logFileName):
-            if os.path.exists(old_file_name):
-                os.remove(old_file_name)
-            os.rename(self.logFileName, old_file_name)
+        if xbmcvfs.exists(self.logFileName):
+            if xbmcvfs.exists(old_file_name):
+                xbmcvfs.delete(old_file_name)
+            xbmcvfs.rename(self.logFileName, old_file_name)
 
         if was_open:
             self.__open_log()
@@ -353,7 +353,7 @@ class Logger:
                             source_file,
                             source_line_number,
                             line)
-                        self.logHandle.write(formatted_message)
+                        self.__write_log(formatted_message)
                 else:
                     formatted_message = self.logFormat % (
                         timestamp,
@@ -361,18 +361,18 @@ class Logger:
                         source_file,
                         source_line_number,
                         msg)
-                    self.logHandle.write(formatted_message)
+                    self.__write_log(formatted_message)
             except UnicodeEncodeError:
                 if PY2:
                     formatted_message = formatted_message.encode('raw_unicode_escape')
-                    self.logHandle.write(formatted_message)
+                    self.__write_log(formatted_message)
                 raise
 
             # Finally close the filehandle
             self.logEntryCount += 1
             if self.logEntryCount % self.flushInterval == 0:
                 self.logEntryCount = 0
-                self.logHandle.flush()
+                # self.logHandle.flush()
             return
         except:
             if not self.logDual:
@@ -402,7 +402,7 @@ class Logger:
         return_value = ("Unknown", 0)
 
         # get the current frame and descent down until the correct one is found
-        # noinspection PyProtectedMember
+        # noinspection PyProtectedMember,PyUnresolvedReferences
         current_frame = sys._getframe(3)  # could be _getframe(#) and (3)
         while hasattr(current_frame, "f_code"):
             co = current_frame.f_code
@@ -452,28 +452,27 @@ class Logger:
 
         if self.logFileName is None:
             self.logHandle = sys.stdout
+            self.__write_log = lambda l: self.logHandle.write(l)
             return
 
-        if os.path.exists(self.logFileName):
+        self.__write_log = lambda l: self.logHandle.write(l.encode(self.encoding))
+
+        if xbmcvfs.exists(self.logFileName):
             # the file already exists. Now to prevent errors in Linux
             # we will open a file in Read + (Read and Update) mode
             # and set the pointer to the end.
-            if PY2:
-                self.logHandle = io.open(self.logFileName, "r+b")
-            else:
-                self.logHandle = io.open(self.logFileName, "r+", encoding='utf-8')
-            self.logHandle.seek(0, 2)
+            with kodivfs.File(self.logFileName) as fp:
+                old_bytes = fp.readBytes()
+            self.logHandle = xbmcvfs.File(self.logFileName, "w")
+            self.logHandle.write(old_bytes)
+            del old_bytes
             self.__write("XOT Logger :: Appending Existing logFile", level=Logger.LVL_INFO)
         else:
             log_dir = os.path.dirname(self.logFileName)
-            if not os.path.isdir(log_dir):
-                os.makedirs(log_dir)
+            if not xbmcvfs.exists(log_dir):
+                xbmcvfs.mkdirs(log_dir)
             # no file exists, so just create a new one for writing
-            if PY2:
-                self.logHandle = io.open(self.logFileName, "wb")
-            else:
-                self.logHandle = io.open(self.logFileName, "w", encoding='utf-8')
-
+            self.logHandle = xbmcvfs.File(self.logFileName, "w")
         return
 
     def __process_exc_info(self, msg, **kwargs):
