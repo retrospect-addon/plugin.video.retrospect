@@ -30,3 +30,4 @@ class File(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         """ Exiting """
         self.__file.close()
+        del self.__file

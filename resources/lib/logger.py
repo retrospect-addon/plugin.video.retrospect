@@ -245,6 +245,7 @@ class Logger:
         # self.logHandle.flush()
         if self.logHandle is not sys.stdout:
             self.logHandle.close()
+            del self.logHandle
 
     def clean_up_log(self):
         """ Closes an old log file and creates a new one.
