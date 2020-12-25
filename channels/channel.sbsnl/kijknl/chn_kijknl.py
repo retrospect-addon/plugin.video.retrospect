@@ -82,7 +82,7 @@ class Channel(chn_class.Channel):
                                   updater=self.update_graphql_item)
 
             self._add_data_parser("https://graph.kijk.nl/graphql?operationName=programs",
-                                  updater=self.update_graphql_movie)
+                                  updater=self.update_graphql_item)
 
         else:
             raise ValueError("Channel with code '{}' not supported".format(self.channelCode))
@@ -674,6 +674,8 @@ class Channel(chn_class.Channel):
         item.thumb = self.__get_thumb(result_set.get("imageMedia"))
         item.description = result_set.get("description")
         item.type = "video"
+        item.set_info_label("duration", int(result_set.get("duration", 0) or 0))
+        item.set_info_label("genre", result_set.get("displayGenre"))
 
         time_stamp = result_set["epgDate"] / 1000
         date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__timezone_utc)
@@ -688,6 +690,10 @@ class Channel(chn_class.Channel):
         if self.parentItem is None:
             item.fanart = item.thumb
 
+        sources = result_set.get("sources")
+        item.metaData["sources"] = sources
+        subs = result_set.get("tracks")
+        item.metaData["subtitles"] = subs
         return item
 
     def create_api_tvseason_type(self, result_set):
@@ -767,24 +773,6 @@ class Channel(chn_class.Channel):
         no_drm_items = [src for src in result_set["sources"] if not src["drm"]]
         item.isDrmProtected = len(no_drm_items) == 0
         return item
-
-    def update_graphql_movie(self, item):
-        """ Updates video items that are encrypted. This could be the default for Krypton!
-
-        :param MediaItem item: The item to update.
-
-        :return: An updated item.
-        :rtype: MediaItem
-
-        """
-
-        data = UriHandler.open(item.url)
-        json_data = JsonHelper(data)
-        sources = json_data.get_value("data", "programs", "items", 0, "sources")
-        item.metaData["sources"] = sources
-        subs = json_data.get_value("data", "programs", "items", 0, "tracks", fallback=[])
-        item.metaData["subtitles"] = subs
-        return self.update_graphql_item(item)
 
     def update_graphql_item(self, item):
         """ Updates video items that are encrypted. This could be the default for Krypton!
