@@ -44,7 +44,6 @@ class Channel:
 
         Logger.info("Initializing channel (__init__): %s", channel_info)
 
-        self.mainListItems = []
         self.parentItem = None
 
         # The proxy to be used for this channel
@@ -90,6 +89,7 @@ class Channel:
 
         # setup the urls
         self.mainListUri = ""
+        self.mainListContentType = "episodes"
         self.baseUrl = ""
         self.swfUrl = ""
 
