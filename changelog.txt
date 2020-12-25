@@ -9,4 +9,6 @@ _None_
 * Fixed: Some channels without settings did appear with settings in the context menu.
 
 [B]Channel related[/B]
+* Added: Movies to Kijk.nl channel (Fixes #1462)
+* Updated: VTM.be, Stievie.be and VTM Nieuws are now redirecting to the VTM GO add-on (Fixes #1409, See #1462)
 * Fixed: Some vier.be clips did not play (See #1463)
