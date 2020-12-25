@@ -1143,7 +1143,7 @@ class AddonSettings(object):
             if xbmcvfs.exists(user_settings):
                 if xbmcvfs.exists(user_settings_backup):
                     xbmcvfs.delete(user_settings_backup)
-                xbmcvfs.copyfile(user_settings, user_settings_backup)
+                xbmcvfs.copy(user_settings, user_settings_backup)
             else:
                 Logger.warning("No user settings found at: %s", user_settings)
 

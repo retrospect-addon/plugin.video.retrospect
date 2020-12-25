@@ -239,7 +239,7 @@ class Pickler:
             if self.__compress:
                 import zlib
                 with kodivfs.File(pickles_path) as fp:
-                    pickle_bytes = zlib.decompress(fp.readBytes())
+                    pickle_bytes = zlib.decompress(bytes(fp.readBytes()))
                     content = pickle.loads(pickle_bytes)
             else:
                 with kodivfs.File(pickles_path) as fp:
