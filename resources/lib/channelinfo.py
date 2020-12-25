@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
-import io
 import sys
 
 import xbmcgui
 
-
+from resources.lib.helpers import kodivfs
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
@@ -229,7 +228,7 @@ class ChannelInfo(object):
 
         channel_infos = []
 
-        with io.open(path, mode="r", encoding="utf-8") as json_file:
+        with kodivfs.File(path) as json_file:
             json_data = json_file.read()
 
         json = JsonHelper(json_data, logger=Logger.instance())
