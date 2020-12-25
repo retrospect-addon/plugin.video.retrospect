@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import glob
-import io
 import os
 
+import xbmcvfs
+
+from resources.lib.helpers import kodivfs
 from resources.lib.logger import Logger
 from resources.lib.pickler import Pickler
 from resources.lib.regexer import Regexer
@@ -37,15 +39,16 @@ class Favourites:
         pickle = self.__pickler.pickle_media_item(item)
 
         # Just double check for folder existence
-        if not os.path.isdir(self.FavouriteFolder):
-            os.makedirs(self.FavouriteFolder)
+        if not xbmcvfs.exists(self.FavouriteFolder):
+            xbmcvfs.mkdirs(self.FavouriteFolder)
 
         # replacing to pickle in the actionUrl to save space
         action_url = self.__remove_pickle(action_url)
 
         try:
-            with io.open(file_path, mode='w', encoding='utf-8') as file_handle:
-                file_handle.write("%s\n%s\n%s\n%s" % (channel.channelName, item.name, action_url, pickle))
+            with kodivfs.File(file_path, "w") as file_handle:
+                fav_data = "%s\n%s\n%s\n%s" % (channel.channelName, item.name, action_url, pickle)
+                file_handle.write(fav_data.encode('utf-8'))
         except:
             Logger.error("Error saving favourite", exc_info=True)
             raise
@@ -64,7 +67,7 @@ class Favourites:
         Logger.debug("Removing favourites for mask: %s", path_mask)
         for fav in glob.glob(path_mask):
             Logger.trace("Removing item %s\nFileName: %s", item, fav)
-            os.remove(fav)
+            xbmcvfs.delete(fav)
         return
 
     def list(self, channel=None):
@@ -89,16 +92,19 @@ class Favourites:
             Logger.trace("Fetching %s", fav)
 
             try:
-                with io.open(fav, mode='r', encoding='utf-8') as file_handle:
-                    channel_name = file_handle.readline().rstrip()
-                    name = file_handle.readline().rstrip()
-                    action_url = file_handle.readline().rstrip()
+                with kodivfs.File(fav) as file_handle:
+                    file_data = file_handle.read()
+                    file_lines = [line.strip() for line in file_data.splitlines()]
+
+                    channel_name = file_lines[0]
+                    name = file_lines[1]
+                    action_url = file_lines[2]
                     if "pickle=" in action_url and "pickle=%s" not in action_url:
                         # see issue https://github.com/retrospect-addon/plugin.video.retrospect/issues/1037
                         Logger.debug("Found favourite with full pickle, removing the pickle as we should use the one from the file.")
                         action_url = self.__remove_pickle(action_url)
 
-                    pickle = file_handle.readline()
+                    pickle = file_lines[3]
             except:
                 Logger.error("Error fetching favourite", exc_info=True)
                 raise
@@ -113,7 +119,7 @@ class Favourites:
                              fav, channel_name, name, action_url, pickle)
 
                 # Remove the invalid favourite
-                os.remove(fav)
+                xbmcvfs.delete(fav)
                 continue
 
             Logger.debug("Found favourite: %s", name)
@@ -130,7 +136,7 @@ class Favourites:
                 Logger.error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
 
                 # Remove the invalid favourite
-                os.remove(fav)
+                xbmcvfs.delete(fav)
                 continue
 
             # clean up the .: from titles
