@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Added: Movies to Kijk.nl channel (Fixes #1462)
+* Updated: RTL XL thumbs for shows.

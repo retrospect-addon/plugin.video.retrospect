@@ -237,11 +237,12 @@ class Channel(chn_class.Channel):
         item.description = desc
 
         # sometimes the `"station": False` instead of a string
-        channel = str(result_set.get("station", "folder")).lower()
-        if channel in self.largeIconSet:
-            item.icon = self.largeIconSet[channel]
-            item.thumb = self.largeIconSet[channel]
+        # channel = str(result_set.get("station", "folder")).lower()
+        # if channel in self.largeIconSet:
+        #     item.icon = self.largeIconSet[channel]
+        #     item.thumb = self.largeIconSet[channel]
 
+        item.thumb = "https://covers.rtl.nl/cover/l/pc/{}".format(key)
         prog_logo = result_set.get("proglogo", None)
         if prog_logo:
             item.thumb = "http://data.rtl.nl/service/programma_logos/%s" % (prog_logo,)
