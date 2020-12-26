@@ -88,7 +88,7 @@ class Channel:
 
         # setup the urls
         self.mainListUri = ""
-        self.mainListContentType = contenttype.EPISODES
+        self.mainListContentType = contenttype.TVSHOWS
         self.baseUrl = ""
         self.swfUrl = ""
 
@@ -363,6 +363,15 @@ class Channel:
             # Should we remove prefixes just as Kodi does?
             # prefixes = ("de", "het", "the", "een", "a", "an")
 
+            # Copy the parent's content-type for the sub-folder items
+            if self.parentItem:
+                if hasattr(self.parentItem, "content_type"):
+                    content_type = self.parentItem.content_type
+                else:
+                    content_type = contenttype.EPISODES
+            else:
+                content_type = self.mainListContentType
+
             for sub_item in items:
                 if sub_item.dontGroup or sub_item.type != "folder":
                     non_grouped.append(sub_item)
@@ -390,6 +399,7 @@ class Channel:
                     else:
                         item = MediaItem(title_format % (char.upper(),), "")
                     item.complete = True
+                    item.content_type = content_type
                     # item.set_date(2100 + ord(char[0]), 1, 1, text='')
                     result[char] = item
                 else:
