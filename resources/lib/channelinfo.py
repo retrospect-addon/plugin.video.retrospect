@@ -21,7 +21,7 @@ class ChannelInfo(object):
 
     def __init__(self, guid, name, description, icon, category, path,
                  channel_code=None, sort_order=255, language=None,
-                 ignore=False, fanart=None):
+                 ignore=False, fanart=None, poster=None):
         """ Creates a ChannelInfo object with basic information for a channel
 
         :param str guid:                        A unique GUID.
@@ -36,6 +36,7 @@ class ChannelInfo(object):
         :param str language:                    The language of the channel. Default is None.
         :param bool ignore:                     Should the channel be ignored? Defaults to False
         :param str fanart:                      A fanart url/path.
+        :param str poster:                      A poster url/path.
 
         """
 
@@ -70,6 +71,7 @@ class ChannelInfo(object):
 
         self.icon = icon
         self.fanart = fanart
+        self.poster = poster
         self.enabled = False                  # enabled from the settings
         self.visible = False                  # hidden/visible due to country settings
         self.adaptiveAddonSelectable = False  # can the InputStream Adaptive be selected
@@ -137,13 +139,18 @@ class ChannelInfo(object):
                                # "Tagline": description,
                                "Plot": description})
 
+        if self.poster is not None:
+            self.poster = self.__get_image_path(self.poster)
+        else:
+            self.poster = Config.poster
+
         if AddonSettings.hide_fanart():
             return item
 
         if self.fanart is not None:
             self.fanart = self.__get_image_path(self.fanart)
         else:
-            self.fanart = os.path.join(Config.rootDir, "fanart.jpg")
+            self.fanart = Config.fanart
         item.setArt({'fanart': self.fanart})
         return item
 

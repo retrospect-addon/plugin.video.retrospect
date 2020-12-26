@@ -1,0 +1,193 @@
+{
+  "$id": "http://www.rieter.net/plugin.video.retrospect.channel.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "channels": {
+      "$id": "/properties/channels",
+      "type": "array",
+      "items": {
+        "$id": "/properties/channels/items",
+        "type": "object",
+        "required": [
+          "guid",
+          "name",
+          "description",
+          "icon",
+          "category"
+        ],
+        "properties": {
+          "guid": {
+            "$id": "/properties/channels/items/properties/guid",
+            "type": "string",
+            "title": "Channel unique identifier.",
+            "default": "",
+            "examples": [
+              "98506F58-CD6F-11DE-99BA-187F55D89593"
+            ]
+          },
+          "name": {
+            "$id": "/properties/channels/items/properties/name",
+            "type": "string",
+            "title": "The channel name",
+            "default": ""
+          },
+          "description": {
+            "$id": "/properties/channels/items/properties/description",
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string",
+                "title": "The english translation of the description.",
+                "default": ""
+              }
+            },
+            "required": [
+              "en"
+            ],
+            "additionalProperties": { "type": "string" },
+            "title": "The channel description."
+          },
+          "icon": {
+            "$id": "/properties/channels/items/properties/icon",
+            "type": "string",
+            "title": "The channel's icon image file.",
+            "default": ""
+          },
+          "category": {
+            "$id": "/properties/channels/items/properties/category",
+            "type": "string",
+            "title": "The category the channel belongs to.",
+            "default": "",
+            "enum": [
+              "National",
+              "Regional",
+              "Kids",
+              "Video",
+              "Radio",
+              "Sport",
+              "Tech",
+              "Other"
+            ]
+          },
+          "channelcode": {
+            "$id": "/properties/channels/items/properties/channelcode",
+            "type": ["string", "null"],
+            "title": "The channel code for this channel",
+            "default": ""
+          },
+          "sortorder": {
+            "$id": "/properties/channels/items/properties/sortorder",
+            "type": "integer",
+            "title": "The sortorder for this channel",
+            "default": 0
+          },
+          "language": {
+            "$id": "/properties/channels/items/properties/language",
+            "type": ["string", "null"],
+            "title": "The country of origin the channel belongs to.",
+            "default": "",
+            "enum": [
+              "other",
+              "nl",
+              "en-gb",
+              "se",
+              "no",
+              "de",
+              "be",
+              "ee",
+              "lt",
+              "lv",
+              "dk",
+              null
+            ]
+          },
+          "adaptiveAddonSelectable": {
+            "$id": "/properties/channels/items/properties/adaptiveAddonSelectable",
+            "type": "boolean",
+            "title": "Can the InputStream Adaptive be selected seperately.",
+            "default": false
+          },
+          "fanart": {
+            "$id": "/properties/channels/items/properties/fanart",
+            "type": "string",
+            "title": "Channel fanart image.",
+            "default": ""
+          },
+          "poster": {
+            "$id": "/properties/channels/items/properties/poster",
+            "type": "string",
+            "title": "Channel poster image.",
+            "default": ""
+          },
+          "localIPSupported": {
+            "$id": "/properties/channels/items/properties/localIPSupported",
+            "type": "boolean",
+            "title": "Whether or not X-Forwarded-For can be used.",
+            "default": false
+          },
+          "ignore": {
+            "$id": "/properties/channels/items/properties/ignore",
+            "type": "boolean",
+            "title": "Ignores this channel",
+            "default": true
+          },
+          "message": {
+            "$id": "/properties/channels/items/properties/message",
+            "type": "string",
+            "title": "A message to show when the channel starts.",
+            "default": ""
+          },
+          "addonUrl": {
+            "$id": "/properties/channels/items/properties/addonUrl",
+            "type": "string",
+            "title": "The URL of an external plugin",
+            "default": ""
+          }
+        }
+      }
+    },
+    "settings": {
+      "$id": "/properties/settings",
+      "type": "array",
+      "items": {
+        "$id": "/properties/settings/items",
+        "type": "object",
+        "required": [
+          "order",
+          "id",
+          "value"
+        ],
+        "properties": {
+          "order": {
+            "$id": "/properties/settings/items/properties/order",
+            "type": "integer",
+            "title": "The order for the setting.",
+            "default": 0
+          },
+          "id": {
+            "$id": "/properties/settings/items/properties/id",
+            "type": "string",
+            "title": "The settting-id for this setting.",
+            "default": ""
+          },
+          "value": {
+            "$id": "/properties/settings/items/properties/value",
+            "type": "string",
+            "title": "The Kodi setting XML value. If it starts with 'id=', that ID will be used.",
+            "default": ""
+          },
+          "channels": {
+            "$id": "/properties/settings/items/properties/channels",
+            "type": "array",
+            "items": {
+              "$id": "/properties/settings/items/properties/channels/items",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

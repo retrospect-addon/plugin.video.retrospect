@@ -66,8 +66,9 @@ class FolderAction(AddonAction):
 
             kodi_items = []
 
+            use_thumbs_as_fanart = AddonSettings.use_thumbs_as_fanart()
             for media_item in media_items:  # type: MediaItem
-                self.__update_artwork(media_item, self.__channel)
+                self.__update_artwork(media_item, self.__channel, use_thumbs_as_fanart)
 
                 if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
                     action_value = action.LIST_FOLDER
@@ -165,11 +166,12 @@ class FolderAction(AddonAction):
                                       title, XbmcWrapper.Error, 2500)
         return ok
 
-    def __update_artwork(self, media_item, channel):
+    def __update_artwork(self, media_item, channel, use_thumbs_as_fanart):
         """ Updates the fanart and icon of a MediaItem if thoses are missing.
 
-        :param MediaItem media_item:    The item to update
-        :param Channel channel:         A possible selected channel
+        :param MediaItem media_item:        The item to update
+        :param Channel channel:             A possible selected channel
+        :param bool use_thumbs_as_fanart:   Use thumbs for artwork
 
         """
 
@@ -181,24 +183,28 @@ class FolderAction(AddonAction):
             fallback_icon = channel.icon
             fallback_thumb = channel.noImage
             fallback_fanart = channel.fanart
+            fallback_poster = channel.poster
             parent_item = channel.parentItem
         else:
             # else the Retrospect ones
             fallback_icon = Config.icon
             fallback_thumb = Config.fanart
             fallback_fanart = Config.fanart
+            fallback_poster = Config.poster
             parent_item = None
 
         if parent_item is not None:
             fallback_thumb = parent_item.thumb or fallback_thumb
             fallback_fanart = parent_item.fanart or fallback_fanart
+            fallback_poster = parent_item.poster or fallback_poster
 
         # keep it or use the fallback
         media_item.icon = media_item.icon or fallback_icon
         media_item.thumb = media_item.thumb or fallback_thumb
         media_item.fanart = media_item.fanart or fallback_fanart
+        media_item.poster = media_item.poster or fallback_poster
 
-        if AddonSettings.use_thumbs_as_fanart() and \
+        if use_thumbs_as_fanart and \
                 TextureHandler.instance().is_texture_or_empty(media_item.fanart) and \
                 not TextureHandler.instance().is_texture_or_empty(media_item.thumb):
             media_item.fanart = media_item.thumb

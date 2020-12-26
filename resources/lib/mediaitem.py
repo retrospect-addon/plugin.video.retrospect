@@ -97,9 +97,10 @@ class MediaItem:
         self.actionUrl = None
         self.MediaItemParts = []
         self.description = ""
-        self.thumb = ""                           # : The local or remote image for the thumbnail of episode
-        self.fanart = ""                          # : The fanart url
-        self.icon = ""                            # : low quality icon for list
+        self.thumb = ""                           # : The thumbnail (16:9, min 520x293)
+        self.fanart = ""                          # : The fanart url (16:9, min 720p)
+        self.icon = ""                            # : Low quality icon for list (1:1, min 256x256)
+        self.poster = ""                          # : Poster artwork (2:3)
 
         self.__date = ""                          # : value show in interface
         self.__timestamp = datetime.min           # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
@@ -423,17 +424,12 @@ class MediaItem:
             item.setInfo(type="video", infoLabels=info_labels)
 
         # now set all the art to prevent duplicate calls to Kodi
+        art = {'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb}
         if self.fanart and not AddonSettings.hide_fanart():
-            item.setArt({'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb,
-                         'fanart': self.fanart})
-        else:
-            item.setArt({'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb, })
-
-        # Set Artwork
-        # art = dict()
-        # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):
-        #     art[l] = self.thumb
-        # item.setArt(art)
+            art['fanart'] = self.fanart
+        if self.poster:
+            art['poster'] = self.poster
+        item.setArt(art)
 
         # We never set the content resolving, Retrospect does this. And if we do, then the custom
         # headers are removed from the URL when opening the resolved URL.
