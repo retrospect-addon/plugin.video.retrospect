@@ -5,7 +5,7 @@ import pytz
 import re
 
 from resources.lib import chn_class
-
+from resources.lib import contenttype
 from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
 from resources.lib.helpers import subtitlehelper
@@ -46,6 +46,7 @@ class Channel(chn_class.Channel):
         if self.channelCode == "uzgjson":
             self.baseUrl = "https://apps-api.uitzendinggemist.nl"
             self.mainListUri = "#mainlist"
+            self.mainListContentType = contenttype.NONE
             self.noImage = "nosimage.png"
         else:
             raise NotImplementedError("Code %s is not implemented" % (self.channelCode,))
@@ -375,6 +376,7 @@ class Channel(chn_class.Channel):
         extra.dontGroup = True
         extra.description = "Volledige programma lijst van NPO Start."
         extra.HttpHeaders = self.__jsonApiKeyHeader
+        extra.content_type = contenttype.TVSHOWS
         # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         items.append(extra)
 
@@ -382,6 +384,7 @@ class Channel(chn_class.Channel):
                           "https://www.npostart.nl/programmas")
         extra.complete = True
         extra.dontGroup = True
+        extra.content_type = contenttype.FILES
         items.append(extra)
 
         extra = MediaItem(
@@ -390,6 +393,7 @@ class Channel(chn_class.Channel):
         extra.complete = True
         extra.description = "Alfabetische lijst van de NPO.nl site."
         extra.dontGroup = True
+        extra.content_type = contenttype.FILES
         items.append(extra)
 
         recent = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.Recent), "#recent")
@@ -542,6 +546,7 @@ class Channel(chn_class.Channel):
             sub_item = MediaItem(title_format % (char,), url_format % (char,))
             sub_item.complete = True
             sub_item.dontGroup = True
+            sub_item.content_type = contenttype.TVSHOWS
             sub_item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
             items.append(sub_item)
         return data, items
@@ -638,7 +643,7 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
@@ -1142,7 +1147,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
