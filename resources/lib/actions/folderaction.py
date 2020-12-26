@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import xbmcplugin
-from resources.lib.actions import action
 
+from resources.lib.actions import action
+from resources.lib import contenttype
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.chn_class import Channel
@@ -306,12 +307,11 @@ class FolderAction(AddonAction):
             if hasattr(selected_item, "content_type"):
                 content_type = selected_item.content_type
             else:
-                content_type = "episodes"
+                content_type = contenttype.EPISODES
         else:
             content_type = channel.mainListContentType
 
-        if content_type not in [None, "files", "songs", "artists", "albums", "movies", "tvshows",
-                                "episodes", "musicvideos", "videos", "images", "games"]:
+        if content_type not in contenttype.ALL:
             raise ValueError("Invalid content type: {}".format(content_type))
 
         Logger.debug("Setting content-type to: %s", content_type)

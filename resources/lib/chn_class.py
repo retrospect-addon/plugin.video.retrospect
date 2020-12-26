@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from resources.lib.backtothefuture import PY2
-
 if PY2:
     # noinspection PyUnresolvedReferences
     import urlparse as parse
@@ -11,7 +10,7 @@ else:
     import urllib.parse as parse
 
 from resources.lib.mediaitem import MediaItem, MediaItemPart
-
+from resources.lib import contenttype
 from resources.lib.regexer import Regexer
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.retroconfig import Config
@@ -89,7 +88,7 @@ class Channel:
 
         # setup the urls
         self.mainListUri = ""
-        self.mainListContentType = "episodes"
+        self.mainListContentType = contenttype.EPISODES
         self.baseUrl = ""
         self.swfUrl = ""
 

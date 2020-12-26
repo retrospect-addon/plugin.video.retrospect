@@ -8,6 +8,7 @@ from functools import reduce
 
 import xbmcgui
 
+from resources.lib import contenttype
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.logger import Logger
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -65,7 +66,8 @@ class MediaItem:
                 "guidValue"]
 
     #noinspection PyShadowingBuiltins
-    def __init__(self, title, url, type="folder", tv_show_title=None, content_type="episodes"):
+    def __init__(self, title, url, type="folder", tv_show_title=None,
+                 content_type=contenttype.EPISODES):
         """ Creates a new MediaItem.
 
         The `url` can contain an url to a site more info about the item can be
