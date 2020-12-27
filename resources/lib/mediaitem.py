@@ -67,7 +67,7 @@ class MediaItem:
 
     #noinspection PyShadowingBuiltins
     def __init__(self, title, url, type="folder", tv_show_title=None,
-                 content_type=contenttype.EPISODES):
+                 content_type=contenttype.EPISODES, depickle=False):
         """ Creates a new MediaItem.
 
         The `url` can contain an url to a site more info about the item can be
@@ -86,6 +86,7 @@ class MediaItem:
         :param str content_type:        The Kodi content type of the child items: files, songs,
                                         artists, albums, movies, tvshows, episodes, musicvideos,
                                         videos, images, games. Defaults to 'episodes'
+        :param bool depickle:           Is the constructor called while depickling.
 
         """
 
@@ -125,6 +126,11 @@ class MediaItem:
         # Kodi content types: files, songs, artists, albums, movies, tvshows, episodes,
         # musicvideos, videos, images, games. Defaults to 'episodes'
         self.content_type = content_type
+
+        if depickle:
+            # While deplickling we don't need to do the guid/guidValue calculations. They will
+            # be set from the __setstate__()
+            return
 
         # GUID used for identification of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues
@@ -757,21 +763,28 @@ class MediaItem:
 
     def __setstate__(self, state):
         """ Sets the current MediaItem's state based on the pickled value. However, it also adds
-        newly added class variables so old items won't brake.
+        newly added class variables so old items won't brake. This happens with depickling.
 
-        @param state: a default Pickle __dict__
+        @param dict state: a default Pickle __dict__
+
         """
 
-        # creating a new MediaItem here should not cause too much performance issues, as not very many
-        # will be depickled.
-
-        m = MediaItem("", "")
+        m = MediaItem(state["name"], state["url"], depickle=False)
         self.__dict__ = m.__dict__
         self.__dict__.update(state)
 
-    # We are not using the __getstate__ for now
-    # def __getstate__(self):
-    #     return self.__dict__
+    # Because this happens at pickle-time, it could still lead to issues if the __init__() would
+    # change. The result for __reduce__() will be the same as with the __setstate_() solution.
+    # def __reduce__(self):
+    #     """ Define a __reduce__() method used to store the data to call __init__() when
+    #     depickling items. This happens when pickling.
+    #
+    #     :return: a tuple with type, parameters and state
+    #     :rtype: type, tuple, dict
+    #
+    #     """
+    #
+    #     return type(self), (self.name, self.url), self.__dict__
 
 
 # Don't make this an MediaItem(object) as it breaks the pickles
