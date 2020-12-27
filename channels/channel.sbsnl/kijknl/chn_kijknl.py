@@ -3,7 +3,7 @@
 import datetime
 import pytz
 
-from resources.lib import chn_class
+from resources.lib import chn_class, contenttype
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
@@ -39,7 +39,8 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.kijk.nl"
 
         if self.channelCode is None:
-            self.noImage = "kijkimage.png"
+            self.noImage = "kijkimage.jpg"
+            self.poster = "kijkposter.jpg"
             self.mainListUri = self.__get_api_query_url(
                 "programs(programTypes:[SERIES],limit:1000)",
                 "{items{__typename,title,description,guid,updated,seriesTvSeasons{id},"
@@ -492,20 +493,15 @@ class Channel(chn_class.Channel):
             "{__typename,title,description,guid,updated,seriesTvSeasons{id},imageMedia{url,label}}"
         )
         popular_title = LanguageHelper.get_localized_string(LanguageHelper.Popular)
-        popular = MediaItem(
-            "\a.: {} :.".format(popular_title),
-            popular_url
-        )
+        popular = MediaItem("\a.: {} :.".format(popular_title), popular_url)
         popular.dontGroup = True
+        popular.content_type = contenttype.TVSHOWS
         items.append(popular)
 
         # https://graph.kijk.nl/graphql?operationName=programsByDate&variables={"date":"2020-04-19","numOfDays":7}&extensions={"persistedQuery":{"version":1,"sha256Hash":"1445cc0d283e10fa21fcdf95b127207d5f8c22834c1d0d17df1aacb8a9da7a8e"}}
         recent_url = "#recentgraphql"
         recent_title = LanguageHelper.get_localized_string(LanguageHelper.Recent)
-        recent = MediaItem(
-            "\a.: {} :.".format(recent_title),
-            recent_url
-        )
+        recent = MediaItem("\a.: {} :.".format(recent_title), recent_url)
         recent.dontGroup = True
         items.append(recent)
 
@@ -518,11 +514,10 @@ class Channel(chn_class.Channel):
             "programs", "b6f65688f7e1fbe22aae20816d24ca5dcea8c86c8e72d80b462a345b5b70fa41",
             variables={"programTypes": "MOVIE", "limit": 100}
         )
-        movies = MediaItem(
-            ".: {} :.".format(
-                LanguageHelper.get_localized_string(LanguageHelper.Movies))
-            , movie_url)
+        movies_title = LanguageHelper.get_localized_string(LanguageHelper.Movies)
+        movies = MediaItem("\a.: {} :.".format(movies_title), movie_url)
         movies.dontGroup = True
+        movies.content_type = contenttype.MOVIES
         items.append(movies)
 
         return data, items
@@ -639,8 +634,8 @@ class Channel(chn_class.Channel):
             )
 
         item = MediaItem(result_set["title"], url)
-        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
         item.description = result_set.get("description")
+        self.__get_artwork(item, result_set.get("imageMedia"))
 
         # In the main list we should set the fanart too
         if self.parentItem is None:
@@ -671,11 +666,11 @@ class Channel(chn_class.Channel):
             variables={"programTypes": "MOVIE", "guid": result_set["guid"]})
 
         item = MediaItem(result_set["title"], url)
-        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
         item.description = result_set.get("description")
         item.type = "video"
         item.set_info_label("duration", int(result_set.get("duration", 0) or 0))
         item.set_info_label("genre", result_set.get("displayGenre"))
+        self.__get_artwork(item, result_set.get("imageMedia"))
 
         time_stamp = result_set["epgDate"] / 1000
         date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__timezone_utc)
@@ -754,10 +749,10 @@ class Channel(chn_class.Channel):
             title = title_format.format(season_number, episode_number, title)
 
         item = MediaItem(title, url, type="video")
-        item.thumb = self.__get_thumb(result_set.get("imageMedia"))
         item.description = result_set.get("longDescription", result_set.get("description"))
         item.set_info_label("duration", int(result_set.get("duration", 0) or 0))
         item.set_info_label("genre", result_set.get("displayGenre"))
+        self.__get_artwork(item, result_set.get("imageMedia"), mode="thumb")
 
         updated = result_set["lastPubDate"] / 1000
         date_time = DateHelper.get_date_from_posix(updated)
@@ -843,25 +838,33 @@ class Channel(chn_class.Channel):
         return item
 
     # noinspection PyUnusedLocal
-    def __get_thumb(self, thumb_data, width=1920):
+    def __get_artwork(self, item, image_data, mode=("thumb", "poster")):
         """ Generates a full thumbnail url based on the "id" and "changed" values in a thumbnail
         data object from the API.
 
-        :param list[dict[str, string]] thumb_data: The data for the thumb
+        :param MediaItem item:                      The item to set the data to.
+        :param list[dict[str, string]] image_data:  The data for the thumb
 
-        :return: full string url
-        :rtype: str
         """
 
-        if not bool(thumb_data):
+        if not bool(image_data):
             return
 
-        for thumb in thumb_data:
-            if "_landscape" in thumb["label"]:
-                return thumb["url"]
+        thumb_set = False
+        for img in image_data:
+            if "_landscape" in img["label"] and "thumb" in mode:
+                url = "https://cldnr.talpa.network/talpa-network/image/fetch/" \
+                      "ar_16:9,c_scale,f_auto,h_1080,w_auto/{}".format(img["url"])
+                item.set_artwork(thumb=url)
+                thumb_set = True
+            elif "_portrait" in img["label"] and "poster" in mode:
+                url = "https://cldnr.talpa.network/talpa-network/image/fetch/" \
+                      "ar_2:3,c_scale,f_auto,h_750,w_auto/{}".format(img["url"])
+                item.set_artwork(poster=url)
 
         # If it fails, return the first one.
-        return thumb_data[0].get("url")
+        if not thumb_set:
+            item.set_artwork(thumb=image_data[0].get("url"))
 
     def __get_api_query_url(self, query, fields):
         result = "query{%s%s}" % (query, fields)
