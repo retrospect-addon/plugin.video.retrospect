@@ -250,19 +250,23 @@ class ChannelInfo(object):
 
         for channel in channels:
             channel_guid = channel["guid"]
-            channel_info = ChannelInfo(channel_guid,
-                                       channel["name"],
-                                       channel["description"],
-                                       channel["icon"],
-                                       channel["category"],
-                                       path,
+            channel_info = ChannelInfo(
+                channel_guid,
+                channel["name"],
+                channel["description"],
+                channel["icon"],
+                channel["category"],
+                path,
 
-                                       # none required items
-                                       channel.get("channelcode", None),
-                                       channel.get("sortorder", 255),
-                                       channel.get("language", None),
-                                       channel.get("ignore", False),
-                                       channel.get("fanart", None))
+                # none required items
+                channel_code=channel.get("channelcode", None),
+                sort_order=channel.get("sortorder", 255),
+                language=channel.get("language", None),
+                ignore=channel.get("ignore", False),
+                fanart=channel.get("fanart", None),
+                poster=channel.get("poster", None)
+            )
+
             channel_info.firstTimeMessage = channel.get("message", None)
             channel_info.addonUrl = channel.get("addonUrl", None)
             channel_info.adaptiveAddonSelectable = channel.get("adaptiveAddonSelectable", False)
