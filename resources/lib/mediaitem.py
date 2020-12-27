@@ -40,31 +40,6 @@ class MediaItem:
     LabelDuration = "Duration"
     ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
-    def __dir__(self):
-        """ Required in order for the Pickler().Validate to work! """
-        return ["name",
-                "url",
-                "actionUrl",
-                "MediaItemParts",
-                "description",
-                "thumb",
-                "fanart",
-                "icon",
-                "__date",
-                "__timestamp",
-                "type",
-                "dontGroup",
-                "isLive",
-                "isGeoLocked",
-                "isDrmProtected",
-                "isPaid",
-                "__infoLabels",
-                "complete",
-                "items",
-                "HttpHeaders",
-                "guid",
-                "guidValue"]
-
     #noinspection PyShadowingBuiltins
     def __init__(self, title, url, type="folder", tv_show_title=None,
                  content_type=contenttype.EPISODES, depickle=False):
@@ -772,6 +747,9 @@ class MediaItem:
         m = MediaItem(state["name"], state["url"], depickle=False)
         self.__dict__ = m.__dict__
         self.__dict__.update(state)
+
+        # Any modification/fixes for older version could be done here
+        return
 
     # Because this happens at pickle-time, it could still lead to issues if the __init__() would
     # change. The result for __reduce__() will be the same as with the __setstate_() solution.
