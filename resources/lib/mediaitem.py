@@ -76,7 +76,7 @@ class MediaItem:
         self.thumb = ""                           # : The thumbnail (16:9, min 520x293)
         self.fanart = ""                          # : The fanart url (16:9, min 720p)
         self.icon = ""                            # : Low quality icon for list (1:1, min 256x256)
-        self.poster = ""                          # : Poster artwork (2:3)
+        self.poster = ""                          # : Poster artwork (2:3, min 500x750)
 
         self.__date = ""                          # : value show in interface
         self.__timestamp = datetime.min           # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
@@ -226,6 +226,22 @@ class MediaItem:
         """
 
         self.__infoLabels[label] = value
+
+    def set_artwork(self, icon=None, thumb=None, fanart=None, poster=None):
+        """ Set the artwork for this MediaItem.
+
+        :param str icon:    Url/path to icon (1:1, minimal 256x256).
+        :param str thumb:   Url/path to thumbnail (16:9, minimal 520x293).
+        :param str fanart:  Url/Path to fanart (16:9, minimal 1280x720).
+        :param str poster:  Url/Path to poster (2:3, minimal 500x750)
+
+        """
+
+        # TODO: in the future change this to self.__artwork = {} that matches the Kodi ABI call.
+        self.icon = icon or self.icon
+        self.thumb = thumb or self.thumb
+        self.fanart = fanart or self.fanart
+        self.poster = poster or self.poster
 
     def set_season_info(self, season, episode):
         """ Set season and episode information
