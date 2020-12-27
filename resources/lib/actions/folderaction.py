@@ -111,6 +111,7 @@ class FolderAction(AddonAction):
             self.__add_sort_method_to_handle(self.handle, media_items)
             self.__add_breadcrumb(self.handle, self.__channel, selected_item)
             self.__add_content_type(self.handle, self.__channel, selected_item)
+
             xbmcplugin.endOfDirectory(self.handle, ok)
         except Exception:
             Logger.error("Plugin::Error Processing FolderList", exc_info=True)
@@ -304,12 +305,11 @@ class FolderAction(AddonAction):
         # videos, images, games (see https://romanvm.github.io/Kodistubs/_autosummary/xbmcplugin.html)
         # set the content. It needs to be "episodes" to make the MediaItem.set_season_info() work
         if selected_item:
-            if hasattr(selected_item, "content_type"):
-                content_type = selected_item.content_type
-            else:
-                content_type = contenttype.EPISODES
-        else:
+            content_type = selected_item.content_type
+        elif channel:
             content_type = channel.mainListContentType
+        else:
+            content_type = contenttype.EPISODES
 
         if content_type not in contenttype.ALL:
             raise ValueError("Invalid content type: {}".format(content_type))

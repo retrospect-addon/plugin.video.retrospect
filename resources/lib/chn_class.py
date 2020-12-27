@@ -365,10 +365,7 @@ class Channel:
 
             # Copy the parent's content-type for the sub-folder items
             if self.parentItem:
-                if hasattr(self.parentItem, "content_type"):
-                    content_type = self.parentItem.content_type
-                else:
-                    content_type = contenttype.EPISODES
+                content_type = self.parentItem.content_type
             else:
                 content_type = self.mainListContentType
 
