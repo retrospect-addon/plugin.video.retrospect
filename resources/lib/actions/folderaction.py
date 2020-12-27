@@ -190,10 +190,11 @@ class FolderAction(AddonAction):
             fallback_icon = Config.icon
             fallback_thumb = Config.fanart
             fallback_fanart = Config.fanart
-            fallback_poster = Config.poster
+            fallback_poster = None
             parent_item = None
 
         if parent_item is not None:
+            fallback_icon = parent_item.icon or fallback_icon
             fallback_thumb = parent_item.thumb or fallback_thumb
             fallback_fanart = parent_item.fanart or fallback_fanart
             fallback_poster = parent_item.poster or fallback_poster
@@ -202,7 +203,10 @@ class FolderAction(AddonAction):
         media_item.icon = media_item.icon or fallback_icon
         media_item.thumb = media_item.thumb or fallback_thumb
         media_item.fanart = media_item.fanart or fallback_fanart
-        media_item.poster = media_item.poster or fallback_poster
+        if not media_item.is_playable():
+            # For playable items don't set a poster if none is present (Kodi will
+            # always display the poster).
+            media_item.poster = media_item.poster or fallback_poster
 
         if use_thumbs_as_fanart and \
                 TextureHandler.instance().is_texture_or_empty(media_item.fanart) and \

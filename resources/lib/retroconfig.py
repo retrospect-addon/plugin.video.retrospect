@@ -46,7 +46,6 @@ class Config:
     rootDir = os.path.join(rootDir, '')                      # : The root directory where Retrospect resides.
     icon = os.path.join(rootDir, "resources", "media", "icon.png")
     fanart = os.path.join(rootDir, "resources", "media", "fanart.jpg")
-    poster = os.path.join(rootDir, "resources", "media", "poster.jpg")
 
     # determine the profile directory, where user data is stored.
     if xbmc.getCondVisibility("system.platform.xbox"):

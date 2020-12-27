@@ -141,8 +141,7 @@ class ChannelInfo(object):
 
         if self.poster is not None:
             self.poster = self.__get_image_path(self.poster)
-        else:
-            self.poster = Config.poster
+            item.setArt({'poster': self.poster})
 
         if AddonSettings.hide_fanart():
             return item
