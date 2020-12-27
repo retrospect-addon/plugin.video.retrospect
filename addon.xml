@@ -149,6 +149,7 @@ _None_
         <assets>
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>
+            <banner>resources/media/banner.jpg</banner>
             <screenshot>resources/media/retrospect01.jpg</screenshot>
             <screenshot>resources/media/retrospect02.jpg</screenshot>
             <screenshot>resources/media/retrospect03.jpg</screenshot>
