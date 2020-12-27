@@ -141,6 +141,7 @@ class Channel:
 
         # Make sure all images are from the correct absolute location
         self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
+        self.poster = TextureHandler.instance().get_texture_uri(self, self.poster)
         return
 
     @property
