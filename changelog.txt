@@ -4,6 +4,7 @@ Some Swedish channels had to be updated, as did NRK.no. During the fix, a small 
 
 [B]Framework related[/B]
 * Changed: Don't generate settings.xml if no template is present.
+* Added: Content type option to MediaItem and main listing.
 
 [B]GUI/Settings/Language related[/B]
 * Fixed: Some channels without settings did appear with settings in the context menu.

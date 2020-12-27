@@ -8,6 +8,7 @@ from functools import reduce
 
 import xbmcgui
 
+from resources.lib import contenttype
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.logger import Logger
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -65,7 +66,8 @@ class MediaItem:
                 "guidValue"]
 
     #noinspection PyShadowingBuiltins
-    def __init__(self, title, url, type="folder", tv_show_title=None):
+    def __init__(self, title, url, type="folder", tv_show_title=None,
+                 content_type=contenttype.EPISODES):
         """ Creates a new MediaItem.
 
         The `url` can contain an url to a site more info about the item can be
@@ -81,6 +83,9 @@ class MediaItem:
         :param str type:                Type of MediaItem (folder, video, audio).
                                          Defaults to 'folder'.
         :param str|None tv_show_title:  The title of the TV Show to which the episode belongs.
+        :param str content_type:        The Kodi content type of the child items: files, songs,
+                                        artists, albums, movies, tvshows, episodes, musicvideos,
+                                        videos, images, games. Defaults to 'episodes'
 
         """
 
@@ -115,6 +120,10 @@ class MediaItem:
         # Items that are not essential for pickled
         self.isCloaked = False
         self.metaData = dict()                    # : Additional data that is for internal / routing use only
+
+        # Kodi content types: files, songs, artists, albums, movies, tvshows, episodes,
+        # musicvideos, videos, images, games. Defaults to 'episodes'
+        self.content_type = content_type
 
         # GUID used for identification of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues

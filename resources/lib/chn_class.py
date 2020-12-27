@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from resources.lib.backtothefuture import PY2
-
 if PY2:
     # noinspection PyUnresolvedReferences
     import urlparse as parse
@@ -11,7 +10,7 @@ else:
     import urllib.parse as parse
 
 from resources.lib.mediaitem import MediaItem, MediaItemPart
-
+from resources.lib import contenttype
 from resources.lib.regexer import Regexer
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.retroconfig import Config
@@ -44,7 +43,6 @@ class Channel:
 
         Logger.info("Initializing channel (__init__): %s", channel_info)
 
-        self.mainListItems = []
         self.parentItem = None
 
         # The proxy to be used for this channel
@@ -90,6 +88,7 @@ class Channel:
 
         # setup the urls
         self.mainListUri = ""
+        self.mainListContentType = contenttype.TVSHOWS
         self.baseUrl = ""
         self.swfUrl = ""
 
@@ -364,6 +363,12 @@ class Channel:
             # Should we remove prefixes just as Kodi does?
             # prefixes = ("de", "het", "the", "een", "a", "an")
 
+            # Copy the parent's content-type for the sub-folder items
+            if self.parentItem:
+                content_type = self.parentItem.content_type
+            else:
+                content_type = self.mainListContentType
+
             for sub_item in items:
                 if sub_item.dontGroup or sub_item.type != "folder":
                     non_grouped.append(sub_item)
@@ -391,6 +396,7 @@ class Channel:
                     else:
                         item = MediaItem(title_format % (char.upper(),), "")
                     item.complete = True
+                    item.content_type = content_type
                     # item.set_date(2100 + ord(char[0]), 1, 1, text='')
                     result[char] = item
                 else:
