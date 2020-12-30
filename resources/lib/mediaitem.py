@@ -40,34 +40,9 @@ class MediaItem:
     LabelDuration = "Duration"
     ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
-    def __dir__(self):
-        """ Required in order for the Pickler().Validate to work! """
-        return ["name",
-                "url",
-                "actionUrl",
-                "MediaItemParts",
-                "description",
-                "thumb",
-                "fanart",
-                "icon",
-                "__date",
-                "__timestamp",
-                "type",
-                "dontGroup",
-                "isLive",
-                "isGeoLocked",
-                "isDrmProtected",
-                "isPaid",
-                "__infoLabels",
-                "complete",
-                "items",
-                "HttpHeaders",
-                "guid",
-                "guidValue"]
-
     #noinspection PyShadowingBuiltins
     def __init__(self, title, url, type="folder", tv_show_title=None,
-                 content_type=contenttype.EPISODES):
+                 content_type=contenttype.EPISODES, depickle=False):
         """ Creates a new MediaItem.
 
         The `url` can contain an url to a site more info about the item can be
@@ -86,6 +61,7 @@ class MediaItem:
         :param str content_type:        The Kodi content type of the child items: files, songs,
                                         artists, albums, movies, tvshows, episodes, musicvideos,
                                         videos, images, games. Defaults to 'episodes'
+        :param bool depickle:           Is the constructor called while depickling.
 
         """
 
@@ -97,9 +73,10 @@ class MediaItem:
         self.actionUrl = None
         self.MediaItemParts = []
         self.description = ""
-        self.thumb = ""                           # : The local or remote image for the thumbnail of episode
-        self.fanart = ""                          # : The fanart url
-        self.icon = ""                            # : low quality icon for list
+        self.thumb = ""                           # : The thumbnail (16:9, min 520x293)
+        self.fanart = ""                          # : The fanart url (16:9, min 720p)
+        self.icon = ""                            # : Low quality icon for list (1:1, min 256x256)
+        self.poster = ""                          # : Poster artwork (2:3, min 500x750)
 
         self.__date = ""                          # : value show in interface
         self.__timestamp = datetime.min           # : value for sorting, this one is set to minimum so if non is set, it's shown at the bottom
@@ -124,6 +101,11 @@ class MediaItem:
         # Kodi content types: files, songs, artists, albums, movies, tvshows, episodes,
         # musicvideos, videos, images, games. Defaults to 'episodes'
         self.content_type = content_type
+
+        if depickle:
+            # While deplickling we don't need to do the guid/guidValue calculations. They will
+            # be set from the __setstate__()
+            return
 
         # GUID used for identification of the object. Do not set from script, MD5 needed
         # to prevent UTF8 issues
@@ -244,6 +226,22 @@ class MediaItem:
         """
 
         self.__infoLabels[label] = value
+
+    def set_artwork(self, icon=None, thumb=None, fanart=None, poster=None):
+        """ Set the artwork for this MediaItem.
+
+        :param str icon:    Url/path to icon (1:1, minimal 256x256).
+        :param str thumb:   Url/path to thumbnail (16:9, minimal 520x293).
+        :param str fanart:  Url/Path to fanart (16:9, minimal 1280x720).
+        :param str poster:  Url/Path to poster (2:3, minimal 500x750)
+
+        """
+
+        # TODO: in the future change this to self.__artwork = {} that matches the Kodi ABI call.
+        self.icon = icon or self.icon
+        self.thumb = thumb or self.thumb
+        self.fanart = fanart or self.fanart
+        self.poster = poster or self.poster
 
     def set_season_info(self, season, episode):
         """ Set season and episode information
@@ -423,17 +421,12 @@ class MediaItem:
             item.setInfo(type="video", infoLabels=info_labels)
 
         # now set all the art to prevent duplicate calls to Kodi
+        art = {'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb}
         if self.fanart and not AddonSettings.hide_fanart():
-            item.setArt({'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb,
-                         'fanart': self.fanart})
-        else:
-            item.setArt({'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb, })
-
-        # Set Artwork
-        # art = dict()
-        # for l in ("thumb", "poster", "banner", "fanart", "clearart", "clearlogo", "landscape"):
-        #     art[l] = self.thumb
-        # item.setArt(art)
+            art['fanart'] = self.fanart
+        if self.poster:
+            art['poster'] = self.poster
+        item.setArt(art)
 
         # We never set the content resolving, Retrospect does this. And if we do, then the custom
         # headers are removed from the URL when opening the resolved URL.
@@ -761,21 +754,31 @@ class MediaItem:
 
     def __setstate__(self, state):
         """ Sets the current MediaItem's state based on the pickled value. However, it also adds
-        newly added class variables so old items won't brake.
+        newly added class variables so old items won't brake. This happens with depickling.
 
-        @param state: a default Pickle __dict__
+        @param dict state: a default Pickle __dict__
+
         """
 
-        # creating a new MediaItem here should not cause too much performance issues, as not very many
-        # will be depickled.
-
-        m = MediaItem("", "")
+        m = MediaItem(state["name"], state["url"], depickle=False)
         self.__dict__ = m.__dict__
         self.__dict__.update(state)
 
-    # We are not using the __getstate__ for now
-    # def __getstate__(self):
-    #     return self.__dict__
+        # Any modification/fixes for older version could be done here
+        return
+
+    # Because this happens at pickle-time, it could still lead to issues if the __init__() would
+    # change. The result for __reduce__() will be the same as with the __setstate_() solution.
+    # def __reduce__(self):
+    #     """ Define a __reduce__() method used to store the data to call __init__() when
+    #     depickling items. This happens when pickling.
+    #
+    #     :return: a tuple with type, parameters and state
+    #     :rtype: type, tuple, dict
+    #
+    #     """
+    #
+    #     return type(self), (self.name, self.url), self.__dict__
 
 
 # Don't make this an MediaItem(object) as it breaks the pickles

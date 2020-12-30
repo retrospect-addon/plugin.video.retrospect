@@ -7,7 +7,7 @@ Some Swedish channels had to be updated, as did NRK.no. During the fix, a small 
 * Added: Content type option to MediaItem and main listing.
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Some channels without settings did appear with settings in the context menu.
+* Added: Poster artwork for Channels and MediaItems.
 
 [B]Channel related[/B]
 * Added: Movies to Kijk.nl channel (Fixes #1462)

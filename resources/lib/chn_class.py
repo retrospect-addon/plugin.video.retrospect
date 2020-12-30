@@ -76,6 +76,7 @@ class Channel:
         # get the textures from the channelinfo and get their full uri's.
         self.icon = TextureHandler.instance().get_texture_uri(self, channel_info.icon)
         self.fanart = TextureHandler.instance().get_texture_uri(self, channel_info.fanart)
+        self.poster = TextureHandler.instance().get_texture_uri(self, channel_info.poster)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = ""
@@ -140,6 +141,7 @@ class Channel:
 
         # Make sure all images are from the correct absolute location
         self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
+        self.poster = TextureHandler.instance().get_texture_uri(self, self.poster)
         return
 
     @property
