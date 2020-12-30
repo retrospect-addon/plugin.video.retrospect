@@ -91,7 +91,7 @@ class YouTube(object):
             Logger.error("Invalid Youtube URL specified: '%s'", url)
             return []
 
-        data = UriHandler.open(url, proxy=proxy)
+        data = UriHandler.open(url)
         if isinstance(data, bytes):
             data = data.decode()
         # get the stream data from the page

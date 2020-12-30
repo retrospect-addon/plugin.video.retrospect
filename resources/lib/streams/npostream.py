@@ -27,7 +27,7 @@ class NpoStream(object):
         """
 
         sub_title_url = "http://tt888.omroep.nl/tt888/%s" % (stream_id,)
-        return SubtitleHelper.download_subtitle(sub_title_url, stream_id + ".srt", format='srt', proxy=proxy)
+        return SubtitleHelper.download_subtitle(sub_title_url, stream_id + ".srt", format='srt')
 
     @staticmethod
     def add_mpd_stream_from_npo(url, episode_id, part, proxy=None, headers=None, live=False):
@@ -42,7 +42,7 @@ class NpoStream(object):
         :rtype: str|None
         :return: An error message if an error occurred.
 
-        for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId, proxy=self.proxy):
+        for s, b, p in NpoStream.GetMpdStreamFromNpo(None, episodeId):
             item.complete = True
             stream = part.append_media_stream(s, b)
             for k, v in p.iteritems():
@@ -61,13 +61,12 @@ class NpoStream(object):
 
         token_headers = {"x-requested-with": "XMLHttpRequest"}
         token_headers.update(headers or {})
-        data = UriHandler.open("https://www.npostart.nl/api/token", proxy=proxy,
+        data = UriHandler.open("https://www.npostart.nl/api/token",
                                additional_headers=token_headers)
         token = JsonHelper(data).get_value("token")
 
         post_data = {"_token": token}
         data = UriHandler.open("https://www.npostart.nl/player/{0}".format(episode_id),
-                               proxy=proxy,
                                additional_headers=headers,
                                data=post_data)
         Logger.trace("Episode Data: %s", data)
@@ -83,7 +82,7 @@ class NpoStream(object):
                           "&mobile=0" \
                           "&isChromecast=0".format(episode_id, token)
 
-        data = UriHandler.open(stream_data_url, proxy=proxy, additional_headers=headers)
+        data = UriHandler.open(stream_data_url, additional_headers=headers)
         Logger.trace("Stream Data: %s", data)
         stream_data = JsonHelper(data)
         error = stream_data.get_value("html")
@@ -151,12 +150,12 @@ class NpoStream(object):
 
         # we need an hash code
         token_json_data = UriHandler.open("http://ida.omroep.nl/app.php/auth",
-                                          no_cache=True, proxy=proxy, additional_headers=headers)
+                                          no_cache=True, additional_headers=headers)
         token_json = JsonHelper(token_json_data)
         token = token_json.get_value("token")
 
         url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episode_id, token)
-        stream_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
+        stream_data = UriHandler.open(url, additional_headers=headers)
         if not stream_data:
             return []
 
@@ -174,14 +173,14 @@ class NpoStream(object):
                 Logger.debug("Found live stream")
                 url = stream_info["url"]
                 url = url.replace("jsonp", "json")
-                live_url_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
+                live_url_data = UriHandler.open(url, additional_headers=headers)
                 live_url = live_url_data.strip("\"").replace("\\", "")
                 Logger.trace(live_url)
                 streams += M3u8.get_streams_from_m3u8(live_url, proxy, headers=headers)
 
             elif stream_info["format"] == "hls":
                 m3u8_info_url = stream_info["url"]
-                m3u8_info_data = UriHandler.open(m3u8_info_url, proxy=proxy, additional_headers=headers)
+                m3u8_info_data = UriHandler.open(m3u8_info_url, additional_headers=headers)
                 m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.instance())
                 m3u8_url = m3u8_info_json.get_value("url")
                 streams += M3u8.get_streams_from_m3u8(m3u8_url, proxy, headers=headers)
@@ -193,7 +192,7 @@ class NpoStream(object):
                     mp4_url = url
                 else:
                     url = url.replace("jsonp", "json")
-                    mp4_url_data = UriHandler.open(url, proxy=proxy, additional_headers=headers)
+                    mp4_url_data = UriHandler.open(url, additional_headers=headers)
                     mp4_info_json = JsonHelper(mp4_url_data, logger=Logger.instance())
                     mp4_url = mp4_info_json.get_value("url")
                 bitrate = bitrates.get(stream_info["label"].lower(), 0)

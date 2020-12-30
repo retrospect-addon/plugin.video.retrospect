@@ -45,7 +45,7 @@ class Mms(object):
             return url
 
         Logger.debug("Parsing %s to find MMS", url)
-        data = UriHandler.open(url, proxy=proxy)
+        data = UriHandler.open(url)
         urls = Regexer.do_regex(r"[Rr]ef\d=http://([^\r\n]+)", data)
 
         if len(urls) > index:
@@ -95,7 +95,7 @@ class Mms(object):
             return url
 
         Logger.debug("Parsing %s to find MMS", url)
-        data = UriHandler.open(url, proxy=proxy)
+        data = UriHandler.open(url)
         urls = Regexer.do_regex(r'[Rr]ef href\W*=\W*"mms://([^"]+)"', data)
 
         if len(urls) > 0:

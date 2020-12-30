@@ -201,7 +201,7 @@ class Channel:
             no_cache = item is not None and not item.is_playable() and item.isLive
             if no_cache:
                 Logger.debug("Disabling cache for '%s'", item)
-            data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=no_cache)
+            data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
         # Searching a site using search_site()
         elif url == "searchSite" or url == "#searchSite":
             Logger.debug("Starting to search")

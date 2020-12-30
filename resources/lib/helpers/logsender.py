@@ -132,8 +132,7 @@ class LogSender(object):
         if self.__logger:
             self.__logger.debug("Posting %d chars to pastebin.com", len(code))
 
-        data = UriHandler.open("http://pastebin.com/api/api_post.php", params=post_params,
-                               proxy=self.__proxy)
+        data = UriHandler.open("http://pastebin.com/api/api_post.php", params=post_params)
 
         if "pastebin.com" not in data:
             raise IOError(data)
@@ -149,7 +148,7 @@ class LogSender(object):
         :param str code:    The content to post
         """
 
-        response = UriHandler.open("https://paste.kodi.tv/documents", params=code.encode(), proxy=self.__proxy)
+        response = UriHandler.open("https://paste.kodi.tv/documents", params=code.encode())
         json = JsonHelper(response)
         key = json.get_value("key")
         if not key:
