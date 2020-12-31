@@ -517,4 +517,11 @@ sorted chronologically):
 - Ingos Data o PPDesign
 - Jules Harms
 - Reinier 
+- Johan Pieter Zoetekouw
 - Michiel Modderman
+- Nick Corthals
+- Henrik Segesten
+- Olle Damgaard
+- Brecht Serckx
+- Sape Sikkema
+- Gialt Huininga
