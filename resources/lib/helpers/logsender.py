@@ -6,16 +6,14 @@ import io
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
-from resources.lib.proxyinfo import ProxyInfo
 
 
 class LogSender(object):
-    def __init__(self, api_key, logger=None, proxy=None, mode='hastebin'):
+    def __init__(self, api_key, logger=None, mode='hastebin'):
         """ Creates a LogSender object.
 
         :param str|unicode api_key:     The API key for pastebin or gist.
         :param any logger:              A possible Logger object.
-        :param ProxyInfo proxy:         A possible proxy to use.
         :param str|unicode mode:        Either 'gist', 'hastebin' or 'pastebin'.
 
         """
@@ -25,8 +23,7 @@ class LogSender(object):
 
         self.__apiKey = api_key
         self.__logger = logger
-        self.__proxy = proxy
-
+        
         self.__mode = mode
         self.__maxCharCount = None
         self.__maxSize = None

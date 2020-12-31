@@ -337,41 +337,6 @@ class AddonSettings(object):
 
     #region Geo and region stuff
     @staticmethod
-    def get_available_countries(as_string=False, as_country_codes=False):
-        """ returns the all available ProxyGroupId's in order. The countries are:
-
-             :param bool as_country_codes:  Returns all the actual country codes values.
-             :param bool as_string:         Returns the translation ID for all the possible country
-                                            codes as strings.
-
-             :return: List[str] A list of either country codes or translation ID's
-
-             * other - Other languages
-             * uk    - United Kingdom
-             * nl    - The Netherlands
-             * se    - Sweden
-             * no    - Norway
-             * de    - Germany
-             * be    - Belgium
-             * ee    - Estonia
-             * lt    - Lithuania
-             * lv    - Latvia
-             * dk    - Danish
-
-        """
-
-        proxy_ids = [30025, 30300, 30301, 30307, 30302, 30305, 30309, 30306, 30308, 30303, 30304, 30310]
-        proxy_codes = [None, "other", "nl", "uk", "se", "no", "de", "be", "ee", "lt", "lv", "dk"]
-
-        if as_string:
-            return [str(i) for i in proxy_ids]
-
-        if as_country_codes:
-            return proxy_codes
-
-        return proxy_ids
-
-    @staticmethod
     def hide_geo_locked_items_for_location(channel_region, value_only=False):
         """ Returns the config value that indicates what if we should hide items that are geographically
         locked to the region of the channel (indicated by the channel language).

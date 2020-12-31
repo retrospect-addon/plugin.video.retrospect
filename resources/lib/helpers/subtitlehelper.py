@@ -46,7 +46,7 @@ class SubtitleHelper(object):
 
     # noinspection PyShadowingBuiltins
     @staticmethod
-    def download_subtitle(url, file_name="", format='sami', proxy=None, replace=None):
+    def download_subtitle(url, file_name="", format='sami', replace=None):
         """Downloads a SAMI and stores the SRT in the cache folder
 
         Arguments:
@@ -55,7 +55,6 @@ class SubtitleHelper(object):
                                      if not specified, an MD5 hash of the URL with .xml
                                      extension will be used
         @param format:      string - Defines the source format. Defaults to Sami.
-        @param proxy:       Proxy  - If specified, a proxy will be used
         @param replace:     dict   - Dictionary with key to will be replaced with their values
 
         @return: The full patch of the cached SRT file.
