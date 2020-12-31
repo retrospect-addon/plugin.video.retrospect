@@ -1311,7 +1311,7 @@ class Channel(chn_class.Channel):
 
             part = item.create_new_empty_media_part()
             stream = part.append_media_stream(stream_url, 0)
-            Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=license_key, license_type="com.widevine.alpha")
+            Mpd.set_input_stream_addon_input(stream, license_key=license_key, license_type="com.widevine.alpha")
             item.complete = True
         else:
             Logger.debug("No Dash streams supported or no Dash streams available. Using M3u8 streams")
@@ -1336,7 +1336,7 @@ class Channel(chn_class.Channel):
                          "of a stream and to include a full .ts part.", byte_range)
             part.HttpHeaders["Range"] = 'bytes=0-%d' % (byte_range, )
 
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8_url):
                 item.complete = True
                 part.append_media_stream(s, b)
 

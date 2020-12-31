@@ -188,7 +188,7 @@ class Channel(chn_class.Channel):
                 continue
 
             hls_url = url_info["url"]
-            for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(hls_url):
                 part.append_media_stream(s, b)
 
         item.complete = True

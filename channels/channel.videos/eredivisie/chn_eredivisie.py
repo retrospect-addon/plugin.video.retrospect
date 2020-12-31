@@ -199,7 +199,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
         video_id = Regexer.do_regex(r'data-videoid="(\d+)" ', data)[-1]
         data = UriHandler.open("https://www.foxsports.nl/api/video/videodata/%s" % (video_id,),
-                               proxy=self.proxy, additional_headers=item.HttpHeaders, no_cache=True)
+                               additional_headers=item.HttpHeaders, no_cache=True)
         stream_id = Regexer.do_regex('<uri>([^>]+)</uri>', data)[-1]
 
         # POST https://d3api.foxsports.nl/api/V2/entitlement/tokenize

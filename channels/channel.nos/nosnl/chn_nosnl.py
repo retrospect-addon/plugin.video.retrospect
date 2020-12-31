@@ -228,9 +228,9 @@ class Channel(chn_class.Channel):
                 )
                 item.complete = True
             # elif AddonSettings.use_adaptive_stream_add_on():
-            #     content_type, url = UriHandler.header(url, self.proxy)
+            #     content_type, url = UriHandler.header(url)
             #     stream = part.append_media_stream(url, 0)
-            #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
+            #     M3u8.SetInputStreamAddonInput(stream)
             #     item.complete = True
             else:
                 M3u8.update_part_with_m3u8_streams(part, url, channel=self)

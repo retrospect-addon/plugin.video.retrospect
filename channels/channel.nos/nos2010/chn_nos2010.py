@@ -1385,7 +1385,7 @@ class Channel(chn_class.Channel):
         #     }
         #     UriHandler.open(
         #         "https://www.npostart.nl/api/progress/VPWON_1267211",
-        #         proxy=self.proxy, data=data, additional_headers={
+        #         data=data, additional_headers={
         #             "X-Requested-With": "XMLHttpRequest",
         #             "X-XSRF-TOKEN": xsrf_token,
         #             "content-type": "application/x-www-form-urlencoded; charset=UTF-8"

@@ -694,7 +694,7 @@ class Channel(chn_class.Channel):
         part = item.create_new_empty_media_part()
 
         # Adaptive add-on does not work with audio only
-        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
+        for s, b in M3u8.get_streams_from_m3u8(url, headers=headers):
             item.complete = True
             part.append_media_stream(s, b)
 
@@ -719,10 +719,10 @@ class Channel(chn_class.Channel):
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
             if use_adaptive:
                 stream = part.append_media_stream(url, 0)
-                M3u8.set_input_stream_addon_input(stream, self.proxy, headers=headers)
+                M3u8.set_input_stream_addon_input(stream, headers=headers)
                 item.complete = True
             else:
-                for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
+                for s, b in M3u8.get_streams_from_m3u8(url, headers=headers):
                     item.complete = True
                     part.append_media_stream(s, b)
 

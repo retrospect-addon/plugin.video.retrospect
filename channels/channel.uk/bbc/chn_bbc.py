@@ -85,8 +85,6 @@ class Channel(chn_class.Channel):
 
         # ===============================================================================================================
         # non standard items
-        # if self.proxy:
-        #     self.proxy.Filter = ["mediaselector"]
 
         self.searchUrl = "http://feeds.bbc.co.uk/iplayer/search/tv/?q=%s"
         self.programs = dict()
@@ -252,7 +250,7 @@ class Channel(chn_class.Channel):
         stream_data = UriHandler.open(stream_data_url)
         # Reroute for debugging
         # from debug.router import Router
-        # streamData = Router.get_via("uk", streamDataUrl, self.proxy)
+        # streamData = Router.get_via("uk", streamDataUrl)
 
         connection_datas = Regexer.do_regex(
             r'<media bitrate="(\d+)"[^>]+>\W*'
@@ -314,7 +312,7 @@ class Channel(chn_class.Channel):
                     item.complete = M3u8.update_part_with_m3u8_streams(part, url, bitrate=stream_bitrate)
                 elif transfer_format == "dash":
                     strm = part.append_media_stream(url, bitrate)
-                    Mpd.set_input_stream_addon_input(strm, self.proxy)
+                    Mpd.set_input_stream_addon_input(strm)
 
         # get the subtitle
         subtitles = Regexer.do_regex(
@@ -513,7 +511,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Found Live stream root: %s", stream_root)
 
         part = item.create_new_empty_media_part()
-        for s, b in F4m.get_streams_from_f4m(item.url, self.proxy):
+        for s, b in F4m.get_streams_from_f4m(item.url):
             item.complete = True
             s = s.replace(".f4m", ".m3u8")
             part.append_media_stream(s, b)

@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
         else:
             # the audio won't play with the InputStream Adaptive add-on.
             url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/radio/index.m3u8"
-            for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(url):
                 part.append_media_stream(s, b)
 
         item.complete = True

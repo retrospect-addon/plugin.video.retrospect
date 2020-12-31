@@ -661,7 +661,7 @@ class Channel(chn_class.Channel):
 
         """
         # first see if there are streams in this file, else check the second location.
-        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
+        for s, b in M3u8.get_streams_from_m3u8(url, headers=headers):
             if use_kodi_hls:
                 strm = part.append_media_stream(url, 0)
                 M3u8.set_input_stream_addon_input(strm, headers=headers)
@@ -673,7 +673,7 @@ class Channel(chn_class.Channel):
         if not part.MediaStreams and "manifest.m3u8" in url:
             Logger.warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
             url = url.replace("manifest.m3u8", "master.m3u8")
-            for s, b in M3u8.get_streams_from_m3u8(url, self.proxy, headers=headers):
+            for s, b in M3u8.get_streams_from_m3u8(url, headers=headers):
                 if use_kodi_hls:
                     strm = part.append_media_stream(url, 0)
                     M3u8.set_input_stream_addon_input(strm, headers=headers)
@@ -692,8 +692,7 @@ class Channel(chn_class.Channel):
             sub_data = UriHandler.open(sub_url)
             subs = [line for line in sub_data.split("\n") if line.startswith("http")]
             if subs:
-                part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt',
-                                                                 proxy=self.proxy)
+                part.Subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt')
         return
 
     def __update_rtmp(self, url, part, quality):
@@ -817,7 +816,7 @@ class Channel(chn_class.Channel):
         stream_url = embedded_data["prioritizedStreams"][0]["links"]["stream"]["href"]
         part = item.create_new_empty_media_part()
         stream = part.append_media_stream(stream_url, 0)
-        M3u8.set_input_stream_addon_input(stream, self.proxy)
+        M3u8.set_input_stream_addon_input(stream)
         item.complete = True
 
         # Some language codes need translation:

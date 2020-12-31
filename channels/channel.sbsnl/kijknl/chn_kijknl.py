@@ -241,7 +241,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Trying standard M3u8 streams.")
         if m3u8_url != "https://embed.kijk.nl/api/playlist/.m3u8" \
                 and "hostingervice=brightcove" not in m3u8_url:
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy, append_query_string=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
                 if "_enc_" in s:
                     continue
 
@@ -280,7 +280,7 @@ class Channel(chn_class.Channel):
                 item.complete = True
                 return item
 
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy, append_query_string=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
                 item.complete = True
                 part.append_media_stream(s, b)
 
@@ -395,9 +395,7 @@ class Channel(chn_class.Channel):
 
         if subtitles:
             Logger.debug("Found subtitle: %s", subtitles[0])
-            subtitle = SubtitleHelper.download_subtitle(subtitles[0],
-                                                        proxy=self.proxy,
-                                                        format="webvtt")
+            subtitle = SubtitleHelper.download_subtitle(subtitles[0], format="webvtt")
             part.Subtitle = subtitle
 
         if use_adaptive_with_encryption:
@@ -409,7 +407,7 @@ class Channel(chn_class.Channel):
             license_key = Mpd.get_license_key(license_url, key_headers=key_headers)
 
             stream = part.append_media_stream(mpd_manifest_url, 0)
-            Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=license_key)
+            Mpd.set_input_stream_addon_input(stream, license_key=license_key)
             item.complete = True
         else:
             XbmcWrapper.show_dialog(
@@ -467,7 +465,7 @@ class Channel(chn_class.Channel):
             item.complete = True
             return item
 
-        for s, b in M3u8.get_streams_from_m3u8(stream_url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(stream_url):
             item.complete = True
             part.append_media_stream(s, b)
         return item
@@ -793,8 +791,7 @@ class Channel(chn_class.Channel):
             if stream_type == "dash" and not drm:
                 bitrate = 0 if hls_over_dash else 2
                 stream = part.append_media_stream(url, bitrate)
-                item.complete = Mpd.set_input_stream_addon_input(
-                    stream, self.proxy)
+                item.complete = Mpd.set_input_stream_addon_input(stream)
 
             elif stream_type == "dash" and drm and "widevine" in drm:
                 bitrate = 0 if hls_over_dash else 1
@@ -823,7 +820,7 @@ class Channel(chn_class.Channel):
             elif stream_type == "m3u8" and not drm:
                 bitrate = 2 if hls_over_dash else 0
                 item.complete = M3u8.update_part_with_m3u8_streams(
-                    part, url, proxy=self.proxy, channel=self, bitrate=bitrate)
+                    part, url, channel=self, bitrate=bitrate)
 
             else:
                 Logger.debug("Found incompatible stream: %s", src)

@@ -245,7 +245,7 @@ class Channel(chn_class.Channel):
         """
 
         part = item.create_new_empty_media_part()
-        for s, b in YouTube.get_streams_from_you_tube(item.url, self.proxy):
+        for s, b in YouTube.get_streams_from_you_tube(item.url):
             item.complete = True
             part.append_media_stream(s, b)
 

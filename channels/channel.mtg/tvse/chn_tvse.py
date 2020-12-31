@@ -209,8 +209,7 @@ class Channel(chn_class.Channel):
             M3u8.set_input_stream_addon_input(stream, headers=headers)
             item.complete = True
         else:
-            for s, b, a in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy,
-                                                      headers=headers, map_audio=True):
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8_url, headers=headers, map_audio=True):
 
                 if a and "-audio" not in s:
                     video_part = s.rsplit("-", 1)[-1]

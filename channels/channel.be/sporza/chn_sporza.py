@@ -286,7 +286,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug("Found stream url for %s: %s", item, url)
         part = item.create_new_empty_media_part()
-        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(url):
             item.complete = True
             part.append_media_stream(s, b)
         return item
@@ -362,7 +362,7 @@ class Channel(chn_class.Channel):
                     if not flv.endswith("playlist.m3u8"):
                         flv = "%s/playlist.m3u8" % (flv,)
 
-                    for s, b in M3u8.get_streams_from_m3u8(flv, self.proxy):
+                    for s, b in M3u8.get_streams_from_m3u8(flv):
                         item.complete = True
                         part.append_media_stream(s, b)
                     # no need to continue adding the streams

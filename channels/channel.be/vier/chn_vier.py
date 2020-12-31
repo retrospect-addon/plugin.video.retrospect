@@ -119,7 +119,7 @@ class Channel(chn_class.Channel):
         # refresh token: viervijfzes_refresh_token
         refresh_token = AddonSettings.get_setting("viervijfzes_refresh_token")
         client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
-                        proxy=self.proxy, logger=Logger.instance())
+                        logger=Logger.instance())
         if refresh_token:
             id_token = client.renew_token(refresh_token)
             if id_token:

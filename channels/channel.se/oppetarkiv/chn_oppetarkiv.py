@@ -301,7 +301,7 @@ class Channel(chn_class.Channel):
 
                 elif "dash" in video_type:
                     stream = part.append_media_stream(video_url, supported_formats[video_type])
-                    Mpd.set_input_stream_addon_input(stream, self.proxy)
+                    Mpd.set_input_stream_addon_input(stream)
 
                 else:
                     continue
@@ -310,7 +310,7 @@ class Channel(chn_class.Channel):
                 # if "manifest.f4m" in stream_info:
                 #     continue
                 # elif "master.m3u8" in stream_info:
-                #     for s, b in M3u8.get_streams_from_m3u8(stream_info, self.proxy, headers=part.HttpHeaders):
+                #     for s, b in M3u8.get_streams_from_m3u8(stream_info, headers=part.HttpHeaders):
                 #         item.complete = True
                 #         part.append_media_stream(s, b)
 

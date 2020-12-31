@@ -1179,7 +1179,7 @@ class Channel(chn_class.Channel):
 
             if "dash" in video_format and use_input_stream:
                 stream = part.append_media_stream(video['url'], supported_formats[video_format])
-                Mpd.set_input_stream_addon_input(stream, self.proxy)
+                Mpd.set_input_stream_addon_input(stream)
 
             elif "m3u8" in url:
                 alt_index = url.find("m3u8?")
@@ -1194,7 +1194,6 @@ class Channel(chn_class.Channel):
                     part,
                     url,
                     encrypted=False,
-                    proxy=self.proxy,
                     headers=part.HttpHeaders,
                     channel=self,
                     bitrate=supported_formats[video_format]
@@ -1221,10 +1220,8 @@ class Channel(chn_class.Channel):
                     # look for more
                     continue
 
-                part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(sub_url,
-                                                                                format="srt",
-                                                                                proxy=self.proxy,
-                                                                                replace={"&amp;": "&"})
+                part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
+                    sub_url, format="srt", replace={"&amp;": "&"})
                 # stop when finding one
                 break
 

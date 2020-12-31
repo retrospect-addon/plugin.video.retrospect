@@ -693,12 +693,12 @@ class Channel(chn_class.Channel):
         if AddonSettings.use_adaptive_stream_add_on() and False:
             subtitle = M3u8.get_subtitle(stream_url)
             stream = part.append_media_stream(stream_url, 0)
-            M3u8.set_input_stream_addon_input(stream, self.proxy)
+            M3u8.set_input_stream_addon_input(stream)
             item.complete = True
         else:
             m3u8_data = UriHandler.open(stream_url, additional_headers=self.localIP)
             subtitle = M3u8.get_subtitle(stream_url, play_list_data=m3u8_data)
-            for s, b, a in M3u8.get_streams_from_m3u8(stream_url, self.proxy,
+            for s, b, a in M3u8.get_streams_from_m3u8(stream_url,
                                                       play_list_data=m3u8_data, map_audio=True):
                 item.complete = True
                 if not item.isLive and "-video" not in s:
@@ -714,9 +714,7 @@ class Channel(chn_class.Channel):
 
         if subtitle:
             subtitle = subtitle.replace(".m3u8", ".webvtt")
-            part.Subtitle = SubtitleHelper.download_subtitle(subtitle,
-                                                             format="m3u8srt",
-                                                             proxy=self.proxy)
+            part.Subtitle = SubtitleHelper.download_subtitle(subtitle, format="m3u8srt")
         return item
 
     def update_live_item(self, item):
@@ -748,11 +746,11 @@ class Channel(chn_class.Channel):
 
         spoof_ip = self._get_setting("spoof_ip", "0.0.0.0")
         if spoof_ip:
-            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy,
+            for s, b in M3u8.get_streams_from_m3u8(item.url,
                                                    headers={"X-Forwarded-For": spoof_ip}):
                 part.append_media_stream(s, b)
         else:
-            for s, b in M3u8.get_streams_from_m3u8(item.url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(item.url):
                 part.append_media_stream(s, b)
 
         item.complete = True

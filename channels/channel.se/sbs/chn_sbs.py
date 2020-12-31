@@ -656,7 +656,7 @@ class Channel(chn_class.Channel):
 
         UriHandler.open(
             "https://disco-api.dplay.se/token?realm=dplayse&deviceId={}&shortlived=true".format(device_id),
-            proxy=self.proxy, no_cache=True
+            no_cache=True
         )
 
         if username is None or password is None:
@@ -730,15 +730,15 @@ class Channel(chn_class.Channel):
 
         m3u8url = video_info["streaming"]["hls"]["url"]
 
-        m3u8data = UriHandler.open(m3u8url, self.proxy)
+        m3u8data = UriHandler.open(m3u8url)
         if AddonSettings.use_adaptive_stream_add_on():
             stream = part.append_media_stream(m3u8url, 0)
             item.complete = True
-            M3u8.set_input_stream_addon_input(stream, self.proxy)
+            M3u8.set_input_stream_addon_input(stream)
         else:
             # user agent for all sub m3u8 and ts requests needs to be the same
             part.HttpHeaders["user-agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
-            for s, b, a in M3u8.get_streams_from_m3u8(m3u8url, self.proxy, append_query_string=False,
+            for s, b, a in M3u8.get_streams_from_m3u8(m3u8url, append_query_string=False,
                                                       map_audio=True, play_list_data=m3u8data):
                 item.complete = True
                 if a:
@@ -748,11 +748,11 @@ class Channel(chn_class.Channel):
                 part.append_media_stream(s, b)
 
         if self.language == "se":
-            vtt_url = M3u8.get_subtitle(m3u8url, self.proxy, m3u8data, language="sv")
+            vtt_url = M3u8.get_subtitle(m3u8url, m3u8data, language="sv")
         elif self.language == "dk":
-            vtt_url = M3u8.get_subtitle(m3u8url, self.proxy, m3u8data, language="da")
+            vtt_url = M3u8.get_subtitle(m3u8url, m3u8data, language="da")
         else:
-            vtt_url = M3u8.get_subtitle(m3u8url, self.proxy, m3u8data)
+            vtt_url = M3u8.get_subtitle(m3u8url, m3u8data)
 
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
         vtt_url = vtt_url.replace("-prog_index.m3u8", "-0.vtt")
@@ -880,7 +880,7 @@ class Channel(chn_class.Channel):
             qs = url.split("?")[-1]
         else:
             qs = None
-        for s, b in M3u8.get_streams_from_m3u8(url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(url):
             # and we need to append the original QueryString
             if "X-I-FRAME-STREAM" in s:
                 continue

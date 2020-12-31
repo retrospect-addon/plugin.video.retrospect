@@ -276,7 +276,7 @@ class Channel(chn_class.Channel):
         if hls_url is not None and "m3u8" in hls_url:
             Logger.debug("Found HLS url for %s: %s", media_info.json["streamName"], hls_url)
 
-            for s, b in M3u8.get_streams_from_m3u8(hls_url, self.proxy):
+            for s, b in M3u8.get_streams_from_m3u8(hls_url):
                 part.append_media_stream(s, b)
                 item.complete = True
         else:

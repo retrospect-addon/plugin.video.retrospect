@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
             stream = item.url
 
         part = item.create_new_empty_media_part()
-        for s, b in M3u8.get_streams_from_m3u8(stream, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(stream):
             item.complete = True
             part.append_media_stream(s, b)
 
