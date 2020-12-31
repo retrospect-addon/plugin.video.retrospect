@@ -7,7 +7,6 @@ from resources.lib.streams.mpd import Mpd
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
-from resources.lib.proxyinfo import ProxyInfo
 
 
 class NpoStream(object):
@@ -15,11 +14,10 @@ class NpoStream(object):
         pass
 
     @staticmethod
-    def get_subtitle(stream_id, proxy=None):
+    def get_subtitle(stream_id):
         """ Downloads a subtitle for a POMS id.
 
         :param str stream_id:   The POMS id.
-        :param ProxyInfo proxy: The proxy to use
 
         :return: The full patch of the cached SRT file.
         :rtype: str
@@ -30,13 +28,12 @@ class NpoStream(object):
         return SubtitleHelper.download_subtitle(sub_title_url, stream_id + ".srt", format='srt')
 
     @staticmethod
-    def add_mpd_stream_from_npo(url, episode_id, part, proxy=None, headers=None, live=False):
+    def add_mpd_stream_from_npo(url, episode_id, part, headers=None, live=False):
         """ Extracts the Dash streams for the given url or episode id
 
         :param str|None url:        The url to download
         :param str episode_id:      The NPO episode ID
         :param dict headers:        Possible HTTP Headers
-        :param ProxyInfo proxy:     The proxy to use for opening
         :param bool live:           Is this a live stream?
 
         :rtype: str|None
@@ -112,8 +109,8 @@ class NpoStream(object):
 
         # Actually set the stream
         stream = part.append_media_stream(stream_url, 0)
-        # M3u8.set_input_stream_addon_input(stream, proxy, headers)
-        Mpd.set_input_stream_addon_input(stream, proxy, headers,
+        Mpd.set_input_stream_addon_input(stream,
+                                         headers,
                                          license_key=license_key,
                                          license_type=license_type,
                                          manifest_update=None if not live else "full")
@@ -121,18 +118,17 @@ class NpoStream(object):
         return None
 
     @staticmethod
-    def get_streams_from_npo(url, episode_id, proxy=None, headers=None):
+    def get_streams_from_npo(url, episode_id, headers=None):
         """ Retrieve NPO Player Live streams from a different number of stream urls.
 
         @param url:               (String) The url to download
         @param episode_id:         (String) The NPO episode ID
         @param headers:           (dict) Possible HTTP Headers
-        @param proxy:             (Proxy) The proxy to use for opening
 
         Can be used like this:
 
             part = item.create_new_empty_media_part()
-            for s, b in NpoStream.get_streams_from_npo(m3u8Url, self.proxy):
+            for s, b in NpoStream.get_streams_from_npo(m3u8Url):
                 item.complete = True
                 # s = self.get_verifiable_video_url(s)
                 part.append_media_stream(s, b)
@@ -176,14 +172,14 @@ class NpoStream(object):
                 live_url_data = UriHandler.open(url, additional_headers=headers)
                 live_url = live_url_data.strip("\"").replace("\\", "")
                 Logger.trace(live_url)
-                streams += M3u8.get_streams_from_m3u8(live_url, proxy, headers=headers)
+                streams += M3u8.get_streams_from_m3u8(live_url, headers=headers)
 
             elif stream_info["format"] == "hls":
                 m3u8_info_url = stream_info["url"]
                 m3u8_info_data = UriHandler.open(m3u8_info_url, additional_headers=headers)
                 m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.instance())
                 m3u8_url = m3u8_info_json.get_value("url")
-                streams += M3u8.get_streams_from_m3u8(m3u8_url, proxy, headers=headers)
+                streams += M3u8.get_streams_from_m3u8(m3u8_url, headers=headers)
 
             elif stream_info["format"] == "mp4":
                 bitrates = {"hoog": 1000, "normaal": 500}
