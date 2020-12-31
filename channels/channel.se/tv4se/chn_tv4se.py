@@ -679,7 +679,7 @@ class Channel(chn_class.Channel):
                 """
 
         # retrieve the mediaurl
-        data = UriHandler.open(item.url, additional_headers=self.localIP)
+        data = UriHandler.open(item.url)
         stream_info = JsonHelper(data)
         stream_url = stream_info.get_value("playbackItem", "manifestUrl")
         if stream_url is None:
@@ -696,7 +696,7 @@ class Channel(chn_class.Channel):
             M3u8.set_input_stream_addon_input(stream)
             item.complete = True
         else:
-            m3u8_data = UriHandler.open(stream_url, additional_headers=self.localIP)
+            m3u8_data = UriHandler.open(stream_url)
             subtitle = M3u8.get_subtitle(stream_url, play_list_data=m3u8_data)
             for s, b, a in M3u8.get_streams_from_m3u8(stream_url,
                                                       play_list_data=m3u8_data, map_audio=True):

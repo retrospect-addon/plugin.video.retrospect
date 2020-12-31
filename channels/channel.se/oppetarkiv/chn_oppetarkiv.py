@@ -275,8 +275,6 @@ class Channel(chn_class.Channel):
         video_data = json.get_value("video")
         if video_data:
             part = item.create_new_empty_media_part()
-            if self.localIP:
-                part.HttpHeaders.update(self.localIP)
 
             # Get the videos
             video_infos = video_data.get("videoReferences")

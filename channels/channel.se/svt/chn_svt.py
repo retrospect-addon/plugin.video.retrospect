@@ -1154,9 +1154,6 @@ class Channel(chn_class.Channel):
 
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
-        if self.localIP:
-            part.HttpHeaders.update(self.localIP)
-
         use_input_stream = AddonSettings.use_adaptive_stream_add_on(channel=self)
 
         for video in videos:

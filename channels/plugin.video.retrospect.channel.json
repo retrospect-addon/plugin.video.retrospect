@@ -121,12 +121,6 @@
             "title": "Channel poster image.",
             "default": ""
           },
-          "localIPSupported": {
-            "$id": "/properties/channels/items/properties/localIPSupported",
-            "type": "boolean",
-            "title": "Whether or not X-Forwarded-For can be used.",
-            "default": false
-          },
           "ignore": {
             "$id": "/properties/channels/items/properties/ignore",
             "type": "boolean",

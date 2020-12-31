@@ -1153,9 +1153,6 @@ class Channel(chn_class.Channel):
         )
 
         auth = {"Authorization": "apikey=%s&access_token=%s" % (self.__apiKey, token)}
-        if self.localIP:
-            auth.update(self.localIP)
-
         data = UriHandler.open(url, no_cache=True, additional_headers=auth)
         json_data = JsonHelper(data)
         hls = json_data.get_value("response", "url", "hls-aes-linear")

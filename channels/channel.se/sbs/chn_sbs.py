@@ -715,7 +715,7 @@ class Channel(chn_class.Channel):
                 XbmcWrapper.show_dialog(LanguageHelper.LoginErrorTitle, LanguageHelper.LoginErrorText)
                 return item
 
-        video_data = UriHandler.open(item.url, additional_headers=self.localIP)
+        video_data = UriHandler.open(item.url)
         if not video_data:
             return item
 
