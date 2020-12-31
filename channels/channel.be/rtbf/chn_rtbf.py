@@ -235,7 +235,7 @@ class Channel(chn_class.Channel):
         return item
 
     def update_video_item(self, item):
-        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
+        data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
         media_regex = 'data-media="([^"]+)"'
         media_info = Regexer.do_regex(media_regex, data)[0]
         media_info = HtmlEntityHelper.convert_html_entities(media_info)
@@ -264,7 +264,7 @@ class Channel(chn_class.Channel):
         return item
 
     def update_live_item(self, item):
-        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
+        data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
         media_regex = 'data-media="([^"]+)"'
         media_info = Regexer.do_regex(media_regex, data)[0]
         media_info = HtmlEntityHelper.convert_html_entities(media_info)
@@ -285,7 +285,7 @@ class Channel(chn_class.Channel):
             token_url = "%s/api/media/streaming?streamname=%s" \
                         % (self.baseUrl, media_info.json["streamName"])
 
-            token_data = UriHandler.open(token_url, proxy=self.proxy,
+            token_data = UriHandler.open(token_url,
                                          additional_headers=item.HttpHeaders, no_cache=True)
 
             token_data = JsonHelper(token_data)

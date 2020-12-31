@@ -339,11 +339,11 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         url = item.url
-        data = UriHandler.open(url, proxy=self.proxy)
+        data = UriHandler.open(url)
 
         renditions_url = Regexer.do_regex(r'<media:content[^>]+url=\W([^\'"]+)\W', data)[0]
         renditions_url = HtmlEntityHelper.strip_amp(renditions_url)
-        rendition_data = UriHandler.open(renditions_url, proxy=self.proxy)
+        rendition_data = UriHandler.open(renditions_url)
         video_items = Regexer.do_regex(r'<rendition[^>]+bitrate="(\d+)"[^>]*>\W+<src>([^<]+)<',
                                        rendition_data)
 

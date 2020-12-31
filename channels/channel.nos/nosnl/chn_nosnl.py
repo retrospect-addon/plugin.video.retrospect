@@ -203,7 +203,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item: %s', item.name)
 
-        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.httpHeaders)
+        data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
         json_data = JsonHelper(data)
         streams = json_data.get_value("formats")
         if not streams:
@@ -233,5 +233,5 @@ class Channel(chn_class.Channel):
             #     M3u8.SetInputStreamAddonInput(stream, self.proxy)
             #     item.complete = True
             else:
-                M3u8.update_part_with_m3u8_streams(part, url, proxy=self.proxy, channel=self)
+                M3u8.update_part_with_m3u8_streams(part, url, channel=self)
         return item

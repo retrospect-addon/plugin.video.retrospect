@@ -604,7 +604,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.open(item.url, proxy=self.proxy, no_cache=True, additional_headers=headers)
+        data = UriHandler.open(item.url, no_cache=True, additional_headers=headers)
         manifest = JsonHelper(data)
         if "nonPlayable" in manifest.json and manifest.json["nonPlayable"]:
             Logger.error("Cannot update Live: %s", item)
@@ -642,7 +642,7 @@ class Channel(chn_class.Channel):
         if self.localIP:
             headers.update(self.localIP)
 
-        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers)
+        data = UriHandler.open(item.url, additional_headers=headers)
         video_data = JsonHelper(data)
         stream_data = video_data.get_value("playable")
         if not stream_data:
@@ -713,7 +713,7 @@ class Channel(chn_class.Channel):
                 return item
             stream = part.append_media_stream(url, 0)
             key = M3u8.get_license_key("", key_headers=headers, key_type="R")
-            M3u8.set_input_stream_addon_input(stream, proxy=self.proxy, headers=headers, license_key=key)
+            M3u8.set_input_stream_addon_input(stream, headers=headers, license_key=key)
             item.complete = True
         else:
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)

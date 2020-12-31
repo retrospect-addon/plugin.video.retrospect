@@ -729,7 +729,7 @@ class Channel:
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=item.HttpHeaders)
+        data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
 
         url = Regexer.do_regex(self.mediaUrlRegex, data)[-1]
         part = MediaItemPart(item.name, url)

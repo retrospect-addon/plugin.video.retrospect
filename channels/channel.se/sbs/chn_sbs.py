@@ -205,7 +205,7 @@ class Channel(chn_class.Channel):
             # =aa9ef0ed760df76d184b262d739299a75ccae7b67eec923fe3fcd861f97bcc7f&shortlived=true
             url = "https://{0}/token?realm=dplay{1}&deviceId={2}&shortlived=true"\
                 .format(self.baseUrlApi, self.language, guid)
-            JsonHelper(UriHandler.open(url, proxy=self.proxy))
+            JsonHelper(UriHandler.open(url))
             # noinspection PyTypeChecker
             AddonSettings.set_channel_setting(self, "api_cookie_set", time.time(), store=LOCAL)
 
@@ -249,7 +249,7 @@ class Channel(chn_class.Channel):
                      "&page%5Bsize%5D=100&page%5Bnumber%5D={{0}}".format(self.baseUrlApi)
         # "include=images%2CprimaryChannel" \
         url = url_format.format(p)
-        data = UriHandler.open(url, proxy=self.proxy)
+        data = UriHandler.open(url)
         json = JsonHelper(data)
         pages = json.get_value("meta", "totalPages")
         programs = json.get_value("data") or []
@@ -261,7 +261,7 @@ class Channel(chn_class.Channel):
             url = url_format.format(p)
             Logger.debug("Loading: %s", url)
 
-            data = UriHandler.open(url, proxy=self.proxy)
+            data = UriHandler.open(url)
             json = JsonHelper(data)
             programs += json.get_value("data") or []
 
@@ -645,8 +645,7 @@ class Channel(chn_class.Channel):
 
         arkose_data = UriHandler.open(
             "https://client-api.arkoselabs.com/fc/gt2/public_key/FE296399-FDEA-2EA2-8CD5-50F6E3157ECA",
-            proxy=self.proxy, data=req_data,
-            additional_headers={"user-agent": user_agent}, no_cache=True
+            data=req_data, additional_headers={"user-agent": user_agent}, no_cache=True
         )
         arkose_json = JsonHelper(arkose_data)
         arkose_token = arkose_json.get_value("token")
@@ -679,7 +678,7 @@ class Channel(chn_class.Channel):
                 "Referer": "https://auth.dplay.se/login",
                 "User-Agent": user_agent
             }
-        result = UriHandler.open("https://disco-api.dplay.se/login", proxy=self.proxy,
+        result = UriHandler.open("https://disco-api.dplay.se/login",
                                  json=creds, additional_headers=headers)
         if UriHandler.instance().status.code > 200:
             Logger.error("Failed to log in: %s", result)
@@ -716,7 +715,7 @@ class Channel(chn_class.Channel):
                 XbmcWrapper.show_dialog(LanguageHelper.LoginErrorTitle, LanguageHelper.LoginErrorText)
                 return item
 
-        video_data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=self.localIP)
+        video_data = UriHandler.open(item.url, additional_headers=self.localIP)
         if not video_data:
             return item
 
@@ -757,7 +756,7 @@ class Channel(chn_class.Channel):
 
         # https://dplaynordics-vod-80.akamaized.net/dplaydni/259/0/hls/243241001/1112635959-prog_index.m3u8?version_hash=bb753129&hdnts=st=1518218118~exp=1518304518~acl=/*~hmac=bdeefe0ec880f8614e14af4d4a5ca4d3260bf2eaa8559e1eb8ba788645f2087a
         vtt_url = vtt_url.replace("-prog_index.m3u8", "-0.vtt")
-        part.Subtitle = SubtitleHelper.download_subtitle(vtt_url, format='srt', proxy=self.proxy)
+        part.Subtitle = SubtitleHelper.download_subtitle(vtt_url, format='srt')
 
         # if the user has premium, don't show any warnings
         if self.__has_premium:
@@ -814,7 +813,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        me = UriHandler.open("https://disco-api.dplay.se/users/me", proxy=self.proxy, no_cache=True)
+        me = UriHandler.open("https://disco-api.dplay.se/users/me", no_cache=True)
         if UriHandler.instance().status.code >= 300:
             return False
 
@@ -822,7 +821,7 @@ class Channel(chn_class.Channel):
         signed_in_user = account_data.get_value("data", "attributes", "username")
         if signed_in_user is not None and signed_in_user != username:
             # Log out
-            UriHandler.open("https://disco-api.dplay.se/logout", data="", proxy=self.proxy, no_cache=True)
+            UriHandler.open("https://disco-api.dplay.se/logout", data="", no_cache=True)
             return False
 
         logged_in = not account_data.get_value("data", "attributes", "anonymous")
@@ -869,7 +868,7 @@ class Channel(chn_class.Channel):
         subdomain, domain = host.split(".", 1)
         url = "https://secure.%s/secure/api/v2/user/authorization/stream/%s?stream_type=hls" \
               % (domain, video_id,)
-        data = UriHandler.open(url, proxy=self.proxy, additional_headers=headers, no_cache=True)
+        data = UriHandler.open(url, additional_headers=headers, no_cache=True)
         json = JsonHelper(data)
         url = json.get_value("hls")
 

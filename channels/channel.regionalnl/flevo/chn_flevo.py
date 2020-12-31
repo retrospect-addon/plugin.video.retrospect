@@ -163,7 +163,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         stream = Regexer.do_regex(r'data-file="([^"]+)+', data)[0]
 
         part = item.create_new_empty_media_part()

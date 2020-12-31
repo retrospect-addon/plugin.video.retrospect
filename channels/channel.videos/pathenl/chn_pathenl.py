@@ -412,7 +412,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         videos = Regexer.do_regex(self.mediaUrlRegex, data)
 
         fanart = Regexer.do_regex(r'<div class="visual-image">\W+<img src="([^"]+)"', data)

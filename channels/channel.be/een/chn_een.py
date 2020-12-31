@@ -170,14 +170,14 @@ class Channel(chn_class.Channel):
         # http://www.een.be/sites/een.be/modules/custom/vrt_video/player/player_4.3.swf
 
         # now the mediaurl is derived. First we try WMV
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
 
         part = item.create_new_empty_media_part()
         if "mediazone.vrt.be" not in item.url:
             # Extract actual media data
             video_id = Regexer.do_regex('data-video=[\'"]([^"\']+)[\'"]', data)[0]
             url = "https://mediazone.vrt.be/api/v1/een/assets/%s" % (video_id, )
-            data = UriHandler.open(url, proxy=self.proxy)
+            data = UriHandler.open(url)
 
         json = JsonHelper(data)
         urls = json.get_value("targetUrls")

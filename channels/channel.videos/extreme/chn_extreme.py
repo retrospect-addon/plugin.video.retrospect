@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
         
         # get additional info
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
 
         #<param name="flashvars" value="id=dj0xMDEzNzQyJmM9MTAwMDAwNA&amp;tags=source%253Dfreecaster&amp;autoplay=1" />
         # http://freecaster.tv/player/smil/dj0xMDEzNzQyJmM9MTAwMDAwNA -> playlist with bitrate

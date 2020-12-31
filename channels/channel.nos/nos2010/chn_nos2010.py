@@ -243,7 +243,7 @@ class Channel(chn_class.Channel):
 
         data = "username=%s&password=%s" % (HtmlEntityHelper.url_encode(username),
                                             HtmlEntityHelper.url_encode(password))
-        UriHandler.open("https://www.npostart.nl/api/login", proxy=self.proxy, no_cache=True,
+        UriHandler.open("https://www.npostart.nl/api/login", no_cache=True,
                         additional_headers={
                             "X-Requested-With": "XMLHttpRequest",
                             "X-XSRF-TOKEN": xsrf_token
@@ -295,7 +295,7 @@ class Channel(chn_class.Channel):
             else:
                 next_page = "%s&%s" % (next_page, query_string)
 
-            page_data = UriHandler.open(next_page, proxy=self.proxy, additional_headers=http_headers)
+            page_data = UriHandler.open(next_page, additional_headers=http_headers)
             json_data = JsonHelper(page_data)
             tiles = json_data.get_value("tiles")
             if not isinstance(tiles, (tuple, list)):
@@ -592,7 +592,7 @@ class Channel(chn_class.Channel):
 
         xsrf_token = self.__get_xsrf_token()[0]
         UriHandler.open("https://www.npostart.nl/api/account/@me/profile/switch",
-                        proxy=self.proxy, data=profile_data,
+                        data=profile_data,
                         additional_headers={
                             "X-Requested-With": "XMLHttpRequest",
                             "X-XSRF-TOKEN": xsrf_token,
@@ -1278,7 +1278,7 @@ class Channel(chn_class.Channel):
 
         # we need to determine radio or live tv
         Logger.debug("Fetching live stream data from item url: %s", item.url)
-        html_data = UriHandler.open(item.url, proxy=self.proxy)
+        html_data = UriHandler.open(item.url)
 
         mp3_urls = Regexer.do_regex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", html_data)
         if len(mp3_urls) > 0:
@@ -1347,16 +1347,16 @@ class Channel(chn_class.Channel):
         if fetch_subtitles:
             sub_title_url = "https://assetscdn.npostart.nl/subtitles/original/nl/%s.vtt" % (episode_id,)
             sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
-                sub_title_url, episode_id + ".nl.srt", format='srt', proxy=self.proxy)
+                sub_title_url, episode_id + ".nl.srt", format='srt')
             if sub_title_path:
                 part.Subtitle = sub_title_path
 
         if AddonSettings.use_adaptive_stream_add_on(
                 with_encryption=True, ignore_add_on_config=True):
-            error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
+            error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, live=item.isLive)
             if bool(error) and self.__has_premium():
                 self.__log_on(force_log_off=True)
-                error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, proxy=self.proxy, live=item.isLive)
+                error = NpoStream.add_mpd_stream_from_npo(None, episode_id, part, live=item.isLive)
 
             if bool(error):
                 XbmcWrapper.show_dialog(
@@ -1488,7 +1488,7 @@ class Channel(chn_class.Channel):
         """
 
         # get a token (why?), cookies and an xsrf token
-        token = UriHandler.open("https://www.npostart.nl/api/token", proxy=self.proxy,
+        token = UriHandler.open("https://www.npostart.nl/api/token",
                                 no_cache=True,
                                 additional_headers={"X-Requested-With": "XMLHttpRequest"})
 

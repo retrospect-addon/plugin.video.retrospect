@@ -270,7 +270,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         json = JsonHelper(data, Logger.instance())
         video_data = json.get_value("video")
         if video_data:
@@ -320,7 +320,7 @@ class Channel(chn_class.Channel):
                 Logger.trace(subtitles)
                 sub_url = subtitles[0]["url"]
                 file_name = "%s.srt" % (EncodingHelper.encode_md5(sub_url),)
-                sub_data = UriHandler.open(sub_url, proxy=self.proxy)
+                sub_data = UriHandler.open(sub_url)
 
                 # correct the subs
                 regex = re.compile(r"^1(\d:)", re.MULTILINE)

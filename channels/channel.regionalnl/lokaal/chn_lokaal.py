@@ -452,7 +452,7 @@ class Channel(chn_class.Channel):
         """
 
         Logger.debug("Updating a (Live) video item")
-        content, url = UriHandler.header(item.url, proxy=self.proxy)
+        content, url = UriHandler.header(item.url)
 
         part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():

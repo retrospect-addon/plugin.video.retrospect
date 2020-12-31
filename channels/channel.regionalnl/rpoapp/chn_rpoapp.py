@@ -315,7 +315,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         streams = Regexer.do_regex(r'label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
 
         part = item.create_new_empty_media_part()
@@ -356,7 +356,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Found videoId '%s' for '%s'", video_id, item.url)
 
         url = "https://omroepzeeland.bbvms.com/p/regiogrid/q/sourceid_string:{}*.js".format(video_id)
-        data = UriHandler.open(url, proxy=self.proxy)
+        data = UriHandler.open(url)
 
         json_data = Regexer.do_regex(r'var opts\s*=\s*({.+});\W*//window', data)
         Logger.debug("Found jsondata with size: %s", len(json_data[0]))

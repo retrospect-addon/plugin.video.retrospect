@@ -331,7 +331,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         xml = parseString(data)
         stream_xmls = xml.getElementsByTagName("mountpoint")
         Logger.debug("Found %d streams", len(stream_xmls))

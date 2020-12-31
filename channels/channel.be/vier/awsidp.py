@@ -75,7 +75,7 @@ class AwsIdp:
             "Accept-Encoding": "identity",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        auth_response = UriHandler.open(self.url, proxy=self.__proxy,
+        auth_response = UriHandler.open(self.url,
                                         params=auth_data, additional_headers=auth_headers,
                                         force_text=True)
         auth_response_json = JsonHelper(auth_response)
@@ -97,7 +97,7 @@ class AwsIdp:
             "X-Amz-Target": "AWSCognitoIdentityProviderService.RespondToAuthChallenge",
             "Content-Type": "application/x-amz-json-1.1"
         }
-        auth_response = UriHandler.open(self.url, proxy=self.__proxy,
+        auth_response = UriHandler.open(self.url,
                                         params=challenge_data, additional_headers=challenge_headers,
                                         force_text=True)
 
@@ -133,8 +133,7 @@ class AwsIdp:
             "Content-Type": "application/x-amz-json-1.1"
         }
         refresh_request_data = JsonHelper.dump(refresh_request)
-        refresh_response = UriHandler.open(self.url, proxy=self.__proxy,
-                                           params=refresh_request_data,
+        refresh_response = UriHandler.open(self.url, params=refresh_request_data,
                                            additional_headers=refresh_headers)
         refresh_json = JsonHelper(refresh_response)
         id_token = refresh_json.get_value("AuthenticationResult", "IdToken")
