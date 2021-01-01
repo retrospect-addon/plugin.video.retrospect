@@ -22,8 +22,6 @@ class LanguageHelper(object):
     ErrorId = 30523
     NoVideosId = 30524
     NoStreamsId = 30525
-    ProxyChangeConfirmTitle = 30038
-    ProxyChangeConfirm = 30039
     AddOnSettingsId = 30528
     RefreshListId = 30529
     CheckUpdatesId = 30530
