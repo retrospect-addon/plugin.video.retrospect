@@ -206,7 +206,7 @@ class Channel(chn_class.Channel):
         """
 
         headers = {"accept": "application/vnd.sbs.ovp+json; version=2.0"}
-        data = UriHandler.open(item.url, proxy=self.proxy, additional_headers=headers)
+        data = UriHandler.open(item.url, additional_headers=headers)
 
         if UriHandler.instance().status.code == 404:
             Logger.warning("No normal stream found. Trying newer method")
@@ -241,7 +241,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Trying standard M3u8 streams.")
         if m3u8_url != "https://embed.kijk.nl/api/playlist/.m3u8" \
                 and "hostingervice=brightcove" not in m3u8_url:
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy, append_query_string=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
                 if "_enc_" in s:
                     continue
 
@@ -249,7 +249,7 @@ class Channel(chn_class.Channel):
                     # we have at least 1 none encrypted streams
                     Logger.info("Using HLS InputStreamAddon")
                     strm = part.append_media_stream(m3u8_url, 0)
-                    M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
+                    M3u8.set_input_stream_addon_input(strm)
                     item.complete = True
                     return item
 
@@ -263,24 +263,24 @@ class Channel(chn_class.Channel):
         mpd_manifest_url = "https://embed.kijk.nl/video/%s?width=868&height=491" % (video_id,)
         referer = "https://embed.kijk.nl/video/%s" % (video_id,)
 
-        data = UriHandler.open(mpd_manifest_url, proxy=self.proxy, referer=referer)
+        data = UriHandler.open(mpd_manifest_url, referer=referer)
         # First try to find an M3u8
         m3u8_urls = Regexer.do_regex('https:[^"]+.m3u8', data)
         for m3u8_url in m3u8_urls:
             m3u8_url = m3u8_url.replace("\\", "")
 
             # We need the actual URI to make this work, so fetch it.
-            m3u8_url = UriHandler.header(m3u8_url, proxy=self.proxy)[-1]
+            m3u8_url = UriHandler.header(m3u8_url)[-1]
             Logger.debug("Found direct M3u8 in brightcove data.")
             if use_adaptive:
                 # we have at least 1 none encrypted streams
                 Logger.info("Using HLS InputStreamAddon")
                 strm = part.append_media_stream(m3u8_url, 0)
-                M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
+                M3u8.set_input_stream_addon_input(strm)
                 item.complete = True
                 return item
 
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, self.proxy, append_query_string=True):
+            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
                 item.complete = True
                 part.append_media_stream(s, b)
 
@@ -298,7 +298,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         if UriHandler.instance().status.code == 404:
             title, message = Regexer.do_regex(r'<h1>([^<]+)</h1>\W+<p>([^<]+)<', data)[0]
             XbmcWrapper.show_dialog(title, message)
@@ -325,12 +325,12 @@ class Channel(chn_class.Channel):
                     has_drm_only = False
                     if stream_type == "m3u8":
                         Logger.debug("Found non-encrypted M3u8 stream: %s", stream_url)
-                        M3u8.update_part_with_m3u8_streams(part, stream_url, proxy=self.proxy, channel=self)
+                        M3u8.update_part_with_m3u8_streams(part, stream_url, channel=self)
                         item.complete = True
                     elif stream_type == "dash" and adaptive_available:
                         Logger.debug("Found non-encrypted Dash stream: %s", stream_url)
                         stream = part.append_media_stream(stream_url, 1)
-                        Mpd.set_input_stream_addon_input(stream, proxy=self.proxy)
+                        Mpd.set_input_stream_addon_input(stream)
                         item.complete = True
                     else:
                         Logger.debug("Unknown stream source: %s", source)
@@ -359,7 +359,7 @@ class Channel(chn_class.Channel):
 
                     stream = part.append_media_stream(stream_url, 0)
                     Mpd.set_input_stream_addon_input(
-                        stream, proxy=self.proxy, license_key=encryption_key)
+                        stream, license_key=encryption_key)
                     item.complete = True
 
             subs = [s['file'] for s in play_list_entry.get("tracks", []) if s.get('kind') == "captions"]
@@ -390,14 +390,12 @@ class Channel(chn_class.Channel):
 
         part = item.create_new_empty_media_part()
         mpd_manifest_url = "https:{0}".format(mpd_info["mediaLocator"])
-        mpd_data = UriHandler.open(mpd_manifest_url, proxy=self.proxy)
+        mpd_data = UriHandler.open(mpd_manifest_url)
         subtitles = Regexer.do_regex(r'<BaseURL>([^<]+\.vtt)</BaseURL>', mpd_data)
 
         if subtitles:
             Logger.debug("Found subtitle: %s", subtitles[0])
-            subtitle = SubtitleHelper.download_subtitle(subtitles[0],
-                                                        proxy=self.proxy,
-                                                        format="webvtt")
+            subtitle = SubtitleHelper.download_subtitle(subtitles[0], format="webvtt")
             part.Subtitle = subtitle
 
         if use_adaptive_with_encryption:
@@ -409,7 +407,7 @@ class Channel(chn_class.Channel):
             license_key = Mpd.get_license_key(license_url, key_headers=key_headers)
 
             stream = part.append_media_stream(mpd_manifest_url, 0)
-            Mpd.set_input_stream_addon_input(stream, self.proxy, license_key=license_key)
+            Mpd.set_input_stream_addon_input(stream, license_key=license_key)
             item.complete = True
         else:
             XbmcWrapper.show_dialog(
@@ -446,7 +444,7 @@ class Channel(chn_class.Channel):
             "Accept": "application/json;pk=BCpkADawqM3ve1c3k3HcmzaxBvD8lXCl89K7XEHiKutxZArg2c5RhwJHJANOwPwS_4o7UsC4RhIzXG8Y69mrwKCPlRkIxNgPQVY9qG78SJ1TJop4JoDDcgdsNrg"
         }
 
-        bright_cove_data = UriHandler.open(bright_cove_url, proxy=self.proxy, additional_headers=headers)
+        bright_cove_data = UriHandler.open(bright_cove_url, additional_headers=headers)
         bright_cove_json = JsonHelper(bright_cove_data)
         streams = [d for d in bright_cove_json.get_value("sources") if d["container"] == "M2TS"]
         # Old filter
@@ -463,11 +461,11 @@ class Channel(chn_class.Channel):
         if use_adaptive_with_encryption:
             Logger.info("Using InputStreamAddon for playback of HLS stream")
             strm = part.append_media_stream(stream_url, 0)
-            M3u8.set_input_stream_addon_input(strm, proxy=self.proxy)
+            M3u8.set_input_stream_addon_input(strm)
             item.complete = True
             return item
 
-        for s, b in M3u8.get_streams_from_m3u8(stream_url, self.proxy):
+        for s, b in M3u8.get_streams_from_m3u8(stream_url):
             item.complete = True
             part.append_media_stream(s, b)
         return item
@@ -793,8 +791,7 @@ class Channel(chn_class.Channel):
             if stream_type == "dash" and not drm:
                 bitrate = 0 if hls_over_dash else 2
                 stream = part.append_media_stream(url, bitrate)
-                item.complete = Mpd.set_input_stream_addon_input(
-                    stream, self.proxy)
+                item.complete = Mpd.set_input_stream_addon_input(stream)
 
             elif stream_type == "dash" and drm and "widevine" in drm:
                 bitrate = 0 if hls_over_dash else 1
@@ -803,7 +800,7 @@ class Channel(chn_class.Channel):
                 # fetch the authentication token:
                 # url = self.__get_api_persisted_url("drmToken", "634c83ae7588a877e2bb67d078dda618cfcfc70ac073aef5e134e622686c0bb6", variables={})
                 url = self.__get_api_query_url("drmToken", "{token,expiration}")
-                token_data = UriHandler.open(url, proxy=self.proxy, no_cache=True)
+                token_data = UriHandler.open(url, no_cache=True)
                 token_json = JsonHelper(token_data)
                 token = token_json.get_value("data", "drmToken", "token")
 
@@ -823,7 +820,7 @@ class Channel(chn_class.Channel):
             elif stream_type == "m3u8" and not drm:
                 bitrate = 2 if hls_over_dash else 0
                 item.complete = M3u8.update_part_with_m3u8_streams(
-                    part, url, proxy=self.proxy, channel=self, bitrate=bitrate)
+                    part, url, channel=self, bitrate=bitrate)
 
             else:
                 Logger.debug("Found incompatible stream: %s", src)

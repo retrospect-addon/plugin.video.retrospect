@@ -151,10 +151,6 @@ class FolderAction(AddonAction):
             empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
             empty_list_item.dontGroup = True
             empty_list_item.complete = True
-            # add funny stream here?
-            # part = empty_list_item.create_new_empty_media_part()
-            # for s, b in YouTube.get_streams_from_you_tube("", self.__channel.proxy):
-            #     part.append_media_stream(s, b)
 
             # if we add one, set OK to True
             ok = True

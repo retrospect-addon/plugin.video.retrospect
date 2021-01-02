@@ -66,7 +66,6 @@ class ChannelInfo(object):
         self.firstTimeMessage = None
 
         self.settings = []
-        self.localIPSupported = False
         self.addonUrl = None
 
         self.icon = icon
@@ -270,7 +269,6 @@ class ChannelInfo(object):
             channel_info.addonUrl = channel.get("addonUrl", None)
             channel_info.adaptiveAddonSelectable = channel.get("adaptiveAddonSelectable", False)
             # Disable spoofing for the moment
-            # channel_info.localIPSupported = channel.get("localIPSupported", False)
             channel_info.settings = [s for s in settings
                                      if "channels" not in s  # setting has no filters for channels
                                         or channel_guid in s["channels"]]  # setting applied to channel

@@ -14,12 +14,9 @@ class TestYoutube(unittest.TestCase):
         Logger.create_logger(None, str(cls), min_log_level=0)
         UriHandler.create_uri_handler(ignore_ssl_errors=False)
 
-    def setUp(self):
-        self.__proxy = None  # proxyinfo.ProxyInfo("localhost", 8888)
-
     def test_stream_extraction_via_add_on(self):
         url = "http://www.youtube.com/watch?v=878-LYQEcPs"
-        results = YouTube.get_streams_from_you_tube(url, self.__proxy)
+        results = YouTube.get_streams_from_you_tube(url)
         results.sort(key=lambda x: int(x[1]))
         streams = []
         bitrates = []
@@ -35,7 +32,7 @@ class TestYoutube(unittest.TestCase):
 
     def test_stream_extraction_internal_01(self):
         url = "http://www.youtube.com/watch?v=878-LYQEcPs"
-        results = YouTube.get_streams_from_you_tube(url, self.__proxy, use_add_on=False)
+        results = YouTube.get_streams_from_you_tube(url, use_add_on=False)
         results.sort(key=lambda x: int(x[1]))
         streams = []
         bitrates = []
@@ -51,7 +48,7 @@ class TestYoutube(unittest.TestCase):
 
     def test_stream_extraction_internal_02(self):
         url = "https://www.youtube.com/watch?v=S2g0GiCHyJE"
-        results = YouTube.get_streams_from_you_tube(url, self.__proxy, use_add_on=False)
+        results = YouTube.get_streams_from_you_tube(url, use_add_on=False)
         results.sort(key=lambda x: int(x[1]))
         streams = []
         bitrates = []
