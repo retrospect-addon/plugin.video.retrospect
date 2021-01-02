@@ -22,6 +22,7 @@ class TestNickelodeonChannel(ChannelTest):
         url = "https://www.nickelodeon.nl/shows/65kecx/de-legende-van-korra"
         self._test_folder_url(url, expected_results=5)
 
+    @unittest.skip("Nickelodeon keeps changing the season names and url")
     def test_show_list_with_seasons(self):
         url = "https://www.nickelodeon.nl/shows/1rak95/huize-herrie"
         items = self._test_folder_url(url, expected_results=2)
