@@ -6,12 +6,12 @@ import sys
 
 import xbmcgui
 
-
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
 from resources.lib.retroconfig import Config
 from resources.lib.addonsettings import AddonSettings
+from resources.lib import kodifactory
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.textures import TextureHandler
 
@@ -127,7 +127,7 @@ class ChannelInfo(object):
             name = "{} {}".format(name, XbmcWrapper.get_external_add_on_label(self.addonUrl))
 
         self.icon = self.__get_image_path(self.icon)
-        item = xbmcgui.ListItem(name, description)
+        item = kodifactory.list_item(name, description)
         item.setArt({'thumb': self.icon, 'icon': self.icon})
 
         # http://mirrors.kodi.tv/docs/python-docs/14.x-helix/xbmcgui.html#ListItem-setInfo

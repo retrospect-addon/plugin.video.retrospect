@@ -8,8 +8,8 @@ from functools import reduce
 
 import xbmcgui
 
-from resources.lib import contenttype
 from resources.lib.addonsettings import AddonSettings
+from resources.lib import contenttype, kodifactory
 from resources.lib.logger import Logger
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.encodinghelper import EncodingHelper
@@ -404,7 +404,7 @@ class MediaItem:
             info_labels["TVShowTitle"] = self.tv_show_title
 
         # now create the Kodi item
-        item = xbmcgui.ListItem(name or "<unknown>", self.__date)
+        item = kodifactory.list_item(name or "<unknown>", self.__date)
         item.setLabel(name)
         item.setLabel2(self.__date)
 
