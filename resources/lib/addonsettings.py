@@ -121,6 +121,20 @@ class AddonSettings(object):
         return AddonSettings.__kodi_version
 
     @staticmethod
+    def get_kodi_major_version():
+        """ Retrieves the Kodi major version we are running on.
+
+        :return: The major version of Kodi
+        :rtype: int
+
+        """
+
+        if AddonSettings.__kodi_version_int == 0:
+            AddonSettings.__kodi_version_int = int(AddonSettings.get_kodi_version().split(".")[0])
+
+        return AddonSettings.__kodi_version_int
+
+    @staticmethod
     def is_min_version(min_value):
         """ Checks whether the version of Kodi is higher or equal to the given version.
 
@@ -132,10 +146,7 @@ class AddonSettings(object):
 
         """
 
-        if AddonSettings.__kodi_version_int == 0:
-            AddonSettings.__kodi_version_int = int(AddonSettings.get_kodi_version().split(".")[0])
-
-        return AddonSettings.__kodi_version_int >= min_value
+        return AddonSettings.get_kodi_major_version() >= min_value
     #endregion
 
     #region Generic Access to Settings from other modules
