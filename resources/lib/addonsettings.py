@@ -24,6 +24,7 @@ class AddonSettings(object):
     # these are static properties that store the settings. Creating them each time is causing major slow-down
     __user_agent = None
     __kodi_version = None
+    __kodi_version_int = 0
 
     __USER_AGENT_SETTING = "user_agent"
     __MD5_HASH_VALUE = "md_hash_value"
@@ -131,8 +132,10 @@ class AddonSettings(object):
 
         """
 
-        version = int(AddonSettings.get_kodi_version().split(".")[0])
-        return version >= min_value
+        if AddonSettings.__kodi_version_int == 0:
+            AddonSettings.__kodi_version_int = int(AddonSettings.get_kodi_version().split(".")[0])
+
+        return AddonSettings.__kodi_version_int >= min_value
     #endregion
 
     #region Generic Access to Settings from other modules
