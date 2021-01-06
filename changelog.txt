@@ -16,3 +16,4 @@ Some Swedish channels had to be updated, as did NRK.no. During the fix, a small 
 * Updated: RTL XL thumbs for shows.
 * Updated: VTM.be, Stievie.be and VTM Nieuws are now redirecting to the VTM GO add-on (Fixes #1409, See #1462)
 * Fixed: Some vier.be clips did not play (See #1463)
+* Renamed: dplay.se is now discoveryplus.se (Fixes #1467).

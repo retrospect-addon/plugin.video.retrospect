@@ -67,7 +67,7 @@ class Channel(chn_class.Channel):
             self.primaryChannelId = 22
 
         elif self.channelCode == "dplayse":
-            self.noImage = "dplayimage.png"
+            self.noImage = "dplusimage.png"
             self.baseUrl = "http://www.dplay.se/api/v2/ajax"
 
         elif self.channelCode == "dplayno":
