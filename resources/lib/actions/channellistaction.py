@@ -44,6 +44,7 @@ class ChannelListAction(AddonAction):
             if AddonSettings.show_show_favourites_in_channel_list():
                 icon = Config.icon
                 fanart = Config.fanart
+                poster = Config.poster
                 name = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesId)
                 description = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesDescriptionId)
                 kodi_item = kodifactory.list_item(name, name)
@@ -55,7 +56,7 @@ class ChannelListAction(AddonAction):
                 except:
                     # it was deprecated
                     pass
-                kodi_item.setArt({'thumb': icon, 'icon': icon})
+                kodi_item.setArt({'thumb': icon, 'icon': icon, 'poster': poster})
                 kodi_item.setProperty(self._propertyRetrospect, "true")
                 kodi_item.setProperty(self._propertyRetrospectCategory, "true")
 
