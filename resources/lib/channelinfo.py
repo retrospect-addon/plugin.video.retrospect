@@ -109,7 +109,7 @@ class ChannelInfo(object):
         :rtype: str
         """
 
-        return self.channelName.replace("(", "[").replace(")", "]")
+        return self.channelName.replace("(", "[").replace(")", "]").replace("+", " plus")
 
     def get_kodi_item(self):
         """ Creates an Kodi ListItem object for this channel
