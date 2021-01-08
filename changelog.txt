@@ -20,3 +20,4 @@ Some Swedish channels had to be updated, as did NRK.no. During the fix, a small 
 * Fixed: MTV.nl and MTV.de stopped working
 * Updated: Channel artwork for RTL XL and Kijk.nl.
 * Updated: Dumpert artwork.
+* Updated: Pathe artwork.
