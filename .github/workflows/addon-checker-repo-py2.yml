@@ -1,19 +1,17 @@
-name: matrix-repo
+name: Kodi Leia Repo
 
 on:
   push:
     branches:
-      - 'kodi-repo-py3'
-      - 'kodi-matrix'
-      - 'kodi-matrix+'
+      - 'kodi-leia'
 
 jobs:
   check-addon:
-    name: Run kodi-addon-checker
+    name: Kodi Leia Repository Check (Py2)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kodi-branch: [matrix]
+        kodi-branch: [leia]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8

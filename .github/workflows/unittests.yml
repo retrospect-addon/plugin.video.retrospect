@@ -1,4 +1,4 @@
-name: unit-tests
+name: Unit Tests
 
 on:
   push:
@@ -16,10 +16,21 @@ on:
 jobs:
   check-addon:
     name: Run unit tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ 2.7, 3.7, 3.8 ]
+        os: [ ubuntu-latest ]
+        python-version: [ 2.7, 3.7, 3.8, 3.9 ]
+        include:
+          # Kodi Leia on Windows uses a bundled Python 2.7.
+          - os: windows-latest
+            python-version: 2.7
+
+          # Kodi Matrix on Windows uses a bundled Python 3.8, but we test 3.9 also to be sure.
+          - os: windows-latest
+            python-version: 3.8
+          - os: windows-latest
+            python-version: 3.9
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
