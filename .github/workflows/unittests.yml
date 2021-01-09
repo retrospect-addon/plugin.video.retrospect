@@ -37,21 +37,31 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-#      - name: Install SAKE
-#        run: |
-#          git clone https://github.com/retrospect-addon/kodi.emulator.ascii.git kodi.emulator.ascii
+
+      - name: Set Environment Variables (Linux)
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          echo PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii >> $GITHUB_ENV
+          echo KODI_HOME=$GITHUB_WORKSPACE/tests/home >> $GITHUB_ENV
+
+      - name: Set Environment Variables (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          echo ("PYTHONPATH=" + $env:GITHUB_WORKSPACE + "\kodi.emulator.ascii") >> $env:GITHUB_ENV
+          echo ("KODI_HOME=" + $env:GITHUB_WORKSPACE + "\tests\home") >> $env:GITHUB_ENV
+
       - name: Run unit tests
         env:
           _DPLAY_USERNAME: ${{ secrets.DplayUsername }}
           _DPLAY_PASSWORD: ${{ secrets.DplayPassword }}
           RTLXL_USERNAME: ${{ secrets.RtlXlUsername }}
           RTLXL_PASSWORD: ${{ secrets.RtlXlPassword }}
+          KODI_INTERACTIVE: 0
         run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii
-          export KODI_HOME=$GITHUB_WORKSPACE/tests/home
-          export KODI_INTERACTIVE=0
+          echo "::debug::$GITHUB_ENV"
           pytest -v --color=yes
