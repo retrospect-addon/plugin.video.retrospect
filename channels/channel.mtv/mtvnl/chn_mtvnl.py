@@ -46,6 +46,7 @@ class Channel(chn_class.Channel):
             self.__country_id = "mtv.nl"
             self.__clip_list_id = "442813c0-9344-48d6-9674-f94c359fe9fb"
             self.__show_list_id = "62701278-3c80-4ef6-a801-1df8ffca7c78"
+            self.__season_list_id = "bb3b48c4-178c-4cad-82c4-67ba76207020"
 
         elif self.channelCode == "mtvde":
             self.mainListUri = "http://www.mtv.de/feeds/intl_m150/V8_0_0/" \
@@ -54,6 +55,7 @@ class Channel(chn_class.Channel):
             self.__country_id = "mtv.de"
             self.__clip_list_id = "442813c0-9344-48d6-9674-f94c359fe9fb"
             self.__show_list_id = "62701278-3c80-4ef6-a801-1df8ffca7c78"
+            self.__season_list_id = "bb3b48c4-178c-4cad-82c4-67ba76207020"
 
         self.swfUrl = "http://media.mtvnservices.com/player/prime/mediaplayerprime.2.11.4.swf"
 
@@ -67,7 +69,8 @@ class Channel(chn_class.Channel):
                               name="Version 8 JSON Shows", json=True,
                               preprocessor=self.add_clips,
                               parser=["result", "data", "items"],
-                              creator=self.create_video_item_json)
+                              creator=self.create_video_item_json,
+                              postprocessor=self.add_seasons)
 
         self._add_data_parser(r"^https?://www.mtv.\w+/feeds/intl_m300/",
                               match_type=ParserData.MatchRegex,
@@ -123,6 +126,56 @@ class Channel(chn_class.Channel):
             items.append(item)
         return items
 
+    # noinspection PyUnusedLocal
+    def add_seasons(self, data, items):
+        """ Performs post-process actions for data processing.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str|JsonHelper data:     The retrieve data that was loaded for the
+                                         current item and URL.
+        :param list[MediaItem] items:   The currently available items
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: list[MediaItem]
+
+        """
+
+        Logger.info("Performing Post-Processing")
+
+        if not self.parentItem or "guid" not in self.parentItem.metaData:
+            return items
+
+        existing_seasons = set([i.metaData.get("season_id") for i in items])
+        if not existing_seasons:
+            return items
+
+        item_id = self.parentItem.metaData["guid"]
+        season_info_url = "http://www.mtv.nl/feeds/intl_m308/V8_0_0/{0}/{1}/{1}".\
+            format(self.__season_list_id, item_id)
+        season_data = UriHandler.open(season_info_url)
+        season_info = JsonHelper(season_data)
+
+        for season in season_info.get_value("result", "data", "seasons", fallback=[]):
+            Logger.trace("Found season: %s", season)
+            season_id = season["id"]
+            if season_id in existing_seasons:
+                Logger.trace("Season is current season")
+                continue
+
+            url = "{}/feeds/intl_m112/V8_0_0/{}/{}/{}"\
+                .format(self.baseUrl, self.__show_list_id, item_id, season_id)
+            season_item = MediaItem(season["eTitle"], url)
+            items.append(season_item)
+
+        Logger.debug("Post-Processing finished")
+        return items
+
     def add_clips(self, data):
         """ Adds a clip folder to items.
 
@@ -135,14 +188,16 @@ class Channel(chn_class.Channel):
 
         Logger.info("Performing Pre-Processing")
         items = []
-        if self.parentItem and "guid" in self.parentItem.metaData:
-            clip_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
-            item_id = self.parentItem.metaData["guid"]
-            url = "{}/feeds/intl_m300/V8_0_0/{}/{}"\
-                .format(self.baseUrl, self.__clip_list_id, item_id)
+        if not self.parentItem or "guid" not in self.parentItem.metaData:
+            return data, items
 
-            clips = MediaItem("\a.: %s :." % (clip_title,), url)
-            items.append(clips)
+        clip_title = LanguageHelper.get_localized_string(LanguageHelper.Clips)
+        item_id = self.parentItem.metaData["guid"]
+        url = "{}/feeds/intl_m300/V8_0_0/{}/{}"\
+            .format(self.baseUrl, self.__clip_list_id, item_id)
+
+        clips = MediaItem("\a.: %s :." % (clip_title,), url)
+        items.append(clips)
 
         Logger.debug("Pre-Processing finished")
         return data, items
@@ -240,6 +295,9 @@ class Channel(chn_class.Channel):
         duration = duration.split(":")
         duration = int(duration[1]) + 60 * int(duration[0])
         item.set_info_label("duration", duration)
+
+        # store season info
+        item.metaData["season_id"] = result_set.get("seasonId")
         return item
 
     def update_video_item(self, item):
