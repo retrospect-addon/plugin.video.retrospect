@@ -298,6 +298,7 @@ class Channel(chn_class.Channel):
 
         # store season info
         item.metaData["season_id"] = result_set.get("seasonId")
+        item.isGeoLocked = True
         return item
 
     def update_video_item(self, item):
