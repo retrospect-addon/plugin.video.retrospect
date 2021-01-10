@@ -17,3 +17,10 @@ that this PR contains -->
 <!--- Put your text below this line -->
 
 <!--- Put your text above this line -->
+
+### Tasks & Activities
+<!-- What other tasks or activities need to be done to complete
+this PR -->
+
+- [ ] Activity 1
+- [ ] Activity 2
