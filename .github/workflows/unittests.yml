@@ -43,17 +43,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set Environment Variables (Linux)
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          echo PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii >> $GITHUB_ENV
-          echo KODI_HOME=$GITHUB_WORKSPACE/tests/home >> $GITHUB_ENV
-
-      - name: Set Environment Variables (Windows)
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          echo ("PYTHONPATH=" + $env:GITHUB_WORKSPACE + "\kodi.emulator.ascii") >> $env:GITHUB_ENV
-          echo ("KODI_HOME=" + $env:GITHUB_WORKSPACE + "\tests\home") >> $env:GITHUB_ENV
+#      - name: Set Environment Variables (Linux)
+#        if: ${{ runner.os == 'Linux' }}
+#        run: |
+#          echo PYTHONPATH=$GITHUB_WORKSPACE/kodi.emulator.ascii >> $GITHUB_ENV
+#          echo KODI_HOME=$GITHUB_WORKSPACE/tests/home >> $GITHUB_ENV
+#
+#      - name: Set Environment Variables (Windows)
+#        if: ${{ runner.os == 'Windows' }}
+#        run: |
+#          echo ("PYTHONPATH=" + $env:GITHUB_WORKSPACE + "\kodi.emulator.ascii") >> $env:GITHUB_ENV
+#          echo ("KODI_HOME=" + $env:GITHUB_WORKSPACE + "\tests\home") >> $env:GITHUB_ENV
 
       - name: Run unit tests
         env:
@@ -62,6 +62,8 @@ jobs:
           RTLXL_USERNAME: ${{ secrets.RtlXlUsername }}
           RTLXL_PASSWORD: ${{ secrets.RtlXlPassword }}
           KODI_INTERACTIVE: 0
+          KODI_HOME: ${{ github.workspace }}/tests/home
+          PYTHONPATH: ${{ github.workspace }}/kodi.emulator.ascii
         run: |
           echo "::debug::$GITHUB_ENV"
           pytest -v --color=yes
