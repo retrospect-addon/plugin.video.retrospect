@@ -11,6 +11,10 @@ sonar-project.properties export-ignore
 /channels/**/*.png export-ignore
 /channels/**/*.jpg export-ignore
 /**/changelog.txt export-ignore
+/channels/plugin.video.retrospect.channel.json export-ignore
+
+# Exclude settings template
+/resources/data/settings_template.xml export-ignore
 
 # Exclude tests
 /tests/ export-ignore

@@ -1,10 +1,10 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-import xbmcgui
 import xbmcplugin
 
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
+from resources.lib import kodifactory
 from resources.lib.helpers.channelimporter import ChannelIndex
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
@@ -46,7 +46,7 @@ class ChannelListAction(AddonAction):
                 fanart = Config.fanart
                 name = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesId)
                 description = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesDescriptionId)
-                kodi_item = xbmcgui.ListItem(name, name)
+                kodi_item = kodifactory.list_item(name, name)
                 kodi_item.setInfo("video", {"Plot": description})
 
                 # set art

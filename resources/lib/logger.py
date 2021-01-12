@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 import io
@@ -402,7 +402,7 @@ class Logger:
         return_value = ("Unknown", 0)
 
         # get the current frame and descent down until the correct one is found
-        # noinspection PyProtectedMember
+        # noinspection PyProtectedMember,PyUnresolvedReferences
         current_frame = sys._getframe(3)  # could be _getframe(#) and (3)
         while hasattr(current_frame, "f_code"):
             co = current_frame.f_code

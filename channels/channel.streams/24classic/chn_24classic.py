@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from resources.lib import chn_class
 
@@ -171,7 +171,7 @@ class Channel(chn_class.Channel):
         Logger.debug('Starting update_music_item for %s (%s)', item.name, self.channelName)
         url, data = item.url.split("?")
 
-        data = UriHandler.open(url, proxy=self.proxy, params=data, additional_headers=item.HttpHeaders)
+        data = UriHandler.open(url, params=data, additional_headers=item.HttpHeaders)
         Logger.trace(data)
         json_data = JsonHelper(data)
         url = json_data.get_value("url", fallback=None)

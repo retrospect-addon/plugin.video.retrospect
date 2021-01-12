@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from resources.lib import chn_class
 from resources.lib.mediaitem import MediaItem
@@ -118,7 +118,7 @@ class Channel(chn_class.Channel):
         movie_id = Regexer.do_regex(r"movietrailers://movie/detail/(\d+)", data)[-1]
         Logger.debug("Found Movie ID: %s", movie_id)
         url = "%s/trailers/feeds/data/%s.json" % (self.baseUrl, movie_id)
-        data = UriHandler.open(url, proxy=self.proxy)
+        data = UriHandler.open(url)
 
         # set it for logging purposes
         self.parentItem.url = url

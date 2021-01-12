@@ -1,8 +1,9 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import xbmcplugin
-from resources.lib.actions import action
 
+from resources.lib.actions import action
+from resources.lib import contenttype
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.chn_class import Channel
@@ -65,8 +66,9 @@ class FolderAction(AddonAction):
 
             kodi_items = []
 
+            use_thumbs_as_fanart = AddonSettings.use_thumbs_as_fanart()
             for media_item in media_items:  # type: MediaItem
-                self.__update_artwork(media_item, self.__channel)
+                self.__update_artwork(media_item, self.__channel, use_thumbs_as_fanart)
 
                 if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
                     action_value = action.LIST_FOLDER
@@ -109,9 +111,7 @@ class FolderAction(AddonAction):
 
             self.__add_sort_method_to_handle(self.handle, media_items)
             self.__add_breadcrumb(self.handle, self.__channel, selected_item)
-
-            # set the content. It needs to be "episodes" to make the MediaItem.set_season_info() work
-            xbmcplugin.setContent(handle=self.handle, content="episodes")
+            self.__add_content_type(self.handle, self.__channel, selected_item)
 
             xbmcplugin.endOfDirectory(self.handle, ok)
         except Exception:
@@ -151,10 +151,6 @@ class FolderAction(AddonAction):
             empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
             empty_list_item.dontGroup = True
             empty_list_item.complete = True
-            # add funny stream here?
-            # part = empty_list_item.create_new_empty_media_part()
-            # for s, b in YouTube.get_streams_from_you_tube("", self.__channel.proxy):
-            #     part.append_media_stream(s, b)
 
             # if we add one, set OK to True
             ok = True
@@ -166,11 +162,12 @@ class FolderAction(AddonAction):
                                       title, XbmcWrapper.Error, 2500)
         return ok
 
-    def __update_artwork(self, media_item, channel):
+    def __update_artwork(self, media_item, channel, use_thumbs_as_fanart):
         """ Updates the fanart and icon of a MediaItem if thoses are missing.
 
-        :param MediaItem media_item:    The item to update
-        :param Channel channel:         A possible selected channel
+        :param MediaItem media_item:        The item to update
+        :param Channel channel:             A possible selected channel
+        :param bool use_thumbs_as_fanart:   Use thumbs for artwork
 
         """
 
@@ -182,24 +179,32 @@ class FolderAction(AddonAction):
             fallback_icon = channel.icon
             fallback_thumb = channel.noImage
             fallback_fanart = channel.fanart
+            fallback_poster = channel.poster
             parent_item = channel.parentItem
         else:
             # else the Retrospect ones
             fallback_icon = Config.icon
             fallback_thumb = Config.fanart
             fallback_fanart = Config.fanart
+            fallback_poster = None
             parent_item = None
 
         if parent_item is not None:
+            fallback_icon = parent_item.icon or fallback_icon
             fallback_thumb = parent_item.thumb or fallback_thumb
             fallback_fanart = parent_item.fanart or fallback_fanart
+            fallback_poster = parent_item.poster or fallback_poster
 
         # keep it or use the fallback
         media_item.icon = media_item.icon or fallback_icon
         media_item.thumb = media_item.thumb or fallback_thumb
         media_item.fanart = media_item.fanart or fallback_fanart
+        if not media_item.is_playable():
+            # For playable items don't set a poster if none is present (Kodi will
+            # always display the poster).
+            media_item.poster = media_item.poster or fallback_poster
 
-        if AddonSettings.use_thumbs_as_fanart() and \
+        if use_thumbs_as_fanart and \
                 TextureHandler.instance().is_texture_or_empty(media_item.fanart) and \
                 not TextureHandler.instance().is_texture_or_empty(media_item.thumb):
             media_item.fanart = media_item.thumb
@@ -292,3 +297,31 @@ class FolderAction(AddonAction):
 
         bread_crumb = HtmlEntityHelper.convert_html_entities(bread_crumb)
         xbmcplugin.setPluginCategory(handle=handle, category=bread_crumb)
+
+    def __add_content_type(self, handle, channel, selected_item):
+        """ Updates the Kodi category with a breadcrumb to the current parent item
+
+        :param int handle:                      The Kodi file handle
+        :param ChannelInfo|Channel channel:     The channel to which the item belongs
+        :param MediaItem selected_item:         The item from which to show the breadcrumbs
+
+        """
+
+        # content is one of: files, songs, artists, albums, movies, tvshows, episodes, musicvideos,
+        # videos, images, games (see https://romanvm.github.io/Kodistubs/_autosummary/xbmcplugin.html)
+        # set the content. It needs to be "episodes" to make the MediaItem.set_season_info() work
+        if selected_item:
+            content_type = selected_item.content_type
+        elif channel:
+            content_type = channel.mainListContentType
+        else:
+            content_type = contenttype.EPISODES
+
+        if content_type not in contenttype.ALL:
+            raise ValueError("Invalid content type: {}".format(content_type))
+
+        Logger.debug("Setting content-type to: %s", content_type)
+        if content_type is not None:
+            xbmcplugin.setContent(handle=handle, content=content_type)
+        else:
+            Logger.debug("Not setting content-type")

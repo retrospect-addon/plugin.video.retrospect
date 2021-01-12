@@ -1,5 +1,5 @@
 # coding=utf-8  # NOSONAR
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 import pytz
 
 from resources.lib import chn_class
@@ -576,7 +576,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url, proxy=self.proxy)
+        data = UriHandler.open(item.url)
         # Extract stream JSON data from HTML
         streams = Regexer.do_regex(r'Player"[^>]+data-react-props="({[^"]+})"', data)
         json_data = streams[0]
@@ -588,7 +588,7 @@ class Channel(chn_class.Channel):
 
         # generic server information
         proxy_data = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json",
-                                     proxy=self.proxy, no_cache=True)
+                                     no_cache=True)
         proxy_json = JsonHelper(proxy_data)
         proxy = proxy_json.get_value("redirect")
         Logger.trace("Found RTMP Proxy: %s", proxy)
@@ -606,7 +606,7 @@ class Channel(chn_class.Channel):
                 stream_url = stream["location"]
                 if quality == "tt":
                     part.Subtitle = SubtitleHelper.download_subtitle(
-                        stream_url, format="webvtt", proxy=self.proxy)
+                        stream_url, format="ttml")
                     continue
 
                 bitrate = bitrate if default_stream else bitrate + 1

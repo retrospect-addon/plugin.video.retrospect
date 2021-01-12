@@ -1,10 +1,10 @@
 # Retrospect - Public GIT Repository #
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/retrospect-addon/plugin.video.retrospect)](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/retrospect-addon/plugin.video.retrospect/CI/master)](https://github.com/retrospect-addon/plugin.video.retrospect/actions)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/retrospect-addon/plugin.video.retrospect/Unit%20Tests/master)](https://github.com/retrospect-addon/plugin.video.retrospect/actions)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=retrospect-addon:plugin.video.retrospect&metric=alert_status)](https://sonarcloud.io/dashboard?id=retrospect-addon:plugin.video.retrospect)
-[![License](https://img.shields.io/badge/license-cc_by--nc--sa-brightgreen?logo=creative-commons)](https://github.com/retrospect-addon/plugin.video.retrospect/blob/master/LICENSE.md)
+[![License](https://img.shields.io/github/license/retrospect-addon/plugin.video.retrospect)](https://github.com/retrospect-addon/plugin.video.retrospect/blob/master/LICENSE.md)
 [![Python](https://img.shields.io/badge/python-2.7%20%7C%203.6-blue?logo=python)](https://kodi.tv/article/attention-addon-developers-migration-python-3)
-[![Transifex](https://img.shields.io/badge/transifex-en|nl|sv|no|fi-blueviolet)](https://www.transifex.com/retrospect/public/)
+[![Weblate](https://kodi.weblate.cloud/widgets/kodi-add-ons-video/-/plugin-video-retrospect/svg-badge.svg)](https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/)
 
 This repository holds the main code for Retrospect. For more info on reporting bugs, please visit https://github.com/retrospect-addon/plugin.video.retrospect or https://www.rieter.net/content/.
 
@@ -42,7 +42,7 @@ More detailed info can be found in the [Retrospect wiki](https://github.com/retr
 Retrospect will notify you of new versions. You will then have to manually update Retrospect using the steps above.
 
 # Contributing #
-You can help developing Retrospect via our [GitHub](https://github.com/retrospect-addon/plugin.video.retrospect) page, and/or help translating Retrospect via [Hosted Weblate](https://hosted.weblate.org/projects/retrospect/#components) (A big thanks to Weblate for their services).
+You can help develop Retrospect via our [Github](https://github.com/retrospect-addon/plugin.video.retrospect) page and/or help translating Retrospect via the [Kodi Add-on Weblate](https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/).
 
 # Troubleshooting #
 
@@ -90,7 +90,7 @@ _Note: Keep in mind you might need to try multiple recovery images before you fi
 The first idea for Retrospect/XBMC Online TV/XOT-Uzg came from a script by BaKMaN.
 
 # Copyrights and Licenses #
-Retrospect is licensed _Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International_, see: [LICENSE.md](./LICENSE.md)
+Retrospect is licensed under a _GNU General Public License v3.0_, see: [LICENSE.md](./LICENSE.md)
 
 The official add-on package for Retrospect is not distributed via other repositories than the official Kodi add-on repository.
 
@@ -516,4 +516,11 @@ sorted chronologically):
 - Ingos Data o PPDesign
 - Jules Harms
 - Reinier 
+- Johan Pieter Zoetekouw
 - Michiel Modderman
+- Nick Corthals
+- Henrik Segesten
+- Olle Damgaard
+- Brecht Serckx
+- Sape Sikkema
+- Gialt Huininga

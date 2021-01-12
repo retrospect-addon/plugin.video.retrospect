@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 CHANNEL_FAVOURITES = "favourites"           # : Used to show favorites for a channel
 ALL_FAVOURITES = "allfavourites"            # : Used to show all favorites
@@ -14,5 +14,4 @@ SET_ENCRYPTION_PIN = "changepin"            # : Used for setting an application 
 SET_ENCRYPTED_VALUE = "encryptsetting"      # : Used for setting an application pin
 RESET_VAULT = "resetvault"                  # : Used for resetting the vault
 POST_LOG = "postlog"                        # : Used for sending log files to pastebin.com
-PROXY = "setproxy"                          # : Used for setting a proxy
 CLEANUP = "cleanup"                         # : Used for cleaning the cache and cookies

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: CC-BY-NC-SA-4.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import glob
 import io
@@ -123,14 +123,6 @@ class Favourites:
                 Logger.error("Cannot depickle item.", exc_info=True)
                 # Let's not remove them for now. Just ignore.
                 # os.remove(fav)
-                continue
-
-            validation_error = self.__pickler.validate(item, logger=Logger.instance())
-            if validation_error:
-                Logger.error("Invalid Pickled Item: %s\nRemoving favourite: %s", validation_error, fav)
-
-                # Remove the invalid favourite
-                os.remove(fav)
                 continue
 
             # clean up the .: from titles

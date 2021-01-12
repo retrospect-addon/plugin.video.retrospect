@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.2.15"
+        version="5.2.19"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -127,26 +127,29 @@
         <description lang="sv_SE">Retrospect använder olika TV-kanalers (framförallt nederländska, belgiska, brittiska, norska och svenska) officiella webbsidor och fritt tillgängliga strömmar för att göra deras playkanaler tillgängliga i Kodi.[CR][CR]Mer information finns på https://rieter.net eller Retrospects wiki på https://github.com/retrospect-addon/plugin.video.retrospect/wiki/.</description>
         <disclaimer lang="sv_SE">Retrospect tillgängliggörs i befintligt skick. Vi tar inget som helst ansvar för möjliga (men högst osannolika) skador på ditt system. Vi tar inte heller ansvar för innehållet som kan ses med detta tillägg eller konsekvenser av att använda tillägget för att se innehållet via innehållsleverantörernas plattformar.</disclaimer>
 
-        <license>CC-BY-NC-SA-4.0</license>
+        <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.2.15 - Changelog - 2020-11-02[/B]
+        <news>[B]Retrospect v5.2.19 - Changelog - 2020-12-20[/B]
 
-This is a quick fix update for VRT.nu that broke with current site changes.
+Some Swedish channels had to be updated, as did NRK.no. During the fix, a small bug surfaced that had to be squashed.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-* Added: Option to set the TV Show Title to MediaItems.
+* Fixed: Some channels without settings did appear with settings in the context menu.
 
 [B]Channel related[/B]
-* Fixed: VRT.nu changed stream urls which broke the channel (Fixes 1440)
-* Fixed: Folders were no longer showing for VRT.nu (Fixes 1440)
+* Fixed: UR Play moved to TTML subtitles, instead of WebSRT.
+* Changed: Moved Oppet Arkiv to SVT channel code as they are merging
+* Fixed: NRK.no did not play newer streams (Fixes #1459)
+* Updated: SVT Play categories (Fixes #1461)
 
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>
+            <banner>resources/media/banner.jpg</banner>
             <screenshot>resources/media/retrospect01.jpg</screenshot>
             <screenshot>resources/media/retrospect02.jpg</screenshot>
             <screenshot>resources/media/retrospect03.jpg</screenshot>

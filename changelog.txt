@@ -1,16 +1,20 @@
-[B]Retrospect v5.2.15 - Changelog - 2020-11-02[/B]
+[B]Retrospect v5.2.19 - Changelog - 2020-12-20[/B]
 
-This is a quick fix update for VRT.nu that broke with current site changes.
+Some Swedish channels had to be updated, as did NRK.no. During the fix, a small bug surfaced that had to be squashed.
 
 [B]Framework related[/B]
-_None_
+* Changed: Don't generate settings.xml if no template is present.
+* Added: Content type option to MediaItem and main listing.
+* Changed: Specify `offscreen` for ListItems to improve performance.
+* Changed: Code clean-up for old code related to proxies.
 
 [B]GUI/Settings/Language related[/B]
-* Added: Option to set the TV Show Title to MediaItems.
+* Added: Poster artwork for Channels and MediaItems.
 
 [B]Channel related[/B]
-* Fixed: VRT.nu changed stream urls which broke the channel (Fixes 1440)
-* Fixed: Folders were no longer showing for VRT.nu (Fixes 1440)
-* Updated: NPO artwork (See #1441)
-* Added: FunX live video stream (Fixes #1441)
-* Added: Radio4 live video stream (Fixes #1441)
+* Added: Movies to Kijk.nl channel (Fixes #1462)
+* Updated: RTL XL thumbs for shows.
+* Updated: VTM.be, Stievie.be and VTM Nieuws are now redirecting to the VTM GO add-on (Fixes #1409, See #1462)
+* Fixed: Some vier.be clips did not play (See #1463)
+* Renamed: dplay.se is now discoveryplus.se (Fixes #1467).
+* Fixed: MTV.nl and MTV.de stopped working
