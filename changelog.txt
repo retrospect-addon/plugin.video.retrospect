@@ -18,3 +18,4 @@ Some Swedish channels had to be updated, as did NRK.no. During the fix, a small 
 * Fixed: Some vier.be clips did not play (See #1463)
 * Renamed: dplay.se is now discoveryplus.se (Fixes #1467).
 * Fixed: MTV.nl and MTV.de stopped working
+* Fixed: UR Play broke due to URL changes.
