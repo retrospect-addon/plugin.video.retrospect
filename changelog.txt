@@ -19,3 +19,7 @@ Some Swedish channels had to be updated, as did NRK.no. During the fix, a small 
 * Renamed: dplay.se is now discoveryplus.se (Fixes #1467).
 * Fixed: MTV.nl and MTV.de stopped working
 * Fixed: UR Play broke due to URL changes.
+* Updated: Channel artwork for RTL XL and Kijk.nl.
+* Updated: Dumpert artwork.
+* Updated: Pathe artwork.
+* Updated: NPO Start artwork.

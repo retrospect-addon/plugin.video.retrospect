@@ -196,13 +196,14 @@ class FolderAction(AddonAction):
             fallback_poster = parent_item.poster or fallback_poster
 
         # keep it or use the fallback
+        if not media_item.is_playable() and not media_item.poster and not media_item.thumb:
+            # Only set a fallback poster on none-playable items that do not have a poster and
+            # don't have a thumb. Otherwise Kodi will always display the fallback poster. The
+            # thumb is preferred in that case.
+            media_item.poster = fallback_poster
         media_item.icon = media_item.icon or fallback_icon
         media_item.thumb = media_item.thumb or fallback_thumb
         media_item.fanart = media_item.fanart or fallback_fanart
-        if not media_item.is_playable():
-            # For playable items don't set a poster if none is present (Kodi will
-            # always display the poster).
-            media_item.poster = media_item.poster or fallback_poster
 
         if use_thumbs_as_fanart and \
                 TextureHandler.instance().is_texture_or_empty(media_item.fanart) and \
