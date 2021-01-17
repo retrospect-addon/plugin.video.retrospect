@@ -25,3 +25,4 @@ There are also some channels fixes in this build: VTM and related channels  now 
 * Updated: Dumpert artwork.
 * Updated: Pathe artwork.
 * Updated: NPO Start artwork.
+* Fixed: Kijk.nl movies broke.

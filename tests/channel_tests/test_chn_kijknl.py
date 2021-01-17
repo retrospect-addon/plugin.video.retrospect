@@ -121,3 +121,10 @@ class TestKijkNlChannel(ChannelTest):
             "%7Burl%2Clabel%7D%2Ctype%2Csources%7Btype%2Cfile%2Cdrm%7D%2CseasonNumber"
             "%2CtvSeasonEpisodeNumber%2Cseries%7Btitle%7D%2ClastPubDate%7D%7D%7D",
             expected_results=5)
+
+    def test_movies(self):
+        url = "https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes%3A%20MOVIE%29" \
+              "%7BtotalResults%2Citems%7Btype%2C__typename%2Cguid%2Ctitle%2Cdescription%2C" \
+              "duration%2CdisplayGenre%2CimageMedia%7Burl%2Clabel%7D%2CepgDate%2Csources%20%7B" \
+              "type%2Cfile%2Cdrm%7D%2Ctracks%7Btype%2Ckind%2C%20label%2Cfile%7D%7D%7D%7D"
+        self._test_folder_url(url, expected_results=5)
