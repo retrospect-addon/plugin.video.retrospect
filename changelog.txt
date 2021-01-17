@@ -1,4 +1,4 @@
-[B]Retrospect v5.2.20 - Changelog - 2021-01-16[/B]
+[B]Retrospect v5.2.21 - Changelog - 2021-01-17[/B]
 
 This version of Retrospect focusses on artwork: we introduced poster artwork for channels and shows. Not all channels support them, but more will come over time.
 
