@@ -1,0 +1,19 @@
+{
+  "channels": [
+    {
+      "guid": "B96E1D60-B7DF-48CA-B16B-A4CEFA2B439A",
+      "name": "ESPN",
+      "description": {
+        "en": "Visit ESPPN for minute by minute sports news, results, highlights and comments for  NFL, MLB, NBA, College Football, NCAA Basketball and more",
+        "nl": "Ga naar ESPN om minuut voor minuut sportnieuws, uitslagen, highlights en commentaar te krijgen voor de NFL, MLB, NBA, College Football, NCAA Basketball en meer"
+      },
+      "icon": "espnicon.png",
+      "category": "Sport",
+      "channelcode": "espnnl",
+      "sortorder": 210,
+      "language": "nl",
+      "fanart": "espnfanart.png",
+      "poster": "espnposter.png"
+    }
+  ]
+}
