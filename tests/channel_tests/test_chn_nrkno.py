@@ -40,7 +40,7 @@ class TestNrkNoChannel(ChannelTest):
         self._test_folder_url(url, expected_results=2)
 
     def test_category_content(self):
-        url = "https://psapi.nrk.no/medium/tv/categories/barn/indexelements?apiKey=d1381d92278a47c09066460f2522a67d"
+        url = "http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories/humor/indexelements?apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
 
     def test_list_liv_tv(self):
