@@ -1,8 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import pytz
+
 from resources.lib import chn_class
+from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
+from resources.lib.streams.m3u8 import M3u8
+from resources.lib.urihandler import UriHandler
 
 
 class Channel(chn_class.Channel):
@@ -33,6 +39,19 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_sub_bucket,
                               preprocessor=self.extract_sub_bucket)
 
+        self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/catalog/",
+                              name="Bucket Catalog Parer", json=True,
+                              parser=["page", "buckets"], creator=self.create_bucket_folder)
+
+        self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/bucket",
+                              name="Bucket Video Parser", json=True,
+                              parser=["page", "buckets", 0, "contents"], creator=self.create_video_item)
+
+        # TODO: add parser for https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/series/
+
+        self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/playback/",
+                              updater=self.update_video_item)
+
         # Other URLs
         # self.mainListUri = "https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/bucket?" \
         #                    "lang=nl&features=watch-web-redesign%2CimageRatio58x13%2CpromoTiles%2CopenAuthz&" \
@@ -41,6 +60,11 @@ class Channel(chn_class.Channel):
         # self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/bucket?",
         #                       name="ESPN mainlist categories", json=True,
         #                       parser=[], creator=self.create_episode_item)
+
+        if self.channelCode == "espnnl":
+            self.__timezone = pytz.timezone("Europe/Amsterdam")
+        else:
+            self.__timezone = pytz.timezone("UTC")
 
     def create_bucket(self, result_set):
         """ Creates a new MediaItem for an episode.
@@ -97,3 +121,91 @@ class Channel(chn_class.Channel):
 
         return item
 
+    def create_bucket_folder(self, result_set):
+        """ Creates a MediaItem of type 'folder' for all the folders of a (sub)bucket.
+
+        :param dict[str,dict|str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        if not result_set["links"]:
+            return None
+        url = result_set["links"]["self"]
+        item = MediaItem(result_set["name"], url)
+        item.description = result_set.get("description")
+        return item
+
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        :param dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        title = result_set["name"]
+        subtitle = result_set.get("subtitle")
+        url = result_set["streams"][0]["links"]["play"]
+        if "playback/video" not in url:
+            return None
+
+        item = MediaItem(title, url)
+        item.type = "video"
+        item.thumb = result_set.get("imageHref")
+        item.description = result_set.get("description")
+
+        duration = result_set["streams"][0]["duration"].split(":")
+        secs = int(duration[-1])
+        minutes = int(duration[-2])
+        hours = int(duration[-3]) if len(duration) > 2 else 0
+        item.set_info_label("duration", 3600 * hours + 60 * minutes + secs)
+
+        if "utc" in result_set:
+            # 2021-01-25T12:00:00-05:00
+            broadcast_time = result_set["utc"][:-6]
+            time_stamp = DateHelper.get_date_from_string(
+                broadcast_time,
+                date_format="%Y-%m-%dT%H:%M:%S")
+            item.set_date(*time_stamp[0:6])
+        elif subtitle:
+            # TODO: convert the subtitle into a date?
+            title = "{} -{}".format(title, subtitle)
+            item.name = title
+        return item
+
+    def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaItemPart with a single MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaItemPart then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = JsonHelper(data)
+
+        stream = json_data.get_value("playbackState", "videoHref")
+        part = item.create_new_empty_media_part()
+        M3u8.update_part_with_m3u8_streams(part, stream)
+        return item
