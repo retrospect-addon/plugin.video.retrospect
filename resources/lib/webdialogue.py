@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import io
+
 import xbmc
+import xbmcgui
 
 from resources.lib.logger import Logger
 from resources.lib.retroconfig import Config
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.urihandler import UriHandler
 
 
 class WebDialogue(object):
@@ -66,23 +69,31 @@ class WebDialogue(object):
                     path, mime = RetroHandler.artwork.get(self.path.rsplit("/", 1)[-1], (None, None))
                     if not path:
                         self.send_error(404, "NOT FOUND")
+                        self.__fill_and_end_headers()
                         return
 
                     self.send_response(200)
                     self.send_header("Content-Type", mime)
-                    self.end_headers()
-                    self.wfile.write(io.open(path, mode='br').read())
+                    with io.open(path, mode='br') as fp:
+                        data = fp.read()
+                        self.send_header('Content-Length', str(len(data)))
+                        self.__fill_and_end_headers()
+                        self.wfile.write(data)
                     return
 
                 elif self.path != "/":
                     self.send_error(404, "NOT FOUND")
+                    self.__fill_and_end_headers()
                     return
 
                 self.send_response(200)
-                self.end_headers()
-                self.wfile.write(self.__get_html(
-                    Config.appName, heading, text, RetroHandler.ok, RetroHandler.cancel).encode("utf-8"))
-                self.wfile.write(b'\n')
+                html = self.__get_html(
+                    Config.appName, heading, text, RetroHandler.ok, RetroHandler.cancel).encode("utf-8")
+
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header('Content-Length', str(len(html)))
+                self.__fill_and_end_headers()
+                self.wfile.write(html)
                 return
 
             # noinspection PyPep8Naming
@@ -110,6 +121,11 @@ class WebDialogue(object):
             # noinspection PyShadowingBuiltins
             def log_message(self, format, *args):
                 Logger.debug(format, *args)
+
+            def __fill_and_end_headers(self):
+                self.send_header("Keep-Alive", "max=0")
+                self.send_header('Connection', 'close')
+                self.end_headers()
 
             def __close_html(self):
                 return """<html>
@@ -159,10 +175,26 @@ class WebDialogue(object):
                 import traceback
                 Logger.error("RetroHTTP: %s", traceback.format_exc())
 
+            def force_stop(self):
+                self.shutdown()
+                self.socket.close()
+
         try:
             httpd = RetroHTTPServer(server_address, RetroHandler)
-            print("Servering on ", port)
-            httpd.serve_forever()
+
+            import threading
+            th = threading.Thread(target=httpd.serve_forever)
+            th.daemon = True
+            th.start()
+
+            Logger.info("Serving on %s", port)
+
+            d = xbmcgui.Dialog()
+            d.ok("Stop Web Dialog", "Showing dialog on http://localhost:3145")
+
+            httpd.force_stop()
+            th.join()
+            th = None
             return httpd.value, httpd.cancelled
         except:
             Logger.critical("Error with WebDialogue", exc_info=True)
@@ -171,5 +203,6 @@ class WebDialogue(object):
 
 if __name__ == '__main__':
     Logger.create_logger(None, "WebDialogue", min_log_level=0)
+    UriHandler.create_uri_handler()
     d = WebDialogue()
     print(d.input("Cookie value for site", "test"))
