@@ -50,10 +50,6 @@ class WebDialogue(object):
 
         # Create simple handler class
         class RetroHandler(BaseHTTPRequestHandler):
-            def __init__(self, request, client_address, server):
-                BaseHTTPRequestHandler.__init__(self, request, client_address, server)
-                self.server = server
-
             artwork = {
                 "fanart": (Config.fanart, "image/jpeg"),
                 "poster": (Config.poster, "image/jpeg"),
@@ -62,6 +58,12 @@ class WebDialogue(object):
 
             ok = xbmc.getLocalizedString(222)
             cancel = xbmc.getLocalizedString(186)
+
+            def __init__(self, request, client_address, server):
+                Logger.trace(request)
+                self.timeout = 1
+                self.server = server
+                BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
             # noinspection PyPep8Naming
             def do_GET(self):
@@ -179,6 +181,7 @@ class WebDialogue(object):
                 self.shutdown()
                 self.socket.close()
 
+
         try:
             httpd = RetroHTTPServer(server_address, RetroHandler)
 
@@ -193,7 +196,8 @@ class WebDialogue(object):
             d.ok("Stop Web Dialog", "Showing dialog on http://localhost:3145")
 
             httpd.force_stop()
-            th.join()
+            if th.is_alive():
+                th.join()
             th = None
             return httpd.value, httpd.cancelled
         except:
