@@ -37,7 +37,7 @@ class WebDialogue(object):
 
         port = 3145
         server_address = ('', port)
-        import time
+
         try:
             # noinspection PyUnresolvedReferences
             from http.server import HTTPServer
@@ -61,8 +61,9 @@ class WebDialogue(object):
             ok = xbmc.getLocalizedString(186)
 
             def __init__(self, request, client_address, server):
-                Logger.trace(request)
+                # Set the handler timeout so connections from browsers get killed faster.
                 self.timeout = 1
+                # We need the server to be accessible.
                 self.server = server
                 BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
@@ -118,15 +119,18 @@ class WebDialogue(object):
                 self.server._BaseServer__shutdown_request = True
 
                 if "cancel" in data:
+                    Logger.trace("RetroServer: Received a 'Cancel' POST request")
                     self.server.cancelled = True
                 else:
+                    Logger.trace("RetroServer: Received a 'Ok' POST request")
                     self.server.completed = True
                 self.server.value = data["value"]
                 return
 
             # noinspection PyShadowingBuiltins
             def log_message(self, format, *args):
-                Logger.debug(format, *args)
+                text = format % args
+                Logger.trace("RetroServer: %s", text)
 
             def __fill_and_end_headers(self):
                 self.send_header("Keep-Alive", "max=0")
@@ -165,10 +169,11 @@ class WebDialogue(object):
                     </html>
                     """.format(title, setting_name, setting_value, ok, cancel)
 
-        class RetroHTTPServer(HTTPServer):
+        class RetroHTTPServer(HTTPServer, xbmc.Monitor):
             # noinspection PyPep8Naming
             def __init__(self, server_address, RequestHandlerClass):  # NOSONAR
                 HTTPServer.__init__(self, server_address, RequestHandlerClass)
+                xbmc.Monitor.__init__(self)
                 self.value = None
                 self.cancelled = False
                 self.completed = False
@@ -181,9 +186,10 @@ class WebDialogue(object):
 
                 """
                 import traceback
-                Logger.error("RetroHTTP: %s", traceback.format_exc())
+                Logger.error("RetroServer: %s", traceback.format_exc())
 
             def force_stop(self):
+                Logger.debug("RetroServer: Forcing a shutdown.")
                 self.shutdown()
                 self.socket.close()
 
@@ -195,31 +201,38 @@ class WebDialogue(object):
             th.daemon = True
             th.start()
 
-            Logger.info("Serving on %s", port)
+            Logger.info("RetroServer: Serving on %s", port)
 
             d = xbmcgui.DialogProgress()
             d.create("Stop Web Dialog", "Open browser on http://localhost:3145.")
 
-            for i in range(0, 30):
+            for i in range(0, 33):
                 if d.iscanceled():
+                    Logger.debug("RetroServer: User aborted the dialogue.")
                     break
 
                 percentage = 100 - i * 3
                 stop = False
                 if httpd.completed:
+                    Logger.debug("RetroServer: Browser input received.")
                     d.update(percentage, "Browser input received.")
                     stop = True
                 elif httpd.cancelled:
+                    Logger.debug("RetroServer: Browser input cancelled.")
                     d.update(percentage, "Browser input cancelled.")
                     stop = True
+                elif httpd.abortRequested():
+                    Logger.debug("RetroServer: Kodi requested a stop.")
+                    break
                 elif httpd.active:
                     d.update(percentage, "Waiting for browser response.")
                 else:
                     d.update(percentage)
 
                 # We sleep here to make sure we can read the response.
-                time.sleep(1)
+                httpd.waitForAbort(1)
                 if stop:
+                    Logger.trace("RetroServer: Aborting loop.")
                     break
             d.close()
 
@@ -229,7 +242,7 @@ class WebDialogue(object):
             th = None
             return httpd.value, httpd.cancelled
         except:
-            Logger.critical("Error with WebDialogue", exc_info=True)
+            Logger.critical("RetroServer: Error with WebDialogue", exc_info=True)
             return None, False
 
 
