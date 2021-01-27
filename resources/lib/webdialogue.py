@@ -37,6 +37,7 @@ class WebDialogue(object):
 
         port = 3145
         server_address = ('', port)
+        import time
         try:
             # noinspection PyUnresolvedReferences
             from http.server import HTTPServer
@@ -56,8 +57,8 @@ class WebDialogue(object):
                 "icon": (Config.icon, "image/png")
             }
 
-            ok = xbmc.getLocalizedString(222)
-            cancel = xbmc.getLocalizedString(186)
+            cancel = xbmc.getLocalizedString(222)
+            ok = xbmc.getLocalizedString(186)
 
             def __init__(self, request, client_address, server):
                 Logger.trace(request)
@@ -96,6 +97,7 @@ class WebDialogue(object):
                 self.send_header('Content-Length', str(len(html)))
                 self.__fill_and_end_headers()
                 self.wfile.write(html)
+                self.server.active = True
                 return
 
             # noinspection PyPep8Naming
@@ -117,6 +119,8 @@ class WebDialogue(object):
 
                 if "cancel" in data:
                     self.server.cancelled = True
+                else:
+                    self.server.completed = True
                 self.server.value = data["value"]
                 return
 
@@ -167,6 +171,8 @@ class WebDialogue(object):
                 HTTPServer.__init__(self, server_address, RequestHandlerClass)
                 self.value = None
                 self.cancelled = False
+                self.completed = False
+                self.active = False
 
             def handle_error(self, request, client_address):
                 """Handle an error gracefully. May be overridden.
@@ -181,7 +187,6 @@ class WebDialogue(object):
                 self.shutdown()
                 self.socket.close()
 
-
         try:
             httpd = RetroHTTPServer(server_address, RetroHandler)
 
@@ -192,8 +197,31 @@ class WebDialogue(object):
 
             Logger.info("Serving on %s", port)
 
-            d = xbmcgui.Dialog()
-            d.ok("Stop Web Dialog", "Showing dialog on http://localhost:3145")
+            d = xbmcgui.DialogProgress()
+            d.create("Stop Web Dialog", "Open browser on http://localhost:3145.")
+
+            for i in range(0, 30):
+                if d.iscanceled():
+                    break
+
+                percentage = 100 - i * 3
+                stop = False
+                if httpd.completed:
+                    d.update(percentage, "Browser input received.")
+                    stop = True
+                elif httpd.cancelled:
+                    d.update(percentage, "Browser input cancelled.")
+                    stop = True
+                elif httpd.active:
+                    d.update(percentage, "Waiting for browser response.")
+                else:
+                    d.update(percentage)
+
+                # We sleep here to make sure we can read the response.
+                time.sleep(1)
+                if stop:
+                    break
+            d.close()
 
             httpd.force_stop()
             if th.is_alive():
