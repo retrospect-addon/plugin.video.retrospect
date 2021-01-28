@@ -12,3 +12,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: NRK.no categories broke.
+* Fixed: Vier.be, vijf.be and zes.be moved to goplay.be

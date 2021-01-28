@@ -36,26 +36,30 @@ class Channel(chn_class.Channel):
 
         chn_class.Channel.__init__(self, channel_info)
 
+        # https://www.goplay.be/api/programs/popular/vier
+        # https://www.goplay.be/api/epg/vier/2021-01-28
+
         # setup the main parsing data
+        self.baseUrl = "https://www.goplay.be"
+
         if self.channelCode == "vijfbe":
             self.noImage = "vijfimage.png"
-            self.mainListUri = "https://www.vijf.be/"
-            self.baseUrl = "https://www.vijf.be"
+            self.mainListUri = "https://www.goplay.be/programmas/play5"
+            self.__channel_brand = "vijf"
 
         elif self.channelCode == "zesbe":
             self.noImage = "zesimage.png"
-            self.mainListUri = "https://www.zestv.be/"
-            self.baseUrl = "https://www.zestv.be"
+            self.mainListUri = "https://www.goplay.be/programmas/play6"
+            self.__channel_brand = "zes"
 
         else:
             self.noImage = "vierimage.png"
-            self.mainListUri = "https://www.vier.be/"
-            self.baseUrl = "https://www.vier.be"
+            self.mainListUri = "https://www.goplay.be/programmas/play4"
+            self.__channel_brand = "vier"
 
-        episode_regex = r'<a class="program-overview__link" href="(?<url>[^"]+)">\s+' \
-                        r'<span class="program-overview__title">\s+(?<title>[^<]+)</span>.*?</a>'
-        episode_regex = Regexer.from_expresso(episode_regex)
+        episode_regex = r'(data-program)="([^"]+)"'
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              preprocessor=self.add_recents,
                               parser=episode_regex,
                               creator=self.create_episode_item)
 
@@ -77,8 +81,13 @@ class Channel(chn_class.Channel):
                               parser=video_regex,
                               creator=self.create_video_item)
 
+        self._add_data_parser("https://www.goplay.be/api/programs/popular",
+                              name="Special lists", json=True,
+                              parser=[], creator=self.create_episode_item_api)
+
         # Generic updater with login
-        self._add_data_parser("https://api.viervijfzes.be/content/", updater=self.update_video_item_with_id)
+        self._add_data_parser("https://api.viervijfzes.be/content/",
+                              updater=self.update_video_item_with_id)
         self._add_data_parser("*", updater=self.update_video_item)
 
         # ==========================================================================================
@@ -149,6 +158,36 @@ class Channel(chn_class.Channel):
         AddonSettings.set_setting("viervijfzes_refresh_token", refresh_token)
         return True
 
+    def add_recents(self, data):
+        """ Performs pre-process actions for data processing.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+
+        specials = {
+            "https://www.goplay.be/api/programs/popular/{}".format(self.__channel_brand):
+                LanguageHelper.get_localized_string(LanguageHelper.Popular)
+        }
+
+        for url, title in specials.items():
+            item = MediaItem("\a.: {} :.".format(title), url)
+            items.append(item)
+
+        return data, items
+
     def create_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
 
@@ -156,20 +195,50 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
 
         """
 
-        item = chn_class.Channel.create_episode_item(self, result_set)
-        if item is None:
-            return item
+        json_data = result_set[1].replace("&quot;", "\"")
+        result_set = JsonHelper(json_data)
+        result_set = result_set.json
+        return self.create_episode_item_api(result_set)
 
-        # All of vier.be video's seem GEO locked.
+    def create_episode_item_api(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        if not isinstance(result_set, dict):
+            json_data = result_set[1].replace("&quot;", "\"")
+            result_set = JsonHelper(json_data)
+            result_set = result_set.json
+
+        brand = result_set["brand"]
+        if brand != self.__channel_brand:
+            return None
+
+        title = result_set["title"]
+        url = "{}{}".format(self.baseUrl, result_set["link"])
+        item = MediaItem(title, url)
+        item.description = result_set["description"]
         item.isGeoLocked = True
-        item.thumb = item.thumb or self.noImage
+
+        images = result_set["images"]
+        item.poster = HtmlEntityHelper.convert_html_entities(images.get("poster"))
+        item.thumb = HtmlEntityHelper.convert_html_entities(images.get("teaser"))
         return item
 
     def extract_hero_data(self, data):
@@ -240,27 +309,6 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return hero_json, items
 
-    def create_page_item(self, result_set):
-        """ Creates a MediaItem of type 'page' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'page'.
-        :rtype: MediaItem|None
-
-        """
-
-        result_set["url"] = "{0}/{1}".format(result_set["url"], result_set["title"])
-        result_set["title"] = str(int(result_set["title"]) + 1)
-
-        item = self.create_folder_item(result_set)
-        item.type = "page"
-        return item
-
     def create_folder_item(self, result_set):
         """ Creates a MediaItem of type 'page' using the result_set from the regex.
 
@@ -279,36 +327,6 @@ class Channel(chn_class.Channel):
         folder.metaData["current_playlist"] = result_set["id"]
         return folder
 
-    def extract_page_data(self, data):
-        """ Performs pre-process actions for data processing.
-
-        Accepts an data from the process_folder_list method, BEFORE the items are
-        processed. Allows setting of parameters (like title etc) for the channel.
-        Inside this method the <data> could be changed and additional items can
-        be created.
-
-        The return values should always be instantiated in at least ("", []).
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        items = []
-        json = JsonHelper(data)
-        data = json.get_value("data")
-        Logger.trace(data)
-
-        if json.get_value("loadMore", fallback=False):
-            url, page = self.parentItem.url.rsplit("/", 1)
-            url = "{0}/{1}".format(url, int(page) + 1)
-            page_item = MediaItem("{0}".format(int(page) + 2), url)
-            page_item.type = "page"
-            items.append(page_item)
-        return data, items
-
     def create_video_item_api(self, result_set):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
@@ -321,7 +339,7 @@ class Channel(chn_class.Channel):
         self.update_video_item method is called if the item is focussed or selected
         for playback.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param dict[str,] result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -370,9 +388,6 @@ class Channel(chn_class.Channel):
             return None
 
         item = chn_class.Channel.create_video_item(self, result_set)
-
-        # All of vier.be video's seem GEO locked.
-        item.isGeoLocked = True
 
         # Set the correct url
         # videoId = resultSet["videoid"]
