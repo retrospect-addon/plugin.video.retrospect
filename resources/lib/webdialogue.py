@@ -18,12 +18,14 @@ class WebDialogue(object):
         return
 
     # noinspection PyCompatibility
-    def input(self, heading, text, time_out=0):
+    def input(self, heading, text, time_out=30, bind_interface="", port=3145):
         """ Show an input dialog.
 
-        :param str|int heading:             Dialog heading.
-        :param str|int text:                Default value
-        :param int time_out:            Seconds to autoclose dialog (default=do not autoclose)
+        :param str|int heading:     Dialog heading.
+        :param str|int text:        Default value.
+        :param int time_out:        Seconds to autoclose dialog (default=do not autoclose).
+        :param str bind_interface:  The interface to bind the http server to.
+        :param int port:            The TCP port number to bind to.
 
         :return: Returns the entered data as a string. Returns an empty string if dialog was canceled.
         :rtype: str
@@ -35,8 +37,7 @@ class WebDialogue(object):
         if isinstance(text, int):
             text = LanguageHelper.get_localized_string(text)
 
-        port = 3145
-        server_address = ('', port)
+        server_address = (bind_interface, port)
 
         try:
             # noinspection PyUnresolvedReferences
@@ -204,27 +205,31 @@ class WebDialogue(object):
             Logger.info("RetroServer: Serving on %s", port)
 
             d = xbmcgui.DialogProgress()
+            # TODO: Translate
             d.create("Stop Web Dialog", "Open browser on http://localhost:3145.")
 
-            for i in range(0, 33):
+            for i in range(0, time_out):
                 if d.iscanceled():
                     Logger.debug("RetroServer: User aborted the dialogue.")
                     break
 
-                percentage = 100 - i * 3
+                percentage = 100 - i * int(100/time_out)
                 stop = False
                 if httpd.completed:
                     Logger.debug("RetroServer: Browser input received.")
+                    # TODO: Translate
                     d.update(percentage, "Browser input received.")
                     stop = True
                 elif httpd.cancelled:
                     Logger.debug("RetroServer: Browser input cancelled.")
+                    # TODO: Translate
                     d.update(percentage, "Browser input cancelled.")
                     stop = True
                 elif httpd.abortRequested():
                     Logger.debug("RetroServer: Kodi requested a stop.")
                     break
                 elif httpd.active:
+                    # TODO: Translate
                     d.update(percentage, "Waiting for browser response.")
                 else:
                     d.update(percentage)
