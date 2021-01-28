@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import os
+import unittest
+
 from . channeltest import ChannelTest
 
 
@@ -14,3 +17,24 @@ class TestVierBeChannel(ChannelTest):
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
+
+    def test_guide_day_list(self):
+        import datetime
+        day = datetime.datetime.now() - datetime.timedelta(days=1)
+        self._test_folder_url(
+            "https://www.goplay.be/api/epg/vier/{:04d}-{:02d}-{:02d}".format(day.year, day.month, day.day),
+            expected_results=3
+        )
+
+    def test_popular(self):
+        url = "https://www.goplay.be/api/programs/popular/vier"
+        self._test_folder_url(url, expected_results=5)
+
+    def test_video_listing_for_show(self):
+        url = "https://www.goplay.be/auwch"
+        self._test_folder_url(url, expected_results=3)
+
+    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
+    def test_html_video(self):
+        url = "https://www.goplay.be/video/auwch/ben-segers-vreest-dat-dit-een-thaise-massage-met-happy-ending-is"
+        self._test_video_url(url)

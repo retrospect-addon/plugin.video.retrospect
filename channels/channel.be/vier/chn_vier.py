@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib import chn_class
+import datetime
+
+from resources.lib import chn_class, contenttype
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.htmlhelper import HtmlHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -14,9 +16,9 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.vault import Vault
 # noinspection PyUnresolvedReferences
 from awsidp import AwsIdp
-from resources.lib.vault import Vault
 
 
 class Channel(chn_class.Channel):
@@ -59,7 +61,7 @@ class Channel(chn_class.Channel):
 
         episode_regex = r'(data-program)="([^"]+)"'
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              preprocessor=self.add_recents,
+                              preprocessor=self.add_specials,
                               parser=episode_regex,
                               creator=self.create_episode_item)
 
@@ -84,6 +86,13 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://www.goplay.be/api/programs/popular",
                               name="Special lists", json=True,
                               parser=[], creator=self.create_episode_item_api)
+
+        self._add_data_parser("#tvguide", name="TV Guide recents",
+                              preprocessor=self.add_recent_items)
+
+        self._add_data_parser("https://www.goplay.be/api/epg/", json=True,
+                              name="EPG items",
+                              parser=[], creator=self.create_epg_item)
 
         # Generic updater with login
         self._add_data_parser("https://api.viervijfzes.be/content/",
@@ -158,7 +167,51 @@ class Channel(chn_class.Channel):
         AddonSettings.set_setting("viervijfzes_refresh_token", refresh_token)
         return True
 
-    def add_recents(self, data):
+    def add_recent_items(self, data):
+        """ Performs pre-process actions for data processing.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+        today = datetime.datetime.now()
+        days = LanguageHelper.get_days_list()
+        for d in range(0, 7, 1):
+            air_date = today - datetime.timedelta(d)
+            Logger.trace("Adding item for: %s", air_date)
+
+            # Determine a nice display date
+            day = days[air_date.weekday()]
+            if d == 0:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
+            elif d == 1:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
+
+            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
+            url = "https://www.goplay.be/api/epg/{}/{:04d}-{:02d}-{:02d}".\
+                format(self.__channel_brand, air_date.year, air_date.month, air_date.day)
+
+            extra = MediaItem(title, url)
+            extra.complete = True
+            extra.dontGroup = True
+            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
+            extra.content_type = contenttype.VIDEOS
+            items.append(extra)
+
+        return data, items
+
+    def add_specials(self, data):
         """ Performs pre-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
@@ -178,12 +231,19 @@ class Channel(chn_class.Channel):
         items = []
 
         specials = {
-            "https://www.goplay.be/api/programs/popular/{}".format(self.__channel_brand):
-                LanguageHelper.get_localized_string(LanguageHelper.Popular)
+            "https://www.goplay.be/api/programs/popular/{}".format(self.__channel_brand): (
+                LanguageHelper.get_localized_string(LanguageHelper.Popular),
+                contenttype.TVSHOWS
+            ),
+            "#tvguide": (
+                LanguageHelper.get_localized_string(LanguageHelper.Recent),
+                contenttype.FILES
+            )
         }
 
-        for url, title in specials.items():
+        for url, (title, content) in specials.items():
             item = MediaItem("\a.: {} :.".format(title), url)
+            item.content_type = content
             items.append(item)
 
         return data, items
@@ -363,6 +423,55 @@ class Channel(chn_class.Channel):
         item.set_info_label("duration", result_set["duration"])
         if "epsiodeNumber" in result_set and "seasonNumber" in result_set:
             item.set_season_info(result_set["seasonNumber"], result_set["epsiodeNumber"])
+        return item
+
+    def create_epg_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param dict[str,] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        if "video_node" not in result_set:
+            return None
+
+        # Could be: title = result_set['episodeTitle']
+        program_title = result_set['program_title']
+        episode_title = result_set['episode_title']
+        time_value = result_set["time_string"]
+        if episode_title:
+            title = "{}: {} - {}".format(time_value, program_title, episode_title)
+        else:
+            title = "{}: {}".format(time_value, program_title)
+        video_info = result_set["video_node"]
+        url = "{}{}".format(self.baseUrl, video_info["url"])
+
+        item = MediaItem(title, url)
+        item.type = "video"
+        item.description = video_info["description"]
+        item.thumb = video_info["image"]
+        item.isGeoLocked = result_set.get("isProtected")
+        item.set_info_label("duration", video_info["duration"])
+
+        # 2021-01-27
+        time_stamp = DateHelper.get_date_from_string(result_set["date_string"], date_format="%Y-%m-%d")
+        item.set_date(*time_stamp[0:6])
+
+        item.set_info_label("duration", result_set["duration"])
+        if "episode_nr" in result_set and "season" in result_set and "-" not in result_set["season"]:
+            item.set_season_info(result_set["season"], result_set["episode_nr"])
         return item
 
     def create_video_item(self, result_set):
