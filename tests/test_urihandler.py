@@ -498,7 +498,7 @@ class TestUriHandler(unittest.TestCase):
         file_name = "test.png"
 
         self.cancel_download = False
-        download_path = UriHandler.download("http://www.ovh.net/files/1Mb.dat", file_name,
+        download_path = UriHandler.download("http://speed.transip.nl/10mb.bin", file_name,
                                             self.output_folder, self.__download_callback)
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertTrue(os.path.isfile(download_path))
@@ -509,7 +509,7 @@ class TestUriHandler(unittest.TestCase):
         file_name = "test.png"
 
         self.cancel_download = True
-        download_path = UriHandler.download("http://www.ovh.net/files/10Mb.dat", file_name,
+        download_path = UriHandler.download("http://speed.transip.nl/10mb.bin", file_name,
                                             self.output_folder, self.__download_callback)
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertEqual("", download_path)
