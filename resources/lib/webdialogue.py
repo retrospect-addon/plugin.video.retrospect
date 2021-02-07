@@ -62,10 +62,18 @@ class WebDialogue(object):
             ok = xbmc.getLocalizedString(186)
 
             def __init__(self, request, client_address, server):
+                """
+
+                :param request:                 The request information
+                :param client_address:          Tha address of the client
+                :param RetroHTTPServer server:  A HTTP server instance.
+
+                """
+
                 # Set the handler timeout so connections from browsers get killed faster.
                 self.timeout = 1
                 # We need the server to be accessible.
-                self.server = server
+                self.server = server        # type: RetroHTTPServer
                 BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
             # noinspection PyPep8Naming
@@ -92,8 +100,13 @@ class WebDialogue(object):
                     return
 
                 self.send_response(200)
+                # noinspection PyUnresolvedReferences
+                max_waiting_time = self.server.input_time_out
+                # noinspection PyUnresolvedReferences
+                time_remaining = self.server.input_time_remaining
                 html = self.__get_html(
-                    Config.appName, heading, text, RetroHandler.ok, RetroHandler.cancel).encode("utf-8")
+                    Config.appName, heading, text, max_waiting_time, time_remaining,
+                    RetroHandler.ok, RetroHandler.cancel).encode("utf-8")
 
                 self.send_header('Content-Type', 'text/html; charset=utf-8')
                 self.send_header('Content-Length', str(len(html)))
@@ -148,7 +161,22 @@ class WebDialogue(object):
                     </html>
                     """""
 
-            def __get_html(self, title, setting_name, setting_value, ok="Ok", cancel="Cancel"):
+            def __get_html(self, title, setting_name, setting_value, max_waiting_time, time_remaining, ok="Ok", cancel="Cancel"):
+                """ Creates the dialog HTML page.
+
+                :param str title:             The title of the dialogue.
+                :param str setting_name:      The label for the setting.
+                :param str setting_value:     The value for the setting.
+                :param int max_waiting_time:  Timeout for the input.
+                :param int time_remaining:    Time remaining for the input.
+                :param str ok:                Label for OK button.
+                :param str cancel:            Label for Cancel button.
+
+                :return: A valid HTML5 dialogue HTML page.
+                :rtype: str
+
+                """
+
                 return """<!DOCTYPE html>
                     <html>
                     <head>
@@ -158,27 +186,47 @@ class WebDialogue(object):
                                  font-family: sans-serif;
                                  color: white;">
     
-                    <h1>{}</h2> 
-                    <form action="/" method="post">
-                      <label for="value">{}:</label><br />
-                      <input type="text" id="value" name="value" value="{}" style="margin: 10px 0px; min-width: 450px;" />
-                      <br /><br />
-                      <input type="submit" name="ok" value="{}" />
-                      <input type="submit" name="cancel" value="{}" />
+                    <h1>{0}</h2> 
+                    <form id="webdialogue" action="/" method="post">
+                      <label for="value">{1}:</label><br />
+                      <fieldset id="dialogueFields" style="border-width: 0px; padding: 0">
+                          <input type="text" id="value" name="value" value="{2}" style="margin: 10px 0px; min-width: 450px;" />
+                          <br />
+                          <progress value="{3}" max="{4}" id="pbar" style="margin: 10px 0px; width: 457px;" ></progress> 
+                          <br />
+                          <br />
+                          <input type="submit" name="ok" value="{5}" />
+                          <input type="submit" name="cancel" value="{6}" />
+                       </fieldset>
                     </form>
+                    
+                    <script type="text/javascript">
+                        var reverse_counter = {3};
+                        var downloadTimer = setInterval(function(){{
+                            reverse_counter--;
+                            document.getElementById("pbar").value = reverse_counter;
+                            if(reverse_counter <= 0) {{
+                                clearInterval(downloadTimer);
+                                document.getElementById("dialogueFields").disabled = "disabled"
+                            }}
+                        }},1000);
+                    </script>
                     </body>
                     </html>
-                    """.format(title, setting_name, setting_value, ok, cancel)
+                    """.format(title, setting_name, setting_value, time_remaining,
+                               max_waiting_time, ok, cancel)
 
         class RetroHTTPServer(HTTPServer, xbmc.Monitor):
             # noinspection PyPep8Naming
-            def __init__(self, server_address, RequestHandlerClass):  # NOSONAR
+            def __init__(self, server_address, RequestHandlerClass, input_time_out):  # NOSONAR
                 HTTPServer.__init__(self, server_address, RequestHandlerClass)
                 xbmc.Monitor.__init__(self)
                 self.value = None
                 self.cancelled = False
                 self.completed = False
                 self.active = False
+                self.input_time_out = input_time_out
+                self.input_time_remaining = input_time_out
 
             def handle_error(self, request, client_address):
                 """Handle an error gracefully. May be overridden.
@@ -195,7 +243,7 @@ class WebDialogue(object):
                 self.socket.close()
 
         try:
-            httpd = RetroHTTPServer(server_address, RetroHandler)
+            httpd = RetroHTTPServer(server_address, RetroHandler, time_out)
 
             import threading
             th = threading.Thread(target=httpd.serve_forever)
@@ -213,6 +261,7 @@ class WebDialogue(object):
                     Logger.debug("RetroServer: User aborted the dialogue.")
                     break
 
+                httpd.input_time_remaining -= 1
                 percentage = 100 - i * int(100/time_out)
                 stop = False
                 if httpd.completed:
@@ -255,4 +304,4 @@ if __name__ == '__main__':
     Logger.create_logger(None, "WebDialogue", min_log_level=0)
     UriHandler.create_uri_handler()
     d = WebDialogue()
-    print(d.input("Cookie value for site", "test"))
+    print(d.input("Cookie value for site", "test", time_out=30))
