@@ -37,6 +37,7 @@ class TestMtvNlChannel(ChannelTest):
         seasons = [s for s in items if s.type == "folder" and s.name.startswith("\a")]
         self.assertGreaterEqual(len(seasons), 1)
 
+    @unittest.skipIf("CI" in os.environ, "Skipping due to the lack of extra seasons with videos.")
     def test_season_videos(self):
-        url = "http://www.mtv.nl/feeds/intl_m112/V8_0_0/62701278-3c80-4ef6-a801-1df8ffca7c78/7a48cd50-d237-11e1-a549-0026b9414f30/50f05242-c1a4-11ea-9225-70df2f866ace"
+        url = "http://www.mtv.nl/feeds/intl_m308/V8_0_0/bb3b48c4-178c-4cad-82c4-67ba76207020/6ad6ec35-30a4-11eb-9b1b-0e40cf2fc285/6ad6ec35-30a4-11eb-9b1b-0e40cf2fc285"
         self._test_folder_url(url, expected_results=1)
