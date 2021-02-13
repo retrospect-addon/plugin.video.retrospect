@@ -47,7 +47,10 @@ class Channel(chn_class.Channel):
                               name="Bucket Video Parser", json=True,
                               parser=["page", "buckets", 0, "contents"], creator=self.create_video_item)
 
-        # TODO: add parser for https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/series/
+        self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/series/",
+                              name="Series parsers", json=True,
+                              parser=['page', 'buckets', ('name', 'VOD'), "contents"],
+                              creator=self.create_video_item)
 
         self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/playback/",
                               updater=self.update_video_item)
@@ -85,6 +88,7 @@ class Channel(chn_class.Channel):
         item.metaData["bucket"] = result_set["contents"]
         return item
 
+    # noinspection PyUnusedLocal
     def extract_sub_bucket(self, data):
         """ Extracts the sub buckets from a parent bucket.
 
