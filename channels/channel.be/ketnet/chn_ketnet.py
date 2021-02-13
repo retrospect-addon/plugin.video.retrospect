@@ -10,6 +10,7 @@ from resources.lib.urihandler import UriHandler
 from resources.lib.parserdata import ParserData
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.streams.m3u8 import M3u8
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 
 
 class Channel(chn_class.Channel):
@@ -33,33 +34,18 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "ketnet":
             self.noImage = "ketnetimage.jpg"
-            self.mainListUri = "https://www.ketnet.be/kijken"
+            self.mainListUri = self.__get_graph_url("content/ketnet/nl/kijken.model.json")
             self.baseUrl = "https://www.ketnet.be"
             self.mediaUrlRegex = r'playerConfig\W*=\W*(\{[\w\W]{0,2000}?);(?:.vamp|playerConfig)'
 
-        elif self.channelCode == "cobra":
-            self.noImage = "cobraimage.png"
-            self.mainListUri = "http://www.cobra.be/cm/cobra/cobra-mediaplayer"
-            self.baseUrl = "http://www.cobra.be"
+        else:
+            raise IndexError("Unknow channel code {}".format(self.channelCode))
 
-        self.swfUrl = "%s/html/flash/common/player.swf" % (self.baseUrl,)
-
-        episode_regex = r'<a[^>]+href="(?<url>/kijken[^"]+)"[^>]*>\W*<img[^>]+src="' \
-                        r'(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"'
-        episode_regex = Regexer.from_expresso(episode_regex)
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              parser=episode_regex, creator=self.create_episode_item)
-
-        self._add_data_parser("*", preprocessor=self.select_video_section)
-
-        video_regex = Regexer.from_expresso(r'<a title="(?<title>[^"]+)" href="(?<url>[^"]+)"[^>]*>'
-                                            r'\W+<img src="(?<thumburl>[^"]+)"[^<]+<span[^<]+[^<]+'
-                                            r'[^>]+></span>\W+(?<description>[^<]+)')
-        self._add_data_parser("*", parser=video_regex, creator=self.create_video_item,
-                              updater=self.update_video_item)
-
-        folder_regex = Regexer.from_expresso(r'<span class="more-of-program" rel="/(?<url>[^"]+)">')
-        self._add_data_parser("*", parser=folder_regex, creator=self.create_folder_item)
+        self._add_data_parser(
+            self.mainListUri, json=True, name="MainList Parser for GraphQL",
+            parser=["data", "page", "pagecontent",
+                    ("id", "/content/ketnet/nl/kijken/jcr:content/root/swimlane_64598007"),
+                    "items"], creator=self.create_typed_item)
 
         #===============================================================================================================
         # non standard items
@@ -70,45 +56,8 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def select_video_section(self, data):
-        """ Performs pre-process actions for data processing
-
-        :param str|unicode data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        Logger.info("Performing Pre-Processing")
-        items = []
-
-        end_of_section = data.rfind('<div class="ketnet-abc-index">')
-        if end_of_section > 0:
-            data = data[:end_of_section]
-
-        # find the first main video
-        json_data = Regexer.do_regex(self.mediaUrlRegex, data)
-        if not json_data:
-            Logger.debug("No show data found as JSON")
-            return data, items
-
-        Logger.trace(json_data[0])
-        json = JsonHelper(json_data[0])
-        title = json.get_value("title")
-        url = json.get_value("mzid") or self.parentItem.url
-        item = MediaItem(title, url)
-        item.type = 'video'
-        item.description = json.get_value("description", fallback=None)
-        item.thumb = json.get_value("image", fallback=self.noImage)
-        item.complete = False
-        items.append(item)
-
-        Logger.debug("Pre-Processing finished")
-        return data, items
-
-    def create_folder_item(self, result_set):
-        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+    def create_typed_item(self, result_set):
+        """ Creates a new MediaItem for a typed item.
 
         This method creates a new MediaItem from the Regular Expression or Json
         results <result_set>. The method should be implemented by derived classes
@@ -122,9 +71,33 @@ class Channel(chn_class.Channel):
         """
 
         Logger.trace(result_set)
+        type_id = result_set["__typename"]
+        if type_id == "Program":
+            return self.create_program_item(result_set)
+        else:
+            Logger.warning("Unknown Graph Type: %s", type_id)
 
-        result_set["title"] = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-        return chn_class.Channel.create_folder_item(self, result_set)
+        return None
+
+    def create_program_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        url = self.__get_graph_url(result_set["id"])
+        item = MediaItem(result_set["title"], url)
+        item.poster = result_set["imageUrl"]
+        item.thumb = result_set["logoUrl"]
+        return item
 
     def update_video_item(self, item):
         """ Updates an existing MediaItem with more data.
@@ -215,3 +188,12 @@ class Channel(chn_class.Channel):
 
         # var playerConfig = {"id":"mediaplayer","width":"100%","height":"100%","autostart":"false","image":"http:\/\/www.ketnet.be\/sites\/default\/files\/thumb_5667ea22632bc.jpg","brand":"ketnet","source":{"hls":"http:\/\/vod.stream.vrt.be\/ketnet\/_definst_\/mp4:ketnet\/2015\/12\/Ben_ik_familie_van_R001_A0023_20151208_143112_864.mp4\/playlist.m3u8"},"analytics":{"type_stream":"vod","playlist":"Ben ik familie van?","program":"Ben ik familie van?","episode":"Ben ik familie van?: Warre - Aflevering 3","parts":"1","whatson":"270157835527"},"title":"Ben ik familie van?: Warre - Aflevering 3","description":"Ben ik familie van?: Warre - Aflevering 3"}
         return item
+
+    def __get_graph_url(self, id):
+        graph_query = "query GetPage($id: String!) { page(id: $id) { ... on Program { pageType ...program __typename } ... on Video { pageType ...video __typename } ... on Pagecontent { pageType ...pagecontent __typename } __typename } }  fragment program on Program { id title header { ...header __typename } activeTab tabs { name title type playlists { ...seasonOverviewTabItem __typename } pagecontent { ...pagecontentItem __typename } __typename } __typename }  fragment seasonOverviewTabItem on Playlist { name title type imageUrl items { id titlePlaylist subtitlePlaylist scaledPoster { ...scaledImage __typename } description __typename } __typename }  fragment video on Video { id videoType titleVideodetail subtitleVideodetail scaledPoster { ...scaledImage __typename } description availableUntilDate publicationDate duration episodeNr vrtPlayer { ...vrtPlayerFragment __typename } suggestions { id titleSuggestion subtitleSuggestion scaledPoster { ...scaledImage __typename } __typename } playlists { name title items { id titlePlaylist subtitlePlaylist scaledPoster { ...scaledImage __typename } description __typename } __typename } activePlaylist trackingData { programName seasonName episodeName episodeNr episodeBroadcastDate __typename } __typename }  fragment pagecontent on Pagecontent { pagecontent { ...pagecontentItem __typename } __typename }  fragment pagecontentItem on PagecontentItem { ... on Header { ...header __typename } ... on Highlight { ...highlight __typename } ... on Swimlane { ...swimlane __typename } __typename }  fragment highlight on Highlight { type title description link linkItem { ... on Game { id __typename } ... on Program { id __typename } ... on Story { id __typename } ... on Theme { id __typename } ... on Video { id __typename } __typename } buttonText imageUrl size __typename }  fragment swimlane on Swimlane { id type title style items { ... on Video { ...swimlaneVideo __typename } ... on Program { ...swimlaneProgram __typename } __typename } __typename }  fragment swimlaneVideo on Video { id type title imageUrl titleSwimlane subtitleSwimlane duration __typename }  fragment swimlaneProgram on Program { id type title accentColor imageUrl logoUrl __typename }  fragment scaledImage on ScaledImage { small medium large __typename }  fragment vrtPlayerFragment on VrtPlayerConfig { mediaReference aggregatorUrl clientCode __typename }  fragment header on Header { type title description imageUrl logoUrl __typename } "
+        graph_id = "{{\"id\": \"{}\"}}".format(id)
+        graph_url = "https://senior-bff.ketnet.be/graphql?query={}&variables={}".format(
+            HtmlEntityHelper.url_encode(graph_query),
+            HtmlEntityHelper.url_encode(graph_id)
+        )
+        return graph_url
