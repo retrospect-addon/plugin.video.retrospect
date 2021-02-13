@@ -13,19 +13,26 @@ from resources.lib.urihandler import UriHandler
 
 
 class WebDialogue(object):
-    def __init__(self):
+    def __init__(self, bind_interface="", port=3145):
+        """ Initializes a WebDialogue object.
+
+        :param str bind_interface:  The interface to bind the http server to.
+        :param int port:            The TCP port number to bind to.
+
+        """
+
+        self.bind_interface = bind_interface
+        self.port = port
         self.__value = None
         return
 
     # noinspection PyCompatibility
-    def input(self, heading, text, time_out=30, bind_interface="", port=3145):
+    def input(self, heading, text, time_out=30):
         """ Show an input dialog.
 
         :param str|int heading:     Dialog heading.
         :param str|int text:        Default value.
         :param int time_out:        Seconds to autoclose dialog (default=do not autoclose).
-        :param str bind_interface:  The interface to bind the http server to.
-        :param int port:            The TCP port number to bind to.
 
         :return: Returns the entered data as a string. Returns an empty string if dialog was canceled.
         :rtype: str
@@ -37,7 +44,7 @@ class WebDialogue(object):
         if isinstance(text, int):
             text = LanguageHelper.get_localized_string(text)
 
-        server_address = (bind_interface, port)
+        server_address = (self.bind_interface, self.port)
 
         try:
             # noinspection PyUnresolvedReferences
@@ -250,7 +257,7 @@ class WebDialogue(object):
             th.daemon = True
             th.start()
 
-            Logger.info("RetroServer: Serving on %s", port)
+            Logger.info("RetroServer: Serving on %s", self.port)
 
             d = xbmcgui.DialogProgress()
             # TODO: Translate
@@ -293,7 +300,9 @@ class WebDialogue(object):
             httpd.force_stop()
             if th.is_alive():
                 th.join()
-            th = None
+
+            # noinspection PyUnusedLocal
+            th = None  # NOSONAR
             return httpd.value, httpd.cancelled
         except:
             Logger.critical("RetroServer: Error with WebDialogue", exc_info=True)
