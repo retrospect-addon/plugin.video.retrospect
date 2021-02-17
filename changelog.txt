@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: SVT HTML videos broken.
+* Fixed: Ketnet broke due to a change to GraphQL.
