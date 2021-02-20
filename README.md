@@ -22,9 +22,6 @@ thread at Tweakers.net (Dutch only). Issues regarding this script can be submitt
 tracker at GitHub.
 
 # Installing Retrospect #
-There are two ways to install Retrospect, depending on what version of Kodi you are using.
-
-### Kodi Leia and later
 Starting from Kodi Leia (v18), you can easily install Retrospect from the official Kodi add-on repository. Simply use the search function in the add-ons section to find `Retrospect` and install it. More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
 
 **Note:** Make sure the _Auto-Update_ option for Retrospect is enabled to automagically receive new updates.
@@ -32,14 +29,7 @@ Starting from Kodi Leia (v18), you can easily install Retrospect from the offici
 ![alt text](./resources/media/retrospect01.jpg "The Retrospect information screen")
 
 ### Kodi Krypton    
-If you are running Kodi Krypton (v17) the only way to install Retrospect is to install it from a zip file. Follow these steps (keep in mind they might slightly differ depending on your skin):
-1. Download the latest Retrospect zip file from here: [https://github.com/retrospect-addon/plugin.video.retrospect/releases](https://github.com/retrospect-addon/plugin.video.retrospect/releases)
-1. Transfer the file to your Kodi system (_optional_).
-1. Use `Install from zip file` in Kodi to install Retrospect.
-
-More detailed information can be found in the [Retrospect Wiki](https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Installation).
-
-**Note:** Since Retrospect isn't available in the official Kodi add-on repository for Kodi Krypton (v17), it will not automagically update. Retrospect will notify you of new versions. You will then have to manually update Retrospect using the steps above.
+We have a -1/+1 Kodi release policy: we support the previous, the current and the future release of Kodi. So with the release of Kodi Matrix, the support for Kodi Krypton has been removed.
 
 # Contributing #
 You can help develop Retrospect via our [Github](https://github.com/retrospect-addon/plugin.video.retrospect) page and/or help translating Retrospect via the [Kodi Add-on Weblate](https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/).
