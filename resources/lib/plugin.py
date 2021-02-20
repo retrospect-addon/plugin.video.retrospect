@@ -11,7 +11,6 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.sessionhelper import SessionHelper
 from resources.lib.textures import TextureHandler
 from resources.lib.actions.actionparser import ActionParser
-from resources.lib.urihandler import UriHandler
 from resources.lib.actions import keyword
 from resources.lib.actions import action
 
@@ -33,7 +32,7 @@ class Plugin(ActionParser):
 
         """
 
-        Logger.info("******** Starting %s add-on version %s/repo *********", Config.appName, Config.version)
+        Logger.info("*********** Starting %s add-on version %s ***********", Config.appName, Config.version)
         # noinspection PyTypeChecker
 
         super(Plugin, self).__init__(addon_name, handle, params)
@@ -55,18 +54,6 @@ class Plugin(ActionParser):
             # show notification
             XbmcWrapper.show_notification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
                 Config.appName,), fallback=False, logger=Logger)
-
-            # check for updates. Using local import for performance
-            from resources.lib.updater import Updater
-            up = Updater(Config.updateUrl, Config.version,
-                         UriHandler.instance(), Logger.instance(),
-                         AddonSettings.get_release_track())
-
-            if up.is_new_version_available():
-                Logger.info("Found new version online: %s vs %s", up.currentVersion, up.onlineVersion)
-                notification = LanguageHelper.get_localized_string(LanguageHelper.NewVersion2Id)
-                notification = notification % (Config.appName, up.onlineVersion)
-                XbmcWrapper.show_notification(None, lines=notification, display_time=20000)
 
             # check for cache folder
             env_ctrl.cache_check()

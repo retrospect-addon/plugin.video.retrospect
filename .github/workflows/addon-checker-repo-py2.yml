@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'kodi-leia'
+      - 'kodi-py2'
 
 jobs:
   check-addon:
