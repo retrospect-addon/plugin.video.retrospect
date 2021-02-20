@@ -13,11 +13,11 @@ on:
 
 jobs:
   check-addon:
-    name: Kodi Krypton/Leia ZIP Install Check (Py2)
+    name: Kodi Matrix ZIP Install Check (Py3)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kodi-branch: [krypton, leia]
+        kodi-branch: [matrix]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8

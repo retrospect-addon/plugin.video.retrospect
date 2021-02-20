@@ -3,7 +3,9 @@ name: Kodi Matrix Repo
 on:
   push:
     branches:
+      - 'master'
       - 'kodi-matrix'
+      - 'kodi-py3'
 
 jobs:
   check-addon:
