@@ -25,22 +25,22 @@
 
     <extension point="kodi.context.item">
         <menu id="kodi.core.main">
-            <item library="retromenu.py" args="queue">
+            <item library="menu_queue.py">
                 <label>30541</label>
                 <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)</visible>
             </item>
 
-            <item library="retromenu.py" args="hidechannel">
+            <item library="menu_hide_channel.py">
                 <label>30574</label>
                 <visible>ListItem.Property(RetrospectChannel)</visible>
             </item>
 
-            <item library="retromenu.py" args="cloak">
+            <item library="menu_cloak.py">
                 <label>30563</label>
                 <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectCloaked)+!ListItem.Property(RetrospectFavorite)</visible>
             </item>
 
-            <item library="retromenu.py" args="uncloak">
+            <item library="menu_uncloak.py">
                 <label>30564</label>
                 <visible>ListItem.Property(RetrospectCloaked)</visible>
             </item>
@@ -49,17 +49,17 @@
             <menu>
                 <label>30580</label>
 
-                <item library="retromenu.py" args="bitrate">
+                <item library="menu_bitrate.py">
                     <label>30577</label>
                     <visible>ListItem.Property(Retrospect)+!ListItem.Property(RetrospectCategory)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
-                <item library="retromenu.py" args="adaptive">
+                <item library="menu_adaptive.py">
                     <label>30579</label>
                     <visible>ListItem.Property(RetrospectAdaptive)+System.HasAddon(inputstream.adaptive)</visible>
                 </item>
 
-                <item library="retromenu.py" args="channel_settings">
+                <item library="menu_channelsettings.py">
                     <label>30069</label>
                     <visible>ListItem.Property(RetrospectChannelSettings)+!ListItem.Property(RetrospectCategory)</visible>
                 </item>
@@ -69,27 +69,27 @@
             <menu>
                 <label>30575</label>
 
-                <item library="retromenu.py" args="channel_favs">
+                <item library="menu_channel_favs.py">
                     <label>30503</label>
                     <visible>ListItem.Property(RetrospectVideo)|ListItem.Property(RetrospectFolder)|ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
-                <item library="retromenu.py" args="all_favs">
+                <item library="menu_all_favs.py">
                     <label>30500</label>
                     <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
-                <item library="retromenu.py" args="add_fav">
+                <item library="menu_add_fav.py">
                     <label>30504</label>
                     <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
-                <item library="retromenu.py" args="add_shortcut">
+                <item library="menu_add_shortcut.py">
                     <label>30511</label>
                     <visible>[ListItem.Property(RetrospectFolder)|ListItem.Property(RetrospectVideo)]+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
-                <item library="retromenu.py" args="remove_fav">
+                <item library="menu_remove_fav.py">
                     <label>30506</label>
                     <visible>ListItem.Property(RetrospectFavorite)</visible>
                 </item>
@@ -99,17 +99,17 @@
             <menu>
                 <label>30572</label>
 
-                <item library="retromenu.py" args="channel_selection">
+                <item library="menu_channel_selection.py">
                     <label>30507</label>
                     <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
-                <item library="retromenu.py" args="country_selection">
+                <item library="menu_country_selection.py">
                     <label>30576</label>
                     <visible>ListItem.Property(RetrospectChannel)</visible>
                 </item>
 
-                <item library="retromenu.py" args="settings">
+                <item library="menu_settings.py">
                     <label>30528</label>
                     <visible>ListItem.Property(Retrospect)</visible>
                 </item>
