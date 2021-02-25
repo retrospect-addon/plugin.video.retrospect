@@ -9,4 +9,4 @@ This small update fixes some minor channel issues and updates some translations.
 _None_
 
 [B]Channel related[/B]
-_None_
+* Moved: MTV.nl to the Nickelodeon.nl channelset as they share the same content backend.
