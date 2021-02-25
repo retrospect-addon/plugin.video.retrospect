@@ -3,7 +3,7 @@
 This small update fixes some minor channel issues and updates some translations.
 
 [B]Framework related[/B]
-* Fixed: Remove the `encoding` parameter from `json.loads` for Python 3.
+* Added: Allow channels to be moved and old links to stay working.
 
 [B]GUI/Settings/Language related[/B]
 _None_
