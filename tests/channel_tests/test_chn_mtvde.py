@@ -6,7 +6,7 @@ from . channeltest import ChannelTest
 class TestMtvDeChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestMtvDeChannel, self).__init__(methodName, "channel.mtv.mtvnl", "mtvnl")
+        super(TestMtvDeChannel, self).__init__(methodName, "channel.mtv.mtvnl", "mtvde")
 
     def test_channel_mtv_exists(self):
         self.assertIsNotNone(self.channel)

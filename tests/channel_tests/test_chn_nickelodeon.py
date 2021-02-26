@@ -18,6 +18,18 @@ class TestNickelodeonChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
 
+    def test_mtv_nl(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        chn = ChannelIndex.get_register().get_channel(self._channel, "mtvnl")
+        self.assertIsNotNone(chn)
+        self.assertEqual("mtvnl", chn.channelCode)
+
+    def test_mtv_nl_list(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        chn = ChannelIndex.get_register().get_channel(self._channel, "mtvnl")
+        items = chn.process_folder_list(None)
+        self.assertGreater(len(items), 50)
+
     def test_show_list_more_pages(self):
         url = "https://www.nickelodeon.nl/shows/65kecx/de-legende-van-korra"
         self._test_folder_url(url, expected_results=5)
