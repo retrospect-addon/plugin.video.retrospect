@@ -468,3 +468,5 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Brecht Serckx
 - Sape Sikkema
 - Gialt Huininga
+- Petra Pahtajärvi
+- Marcus Bruzelius
