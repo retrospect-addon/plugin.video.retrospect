@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Moved: MTV.nl to the Nickelodeon.nl channelset as they share the same content backend.
 * Fixed: Kijk.nl recents break every know and then due to missing EPG timestamps (Fixes #1489).
+* Changed: "Recents" now switch to the next day at 5:00, instead of 0:00 (See #1489).

@@ -528,7 +528,7 @@ class Channel(chn_class.Channel):
     def add_graphql_recents(self, data):
         items = []
 
-        today = datetime.datetime.now()
+        today = datetime.datetime.now() - datetime.timedelta(hours=5)
         days = LanguageHelper.get_days_list()
         for i in range(0, 7, 1):
             air_date = today - datetime.timedelta(i)
