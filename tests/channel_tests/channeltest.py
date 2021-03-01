@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-
+import time
 import unittest
 import xbmc
 
@@ -38,26 +38,51 @@ class ChannelTest(unittest.TestCase):
         AddonSettings.clear_cached_addon_settings_object()
         Logger.instance().close_log()
 
-    def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None):
+    def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None, retry=1):
         self.assertIsNotNone(self.channel)
-        item = self._get_media_item(url)
-        item.HttpHeaders.update(headers or {})
 
-        items = self.channel.process_folder_list(item)
-        if exact_results:
-            self.assertEqual(len(items), expected_results)
-        else:
-            self.assertGreaterEqual(len(items), expected_results)
-        return items
+        while retry >= 0:
+            try:
+                item = self._get_media_item(url)
+                item.HttpHeaders.update(headers or {})
 
-    def _test_video_url(self, url, headers=None):
+                items = self.channel.process_folder_list(item)
+                if exact_results:
+                    self.assertEqual(len(items), expected_results)
+                else:
+                    self.assertGreaterEqual(len(items), expected_results)
+                return items
+            except:
+                if retry > 0:
+                    Logger.error("Error on unittest attempt. Remaining: %d tries/try.", retry,
+                                 exc_info=True)
+                    retry -= 1
+                    time.sleep(5)
+                    continue
+                else:
+                    raise
+
+    def _test_video_url(self, url, headers=None, retry=1):
         self.assertIsNotNone(self.channel)
-        item = self._get_media_item(url)
-        item.HttpHeaders.update(headers or {})
-        item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_media_item_parts())
-        self.assertTrue(item.complete)
-        return item
+
+        while retry >= 0:
+            try:
+                item = self._get_media_item(url)
+                item.HttpHeaders.update(headers or {})
+                item = self.channel.process_video_item(item)
+
+                self.assertTrue(item.has_media_item_parts())
+                self.assertTrue(item.complete)
+                return item
+            except:
+                if retry > 0:
+                    Logger.error("Error on unittest attempt. Remaining: %d tries/try.", retry,
+                                 exc_info=True)
+                    retry -= 1
+                    time.sleep(5)
+                    continue
+                else:
+                    raise
 
     def _get_media_item(self, url, name=None):
         from resources.lib.mediaitem import MediaItem
