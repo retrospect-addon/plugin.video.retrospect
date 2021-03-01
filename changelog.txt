@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.23 - Changelog - 2021-02-18[/B]
+[B]Retrospect v5.2.24+matrix.1 - Changelog - 2021-03-01[/B]
 
-This small update fixes some minor channel issues and updates some translations.
+This minor update fixes a Python 3.9 issue and fixes the MTV, Kijk and NPO channels.
 
 [B]Framework related[/B]
 * Added: Allow channels to be moved and old links to stay working.
