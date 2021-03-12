@@ -36,7 +36,7 @@ class TestSvtChannel(ChannelTest):
               "%22%3A%20%2290dca0b51b57904ccc59a418332e43e17db21c93a2346d1c73e05583a9aa598c%22%7D%7D"
         self._test_folder_url(url, expected_results=4)
 
-    def test_html_video_update(self):
-        url = "https://www.svtplay.se/video/29891266/husdrommar/husdrommar-sasong-8-vad-hande-senr"
+    def test_api_video_update(self):
+        url = "https://api.svt.se/videoplayer-api/video/KZmNERk"
         item = self._test_video_url(url)
         self.assertIsNotNone(item)
