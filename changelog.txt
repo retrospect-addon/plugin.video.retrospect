@@ -3,13 +3,10 @@
 This minor update fixes a Python 3.9 issue and fixes the MTV, Kijk and NPO channels.
 
 [B]Framework related[/B]
-* Added: Allow channels to be moved and old links to stay working.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Moved: MTV.nl to the Nickelodeon.nl channelset as they share the same content backend.
-* Fixed: Small update of the NPO Live streams (Fixes #1492)
-* Fixed: Kijk.nl recents break every know and then due to missing EPG timestamps (Fixes #1489).
-* Changed: "Recents" now switch to the next day at 5:00, instead of 0:00 (See #1489).
+* Updated: Nickelodeon Sweden thumb (Fixes #1497)
