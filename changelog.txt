@@ -6,7 +6,7 @@ This minor update fixes a Python 3.9 issue and fixes the MTV, Kijk and NPO chann
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Fixed: Make the addon summary, an actual summary.
 
 [B]Channel related[/B]
 * Updated: Nickelodeon Sweden thumb (Fixes #1497)
