@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.24+matrix.1 - Changelog - 2021-03-01[/B]
+[B]Retrospect v5.2.25+matrix.1 - Changelog - 2021-03-20[/B]
 
-This minor update fixes a Python 3.9 issue and fixes the MTV, Kijk and NPO channels.
+Just a minor update to fix a thumb related issue for Nickelodeon and to fix the add-on's description.
 
 [B]Framework related[/B]
 _None_

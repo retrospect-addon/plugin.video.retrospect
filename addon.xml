@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.2.24+matrix.1"
+        version="5.2.25+matrix.1"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -127,21 +127,18 @@
 
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.2.24+matrix.1 - Changelog - 2021-03-01[/B]
+        <news>[B]Retrospect v5.2.25+matrix.1 - Changelog - 2021-03-20[/B]
 
-This minor update fixes a Python 3.9 issue and fixes the MTV, Kijk and NPO channels.
+Just a minor update to fix a thumb related issue for Nickelodeon and to fix the add-on&#x27;s description.
 
 [B]Framework related[/B]
-* Added: Allow channels to be moved and old links to stay working.
-
-[B]GUI/Settings/Language related[/B]
 _None_
 
+[B]GUI/Settings/Language related[/B]
+* Fixed: Make the addon summary, an actual summary.
+
 [B]Channel related[/B]
-* Moved: MTV.nl to the Nickelodeon.nl channelset as they share the same content backend.
-* Fixed: Small update of the NPO Live streams (Fixes #1492)
-* Fixed: Kijk.nl recents break every know and then due to missing EPG timestamps (Fixes #1489).
-* Changed: &quot;Recents&quot; now switch to the next day at 5:00, instead of 0:00 (See #1489).
+* Updated: Nickelodeon Sweden thumb (Fixes #1497)
 
         </news>
         <assets>
