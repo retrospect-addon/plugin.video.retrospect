@@ -12,7 +12,6 @@ from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.vault import Vault
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.textures import TextureHandler
 
 
@@ -74,20 +73,20 @@ class Channel(chn_class.Channel):
                               parser=[":items", "par", ":items", "categories", "items"],
                               creator=self.create_category)
 
-        folder_regex = r'<li class="vrt-labelnav--item "[^>]*>\s*(?:<h2[^<]*>\s*)?<a[^>]*href="(?<url>[^"]+)"[^>]*>(?:\W*<nui[^>]*>\W*)?(?<title>[^<]+)</'
+        folder_regex = r'<li class="vrt-labelnav--item "[^>]*>\s*(?:<h2[^<]*>\s*)?<a[^>]*href="' \
+                       r'(?<url>[^"]+)"[^>]*>(?:\W*<nui[^>]*>\W*)?(?<title>[^<]+)</'
         folder_regex = Regexer.from_expresso(folder_regex)
         self._add_data_parser("*", name="Folder/Season parser",
                               parser=folder_regex, creator=self.create_folder_item)
 
-        video_regex = r'<a[^>]+href="(?<url>/vrtnu/(?:[^/]+/){2}[^/]*?(?<year2>\d*)/[^"]+)"[^>]*>' \
-                      r'\W*(?<title>[^<]+)(?:<br\s*/>\s*)?</a>\s*</h3>\s*<p[^>]*>\W*(?<channel>[^<]+)' \
-                      r'</p>\s*(?:<p[^<]+</p>\s*)?<div[^>]*class="meta[^>]*>\s*(?:<time[^>]+datetime=' \
-                      r'"(?<year>\d+)-(?<month>\d+)-(?<day>\d+))?[\w\W]{0,1000}?ata-responsive-image=' \
-                      r'"(?<thumburl>[^"]+)'
+        video_regex = r'vrtnu-tile[^>]+season[^>]+link="(?<url>[^"]+)[^>]+>\W*<vrtnu-image[^>]+src=' \
+                      r'"(?<thumburl>[^"]+/(?<year>\d{4})/(?<month>\d+)/(?<day>\d+)[^"]+)"' \
+                      r'[\w\W]{100,2000}?<h3[^>]*>(?<title>[^<]+)<[^<]+(?:<div[^>]+>(?<description>[^<]+))?'
 
         # No need for a subtitle for now as it only includes the textual date
         video_regex = Regexer.from_expresso(video_regex)
         self._add_data_parser("*", name="Video item parser",
+                              preprocessor=self.extract_lazy_url,
                               parser=video_regex, creator=self.create_video_item)
 
         # needs to be after the standard video item regex
@@ -295,12 +294,34 @@ class Channel(chn_class.Channel):
         live.isLive = True
         items.append(live)
 
-        channel_text = LanguageHelper.get_localized_string(30010)
-        channels = MediaItem("\a.: %s :." % (channel_text, ), "#channels")
-        channels.dontGroup = True
-        items.append(channels)
+        # No way to distinguish channels for now.
+        # channel_text = LanguageHelper.get_localized_string(30010)
+        # channels = MediaItem("\a.: %s :." % (channel_text, ), "#channels")
+        # channels.dontGroup = True
+        # items.append(channels)
 
         Logger.debug("Pre-Processing finished")
+        return data, items
+
+    def extract_lazy_url(self, data):
+        """ Extract the lazy load URL from a TV Show page.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        Logger.info("Performing Pre-Processing")
+        items = []
+
+        lazy_url = Regexer.do_regex(r'data-lazy-src="([^"]+)"', data)[0]
+        lazy_url = "{}{}".format(self.baseUrl, lazy_url)
+        data = UriHandler.open(lazy_url)
+
         return data, items
 
     def list_channels(self, data):
