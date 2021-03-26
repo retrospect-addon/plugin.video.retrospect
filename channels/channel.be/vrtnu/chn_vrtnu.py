@@ -74,10 +74,10 @@ class Channel(chn_class.Channel):
                               parser=[":items", "par", ":items", "categories", "items"],
                               creator=self.create_category)
 
-        folder_regex = r'<li class="vrt-labelnav--item "[^>]*>\s*(?:<h2[^<]*>\s*)?<a[^>]*href="' \
-                       r'(?<url>[^"]+)"[^>]*>(?:\W*<nui[^>]*>\W*)?(?<title>[^<]+)</'
+        folder_regex = r'<option value="#([^"]+)[^>]*>([^<]+)</option>'
         folder_regex = Regexer.from_expresso(folder_regex)
         self._add_data_parser("*", name="Folder/Season parser",
+                              preprocessor=self.extract_lazy_url,
                               parser=folder_regex, creator=self.create_folder_item)
 
         video_regex = r'vrtnu-tile[^>]+link="(?<url>[^"]+)[^>]+>\W*<vrtnu-image[^>]+src=' \
@@ -162,6 +162,8 @@ class Channel(chn_class.Channel):
         # POST
         # Content-Type:application/json
         # https://media-services-public.vrt.be/vualto-video-aggregator-web/rest/external/v1/tokens
+
+        self.__folder_map = {}
 
         # ===============================================================================================================
         # Test cases:
@@ -317,9 +319,9 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        lazy_url = Regexer.do_regex(r'data-lazy-src="([^"]+)"', data)[0]
-        lazy_url = "{}{}".format(self.baseUrl, lazy_url)
-        data = UriHandler.open(lazy_url)
+        lazy_urls = Regexer.do_regex(r'data-lazy-src="([^"]+)" id="([^"]+)', data)
+        for folder_url in lazy_urls:
+            self.__folder_map[folder_url[1]] = folder_url[0]
 
         return data, items
 
@@ -491,10 +493,13 @@ class Channel(chn_class.Channel):
 
         """
 
-        item = chn_class.Channel.create_folder_item(self, result_set)
-        if item is None:
+        folder_id = result_set[0]
+        folder_url = self.__folder_map.get(folder_id)
+        if not folder_url:
             return None
 
+        folder_url = "{}{}".format(self.baseUrl, folder_url)
+        item = MediaItem(result_set[1], folder_url)
         item.name = item.name.title()
         return item
 
