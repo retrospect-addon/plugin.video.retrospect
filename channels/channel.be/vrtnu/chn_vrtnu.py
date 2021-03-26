@@ -3,6 +3,7 @@
 import datetime
 
 from resources.lib import chn_class
+from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.mediaitem import MediaItem
 from resources.lib.helpers.htmlhelper import HtmlHelper
 from resources.lib.regexer import Regexer
@@ -38,7 +39,7 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.vrt.be"
 
         # first regex is a bit tighter than the second one.
-        episode_regex = r'<nui-tile href="(?<url>/vrtnu[^"]+)"[^>]*>\s*<h3[^>]*>\s*<a[^>]+>' \
+        episode_regex = r'<nui-tile href="(?<url>/vrtnu[^"]+).relevant/"[^>]*>\s*<h3[^>]*>\s*<a[^>]+>' \
                         r'(?<title>[^<]+)</a>\s*</h3>\s*<div[^>]+>(?:\s*<p>)?(?<description>' \
                         r'[\w\W]{0,2000}?)(?:</p>)?\W*</div>\s*(?:<p[^>]*' \
                         r'data-brand="(?<channel>[^"]+)"[^>]*>[^<]+</p>)?\s*(?:<img[\w\W]{0,100}?' \
@@ -79,14 +80,13 @@ class Channel(chn_class.Channel):
         self._add_data_parser("*", name="Folder/Season parser",
                               parser=folder_regex, creator=self.create_folder_item)
 
-        video_regex = r'vrtnu-tile[^>]+season[^>]+link="(?<url>[^"]+)[^>]+>\W*<vrtnu-image[^>]+src=' \
+        video_regex = r'vrtnu-tile[^>]+link="(?<url>[^"]+)[^>]+>\W*<vrtnu-image[^>]+src=' \
                       r'"(?<thumburl>[^"]+/(?<year>\d{4})/(?<month>\d+)/(?<day>\d+)[^"]+)"' \
                       r'[\w\W]{100,2000}?<h3[^>]*>(?<title>[^<]+)<[^<]+(?:<div[^>]+>(?<description>[^<]+))?'
 
         # No need for a subtitle for now as it only includes the textual date
         video_regex = Regexer.from_expresso(video_regex)
         self._add_data_parser("*", name="Video item parser",
-                              preprocessor=self.extract_lazy_url,
                               parser=video_regex, creator=self.create_video_item)
 
         # needs to be after the standard video item regex
@@ -294,11 +294,10 @@ class Channel(chn_class.Channel):
         live.isLive = True
         items.append(live)
 
-        # No way to distinguish channels for now.
-        # channel_text = LanguageHelper.get_localized_string(30010)
-        # channels = MediaItem("\a.: %s :." % (channel_text, ), "#channels")
-        # channels.dontGroup = True
-        # items.append(channels)
+        channel_text = LanguageHelper.get_localized_string(30010)
+        channels = MediaItem("\a.: %s :." % (channel_text, ), "#channels")
+        channels.dontGroup = True
+        items.append(channels)
 
         Logger.debug("Pre-Processing finished")
         return data, items
@@ -465,6 +464,7 @@ class Channel(chn_class.Channel):
         if item is None:
             return None
 
+        item.url = "{}/".format(item.url)
         item.description = HtmlHelper.to_text(item.description)
 
         # update artswork
