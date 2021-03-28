@@ -9,4 +9,5 @@ _None_
 * Fixed: Make the addon summary, an actual summary.
 
 [B]Channel related[/B]
-* Updated: Nickelodeon Sweden thumb (Fixes #1497)
+* Updated: Nickelodeon Sweden thumb (Fixes #1497).
+* Fixed: VRT.Nu videos were not listing (Fixes #1500).

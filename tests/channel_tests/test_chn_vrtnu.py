@@ -15,8 +15,14 @@ class TestVrtNuChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 200, "No items found in mainlist")
 
+    def test_videos(self):
+        url = "https://www.vrt.be/vrtnu/a-z/4ever/"
+        items = self._test_folder_url(url, expected_results=10)
+        folders = [f for f in items if f.type != "folder"]
+        self.assertGreaterEqual(len(folders), 1)
+
     def test_folder(self):
-        url = "https://www.vrt.be/vrtnu/a-z/4ever.relevant/"
+        url = "https://www.vrt.be/vrtnu/a-z/4ever/"
         items = self._test_folder_url(url, expected_results=10)
         folders = [f for f in items if f.type == "folder"]
         self.assertGreaterEqual(len(folders), 1)
