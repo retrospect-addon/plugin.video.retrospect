@@ -9,4 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: VRT.Nu videos were not listing (Fixes #1500).
+* Fixed: Issue with season parsing in vier.be.
