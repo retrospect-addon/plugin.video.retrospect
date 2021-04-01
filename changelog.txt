@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.26+matrix.1 - Changelog - 2021-03-28[/B]
+[B]Retrospect v5.2.27+matrix.1 - Changelog - 2021-04-01[/B]
 
-This release includes a fix for VRT.nu channel that broke completely.
+This release includes a fix for the vier.be channel that broke completely.
 
 [B]Framework related[/B]
 _None_
