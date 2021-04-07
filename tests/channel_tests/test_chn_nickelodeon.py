@@ -31,7 +31,7 @@ class TestNickelodeonChannel(ChannelTest):
         self.assertGreater(len(items), 50)
 
     def test_show_list_more_pages(self):
-        url = "https://www.nickelodeon.nl/shows/65kecx/de-legende-van-korra"
+        url = "https://www.nickelodeon.nl/shows/iedxxq/victorious"
         self._test_folder_url(url, expected_results=5)
 
     @unittest.skip("Nickelodeon keeps changing the season names and url")
