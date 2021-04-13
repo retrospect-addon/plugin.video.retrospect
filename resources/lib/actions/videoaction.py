@@ -10,6 +10,7 @@ from resources.lib.locker import LockWithDialog
 from resources.lib.logger import Logger
 from resources.lib.actions.actionparser import ActionParser
 from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.mediaitem import MediaItem
 
 
 class VideoAction(AddonAction):
@@ -91,8 +92,17 @@ class VideoAction(AddonAction):
             kodi_player = player.Player(show_subs=show_subs, subs=available_subs)
             kodi_player.waitForPlayBack(url=start_url, time_out=10)
 
+            # Wrap in setting for Next Up
             siblings = self.parameter_parser.pickler.de_pickle_child_items(self.parameter_parser.pickle_hash)
-            Logger.trace(siblings)
+            siblings = list(siblings.values())
+            # Fix
+            siblings.sort(key=lambda s: s._MediaItem__timestamp)
+            # Sort it and find the next items to play
+            current_idx = siblings.index(media_item)
+            Logger.trace("Found current item at index %s of %d: %s", current_idx, len(siblings), media_item)
+            if current_idx + 1 < len(siblings):
+                next_item = siblings[current_idx + 1]
+                Logger.trace("Found next item: %s", next_item)
 
             xbmcplugin.endOfDirectory(self.handle, True)
         except:

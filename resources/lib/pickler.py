@@ -59,7 +59,7 @@ class Pickler:
         :param str|unicode hex_string: Base64 encoded string that should be decoded.
 
         :return: The object that was Pickled and Base64 encoded.
-        :rtype: list[MediaItem]
+        :rtype: dict[str, list[MediaItem]]
 
         """
 
