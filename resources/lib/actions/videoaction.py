@@ -91,6 +91,9 @@ class VideoAction(AddonAction):
             kodi_player = player.Player(show_subs=show_subs, subs=available_subs)
             kodi_player.waitForPlayBack(url=start_url, time_out=10)
 
+            siblings = self.parameter_parser.pickler.de_pickle_child_items(self.parameter_parser.pickle_hash)
+            Logger.trace(siblings)
+
             xbmcplugin.endOfDirectory(self.handle, True)
         except:
             XbmcWrapper.show_notification(

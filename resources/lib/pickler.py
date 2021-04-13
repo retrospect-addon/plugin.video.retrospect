@@ -51,6 +51,24 @@ class Pickler:
         else:
             self.__ext = "store"
 
+    def de_pickle_child_items(self, hex_string):
+        """ De-serializes a serialized mediaitem.
+
+        Warning: Pickling from Python2 to Python3 will not work.
+
+        :param str|unicode hex_string: Base64 encoded string that should be decoded.
+
+        :return: The object that was Pickled and Base64 encoded.
+        :rtype: list[MediaItem]
+
+        """
+
+        if not self.is_pickle_store_id(hex_string):
+            raise ValueError("Cannot fetch child items for non-store item.")
+
+        store_guid, item_guid = hex_string.split(Pickler.__store_separator)
+        return self.__retrieve_media_items_from_store(store_guid)
+
     def de_pickle_media_item(self, hex_string):
         """ De-serializes a serialized mediaitem.
 
@@ -59,6 +77,7 @@ class Pickler:
         :param str|unicode hex_string: Base64 encoded string that should be decoded.
 
         :return: The object that was Pickled and Base64 encoded.
+        :rtype: MediaItem
 
         """
 
