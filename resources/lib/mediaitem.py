@@ -231,13 +231,24 @@ class MediaItem:
     def set_info_label(self, label, value):
         """ Set a Kodi InfoLabel and its value.
 
-        See http://kodi.wiki/view/InfoLabels
+        See https://kodi.wiki/view/InfoLabels
         :param str label: the name of the label
         :param Any value: the value to assign
 
         """
 
         self.__infoLabels[label] = value
+
+    def set_mediatype(self, mediatype):
+        """ Set the Kodi MediaType for this item. Use the `mediatype.py` for this.
+
+        :param str mediatype: The media type.
+
+        "video", "movie", "tvshow", "season", "episode" or "musicvideo"
+
+        """
+
+        self.__infoLabels["mediatype"] = mediatype
 
     def set_artwork(self, icon=None, thumb=None, fanart=None, poster=None):
         """ Set the artwork for this MediaItem.
@@ -465,7 +476,8 @@ class MediaItem:
 
         """
 
-        Logger.info("Creating playlist items for Bitrate: %s kbps\n%s", bitrate, self)
+        Logger.info("Creating playlist items for Bitrate: %s kbps\n%s\nMediaType: %s",
+                    bitrate, self, self.__infoLabels.get("mediatype"))
 
         if bitrate is None:
             raise ValueError("Bitrate not specified")
