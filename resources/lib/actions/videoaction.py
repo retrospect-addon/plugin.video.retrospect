@@ -179,7 +179,7 @@ class VideoAction(AddonAction):
         siblings = list(siblings.values())
 
         # Fix
-        siblings.sort(key=lambda s: s.get_date())
+        siblings.sort(key=lambda s: s.get_upnext_sort_key())
 
         # Sort it and find the next items to play
         current_idx = siblings.index(media_item)
@@ -226,6 +226,8 @@ class VideoAction(AddonAction):
                 data=[b64_data.decode('utf-8')]
             )
         )
+        Logger.trace("UpNext data: %s", next_info)
+        Logger.trace("UpNext JsonRPC: %s", data)
         result = xbmc.executeJSONRPC(JsonHelper.dump(data, pretty_print=False))
         Logger.trace("UpNext result: %s", result)
 
@@ -248,21 +250,24 @@ class VideoAction(AddonAction):
                 'thumb': item.thumb,
                 # 'tvshow.clearart': "",
                 # 'tvshow.clearlogo': "",
-                'tvshow.fanart': item.fanart or "",
+                # 'tvshow.fanart': item.fanart,
                 # 'tvshow.landscape:': "",
-                'tvshow.poster': item.poster or "",
+                # 'tvshow.poster': item.poster,
             },
-            # season=1,
-            # episode=1,
+            season=0,
+            episode=0,
             showtitle=item.tv_show_title or "",
             plot=item.description,
-            # playcount=1,
-            # rating=1,
-            # firstaired="2020.01.01"
+            playcount=1,
+            rating=1,
+            firstaired=""
         )
 
-        # duration = item.get_info_label("duration")
-        # if duration:
-        #     result["runtime"] = duration
+        duration = item.get_info_label("duration")
+        if duration:
+            result["runtime"] = duration
+
+        if item.poster:
+            result["art"]["tvshow.poster"] = item.poster
 
         return result

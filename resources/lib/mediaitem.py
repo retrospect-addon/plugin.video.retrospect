@@ -302,8 +302,8 @@ class MediaItem:
         self.__expires_datetime = datetime(
             int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
 
-    def get_date(self):
-        return self.__timestamp
+    def get_upnext_sort_key(self):
+        return "{}-{}".format(self.__timestamp.strftime("%Y.%m.%d"), self.name)
 
     def set_date(self, year, month, day,
                  hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):
