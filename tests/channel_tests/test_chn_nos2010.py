@@ -18,7 +18,7 @@ class TestNpoChannel(ChannelTest):
         self.assertEqual(len(items), 8, "No items found in mainlist")
 
     def test_live_radio(self):
-        self._test_folder_url("http://radio-app.omroep.nl/player/script/player.js", 8)
+        self._test_folder_url("https://radio-app.omroep.nl/player/script/player.js", 8)
 
     def test_live_tv(self):
         self._test_folder_url("https://www.npostart.nl/live", 10)
