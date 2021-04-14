@@ -164,7 +164,11 @@ msgctxt "#30037"
 msgid "Use 'Up Next' to play next episode"
 msgstr ""
 
-# empty string from id 30038 to 30039
+msgctxt "#30038"
+msgid "'Up Next' add-on settings"
+msgstr ""
+
+# empty string from id 30039 to 30039
 
 msgctxt "#30040"
 msgid "Channels"
