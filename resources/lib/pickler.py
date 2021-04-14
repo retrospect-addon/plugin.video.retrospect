@@ -59,7 +59,7 @@ class Pickler:
         :param str|unicode hex_string: Base64 encoded string that should be decoded.
 
         :return: The object that was Pickled and Base64 encoded.
-        :rtype: dict[str, list[MediaItem]]
+        :rtype: tuple[str, dict[str, list[MediaItem]]]
 
         """
 
@@ -67,7 +67,7 @@ class Pickler:
             raise ValueError("Cannot fetch child items for non-store item.")
 
         store_guid, item_guid = hex_string.split(Pickler.__store_separator)
-        return self.__retrieve_media_items_from_store(store_guid)
+        return store_guid, self.__retrieve_media_items_from_store(store_guid)
 
     def de_pickle_media_item(self, hex_string):
         """ De-serializes a serialized mediaitem.

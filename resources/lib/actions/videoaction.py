@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import xbmc
 import xbmcplugin
+from resources.lib.actions import action
 
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
@@ -173,10 +174,13 @@ class VideoAction(AddonAction):
 
         """
 
-        siblings = self.parameter_parser.pickler.de_pickle_child_items(self.parameter_parser.pickle_hash)
+        store_id, siblings = self.parameter_parser.pickler.de_pickle_child_items(
+            self.parameter_parser.pickle_hash)
         siblings = list(siblings.values())
+
         # Fix
         siblings.sort(key=lambda s: s.get_date())
+
         # Sort it and find the next items to play
         current_idx = siblings.index(media_item)
         Logger.trace("Found current item at index %s of %d: %s", current_idx, len(siblings), media_item)
@@ -185,28 +189,35 @@ class VideoAction(AddonAction):
 
         next_item = siblings[current_idx + 1]
         Logger.trace("Found next item: %s", next_item)
-        self.__notify_up_next(media_item, next_item)
+        self.__notify_up_next(media_item, next_item, store_id)
 
-    def __notify_up_next(self, current_item, next_item):
+    def __notify_up_next(self, current_item, next_item, store_id):
         """ Send a notification to Up Next
 
+        :param str store_id:             The store_id of the parent.
         :param MediaItem current_item:   The current item
         :param MediaItem next_item:      The next item.
+
         """
 
-        current_un = self.__get_up_next_data(current_item)
-        next_un = self.__get_up_next_data(next_item)
+        current_un = self.__get_up_next_data(current_item, store_id)
+        next_un = self.__get_up_next_data(next_item, store_id)
+
+        url = next_item.actionUrl
+        if url is None:
+            url = self.parameter_parser.create_action_url(
+                self.__channel, action=action.PLAY_VIDEO, item=next_item, store_id=store_id)
 
         next_info = dict(
             current_episode=current_un,
             next_episode=next_un,
-            play_url='plugin://plugin.video.retrospect/play_item/1',
+            play_url=url
         )
         # Base64 encode
         b64_data = EncodingHelper.encode_base64(JsonHelper.dump(next_info))
 
         data = dict(
-            id=1,
+            id=0,
             jsonrpc="2.0",
             method="JSONRPC.NotifyAll",
             params=dict(
@@ -218,9 +229,10 @@ class VideoAction(AddonAction):
         result = xbmc.executeJSONRPC(JsonHelper.dump(data, pretty_print=False))
         Logger.trace("UpNext result: %s", result)
 
-    def __get_up_next_data(self, item):
+    def __get_up_next_data(self, item, store_id):
         """ Create the Up Next data. See https://github.com/im85288/service.upnext/wiki/Integration
 
+        :param str store_id:    The parent GUID
         :param MediaItem item:  A MediaItem to convert
 
         :return: an Up Next dictionary
@@ -229,28 +241,28 @@ class VideoAction(AddonAction):
         """
 
         result = dict(
-            # episodeid=next_item_details.id,
-            # tvshowid=next_item_details.series_name,
+            episodeid=item.guid,
+            tvshowid=store_id,
             title=item.name,
-            art=dict(
-                thumb=item.thumb,
-                fanart=item.fanart,
-                poster=item.poster
-            ),
-            #         season=next_item_details.season_number,
-            #         episode=next_item_details.episode_number,
+            art={
+                'thumb': item.thumb,
+                # 'tvshow.clearart': "",
+                # 'tvshow.clearlogo': "",
+                'tvshow.fanart': item.fanart or "",
+                # 'tvshow.landscape:': "",
+                'tvshow.poster': item.poster or "",
+            },
+            # season=1,
+            # episode=1,
+            showtitle=item.tv_show_title or "",
             plot=item.description,
-            #         playcount=next_item_details.play_count,
-            #         rating=next_item_details.critic_rating,
-            #         firstaired=next_item_details.year,
-            #         runtime=next_item_details.runtime,  # NOTE: This is optional
+            # playcount=1,
+            # rating=1,
+            # firstaired="2020.01.01"
         )
 
-        if item.tv_show_title:
-            result["showtitle"] = item.tv_show_title
-
-        duration = item.get_info_label("duration")
-        if duration:
-            result["runtime"] = duration
+        # duration = item.get_info_label("duration")
+        # if duration:
+        #     result["runtime"] = duration
 
         return result

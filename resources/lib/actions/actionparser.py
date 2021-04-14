@@ -116,6 +116,9 @@ class ActionParser(object):
 
         """
 
+        if keyword.STORE_ID not in self.params:
+            return None
+
         return self.params.get(keyword.STORE_ID)
 
     def create_action_url(self, channel, action, item=None, store_id=None, category=None):
