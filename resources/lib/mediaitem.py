@@ -216,6 +216,18 @@ class MediaItem:
         """
         return bool(self.__infoLabels)
 
+    def get_info_label(self, label):
+        """ Retrieves an info label.
+
+        :param str label:   The label name to retrieve.
+
+        :return: The value of the label or None if it was not present
+        :rtype: str|int|bool
+
+        """
+
+        return self.__infoLabels.get(label)
+
     def set_info_label(self, label, value):
         """ Set a Kodi InfoLabel and its value.
 

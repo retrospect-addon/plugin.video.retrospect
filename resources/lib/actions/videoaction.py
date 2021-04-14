@@ -5,6 +5,8 @@ import xbmcplugin
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.chn_class import Channel
+from resources.lib.helpers.encodinghelper import EncodingHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.locker import LockWithDialog
 from resources.lib.logger import Logger
@@ -183,3 +185,72 @@ class VideoAction(AddonAction):
 
         next_item = siblings[current_idx + 1]
         Logger.trace("Found next item: %s", next_item)
+        self.__notify_up_next(media_item, next_item)
+
+    def __notify_up_next(self, current_item, next_item):
+        """ Send a notification to Up Next
+
+        :param MediaItem current_item:   The current item
+        :param MediaItem next_item:      The next item.
+        """
+
+        current_un = self.__get_up_next_data(current_item)
+        next_un = self.__get_up_next_data(next_item)
+
+        next_info = dict(
+            current_episode=current_un,
+            next_episode=next_un,
+            play_url='plugin://plugin.video.retrospect/play_item/1',
+        )
+        # Base64 encode
+        b64_data = EncodingHelper.encode_base64(JsonHelper.dump(next_info))
+
+        data = dict(
+            id=1,
+            jsonrpc="2.0",
+            method="JSONRPC.NotifyAll",
+            params=dict(
+                sender="plugin.video.retrospect.SIGNAL",
+                message="upnext_data",
+                data=[b64_data.decode('utf-8')]
+            )
+        )
+        result = xbmc.executeJSONRPC(JsonHelper.dump(data, pretty_print=False))
+        Logger.trace("UpNext result: %s", result)
+
+    def __get_up_next_data(self, item):
+        """ Create the Up Next data. See https://github.com/im85288/service.upnext/wiki/Integration
+
+        :param MediaItem item:  A MediaItem to convert
+
+        :return: an Up Next dictionary
+        :rtype: dict
+
+        """
+
+        result = dict(
+            # episodeid=next_item_details.id,
+            # tvshowid=next_item_details.series_name,
+            title=item.name,
+            art=dict(
+                thumb=item.thumb,
+                fanart=item.fanart,
+                poster=item.poster
+            ),
+            #         season=next_item_details.season_number,
+            #         episode=next_item_details.episode_number,
+            plot=item.description,
+            #         playcount=next_item_details.play_count,
+            #         rating=next_item_details.critic_rating,
+            #         firstaired=next_item_details.year,
+            #         runtime=next_item_details.runtime,  # NOTE: This is optional
+        )
+
+        if item.tv_show_title:
+            result["showtitle"] = item.tv_show_title
+
+        duration = item.get_info_label("duration")
+        if duration:
+            result["runtime"] = duration
+
+        return result
