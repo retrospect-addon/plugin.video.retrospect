@@ -279,6 +279,9 @@ class MediaItem:
         self.__expires_datetime = datetime(
             int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
 
+    def get_date(self):
+        return self.__timestamp
+
     def set_date(self, year, month, day,
                  hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):
         """ Sets the datetime of the MediaItem.

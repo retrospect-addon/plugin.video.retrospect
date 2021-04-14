@@ -160,7 +160,11 @@ msgctxt "#30036"
 msgid "Password"
 msgstr ""
 
-# empty string from id 30037 to 30039
+msgctxt "#30037"
+msgid "Use 'Up Next' to play next episode"
+msgstr ""
+
+# empty string from id 30038 to 30039
 
 msgctxt "#30040"
 msgid "Channels"

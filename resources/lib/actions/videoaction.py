@@ -92,17 +92,9 @@ class VideoAction(AddonAction):
             kodi_player = player.Player(show_subs=show_subs, subs=available_subs)
             kodi_player.waitForPlayBack(url=start_url, time_out=10)
 
-            # Wrap in setting for Next Up
-            siblings = self.parameter_parser.pickler.de_pickle_child_items(self.parameter_parser.pickle_hash)
-            siblings = list(siblings.values())
-            # Fix
-            siblings.sort(key=lambda s: s._MediaItem__timestamp)
-            # Sort it and find the next items to play
-            current_idx = siblings.index(media_item)
-            Logger.trace("Found current item at index %s of %d: %s", current_idx, len(siblings), media_item)
-            if current_idx + 1 < len(siblings):
-                next_item = siblings[current_idx + 1]
-                Logger.trace("Found next item: %s", next_item)
+            if AddonSettings.use_up_next():
+                # Wrap in setting for Next Up
+                self.__call_upnext(media_item)
 
             xbmcplugin.endOfDirectory(self.handle, True)
         except:
@@ -171,3 +163,23 @@ class VideoAction(AddonAction):
             play_list.add(current_play_list_items[i].getPath(), current_play_list_items[i])
 
         return start_url
+
+    def __call_upnext(self, media_item):
+        """ Calls UpNext to send information on the next episode.
+
+        :param MediaItem media_item: the current itme.
+
+        """
+
+        siblings = self.parameter_parser.pickler.de_pickle_child_items(self.parameter_parser.pickle_hash)
+        siblings = list(siblings.values())
+        # Fix
+        siblings.sort(key=lambda s: s.get_date())
+        # Sort it and find the next items to play
+        current_idx = siblings.index(media_item)
+        Logger.trace("Found current item at index %s of %d: %s", current_idx, len(siblings), media_item)
+        if current_idx + 1 >= len(siblings):
+            return
+
+        next_item = siblings[current_idx + 1]
+        Logger.trace("Found next item: %s", next_item)
