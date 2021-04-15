@@ -5,6 +5,7 @@ from resources.lib import chn_class
 from resources.lib.helpers.datehelper import DateHelper
 
 from resources.lib.mediaitem import MediaItem
+from resources.lib.mediatype import EPISODE
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -289,6 +290,7 @@ class Channel(chn_class.Channel):
         url = "{}{}".format(self.baseUrl, result_set["url"])
         item = MediaItem(name, url)
         item.type = "video"
+        item.set_mediatype(EPISODE)
         item.description = meta.get("description")
         item.thumb = result_set.get("media", {}).get("image", {}).get("url")
         item.isGeoLocked = True

@@ -3,6 +3,7 @@
 from resources.lib import chn_class
 
 from resources.lib.mediaitem import MediaItem
+from resources.lib.mediatype import EPISODE
 from resources.lib.regexer import Regexer
 from resources.lib.parserdata import ParserData
 from resources.lib.logger import Logger
@@ -231,6 +232,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url)
         item.description = result_set.get("description", None)
         item.type = "video"
+        item.set_mediatype(EPISODE)
         item.HttpHeaders = self.httpHeaders
         item.complete = False
 
