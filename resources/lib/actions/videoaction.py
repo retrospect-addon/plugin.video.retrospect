@@ -178,7 +178,7 @@ class VideoAction(AddonAction):
             self.parameter_parser.pickle_hash)
         siblings = list(siblings.values())
 
-        # Fix
+        # Sort based on season-episode-date-name (000-000-0000-00-00-aaaaa)
         siblings.sort(key=lambda s: s.get_upnext_sort_key())
 
         # Sort it and find the next items to play
@@ -254,8 +254,8 @@ class VideoAction(AddonAction):
                 # 'tvshow.landscape:': "",
                 # 'tvshow.poster': item.poster,
             },
-            season=0,
-            episode=0,
+            season=item.season,
+            episode=item.epsiode,
             showtitle=item.tv_show_title or "",
             plot=item.description,
             playcount=1,

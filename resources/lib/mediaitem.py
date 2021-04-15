@@ -88,6 +88,8 @@ class MediaItem:
         self.isGeoLocked = False                  # : if set to True, the item is GeoLocked to the channels language (o)
         self.isDrmProtected = False               # : if set to True, the item is DRM protected and cannot be played (^)
         self.isPaid = False                       # : if set to True, the item is a Paid item and cannot be played (*)
+        self.season = 0                           # : The season number
+        self.epsiode = 0                          # : The episode number
         self.__infoLabels = dict()                # : Additional Kodi InfoLabels
 
         self.complete = False
@@ -278,8 +280,11 @@ class MediaItem:
             Logger.warning("Cannot set EpisodeInfo without season and episode")
             return
 
-        self.__infoLabels["Episode"] = int(episode)
-        self.__infoLabels["Season"] = int(season)
+        self.season = int(season)
+        self.__infoLabels["Season"] = self.season
+
+        self.epsiode = int(episode)
+        self.__infoLabels["Episode"] = self.epsiode
         return
 
     def set_expire_datetime(self, timestamp, year=0, month=0, day=0, hour=0, minutes=0, seconds=0):
@@ -303,7 +308,18 @@ class MediaItem:
             int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
 
     def get_upnext_sort_key(self):
-        return "{}-{}".format(self.__timestamp.strftime("%Y.%m.%d"), self.name)
+        """ Returns a value that be used to sort episodes for UpNext integration.
+
+        :return: A key used to sort the items chronologically.
+        :rtype: str
+
+        """
+
+        return "{:03d}-{:03d}-{}-{}".format(
+            self.season,
+            self.epsiode,
+            self.__timestamp.strftime("%Y.%m.%d"),
+            self.name)
 
     def set_date(self, year, month, day,
                  hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):

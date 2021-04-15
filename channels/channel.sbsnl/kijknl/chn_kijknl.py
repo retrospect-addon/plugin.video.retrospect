@@ -758,6 +758,8 @@ class Channel(chn_class.Channel):
         item.description = result_set.get("longDescription", result_set.get("description"))
         item.set_info_label("duration", int(result_set.get("duration", 0) or 0))
         item.set_info_label("genre", result_set.get("displayGenre"))
+        if season_number and episode_number:
+            item.set_season_info(season_number, episode_number)
         self.__get_artwork(item, result_set.get("imageMedia"), mode="thumb")
 
         updated = result_set["lastPubDate"] / 1000
