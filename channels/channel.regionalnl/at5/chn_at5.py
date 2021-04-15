@@ -9,6 +9,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
+from resources.lib.mediatype import EPISODE
 from resources.lib.parserdata import ParserData
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
@@ -191,6 +192,7 @@ class Channel(chn_class.Channel):
                 return None
 
             item.type = "video"
+            item.set_mediatype(EPISODE)
             item.url = video_url
 
         return item
@@ -229,6 +231,7 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(result_set["title"], url)
         item.type = "video"
+        item.set_mediatype(EPISODE)
         item.thumb = thumb or self.noImage
         item.description = HtmlHelper.to_text(result_set.get("text"))
 
