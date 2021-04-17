@@ -88,6 +88,8 @@ class MediaItem:
         self.isGeoLocked = False                  # : if set to True, the item is GeoLocked to the channels language (o)
         self.isDrmProtected = False               # : if set to True, the item is DRM protected and cannot be played (^)
         self.isPaid = False                       # : if set to True, the item is a Paid item and cannot be played (*)
+        self.season = 0                           # : The season number
+        self.epsiode = 0                          # : The episode number
         self.__infoLabels = dict()                # : Additional Kodi InfoLabels
 
         self.complete = False
@@ -216,16 +218,39 @@ class MediaItem:
         """
         return bool(self.__infoLabels)
 
+    def get_info_label(self, label):
+        """ Retrieves an info label.
+
+        :param str label:   The label name to retrieve.
+
+        :return: The value of the label or None if it was not present
+        :rtype: str|int|bool
+
+        """
+
+        return self.__infoLabels.get(label)
+
     def set_info_label(self, label, value):
         """ Set a Kodi InfoLabel and its value.
 
-        See http://kodi.wiki/view/InfoLabels
+        See https://kodi.wiki/view/InfoLabels
         :param str label: the name of the label
         :param Any value: the value to assign
 
         """
 
         self.__infoLabels[label] = value
+
+    def set_mediatype(self, mediatype):
+        """ Set the Kodi MediaType for this item. Use the `mediatype.py` for this.
+
+        :param str mediatype: The media type.
+
+        "video", "movie", "tvshow", "season", "episode" or "musicvideo"
+
+        """
+
+        self.__infoLabels["mediatype"] = mediatype
 
     def set_artwork(self, icon=None, thumb=None, fanart=None, poster=None):
         """ Set the artwork for this MediaItem.
@@ -255,8 +280,11 @@ class MediaItem:
             Logger.warning("Cannot set EpisodeInfo without season and episode")
             return
 
-        self.__infoLabels["Episode"] = int(episode)
-        self.__infoLabels["Season"] = int(season)
+        self.season = int(season)
+        self.__infoLabels["Season"] = self.season
+
+        self.epsiode = int(episode)
+        self.__infoLabels["Episode"] = self.epsiode
         return
 
     def set_expire_datetime(self, timestamp, year=0, month=0, day=0, hour=0, minutes=0, seconds=0):
@@ -278,6 +306,20 @@ class MediaItem:
 
         self.__expires_datetime = datetime(
             int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
+
+    def get_upnext_sort_key(self):
+        """ Returns a value that be used to sort episodes for UpNext integration.
+
+        :return: A key used to sort the items chronologically.
+        :rtype: str
+
+        """
+
+        return "{:03d}-{:03d}-{}-{}".format(
+            self.season,
+            self.epsiode,
+            self.__timestamp.strftime("%Y.%m.%d"),
+            self.name)
 
     def set_date(self, year, month, day,
                  hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):
@@ -450,7 +492,8 @@ class MediaItem:
 
         """
 
-        Logger.info("Creating playlist items for Bitrate: %s kbps\n%s", bitrate, self)
+        Logger.info("Creating playlist items for Bitrate: %s kbps\n%s\nMediaType: %s",
+                    bitrate, self, self.__infoLabels.get("mediatype"))
 
         if bitrate is None:
             raise ValueError("Bitrate not specified")

@@ -7,6 +7,7 @@ import re
 from resources.lib import chn_class
 from resources.lib import contenttype
 from resources.lib.logger import Logger
+from resources.lib.mediatype import EPISODE
 from resources.lib.regexer import Regexer
 from resources.lib.helpers import subtitlehelper
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -57,7 +58,7 @@ class Channel(chn_class.Channel):
         self.baseUrlLive = "https://www.npostart.nl"
 
         # live radio, the folders and items
-        self._add_data_parser("http://radio-app.omroep.nl/player/script/",
+        self._add_data_parser("https://radio-app.omroep.nl/player/script/",
                               name="Live Radio Streams",
                               preprocessor=self.extract_json_for_live_radio, json=True,
                               parser=[], creator=self.create_live_radio)
@@ -353,7 +354,7 @@ class Channel(chn_class.Channel):
         items.append(favs)
 
         extra = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
-                          "http://radio-app.omroep.nl/player/script/player.js")
+                          "https://radio-app.omroep.nl/player/script/player.js")
         extra.complete = True
         extra.dontGroup = True
         items.append(extra)
@@ -769,6 +770,7 @@ class Channel(chn_class.Channel):
         if "npo-asset-tile-timer" in result_set["videoDetection"]:
             item.type = "video"
             item.url = result_set["powid"]
+            item.set_mediatype(EPISODE)
         else:
             item.type = "folder"
             item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
@@ -860,6 +862,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(name, video_id)
         item.description = description
         item.type = "video"
+        item.set_mediatype(EPISODE)
 
         season = result_set.get("seasonNumber")
         episode = result_set.get("episodeNumber")

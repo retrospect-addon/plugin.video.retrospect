@@ -6,6 +6,7 @@ from resources.lib import chn_class
 
 from resources.lib.mediaitem import MediaItem
 from resources.lib.logger import Logger
+from resources.lib.mediatype import EPISODE
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -434,6 +435,7 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title.title(), url)
         item.type = "video"
+        item.set_mediatype(EPISODE)
         item.isPaid = premium_item
         item.description = description
         item.thumb = "%s%s" % (self.posterBase, uuid,)

@@ -9,6 +9,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
 from resources.lib.mediaitem import MediaItem
+from resources.lib.mediatype import EPISODE
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.mpd import Mpd
 from resources.lib.regexer import Regexer
@@ -753,9 +754,12 @@ class Channel(chn_class.Channel):
             title = title_format.format(season_number, episode_number, title)
 
         item = MediaItem(title, url, type="video")
+        item.set_mediatype(EPISODE)
         item.description = result_set.get("longDescription", result_set.get("description"))
         item.set_info_label("duration", int(result_set.get("duration", 0) or 0))
         item.set_info_label("genre", result_set.get("displayGenre"))
+        if season_number and episode_number:
+            item.set_season_info(season_number, episode_number)
         self.__get_artwork(item, result_set.get("imageMedia"), mode="thumb")
 
         updated = result_set["lastPubDate"] / 1000
