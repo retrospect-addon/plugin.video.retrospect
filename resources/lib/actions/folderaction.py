@@ -70,10 +70,10 @@ class FolderAction(AddonAction):
             for media_item in media_items:  # type: MediaItem
                 self.__update_artwork(media_item, self.__channel, use_thumbs_as_fanart)
 
-                if media_item.type == 'folder' or media_item.type == 'append' or media_item.type == "page":
+                if media_item.is_folder:
                     action_value = action.LIST_FOLDER
                     folder = True
-                elif media_item.is_playable():
+                elif media_item.is_playable:
                     action_value = action.PLAY_VIDEO
                     folder = False
                 else:
