@@ -473,7 +473,7 @@ class MediaItem:
         item.setLabel2(self.__date)
 
         # set a flag to indicate it is a item that can be used with setResolveUrl.
-        if self.is_playable():
+        if self.is_playable:
             Logger.trace("Setting IsPlayable to True")
             item.setProperty("IsPlayable", "true")
 
@@ -645,7 +645,7 @@ class MediaItem:
 
         value = self.name
 
-        if self.is_playable():
+        if self.is_playable:
             if len(self.MediaItemParts) > 0:
                 value = "MediaItem: %s [Type=%s, Complete=%s, IsLive=%s, Date=%s, Geo/DRM=%s/%s]" % \
                         (value, self.media_type, self.complete, self.isLive, self.__date,
@@ -795,7 +795,7 @@ class MediaItem:
         if not name:
             name = self.name
 
-        if self.__date != '' and not self.is_playable() \
+        if self.__date != '' and not self.is_playable \
                 and not AddonSettings.is_min_version(AddonSettings.KodiLeia):
             # not playable items should always show date
             name = "%s [COLOR=dimgray](%s)[/COLOR]" % (name, self.__date)
@@ -814,7 +814,7 @@ class MediaItem:
 
         """
 
-        media_type = state.get("type", self.media_type)
+        media_type = state.get("type")
         m = MediaItem(state["name"], state["url"], media_type=media_type, depickle=False)
         self.__dict__ = m.__dict__
         self.__dict__.update(state)

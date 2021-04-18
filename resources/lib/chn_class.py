@@ -195,7 +195,7 @@ class Channel:
         # Let's retrieve the required data. Main url's
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
-            no_cache = item is not None and not item.is_playable() and item.isLive
+            no_cache = item is not None and not item.is_playable and item.isLive
             if no_cache:
                 Logger.debug("Disabling cache for '%s'", item)
             data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
@@ -365,7 +365,7 @@ class Channel:
 
         # Check for grouping or not
         limit = AddonSettings.get_list_limit()
-        folder_items = [i for i in items if i.type.lower() == "folder"]
+        folder_items = [i for i in items if i.is_folder]
 
         # we should also de-duplicate before calculating
         folder_items = list(set(folder_items))
