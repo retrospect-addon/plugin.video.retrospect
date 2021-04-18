@@ -9,7 +9,7 @@ else:
     # noinspection PyUnresolvedReferences
     import urllib.parse as parse
 
-from resources.lib.mediaitem import MediaItem, MediaItemPart
+from resources.lib.mediaitem import MediaItem, MediaItemPart, FolderItem
 from resources.lib import contenttype
 from resources.lib import mediatype
 from resources.lib.regexer import Regexer
@@ -335,18 +335,18 @@ class Channel:
         hide_folders = AddonSettings.hide_restricted_folders()
         type_to_exclude = None
         if not hide_folders:
-            type_to_exclude = "folder"
+            type_to_exclude = mediatype.FOLDER_TYPES
 
         old_count = len(items)
         if hide_drm_protected:
             Logger.debug("Hiding DRM items")
-            items = [i for i in items if not i.isDrmProtected or i.type == type_to_exclude]
+            items = [i for i in items if not i.isDrmProtected or i.media_type in type_to_exclude]
         if hide_geo_locked:
             Logger.debug("Hiding GEO Locked items due to GEO region: %s", self.language)
-            items = [i for i in items if not i.isGeoLocked or i.type == type_to_exclude]
+            items = [i for i in items if not i.isGeoLocked or i.media_type in type_to_exclude]
         if hide_premium:
             Logger.debug("Hiding Premium items")
-            items = [i for i in items if not i.isPaid or i.type == type_to_exclude]
+            items = [i for i in items if not i.isPaid or i.media_type in type_to_exclude]
 
         # Local import for performance
         from resources.lib.cloaker import Cloaker
@@ -389,7 +389,7 @@ class Channel:
                 content_type = self.mainListContentType
 
             for sub_item in items:
-                if sub_item.dontGroup or sub_item.type != "folder":
+                if sub_item.dontGroup or not sub_item.is_folder:
                     non_grouped.append(sub_item)
                     continue
 
@@ -621,15 +621,14 @@ class Channel:
         total = HtmlEntityHelper.strip_amp(total)
 
         if not self.pageNavigationRegexIndex == '':
-            item = MediaItem(
+            item = FolderItem(
                 result_set[self.pageNavigationRegexIndex],
                 parse.urljoin(self.baseUrl, total),
-                mediatype.FOLDER
+                content_type=contenttype.NONE
             )
         else:
-            item = MediaItem("0", "", mediatype.FOLDER)
+            item = FolderItem("0", "", content_type=contenttype.NONE)
 
-        item.type = "page"
         item.HttpHeaders = self.httpHeaders
 
         Logger.debug("Created '%s' for url %s", item.name, item.url)
@@ -668,7 +667,7 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url, mediatype.FOLDER)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES)
         item.description = result_set.get("description", "")
         item.thumb = result_set.get("thumburl", "")
         item.HttpHeaders = self.httpHeaders
@@ -720,7 +719,6 @@ class Channel:
         item = MediaItem(title, url, mediatype.VIDEO)
         item.thumb = self._prefix_urls(result_set.get("thumburl", ""))
         item.description = result_set.get("description", "")
-        item.type = 'video'
         item.HttpHeaders = self.httpHeaders
         item.complete = False
         return item

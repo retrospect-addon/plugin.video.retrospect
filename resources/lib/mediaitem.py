@@ -9,7 +9,7 @@ from functools import reduce
 import xbmcgui
 
 from resources.lib.addonsettings import AddonSettings
-from resources.lib import contenttype, kodifactory
+from resources.lib import kodifactory
 from resources.lib.logger import Logger
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.encodinghelper import EncodingHelper
@@ -42,8 +42,7 @@ class MediaItem:
     ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
     #noinspection PyShadowingBuiltins
-    def __init__(self, title, url, media_type, content_type=contenttype.EPISODES,
-                 tv_show_title=None, depickle=False):
+    def __init__(self, title, url, media_type, depickle=False, tv_show_title=None):
         """ Creates a new MediaItem.
 
         The `url` can contain an url to a site more info about the item can be
@@ -58,11 +57,8 @@ class MediaItem:
         :param str url:                 Url that used for further information retrieval.
         :param str|None media_type:     The Kodi media type: video, movie, tvshow, season, episode,
                                         or musicvideo.
-        :param str|None content_type:   The Kodi content type of the child items: files, songs,
-                                        artists, albums, movies, tvshows, episodes, musicvideos,
-                                        videos, images, games. Defaults to 'episodes'
-        :param str|None tv_show_title:  The title of the TV Show to which the episode belongs.
         :param bool depickle:           Is the constructor called while depickling.
+        :param str|None tv_show_title:  The title of the TV Show to which the episode belongs.
 
         """
 
@@ -104,7 +100,7 @@ class MediaItem:
         self.media_type = media_type
         # Kodi content types: files, songs, artists, albums, movies, tvshows, episodes,
         # musicvideos, videos, images, games. Defaults to 'episodes'
-        self.content_type = content_type
+        self.content_type = None
 
         if depickle:
             # While deplickling we don't need to do the guid/guidValue calculations. They will
@@ -456,7 +452,7 @@ class MediaItem:
         info_labels["Title"] = name
 
         if self.media_type:
-            info_labels["mediatype"] = mediatype
+            info_labels["mediatype"] = self.media_type
 
         if kodi_date:
             info_labels["Date"] = kodi_date
@@ -509,7 +505,7 @@ class MediaItem:
         """
 
         Logger.info("Creating playlist items for Bitrate: %s kbps\n%s\nMediaType: %s",
-                    bitrate, self, self.__infoLabels.get("mediatype"))
+                    bitrate, self, self.media_type)
 
         if bitrate is None:
             raise ValueError("Bitrate not specified")
@@ -815,6 +811,13 @@ class MediaItem:
         """
 
         media_type = state.get("type")
+        if media_type == "audio":
+            media_type = mediatype.MUSIC
+        elif media_type == "folder" or media_type == "page":
+            media_type = mediatype.NONE
+        elif media_type == "video":
+            media_type = mediatype.VIDEO
+
         m = MediaItem(state["name"], state["url"], media_type=media_type, depickle=False)
         self.__dict__ = m.__dict__
         self.__dict__.update(state)
@@ -834,6 +837,33 @@ class MediaItem:
     #     """
     #
     #     return type(self), (self.name, self.url), self.__dict__
+
+
+class FolderItem(MediaItem):
+    def __init__(self, title, url, content_type, media_type=mediatype.FOLDER, depickle=False):
+        """ Creates a new FolderItem.
+
+        The `url` can contain an url to a site more info about the item can be
+        retrieved, for instance for a video item to retrieve the media url, or
+        in case of a folder where child items can be retrieved.
+
+        Essential is that no encoding (like UTF8) is specified in the title of
+        the item. This is all taken care of when creating Kodi items in the
+        different methods.
+
+        :param str title:               The title of the item, used for appearance in lists.
+        :param str url:                 Url that used for further information retrieval.
+        :param str|None media_type:     The Kodi media type: video, movie, tvshow, season, episode,
+                                        or musicvideo.
+        :param str|None content_type:   The Kodi content type of the child items: files, songs,
+                                        artists, albums, movies, tvshows, episodes, musicvideos,
+                                        videos, images, games. Defaults to 'episodes'
+        :param bool depickle:           Is the constructor called while depickling.
+
+        """
+
+        MediaItem.__init__(self, title, url, media_type=media_type, depickle=depickle)
+        self.content_type = content_type
 
 
 # Don't make this an MediaItem(object) as it breaks the pickles
