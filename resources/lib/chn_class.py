@@ -411,9 +411,9 @@ class Channel:
                 if char not in result:
                     Logger.trace("Creating Grouped item from: %s", sub_item)
                     if char == other:
-                        item = MediaItem(title_format.replace("'", "") % (char,), "", mediatype.NONE)
+                        item = MediaItem(title_format.replace("'", "") % (char,), "", mediatype.FOLDER)
                     else:
-                        item = MediaItem(title_format % (char.upper(),), "", mediatype.NONE)
+                        item = MediaItem(title_format % (char.upper(),), "", mediatype.FOLDER)
                     item.complete = True
                     item.content_type = content_type
                     # item.set_date(2100 + ord(char[0]), 1, 1, text='')
@@ -497,7 +497,7 @@ class Channel:
 
         items = []
         if url is None:
-            item = MediaItem("Search Not Implented", "", media_type=mediatype.NONE)
+            item = MediaItem("Search Not Implented", "", media_type=mediatype.FOLDER)
             items.append(item)
         else:
             items = []
@@ -507,7 +507,7 @@ class Channel:
                 # convert to HTML
                 needle = HtmlEntityHelper.url_encode(needle)
                 search_url = url % (needle, )
-                temp = MediaItem("Search", search_url, mediatype.NONE)
+                temp = MediaItem("Search", search_url, mediatype.FOLDER)
                 return self.process_folder_list(temp)
 
         return items
@@ -624,10 +624,10 @@ class Channel:
             item = MediaItem(
                 result_set[self.pageNavigationRegexIndex],
                 parse.urljoin(self.baseUrl, total),
-                mediatype.NONE
+                mediatype.FOLDER
             )
         else:
-            item = MediaItem("0", "", mediatype.NONE)
+            item = MediaItem("0", "", mediatype.FOLDER)
 
         item.type = "page"
         item.HttpHeaders = self.httpHeaders
@@ -668,10 +668,9 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url, mediatype.NONE)
+        item = MediaItem(title, url, mediatype.FOLDER)
         item.description = result_set.get("description", "")
         item.thumb = result_set.get("thumburl", "")
-        item.type = 'folder'
         item.HttpHeaders = self.httpHeaders
         item.complete = True
         return item

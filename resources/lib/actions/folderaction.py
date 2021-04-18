@@ -4,6 +4,7 @@ import xbmcplugin
 
 from resources.lib.actions import action
 from resources.lib import contenttype
+from resources.lib import mediatype
 from resources.lib.actions.addonaction import AddonAction
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.chn_class import Channel
@@ -148,7 +149,7 @@ class FolderAction(AddonAction):
             ok = False
         elif behaviour == "dummy" and not favs:
             # We should add a dummy items, but not for favs
-            empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", type='video')
+            empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", mediatype.FOLDER)
             empty_list_item.dontGroup = True
             empty_list_item.complete = True
 
