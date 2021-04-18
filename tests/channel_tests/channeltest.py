@@ -87,7 +87,8 @@ class ChannelTest(unittest.TestCase):
 
     def _get_media_item(self, url, name=None):
         from resources.lib.mediaitem import MediaItem
-        item = MediaItem(name or "test_item", url, mediatype.NONE)
+
+        item = MediaItem(name or "test_item", url, media_type=mediatype.FOLDER)
         return item
 
     def _set_keyboard_input(self, *words):
