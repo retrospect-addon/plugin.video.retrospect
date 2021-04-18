@@ -226,7 +226,7 @@ class VideoAction(AddonAction):
                 data=[b64_data.decode('utf-8')]
             )
         )
-        Logger.trace("UpNext data: %s", next_info)
+        Logger.debug("UpNext data: %s", next_info)
         Logger.trace("UpNext JsonRPC: %s", data)
         result = xbmc.executeJSONRPC(JsonHelper.dump(data, pretty_print=False))
         Logger.trace("UpNext result: %s", result)
