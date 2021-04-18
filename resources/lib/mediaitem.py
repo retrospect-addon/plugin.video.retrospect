@@ -56,9 +56,9 @@ class MediaItem:
 
         :param str title:               The title of the item, used for appearance in lists.
         :param str url:                 Url that used for further information retrieval.
-        :param str media_type:          The Kodi media type: video, movie, tvshow, season, episode,
+        :param str|None media_type:     The Kodi media type: video, movie, tvshow, season, episode,
                                         or musicvideo.
-        :param str content_type:        The Kodi content type of the child items: files, songs,
+        :param str|None content_type:   The Kodi content type of the child items: files, songs,
                                         artists, albums, movies, tvshows, episodes, musicvideos,
                                         videos, images, games. Defaults to 'episodes'
         :param str|None tv_show_title:  The title of the TV Show to which the episode belongs.
@@ -211,7 +211,7 @@ class MediaItem:
         :rtype: bool
 
         """
-        return self.media_type in mediatype.VIDEO_TYPES
+        return self.media_type in mediatype.AUDIO_TYPES
 
     def has_track(self):
         """ Does this MediaItem have a TrackNumber InfoLabel
@@ -454,7 +454,9 @@ class MediaItem:
         # Get all the info labels starting with the ones set and then add the specific ones
         info_labels = self.__infoLabels.copy()
         info_labels["Title"] = name
-        info_labels["mediatype"] = mediatype
+
+        if self.media_type:
+            info_labels["mediatype"] = mediatype
 
         if kodi_date:
             info_labels["Date"] = kodi_date

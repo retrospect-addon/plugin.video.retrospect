@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+NONE = None
+
 VIDEO = "video"
 MOVIE = "movie"
 TVSHOW = "tvshow"
@@ -8,6 +10,7 @@ EPISODE = "episode"
 MUSICVIDEO = "musicvideo"
 VIDEO_TYPES = {VIDEO, MOVIE, TVSHOW, SEASON, EPISODE, MUSICVIDEO}
 
+AUDIO = "music"  # Make it more in line with a generic VIDEO type.
 MUSIC = "music"
 SONG = "song"
 ALBUM = "album"

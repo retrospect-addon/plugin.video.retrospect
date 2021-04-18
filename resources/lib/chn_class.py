@@ -11,6 +11,7 @@ else:
 
 from resources.lib.mediaitem import MediaItem, MediaItemPart
 from resources.lib import contenttype
+from resources.lib import mediatype
 from resources.lib.regexer import Regexer
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.retroconfig import Config
@@ -410,9 +411,9 @@ class Channel:
                 if char not in result:
                     Logger.trace("Creating Grouped item from: %s", sub_item)
                     if char == other:
-                        item = MediaItem(title_format.replace("'", "") % (char,), "")
+                        item = MediaItem(title_format.replace("'", "") % (char,), "", mediatype.NONE)
                     else:
-                        item = MediaItem(title_format % (char.upper(),), "")
+                        item = MediaItem(title_format % (char.upper(),), "", mediatype.NONE)
                     item.complete = True
                     item.content_type = content_type
                     # item.set_date(2100 + ord(char[0]), 1, 1, text='')
@@ -496,7 +497,7 @@ class Channel:
 
         items = []
         if url is None:
-            item = MediaItem("Search Not Implented", "", type='video')
+            item = MediaItem("Search Not Implented", "", media_type=mediatype.NONE)
             items.append(item)
         else:
             items = []
@@ -506,7 +507,7 @@ class Channel:
                 # convert to HTML
                 needle = HtmlEntityHelper.url_encode(needle)
                 search_url = url % (needle, )
-                temp = MediaItem("Search", search_url)
+                temp = MediaItem("Search", search_url, mediatype.NONE)
                 return self.process_folder_list(temp)
 
         return items
@@ -544,7 +545,7 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, mediatype.TVSHOW)
         item.thumb = result_set.get("thumburl", None)
         item.description = result_set.get("description", "")
         item.complete = True
@@ -620,9 +621,13 @@ class Channel:
         total = HtmlEntityHelper.strip_amp(total)
 
         if not self.pageNavigationRegexIndex == '':
-            item = MediaItem(result_set[self.pageNavigationRegexIndex], parse.urljoin(self.baseUrl, total))
+            item = MediaItem(
+                result_set[self.pageNavigationRegexIndex],
+                parse.urljoin(self.baseUrl, total),
+                mediatype.NONE
+            )
         else:
-            item = MediaItem("0", "")
+            item = MediaItem("0", "", mediatype.NONE)
 
         item.type = "page"
         item.HttpHeaders = self.httpHeaders
@@ -663,7 +668,7 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, mediatype.NONE)
         item.description = result_set.get("description", "")
         item.thumb = result_set.get("thumburl", "")
         item.type = 'folder'
@@ -713,7 +718,7 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, mediatype.VIDEO)
         item.thumb = self._prefix_urls(result_set.get("thumburl", ""))
         item.description = result_set.get("description", "")
         item.type = 'video'
