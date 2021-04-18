@@ -270,19 +270,6 @@ class MediaItem:
 
         self.__infoLabels[label] = value
 
-    def set_mediatype(self, mediatype):
-        """ Set the Kodi MediaType for this item. Use the `mediatype.py` for this.
-
-        :param str mediatype: The media type.
-
-        "video", "movie", "tvshow", "season", "episode" or "musicvideo" for video files and "music",
-        "song", "album", "artist" for audio files.
-
-        """
-
-        self.media_type = mediatype
-        self.__infoLabels["mediatype"] = mediatype
-
     def set_artwork(self, icon=None, thumb=None, fanart=None, poster=None):
         """ Set the artwork for this MediaItem.
 
@@ -467,6 +454,8 @@ class MediaItem:
         # Get all the info labels starting with the ones set and then add the specific ones
         info_labels = self.__infoLabels.copy()
         info_labels["Title"] = name
+        info_labels["mediatype"] = mediatype
+
         if kodi_date:
             info_labels["Date"] = kodi_date
             info_labels["Year"] = kodi_year
@@ -501,13 +490,7 @@ class MediaItem:
             art['poster'] = self.poster
         item.setArt(art)
 
-        # We never set the content resolving, Retrospect does this. And if we do, then the custom
-        # headers are removed from the URL when opening the resolved URL.
-        try:
-            item.setContentLookup(False)
-        except:
-            # apparently not yet supported on this Kodi version3
-            pass
+        item.setContentLookup(False)
         return item
 
     def get_kodi_play_list_data(self, bitrate, proxy=None):
