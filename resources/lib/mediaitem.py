@@ -810,11 +810,12 @@ class MediaItem:
 
         """
 
+        # Convert older `MediaItem.type` to the new `mediatype` values.
         media_type = state.get("type")
         if media_type == "audio":
             media_type = mediatype.MUSIC
         elif media_type == "folder" or media_type == "page":
-            media_type = mediatype.NONE
+            media_type = mediatype.FOLDER
         elif media_type == "video":
             media_type = mediatype.VIDEO
 
