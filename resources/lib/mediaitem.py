@@ -15,6 +15,7 @@ from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib import mediatype
+from resources.lib import contenttype
 from resources.lib.streams.adaptive import Adaptive
 from resources.lib.proxyinfo import ProxyInfo
 
@@ -42,7 +43,7 @@ class MediaItem:
     ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
     #noinspection PyShadowingBuiltins
-    def __init__(self, title, url, media_type, depickle=False, tv_show_title=None):
+    def __init__(self, title, url, media_type=mediatype.FOLDER, depickle=False, tv_show_title=None):
         """ Creates a new MediaItem.
 
         The `url` can contain an url to a site more info about the item can be
@@ -100,7 +101,7 @@ class MediaItem:
         self.media_type = media_type
         # Kodi content types: files, songs, artists, albums, movies, tvshows, episodes,
         # musicvideos, videos, images, games. Defaults to 'episodes'
-        self.content_type = None
+        self.content_type = contenttype.EPISODES
 
         if depickle:
             # While deplickling we don't need to do the guid/guidValue calculations. They will

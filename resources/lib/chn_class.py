@@ -717,7 +717,7 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url, mediatype.VIDEO)
+        item = MediaItem(title, url, media_type=mediatype.EPISODE)
         item.thumb = self._prefix_urls(result_set.get("thumburl", ""))
         item.description = result_set.get("description", "")
         item.HttpHeaders = self.httpHeaders
