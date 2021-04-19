@@ -546,7 +546,7 @@ class Channel:
         if title.isupper():
             title = title.title()
 
-        item = MediaItem(title, url, mediatype.TVSHOW)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.TVSHOW)
         item.thumb = result_set.get("thumburl", None)
         item.description = result_set.get("description", "")
         item.complete = True
