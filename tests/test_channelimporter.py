@@ -82,5 +82,5 @@ class TestChannelImporter(unittest.TestCase):
         instance = ChannelIndex.get_register()
 
         # Fetch a simple channel without channel code
-        channel = instance.get_channel("channel.be.een", None)
-        self.assertEqual("channel.be.een", channel.id)
+        channel = instance.get_channel("channel.se.urplay", None)
+        self.assertEqual("channel.se.urplay", channel.id)

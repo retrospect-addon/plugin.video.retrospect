@@ -288,9 +288,7 @@ class Channel(chn_class.Channel):
             name = "{} - {}".format(name, sub_heading)
 
         url = "{}{}".format(self.baseUrl, result_set["url"])
-        item = MediaItem(name, url)
-        item.type = "video"
-        item.set_mediatype(EPISODE)
+        item = MediaItem(name, url, media_type=EPISODE)
         item.description = meta.get("description")
         item.thumb = result_set.get("media", {}).get("image", {}).get("url")
         item.isGeoLocked = True

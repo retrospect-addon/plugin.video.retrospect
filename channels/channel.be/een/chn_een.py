@@ -89,7 +89,6 @@ class Channel(chn_class.Channel):
 
         items = []
         recent = FolderItem("\a .: Recent :.", "https://www.een.be/deze-week", content_type=contenttype.EPISODES)
-        recent.type = "folder"
         recent.complete = True
         recent.dontGroup = True
         items.append(recent)

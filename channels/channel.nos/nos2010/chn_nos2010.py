@@ -511,7 +511,6 @@ class Channel(chn_class.Channel):
                 item = MediaItem(stream, live_data["url"], mediatype.VIDEO)
                 item.icon = parent.icon
                 item.thumb = live_data["thumb"]
-                item.type = 'video'
                 item.isLive = True
                 item.complete = False
                 items.append(item)
@@ -785,11 +784,10 @@ class Channel(chn_class.Channel):
         # set the POW id based on either video of folder:
         # This no longer works. Assuming video for now.
         if "npo-asset-tile-timer" in result_set["videoDetection"]:
-            item.type = "video"
-            item.url = result_set["powid"]
             item.media_type = mediatype.EPISODE
+            item.url = result_set["powid"]
         else:
-            item.media_type = mediatype.FOLDER
+            item.media_type = mediatype.TVSHOW
             item.content_type = contenttype.EPISODES
             item.url = "https://www.npostart.nl/media/series/%(powid)s/episodes?page=1&tileMapping=dedicated&tileType=asset&pageType=franchise" % result_set
             item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
@@ -1193,7 +1191,7 @@ class Channel(chn_class.Channel):
                 continue
             item.url = "http://e.omroep.nl/metadata/%(url)s" % stream
             item.complete = False
-            item.type = "video"
+            item.media_type = mediatype.EPISODE
             return item
 
         # else the radio streams
