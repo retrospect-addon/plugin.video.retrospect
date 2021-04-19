@@ -311,7 +311,11 @@ class Channel(chn_class.Channel):
                 url = self.parentItem.url[:self.parentItem.url.rindex("=")]
                 url = "%s=%s" % (url, next_page)
                 Logger.trace(url)
-                page_item = FolderItem(str(next_page), url, content_type=self.parentItem.content_type)
+                page_item = FolderItem(
+                    str(next_page), url,
+                    content_type=self.parentItem.content_type,
+                    media_type=mediatype.PAGE
+                )
                 page_item.complete = True
                 items.append(page_item)
 

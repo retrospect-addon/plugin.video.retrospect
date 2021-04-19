@@ -451,7 +451,7 @@ class MediaItem:
         info_labels = self.__infoLabels.copy()
         info_labels["Title"] = name
 
-        if self.media_type:
+        if self.media_type and self.media_type != mediatype.PAGE:
             info_labels["mediatype"] = self.media_type
 
         if kodi_date:
@@ -791,7 +791,12 @@ class MediaItem:
         if not name:
             name = self.name
 
-        if self.__date != '' and not self.is_playable \
+        if self.media_type == mediatype.PAGE:
+            # We need to add the Page prefix to the item
+            name = "%s %s" % (LanguageHelper.get_localized_string(LanguageHelper.Page), name)
+            Logger.debug("MediaItem.__get_title :: Adding Page Prefix")
+
+        elif self.__date != '' and not self.is_playable \
                 and not AddonSettings.is_min_version(AddonSettings.KodiLeia):
             # not playable items should always show date
             name = "%s [COLOR=dimgray](%s)[/COLOR]" % (name, self.__date)
@@ -814,8 +819,10 @@ class MediaItem:
         media_type = state.get("type")
         if media_type == "audio":
             media_type = mediatype.MUSIC
-        elif media_type == "folder" or media_type == "page":
+        elif media_type == "folder":
             media_type = mediatype.FOLDER
+        elif media_type == "page":
+            media_type = mediatype.PAGE
         elif media_type == "video":
             media_type = mediatype.VIDEO
 

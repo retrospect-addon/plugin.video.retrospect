@@ -498,7 +498,7 @@ class Channel:
 
         items = []
         if url is None:
-            item = MediaItem("Search Not Implented", "", media_type=mediatype.FOLDER)
+            item = MediaItem("Search Not Implented", "", media_type=mediatype.VIDEO)
             items.append(item)
         else:
             items = []

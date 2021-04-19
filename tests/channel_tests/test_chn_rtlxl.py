@@ -26,7 +26,7 @@ class TestRtlXLChannel(ChannelTest):
     def test_results_with_page(self):
         url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/ak=399642/sk=507250/pg=1"
         items = self._test_folder_url(url, 5)
-        self.assertGreater(len([i for i in items if i.is_folder]), 0)
+        self.assertGreater(len([i for i in items if i.media_type == "page"]), 0)
 
     def test_video(self):
         url = "https://api.rtl.nl/watch/play/api/play/xl/7d6aa110-c039-47d6-bb36-73a2abeb90a5?device=web&drm=widevine&format=dash"

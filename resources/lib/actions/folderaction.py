@@ -149,7 +149,7 @@ class FolderAction(AddonAction):
             ok = False
         elif behaviour == "dummy" and not favs:
             # We should add a dummy items, but not for favs
-            empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", mediatype.FOLDER)
+            empty_list_item = MediaItem("- %s -" % (title.strip("."), ), "", mediatype.VIDEO)
             empty_list_item.dontGroup = True
             empty_list_item.complete = True
 
