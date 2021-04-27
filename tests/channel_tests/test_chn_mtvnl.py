@@ -29,5 +29,5 @@ class TestMtvNlChannel(ChannelTest):
         item.metaData["guid"] = '7a4914c2-d237-11e1-a549-0026b9414f30'
         items = self.channel.process_folder_list(item)
 
-        seasons = [s for s in items if s.type == "folder" and s.name.startswith("\a")]
+        seasons = [s for s in items if s.is_folder and s.name.startswith("\a")]
         self.assertGreaterEqual(len(seasons), 1)

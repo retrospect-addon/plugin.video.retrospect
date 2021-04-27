@@ -18,7 +18,7 @@ class TestNickJrChannel(ChannelTest):
     def test_folder_with_videos_and_pages(self):
         url = "http://www.nickjr.nl/data/propertyStreamPage.json?&urlKey=dora&apiKey=nl_global_Nickjr_web&page=1"
         items = self._test_folder_url(url, expected_results=2)
-        self.assertGreaterEqual(len([i for i in items if not i.is_playable()]), 1)
+        self.assertGreaterEqual(len([i for i in items if not i.is_playable]), 1)
 
     def test_video_hls(self):
         url = "http://media.mtvnservices.com/pmt/e1/access/index.html?uri=mgid:arc:video:nickjr.tv:b80cc8ea-e12f-11e3-9765-0026b9414f30&configtype=edge"

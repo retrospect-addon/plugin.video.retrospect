@@ -54,7 +54,7 @@ class TestNpoChannel(ChannelTest):
             expected_results=5
         )
         # More pages should be preeent (requested 5, will be more there)
-        folders = [item for item in items if item.type == "folder"]
+        folders = [item for item in items if item.is_folder]
         self.assertGreaterEqual(len(folders), 1)
 
     def test_tv_show_listing(self):
@@ -64,7 +64,7 @@ class TestNpoChannel(ChannelTest):
             expected_results=11, exact_results=True
         )
         # More pages should be preeent (requested 5, will be more there)
-        folders = [item for item in items if item.type == "folder"]
+        folders = [item for item in items if item.is_folder]
         self.assertGreaterEqual(len(folders), 1)
 
     def test_guide_day_list(self):

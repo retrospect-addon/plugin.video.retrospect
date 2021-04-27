@@ -183,12 +183,13 @@ class VideoAction(AddonAction):
 
         # Sort it and find the next items to play
         current_idx = siblings.index(media_item)
-        Logger.trace("Found current item at index %s of %d: %s", current_idx, len(siblings), media_item)
+        Logger.debug("Found current item at index %s of %d: %s\n%s", current_idx,
+                     len(siblings), media_item, media_item.get_upnext_sort_key())
         if current_idx + 1 >= len(siblings):
             return
 
         next_item = siblings[current_idx + 1]
-        Logger.trace("Found next item: %s", next_item)
+        Logger.debug("Found next item: %s\n%s", next_item, next_item.get_upnext_sort_key())
         self.__notify_up_next(media_item, next_item, store_id)
 
     def __notify_up_next(self, current_item, next_item, store_id):
@@ -254,8 +255,8 @@ class VideoAction(AddonAction):
                 # 'tvshow.landscape:': "",
                 # 'tvshow.poster': item.poster,
             },
-            season=item.season,
-            episode=item.epsiode,
+            season=item.season or None,
+            episode=item.epsiode or None,
             showtitle=item.tv_show_title or "",
             plot=item.description,
             playcount=1,

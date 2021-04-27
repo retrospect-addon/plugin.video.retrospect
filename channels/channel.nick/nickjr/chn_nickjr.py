@@ -229,10 +229,8 @@ class Channel(chn_class.Channel):
         url = "http://media.mtvnservices.com/pmt/e1/access/index.html?uri=mgid:%s:%s&configtype=edge" \
               % (self.__mgid, video_id, )
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, media_type=EPISODE)
         item.description = result_set.get("description", None)
-        item.type = "video"
-        item.set_mediatype(EPISODE)
         item.HttpHeaders = self.httpHeaders
         item.complete = False
 

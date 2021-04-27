@@ -3,6 +3,7 @@ import time
 import unittest
 import xbmc
 
+from resources.lib import mediatype
 from resources.lib.envcontroller import EnvController
 from resources.lib.logger import Logger
 from resources.lib.textures import TextureHandler
@@ -86,7 +87,8 @@ class ChannelTest(unittest.TestCase):
 
     def _get_media_item(self, url, name=None):
         from resources.lib.mediaitem import MediaItem
-        item = MediaItem(name or "test_item", url)
+
+        item = MediaItem(name or "test_item", url, media_type=mediatype.FOLDER)
         return item
 
     def _set_keyboard_input(self, *words):
