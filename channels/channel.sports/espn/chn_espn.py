@@ -2,11 +2,11 @@
 
 import pytz
 
-from resources.lib import chn_class
+from resources.lib import chn_class, contenttype, mediatype
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
-from resources.lib.mediaitem import MediaItem
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 
@@ -16,6 +16,7 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
+    # TODO: Most of this is paid.
     def __init__(self, channel_info):
         """ Initialisation of the class.
 
@@ -41,7 +42,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/catalog/",
                               name="Bucket Catalog Parer", json=True,
-                              parser=["page", "buckets"], creator=self.create_bucket_folder)
+                          parser=["page", "buckets"], creator=self.create_bucket_folder)
 
         self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/bucket",
                               name="Bucket Video Parser", json=True,
@@ -49,7 +50,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/series/",
                               name="Series parsers", json=True,
-                              parser=['page', 'buckets', ('name', 'VOD'), "contents"],
+                              parser=['page', 'buckets', ('name', 'VOD', 0), "contents"],
                               creator=self.create_video_item)
 
         self._add_data_parser("https://watch-cdn.product.api.espn.com/api/product/v3/watchespn/web/playback/",
@@ -83,7 +84,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        item = MediaItem(result_set["name"], "#bucket")
+        item = FolderItem(result_set["name"], "#bucket", content_type=contenttype.TVSHOWS)
         item.description = result_set.get("description")
         item.metaData["bucket"] = result_set["contents"]
         return item
@@ -120,7 +121,7 @@ class Channel(chn_class.Channel):
 
         title = result_set["name"]
         url = result_set["links"]["self"]
-        item = MediaItem(title, url)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.TVSHOW)
         item.thumb = result_set["imageHref"]
 
         return item
@@ -157,13 +158,13 @@ class Channel(chn_class.Channel):
         title = result_set["name"]
         subtitle = result_set.get("subtitle")
         url = result_set["streams"][0]["links"]["play"]
-        if "playback/video" not in url:
-            return None
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, media_type=mediatype.EPISODE)
         item.type = "video"
         item.thumb = result_set.get("imageHref")
         item.description = result_set.get("description")
+        if "playback/video" not in url:
+            item.isPaid = True
 
         duration = result_set["streams"][0]["duration"].split(":")
         secs = int(duration[-1])

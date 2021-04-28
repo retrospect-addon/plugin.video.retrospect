@@ -13,7 +13,8 @@
       "sortorder": 210,
       "language": "nl",
       "fanart": "espnfanart.png",
-      "poster": "espnposter.png"
+      "poster": "espnposter.png",
+      "ignore": true
     }
   ]
 }
