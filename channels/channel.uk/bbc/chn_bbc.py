@@ -86,7 +86,7 @@ class Channel(chn_class.Channel):
         # ===============================================================================================================
         # non standard items
 
-        self.searchUrl = "http://feeds.bbc.co.uk/iplayer/search/tv/?q=%s"
+        self.searchUrl = "https://feeds.bbc.co.uk/iplayer/search/tv/?q=%s"
         self.programs = dict()
 
         # ===============================================================================================================
@@ -179,7 +179,7 @@ class Channel(chn_class.Channel):
         brand = item.url[item.url.rindex("/") + 1:]
 
         # to match the first video regex: item.url = "http://www.bbc.co.uk/programmes/%s/episodes/player" % (brand, )
-        item.url = "http://www.bbc.co.uk/iplayer/episodes/%s" % (brand,)
+        item.url = "https://www.bbc.co.uk/iplayer/episodes/%s" % (brand,)
         item.isGeoLocked = True
         return item
 
@@ -234,7 +234,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url)
         json_data, _ = self.extract_json(data)
         video_id = json_data.get_value("versions", 0, "id")
-        stream_data_url = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/iptv-all/vpid/{}".format(video_id)
+        stream_data_url = "https://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/iptv-all/vpid/{}".format(video_id)
 
         # this URL is one from the webbrowser but requires a security part. So NOT:
         # streamDataUrl = "http://open.live.bbc.co.uk/mediaselector/5/select/version
@@ -374,7 +374,7 @@ class Channel(chn_class.Channel):
         items.append(live)
 
         for channel in live_channels:
-            url = "http://a.files.bbci.co.uk/media/live/manifesto/audio_video/simulcast/hds/uk/pc/ak/%(code)s.f4m" % channel
+            url = "https://a.files.bbci.co.uk/media/live/manifesto/audio_video/simulcast/hds/uk/pc/ak/%(code)s.f4m" % channel
             item = MediaItem(channel["name"], url)
             item.isGeoLocked = True
             item.isLive = True
