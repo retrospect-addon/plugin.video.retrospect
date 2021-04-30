@@ -3,10 +3,11 @@
 This release includes a fix for the vier.be channel that broke completely.
 
 [B]Framework related[/B]
-_None_
+* Added: Up-Next support for Retrospect (Fixed #1501).
+* Changed: Set correct Kodi media and content types.
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Updated: Various languages (See #1498 and see #1503).
 
 [B]Channel related[/B]
 * Fixed: Issue with season parsing in vier.be.
