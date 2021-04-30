@@ -41,7 +41,7 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.vrt.be"
 
         # first regex is a bit tighter than the second one.
-        episode_regex = r'<nui-tile href="(?<url>/vrtnu[^"]+).relevant/"[^>]*>\s*<h3[^>]*>\s*<a[^>]+>' \
+        episode_regex = r'<nui-tile href="(?<url>/vrtnu[^"]+)/"[^>]*>\s*<h3[^>]*>\s*<a[^>]+>' \
                         r'(?<title>[^<]+)</a>\s*</h3>\s*<div[^>]+>(?:\s*<p>)?(?<description>' \
                         r'[\w\W]{0,2000}?)(?:</p>)?\W*</div>\s*(?:<p[^>]*' \
                         r'data-brand="(?<channel>[^"]+)"[^>]*>[^<]+</p>)?\s*(?:<img[\w\W]{0,100}?' \

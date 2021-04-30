@@ -9,4 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: Issue with season parsing in vier.be.
+* Fixed: VRT.nu channel listing.
