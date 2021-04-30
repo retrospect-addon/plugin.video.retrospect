@@ -1,6 +1,6 @@
-[B]Retrospect v5.2.27+matrix.1 - Changelog - 2021-04-01[/B]
+[B]Retrospect v5.3.1+matrix.1 - Changelog - 2021-05-01[/B]
 
-This release includes a fix for the vier.be channel that broke completely.
+This update introduces support for the Next Up add-on (https://github.com/im85288/service.upnext) and introduces a better use of Kodi media and content types. We also squashed some minor bugs.
 
 [B]Framework related[/B]
 * Added: Up-Next support for Retrospect (Fixed #1501).
