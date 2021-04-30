@@ -10,4 +10,4 @@ This release includes a fix for the vier.be channel that broke completely.
 * Updated: Various languages (See #1498 and see #1503).
 
 [B]Channel related[/B]
-* Fixed: Issue with season parsing in vier.be.
+* Fixed: VRT.nu channel listing.
