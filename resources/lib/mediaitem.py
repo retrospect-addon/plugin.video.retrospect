@@ -333,7 +333,7 @@ class MediaItem:
         return "{:03d}-{:03d}-{}-{}".format(
             self.season,
             self.epsiode,
-            self.__timestamp.strftime("%Y.%m.%d"),
+            self.__timestamp.strftime("%Y.%m.%d") if self.__timestamp.year > 1900 else "0001.01.01",
             self.name)
 
     def set_date(self, year, month, day,
