@@ -176,7 +176,7 @@ class VideoAction(AddonAction):
 
         store_id, siblings = self.parameter_parser.pickler.de_pickle_child_items(
             self.parameter_parser.pickle_hash)
-        siblings = list(siblings.values())
+        siblings = [s for s in siblings.values() if s.is_playable]
 
         # Sort based on season-episode-date-name (000-000-0000-00-00-aaaaa)
         siblings.sort(key=lambda s: s.get_upnext_sort_key())
