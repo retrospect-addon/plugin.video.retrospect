@@ -3,11 +3,10 @@
 This update introduces support for the Next Up add-on (https://github.com/im85288/service.upnext) and introduces a better use of Kodi media and content types. We also squashed some minor bugs.
 
 [B]Framework related[/B]
-* Added: Up-Next support for Retrospect (Fixed #1501).
-* Changed: Set correct Kodi media and content types.
+* Fixed: UpNext detection on Kodi Leia.
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Various languages (See #1498 and see #1503).
+_None_
 
 [B]Channel related[/B]
-* Fixed: VRT.nu channel listing.
+_None_
