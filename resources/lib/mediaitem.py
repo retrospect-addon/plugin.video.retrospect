@@ -407,6 +407,14 @@ class MediaItem:
 
         return self.__timestamp
 
+    def get_date(self):
+        """ Gets the object's date.
+
+        :returns: the date for the object
+        :rtype: str|None
+        """
+        return self.__date
+
     def get_kodi_item(self, name=None):
         """Creates a Kodi item with the same data is the MediaItem.
 

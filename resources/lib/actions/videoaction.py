@@ -261,7 +261,7 @@ class VideoAction(AddonAction):
             plot=item.description,
             playcount=1,
             rating=1,
-            firstaired=""
+            firstaired=item.get_date()
         )
 
         duration = item.get_info_label("duration")
