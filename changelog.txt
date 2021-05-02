@@ -1,6 +1,6 @@
-[B]Retrospect v5.3.1+matrix.1 - Changelog - 2021-05-01[/B]
+[B]Retrospect v5.3.2+matrix.1 - Changelog - 2021-05-02[/B]
 
-This update introduces support for the Next Up add-on (https://github.com/im85288/service.upnext) and introduces a better use of Kodi media and content types. We also squashed some minor bugs.
+Minor issues fixed with Up Next integration and Kodi Leia.
 
 [B]Framework related[/B]
 * Fixed: UpNext detection on Kodi Leia.
