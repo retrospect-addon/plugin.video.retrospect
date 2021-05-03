@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib import chn_class, mediatype
+from resources.lib import chn_class, mediatype, contenttype
 
 from resources.lib.mediaitem import MediaItem
 from resources.lib.helpers import xmlhelper
@@ -50,6 +50,9 @@ class Channel(chn_class.Channel):
         self.pageNavigationIndicationRegex = r'<page>(\d+)</page>'
         self.pageNavigationRegex = r'<page>(\d+)</page>'
         self.pageNavigationRegexIndex = 0
+
+        self.mainListContentType = contenttype.EPISODES
+
         self._add_data_parser("*", parser=self.pageNavigationRegex, creator=self.create_page_item)
 
         # ==========================================================================================
@@ -196,7 +199,7 @@ class Channel(chn_class.Channel):
         url = xml_data.get_tag_attribute("enclosure", {'url': None}, {'type': 'video/youtube'})
         Logger.trace(url)
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, media_type=mediatype.EPISODE)
         item.type = 'video'
 
         # date stuff

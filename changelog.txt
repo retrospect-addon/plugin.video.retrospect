@@ -13,3 +13,4 @@ _None_
 * Added: Multi-stream SVT videos with extra speech options (only available in Sweden).
 * Fixed: RTV Utrecht item listing.
 * Fixed: Omroep Zeeland video playback.
+* Fixed: Hardware.info TV video playback.
