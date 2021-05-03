@@ -22,3 +22,25 @@ class TestRpoAppChannel(ChannelTest):
     def test_video_utrecht(self):
         url = "https://www.rtvutrecht.nl/gemist/uitzending/rtvutrecht/unieuws/20210503-1700/"
         self._test_video_url(url)
+
+    def test_channel_exists_zeeland(self):
+        channel = self.__get_channel_zeeland()
+        self.assertIsNotNone(channel)
+
+    def test_main_list_zeeland(self):
+        channel = self.__get_channel_zeeland()
+        items = channel.process_folder_list(None)
+        self.assertGreater(len(items), 25)
+
+    def test_video_listing_zeeland(self):
+        url = "https://www.omroepzeeland.nl/RadioTv/Results?medium=Tv&query=&category=9434cdf1-a4ac-49f9-be67-1964b87613c9&from=&to=&page=1"
+        self._test_folder_url(url, expected_results=1)
+
+    def test_video_zeeland(self):
+        url = "https://www.omroepzeeland.nl/tv/programma/370248403/RegioNED/aflevering/370260803"
+        self._test_video_url(url)
+
+    def __get_channel_zeeland(self):
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        chn = ChannelIndex.get_register().get_channel(self._channel, "omroepzeeland")
+        return chn

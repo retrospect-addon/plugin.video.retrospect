@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib import chn_class, mediatype
-from resources.lib.mediaitem import MediaItem
+from resources.lib import chn_class, mediatype, contenttype
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
@@ -65,10 +65,6 @@ class Channel(chn_class.Channel):
                               parser=html_episode_regex, creator=self.create_episode_item,
                               json=False)
 
-        video_item_regex = r'<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*' \
-                           r'</a>\W*<figcaption(?:[^>]+>\W*){2}<time[^>]+datetime="' \
-                           r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){3}<a[^>]+href="(?<url>[^"]+)"' \
-                           r'[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
         video_item_regex = r'<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*' \
                            r'</a>\W*<figcaption(?:[^>]+>\W*){1,2}<time[^>]+datetime="' \
                            r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){2,3}<a[^>]+href="(?<url>[^"]+)"' \
@@ -183,7 +179,7 @@ class Channel(chn_class.Channel):
         url = "{}/RadioTv/Results?medium=Tv&query=&category={}&from=&to=&page=1"\
             .format(self.baseUrl, result_set["seriesId"])
         title = result_set["title"]
-        item = MediaItem(title, url, media_type=mediatype.EPISODE)
+        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
         item.complete = False
         return item
 
@@ -358,7 +354,7 @@ class Channel(chn_class.Channel):
         url = "https://omroepzeeland.bbvms.com/p/regiogrid/q/sourceid_string:{}*.js".format(video_id)
         data = UriHandler.open(url)
 
-        json_data = Regexer.do_regex(r'var opts\s*=\s*({.+});\W*//window', data)
+        json_data = Regexer.do_regex(r'var opts\s*=\s*({.+?});\W*//', data)
         Logger.debug("Found jsondata with size: %s", len(json_data[0]))
         json_data = JsonHelper(json_data[0])
         clip_data = json_data.get_value("clipData", "assets")
