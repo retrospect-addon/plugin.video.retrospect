@@ -14,3 +14,4 @@ _None_
 * Fixed: RTV Utrecht item listing.
 * Fixed: Omroep Zeeland video playback.
 * Fixed: Hardware.info TV video playback.
+* Fixed: TWiT.tv video listing, live stream and paging.
