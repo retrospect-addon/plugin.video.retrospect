@@ -69,6 +69,10 @@ class Channel(chn_class.Channel):
                            r'</a>\W*<figcaption(?:[^>]+>\W*){2}<time[^>]+datetime="' \
                            r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){3}<a[^>]+href="(?<url>[^"]+)"' \
                            r'[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
+        video_item_regex = r'<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*' \
+                           r'</a>\W*<figcaption(?:[^>]+>\W*){1,2}<time[^>]+datetime="' \
+                           r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){2,3}<a[^>]+href="(?<url>[^"]+)"' \
+                           r'[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
         video_item_regex = Regexer.from_expresso(video_item_regex)
         self._add_data_parser("https://www.rtvutrecht.nl/",
                               name="HTML Video parsers and updater for JWPlayer embedded JSON",
