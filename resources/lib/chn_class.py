@@ -625,10 +625,10 @@ class Channel:
             item = FolderItem(
                 result_set[self.pageNavigationRegexIndex],
                 parse.urljoin(self.baseUrl, total),
-                content_type=contenttype.NONE
+                content_type=contenttype.NONE, media_type=mediatype.PAGE
             )
         else:
-            item = FolderItem("0", "", content_type=contenttype.NONE)
+            item = FolderItem("0", "", content_type=contenttype.NONE, media_type=mediatype.PAGE)
 
         item.HttpHeaders = self.httpHeaders
 
