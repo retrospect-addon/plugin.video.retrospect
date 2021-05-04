@@ -95,7 +95,7 @@ class VideoAction(AddonAction):
             kodi_player = player.Player(show_subs=show_subs, subs=available_subs)
             kodi_player.waitForPlayBack(url=start_url, time_out=10)
 
-            if AddonSettings.use_up_next():
+            if AddonSettings.use_up_next() and not media_item.isLive:
                 # Wrap in setting for Next Up
                 self.__call_upnext(media_item)
 
