@@ -342,6 +342,8 @@ class Channel(chn_class.Channel):
             port = port_node.firstChild.nodeValue
             protocol = port_node.attributes["type"].firstChild.nodeValue
             entry = stream_xml.getElementsByTagName("mount")[0].firstChild.nodeValue
+            if entry.endswith("AAC2"):
+                continue
             bitrate = int(stream_xml.getElementsByTagName("bitrate")[0].firstChild.nodeValue)
 
             transports = stream_xml.getElementsByTagName("transport")
