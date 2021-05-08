@@ -15,3 +15,4 @@ _None_
 * Fixed: Omroep Zeeland video playback.
 * Fixed: Hardware.info TV video playback.
 * Fixed: TWiT.tv video listing, live stream and paging.
+* Fixed: MSDN Channel 9 was broken.
