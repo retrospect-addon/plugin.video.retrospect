@@ -1155,6 +1155,8 @@ class Channel(chn_class.Channel):
         item.MediaItemParts = []
         part = item.create_new_empty_media_part()
         use_input_stream = AddonSettings.use_adaptive_stream_add_on(channel=self)
+        in_sweden = self.__validate_location()
+        Logger.debug("Streaming location within GEO area: %s", in_sweden)
 
         for video in videos:
             video_format = video.get("format", "")
@@ -1163,7 +1165,13 @@ class Channel(chn_class.Channel):
             video_format = video_format.lower()
 
             # Dictionary with supported video formats and their priority.
-            supported_formats = {"dash": 2, "dash-avc-51": 3, "hls": 0, "hls-ts-avc-51": 1}
+            if in_sweden or not item.isGeoLocked:
+                # Has HEVC
+                # supported_formats = {"dash": 2, "dash-full": 3, "hls": 0, "hls-ts-full": 1}
+                supported_formats = {"dash": 2, "dash-hbbtv-avc": 3, "hls": 0, "hls-ts-full": 10}
+            else:
+                supported_formats = {"dash": 2, "dash-avc-51": 3, "hls": 0, "hls-ts-avc-51": 1}
+
             if video_format not in supported_formats:
                 Logger.debug("Skipping video format: %s", video_format)
                 continue
@@ -1224,3 +1232,8 @@ class Channel(chn_class.Channel):
 
         item.complete = True
         return item
+
+    def __validate_location(self):
+        url = "https://api.svt.se/geo.modernizr.js"
+        data = UriHandler.open(url, force_text=True, no_cache=True)
+        return "return true" in data

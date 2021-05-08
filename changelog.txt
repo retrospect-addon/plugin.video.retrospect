@@ -9,4 +9,4 @@ Minor issues fixed with Up Next integration and Kodi Leia.
 _None_
 
 [B]Channel related[/B]
-_None_
+* Added: Multi-stream SVT videos with extra speech options (only available in Sweden).
