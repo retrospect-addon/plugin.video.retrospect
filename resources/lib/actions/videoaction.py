@@ -82,14 +82,13 @@ class VideoAction(AddonAction):
             LockWithDialog.close_busy_dialog()
 
             # Set the resolved url
-            Logger.debug("Setting resolved item: %s", media_item)
             xbmcplugin.setResolvedUrl(self.handle, True, kodi_item)
 
             # Set the mode (if the InputStream Adaptive add-on is used, we also need to set it)
             show_subs = AddonSettings.show_subtitles()
 
             # TODO: Apparently if we use the InputStream Adaptive, using the setSubtitles() causes sync issues.
-            available_subs = media_item.subtitle
+            available_subs = [media_item.subtitle]
 
             # Get the Kodi Player instance (let Kodi decide what player, see
             # http://forum.kodi.tv/showthread.php?tid=173887&pid=1516662#pid1516662)

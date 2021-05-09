@@ -7,6 +7,7 @@ from resources.lib.streams.mpd import Mpd
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
+from resources.lib.mediaitem import MediaItem
 
 
 class NpoStream(object):
@@ -28,11 +29,12 @@ class NpoStream(object):
         return SubtitleHelper.download_subtitle(sub_title_url, stream_id + ".srt", format='srt')
 
     @staticmethod
-    def add_mpd_stream_from_npo(url, episode_id, part, headers=None, live=False):
+    def add_mpd_stream_from_npo(url, episode_id, item, headers=None, live=False):
         """ Extracts the Dash streams for the given url or episode id
 
         :param str|None url:        The url to download
         :param str episode_id:      The NPO episode ID
+        :param MediaItem item:      The Media item to update
         :param dict headers:        Possible HTTP Headers
         :param bool live:           Is this a live stream?
 
@@ -108,7 +110,7 @@ class NpoStream(object):
             license_key = None
 
         # Actually set the stream
-        stream = part.append_media_stream(stream_url, 0)
+        stream = item.add_stream(stream_url, 0)
         Mpd.set_input_stream_addon_input(stream,
                                          headers,
                                          license_key=license_key,

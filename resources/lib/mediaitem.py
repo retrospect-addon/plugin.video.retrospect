@@ -128,10 +128,12 @@ class MediaItem:
 
         """
 
-        self.subtitle = subtitle
-
         stream = MediaStream(url, bitrate)
         self.streams.append(stream)
+
+        if subtitle:
+            self.subtitle = subtitle
+
         return stream
 
     def has_streams(self):
@@ -684,6 +686,9 @@ class MediaItem:
         else:
             value = "%s [Type=%s, Url=%s, Date=%s, IsLive=%s, Geo/DRM=%s/%s]" \
                     % (value, self.media_type, self.url, self.__date, self.isLive, self.isGeoLocked, self.isDrmProtected)
+
+        if self.subtitle:
+            value = "%s\n + Subtitle: %s" % (value, self.subtitle)
 
         return value
 
