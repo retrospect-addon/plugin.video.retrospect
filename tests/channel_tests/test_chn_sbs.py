@@ -307,7 +307,7 @@ class TestSbsSeChannel(ChannelTest):
         url = "https://disco-api.dplay.se/playback/videoPlaybackInfo/125461"
         item = self._get_media_item(url)
         item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_media_item_parts())
+        self.assertTrue(item.has_streams())
 
     def test_item_premium_no_datelimit(self):
         result_set = json.loads('{"relationships":{"contentPackages":{"data":[{"type":"package","id":"Premium"}]}},"attributes":{"geoRestrictions":{"mode":"permit","countries":["world"]}}}')

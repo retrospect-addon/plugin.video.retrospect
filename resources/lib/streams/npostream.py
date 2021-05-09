@@ -127,11 +127,10 @@ class NpoStream(object):
 
         Can be used like this:
 
-            part = item.create_new_empty_media_part()
             for s, b in NpoStream.get_streams_from_npo(m3u8Url):
                 item.complete = True
                 # s = self.get_verifiable_video_url(s)
-                part.append_media_stream(s, b)
+                item.add_stream(s, b)
 
         """
 

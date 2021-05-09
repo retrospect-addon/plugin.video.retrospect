@@ -66,7 +66,7 @@ class TestKijkNlChannel(ChannelTest):
             }
         ]
         item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_media_item_parts())
+        self.assertTrue(item.has_streams())
 
     def test_graphql_m3u8_video(self):
         item = self._get_media_item("https://graph.kijk.nl/graphql-video")
@@ -80,7 +80,7 @@ class TestKijkNlChannel(ChannelTest):
             }
         ]
         item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_media_item_parts())
+        self.assertTrue(item.has_streams())
 
     def test_graphql_drm_video(self):
         item = self._get_media_item("https://graph.kijk.nl/graphql-video")
@@ -102,7 +102,7 @@ class TestKijkNlChannel(ChannelTest):
             }
         ]
         item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_media_item_parts())
+        self.assertTrue(item.has_streams())
 
     def test_graphql_search(self):
         self._test_folder_url(
