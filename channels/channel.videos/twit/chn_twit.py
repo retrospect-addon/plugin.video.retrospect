@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url)
         streams = Regexer.do_regex(self.mediaUrlRegex, data)
 
-        item.MediaItemParts = []
+        item.streams = []
         for stream in streams:
             Logger.trace(stream)
             item.add_stream(stream[0], stream[1])

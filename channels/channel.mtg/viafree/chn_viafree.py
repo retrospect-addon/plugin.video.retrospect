@@ -572,10 +572,10 @@ class Channel(chn_class.Channel):
 
         The method should at least:
         * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
+        * set at least one MediaStream.
         * set self.complete = True.
 
-        if the returned item does not have a MediaItemPart then the self.complete flag
+        if the returned item does not have a MediaSteam then the self.complete flag
         will automatically be set back to False.
 
         :param MediaItem item: the original MediaItem that needs updating.
@@ -688,11 +688,11 @@ class Channel(chn_class.Channel):
                 item.subtitle = SubtitleHelper.download_subtitle(subs[0], format='webvtt')
         return
 
-    def __update_rtmp(self, url, part, quality):
+    def __update_rtmp(self, url, item, quality):
         """ Update a video that has a RTMP stream.
 
         :param str url:                 The URL for the stream.
-        :param MediaItemPart part:      The new part that needs updating.
+        :param MediaItem item:          The new part that needs updating.
         :param tuple[str,int] quality:  A quality tuple with quality name and bitrate
 
         """
@@ -712,7 +712,7 @@ class Channel(chn_class.Channel):
             Logger.debug("Updated URL from - to:\n%s\n%s", old_url, url)
 
         url = self.get_verifiable_video_url(url)
-        part.append_media_stream(url, quality[1])
+        item.add_stream(url, quality[1])
         return
 
     def __create_json_episode_item(self, result_set, check_channel=True):

@@ -279,14 +279,14 @@ class Channel(chn_class.Channel):
                     if url == live_stream_value and ".m3u8" in url:
                         # if it was equal to the previous one, assume we have a m3u8. Reset the others.
                         Logger.info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
-                        live_item.MediaItemParts = []
+                        live_item.streams = []
                         live_item.url = url
                         live_item.complete = False
                         break
                     elif "playlist.m3u8" in url:
                         # if we have a playlist, use that one. Reset the others.
                         Logger.info("Found M3u8 playlist for this Live channel, using that one: %s", url)
-                        live_item.MediaItemParts = []
+                        live_item.streams = []
                         live_item.url = url
                         live_item.complete = False
                         break
@@ -436,10 +436,10 @@ class Channel(chn_class.Channel):
 
         The method should at least:
         * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
+        * set at least one MediaStream.
         * set self.complete = True.
 
-        if the returned item does not have a MediaItemPart then the self.complete flag
+        if the returned item does not have a MediaSteam then the self.complete flag
         will automatically be set back to False.
 
         :param MediaItem item: the original MediaItem that needs updating.
