@@ -210,7 +210,6 @@ class Channel(chn_class.Channel):
             return item
 
         qualities = {"720p": 1600, "480p": 1200, "360p": 500, "other": 0}  # , "http-hls": 1500, "3gp-mob01": 300, "flv-web01": 500}
-        part = item.create_new_empty_media_part()
         urls = []
         for stream in streams:
             url = list(stream["url"].values())[-1]
@@ -222,7 +221,7 @@ class Channel(chn_class.Channel):
 
             # actually process the url
             if ".m3u8" not in url:
-                part.append_media_stream(
+                item.add_stream(
                     url=url,
                     bitrate=qualities.get(stream.get("name", "other"), 0)
                 )
@@ -233,5 +232,5 @@ class Channel(chn_class.Channel):
             #     M3u8.SetInputStreamAddonInput(stream)
             #     item.complete = True
             else:
-                M3u8.update_part_with_m3u8_streams(part, url, channel=self)
+                M3u8.update_part_with_m3u8_streams(item, url, channel=self)
         return item

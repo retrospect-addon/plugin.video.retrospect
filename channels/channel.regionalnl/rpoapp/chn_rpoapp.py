@@ -155,7 +155,7 @@ class Channel(chn_class.Channel):
         item.isLive = True
 
         if item.url.endswith(".mp3"):
-            item.append_single_stream(item.url)
+            item.add_stream(item.url)
             item.complete = True
             return item
 
@@ -280,15 +280,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
-            stream = part.append_media_stream(item.url, 0)
+            stream = item.add_stream(item.url, 0)
             M3u8.set_input_stream_addon_input(stream)
             item.complete = True
         else:
             for s, b in M3u8.get_streams_from_m3u8(item.url):
                 item.complete = True
-                part.append_media_stream(s, b)
+                item.add_stream(s, b)
         return item
 
     def update_video_item_json_player(self, item):
@@ -316,10 +315,9 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url)
         streams = Regexer.do_regex(r'label:\s*"([^"]+)",\W*file:\s*"([^"]+)"', data)
 
-        part = item.create_new_empty_media_part()
         bitrates = {"720p SD": 1200}
         for stream in streams:
-            part.append_media_stream(stream[1], bitrates.get(stream[0], 0))
+            item.add_stream(stream[1], bitrates.get(stream[0], 0))
             item.complete = True
 
         return item
@@ -361,9 +359,8 @@ class Channel(chn_class.Channel):
         json_data = JsonHelper(json_data[0])
         clip_data = json_data.get_value("clipData", "assets")
         server = json_data.get_value("publicationData", "defaultMediaAssetPath")
-        part = item.create_new_empty_media_part()
         for clip in clip_data:
-            part.append_media_stream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
+            item.add_stream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
             item.complete = True
 
         return item

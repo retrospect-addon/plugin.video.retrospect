@@ -80,7 +80,6 @@ class Channel(chn_class.Channel):
         playback_item = MediaItem("Play Live", "http://live.twit.tv/")
         playback_item.media_type = mediatype.VIDEO
         playback_item.isLive = True
-        playback_part = playback_item.create_new_empty_media_part()
 
         # noinspection PyStatementEffect
         """
@@ -124,9 +123,9 @@ class Channel(chn_class.Channel):
         }
 
         for bitrate in media_urls:
-            playback_part.append_media_stream(media_urls[bitrate], bitrate)
+            item.add_stream(media_urls[bitrate], int(bitrate))
 
-        Logger.debug("Streams: %s", playback_part)
+        Logger.debug("Streams: %s", item.streams)
         playback_item.complete = True
         item.items.append(playback_item)
         Logger.debug("Appended: %s", playback_item)
@@ -203,10 +202,10 @@ class Channel(chn_class.Channel):
 
         The method should at least:
         * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
+        * set at least one MediaStream.
         * set self.complete = True.
 
-        if the returned item does not have a MediaItemPart then the self.complete flag
+        if the returned item does not have a MediaSteam then the self.complete flag
         will automatically be set back to False.
 
         :param MediaItem item: the original MediaItem that needs updating.
@@ -222,10 +221,9 @@ class Channel(chn_class.Channel):
         streams = Regexer.do_regex(self.mediaUrlRegex, data)
 
         item.MediaItemParts = []
-        part = item.create_new_empty_media_part()
         for stream in streams:
             Logger.trace(stream)
-            part.append_media_stream(stream[0], stream[1])
+            item.add_stream(stream[0], stream[1])
 
         item.complete = True
         return item

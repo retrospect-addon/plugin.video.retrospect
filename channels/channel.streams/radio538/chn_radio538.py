@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
                                         "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
-        slam_fm.append_single_stream(slam_fm.url)
+        slam_fm.add_stream(slam_fm.url)
         slam_fm.complete = True
         items.append(slam_fm)
 

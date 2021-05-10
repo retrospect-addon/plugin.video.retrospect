@@ -572,7 +572,6 @@ class Channel(chn_class.Channel):
         Logger.trace("Found RTMP Proxy: %s", proxy)
 
         stream_infos = json.get_value("program", "streamingInfo")
-        part = item.create_new_empty_media_part()
         for stream_type, stream_info in stream_infos.items():
             Logger.trace(stream_info)
             default_stream = stream_info.get("default", False)
@@ -583,7 +582,7 @@ class Channel(chn_class.Channel):
                     continue
                 stream_url = stream["location"]
                 if quality == "tt":
-                    part.Subtitle = SubtitleHelper.download_subtitle(
+                    item.subtitle = SubtitleHelper.download_subtitle(
                         stream_url, format="ttml")
                     continue
 
@@ -591,7 +590,7 @@ class Channel(chn_class.Channel):
                 if stream_type == "raw":
                     bitrate += 1
                 url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
-                part.append_media_stream(url, bitrate)
+                item.add_stream(url, bitrate)
 
         item.complete = True
         return item

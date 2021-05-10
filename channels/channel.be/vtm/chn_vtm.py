@@ -173,7 +173,7 @@ class Channel(chn_class.Channel):
         for stream in streams:
             stream_url = stream['url']
             if stream['type'] == "mp4":
-                item.append_single_stream(stream_url, 0)
+                item.add_stream(stream_url, 0)
                 item.complete = True
 
         return item

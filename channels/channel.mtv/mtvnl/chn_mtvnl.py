@@ -342,7 +342,6 @@ class Channel(chn_class.Channel):
             return item
 
         item.MediaItemParts = []
-        part = item.create_new_empty_media_part()
-        part.append_media_stream(url, 0)
+        item.add_stream(url, 0)
         item.complete = True
         return item

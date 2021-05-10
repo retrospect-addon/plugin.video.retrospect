@@ -177,6 +177,6 @@ class Channel(chn_class.Channel):
         url = json_data.get_value("url", fallback=None)
 
         if url:
-            item.append_single_stream(url)
+            item.add_stream(url)
             item.Complete = True
         return item

@@ -170,15 +170,14 @@ class Channel(chn_class.Channel):
 
         """
 
-        part = item.create_new_empty_media_part()
         if item.url == "#livetv":
             url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/tv/index.m3u8"
-            M3u8.update_part_with_m3u8_streams(part, url, encrypted=True)
+            M3u8.update_part_with_m3u8_streams(item, url, encrypted=True)
         else:
             # the audio won't play with the InputStream Adaptive add-on.
             url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/radio/index.m3u8"
             for s, b in M3u8.get_streams_from_m3u8(url):
-                part.append_media_stream(s, b)
+                item.add_stream(s, b)
 
         item.complete = True
         return item
@@ -225,14 +224,13 @@ class Channel(chn_class.Channel):
         base_url = json.get_value("publicationData", "defaultMediaAssetPath")
         streams = json.get_value("clipData", "assets")
         item.MediaItemParts = []
-        part = item.create_new_empty_media_part()
         for stream in streams:
             url = stream.get("src", None)
             if "://" not in url:
                 url = "{}{}".format(base_url, url)
             bitrate = stream.get("bandwidth", None)
             if url:
-                part.append_media_stream(url, bitrate)
+                item.add_stream(url, bitrate)
 
         if not item.thumb and json.get_value("thumbnails"):
             url = json.get_value("thumbnails")[0].get("src", None)

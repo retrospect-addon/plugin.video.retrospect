@@ -168,9 +168,6 @@ class Channel(chn_class.Channel):
             # get the info for this part
             Logger.debug("Processing part with GUID: %s", guid)
 
-            # reset stuff
-            part = None
-
             # http://www.southpark.nl/feeds/video-player/mediagen?uri=mgid%3Aarc%3Aepisode%3Acomedycentral.com%3Aeb2a53f7-e370-4049-a6a9-57c195367a92&suppressRegisterBeacon=true
             guid = HtmlEntityHelper.url_encode("mgid:arc:episode:comedycentral.com:%s" % (guid,))
             info_url = "%s/feeds/video-player/mediagen?uri=%s&suppressRegisterBeacon=true" % (self.baseUrl, guid)
@@ -180,11 +177,7 @@ class Channel(chn_class.Channel):
             rtmp_streams = Regexer.do_regex(rtmp_regex, info_data)
 
             for rtmp_stream in rtmp_streams:
-                # if this is the first stream for the part, create an new part
-                if part is None:
-                    part = item.create_new_empty_media_part()
-
-                part.append_media_stream(self.get_verifiable_video_url(rtmp_stream[2]), rtmp_stream[1])
+                item.add_stream(self.get_verifiable_video_url(rtmp_stream[2]), rtmp_stream[1])
 
         item.complete = True
         Logger.trace("Media item updated: %s", item)

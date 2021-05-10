@@ -243,7 +243,7 @@ class Channel(chn_class.Channel):
         if item.thumb:
             item.thumb = item.thumb.replace(" ", "%20")
         item.fanart = item.thumb
-        item.append_single_stream(result_set['filename'])
+        item.add_stream(result_set['filename'])
         item.complete = True
         item.HttpHeaders = self.httpHeaders
         return item
@@ -420,7 +420,7 @@ class Channel(chn_class.Channel):
 
         for video in videos:
             Logger.trace(video)
-            item.append_single_stream(video)
+            item.add_stream(video)
         
         item.complete = True
         return item

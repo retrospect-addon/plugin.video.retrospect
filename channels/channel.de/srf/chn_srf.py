@@ -157,7 +157,7 @@ class Channel(chn_class.Channel):
         for playback.
 
         :param result_set: The result_set of the self.episodeItemRegex
-        :type result_set: list[str]|dict[str,dict[str,dict]]
+        :type result_set: dict
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -277,24 +277,23 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
         video_info = json.get_value("content", "videoInfos")
 
-        part = item.create_new_empty_media_part()
         if "HLSurlHD" in video_info:
             # HLSurlHD=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/
             # potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,q50,q60,.mp4.csmil/master.m3u8
             for s, b in M3u8.get_streams_from_m3u8(video_info["HLSurlHD"]):
                 item.complete = True
-                part.append_media_stream(s, b)
+                item.add_stream(s, b)
         elif "HLSurl" in video_info:
             # HLSurl=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/
             # potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,.mp4.csmil/master.m3u8
             for s, b in M3u8.get_streams_from_m3u8(video_info["HLSurl"]):
                 item.complete = True
-                part.append_media_stream(s, b)
+                item.add_stream(s, b)
 
         if "downloadLink" in video_info:
             # downloadLink=http://podcastsource.sf.tv/nps/podcast/10vor10/2015/03/
             # 10vor10_20150304_215030_v_podcast_h264_q10.mp4
-            part.append_media_stream(video_info["downloadLink"], 1000)
+            item.add_stream(video_info["downloadLink"], 1000)
 
         return item
 
@@ -326,7 +325,6 @@ class Channel(chn_class.Channel):
         json = JsonHelper(data)
         video_play_lists = json.get_value("Video", "Playlists", "Playlist")
 
-        part = item.create_new_empty_media_part()
         for play_list in video_play_lists:
             streams = play_list["url"]
             Logger.trace("Found %s streams", len(streams))
@@ -335,30 +333,29 @@ class Channel(chn_class.Channel):
                 if ".m3u8" in stream_url:
                     for s, b in M3u8.get_streams_from_m3u8(stream_url):
                         item.complete = True
-                        part.append_media_stream(s, b)
+                        item.add_stream(s, b)
                 else:
                     Logger.debug("Cannot use stream url: %s", stream_url)
 
         # Unused at the moment
         # videoInfo = json.get_value("content", "videoInfos")
         #
-        # part = item.create_new_empty_media_part()
         # if "HLSurlHD" in videoInfo:
         #     # HLSurlHD=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,q50,q60,.mp4.csmil/master.m3u8
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurlHD"]):
         #         item.complete = True
         #         # s = self.get_verifiable_video_url(s)
-        #         part.append_media_stream(s, b)
+        #         item.add_stream(s, b)
         # elif "HLSurl" in videoInfo:
         #     # HLSurl=http://srfvodhd-vh.akamaihd.net/i/vod/potzmusig/2015/03/potzmusig_20150307_184438_v_webcast_h264_,q10,q20,q30,q40,.mp4.csmil/master.m3u8
         #     for s, b in M3u8.get_streams_from_m3u8(videoInfo["HLSurl"]):
         #         item.complete = True
         #         # s = self.get_verifiable_video_url(s)
-        #         part.append_media_stream(s, b)
+        #         item.add_stream(s, b)
         #
         # if "downloadLink" in videoInfo:
         #     # downloadLink=http://podcastsource.sf.tv/nps/podcast/10vor10/2015/03/10vor10_20150304_215030_v_podcast_h264_q10.mp4
-        #     part.append_media_stream(videoInfo["downloadLink"], 1000)
+        #     item.add_stream(videoInfo["downloadLink"], 1000)
 
         return item
 

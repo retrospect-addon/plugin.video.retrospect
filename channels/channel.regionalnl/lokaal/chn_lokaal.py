@@ -203,7 +203,7 @@ class Channel(chn_class.Channel):
             live_item.isLive = True
             if self.channelCode == "rtvdrenthe":
                 # RTV Drenthe actually has a buggy M3u8 without master index.
-                live_item.append_single_stream(live_item.url, 0)
+                live_item.add_stream(live_item.url, 0)
                 live_item.complete = True
 
             items.append(live_item)
@@ -232,7 +232,6 @@ class Channel(chn_class.Channel):
             live_item.type = 'video'
             live_item.complete = True
             live_item.isLive = True
-            part = live_item.create_new_empty_media_part()
             for stream in streams:
                 Logger.trace(stream)
                 bitrate = None
@@ -275,7 +274,7 @@ class Channel(chn_class.Channel):
                     url = "%s?protection=url" % (url, )
 
                 if bitrate:
-                    part.append_media_stream(url, bitrate)
+                    live_item.add_stream(url, bitrate)
 
                     if url == live_stream_value and ".m3u8" in url:
                         # if it was equal to the previous one, assume we have a m3u8. Reset the others.
@@ -362,7 +361,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url, media_type=mediatype.EPISODE)
 
         if media_link:
-            item.append_single_stream(media_link, self.channelBitrate)
+            item.add_stream(media_link, self.channelBitrate)
 
         # get the thumbs from multiple locations
         thumb_urls = result_set.get("images", None)
@@ -421,7 +420,7 @@ class Channel(chn_class.Channel):
         item.isLive = True
 
         if result_set["mediaType"].lower() == "audio":
-            item.append_single_stream(item.url)
+            item.add_stream(item.url)
             item.media_type = mediatype.AUDIO
             item.complete = True
             return item
@@ -453,16 +452,14 @@ class Channel(chn_class.Channel):
         Logger.debug("Updating a (Live) video item")
         content, url = UriHandler.header(item.url)
 
-        part = item.create_new_empty_media_part()
         if AddonSettings.use_adaptive_stream_add_on():
-            part = item.create_new_empty_media_part()
-            stream = part.append_media_stream(url, 0)
+            stream = item.add_stream(url, 0)
             M3u8.set_input_stream_addon_input(stream, item.HttpHeaders)
             item.complete = True
         else:
             for s, b in M3u8.get_streams_from_m3u8(url, append_query_string=True):
                 item.complete = True
-                part.append_media_stream(s, b)
+                item.add_stream(s, b)
             item.complete = True
 
         return item
