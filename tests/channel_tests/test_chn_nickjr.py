@@ -6,7 +6,7 @@ from . channeltest import ChannelTest
 class TestNickJrChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestNickJrChannel, self).__init__(methodName, "channel.nick.nickjr", "nickjrnl")
+        super(TestNickJrChannel, self).__init__(methodName, "channel.nick.nickjr", "nickse")
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
@@ -16,7 +16,7 @@ class TestNickJrChannel(ChannelTest):
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
 
     def test_folder_with_videos_and_pages(self):
-        url = "http://www.nickjr.nl/data/propertyStreamPage.json?&urlKey=dora&apiKey=nl_global_Nickjr_web&page=1"
+        url = "http://www.nickelodeon.se/data/propertyStreamPage.json?&urlKey=svampbob-fyrkant&apiKey=sv_SE_Nick_Web&adfree=&excludeIds=&repeatPattern=&page=1"
         items = self._test_folder_url(url, expected_results=2)
         self.assertGreaterEqual(len([i for i in items if not i.is_playable]), 1)
 
