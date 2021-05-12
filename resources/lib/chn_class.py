@@ -334,7 +334,7 @@ class Channel:
         hide_drm_protected = AddonSettings.hide_drm_items()
         hide_premium = AddonSettings.hide_premium_items()
         hide_folders = AddonSettings.hide_restricted_folders()
-        type_to_exclude = None
+        type_to_exclude = []
         if not hide_folders:
             type_to_exclude = mediatype.FOLDER_TYPES
 
