@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
             urls.append(url)
 
             # actually process the url
-            if ".m3u8" not in url:
+            if ".m3u8" not in url and "profile=hls" not in url:
                 item.add_stream(
                     url=url,
                     bitrate=qualities.get(stream.get("name", "other"), 0)
@@ -232,5 +232,6 @@ class Channel(chn_class.Channel):
             #     M3u8.SetInputStreamAddonInput(stream)
             #     item.complete = True
             else:
-                M3u8.update_part_with_m3u8_streams(item, url, channel=self)
+                _, actual_url = UriHandler.header(url)
+                item.complete = M3u8.update_part_with_m3u8_streams(item, actual_url, channel=self)
         return item
