@@ -3,11 +3,11 @@
 Minor issues fixed with Up Next integration and Kodi Leia.
 
 [B]Framework related[/B]
-* Fixed: UpNext detection on Kodi Leia.
+* Fixed: Filtering of Geo and paid items (Fixes #1511).
+* Changed: Simplified the playback of items.
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
 * Added: Multi-stream SVT videos with extra speech options (only available in Sweden).
-* Fixed: Filtering of Geo and paid items (Fixes #1511).
