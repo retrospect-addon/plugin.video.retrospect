@@ -1015,10 +1015,10 @@ class Channel(chn_class.Channel):
 
         The method should at least:
         * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
+        * set at least one MediaStream.
         * set self.complete = True.
 
-        if the returned item does not have a MediaItemPart then the self.complete flag
+        if the returned item does not have a MediaSteam then the self.complete flag
         will automatically be set back to False.
 
         :param MediaItem item: the original MediaItem that needs updating.
@@ -1047,10 +1047,10 @@ class Channel(chn_class.Channel):
 
         The method should at least:
         * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaItemPart with a single MediaStream.
+        * set at least one MediaStream.
         * set self.complete = True.
 
-        if the returned item does not have a MediaItemPart then the self.complete flag
+        if the returned item does not have a MediaSteam then the self.complete flag
         will automatically be set back to False.
 
         :param MediaItem item: the original MediaItem that needs updating.
@@ -1152,8 +1152,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        item.MediaItemParts = []
-        part = item.create_new_empty_media_part()
+        item.streams = []
         use_input_stream = AddonSettings.use_adaptive_stream_add_on(channel=self)
         in_sweden = self.__validate_location()
         Logger.debug("Streaming location within GEO area: %s", in_sweden)
@@ -1178,12 +1177,12 @@ class Channel(chn_class.Channel):
             Logger.debug("Found video item for format: %s", video_format)
 
             url = video['url']
-            if any(filter(lambda s: s.Url == url, part.MediaStreams)):
+            if any(filter(lambda s: s.Url == url, item.streams)):
                 Logger.debug("Skippping duplicate Stream url: %s", url)
                 continue
 
             if "dash" in video_format and use_input_stream:
-                stream = part.append_media_stream(video['url'], supported_formats[video_format])
+                stream = item.add_stream(video['url'], supported_formats[video_format])
                 Mpd.set_input_stream_addon_input(stream)
 
             elif "m3u8" in url:
@@ -1196,21 +1195,20 @@ class Channel(chn_class.Channel):
                     continue
 
                 M3u8.update_part_with_m3u8_streams(
-                    part,
+                    item,
                     url,
                     encrypted=False,
-                    headers=part.HttpHeaders,
                     channel=self,
                     bitrate=supported_formats[video_format]
                 )
 
             elif video["url"].startswith("rtmp"):
                 # just replace some data in the URL
-                part.append_media_stream(
+                item.add_stream(
                     self.get_verifiable_video_url(video["url"]).replace("_definst_", "?slist="),
                     video[1])
             else:
-                part.append_media_stream(url, 0)
+                item.add_stream(url, 0)
 
         if subtitles:
             Logger.info("Found subtitles to play")
@@ -1225,7 +1223,7 @@ class Channel(chn_class.Channel):
                     # look for more
                     continue
 
-                part.Subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
+                item.subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
                     sub_url, format="srt", replace={"&amp;": "&"})
                 # stop when finding one
                 break
