@@ -1,6 +1,6 @@
-[B]Retrospect v5.3.2+matrix.1 - Changelog - 2021-05-02[/B]
+[B]Retrospect v5.4.0+matrix.1 - Changelog - 2021-05-15[/B]
 
-Minor issues fixed with Up Next integration and Kodi Leia.
+This update fixes some channel issues and contains a simplification in the 'playing back of items' code that was long over due.
 
 [B]Framework related[/B]
 * Fixed: Filtering of Geo and paid items (Fixes #1511).
