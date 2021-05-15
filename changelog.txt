@@ -17,3 +17,4 @@ _None_
 * Fixed: TWiT.tv video listing, live stream and paging.
 * Fixed: MSDN Channel 9 was broken.
 * Fixed: NOS Streams stopped playing (Fixes #1512).
+* Fixed: Radio 538 Live streams did not work (Fixes #1506).
