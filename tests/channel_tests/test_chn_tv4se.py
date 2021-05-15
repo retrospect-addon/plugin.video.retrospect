@@ -99,5 +99,5 @@ class TestTv4Channel(ChannelTest):
         self._test_folder_url(url, expected_results=10)
 
     def test_list_with_seasons_folders(self):
-        url = "https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid%3A%22intelligence%22%29%7Bname%2Cdescription%2CvideoPanels%7Bid%2Cname%2Csubheading%2CassetType%7D%7D%7D"
+        url = "https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid%3A%22hidden%22%29%7Bname%2Cdescription%2CvideoPanels%7Bid%2Cname%2Csubheading%2CassetType%7D%7D%7D"
         self._test_folder_url(url, expected_results=1)
