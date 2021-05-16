@@ -3,18 +3,10 @@
 This update fixes some channel issues and contains a simplification in the 'playing back of items' code that was long over due.
 
 [B]Framework related[/B]
-* Fixed: Filtering of Geo and paid items (Fixes #1511).
-* Changed: Simplified the playback of items.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Added: Multi-stream SVT videos with extra speech options (only available in Sweden).
-* Fixed: RTV Utrecht item listing.
-* Fixed: Omroep Zeeland video playback.
-* Fixed: Hardware.info TV video playback.
-* Fixed: TWiT.tv video listing, live stream and paging.
-* Fixed: MSDN Channel 9 was broken.
-* Fixed: NOS Streams stopped playing (Fixes #1512).
-* Fixed: Radio 538 Live streams did not work (Fixes #1506).
+* Fixed: NPO Listing had some "folder-icon" issues (Fixes #1516).
