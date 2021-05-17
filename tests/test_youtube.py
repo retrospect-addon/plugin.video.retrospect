@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-
+import os
 import unittest
 
 from resources.lib.logger import Logger
@@ -30,6 +30,7 @@ class TestYoutube(unittest.TestCase):
 
         self.assertEqual(len(streams), 1)
 
+    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to API restrictions")
     def test_stream_extraction_internal_01(self):
         url = "http://www.youtube.com/watch?v=878-LYQEcPs"
         results = YouTube.get_streams_from_you_tube(url, use_add_on=False)
@@ -46,6 +47,7 @@ class TestYoutube(unittest.TestCase):
 
         self.assertGreater(len(streams), 1)
 
+    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to API restrictions")
     def test_stream_extraction_internal_02(self):
         url = "https://www.youtube.com/watch?v=S2g0GiCHyJE"
         results = YouTube.get_streams_from_you_tube(url, use_add_on=False)
