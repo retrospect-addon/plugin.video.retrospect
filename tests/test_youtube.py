@@ -16,13 +16,15 @@ class TestYoutube(unittest.TestCase):
 
     def test_stream_extraction_via_add_on(self):
         url = "http://www.youtube.com/watch?v=878-LYQEcPs"
-        results = YouTube.get_streams_from_you_tube(url)
+        results = YouTube.get_streams_from_you_tube(url, ignore_add_on_status=True)
         results.sort(key=lambda x: int(x[1]))
         streams = []
         bitrates = []
         for s, b in results:
             if s.count("://") > 1:
-                raise Exception("Duplicate protocol in url: %s", s)
+                self.fail("Duplicate protocol in url: {}".format(s))
+            if not s.startswith("plugin://plugin.video.youtube"):
+                self.fail("Invalid Kodi-plugin protocol: {}".format(s))
             streams.append(s)
             bitrates.append(b)
             print("%s - %s" % (b, s))

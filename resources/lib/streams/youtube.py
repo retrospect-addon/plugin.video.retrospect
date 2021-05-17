@@ -47,12 +47,12 @@ class YouTube(object):
     }
 
     @staticmethod
-    def get_streams_from_you_tube(url, use_add_on=True):
+    def get_streams_from_you_tube(url, ignore_add_on_status=True):
         """ Parsers standard YouTube videos and returns a list of tuples with streams and
         bitrates that can be used by other methods.
 
-        :param str url:             The url to download
-        :param bool use_add_on:     Should we use the Youtube add-on if available
+        :param str url:                     The url to download.
+        :param bool ignore_add_on_status:   Should we ignore the add-on check.
 
         Can be used like this:
 
@@ -73,7 +73,7 @@ class YouTube(object):
         else:
             you_tube_add_on_available = xbmc.getCondVisibility('System.HasAddon(plugin.video.youtube)') == 1
 
-        if you_tube_add_on_available and use_add_on:
+        if you_tube_add_on_available or ignore_add_on_status:
             Logger.info("Found Youtube add-on. Using it")
             you_tube_streams.append((YouTube.__play_you_tube_url(url), 0))
             Logger.trace(you_tube_streams)
