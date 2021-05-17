@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import os
+import unittest
+
 from . channeltest import ChannelTest
 
 
+@unittest.skipIf("CI" in os.environ, "Broken. See https://github.com/retrospect-addon/plugin.video.retrospect/issues/1517")
 class TestKetNetChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
