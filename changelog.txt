@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: NPO Listing had some "folder-icon" issues (Fixes #1516).
+* Fixed: KetNet broke due to API changes (Fixes #1517).
