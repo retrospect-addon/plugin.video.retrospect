@@ -9,7 +9,7 @@ from . channeltest import ChannelTest
 class TestNickelodeonChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestNickelodeonChannel, self).__init__(methodName, "channel.nick.nickelodeon", "nickelodeon")
+        super(TestNickelodeonChannel, self).__init__(methodName, "channel.nick.nickelodeon", "nickno")
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
@@ -31,19 +31,21 @@ class TestNickelodeonChannel(ChannelTest):
         self.assertGreater(len(items), 50)
 
     def test_show_list_more_pages(self):
-        url = "https://www.nickelodeon.nl/shows/iedxxq/victorious"
+        url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
         self._test_folder_url(url, expected_results=5)
 
-    @unittest.skip("Nickelodeon keeps changing the season names and url")
     def test_show_list_with_seasons(self):
-        url = "https://www.nickelodeon.nl/shows/1rak95/huize-herrie"
+        url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
         items = self._test_folder_url(url, expected_results=2)
         seasons = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(seasons), 1)
 
-    @unittest.skip("Nickelodeon keeps changing the season names and url")
-    def test_season_listing(self):
-        url = "https://www.nickelodeon.nl/shows/spongebob/z5of77/seizoen-seasonnumber-6"
+    def test_season_listing_no(self):
+        url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
+        self._test_folder_url(url, expected_results=5)
+
+    def test_season_listing_nl(self):
+        url = "https://www.nickelodeon.nl/shows/76ypv4/spongebob"
         self._test_folder_url(url, expected_results=2)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
