@@ -31,7 +31,7 @@ class TestSubtitleHelper(unittest.TestCase):
         pass
 
     def test_webvtt_download(self):
-        url = "https://vod-subs-cdn1-vf-cdn-viaplay-tv.akamaized.net/62c9ddf/20485777_sv-1587672362880.vtt"
+        url = "https://cdn.rieter.net/testfiles/test_subtitle.vtt"
         srt = SubtitleHelper.download_subtitle(url, format='webvtt')
         self.assertIsNot("", srt)
         self.assertIsNotNone(srt)
