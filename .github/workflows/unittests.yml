@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - '**'
+    paths-ignore:
+      - '**.po'
 
   pull_request_target:
     branches:
       - master
+    paths-ignore:
+      - '**.po'
 
   schedule:
     # * is a special character in YAML so you have to quote this string
