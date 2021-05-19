@@ -202,7 +202,7 @@ msgid "DRM/Geo-blocked/Premium filters"
 msgstr ""
 
 msgctxt "#30047"
-msgid "Cannot playback this Youtube Video because the Kodi YouTube add-on is missing."
+msgid "Cannot playback this YouTube Video because the Kodi YouTube add-on is missing."
 msgstr ""
 
 msgctxt "#30048"
