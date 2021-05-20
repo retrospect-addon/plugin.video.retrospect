@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-04-20 23:29+0000\n"
+"PO-Revision-Date: 2021-05-20 17:29+0000\n"
 "Last-Translator: Sopor <sopor@hotmail.com>\n"
 "Language-Team: Swedish <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/sv_se/>\n"
 "Language: sv_se\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.6\n"
+"X-Generator: Weblate 4.6.2\n"
 
 msgctxt "#30000"
 msgid "Stream Quality"
@@ -169,7 +169,7 @@ msgstr "Lösenord"
 
 msgctxt "#30037"
 msgid "Use 'Up Next' to play next episode"
-msgstr "Använd 'Up Next' för att spela upp nästa avsnitt"
+msgstr "Använd 'Up Next' för att spela nästa avsnitt"
 
 msgctxt "#30038"
 msgid "'Up Next' add-on settings"
@@ -202,6 +202,10 @@ msgstr "Den här funktionen av Retrospect kräver en nyare version av Kodi. Inst
 msgctxt "#30046"
 msgid "DRM/Geo-blocked/Premium filters"
 msgstr "DRM-/geoblockerings-/premiumfilter"
+
+msgctxt "#30047"
+msgid "Cannot playback this YouTube Video because the Kodi YouTube add-on is missing."
+msgstr "Det går inte att spela upp den här YouTube-videon eftersom tillägget YouTube saknas i Kodi."
 
 # empty string with id 30047
 msgctxt "#30048"
