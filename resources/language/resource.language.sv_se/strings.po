@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-05-20 17:29+0000\n"
+"PO-Revision-Date: 2021-05-25 20:46+0000\n"
 "Last-Translator: Sopor <sopor@hotmail.com>\n"
 "Language-Team: Swedish <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/sv_se/>\n"
 "Language: sv_se\n"
@@ -175,6 +175,10 @@ msgctxt "#30038"
 msgid "'Up Next' add-on settings"
 msgstr "Tilläggsinställningar för 'Up Next'"
 
+msgctxt "#30039"
+msgid "Up Next integration"
+msgstr "Up Next integration"
+
 msgctxt "#30040"
 msgid "Channels"
 msgstr "Kanaler"
@@ -239,6 +243,14 @@ msgstr "[COLOR gold][B]Retrospect lösenordsvalv[/B][/COLOR][CR]'Valvet' gör de
 msgctxt "#30055"
 msgid "Advanced"
 msgstr "Avancerat"
+
+msgctxt "#30056"
+msgid "Install the Up Next add-on"
+msgstr "Installera tillägget Up Next"
+
+msgctxt "#30057"
+msgid "Enable the Up Next add-on"
+msgstr "Aktivera tillägget Up Next"
 
 # empty strings from id 30056 to 30058
 msgctxt "#30059"
