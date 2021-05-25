@@ -1,7 +1,6 @@
 # Kodi Media Center language file
 # Translators:
 # Bas Rieter <basrieter@gmail.com>, 2020
-# Snah <dynggrep@gmail.com>, 2020
 # Sopor, 2020
 #
 msgid ""
