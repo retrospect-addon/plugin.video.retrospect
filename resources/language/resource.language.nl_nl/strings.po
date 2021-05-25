@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-05-19 16:24+0000\n"
+"PO-Revision-Date: 2021-05-25 20:46+0000\n"
 "Last-Translator: bas <bas@kodi.tv>\n"
 "Language-Team: Dutch <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/nl_nl/>\n"
 "Language: nl_nl\n"
@@ -173,6 +173,10 @@ msgctxt "#30038"
 msgid "'Up Next' add-on settings"
 msgstr "'Up Next' add-on instellingen"
 
+msgctxt "#30039"
+msgid "Up Next integration"
+msgstr "Up Next integratie"
+
 msgctxt "#30040"
 msgid "Channels"
 msgstr "Kanalen"
@@ -237,6 +241,14 @@ msgstr "[COLOR gold][B]De Retrospect wachtwoordkluis[/B][/COLOR][CR]De 'wachtwoo
 msgctxt "#30055"
 msgid "Advanced"
 msgstr "Geavanceerd"
+
+msgctxt "#30056"
+msgid "Install the Up Next add-on"
+msgstr "Installeer de Up Next add-on"
+
+msgctxt "#30057"
+msgid "Enable the Up Next add-on"
+msgstr "Schakel de Up Next add-on in"
 
 # empty strings from id 30056 to 30058
 msgctxt "#30059"

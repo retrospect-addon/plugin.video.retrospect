@@ -168,6 +168,10 @@ msgctxt "#30038"
 msgid "'Up Next' add-on settings"
 msgstr ""
 
+msgctxt "#30039"
+msgid "Up Next integration"
+msgstr ""
+
 # empty string from id 30039 to 30039
 msgctxt "#30040"
 msgid "Channels"
@@ -232,6 +236,14 @@ msgstr ""
 
 msgctxt "#30055"
 msgid "Advanced"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Install the Up Next add-on"
+msgstr ""
+
+msgctxt "#30057"
+msgid "Enable the Up Next add-on"
 msgstr ""
 
 # empty strings from id 30056 to 30058
