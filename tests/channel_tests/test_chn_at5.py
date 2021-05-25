@@ -13,7 +13,7 @@ class TestAt5Channel(ChannelTest):
 
     def test_channel_at5_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 50)
+        self.assertGreater(len(items), 5)
 
     def test_channel_at5_show_folder(self):
         url = "https://ditisdesupercooleappapi.at5.nl/api/article/p123"
@@ -33,7 +33,7 @@ class TestAt5Channel(ChannelTest):
         from resources.lib.helpers.channelimporter import ChannelIndex
         self.channel = ChannelIndex.get_register().get_channel(self._channel, "rtvnh")
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 50)
+        self.assertGreater(len(items), 10)
 
     def test_channel_rtv_noord_show_folder(self):
         url = "https://ditisdesupercooleappapi.nhnieuws.nl/api/article/256024"

@@ -45,7 +45,7 @@ class TestNickelodeonChannel(ChannelTest):
         self._test_folder_url(url, expected_results=5)
 
     def test_season_listing_nl(self):
-        url = "https://www.nickelodeon.nl/shows/76ypv4/spongebob"
+        url = "https://www.nickelodeon.no/shows/76ypv4/svampebob-firkant"
         self._test_folder_url(url, expected_results=2)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
