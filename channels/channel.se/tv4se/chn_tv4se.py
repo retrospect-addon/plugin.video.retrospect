@@ -4,9 +4,9 @@
 import pytz
 import datetime
 
-from resources.lib import chn_class, mediatype, contenttype
+from resources.lib import chn_class, mediatype
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.mediaitem import MediaItem, FolderItem
+from resources.lib.mediaitem import MediaItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.jsonhelper import JsonHelper
 
@@ -529,17 +529,22 @@ class Channel(chn_class.Channel):
 
         total_hits = data.get_value('data', 'videoPanel', 'videoList', 'totalHits')
         if total_hits > len(items):
-            Logger.debug("Adding 'more' pages")
-            offset = self.parentItem.metaData.get("offset", 0) + 100
+            Logger.debug("Adding items from next page")
+            offset = self.parentItem.metaData.get("offset", 0) + self.__maxPageSize
             folder_id = self.parentItem.metaData.get("folder_id")
             if not folder_id:
                 Logger.warning("Cannot find 'folder_id' in MediaItem")
                 return items
+
             url = self.__get_api_folder_url(folder_id, offset)
-            title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.PAGE)
-            item.metaData["offset"] = offset
-            items.append(item)
+            data = UriHandler.open(url)
+            json_data = JsonHelper(data)
+            extra_results = json_data.get_value("data", "videoPanel", "videoList", "videoAssets", fallback=[])
+            Logger.debug("Adding %d extra results from next page", len(extra_results or []))
+            for result in extra_results:
+                item = self.create_api_video_asset_type(result)
+                if item:
+                    items.append(item)
 
         Logger.debug("Post-Processing finished")
         return items
@@ -818,9 +823,10 @@ class Channel(chn_class.Channel):
 
     def __get_api_folder_url(self, folder_id, offset=0):
         return self.__get_api_query(
-            '{videoPanel(id: "%s"){name,videoList(limit: 100, offset:%d){totalHits,videoAssets'
+            '{videoPanel(id: "%s"){name,videoList(limit: %s, offset:%d, '
+            'sortOrder: "broadcastDateTime"){totalHits,videoAssets'
             '{title,id,description,season,episode,daysLeftInService,broadcastDateTime,image,'
-            'freemium,drmProtected,live,duration}}}}' % (folder_id, offset))
+            'freemium,drmProtected,live,duration}}}}' % (folder_id, self.__maxPageSize, offset))
 
     def __update_dash_video(self, item, stream_info):
         """
