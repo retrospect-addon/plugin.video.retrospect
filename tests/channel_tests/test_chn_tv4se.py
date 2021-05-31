@@ -101,3 +101,12 @@ class TestTv4Channel(ChannelTest):
     def test_list_with_seasons_folders(self):
         url = "https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid%3A%22hidden%22%29%7Bname%2Cdescription%2CvideoPanels%7Bid%2Cname%2Csubheading%2CassetType%7D%7D%7D"
         self._test_folder_url(url, expected_results=1)
+
+    def test_list_with_paging(self):
+        url = "https://graphql.tv4play.se/graphql?query=%7BvideoPanel%28id%3A%20%228e7562f0-65f6-11eb-a19d-0dff2f8593eb%22%29%7Bname%2CvideoList%28limit%3A%20100%29%7BtotalHits%2CvideoAssets%7Btitle%2Cid%2Cdescription%2Cseason%2Cepisode%2CdaysLeftInService%2CbroadcastDateTime%2Cimage%2Cfreemium%2CdrmProtected%2Clive%2Cduration%7D%7D%7D%7D"
+        item = self._get_media_item(url, "test")
+        item.metaData["folder_id"] = "8e7562f0-65f6-11eb-a19d-0dff2f8593eb"
+        items = self.channel.process_folder_list(item)
+        folders = [i for i in items if i.is_folder]
+        self.assertEqual(len(folders), 1)
+        self.assertEqual(folders[0].media_type, "page")
