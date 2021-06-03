@@ -12,3 +12,4 @@ This update fixes some channel issues and contains a simplification in the 'play
 * Fixed: NPO Listing had some "folder-icon" issues (Fixes #1516).
 * Fixed: KetNet broke due to API changes (Fixes #1517).
 * Fixed: Some TV4 Play shows had 100+ items which requires paging (Fixes #1524).
+* Removed: Nick Jr sites as they removed all content (Fixes #1508)
