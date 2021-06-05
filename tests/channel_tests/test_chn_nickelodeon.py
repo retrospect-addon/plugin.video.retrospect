@@ -31,7 +31,7 @@ class TestNickelodeonChannel(ChannelTest):
         self.assertGreater(len(items), 50)
 
     def test_show_list_more_pages(self):
-        url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
+        url = "https://www.nickelodeon.no/shows/tawzng/familien-thunderman"
         self._test_folder_url(url, expected_results=5)
 
     def test_show_list_with_seasons(self):
@@ -42,7 +42,7 @@ class TestNickelodeonChannel(ChannelTest):
 
     def test_season_listing_no(self):
         url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
-        self._test_folder_url(url, expected_results=5)
+        self._test_folder_url(url, expected_results=2)
 
     def test_season_listing_nl(self):
         url = "https://www.nickelodeon.no/shows/76ypv4/svampebob-firkant"
