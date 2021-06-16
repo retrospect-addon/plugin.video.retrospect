@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -18,10 +19,12 @@ class TestKijkNlChannel(ChannelTest):
     def test_last_week(self):
         self._test_folder_url("#lastweek", expected_results=7, exact_results=True)
 
+    @unittest.skip("Deprecated Embedded API")
     def test_update_embedded_mpd_video(self):
         self._test_video_url(
             "https://embed.kijk.nl/api/video/vhlbVj34UM9?id=kijkapp&format=DASH&drm=CENC")
 
+    @unittest.skip("Deprecated Embedded API")
     def test_update_embedded_mpd_encrypted_video(self):
         self._test_video_url(
             "https://embed.kijk.nl/api/video/P74c4ckPaE9?id=kijkapp&format=DASH&drm=CENC")
