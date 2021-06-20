@@ -3,13 +3,10 @@
 A minor update to Retrospect with fixes for NPO, KetNet and TV4.
 
 [B]Framework related[/B]
-* Removed: Custom YT code and force YT add-on.
+* Updated: Allow tests to switch channel code.
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Settings for Up Next integration.
+_None_
 
 [B]Channel related[/B]
-* Fixed: NPO Listing had some "folder-icon" issues (Fixes #1516).
-* Fixed: KetNet broke due to API changes (Fixes #1517).
-* Fixed: Some TV4 Play shows had 100+ items which requires paging (Fixes #1524).
-* Removed: Nick Jr sites as they removed all content (Fixes #1508)
+* Fixed: RTV Oost live streams (Fixes #1529)

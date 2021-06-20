@@ -30,14 +30,18 @@ class ChannelTest(unittest.TestCase):
 
     def setUp(self):
         """ Setup a new and clean channel """
-        from resources.lib.helpers.channelimporter import ChannelIndex
-        self.channel = ChannelIndex.get_register().get_channel(self._channel, self._code)
+        self._switch_channel(self._code)
 
     @classmethod
     def tearDownClass(cls):
         from resources.lib.addonsettings import AddonSettings
         AddonSettings.clear_cached_addon_settings_object()
         Logger.instance().close_log()
+
+    def _switch_channel(self, channel_code):
+        self._code = channel_code
+        from resources.lib.helpers.channelimporter import ChannelIndex
+        self.channel = ChannelIndex.get_register().get_channel(self._channel, self._code)
 
     def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None, retry=1):
         self.assertIsNotNone(self.channel)
