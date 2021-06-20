@@ -3,10 +3,10 @@
 A minor update to Retrospect with fixes for NPO, KetNet and TV4.
 
 [B]Framework related[/B]
-* Removed: Custom YT code and force YT add-on.
+* Updated: Allow tests to switch channel code.
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Settings for Up Next integration.
+_None_
 
 [B]Channel related[/B]
 * Fixed: NPO Listing had some "folder-icon" issues (Fixes #1516).
