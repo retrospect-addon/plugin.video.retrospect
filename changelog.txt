@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.1 - Changelog - 2021-06-04[/B]
+[B]Retrospect v5.4.2 - Changelog - 2021-06-27[/B]
 
-A minor update to Retrospect with fixes for NPO, KetNet and TV4.
+A minor update to Retrospect with fixes for RTV Oost Live streams.
 
 [B]Framework related[/B]
 * Updated: Allow tests to switch channel code.
