@@ -12,3 +12,4 @@ _None_
 * Fixed: RTV Oost live streams (Fixes #1529).
 * Fixed: Minor KetNet issue with video titles.
 * Fixed: HLS streams for SVT are not stopping at the end. Using Dash for now (See #1433).
+* Added: BVN.tv (Fixes #1507).
