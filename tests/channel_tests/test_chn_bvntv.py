@@ -3,10 +3,10 @@
 from . channeltest import ChannelTest
 
 
-class TestAt5Channel(ChannelTest):
+class TestBvnTvChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestAt5Channel, self).__init__(methodName, "channel.nos.bvntv", "bvntv")
+        super(TestBvnTvChannel, self).__init__(methodName, "channel.nos.bvntv", "bvntv")
 
     def test_channel_at5_exists(self):
         self.assertIsNotNone(self.channel)
@@ -26,3 +26,7 @@ class TestAt5Channel(ChannelTest):
     def test_episode_listing_show_single_episode(self):
         url = "https://www.bvn.tv/programma/de-gert-hermien-story/"
         self._test_folder_url(url, expected_results=1)
+
+    def test_live_stream(self):
+        url = "https://www.bvn.tv/programma/live/LI_BVN_4589107"
+        self._test_video_url(url)

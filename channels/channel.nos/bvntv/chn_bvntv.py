@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib import chn_class
+from resources.lib import chn_class, mediatype
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
@@ -34,7 +34,9 @@ class Channel(chn_class.Channel):
 
         episode_regex = r'<a[^>]*href="(?<url>[^"]+)[^>]*>\W*<img[^>]*data-src="(?<thumburl>[^"]+)"[^>]*>\W*<div[^>]*>(?<title>[^<]+)<'
         episode_regex = Regexer.from_expresso(episode_regex)
-        self._add_data_parser(self.mainListUri, parser=episode_regex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, name="Mainlist and live",
+                              preprocessor=self.add_live_streams,
+                              parser=episode_regex, creator=self.create_episode_item)
 
         video_regex = r'<a[^>]+href="(?<url>[^"]+/(?<pow>[^"]+))"[^>]*>\W*<div[^>]+>\W*<img[^>]+data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?title">(?<title>[^<]+)<[^<]+<[^>]+>(?<subtitle>[^<]*)<[^<]+<[^>]+datetime="(?<datetime>[^"]+)"'
         video_regex = Regexer.from_expresso(video_regex)
@@ -59,6 +61,31 @@ class Channel(chn_class.Channel):
 
         data = data.split("slick-missed-program", 1)[1]
         data = data.split("</section>", 1)[0]
+
+        Logger.debug("Pre-Processing finished")
+        return data, items
+
+    def add_live_streams(self, data):
+        """ Adds the live streams
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        Logger.info("Performing Pre-Processing")
+        items = []
+
+        #  Add live stream (the the actual URL, but it makes it use the standard updater).
+        name = LanguageHelper.get_localized_string(LanguageHelper.LiveTv)
+        item = MediaItem(
+            name, "%s/programma/live/%s" % (self.baseUrl, "LI_BVN_4589107"), media_type=mediatype.VIDEO)
+        item.isLive = True
+        item.metaData["pow"] = "LI_BVN_4589107"
+        items.append(item)
+
         Logger.debug("Pre-Processing finished")
         return data, items
 
@@ -92,7 +119,10 @@ class Channel(chn_class.Channel):
         return item
 
     def update_video_item(self, item):
-        pow_id = item.metaData["pow"]
+        pow_id = item.metaData.get("pow")
+        if not pow_id:
+            pow_id = item.url.rsplit("/", -1)
+
         from resources.lib.streams.npostream import NpoStream
         error = NpoStream.add_mpd_stream_from_npo(None, pow_id, item, live=item.isLive)
         if error:
