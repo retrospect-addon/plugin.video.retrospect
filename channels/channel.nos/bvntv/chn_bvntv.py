@@ -28,8 +28,8 @@ class Channel(chn_class.Channel):
         # setup the urls
         self.baseUrl = "https://www.bvn.tv"
 
-        self.noImage = "bvntvimage.jpg"
-        self.poster = "bvntvposter.jpg"
+        self.noImage = "bvntvimage.png"
+        self.poster = "bvntvposter.png"
         self.mainListUri = "https://www.bvn.tv/programmas/"
 
         episode_regex = r'<a[^>]*href="(?<url>[^"]+)[^>]*>\W*<img[^>]*data-src="(?<thumburl>[^"]+)"[^>]*>\W*<div[^>]*>(?<title>[^<]+)<'
