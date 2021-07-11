@@ -36,7 +36,7 @@ class Channel(chn_class.Channel):
         episode_regex = Regexer.from_expresso(episode_regex)
         self._add_data_parser(self.mainListUri, parser=episode_regex, creator=self.create_episode_item)
 
-        video_regex = r'<a[^>]+href="(?<url>[^"]+/(?<pow>[^"]+))"[^>]*>\W*<div[^>]+>\W*<img[^>]+data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?title">(?<title>[^<]+)<[^<]+<[^>]+>(?<subtitle>[^<]+)<[^<]+<[^>]+datetime="(?<datetime>[^"]+)"'
+        video_regex = r'<a[^>]+href="(?<url>[^"]+/(?<pow>[^"]+))"[^>]*>\W*<div[^>]+>\W*<img[^>]+data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?title">(?<title>[^<]+)<[^<]+<[^>]+>(?<subtitle>[^<]*)<[^<]+<[^>]+datetime="(?<datetime>[^"]+)"'
         video_regex = Regexer.from_expresso(video_regex)
         self._add_data_parser("https://www.bvn.tv/programma/", name="Main video listings for shows",
                               preprocessor=self.extract_episode_section,
