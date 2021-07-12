@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.2 - Changelog - 2021-06-27[/B]
+[B]Retrospect v5.4.3 - Changelog - 2021-07-12[/B]
 
-A minor update to Retrospect with fixes for RTV Oost Live streams.
+This minor update contains some fixes for channels and introduces a new BVN.tv (Beste van NPO) channel for Dutch expats.
 
 [B]Framework related[/B]
 * Updated: Allow tests to switch channel code.
