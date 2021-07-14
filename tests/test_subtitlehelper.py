@@ -31,7 +31,7 @@ class TestSubtitleHelper(unittest.TestCase):
         pass
 
     def test_webvtt_download(self):
-        url = "https://cdn.rieter.net/testfiles/test_subtitle.vtt"
+        url = "https://retrospect-addon.github.io/testfiles/test_subtitle.vtt"
         srt = SubtitleHelper.download_subtitle(url, format='webvtt')
         self.assertIsNot("", srt)
         self.assertIsNotNone(srt)
