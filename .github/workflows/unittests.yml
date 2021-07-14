@@ -6,6 +6,7 @@ on:
       - '**'
     paths-ignore:
       - '**.po'
+      - '**.xml'
       - '**.md'
 
   pull_request:
@@ -13,6 +14,7 @@ on:
       - master
     paths-ignore:
       - '**.po'
+      - '**.xml'
       - '**.md'
 
   schedule:
