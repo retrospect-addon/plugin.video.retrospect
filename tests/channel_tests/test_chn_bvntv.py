@@ -17,7 +17,7 @@ class TestBvnTvChannel(ChannelTest):
 
     def test_episode_listing_show(self):
         url = "https://www.bvn.tv/programma/2-voor-12/"
-        self._test_folder_url(url, expected_results=5)
+        self._test_folder_url(url, expected_results=2)
 
     def test_episode_listing_show_few_results(self):
         url = "https://www.bvn.tv/programma/40-jaar-tv-show/"
