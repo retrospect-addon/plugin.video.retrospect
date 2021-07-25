@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from resources.lib import chn_class, mediatype, contenttype
+from resources.lib.helpers.languagehelper import LanguageHelper
 
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.logger import Logger
+from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
 from resources.lib.parserdata import ParserData
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -33,16 +35,17 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.srf.ch"
 
         # setup the intial listing
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                              json=True, name="Mainlisting of shows",
+                              preprocessor=self.get_live_items,
                               parser=["data"], creator=self.create_episode_item)
 
-        # self._add_data_parser(self.mainListUri, matchType=ParserData.MatchExact, json=True,
-        #                     preprocessor=self.get_live_items)
+        self._add_data_parser("https://www.srf.ch/play/v3/api/srf/production/tv-livestreams",
+                              json=True, name="Live stream items",
+                              creator=self.create_live_item, parser=["data"])
 
-        # self._add_data_parser("http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play",
-        #                       updater=self.update_live_item)
-
-        self._add_data_parser("https://www.srf.ch/play/v3/api/srf/production/videos-by-show-id?showId", json=True,
+        self._add_data_parser("https://www.srf.ch/play/v3/api/srf/production/videos-by-show-id?showId",
+                              json=True, name="Videos for show",
                               parser=['data', 'data'],
                               creator=self.create_video_item)
 
@@ -70,20 +73,13 @@ class Channel(chn_class.Channel):
         Logger.info("Fetching episode items")
         items = []
 
-        live_items = MediaItem("\a.: Live TV :.", "")
+        live = LanguageHelper.get_localized_string(LanguageHelper.LiveTv)
+        live_items = MediaItem(
+            "\a.: {} :.".format(live),
+            "https://www.srf.ch/play/v3/api/srf/production/tv-livestreams-now-and-next"
+        )
+        live_items.isLive = True
         items.append(live_items)
-
-        live_base = "http://il.srgssr.ch/integrationlayer/1.0/ue/srf/video/play/%s.json"
-        live_channels = {"SRF 1 live": ("c4927fcf-e1a0-0001-7edd-1ef01d441651", "srf1.png"),
-                         "SRF zwei live": ("c49c1d64-9f60-0001-1c36-43c288c01a10", "srf2.png"),
-                         "SRF info live": ("c49c1d73-2f70-0001-138a-15e0c4ccd3d0", "srfinfo.png")}
-        for live_item in live_channels.keys():
-            item = MediaItem(live_item, live_base % (live_channels[live_item][0],))
-            item.thumb = self.get_image_location(live_channels[live_item][1])
-            item.isGeoLocked = True
-            item.media_type = mediatype.EPISODE
-            live_items.items.append(item)
-
         return data, items
 
     def create_episode_item(self, result_set):
@@ -155,6 +151,53 @@ class Channel(chn_class.Channel):
         item.complete = False
         return item
 
+    def create_live_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param result_set: The result_set of the self.episodeItemRegex
+        :type result_set: dict
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        video_urn = result_set["livestreamUrn"]
+        url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/{}.json?onlyChapters=false&vector=portalplay".format(video_urn)
+        station = result_set["title"]
+        description = []
+
+        next_item = result_set["next"]
+        if next_item:
+            next_title = LanguageHelper.get_localized_string(LanguageHelper.Next)
+            description.append("[B]{}[/B]: {}".format(next_title, next_item["title"]))
+
+        now_item = result_set.get("now")
+        if now_item:
+            now_title = LanguageHelper.get_localized_string(LanguageHelper.NowPlaying)
+            title = "[COLOR gold]{}[/COLOR]: {}".format(station, now_item["title"])
+            description.insert(0, "[B]{}[/B]: {}".format(now_title, now_item["title"]))
+            description.append("\n{}".format(now_item["description"]))
+        else:
+            title = station
+
+        item = MediaItem(title, url, media_type=mediatype.VIDEO)
+        item.description = "\n".join(description)
+        item.isGeoLocked = True
+        item.isLive = True
+        item.complete = False
+        return item
+
     def update_video_item(self, item):
         """ Updates an existing MediaItem with more data.
 
@@ -192,9 +235,16 @@ class Channel(chn_class.Channel):
             else:
                 bitrate = 2500
 
-            if not video_type == "hls":
-                Logger.warning("Cannot playback type '%s': %s", video_type, url)
+            if video_type == "hls":
+                item.complete = M3u8.update_part_with_m3u8_streams(item, url, bitrate=bitrate, encrypted=False)
 
-            item.complete = M3u8.update_part_with_m3u8_streams(item, url, bitrate=bitrate, encrypted=False)
+            elif video_type == "mpd" or video_type == "dash":
+                license_url = [d["licenseUrl"] for d in video_info["drmList"] if d["type"].lower() == "widevine"][0]
+                license_key = Mpd.get_license_key(license_url, key_type="A")
+                stream = item.add_stream(url, bitrate=bitrate + 1)
+                item.complete = Mpd.set_input_stream_addon_input(stream, license_key=license_key)
+            else:
+                Logger.warning("Cannot playback type '%s': %s", video_type, url)
+                continue
 
         return item
