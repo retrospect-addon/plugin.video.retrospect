@@ -240,7 +240,7 @@ class Channel(chn_class.Channel):
 
             elif video_type == "mpd" or video_type == "dash":
                 license_url = [d["licenseUrl"] for d in video_info["drmList"] if d["type"].lower() == "widevine"][0]
-                license_key = Mpd.get_license_key(license_url, key_type="A")
+                license_key = Mpd.get_license_key(license_url, key_type="R")
                 stream = item.add_stream(url, bitrate=bitrate + 1)
                 item.complete = Mpd.set_input_stream_addon_input(stream, license_key=license_key)
             else:
