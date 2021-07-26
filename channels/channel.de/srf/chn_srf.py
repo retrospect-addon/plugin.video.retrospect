@@ -49,7 +49,7 @@ class Channel(chn_class.Channel):
                               parser=['data', 'data'],
                               creator=self.create_video_item)
 
-        # TODO: folders
+        # Generic updater
         self._add_data_parser("https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn", updater=self.update_video_item)
 
         # ===============================================================================================================
