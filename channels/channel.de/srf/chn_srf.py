@@ -79,6 +79,7 @@ class Channel(chn_class.Channel):
             "https://www.srf.ch/play/v3/api/srf/production/tv-livestreams-now-and-next"
         )
         live_items.isLive = True
+        live_items.dontGroup = True
         items.append(live_items)
         return data, items
 
