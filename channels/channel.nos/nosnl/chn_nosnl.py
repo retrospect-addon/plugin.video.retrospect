@@ -2,10 +2,10 @@
 
 import time
 import base64
-from resources.lib import chn_class, mediatype
+from resources.lib import chn_class, mediatype, contenttype
 
 from resources.lib.logger import Logger
-from resources.lib.mediaitem import MediaItem
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.encodinghelper import EncodingHelper
@@ -68,6 +68,8 @@ class Channel(chn_class.Channel):
                               parser=['links', ],
                               creator=self.create_page_item)
 
+        self._add_data_parser("https://resolver.streaming.api.nos.nl/stream?stream", updater=self.update_resolved_stream)
+
         #===============================================================================================================
         # non standard items
         self.__pageSize = 50
@@ -95,15 +97,18 @@ class Channel(chn_class.Channel):
         Logger.info("Creating categories")
         items = []
 
+        live_title = LanguageHelper.get_localized_string(LanguageHelper.LiveTv)
+
         cats = {
             "Meest Bekeken": "https://api.nos.nl/mobile/videos/most-viewed/phone.json",
             "Nieuws": "https://api.nos.nl/nosapp/v3/items?mainCategories=nieuws&types=video&limit={0}".format(self.__pageSize),
             "Sport": "https://api.nos.nl/nosapp/v3/items?mainCategories=sport&types=video&limit={0}".format(self.__pageSize),
             "Alles": "https://api.nos.nl/nosapp/v3/items?types=video&limit={0}".format(self.__pageSize),
+            live_title: "https://api.nos.nl/nosapp/v3/items?types=livestream&limit={0}".format(self.__pageSize)
         }
 
         for cat in cats:
-            item = MediaItem(cat, cats[cat])
+            item = FolderItem(cat, cats[cat], content_type=contenttype.VIDEOS)
             item.complete = True
             items.append(item)
 
@@ -159,9 +164,16 @@ class Channel(chn_class.Channel):
         # subcategory = result_set["subcategory"].title()
 
         url = "https://api.nos.nl/mobile/video/%s/phone.json" % (video_id, )
-        item = MediaItem(result_set['title'], url, media_type=mediatype.EPISODE)
-        if 'image' in result_set:
-            images = result_set['image']["formats"]
+        item = MediaItem(result_set['title'], url, media_type=mediatype.VIDEO)
+        item.description = result_set["description"]
+        item.complete = False
+        item.isGeoLocked = result_set.get("geoprotection", False)
+
+        if "duration" in result_set:
+            item.set_info_label(MediaItem.LabelDuration, result_set["duration"])
+
+        if "image" in result_set:
+            images = result_set["image"]["formats"]
             matched_image = images[-1]
             for image in images:
                 if image["width"] >= 720:
@@ -169,14 +181,45 @@ class Channel(chn_class.Channel):
                     break
             item.thumb = list(matched_image["url"].values())[0]
 
-        item.description = result_set["description"]
-        item.complete = False
-        item.isGeoLocked = result_set.get("geoprotection", False)
-
         # set the date and time
         date = result_set["published_at"]
         time_stamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
         item.set_date(*time_stamp[0:6])
+
+        if "stream" in result_set:
+            item.url = result_set["stream"]
+            # This was previously a live stream, so add the time to it.
+            item.name = "[B]{1:02d}:{2:02d}[/B] - {0}".format(item.name, *time_stamp[3:6])
+
+        item.isLive = result_set.get("is_live", False)
+        return item
+
+    def update_resolved_stream(self, item):
+        """ Updates an existing MediaItem via the NOS stream resolver.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaSteam then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        Logger.debug('Starting update_video_item: %s', item.name)
+
+        _, url = UriHandler.header(item.url)
+        item.complete = M3u8.update_part_with_m3u8_streams(item, url, bitrate=0)
         return item
 
     def update_json_video(self, item):

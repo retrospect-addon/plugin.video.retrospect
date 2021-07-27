@@ -13,7 +13,7 @@ class TestNosChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 4, "No items found in mainlist")
+        self.assertEqual(len(items), 5, "No items found in mainlist")
 
     def test_most_viewed_items(self):
         url = "https://api.nos.nl/mobile/videos/most-viewed/phone.json"
@@ -26,3 +26,9 @@ class TestNosChannel(ChannelTest):
 
         for stream in [s for s in item.streams if "hls" in s.Url]:
             self.assertTrue("cdn.streamgate.nl" in stream.Url)
+
+    def test_resolver_update(self):
+        url = "https://resolver.streaming.api.nos.nl/stream?stream=nos-event1&profile=hls_unencrypted&policy=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjb3JlLm5vcy5ubCIsInN1YiI6Im5vcy1ldmVudDEiLCJhdWQiOlsicmVzb2x2ZXIuc3RyZWFtaW5nLmFwaS5ub3MubmwiXSwiaWF0IjoxNjI3NDEzMjYzLCJhbGxvd2VkQXJlYXMiOlsiTkwiXSwiaXNHZW9wcm90ZWN0ZWQiOnRydWV9.4-I5yu9hcfJE37CdPVkWf4q7kDlEGTYUNVEM8stctV8"
+        item = self._test_video_url(url)
+        for stream in [s for s in item.streams if "hls" in s.Url]:
+            self.assertTrue("npo-livestreams" in stream.Url)
