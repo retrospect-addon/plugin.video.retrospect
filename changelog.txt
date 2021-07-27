@@ -3,13 +3,10 @@
 This minor update contains some fixes for channels and introduces a new BVN.tv (Beste van NPO) channel for Dutch expats.
 
 [B]Framework related[/B]
-* Updated: Allow tests to switch channel code.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: RTV Oost live streams (Fixes #1529).
-* Fixed: Minor KetNet issue with video titles.
-* Fixed: HLS streams for SVT are not stopping at the end. Using Dash for now (See #1433).
-* Added: BVN.tv (Fixes #1507).
+* Fixed: SRF TV shows did not list and play (Fixes #1535)

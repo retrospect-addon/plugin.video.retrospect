@@ -588,7 +588,22 @@ msgctxt "#30311"
 msgid "Finland"
 msgstr ""
 
-# empty strings from id 30312 to 30349
+# empty strings from id 30312 to 30345
+msgctxt "#30346"
+msgid "Now Playing"
+msgstr ""
+
+msgctxt "#30347"
+msgid "Now"
+msgstr ""
+
+msgctxt "#30348"
+msgid "Next"
+msgstr ""
+
+msgctxt "#30349"
+msgid "Later"
+msgstr ""
 
 msgctxt "#30350"
 msgid "Search"
