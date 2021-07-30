@@ -1,5 +1,5 @@
 {
-  "$id": "http://www.rieter.net/plugin.video.retrospect.channel.json",
+  "$id": "https://github.com/retrospect-addon/plugin.video.retrospect/channels/plugin.video.retrospect.channel.json",
   "type": "object",
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
