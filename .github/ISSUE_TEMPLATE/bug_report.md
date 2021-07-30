@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!--- Please fill out this template to the best of your ability. You can always edit this issue once you have created it. -->
-<!--- Read the following link before you create a new problem report: https://www.rieter.net/content/xot/troubleshooting/  -->
+<!--- Read the following link before you create a new problem report: https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Troubleshooting  -->
 <!--- Before you start make sure that you are running the latest Kodi and Retrospect version. Also check that you can watch the tv show online in a webbrowser. -->
 
 ## Bug report
