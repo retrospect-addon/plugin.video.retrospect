@@ -4,8 +4,8 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-07-30 21:17+0000\n"
-"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"PO-Revision-Date: 2021-07-30 21:31+0000\n"
+"Last-Translator: bas <bas@kodi.tv>\n"
 "Language-Team: English (United States) <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/en_us/>\n"
 "Language: en_us\n"
 "MIME-Version: 1.0\n"
@@ -568,6 +568,23 @@ msgstr "Denmark"
 msgctxt "#30311"
 msgid "Finland"
 msgstr "Finland"
+
+# empty strings from id 30312 to 30345
+msgctxt "#30346"
+msgid "Now Playing"
+msgstr "Now Playing"
+
+msgctxt "#30347"
+msgid "Now"
+msgstr "Now"
+
+msgctxt "#30348"
+msgid "Next"
+msgstr "Next"
+
+msgctxt "#30349"
+msgid "Later"
+msgstr "Later"
 
 # empty strings from id 30312 to 30349
 msgctxt "#30350"

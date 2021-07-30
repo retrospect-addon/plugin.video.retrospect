@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2021-07-30 21:19+0000\n"
 "Last-Translator: Dmitry Petrov <dimakrm361@gmail.com>\n"
@@ -567,6 +567,23 @@ msgstr ""
 
 msgctxt "#30311"
 msgid "Finland"
+msgstr ""
+
+# empty strings from id 30312 to 30345
+msgctxt "#30346"
+msgid "Now Playing"
+msgstr ""
+
+msgctxt "#30347"
+msgid "Now"
+msgstr ""
+
+msgctxt "#30348"
+msgid "Next"
+msgstr ""
+
+msgctxt "#30349"
+msgid "Later"
 msgstr ""
 
 # empty strings from id 30312 to 30349
