@@ -62,7 +62,8 @@ class Channel(chn_class.Channel):
                               # No longer used: preprocessor=self.AddNextPage,
                               json=True,
                               parser=['items', ],
-                              creator=self.create_json_video, updater=self.update_json_video)
+                              creator=self.create_json_video, updater=self.update_json_video,
+                              postprocessor=self.filter_duplicate_streams)
         self._add_data_parser("*",
                               json=True,
                               parser=['links', ],
@@ -182,7 +183,7 @@ class Channel(chn_class.Channel):
             item.thumb = list(matched_image["url"].values())[0]
 
         # set the date and time
-        date = result_set["published_at"]
+        date = result_set["start_at"]
         time_stamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
         item.set_date(*time_stamp[0:6])
 
@@ -278,3 +279,31 @@ class Channel(chn_class.Channel):
                 _, actual_url = UriHandler.header(url)
                 item.complete = M3u8.update_part_with_m3u8_streams(item, actual_url, channel=self)
         return item
+
+    def filter_duplicate_streams(self, data, items):
+        """ Performs post-process actions for data processing.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str|JsonHelper data:     The retrieve data that was loaded for the
+                                         current item and URL.
+        :param list[MediaItem] items:   The currently available items
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: list[MediaItem]
+
+        """
+
+        Logger.info("Performing Post-Processing")
+
+        filtered_items = {}
+        for i in reversed(items):
+            filtered_items[i.url] = i
+
+        Logger.debug("Post-Processing finished")
+        return [i for i in filtered_items.values()]
