@@ -183,7 +183,7 @@ class Channel(chn_class.Channel):
             item.thumb = list(matched_image["url"].values())[0]
 
         # set the date and time
-        date = result_set["start_at"]
+        date = result_set.get("start_at", result_set["published_at"])
         time_stamp = DateHelper.get_date_from_string(date, date_format="%Y-%m-%dT%H:%M:%S+{0}".format(date[-4:]))
         item.set_date(*time_stamp[0:6])
 
