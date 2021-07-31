@@ -14,7 +14,7 @@ class TestLokaalChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 10)
+        self.assertGreater(len(items), 9)
 
     def test_live_streams(self):
         live_url = "http://mobileapp.rtvoost.nl/v520/feeds/tv.aspx"
