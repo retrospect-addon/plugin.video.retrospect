@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: SRF TV shows did not list and play (Fixes #1535)
+* Fixed: Add NOS.nl live stream items (Fixes #1095).
