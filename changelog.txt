@@ -3,7 +3,7 @@
 This minor update contains some fixes for channels and introduces a new BVN.tv (Beste van NPO) channel for Dutch expats.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Install of Widevine under Matrix.
 
 [B]GUI/Settings/Language related[/B]
 _None_
