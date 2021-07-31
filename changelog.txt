@@ -1,12 +1,13 @@
-[B]Retrospect v5.4.3 - Changelog - 2021-07-12[/B]
+[B]Retrospect v5.4.4 - Changelog - 2021-07-31[/B]
 
-This minor update contains some fixes for channels and introduces a new BVN.tv (Beste van NPO) channel for Dutch expats.
+This update contains some fixes for the NOS.nl and SRF channels. It also contains some updated translations, url updates and a fix for in the installation of Widevine under Kodi Matrix.
 
 [B]Framework related[/B]
 * Fixed: Install of Widevine under Matrix.
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Updated: Translations.
+* Updated: Urls now point to GitHub.
 
 [B]Channel related[/B]
 * Fixed: SRF TV shows did not list and play (Fixes #1535)
