@@ -38,6 +38,7 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.omroepzeeland.nl/tvgemist"
             self.baseUrl = "https://www.omroepzeeland.nl"
             self.liveUrl = "https://zeeland.rpoapp.nl/v01/livestreams/AndroidTablet.json"
+            self.jsonParsing = True
 
         elif self.channelCode == "rtvutrecht":
             self.noImage = "rtvutrechtimage.png"
@@ -46,42 +47,50 @@ class Channel(chn_class.Channel):
             # Uses NPO stream with smshield cookie
             self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
 
+        elif self.channelCode == "rtvoost":
+            self.noImage = "rtvoostimage.png"
+            self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
+            self.baseUrl = "http://mobileapp.rtvoost.nl"
+            self.liveUrl = "http://mobileapp.rtvoost.nl/v520/feeds/tv.aspx"
+            # the v500 has http://145.58.83.153:80/tv/live.stream/playlist.m3u8
+            # the v520 has rtsp://145.58.83.153:554/tv/live.stream and NPO streams
+            self.jsonParsing = True
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 
         # JSON Based Main lists
-        self._add_data_parser("https://www.omroepzeeland.nl/tvgemist",
-                              preprocessor=self.add_live_channel_and_extract_data,
-                              match_type=ParserData.MatchExact,
-                              parser=[], creator=self.create_json_episode_item,
-                              json=True)
+        if self.jsonParsing:
+            self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+                                  preprocessor=self.add_live_channel_and_extract_data,
+                                  parser=[], creator=self.create_json_episode_item,
+                                  json=True)
 
-        # HTML Based Main lists
-        html_episode_regex = r'<option\s+value="(?<url>/gemist/uitzending/[^"]+)">(?<title>[^<]*)'
-        html_episode_regex = Regexer.from_expresso(html_episode_regex)
-        self._add_data_parser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
-                              preprocessor=self.add_live_channel_and_extract_data,
-                              match_type=ParserData.MatchExact,
-                              parser=html_episode_regex, creator=self.create_episode_item,
-                              json=False)
+        else:
+            # HTML Based Main lists
+            html_episode_regex = r'<option\s+value="(?<url>/gemist/uitzending/[^"]+)">(?<title>[^<]*)'
+            html_episode_regex = Regexer.from_expresso(html_episode_regex)
+            self._add_data_parser("https://www.rtvutrecht.nl/gemist/rtvutrecht/",
+                                  preprocessor=self.add_live_channel_and_extract_data,
+                                  match_type=ParserData.MatchExact,
+                                  parser=html_episode_regex, creator=self.create_episode_item,
+                                  json=False)
 
-        video_item_regex = r'<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*' \
-                           r'</a>\W*<figcaption(?:[^>]+>\W*){1,2}<time[^>]+datetime="' \
-                           r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){2,3}<a[^>]+href="(?<url>[^"]+)"' \
-                           r'[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
-        video_item_regex = Regexer.from_expresso(video_item_regex)
-        self._add_data_parser("https://www.rtvutrecht.nl/",
-                              name="HTML Video parsers and updater for JWPlayer embedded JSON",
-                              parser=video_item_regex, creator=self.create_video_item,
-                              updater=self.update_video_item_json_player)
+            video_item_regex = r'<img src="(?<thumburl>[^"]+)"[^>]+alt="(?<title>[^"]+)"[^>]*/>\W*' \
+                               r'</a>\W*<figcaption(?:[^>]+>\W*){1,2}<time[^>]+datetime="' \
+                               r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){2,3}<a[^>]+href="(?<url>[^"]+)"' \
+                               r'[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
+            video_item_regex = Regexer.from_expresso(video_item_regex)
+            self._add_data_parser("https://www.rtvutrecht.nl/",
+                                  name="HTML Video parsers and updater for JWPlayer embedded JSON",
+                                  parser=video_item_regex, creator=self.create_video_item,
+                                  updater=self.update_video_item_json_player)
 
         # Json based stuff
-        self._add_data_parser("https://www.omroepzeeland.nl/RadioTv/Results?",
+        self._add_data_parser("/RadioTv/Results?", match_type=ParserData.MatchContains,
                               name="Video item parser", json=True,
                               parser=["searchResults", ], creator=self.create_json_video_item)
 
-        self._add_data_parser("https://www.omroepzeeland.nl/",
-                              name="Updater for Javascript file based stream data",
+        self._add_data_parser("*", name="Updater for Javascript file based stream data",
                               updater=self.update_video_item_javascript)
 
         # Live Stuff

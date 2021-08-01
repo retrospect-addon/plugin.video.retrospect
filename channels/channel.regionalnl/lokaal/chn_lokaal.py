@@ -70,15 +70,6 @@ class Channel(chn_class.Channel):
             self.liveUrl = "https://media.rtvnoord.nl/live/rtvnoord/tv/index.m3u8"
             self.channelBitrate = 1350
 
-        elif self.channelCode == "rtvoost":
-            self.noImage = "rtvoostimage.png"
-            self.mainListUri = "http://mobileapp.rtvoost.nl/v520/feeds/programmas.aspx"
-            self.baseUrl = "http://mobileapp.rtvoost.nl"
-            self.liveUrl = "http://mobileapp.rtvoost.nl/v520/feeds/tv.aspx"
-            # the v500 has http://145.58.83.153:80/tv/live.stream/playlist.m3u8
-            # the v520 has rtsp://145.58.83.153:554/tv/live.stream and NPO streams
-            self.channelBitrate = 1350
-
         elif self.channelCode == "rtvnh":
             self.noImage = "rtvnhimage.png"
             self.baseUrl = "http://www.rtvnh.nl"
