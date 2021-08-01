@@ -51,9 +51,7 @@ class Channel(chn_class.Channel):
             self.noImage = "rtvoostimage.png"
             self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
             self.baseUrl = "http://mobileapp.rtvoost.nl"
-            self.liveUrl = "http://mobileapp.rtvoost.nl/v520/feeds/tv.aspx"
-            # the v500 has http://145.58.83.153:80/tv/live.stream/playlist.m3u8
-            # the v520 has rtsp://145.58.83.153:554/tv/live.stream and NPO streams
+            self.liveUrl = "https://oost.rpoapp.nl/v02/livestreams/AndroidTablet.json"
             self.jsonParsing = True
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))

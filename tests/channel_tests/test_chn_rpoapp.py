@@ -40,3 +40,29 @@ class TestRpoAppChannel(ChannelTest):
     def test_video_zeeland(self):
         url = "https://www.omroepzeeland.nl/tv/programma/370248403/RegioNED/aflevering/370260803"
         self._test_video_url(url)
+
+    def test_live_zeeland(self):
+        self._switch_channel("omroepzeeland")
+        url = "https://zeeland.rpoapp.nl/v01/livestreams/AndroidTablet.json"
+        items = self._test_folder_url(url, expected_results=2)
+        self.assertGreaterEqual(len([i for i in items if i.isLive]), 2)
+
+    def test_channel_rtvoost(self):
+        channel = self._switch_channel("rtvoost")
+        self.assertIsNotNone(channel)
+
+    def test_main_list_rtvoost(self):
+        self._switch_channel("rtvoost")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 10)
+
+    def test_video_list_rtvoost(self):
+        self._switch_channel("rtvoost")
+        url = "https://www.rtvoost.nl/RadioTv/Results?medium=Radio&query=&category=4f53ab0f-3455-4561-80bc-f8669e32eedd&from=&to=&page=1"
+        self._test_folder_url(url, expected_results=1)
+
+    def test_live_rtvoost(self):
+        self._switch_channel("rtvoost")
+        url = "https://oost.rpoapp.nl/v02/livestreams/AndroidTablet.json"
+        items = self._test_folder_url(url, expected_results=2)
+        self.assertGreaterEqual(len([i for i in items if i.isLive]), 3)
