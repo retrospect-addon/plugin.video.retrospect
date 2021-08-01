@@ -50,7 +50,7 @@ class Channel(chn_class.Channel):
         elif self.channelCode == "rtvoost":
             self.noImage = "rtvoostimage.png"
             self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
-            self.baseUrl = "http://mobileapp.rtvoost.nl"
+            self.baseUrl = "http://www.rtvoost.nl"
             self.liveUrl = "https://oost.rpoapp.nl/v02/livestreams/AndroidTablet.json"
             self.jsonParsing = True
         else:
@@ -88,6 +88,7 @@ class Channel(chn_class.Channel):
                               name="Video item parser", json=True,
                               parser=["searchResults", ], creator=self.create_json_video_item)
 
+        # TODO: Fix updater
         self._add_data_parser("*", name="Updater for Javascript file based stream data",
                               updater=self.update_video_item_javascript)
 
@@ -95,8 +96,6 @@ class Channel(chn_class.Channel):
         self._add_data_parser(self.liveUrl, name="Live Stream Creator",
                               creator=self.create_live_item, parser=[], json=True)
 
-        self._add_data_parser(".+/live/.+", match_type=ParserData.MatchRegex,
-                              updater=self.update_live_item)
         #===============================================================================================================
         # non standard items
 
@@ -122,7 +121,7 @@ class Channel(chn_class.Channel):
         items = []
 
         title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
-        item = MediaItem("\a.: {} :.".format(title), self.liveUrl)
+        item = FolderItem("\a.: {} :.".format(title), self.liveUrl, content_type=contenttype.VIDEOS)
         items.append(item)
 
         if not data:
@@ -158,13 +157,15 @@ class Channel(chn_class.Channel):
         url = result_set["stream"]["highQualityUrl"]
         title = result_set["title"] or result_set["id"].title()
         item = MediaItem(title, url)
-        item.media_type = mediatype.EPISODE
+        item.media_type = mediatype.VIDEO
         item.isLive = True
 
         if item.url.endswith(".mp3"):
             item.add_stream(item.url)
             item.complete = True
             return item
+        else:
+            item.complete = M3u8.update_part_with_m3u8_streams(item, url)
 
         return item
 
