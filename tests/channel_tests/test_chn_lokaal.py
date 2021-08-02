@@ -27,12 +27,6 @@ class TestLokaalChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 10)
 
-    def test_rtvrijnmond_mainlist(self):
-        self._switch_channel("rtvrijnmond")
-
-        items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 10)
-
     def test_omroepwest_mainlist(self):
         self._switch_channel("omroepwest")
 

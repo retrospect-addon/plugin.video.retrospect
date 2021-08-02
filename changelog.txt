@@ -9,4 +9,5 @@ This update contains some fixes for the NOS.nl and SRF channels. It also contain
 _None_
 
 [B]Channel related[/B]
-_None_
+* Changed: Moved RTV Oost to RPO channel.
+* Changed: Moved RTV Rijnmond to RPO channel.

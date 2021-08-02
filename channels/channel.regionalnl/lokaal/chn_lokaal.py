@@ -45,14 +45,7 @@ class Channel(chn_class.Channel):
         self.channelBitrate = 850  # : the default bitrate
         self.liveUrl = None        # : the live url if present
 
-        if self.channelCode == "rtvrijnmond":
-            self.noImage = "rtvrijnmondimage.png"
-            self.mainListUri = "http://rijnmond.api.regiogrid.nl/apps/v520/programs.json"
-            self.baseUrl = "http://rijnmond.api.regiogrid.nl"
-            self.liveUrl = "https://d3r4bk4fg0k2xi.cloudfront.net/rijnmondTv/index.m3u8"
-            self.channelBitrate = 900
-
-        elif self.channelCode == "rtvdrenthe":
+        if self.channelCode == "rtvdrenthe":
             self.noImage = "rtvdrentheimage.png"
             self.mainListUri = "http://drenthe.api.regiogrid.nl/apps/v520/programs.json"
             self.baseUrl = "http://drenthe.api.regiogrid.nl"

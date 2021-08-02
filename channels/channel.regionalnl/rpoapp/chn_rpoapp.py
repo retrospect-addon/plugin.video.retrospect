@@ -31,27 +31,33 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         self.liveUrl = None        # : the live url if present
-        self.jsonParsing = False
+        self.jsonParsing = True
 
-        if self.channelCode == "omroepzeeland":
+        if self.channelCode == "rtvrijnmond":
+            self.noImage = "rtvrijnmondimage.png"
+            self.mainListUri = "https://www.rijnmond.nl/tvgemist"
+            self.baseUrl = "https://www.rijnmond.nl"
+            self.liveUrl = "https://rijnmond.rpoapp.nl/v01/livestreams/AndroidTablet.json"
+
+        elif self.channelCode == "omroepzeeland":
             self.noImage = "omroepzeelandimage.png"
             self.mainListUri = "https://www.omroepzeeland.nl/tvgemist"
             self.baseUrl = "https://www.omroepzeeland.nl"
             self.liveUrl = "https://zeeland.rpoapp.nl/v01/livestreams/AndroidTablet.json"
-            self.jsonParsing = True
-
-        elif self.channelCode == "rtvutrecht":
-            self.noImage = "rtvutrechtimage.png"
-            self.mainListUri = "https://www.rtvutrecht.nl/gemist/rtvutrecht/"
-            self.baseUrl = "https://www.rtvutrecht.nl"
-            self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
 
         elif self.channelCode == "rtvoost":
             self.noImage = "rtvoostimage.png"
             self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
             self.baseUrl = "https://www.rtvoost.nl"
             self.liveUrl = "https://oost.rpoapp.nl/v02/livestreams/AndroidTablet.json"
-            self.jsonParsing = True
+
+        elif self.channelCode == "rtvutrecht":
+            self.noImage = "rtvutrechtimage.png"
+            self.mainListUri = "https://www.rtvutrecht.nl/gemist/rtvutrecht/"
+            self.baseUrl = "https://www.rtvutrecht.nl"
+            self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
+            self.jsonParsing = False
+
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode, ))
 
