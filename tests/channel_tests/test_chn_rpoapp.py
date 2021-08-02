@@ -48,6 +48,11 @@ class TestRpoAppChannel(ChannelTest):
         items = self._test_folder_url(url, expected_results=2)
         self.assertGreaterEqual(len([i for i in items if i.isLive]), 2)
 
+    def test_update_via_javascript_zeeland(self):
+        self._switch_channel("omroepzeeland")
+        url = "https://www.omroepzeeland.nl/media/bluebillywigplayeroptions/rtv/Tv/370081782.json"
+        self._test_video_url(url)
+
     def test_channel_rtvoost(self):
         channel = self._switch_channel("rtvoost")
         self.assertIsNotNone(channel)

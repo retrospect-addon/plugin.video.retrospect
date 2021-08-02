@@ -306,7 +306,9 @@ class Channel(chn_class.Channel):
             # Should we resolve the actual urls?
             # _, video_url = UriHandler.header(video_url)
 
-            if media_type == "mp4_main":
+            if media_type == "mp4_main" and video_url.endswith(".html"):
+                return self.update_video_item_javascript(item, base_url)
+            elif media_type == "mp4_main":
                 item.add_stream(video_url, bitrate=bandwith)
                 item.complete = True
             else:
@@ -370,6 +372,46 @@ class Channel(chn_class.Channel):
         bitrates = {"720p SD": 1200}
         for stream in streams:
             item.add_stream(stream[1], bitrates.get(stream[0], 0))
+            item.complete = True
+
+        return item
+
+    def update_video_item_javascript(self, item, base_url):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaSteam then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+        :param str base_url: the base url for the data
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        video_id = item.url.rsplit("/", 1)[-1][:-5]
+        Logger.debug("Found videoId '%s' for '%s'", video_id, item.url)
+
+        url = "{}/p/regiogrid/q/sourceid_string:{}*.js".format(base_url, video_id)
+        data = UriHandler.open(url)
+
+        json_data = Regexer.do_regex(r'var opts\s*=\s*({.+?});\W*//', data)
+        Logger.debug("Found jsondata with size: %s", len(json_data[0]))
+        json_data = JsonHelper(json_data[0])
+        clip_data = json_data.get_value("clipData", "assets")
+        server = json_data.get_value("publicationData", "defaultMediaAssetPath")
+        for clip in clip_data:
+            item.add_stream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
             item.complete = True
 
         return item
