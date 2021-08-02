@@ -13,7 +13,7 @@
         <import addon="script.module.inputstreamhelper" version="0.3.5" />
         <import addon="script.module.pyscrypt" version="1.6.2" />
         <import addon="script.module.pyaes" version="1.6.1" />
-        <import addon="resource.images.retrospect" version="1.0.11" />
+        <import addon="resource.images.retrospect" version="1.0.12" />
     </requires>
 
     <extension  point="xbmc.python.pluginsource"
