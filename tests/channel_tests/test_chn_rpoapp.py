@@ -8,7 +8,7 @@ class TestRpoAppChannel(ChannelTest):
     def __init__(self, methodName):  # NOSONAR
         super(TestRpoAppChannel, self).__init__(methodName, "channel.regionalnl.rpoapp", "rtvutrecht")
 
-    def test_channel_exists(self):
+    def test_channel_exists_utrecht(self):
         self.assertIsNotNone(self.channel)
 
     def test_main_list_utrecht(self):
@@ -38,7 +38,8 @@ class TestRpoAppChannel(ChannelTest):
         self._test_folder_url(url, expected_results=1)
 
     def test_video_zeeland(self):
-        url = "https://www.omroepzeeland.nl/tv/programma/370248403/RegioNED/aflevering/370260803"
+        self._switch_channel("omroepzeeland")
+        url = "https://www.omroepzeeland.nl/media/bluebillywigplayeroptions/rtv/Tv/370241386.json"
         self._test_video_url(url)
 
     def test_live_zeeland(self):
@@ -60,6 +61,11 @@ class TestRpoAppChannel(ChannelTest):
         self._switch_channel("rtvoost")
         url = "https://www.rtvoost.nl/RadioTv/Results?medium=Radio&query=&category=4f53ab0f-3455-4561-80bc-f8669e32eedd&from=&to=&page=1"
         self._test_folder_url(url, expected_results=1)
+
+    def test_video_update_rtvoost(self):
+        self._switch_channel("rtvoost")
+        url = "https://www.rtvoost.nl/media/bluebillywigplayeroptions/rtv/Tv/593840.json"
+        self._test_video_url(url)
 
     def test_live_rtvoost(self):
         self._switch_channel("rtvoost")

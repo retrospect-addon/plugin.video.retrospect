@@ -44,13 +44,12 @@ class Channel(chn_class.Channel):
             self.noImage = "rtvutrechtimage.png"
             self.mainListUri = "https://www.rtvutrecht.nl/gemist/rtvutrecht/"
             self.baseUrl = "https://www.rtvutrecht.nl"
-            # Uses NPO stream with smshield cookie
             self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
 
         elif self.channelCode == "rtvoost":
             self.noImage = "rtvoostimage.png"
             self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
-            self.baseUrl = "http://www.rtvoost.nl"
+            self.baseUrl = "https://www.rtvoost.nl"
             self.liveUrl = "https://oost.rpoapp.nl/v02/livestreams/AndroidTablet.json"
             self.jsonParsing = True
         else:
@@ -62,6 +61,14 @@ class Channel(chn_class.Channel):
                                   preprocessor=self.add_live_channel_and_extract_data,
                                   parser=[], creator=self.create_json_episode_item,
                                   json=True)
+
+            # Json based stuff
+            self._add_data_parser("/RadioTv/Results?", match_type=ParserData.MatchContains,
+                                  name="Video item parser", json=True,
+                                  parser=["searchResults", ], creator=self.create_json_video_item)
+
+            self._add_data_parser("*", name="Updater for Javascript file based stream data",
+                                  updater=self.update_json_video_item)
 
         else:
             # HTML Based Main lists
@@ -78,19 +85,10 @@ class Channel(chn_class.Channel):
                                r'(?<date>[^"]+)[^>]*>(?:[^>]+>\W*){2,3}<a[^>]+href="(?<url>[^"]+)"' \
                                r'[^>]*>\W*(?:[^>]+>\W*){3}<a[^>]+>(?<description>.+?)</a>'
             video_item_regex = Regexer.from_expresso(video_item_regex)
-            self._add_data_parser("https://www.rtvutrecht.nl/",
+            self._add_data_parser("*",
                                   name="HTML Video parsers and updater for JWPlayer embedded JSON",
                                   parser=video_item_regex, creator=self.create_video_item,
                                   updater=self.update_video_item_json_player)
-
-        # Json based stuff
-        self._add_data_parser("/RadioTv/Results?", match_type=ParserData.MatchContains,
-                              name="Video item parser", json=True,
-                              parser=["searchResults", ], creator=self.create_json_video_item)
-
-        # TODO: Fix updater
-        self._add_data_parser("*", name="Updater for Javascript file based stream data",
-                              updater=self.update_video_item_javascript)
 
         # Live Stuff
         self._add_data_parser(self.liveUrl, name="Live Stream Creator",
@@ -156,114 +154,18 @@ class Channel(chn_class.Channel):
 
         url = result_set["stream"]["highQualityUrl"]
         title = result_set["title"] or result_set["id"].title()
+        media_type = result_set["mediaType"].lower()
         item = MediaItem(title, url)
         item.media_type = mediatype.VIDEO
         item.isLive = True
 
-        if item.url.endswith(".mp3"):
+        if media_type == "audio":
             item.add_stream(item.url)
             item.complete = True
             return item
         else:
             item.complete = M3u8.update_part_with_m3u8_streams(item, url)
 
-        return item
-
-    def create_json_episode_item(self, result_set):
-        """ Creates a new MediaItem for an episode.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set)
-        url = "{}/RadioTv/Results?medium=Tv&query=&category={}&from=&to=&page=1"\
-            .format(self.baseUrl, result_set["seriesId"])
-        title = result_set["title"]
-        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
-        item.complete = False
-        return item
-
-    def create_video_item(self, result_set):
-        """ Creates a MediaItem of type 'video' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focussed or selected
-        for playback.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|None
-
-        """
-
-        item = chn_class.Channel.create_video_item(self, result_set)
-        if item is None:
-            return None
-
-        # 2018-02-24 07:15:00
-        time_stamp = DateHelper.get_date_from_string(result_set['date'], date_format="%Y-%m-%d %H:%M:%S")
-        item.set_date(*time_stamp[0:6])
-        return item
-
-    def create_json_video_item(self, result_set):
-        """ Creates a MediaItem of type 'video' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focussed or selected
-        for playback.
-
-        :param dict[str,str|None] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set)
-        url = result_set["url"]
-        if not url.startswith("http"):
-            url = "{}{}".format(self.baseUrl, url)
-
-        title = result_set["title"]
-        item = MediaItem(title, url)
-        item.description = result_set.get("synopsis", None)
-        item.thumb = result_set.get("photo", self.noImage)
-        item.media_type = mediatype.EPISODE
-
-        if "publicationTimeString" in result_set:
-            try:
-                # publicationTimeString=7 jun 2018 17:20 uur
-                date_parts = result_set["publicationTimeString"].split(" ")
-                day = int(date_parts[0])
-                month = DateHelper.get_month_from_name(date_parts[1], language="nl", short=True)
-                year = int(date_parts[2])
-                hours, minutes = date_parts[3].split(":")
-                hours = int(hours)
-                minutes = int(minutes)
-                item.set_date(year, month, day, hours, minutes, 0)
-            except:
-                Logger.warning("Error parsing date %s", result_set["publicationTimeString"], exc_info=True)
-
-        item.complete = False
         return item
 
     def update_live_item(self, item):
@@ -298,6 +200,148 @@ class Channel(chn_class.Channel):
                 item.add_stream(s, b)
         return item
 
+    def create_json_episode_item(self, result_set):
+        """ Creates a new MediaItem for an episode.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+        url = "{}/RadioTv/Results?medium=Tv&query=&category={}&from=&to=&page=1"\
+            .format(self.baseUrl, result_set["seriesId"])
+        title = result_set["title"]
+        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
+        item.complete = False
+        return item
+
+    def create_json_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param dict[str,str|None] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+
+        url = result_set["url"]
+        video_ids = url.rsplit("/", 2)
+        video_id = [i for i in video_ids if i.isnumeric()][0]
+        url = "{}/media/bluebillywigplayeroptions/rtv/Tv/{}.json".format(self.baseUrl, video_id)
+
+        title = result_set["title"]
+        item = MediaItem(title, url)
+        item.description = result_set.get("synopsis", None)
+        item.thumb = result_set.get("photo", self.noImage)
+        item.media_type = mediatype.EPISODE
+
+        if "publicationTimeString" in result_set:
+            try:
+                # publicationTimeString=7 jun 2018 17:20 uur
+                date_parts = result_set["publicationTimeString"].split(" ")
+                day = int(date_parts[0])
+                month = DateHelper.get_month_from_name(date_parts[1], language="nl", short=True)
+                year = int(date_parts[2])
+                hours, minutes = date_parts[3].split(":")
+                hours = int(hours)
+                minutes = int(minutes)
+                item.set_date(year, month, day, hours, minutes, 0)
+            except:
+                Logger.warning("Error parsing date %s", result_set["publicationTimeString"], exc_info=True)
+
+        item.complete = False
+        return item
+
+    def update_json_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaSteam then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = JsonHelper(data)
+        base_url = json_data.get_value("publicationData", "defaultMediaAssetPath")
+        clip_data = json_data.get_value("clipData", "assets")
+
+        for clip in clip_data:
+            video_path = clip["src"]
+            video_url = "{}{}".format(base_url, video_path)
+            bandwith = clip["bandwidth"]
+            media_type = clip["mediatype"].lower()
+            # Should we resolve the actual urls?
+            # _, video_url = UriHandler.header(video_url)
+
+            if media_type == "mp4_main":
+                item.add_stream(video_url, bitrate=bandwith)
+                item.complete = True
+            else:
+                Logger.error("Unsupported stream for %s from url: %s", item, video_url)
+        return item
+
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        item = chn_class.Channel.create_video_item(self, result_set)
+        if item is None:
+            return None
+
+        # 2018-02-24 07:15:00
+        time_stamp = DateHelper.get_date_from_string(result_set['date'],
+                                                     date_format="%Y-%m-%d %H:%M:%S")
+        item.set_date(*time_stamp[0:6])
+        return item
+
     def update_video_item_json_player(self, item):
         """ Updates an existing MediaItem with more data.
 
@@ -326,49 +370,6 @@ class Channel(chn_class.Channel):
         bitrates = {"720p SD": 1200}
         for stream in streams:
             item.add_stream(stream[1], bitrates.get(stream[0], 0))
-            item.complete = True
-
-        return item
-
-    def update_video_item_javascript(self, item):
-        """ Updates an existing MediaItem with more data.
-
-        Used to update none complete MediaItems (self.complete = False). This
-        could include opening the item's URL to fetch more data and then process that
-        data or retrieve it's real media-URL.
-
-        The method should at least:
-        * cache the thumbnail to disk (use self.noImage if no thumb is available).
-        * set at least one MediaStream.
-        * set self.complete = True.
-
-        if the returned item does not have a MediaSteam then the self.complete flag
-        will automatically be set back to False.
-
-        :param MediaItem item: the original MediaItem that needs updating.
-
-        :return: The original item with more data added to it's properties.
-        :rtype: MediaItem
-
-        """
-
-        url_parts = item.url.rsplit("/", 3)
-        if url_parts[-3] == "aflevering":
-            video_id = url_parts[-2]
-        else:
-            video_id = url_parts[-1]
-        Logger.debug("Found videoId '%s' for '%s'", video_id, item.url)
-
-        url = "https://omroepzeeland.bbvms.com/p/regiogrid/q/sourceid_string:{}*.js".format(video_id)
-        data = UriHandler.open(url)
-
-        json_data = Regexer.do_regex(r'var opts\s*=\s*({.+?});\W*//', data)
-        Logger.debug("Found jsondata with size: %s", len(json_data[0]))
-        json_data = JsonHelper(json_data[0])
-        clip_data = json_data.get_value("clipData", "assets")
-        server = json_data.get_value("publicationData", "defaultMediaAssetPath")
-        for clip in clip_data:
-            item.add_stream("{}{}".format(server, clip["src"]), int(clip["bandwidth"]))
             item.complete = True
 
         return item
