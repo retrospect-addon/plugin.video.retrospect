@@ -46,7 +46,7 @@ class Remote(TextureHandler):
         if file_name.startswith("http"):
             return_value = file_name
         else:
-            return_value = "%s/channels/%s/%s" % (self.__cdnUrl, file_name[0], file_name)
+            return_value = "%s/channels/%s/%s" % (self.__cdnUrl, file_name[0].lower(), file_name)
 
         self._logger.debug("Resolved texture '%s' to '%s'", file_name, return_value)
         return return_value

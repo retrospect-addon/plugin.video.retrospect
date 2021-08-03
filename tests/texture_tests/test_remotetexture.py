@@ -38,6 +38,15 @@ class TestResourceTextures(unittest.TestCase):
         url = texture._get_texture_uri(self.channel_path, texture_path)
         self.assertEqual(online_path, url)
 
+    def test_remote_texture_from_remote_capital(self):
+        texture = self._get_texture_handler()
+        texture_path = "Large.png"
+        online_path = "https://retrospect-addon.github.io/resource.images.retrospect/resources/channels/l/Large.png"
+
+        # Get url and check if it exists
+        url = texture._get_texture_uri(self.channel_path, texture_path)
+        self.assertEqual(online_path, url)
+
     def test_remote_texture_from_http(self):
         texture = self._get_texture_handler()
         texture_path = "https://test/texture.png"

@@ -38,6 +38,15 @@ class TestResourceTextures(unittest.TestCase):
         url = texture._get_texture_uri(self.channel_path, texture_path)
         self.assertEqual(resource_path, url)
 
+    def test_resource_texture_file_from_resource_capital(self):
+        texture = self._get_texture_handler()
+        texture_path = "Large.png"
+        resource_path = "resource://resource.images.retrospect/channels/l/Large.png"
+
+        # Get url and check if it exists
+        url = texture._get_texture_uri(self.channel_path, texture_path)
+        self.assertEqual(resource_path, url)
+
     def test_resource_texture_file_resource(self):
         texture = self._get_texture_handler()
         texture_path = "resource://{}/{}".format(Config.textureResource, "3large.png")
