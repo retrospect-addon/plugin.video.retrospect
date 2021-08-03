@@ -3,12 +3,10 @@
 This update contains some fixes for the NOS.nl and SRF channels. It also contains some updated translations, url updates and a fix for in the installation of Widevine under Kodi Matrix.
 
 [B]Framework related[/B]
-* Fixed: Install of Widevine under Matrix.
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Translations.
-* Updated: Urls now point to GitHub.
+_None_
 
 [B]Channel related[/B]
-* Fixed: SRF TV shows did not list and play (Fixes #1535)
-* Fixed: Add NOS.nl live stream items (Fixes #1095).
+* Changed: Texture paths are not independent of the channel.

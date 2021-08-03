@@ -32,7 +32,7 @@ class TestResourceTextures(unittest.TestCase):
     def test_resource_texture_file_from_resource(self):
         texture = self._get_texture_handler()
         texture_path = "3large.png"
-        resource_path = "resource://resource.images.retrospect/channel.nos.nos2010/3large.png"
+        resource_path = "resource://resource.images.retrospect/channels/3/3large.png"
 
         # Get url and check if it exists
         url = texture._get_texture_uri(self.channel_path, texture_path)
