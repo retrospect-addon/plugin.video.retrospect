@@ -3,10 +3,10 @@
 This update contains some fixes for the NOS.nl and SRF channels. It also contains some updated translations, url updates and a fix for in the installation of Widevine under Kodi Matrix.
 
 [B]Framework related[/B]
-_None_
+* Changed: Texture paths are not independent of the channel.
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Changed: Texture paths are not independent of the channel.
+_None_
