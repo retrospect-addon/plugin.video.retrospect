@@ -42,6 +42,7 @@ class ChannelTest(unittest.TestCase):
         self._code = channel_code
         from resources.lib.helpers.channelimporter import ChannelIndex
         self.channel = ChannelIndex.get_register().get_channel(self._channel, self._code)
+        return self.channel
 
     def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None, retry=1):
         self.assertIsNotNone(self.channel)
