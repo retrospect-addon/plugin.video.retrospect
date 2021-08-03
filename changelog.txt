@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.4 - Changelog - 2021-07-31[/B]
+[B]Retrospect v5.4.5 - Changelog - 2021-08-03[/B]
 
-This update contains some fixes for the NOS.nl and SRF channels. It also contains some updated translations, url updates and a fix for in the installation of Widevine under Kodi Matrix.
+This update contains a change in texture structure to store the textures more efficiently in the resource add-on.
 
 [B]Framework related[/B]
 * Changed: Texture paths are not independent of the channel.
