@@ -50,5 +50,6 @@ class TestNickelodeonChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_video(self):
-        url = "https://www.nickelodeon.nl/video/sfl1gm/spongebob-spongebobs-gouden-moment-4"
+        self._switch_channel("nickelodeon")
+        url = "https://www.nickelodeon.nl/episodes/0gravl/spongebob-hole-in-one-sentimentele-troep-seizoen-seasonnumber-8-afl-3"
         self._test_video_url(url)
