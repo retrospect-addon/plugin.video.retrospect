@@ -16,7 +16,7 @@ class TestBvnTvChannel(ChannelTest):
         self.assertGreater(len(items), 5)
 
     def test_episode_listing_show(self):
-        url = "https://www.bvn.tv/programma/2-voor-12/"
+        url = "https://www.bvn.tv/programma/nos-journaal/"
         self._test_folder_url(url, expected_results=2)
 
     def test_episode_listing_show_few_results(self):
