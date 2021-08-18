@@ -1,11 +1,12 @@
-[B]Retrospect v5.4.x - Changelog - 2021-08-03[/B]
-_TBD_
+[B]Retrospect v5.4.6 - Changelog - 2021-08-18[/B]
+
+This is a small update to solve minor issues.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Updated: Swedish Translation.
 
 [B]Channel related[/B]
 * Fixed: ViaFree listing of shows (Fixes #1544).
