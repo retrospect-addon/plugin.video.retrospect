@@ -384,6 +384,10 @@ class Channel(chn_class.Channel):
                 continue
 
             item.items.append(child)
+
+        if not item.items:
+            return None
+
         return item
 
     def create_api_video_asset_type(self, result_set):

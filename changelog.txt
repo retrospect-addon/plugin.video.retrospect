@@ -1,13 +1,12 @@
 [B]Retrospect v5.4.6 - Changelog - 2021-08-18[/B]
 
-This is a small update to solve minor issues.
+_TBD_
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Swedish Translation.
+_None_
 
 [B]Channel related[/B]
-* Fixed: ViaFree listing of shows (Fixes #1544).
-* Fixed: Subtitle issue (Fixes #1545) with c0ac292f.
+* Fixed: Issue with empty folders in main TV4 listings.
