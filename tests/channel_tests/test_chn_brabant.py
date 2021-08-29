@@ -11,10 +11,14 @@ class TestBrabantChannel(ChannelTest):
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
-    def test_rtvdrenthe_mainlist(self):
+    def test_mainlist(self):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 9)
 
     def test_alpha_sub_listing(self):
         url = "https://api.omroepbrabant.nl/api/media/tv/series/B"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_show_listing(self):
+        url = "https://api.omroepbrabant.nl/api/media/series/v2/1"
         self._test_folder_url(url, expected_results=10)

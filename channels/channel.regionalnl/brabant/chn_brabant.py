@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib import chn_class, contenttype
+from resources.lib import chn_class, contenttype, mediatype
+from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.parserdata import ParserData
@@ -50,28 +51,22 @@ class Channel(chn_class.Channel):
                               name="Alpha sublisting",
                               parser=["series"], creator=self.create_episode_item)
 
-        # if self.liveUrl:
-        #     self._add_data_parser(self.liveUrl, name="Live Stream Creator",
-        #                           creator=self.create_live_item, json=True, parser=[])
-        #
-        # self._add_data_parser("*", parser=self.videoItemJson, creator=self.create_video_item, updater=self.update_video_item,
-        #                       json=True)
+        self._add_data_parser("https://api.omroepbrabant.nl/api/media/series/v2/", json=True,
+                              name="Show parsers",
+                              preprocessor=self.add_seasons,
+                              parser=["article", "children"], creator=self.create_video_item)
 
         #===============================================================================================================
         # non standard items
 
         #===============================================================================================================
         # Test cases:
-        #   Omroep Zeeland: M3u8 playist
-        #   Omroep Brabant: Same M3u8 for al streams
-        #   RTV Utrecht: Multiple live channels Type #1
-        #   Omrop Fryslan: Multiple live channels Type #2
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
     def create_alpha_listing(self, data):
-        """ Performs pre-process actions for data processing and adds the live channels if present.
+        """ Performs pre-process actions for data processing and adds an alpha listing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
@@ -111,129 +106,6 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    # def process_live_items(self, data):  # NOSONAR
-    #     """ Performs pre-process actions that either return multiple live channels that are present
-    #     in the live url or an actual list item if a single live stream is present.
-    #
-    #     Accepts an data from the process_folder_list method, BEFORE the items are
-    #     processed. Allows setting of parameters (like title etc) for the channel.
-    #     Inside this method the <data> could be changed and additional items can
-    #     be created.
-    #
-    #     The return values should always be instantiated in at least ("", []).
-    #
-    #     :param str data: The retrieve data that was loaded for the current item and URL.
-    #
-    #     :return: A tuple of the data and a list of MediaItems that were generated.
-    #     :rtype: tuple[str|JsonHelper,list[MediaItem]]
-    #
-    #     """
-    #
-    #     items = []
-    #
-    #     Logger.info("Adding Live Streams")
-    #
-    #     if self.liveUrl.endswith(".m3u8"):
-    #         # We actually have a single stream.
-    #         title = "{} - {}".format(self.channelName, LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId))
-    #         live_item = MediaItem(title, self.liveUrl, media_type=mediatype.VIDEO)
-    #         live_item.isLive = True
-    #         if self.channelCode == "rtvdrenthe":
-    #             # RTV Drenthe actually has a buggy M3u8 without master index.
-    #             live_item.add_stream(live_item.url, 0)
-    #             live_item.complete = True
-    #
-    #         items.append(live_item)
-    #         return "", items
-    #
-    #     # we basically will check for live channels
-    #     json_data = JsonHelper(data, logger=Logger.instance())
-    #     live_streams = json_data.get_value()
-    #
-    #     Logger.trace(live_streams)
-    #     if "videos" in live_streams:
-    #         Logger.debug("Multiple streams found")
-    #         live_streams = live_streams["videos"]
-    #     elif not isinstance(live_streams, (list, tuple)):
-    #         Logger.debug("Single streams found")
-    #         live_streams = (live_streams, )
-    #     else:
-    #         Logger.debug("List of stream found")
-    #
-    #     live_stream_value = None
-    #     for streams in live_streams:
-    #         Logger.debug("Adding live stream")
-    #         title = streams.get('name') or "%s - Live TV" % (self.channelName, )
-    #
-    #         live_item = MediaItem(title, self.liveUrl, media_type=mediatype.VIDEO)
-    #         live_item.complete = True
-    #         live_item.isLive = True
-    #         for stream in streams:
-    #             Logger.trace(stream)
-    #             bitrate = None
-    #
-    #             # used in Omrop Fryslan
-    #             if stream == "android" or stream == "iPhone":
-    #                 bitrate = 250
-    #                 url = streams[stream]["videoLink"]
-    #             elif stream == "iPad":
-    #                 bitrate = 1000
-    #                 url = streams[stream]["videoLink"]
-    #
-    #             # used in RTV Utrecht
-    #             elif stream == "androidLink" or stream == "iphoneLink":
-    #                 bitrate = 250
-    #                 url = streams[stream]
-    #             elif stream == "ipadLink":
-    #                 bitrate = 1000
-    #                 url = streams[stream]
-    #             elif stream == "tabletLink":
-    #                 bitrate = 300
-    #                 url = streams[stream]
-    #
-    #             # These windows stream won't work
-    #             # elif stream == "windowsLink":
-    #             #     bitrate = 1200
-    #             #     url = streams[stream]
-    #             # elif stream == "wpLink":
-    #             #     bitrate = 1200
-    #             #     url = streams[stream]
-    #
-    #             elif stream == "name":
-    #                 Logger.trace("Ignoring stream '%s'", stream)
-    #                 continue
-    #             else:
-    #                 Logger.warning("No url found for type '%s'", stream)
-    #                 continue
-    #
-    #             # noinspection PyUnboundLocalVariable
-    #             if "livestreams.omroep.nl/live/" in url and url.endswith("m3u8"):
-    #                 Logger.info("Found NPO Stream, adding ?protection=url")
-    #                 url = "%s?protection=url" % (url, )
-    #
-    #             if bitrate:
-    #                 live_item.add_stream(url, bitrate)
-    #
-    #                 if url == live_stream_value and ".m3u8" in url:
-    #                     # if it was equal to the previous one, assume we have a m3u8. Reset the others.
-    #                     Logger.info("Found same M3u8 stream for all streams for this Live channel, using that one: %s", url)
-    #                     live_item.streams = []
-    #                     live_item.url = url
-    #                     live_item.complete = False
-    #                     break
-    #                 elif "playlist.m3u8" in url:
-    #                     # if we have a playlist, use that one. Reset the others.
-    #                     Logger.info("Found M3u8 playlist for this Live channel, using that one: %s", url)
-    #                     live_item.streams = []
-    #                     live_item.url = url
-    #                     live_item.complete = False
-    #                     break
-    #                 else:
-    #                     # add it to the possibilities
-    #                     live_stream_value = url
-    #         items.append(live_item)
-    #     return "", items
-
     def create_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
 
@@ -254,144 +126,96 @@ class Channel(chn_class.Channel):
         url = "https://api.omroepbrabant.nl/api/media/series/v2/{}".format(episode_id)
 
         item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
-        item.thumb = result_set["imageUrl"]
+        item.thumb = self.__create_image_url(result_set["imageUrl"], "thumb")
+        item.fanart = self.__create_image_url(result_set["imageUrl"], "fanart")
+        item.poster = self.__create_image_url(result_set["imageUrl"], "poster")
         item.description = result_set["description"]
 
         return item
-    #
-    # def create_video_item(self, result_set):
-    #     """ Creates a MediaItem of type 'video' using the result_set from the regex.
-    #
-    #     This method creates a new MediaItem from the Regular Expression or Json
-    #     results <result_set>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     If the item is completely processed an no further data needs to be fetched
-    #     the self.complete property should be set to True. If not set to True, the
-    #     self.update_video_item method is called if the item is focussed or selected
-    #     for playback.
-    #
-    #     :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
-    #
-    #     :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-    #     :rtype: MediaItem|None
-    #
-    #     """
-    #
-    #     Logger.trace(result_set)
-    #
-    #     media_link = result_set.get("ipadLink")
-    #     title = result_set.get("title")
-    #
-    #     # it seems overkill, but not all items have a contentLink and of we set
-    #     # the url to self.baseUrl it will be a duplicate item if the titles are
-    #     # equal
-    #     url = result_set.get("contentLink") or media_link or self.baseUrl
-    #     if not url.startswith("http"):
-    #         url = parse.urljoin(self.baseUrl, url)
-    #
-    #     item = MediaItem(title, url, media_type=mediatype.EPISODE)
-    #
-    #     if media_link:
-    #         item.add_stream(media_link, self.channelBitrate)
-    #
-    #     # get the thumbs from multiple locations
-    #     thumb_urls = result_set.get("images", None)
-    #     thumb_url = None
-    #     if thumb_urls:
-    #         # noinspection PyUnresolvedReferences
-    #         thumb_url = \
-    #             thumb_urls[0].get("fullScreenLink", None) or \
-    #             thumb_urls[0].get("previewLink", None) or \
-    #             result_set.get("imageLink", None)
-    #
-    #     if thumb_url and not thumb_url.startswith("http"):
-    #         thumb_url = parse.urljoin(self.baseUrl, thumb_url)
-    #
-    #     if thumb_url:
-    #         item.thumb = thumb_url
-    #
-    #     item.description = HtmlHelper.to_text(result_set.get("text"))
-    #
-    #     posix = result_set.get("timestamp", None)
-    #     if posix:
-    #         broadcast_date = DateHelper.get_date_from_posix(int(posix))
-    #         item.set_date(broadcast_date.year,
-    #                       broadcast_date.month,
-    #                       broadcast_date.day,
-    #                       broadcast_date.hour,
-    #                       broadcast_date.minute,
-    #                       broadcast_date.second)
-    #
-    #     item.complete = True
-    #     return item
-    #
-    # def create_live_item(self, result_set):
-    #     """ Creates a live MediaItem of type 'video' using the result_set from the regex.
-    #
-    #     This method creates a new MediaItem from the Regular Expression or Json
-    #     results <result_set>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     If the item is completely processed an no further data needs to be fetched
-    #     the self.complete property should be set to True. If not set to True, the
-    #     self.update_video_item method is called if the item is focussed or selected
-    #     for playback.
-    #
-    #     :param dict[str,str|dict[str,str]] result_set: The result_set of the self.episodeItemRegex
-    #
-    #     :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-    #     :rtype: MediaItem|None
-    #
-    #     """
-    #
-    #     url = result_set["stream"]["highQualityUrl"]
-    #     title = result_set["title"] or result_set["id"].title()
-    #     item = MediaItem(title, url)
-    #     item.media_type = mediatype.EPISODE
-    #     item.isLive = True
-    #
-    #     if result_set["mediaType"].lower() == "audio":
-    #         item.add_stream(item.url)
-    #         item.media_type = mediatype.AUDIO
-    #         item.complete = True
-    #         return item
-    #
-    #     return item
-    #
-    # def update_video_item(self, item):
-    #     """ Updates an existing MediaItem with more data.
-    #
-    #     Used to update none complete MediaItems (self.complete = False). This
-    #     could include opening the item's URL to fetch more data and then process that
-    #     data or retrieve it's real media-URL.
-    #
-    #     The method should at least:
-    #     * cache the thumbnail to disk (use self.noImage if no thumb is available).
-    #     * set at least one MediaStream.
-    #     * set self.complete = True.
-    #
-    #     if the returned item does not have a MediaSteam then the self.complete flag
-    #     will automatically be set back to False.
-    #
-    #     :param MediaItem item: the original MediaItem that needs updating.
-    #
-    #     :return: The original item with more data added to it's properties.
-    #     :rtype: MediaItem
-    #
-    #     """
-    #
-    #     Logger.debug("Updating a (Live) video item")
-    #     content, url = UriHandler.header(item.url)
-    #
-    #     if AddonSettings.use_adaptive_stream_add_on():
-    #         stream = item.add_stream(url, 0)
-    #         M3u8.set_input_stream_addon_input(stream, item.HttpHeaders)
-    #         item.complete = True
-    #     else:
-    #         for s, b in M3u8.get_streams_from_m3u8(url, append_query_string=True):
-    #             item.complete = True
-    #             item.add_stream(s, b)
-    #         item.complete = True
-    #
-    #     return item
+
+    def add_seasons(self, data):
+        """ Performs pre-process actions for data processing and checks for additional seasons
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+        return data, items
+
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+
+        title = result_set["title"]
+        image = result_set["image"]["url"]
+        thumb = self.__create_image_url(image, "thumb")
+        poster = self.__create_image_url(image, "poster")
+        url = "https://api.omroepbrabant.nl/api/media/program/{}".format(result_set["externalId"])
+
+        item = MediaItem(title, url, media_type=mediatype.EPISODE)
+        item.thumb = thumb
+        item.poster = poster
+        item.description = result_set.get("text")
+
+        date_value = result_set["updated"]
+        date_value = result_set["created"]
+        date_time = DateHelper.get_date_from_posix(date_value)
+        # TODO: Fixed times
+        item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
+                      date_time.minute,
+                      date_time.second)
+
+        if result_set["seriesId"] == "1":
+            item.name = "{} - {:02d}:{:02d}".format(item.title, date_time.hour, date_time.day)
+
+        # item.description = HtmlHelper.to_text(result_set.get("text"))
+        #
+        # posix = result_set.get("timestamp", None)
+        # if posix:
+        #     broadcast_date = DateHelper.get_date_from_posix(int(posix))
+        #     item.set_date(broadcast_date.year,
+        #                   broadcast_date.month,
+        #                   broadcast_date.day,
+        #                   broadcast_date.hour,
+        #                   broadcast_date.minute,
+        #                   broadcast_date.second)
+
+        item.complete = True
+        return item
+
+    def __create_image_url(self, image, type_art):
+        if type_art == "fanart":
+            return image.replace("$width$", "1920").replace("$height$", "1080")
+        if type_art == "thumb":
+            return image.replace("$width$", "1280").replace("$height$", "720")
+        if type_art == "poster":
+            return image.replace("$width$", "1280").replace("$height$", "1920")
+        return None
