@@ -7,6 +7,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.logger import Logger
 from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.urihandler import UriHandler
 
 
 class Channel(chn_class.Channel):
@@ -55,6 +56,9 @@ class Channel(chn_class.Channel):
                               name="Show parsers",
                               preprocessor=self.add_seasons,
                               parser=["article", "children"], creator=self.create_video_item)
+
+        self._add_data_parser("sourceid_string:", match_type=ParserData.MatchContains,
+                              updater=self.update_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -178,15 +182,16 @@ class Channel(chn_class.Channel):
         image = result_set["image"]["url"]
         thumb = self.__create_image_url(image, "thumb")
         poster = self.__create_image_url(image, "poster")
-        url = "https://api.omroepbrabant.nl/api/media/program/{}".format(result_set["externalId"])
+        # url = "https://api.omroepbrabant.nl/api/media/program/{}".format(result_set["externalId"])
+        url = "https://omroepbrabant.bbvms.com/p/default/q/sourceid_string:{}.json".format(result_set["externalId"])
 
         item = MediaItem(title, url, media_type=mediatype.EPISODE)
         item.thumb = thumb
         item.poster = poster
         item.description = result_set.get("text")
 
-        date_value = result_set["updated"]
         date_value = result_set["created"]
+        # date_value = result_set["updated"]
         date_time = DateHelper.get_date_from_posix(date_value)
         # TODO: Fixed times
         item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
@@ -194,21 +199,44 @@ class Channel(chn_class.Channel):
                       date_time.second)
 
         if result_set["seriesId"] == "1":
-            item.name = "{} - {:02d}:{:02d}".format(item.title, date_time.hour, date_time.day)
+            item.name = "{} - {:02d}:{:02d}".format(item.title, date_time.hour, date_time.minute)
 
-        # item.description = HtmlHelper.to_text(result_set.get("text"))
-        #
-        # posix = result_set.get("timestamp", None)
-        # if posix:
-        #     broadcast_date = DateHelper.get_date_from_posix(int(posix))
-        #     item.set_date(broadcast_date.year,
-        #                   broadcast_date.month,
-        #                   broadcast_date.day,
-        #                   broadcast_date.hour,
-        #                   broadcast_date.minute,
-        #                   broadcast_date.second)
+        return item
 
-        item.complete = True
+    def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaSteam then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = JsonHelper(data)
+
+        clip_data = json_data.get_value("clipData", "assets")
+        server = json_data.get_value("publicationData", "defaultMediaAssetPath")
+        for clip in clip_data:
+            url = clip["src"]
+            if not url.startswith("http"):
+                url = "{}{}".format(server, clip["src"])
+            item.add_stream(url, int(clip["bandwidth"]))
+            item.complete = True
+
         return item
 
     def __create_image_url(self, image, type_art):
