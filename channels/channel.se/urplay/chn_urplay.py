@@ -46,9 +46,10 @@ class Channel(chn_class.Channel):
                               parser=["results"], creator=self.create_episode_json_item)
 
         # Match Videos (programs)
-        self._add_data_parser("https://urplay.se/api/bff/v1/search?product_type=program",
-                              name="Most viewed", json=True,
-                              parser=["results"], creator=self.create_video_item_json_with_show_title)
+        self._add_data_parsers(["https://urplay.se/api/bff/v1/search?product_type=program",
+                                "https://urplay.se/api/v1/search?product_type=program"],
+                               name="Most viewed", json=True,
+                               parser=["results"], creator=self.create_video_item_json_with_show_title)
 
         self._add_data_parser("*", json=True,
                               name="Json based video parser",
@@ -67,11 +68,17 @@ class Channel(chn_class.Channel):
                               creator=self.create_category_item)
 
         self._add_data_parsers(["https://urplay.se/api/bff/v1/search?play_category",
+                                "https://urplay.se/api/v1/search?play_category",
                                 "https://urplay.se/api/bff/v1/search?main_genre",
+                                "https://urplay.se/api/v1/search?main_genre",
                                 "https://urplay.se/api/bff/v1/search?response_type=category",
+                                "https://urplay.se/api/v1/search?response_type=category",
                                 "https://urplay.se/api/bff/v1/search?type=programradio",
+                                "https://urplay.se/api/v1/search?type=programradio",
                                 "https://urplay.se/api/bff/v1/search?age=",
-                                "https://urplay.se/api/bff/v1/search?response_type=limited"],
+                                "https://urplay.se/api/v1/search?age=",
+                                "https://urplay.se/api/bff/v1/search?response_type=limited",
+                                "https://urplay.se/api/v1/search?response_type=limited"],
                                name="Category content", json=True,
                                preprocessor=self.merge_category_items,
                                parser=["results"], creator=self.create_json_item)
@@ -94,13 +101,13 @@ class Channel(chn_class.Channel):
 
         self.__cateogory_urls = {
             "alla-program":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "response_type=limited&"
                 "product_type=series&"
                 "rows={}&start={}&view=title",
 
             "barn":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "age=children&"
                 "platform=urplay&"
                 "rows={}&"
@@ -109,7 +116,7 @@ class Channel(chn_class.Channel):
                 "&view=title",
 
             "dokumentarfilmer":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre[]=dokument%C3%A4rfilm&main_genre[]=dokument%C3%A4rserie&"
                 # "platform=urplay&"
                 "singles_and_series=true&view=title&"
@@ -119,7 +126,7 @@ class Channel(chn_class.Channel):
                 "&view=title",
 
             "drama":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre[]=drama&main_genre[]=kortfilm&main_genre[]=fiktiva%20ber%C3%A4ttelser&"
                 "platform=urplay&"
                 "rows={}&"
@@ -128,7 +135,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "forelasningar":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre[]=f%C3%B6rel%C3%A4sning&main_genre[]=panelsamtal&"
                 "platform=urplay&"
                 "rows={}&"
@@ -137,7 +144,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "halsa-och-relationer":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&"
                 "main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
@@ -148,7 +155,7 @@ class Channel(chn_class.Channel):
                 "view=title",
             
             "kultur-och-historia":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
                 "rows={}&"
@@ -158,7 +165,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "natur-och-resor":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
                 "rows={}&"
@@ -168,7 +175,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "radio":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "type=programradio&"
                 "platform=urplay&"
                 "rows={}&"
@@ -177,7 +184,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "samhalle":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
                 "rows={}&"
@@ -187,7 +194,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "sprak":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
                 "rows={}&"
@@ -197,7 +204,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "syntolkat":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "response_type=category&"
                 "is_audio_described=true&"
                 "platform=urplay&"
@@ -207,7 +214,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "teckensprak":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "response_type=category&"
                 "language=sgn-SWE&"
                 "platform=urplay&"
@@ -217,7 +224,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "utbildning-och-media":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&"
                 "main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
@@ -228,7 +235,7 @@ class Channel(chn_class.Channel):
                 "view=title",
 
             "vetenskap":
-                "https://urplay.se/api/bff/v1/search?"
+                "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&main_genre_must_not[]=panelsamtal&"
                 "platform=urplay&"
                 "rows={}&"
@@ -317,9 +324,9 @@ class Channel(chn_class.Channel):
         )
 
         categories = {
-            LanguageHelper.Popular: "https://urplay.se/api/bff/v1/search?product_type=program&query=&rows={}&start=0&view=most_viewed".format(max_items),
-            LanguageHelper.MostRecentEpisodes: "https://urplay.se/api/bff/v1/search?product_type=program&rows={}&start=0&view=published".format(max_items),
-            LanguageHelper.LastChance: "https://urplay.se/api/bff/v1/search?product_type=program&rows={}&start=0&view=last_chance".format(max_items),
+            LanguageHelper.Popular: "https://urplay.se/api/v1/search?product_type=program&query=&rows={}&start=0&view=most_viewed".format(max_items),
+            LanguageHelper.MostRecentEpisodes: "https://urplay.se/api/v1/search?product_type=program&rows={}&start=0&view=published".format(max_items),
+            LanguageHelper.LastChance: "https://urplay.se/api/v1/search?product_type=program&rows={}&start=0&view=last_chance".format(max_items),
             LanguageHelper.Categories: "https://urplay.se/",
             LanguageHelper.Search: "searchSite"
         }
