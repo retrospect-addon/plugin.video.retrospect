@@ -12,3 +12,4 @@ _None_
 * Fixed: Issue with empty folders in main TV4 listings.
 * Fixed: Omroep Brabant broke due to back end changes.
 * Fixed: Radio 538 live streams (Fixes #1548).
+* Fixed: Download additional pages for NPO Start (Fixes #1552).

@@ -47,23 +47,24 @@ class TestNpoChannel(ChannelTest):
             expected_results=25, exact_results=True
         )
 
-    def test_full_alpha_sub_list(self):
+    def test_full_alpha_sub_list_with_more_pages_downloaded(self):
         items = self._test_folder_url(
-            "https://start-api.npo.nl/media/series/BV_101396526/episodes?pageSize=5",
+            "https://start-api.npo.nl/media/series/BV_101396526/episodes?pageSize=10",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
             expected_results=5
         )
-        # More pages should be preeent (requested 5, will be more there)
-        folders = [item for item in items if item.is_folder]
-        self.assertGreaterEqual(len(folders), 1)
 
-    def test_tv_show_listing(self):
+        # More pages should have been downloaded.
+        folders = [item for item in items if item.is_folder]
+        self.assertGreaterEqual(len(folders), 0)
+
+    def test_tv_show_listing_with_more_page_item(self):
         items = self._test_folder_url(
             "https://start-api.npo.nl/media/series/NOSjnl2000/episodes?pageSize=10",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
-            expected_results=11, exact_results=True
+            expected_results=51, exact_results=True
         )
-        # More pages should be preeent (requested 5, will be more there)
+        # More pages should be present (requested 5, will be more there)
         folders = [item for item in items if item.is_folder]
         self.assertGreaterEqual(len(folders), 1)
 
