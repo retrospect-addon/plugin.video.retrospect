@@ -24,7 +24,7 @@ class TestUrPlayChannel(ChannelTest):
         self.assertGreaterEqual(len(items), 1000, "No items found in mainlist")
 
     def test_category(self):
-        url = "https://urplay.se/api/bff/v1/search?" \
+        url = "https://urplay.se/api/v1/search?" \
               "main_genre_must_not[]=forelasning&" \
               "main_genre_must_not[]=panelsamtal&" \
               "platform=urplay&" \
@@ -33,14 +33,26 @@ class TestUrPlayChannel(ChannelTest):
               "singles_and_series=true&" \
               "start={}&" \
               "view=title"
-        self._test_folder_url(url, expected_results=150, exact_results=False)
+        self._test_folder_url(url, expected_results=95, exact_results=False)
+
+    def test_popular(self):
+        url = "https://urplay.se/api/v1/search?product_type=program&query=&rows=150&start=0&view=most_viewed"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_most_recent(self):
+        url = "https://urplay.se/api/v1/search?product_type=program&rows=150&start=0&view=published"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_last_chance(self):
+        url = "https://urplay.se/api/v1/search?product_type=program&rows=150&start=0&view=last_chance"
+        self._test_folder_url(url, expected_results=10)
 
     def test_category_radio(self):
-        url = "https://urplay.se/api/bff/v1/search?" \
+        url = "https://urplay.se/api/v1/search?" \
                 "type=programradio&" \
                 "platform=urplay&" \
                 "rows={}&" \
                 "singles_and_series=true&" \
                 "start={}&" \
                 "view=title"
-        self._test_folder_url(url, expected_results=150, exact_results=False)
+        self._test_folder_url(url, expected_results=100, exact_results=False)
