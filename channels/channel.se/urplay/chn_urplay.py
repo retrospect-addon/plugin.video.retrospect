@@ -269,7 +269,7 @@ class Channel(chn_class.Channel):
         if "{" not in url:
             return data, items
 
-        data = self.__iterate_results(url, max_iterations=10, results_per_page=150)
+        data = self.__iterate_results(url, max_iterations=5)
         return data, items
 
     def create_category_item(self, result_set):
@@ -636,7 +636,7 @@ class Channel(chn_class.Channel):
             item.media_type = mediatype.EPISODE
         return item
 
-    def __iterate_results(self, url_format, results_per_page=150, max_iterations=10):
+    def __iterate_results(self, url_format, results_per_page=20, max_iterations=10):
         """ Retrieves the full dataset for a multi-set search action.
 
         :param str url_format:             The url format with start and count placeholders
@@ -650,6 +650,9 @@ class Channel(chn_class.Channel):
             https://urplay.se/api/bff/v1/search?product_type=series&rows={}&start={}
 
         """
+
+        # TODO: Currently the new (none bff API) ignores the "rows" parameters. Even on the website.
+        #  This causes a response with 20 results only. So we need to load more pages.
 
         results = None
         for p in range(0, max_iterations):

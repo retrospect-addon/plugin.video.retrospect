@@ -33,7 +33,7 @@ class TestUrPlayChannel(ChannelTest):
               "singles_and_series=true&" \
               "start={}&" \
               "view=title"
-        self._test_folder_url(url, expected_results=150, exact_results=False)
+        self._test_folder_url(url, expected_results=95, exact_results=False)
 
     def test_popular(self):
         url = "https://urplay.se/api/v1/search?product_type=program&query=&rows=150&start=0&view=most_viewed"
@@ -55,4 +55,4 @@ class TestUrPlayChannel(ChannelTest):
                 "singles_and_series=true&" \
                 "start={}&" \
                 "view=title"
-        self._test_folder_url(url, expected_results=150, exact_results=False)
+        self._test_folder_url(url, expected_results=100, exact_results=False)
