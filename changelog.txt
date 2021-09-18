@@ -17,3 +17,4 @@ _None_
 * Fixed: Download additional pages for NPO Start (Fixes #1552).
 * Fixed: UR Play updated their API url (Fixes 1550).
 * Fixed: UR Play search function due to API change (Fixes #1555).
+* Fixed: NPO items under genres had an extra "-" (Fixes #1551).

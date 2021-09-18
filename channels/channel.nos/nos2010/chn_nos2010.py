@@ -118,7 +118,7 @@ class Channel(chn_class.Channel):
             r'[^>]*>\W+<div[^>]+>\W+<div [^>]+data-from="(?<date>[^"]*)"[^>]+'
             r'data-premium-from="(?<datePremium>[^"]*)"(?<videoDetection>[\w\W]{0,1000}?)<img[^>]+'
             r'data-src="(?<thumburl>[^"]+)"[\w\W]{0,1000}?<h2>(?<title>[^<]+)</h2>\W+<p>'
-            r'(?<subtitle>[^<]*)</p>')
+            r'(?:\s*&nbsp;\s*)*(?<subtitle>[^<]*)</p>')
         self._add_data_parsers(["https://www.npostart.nl/media/series/",
                                 "https://www.npostart.nl/search/extended",
                                 "https://www.npostart.nl/media/collections/"],
