@@ -13,3 +13,4 @@ _None_
 * Fixed: Omroep Brabant broke due to back end changes.
 * Fixed: Radio 538 live streams (Fixes #1548).
 * Fixed: Vier.be updated their api which broke listings (Fixes #1553).
+* Fixed: TV4play.se was not listing due to API changes (Fixes #1554).
