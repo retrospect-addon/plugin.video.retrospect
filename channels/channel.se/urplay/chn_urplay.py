@@ -84,9 +84,9 @@ class Channel(chn_class.Channel):
                                parser=["results"], creator=self.create_json_item)
 
         # Searching
-        self._add_data_parser("https://urplay.se/search/json", json=True,
+        self._add_data_parser("https://urplay.se/api/bff/v1/quick_search", json=True,
                               parser=["programs"], creator=self.create_search_result_program)
-        self._add_data_parser("https://urplay.se/search/json", json=True,
+        self._add_data_parser("https://urplay.se/api/bff/v1/quick_search", json=True,
                               parser=["series"], creator=self.create_search_result_serie)
 
         self.mediaUrlRegex = r"urPlayer.init\(([^<]+)\);"
@@ -358,7 +358,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "https://urplay.se/search/json?query=%s"
+        url = "https://urplay.se/api/bff/v1/quick_search?query=%s"
         return chn_class.Channel.search_site(self, url)
 
     def create_json_item(self, result_set):
@@ -606,7 +606,7 @@ class Channel(chn_class.Channel):
         return self.__create_search_result(result_set, "program")
 
     def create_search_result_serie(self, result_set):
-        return self.__create_search_result(result_set, "serie")
+        return self.__create_search_result(result_set, "series")
 
     def __create_search_result(self, result_set, result_type):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
@@ -625,12 +625,16 @@ class Channel(chn_class.Channel):
 
         # Logger.trace(result_set)
 
-        url = "https://urplay.se/{}/{}".format(result_type, result_set["slug"])
+        if result_type == "series":
+            url = "https://urplay.se/api/bff/v1/{}/{}".format(result_type, result_set["slug"])
+        else:
+            url = "https://urplay.se/{}/{}".format(result_type, result_set["slug"])
         item = MediaItem(result_set["title"], url)
 
-        asset_id = result_set["ur_asset_id"]
+        asset_id = result_set["urAssetId"]
         item.thumb = "https://assets.ur.se/id/{}/images/1_hd.jpg".format(asset_id)
         item.fanart = "https://assets.ur.se/id/{}/images/1_l.jpg".format(asset_id)
+
         if result_type == "program":
             item.set_info_label("duration", result_set["duration"] * 60)
             item.media_type = mediatype.EPISODE

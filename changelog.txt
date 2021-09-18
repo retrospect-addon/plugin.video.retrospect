@@ -16,3 +16,4 @@ _None_
 * Fixed: TV4play.se was not listing due to API changes (Fixes #1554).
 * Fixed: Download additional pages for NPO Start (Fixes #1552).
 * Fixed: UR Play updated their API url (Fixes 1550).
+* Fixed: UR Play search function due to API change (Fixes #1555).
