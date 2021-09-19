@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.6 - Changelog - 2021-08-18[/B]
+[B]Retrospect v5.4.7 - Changelog - 2021-09-19[/B]
 
-_TBD_
+This release of Retrospect only contains a number of channel fixes (See below).
 
 [B]Framework related[/B]
 _None_
