@@ -14,9 +14,19 @@ class TestVierBeChannel(ChannelTest):
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
-    def test_main_list(self):
+    def test_main_list_vier(self):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
+
+    def test_main_list_vijf(self):
+        self._switch_channel("vijfbe")
+        items = self.channel.process_folder_list(None)
+        self.assertGreaterEqual(len(items), 10, "No items found in mainlist")
+
+    def test_main_list_zes(self):
+        self._switch_channel("zesbe")
+        items = self.channel.process_folder_list(None)
+        self.assertGreaterEqual(len(items), 10, "No items found in mainlist")
 
     def test_guide_day_list(self):
         import datetime
