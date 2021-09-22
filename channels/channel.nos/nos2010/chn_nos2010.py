@@ -855,7 +855,7 @@ class Channel(chn_class.Channel):
 
         if next_url:
             next_title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            item = FolderItem(next_title, next_url, content_type=contenttype.EPISODES)
+            item = FolderItem("\b.: {} :.".format(next_title), next_url, content_type=contenttype.EPISODES)
             item.complete = True
             item.HttpHeaders = self.__jsonApiKeyHeader
             items.append(item)
