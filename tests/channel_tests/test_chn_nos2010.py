@@ -42,9 +42,9 @@ class TestNpoChannel(ChannelTest):
 
     def test_full_alpha_list(self):
         self._test_folder_url(
-            "https://start-api.npo.nl/page/catalogue?pageSize=25",
+            "https://start-api.npo.nl/media/series?pageSize=25&page=2&dateFrom=2014-01-01",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
-            expected_results=25, exact_results=True
+            expected_results=125, exact_results=True
         )
 
     def test_full_alpha_sub_list_with_more_pages_downloaded(self):
