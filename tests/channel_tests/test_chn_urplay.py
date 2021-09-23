@@ -55,7 +55,7 @@ class TestUrPlayChannel(ChannelTest):
                 "singles_and_series=true&" \
                 "start={}&" \
                 "view=title"
-        self._test_folder_url(url, expected_results=100, exact_results=False)
+        self._test_folder_url(url, expected_results=50, exact_results=False)
 
     def test_search(self):
         url = "https://urplay.se/api/bff/v1/quick_search?query=Alfons"
