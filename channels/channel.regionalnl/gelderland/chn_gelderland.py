@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib import chn_class, mediatype
-from resources.lib.mediaitem import MediaItem
+from resources.lib import chn_class, mediatype, contenttype
+from resources.lib.logger import Logger
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.helpers import datehelper
 
 
@@ -23,22 +24,22 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.noImage = "gelderlandimage.png"
+        self.noImage = "omroepgelderlandimage.png"
 
         # setup the urls
-        self.mainListUri = "http://www.omroepgelderland.nl/web/Uitzending-gemist-5/TV-1/Programmas/Actuele-programmas.htm"
-        self.baseUrl = "http://www.omroepgelderland.nl"
-        self.swfUrl = "%s/design/channel/tv/swf/player.swf" % (self.baseUrl, )
+        self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs"
+        self.httpHeaders = {
+            "accept": "application/vnd.groei.gelderland+json;v=1.0",
+            "x-groei-layout": "wide",
+            "x-groei-platform": "web"
+        }
+        self.baseUrl = "https://api.regiogroei.cloud"
+        # https://api.regiogroei.cloud/page/program/83?slug=4daagse-journaal&origin=83
 
         # setup the main parsing data
-        self.episodeItemRegex = r'<a href="(/web/Uitzending-gemist-5/TV-1/Programmas/' \
-                                r'Programma.htm\?p=[^"]+)"\W*>\W*<div[^>]+>\W+<img src="([^"]+)' \
-                                r'"[^>]+>\W+</div>\W+<div[^>]+>([^<]+)'
-        self.videoItemRegex = r"""<div class="videouitzending[^>]+\('([^']+)','[^']+','[^']+','[^']+','([^']+) (\d+) (\w+) (\d+)','([^']+)','([^']+)'"""
-        self.mediaUrlRegex = r'<param\W+name="URL"\W+value="([^"]+)"'
-        self.pageNavigationRegex = r'(/web/Uitzending-gemist-5/TV-1/Programmas/Programma.htm\?p=' \
-                                   r'Debuzz&amp;pagenr=)(\d+)[^>]+><span>'
-        self.pageNavigationRegexIndex = 1
+        self._add_data_parser(self.mainListUri, name="Mainlist parser", json=True,
+                              parser=["components", ("type", "program-list", 0), "items"],
+                              creator=self.create_episode_item)
 
         #===============================================================================================================
         # non standard items
@@ -56,15 +57,38 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param dict result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
 
         """
 
-        item = MediaItem(result_set[2], "%s%s" % (self.baseUrl, result_set[0]))
-        item.thumb = "%s%s" % (self.baseUrl, result_set[1])
+        Logger.trace(result_set)
+
+        # https://api.regiogroei.cloud/page/program/83?slug=4daagse-journaal&origin=83
+        url_info = result_set["_links"]["page"]
+        url = "{}{}".format(self.baseUrl, url_info["href"])
+        item = FolderItem(result_set["programTitle"], url, content_type=contenttype.EPISODES)
+
+        synposis = result_set.get("synopsis")
+        description = result_set.get("description")
+        if synposis and description:
+            item.description = "{}\n\n{}".format(synposis, description)
+        elif synposis:
+            item.description = synposis
+        elif description:
+            item.description = description
+
+        # thumbnail=https://images.regiogroei.cloud/[format]/d169259e-0f0a-39b1-824d-a49f3ff7ce34.[ext]?ts=1632764016263
+        item.thumb = result_set.get("thumbnail").replace("[format]", "552x310").replace("[ext]", "jpg")
+        item.fanart = result_set.get("thumbnail").replace("[format]", "2456x1380").replace("[ext]", "jpg")
+        # https://images.regiogroei.cloud/2456x1380/d169259e-0f0a-39b1-824d-a49f3ff7ce34.jpg?ts=1632764312802 2456w
+        # https://images.regiogroei.cloud/1104x620/d169259e-0f0a-39b1-824d-a49f3ff7ce34.jpg?ts=1632764312802 1104w
+        # https://images.regiogroei.cloud/552x310/d169259e-0f0a-39b1-824d-a49f3ff7ce34.jpg?ts=1632764312802 552w
+        # https://images.regiogroei.cloud/264x148/d169259e-0f0a-39b1-824d-a49f3ff7ce34.jpg?ts=1632764312802 264w
+        # https://images.regiogroei.cloud/112x64/d169259e-0f0a-39b1-824d-a49f3ff7ce34.jpg?ts=1632764312802 112w
+
         item.complete = True
         return item
     
