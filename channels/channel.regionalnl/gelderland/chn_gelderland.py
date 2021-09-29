@@ -149,7 +149,10 @@ class Channel(chn_class.Channel):
 
         # sourceId=sourceid_string:SREGIOOG_96941
         source_id = result_set["sourceId"]
-        url = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/{}.json".format(source_id)
+        if "sourceid_string:" in source_id:
+            url = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/{}.json".format(source_id)
+        else:
+            url = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/sourceid_string:{}.json".format(source_id)
 
         item = MediaItem(name, url, media_type=mediatype.EPISODE)
         item.description = result_set.get("synopsis")
