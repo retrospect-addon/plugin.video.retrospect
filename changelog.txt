@@ -6,8 +6,9 @@ _TBD_
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Fixed: Return local path of image if present instead of resource.
 
 [B]Channel related[/B]
 * Fixed: Vijf.be and Zes.be showed the same listing (of zes.be) (Fixes #1553).
 * Fixed: Load more shows for the full NPO listing (See #1552).
+* Fixed: Omroep Gelderland changed API's (Fixes #1561).

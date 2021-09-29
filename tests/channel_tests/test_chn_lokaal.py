@@ -16,8 +16,8 @@ class TestLokaalChannel(ChannelTest):
         self.assertGreater(len(items), 9)
 
     def test_live_streams(self):
-        self._switch_channel("omroepgelderland")
-        live_url = "https://gelderland.rpoapp.nl/v02/livestreams/AndroidTablet.json"
+        self._switch_channel("omroepwest")
+        live_url = "http://feeds.omroepwest.nl/v520/tv.json"
         items = self._test_folder_url(live_url, 1)
         self.assertGreaterEqual(len([i for i in items if i.is_video]), 1)
 
@@ -29,12 +29,6 @@ class TestLokaalChannel(ChannelTest):
 
     def test_omroepwest_mainlist(self):
         self._switch_channel("omroepwest")
-
-        items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 10)
-
-    def test_omroepgelderland_mainlist(self):
-        self._switch_channel("omroepgelderland")
 
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 10)
