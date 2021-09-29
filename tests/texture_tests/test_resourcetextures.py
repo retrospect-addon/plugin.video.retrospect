@@ -31,12 +31,21 @@ class TestResourceTextures(unittest.TestCase):
 
     def test_resource_texture_file_from_resource(self):
         texture = self._get_texture_handler()
+        texture_path = "4large.png"
+        resource_path = "resource://resource.images.retrospect/channels/4/4large.png"
+
+        # Get url and check if it exists
+        url = texture._get_texture_uri(self.channel_path, texture_path)
+        self.assertEqual(resource_path, url)
+
+    def test_resource_texture_file_from_local_disk(self):
+        texture = self._get_texture_handler()
         texture_path = "3large.png"
         resource_path = "resource://resource.images.retrospect/channels/3/3large.png"
 
         # Get url and check if it exists
         url = texture._get_texture_uri(self.channel_path, texture_path)
-        self.assertEqual(resource_path, url)
+        self.assertTrue("nos2010" in url)
 
     def test_resource_texture_file_from_resource_capital(self):
         texture = self._get_texture_handler()
