@@ -1,9 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from resources.lib import chn_class, mediatype, contenttype
+from resources.lib.helpers.datehelper import DateHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
-from resources.lib.helpers import datehelper
+from resources.lib.parserdata import ParserData
+from resources.lib.urihandler import UriHandler
 
 
 class Channel(chn_class.Channel):
@@ -39,7 +43,25 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self._add_data_parser(self.mainListUri, name="Mainlist parser", json=True,
                               parser=["components", ("type", "program-list", 0), "items"],
+                              preprocessor=self.add_live_streams,
                               creator=self.create_episode_item)
+
+        self._add_data_parser("https://api.regiogroei.cloud/page/program/",
+                              name="Show content", json=True,
+                              parser=["components", ("type", "episode-list", 0), "items"],
+                              creator=self.create_video_item)
+
+        self._add_data_parser("https://api.regiogroei.cloud/page/program/",
+                              name="Show content single video", json=True,
+                              parser=["components", ("type", "tv-detail-header", 0)],
+                              creator=self.create_video_item)
+
+        self._add_data_parser("https://api.regiogroei.cloud/page/channel/",
+                              name="Live stream parser", json=True,
+                              updater=self.update_live_stream)
+
+        self._add_data_parser("sourceid_string:", match_type=ParserData.MatchContains,
+                              updater=self.update_video_item)
 
         #===============================================================================================================
         # non standard items
@@ -49,7 +71,17 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
-    
+
+    def add_live_streams(self, data):
+        items = []
+
+        live_title = LanguageHelper.get_localized_string(LanguageHelper.LiveTv)
+        live_tv = MediaItem("\b.: {} :.".format(live_title), "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland", media_type=mediatype.VIDEO)
+        live_tv.dontGroup = True
+        items.append(live_tv)
+
+        return data, items
+
     def create_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
 
@@ -111,29 +143,88 @@ class Channel(chn_class.Channel):
 
         """
 
-        #Logger.Trace(result_set)
-        
-        thumb_url = "%s%s" % (self.baseUrl, result_set[6])
-        url = "%s%s" % (self.baseUrl, result_set[5])
-        name = "%s %s %s %s" % (result_set[1], result_set[2], result_set[3], result_set[4])
-        
-        video_url = result_set[0]
-        video_url = video_url.replace(" ", "%20")
-        # convert RTMP to HTTP
-        #rtmp://media.omroepgelderland.nl         /uitzendingen/video/2012/07/120714 338 Carrie on.mp4
-        #http://content.omroep.nl/omroepgelderland/uitzendingen/video/2012/07/120714 338 Carrie on.mp4
-        video_url = video_url.replace("rtmp://media.omroepgelderland.nl",
-                                      "http://content.omroep.nl/omroepgelderland")
-        
+        Logger.trace(result_set)
+
+        name = result_set["programTitle"]
+
+        # sourceId=sourceid_string:SREGIOOG_96941
+        source_id = result_set["sourceId"]
+        url = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/{}.json".format(source_id)
+
         item = MediaItem(name, url, media_type=mediatype.EPISODE)
-        item.thumb = thumb_url
-        item.add_stream(video_url)
-        
-        # set date
-        month = datehelper.DateHelper.get_month_from_name(result_set[3], "nl", False)
-        day = result_set[2]
-        year = result_set[4]
-        item.set_date(year, month, day)
-        
-        item.complete = True
+        item.description = result_set.get("synopsis")
+        item.thumb = result_set.get("thumbnail").replace("[format]", "552x310").replace("[ext]", "jpg")
+
+        # id=3a13d646-fcbc-5882-be5b-55683aed1781
+        # displayId=48178
+
+        # scheduleStart=2020-07-24T15:20:00Z
+        time_stamp = DateHelper.get_date_from_string(
+            result_set["scheduleStart"], "%Y-%m-%dT%H:%M:%SZ")
+        item.set_date(*time_stamp[0:6])
+        return item
+
+    def update_live_stream(self, item):
+        """ Updates an live stream item
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaSteam then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
+        json_data = JsonHelper(data)
+        live_stream_id = json_data.get_value("components", 0, "channel", "livestreamId")
+        url = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/{}.json".format(live_stream_id)
+        item.url = url
+        return self.update_video_item(item)
+
+    def update_video_item(self, item):
+        """ Updates an existing MediaItem with more data.
+
+        Used to update none complete MediaItems (self.complete = False). This
+        could include opening the item's URL to fetch more data and then process that
+        data or retrieve it's real media-URL.
+
+        The method should at least:
+        * cache the thumbnail to disk (use self.noImage if no thumb is available).
+        * set at least one MediaStream.
+        * set self.complete = True.
+
+        if the returned item does not have a MediaSteam then the self.complete flag
+        will automatically be set back to False.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+        :rtype: MediaItem
+
+        """
+
+        data = UriHandler.open(item.url)
+        json_data = JsonHelper(data)
+
+        clip_data = json_data.get_value("clipData", "assets")
+        server = json_data.get_value("publicationData", "defaultMediaAssetPath")
+        for clip in clip_data:
+            url = clip["src"]
+            if not url.startswith("http"):
+                url = "{}{}".format(server, clip["src"])
+            item.add_stream(url, int(clip["bandwidth"] or 1))
+            item.complete = True
+
         return item
