@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.7 - Changelog - 2021-09-19[/B]
+[B]Retrospect v5.4.8 - Changelog - 2021-09-30[/B]
 
-_TBD_
+This build contains a number of fixes for different channels.
 
 [B]Framework related[/B]
 _None_
