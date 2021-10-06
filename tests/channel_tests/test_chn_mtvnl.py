@@ -15,7 +15,7 @@ class TestMtvNlChannel(ChannelTest):
 
     def test_channel_mtv_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 50)
+        self.assertGreater(len(items), 25)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_clip(self):

@@ -13,7 +13,7 @@ class TestMtvDeChannel(ChannelTest):
 
     def test_channel_mtv_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 50)
+        self.assertGreater(len(items), 25)
 
     def test_video_list(self):
         url = "http://www.mtv.de/feeds/intl_m112/V8_0_0/62701278-3c80-4ef6-a801-1df8ffca7c78/90a54067-9c44-434f-a063-c06232cf047d"
