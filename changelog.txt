@@ -1,14 +1,12 @@
 [B]Retrospect v5.4.8 - Changelog - 2021-09-30[/B]
 
-This build contains a number of fixes for different channels.
+_TBD_
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Return local path of image if present instead of resource.
+_None_
 
 [B]Channel related[/B]
-* Fixed: Vijf.be and Zes.be showed the same listing (of zes.be) (Fixes #1553).
-* Fixed: Load more shows for the full NPO listing (See #1552).
-* Fixed: Omroep Gelderland changed API's (Fixes #1561).
+* Fixed: 'Next Page' item in NPO channel was grouped in some cases.
