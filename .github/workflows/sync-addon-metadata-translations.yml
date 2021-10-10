@@ -12,12 +12,6 @@ jobs:
     if: github.repository == 'retrospect-addon/plugin.video.retrospect'
     runs-on: ubuntu-latest
 
-    strategy:
-
-      fail-fast: false
-      matrix:
-        python-version: [ 3.9 ]
-
     steps:
 
       - name: Checkout repository
@@ -25,21 +19,15 @@ jobs:
         with:
           path: project
 
-      - name: Checkout sync_addon_metadata_translations repository
-        uses: actions/checkout@v2
-        with:
-          repository: xbmc/sync_addon_metadata_translations
-          path: sync_addon_metadata_translations
-
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.9'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install sync_addon_metadata_translations/
+          python -m pip install git+https://github.com/xbmc/sync_addon_metadata_translations.git
 
       - name: Run sync-addon-metadata-translations
         run: |
@@ -55,4 +43,3 @@ jobs:
           branch: amt-sync
           delete-branch: true
           path: ./project
-          reviewers: gade01
