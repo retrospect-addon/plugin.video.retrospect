@@ -21,6 +21,7 @@ class TestMtvNlChannel(ChannelTest):
         url = "https://www.mtv.nl/shows/teen-mom-young-pregnant"
         self._test_folder_url(url, expected_results=3)
 
+    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_video(self):
         url = "https://www.mtv.nl/clip/4jnx08/teen-mom-young-pregnant-teen-mom-young-pregnant-ik-denk-niet-dat-ze-er-klaar-voor-is"
         self._test_video_url(url)
