@@ -51,11 +51,6 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.mtv.de/shows"
             self.baseUrl = "https://www.mtv.de"
             self.noImage = "mtvnlimage.png"
-
-        elif self.channelCode == "mtvde":
-            self.mainListUri = "https://www.mtv.de/shows"
-            self.baseUrl = "https://www.mtv.de"
-            self.noImage = "mtvnlimage.png"
         else:
             raise NotImplementedError("Unknown channel code")
 
