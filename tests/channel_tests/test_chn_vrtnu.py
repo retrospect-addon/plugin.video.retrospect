@@ -18,8 +18,8 @@ class TestVrtNuChannel(ChannelTest):
     def test_videos(self):
         url = "https://www.vrt.be/vrtnu/a-z/4ever/"
         items = self._test_folder_url(url, expected_results=10)
-        folders = [f for f in items if f.is_folder]
-        self.assertGreaterEqual(len(folders), 1)
+        videos = [v for v in items if not v.is_folder]
+        self.assertGreaterEqual(len(videos), 1)
 
     def test_folder(self):
         url = "https://www.vrt.be/vrtnu/a-z/4ever/"
