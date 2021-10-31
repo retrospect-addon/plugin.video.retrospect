@@ -20,6 +20,7 @@ class TestBvnTvChannel(ChannelTest):
         url = "https://www.bvn.tv/programma/nos-journaal/"
         self._test_folder_url(url, expected_results=2)
 
+    @unittest.skip("Does no longer exist.")
     def test_episode_listing_show_few_results(self):
         url = "https://www.bvn.tv/programma/opsporing-verzocht/"
         self._test_folder_url(url, expected_results=1)
