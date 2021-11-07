@@ -255,7 +255,7 @@ class Channel(chn_class.Channel):
         slam.isLive = True
         items.append(slam)
 
-        slam_fm = MediaItem("Slam! FM", "https://20133.live.streamtheworld.com/SLAM_AAC.aac"
+        slam_fm = MediaItem("Slam!", "http://stream.slam.nl/slam.m3u"
                                         "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
                                         "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
