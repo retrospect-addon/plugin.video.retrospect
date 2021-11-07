@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.8 - Changelog - 2021-09-30[/B]
+[B]Retrospect v5.4.9 - Changelog - 2021-11-07[/B]
 
-_TBD_
+A number of minor fixes for some channels.
 
 [B]Framework related[/B]
 _None_
