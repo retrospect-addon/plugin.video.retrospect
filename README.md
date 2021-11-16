@@ -477,3 +477,5 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Jasper-Laurens Van Daele
 - Olle Brink
 - Magnus Bertilsson
+- Per-Eric Larsson
+- Arjen Heidinga
