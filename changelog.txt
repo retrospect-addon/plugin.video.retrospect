@@ -1,6 +1,6 @@
 [B]Retrospect v5.4.9 - Changelog - 2021-11-07[/B]
 
-A number of minor fixes for some channels.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,6 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: 'Next Page' item in NPO channel was grouped in some cases.
-* Fixed: MTV.nl and MTV.de broken.
-* Fixed: UR Play broke due to site changes (Fixes #1569).
+* Fixed: Some RTV Utrecht video's did not play.

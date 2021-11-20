@@ -20,7 +20,10 @@ class TestRpoAppChannel(ChannelTest):
         self._test_folder_url(url, expected_results=20)
 
     def test_video_utrecht(self):
-        # url = "https://www.rtvutrecht.nl/gemist/uitzending/rtvutrecht/unieuws/20210503-1700/"
+        url = "https://www.rtvutrecht.nl/gemist/uitzending/rtvutrecht/unieuws/20211119-1700/"
+        self._test_video_url(url)
+
+    def test_video_utrecht_javascript(self):
         url = "https://www.rtvutrecht.nl/gemist/uitzending/rtvutrecht/unieuws/20211115-1700/"
         self._test_video_url(url)
 
