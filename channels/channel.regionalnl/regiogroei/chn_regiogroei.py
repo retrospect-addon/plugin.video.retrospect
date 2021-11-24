@@ -183,10 +183,10 @@ class Channel(chn_class.Channel):
         return item
 
     def create_epg_item(self, result_set):
-        item = self.create_video_item(result_set, add_time=True)
+        item = self.create_video_item(result_set, epg_item=True)
         return item
 
-    def create_video_item(self, result_set, add_time = False):
+    def create_video_item(self, result_set, epg_item=False):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -199,6 +199,7 @@ class Channel(chn_class.Channel):
         for playback.
 
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param bool epg_item: format as an EPG item.
 
         :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
@@ -226,8 +227,13 @@ class Channel(chn_class.Channel):
         date_time = date_time.astimezone(self.__timezone)
         item.set_date(date_time.year, date_time.month, date_time.day,
                       date_time.hour, date_time.minute, date_time.second)
-        if add_time:
-            item.name = "{:02d}:{:02d} - {}".format(date_time.hour, date_time.minute, item.title)
+        if epg_item:
+            if episode_title and program_title:
+                item.name = "{:02d}:{:02d} - {} - {}".format(date_time.hour, date_time.minute,
+                                                             program_title, episode_title)
+            else:
+                item.name = "{:02d}:{:02d} - {}".format(date_time.hour, date_time.minute,
+                                                        item.title)
 
         item.complete = False
         return item
