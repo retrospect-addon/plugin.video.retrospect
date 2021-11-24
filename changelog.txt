@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Some RTV Utrecht video's did not play.
+* Fixed: Apple Movie Trailers failed do to missing meta data (Fixes #1575).
