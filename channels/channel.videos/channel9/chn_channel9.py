@@ -32,7 +32,7 @@ class Channel(chn_class.Channel):
         self.noImage = "channel9image.png"
 
         # setup the urls
-        self.mainListUri = "https://channel9.msdn.com/Browse"
+        self.mainListUri = "https://docs.microsoft.com/en-us/shows/browse"
         self.baseUrl = "https://channel9.msdn.com"
 
         # setup the main parsing data
