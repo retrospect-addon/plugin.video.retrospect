@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from resources.lib.helpers.datehelper import DateHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.parserdata import ParserData
 
-from resources.lib import chn_class
-from resources.lib.mediaitem import MediaItem
+from resources.lib import chn_class, contenttype
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
@@ -32,30 +33,67 @@ class Channel(chn_class.Channel):
         self.noImage = "channel9image.png"
 
         # setup the urls
-        self.mainListUri = "https://docs.microsoft.com/en-us/shows/browse"
-        self.baseUrl = "https://channel9.msdn.com"
+        self.mainListUri = "#mainlist"
+        self.baseUrl = "https://docs.microsoft.com"
 
         # setup the main parsing data
         main_list_regex = r'<li>\W+<a href="([^"]+Browse[^"]+)">(\D[^<]+)</a>'  # used for the ParseMainList
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              parser=main_list_regex, creator=self.create_episode_item)
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.fetch_pages,
+                              parser=[], creator=self.create_episode_item)
 
-        folder_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*(?:<div[^>]*>\W*<time[^>]+datetime="(?<date>[^"]+)"[^>]*>[^>]+>\W*</div>)?\W*</a>\W*</article'
-        folder_regex = Regexer.from_expresso(folder_regex)
-        self._add_data_parser("*", parser=folder_regex, creator=self.create_folder_item)
-
-        page_regex = r'<a href="([^"]+page=)(\d+)"'
-        page_regex = Regexer.from_expresso(page_regex)
-        self.pageNavigationRegexIndex = 1
-        self._add_data_parser("*", parser=page_regex, creator=self.create_page_item)
-
-        video_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*<tim'
-        video_regex = Regexer.from_expresso(video_regex)
-        self._add_data_parser("*", parser=video_regex, creator=self.create_video_item,
-                              updater=self.update_video_item)
+        # folder_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*(?:<div[^>]*>\W*<time[^>]+datetime="(?<date>[^"]+)"[^>]*>[^>]+>\W*</div>)?\W*</a>\W*</article'
+        # folder_regex = Regexer.from_expresso(folder_regex)
+        # self._add_data_parser("*", parser=folder_regex, creator=self.create_folder_item)
+        #
+        # page_regex = r'<a href="([^"]+page=)(\d+)"'
+        # page_regex = Regexer.from_expresso(page_regex)
+        # self.pageNavigationRegexIndex = 1
+        # self._add_data_parser("*", parser=page_regex, creator=self.create_page_item)
+        #
+        # video_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*<tim'
+        # video_regex = Regexer.from_expresso(video_regex)
+        # self._add_data_parser("*", parser=video_regex, creator=self.create_video_item,
+        #                       updater=self.update_video_item)
 
         # =========================== Actual channel setup STOPS here ==============================
         return
+
+    def fetch_pages(self, combined_data):
+        """ Fetches the pages for the mainlist
+
+        :param str combined_data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+
+        combined_data = []
+        max_items = 31
+        skip = 30
+        i = 0
+
+        while i < max_items:
+            url = "https://docs.microsoft.com/api/contentbrowser/search/shows?" \
+                  "locale=en-us&" \
+                  "facet=products&" \
+                  "facet=type&" \
+                  "%24orderBy=latest_episode_upload_at%20desc&" \
+                  "%24skip={:d}&" \
+                  "%24top=30".format(i)
+            raw_data = UriHandler.open(url)
+            json_data = JsonHelper(raw_data)
+            combined_data += json_data.get_value("results", fallback=[])
+            max_items = json_data.get_value("count")
+            i += skip
+
+        data = JsonHelper("[]")
+        data.json = combined_data
+
+        return data, items
 
     def create_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
@@ -71,35 +109,33 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "{}{}".format(self.baseUrl, HtmlEntityHelper.convert_html_entities(result_set[0]))
-        name = result_set[1]
-
-        if name == "Tags":
+        hidden = result_set["hidden"]
+        if hidden:
             return None
-        if name == "Authors":
-            return None
-        if name == "Most Viewed":
-            return None
-        if name == "Top Rated":
-            name = "Recent"
-            url = "https://channel9.msdn.com/Feeds/RSS"
-            item = MediaItem(name, url)
-            item.complete = True
-            return item
 
-        items = []
-        sorts = {
-            "?sort=atoz": "A-Z",
-            "?sort=recen": LanguageHelper.get_localized_string(LanguageHelper.Recent)
-        }
+        name = result_set["title"]
+        # item_type = result_set["type"]
+        # item_id = result_set["uid"]
+        slug = result_set["url"]
+        # https://docs.microsoft.com/api/hierarchy/shows/xamarinshow/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc
+        url = "{}/api/hierarchy{}episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc".format(self.baseUrl, slug)
 
-        for sort, title in sorts.items():
-            sort_url = "%s%s" % (url, sort)
-            sort_name = "%s - %s" % (name, title)
-            item = MediaItem(sort_name, sort_url)
-            item.complete = True
-            items.append(item)
-        return items
+        item = FolderItem(name, url, content_type=contenttype.EPISODES)
+
+        thumb = result_set["image_url"]
+        if thumb:
+            # https://docs.microsoft.com/shows/vs-code-livestreams/media/vscodelivestream_383x215.png
+            thumb = "{}{}{}".format(self.baseUrl, slug, thumb)
+            item.thumb = thumb
+
+        # '2021-11-23T22:16:00Z'
+        latest = result_set.get("latest_episode_upload_at")
+        if latest:
+            latest = latest.rsplit(".", 1)[0]
+            latest = latest.replace("Z", "")
+            time_stamp = DateHelper.get_date_from_string(latest, "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*time_stamp[0:6])
+        return item
 
     def create_folder_item(self, result_set):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
