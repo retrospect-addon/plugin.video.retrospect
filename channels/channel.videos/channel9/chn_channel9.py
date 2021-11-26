@@ -1,15 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
-from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.parserdata import ParserData
 
-from resources.lib import chn_class, contenttype
+from resources.lib import chn_class, contenttype, mediatype
 from resources.lib.mediaitem import MediaItem, FolderItem
-from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
-from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 
 
 class Channel(chn_class.Channel):
@@ -37,10 +34,15 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://docs.microsoft.com"
 
         # setup the main parsing data
-        main_list_regex = r'<li>\W+<a href="([^"]+Browse[^"]+)">(\D[^<]+)</a>'  # used for the ParseMainList
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
                               preprocessor=self.fetch_pages,
                               parser=[], creator=self.create_episode_item)
+
+        self._add_data_parser("https://docs.microsoft.com/api/hierarchy/shows/", json=True,
+                              name="Video listings",
+                              parser=["episodes"], creator=self.create_video_item)
+
+        self._add_data_parser("https://docs.microsoft.com/api/video", updater=self.update_video_item)
 
         # folder_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*(?:<div[^>]*>\W*<time[^>]+datetime="(?<date>[^"]+)"[^>]*>[^>]+>\W*</div>)?\W*</a>\W*</article'
         # folder_regex = Regexer.from_expresso(folder_regex)
@@ -59,6 +61,7 @@ class Channel(chn_class.Channel):
         # =========================== Actual channel setup STOPS here ==============================
         return
 
+    # noinspection PyUnusedLocal
     def fetch_pages(self, combined_data):
         """ Fetches the pages for the mainlist
 
@@ -128,40 +131,43 @@ class Channel(chn_class.Channel):
             thumb = "{}{}{}".format(self.baseUrl, slug, thumb)
             item.thumb = thumb
 
-        # '2021-11-23T22:16:00Z'
-        latest = result_set.get("latest_episode_upload_at")
-        if latest:
-            latest = latest.rsplit(".", 1)[0]
-            latest = latest.replace("Z", "")
-            time_stamp = DateHelper.get_date_from_string(latest, "%Y-%m-%dT%H:%M:%S")
-            item.set_date(*time_stamp[0:6])
+        self.__set_date(result_set.get("latest_episode_upload_at"), item)
         return item
 
-    def create_folder_item(self, result_set):
-        """ Creates a MediaItem of type 'folder' using the result_set from the regex.
+    def create_video_item(self, result_set):
+        """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
         :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
 
-        :return: A new MediaItem of type 'folder'.
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
         :rtype: MediaItem|None
 
         """
 
-        item = chn_class.Channel.create_folder_item(self, result_set)
-        if not item:
-            return item
+        Logger.trace(result_set)
+        title = result_set["title"]
+        description = result_set["description"]
+        date_value = result_set["uploadDate"]
+        url = "{}/api/video/public/v1/entries/batch?ids={}".format(self.baseUrl, result_set["entryId"])
+        # https://docs.microsoft.com/api/video/public/v1/entries/batch?ids=0998ca55-c69f-468e-831d-176cde7e8a78%2C5cb5e481-e64d-4400-bb2d-2f8a6284bd62%2Cc5ccb371-39a6-474c-a9d7-bb8b0fa7567c%2C8b11149d-acaa-4a4b-a50d-5eb010933e5d%2C9fb9f5ed-aca9-48b9-b5c6-298fbbce117b%2Cb1a2aa31-6157-486d-8a2c-73ff70272897%2C89ed8ecb-a660-4ec7-ab1a-f2338410edec%2Ce35cd0b1-d655-4777-a03e-924b3dcd10b1%2Ccdbbafc4-42ba-4261-b0b7-85ddc95cd8d8%2C18123cfb-5973-49aa-8b88-08ce1547f278%2Cd168a18c-9119-4531-a288-8675eea93da5%2C977bf1ce-8ba9-4e07-998d-f87c7d44ba47
 
-        if "date" not in result_set or not result_set["date"]:
-            return item
+        item = MediaItem(title, url, media_type=mediatype.EPISODE)
+        item.description = description or ""
 
-        data_time = result_set["date"]
-        date_str = data_time.split(" ")[0]
-        time_stamp = DateHelper.get_date_from_string(date_str, "%Y-%m-%d")
-        item.set_date(*time_stamp[0:6])
+        levels = result_set.get("levels")
+        if levels:
+            item.description = "Levels: {}[CR][CR]{}".format(", ".join(levels), item.description)
+
+        self.__set_date(date_value, item)
         return item
 
     def update_video_item(self, item):
@@ -190,18 +196,30 @@ class Channel(chn_class.Channel):
 
         # now the mediaurl is derived. First we try WMV
         data = UriHandler.open(item.url)
-
-        urls = Regexer.do_regex(r'<a[^"]+href="([^"]+.(?:wmv|mp4))"[^>]*>\W*(High|Medium|Mid|Low|MP4)', data)
-        for url in urls:
-            if url[1].lower() == "high":
-                bitrate = 2000
-            elif url[1].lower() == "medium" or url[1].lower() == "mid":
-                bitrate = 1200
-            elif url[1].lower() == "low" or url[1].lower() == "mp4":
-                bitrate = 200
-            else:
-                bitrate = 0
-            item.add_stream(HtmlEntityHelper.convert_html_entities(url[0]), bitrate)
-
-        item.complete = True
+        json_data = JsonHelper(data)
+        item_data = json_data.get_value(0, "entry")
+        video_data = item_data["publicVideo"]
+        hls = video_data.get("adaptiveVideoUrl")
+        high = video_data.get("highQualityVideoUrl")
+        medium = video_data.get("mediumQualityVideoUrl")
+        low = video_data.get("lowQualityVideoUrl")
+        if hls and False:
+            pass
+        else:
+            if low:
+                item.add_stream(low, bitrate=400)
+            if medium:
+                item.add_stream(medium, bitrate=1000)
+            if high:
+                item.add_stream(high, bitrate=1400)
+        item.complete = item.has_streams()
         return item
+
+    def __set_date(self, date_value, item):
+        # # '2021-11-23T22:16:00Z'
+        if date_value:
+            date_value = date_value.rsplit(".", 1)[0]
+            date_value = date_value.replace("Z", "")
+            time_stamp = DateHelper.get_date_from_string(date_value, "%Y-%m-%dT%H:%M:%S")
+            item.set_date(*time_stamp[0:6])
+        pass

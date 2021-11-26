@@ -12,3 +12,4 @@ _None_
 * Fixed: Some RTV Utrecht video's did not play.
 * Fixed: Apple Movie Trailers failed do to missing meta data (Fixes #1575).
 * Fixed: RTV Utrecht moved to Regio Groei platform.
+* Fixed: Microsoft Channel 9 / Learn channel (Fixes 1574).

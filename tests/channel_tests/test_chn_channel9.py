@@ -1,6 +1,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-import unittest
-
 from . channeltest import ChannelTest
 
 
@@ -15,6 +13,18 @@ class TestChannel9Channel(ChannelTest):
     def test_channel_main_list(self):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 6)
+
+    def test_video_listing(self):
+        url = "https://docs.microsoft.com/api/hierarchy/shows/all-around-azure/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
+        self._test_folder_url(url, expected_results=2)
+
+    def test_video_listing_with_levels(self):
+        url = "https://docs.microsoft.com/api/hierarchy/shows/learn-live/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
+        self._test_folder_url(url, expected_results=2)
+
+    def test_update_video(self):
+        url = "https://docs.microsoft.com/api/video/public/v1/entries/batch?ids=8572a0e6-75cb-4608-b7d0-e377671fdd09"
+        self._test_video_url(url)
 
     # def test_channel_shows_folder(self):
     #     url = "https://channel9.msdn.com/Browse/AllShows?sort=atoz"
