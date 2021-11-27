@@ -18,6 +18,10 @@ class TestChannel9Channel(ChannelTest):
         url = "https://docs.microsoft.com/api/hierarchy/shows/all-around-azure/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
         self._test_folder_url(url, expected_results=2)
 
+    def test_video_listing_30_plus(self):
+        url = "https://docs.microsoft.com/api/hierarchy/shows/intro-to-python-development/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
+        self._test_folder_url(url, expected_results=31)
+
     def test_video_listing_with_levels(self):
         url = "https://docs.microsoft.com/api/hierarchy/shows/learn-live/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
         self._test_folder_url(url, expected_results=2)

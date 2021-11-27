@@ -41,11 +41,12 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://docs.microsoft.com/api/hierarchy/shows/", json=True,
                               name="Video listings",
+                              preprocessor=self.fetch_video_pages,
                               parser=["episodes"], creator=self.create_video_item)
 
         self._add_data_parser("https://docs.microsoft.com/api/video", updater=self.update_video_item)
 
-        self.__episode_regex = r"^(.+) \[(\d+) of (\d+)\]"
+        self.__episode_regex = r"^(.+) \[(\d+) of (\d+)\](?: (.+))?$"
         # =========================== Actual channel setup STOPS here ==============================
         return
 
@@ -122,6 +123,35 @@ class Channel(chn_class.Channel):
         self.__set_date(result_set.get("latest_episode_upload_at"), item)
         return item
 
+    def fetch_video_pages(self, data):
+        """ Fetches the pages for the mainlist
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        data = JsonHelper(data)
+        max_items = data.get_value("totalCount")
+        items = data.get_value("episodes")
+        if len(items) == max_items:
+            return data, []
+
+        page_number = 1
+
+        # we limit at 5 pages of 30 items
+        while len(items) < max_items and len(items) < 5 * 30:
+            url = self.parentItem.url.replace("page=0", "page={}".format(page_number))
+            raw_data = UriHandler.open(url)
+            json_data = JsonHelper(raw_data)
+            items += json_data.get_value("episodes", fallback=[])
+            max_items = json_data.get_value("totalCount")
+            page_number += 1
+
+        return data, []
+
     def create_video_item(self, result_set):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
@@ -151,6 +181,9 @@ class Channel(chn_class.Channel):
                 episode = int(episode_info[0][1])
                 season = "1"  # int(episode_info[0][2])
                 title = episode_info[0][0]
+                if episode_info[0][3]:
+                    title = "{} - {}".format(episode_info[0][0], episode_info[0][3])
+
                 # title = "{:02d} of {:02d} - {}".format(episode, season, title)
 
         description = result_set["description"]
