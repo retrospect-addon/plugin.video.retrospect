@@ -26,6 +26,13 @@ class TestChannel9Channel(ChannelTest):
         url = "https://docs.microsoft.com/api/video/public/v1/entries/batch?ids=8572a0e6-75cb-4608-b7d0-e377671fdd09"
         self._test_video_url(url)
 
+    def test_video_list_with_episodes(self):
+        url = "https://docs.microsoft.com/api/hierarchy/shows/xamarin-101/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
+        items = self._test_folder_url(url, expected_results=5)
+        for item in items:
+            self.assertIsNotNone(item.season)
+            self.assertIsNotNone(item.episode)
+
     # def test_channel_shows_folder(self):
     #     url = "https://channel9.msdn.com/Browse/AllShows?sort=atoz"
     #     self._test_folder_url(url, expected_results=16, exact_results=True)
