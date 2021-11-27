@@ -6,6 +6,7 @@ from resources.lib.parserdata import ParserData
 from resources.lib import chn_class, contenttype, mediatype
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.logger import Logger
+from resources.lib.regexer import Regexer
 from resources.lib.urihandler import UriHandler
 
 
@@ -44,20 +45,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://docs.microsoft.com/api/video", updater=self.update_video_item)
 
-        # folder_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*(?:<div[^>]*>\W*<time[^>]+datetime="(?<date>[^"]+)"[^>]*>[^>]+>\W*</div>)?\W*</a>\W*</article'
-        # folder_regex = Regexer.from_expresso(folder_regex)
-        # self._add_data_parser("*", parser=folder_regex, creator=self.create_folder_item)
-        #
-        # page_regex = r'<a href="([^"]+page=)(\d+)"'
-        # page_regex = Regexer.from_expresso(page_regex)
-        # self.pageNavigationRegexIndex = 1
-        # self._add_data_parser("*", parser=page_regex, creator=self.create_page_item)
-        #
-        # video_regex = r'<a[^>]+href="(?<url>[^"]+)"[^>]*>\W*<img[^>]+src="(?<thumburl>[^"]+)"[^>]*alt="(?<title>[^"]+)"[^>]*>\W*<tim'
-        # video_regex = Regexer.from_expresso(video_regex)
-        # self._add_data_parser("*", parser=video_regex, creator=self.create_video_item,
-        #                       updater=self.update_video_item)
-
+        self.__episode_regex = r"^(.+) \[(\d+) of (\d+)\]"
         # =========================== Actual channel setup STOPS here ==============================
         return
 
@@ -155,6 +143,16 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
         title = result_set["title"]
+        episode = None
+        season = None
+        if "[" in title:
+            episode_info = Regexer.do_regex(self.__episode_regex, title)
+            if episode_info:
+                episode = int(episode_info[0][1])
+                season = "1"  # int(episode_info[0][2])
+                title = episode_info[0][0]
+                # title = "{:02d} of {:02d} - {}".format(episode, season, title)
+
         description = result_set["description"]
         date_value = result_set["uploadDate"]
         url = "{}/api/video/public/v1/entries/batch?ids={}".format(self.baseUrl, result_set["entryId"])
@@ -162,6 +160,8 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, url, media_type=mediatype.EPISODE)
         item.description = description or ""
+        if season and episode:
+            item.set_season_info(season, episode)
 
         levels = result_set.get("levels")
         if levels:
