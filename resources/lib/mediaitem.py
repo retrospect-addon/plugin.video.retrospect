@@ -32,6 +32,7 @@ class MediaItem:
 
     """
 
+    LabelEpisode = "Episode"
     LabelTrackNumber = "TrackNumber"
     LabelDuration = "Duration"
     LabelTvShowTitle = "TVShowTitle"

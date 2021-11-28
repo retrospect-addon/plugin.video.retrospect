@@ -274,6 +274,10 @@ class FolderAction(AddonAction):
             if has_tracks:
                 sort_methods.insert(0, xbmcplugin.SORT_METHOD_TRACKNUM)
 
+            has_episodes = any([i for i in items if i.has_info_label(MediaItem.LabelEpisode)])
+            if has_episodes:
+                sort_methods.insert(0, xbmcplugin.SORT_METHOD_EPISODE)
+
         # Actually add them
         Logger.debug("Sorting methods: %s", sort_methods)
         for sort_method in sort_methods:
