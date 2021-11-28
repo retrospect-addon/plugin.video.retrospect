@@ -245,6 +245,18 @@ class MediaItem:
 
         self.__infoLabels[label] = value
 
+    def has_info_label(self, label):
+        """ Indication of a specific info label is present
+
+        :param str label:   The info label to check.
+
+        :returns: In boolean whether the info label exists.
+        :rtype: bool
+
+        """
+
+        return label in self.__infoLabels
+
     def set_artwork(self, icon=None, thumb=None, fanart=None, poster=None):
         """ Set the artwork for this MediaItem.
 

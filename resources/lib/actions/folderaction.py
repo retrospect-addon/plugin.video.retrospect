@@ -71,7 +71,7 @@ class FolderAction(AddonAction):
             episode_title = selected_item.title if selected_item and selected_item.content_type == contenttype.EPISODES else None
             for media_item in media_items:  # type: MediaItem
                 self.__update_artwork(media_item, self.__channel, use_thumbs_as_fanart)
-                if episode_title:
+                if episode_title and not media_item.has_info_label(MediaItem.LabelTvShowTitle):
                     media_item.set_info_label(MediaItem.LabelTvShowTitle, episode_title)
 
                 if media_item.is_folder:
