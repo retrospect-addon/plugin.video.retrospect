@@ -68,8 +68,11 @@ class FolderAction(AddonAction):
             kodi_items = []
 
             use_thumbs_as_fanart = AddonSettings.use_thumbs_as_fanart()
+            episode_title = selected_item.title if selected_item and selected_item.content_type == contenttype.EPISODES else None
             for media_item in media_items:  # type: MediaItem
                 self.__update_artwork(media_item, self.__channel, use_thumbs_as_fanart)
+                if episode_title:
+                    media_item.set_info_label(MediaItem.LabelTvShowTitle, episode_title)
 
                 if media_item.is_folder:
                     action_value = action.LIST_FOLDER

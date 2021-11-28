@@ -34,6 +34,7 @@ class MediaItem:
 
     LabelTrackNumber = "TrackNumber"
     LabelDuration = "Duration"
+    LabelTvShowTitle = "TVShowTitle"
     ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
     #noinspection PyShadowingBuiltins
@@ -447,7 +448,7 @@ class MediaItem:
         if self.media_type in mediatype.VIDEO_TYPES:
             info_labels["Plot"] = description
         if self.tv_show_title:
-            info_labels["TVShowTitle"] = self.tv_show_title
+            info_labels[MediaItem.LabelTvShowTitle] = self.tv_show_title
 
         # now create the Kodi item
         item = kodifactory.list_item(name or "<unknown>", self.__date)
