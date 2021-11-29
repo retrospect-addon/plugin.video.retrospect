@@ -188,6 +188,10 @@ class Channel(chn_class.Channel):
 
         description = result_set["description"]
         date_value = result_set["uploadDate"]
+
+        if "entryId" not in result_set:
+            return None
+
         url = "{}/api/video/public/v1/entries/batch?ids={}".format(self.baseUrl, result_set["entryId"])
         # https://docs.microsoft.com/api/video/public/v1/entries/batch?ids=0998ca55-c69f-468e-831d-176cde7e8a78%2C5cb5e481-e64d-4400-bb2d-2f8a6284bd62%2Cc5ccb371-39a6-474c-a9d7-bb8b0fa7567c%2C8b11149d-acaa-4a4b-a50d-5eb010933e5d%2C9fb9f5ed-aca9-48b9-b5c6-298fbbce117b%2Cb1a2aa31-6157-486d-8a2c-73ff70272897%2C89ed8ecb-a660-4ec7-ab1a-f2338410edec%2Ce35cd0b1-d655-4777-a03e-924b3dcd10b1%2Ccdbbafc4-42ba-4261-b0b7-85ddc95cd8d8%2C18123cfb-5973-49aa-8b88-08ce1547f278%2Cd168a18c-9119-4531-a288-8675eea93da5%2C977bf1ce-8ba9-4e07-998d-f87c7d44ba47
 

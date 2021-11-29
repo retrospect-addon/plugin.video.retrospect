@@ -32,6 +32,7 @@ class MediaItem:
 
     """
 
+    LabelEpisode = "Episode"
     LabelTrackNumber = "TrackNumber"
     LabelDuration = "Duration"
     LabelTvShowTitle = "TVShowTitle"
@@ -273,11 +274,12 @@ class MediaItem:
         self.fanart = fanart or self.fanart
         self.poster = poster or self.poster
 
-    def set_season_info(self, season, episode):
+    def set_season_info(self, season, episode, tv_show_title=None):
         """ Set season and episode information
 
         :param str|int season:  The Season Number
         :param str|int episode: The Episode Number
+        :param str|None: The name of the TV Show
 
         """
 
@@ -290,6 +292,9 @@ class MediaItem:
 
         self.episode = int(episode)
         self.__infoLabels["Episode"] = self.episode
+
+        if tv_show_title:
+            self.__infoLabels[MediaItem.LabelTvShowTitle] = tv_show_title
         return
 
     def set_expire_datetime(self, timestamp, year=0, month=0, day=0, hour=0, minutes=0, seconds=0):
