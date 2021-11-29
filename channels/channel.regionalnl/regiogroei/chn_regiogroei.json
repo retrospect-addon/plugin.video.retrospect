@@ -1,0 +1,18 @@
+{
+  "channels": [
+    {
+      "guid": "BD113683-233A-46EB-962D-98B3C02EB738",
+      "name": "RTV Utrecht",
+      "description": {
+        "en": "Video on demand for RTV Utrecht.\n\nRTV Utrecht is the regional broadcaster for the province of Utrecht and consists of RTV Utrecht, Radio M Utrecht, UStad & Bingo FM.",
+        "nl": "RTV Utrecht Uitzendinggemist.\n\nRTV Utrecht is de regionale omroep voor de provincie Utrecht en bestaat uit RTV Utrecht, Radio M Utrecht, UStad & Bingo FM."
+      },
+      "icon": "rtvutrechtlarge.png",
+      "category": "Regional",
+      "channelcode": "rtvutrecht",
+      "sortorder": 100,
+      "language": "nl",
+      "fanart": "rtvutrechtfanart.png"
+    }
+  ]
+}
