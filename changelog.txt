@@ -6,7 +6,7 @@ t.b.d.
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Added: Set the TV Show info label for episodes (Fixes #1577).
 
 [B]Channel related[/B]
 * Fixed: Some RTV Utrecht video's did not play.
