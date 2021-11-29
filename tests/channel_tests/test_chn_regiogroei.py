@@ -29,8 +29,8 @@ class TestRegioGroei(ChannelTest):
         self._test_video_url(url)
 
     def test_day(self):
-        today = datetime.datetime.now()
-        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        today = datetime.datetime.now() - datetime.timedelta(days=1)
+        tomorrow = today + datetime.timedelta(days=1)
         url = "https://api.regiogroei.cloud/programs/rtv-utrecht?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}".\
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
