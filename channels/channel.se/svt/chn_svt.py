@@ -646,10 +646,7 @@ class Channel(chn_class.Channel):
                     return item
 
                 item.set_season_info(episode_info[1], episode_info[4])
-                item.name = "s{:02}e{:02} - {}".format(
-                    int(episode_info[1]),
-                    int(episode_info[4]),
-                    result_set.get("nameRaw", item.name) or item.name)
+                item.name = result_set.get("nameRaw", item.name) or item.name
             except:
                 Logger.warning("Failed to set season info: %s", season_info, exc_info=True)
 
