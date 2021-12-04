@@ -13,3 +13,4 @@ _None_
 * Fixed: Apple Movie Trailers failed do to missing meta data (Fixes #1575).
 * Fixed: RTV Utrecht moved to Regio Groei platform.
 * Fixed: Microsoft Channel 9 / Learn channel (Fixes 1574).
+* Fixed: RTV Oost mainlist parsing.
