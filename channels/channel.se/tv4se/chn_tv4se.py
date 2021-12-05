@@ -419,25 +419,29 @@ class Channel(chn_class.Channel):
         season = result_set.get("season", 0)
         episode = result_set.get("episode", 0)
         is_episodic = 0 < season < 1900 and not episode == 0
-        if is_episodic:
+        is_live = result_set.get("live", False)
+        if is_episodic and not is_live:
             episode_text = None
             if " del " in name:
                 name, episode_text = name.split(" del ", 1)
                 episode_text = episode_text.lstrip("0123456789")
 
+            tv_show_title = name    
+
             if episode_text:
                 episode_text = episode_text.lstrip(" -")
-                name = "{} - s{:02d}e{:02d} - {}".format(name, season, episode, episode_text)
+                name = episode_text
             else:
-                name = "{} - s{:02d}e{:02d}".format(name, season, episode)
+                name = "{} {}".format("Avsnitt", episode)
 
         item = MediaItem(name, url)
         item.description = result_set["description"]
         if item.description is None:
             item.description = item.name
 
-        if is_episodic:
-            item.set_season_info(season, episode)
+        if is_episodic and not is_live:
+            item.set_season_info(season, episode, tv_show_title)
+            item.description = "[B]{}[/B][CR][CR]{}".format(tv_show_title,result_set["description"])
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
         expire_in_days = result_set.get("daysLeftInService", 0)
