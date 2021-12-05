@@ -426,7 +426,7 @@ class Channel(chn_class.Channel):
                 name, episode_text = name.split(" del ", 1)
                 episode_text = episode_text.lstrip("0123456789")
 
-            tvshow_title = name    
+            tv_show_title = name    
 
             if episode_text:
                 episode_text = episode_text.lstrip(" -")
@@ -440,9 +440,8 @@ class Channel(chn_class.Channel):
             item.description = item.name
 
         if is_episodic and not is_live:
-            item.set_season_info(season, episode)
-            item.set_info_label("tvshowtitle", tvshow_title)
-            item.description = "[B]{}[/B][CR][CR]{}".format(tvshow_title,result_set["description"])
+            item.set_season_info(season, episode, tv_show_title)
+            item.description = "[B]{}[/B][CR][CR]{}".format(tv_show_title,result_set["description"])
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
         expire_in_days = result_set.get("daysLeftInService", 0)
