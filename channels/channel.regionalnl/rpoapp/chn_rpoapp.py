@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
         if not data:
             return "[]", items
 
-        json_data = Regexer.do_regex(r"setupBroadcastArchive\('Tv',\s*([^;]+)\);", data)
+        json_data = Regexer.do_regex(r"setupBroadcastArchive\('Tv',\s*(.+?)\);\w+", data)
         if isinstance(json_data, (tuple, list)) and len(json_data) > 0:
             Logger.debug("Pre-Processing finished")
             return json_data[0], items
