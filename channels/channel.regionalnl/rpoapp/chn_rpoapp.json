@@ -27,20 +27,6 @@
       "sortorder": 100,
       "language": "nl",
       "fanart": "rtvoostfanart.jpg"
-    },
-    {
-      "guid": "8B4A56C7-44D5-40C2-A890-2287C4C1D74B",
-      "name": "Omroep Zeeland",
-      "description": {
-        "en": "Omroep Zeeland Uitzendinggemist.\n\nOmroep Zeeland is the regional broadcaster for the province of Zeeland. They are active on radio, television and internet.",
-        "nl": "Video on demand for Omroep Zeeland.\n\nOmroep Zeeland is de regionale omroep voor de provincie Zeeland, actief op radio, televisie en internet."
-      },
-      "icon": "omroepzeelandlarge.png",
-      "category": "Regional",
-      "channelcode": "omroepzeeland",
-      "sortorder": 100,
-      "language": "nl",
-      "fanart": "omroepzeelandfanart.jpg"
     }
   ]
 }

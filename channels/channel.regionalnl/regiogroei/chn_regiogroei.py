@@ -10,6 +10,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.logger import Logger
 from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 
 
@@ -31,18 +32,30 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         self.liveUrl = None  # : the live url if present
+        self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs"
+        self.baseUrl = "https://api.regiogroei.cloud"
+        self.__timezone = pytz.timezone("Europe/Amsterdam")
         self.httpHeaders = {
             "x-groei-layout": "wide",
             "x-groei-platform": "web",
-            "accept": "application/vnd.groei.utrecht+json;v=2.0"
+            # "accept": "application/vnd.groei.utrecht+json;v=2.0"
         }
-        self.__timezone = pytz.timezone("Europe/Amsterdam")
 
         if self.channelCode == "rtvutrecht":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?utrecht"
             self.noImage = "rtvutrechtimage.png"
-            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs"
-            self.baseUrl = "https://api.regiogroei.cloud"
-            self.liveUrl = "https://utrecht.rpoapp.nl/v02/livestreams/AndroidTablet.json"
+            self.videoUrlFormat = "https://rtvutrecht.bbvms.com/p/regiogroei_utrecht_web_videoplayer/c/{}.json"
+            self.recentSlug = "rtvutrecht"
+            self.liveUrl = "https://rtvutrecht.bbvms.com/p/regiogroei_utrecht_web_videoplayer/c/3742011.json"
+            self.httpHeaders["accept"] = "application/vnd.groei.utrecht+json;v=2.0"
+
+        elif self.channelCode == "omroepzeeland":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?zeeland"
+            self.noImage = "omroepzeelandimage.png"
+            self.videoUrlFormat = "https://omroepzeeland.bbvms.com/p/regiogroei_zeeland_web_videoplayer/c/sourceid_string:{}.json"
+            self.recentSlug = "omroep-zeeland-tv"
+            self.liveUrl = "https://omroepzeeland.bbvms.com/p/regiogroei_zeeland_web_videoplayer/c/3745936.json"
+            self.httpHeaders["accept"] = "application/vnd.groei.zeeland+json;v=2.0"
 
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode,))
@@ -60,9 +73,10 @@ class Channel(chn_class.Channel):
                               parser=["components", ("type", "episode-list", 0), "items"],
                               creator=self.create_video_item)
 
-        self._add_data_parser("https://rtvutrecht.bbvms.com/p/", updater=self.update_video_item)
+        self._add_data_parser("*", updater=self.update_video_item)
 
-        self._add_data_parser("https://api.regiogroei.cloud/programs/rtv-utrecht?startDate", json=True,
+        self._add_data_parser("https://api.regiogroei.cloud/programs/.+?startDate", json=True,
+                              match_type=ParserData.MatchRegex,
                               name="TV Guide parser",
                               parser=[], creator=self.create_epg_item)
 
@@ -99,6 +113,7 @@ class Channel(chn_class.Channel):
             content_type=contenttype.EPISODES)
         recent.complete = True
         recent.dontGroup = True
+
         items.append(recent)
         return data, items
 
@@ -125,6 +140,7 @@ class Channel(chn_class.Channel):
         days = LanguageHelper.get_days_list()
         for i in range(0, 7, 1):
             air_date = today - datetime.timedelta(i)
+            day_after = air_date + datetime.timedelta(days=1)
             Logger.trace("Adding item for: %s", air_date)
 
             # Determine a nice display date
@@ -137,10 +153,12 @@ class Channel(chn_class.Channel):
             #     day = LanguageHelper.get_localized_string(LanguageHelper.DayBeforeYesterday)
             title = "{:04d}-{:02d}-{:02d} - {}".format(air_date.year, air_date.month, air_date.day, day)
 
-            url = "{}/programs/rtv-utrecht?startDate={:04d}-{:02d}-{:02d}&endDate=2021-11-25"\
+            url = "{}/programs/{}?startDate={:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}"\
                 .format(
                     self.baseUrl,
-                    air_date.year, air_date.month, air_date.day
+                    self.recentSlug,
+                    air_date.year, air_date.month, air_date.day,
+                    day_after.year, day_after.month, day_after.day
                 )
 
             extra = FolderItem(title, url, content_type=contenttype.EPISODES)
@@ -148,6 +166,14 @@ class Channel(chn_class.Channel):
             extra.dontGroup = True
             extra.set_date(air_date.year, air_date.month, air_date.day, text="")
             items.append(extra)
+
+        # Live
+        if self.liveUrl:
+            title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
+            live = MediaItem(title, self.liveUrl, media_type=mediatype.VIDEO)
+            live.HttpHeaders = self.httpHeaders
+            live.isLive = True
+            items.append(live)
 
         Logger.debug("Pre-Processing finished")
         return data, items
@@ -214,7 +240,7 @@ class Channel(chn_class.Channel):
 
         program_title = result_set["programTitle"]
         episode_title = result_set["episodeTitle"]
-        url = "https://rtvutrecht.bbvms.com/p/regiogroei_utrecht_web_videoplayer/c/{}.json".format(result_set["sourceId"])
+        url = self.videoUrlFormat.format(result_set["sourceId"])
 
         item = MediaItem(episode_title or program_title, url, media_type=mediatype.EPISODE)
         item.description = result_set.get("synopsis")
@@ -262,12 +288,20 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.open(item.url)
         json_data = JsonHelper(data)
+        clip_data = json_data.get_value("clipData")
+        if not clip_data:
+            Logger.debug("Retrying without 'sourceid_string:'")
+            data = UriHandler.open(item.url.replace("sourceid_string:", ""))
+            json_data = JsonHelper(data)
+
         base_url = json_data.get_value("publicationData", "defaultMediaAssetPath")
         clip_data = json_data.get_value("clipData", "assets")
 
         for clip in clip_data:
-            video_path = clip["src"]
-            video_url = "{}{}".format(base_url, video_path)
+            video_url = clip["src"]
+            if not video_url.startswith("http"):
+                video_url = "{}{}".format(base_url, video_url)
+
             bitrate = clip["bandwidth"]
             if bitrate.lower() == "auto":
                 bitrate = 3600
@@ -276,9 +310,13 @@ class Channel(chn_class.Channel):
             # Should we resolve the actual urls?
             # _, video_url = UriHandler.header(video_url)
 
-            if media_type.startswith("mp4_"):
+            if "m3u8" in video_url:
+                item.complete = M3u8.update_part_with_m3u8_streams(item, video_url)
+
+            elif media_type.startswith("mp4_"):
                 item.add_stream(video_url, bitrate=bitrate)
                 item.complete = True
+
             else:
                 Logger.error("Unsupported stream for %s from url: %s", item, video_url)
         return item

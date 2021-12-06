@@ -39,12 +39,6 @@ class Channel(chn_class.Channel):
             self.baseUrl = "https://www.rijnmond.nl"
             self.liveUrl = "https://rijnmond.rpoapp.nl/v01/livestreams/AndroidTablet.json"
 
-        elif self.channelCode == "omroepzeeland":
-            self.noImage = "omroepzeelandimage.png"
-            self.mainListUri = "https://www.omroepzeeland.nl/tvgemist"
-            self.baseUrl = "https://www.omroepzeeland.nl"
-            self.liveUrl = "https://zeeland.rpoapp.nl/v01/livestreams/AndroidTablet.json"
-
         elif self.channelCode == "rtvoost":
             self.noImage = "rtvoostimage.png"
             self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
@@ -105,7 +99,6 @@ class Channel(chn_class.Channel):
 
         #===============================================================================================================
         # Test cases:
-        #   Omroep Zeeland: M3u8 playist
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
