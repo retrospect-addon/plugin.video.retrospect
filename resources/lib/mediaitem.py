@@ -294,7 +294,7 @@ class MediaItem:
         self.__infoLabels["Episode"] = self.episode
 
         if tv_show_title:
-            self.__infoLabels[MediaItem.LabelTvShowTitle] = tv_show_title
+            self.tv_show_title = tv_show_title
         return
 
     def set_expire_datetime(self, timestamp, year=0, month=0, day=0, hour=0, minutes=0, seconds=0):
