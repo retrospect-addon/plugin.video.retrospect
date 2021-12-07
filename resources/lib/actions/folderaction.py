@@ -297,7 +297,10 @@ class FolderAction(AddonAction):
 
         bread_crumb = None
         if selected_item is not None:
-            bread_crumb = selected_item.name
+            if selected_item.has_info_label(MediaItem.LabelTvShowTitle):
+                bread_crumb = "{} / {}".format(selected_item.get_info_label(MediaItem.LabelTvShowTitle), selected_item.name)
+            else:
+                bread_crumb = selected_item.name
         elif self.__channel is not None:
             bread_crumb = channel.channelName
 
