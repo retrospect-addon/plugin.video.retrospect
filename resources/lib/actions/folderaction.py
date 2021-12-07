@@ -308,7 +308,7 @@ class FolderAction(AddonAction):
 
         bread_crumb = None
         if selected_item is not None:
-            if selected_item.tv_show_title:
+            if selected_item.tv_show_title and selected_item.tv_show_title != selected_item.name:
                 bread_crumb = "{} / {}".format(selected_item.tv_show_title, selected_item.name)
             else:
                 bread_crumb = selected_item.name
