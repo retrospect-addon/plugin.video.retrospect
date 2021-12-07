@@ -798,7 +798,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(url)
         json_data = JsonHelper(data)
 
-	    # Get the tv_show_title
+        # Get the tv_show_title
         global tv_show_title_data
         tv_show_title_data = json_data.get_value("data", "listablesBySlug", 0, "name")
 
