@@ -207,9 +207,8 @@ class Channel(chn_class.Channel):
             new_item.metaData[self.__filter_subheading] = include_subheading
             items.append(new_item)
 
-        genre_tags = "\a.: {}/{} :.".format(
-            LanguageHelper.get_localized_string(LanguageHelper.Genres),
-            LanguageHelper.get_localized_string(LanguageHelper.Tags).lower()
+        genre_tags = "\a.: {} :.".format(
+            LanguageHelper.get_localized_string(LanguageHelper.Genres)
         )
 
         genre_url = self.__get_api_url("AllGenres", "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c", {})
@@ -645,8 +644,10 @@ class Channel(chn_class.Channel):
                 if not len(episode_info) == 5:
                     return item
 
-                item.set_season_info(episode_info[1], episode_info[4])
+                tv_show_title = tv_show_title_data
+                item.set_season_info(episode_info[1], episode_info[4], tv_show_title)
                 item.name = result_set.get("nameRaw", item.name) or item.name
+                item.description = "[B]{}[/B][CR][CR]{}".format(tv_show_title, result_set.get("longDescription"))
             except:
                 Logger.warning("Failed to set season info: %s", season_info, exc_info=True)
 
@@ -796,6 +797,10 @@ class Channel(chn_class.Channel):
         url = self.__get_api_url("TitlePage", hash_value, variables)
         data = UriHandler.open(url)
         json_data = JsonHelper(data)
+
+	    # Get the tv_show_title
+        global tv_show_title_data
+        tv_show_title_data = json_data.get_value("data", "listablesBySlug", 0, "name")
 
         # Get the parent thumb info
         parent_item_thumb_data = json_data.get_value("data", "listablesBySlug", 0, "image")
