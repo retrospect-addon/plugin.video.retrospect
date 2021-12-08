@@ -7,6 +7,7 @@ _None_
 
 [B]GUI/Settings/Language related[/B]
 * Added: Set the TV Show info label for episodes (Fixes #1577).
+* Added: TV Show label to bread crumbs (See #1582).
 
 [B]Channel related[/B]
 * Fixed: Some RTV Utrecht video's did not play.

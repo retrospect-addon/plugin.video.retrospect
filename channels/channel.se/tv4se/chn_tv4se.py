@@ -4,9 +4,9 @@
 import pytz
 import datetime
 
-from resources.lib import chn_class, mediatype
+from resources.lib import chn_class, mediatype, contenttype
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.mediaitem import MediaItem
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.jsonhelper import JsonHelper
 
@@ -311,7 +311,8 @@ class Channel(chn_class.Channel):
         program_id = json["nid"]
         url = self.__get_api_query('{program(nid:"%s"){name,description,videoPanels{id,name,subheading,assetType}}}' % (program_id,))
 
-        item = MediaItem(title, url)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        item.tv_show_title = title
         item.description = result_set.get("description", None)
 
         item.thumb = result_set.get("image")
@@ -347,7 +348,7 @@ class Channel(chn_class.Channel):
         title = result_set["name"]
         folder_id = result_set["id"]
         url = self.__get_api_folder_url(folder_id)
-        item = MediaItem(title, url)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES)
         item.metaData["offset"] = 0
         item.metaData["folder_id"] = folder_id
         return item
@@ -377,7 +378,7 @@ class Channel(chn_class.Channel):
         elif title.startswith("Nyheter"):
             title = LanguageHelper.get_localized_string(LanguageHelper.LatestNews)
 
-        item = MediaItem(title, "swipe://{}".format(HtmlEntityHelper.url_encode(title)))
+        item = FolderItem(title, "swipe://{}".format(HtmlEntityHelper.url_encode(title)), content_type=contenttype.VIDEOS)
         for card in result_set["cards"]:
             child = self.create_api_typed_item(card)
             if not child:
@@ -426,8 +427,6 @@ class Channel(chn_class.Channel):
                 name, episode_text = name.split(" del ", 1)
                 episode_text = episode_text.lstrip("0123456789")
 
-            tv_show_title = name    
-
             if episode_text:
                 episode_text = episode_text.lstrip(" -")
                 name = episode_text
@@ -440,8 +439,7 @@ class Channel(chn_class.Channel):
             item.description = item.name
 
         if is_episodic and not is_live:
-            item.set_season_info(season, episode, tv_show_title)
-            item.description = "[B]{}[/B][CR][CR]{}".format(tv_show_title,result_set["description"])
+            item.set_season_info(season, episode)
 
         # premium_expire_date_time=2099-12-31T00:00:00+01:00
         expire_in_days = result_set.get("daysLeftInService", 0)
@@ -660,7 +658,7 @@ class Channel(chn_class.Channel):
         for name in extras:
             title = name
             url, date, is_live = extras[name]   # type: str, datetime.datetime, bool
-            item = MediaItem(title, url)
+            item = FolderItem(title, url, content_type=contenttype.FILES)
             item.dontGroup = True
             item.complete = True
             item.HttpHeaders = self.httpHeaders
