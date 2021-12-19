@@ -1,6 +1,6 @@
-[B]Retrospect v5.4.9 - Changelog - 2021-11-07[/B]
+[B]Retrospect v5.4.10 - Changelog - 2021-12-19[/B]
 
-t.b.d.
+Updated a number of channels and improved the handling for episodes and seasons. Both in sorting and in the bread crumbs this now works better.
 
 [B]Framework related[/B]
 _None_

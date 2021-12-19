@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.4.9+matrix.1"
+        version="5.4.10+matrix.1"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -117,20 +117,26 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.4.9 - Changelog - 2021-11-07[/B]
+        <news>[B]Retrospect v5.4.10 - Changelog - 2021-12-19[/B]
 
-A number of minor fixes for some channels.
+Updated a number of channels and improved the handling for episodes and seasons. Both in sorting and in the bread crumbs this now works better.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Added: Set the TV Show info label for episodes (Fixes #1577).
+* Added: TV Show label to bread crumbs (See #1582).
 
 [B]Channel related[/B]
-* Fixed: &#x27;Next Page&#x27; item in NPO channel was grouped in some cases.
-* Fixed: MTV.nl and MTV.de broken.
-* Fixed: UR Play broke due to site changes (Fixes #1569).
+* Fixed: Some RTV Utrecht video&#x27;s did not play.
+* Fixed: Apple Movie Trailers failed do to missing meta data (Fixes #1575).
+* Fixed: RTV Utrecht moved to Regio Groei platform.
+* Fixed: Omroep Zeeland moved to Regio Groei platform.
+* Fixed: Microsoft Channel 9 / Learn channel (Fixes 1574).
+* Fixed: RTV Oost mainlist parsing.
+* Fixed: Changed The Slam Radio url to a working one, and Remove SlamTV!
+
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
