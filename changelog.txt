@@ -16,3 +16,4 @@ _None_
 * Fixed: Omroep Zeeland moved to Regio Groei platform.
 * Fixed: Microsoft Channel 9 / Learn channel (Fixes 1574).
 * Fixed: RTV Oost mainlist parsing.
+* Fixed: Changed The Slam Radio url to a working one, and Remove SlamTV!
