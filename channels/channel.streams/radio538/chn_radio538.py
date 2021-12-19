@@ -250,7 +250,7 @@ class Channel(chn_class.Channel):
 
         items = []
 
-        slam_fm = MediaItem("Slam!", "https://19993.live.streamtheworld.com/SLAM_AAC.aac"
+        slam_fm = MediaItem("Slam!", "http://22553.live.streamtheworld.com/SLAM_MP3_SC"
                                         "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
                                         "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
