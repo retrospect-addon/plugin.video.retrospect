@@ -1,14 +1,18 @@
 [B]Retrospect v5.4.9 - Changelog - 2021-11-07[/B]
 
-A number of minor fixes for some channels.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Added: Set the TV Show info label for episodes (Fixes #1577).
+* Added: TV Show label to bread crumbs (See #1582).
 
 [B]Channel related[/B]
-* Fixed: 'Next Page' item in NPO channel was grouped in some cases.
-* Fixed: MTV.nl and MTV.de broken.
-* Fixed: UR Play broke due to site changes (Fixes #1569).
+* Fixed: Some RTV Utrecht video's did not play.
+* Fixed: Apple Movie Trailers failed do to missing meta data (Fixes #1575).
+* Fixed: RTV Utrecht moved to Regio Groei platform.
+* Fixed: Omroep Zeeland moved to Regio Groei platform.
+* Fixed: Microsoft Channel 9 / Learn channel (Fixes 1574).
+* Fixed: RTV Oost mainlist parsing.
