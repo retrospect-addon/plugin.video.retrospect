@@ -14,3 +14,4 @@ _None_
 * Updated: Mark Single item sin SVT as `videos` (See #1579).
 * Changed: RTV Noord to Regio Groei.
 * Fixed: More default content types fixed (Fixes #1593).
+* Fixed: NPO EPG contained confusing episode and seasons info (Fixes #1590).

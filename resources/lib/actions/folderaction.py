@@ -272,7 +272,6 @@ class FolderAction(AddonAction):
             sort_methods.append(xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS)
         else:
             sort_methods.append(xbmcplugin.SORT_METHOD_LABEL)
-        sort_methods.append(xbmcplugin.SORT_METHOD_EPISODE)
         sort_methods.append(xbmcplugin.SORT_METHOD_UNSORTED)
 
         # And then the specialized ones ad default sort options

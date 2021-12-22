@@ -901,7 +901,9 @@ class Channel(chn_class.Channel):
 
         season = result_set.get("seasonNumber")
         episode = result_set.get("episodeNumber")
-        if bool(season) and bool(episode) and season < 100:
+
+        # Check for seasons but don't add then for EPG
+        if bool(season) and bool(episode) and season < 100 and not for_epg:
             item.set_season_info(season, episode)
             # TODO: setting it now is to messy. Perhaps we should make it configurable?
             # item.name = "s{0:02d}e{1:02d} - {2}".format(season, episode, item.name)
