@@ -684,7 +684,7 @@ class Channel(chn_class.Channel):
         url = '{}{}'.format(self.baseUrl, result_set['urls']['svtplay'])
 
         item = MediaItem(title, url)
-        item.media_type = mediatype.EPISODE
+        item.media_type = mediatype.VIDEO
         item.description = result_set.get('longDescription')
 
         image_info = result_set.get("image")
@@ -736,7 +736,7 @@ class Channel(chn_class.Channel):
             url = "{}{}".format(self.baseUrl, result_set['urls']['svtplay'])
 
         item = MediaItem(title, url)
-        item.media_type = mediatype.EPISODE
+        item.media_type = mediatype.VIDEO
         item.description = result_set.get('longDescription')
         item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
 
@@ -909,7 +909,7 @@ class Channel(chn_class.Channel):
             title,
             "https://www.svt.se/videoplayer-api/video/%s" % (channel_id.lower(),)
         )
-        channel_item.media_type = mediatype.EPISODE
+        channel_item.media_type = mediatype.VIDEO
         channel_item.isLive = True
         channel_item.isGeoLocked = True
         channel_item.description = description

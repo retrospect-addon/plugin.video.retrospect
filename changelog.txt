@@ -10,3 +10,5 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: ViaSat now has encrypted streams, so we always need to use InputStream Adaptive (Fixes #1589).
+* Updated: Mark genre folders with content type `videos` (See #1579).
+* Updated: Mark Single item sin SVT as `videos` (See #1579).
