@@ -213,7 +213,7 @@ class Channel(chn_class.Channel):
         )
 
         genre_url = self.__get_api_url("AllGenres", "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c", {})
-        genre_item = FolderItem(genre_tags, genre_url, content_type=contenttype.FILES)
+        genre_item = FolderItem(genre_tags, genre_url, content_type=contenttype.VIDEOS)
         genre_item.complete = True
         genre_item.dontGroup = True
         items.append(genre_item)
@@ -291,7 +291,7 @@ class Channel(chn_class.Channel):
 
         category_title = "\a.: {} :.".format(
             LanguageHelper.get_localized_string(LanguageHelper.Categories))
-        new_item = FolderItem(category_title, "https://www.svtplay.se/genre", content_type=contenttype.FILES)
+        new_item = FolderItem(category_title, "https://www.svtplay.se/genre", content_type=contenttype.VIDEOS)
         new_item.complete = True
         new_item.dontGroup = True
 
