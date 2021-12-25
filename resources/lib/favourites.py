@@ -99,6 +99,15 @@ class Favourites:
         return favs
 
     def get_shortcut(self, shortcut_name):
+        """ Fetches a MediaItem stored in a shortcut file.
+
+        :param str shortcut_name: The name of the shortcut.
+
+        :return: The MediaItem stored in the give shorcut.
+        :rtype: MediaItem
+
+        """
+
         file_name = self.__filePattern % ("shortcut", shortcut_name)
         full_path = os.path.join(self.FavouriteFolder, file_name)
         if not os.path.isfile(full_path):
@@ -109,6 +118,16 @@ class Favourites:
         return item
 
     def __load_favourite(self, fav, channel=None):
+        """
+
+        :param str fav:             The path to the file to load.
+        :param Channel channel:     A channel object if one was present.
+
+        :return: The MediaItem stored in the give file.
+        :rtype: MediaItem
+
+        """
+
         Logger.trace("Fetching %s", fav)
 
         try:
