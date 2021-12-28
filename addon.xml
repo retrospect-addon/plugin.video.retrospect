@@ -84,6 +84,11 @@
                     <visible>ListItem.Property(RetrospectFolder)+!ListItem.Property(RetrospectFavorite)</visible>
                 </item>
 
+                <item library="retromenu.py" args="add_shortcut">
+                    <label>30511</label>
+                    <visible>[ListItem.Property(RetrospectFolder)|ListItem.Property(RetrospectVideo)]+!ListItem.Property(RetrospectFavorite)</visible>
+                </item>
+
                 <item library="retromenu.py" args="remove_fav">
                     <label>30506</label>
                     <visible>ListItem.Property(RetrospectFavorite)</visible>
