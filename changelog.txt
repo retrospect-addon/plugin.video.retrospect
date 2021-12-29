@@ -3,7 +3,7 @@
 t.b.d.
 
 [B]Framework related[/B]
-_None_
+* Added: 'Shortcut' implementation to enable automation of Retrospect via Kodi (JSON) API (Fixes #1591 and #1588).
 
 [B]GUI/Settings/Language related[/B]
 _None_
