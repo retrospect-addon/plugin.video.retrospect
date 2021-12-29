@@ -6,7 +6,7 @@ t.b.d.
 * Added: 'Shortcut' implementation to enable automation of Retrospect via Kodi (JSON) API (Fixes #1591 and #1588).
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Changed: Only force sorting by episode/season if all have episodes.
 
 [B]Channel related[/B]
 * Fixed: ViaSat now has encrypted streams, so we always need to use InputStream Adaptive (Fixes #1589).
@@ -14,3 +14,4 @@ _None_
 * Updated: Mark Single item sin SVT as `videos` (See #1579).
 * Changed: RTV Noord to Regio Groei.
 * Fixed: More default content types fixed (Fixes #1593).
+* Fixed: NPO EPG contained confusing episode and seasons info (Fixes #1590).
