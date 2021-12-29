@@ -13,3 +13,4 @@ _None_
 * Updated: Mark genre folders with content type `videos` (See #1579).
 * Updated: Mark Single item sin SVT as `videos` (See #1579).
 * Changed: RTV Noord to Regio Groei.
+* Fixed: More default content types fixed (Fixes #1593).
