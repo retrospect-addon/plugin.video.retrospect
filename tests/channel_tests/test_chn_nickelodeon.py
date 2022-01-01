@@ -16,7 +16,7 @@ class TestNickelodeonChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
+        self.assertGreaterEqual(len(items), 15, "No items found in mainlist")
 
     def test_mtv_nl(self):
         from resources.lib.helpers.channelimporter import ChannelIndex
@@ -31,7 +31,8 @@ class TestNickelodeonChannel(ChannelTest):
         self.assertGreater(len(items), 50)
 
     def test_show_list_more_pages(self):
-        url = "https://www.nickelodeon.no/shows/tawzng/familien-thunderman"
+        self._switch_channel("mtvnl")
+        url = "https://www.mtv.nl/shows/instafamous"
         self._test_folder_url(url, expected_results=2)
 
     def test_show_list_with_seasons(self):
@@ -45,11 +46,12 @@ class TestNickelodeonChannel(ChannelTest):
         self._test_folder_url(url, expected_results=2)
 
     def test_season_listing_nl(self):
-        url = "https://www.nickelodeon.no/shows/76ypv4/svampebob-firkant"
+        self._switch_channel("nickelodeon")
+        url = "https://www.nickelodeon.nl/shows/3f58sq/game-shakers"
         self._test_folder_url(url, expected_results=2)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_video(self):
         self._switch_channel("nickelodeon")
-        url = "https://www.nickelodeon.nl/episodes/0gravl/spongebob-hole-in-one-sentimentele-troep-seizoen-seasonnumber-8-afl-3"
+        url = "https://www.nickelodeon.nl/episodes/ckly3y/spongebob-gerrit-praatgraag-de-clowns-niet-voederen-seizoen-seasonnumber-11-afl-226"
         self._test_video_url(url)
