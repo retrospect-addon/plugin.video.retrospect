@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -15,6 +16,7 @@ class TestNickJrChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
 
+    @unittest.skip("Not present in 2022")
     def test_folder_with_videos_and_pages(self):
         url = "http://www.nickelodeon.se/data/propertyStreamPage.json?&urlKey=svampbob-fyrkant&apiKey=sv_SE_Nick_Web&adfree=&excludeIds=&repeatPattern=&page=1"
         items = self._test_folder_url(url, expected_results=2)
