@@ -43,9 +43,9 @@ class Channel(chn_class.Channel):
         # first regex is a bit tighter than the second one.
         episode_regex = r'<nui-tile href="(?<url>/vrtnu[^"]+)/"[^>]*>\s*<h3[^>]*>\s*<a[^>]+>' \
                         r'(?<title>[^<]+)</a>\s*</h3>\s*<div[^>]+>(?:\s*<p>)?(?<description>' \
-                        r'[\w\W]{0,2000}?)(?:</p>)?\W*</div>\s*(?:<p[^>]*' \
-                        r'data-brand="(?<channel>[^"]+)"[^>]*>[^<]+</p>)?\s*(?:<img[\w\W]{0,100}?' \
-                        r'data-responsive-image="(?<thumburl>//[^" ]+)")?'
+                        r'[\w\W]{0,2000}?)(?:</p>)?\W*</div>\s*(?:<p[^>]*>\s*<vrtnu-logo[^>]*' \
+                        r'brand="(?<channel>[^"]+)"[^>]*></vrtnu-logo>\s*</p>)?\s*(?:<img[\w\W]{0,500}?' \
+                        r'data-responsive-image="(?<thumburl>//[^" ]+))?'
         episode_regex = Regexer.from_expresso(episode_regex)
         self._add_data_parser(self.mainListUri, name="Main A-Z listing",
                               preprocessor=self.add_categories,
