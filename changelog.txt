@@ -1,19 +1,12 @@
 [B]Retrospect v5.5.0 - Changelog - 2021-12-29[/B]
 
-This new minor version introduces the option to create 'shortcuts' for videos and folders. These shortcuts are simple named items that can be used in Kodi (JSON) API calls without the need of specifying any guids that usually belong to Retrospect urls. More information can be found in the readme.md file under to section "Automation of Retrospect".
-
-Besides this change, some channels were fixed. 
+y.t.b.d.
 
 [B]Framework related[/B]
-* Added: 'Shortcut' implementation to enable automation of Retrospect via Kodi (JSON) API (Fixes #1591 and #1588).
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Changed: Only force sorting by episode/season if all have episodes.
+_None_
 
 [B]Channel related[/B]
-* Fixed: ViaSat now has encrypted streams, so we always need to use InputStream Adaptive (Fixes #1589).
-* Updated: Mark genre folders with content type `videos` (See #1579).
-* Updated: Mark Single items in SVT as `videos` (See #1579).
-* Changed: RTV Noord to Regio Groei.
-* Fixed: More default content types fixed (Fixes #1593).
-* Fixed: NPO EPG contained confusing episode and seasons info (Fixes #1590).
+* Removed: Nickelodeon.no as they no longer provide videos.

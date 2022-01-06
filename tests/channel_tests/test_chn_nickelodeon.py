@@ -9,7 +9,7 @@ from . channeltest import ChannelTest
 class TestNickelodeonChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestNickelodeonChannel, self).__init__(methodName, "channel.nick.nickelodeon", "nickno")
+        super(TestNickelodeonChannel, self).__init__(methodName, "channel.nick.nickelodeon", "mtvnl")
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
@@ -36,11 +36,13 @@ class TestNickelodeonChannel(ChannelTest):
         self._test_folder_url(url, expected_results=2)
 
     def test_show_list_with_seasons(self):
-        url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
+        self._switch_channel("mtvnl")
+        url = "https://www.mtv.nl/shows/ex-on-the-beach-double-dutch-meekijken-met"
         items = self._test_folder_url(url, expected_results=2)
         seasons = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(seasons), 1)
 
+    @unittest.skip("No Nickelodeon.no longer has videos.")
     def test_season_listing_no(self):
         url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
         self._test_folder_url(url, expected_results=2)
