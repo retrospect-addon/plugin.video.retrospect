@@ -4,6 +4,7 @@ import unittest
 from . channeltest import ChannelTest
 
 
+@unittest.skip("No longer available.")
 class TestNickJrChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
