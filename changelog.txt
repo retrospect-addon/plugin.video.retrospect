@@ -12,3 +12,4 @@ _None_
 * Removed: Nickelodeon.no as they no longer provide videos.
 * Removed: NickJr.se as they no longer provide videos.
 * Fixed: TV Show images for VRT.nu.
+* Updated: VRT.nu logon to v2 (Fixes #1595).

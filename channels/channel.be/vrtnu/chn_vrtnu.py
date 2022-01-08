@@ -232,17 +232,17 @@ class Channel(chn_class.Channel):
         data = {
             "loginID": username,
             "password": password,
-            "sessionExpiration": "-1",
+            "sessionExpiration": "-2",
             "targetEnv": "jssdk",
             "include": "profile,data,emails,subscriptions,preferences,",
             "includeUserInfo": "true",
-            "loginMode": "standard",
-            "lang": "nl-inf",
+            # "loginMode": "standard",
+            # "lang": "nl-inf",
             "APIKey": api_key,
-            "source": "showScreenSet",
+            # "source": "showScreenSet",
             "sdk": "js_latest",
-            "authMode": "cookie",
-            "format": "json"
+            # "authMode": "cookie",
+            # "format": "json"
         }
         logon_data = UriHandler.open(url, data=data, no_cache=True)
         user_id, signature, signature_time_stamp = self.__extract_session_data(logon_data)
@@ -250,8 +250,11 @@ class Channel(chn_class.Channel):
             return False
 
         # We need to initialize the token retrieval which will redirect to the actual token
-        UriHandler.open("https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/",
-                        no_cache=True)
+        # Normal Init
+        login_init = "https://token.vrt.be/vrtnuinitlogin?provider=site&destination=https://www.vrt.be/vrtnu/"
+        # Roaming Init
+        # login_init = "https://token.vrt.be/vrtnuinitloginEU?destination=https://www.vrt.be/vrtnu/"
+        UriHandler.open(login_init, no_cache=True)
 
         # Now get the actual VRT tokens (X-VRT-Token....). Valid for 1 hour. So we call the actual
         # perform_login url which will redirect and get cookies.
@@ -651,8 +654,12 @@ class Channel(chn_class.Channel):
         hls_over_dash = self._get_setting("hls_over_dash", 'false') == 'true'
 
         from resources.lib.streams.vualto import Vualto
-        v = Vualto(self, "vrtvideo")
-        item = v.get_stream_info(item, mzid, live=live, hls_over_dash=hls_over_dash)
+        v = Vualto(self, "vrtvideo@PROD")
+
+        identity_cookie = UriHandler.get_cookie("X-VRT-Token", ".vrt.be")
+        identity_token = identity_cookie.value
+
+        item = v.get_stream_info(item, mzid, identity_token, live=live, hls_over_dash=hls_over_dash)
         return item
 
     def __extract_session_data(self, logon_data):
