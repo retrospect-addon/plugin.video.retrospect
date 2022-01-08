@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.0 - Changelog - 2021-12-29[/B]
+[B]Retrospect v5.5.1 - Changelog - 2022-01-08[/B]
 
-y.t.b.d.
+Minor update to fix SVT, VRT.nu and some Nickelodeon channels.
 
 [B]Framework related[/B]
 _None_
