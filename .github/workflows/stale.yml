@@ -1,7 +1,7 @@
 name: 'Close stale issues and PRs'
 on:
   schedule:
-    - cron: '00 22 * * *'
+    - cron: '00 19 * * *'
 
 permissions:
   issues: write
@@ -17,3 +17,7 @@ jobs:
           stale-pr-message: 'This PR is stale because it has been open 30 days with no activity. Remove stale label or comment on it to reset.'
           days-before-stale: 30
           days-before-close: -1
+          stale-issue-label: stale
+          stale-pr-label: stale
+          exempt-pr-labels: channel,enhancement
+          exempt-issue-labels: channel,enhancement
