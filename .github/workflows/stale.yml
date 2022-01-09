@@ -1,7 +1,7 @@
 name: 'Close stale issues and PRs'
 on:
   schedule:
-    - cron: '00 * * * *'
+    - cron: '0 19 * * *'
 
 permissions:
   issues: write
