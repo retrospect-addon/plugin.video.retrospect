@@ -21,3 +21,4 @@ jobs:
           stale-pr-label: stale
           exempt-pr-labels: channel,enhancement
           exempt-issue-labels: channel,enhancement
+          operations-per-run: 100
