@@ -1,6 +1,6 @@
 [B]Retrospect v5.5.1 - Changelog - 2022-01-08[/B]
 
-Minor update to fix SVT, VRT.nu and some Nickelodeon channels.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,8 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Removed: Nickelodeon.no as they no longer provide videos.
-* Removed: NickJr.se as they no longer provide videos.
-* Fixed: HTML video resolved for SVT broken (Fixes #1596).
-* Fixed: TV Show images for VRT.nu.
-* Updated: VRT.nu logon to v2 (Fixes #1595).
+* Fixed: NRK.no updated their API.

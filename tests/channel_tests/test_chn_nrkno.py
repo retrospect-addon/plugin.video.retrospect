@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -36,7 +37,7 @@ class TestNrkNoChannel(ChannelTest):
         self._test_video_url(url)
 
     def test_category_list(self):
-        url = "https://psapi.nrk.no/medium/tv/categories?apiKey=d1381d92278a47c09066460f2522a67d"
+        url = "http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories?apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
 
     def test_category_content(self):
@@ -47,6 +48,7 @@ class TestNrkNoChannel(ChannelTest):
         url = "https://psapi.nrk.no/tv/live?apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
 
+    @unittest.skip("No longer available in the new API.")
     def test_popular(self):
         url = "https://psapi.nrk.no/medium/tv/popularprograms/week?maxnumber=100&startRow=0&apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
@@ -55,6 +57,7 @@ class TestNrkNoChannel(ChannelTest):
         url = "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
 
+    @unittest.skip("No longer available in the new API.")
     def test_recommended(self):
         url = "https://psapi.nrk.no/medium/tv/recommendedprograms?maxnumber=100&startRow=0&apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
