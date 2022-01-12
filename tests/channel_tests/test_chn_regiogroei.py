@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -104,9 +105,12 @@ class TestRegioGroei(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 5)
 
+    @unittest.skipIf(
+        datetime.datetime.now() < datetime.datetime(year=2022, month=2, day=1),
+        "Skipping for a month as it seems that all are unavailable.")
     def test_rtv_noord_day(self):
         self._switch_channel("rtvnoord")
-        today = datetime.datetime.now() - datetime.timedelta(days=1)
+        today = datetime.datetime.now() - datetime.timedelta(days=2)
         tomorrow = today + datetime.timedelta(days=1)
 
         url = "https://api.regiogroei.cloud/programs/tv-noord?startDate=" \
