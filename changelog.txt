@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.1 - Changelog - 2022-01-08[/B]
+[B]Retrospect v5.5.2 - Changelog - 2022-01-12[/B]
 
-t.b.d.
+Fixed an issue with NPO Start profiles not loading correctly and some other minor things.
 
 [B]Framework related[/B]
 _None_
