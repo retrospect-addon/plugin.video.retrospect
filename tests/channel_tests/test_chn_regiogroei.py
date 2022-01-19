@@ -95,15 +95,14 @@ class TestRegioGroei(ChannelTest):
     def test_rtv_noord_video(self):
         self._switch_channel("rtvnoord")
         url = "https://api.regiogroei.cloud/page/episode/C4915464A4E0AD8CC12587820042AB5C"
-        self._test_video_url(url)
+        item = self._test_video_url(url)
+        self.assertFalse(item.isLive)
 
     def test_rtv_noord_live(self):
         self._switch_channel("rtvnoord")
         url = "https://api.regiogroei.cloud/page/channel/tv-noord?channel=tv-noord"
-        self._test_video_url(url)
-
-        items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 5)
+        live_item = self._test_video_url(url)
+        self.assertTrue(live_item.isLive)
 
     @unittest.skipIf(
         datetime.datetime.now() < datetime.datetime(year=2022, month=2, day=1),
@@ -114,6 +113,42 @@ class TestRegioGroei(ChannelTest):
         tomorrow = today + datetime.timedelta(days=1)
 
         url = "https://api.regiogroei.cloud/programs/tv-noord?startDate=" \
+              "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
+            format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
+        self._test_folder_url(url, expected_results=2)
+
+    # RTV Rijnmond
+    def test_rijnmond_channel_exists(self):
+        channel = self._switch_channel("rtvrijnmond")
+        self.assertIsNotNone(channel)
+
+    def test_rijnmond_mainlist(self):
+        self._switch_channel("rtvrijnmond")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_rijnmond_video_list(self):
+        self._switch_channel("rtvrijnmond")
+        url = "https://api.regiogroei.cloud/page/program/19?slug=bureau-rijnmond&origin=19"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_rijnmond_video_update(self):
+        self._switch_channel("rtvrijnmond")
+        url = "https://api.regiogroei.cloud/page/episode/32738"
+        item = self._test_video_url(url)
+        self.assertFalse(item.isLive)
+
+    def test_rijnmond_live(self):
+        self._switch_channel("rtvrijnmond")
+        url = "https://api.regiogroei.cloud/page/channel/tv-rijnmond?channel=tv-rijnmond"
+        live_item = self._test_video_url(url)
+        self.assertTrue(live_item.isLive)
+
+    def test_rijnmond_day(self):
+        self._switch_channel("rtvrijnmond")
+        today = datetime.datetime.now() - datetime.timedelta(days=1)
+        tomorrow = today + datetime.timedelta(days=1)
+        url = "https://api.regiogroei.cloud/programs/tv-rijnmond?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
         self._test_folder_url(url, expected_results=2)

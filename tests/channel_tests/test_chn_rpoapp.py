@@ -32,28 +32,3 @@ class TestRpoAppChannel(ChannelTest):
         url = "https://oost.rpoapp.nl/v02/livestreams/AndroidTablet.json"
         items = self._test_folder_url(url, expected_results=2)
         self.assertGreaterEqual(len([i for i in items if i.isLive]), 3)
-
-    def test_channel_exists_rijnmond(self):
-        channel = self._switch_channel("rtvrijnmond")
-        self.assertIsNotNone(channel)
-
-    def test_mainlist_rijnmond(self):
-        self._switch_channel("rtvrijnmond")
-        items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 20)
-
-    def test_video_list_rijnmond(self):
-        self._switch_channel("rtvrijnmond")
-        url = "https://www.rijnmond.nl/RadioTv/Results?medium=Tv&query=&category=b5663f4d-8529-49ed-b1d0-b6745e064a3c&from=&to=&page=1"
-        self._test_folder_url(url, expected_results=10)
-
-    def test_video_update_rijnmond(self):
-        self._switch_channel("rtvrijnmond")
-        url = "https://www.rijnmond.nl/media/bluebillywigplayeroptions/rtv/Tv/31699.json"
-        self._test_video_url(url)
-
-    def test_live_rijnmond(self):
-        self._switch_channel("rtvrijnmond")
-        url = "https://rijnmond.rpoapp.nl/v01/livestreams/AndroidTablet.json"
-        items = self._test_folder_url(url, expected_results=2)
-        self.assertGreaterEqual(len([i for i in items if i.isLive]), 3)

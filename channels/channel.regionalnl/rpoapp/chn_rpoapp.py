@@ -33,13 +33,7 @@ class Channel(chn_class.Channel):
         self.liveUrl = None        # : the live url if present
         self.jsonParsing = True
 
-        if self.channelCode == "rtvrijnmond":
-            self.noImage = "rtvrijnmondimage.png"
-            self.mainListUri = "https://www.rijnmond.nl/tvgemist"
-            self.baseUrl = "https://www.rijnmond.nl"
-            self.liveUrl = "https://rijnmond.rpoapp.nl/v01/livestreams/AndroidTablet.json"
-
-        elif self.channelCode == "rtvoost":
+        if self.channelCode == "rtvoost":
             self.noImage = "rtvoostimage.png"
             self.mainListUri = "https://www.rtvoost.nl/tv/gemist"
             self.baseUrl = "https://www.rtvoost.nl"

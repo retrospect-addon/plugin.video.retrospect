@@ -65,6 +65,14 @@ class Channel(chn_class.Channel):
             self.httpHeaders["accept"] = "application/vnd.groei.groningen+json;v=2.0"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-noord?channel=tv-noord"
 
+        elif self.channelCode == "rtvrijnmond":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?rijnmond"
+            self.noImage = "rtvrijnmondimage.png"
+            self.videoUrlFormat = "https://rijnmond.bbvms.com/p/regiogroei_rijnmond_web_videoplayer/c/{}.json"
+            self.recentSlug = "tv-rijnmond"
+            self.httpHeaders["accept"] = "application/vnd.groei.zh-rijnmond+json;v=3.0"
+            self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-rijnmond?channel=tv-rijnmond"
+
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode,))
 
@@ -338,6 +346,8 @@ class Channel(chn_class.Channel):
 
             else:
                 Logger.error("Unsupported stream for %s from url: %s", item, video_url)
+
+        item.isLive = json_data.get_value("clipData", "sourcetype") == "live"
         return item
 
     def _get_thumb(self, thumb):

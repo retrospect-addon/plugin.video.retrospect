@@ -41,6 +41,20 @@
       "sortorder": 100,
       "language": "nl",
       "fanart": "rtvnoordfanart.png"
+    },
+    {
+      "guid": "BF2B907D-D437-46DB-B802-F946850098FB",
+      "name": "RTV Rijnmond",
+      "description": {
+        "en": "Video on demand for RTV Rijnmond.\n\n\"We are always on. We are there where it happens. Since 1983 via radio, since 1997 on TV and since 2000 online. We are Rijnmond. We are there!\"",
+        "nl": "RTV Rijnmond Uitzendinggemist.\n\n\"Wij staan altijd aan. Wij zijn daar waar het gebeurt. Sinds 1983 op de radio. Sinds 1997 op tv. Sinds 2000 online. Wij zijn Rijnmond. Wij zijn erbij!\""
+      },
+      "icon": "rtvrijnmondlarge.png",
+      "category": "Regional",
+      "channelcode": "rtvrijnmond",
+      "sortorder": 100,
+      "language": "nl",
+      "fanart": "rtvrijnmondfanart.png"
     }
   ]
 }
