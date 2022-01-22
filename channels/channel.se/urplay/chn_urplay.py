@@ -4,7 +4,6 @@ import pytz
 
 from resources.lib import chn_class, mediatype
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
@@ -12,6 +11,7 @@ from resources.lib.mediaitem import MediaItem
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
+from resources.lib.retroconfig import Config
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 
@@ -314,13 +314,15 @@ class Channel(chn_class.Channel):
 
         Logger.info("Performing Pre-Processing")
         items = []
-        max_items = 150
+        max_items = 20
 
         # merge the main list items:
+        # https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows=20&sort=title&start=20
         data = self.__iterate_results(
-            "https://urplay.se/api/bff/v1/search?product_type=series&rows={}&start={}",
+            "https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows={}&sort=published&start={}",
             results_per_page=max_items,
-            max_iterations=11
+            max_iterations=20,
+            use_pb=True
         )
 
         categories = {
@@ -641,18 +643,19 @@ class Channel(chn_class.Channel):
             item.media_type = mediatype.EPISODE
         return item
 
-    def __iterate_results(self, url_format, results_per_page=20, max_iterations=10):
+    def __iterate_results(self, url_format, results_per_page=20, max_iterations=10, use_pb=False):
         """ Retrieves the full dataset for a multi-set search action.
 
         :param str url_format:             The url format with start and count placeholders
         :param int results_per_page:       The maximum results per request
         :param int max_iterations:         The maximum number of iterations
+        :param bool use_pb:                Use a progress bar
 
         :returns A Json response with all results
         :rtype JsonHelper
 
         Url format should be like:
-            https://urplay.se/api/bff/v1/search?product_type=series&rows={}&start={}
+            https://urplay.se/api/v1/search?product_type=series&rows={}&start={}
 
         """
 
@@ -660,11 +663,24 @@ class Channel(chn_class.Channel):
         #  This causes a response with 20 results only. So we need to load more pages.
 
         results = None
+        from resources.lib.xbmcwrapper import XbmcDialogProgressWrapper
+        status = LanguageHelper.get_localized_string(LanguageHelper.FetchMultiApi)
+        updated = LanguageHelper.get_localized_string(LanguageHelper.PageOfPages)
+
+        progress = None
+        if use_pb:
+            progress = XbmcDialogProgressWrapper("{} - {}".format(Config.appName, self.channelName), status)
+
         for p in range(0, max_iterations):
             url = url_format.format(results_per_page, p * results_per_page)
+            if (use_pb and progress.progress_update(
+                    p, max_iterations, int(p * 100 / max_iterations), False, updated.format(p + 1, max_iterations))):
+                break
+
             data = UriHandler.open(url)
             json_data = JsonHelper(data)
             result_items = json_data.get_value("results", fallback=[])
+            # result_size = json_data.get_value("nextPageInfo", "rows")
             if results is None:
                 results = json_data
             else:
@@ -673,4 +689,5 @@ class Channel(chn_class.Channel):
             if len(result_items) < results_per_page:
                 break
 
+        progress.close()
         return results or ""

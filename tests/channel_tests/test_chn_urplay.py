@@ -21,7 +21,7 @@ class TestUrPlayChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 1000, "No items found in mainlist")
+        self.assertGreaterEqual(len(items), 390, "No items found in mainlist")
 
     def test_category(self):
         url = "https://urplay.se/api/v1/search?" \
