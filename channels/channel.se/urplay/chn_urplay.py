@@ -42,7 +42,10 @@ class Channel(chn_class.Channel):
         self._add_data_parser(self.mainListUri, json=True,
                               name="Show parser with categories",
                               match_type=ParserData.MatchExact,
-                              preprocessor=self.merge_add_categories_and_search,
+                              preprocessor=self.merge_add_categories_and_search)
+
+        self._add_data_parser("#tvshows", preprocessor=self.merge_tv_show,
+                              name="Main listing of merged TV Shows.", json=True,
                               parser=["results"], creator=self.create_episode_json_item)
 
         self._add_data_parser("https://urplay.se/api/v1/series", json=True,
@@ -313,35 +316,51 @@ class Channel(chn_class.Channel):
 
         Logger.info("Performing Pre-Processing")
         items = []
-        max_items = 20
-
-        # merge the main list items:
-        # https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows=20&sort=title&start=20
-        main_list_pages = int(self._get_setting("mainlist_pages"))
-        data = self.__iterate_results(
-            "https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows={}&sort=published&start={}",
-            results_per_page=max_items,
-            max_iterations=main_list_pages,
-            use_pb=True
-        )
+        max_items_per_page = 20
 
         categories = {
-            LanguageHelper.Popular: "https://urplay.se/api/v1/search?product_type=program&query=&rows={}&start=0&view=most_viewed".format(max_items),
-            LanguageHelper.MostRecentEpisodes: "https://urplay.se/api/v1/search?product_type=program&rows={}&start=0&view=published".format(max_items),
-            LanguageHelper.LastChance: "https://urplay.se/api/v1/search?product_type=program&rows={}&start=0&view=last_chance".format(max_items),
+            LanguageHelper.Popular: "https://urplay.se/api/v1/search?product_type=program&query=&rows={}&start=0&view=most_viewed".format(max_items_per_page),
+            LanguageHelper.MostRecentEpisodes: "https://urplay.se/api/v1/search?product_type=program&rows={}&start=0&view=published".format(max_items_per_page),
+            LanguageHelper.LastChance: "https://urplay.se/api/v1/search?product_type=program&rows={}&start=0&view=last_chance".format(max_items_per_page),
             LanguageHelper.Categories: "https://urplay.se/",
-            LanguageHelper.Search: "searchSite"
+            LanguageHelper.Search: "searchSite",
+            LanguageHelper.TvShows: "#tvshows"
         }
 
         for cat in categories:
-            title = "\a.: {} :.".format(LanguageHelper.get_localized_string(cat))
-            item = MediaItem(title, categories[cat])
+            title = LanguageHelper.get_localized_string(cat)
+            item = FolderItem(title, categories[cat], content_type=contenttype.VIDEOS)
             item.complete = True
             item.dontGroup = True
             items.append(item)
 
         Logger.debug("Pre-Processing finished")
         return data, items
+
+    def merge_tv_show(self, data):
+        """ Adds some generic items such as search and categories to the main listing.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        # merge the main list items:
+        # https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows=20&sort=title&start=20
+        max_items_per_page = 20
+        main_list_pages = int(self._get_setting("mainlist_pages"))
+        data = self.__iterate_results(
+            "https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows={}&sort=published&start={}",
+            results_per_page=max_items_per_page,
+            max_iterations=main_list_pages,
+            use_pb=True
+        )
+
+        return data, []
 
     def search_site(self, url=None):
         """ Creates an list of items by searching the site.
