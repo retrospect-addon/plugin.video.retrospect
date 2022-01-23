@@ -40,7 +40,7 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://content.talparad.io/spaces/3p0bn61n86ty/environments/master/entries?content_type=overview&fields.slug=programmas&include=4"
             self.baseUrl = "http://www.slam.nl"
             self.swfUrl = "http://www.538.nl/jwplayer/player.swf" #I am not sure what this is
-            }
+            
 
          # setup the main parsing data
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
