@@ -64,6 +64,8 @@ class TestUrPlayChannel(ChannelTest):
     def test_show_with_seasons(self):
         # url = "https://urplay.se/api/v1/series?id=224990"
         url = "https://urplay.se/api/v1/series?id=156160"
-        items = self._test_folder_url(url, expected_results=10)
+        items = self._test_folder_url(url, expected_results=2)
         folders = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(folders), 2)
+        videos = [i for i in items if i.is_video]
+        self.assertEqual(len(videos), 0)

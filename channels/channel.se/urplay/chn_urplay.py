@@ -51,7 +51,8 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://urplay.se/api/v1/series", json=True,
                               name="Main serie season parser",
-                              parser=["seasonLabels"], creator=self.create_season_item)
+                              parser=["seasonLabels"], creator=self.create_season_item,
+                              postprocessor=self.check_seasons)
 
         # Match Videos (programs)
         self._add_data_parser("https://urplay.se/api/v1/search?product_type=program",
@@ -430,15 +431,48 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
 
+        if self.parentItem.media_type == mediatype.SEASON:
+            return None
+
         title = "%(label)s" % result_set
         url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
         fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
         thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
-        item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.SEASON)
         item.thumb = thumb
         item.description = self.parentItem.description
         item.fanart = fanart
         return item
+
+    def check_seasons(self, data, items):
+        """ Performs post-process actions for data processing.
+
+        Accepts an data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str|JsonHelper data:     The retrieve data that was loaded for the
+                                         current item and URL.
+        :param list[MediaItem] items:   The currently available items
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: list[MediaItem]
+
+        """
+
+        Logger.info("Performing Post-Processing")
+
+        # check if there are seasons, if so, filter all the videos out
+        seasons = [i for i in items if i.media_type == mediatype.SEASON]
+        if seasons:
+            Logger.debug("Seasons found, skipping any videos.")
+            return seasons
+
+        Logger.debug("Post-Processing finished")
+        return items
 
     def create_video_item_json_with_show_title(self, result_set):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
