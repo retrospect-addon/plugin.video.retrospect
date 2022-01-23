@@ -49,6 +49,10 @@ class Channel(chn_class.Channel):
                               name="Main serie content parser",
                               parser=["programs"], creator=self.create_video_item_json)
 
+        self._add_data_parser("https://urplay.se/api/v1/series", json=True,
+                              name="Main serie season parser",
+                              parser=["seasonLabels"], creator=self.create_season_item)
+
         # Match Videos (programs)
         self._add_data_parser("https://urplay.se/api/v1/search?product_type=program",
                               name="Most viewed", json=True,
@@ -407,6 +411,32 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url)
         item.thumb = thumb
         item.description = result_set.get("description")
+        item.fanart = fanart
+        return item
+
+    def create_season_item(self, result_set):
+        """ Creates a new MediaItem for a season.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        Logger.trace(result_set)
+
+        title = "%(label)s" % result_set
+        url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
+        fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
+        thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
+        item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        item.thumb = thumb
+        item.description = self.parentItem.description
         item.fanart = fanart
         return item
 
