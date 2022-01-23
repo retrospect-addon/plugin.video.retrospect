@@ -318,10 +318,11 @@ class Channel(chn_class.Channel):
 
         # merge the main list items:
         # https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows=20&sort=title&start=20
+        main_list_pages = int(self._get_setting("mainlist_pages"))
         data = self.__iterate_results(
             "https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows={}&sort=published&start={}",
             results_per_page=max_items,
-            max_iterations=20,
+            max_iterations=main_list_pages,
             use_pb=True
         )
 
@@ -673,11 +674,11 @@ class Channel(chn_class.Channel):
 
         for p in range(0, max_iterations):
             url = url_format.format(results_per_page, p * results_per_page)
-            if (use_pb and progress.progress_update(
+            if (progress and progress.progress_update(
                     p, max_iterations, int(p * 100 / max_iterations), False, updated.format(p + 1, max_iterations))):
                 break
 
-            data = UriHandler.open(url)
+            data = UriHandler.open(url, force_cache_duration=24*3600)
             json_data = JsonHelper(data)
             result_items = json_data.get_value("results", fallback=[])
             # result_size = json_data.get_value("nextPageInfo", "rows")
@@ -689,5 +690,6 @@ class Channel(chn_class.Channel):
             if len(result_items) < results_per_page:
                 break
 
-        progress.close()
+        if progress:
+            progress.close()
         return results or ""
