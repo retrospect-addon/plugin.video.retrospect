@@ -21,7 +21,7 @@ class TestUrPlayChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 390, "No items found in mainlist")
+        self.assertGreaterEqual(len(items), 6, "No items found in mainlist")
 
     def test_category(self):
         url = "https://urplay.se/api/v1/search?" \
@@ -67,5 +67,9 @@ class TestUrPlayChannel(ChannelTest):
         items = self._test_folder_url(url, expected_results=2)
         folders = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(folders), 2)
-        videos = [i for i in items if i.is_video]
+        videos = [i for i in items if i.is_playable]
         self.assertEqual(len(videos), 0)
+
+    def test_tvshow_list(self):
+        url = "#tvshows"
+        self._test_folder_url(url, expected_results=100)

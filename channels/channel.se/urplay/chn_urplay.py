@@ -432,6 +432,7 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         item.description = result_set.get("description")
         item.fanart = fanart
+        item.dontGroup = True
         return item
 
     def create_season_item(self, result_set):
