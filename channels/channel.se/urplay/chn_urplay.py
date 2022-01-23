@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pytz
 
-from resources.lib import chn_class, mediatype
+from resources.lib import chn_class, mediatype, contenttype
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
-from resources.lib.mediaitem import MediaItem
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
@@ -45,11 +45,14 @@ class Channel(chn_class.Channel):
                               preprocessor=self.merge_add_categories_and_search,
                               parser=["results"], creator=self.create_episode_json_item)
 
+        self._add_data_parser("https://urplay.se/api/v1/series", json=True,
+                              name="Main serie content parser",
+                              parser=["programs"], creator=self.create_video_item_json)
+
         # Match Videos (programs)
-        self._add_data_parsers(["https://urplay.se/api/bff/v1/search?product_type=program",
-                                "https://urplay.se/api/v1/search?product_type=program"],
-                               name="Most viewed", json=True,
-                               parser=["results"], creator=self.create_video_item_json_with_show_title)
+        self._add_data_parser("https://urplay.se/api/v1/search?product_type=program",
+                              name="Most viewed", json=True,
+                              parser=["results"], creator=self.create_video_item_json_with_show_title)
 
         self._add_data_parser("*", json=True,
                               name="Json based video parser",
@@ -66,28 +69,19 @@ class Channel(chn_class.Channel):
                               match_type=ParserData.MatchExact,
                               parser=cat_reg,
                               creator=self.create_category_item)
-
-        self._add_data_parsers(["https://urplay.se/api/bff/v1/search?play_category",
-                                "https://urplay.se/api/v1/search?play_category",
-                                "https://urplay.se/api/bff/v1/search?main_genre",
+        self._add_data_parsers(["https://urplay.se/api/v1/search?play_category",
                                 "https://urplay.se/api/v1/search?main_genre",
-                                "https://urplay.se/api/bff/v1/search?response_type=category",
                                 "https://urplay.se/api/v1/search?response_type=category",
-                                "https://urplay.se/api/bff/v1/search?type=programradio",
                                 "https://urplay.se/api/v1/search?type=programradio",
-                                "https://urplay.se/api/bff/v1/search?age=",
                                 "https://urplay.se/api/v1/search?age=",
-                                "https://urplay.se/api/bff/v1/search?response_type=limited",
                                 "https://urplay.se/api/v1/search?response_type=limited"],
                                name="Category content", json=True,
                                preprocessor=self.merge_category_items,
                                parser=["results"], creator=self.create_json_item)
 
         # Searching
-        self._add_data_parser("https://urplay.se/api/bff/v1/quick_search", json=True,
-                              parser=["programs"], creator=self.create_search_result_program)
-        self._add_data_parser("https://urplay.se/api/bff/v1/quick_search", json=True,
-                              parser=["series"], creator=self.create_search_result_serie)
+        self._add_data_parser("https://urplay.se/api/v1/search", json=True,
+                              parser=["results"], creator=self.create_search_result)
 
         self.mediaUrlRegex = r"urPlayer.init\(([^<]+)\);"
 
@@ -269,7 +263,7 @@ class Channel(chn_class.Channel):
         if "{" not in url:
             return data, items
 
-        data = self.__iterate_results(url, max_iterations=5)
+        data = self.__iterate_results(url, max_iterations=5, use_pb=True)
         return data, items
 
     def create_category_item(self, result_set):
@@ -361,7 +355,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "https://urplay.se/api/bff/v1/quick_search?query=%s"
+        url = "https://urplay.se/api/v1/search?query=%s"
         return chn_class.Channel.search_site(self, url)
 
     def create_json_item(self, result_set):
@@ -407,7 +401,7 @@ class Channel(chn_class.Channel):
         Logger.trace(result_set)
 
         title = "%(title)s" % result_set
-        url = "https://urplay.se/api/bff/v1/series/{}".format(result_set["id"])
+        url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
         fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
         thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
         item = MediaItem(title, url)
@@ -475,7 +469,7 @@ class Channel(chn_class.Channel):
             title = "{} {:02d} - {}".format(self.__episode_text, episode, title)
 
         slug = result_set['slug']
-        url = "%s/%s" % (self.baseUrl, slug)
+        url = "%s/program/%s" % (self.baseUrl, slug)
 
         item = MediaItem(title, url)
         item.media_type = mediatype.EPISODE
@@ -606,11 +600,15 @@ class Channel(chn_class.Channel):
         item.complete = True
         return item
 
-    def create_search_result_program(self, result_set):
-        return self.__create_search_result(result_set, "program")
+    def create_search_result(self, result_set):
+        result_type = result_set["mediaType"].lower()
+        if result_type == "series":
+            return self.__create_search_result(result_set, "series")
+        elif result_type == "episode":
+            return self.__create_search_result(result_set, "program")
 
-    def create_search_result_serie(self, result_set):
-        return self.__create_search_result(result_set, "series")
+        Logger.error("Missing search result type: %s", result_type)
+        return None
 
     def __create_search_result(self, result_set, result_type):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
@@ -630,14 +628,14 @@ class Channel(chn_class.Channel):
         # Logger.trace(result_set)
 
         if result_type == "series":
-            url = "https://urplay.se/api/bff/v1/{}/{}".format(result_type, result_set["slug"])
+            url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
+            item = FolderItem(result_set["title"], url, contenttype.EPISODES, media_type=mediatype.TVSHOW)
         else:
             url = "https://urplay.se/{}/{}".format(result_type, result_set["slug"])
-        item = MediaItem(result_set["title"], url)
+            item = MediaItem(result_set["title"], url)
 
-        asset_id = result_set["urAssetId"]
-        item.thumb = "https://assets.ur.se/id/{}/images/1_hd.jpg".format(asset_id)
-        item.fanart = "https://assets.ur.se/id/{}/images/1_l.jpg".format(asset_id)
+        item.thumb = "https://assets.ur.se/id/{}/images/1_hd.jpg".format(result_set["id"])
+        item.fanart = "https://assets.ur.se/id/{}/images/1_l.jpg".format(result_set["id"])
 
         if result_type == "program":
             item.set_info_label("duration", result_set["duration"] * 60)
