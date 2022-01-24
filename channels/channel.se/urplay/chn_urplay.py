@@ -467,7 +467,7 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
 
-        if self.parentItem.media_type == mediatype.SEASON:
+        if self.parentItem.metaData.get("season", False):
             return None
 
         title = "%(label)s" % result_set
@@ -478,6 +478,7 @@ class Channel(chn_class.Channel):
         item.thumb = thumb
         item.description = self.parentItem.description
         item.fanart = fanart
+        item.metaData["season"] = True
         return item
 
     def check_seasons(self, data, items):
@@ -502,7 +503,7 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Post-Processing")
 
         # check if there are seasons, if so, filter all the videos out
-        seasons = [i for i in items if i.media_type == mediatype.SEASON]
+        seasons = [i for i in items if i.metaData.get("season", False)]
         if seasons:
             Logger.debug("Seasons found, skipping any videos.")
             return seasons
