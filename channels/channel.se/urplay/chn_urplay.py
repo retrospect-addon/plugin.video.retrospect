@@ -474,7 +474,7 @@ class Channel(chn_class.Channel):
         url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
         fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
         thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
-        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.SEASON)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
         item.thumb = thumb
         item.description = self.parentItem.description
         item.fanart = fanart
