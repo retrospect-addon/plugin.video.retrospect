@@ -82,10 +82,11 @@ class Channel(chn_class.Channel):
                                 "https://urplay.se/api/v1/search?response_type=category",
                                 "https://urplay.se/api/v1/search?type=programradio",
                                 "https://urplay.se/api/v1/search?age=",
-                                "https://urplay.se/api/v1/search?response_type=limited"],
+                                "https://urplay.se/api/v1/search?response_type=limited",
+                                "#category"],
                                name="Category content", json=True,
                                preprocessor=self.merge_category_items,
-                               parser=["results"], creator=self.create_json_item)
+                               parser=["results"], creator=self.create_search_result)
 
         # Searching
         self._add_data_parser("https://urplay.se/api/v1/search", json=True,
@@ -145,7 +146,7 @@ class Channel(chn_class.Channel):
                 "start={}&"
                 "view=title",
 
-            "halsa-och-relationer":
+            "halsa-och-relationer----old":
                 "https://urplay.se/api/v1/search?"
                 "main_genre_must_not[]=forelasning&"
                 "main_genre_must_not[]=panelsamtal&"
@@ -155,6 +156,39 @@ class Channel(chn_class.Channel):
                 "singles_and_series=true&"
                 "start={}&"
                 "view=title",
+
+            "halsa-och-relationer":
+                "https://urplay.se/api/v1/search?"
+                "category=H%C3%A4lsa%20%26%20relationer&"
+                # "header=Senaste&"
+                "is_audio_described=false&"
+                "is_sign_language_interpreted=false&"
+                "main_genre[]=Reportage&"
+                "main_genre[]=L%C3%A4r-mer-program&"
+                "main_genre[]=Fiktiva%20ber%C3%A4ttelser&"
+                "main_genre[]=Dokument%C3%A4rserie&"
+                "main_genre[]=Nyheter&"
+                "main_genre[]=Drama&"
+                "main_genre[]=Faktaprogram&"
+                "main_genre[]=Dokument%C3%A4rfilm&"
+                "main_genre[]=Talkshow&"
+                "main_genre[]=Experiment&"
+                "main_genre[]=Kortfilm&"
+                "main_genre[]=Reality&"
+                "main_genre[]=Reseprogram&"
+                "main_genre[]=S%C3%A5nger&"
+                "main_genre[]=Teaterf%C3%B6rest%C3%A4llning&"
+                "main_genre[]=Explainer&"
+                "platform=urplay&"
+                "product_type=series&"
+                # "response_type=limited&"
+                "rows={}&"
+                # "showFiltersAndSorting=false&"
+                # "sort=published&"
+                "start={}&"
+                "typical_age_range[]=adults&"
+                "typical_age_range[]=secondary&"
+                "typical_age_range[]=primary7-9",
             
             "kultur-och-historia":
                 "https://urplay.se/api/v1/search?"
@@ -268,6 +302,9 @@ class Channel(chn_class.Channel):
 
         items = []
         url = self.parentItem.url
+        if url.startswith("#category"):
+            url = self.parentItem.metaData.get("url_format")
+
         if "{" not in url:
             return data, items
 
@@ -298,8 +335,13 @@ class Channel(chn_class.Channel):
             Logger.warning("Missing category in list: %s", slug)
             return None
 
-        result_set["url"] = url
-        return chn_class.Channel.create_folder_item(self, result_set)
+        item = chn_class.Channel.create_folder_item(self, result_set)
+        item.url = "#category"
+        if item is None:
+            return None
+
+        item.metaData["url_format"] = url
+        return item
 
     # noinspection PyUnusedLocal
     def merge_add_categories_and_search(self, data):
@@ -381,32 +423,6 @@ class Channel(chn_class.Channel):
 
         url = "https://urplay.se/api/v1/search?query=%s"
         return chn_class.Channel.search_site(self, url)
-
-    def create_json_item(self, result_set):
-        """ Creates a new MediaItem for an folder or video.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set)
-
-        item_type = result_set["format"]
-        if item_type == "video":
-            return self.create_video_item_json(result_set)
-        elif item_type == "audio":
-            # Apparently the audio is always linking to a show folder.
-            return self.create_episode_json_item(result_set)
-        else:
-            Logger.warning("Found unknown type: %s", item_type)
-            return None
 
     def create_episode_json_item(self, result_set):
         """ Creates a new MediaItem for an episode.
@@ -688,7 +704,7 @@ class Channel(chn_class.Channel):
         result_type = result_set["mediaType"].lower()
         if result_type == "series":
             return self.__create_search_result(result_set, "series")
-        elif result_type == "episode":
+        elif result_type == "episode" or result_type == "single":
             return self.__create_search_result(result_set, "program")
 
         Logger.error("Missing search result type: %s", result_type)
@@ -713,10 +729,15 @@ class Channel(chn_class.Channel):
 
         if result_type == "series":
             url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
-            item = FolderItem(result_set["title"], url, contenttype.EPISODES, media_type=mediatype.TVSHOW)
+            item = FolderItem(result_set["title"], url, contenttype.EPISODES, media_type=mediatype.FOLDER)
         else:
             url = "https://urplay.se/{}/{}".format(result_type, result_set["slug"])
-            item = MediaItem(result_set["title"], url)
+            series_title = result_set.get("seriesTitle")
+            if series_title:
+                title = "{} - {}".format(series_title, result_set["title"])
+            else:
+                title = result_set["title"]
+            item = MediaItem(title, url, media_type=mediatype.EPISODE)
 
         item.thumb = "https://assets.ur.se/id/{}/images/1_hd.jpg".format(result_set["id"])
         item.fanart = "https://assets.ur.se/id/{}/images/1_l.jpg".format(result_set["id"])
