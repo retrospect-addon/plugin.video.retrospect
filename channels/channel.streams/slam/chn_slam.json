@@ -1,16 +1,15 @@
 {
   "channels": [
     {
-      "guid": "0C59FF4A-8E07-11E1-B2D2-8071BBE59B18",
+      "guid": "1C99SF3A-8F07-12E1-F2D2-8075BBC59Z17",
       "name": "Slam!",
       "description": {
         "en": "Slam! - Play Music Play life!\n\nListen to broadcasts from Slam! (www.slam.nl).",
-        "nl": "Slam! - Play music Play life!\n\nLuister naar uitzendingen van Radio slam gemist (www.slam.nl)."
+        "nl": "Slam! - Play music Play life!\n\nLuister naar uitzendingen van slam (www.slam.nl)."
       },
       "icon": "slam.png",
       "category": "Radio",
-      "channelcode": "slam",
-      "sortorder": 221,
+      "sortorder": 252,
       "message": "",
       "language": "nl",
       "fanart": "radioslamfanart.jpg"
