@@ -34,25 +34,23 @@ class Channel(chn_class.Channel):
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.noImage = ""
 
-        # setup the urls
+          # setup the urls
         if self.channelCode == 'slam':
             self.noImage = "slam.png"
-            self.mainListUri = "https://content.talparad.io/spaces/3p0bn61n86ty/environments/master/entries?content_type=overview&fields.slug=programmas&include=4"
+            self.mainListUri = "https://slam.nl"
             self.baseUrl = "http://www.slam.nl"
-            self.swfUrl = "http://www.538.nl/jwplayer/player.swf" #I am not sure what this is
-            
 
-         # setup the main parsing data
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              json=True, preprocessor=self.make_episode_dictionary_array,
-                              parser=["items", ], creator=self.create_episode_item)
 
-        self._add_data_parser("*", json=True,
-                              parser=["items", "tracklist"], creator=self.create_music_item,
-                              updater=self.update_music_item)
+        # setup the main parsing data
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.add_live_streams)
 
-        # self._add_data_parser("https://playerservices.streamtheworld.com/api/livestream",
-        #                       updater=self.update_live_stream_xml)
+        # updater for live streams
+        self._add_data_parsers(["https://hls.slam.nl/streaming/hls/"],
+                               updater=self.update_live_stream_m3u8)
+
+        self._add_data_parser("https://playerservices.streamtheworld.com/api/livestream-redirect",
+                              updater=self.update_live_stream_redirect)
 
         #===========================================================================================
         # non standard items
@@ -61,7 +59,8 @@ class Channel(chn_class.Channel):
         # Test cases:
 
         #============================= Actual channel setup STOPS here =============================
-        return
+
+    def add_live_streams(self, data):
 
         items = []
 
@@ -73,8 +72,61 @@ class Channel(chn_class.Channel):
         slam_fm.add_stream(slam_fm.url)
         slam_fm.complete = True
         items.append(slam_fm)
-        return data, items
 
+        slam_fm = MediaItem("Slam! 40", "https://25343.live.streamtheworld.com/WEB14_MP3_SC"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
+
+        slam_fm = MediaItem("Slam! Nonstop", "https://22323.live.streamtheworld.com/WEB10_MP3_SC"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
+
+        slam_fm = MediaItem("Slam! The Boom Room", "https://20873.live.streamtheworld.com/WEB12_MP3_SC"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
+
+        slam_fm = MediaItem("Slam! 00s", "https://22713.live.streamtheworld.com/WEB15_MP3_SC"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
+
+        slam_fm = MediaItem("Slam! Juize", "https://22543.live.streamtheworld.com/WEB09_MP3_SC"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
+
+
+        slam_fm = MediaItem("Slam! MixMarathon", "https://stream.slam.nl/web13_mp3"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! Hardstyle", "https://22323.live.streamtheworld.com/WEB11_MP3_SC"
                                         "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
@@ -84,54 +136,23 @@ class Channel(chn_class.Channel):
         slam_fm.add_stream(slam_fm.url)
         slam_fm.complete = True
         items.append(slam_fm)
+
+        slam_fm = MediaItem("Slam! Housuh in de Pauzuh", "http://22553.live.streamtheworld.com/SLAM_MP3_SC"
+                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                                        "&pname=TDSdk&pversion=2.9&banners=none")
+        slam_fm.media_type = mediatype.AUDIO
+        slam_fm.isLive = True
+        slam_fm.add_stream(slam_fm.url)
+        slam_fm.complete = True
+        items.append(slam_fm)
         return data, items
 
-    def create_api_station(self, result_set):
-        """ Creates a MediaItem of type 'video' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focussed or selected
-        for playback.
-
-        :param dict result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|None
-
-        """
+   
 
         Logger.trace(result_set)
-        items = []
+        
 
-        title = result_set['title']
-        stream_types = result_set["media"]
-        for stream in stream_types:
-            url = stream["uri"]
-            if not url.startswith("http"):
-                continue
-
-            source = stream["source"]
-
-            if "video" in source:
-                item = MediaItem(
-                    "{} Video".format(title), url, media_type=mediatype.VIDEO)
-                item.isLive = True
-                items.append(item)
-
-            else:
-                item = MediaItem(
-                    title, url, media_type=mediatype.AUDIO)
-                items.append(item)
-
-            Logger.debug("Found stream for %s: %s (%s)", title, url, source)
-
-        return items
-
+    
 
     def update_live_stream_m3u8(self, item):
         """ Updates an existing MediaItem with more data.
