@@ -151,4 +151,4 @@ class TestRegioGroei(ChannelTest):
         url = "https://api.regiogroei.cloud/programs/tv-rijnmond?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
-        self._test_folder_url(url, expected_results=2)
+        self._test_folder_url(url, expected_results=1)
