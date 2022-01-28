@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-01-26 09:16+0000\n"
+"PO-Revision-Date: 2022-01-27 09:12+0000\n"
 "Last-Translator: bas <bas@kodi.tv>\n"
 "Language-Team: Swedish <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/sv_se/>\n"
 "Language: sv_se\n"
@@ -1036,7 +1036,7 @@ msgstr "Enstaka avsnitt"
 
 msgctxt "#30584"
 msgid "Fetching a long list of items using multiple API calls."
-msgstr "Flera hämtningar för en lång programlista."
+msgstr "Hämtar en lång lista med objekt med flera API-anrop."
 
 msgctxt "#30585"
 msgid "Page {} of {}"
@@ -1044,7 +1044,7 @@ msgstr "Sida {} av {}"
 
 msgctxt "#30586"
 msgid "Number of pages to load for the main listing"
-msgstr "Antal sidor som skall laddas ner för programlistan"
+msgstr "Antal sidor som skall laddas ner för huvudlistan"
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
