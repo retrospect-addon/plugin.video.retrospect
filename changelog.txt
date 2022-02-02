@@ -10,3 +10,5 @@ _None_
 
 [B]Channel related[/B]
 * Changed: RTV Rijnmond now uses RegioGroei back-end.
+* Fixed: UR Play broke (See #1604).
+* Changed: Omroep West now uses RegioGroei back-end.

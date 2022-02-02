@@ -152,3 +152,39 @@ class TestRegioGroei(ChannelTest):
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
         self._test_folder_url(url, expected_results=1)
+
+    # RTV West
+    def test_tv_west_channel_exists(self):
+        channel = self._switch_channel("omroepwest")
+        self.assertIsNotNone(channel)
+
+    def test_tv_west_mainlist(self):
+        self._switch_channel("omroepwest")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_tv_westd_video_list(self):
+        self._switch_channel("omroepwest")
+        url = "https://api.regiogroei.cloud/page/program/170000115?slug=tv-west-nieuws&origin=170000115"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_tv_westd_video_update(self):
+        self._switch_channel("omroepwest")
+        url = "https://api.regiogroei.cloud/page/episode/170392546?slug=tv-west-nieuws&origin=170392546"
+        item = self._test_video_url(url)
+        self.assertFalse(item.isLive)
+
+    def test_tv_west_live(self):
+        self._switch_channel("omroepwest")
+        url = "https://api.regiogroei.cloud/page/channel/tv-west?channel=tv-west"
+        live_item = self._test_video_url(url)
+        self.assertTrue(live_item.isLive)
+
+    def test_tv_west_day(self):
+        self._switch_channel("omroepwest")
+        today = datetime.datetime.now() - datetime.timedelta(days=1)
+        tomorrow = today + datetime.timedelta(days=1)
+        url = "https://api.regiogroei.cloud/programs/tv-west?startDate=" \
+              "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
+            format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
+        self._test_folder_url(url, expected_results=1)
