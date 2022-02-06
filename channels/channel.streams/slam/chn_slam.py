@@ -34,12 +34,11 @@ class Channel(chn_class.Channel):
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes =====
         self.noImage = ""
 
-          # setup the urls
+        # setup the urls
         if self.channelCode == 'slam':
             self.noImage = "slam.png"
             self.mainListUri = "https://slam.nl"
             self.baseUrl = "http://www.slam.nl"
-
 
         # setup the main parsing data
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
@@ -52,21 +51,21 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://playerservices.streamtheworld.com/api/livestream-redirect",
                               updater=self.update_live_stream_redirect)
 
-        #===========================================================================================
+        # ===========================================================================================
         # non standard items
 
-        #===========================================================================================
+        # ===========================================================================================
         # Test cases:
 
-        #============================= Actual channel setup STOPS here =============================
+        # ============================= Actual channel setup STOPS here =============================
 
     def add_live_streams(self, data):
 
         items = []
 
         slam_fm = MediaItem("Slam!", "http://22553.live.streamtheworld.com/SLAM_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -83,8 +82,8 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! Nonstop", "https://22323.live.streamtheworld.com/WEB10_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -92,8 +91,8 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! The Boom Room", "https://20873.live.streamtheworld.com/WEB12_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -101,8 +100,8 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! 00s", "https://22713.live.streamtheworld.com/WEB15_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -110,18 +109,17 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! Juize", "https://22543.live.streamtheworld.com/WEB09_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
         slam_fm.complete = True
         items.append(slam_fm)
 
-
         slam_fm = MediaItem("Slam! MixMarathon", "https://stream.slam.nl/web13_mp3"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -129,8 +127,8 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! Hardstyle", "https://22323.live.streamtheworld.com/WEB11_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -138,8 +136,8 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
 
         slam_fm = MediaItem("Slam! Housuh in de Pauzuh", "http://22553.live.streamtheworld.com/SLAM_MP3_SC"
-                                        "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
-                                        "&pname=TDSdk&pversion=2.9&banners=none")
+                            "?ttag=PLAYER%3ANOPREROLL&tdsdk=js-2.9"
+                            "&pname=TDSdk&pversion=2.9&banners=none")
         slam_fm.media_type = mediatype.AUDIO
         slam_fm.isLive = True
         slam_fm.add_stream(slam_fm.url)
@@ -171,7 +169,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        for s, b in M3u8.get_streams_from_m3u8(item.url):
+        for s, b in M3u8.set_input_stream_addon_input(item.url):
             item.complete = True
             item.add_stream(s, b)
 
