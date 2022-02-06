@@ -145,8 +145,6 @@ class Channel(chn_class.Channel):
         items.append(slam_fm)
         return data, items
 
-        Logger.trace(result_set)
-
     def update_live_stream_m3u8(self, item):
         """ Updates an existing MediaItem with more data.
 
