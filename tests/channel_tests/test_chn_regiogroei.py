@@ -129,7 +129,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_rijnmond_video_list(self):
         self._switch_channel("rtvrijnmond")
-        url = "https://api.regiogroei.cloud/page/program/19?slug=bureau-rijnmond&origin=19"
+        url = "https://api.regiogroei.cloud/page/program/tvnws?slug=rijnmond-vandaag&origin=tvnws"
         self._test_folder_url(url, expected_results=10)
 
     def test_rijnmond_video_update(self):
