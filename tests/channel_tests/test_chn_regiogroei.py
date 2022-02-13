@@ -188,3 +188,33 @@ class TestRegioGroei(ChannelTest):
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
         self._test_folder_url(url, expected_results=1)
+
+    # TV gelderland
+    def test_omroepgelderland_channel_exists(self):
+        channel = self._switch_channel("omroepgelderland")
+        self.assertIsNotNone(channel)
+
+    def test_omroepgelderland_mainlist(self):
+        self._switch_channel("omroepgelderland")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_omroepgelderland_show_list(self):
+        self._switch_channel("omroepgelderland")
+        url = "https://api.regiogroei.cloud/page/program/83"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_omroepgelderland_news_listing(self):
+        self._switch_channel("omroepgelderland")
+        url = "https://api.regiogroei.cloud/page/program/31"
+        self._test_folder_url(url, expected_results=20)
+
+    def test_omroepgelderland_video(self):
+        self._switch_channel("omroepgelderland")
+        url = "https://api.regiogroei.cloud/page/episode/101616?slug=gld-nieuws&origin=101616"
+        self._test_video_url(url)
+
+    def test_omroepgelderland_live_streams(self):
+        self._switch_channel("omroepgelderland")
+        live_url = "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland"
+        items = self._test_video_url(live_url)
