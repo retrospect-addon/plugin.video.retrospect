@@ -13,3 +13,5 @@ _None_
 * Fixed: UR Play broke (See #1604).
 * Changed: Omroep West now uses RegioGroei back-end.
 * Moved: Omroep Gelderland to RegioGroei channel.
+* Fixed: SVT 'New on Play' (Fixes #1612).
+
