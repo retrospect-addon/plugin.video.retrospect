@@ -14,4 +14,4 @@ _None_
 * Changed: Omroep West now uses RegioGroei back-end.
 * Moved: Omroep Gelderland to RegioGroei channel.
 * Fixed: SVT 'New on Play' (Fixes #1612).
-
+* Fixed: RTV Oost moved to RegioGroei.

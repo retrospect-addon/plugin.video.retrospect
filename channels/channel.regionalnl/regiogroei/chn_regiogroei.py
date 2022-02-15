@@ -89,6 +89,14 @@ class Channel(chn_class.Channel):
             self.httpHeaders["accept"] = "application/vnd.groei.gelderland+json;v=3.0"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland"
 
+        elif self.channelCode == "rtvoost":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?rtvoost"
+            self.noImage = "omroepgelderlandimage.png"
+            self.videoUrlFormat = "https://rtvoost.bbvms.com/p/regiogroei_oost_web_videoplayer/c/{}.json"
+            self.recentSlug = "tv-oost"
+            self.httpHeaders["accept"] = "application/vnd.groei.overijssel+json;v=3.0"
+            self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
+
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode,))
 
