@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.5.2+matrix.1"
+        version="5.5.3+matrix.1"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -118,13 +118,13 @@
     </extension>
 
     <extension point="xbmc.addon.metadata">
-        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.5.2 - Changelog - 2022-01-12[/B]
+        <news>[B]Retrospect v5.5.3 - Changelog - 2022-02-15[/B]
 
-Fixed an issue with NPO Start profiles not loading correctly and some other minor things.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -133,9 +133,12 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Added: &quot;New on Play&quot; category to SVT Play (See #1587).
-* Fixed: NRK.no updated their API.
-* Fixed: Moved to id.npo.nl for logging in to npostart (Fixes #1597).
+* Changed: RTV Rijnmond now uses RegioGroei back-end.
+* Fixed: UR Play broke (See #1604).
+* Changed: Omroep West now uses RegioGroei back-end.
+* Moved: Omroep Gelderland to RegioGroei channel.
+* Fixed: SVT &#x27;New on Play&#x27; (Fixes #1612).
+* Fixed: RTV Oost moved to RegioGroei.
 
         </news>
         <assets>
