@@ -13,7 +13,7 @@ class TestVrtNuChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 200, "No items found in mainlist")
+        self.assertGreaterEqual(len(items), 120, "No items found in mainlist")
 
     def test_videos(self):
         url = "https://www.vrt.be/vrtnu/a-z/4ever/"
