@@ -33,7 +33,7 @@ jobs:
         python-version: [ 2.7, 3.7, 3.8, 3.9 ]
         include:
           # Kodi Leia on Windows uses a bundled Python 2.7.
-          - os: windows-latest
+          - os: windows-2019
             python-version: 2.7
 
           # Kodi Matrix on Windows uses a bundled Python 3.8, but we test 3.9 also to be sure.
