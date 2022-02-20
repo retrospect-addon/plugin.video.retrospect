@@ -45,7 +45,7 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?utrecht"
             self.noImage = "rtvutrechtimage.png"
             self.videoUrlFormat = "https://rtvutrecht.bbvms.com/p/regiogroei_utrecht_web_videoplayer/c/{}.json"
-            self.recentSlug = "rtvutrecht"
+            self.recentSlug = "rtv-utrecht"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/rtv-utrecht?channel=rtv-utrecht"
             self.httpHeaders["accept"] = "application/vnd.groei.utrecht+json;v=2.0"
 
