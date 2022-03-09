@@ -42,6 +42,6 @@ class TestSvtChannel(ChannelTest):
         self.assertIsNotNone(item)
 
     def test_html_video_update(self):
-        url = "https://www.svtplay.se/video/24060250/i-am-patrick-swayze"
+        url = "https://www.svtplay.se/video/33718658/anders-matresa/anders-matresa-bjorn-i-harjedalen?info=visa"
         item = self._test_video_url(url)
-        self.assertTrue(item.url.endswith("82mMLWX"))
+        self.assertTrue(item.url.endswith("jp9dDmp"))
