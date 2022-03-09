@@ -166,13 +166,11 @@ class Channel(chn_class.Channel):
         :rtype: MediaItem
 
         """
-
-        for s, b in M3u8.set_input_stream_addon_input(item.url):
-            item.complete = True
-            item.add_stream(s, b)
-
+        
+        stream = item.add_stream(stream_url, 0)
+        M3u8.set_input_stream_addon_input(stream, self.headers)
         item.complete = True
-        return item
+        
 
     def update_live_stream_redirect(self, item):
         """ Updates an existing MediaItem with more data.
