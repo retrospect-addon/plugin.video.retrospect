@@ -114,7 +114,7 @@ class TestKijkNlChannel(ChannelTest):
             "%2Ctitle%2Cdescription%2Cguid%2Cupdated%2CseriesTvSeasons%7Bid%7D%2CimageMedia"
             "%7Burl%2Clabel%7D%2Ctype%2Csources%7Btype%2Cfile%2Cdrm%7D%2CseasonNumber"
             "%2CtvSeasonEpisodeNumber%2Cseries%7Btitle%7D%2ClastPubDate%7D%7D%7D",
-            expected_results=5)
+            expected_results=4)
 
     def test_graphql_search_2(self):
         self._test_folder_url(

@@ -45,7 +45,7 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?utrecht"
             self.noImage = "rtvutrechtimage.png"
             self.videoUrlFormat = "https://rtvutrecht.bbvms.com/p/regiogroei_utrecht_web_videoplayer/c/{}.json"
-            self.recentSlug = "rtvutrecht"
+            self.recentSlug = "rtv-utrecht"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/rtv-utrecht?channel=rtv-utrecht"
             self.httpHeaders["accept"] = "application/vnd.groei.utrecht+json;v=2.0"
 
@@ -72,6 +72,30 @@ class Channel(chn_class.Channel):
             self.recentSlug = "tv-rijnmond"
             self.httpHeaders["accept"] = "application/vnd.groei.zh-rijnmond+json;v=3.0"
             self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-rijnmond?channel=tv-rijnmond"
+
+        elif self.channelCode == "omroepwest":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs"
+            self.noImage = "omroepwestimage.png"
+            self.videoUrlFormat = "https://omroepwest.bbvms.com/p/regiogroei_west_web_videoplayer/c/{}.json"
+            self.recentSlug = "tv-west"
+            self.httpHeaders["accept"] = "application/vnd.groei.zh-west+json;v=3.0"
+            self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-west?channel=tv-west"
+
+        elif self.channelCode == "omroepgelderland":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?omroepgelderland"
+            self.noImage = "omroepgelderlandimage.png"
+            self.videoUrlFormat = "https://omroepgelderland.bbvms.com/p/regiogroei_gelderland_web_videoplayer/c/{}.json"
+            self.recentSlug = "tv-gelderland"
+            self.httpHeaders["accept"] = "application/vnd.groei.gelderland+json;v=3.0"
+            self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland"
+
+        elif self.channelCode == "rtvoost":
+            self.mainListUri = "https://api.regiogroei.cloud/page/tv/programs?rtvoost"
+            self.noImage = "omroepgelderlandimage.png"
+            self.videoUrlFormat = "https://rtvoost.bbvms.com/p/regiogroei_oost_web_videoplayer/c/{}.json"
+            self.recentSlug = "tv-oost"
+            self.httpHeaders["accept"] = "application/vnd.groei.overijssel+json;v=3.0"
+            self.liveUrl = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
 
         else:
             raise NotImplementedError("Channelcode '%s' not implemented" % (self.channelCode,))

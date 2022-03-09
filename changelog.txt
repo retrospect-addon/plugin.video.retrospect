@@ -1,4 +1,4 @@
-[B]Retrospect v5.5.2 - Changelog - 2022-01-12[/B]
+[B]Retrospect v5.5.3 - Changelog - 2022-02-15[/B]
 
 t.b.d.
 
@@ -10,3 +10,8 @@ _None_
 
 [B]Channel related[/B]
 * Changed: RTV Rijnmond now uses RegioGroei back-end.
+* Fixed: UR Play broke (See #1604).
+* Changed: Omroep West now uses RegioGroei back-end.
+* Moved: Omroep Gelderland to RegioGroei channel.
+* Fixed: SVT 'New on Play' (Fixes #1612).
+* Fixed: RTV Oost moved to RegioGroei.

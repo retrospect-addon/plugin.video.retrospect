@@ -39,7 +39,7 @@ class TestRegioGroei(ChannelTest):
         url = "https://api.regiogroei.cloud/programs/rtv-utrecht?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}".\
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
-        self._test_folder_url(url, expected_results=2)
+        self._test_folder_url(url, expected_results=1)
 
     def test_rtv_utrecht_live(self):
         url = "https://api.regiogroei.cloud/page/channel/rtv-utrecht?channel=rtv-utrecht"
@@ -115,7 +115,7 @@ class TestRegioGroei(ChannelTest):
         url = "https://api.regiogroei.cloud/programs/tv-noord?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
-        self._test_folder_url(url, expected_results=2)
+        self._test_folder_url(url, expected_results=1)
 
     # RTV Rijnmond
     def test_rijnmond_channel_exists(self):
@@ -129,7 +129,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_rijnmond_video_list(self):
         self._switch_channel("rtvrijnmond")
-        url = "https://api.regiogroei.cloud/page/program/19?slug=bureau-rijnmond&origin=19"
+        url = "https://api.regiogroei.cloud/page/program/tvnws?slug=rijnmond-vandaag&origin=tvnws"
         self._test_folder_url(url, expected_results=10)
 
     def test_rijnmond_video_update(self):
@@ -151,4 +151,95 @@ class TestRegioGroei(ChannelTest):
         url = "https://api.regiogroei.cloud/programs/tv-rijnmond?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
             format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
-        self._test_folder_url(url, expected_results=2)
+        self._test_folder_url(url, expected_results=1)
+
+    # RTV West
+    def test_tv_west_channel_exists(self):
+        channel = self._switch_channel("omroepwest")
+        self.assertIsNotNone(channel)
+
+    def test_tv_west_mainlist(self):
+        self._switch_channel("omroepwest")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_tv_westd_video_list(self):
+        self._switch_channel("omroepwest")
+        url = "https://api.regiogroei.cloud/page/program/170000115?slug=tv-west-nieuws&origin=170000115"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_tv_westd_video_update(self):
+        self._switch_channel("omroepwest")
+        url = "https://api.regiogroei.cloud/page/episode/170392546?slug=tv-west-nieuws&origin=170392546"
+        item = self._test_video_url(url)
+        self.assertFalse(item.isLive)
+
+    def test_tv_west_live(self):
+        self._switch_channel("omroepwest")
+        url = "https://api.regiogroei.cloud/page/channel/tv-west?channel=tv-west"
+        live_item = self._test_video_url(url)
+        self.assertTrue(live_item.isLive)
+
+    def test_tv_west_day(self):
+        self._switch_channel("omroepwest")
+        today = datetime.datetime.now() - datetime.timedelta(days=1)
+        tomorrow = today + datetime.timedelta(days=1)
+        url = "https://api.regiogroei.cloud/programs/tv-west?startDate=" \
+              "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \
+            format(today.year, today.month, today.day, tomorrow.year, tomorrow.month, tomorrow.day)
+        self._test_folder_url(url, expected_results=1)
+
+    # TV gelderland
+    def test_omroepgelderland_channel_exists(self):
+        channel = self._switch_channel("omroepgelderland")
+        self.assertIsNotNone(channel)
+
+    def test_omroepgelderland_mainlist(self):
+        self._switch_channel("omroepgelderland")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_omroepgelderland_show_list(self):
+        self._switch_channel("omroepgelderland")
+        url = "https://api.regiogroei.cloud/page/program/83"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_omroepgelderland_news_listing(self):
+        self._switch_channel("omroepgelderland")
+        url = "https://api.regiogroei.cloud/page/program/31"
+        self._test_folder_url(url, expected_results=20)
+
+    def test_omroepgelderland_video(self):
+        self._switch_channel("omroepgelderland")
+        url = "https://api.regiogroei.cloud/page/episode/101616?slug=gld-nieuws&origin=101616"
+        self._test_video_url(url)
+
+    def test_omroepgelderland_live_streams(self):
+        self._switch_channel("omroepgelderland")
+        live_url = "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland"
+        items = self._test_video_url(live_url)
+
+    # TV Oost
+    def test_tvoost_channel_exists(self):
+        channel = self._switch_channel("rtvoost")
+        self.assertIsNotNone(channel)
+
+    def test_tvoost_mainlist(self):
+        self._switch_channel("rtvoost")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_tvoost_show_list(self):
+        self._switch_channel("rtvoost")
+        url = "https://api.regiogroei.cloud/page/program/1093?slug=roots&origin=1093"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_tvoost_video(self):
+        self._switch_channel("rtvoost")
+        url = "https://api.regiogroei.cloud/page/episode/557418?slug=roots&origin=557418"
+        self._test_video_url(url)
+
+    def test_tvoost_live_streams(self):
+        self._switch_channel("rtvoost")
+        live_url = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
+        items = self._test_video_url(live_url)
