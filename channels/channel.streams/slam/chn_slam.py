@@ -37,7 +37,7 @@ class Channel(chn_class.Channel):
         # setup the urls
         if self.channelCode == 'slam':
             self.noImage = "slam.png"
-            self.mainListUri = "https://slam.nl"
+            self.mainListUri = "https://api.slam.nl/api/getStreams?brand=slam"
             self.baseUrl = "http://www.slam.nl"
 
         # setup the main parsing data
