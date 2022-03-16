@@ -109,7 +109,7 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_graphql_search(self):
         self._test_folder_url(
-            "https://graph.kijk.nl/graphql?query=query%7Bsearch%28searchParam%3A%22wegmi%22"
+            "https://graph.kijk.nl/graphql?query=query%7Bsearch%28searchParam%3A%22veronica%22"
             "%2CprogramTypes%3A%5BSERIES%2CEPISODE%5D%2Climit%3A50%29%7Bitems%7B__typename"
             "%2Ctitle%2Cdescription%2Cguid%2Cupdated%2CseriesTvSeasons%7Bid%7D%2CimageMedia"
             "%7Burl%2Clabel%7D%2Ctype%2Csources%7Btype%2Cfile%2Cdrm%7D%2CseasonNumber"
