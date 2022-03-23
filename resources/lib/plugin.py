@@ -50,10 +50,6 @@ class Plugin(ActionParser):
             # print the folder structure
             env_ctrl.print_retrospect_settings_and_folders(Config, AddonSettings)
 
-            # show notification
-            XbmcWrapper.show_notification(None, LanguageHelper.get_localized_string(LanguageHelper.StartingAddonId) % (
-                Config.appName,), fallback=False, logger=Logger)
-
             # check for cache folder
             env_ctrl.cache_check()
 
