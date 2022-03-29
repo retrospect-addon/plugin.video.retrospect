@@ -11,6 +11,7 @@ from . channeltest import ChannelTest
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 
 
+@unittest.skip("No longer working.")
 class TestSbsSeChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
