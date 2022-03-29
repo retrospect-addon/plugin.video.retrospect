@@ -12,3 +12,4 @@ _None_
 * Fixed: RTV Utrecht recent slug.
 * Fixed: With the new proper Content-Types and Media-Types we don't need to force an "Info" menu entry (Fixes #1620).
 * Fixed: SVT "New on SVT Play" broken (Fixes #1621).
+* Fixed: 24 Classics moved to Spotify and Youtube (See #1626)
