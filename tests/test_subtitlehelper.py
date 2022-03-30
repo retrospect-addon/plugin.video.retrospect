@@ -2,6 +2,7 @@
 
 import io
 import os
+import re
 import shutil
 import unittest
 
@@ -50,3 +51,13 @@ class TestSubtitleHelper(unittest.TestCase):
         # noinspection PyUnresolvedReferences
         srt = SubtitleHelper._SubtitleHelper__convert_web_vtt_to_srt(raw)
         self.assertIsNot("", srt)
+
+    def test_webvtt_with_guids(self):
+        with io.open(os.path.join("tests", "data", "webvtt002.vtt"), mode='r', encoding='utf-8') as fp:
+            raw = fp.read()
+
+        # noinspection PyUnresolvedReferences
+        srt = SubtitleHelper._SubtitleHelper__convert_web_vtt_to_srt(raw)
+
+        guids = re.findall(r"^[0-9a-f]{32}$", srt, re.MULTILINE)
+        self.assertFalse(guids)
