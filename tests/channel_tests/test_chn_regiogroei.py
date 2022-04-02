@@ -243,3 +243,28 @@ class TestRegioGroei(ChannelTest):
         self._switch_channel("rtvoost")
         live_url = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
         items = self._test_video_url(live_url)
+
+    # RTV Drenthe
+    def test_rtvdrenthe_channel_exists(self):
+        channel = self._switch_channel("rtvdrenthe")
+        self.assertIsNotNone(channel)
+
+    def test_rtvdrenthe_mainlist(self):
+        self._switch_channel("rtvdrenthe")
+        items = self.channel.process_folder_list(None)
+        self.assertGreater(len(items), 20)
+
+    def test_rtvdrenthe_show_list(self):
+        self._switch_channel("rtvdrenthe")
+        url = "https://api.regiogroei.cloud/page/program/11?slug=drenthe-nu&origin=11"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_rtvdrenthe_video(self):
+        self._switch_channel("rtvdrenthe")
+        url = "https://api.regiogroei.cloud/page/episode/2827C26A26AED332C12587DE00382BB9?slug=drenthe-nu&origin=2827C26A26AED332C12587DE00382BB9"
+        self._test_video_url(url)
+
+    # def test_rtvdrenthe_live_streams(self):
+    #     self._switch_channel("rtvdrenthe")
+    #     live_url = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
+    #     items = self._test_video_url(live_url)

@@ -14,3 +14,4 @@ _None_
 * Fixed: SVT "New on SVT Play" broken (Fixes #1621).
 * Fixed: 24 Classics moved to Spotify and Youtube (See #1626)
 * Fixed: Some VTT subtitles have guids as lines (Fixes #1625).
+* Fixed: RTV Drenthe.
