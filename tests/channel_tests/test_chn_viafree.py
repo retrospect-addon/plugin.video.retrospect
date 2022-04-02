@@ -17,5 +17,5 @@ class TestViaFreeChannel(ChannelTest):
         self.assertGreater(len(items), 100)
 
     def test_video_listing(self):
-        url = "http://playapi.mtgx.tv/v3/videos?format=15627&order=-airdate&type=program"
+        url = "http://playapi.mtgx.tv/v3/videos?format=11987&order=-airdate&type=program"
         self._test_folder_url(url, expected_results=5)
