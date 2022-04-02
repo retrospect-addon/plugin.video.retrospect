@@ -39,7 +39,7 @@ class TestSvtChannel(ChannelTest):
     def test_new_on_svt(self):
         url = "https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&" \
               "operationName=FionaPage&variables=%7B%22includeFullOppetArkiv%22%3A%20true%2C%20" \
-              "%22selectionId%22%3A%20%228DMWMyQ%22%7D&extensions=%7B%22persistedQuery%22%3A%20" \
+              "%22selectionId%22%3A%20%22e6YwkAY%22%7D&extensions=%7B%22persistedQuery%22%3A%20" \
               "%7B%22version%22%3A%201%2C%20%22sha256Hash" \
               "%22%3A%20%220d50e0ae57df3a99f8b7fb0b94e1159fea64f04297d7dcb7c75f0358f09a1a48%22%7D%7D"
         self._test_folder_url(url, expected_results=4)
