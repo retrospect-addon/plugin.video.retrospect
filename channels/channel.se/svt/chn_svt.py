@@ -510,7 +510,7 @@ class Channel(chn_class.Channel):
         if not self.__show_folders:
             return None
 
-        if result_set["type"].lower() == "upcoming":
+        if result_set.get("type", "").lower() == "upcoming":
             return None
 
         item = MediaItem(result_set["name"], self.parentItem.url)
@@ -818,16 +818,16 @@ class Channel(chn_class.Channel):
 
         items = []
         slug = self.parentItem.metaData["slug"]
-        variables = {"titleSlugs": [slug.strip("/")]}
-        hash_value = "4122efcb63970216e0cfb8abb25b74d1ba2bb7e780f438bbee19d92230d491c5"
-        url = self.__get_api_url("TitlePage", hash_value, variables)
+        variables = {"includeFullOppetArkiv": True, "path": slug}
+        hash_value = "d4539b09f69378792486cf87e676af62e9f8ac6de274de616c58b93e86b26da1"
+        url = self.__get_api_url("DetailsPageQuery", hash_value, variables)
         data = UriHandler.open(url)
         json_data = JsonHelper(data)
 
         # Get the parent thumb info
-        parent_item_thumb_data = json_data.get_value("data", "listablesBySlug", 0, "image")
+        parent_item_thumb_data = json_data.get_value("data", "detailsPageByPath", "images", "wide")
 
-        possible_folders = json_data.get_value("data", "listablesBySlug", 0, "associatedContent")
+        possible_folders = json_data.get_value("data", "detailsPageByPath", "associatedContent")
         possible_folders = [p for p in possible_folders if p["id"] != "upcoming"]
 
         if self.__folder_id in self.parentItem.metaData:
