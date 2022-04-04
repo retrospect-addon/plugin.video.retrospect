@@ -178,7 +178,7 @@ class Channel(chn_class.Channel):
 
             LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
                 self.__get_api_url("GridPage",
-                                   "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
+                                   "b30578b1b188242ce190c8a2cefe3d4694efafd17a929d08d273ae224a302b24",
                                    variables={"selectionId": "live"}),
                 True),
 
@@ -187,19 +187,19 @@ class Channel(chn_class.Channel):
 
             LanguageHelper.get_localized_string(LanguageHelper.Recent): (
                 self.__get_api_url("GridPage",
-                                   "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
+                                   "b30578b1b188242ce190c8a2cefe3d4694efafd17a929d08d273ae224a302b24",
                                    variables={"selectionId": "latest"}),
                 False),
 
             LanguageHelper.get_localized_string(LanguageHelper.LastChance): (
                 self.__get_api_url("GridPage",
-                                   "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
+                                   "b30578b1b188242ce190c8a2cefe3d4694efafd17a929d08d273ae224a302b24",
                                    variables={"selectionId": "lastchance"}),
                 False),
 
             LanguageHelper.get_localized_string(LanguageHelper.MostViewedEpisodes): (
                 self.__get_api_url("GridPage",
-                                   "265677a2465d93d39b536545cdc3664d97e3843ce5e34f145b2a45813b85007b",
+                                   "b30578b1b188242ce190c8a2cefe3d4694efafd17a929d08d273ae224a302b24",
                                    variables={"selectionId": "popular"}),
                 False),
 
