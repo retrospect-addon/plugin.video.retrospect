@@ -513,7 +513,12 @@ class Channel(chn_class.Channel):
         if result_set.get("type", "").lower() == "upcoming":
             return None
 
-        item = MediaItem(result_set["name"], self.parentItem.url)
+        name = result_set["name"]
+        if not name:
+            # If there is no name, use the ID for it and split the ID off.
+            name = result_set["id"].rsplit("-", 1)[0].replace("-", " ").title()
+
+        item = MediaItem(name, self.parentItem.url)
         item.metaData[self.__folder_id] = result_set["id"]
         item.metaData.update(self.parentItem.metaData)
         item.thumb = self.__get_thumb(result_set[self.__parent_images], width=720)
