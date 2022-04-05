@@ -618,7 +618,6 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, url)
         item.description = result_set.get("longDescription")
-        item.media_type = mediatype.EPISODE
         item.set_info_label("duration", int(result_set.get("duration", 0)))
         item.isGeoLocked = result_set.get("restrictions", {}).get("onlyAvailableInSweden", False)
 
@@ -669,6 +668,7 @@ class Channel(chn_class.Channel):
 
             item.name = "{:02}:{:02} - {}".format(hour, minute, item.name)
 
+        item.media_type = mediatype.VIDEO
         season_info = result_set.get("positionInSeason")
         if bool(season_info):
             Logger.debug("Found season info: %s", season_info)
@@ -678,6 +678,7 @@ class Channel(chn_class.Channel):
                     return item
 
                 item.set_season_info(episode_info[1], episode_info[4])
+                item.media_type = mediatype.EPISODE
                 item.name = result_set.get("nameRaw", item.name) or item.name
             except:
                 Logger.warning("Failed to set season info: %s", season_info, exc_info=True)
