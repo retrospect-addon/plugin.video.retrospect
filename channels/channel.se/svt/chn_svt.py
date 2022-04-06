@@ -834,7 +834,10 @@ class Channel(chn_class.Channel):
         parent_item_thumb_data = json_data.get_value("data", "detailsPageByPath", "images", "wide")
 
         possible_folders = json_data.get_value("data", "detailsPageByPath", "associatedContent")
-        possible_folders = [p for p in possible_folders if p["id"] != "upcoming"]
+        possible_folders = [
+            p for p in possible_folders
+            if p["id"] != "upcoming" and p.get("selectionType") != "accessibility"
+        ]
 
         if self.__folder_id in self.parentItem.metaData:
             folder_id = self.parentItem.metaData[self.__folder_id]
