@@ -5,6 +5,7 @@ import datetime
 import pytz
 
 from resources.lib import chn_class, mediatype, contenttype
+from resources.lib.helpers.htmlhelper import HtmlHelper
 
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.regexer import Regexer
@@ -125,9 +126,9 @@ class Channel(chn_class.Channel):
                               creator=self.create_channel_item)
 
         # Searching
-        self._add_data_parser("https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=SearchPage",
+        self._add_data_parser("https://contento-search.svt.se/graphql",
                               json=True,
-                              parser=["data", "search"], creator=self.create_api_typed_item)
+                              parser=["data", "searchPage", "flat", "hits"], creator=self.create_api_typed_item)
 
         # Generic updating of videos
         self._add_data_parser("https://api.svt.se/videoplayer-api/video/",
@@ -413,8 +414,9 @@ class Channel(chn_class.Channel):
             item = self.create_api_tvshow_type(result_set)
 
         # Search Result
-        elif api_type == "SearchHit":
-            item = self.create_api_typed_item(result_set["item"], add_parent_title=True)
+        elif api_type == "SearchPageHit":
+            # item = self.create_api_typed_item(result_set["item"], add_parent_title=True)
+            item = self.create_api_search_hit(result_set)
 
         # Video items
         elif api_type == "Single":
@@ -812,6 +814,41 @@ class Channel(chn_class.Channel):
         item.metaData[self.__genre_id] = result_set["id"]
         return item
 
+    def create_api_search_hit(self, result_set):
+        """ Creates a MediaItem of type 'video' or 'folder' using the result_set from the API.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
+        :rtype: MediaItem|None
+
+        """
+
+        teaser = result_set["teaser"]
+        result_set.update(teaser or {})
+        category_teaser = result_set["categoryTeaser"]
+        result_set.update(category_teaser or {})
+
+        # Clean up the name
+        name = result_set["heading"]
+        name = HtmlHelper.to_text(name)
+        result_set["name"] = name
+        result_set["heading"] = name
+
+        if teaser:
+            return self.create_api_typed_item(result_set)
+        else:
+            return self.create_api_genre_type(result_set)
+
     # noinspection PyUnusedLocal
     def fetch_program_api_data(self, data):
         """ Loaded the data that contains the main episodes for a show.
@@ -974,10 +1011,18 @@ class Channel(chn_class.Channel):
 
         """
 
+        # https://contento-search.svt.se/graphql?operationName=AutoCompleteSearch&variables=%7B%22abTestVariants%22%3A%5B%5D%2C%22querystring%22%3A%22nyheter%22%2C%22searchClickHistory%22%3A%5B%5D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%228989b62115022fda8a6129d0f512b94f4d2de3bf2110415647c09c4316ce4a91%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-production-client
+        # url = self.__get_api_url(
+        #     "AutoCompleteSearch", "8989b62115022fda8a6129d0f512b94f4d2de3bf2110415647c09c4316ce4a91",
+        #     {"querystring": "----", "abTestVariants": [], "searchClickHistory": []}
+        # )
+        # https://contento-search.svt.se/graphql?operationName=SearchPage&variables=%7B%22abTestVariants%22%3A%5B%5D%2C%22querystring%22%3A%22nyheter%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-production-client
         url = self.__get_api_url(
-            "SearchPage", "5dc9b6838966c23614566893feed440e718c51069fc394bcbfd3096d13ccf72f",
-            {"querystring": "----"}
+            "SearchPage", "ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606",
+            {"querystring": "----", "abTestVariants": [], "searchClickHistory": []}
         )
+
+        url = url.replace("https://api.svt.se/contento/graphql", "https://contento-search.svt.se/graphql")
         url = url.replace("%", "%%")
         url = url.replace("----", "%s")
         return chn_class.Channel.search_site(self, url)
