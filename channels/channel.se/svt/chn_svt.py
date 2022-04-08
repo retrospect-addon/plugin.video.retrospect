@@ -571,6 +571,10 @@ class Channel(chn_class.Channel):
 
         # Transfer some items
         new_result_set[self.__parent_images] = result_set.get(self.__parent_images)
+
+        if "longDescription" not in new_result_set:
+            new_result_set["longDescription"] = result_set.get("description")
+
         if "images" in result_set:
             images = result_set.get("images", {}).get("wide")
             if images:
