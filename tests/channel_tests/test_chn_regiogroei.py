@@ -134,7 +134,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_rijnmond_video_update(self):
         self._switch_channel("rtvrijnmond")
-        url = "https://api.regiogroei.cloud/page/episode/32738"
+        url = "https://api.regiogroei.cloud/page/episode/1462125_20220306170000"
         item = self._test_video_url(url)
         self.assertFalse(item.isLive)
 
