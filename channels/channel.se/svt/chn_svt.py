@@ -838,11 +838,18 @@ class Channel(chn_class.Channel):
         category_teaser = result_set["categoryTeaser"]
         result_set.update(category_teaser or {})
 
-        # Clean up the name
+        # Clean up the name and description and highlight the search results.
         name = result_set["heading"]
+        name = name.replace("<em>", "[COLOR=yellow]").replace("</em>", "[/COLOR]")
         name = HtmlHelper.to_text(name)
+
+        description = result_set.get("description", "")
+        description = description.replace("<em>", "[COLOR=yellow]").replace("</em>", "[/COLOR]")
+        description = HtmlHelper.to_text(description)
+
         result_set["name"] = name
         result_set["heading"] = name
+        result_set["description"] = description
 
         if teaser:
             return self.create_api_typed_item(result_set)
