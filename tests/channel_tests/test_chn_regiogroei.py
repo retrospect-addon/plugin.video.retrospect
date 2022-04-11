@@ -147,6 +147,11 @@ class TestRegioGroei(ChannelTest):
     def test_rijnmond_day(self):
         self._switch_channel("rtvrijnmond")
         today = datetime.datetime.now() - datetime.timedelta(days=1)
+
+        # No results on sunday
+        if today.weekday() > 5:
+            today = today - datetime.timedelta(days=1)
+
         tomorrow = today + datetime.timedelta(days=1)
         url = "https://api.regiogroei.cloud/programs/tv-rijnmond?startDate=" \
               "{:04d}-{:02d}-{:02d}&endDate={:04d}-{:02d}-{:02d}". \

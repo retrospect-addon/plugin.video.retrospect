@@ -9,4 +9,4 @@ This minor update fixes a number of channels that broke/moved.
 * Changed: default to showing thumbs as fanart if no fanart is present (Fixes #1632).
 
 [B]Channel related[/B]
-_None_
+* Fixed: SVT Channel broke due to API changes (Fixes #1628).
