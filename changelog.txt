@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.5~alpha1 - Changelog - 2022-04-03[/B]
+[B]Retrospect v5.5.5 - Changelog - 2022-04-11[/B]
 
-This minor update fixes a number of channels that broke/moved.
+This updates fixes some issues with SVT Play and introduces some logging optimizations.
 
 [B]Framework related[/B]
 * Added: if Kodi has debug logging enabled, also enable debug logging in Retrospect.
