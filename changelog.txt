@@ -1,12 +1,12 @@
-[B]Retrospect v5.5.5 - Changelog - 2022-04-11[/B]
+[B]Retrospect v5.5.6 - Changelog - 2022-xx-xx[/B]
 
-This updates fixes some issues with SVT Play and introduces some logging optimizations.
+T.B.D.
 
 [B]Framework related[/B]
-* Added: if Kodi has debug logging enabled, also enable debug logging in Retrospect.
+_None_
 
 [B]GUI/Settings/Language related[/B]
-* Changed: default to showing thumbs as fanart if no fanart is present (Fixes #1632).
+_None_
 
 [B]Channel related[/B]
-* Fixed: SVT Channel broke due to API changes (Fixes #1628).
+* Fixed: Some VTT subtitles have guids (with hyphens) as lines (Fixes #1635).
