@@ -28,7 +28,7 @@ class TestNickelodeonChannel(ChannelTest):
         from resources.lib.helpers.channelimporter import ChannelIndex
         chn = ChannelIndex.get_register().get_channel(self._channel, "mtvnl")
         items = chn.process_folder_list(None)
-        self.assertGreater(len(items), 50)
+        self.assertGreater(len(items), 20)
 
     def test_show_list_more_pages(self):
         self._switch_channel("mtvnl")
