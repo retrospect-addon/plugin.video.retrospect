@@ -144,6 +144,7 @@ class TestRegioGroei(ChannelTest):
         live_item = self._test_video_url(url)
         self.assertTrue(live_item.isLive)
 
+    @unittest.skip("Currently they are all unavailable.")
     def test_rijnmond_day(self):
         self._switch_channel("rtvrijnmond")
         today = datetime.datetime.now() - datetime.timedelta(days=1)
@@ -222,7 +223,7 @@ class TestRegioGroei(ChannelTest):
     def test_omroepgelderland_live_streams(self):
         self._switch_channel("omroepgelderland")
         live_url = "https://api.regiogroei.cloud/page/channel/tv-gelderland?channel=tv-gelderland"
-        items = self._test_video_url(live_url)
+        self._test_video_url(live_url)
 
     # TV Oost
     def test_tvoost_channel_exists(self):
@@ -247,7 +248,7 @@ class TestRegioGroei(ChannelTest):
     def test_tvoost_live_streams(self):
         self._switch_channel("rtvoost")
         live_url = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
-        items = self._test_video_url(live_url)
+        self._test_video_url(live_url)
 
     # RTV Drenthe
     def test_rtvdrenthe_channel_exists(self):
