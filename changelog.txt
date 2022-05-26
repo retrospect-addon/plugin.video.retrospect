@@ -12,3 +12,4 @@ _None_
 * Fixed: Some VTT subtitles have guids (with hyphens) as lines (Fixes #1635).
 * Fixed: Vier.be broke if no episode number was present (Fixes #1638).
 * Fixed: KetNet broke due to API changes.
+* Removed: ViaFree channels as the moved to Pluto.TV.

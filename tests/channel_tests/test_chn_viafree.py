@@ -4,6 +4,7 @@ import unittest
 from . channeltest import ChannelTest
 
 
+@unittest.skip("ViaFree became Pluto.tv")
 class TestViaFreeChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
