@@ -184,8 +184,8 @@ class Channel(chn_class.Channel):
         self.__NextPageAdded = False
         self.__jsonApiKeyHeader = {"apikey": "07896f1ee72645f68bc75581d7f00d54"}
         self.__useJson = True
-        self.__pageSize = 100
-        self.__max_page_count = 5
+        self.__pageSize = 60
+        self.__max_page_count = 10
         self.__has_premium_cache = None
         self.__timezone = pytz.timezone("Europe/Amsterdam")
 
@@ -1387,7 +1387,8 @@ class Channel(chn_class.Channel):
 
         # get the subtitle
         if fetch_subtitles:
-            sub_title_url = "https://assetscdn.npostart.nl/subtitles/original/nl/%s.vtt" % (episode_id,)
+            # sub_title_url = "https://assetscdn.npostart.nl/subtitles/original/nl/%s.vtt" % (episode_id,)
+            sub_title_url = "https://rs.poms.omroep.nl/v1/api/subtitles/%s/nl_NL/CAPTION.vtt" % (episode_id,)
             sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
                 sub_title_url, episode_id + ".nl.srt", format='srt')
             if sub_title_path:
