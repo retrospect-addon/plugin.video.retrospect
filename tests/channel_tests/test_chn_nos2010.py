@@ -18,7 +18,9 @@ class TestNpoChannel(ChannelTest):
         self.assertEqual(len(items), 8, "No items found in mainlist")
 
     def test_live_radio(self):
-        self._test_folder_url("https://radio-app.omroep.nl/player/script/player.js", 8)
+        self._test_folder_url("https://start-api.npo.nl/page/live",
+                              headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+                              expected_results=8)
 
     def test_live_tv(self):
         self._test_folder_url("https://www.npostart.nl/live", 10)
