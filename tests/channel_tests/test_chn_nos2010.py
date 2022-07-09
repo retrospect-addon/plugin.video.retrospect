@@ -18,7 +18,9 @@ class TestNpoChannel(ChannelTest):
         self.assertEqual(len(items), 8, "No items found in mainlist")
 
     def test_live_radio(self):
-        self._test_folder_url("https://radio-app.omroep.nl/player/script/player.js", 8)
+        self._test_folder_url("https://start-api.npo.nl/page/live",
+                              headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+                              expected_results=8)
 
     def test_live_tv(self):
         self._test_folder_url("https://www.npostart.nl/live", 10)
@@ -42,7 +44,7 @@ class TestNpoChannel(ChannelTest):
 
     def test_full_alpha_list(self):
         items = self._test_folder_url(
-            "https://start-api.npo.nl/media/series?pageSize=25&page=2&dateFrom=2014-01-01",
+            "https://start-api.npo.nl/media/series?pageSize=60&page=2&dateFrom=2014-01-01",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
             expected_results=125)
 
@@ -64,7 +66,7 @@ class TestNpoChannel(ChannelTest):
         items = self._test_folder_url(
             "https://start-api.npo.nl/media/series/NOSjnl2000/episodes?pageSize=10",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
-            expected_results=51, exact_results=True
+            expected_results=101, exact_results=True
         )
         # More pages should be present (requested 5, will be more there)
         folders = [item for item in items if item.is_folder]
