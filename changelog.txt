@@ -12,3 +12,4 @@ _None_
 * Fixed: NPO Subtitles (Fixes #1644).
 * Fixed: Full listing of NPO.
 * Fixed: Live Radio for NPO.
+* Fixed: KetNet listings.
