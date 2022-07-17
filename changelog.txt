@@ -1,4 +1,4 @@
-[B]Retrospect v5.5.7 - Changelog - 2022-07-12[/B]
+[B]Retrospect v5.5.8 - Changelog - 2022-07-17[/B]
 
 This minor update mainly fixes NPO and KetNet channels.
 
