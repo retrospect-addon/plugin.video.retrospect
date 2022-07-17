@@ -13,7 +13,7 @@ class TestNosChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 5, "No items found in mainlist")
+        self.assertEqual(len(items), 4, "No items found in mainlist")
 
     # def test_most_viewed_items(self):
     #     url = "https://api.nos.nl/mobile/videos/most-viewed/phone.json"
