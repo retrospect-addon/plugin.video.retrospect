@@ -34,7 +34,7 @@ class TestRegioGroei(ChannelTest):
         self.assertTrue("m3u8" in highest.Url)
 
     def test_rtv_utrecht_day(self):
-        days_to_include = 5
+        days_to_include = 7
         today = datetime.datetime.now() - datetime.timedelta(days=days_to_include)
         tomorrow = today + datetime.timedelta(days=days_to_include)
         url = "https://api.regiogroei.cloud/programs/rtv-utrecht?startDate=" \
