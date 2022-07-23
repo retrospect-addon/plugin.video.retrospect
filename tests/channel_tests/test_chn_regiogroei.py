@@ -33,6 +33,7 @@ class TestRegioGroei(ChannelTest):
         highest = item.streams[-1]
         self.assertTrue("m3u8" in highest.Url)
 
+    @unittest.skip("There regularly are no shows to watch.")
     def test_rtv_utrecht_day(self):
         days_to_include = 7
         today = datetime.datetime.now() - datetime.timedelta(days=days_to_include)
