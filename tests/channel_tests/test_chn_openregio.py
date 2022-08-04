@@ -68,4 +68,4 @@ class TestOpenRegioChannel(ChannelTest):
         from resources.lib.helpers.channelimporter import ChannelIndex
         chn = ChannelIndex.get_register().get_channel(self._channel, "horstnl")
         items = chn.process_folder_list(None)
-        self.assertGreater(len(items), 5)
+        self.assertGreater(len(items), 3)
