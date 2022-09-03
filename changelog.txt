@@ -9,7 +9,5 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO Subtitles (Fixes #1644).
-* Fixed: Full listing of NPO.
-* Fixed: Live Radio for NPO.
-* Fixed: KetNet listings.
+* Fixed: Kijk.nl search.
+* Fixed: Page size for NPO down to 50 to prevent some API glitches.
