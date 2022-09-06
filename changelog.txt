@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.8 - Changelog - 2022-07-17[/B]
+[B]Retrospect v5.5.9 - Changelog - 2022-09-06[/B]
 
-This minor update mainly fixes NPO and KetNet channels.
+This minor update mainly fixes the NPO channel and the Kijk.nl search.
 
 [B]Framework related[/B]
 _None_
