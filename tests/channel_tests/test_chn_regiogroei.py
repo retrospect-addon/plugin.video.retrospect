@@ -260,7 +260,7 @@ class TestRegioGroei(ChannelTest):
     def test_rtvdrenthe_mainlist(self):
         self._switch_channel("rtvdrenthe")
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 20)
+        self.assertGreater(len(items), 10)
 
     def test_rtvdrenthe_show_list(self):
         self._switch_channel("rtvdrenthe")
