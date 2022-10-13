@@ -188,6 +188,7 @@ class TestRegioGroei(ChannelTest):
         live_item = self._test_video_url(url)
         self.assertTrue(live_item.isLive)
 
+    @unittest.skip("Comes up empty too often due to restricted items.")
     def test_tv_west_day(self):
         self._switch_channel("omroepwest")
         today = datetime.datetime.now() - datetime.timedelta(days=1)
