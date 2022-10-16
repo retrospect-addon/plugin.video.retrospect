@@ -513,3 +513,4 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Danny Sikke
 - Stefan Abramsson
 - Ingos Data o PPDesign
+- Jeroen L. Hendrix
