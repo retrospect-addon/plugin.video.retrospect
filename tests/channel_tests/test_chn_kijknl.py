@@ -38,11 +38,9 @@ class TestKijkNlChannel(ChannelTest):
         )
 
     def test_graphql_multi_season_show(self):
-        self._test_folder_url(
-            "https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid%3A%22C5IYffeeRR8%22%29"
-            "%7Bitems%7BseriesTvSeasons%7Bid%2Ctitle%2CseasonNumber%2C__typename%7D%7D%7D%7D",
-            expected_results=3
-        )
+        url = "https://graph.kijk.nl/graphql?query=query%7Bprograms%28guid%3A%22Ql03Io4n2Zi%22%29" \
+              "%7Bitems%7BseriesTvSeasons%7Bid%2Ctitle%2CseasonNumber%2C__typename%7D%7D%7D%7D"
+        self._test_folder_url(url, expected_results=3)
 
     def test_graphql_season_list(self):
         self._test_folder_url(
