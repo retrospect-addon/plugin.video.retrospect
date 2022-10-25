@@ -3,10 +3,11 @@
 t.b.d.
 
 [B]Framework related[/B]
-Added: For live items, also append a random GUID to the item's GUID to fix live folders in PickleStore (Fixes #1652).
+* Added: For live items, also append a random GUID to the item's GUID to fix live folders in PickleStore (Fixes #1652).
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-_None_
+* Fixed: NPO live TV Guide favorites broke after some time (Fixes #1652)
+* Fixed: TV4 Play TV Show list broke.
