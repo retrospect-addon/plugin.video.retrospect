@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.x - Changelog - 2022-xx-xx[/B]
+[B]Retrospect v5.5.10 - Changelog - 2022-10-25[/B]
 
-t.b.d.
+A minor patch for NPO and TV4 streams.
 
 [B]Framework related[/B]
 * Added: For live items, also append a random GUID to the item's GUID to fix live folders in PickleStore (Fixes #1652).
