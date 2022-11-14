@@ -1,13 +1,12 @@
-[B]Retrospect v5.5.10 - Changelog - 2022-10-25[/B]
+[B]Retrospect v5.5.x - Changelog - 2022-xx-xx[/B]
 
-A minor patch for NPO and TV4 streams.
+t.b.t.
 
 [B]Framework related[/B]
-* Added: For live items, also append a random GUID to the item's GUID to fix live folders in PickleStore (Fixes #1652).
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO live TV Guide favorites broke after some time (Fixes #1652)
-* Fixed: TV4 Play TV Show list broke.
+* Updated: TV4.se requires login now (Fixes #1657).\
