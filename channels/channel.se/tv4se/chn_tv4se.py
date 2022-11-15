@@ -407,7 +407,7 @@ class Channel(chn_class.Channel):
                 name = "{} {}".format("Avsnitt", episode)
 
         item = MediaItem(name, url)
-        item.description = result_set["description"]
+        item.description = result_set.get("description")
         if item.description is None:
             item.description = item.name
 
@@ -570,7 +570,7 @@ class Channel(chn_class.Channel):
     def add_categories_and_specials(self, data):
         """ Performs pre-process actions for data processing.
 
-        Accepts an data from the process_folder_list method, BEFORE the items are
+        Accepts a data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -598,7 +598,7 @@ class Channel(chn_class.Channel):
             ),
             LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
                 self.__get_api_url("LiveVideos",
-                                   "9b3d0d2f039089311cde2989760744844f7c4bb5033b0ce5643676ee60cb0901"),
+                                   "800a3ef456fa19eaa1cfa23aab646c50fab91a1a8f82660f56ec03c9bf61c028"),
                 None, False
             )
         }
