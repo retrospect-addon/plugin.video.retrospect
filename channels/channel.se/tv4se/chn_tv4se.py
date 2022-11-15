@@ -143,16 +143,18 @@ class Channel(chn_class.Channel):
         # Fetch an existing token
         token_setting_id = "channel_tv4play_se_token"
         token = AddonSettings.get_setting(token_setting_id)
-        if token:
-            header, payload, signature = token.split(".")
-            payload_data = EncodingHelper.decode_base64(payload + '=' * (-len(payload) % 4))
-            payload = JsonHelper(payload_data)
-            expires_at = payload.get_value("exp")
-            expire_date = DateHelper.get_date_from_posix(float(expires_at), tz=pytz.UTC)
-            if expire_date > datetime.datetime.now().astimezone():
-                Logger.info("Found existing valid TV4Play token (valid until: %s)", expire_date)
-                return True
-            Logger.warning("Found existing expired TV4Play token")
+        if token and "|" in token:
+            token_username, token = token.split("|")
+            if token_username == username:
+                header, payload, signature = token.split(".")
+                payload_data = EncodingHelper.decode_base64(payload + '=' * (-len(payload) % 4))
+                payload = JsonHelper(payload_data)
+                expires_at = payload.get_value("exp")
+                expire_date = DateHelper.get_date_from_posix(float(expires_at), tz=pytz.UTC)
+                if expire_date > datetime.datetime.now().astimezone():
+                    Logger.info("Found existing valid TV4Play token (valid until: %s)", expire_date)
+                    return True
+                Logger.warning("Found existing expired TV4Play token")
 
         Logger.info("Fetching a new TV4Play token")
         data = None
@@ -194,7 +196,7 @@ class Channel(chn_class.Channel):
 
         # Extract the data we need
         token = data.get_value("access_token")
-        AddonSettings.set_setting(token_setting_id, token)
+        AddonSettings.set_setting(token_setting_id, "{}|{}".format(username, token))
         return True
 
     def create_api_tag(self, result_set):
@@ -712,6 +714,7 @@ class Channel(chn_class.Channel):
         # retrieve the mediaurl
         # needs an "x-jwt: Bearer"  header.
         token = AddonSettings.get_setting("channel_tv4play_se_token")
+        token = token.split("|")[0]
         headers = {
             "x-jwt": "Bearer {}".format(token)
         }
