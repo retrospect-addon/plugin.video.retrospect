@@ -727,7 +727,7 @@ class Channel(chn_class.Channel):
         if ".mpd" in stream_url:
             return self.__update_dash_video(item, stream_info)
 
-        if AddonSettings.use_adaptive_stream_add_on():  # and False:
+        if AddonSettings.use_adaptive_stream_add_on() and False:
             subtitle = M3u8.get_subtitle(stream_url)
             stream = item.add_stream(stream_url, 0)
             M3u8.set_input_stream_addon_input(stream)
