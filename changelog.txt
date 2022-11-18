@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.x - Changelog - 2022-xx-xx[/B]
+[B]Retrospect v5.5.11 - Changelog - 2022-11-18[/B]
 
-t.b.t.
+This update contains a fix for TV4.se that now requires logging in.
 
 [B]Framework related[/B]
 _None_
