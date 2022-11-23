@@ -96,7 +96,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_rtv_noord_video(self):
         self._switch_channel("rtvnoord")
-        url = "https://api.regiogroei.cloud/page/episode/98895891574E99E5C12587E8003F0CD3"
+        url = "https://api.regiogroei.cloud/page/episode/965143"
         item = self._test_video_url(url)
         self.assertFalse(item.isLive)
 
