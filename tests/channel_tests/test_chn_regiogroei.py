@@ -100,6 +100,7 @@ class TestRegioGroei(ChannelTest):
         item = self._test_video_url(url)
         self.assertFalse(item.isLive)
 
+    @unittest.skip("No Live TV at the moment.")
     def test_rtv_noord_live(self):
         self._switch_channel("rtvnoord")
         url = "https://api.regiogroei.cloud/page/channel/tv-noord?channel=tv-noord"
@@ -272,8 +273,3 @@ class TestRegioGroei(ChannelTest):
         self._switch_channel("rtvdrenthe")
         url = "https://api.regiogroei.cloud/page/episode/2827C26A26AED332C12587DE00382BB9?slug=drenthe-nu&origin=2827C26A26AED332C12587DE00382BB9"
         self._test_video_url(url)
-
-    # def test_rtvdrenthe_live_streams(self):
-    #     self._switch_channel("rtvdrenthe")
-    #     live_url = "https://api.regiogroei.cloud/page/channel/tv-oost?channel=tv-oost"
-    #     items = self._test_video_url(live_url)
