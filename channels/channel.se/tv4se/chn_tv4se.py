@@ -151,7 +151,7 @@ class Channel(chn_class.Channel):
                 payload = JsonHelper(payload_data)
                 expires_at = payload.get_value("exp")
                 expire_date = DateHelper.get_date_from_posix(float(expires_at), tz=pytz.UTC)
-                if expire_date > datetime.datetime.now().astimezone():
+                if expire_date > datetime.datetime.now(tz=pytz.UTC).astimezone(tz=pytz.UTC):
                     Logger.info("Found existing valid TV4Play token (valid until: %s)", expire_date)
                     return True
                 Logger.warning("Found existing expired TV4Play token")
