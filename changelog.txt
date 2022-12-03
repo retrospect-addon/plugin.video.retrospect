@@ -9,4 +9,4 @@ t.b.d.
 _None_
 
 [B]Channel related[/B]
-_None_
+* Fixed: `astimezone()` error in TV4 (Fixes #1660).
