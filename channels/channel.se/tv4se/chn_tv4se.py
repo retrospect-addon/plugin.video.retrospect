@@ -729,7 +729,7 @@ class Channel(chn_class.Channel):
 
         # Clips can play with input stream adaptive. Normal shows not as they will never stop.
         is_clip = stream_info.get_value("metadata", "isClip")
-        if AddonSettings.use_adaptive_stream_add_on() and is_clip:
+        if True:  # AddonSettings.use_adaptive_stream_add_on() and is_clip:
             subtitle = M3u8.get_subtitle(stream_url)
             stream = item.add_stream(stream_url, 0)
             M3u8.set_input_stream_addon_input(stream)
