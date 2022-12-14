@@ -45,7 +45,7 @@ class TestVierBeChannel(ChannelTest):
         self._test_folder_url(url, expected_results=3)
 
     def test_video_listing_for_show_no_season(self):
-        url = "https://www.goplay.be/james-de-musical"
+        url = "https://www.goplay.be/before-they-were-royal"
         self._test_folder_url(url, expected_results=4)
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
