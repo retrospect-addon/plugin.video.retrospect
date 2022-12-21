@@ -4,6 +4,7 @@ t.b.d.
 
 [B]Framework related[/B]
 * Fixed: Better handling of incorrect PIN codes for the Retrospect Vault.
+* Changed: Workaround for possible cookie corruption on some systems (Fixes #1666).
 
 [B]GUI/Settings/Language related[/B]
 _None_
