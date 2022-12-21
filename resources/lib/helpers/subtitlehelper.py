@@ -278,6 +278,8 @@ class SubtitleHelper(object):
                 continue
             elif Regexer.do_regex("^[0-9a-f]{8}-?([0-9a-f]{4}-?){3}[0-9a-f]{12}", line):
                 continue
+            elif line.isnumeric() and len(line) > 4:
+                continue
             else:
                 result = "%s\n%s" % (result, HtmlEntityHelper.convert_html_entities(line))
 
