@@ -13,3 +13,5 @@ _None_
 * Changed: Notify RTL users if a login error occurs (See #1658).
 * Fixed: `astimezone()` error in TV4 (Fixes #1660).
 * Fixed: TV4.se clips had no audio (Fixes #1662).
+* Fixed: Removed numeric tags in subtitles for TV4Play.se.
+* Fixed: Too many new lines in UR Play subtitles (Fixes #1663).
