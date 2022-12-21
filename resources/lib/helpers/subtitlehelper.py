@@ -313,6 +313,8 @@ class SubtitleHelper(object):
                 text = sub[4].replace("<br />", "\n")
                 text = HtmlEntityHelper.convert_html_entities(text)
                 text = text.replace("\r\n", "")
+                text = text.replace("\n\n", "")
+                text = text.replace("\t", "")
                 srt = "%s\n%s\n%s --> %s\n%s\n" % (srt, i, start, end, text.strip())
                 i += 1
             except:
