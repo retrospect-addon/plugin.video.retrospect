@@ -239,14 +239,14 @@ class TestRegioGroei(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 20)
 
-    def test_tvoost_show_list(self):
+    def test_t_tvoost_show_list(self):
         self._switch_channel("rtvoost")
         url = "https://api.regiogroei.cloud/page/program/1093?slug=roots&origin=1093"
         self._test_folder_url(url, expected_results=10)
 
     def test_tvoost_video(self):
         self._switch_channel("rtvoost")
-        url = "https://api.regiogroei.cloud/page/episode/557418?slug=roots&origin=557418"
+        url = "https://api.regiogroei.cloud/page/episode/1521004_20221218170000?slug=bij-oost-vandaag&origin=1521004_20221218170000"
         self._test_video_url(url)
 
     def test_tvoost_live_streams(self):
