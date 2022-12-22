@@ -28,7 +28,15 @@ class TestChannel9Channel(ChannelTest):
 
     def test_update_video(self):
         url = "https://docs.microsoft.com/api/video/public/v1/entries/batch?ids=8572a0e6-75cb-4608-b7d0-e377671fdd09"
-        self._test_video_url(url)
+        item = self._test_video_url(url)
+        for stream in item.streams:
+            self.assertTrue(stream.Url.startswith("http"))
+
+    def test_update_video_relative(self):
+        url = "https://docs.microsoft.com/api/video/public/v1/entries/batch?ids=271bebf2-14fc-43c0-8ddb-ac8b2e47da39"
+        item = self._test_video_url(url)
+        for stream in item.streams:
+            self.assertTrue(stream.Url.startswith("http"))
 
     def test_video_list_with_episodes(self):
         url = "https://docs.microsoft.com/api/hierarchy/shows/xamarin-101/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
