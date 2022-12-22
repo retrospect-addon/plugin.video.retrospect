@@ -16,3 +16,4 @@ _None_
 * Fixed: TV4.se clips had no audio (Fixes #1662).
 * Fixed: Removed numeric tags in subtitles for TV4Play.se.
 * Fixed: Too many new lines in UR Play subtitles (Fixes #1663).
+* Fixed: Microsoft Channel 9 streams (Fixes #1667).
