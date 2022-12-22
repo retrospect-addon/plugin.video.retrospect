@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.xx - Changelog - 2022-xx-xx[/B]
+[B]Retrospect v5.5.12 - Changelog - 2022-12-22[/B]
 
-t.b.d.
+This update contains a number of channel related fixes and a fix for corruption in the cookie-jar that is used for storing cookies from the `requests` module.
 
 [B]Framework related[/B]
 * Fixed: Better handling of incorrect PIN codes for the Retrospect Vault.
