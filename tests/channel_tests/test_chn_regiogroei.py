@@ -18,7 +18,7 @@ class TestRegioGroei(ChannelTest):
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
 
     def test_rtv_utrecht_video_list(self):
-        url = "https://api.regiogroei.cloud/page/program/RTVU_2190407?slug=binnenstebuiten&origin=RTVU_2190407"
+        url = "https://api.regiogroei.cloud/page/program/RTVU_1549109?slug=unieuws"
         self._test_folder_url(url, expected_results=2)
 
     def test_rtv_utrecht_video(self):
