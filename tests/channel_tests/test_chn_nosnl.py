@@ -29,6 +29,7 @@ class TestNosChannel(ChannelTest):
 
     def test_resolver_update(self):
         url = "https://resolver.streaming.api.nos.nl/stream?stream=nos-event1&profile=hls_unencrypted&policy=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjb3JlLm5vcy5ubCIsInN1YiI6Im5vcy1ldmVudDEiLCJhdWQiOlsicmVzb2x2ZXIuc3RyZWFtaW5nLmFwaS5ub3MubmwiXSwiaWF0IjoxNjI3NDEzMjYzLCJhbGxvd2VkQXJlYXMiOlsiTkwiXSwiaXNHZW9wcm90ZWN0ZWQiOnRydWV9.4-I5yu9hcfJE37CdPVkWf4q7kDlEGTYUNVEM8stctV8"
+        url = "https://resolver.streaming.api.nos.nl/stream?stream=nos-npo-2&profile=hls_unencrypted&policy=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjb3JlLm5vcy5ubCIsInN1YiI6Im5vcy1ucG8tMiIsImF1ZCI6WyJyZXNvbHZlci5zdHJlYW1pbmcuYXBpLm5vcy5ubCJdLCJpYXQiOjE2NzUxMTAzNTQsImFsbG93ZWRBcmVhcyI6WyJOTCIsIkFXIiwiQ1ciLCJTWCIsIkJRIl0sImlzR2VvcHJvdGVjdGVkIjp0cnVlfQ.KPRYyZ1hde_lohz-5joacR3YwJljU0vr-Aqr7S_aqWk"
         item = self._test_video_url(url)
         for stream in [s for s in item.streams if "hls" in s.Url]:
-            self.assertTrue("npo-livestreams" in stream.Url)
+            self.assertTrue(".streamgate." in stream.Url)
