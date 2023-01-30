@@ -22,7 +22,7 @@ class TestRegioGroei(ChannelTest):
         self._test_folder_url(url, expected_results=2)
 
     def test_rtv_utrecht_video(self):
-        url = "https://api.regiogroei.cloud/page/episode/RTVU_2190428"
+        url = "https://api.regiogroei.cloud/page/episode/RTVU_3510481_20230125170000"
         self._test_video_url(url)
 
     def test_rtv_utrecht_video_auto_birate(self):
