@@ -21,6 +21,7 @@ from resources.lib.vault import Vault
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.actions import action
 
 
 class Channel(chn_class.Channel):
@@ -1330,6 +1331,31 @@ class Channel(chn_class.Channel):
 
         item.complete = True
         return item
+
+    def create_iptv_streams(self, parameter_parser):
+        """ Fetch the available live channels and format them into JSON-STREAMS
+
+        :param ActionParser parameter_parser: a ActionParser object to is used to parse and
+                                                   create urls
+
+        :return: Formatted stations
+        :rtype: list
+        """
+        
+        parent = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
+        items = self.process_folder_list(parent)
+        parameter_parser.pickler.store_media_items(parent.guid, parent, items)
+
+        streams = []
+        for item in items:
+            streams.append(dict(
+                id=item._MediaItem__guid,
+                name=item.name.split(":")[0],
+                logo=None,
+                stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent.guid),
+            ))
+            
+        return streams
 
     def __has_premium(self):
         if self.__has_premium_cache is None:

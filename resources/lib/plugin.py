@@ -156,7 +156,7 @@ class Plugin(ActionParser):
 
             elif self.params[keyword.ACTION] == action.IPTVMANAGER:
                 from resources.lib.actions.iptvmanageraction import IPTVManagerAction
-                addon_action = IPTVManagerAction(self, self.params[keyword.REQUEST], self.params[keyword.PORT])
+                addon_action = IPTVManagerAction(self, self.params[keyword.REQUEST], int(self.params[keyword.PORT]))
 
             elif not self.params[keyword.ACTION] == "":
                 from resources.lib.actions.contextaction import ContextMenuAction
