@@ -66,7 +66,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser("/live", match_type=ParserData.MatchEnd,
                               name="Main Live Stream HTML parser",
                               preprocessor=self.get_additional_live_items,
-                              parser=r'<a href="[^"]+/live/([^"]+)" class="npo-tile-link"[^>]+>[\w\W]{0,1000}?<img data-src="([^"]+)"[\w\W]{0,1000}?<div class="npo-asset-tile-channel" style="background-image: url\(\'([^"]+)\'[\w\W]{0,1000}?<h2>(?:Nu: )?([^<]+)</h2>\W+<p>(?:Straks: )?([^<]*)</p>',
+                              parser=r'<a href="[^"]+/live/([^"]+)" class="npo-tile-link"[^>]+>[\w\W]{0,1000}?<img data-src="([^"]+)"[\w\W]{0,1000}?<h2>(?:Nu: )?([^<]+)</h2>\W+<p>(?:Straks: )?([^<]*)</p>',
                               creator=self.create_live_tv,
                               updater=self.update_video_item_live)
 
@@ -501,30 +501,25 @@ class Channel(chn_class.Channel):
             live_streams = {
                 "3FM Live": {
                     "url": "http://e.omroep.nl/metadata/LI_3FM_300881",
-                    "thumb": self.get_image_location("3fm-artwork.jpg"),
-                    "icon": "https://npostart-cms-npostart-cms.apps.cluster.chp4.io/uploads/radio_channel/294/logo/larger_3FMlogo.png"
+                    "thumb": self.get_image_location("3fm-artwork.jpg")
                 },
                 "Radio 2 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RADIO2_300879",
-                    "thumb": self.get_image_location("radio2image.jpg"),
+                    "thumb": self.get_image_location("radio2image.jpg")
                     # "thumb": "http://www.radio2.nl/image/rm/48254/NPO_RD2_Logo_RGB_1200dpi.jpg?width=848&height=477"
-                    "icon": "https://npostart-cms-npostart-cms.apps.cluster.chp4.io/uploads/radio_channel/293/logo/larger_logo-r2.png"
                 },
                 "Radio 1 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RADIO1_300877",
                     # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
-                    "thumb": self.get_image_location("radio1image.jpg"),
-                    "icon": "https://npostart-cms-npostart-cms.apps.cluster.chp4.io/uploads/radio_channel/292/logo/larger_logo-r1.png"
+                    "thumb": self.get_image_location("radio1image.jpg")
                 },
                 "Radio 4 Live": {
                     "url": "http://e.omroep.nl/metadata/LI_RA4_698901",
-                    "thumb": self.get_image_location("radio4image.jpg"),
-                    "icon": "https://npostart-cms-npostart-cms.apps.cluster.chp4.io/uploads/radio_channel/295/logo/larger_NPOKlassiek_Logo_FC_RGB.png"
+                    "thumb": self.get_image_location("radio4image.jpg")
                 },
                 "FunX": {
                     "url": "http://e.omroep.nl/metadata/LI_3FM_603983",
-                    "thumb": self.get_image_location("funx.jpg"),
-                    "icon": "https://npostart-cms-npostart-cms.apps.cluster.chp4.io/uploads/radio_channel/298/logo/larger_NPO_FUNX_Logo_RGB.png"
+                    "thumb": self.get_image_location("funx.jpg")
                 }
             }
 
@@ -532,7 +527,7 @@ class Channel(chn_class.Channel):
                 Logger.debug("Adding video item to '%s' sub item list: %s", parent, stream)
                 live_data = live_streams[stream]
                 item = MediaItem(stream, live_data["url"], mediatype.VIDEO)
-                item.icon = live_data["icon"]
+                item.icon = parent.icon
                 item.thumb = live_data["thumb"]
                 item.isLive = True
                 item.complete = False
@@ -979,6 +974,7 @@ class Channel(chn_class.Channel):
         :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
+        Logger.debug(data)
 
         json = JsonHelper(data)
         epg_data = []
@@ -1166,15 +1162,15 @@ class Channel(chn_class.Channel):
         else:
             name = result_set[0].replace("-", " ").title().replace("Npo", "NPO")
 
-        now_playing = result_set[3]
-        next_up = result_set[4]
+        now_playing = result_set[2]
+        next_up = result_set[3]
         name = "%s: %s" % (name, now_playing)
         if next_up:
             next_up = next_up.strip()
             next_up = next_up.replace("Straks: ", "")
             description = "Nu: %s\nStraks om %s" % (now_playing, next_up)
         else:
-            description = "Nu: %s" % (result_set[4].strip(),)
+            description = "Nu: %s" % (result_set[3].strip(),)
 
         item = MediaItem(name, "%s/live/%s" % (self.baseUrlLive, result_set[0]), media_type=mediatype.VIDEO)
         item.description = description
@@ -1185,8 +1181,6 @@ class Channel(chn_class.Channel):
             item.thumb = "http:%s" % (result_set[1].replace("regular_", "").replace("larger_", ""),)
         else:
             item.thumb = "%s%s" % (self.baseUrlLive, result_set[1].replace("regular_", "").replace("larger_", ""))
-
-        item.icon = result_set[2]
 
         item.complete = False
         item.isLive = True
@@ -1340,7 +1334,7 @@ class Channel(chn_class.Channel):
         return item
 
     def create_iptv_streams(self, parameter_parser):
-        """ Fetch the available live channels and format them into JSON-STREAMS
+        """ Fetch the available live channels using EPG endpoint and format them into JSON-STREAMS
 
         :param ActionParser parameter_parser: a ActionParser object to is used to parse and
                                                    create urls
@@ -1348,22 +1342,31 @@ class Channel(chn_class.Channel):
         :return: Formatted stations
         :rtype: list
         """
-        
-        parent = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
-        items = self.process_folder_list(parent)
-        parameter_parser.pickler.store_media_items(parent.guid, parent, items)
 
-        streams = []
-        for item in items:
-            streams.append(dict(
-                id=item._MediaItem__guid,
-                name=item.name.split(":")[0],
-                logo=item.icon,
+        epg_data = JsonHelper.loads(UriHandler.open(datetime.datetime.now().strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv"),
+            no_cache=True,
+            additional_headers=self.__jsonApiKeyHeader))
+
+        parent = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
+        items = []
+        iptv_streams = []
+
+        for stations in epg_data["epg"]:
+            livestream = stations["channel"]["liveStream"]
+            item = MediaItem(livestream["title"], livestream["shareUrl"], media_type=mediatype.VIDEO)
+            items.append(item)
+            iptv_streams.append(dict(
+                id=livestream["id"],
+                name=livestream["title"],
+                logo=livestream["images"]["original"]["formats"]["tv"]["source"],
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent.guid),
             ))
+        
+        parameter_parser.pickler.store_media_items(parent.guid, parent, items)
+        return iptv_streams
 
-        # Rotate streams by 5, so that it starts with NPO 1
-        return streams[5:] + streams[:5]
+    def create_iptv_epg(self, parameter_parser):
+        return dict()
 
     def __has_premium(self):
         if self.__has_premium_cache is None:

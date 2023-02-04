@@ -31,6 +31,8 @@ class IPTVManagerAction(AddonAction):
         Logger.debug("Execute IPTVManagerAction")
         if self.__request == "streams":
             self.send_streams()
+        if self.__request == "epg":
+            self.send_epg()
 
 
     def via_socket(func):
@@ -62,4 +64,5 @@ class IPTVManagerAction(AddonAction):
     @via_socket
     def send_epg(self):
         """Return JSON-EPG formatted python data structure to IPTV Manager"""
-        return
+        channel = ChannelIndex.get_register().get_channel("channel.nos.nos2010", "uzgjson")
+        return dict(version=1, epg=channel.create_iptv_epg(self.__parameter_parser))
