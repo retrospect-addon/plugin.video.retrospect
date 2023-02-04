@@ -974,7 +974,6 @@ class Channel(chn_class.Channel):
         :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
-        Logger.debug(data)
 
         json = JsonHelper(data)
         epg_data = []
@@ -1347,7 +1346,7 @@ class Channel(chn_class.Channel):
             no_cache=True,
             additional_headers=self.__jsonApiKeyHeader))
 
-        parent = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
+        parent_item = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
         items = []
         iptv_streams = []
 
@@ -1355,18 +1354,44 @@ class Channel(chn_class.Channel):
             livestream = stations["channel"]["liveStream"]
             item = MediaItem(livestream["title"], livestream["shareUrl"], media_type=mediatype.VIDEO)
             items.append(item)
+
             iptv_streams.append(dict(
                 id=livestream["id"],
                 name=livestream["title"],
                 logo=livestream["images"]["original"]["formats"]["tv"]["source"],
-                stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent.guid),
+                stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent_item.guid),
             ))
         
-        parameter_parser.pickler.store_media_items(parent.guid, parent, items)
+        parameter_parser.pickler.store_media_items(parent_item.guid, parent_item, items)
+
         return iptv_streams
 
     def create_iptv_epg(self, parameter_parser):
-        return dict()
+        parent = MediaItem("EPG", "https://start-api.npo.nl/epg/", media_type=mediatype.FOLDER)
+        iptv_epg = dict()
+        media_items = []
+
+        time = datetime.datetime.now()
+        data = UriHandler.open(time.strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv"),
+            no_cache=True,
+            additional_headers=self.__jsonApiKeyHeader)
+
+        json_data = JsonHelper.loads(data)
+        for epg_item in json_data["epg"]:
+            id = epg_item["channel"]['liveStream']['id']
+            iptv_epg[id]=[]
+            for program in epg_item["schedule"]:
+                media_item = MediaItem(program["program"]["title"], program["program"]["id"], media_type=mediatype.EPISODE)
+                media_items.append(media_item)
+                iptv_epg[id].append(dict(
+                    start=program["startsAt"],
+                    stop=program["endsAt"],
+                    title=program["program"]["title"],
+                    description=program["program"]["description"],
+                    stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=media_item, store_id=parent.guid),
+                ))
+        parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
+        return iptv_epg
 
     def __has_premium(self):
         if self.__has_premium_cache is None:
