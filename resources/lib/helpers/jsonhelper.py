@@ -163,5 +163,21 @@ class JsonHelper(object):
 
         return json.loads(json_data)
 
+    @staticmethod
+    def safeget(dct, *keys):
+        """ Try to find nested key
+
+        :param dct dict
+        :param *keys key to find
+        :return: value
+
+        """
+        for key in keys:
+            try:
+                dct = dct[key]
+            except KeyError:
+                return None
+        return dct
+
     def __str__(self):
         return self.data

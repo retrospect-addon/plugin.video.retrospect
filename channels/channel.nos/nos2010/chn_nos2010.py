@@ -1396,10 +1396,11 @@ class Channel(chn_class.Channel):
                     media_item = MediaItem(program["program"]["title"], program["program"]["id"], media_type=mediatype.EPISODE)
                     media_items.append(media_item)
                     iptv_epg[id].append(dict(
-                        start=program["startsAt"],
-                        stop=program["endsAt"],
-                        title=program["program"]["title"],
-                        description=program["program"]["description"],
+                        start=JsonHelper.safeget(program, "startsAt"),
+                        stop=JsonHelper.safeget(program, "endsAt"),
+                        title=JsonHelper.safeget(program, "program", "title"),
+                        description=JsonHelper.safeget(program, "program","description"),
+                        image=JsonHelper.safeget(program, "program", "images", "header", "formats", "tv", "source"),
                         stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=media_item, store_id=parent.guid),
                     ))
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
