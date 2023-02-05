@@ -1399,8 +1399,9 @@ class Channel(chn_class.Channel):
                         start=JsonHelper.safeget(program, "startsAt"),
                         stop=JsonHelper.safeget(program, "endsAt"),
                         title=JsonHelper.safeget(program, "program", "title"),
-                        description=JsonHelper.safeget(program, "program","description"),
+                        description=JsonHelper.safeget(program, "program","descriptionLong"),
                         image=JsonHelper.safeget(program, "program", "images", "header", "formats", "tv", "source"),
+                        genre=JsonHelper.safeget(program, "program", "genres", 0, "terms"),
                         stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=media_item, store_id=parent.guid),
                     ))
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
