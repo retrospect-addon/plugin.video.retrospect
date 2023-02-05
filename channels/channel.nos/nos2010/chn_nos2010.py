@@ -1359,6 +1359,7 @@ class Channel(chn_class.Channel):
                 id=livestream["id"],
                 name=livestream["title"],
                 logo=livestream["images"]["original"]["formats"]["tv"]["source"],
+                group=self.channelName,
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent_item.guid),
             ))
         
