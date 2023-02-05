@@ -53,16 +53,24 @@ class IPTVManagerAction(AddonAction):
     def send_streams(self):
         """Return JSON-STREAMS formatted python datastructure to IPTV Manager"""
         streams = [] 
-        instance = ChannelIndex.get_register()
-        channels = instance.get_channels()
+        channels = ChannelIndex.get_register().get_channels()
 
-        channel = ChannelIndex.get_register().get_channel("channel.nos.nos2010", "uzgjson")
-        if "create_iptv_streams" in dir(channel):
-            streams = channel.create_iptv_streams(self.__parameter_parser)
+        for channel in channels:
+            fetched_channel = channel.get_channel();
+            if "create_iptv_streams" in dir(fetched_channel):
+                streams += fetched_channel.create_iptv_streams(self.__parameter_parser)
+                
         return dict(version=1, streams=streams)
 
     @via_socket
     def send_epg(self):
         """Return JSON-EPG formatted python data structure to IPTV Manager"""
-        channel = ChannelIndex.get_register().get_channel("channel.nos.nos2010", "uzgjson")
-        return dict(version=1, epg=channel.create_iptv_epg(self.__parameter_parser))
+        epg = dict()
+        channels = ChannelIndex.get_register().get_channels()
+        
+        for channel in channels:
+            fetched_channel = channel.get_channel();
+            if "create_iptv_epg" in dir(fetched_channel):
+                epg.update(fetched_channel.create_iptv_epg(self.__parameter_parser))
+
+        return dict(version=1, epg=epg)
