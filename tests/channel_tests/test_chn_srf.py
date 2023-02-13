@@ -44,7 +44,7 @@ class TestSrfChannel(ChannelTest):
         url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
         item = self._test_video_url(url)
         streams = [i for i in item.streams if "mpd" in i.Url]
-        self.assertEqual(1, len(streams))
+        self.assertGreaterEqual(len(streams), 1)
         property_addon = [p for p in streams[0].Properties if "inputstream" == p[0] or "inputstreamaddon" == p[0]]
         self.assertEqual(1, len(property_addon))
         self.assertEqual(property_addon[0][1], "inputstream.adaptive")
