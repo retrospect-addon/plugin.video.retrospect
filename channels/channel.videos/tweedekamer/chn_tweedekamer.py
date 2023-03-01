@@ -339,8 +339,9 @@ class Channel(chn_class.Channel):
         # create a MediaItem for the debate, given the JSON metadata 
 
         # startsAt is the official starting time in the calendar
-        time_stamp = DateHelper.get_date_from_string(debate["startsAt"],
-                                                     date_format="%Y-%m-%dT%H:%M:%S%z")
+        # we ignore the time zone to always use the local Dutch time
+        time_stamp = DateHelper.get_date_from_string(debate["startsAt"][:19],
+                                                     date_format="%Y-%m-%dT%H:%M:%S")
 
         url = "https://cdn.debatdirect.tweedekamer.nl/api/agenda/%s/debates/%s" \
                 % (debate["debateDate"], debate["id"])
