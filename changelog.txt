@@ -10,4 +10,5 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: NPO video playback broken (Fixes #1679).
+* Added: Tweede Kamer Debat Direct (Fixes #1394).
 
