@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import datetime
-import time
-import base64
 from resources.lib import chn_class, mediatype, contenttype
 
 from resources.lib.logger import Logger
@@ -37,7 +34,6 @@ class Channel(chn_class.Channel):
         self.noImage = "tweedekamer.png"
 
         # setup the urls
-        today = datetime.datetime.now()
         self.mainListUri = "#overview"
 
         self.baseUrl = "https://cdn.debatdirect.tweedekamer.nl"
@@ -118,7 +114,7 @@ class Channel(chn_class.Channel):
     def create_livestreams(self, result_set):
         """ Creates a list of MediaItems for the livestreams.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str]|dict[str,dict] result_set: The result_set of the self.episodeItemRegex
 
         :return: A list of new MediaItems of type 'video'.
         :rtype: list[MediaItem]
@@ -182,7 +178,7 @@ class Channel(chn_class.Channel):
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str]|dict[str,dict] result_set: The result_set of the self.episodeItemRegex
 
         :return: A list of new MediaItems of type 'page'.
         :rtype: list[MediaItem]
@@ -319,7 +315,7 @@ class Channel(chn_class.Channel):
     def create_video_items_from_search(self, result_set):
         """ Creates a list of MediaItems for the debates in the search results.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param list[str]|dict[str,dict] result_set: The result_set of the self.episodeItemRegex
 
         :return: A list of new MediaItems of type 'video'.
         :rtype: list[MediaItem]
@@ -344,7 +340,7 @@ class Channel(chn_class.Channel):
                                                      date_format="%Y-%m-%dT%H:%M:%S")
 
         url = "https://cdn.debatdirect.tweedekamer.nl/api/agenda/%s/debates/%s" \
-                % (debate["debateDate"], debate["id"])
+              % (debate["debateDate"], debate["id"])
 
         # title: HH:MM - title
         title = "%02d:%02d - %s" % (time_stamp[3], time_stamp[4], debate["name"])
