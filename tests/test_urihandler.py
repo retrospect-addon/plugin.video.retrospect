@@ -45,7 +45,7 @@ class TestUriHandler(unittest.TestCase):
     def test_get(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         data = UriHandler.open(url)
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
@@ -56,7 +56,7 @@ class TestUriHandler(unittest.TestCase):
     def test_post(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         post_data = "dit is een test"
         post_data_encoded = quote(post_data)
         params = "test={0}".format(post_data_encoded)
@@ -74,7 +74,7 @@ class TestUriHandler(unittest.TestCase):
     def test_post_bytes(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         post_data = "dit is een test"
         post_data_encoded = quote(post_data)
 
@@ -91,7 +91,7 @@ class TestUriHandler(unittest.TestCase):
     def test_gzip(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/gzip"
+        url = "https://httpbin.org/gzip"
         data = UriHandler.open(url)
         self.assertIsNot(data, "")
         data_object = json.loads(data)
@@ -103,7 +103,7 @@ class TestUriHandler(unittest.TestCase):
     def test_deflate(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/deflate"
+        url = "https://httpbin.org/deflate"
         data = UriHandler.open(url)
         self.assertIsNot(data, "")
         data_object = json.loads(data)
@@ -115,7 +115,7 @@ class TestUriHandler(unittest.TestCase):
     def test_head_404(self):
         UriHandler.create_uri_handler()
 
-        content_type, url = UriHandler.header("http://httpbin.org/status/404")
+        content_type, url = UriHandler.header("https://httpbin.org/status/404")
         self.assertEqual(404, UriHandler.instance().status.code)
         self.assertTrue(UriHandler.instance().status.error)
         self.assertEqual("", url)
@@ -125,42 +125,42 @@ class TestUriHandler(unittest.TestCase):
     def test_head_redirect(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fget"
+        url = "https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fget"
         content_type, url = UriHandler.header(url)
         self.assertEqual(content_type, 'application/json')
-        self.assertEqual(url, 'http://httpbin.org/get')
+        self.assertEqual(url, 'https://httpbin.org/get')
         self.assertEqual(200, UriHandler.instance().status.code)
 
     @unittest.skip("Error in httpbin.org causes 404: https://github.com/postmanlabs/httpbin/issues/617")
     def test_head_double_redirect(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fredirect-to%3Furl%3Dhttp%253A%252F%252Fhttpbin.org%252Fget"
+        url = "https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fredirect-to%3Furl%3Dhttp%253A%252F%252Fhttpbin.org%252Fget"
         content_type, url = UriHandler.header(url)
         self.assertEqual(content_type, 'application/json')
-        self.assertEqual(url, 'http://httpbin.org/get')
+        self.assertEqual(url, 'https://httpbin.org/get')
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_head(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         data = UriHandler.header(url)
         self.assertEqual(data[0], 'application/json')
-        self.assertEqual(data[1], 'http://httpbin.org/get')
+        self.assertEqual(data[1], 'https://httpbin.org/get')
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_head_error(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/status/500"
+        url = "https://httpbin.org/status/500"
         UriHandler.header(url)
         self.assertEqual(500, UriHandler.instance().status.code)
 
     def test_content_type_header(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/headers"
+        url = "https://httpbin.org/headers"
         header_name = "Content-Type"
         header_value = "application/json"
         headers = {header_name: header_value}
@@ -172,7 +172,7 @@ class TestUriHandler(unittest.TestCase):
 
     def test_user_agent(self):
         UriHandler.create_uri_handler()
-        url = "http://httpbin.org/headers"
+        url = "https://httpbin.org/headers"
         header_name = "User-Agent"
 
         # standard header first, the one from code
@@ -194,9 +194,9 @@ class TestUriHandler(unittest.TestCase):
     def test_referer(self):
         UriHandler.create_uri_handler()
 
-        url = "http://httpbin.org/headers"
+        url = "https://httpbin.org/headers"
         header_name = "Referer"
-        header_value = "http://httpbin.org"
+        header_value = "https://httpbin.org"
         headers = {header_name: header_value}
         data = UriHandler.open(url, additional_headers=headers)
         self.assertIsNot("", data)
@@ -219,7 +219,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(expected_path, UriHandler.instance().cacheStore.cachePath)
 
     def test_cache(self):
-        url = "http://httpbin.org/cache/30"
+        url = "https://httpbin.org/cache/30"
         UriHandler.create_uri_handler(cache_dir=self.output_folder)
 
         data = UriHandler.open(url)
@@ -235,7 +235,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(data_object_1, data_object_2)
 
     def test_cache_post(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         UriHandler.create_uri_handler(cache_dir=self.output_folder)
 
         data = UriHandler.open(url, data={"test": "ok"})
@@ -244,7 +244,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(0, UriHandler.instance().cacheStore.cacheHits)
 
     def test_cache_no_cache(self):
-        url = "http://httpbin.org/cache/30"
+        url = "https://httpbin.org/cache/30"
         UriHandler.create_uri_handler(cache_dir=self.output_folder)
 
         data = UriHandler.open(url, no_cache=True)
@@ -258,7 +258,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(0, len(os.listdir(UriHandler.instance().cacheStore.cachePath)))
 
     def test_cache_no_cache_store(self):
-        url = "http://httpbin.org/cache/30"
+        url = "https://httpbin.org/cache/30"
         UriHandler.create_uri_handler()
 
         data = UriHandler.open(url, no_cache=True)
@@ -271,7 +271,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertIsNone(UriHandler.instance().cacheStore)
 
     def test_cache_etag(self):
-        url = "http://httpbin.org/etag/33a64df551425fcc55e4d42a148795d9f25f89d4"
+        url = "https://httpbin.org/etag/33a64df551425fcc55e4d42a148795d9f25f89d4"
         UriHandler.create_uri_handler(cache_dir=self.output_folder)
 
         data = UriHandler.open(url)
@@ -287,7 +287,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(data_object_1, data_object_2)
 
     def test_cache_revalidate(self):
-        url = "http://httpbin.org/etag/33a64df551425fcc55e4d42a148795d9f25f89d4"
+        url = "https://httpbin.org/etag/33a64df551425fcc55e4d42a148795d9f25f89d4"
         UriHandler.create_uri_handler(cache_dir=self.output_folder)
 
         data = UriHandler.open(url)
@@ -304,7 +304,7 @@ class TestUriHandler(unittest.TestCase):
 
     def test_cache_expire_1_second(self):
         sleep_time = 1
-        url = "http://httpbin.org/cache/{0}".format(sleep_time)
+        url = "https://httpbin.org/cache/{0}".format(sleep_time)
         UriHandler.create_uri_handler(cache_dir=self.output_folder)
 
         data = UriHandler.open(url)
@@ -324,7 +324,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(1, UriHandler.instance().cacheStore.cacheHits)
 
     def test_utf_8(self):
-        url = "http://httpbin.org/encoding/utf8"
+        url = "https://httpbin.org/encoding/utf8"
         UriHandler.create_uri_handler()
         data = UriHandler.open(url)
         self.assertEqual(200, UriHandler.instance().status.code)
@@ -335,7 +335,7 @@ class TestUriHandler(unittest.TestCase):
         UriHandler.create_uri_handler()
 
         # no encoding present in this URL
-        url = "http://httpbin.org/robots.txt"
+        url = "https://httpbin.org/robots.txt"
         data = UriHandler.open(url)
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertTrue(isinstance(data, basestring), msg="No <string> type returned.")
@@ -476,20 +476,20 @@ class TestUriHandler(unittest.TestCase):
     def test_error(self):
         UriHandler.create_uri_handler()
 
-        data = UriHandler.open("http://httpbin.org/status/500")
+        data = UriHandler.open("https://httpbin.org/status/500")
         self.assertEqual("", data)
         self.assertEqual(500, UriHandler.instance().status.code)
 
     def test_404(self):
         UriHandler.create_uri_handler()
 
-        data = UriHandler.open("http://httpbin.org/status/404")
+        data = UriHandler.open("https://httpbin.org/status/404")
         self.assertEqual("", data)
         self.assertEqual(404, UriHandler.instance().status.code)
 
     def test_gif(self):
         UriHandler.create_uri_handler()
-        gif = UriHandler.open("http://httpbin.org/image/png")
+        gif = UriHandler.open("https://httpbin.org/image/png")
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertTrue(isinstance(gif, bytes))
 
