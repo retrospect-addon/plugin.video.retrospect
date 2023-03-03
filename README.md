@@ -514,3 +514,17 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Stefan Abramsson
 - Ingos Data o PPDesign
 - Jeroen L. Hendrix
+- Magnus Holmquist
+- Martin Skillingshage
+- Olle Damgaard
+- T Kuipers
+- Ingemar Pahtajärvi
+- Sape Sikkema
+- Ffj Winkelman
+- Magnus Holmquist
+- Pascal Rutgers
+- Ruben Van Dijk
+- Egbert Van der Haring
+- P G M Schoonderwoerd
+- Jonas Koekenbier 
+- Danny Sikke
