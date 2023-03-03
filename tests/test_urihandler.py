@@ -23,7 +23,6 @@ from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
 
 
-@unittest.skip("httpbin.org is instable at the moment.")
 class TestUriHandler(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -122,21 +121,19 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual("", url)
         self.assertEqual("", content_type)
 
-    @unittest.skip("Error in httpbin.org causes 404: https://github.com/postmanlabs/httpbin/issues/617")
     def test_head_redirect(self):
         UriHandler.create_uri_handler()
 
-        url = "https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fget"
+        url = "https://httpbin.org/redirect-to?url=https%3A%2F%2Fhttpbin.org%2Fget"
         content_type, url = UriHandler.header(url)
         self.assertEqual(content_type, 'application/json')
         self.assertEqual(url, 'https://httpbin.org/get')
         self.assertEqual(200, UriHandler.instance().status.code)
 
-    @unittest.skip("Error in httpbin.org causes 404: https://github.com/postmanlabs/httpbin/issues/617")
     def test_head_double_redirect(self):
         UriHandler.create_uri_handler()
 
-        url = "https://httpbin.org/redirect-to?url=http%3A%2F%2Fhttpbin.org%2Fredirect-to%3Furl%3Dhttp%253A%252F%252Fhttpbin.org%252Fget"
+        url = "https://httpbin.org/redirect-to?url=https%3A%2F%2Fhttpbin.org%2Fredirect-to%3Furl%3Dhttps%253A%252F%252Fhttpbin.org%252Fget"
         content_type, url = UriHandler.header(url)
         self.assertEqual(content_type, 'application/json')
         self.assertEqual(url, 'https://httpbin.org/get')
@@ -350,7 +347,7 @@ class TestUriHandler(unittest.TestCase):
         cookie_name = "cookie_test"
         cookie_value = "test data"
         cookie_domain = "httpbin.org"
-        url = "http://{0}/cookies/set?{1}={2}".format(cookie_domain, cookie_name, quote(cookie_value))
+        url = "https://{0}/cookies/set?{1}={2}".format(cookie_domain, cookie_name, quote(cookie_value))
 
         # pre check that there are none
         cookie = UriHandler.get_cookie(cookie_name, cookie_domain)
@@ -378,7 +375,7 @@ class TestUriHandler(unittest.TestCase):
         cookie_domain = "httpbin.org"
         # we need to not redirect, because that would not cause the caching
         cookie_string = "{0}={1}; Path=/".format(cookie_name, cookie_value)
-        url = "http://{0}/response-headers?set-cookie={1}".format(cookie_domain, quote(cookie_string))
+        url = "https://{0}/response-headers?set-cookie={1}".format(cookie_domain, quote(cookie_string))
 
         # pre check that there are none
         cookie = UriHandler.get_cookie(cookie_name, cookie_domain)
@@ -397,7 +394,7 @@ class TestUriHandler(unittest.TestCase):
         cookie_name = "cookie_test"
         cookie_value = "test data"
         cookie_domain = "httpbin.org"
-        url = "http://{0}/cookies/set?{1}={2}".format(cookie_domain, cookie_name, quote(cookie_value))
+        url = "https://{0}/cookies/set?{1}={2}".format(cookie_domain, cookie_name, quote(cookie_value))
 
         # create a file cookiejar
         UriHandler.create_uri_handler(cookie_jar=os.path.join(self.output_folder, "cookies.txt"))
@@ -499,7 +496,8 @@ class TestUriHandler(unittest.TestCase):
         file_name = "test.png"
 
         self.cancel_download = False
-        download_path = UriHandler.download("http://speed.transip.nl/10mb.bin", file_name,
+        url = "https://raw.githubusercontent.com/retrospect-addon/plugin.video.retrospect/master/tests/data/largelogfile.log"
+        download_path = UriHandler.download(url, file_name,
                                             self.output_folder, self.__download_callback)
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertTrue(os.path.isfile(download_path))
@@ -510,7 +508,8 @@ class TestUriHandler(unittest.TestCase):
         file_name = "test.png"
 
         self.cancel_download = True
-        download_path = UriHandler.download("http://speed.transip.nl/10mb.bin", file_name,
+        url = "https://raw.githubusercontent.com/retrospect-addon/plugin.video.retrospect/master/tests/data/largelogfile.log"
+        download_path = UriHandler.download(url, file_name,
                                             self.output_folder, self.__download_callback)
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertEqual("", download_path)
