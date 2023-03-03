@@ -63,14 +63,64 @@ class TestNpoChannel(ChannelTest):
         self.assertGreaterEqual(len(folders), 0)
 
     def test_tv_show_listing_with_more_page_item(self):
+        # A show with multiple pages, but without extra items
         items = self._test_folder_url(
-            "https://start-api.npo.nl/media/series/NOSjnl2000/episodes?pageSize=10",
+            "https://start-api.npo.nl/media/series/NOSjnlMP/episodes?pageSize=10",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
             expected_results=101, exact_results=True
         )
         # More pages should be present (requested 5, will be more there)
         folders = [item for item in items if item.is_folder]
         self.assertGreaterEqual(len(folders), 1)
+
+    def test_tv_show_listing_with_extras(self):
+        # A show with extra items
+        items = self._test_folder_url(
+            "https://start-api.npo.nl/page/franchise/VPWON_1246712",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=23, exact_results=True
+        )
+        # There should be links to the full episode list (media/series/*/episodes),
+        # to the extras (media/series/*/clips), and to the fragments (media/series/*/fragments)
+        all_folders = [item for item in items if item.is_folder and "episodes" in item.url]
+        extras_folders = [item for item in items if item.is_folder and "clips" in item.url]
+        fragments_folders = [item for item in items if item.is_folder and "fragments" in item.url]
+        self.assertEqual(len(all_folders), 1)
+        self.assertEqual(len(extras_folders), 1)
+        self.assertEqual(len(fragments_folders), 1)
+
+    def test_tv_show_list_extras(self):
+        items = self._test_folder_url(
+            "https://start-api.npo.nl/media/series/KN_1678993/clips?pageSize=10",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=101, exact_results=True
+        )
+
+    def test_tv_show_list_fragments(self):
+        items = self._test_folder_url(
+            "https://start-api.npo.nl/media/series/POW_04596562/fragments?pageSize=10",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=100
+        )
+
+    def test_tv_show_listing_with_multiple_seasons(self):
+        # A show with multiple very short seasons
+        items = self._test_folder_url(
+            "https://start-api.npo.nl/page/franchise/NOS2016inBeeld",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=1
+        )
+        # There should be a link to the full episode list (media/series/*/episodes)
+        all_folders = [item for item in items if item.is_folder and "episodes" in item.url]
+        self.assertEqual(len(all_folders), 1)
+
+    def test_tv_show_listing_with_single_episode(self):
+        # A show with one episode, no seasons, should not have an "All episodes" folder
+        items = self._test_folder_url(
+            "https://start-api.npo.nl/page/franchise/POMS_S_NOS_349833",
+            headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
+            expected_results=1, exact_results=True
+        )
 
     def test_guide_day_list(self):
         import datetime

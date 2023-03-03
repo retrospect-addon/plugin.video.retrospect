@@ -62,7 +62,7 @@ class TestAuthenticator(unittest.TestCase):
         res = a.log_on("username", "")
         self.assertFalse(res.logged_on)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_current_user(self):
         h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
         a = Authenticator(h)
@@ -71,14 +71,14 @@ class TestAuthenticator(unittest.TestCase):
         a_user = a.active_authentication()
         self.assertEqual(h_user.username, a_user.username)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_log_on(self):
         h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
         a = Authenticator(h)
         res = a.log_on(self.user_name, self.password)
         self.assertTrue(res.logged_on)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_log_on_twice(self):
         h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
         a = Authenticator(h)
@@ -88,7 +88,7 @@ class TestAuthenticator(unittest.TestCase):
         self.assertTrue(res.logged_on)
         self.assertTrue(res.existing_login)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_log_off(self):
         h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
         a = Authenticator(h)
@@ -97,7 +97,7 @@ class TestAuthenticator(unittest.TestCase):
         a.log_off(self.user_name)
         self.assertFalse(a.active_authentication().logged_on)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_log_on_without_log_off(self):
         h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
         a = Authenticator(h)

@@ -42,14 +42,14 @@ class TestRtlXlHandler(unittest.TestCase):
         res = a.log_on("nobody", "secret")
         self.assertFalse(res.logged_on)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_is_authenticated(self):
         a = RtlXlHandler("rtlxl.nl", self.api_key)
         res = a.active_authentication()
         self.assertFalse(res.logged_on)
         self.assertIsNone(res.username)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_is_authenticated_after_login(self):
         a = RtlXlHandler("rtlxl.nl", self.api_key)
         auth_session = a.log_on(self.user_name, self.password)
@@ -65,7 +65,7 @@ class TestRtlXlHandler(unittest.TestCase):
         # noinspection PyUnresolvedReferences
         self.assertIsNotNone(a._RtlXlHandler__user_id)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_log_on(self):
         a = RtlXlHandler("rtlxl.nl", self.api_key)
 
@@ -79,7 +79,7 @@ class TestRtlXlHandler(unittest.TestCase):
         # noinspection PyUnresolvedReferences
         self.assertIsNotNone(a._RtlXlHandler__user_id)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("RTLXL_USERNAME"), "Not testing login without credentials")
     def test_log_off(self):
         a = RtlXlHandler("rtlxl.nl", self.api_key)
         logged_on = a.log_on(self.user_name, self.password)
