@@ -23,6 +23,7 @@ from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
 
 
+@unittest.skip("httpbin.org is instable at the moment.")
 class TestUriHandler(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
