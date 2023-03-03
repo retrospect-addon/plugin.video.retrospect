@@ -12,4 +12,4 @@ _None_
 * Fixed: NPO video playback broken (Fixes #1679).
 * Added: Tweede Kamer Debat Direct (Fixes #1394).
 * Added: List NPO Start Extra's and Fragmenten (Fixes #1649).
-
+* Fixed: Some Radio 538 Video streams did not play (Fixes #1685)
