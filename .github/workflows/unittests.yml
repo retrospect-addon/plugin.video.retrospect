@@ -10,6 +10,7 @@ on:
       - '**.md'
       - '**.yml'
       - '**.properties'
+      - '**.txt'
 
   pull_request:
     branches:
@@ -20,6 +21,7 @@ on:
       - '**.md'
       - '**.yml'
       - '**.properties'
+      - '**.txt'
 
   schedule:
     # * is a special character in YAML so you have to quote this string
