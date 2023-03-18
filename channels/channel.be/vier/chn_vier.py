@@ -98,7 +98,7 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_epg_item)
 
         # Generic updater with login
-        self._add_data_parser("https://api.viervijfzes.be/content/",
+        self._add_data_parser("https://api.goplay.be/web/v1/videos/long-form/",
                               updater=self.update_video_item_with_id)
         self._add_data_parser("*", updater=self.update_video_item)
 
@@ -411,7 +411,7 @@ class Channel(chn_class.Channel):
 
         # Could be: title = result_set['episodeTitle']
         title = result_set['title']
-        url = "https://api.viervijfzes.be/content/{}".format(result_set['videoUuid'])
+        url = "https://api.goplay.be/web/v1/videos/long-form/{}".format(result_set['videoUuid'])
         item = MediaItem(title, url)
         item.media_type = mediatype.EPISODE
         item.description = HtmlHelper.to_text(result_set.get("description").replace(">\r\n", ">"))
@@ -504,7 +504,7 @@ class Channel(chn_class.Channel):
 
         # Set the correct url
         # videoId = resultSet["videoid"]
-        # item.url = "https://api.viervijfzes.be/content/%s" % (videoId, )
+        # item.url = "https://api.goplay.be/web/v1/videos/long-form/%s" % (videoId, )
         time_stamp = result_set.get("timestamp")
         if time_stamp:
             date_time = DateHelper.get_date_from_posix(int(result_set["timestamp"]))
@@ -543,7 +543,7 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        # https://api.viervijfzes.be/content/c58996a6-9e3d-4195-9ecf-9931194c00bf
+        # https://api.goplay.be/web/v1/videos/long-form/c58996a6-9e3d-4195-9ecf-9931194c00bf
         # videoId = item.url.split("/")[-1]
         # url = "%s/video/v3/embed/%s" % (self.baseUrl, videoId,)
         url = item.url
@@ -578,7 +578,7 @@ class Channel(chn_class.Channel):
         return self.__update_video(item, data)
 
     def __update_video(self, item, data):
-        if not item.url.startswith("https://api.viervijfzes.be/content/"):
+        if not item.url.startswith("https://api.goplay.be/web/v1/videos/long-form/"):
             regex = 'data-video-*id="([^"]+)'
             m3u8_url = Regexer.do_regex(regex, data)[-1]
             # we either have an URL now or an uuid
@@ -587,7 +587,7 @@ class Channel(chn_class.Channel):
 
         if ".m3u8" not in m3u8_url:
             Logger.info("Not a direct M3u8 file. Need to log in")
-            url = "https://api.viervijfzes.be/content/%s" % (m3u8_url, )
+            url = "https://api.goplay.be/web/v1/videos/long-form/%s" % (m3u8_url, )
 
             # We need to log in
             if not self.loggedOn:
@@ -595,12 +595,12 @@ class Channel(chn_class.Channel):
 
             # add authorization header
             authentication_header = {
-                "authorization": self.__idToken,
+                "authorization": "Bearer {}".format(self.__idToken),
                 "content-type": "application/json"
             }
             data = UriHandler.open(url, additional_headers=authentication_header)
             json_data = JsonHelper(data)
-            m3u8_url = json_data.get_value("video", "S")
+            m3u8_url = json_data.get_value("manifestUrls", "hls")
 
         # Geo Locked?
         if "/geo/" in m3u8_url.lower():
