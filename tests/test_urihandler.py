@@ -18,7 +18,6 @@ else:
     # noinspection PyUnresolvedReferences,PyCompatibility
     from urllib.parse import quote
 
-from resources.lib.backtothefuture import basestring
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
 
@@ -336,7 +335,7 @@ class TestUriHandler(unittest.TestCase):
         url = "https://httpbin.org/robots.txt"
         data = UriHandler.open(url)
         self.assertEqual(200, UriHandler.instance().status.code)
-        self.assertTrue(isinstance(data, basestring), msg="No <string> type returned.")
+        self.assertTrue(isinstance(data, str), msg="No <string> type returned.")
         self.assertIsNotNone(data)
         self.assertIsNot("", data)
 
