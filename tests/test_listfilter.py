@@ -53,6 +53,6 @@ class TestListFilter(ChannelTest):
 
     def __get_items(self):
         items = self._test_folder_url(
-            "https://start-api.npo.nl/media/series/BV_101406934/episodes?pageSize=10",
+            "https://start-api.npo.nl/media/series/AT_2037214/episodes?pageSize=10",
             expected_results=1, headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"}, retry=0)
         return items
