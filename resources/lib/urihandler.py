@@ -7,9 +7,14 @@ from resources.lib.backtothefuture import PY2
 if PY2:
     # noinspection PyCompatibility,PyUnresolvedReferences
     from cookielib import Cookie, CookieJar, MozillaCookieJar
+    # noinspection PyCompatibility,PyUnresolvedReferences
+    import httplib
+    httplib._MAXHEADERS = 200
 else:
     # noinspection PyCompatibility
     from http.cookiejar import Cookie, CookieJar, MozillaCookieJar, LoadError
+    import http.client
+    http.client._MAXHEADERS = 200
 from collections import namedtuple
 
 import requests
