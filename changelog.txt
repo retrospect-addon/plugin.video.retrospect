@@ -3,7 +3,7 @@
 t.b.d.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Max response headers bumped (Fixed #1695).
 
 [B]GUI/Settings/Language related[/B]
 _None_
