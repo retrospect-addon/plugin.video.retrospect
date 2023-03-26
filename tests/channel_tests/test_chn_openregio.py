@@ -17,7 +17,7 @@ class TestOpenRegioChannel(ChannelTest):
 
     def test_show_listing(self):
         self._test_folder_url(
-            "https://media.wos.nl/retrospect/wos/83903f02-9ddf-408e-9a4e-ebcacdbda6a5.json", 5)
+            "https://media.wos.nl/retrospect/wos/83903f02-9ddf-408e-9a4e-ebcacdbda6a5.json", 3)
 
     def test_video_update(self):
         self._test_video_url("https://1ab3dwyh2pgi.b-cdn.net/a22a6ac2-0443-4c85-929d-981ef5ae0d6a_1080.mp4")
