@@ -1,16 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from future.utils import PY2
-
 import unittest
-import sys
 import os
-
-if PY2:
-    # noinspection PyCompatibility,PyUnresolvedReferences
-    reload(sys)
-    # noinspection PyUnresolvedReferences
-    sys.setdefaultencoding("utf-8")  # @UndefinedVariable
 
 from resources.lib.helpers.logsender import LogSender
 from resources.lib.urihandler import UriHandler

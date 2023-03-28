@@ -1,16 +1,7 @@
 # coding=utf-8          # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from future.utils import PY2
-
 import unittest
-import sys
-
-if PY2:
-    # noinspection PyCompatibility,PyUnresolvedReferences
-    reload(sys)  # We need UTF-8
-    # noinspection PyUnresolvedReferences
-    sys.setdefaultencoding("utf-8")  # @UndefinedVariable
 
 from resources.lib.helpers import jsonhelper
 from resources.lib.logger import Logger
@@ -63,10 +54,7 @@ class TestJsonHelper(unittest.TestCase):
         str_data = jsonhelper.JsonHelper.dump(data, pretty_print=False, sort_keys=True)
         self.assertEqual('{"success": true, "test": 4, "test2": "test", "test3": {"test": true}}', str_data)
         str_data = jsonhelper.JsonHelper.dump(data, pretty_print=True, sort_keys=True)
-        if PY2:
-            self.assertEqual('{\n    "success": true, \n    "test": 4, \n    "test2": "test", \n    "test3": {\n        "test": true\n    }\n}', str_data)
-        else:
-            self.assertEqual('{\n    "success": true,\n    "test": 4,\n    "test2": "test",\n    "test3": {\n        "test": true\n    }\n}', str_data)
+        self.assertEqual('{\n    "success": true,\n    "test": 4,\n    "test2": "test",\n    "test3": {\n        "test": true\n    }\n}', str_data)
 
     def test_loads(self):
         data = '{"test": 4, "test3": {"test": true}, "test2": "test", "success": true}'

@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from future.utils import PY2
-
 import unittest
 import os
 import json
@@ -11,12 +9,7 @@ import tempfile
 import shutil
 import time
 
-if PY2:
-    # noinspection PyUnresolvedReferences
-    from urllib import quote
-else:
-    # noinspection PyUnresolvedReferences,PyCompatibility
-    from urllib.parse import quote
+from urllib.parse import quote
 
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger

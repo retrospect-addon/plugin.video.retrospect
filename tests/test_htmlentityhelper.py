@@ -1,17 +1,7 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from future.utils import PY2
-
 import unittest
-import sys
-
-if PY2:
-    # noinspection PyCompatibility,PyUnresolvedReferences
-    reload(sys)  # We need UTF-8
-    # noinspection PyUnresolvedReferences
-    sys.setdefaultencoding("utf-8")  # @UndefinedVariable
-
 
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.logger import Logger
