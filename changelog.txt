@@ -1,6 +1,6 @@
-[B]Retrospect v5.5.15 - Changelog - 20xx-xx-xx[/B]
+[B]Retrospect v5.6.0 - Changelog - 2023-03-28[/B]
 
-t.b.d.
+This version of Retrospect removes Python 2 support and is only compatible with Kodi Matrix, Nexus, Omega and newer (because they run Python 3). Besides this major change, some minor channel related issues hvae4 been fixed.
 
 [B]Framework related[/B]
 * Fixed: Max response headers bumped (Fixed #1695).
