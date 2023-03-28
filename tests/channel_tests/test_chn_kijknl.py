@@ -56,54 +56,36 @@ class TestKijkNlChannel(ChannelTest):
         self._test_folder_url("#recentgraphql", expected_results=7, exact_results=True)
 
     def test_graphql_mpd_video(self):
-        item = self._get_media_item("https://graph.kijk.nl/graphql-video")
-        item.metaData["sources"] = [
-            {
-                "type": "dash",
-                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-"
-                        "7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/index.mpd",
-                "drm": None,
-                "__typename": "Source"
-            }
-        ]
-        item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_streams())
+        item = self._test_video_url(
+            "https://api.prd.video.talpa.network/graphql?query=query%20sources(%24guid%3A%5BString"
+            "%5D)%7Bprograms(guid%3A%24guid)%7Bitems%7Bguid%20sources%7Btype%20file%20drm%20"
+            "__typename%7D%20tracks%7Bfile%20type%7D%20__typename%7D__typename%7D%7D&"
+            "operationName=sources&variables=%7B%22guid%22%3A%22NVXgWfb8rn3%22%7D")
+
+        mpd = [s for s in item.streams if ".mpd" in s.Url]
+        self.assertGreaterEqual(len(mpd), 1)
+        self.assertEqual(len(mpd[0].Properties), 3)
 
     def test_graphql_m3u8_video(self):
-        item = self._get_media_item("https://graph.kijk.nl/graphql-video")
-        item.metaData["sources"] = [
-            {
-                "type": "m3u8",
-                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-"
-                        "7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/master.m3u8",
-                "drm": None,
-                "__typename": "Source"
-            }
-        ]
-        item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_streams())
+        item = self._test_video_url(
+            "https://api.prd.video.talpa.network/graphql?query=query%20sources(%24guid%3A%5BString"
+            "%5D)%7Bprograms(guid%3A%24guid)%7Bitems%7Bguid%20sources%7Btype%20file%20drm%20"
+            "__typename%7D%20tracks%7Bfile%20type%7D%20__typename%7D__typename%7D%7D&"
+            "operationName=sources&variables=%7B%22guid%22%3A%22NVXgWfb8rn3%22%7D")
+
+        m3u8 = [s for s in item.streams if ".m3u8" in s.Url]
+        self.assertGreaterEqual(len(m3u8), 1)
 
     def test_graphql_drm_video(self):
-        item = self._get_media_item("https://graph.kijk.nl/graphql-video")
-        item.metaData["sources"] = [
-            {
-                "type": "dash",
-                "file": "https://vod-kijk2-prod.talpatvcdn.nl/WWVxSdzb98j/068c2eb6-a8b0-615d-c9ce-"
-                        "7bd80d25fcf4/WWVxSdzb98j_1586234515465.ism/index.mpd",
-                "drm": {
-                    "widevine": {
-                        "releasePid": "dBujAGhE20a7",
-                        "url": "https://widevine.entitlement.theplatform.eu/wv/web/ModularDrm?"
-                               "releasePid=dBujAGhE20a7&form=json&schema=1.0",
-                        "certificateUrl": None,
-                        "processSpcUrl": None
-                    }
-                },
-                "__typename": "Source"
-            }
-        ]
-        item = self.channel.process_video_item(item)
-        self.assertTrue(item.has_streams())
+        item = self._test_video_url(
+            "https://api.prd.video.talpa.network/graphql?query=query%20sources(%24guid%3A%5BString"
+            "%5D)%7Bprograms(guid%3A%24guid)%7Bitems%7Bguid%20sources%7Btype%20file%20drm%20"
+            "__typename%7D%20tracks%7Bfile%20type%7D%20__typename%7D__typename%7D%7D&"
+            "operationName=sources&variables=%7B%22guid%22%3A%224yeE3JpI1Sy%22%7D")
+
+        mpd = [s for s in item.streams if ".mpd" in s.Url]
+        self.assertGreaterEqual(len(mpd), 1)
+        self.assertEqual(len(mpd[0].Properties), 5)
 
     def test_graphql_search(self):
         self._test_folder_url(
