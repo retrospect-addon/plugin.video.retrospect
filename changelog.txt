@@ -4,6 +4,7 @@ t.b.d.
 
 [B]Framework related[/B]
 * Fixed: Max response headers bumped (Fixed #1695).
+* Removed: Python 2 support. From now on it's Kodi Matrix or newer.
 
 [B]GUI/Settings/Language related[/B]
 _None_
