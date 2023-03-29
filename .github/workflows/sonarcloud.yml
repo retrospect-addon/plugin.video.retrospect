@@ -3,8 +3,22 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**.po'
+      - '**.xml'
+      - '**.md'
+      - '**.yml'
+      - '**.properties'
+      - '**.txt'
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**.po'
+      - '**.xml'
+      - '**.md'
+      - '**.yml'
+      - '**.properties'
+      - '**.txt'
 jobs:
   sonarcloud:
     name: SonarCloud
