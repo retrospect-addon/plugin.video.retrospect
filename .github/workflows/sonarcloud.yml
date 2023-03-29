@@ -57,7 +57,9 @@ jobs:
           coverage xml
 
       - name: Override Coverage Source Path for Sonar
-        run: sed -i "s/<source>\/home\/runner\/work\/plugin\.video\.retrospect<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/plugin.video.retrospect/plugin.video.retrospect/coverage.xml
+        run: |
+          sed -n 1,30p /home/runner/work/plugin.video.retrospect/plugin.video.retrospect/coverage.xml
+          sed -i "s/<source>\/home\/runner\/work\/plugin\.video\.retrospect\/plugin\.video\.retrospect<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/plugin.video.retrospect/plugin.video.retrospect/coverage.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
