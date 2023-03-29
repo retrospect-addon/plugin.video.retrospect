@@ -13,6 +13,34 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage
+
+      - name: Run PyTest with Coverage
+        env:
+          _DPLAY_USERNAME: ${{ secrets.DplayUsername }}
+          _DPLAY_PASSWORD: ${{ secrets.DplayPassword }}
+          RTLXL_USERNAME: ${{ secrets.RtlXlUsername }}
+          RTLXL_PASSWORD: ${{ secrets.RtlXlPassword }}
+          KODI_INTERACTIVE: 0
+          KODI_HOME: ${{ github.workspace }}/tests/home
+          PYTHONPATH: ${{ github.workspace }}/kodi.emulator.ascii
+        run: |
+          coverage run -m pytest -v --color=yes
+
+      - name: Generate coverage.xml
+        run: |
+          coverage xml
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
