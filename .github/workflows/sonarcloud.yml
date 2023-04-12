@@ -1,25 +1,25 @@
 name: SonarCloud Analysis
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '**.po'
-      - '**.xml'
-      - '**.md'
-      - '**.yml'
-      - '**.properties'
-      - '**.txt'
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths-ignore:
-      - '**.po'
-      - '**.xml'
-      - '**.md'
-      - '**.yml'
-      - '**.properties'
-      - '**.txt'
+#  push:
+#    branches:
+#      - master
+#    paths-ignore:
+#      - '**.po'
+#      - '**.xml'
+#      - '**.md'
+#      - '**.yml'
+#      - '**.properties'
+#      - '**.txt'
+#  pull_request:
+#    types: [opened, synchronize, reopened]
+#    paths-ignore:
+#      - '**.po'
+#      - '**.xml'
+#      - '**.md'
+#      - '**.yml'
+#      - '**.properties'
+#      - '**.txt'
 jobs:
   sonarcloud:
     name: SonarCloud
