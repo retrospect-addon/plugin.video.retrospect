@@ -56,6 +56,7 @@ class TestLogSender(unittest.TestCase):
         self.assertIsNotNone(url)
         self.assertTrue("https://paste.kodi.tv" in url)
 
+    @unittest.skipIf("CI" in os.environ, "Kodi Hastbin config needs to be fixed.")
     def test_LogSender_SendFile_HasteBin(self):
         log_sender = LogSender(self.__hastebin_key, logger=self.__logger, mode="hastebin")
         log_file = os.path.join(os.path.dirname(__file__), "data", "largelogfile.log")
