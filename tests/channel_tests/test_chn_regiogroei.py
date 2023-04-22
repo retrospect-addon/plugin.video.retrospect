@@ -271,5 +271,5 @@ class TestRegioGroei(ChannelTest):
 
     def test_rtvdrenthe_video(self):
         self._switch_channel("rtvdrenthe")
-        url = "https://api.regiogroei.cloud/page/episode/2827C26A26AED332C12587DE00382BB9?slug=drenthe-nu&origin=2827C26A26AED332C12587DE00382BB9"
+        url = "https://api.regiogroei.cloud/page/episode/150F50086BEB448FC125895800469A71?slug=roeg&page=150F50086BEB448FC125895800469A71"
         self._test_video_url(url)

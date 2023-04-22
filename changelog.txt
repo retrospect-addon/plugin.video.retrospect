@@ -1,14 +1,12 @@
-[B]Retrospect v5.6.0 - Changelog - 2023-03-28[/B]
+[B]Retrospect v5.6.x - Changelog - 2023-xx-xx[/B]
 
-This version of Retrospect removes Python 2 support and is only compatible with Kodi Matrix, Nexus, Omega and newer (because they run Python 3). Besides this major change, some minor channel related issues hvae4 been fixed.
+t.b.d.
 
 [B]Framework related[/B]
-* Fixed: Max response headers bumped (Fixed #1695).
-* Removed: Python 2 support. From now on it's Kodi Matrix or newer.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Videos from Vier/Vijf/Zes (GoPlay.be) fail to play (Fixes #1691).
-* Fixed: Kijk.nl broke due to API changes (Fixes #1697).
+* Fixed: RTV Drenthe playback.
