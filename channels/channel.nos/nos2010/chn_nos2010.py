@@ -1410,24 +1410,25 @@ class Channel(chn_class.Channel):
         :return: Formatted stations
         :rtype: list
         """
-
-        epg_data = JsonHelper.loads(UriHandler.open(datetime.datetime.now().strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv"),
+        epg_url = datetime.datetime.now().strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv")
+        epg_data = UriHandler.open(epg_url,
             no_cache=True,
-            additional_headers=self.__jsonApiKeyHeader))
+            additional_headers=self.__jsonApiKeyHeader)
+        epg = JsonHelper(epg_data)
 
         parent_item = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
         items = []
         iptv_streams = []
 
-        for stations in epg_data["epg"]:
-            livestream = stations["channel"]["liveStream"]
-            item = MediaItem(livestream["title"], livestream["shareUrl"], media_type=mediatype.VIDEO)
+        for stations in epg.get_value("epg"):
+            livestream = JsonHelper.get_from(stations, "channel", "liveStream")
+            item = MediaItem(JsonHelper.get_from(livestream, "title"), JsonHelper.get_from(livestream, "shareUrl"), media_type=mediatype.VIDEO)
             items.append(item)
 
             iptv_streams.append(dict(
-                id=livestream["id"],
-                name=livestream["title"],
-                logo=livestream["images"]["original"]["formats"]["tv"]["source"],
+                id=JsonHelper.get_from(livestream,"id"),
+                name=JsonHelper.get_from(livestream,"title"),
+                logo=JsonHelper.get_from(livestream,"images","original","formats","tv","source"),
                 group=self.channelName,
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent_item.guid),
             ))
@@ -1458,11 +1459,11 @@ class Channel(chn_class.Channel):
                 additional_headers=self.__jsonApiKeyHeader)
 
             json_data = JsonHelper.loads(data)
-            for epg_item in json_data["epg"]:
-                id = epg_item["channel"]['liveStream']['id']
+            for epg_item in JsonHelper.get_from(json_data,"epg"):
+                id = JsonHelper.get_from(epg_item,"channel",'liveStream','id')
                 iptv_epg[id]=iptv_epg.get(id, [])
-                for program in epg_item["schedule"]:
-                    media_item = MediaItem(program["program"]["title"], program["program"]["id"], media_type=mediatype.EPISODE)
+                for program in JsonHelper.get_from(epg_item,"schedule"):
+                    media_item = MediaItem(JsonHelper.get_from(program,"program","title"), JsonHelper.get_from(program,"program","id"), media_type=mediatype.EPISODE)
                     media_items.append(media_item)
                     iptv_epg[id].append(dict(
                         start=JsonHelper.get_from(program, "startsAt"),
