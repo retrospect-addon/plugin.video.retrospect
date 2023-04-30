@@ -491,7 +491,7 @@ msgid "IPTV Manager settings…"
 msgstr ""
 
 # used for list limits
-# empty strings from id 30109 to 30189
+# empty strings from id 30113 to 30189
 
 msgctxt "#30190"
 msgid "Monday"
