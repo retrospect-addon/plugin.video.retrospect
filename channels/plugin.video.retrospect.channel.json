@@ -138,7 +138,13 @@
             "type": "string",
             "title": "The URL of an external plugin",
             "default": ""
-          }
+          },
+          "hasIptv": {
+            "$id": "/properties/channels/items/properties/hasIptv",
+            "type": "boolean",
+            "title": "Channel supports IPTV Manager",
+            "default": ""
+          },
         }
       }
     },

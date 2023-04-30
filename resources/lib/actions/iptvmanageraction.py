@@ -54,10 +54,10 @@ class IPTVManagerAction(AddonAction):
         """Return JSON-STREAMS formatted python datastructure to IPTV Manager"""
         streams = [] 
         channels = ChannelIndex.get_register().get_channels()
-
         for channel in channels:
-            fetched_channel = channel.get_channel();
-            if "create_iptv_streams" in dir(fetched_channel):
+            if channel.hasIptv:
+                Logger.debug("Create IPTV streams for '%s'", channel.channelName)
+                fetched_channel = channel.get_channel();
                 streams += fetched_channel.create_iptv_streams(self.__parameter_parser)
                 
         return dict(version=1, streams=streams)
@@ -67,10 +67,10 @@ class IPTVManagerAction(AddonAction):
         """Return JSON-EPG formatted python data structure to IPTV Manager"""
         epg = dict()
         channels = ChannelIndex.get_register().get_channels()
-        
         for channel in channels:
-            fetched_channel = channel.get_channel();
-            if "create_iptv_epg" in dir(fetched_channel):
+            if channel.hasIptv:
+                Logger.debug("Create EPG for '%s'", channel.channelName)
+                fetched_channel = channel.get_channel();
                 epg.update(fetched_channel.create_iptv_epg(self.__parameter_parser))
 
         return dict(version=1, epg=epg)
