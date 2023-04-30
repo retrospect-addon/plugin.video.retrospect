@@ -132,6 +132,34 @@ class JsonHelper(object):
 
         return data
 
+    #noinspection PyUnboundLocalVariable
+    @staticmethod
+    def get_from(data, *args, logger=None, **kwargs):
+        """ Retrieves data from a generic JSON object based on the input parameters
+
+        :param str data         The JSON data
+        :param str args|int:    The dictionary keys, or list indexes.
+        :param any kwargs:      Possible value = fallback and allows the specification of a fallback value.
+
+        :return: the selected JSON object
+
+        """
+
+        try:
+            for arg in args:
+                data = data[arg]
+        except KeyError:
+            if "fallback" in kwargs:
+                if logger:
+                    logger.debug("Key ['%s'] not found in Json", arg)
+                return kwargs["fallback"]
+
+            if logger:
+                logger.warning("Key ['%s'] not found in Json", arg, exc_info=True)
+            return None
+
+        return data
+
     @staticmethod
     def dump(dictionary, pretty_print=True, sort_keys=False):
         """ Dumps a JSON object to a string
@@ -160,22 +188,6 @@ class JsonHelper(object):
         """
 
         return json.loads(json_data)
-
-    @staticmethod
-    def safeget(dct, *keys):
-        """ Try to find nested key
-
-        :param dct dict
-        :param *keys key to find
-        :return: value
-
-        """
-        for key in keys:
-            try:
-                dct = dct[key]
-            except KeyError:
-                return None
-        return dct
 
     def __str__(self):
         return self.data
