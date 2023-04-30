@@ -1423,6 +1423,8 @@ class Channel(chn_class.Channel):
         for stations in epg.get_value("epg"):
             livestream = JsonHelper.get_from(stations, "channel", "liveStream")
             item = MediaItem(JsonHelper.get_from(livestream, "title"), JsonHelper.get_from(livestream, "shareUrl"), media_type=mediatype.VIDEO)
+            item.isLive = True
+            item.isGeoLocked = True
             items.append(item)
 
             iptv_streams.append(dict(
