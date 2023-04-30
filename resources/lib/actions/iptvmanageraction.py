@@ -55,7 +55,7 @@ class IPTVManagerAction(AddonAction):
         streams = [] 
         channels = ChannelIndex.get_register().get_channels()
         for channel in channels:
-            if channel.hasIptv:
+            if channel.has_iptv:
                 Logger.debug("Create IPTV streams for '%s'", channel.channelName)
                 fetched_channel = channel.get_channel();
                 streams += fetched_channel.create_iptv_streams(self.__parameter_parser)
@@ -68,7 +68,7 @@ class IPTVManagerAction(AddonAction):
         epg = dict()
         channels = ChannelIndex.get_register().get_channels()
         for channel in channels:
-            if channel.hasIptv:
+            if channel.has_iptv:
                 Logger.debug("Create EPG for '%s'", channel.channelName)
                 fetched_channel = channel.get_channel();
                 epg.update(fetched_channel.create_iptv_epg(self.__parameter_parser))

@@ -21,7 +21,7 @@ class ChannelInfo(object):
 
     def __init__(self, guid, name, description, icon, category, path,
                  channel_code=None, sort_order=255, language=None,
-                 ignore=False, fanart=None, poster=None, hasIptv=None):
+                 ignore=False, fanart=None, poster=None, has_iptv=None):
         """ Creates a ChannelInfo object with basic information for a channel
 
         :param str guid:                        A unique GUID.
@@ -37,6 +37,7 @@ class ChannelInfo(object):
         :param bool ignore:                     Should the channel be ignored? Defaults to False
         :param str fanart:                      A fanart url/path.
         :param str poster:                      A poster url/path.
+        :param str has_iptv:                    True if channel has support for IPTV Manager
 
         """
 
@@ -71,7 +72,7 @@ class ChannelInfo(object):
         self.icon = icon
         self.fanart = fanart
         self.poster = poster
-        self.hasIptv = hasIptv
+        self.has_iptv = has_iptv
         self.enabled = False                  # enabled from the settings
         self.visible = False                  # hidden/visible due to country settings
         self.adaptiveAddonSelectable = False  # can the InputStream Adaptive be selected
@@ -264,7 +265,7 @@ class ChannelInfo(object):
                 ignore=channel.get("ignore", False),
                 fanart=channel.get("fanart", None),
                 poster=channel.get("poster", None),
-                hasIptv=channel.get("hasIptv", None)
+                has_iptv=channel.get("hasIptv", None)
             )
 
             channel_info.firstTimeMessage = channel.get("message", None)
