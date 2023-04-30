@@ -1466,6 +1466,8 @@ class Channel(chn_class.Channel):
                 iptv_epg[id]=iptv_epg.get(id, [])
                 for program in JsonHelper.get_from(epg_item,"schedule"):
                     media_item = MediaItem(JsonHelper.get_from(program,"program","title"), JsonHelper.get_from(program,"program","id"), media_type=mediatype.EPISODE)
+                    region_restrictions = JsonHelper.get_from(program, "program", "regionRestrictions")
+                    media_item.isGeoBlocked = any([r for r in region_restrictions if r != "PLUSVOD:EU"])
                     media_items.append(media_item)
                     iptv_epg[id].append(dict(
                         start=JsonHelper.get_from(program, "startsAt"),
