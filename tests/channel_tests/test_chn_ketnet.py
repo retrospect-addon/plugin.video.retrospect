@@ -25,7 +25,7 @@ class TestKetNetChannel(ChannelTest):
         self.assertGreater(len(items), 10)
 
     def test_folder_with_sublisting(self):
-        program_id = "content/ketnet/nl/kijken/t/trefbal-royale.model.json"
+        program_id = "content/ketnet/nl/kijken/d/de-hoppers.model.json"
         url = "#programId={}".format(program_id)
         item = self._get_media_item(url)
         item.metaData["id"] = program_id

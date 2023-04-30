@@ -97,11 +97,15 @@ class TestNpoChannel(ChannelTest):
         )
 
     def test_tv_show_list_fragments(self):
+        # The list of fragments sometimes contains duplicate items,
+        # so the final item count may be less than 101
         items = self._test_folder_url(
             "https://start-api.npo.nl/media/series/POW_04596562/fragments?pageSize=10",
             headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
-            expected_results=100
+            expected_results=90
         )
+        more_folders = [item for item in items if item.is_folder and "fragments" in item.url]
+        self.assertEqual(len(more_folders), 1)
 
     def test_tv_show_listing_with_multiple_seasons(self):
         # A show with multiple very short seasons
