@@ -116,21 +116,7 @@ class JsonHelper(object):
 
         """
 
-        try:
-            data = self.json
-            for arg in args:
-                data = data[arg]
-        except KeyError:
-            if "fallback" in kwargs:
-                if self.logger:
-                    self.logger.debug("Key ['%s'] not found in Json", arg)
-                return kwargs["fallback"]
-
-            if self.logger:
-                self.logger.warning("Key ['%s'] not found in Json", arg, exc_info=True)
-            return None
-
-        return data
+        return JsonHelper.get_from(self.json, *args, logger=self.logger, **kwargs)
 
     #noinspection PyUnboundLocalVariable
     @staticmethod
