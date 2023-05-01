@@ -4,6 +4,7 @@ t.b.d.
 
 [B]Framework related[/B]
 * Added: IPTV Manager support (See #1674).
+* Fixed: Minor logging in issue for NPO.
 
 [B]GUI/Settings/Language related[/B]
 _None_
