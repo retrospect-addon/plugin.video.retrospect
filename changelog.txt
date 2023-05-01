@@ -3,7 +3,7 @@
 t.b.d.
 
 [B]Framework related[/B]
-_None_
+* Added: IPTV Manager support (See #1674).
 
 [B]GUI/Settings/Language related[/B]
 _None_
