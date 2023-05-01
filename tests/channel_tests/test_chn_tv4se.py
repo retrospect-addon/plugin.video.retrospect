@@ -100,6 +100,7 @@ class TestTv4Channel(ChannelTest):
 
     def test_list_with_seasons_folders(self):
         url = "https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid%3A%22ambulansen%22%29%7Bname%2Cdescription%2CvideoPanels%7Bid%2Cname%2Csubheading%2CassetType%7D%7D%7D"
+        url = "https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid%3A%22vad-blir-det-f%C3%B6r-mat%22%29%7Bname%2Cdescription%2CvideoPanels%7Bid%2Cname%2Csubheading%2CassetType%7D%7D%7D"
         self._test_folder_url(url, expected_results=1)
 
     def test_list_with_paging(self):
