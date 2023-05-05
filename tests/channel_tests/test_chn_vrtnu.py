@@ -4,6 +4,7 @@ import unittest
 from . channeltest import ChannelTest
 
 
+@unittest.skip("Using VRT MAX add-on for now.")
 class TestVrtNuChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR

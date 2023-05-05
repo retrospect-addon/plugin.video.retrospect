@@ -11,3 +11,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: RTV Drenthe playback.
+* Changed: Switched to the VRT MAX Add-on for now for VRT NU/MAX.
