@@ -33,7 +33,10 @@ class TestUrPlayChannel(ChannelTest):
               "singles_and_series=true&" \
               "start={}&" \
               "view=title"
-        self._test_folder_url(url, expected_results=95, exact_results=False)
+        item = self._get_media_item("#category", "category")
+        item.metaData["url_format"] = url
+        items = self.channel.process_folder_list(item)
+        self.assertGreaterEqual(len(items), 95)
 
     def test_popular(self):
         url = "https://urplay.se/api/v1/search?product_type=program&query=&rows=150&start=0&view=most_viewed"
