@@ -14,3 +14,4 @@ _None_
 * Changed: Switched to the VRT MAX Add-on for now for VRT NU/MAX.
 * Fixed: Kijk.nl subtitle issue with image url's instead of text (Fixes #1705).
 * Fixed: RTL XL broke due to API changes.
+* Removed: Nickelodeon.nl as they remove their content.

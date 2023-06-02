@@ -47,13 +47,13 @@ class TestNickelodeonChannel(ChannelTest):
         url = "https://www.nickelodeon.no/shows/q03fvj/avatar-legenden-om-aang"
         self._test_folder_url(url, expected_results=2)
 
-    def test_season_listing_nl(self):
-        self._switch_channel("nickelodeon")
-        url = "https://www.nickelodeon.nl/shows/3f58sq/game-shakers"
-        self._test_folder_url(url, expected_results=2)
-
-    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
-    def test_video(self):
-        self._switch_channel("nickelodeon")
-        url = "https://www.nickelodeon.nl/episodes/ckly3y/spongebob-gerrit-praatgraag-de-clowns-niet-voederen-seizoen-seasonnumber-11-afl-226"
-        self._test_video_url(url)
+    # def test_season_listing_nl(self):
+    #     self._switch_channel("nickelodeon")
+    #     url = "https://www.nickelodeon.nl/shows/3f58sq/game-shakers"
+    #     self._test_folder_url(url, expected_results=2)
+    #
+    # @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
+    # def test_video(self):
+    #     self._switch_channel("nickelodeon")
+    #     url = "https://www.nickelodeon.nl/episodes/ckly3y/spongebob-gerrit-praatgraag-de-clowns-niet-voederen-seizoen-seasonnumber-11-afl-226"
+    #     self._test_video_url(url)
