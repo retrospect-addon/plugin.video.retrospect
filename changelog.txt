@@ -1,6 +1,6 @@
-[B]Retrospect v5.6.x - Changelog - 2023-xx-xx[/B]
+[B]Retrospect v5.6.1 - Changelog - 2023-06-02[/B]
 
-t.b.d.
+This update introduces IPTV Manager support (Thanks to @landgenoot) for NPO Start. Besides this, some minor bugs were squashed.
 
 [B]Framework related[/B]
 * Added: IPTV Manager support (See #1674).
