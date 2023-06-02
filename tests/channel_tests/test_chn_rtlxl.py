@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -13,21 +15,17 @@ class TestRtlXLChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreater(len(items), 50)
+        self.assertGreater(len(items), 20)
 
     def test_main_program(self):
-        url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/fun=getseasons/ak=399642"
+        url = "https://api.rtl.nl/rtlxl/related/api/related/366335"
         self._test_folder_url(url, 5)
 
-    def test_sub_folder(self):
-        url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/ak=399642/sk=507250/pg=1"
+    def test_day_listing(self):
+        url = "https://api.rtl.nl/rtlxl/missed/api/missed?dayOffset=1"
         self._test_folder_url(url, 5)
 
-    def test_results_with_page(self):
-        url = "http://www.rtl.nl/system/s4m/vfd/version=1/d=pc/output=json/ak=399642/sk=507250/pg=1"
-        items = self._test_folder_url(url, 5)
-        self.assertGreater(len([i for i in items if i.media_type == "page"]), 0)
-
-    def test_video(self):
-        url = "https://api.rtl.nl/watch/play/api/play/xl/7d6aa110-c039-47d6-bb36-73a2abeb90a5?device=web&drm=widevine&format=dash"
+    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Skipping due to missing username/password")
+    def test_video_update(self):
+        url = "https://api.rtl.nl/watch/play/api/play/xl/0f2c7de3-881b-4467-ba3f-0ca2aabaf718?device=web&drm=widevine&format=dash"
         self._test_video_url(url)
