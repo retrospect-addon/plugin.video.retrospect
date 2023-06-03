@@ -1,6 +1,6 @@
-[B]Retrospect v5.6.2 - Changelog - 2023-06-02[/B]
+[B]Retrospect v5.6.2 - Changelog - 2023-06-03[/B]
 
-t.b.d.
+Fixed a minor error in the RTL XL code.
 
 [B]Framework related[/B]
 _None_
