@@ -347,6 +347,10 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
+        # If a username was configured, log in to make it possible to play from outside NL.
+        if self._get_setting("rtlxl_username", value_for_none=None):
+            self.log_on()
+
         # Get the authentication part right.
         token = self.__authenticator.get_authentication_token()
         headers = {
@@ -354,6 +358,7 @@ class Channel(chn_class.Channel):
         }
         video_data = UriHandler.open(item.url, additional_headers=headers)
         video_json = JsonHelper(video_data)
+        Logger.trace(video_data)
         error = video_json.get_value("error")
         if error:
             XbmcWrapper.show_notification(LanguageHelper.ErrorId, error["description"])
