@@ -25,7 +25,7 @@ class TestRtlXLChannel(ChannelTest):
         url = "https://api.rtl.nl/rtlxl/missed/api/missed?dayOffset=1"
         self._test_folder_url(url, 5)
 
-    @unittest.skipIf("RTLXL_USERNAME" not in os.environ, "Skipping due to missing username/password")
+    @unittest.skipIf("CI" in os.environ, "Skipping due GEO restrictions")
     def test_video_update(self):
         url = "https://api.rtl.nl/watch/play/api/play/xl/0f2c7de3-881b-4467-ba3f-0ca2aabaf718?device=web&drm=widevine&format=dash"
         self._test_video_url(url)
