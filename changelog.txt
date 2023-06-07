@@ -1,12 +1,12 @@
-[B]Retrospect v5.6.2 - Changelog - 2023-06-03[/B]
+[B]Retrospect v5.6.3 - Changelog - 2023-06-07[/B]
 
-Fixed a minor error in the RTL XL code.
+Fixed more RTL related issues.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Fixed: De-duplicate before grouping to prevent duplicate items in grouped folders.
 
 [B]Channel related[/B]
 * Fixed: A number of RTL XL related bugs (Fixes #1708).
