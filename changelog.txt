@@ -1,12 +1,12 @@
-[B]Retrospect v5.6.3 - Changelog - 2023-06-07[/B]
+[B]Retrospect v5.6.x - Changelog - 2023-xx-xx[/B]
 
-Fixed more RTL related issues.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: De-duplicate before grouping to prevent duplicate items in grouped folders.
+_None_
 
 [B]Channel related[/B]
-* Fixed: A number of RTL XL related bugs (Fixes #1708).
+* Fixed: TV4 Play TV Show list broke.
