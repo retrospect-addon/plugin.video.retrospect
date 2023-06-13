@@ -53,6 +53,7 @@ class TestNrkNoChannel(ChannelTest):
         url = "https://psapi.nrk.no/medium/tv/popularprograms/week?maxnumber=100&startRow=0&apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
 
+    @unittest.skip("Failing with UTC error on their side.")
     def test_recent(self):
         url = "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
