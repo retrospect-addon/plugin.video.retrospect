@@ -31,10 +31,8 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_graphql_main_list(self):
         self._test_folder_url(
-            "https://graph.kijk.nl/graphql?query=query%7Bprograms%28programTypes%3A%5BSERIES%5D"
-            "%2Climit%3A10%29%7Bitems%7B__typename%2Ctitle%2Cdescription%2Cguid%2Cupdated%2C"
-            "seriesTvSeasons%7Bid%7D%2CimageMedia%7Burl%2Clabel%7D%7D%7D%7D",
-            expected_results=8
+            "https://static.kijk.nl/all-series.json",
+            expected_results=250
         )
 
     def test_graphql_multi_season_show(self):
@@ -54,6 +52,12 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_graphql_recent(self):
         self._test_folder_url("#recentgraphql", expected_results=7, exact_results=True)
+
+    def test_graphql_trending(self):
+        self._test_folder_url(
+            "https://graph.kijk.nl/graphql?query=query%7BtrendingPrograms%7B__typename%2C"
+            "title%2Cdescription%2Cguid%2Cupdated%2CseriesTvSeasons%7Bid%7D%2CimageMedia%7Burl%2Clabel%7D%7D%7D",
+            expected_results=3)
 
     def test_graphql_mpd_video(self):
         item = self._test_video_url(
