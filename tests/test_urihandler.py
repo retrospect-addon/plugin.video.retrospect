@@ -122,7 +122,7 @@ class TestUriHandler(unittest.TestCase):
 
         url = self.base_url + "/redirect-to?url=https%3A%2F%2Fhttpbingo.org%2Fget"
         content_type, url = UriHandler.header(url)
-        self.assertEqual("application/json; encoding=utf-8", content_type)
+        self.assertEqual("application/json; charset=utf-8", content_type)
         self.assertEqual("https://httpbingo.org/get", url)
         self.assertEqual(200, UriHandler.instance().status.code)
 
@@ -131,7 +131,7 @@ class TestUriHandler(unittest.TestCase):
 
         url = self.base_url + "/redirect-to?url=https%3A%2F%2Fhttpbingo.org%2Fredirect-to%3Furl%3Dhttps%253A%252F%252Fhttpbingo.org%252Fget"
         content_type, url = UriHandler.header(url)
-        self.assertEqual("application/json; encoding=utf-8", content_type)
+        self.assertEqual("application/json; charset=utf-8", content_type)
         self.assertEqual("https://httpbingo.org/get", url)
         self.assertEqual(200, UriHandler.instance().status.code)
 
@@ -140,8 +140,8 @@ class TestUriHandler(unittest.TestCase):
 
         url = self.base_url + "/get"
         data = UriHandler.header(url)
-        self.assertEqual('application/json; encoding=utf-8', data[0])
-        self.assertEqual('https://httpbingo.org/get', data[1])
+        self.assertEqual("application/json; charset=utf-8", data[0])
+        self.assertEqual("https://httpbingo.org/get", data[1])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_head_error(self):
