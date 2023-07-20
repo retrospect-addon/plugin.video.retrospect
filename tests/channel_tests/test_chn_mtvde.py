@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -19,6 +20,7 @@ class TestMtvDeChannel(ChannelTest):
         url = "https://www.mtv.de/serien/jersey-shore-family-vacation"
         self._test_folder_url(url, expected_results=4)
 
+    @unittest.skip("GEO blocked.")
     def test_video(self):
         url = "https://www.mtv.de/folgen/qbpkgz/jersey-shore-family-vacation-snooki-geht-nach-washington-teil-eins-staffel-3-ep-13"
         self._test_video_url(url)
