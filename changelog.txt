@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Better error messages on NPO Start error (See #1713).
+* Fixed: MTV date parsing.
