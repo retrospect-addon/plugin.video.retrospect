@@ -11,7 +11,6 @@ from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.jsonhelper import JsonHelper
 
-from resources.lib.regexer import Regexer
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
@@ -276,16 +275,16 @@ class Channel(chn_class.Channel):
         item.description = result_set.get("description", None)
 
         item.thumb = result_set.get("image")
-        if item.thumb is not None:
-            item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
-                         "&quality=70&resize=520x293&source={}" \
-                .format(HtmlEntityHelper.url_encode(item.thumb))
+        # if item.thumb is not None and "://img.b17g.net/" in item.thumb:
+        #     item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+        #                  "&quality=70&resize=520x293&source={}" \
+        #         .format(HtmlEntityHelper.url_encode(item.thumb))
 
         item.fanart = result_set.get("image")
-        if item.fanart is not None:
-            item.fanart = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
-                          "&quality=70&resize=1280x720&source={}" \
-                .format(HtmlEntityHelper.url_encode(item.fanart))
+        # if item.fanart is not None and "://img.b17g.net/" in item.fanart:
+        #     item.fanart = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+        #                   "&quality=70&resize=1280x720&source={}" \
+        #         .format(HtmlEntityHelper.url_encode(item.fanart))
 
         item.isPaid = result_set.get("is_premium", False)
 
@@ -424,14 +423,12 @@ class Channel(chn_class.Channel):
                       0)
 
         item.fanart = result_set.get("program_image", self.parentItem.fanart)
-        thumb_url = result_set.get("image", result_set.get("program_image"))
+        item.thumb = result_set.get("image", result_set.get("program_image"))
         # some images need to come via a proxy:
-        if thumb_url and "://img.b17g.net/" in thumb_url:
-            item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
-                         "&quality=70&resize=520x293&source={}" \
-                .format(HtmlEntityHelper.url_encode(thumb_url))
-        else:
-            item.thumb = thumb_url
+        # if item.thumb and "://img.b17g.net/" in item.thumb:
+        #     item.thumb = "https://imageproxy.b17g.services/?format=jpg&shape=cut" \
+        #                  "&quality=70&resize=520x293&source={}" \
+        #         .format(HtmlEntityHelper.url_encode(item.thumb))
 
         item.media_type = mediatype.EPISODE
         item.complete = False
