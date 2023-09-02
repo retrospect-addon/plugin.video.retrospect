@@ -91,7 +91,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_rtv_noord_video_listing(self):
         self._switch_channel("rtvnoord")
-        url = "https://api.regiogroei.cloud/page/program/10010?slug=noord-vandaag&origin=10010"
+        url = "https://api.regiogroei.cloud/page/program/NVREC?slug=noord-vandaag&origin=NVREC"
         self._test_folder_url(url, expected_results=20)
 
     def test_rtv_noord_video(self):
