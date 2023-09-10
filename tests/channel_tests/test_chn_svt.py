@@ -61,7 +61,7 @@ class TestSvtChannel(ChannelTest):
         self._test_folder_url(url, expected_results=10)
 
     def test_genre_tags_listing(self):
-        url = "https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=AllGenres&variables=%7B%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%226bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c%22%7D%7D"
+        url = "https://api.svt.se/contento/graphql?operationName=MainGenres&variables=%7B%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%2265b3d9bccd1adf175d2ad6b1aaa482bb36f382f7bad6c555750f33322bc2b489%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
         self._test_folder_url(url, expected_results=10)
 
     # Now only in HTML embedded.

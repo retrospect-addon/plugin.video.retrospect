@@ -97,26 +97,22 @@ class Channel(chn_class.Channel):
                               parser=["data", "selectionById", "items"],
                               creator=self.create_api_typed_item)
 
-        # self._add_data_parser("https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=StartPage",
-        #                       name="GraphQL StartPage parsers for Nytt pa Play", json=True,
-        #                       parser=["data", "startForSvtPlay", "selections", ("name", "Nytt på Play", 0), "items"],
-        #                       creator=self.create_api_typed_item)
+        self._add_data_parser("https://api.svt.se/contento/graphql?operationName=MainGenres",
+                              name="GraphQL for main genre listding", json=True,
+                              parser=["data", "genresInMain", "genres"],
+                              creator=self.create_api_typed_item)
 
-        # self._add_data_parser(self.__nyheter_url, name="Latest news", json=True,
-        #                       parser=["data", "genres", 0, "selectionsForWeb", 1, "items"],
-        #                       creator=self.create_api_typed_item)
-
-        # self._add_data_parser("#genre_item", json=True,
-        #                       name="Genre data retriever for GraphQL",
-        #                       preprocessor=self.fetch_genre_api_data)
-        # self._add_data_parser("#genre_item", json=True,
-        #                       name="Genre episode parser for GraphQL",
-        #                       parser=["programs"],
-        #                       creator=self.create_api_typed_item)
-        # self._add_data_parser("#genre_item", json=True,
-        #                       name="Genre clip parser for GraphQL",
-        #                       parser=["videos"],
-        #                       creator=self.create_api_typed_item)
+        self._add_data_parser("#genre_item", json=True,
+                              name="Genre data retriever for GraphQL",
+                              preprocessor=self.fetch_genre_api_data)
+        self._add_data_parser("#genre_item", json=True,
+                              name="Genre episode parser for GraphQL",
+                              parser=["programs"],
+                              creator=self.create_api_typed_item)
+        self._add_data_parser("#genre_item", json=True,
+                              name="Genre clip parser for GraphQL",
+                              parser=["videos"],
+                              creator=self.create_api_typed_item)
 
         # Setup channel listing based on JSON data in the HTML
         self._add_data_parser(
@@ -243,8 +239,8 @@ class Channel(chn_class.Channel):
             LanguageHelper.get_localized_string(LanguageHelper.Tags).lower()
         )
 
-        genre_url = self.__get_api_url("AllGenres",
-                                       "6bef51146d05b427fba78f326453127f7601188e46038c9a5c7b9c2649d4719c",
+        genre_url = self.__get_api_url("MainGenres",
+                                       "65b3d9bccd1adf175d2ad6b1aaa482bb36f382f7bad6c555750f33322bc2b489",
                                        {})
         genre_item = FolderItem(genre_tags, genre_url, content_type=contenttype.VIDEOS)
         genre_item.complete = True
@@ -825,6 +821,12 @@ class Channel(chn_class.Channel):
 
         item = FolderItem(result_set["name"], "#genre_item", content_type=contenttype.VIDEOS)
         item.metaData[self.__genre_id] = result_set["id"]
+
+
+        image_info = result_set.get("image")
+        if image_info:
+            item.thumb = self.__get_thumb(image_info, width=720)
+            item.fanart = self.__get_thumb(image_info)
         return item
 
     def create_api_search_hit(self, result_set):
@@ -931,21 +933,18 @@ class Channel(chn_class.Channel):
             genre = self.parentItem.metaData[self.__genre_id]
 
         url = self.__get_api_url(
-            "GenreProgramsAO",
-            "189b3613ec93e869feace9a379cca47d8b68b97b3f53c04163769dcffa509318",
-            {"genre": [genre]}
+            "CategoryPageQuery",
+            "00be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf",
+            {"id": genre, "tab": "all", "includeFullOppetArkiv": True}
         )
 
         data = UriHandler.open(url)
         json_data = JsonHelper(data)
-        possible_lists = json_data.get_value("data", "genres", 0, "selectionsForWeb")
+        possible_lists = json_data.get_value("data", "categoryPage", "lazyLoadedTabs", 1, "selections")
         program_items = [genres["items"] for genres in possible_lists if
                          genres["selectionType"] == "all"]
-        clip_items = [genres["items"] for genres in possible_lists if
-                      genres["selectionType"] == "clips"]
         json_data.json = {
             "programs": [p["item"] for p in program_items[0]],
-            "videos": [c["item"] for c in clip_items[0]]
         }
         return json_data, []
 
@@ -1038,15 +1037,9 @@ class Channel(chn_class.Channel):
 
         """
 
-        # https://contento-search.svt.se/graphql?operationName=AutoCompleteSearch&variables=%7B%22abTestVariants%22%3A%5B%5D%2C%22querystring%22%3A%22nyheter%22%2C%22searchClickHistory%22%3A%5B%5D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%228989b62115022fda8a6129d0f512b94f4d2de3bf2110415647c09c4316ce4a91%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-production-client
-        # url = self.__get_api_url(
-        #     "AutoCompleteSearch", "8989b62115022fda8a6129d0f512b94f4d2de3bf2110415647c09c4316ce4a91",
-        #     {"querystring": "----", "abTestVariants": [], "searchClickHistory": []}
-        # )
-        # https://contento-search.svt.se/graphql?operationName=SearchPage&variables=%7B%22abTestVariants%22%3A%5B%5D%2C%22querystring%22%3A%22nyheter%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-production-client
         url = self.__get_api_url(
-            "SearchPage", "ab8c604fc76d14885dcedd0f377b76afae9aabcde73b3324676f60ca86d12606",
-            {"querystring": "----", "abTestVariants": [], "searchClickHistory": []}
+            "AutoCompleteSearch", "8989b62115022fda8a6129d0f512b94f4d2de3bf2110415647c09c4316ce4a91",
+            {"querystring": "----", "searchClickHistory": []}
         )
 
         url = url.replace("https://api.svt.se/contento/graphql",
