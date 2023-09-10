@@ -116,7 +116,7 @@ class Channel(chn_class.Channel):
 
         # Setup channel listing based on JSON data in the HTML
         self._add_data_parser(
-            "https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&operationName=ChannelsQuery",
+            "https://api.svt.se/contento/graphql?operationName=BroadcastSchedule",
             name="Live streams", json=True,
             parser=["data", "channels", "channels"],
             creator=self.create_channel_item)
@@ -170,12 +170,15 @@ class Channel(chn_class.Channel):
         items = []
 
         # Specify the name, url and whether or not to filter out some subheadings:
+        # https://api.svt.se/contento/graphql?operationName=BroadcastSchedule
+        # &variables={"day":"2023-09-11"}&extensions={"persistedQuery":{"sha256Hash":"464905fb9c6f51510427f3b913fde66cb43fa5b7f9197bcd13815800758a599b","version":1}}&ua=svtplaywebb-render-low-prio-client
+        now = datetime.datetime.now() - datetime.timedelta(hours=6)
         extra_items = {
             LanguageHelper.get_localized_string(LanguageHelper.LiveTv): (
                 self.__get_api_url(
-                    "ChannelsQuery",
-                    "65ceeccf67cc8334bc14eb495eb921cffebf34300562900076958856e1a58d37",
-                    {}),
+                    "BroadcastSchedule",
+                    "464905fb9c6f51510427f3b913fde66cb43fa5b7f9197bcd13815800758a599b",
+                    {"day": "{:04}-{:02}-{:02}".format(now.year, now.month, now.day)}),
                 False),
 
             LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
@@ -979,27 +982,36 @@ class Channel(chn_class.Channel):
             channel_id = "kunskapskanalen"
 
         # Running data
-        running = channel["running"]
+        running = [i for i in channel["schedule"] if i["state"] == "running"]
+        if not running:
+            return None
+
+        running = running[0]
         title = running["name"]
         episode = running.get("subHeading", None)
-        thumb = self.__get_thumb(running["image"], width=720)
+        thumb = None
+        if "image" in running:
+            thumb = self.__get_thumb(running["image"], width=720)
+        elif "item" in running and running["item"]:
+            if "image" in running["item"]:
+                thumb = self.__get_thumb(running["item"]["image"], width=720)
+            elif "parent" in running["item"] and running["item"]["parent"] and "images" in running["item"]["parent"] and running["item"]["parent"]["images"]:
+                thumb = self.__get_thumb(running["item"]["parent"]["images"]["wide"], width=720)
+
         date_format = "%Y-%m-%dT%H:%M:%S"
         start_time = DateHelper.get_date_from_string(running["start"][:19], date_format)
-        end_time = DateHelper.get_date_from_string(running["end"][:19], date_format)
         description = running.get("description")
 
         if episode:
-            title = "%s: %s - %s (%02d:%02d - %02d:%02d)" \
-                    % (channel_title, title, episode,
-                       start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
+            title = "%s: %s - %s (%02d:%02d)" \
+                    % (channel_title, title, episode, start_time.tm_hour, start_time.tm_min)
             # Hide the description for now
             # description = "{:02d}:{:02d} - {:02d}:{:02d}: {} - {}\n\n{}".format(
             #     start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min,
             #     title, episode or "", description)
         else:
-            title = "%s: %s (%02d:%02d - %02d:%02d)" \
-                    % (channel_title, title,
-                       start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
+            title = "%s: %s (%02d:%02d)" \
+                    % (channel_title, title, start_time.tm_hour, start_time.tm_min)
             # Hide the description for now
             # description = "{:02d}:{:02d} - {:02d}:{:02d}: {}\n\n{}".format(
             #     start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min,
