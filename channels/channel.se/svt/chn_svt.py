@@ -58,10 +58,6 @@ class Channel(chn_class.Channel):
         # that generates the list
         self._add_data_parser("#mainlist", preprocessor=self.add_live_items_and_genres)
 
-        # # If there is an actual url, then include the pre-processor:
-        # self._add_data_parser(self.__program_url,
-        #                       preprocessor=self.add_live_items_and_genres)
-        # And the other video items depending on the url.
         self._add_data_parser(self.__program_url,
                               match_type=ParserData.MatchStart, json=True,
                               preprocessor=self.folders_or_clips,
@@ -186,7 +182,7 @@ class Channel(chn_class.Channel):
                     "GridPage",
                     "a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40",
                     variables={"includeFullOppetArkiv": True, "selectionId": "live_start"}),
-                True),
+                False),
 
             LanguageHelper.get_localized_string(LanguageHelper.Search): (
                 "searchSite", False),
@@ -982,11 +978,22 @@ class Channel(chn_class.Channel):
             channel_id = "kunskapskanalen"
 
         # Running data
-        running = [i for i in channel["schedule"] if i["state"] == "running"]
+        schedule = channel["schedule"]
+        running = None
+        upcoming = None
+        for epg in schedule:
+            if running:
+                upcoming = epg
+                break
+
+            if epg["state"] != "running":
+                continue
+
+            running = epg
+
         if not running:
             return None
 
-        running = running[0]
         title = running["name"]
         episode = running.get("subHeading", None)
         thumb = None
@@ -998,24 +1005,31 @@ class Channel(chn_class.Channel):
             elif "parent" in running["item"] and running["item"]["parent"] and "images" in running["item"]["parent"] and running["item"]["parent"]["images"]:
                 thumb = self.__get_thumb(running["item"]["parent"]["images"]["wide"], width=720)
 
-        date_format = "%Y-%m-%dT%H:%M:%S"
-        start_time = DateHelper.get_date_from_string(running["start"][:19], date_format)
         description = running.get("description")
 
+        date_format = "%Y-%m-%dT%H:%M:%S"
+        start_time = DateHelper.get_date_from_string(running["start"][:19], date_format)
+        end_time = None
+        if upcoming:
+            end_time = DateHelper.get_date_from_string(upcoming["start"][:19], date_format)
+
         if episode:
-            title = "%s: %s - %s (%02d:%02d)" \
-                    % (channel_title, title, episode, start_time.tm_hour, start_time.tm_min)
-            # Hide the description for now
-            # description = "{:02d}:{:02d} - {:02d}:{:02d}: {} - {}\n\n{}".format(
-            #     start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min,
-            #     title, episode or "", description)
+            if end_time:
+                title = "%s: %s - %s (%02d:%02d - %02d:%02d)" \
+                        % (channel_title, title, episode,
+                           start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
+            else:
+                title = "%s: %s - %s (%02d:%02d)" \
+                        % (channel_title, title, episode, start_time.tm_hour, start_time.tm_min)
         else:
-            title = "%s: %s (%02d:%02d)" \
-                    % (channel_title, title, start_time.tm_hour, start_time.tm_min)
-            # Hide the description for now
-            # description = "{:02d}:{:02d} - {:02d}:{:02d}: {}\n\n{}".format(
-            #     start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min,
-            #     title, description)
+            if end_time:
+                title = "%s: %s (%02d:%02d - %02d:%02d)" \
+                        % (channel_title, title,
+                           start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
+            else:
+                title = "%s: %s (%02d:%02d - %02d:%02d)" \
+                        % (channel_title, title,
+                           start_time.tm_hour, start_time.tm_min, end_time.tm_hour, end_time.tm_min)
 
         channel_item = MediaItem(
             title,
