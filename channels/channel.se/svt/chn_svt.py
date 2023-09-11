@@ -466,10 +466,7 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
         item.description = result_set.get('longDescription')
 
-        image_info = result_set.get("image")
-        if image_info:
-            item.thumb = self.__get_thumb(image_info, width=720)
-            item.fanart = self.__get_thumb(image_info)
+        self.__extract_artwork(result_set.get("images"), item)
         return item
 
     def create_api_tvshow_type(self, result_set):
@@ -498,9 +495,7 @@ class Channel(chn_class.Channel):
         item.tv_show_title = item.name
         item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
         item.description = result_set.get('description')
-        image_info = result_set.get("image")
-        if image_info:
-            item.thumb = self.__get_thumb(image_info)
+        self.__extract_artwork(result_set.get("images"), item)
         return item
 
     def create_api_selection_type(self, result_set):
@@ -589,9 +584,7 @@ class Channel(chn_class.Channel):
             new_result_set["longDescription"] = result_set.get("description")
 
         if "images" in result_set:
-            images = result_set.get("images", {}).get("wide")
-            if images:
-                new_result_set["image"] = images
+            new_result_set["images"] = result_set["images"]
         item = self.create_api_typed_item(result_set["item"])
         return item
 
@@ -644,6 +637,7 @@ class Channel(chn_class.Channel):
 
         if "image" in result_set:
             item.thumb = self.__get_thumb(result_set["image"], width=720)
+        self.__extract_artwork(result_set.get("images"), item)
 
         valid_from = result_set.get("validFrom", None)
         if bool(valid_from) and valid_from.endswith("Z"):
@@ -734,10 +728,7 @@ class Channel(chn_class.Channel):
         item.media_type = mediatype.VIDEO
         item.description = result_set.get('longDescription')
 
-        image_info = result_set.get("image")
-        if image_info:
-            item.thumb = self.__get_thumb(image_info, width=720)
-            item.fanart = self.__get_thumb(image_info)
+        self.__extract_artwork(result_set.get("images"), item)
         item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
 
         duration = int(result_set.get("duration", 0))
@@ -784,9 +775,7 @@ class Channel(chn_class.Channel):
         item.description = result_set.get('longDescription')
         item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
 
-        image_info = result_set.get("image")
-        if image_info:
-            item.thumb = self.__get_thumb(image_info)
+        self.__extract_artwork(result_set.get("images"), item)
 
         duration = int(result_set.get("duration", 0))
         item.set_info_label("duration", duration)
@@ -826,6 +815,8 @@ class Channel(chn_class.Channel):
         if image_info:
             item.thumb = self.__get_thumb(image_info, width=720)
             item.fanart = self.__get_thumb(image_info)
+        else:
+            self.__extract_artwork(result_set.get("images"), item)
         return item
 
     def create_api_search_hit(self, result_set):
@@ -1231,6 +1222,26 @@ class Channel(chn_class.Channel):
 
         return "https://www.svtstatic.se/image/wide/{}/{}/{}?quality=70".format(
             width, thumb_data["id"], thumb_data["changed"])
+
+    def __extract_artwork(self, images: dict, item: MediaItem) -> None:
+        if not images:
+            return
+
+        def create_url(image: dict, art: str, width: int) -> str:
+            return f"https://www.svtstatic.se/image/{art}/{width}/{image['id']}/{image['changed']}?quality=70"
+
+        if "wide" in images:
+            item.thumb = create_url(images["wide"], "wide", width=720)
+            item.fanart = create_url(images["wide"], "wide", width=1920)
+        elif "cleanWide" in images:
+            item.thumb = create_url(images["cleanWide"], "cleanWide", width=720)
+            item.fanart = create_url(images["cleanWide"], "cleanWide", width=1920)
+
+        if "portrait" in images:
+            item.poster = create_url(images["portrait"], "portrait", width=512)
+        elif "cleanPortrait" in images:
+            item.poster = create_url(images["cleanPortrait"], "portrait", width=512)
+        return
 
     def __extract_json_data(self, data, root):
         """ Performs pre-process actions for data processing
