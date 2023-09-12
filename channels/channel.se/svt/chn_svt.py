@@ -1237,10 +1237,10 @@ class Channel(chn_class.Channel):
             item.thumb = create_url(images["cleanWide"], "wide", width=720)
             item.fanart = create_url(images["cleanWide"], "wide", width=1920)
 
-        if "portrait" in images:
-            item.poster = create_url(images["portrait"], "portrait", width=512)
-        if "cleanPortrait" in images:
-            item.poster = create_url(images["cleanPortrait"], "portrait", width=512)
+        # if "portrait" in images:
+        #     item.poster = create_url(images["portrait"], "portrait", width=512)
+        # if "cleanPortrait" in images:
+        #     item.poster = create_url(images["cleanPortrait"], "portrait", width=512)
         return
 
     def __extract_json_data(self, data, root):
