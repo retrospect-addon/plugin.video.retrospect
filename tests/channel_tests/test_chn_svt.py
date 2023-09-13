@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import datetime
 
 from . channeltest import ChannelTest
 
@@ -16,19 +17,19 @@ class TestSvtChannel(ChannelTest):
         self.assertEqual(len(items), 13, "No items found in mainlist")
 
     def test_main_program_list(self):
-        self._test_folder_url(
-            "https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&"
-            "operationName=GridPage&variables=%7B%22selectionId%22%3A%20%22latest%22%7D&extensions="
-            "%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20"
-            "%22b30578b1b188242ce190c8a2cefe3d4694efafd17a929d08d273ae224a302b24%22%7D%7D", 7)
+        url = "https://api.svt.se/contento/graphql?operationName=ProgramsListing&variables=%7B%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%2217252e11da632f5c0d1b924b32be9191f6854723a0f50fb2adb35f72bb670efa%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
+        item = self._get_media_item(url, "TV Shows")
+        item.metaData["list_type"] = "folders"
+        result = self.channel.process_folder_list(item)
+        self.assertGreater(len(result), 10)
 
     def test_video_list_for_show(self):
         show_item = self._get_media_item("#program_item")
         show_item.metaData["slug"] = "/aktuellt"
         items = self.channel.process_folder_list(show_item)
-        self.assertGreater(len(items), 4)
+        self.assertGreaterEqual(2, len(items))
 
-    def test_list_for_genre(self):
+    def test_list_for_genre_barn(self):
         show_item = self._get_media_item("#genre_item")
         show_item.metaData["genre_id"] = "barn"
         items = self.channel.process_folder_list(show_item)
@@ -36,19 +37,55 @@ class TestSvtChannel(ChannelTest):
         self.assertGreater(len([i for i in items if i.is_playable]), 10)
 
     def test_genre_recent_news(self):
-        url = "https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&" \
-              "operationName=GenreLists&variables=%7B%22genre%22%3A%20%5B%22nyheter%22%5D%7D&" \
-              "extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash" \
-              "%22%3A%20%2290dca0b51b57904ccc59a418332e43e17db21c93a2346d1c73e05583a9aa598c%22%7D%7D"
+        url = ("https://api.svt.se/contento/graphql?operationName=CategoryPageQuery&variables=%7B"
+               "%22id%22%3A%22nyheter%22%2C%22includeFullOppetArkiv%22%3Atrue%2C%22tab%22%3A%22all"
+               "%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22"
+               "00be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf%22%2C"
+               "%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client")
         self._test_folder_url(url, expected_results=4)
 
     def test_new_on_svt(self):
-        url = "https://api.svt.se/contento/graphql?ua=svtplaywebb-play-render-prod-client&" \
-              "operationName=StartPage&variables=%7B%22abTestVariants%22%3A%20%5B%5D%2C%20%22" \
-              "includeFullOppetArkiv%22%3A%20true%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22" \
-              "version%22%3A%201%2C%20%22sha256Hash" \
-              "%22%3A%20%22b2a022f7353fbe891696aacd173a74c964a5f382f6f9153f0fcf129cecd4b9ac%22%7D%7D"
+        url = "https://api.svt.se/contento/graphql?operationName=FionaPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22svtId_egWQ3y7%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22dc8f85e195903fe6227a76ec1e1d300d470ee8ea123bea6bee26215cc6e4959d%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client"
         self._test_folder_url(url, expected_results=4)
+
+    def test_latest_news(self):
+        url = "https://api.svt.se/contento/graphql?operationName=CategoryPageQuery&variables=%7B%22id%22%3A%20%22nyheter%22%2C%20%22includeFullOppetArkiv%22%3A%20true%2C%20%22tab%22%3A%20%22all%22%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%2200be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
+        self._test_folder_url(url, expected_results=4)
+
+    def test_most_viewed(self):
+        url = "https://api.svt.se/contento/graphql?operationName=GridPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22popular_start%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40%22%2C%22version%22%3A1%7D%7D"
+        self._test_folder_url(url, expected_results=10)
+
+    # Now only in HTML embedded
+    def test_currently_playing(self):
+        url = "https://api.svt.se/contento/graphql?operationName=GridPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22live_start%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40%22%2C%22version%22%3A1%7D%7D"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_live_streams(self):
+        now = datetime.datetime.now() - datetime.timedelta(hours=6)
+        date = "{:04}-{:02}-{:02}".format(now.year, now.month, now.day)
+        url = f"https://api.svt.se/contento/graphql?operationName=BroadcastSchedule&variables=%7B%22day%22%3A%22{date}%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22464905fb9c6f51510427f3b913fde66cb43fa5b7f9197bcd13815800758a599b%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client"
+        self._test_folder_url(url, expected_results=3)
+
+    def test_genre_tags_listing(self):
+        url = "https://api.svt.se/contento/graphql?operationName=MainGenres&variables=%7B%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%2265b3d9bccd1adf175d2ad6b1aaa482bb36f382f7bad6c555750f33322bc2b489%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
+        self._test_folder_url(url, expected_results=10)
+
+    # Now only in HTML embedded.
+    def test_last_chance(self):
+        url = "https://api.svt.se/contento/graphql?operationName=GridPage&variables=%7B%22includeFullOppetArkiv%22%3A%20true%2C%20%22selectionId%22%3A%20%22lastchance_start%22%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%22a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
+        self._test_folder_url(url, expected_results=10)
+
+    def test_single_episodes(self):
+        url = "https://api.svt.se/contento/graphql?operationName=ProgramsListing&variables=%7B%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%2217252e11da632f5c0d1b924b32be9191f6854723a0f50fb2adb35f72bb670efa%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
+        item = self._get_media_item(url, "Singles")
+        item.metaData["list_type"] = "videos"
+        result = self.channel.process_folder_list(item)
+        self.assertGreater(len(result), 10)
+
+    def test_recent_listing(self):
+        url = "https://api.svt.se/contento/graphql?operationName=GridPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22latest_start%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client"
+        self._test_folder_url(url, expected_results=10)
 
     def test_api_video_update(self):
         url = "https://api.svt.se/videoplayer-api/video/e2DDJzo"

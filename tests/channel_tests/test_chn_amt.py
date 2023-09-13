@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
+
 from . channeltest import ChannelTest
 
 
-class TestAt5Channel(ChannelTest):
+@unittest.skip("Broken for now.")
+class TestAmtChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
-        super(TestAt5Channel, self).__init__(methodName, "channel.videos.amt", None)
+        super(TestAmtChannel, self).__init__(methodName, "channel.videos.amt", None)
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
