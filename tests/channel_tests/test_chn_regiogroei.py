@@ -25,8 +25,9 @@ class TestRegioGroei(ChannelTest):
         url = "https://api.regiogroei.cloud/page/episode/RTVU_3510481_20230125170000"
         self._test_video_url(url)
 
+    @unittest.skip("No more M3u8 for RTV")
     def test_rtv_utrecht_video_auto_birate(self):
-        url = "https://api.regiogroei.cloud/page/episode/RTVU_3523959_20230224170000"
+        url = "https://api.regiogroei.cloud/page/episode/RTVU_3599660_20230901170000?slug=unieuws&page=RTVU_3599660_20230901170000"
         item = self._test_video_url(url)
 
         item.streams.sort(key=lambda s: s.Bitrate)
