@@ -12,3 +12,4 @@ _None_
 * Fixed: Better error messages on NPO Start error (See #1713).
 * Fixed: MTV date parsing.
 * Fixed: SVT Listing broke due to API changes (Fixes #1718).
+* Fixed: Issue with missing genre info in EPG data (Fixes #1717).
