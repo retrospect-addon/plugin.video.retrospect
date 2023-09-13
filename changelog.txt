@@ -1,6 +1,6 @@
-[B]Retrospect v5.x.x - Changelog - 2023-xx-xx[/B]
+[B]Retrospect v5.6.5 - Changelog - 2023-09-13[/B]
 
-t.b.d.
+This update includes fixes for NPO, MTV and SVT channels.
 
 [B]Framework related[/B]
 _None_
