@@ -729,7 +729,7 @@ class Channel(chn_class.Channel):
         item.description = result_set.get('longDescription')
 
         self.__extract_artwork(result_set.get("images"), item)
-        item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
+        item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
 
         duration = int(result_set.get("duration", 0))
         if duration > 0:
