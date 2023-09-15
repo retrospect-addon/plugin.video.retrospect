@@ -934,7 +934,7 @@ class Channel(chn_class.Channel):
         program_items = [genres["items"] for genres in possible_lists if
                          genres["selectionType"] == "all"]
         json_data.json = {
-            "programs": [p["item"] for p in program_items[0]],
+            "programs": [p for p in program_items[0]],
         }
         return json_data, []
 
