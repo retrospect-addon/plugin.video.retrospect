@@ -685,6 +685,9 @@ class Channel(chn_class.Channel):
 
             item.name = "{:02}:{:02} - {}".format(hour, minute, item.name)
 
+        elif "live just nu" in item.description.lower():
+            item.name = "{} [COLOR gold](live)[/COLOR]".format(item.name)
+
         item.media_type = mediatype.VIDEO
         season_info = result_set.get("positionInSeason")
         if bool(season_info):
