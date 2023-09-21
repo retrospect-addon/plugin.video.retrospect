@@ -1,6 +1,6 @@
-[B]Retrospect v5.6.x - Changelog - 2023-xx-xx[/B]
+[B]Retrospect v5.6.6 - Changelog - 2023-09-21[/B]
 
-t.b.d.
+Added some SVT improvements.
 
 [B]Framework related[/B]
 _None_
