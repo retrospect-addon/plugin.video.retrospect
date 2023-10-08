@@ -88,7 +88,7 @@ class TestSvtChannel(ChannelTest):
         self._test_folder_url(url, expected_results=10)
 
     def test_api_video_update(self):
-        url = "https://api.svt.se/videoplayer-api/video/e2DDJzo"
+        url = "https://api.svt.se/videoplayer-api/video/K5RLm5g"
         item = self._test_video_url(url)
         self.assertIsNotNone(item)
 
