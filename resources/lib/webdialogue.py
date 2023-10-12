@@ -46,16 +46,8 @@ class WebDialogue(object):
 
         server_address = (self.bind_interface, self.port)
 
-        try:
-            # noinspection PyUnresolvedReferences
-            from http.server import HTTPServer
-            # noinspection PyUnresolvedReferences
-            from http.server import BaseHTTPRequestHandler
-        except:
-            # noinspection PyUnresolvedReferences
-            from SocketServer import TCPServer as HTTPServer
-            # noinspection PyUnresolvedReferences
-            from BaseHTTPServer import BaseHTTPRequestHandler
+        from http.server import HTTPServer
+        from http.server import BaseHTTPRequestHandler
 
         # Create simple handler class
         class RetroHandler(BaseHTTPRequestHandler):
