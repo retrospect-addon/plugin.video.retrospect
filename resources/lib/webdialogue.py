@@ -189,7 +189,7 @@ class WebDialogue(object):
                     <form id="webdialogue" action="/" method="post">
                       <label for="value">{1}:</label><br />
                       <fieldset id="dialogueFields" style="border-width: 0px; padding: 0">
-                          <input type="text" id="value" name="value" value="{2}" style="margin: 10px 0px; min-width: 450px;" />
+                          <input type="text" id="value" name="value" placeholder="{2}" value="" style="margin: 10px 0px; min-width: 450px;" />
                           <br />
                           <progress value="{3}" max="{4}" id="pbar" style="margin: 10px 0px; width: 457px;" ></progress> 
                           <br />
@@ -253,7 +253,9 @@ class WebDialogue(object):
 
             d = xbmcgui.DialogProgress()
             # TODO: Translate
-            d.create("Stop Web Dialog", "Open browser on http://localhost:3145.")
+            import platform
+            pc_name = platform.node()
+            d.create("Stop Web Dialog", f"Open browser on http://{pc_name.lower()}:3145.")
 
             for i in range(0, time_out):
                 if d.iscanceled():
