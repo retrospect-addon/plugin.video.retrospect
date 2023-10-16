@@ -716,8 +716,7 @@ class Channel(chn_class.Channel):
 
         # retrieve the mediaurl
         # needs an "x-jwt: Bearer"  header.
-        token = AddonSettings.get_setting("channel_tv4play_se_token")
-        token = token.split("|")[1]
+        token = self.__access_token
         headers = {
             "x-jwt": "Bearer {}".format(token)
         }
