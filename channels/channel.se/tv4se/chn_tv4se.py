@@ -114,12 +114,44 @@ class Channel(chn_class.Channel):
         # self.__maxPageSize = 100  # The Android app uses a page size of 20
         self.__program_fields = '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres,videoPanels{id}}'
         # self.__season_count_meta = "season_count"
+        self.__refresh_token_setting_id = "refresh_token"
 
         # ===============================================================================================================
         # Test cases:
 
         # ====================================== Actual channel setup STOPS here =======================================
         return
+
+    def fetch_token(self) -> Optional[str]:
+        wd = WebDialogue()
+        token, cancelled = wd.input(LanguageHelper.SetRefreshToken, LanguageHelper.PasteRefreshToken, time_out=120)
+
+        if not token or cancelled:
+            return None
+
+        split_data = token.split(".")
+        if len(split_data) != 3:
+            AddonSettings.set_channel_setting(self, self.__refresh_token_setting_id, "", store=LOCAL)
+            XbmcWrapper.show_notification(LanguageHelper.InvalidRefreshToken, LanguageHelper.InvalidRefreshToken)
+            # Retry
+            return self.fetch_token()
+
+        header, payload, signature = split_data
+        payload_data = EncodingHelper.decode_base64(payload + '=' * (-len(payload) % 4))
+        payload = JsonHelper(payload_data)
+        expires_at = payload.get_value("exp")
+        expire_date = DateHelper.get_date_from_posix(float(expires_at), tz=pytz.UTC)
+        if expire_date < datetime.datetime.now(tz=pytz.UTC).astimezone(tz=pytz.UTC):
+            Logger.info("Found expired TV4Play token (valid until: %s)", expire_date)
+            AddonSettings.set_channel_setting(self, self.__refresh_token_setting_id, "", store=LOCAL)
+            XbmcWrapper.show_notification(LanguageHelper.InvalidRefreshToken, LanguageHelper.ExpireRefreshToken)
+            # Retry
+            return self.fetch_token()
+
+        # (Re)Store the valid token.
+        Logger.info("Found existing valid TV4Play token (valid until: %s)", expire_date)
+        AddonSettings.set_channel_setting(self, self.__refresh_token_setting_id, token, store=LOCAL)
+        return token
 
     # No logon for now
     def log_on(self):
@@ -128,37 +160,14 @@ class Channel(chn_class.Channel):
         if self.__access_token:
             return True
 
-        username = AddonSettings.get_setting("channel_tv4play_se_username")
-        if not username:
-            Logger.info("No user name for TV4 Play, not logging in")
-            return False
-
         # Fetch an existing token
-        refresh_token_setting_id = "refresh_token"
-        token = AddonSettings.get_channel_setting(self, refresh_token_setting_id, store=LOCAL)
+        token: str = AddonSettings.get_channel_setting(self, self.__refresh_token_setting_id, store=LOCAL)
+        if not token:
+            token = self.fetch_token()
 
         if not token:
-            # Read the refresh token from a webpage
-            wd = WebDialogue()
-            token, cancelled = wd.input("Refresh Token", "Paste refresh token here.", time_out=60)
+            return False
 
-            if not token or cancelled:
-                return False
-
-            AddonSettings.set_channel_setting(self, refresh_token_setting_id, token, store=LOCAL)
-
-        header, payload, signature = token.split(".")
-        payload_data = EncodingHelper.decode_base64(payload + '=' * (-len(payload) % 4))
-        payload = JsonHelper(payload_data)
-        expires_at = payload.get_value("exp")
-        expire_date = DateHelper.get_date_from_posix(float(expires_at), tz=pytz.UTC)
-        if expire_date < datetime.datetime.now(tz=pytz.UTC).astimezone(tz=pytz.UTC):
-            Logger.info("Found expired TV4Play token (valid until: %s)", expire_date)
-            AddonSettings.set_setting(refresh_token_setting_id, "", store=LOCAL)
-            # Retry
-            return self.log_on()
-
-        Logger.info("Found existing valid TV4Play token (valid until: %s)", expire_date)
         url = "https://avod-auth-alb.a2d.tv/oauth/refresh"
         result = UriHandler.open(
             url, json={"refresh_token": token, "client_id":"tv4-web"}, no_cache=True)

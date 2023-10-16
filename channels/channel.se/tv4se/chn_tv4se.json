@@ -18,23 +18,8 @@
   "settings": [
     {
       "order": 1,
-      "id": "channel_tv4play_se_username",
-      "value": "id=\"channel_tv4play_se_username\" type=\"text\" label=\"30094\" default=\"\""
-    },
-    {
-      "order": 2,
-      "id": "channel_tv4play_se_password_set",
-      "value": "id=\"channel_tv4play_se_password_set\" label=\"30093\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?action=encryptsetting&amp;settingid=channel_tv4play_se_password&amp;settingname=TV4Play.se password&amp;tabfocus=102)\" option=\"close\""
-    },
-    {
-      "order": 3,
-      "id": "channel_tv4play_se_password",
-      "value": "id=\"channel_tv4play_se_password\" default=\"\""
-    },
-    {
-      "order": 4,
-      "id": "cookie",
-      "value": "id=\"channel_tv4play_se_token\" default=\"\""
+      "id": "set_refresh_token",
+      "value": "id=\"set_refresh_token\" label=\"30113\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.se.tv4se&amp;channelcode=tv4segroup&amp;action=execute&amp;command=fetch_token)\" option=\"close\""
     }
   ]
 }
