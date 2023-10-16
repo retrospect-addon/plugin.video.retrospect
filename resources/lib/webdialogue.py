@@ -46,6 +46,9 @@ class WebDialogue(object):
 
         server_address = (self.bind_interface, self.port)
 
+        pb = xbmcgui.DialogProgress()
+        pb.create(LanguageHelper.get_localized_string(30114), LanguageHelper.get_localized_string(30115))
+
         from http.server import HTTPServer
         from http.server import BaseHTTPRequestHandler
 
@@ -242,6 +245,7 @@ class WebDialogue(object):
                 self.socket.close()
 
         try:
+            pb.update(1, LanguageHelper.get_localized_string(30116).format(self.port))
             httpd = RetroHTTPServer(server_address, RetroHandler, time_out)
 
             import threading
@@ -249,47 +253,43 @@ class WebDialogue(object):
             th.daemon = True
             th.start()
 
-            Logger.info("RetroServer: Serving on %s", self.port)
-
-            d = xbmcgui.DialogProgress()
-            # TODO: Translate
             import platform
             pc_name = platform.node()
-            d.create("Stop Web Dialog", f"Open browser on http://{pc_name.lower()}:3145.")
+            pb.update(2, LanguageHelper.get_localized_string(30119).format(pc_name, self.port))
+
+            Logger.info("RetroServer: Serving on %s", self.port)
 
             for i in range(0, time_out):
-                if d.iscanceled():
+                if pb.iscanceled():
                     Logger.debug("RetroServer: User aborted the dialogue.")
                     break
 
                 httpd.input_time_remaining -= 1
-                percentage = 100 - i * int(100/time_out)
+                percentage = 100 - int(i * 100.0/time_out)
                 stop = False
                 if httpd.completed:
                     Logger.debug("RetroServer: Browser input received.")
-                    # TODO: Translate
-                    d.update(percentage, "Browser input received.")
+                    pb.update(percentage, LanguageHelper.get_localized_string(30118))
                     stop = True
                 elif httpd.cancelled:
                     Logger.debug("RetroServer: Browser input cancelled.")
-                    # TODO: Translate
-                    d.update(percentage, "Browser input cancelled.")
+                    pb.update(percentage, LanguageHelper.get_localized_string(30120))
                     stop = True
                 elif httpd.abortRequested():
                     Logger.debug("RetroServer: Kodi requested a stop.")
                     break
                 elif httpd.active:
-                    # TODO: Translate
-                    d.update(percentage, "Waiting for browser response.")
+                    Logger.debug("RetroServer: Input page was presented.")
+                    pb.update(percentage, LanguageHelper.get_localized_string(30117))
                 else:
-                    d.update(percentage)
+                    pb.update(percentage)
 
                 # We sleep here to make sure we can read the response.
                 httpd.waitForAbort(1)
                 if stop:
                     Logger.trace("RetroServer: Aborting loop.")
                     break
-            d.close()
+            pb.close()
 
             httpd.force_stop()
             if th.is_alive():
