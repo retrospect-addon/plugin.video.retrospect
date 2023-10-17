@@ -1,7 +1,7 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 from random import randrange
-from typing import Optional
+from typing import Optional, Union
 
 import pytz
 import datetime
@@ -17,7 +17,6 @@ from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.streams.mpd import Mpd
-from resources.lib.vault import Vault
 from resources.lib.webdialogue import WebDialogue
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.streams.m3u8 import M3u8
@@ -59,6 +58,9 @@ class Channel(chn_class.Channel):
         self._add_data_parser(self.mainListUri, json=True,
                               parser=["data", "mediaIndex", "contentList", "items"],
                               creator=self.create_api_typed_item)
+        self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&",
+                              name="Seasons for show", json=True, requires_logon=True,
+                              parser=["data", "media", "allSeasonLinks"], creator=self.create_api_typed_item)
 
         # # setup the urls
         # # self.mainListUri = "https://api.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
@@ -173,6 +175,13 @@ class Channel(chn_class.Channel):
             url, json={"refresh_token": token, "client_id":"tv4-web"}, no_cache=True)
         result = JsonHelper(result)
         self.__access_token = result.get_value("access_token", fallback=None)
+
+        # Update headers for future calls
+        self.httpHeaders.update({
+                "Authorization": f"Bearer {self.__access_token}"
+        })
+        # Also update headers for the current parent item
+        self.parentItem.HttpHeaders.update(self.httpHeaders)
         return bool(self.__access_token)
 
     # def create_api_tag(self, result_set):
@@ -222,6 +231,8 @@ class Channel(chn_class.Channel):
             item = self.create_api_series(result_set)
         elif api_type == "Movie":
             item = self.create_api_movie(result_set)
+        elif api_type == "SeasonLink":
+            item = self.create_api_season(result_set)
 
         # if api_type == "Program":
         #     item = self.create_api_program_type(result_set)
@@ -239,28 +250,59 @@ class Channel(chn_class.Channel):
 
         return item
 
-
     def create_api_movie(self, result_set: dict) -> Optional[MediaItem]:
         video_id: str = result_set["id"]
         url = self.__get_video_url(video_id)
-        item = self.__create_base_typed_item(result_set, url, mediatype.MOVIE)
+        title = result_set["title"]
+        if not title:
+            return None
+
+        item = MediaItem(title, url, media_type=mediatype.MOVIE)
+        item = self.__update_base_typed_item(item, result_set)
         return item
 
     def create_api_series(self, result_set: dict) -> Optional[MediaItem]:
-        item = self.__create_base_typed_item(result_set, "", mediatype.TVSHOW)
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%226064116b3382b6937a87%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables={"mediaId":"6064116b3382b6937a87","panelsInput":{"offset":0,"limit":20}}&extensions={"persistedQuery":{"version":1,"sha256Hash":"fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a"}}
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%22e560a10921357483f685%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%20%22e560a10921357483f685%22%2C%20%22panelsInput%22%3A%20%7B%22offset%22%3A%200%2C%20%22limit%22%3A%2020%7D%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%22e560a10921357483f685%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%22e560a10921357483f685%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
+
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables={"mediaId":"e560a10921357483f685","panelsInput":{"offset":0,"limit":20}}&extensions={"persistedQuery":{"version":1,"sha256Hash":"fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a"}}
+
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPageMeta&variables=%7B%22mediaId%22%3A%22df4e24344ec000427659%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%2230f4a9126d4d111e5496df0f40c9ca81f73ebd275aab1147103f98e8c12bf7c7%22%7D%7D
+        # https://client-gateway.tv4.a2d.tv/graphql?operationName=SeasonEpisodes&variables=%7B%22seasonId%22%3A%224d5efee943127b742c93%22%2C%22input%22%3A%7B%22limit%22%3A6%2C%22offset%22%3A0%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%229f069a1ce297d68a0b4a3d108142919fb6d12827f35fc71b03976a251e239796%22%7D%7D
+        series_id = result_set["id"]
+        url = self.__get_api_url(
+            "ContentDetailsPage",
+            "fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a", {
+                "mediaId": series_id, "panelsInput": {"offset": 0, "limit": 20}
+            })
+        title = result_set["title"]
+        if not title:
+            return None
+
+        item = FolderItem(title, url, content_type=contenttype.EPISODES,
+                          media_type=mediatype.TVSHOW)
+        item = self.__update_base_typed_item(item, result_set)
+        item.HttpHeaders.update({"feature_flag_enable_season_upsell_on_cdp": "true"})
+        return item
+
+    def create_api_season(self, result_set: dict) -> Optional[MediaItem]:
+        title = result_set["title"]
+        url = ""
+        season_id = result_set["seasonId"]
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
         return item
 
     def create_api_video(self, result_set: dict) -> Optional[MediaItem]:
         return None
 
-    def __create_base_typed_item(self, result_set: dict, url: str, media_type: Optional[str]) -> Optional[MediaItem]:
-        Logger.trace(result_set)
+    def __update_base_typed_item(
+            self, item: Union[MediaItem, FolderItem], result_set: dict) -> Union[
+        MediaItem, FolderItem]:
 
-        title = result_set["title"]
-        if not title:
-            return None
-        url = url
-        item = MediaItem(title, url, media_type=media_type)
         self.__set_art(item, result_set.get("images"))
         return item
 
@@ -278,7 +320,7 @@ class Channel(chn_class.Channel):
         if not art_info:
             return
 
-        for k,v in art_info.items():
+        for k, v in art_info.items():
             if isinstance(v, str):
                 continue
 
@@ -680,10 +722,10 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = self.__get_api_query(
-            '{programSearch(q:"",perPage:100){totalHits,programs%s}}' % self.__program_fields)
-        url = url.replace("%", "%%")
-        url = url.replace("%%22%%22", "%%22%s%%22")
+        # url = self.__get_api_query(
+        #     '{programSearch(q:"",perPage:100){totalHits,programs%s}}' % self.__program_fields)
+        # url = url.replace("%", "%%")
+        # url = url.replace("%%22%%22", "%%22%s%%22")
         return chn_class.Channel.search_site(self, url)
 
     def update_video_item(self, item):
@@ -738,29 +780,10 @@ class Channel(chn_class.Channel):
         if ".mpd" in stream_url:
             return self.__update_dash_video(item, stream_info)
 
-        # Clips can play with input stream adaptive. Normal shows not as they will never stop.
-        is_clip = stream_info.get_value("metadata", "isClip")
-        if True:  # AddonSettings.use_adaptive_stream_add_on() and is_clip:
-            subtitle = M3u8.get_subtitle(stream_url)
-            stream = item.add_stream(stream_url, 0)
-            M3u8.set_input_stream_addon_input(stream)
-            item.complete = True
-        else:
-            m3u8_data = UriHandler.open(stream_url)
-            subtitle = M3u8.get_subtitle(stream_url, play_list_data=m3u8_data)
-            for s, b, a in M3u8.get_streams_from_m3u8(stream_url,
-                                                      play_list_data=m3u8_data, map_audio=True):
-                item.complete = True
-                if not item.isLive and "-video" not in s:
-                    continue
-
-                if a and "-audio" not in s:
-                    # remove any query parameters
-                    video_part = s.rsplit("?", 1)[0]
-                    video_part = video_part.rsplit("-", 1)[-1]
-                    video_part = "-%s" % (video_part,)
-                    s = a.replace(".m3u8", video_part)
-                item.add_stream(s, b)
+        subtitle = M3u8.get_subtitle(stream_url)
+        stream = item.add_stream(stream_url, 0)
+        M3u8.set_input_stream_addon_input(stream)
+        item.complete = True
 
         if subtitle:
             subtitle = subtitle.replace(".m3u8", ".webvtt")
