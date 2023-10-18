@@ -1,7 +1,7 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 from random import randrange
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 import pytz
 import datetime
@@ -60,7 +60,13 @@ class Channel(chn_class.Channel):
                               creator=self.create_api_typed_item)
         self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&",
                               name="Seasons for show", json=True, requires_logon=True,
-                              parser=["data", "media", "allSeasonLinks"], creator=self.create_api_typed_item)
+                              parser=["data", "media", "allSeasonLinks"], creator=self.create_api_typed_item,
+                              postprocessor=self.check_for_seasons)
+
+        self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=SeasonEpisodes&",
+                              name="Episodes for a season", json=True, requires_logon=True,
+                              parser=["data", "season", "episodes", "items"],
+                              creator=self.create_api_typed_item)
 
         # # setup the urls
         # # self.mainListUri = "https://api.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
@@ -180,8 +186,10 @@ class Channel(chn_class.Channel):
         self.httpHeaders.update({
                 "Authorization": f"Bearer {self.__access_token}"
         })
+
         # Also update headers for the current parent item
-        self.parentItem.HttpHeaders.update(self.httpHeaders)
+        if self.parentItem:
+            self.parentItem.HttpHeaders.update(self.httpHeaders)
         return bool(self.__access_token)
 
     # def create_api_tag(self, result_set):
@@ -229,6 +237,8 @@ class Channel(chn_class.Channel):
             item = self.create_api_typed_item(result_set["series"])
         elif api_type == "Series":
             item = self.create_api_series(result_set)
+        elif api_type == "Episode":
+            item = self.create_api_episode(result_set)
         elif api_type == "Movie":
             item = self.create_api_movie(result_set)
         elif api_type == "SeasonLink":
@@ -261,18 +271,38 @@ class Channel(chn_class.Channel):
         item = self.__update_base_typed_item(item, result_set)
         return item
 
+    def create_api_episode(self, result_set: dict) -> Optional[MediaItem]:
+        video_id: str = result_set["id"]
+        url = self.__get_video_url(video_id)
+        title = result_set["title"]
+        if not title:
+            return None
+
+        item = MediaItem(title, url, media_type=mediatype.MOVIE)
+        item = self.__update_base_typed_item(item, result_set)
+        item.isPaid = not JsonHelper.get_from(result_set, "video", "access", "hasAccess", fallback=True)
+        item.isLive = result_set.get("isLiveContent", False)
+        item.description = result_set.get("synopsis", {}).get("medium", "")
+
+        duration = JsonHelper.get_from(result_set, "video", "duration", "seconds", fallback=0)
+        if duration:
+            item.set_info_label(MediaItem.LabelDuration, duration)
+
+        # Playable from
+        if "playableFrom" in result_set:
+            from_date = result_set["playableFrom"]["isoString"]
+            # isoString=2022-07-27T22:01:00.000Z
+            time_stamp = DateHelper.get_date_from_string(from_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+            item.set_date(*time_stamp[0:6])
+
+        # Playable to
+        if "playableUntil" in result_set:
+            until_data = result_set["playableUntil"]["humanDateTime"]
+            expires = "[COLOR gold]{}: {}[/COLOR]".format(MediaItem.ExpiresAt, until_data)
+            item.description = f"{expires}\n\n{item.description}"
+        return item
+
     def create_api_series(self, result_set: dict) -> Optional[MediaItem]:
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%226064116b3382b6937a87%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables={"mediaId":"6064116b3382b6937a87","panelsInput":{"offset":0,"limit":20}}&extensions={"persistedQuery":{"version":1,"sha256Hash":"fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a"}}
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%22e560a10921357483f685%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%20%22e560a10921357483f685%22%2C%20%22panelsInput%22%3A%20%7B%22offset%22%3A%200%2C%20%22limit%22%3A%2020%7D%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%22e560a10921357483f685%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables=%7B%22mediaId%22%3A%22e560a10921357483f685%22%2C%22panelsInput%22%3A%7B%22offset%22%3A0%2C%22limit%22%3A20%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a%22%7D%7D
-
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&variables={"mediaId":"e560a10921357483f685","panelsInput":{"offset":0,"limit":20}}&extensions={"persistedQuery":{"version":1,"sha256Hash":"fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a"}}
-
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPageMeta&variables=%7B%22mediaId%22%3A%22df4e24344ec000427659%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%2230f4a9126d4d111e5496df0f40c9ca81f73ebd275aab1147103f98e8c12bf7c7%22%7D%7D
-        # https://client-gateway.tv4.a2d.tv/graphql?operationName=SeasonEpisodes&variables=%7B%22seasonId%22%3A%224d5efee943127b742c93%22%2C%22input%22%3A%7B%22limit%22%3A6%2C%22offset%22%3A0%7D%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%229f069a1ce297d68a0b4a3d108142919fb6d12827f35fc71b03976a251e239796%22%7D%7D
         series_id = result_set["id"]
         url = self.__get_api_url(
             "ContentDetailsPage",
@@ -287,21 +317,35 @@ class Channel(chn_class.Channel):
                           media_type=mediatype.TVSHOW)
         item = self.__update_base_typed_item(item, result_set)
         item.HttpHeaders.update({"feature_flag_enable_season_upsell_on_cdp": "true"})
+        item.isPaid = result_set.get("upsell") is not None
         return item
 
     def create_api_season(self, result_set: dict) -> Optional[MediaItem]:
         title = result_set["title"]
-        url = ""
         season_id = result_set["seasonId"]
+        url = self.__get_api_url("SeasonEpisodes", "9f069a1ce297d68a0b4a3d108142919fb6d12827f35fc71b03976a251e239796", {
+            "seasonId": season_id, "input": {"limit": 100, "offset": 0}
+        })
         item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
+        item.metaData["seasonId"] = result_set["seasonId"]
         return item
 
-    def create_api_video(self, result_set: dict) -> Optional[MediaItem]:
-        return None
+    # noinspection PyUnusedLocal
+    def check_for_seasons(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        # If not seasons, or just one, fetch the episodes
+        if len(items) != 1:
+            return items
+
+        # Retry with just this url.
+        season_id = items[0].metaData["seasonId"]
+        url = self.__get_api_url("SeasonEpisodes", "9f069a1ce297d68a0b4a3d108142919fb6d12827f35fc71b03976a251e239796", {
+            "seasonId": season_id, "input": {"limit": 100, "offset": 0}
+        })
+        self.parentItem.url = url
+        return self.process_folder_list(self.parentItem)
 
     def __update_base_typed_item(
-            self, item: Union[MediaItem, FolderItem], result_set: dict) -> Union[
-        MediaItem, FolderItem]:
+            self, item: Union[MediaItem, FolderItem], result_set: dict) -> Union[MediaItem, FolderItem]:
 
         self.__set_art(item, result_set.get("images"))
         return item
@@ -333,6 +377,9 @@ class Channel(chn_class.Channel):
                 item.set_artwork(poster=url)
             elif k == "main16x9Annotated":
                 item.set_artwork(thumb=url, fanart=url)
+            elif k == "main16x9":
+                # Only thumbs should be set (not fanart)
+                item.set_artwork(thumb=url)
             else:
                 Logger.warning("Unknown image format")
 
