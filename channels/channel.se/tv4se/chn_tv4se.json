@@ -8,6 +8,7 @@
         "sv": "Innehåller kanalerna TV4, Sjuan och TV12. Här kan du också söka, lista mest visade avsnitt, se kategorier, titta på livesändningar och lista program utifrån veckodag."
       },
       "icon": "tv4large.png",
+      "poster": "tv4poster.jpg",
       "category": "National",
       "channelcode": "tv4segroup",
       "sortorder": 3,
