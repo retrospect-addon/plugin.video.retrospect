@@ -253,9 +253,8 @@ class WebDialogue(object):
             th.daemon = True
             th.start()
 
-            import platform
-            pc_name = platform.node()
-            pb.update(2, LanguageHelper.get_localized_string(30119).format(pc_name, self.port))
+            ipaddress = xbmc.getInfoLabel("network.ipaddress")
+            pb.update(2, LanguageHelper.get_localized_string(30119).format(ipaddress, self.port))
 
             Logger.info("RetroServer: Serving on %s", self.port)
 
