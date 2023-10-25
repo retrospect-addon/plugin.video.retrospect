@@ -39,7 +39,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.__max_page_size = 2500
+        self.__max_page_size = 500
         self.__access_token = None
 
         if self.channelCode == "tv4segroup":
@@ -51,7 +51,7 @@ class Channel(chn_class.Channel):
 
         self.mainListUri = self.__get_api_url(
             "MediaIndex",
-            "dba092c9af0e54e4e3e68dd84b16bb913a9e0e5fe83ff01cf59b6b453d0c75d4",
+            "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
             {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
                        "limit": self.__max_page_size + randrange(25) * 0,
                        "offset": 0}
@@ -88,6 +88,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=MediaIndex&",
                               name="Main show/movie list", json=True,
+                              preprocessor=self.fetch_mainlist_pages,
                               parser=["data", "mediaIndex", "contentList", "items"],
                               creator=self.create_api_typed_item)
 
@@ -233,6 +234,33 @@ class Channel(chn_class.Channel):
             self.parentItem.HttpHeaders.update(self.httpHeaders)
         return bool(self.__access_token)
 
+    def fetch_mainlist_pages(self, data):
+        items = []
+        data = JsonHelper(data)
+        page_data = data
+
+        while True:
+            next_offset = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo", "nextPageOffset")
+            if not next_offset or next_offset <= 0:
+                break
+
+            url = self.__get_api_url(
+                "MediaIndex",
+                "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
+                {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+                           "limit": self.__max_page_size + randrange(25) * 0,
+                           "offset": next_offset}
+                 }
+            )
+            page_data = UriHandler.open(url, additional_headers=self.httpHeaders)
+            page_data = JsonHelper(page_data)
+            data_items = page_data.get_value(*self.currentParser.Parser)
+            list_items = data.get_value(*self.currentParser.Parser)
+            list_items += data_items
+
+        Logger.debug("Pre-Processing finished")
+        return data, items
+
     # def create_api_tag(self, result_set):
     #     """ Creates a new MediaItem for tag listing items
     #
@@ -255,6 +283,8 @@ class Channel(chn_class.Channel):
     #     url = "https://graphql.tv4play.se/graphql?query={}".format(query)
     #     item = MediaItem(result_set, url)
     #     return item
+
+
 
     def create_api_typed_item(self, result_set):
         """ Creates a new MediaItem based on the __typename attribute.
@@ -306,6 +336,7 @@ class Channel(chn_class.Channel):
             return None
 
         item = MediaItem(title, url, media_type=mediatype.MOVIE)
+        item.isGeoLocked = True
         item = self.__update_base_typed_item(item, result_set)
         return item
 
@@ -318,6 +349,7 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, url, media_type=mediatype.MOVIE)
         item = self.__update_base_typed_item(item, result_set)
+        item.isGeoLocked = True
         item.isPaid = not JsonHelper.get_from(
             result_set, "video", "access", "hasAccess", fallback=True)
         item.isLive = result_set.get("isLiveContent", False)
