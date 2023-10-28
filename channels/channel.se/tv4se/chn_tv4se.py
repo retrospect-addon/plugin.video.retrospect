@@ -49,18 +49,22 @@ class Channel(chn_class.Channel):
         else:
             raise Exception("Invalid channel code")
 
-        self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=PageList&",
-                              name="Main TV4 pages", json=True, requires_logon=True,
-                              parser=["data", "pageList", "content"],
-                              creator=self.create_api_typed_item)
+        self._add_data_parser(
+            "https://client-gateway.tv4.a2d.tv/graphql?operationName=PageList&",
+            name="Main TV4 pages", json=True, requires_logon=False,
+            preprocessor=self.check_query_errors,
+            parser=["data", "pageList", "content"],
+            creator=self.create_api_typed_item)
 
         self.mainListUri = "#mainlist"
         self._add_data_parser(
             "#mainlist", name="Main TV4 page", json=True, preprocessor=self.list_main_content)
 
+        # If logon is set to True, panels that are not available to the user, will not show.
         self._add_data_parser(
             "https://client-gateway.tv4.a2d.tv/graphql?operationName=Page&",
             name="Main TV4 pages", json=True, requires_logon=True,
+            preprocessor=self.check_query_errors,
             parser=["data", "page", "content", "panels"],
             creator=self.create_api_typed_item)
 
@@ -71,21 +75,25 @@ class Channel(chn_class.Channel):
             parser=["data", "mediaIndex", "contentList", "items"],
             creator=self.create_api_typed_item)
 
+        # Requires logon to list all seasons.
         self._add_data_parser(
             "https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&",
             name="Seasons for show", json=True, requires_logon=True,
+            preprocessor=self.check_query_errors,
             parser=["data", "media", "allSeasonLinks"], creator=self.create_api_typed_item,
             postprocessor=self.check_for_seasons)
 
         self._add_data_parser(
             "https://client-gateway.tv4.a2d.tv/graphql?operationName=Panel&",
-            name="Panel results", json=True, requires_logon=True,
+            name="Panel results", json=True, requires_logon=False,
+            preprocessor=self.check_query_errors,
             parser=["data", "panel", "content", "items"],
             creator=self.create_api_typed_item)
 
         self._add_data_parser(
             "https://client-gateway.tv4.a2d.tv/graphql?operationName=SeasonEpisodes&",
-            name="Episodes for a season", json=True, requires_logon=True,
+            name="Episodes for a season", json=True, requires_logon=False,
+            preprocessor=self.check_query_errors,
             parser=["data", "season", "episodes", "items"],
             creator=self.create_api_typed_item)
 
@@ -169,6 +177,17 @@ class Channel(chn_class.Channel):
         if self.parentItem:
             self.parentItem.HttpHeaders.update(self.httpHeaders)
         return bool(self.__access_token)
+
+    def check_query_errors(self, data: str) -> Tuple[str, List[MediaItem]]:
+        items = []
+
+        if "PERSISTED_QUERY_NOT_FOUND" in data:
+            Logger.warning("`PERSISTED_QUERY_NOT_FOUND` Error for TV4")
+            headers = self.parentItem.HttpHeaders
+            headers.update(self.httpHeaders)
+            data = UriHandler.open(self.parentItem.url, additional_headers=self.parentItem.HttpHeaders, no_cache=True)
+
+        return data, items
 
     def list_main_content(self, data: str) -> Tuple[str, List[MediaItem]]:
         items: List[MediaItem] = []
