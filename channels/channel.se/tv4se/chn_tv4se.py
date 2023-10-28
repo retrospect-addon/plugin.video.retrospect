@@ -49,48 +49,27 @@ class Channel(chn_class.Channel):
         else:
             raise Exception("Invalid channel code")
 
-        self.__mainListUri = self.__get_api_url(
-            "MediaIndex",
-            "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
-            {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                       "limit": self.__max_page_size + randrange(25) * 0,
-                       "offset": 0}
-             }
-        )
-
-        # Use the categories from TV4: TODO: How to get from slug to A-Z id?
-        # self.mainListUri = self.__get_api_url(
-        #     "PageList",
-        #     "58da321b8e31df2b746f1d1f374151a450a4c24bda6415182fe81551c90e7d25",
-        #     {"pageListId": "categories"})
-        #
-        # self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=PageList&",
-        #                       name="Main TV4 page", json=True, requires_logon=True,
-        #                       parser=["data", "pageList", "content"],
-        #                       creator=self.create_api_typed_item)
-
-        # Use the TV4 main page panels.
-        # self.mainListUri = self.__get_api_url(
-        #     "Page",
-        #     "0745022edc5d8e886617f6e27c89792fa74d073ee29e4dab7ae3067218148b0a",
-        #     {"pageId": "start", "input": {"limit": 10, "offset": 0}})
-        #
-        # self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=Page&",
-        #                       name="Main TV4 page", json=True, requires_logon=True,
-        #                       preprocessor=self.list_main_content,
-        #                       parser=["data", "page", "content", "panels"],
-        #                       creator=self.create_api_typed_item)
+        self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=PageList&",
+                              name="Main TV4 pages", json=True, requires_logon=True,
+                              parser=["data", "pageList", "content"],
+                              creator=self.create_api_typed_item)
 
         self.mainListUri = "#mainlist"
-        self._add_data_parser("#mainlist",
-                              name="Main TV4 page", json=True,
-                              preprocessor=self.list_main_content)
+        self._add_data_parser(
+            "#mainlist", name="Main TV4 page", json=True, preprocessor=self.list_main_content)
 
-        self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=MediaIndex&",
-                              name="Main show/movie list", json=True,
-                              preprocessor=self.fetch_mainlist_pages,
-                              parser=["data", "mediaIndex", "contentList", "items"],
-                              creator=self.create_api_typed_item)
+        self._add_data_parser(
+            "https://client-gateway.tv4.a2d.tv/graphql?operationName=Page&",
+            name="Main TV4 pages", json=True, requires_logon=True,
+            parser=["data", "page", "content", "panels"],
+            creator=self.create_api_typed_item)
+
+        self._add_data_parser(
+            "https://client-gateway.tv4.a2d.tv/graphql?operationName=MediaIndex&",
+            name="Main show/movie list", json=True,
+            preprocessor=self.fetch_mainlist_pages,
+            parser=["data", "mediaIndex", "contentList", "items"],
+            creator=self.create_api_typed_item)
 
         self._add_data_parser(
             "https://client-gateway.tv4.a2d.tv/graphql?operationName=ContentDetailsPage&",
@@ -110,60 +89,11 @@ class Channel(chn_class.Channel):
             parser=["data", "season", "episodes", "items"],
             creator=self.create_api_typed_item)
 
-        # # setup the urls
-        # # self.mainListUri = "https://api.tv4play.se/play/programs?is_active=true&platform=tablet&per_page=1000" \
-        # #                    "&fl=nid,name,program_image&start=0"
-        #
-        # self.baseUrl = "http://www.tv4play.se"
-        # self.swfUrl = "http://www.tv4play.se/flash/tv4playflashlets.swf"
-        #
-        # self._add_data_parser(self.mainListUri, json=True,
-        #                       name="GraphQL mainlist parser",
-        #                       preprocessor=self.add_categories_and_specials,
-        #                       parser=["data", "indexPage", "panels"],
-        #                       creator=self.create_api_typed_item)
-        #
-        # # noinspection PyTypeChecker
-        # self._add_data_parser("https://graphql.tv4play.se/graphql?query=query%7Btags%7D",
-        #                       name="Tag overview", json=True,
-        #                       parser=["data", "tags"], creator=self.create_api_tag)
-        #
-        # self._add_data_parser("https://graphql.tv4play.se/graphql?query=%7Bprogram%28nid",
-        #                       name="GraphQL seasons/folders for program listing", json=True,
-        #                       preprocessor=self.detect_single_folder,
-        #                       parser=["data", "program", "videoPanels"],
-        #                       creator=self.create_api_videopanel_type)
-        #
-        # self._add_data_parser("https://graphql.tv4play.se/graphql?query=%7BvideoPanel%28id%3A",
-        #                       name="GraphQL single season/folder listing", json=True,
-        #                       postprocessor=self.add_next_page,
-        #                       parser=["data", "videoPanel", "videoList", "videoAssets"],
-        #                       creator=self.create_api_video_asset_type)
-        #
-        # self._add_data_parsers(["https://graphql.tv4play.se/graphql?query=query%7BprogramSearch",
-        #                         "https://graphql.tv4play.se/graphql?query=%7BprogramSearch"],
-        #                        name="GraphQL search results and show listings", json=True,
-        #                        parser=["data", "programSearch", "programs"],
-        #                        creator=self.create_api_typed_item)
-        #
-        # self._add_data_parser("https://graphql.tv4play.se/graphql?operationName=LiveVideos",
-        #                       name="GraphQL currently playing", json=True,
-        #                       parser=["data", "liveVideos", "videoAssets"],
-        #                       creator=self.create_api_typed_item)
-        #
-        # self._add_data_parser("http://tv4live-i.akamaihd.net/hls/live/",
-        #                       updater=self.update_live_item)
-        # self._add_data_parser("http://tv4events1-lh.akamaihd.net/i/EXTRAEVENT5_1",
-        #                       updater=self.update_live_item)
-
         self._add_data_parser("*", updater=self.update_video_item, requires_logon=True)
 
         # ===============================================================================================================
         # non standard items
         self.__timezone = pytz.timezone("Europe/Stockholm")
-        # self.__maxPageSize = 100  # The Android app uses a page size of 20
-        self.__program_fields = '{__typename,description,displayCategory,id,image,images{main16x9},name,nid,genres,videoPanels{id}}'
-        # self.__season_count_meta = "season_count"
         self.__refresh_token_setting_id = "refresh_token"
 
         # ===============================================================================================================
@@ -249,7 +179,15 @@ class Channel(chn_class.Channel):
             item.dontGroup = True
             return item
 
-        items.append(__create_item(LanguageHelper.TvShows, self.__mainListUri))
+        main_list_url = self.__get_api_url(
+            "MediaIndex",
+            "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
+            {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+                       "limit": self.__max_page_size + randrange(25) * 0,
+                       "offset": 0}
+             }
+        )
+        items.append(__create_item(LanguageHelper.TvShows, main_list_url))
 
         recent_url = self.__get_api_url(
             "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985",
@@ -268,6 +206,15 @@ class Channel(chn_class.Channel):
             {"panelId": "5Rqb0w0SN16A6YHt5Mx8BU", "limit": self.__max_page_size, "offset": 0}
         )
         items.append(__create_item(LanguageHelper.LatestNews, latest_news_url))
+
+        # Categories
+        # PageList
+        # variables: {"pageListId":"categories"}
+        # extensions: {"persistedQuery":{"version":1,"sha256Hash":"58da321b8e31df2b746f1d1f374151a450a4c24bda6415182fe81551c90e7d25"}}
+        category_url = self.__get_api_url(
+            "PageList", "58da321b8e31df2b746f1d1f374151a450a4c24bda6415182fe81551c90e7d25",
+            {"pageListId": "categories"})
+        items.append(__create_item(LanguageHelper.Categories, category_url))
         return data, items
 
     def fetch_mainlist_pages(self, data: str) -> Tuple[str, List[MediaItem]]:
@@ -297,29 +244,6 @@ class Channel(chn_class.Channel):
 
         Logger.debug("Pre-Processing finished")
         return data, items
-
-    # def create_api_tag(self, result_set):
-    #     """ Creates a new MediaItem for tag listing items
-    #
-    #     This method creates a new MediaItem from the Regular Expression or Json
-    #     results <result_set>. The method should be implemented by derived classes
-    #     and are specific to the channel.
-    #
-    #     :param str result_set: The result_set of the self.episodeItemRegex
-    #
-    #     :return: A new MediaItem of type 'folder'.
-    #     :rtype: MediaItem|None
-    #
-    #     """
-    #
-    #     Logger.trace(result_set)
-    #     query = 'query{programSearch(tag:"%s",per_page:1000){__typename,programs' \
-    #             '%s,' \
-    #             'totalHits}}' % (result_set, self.__program_fields)
-    #     query = HtmlEntityHelper.url_encode(query)
-    #     url = "https://graphql.tv4play.se/graphql?query={}".format(query)
-    #     item = MediaItem(result_set, url)
-    #     return item
 
     def create_api_typed_item(self, result_set):
         """ Creates a new MediaItem based on the __typename attribute.
@@ -365,6 +289,9 @@ class Channel(chn_class.Channel):
             item = self.create_api_page_ref(result_set)
         elif api_type == "StaticPageItem":
             item = self.create_api_static_page(result_set)
+
+        elif api_type == "MediaPanel" or api_type == "ClipsPanel":
+            item = self.create_api_panel(result_set)
 
         else:
             Logger.warning("Missing type: %s", api_type)
@@ -468,8 +395,24 @@ class Channel(chn_class.Channel):
         result_set = result_set["pageReference"]
         title = result_set["title"]
         page_id = result_set["id"]
-        item = FolderItem(title, "", content_type=contenttype.VIDEOS, media_type=mediatype.FOLDER)
+
+        # Link goes to a page
+        url = self.__get_api_url(
+            "Page", "a30fb04a7dbabeaf3b08f66134c6ac1f1e4980de1f21024fa755d752608e6ad9",
+            {"pageId": page_id, "input": {"limit": 100, "offset": 0}}
+        )
+        item = FolderItem(title, url, content_type=contenttype.TVSHOWS, media_type=mediatype.FOLDER)
         self.__set_art(item, result_set.get("images"))
+        return item
+
+    def create_api_panel(self, result_set: dict) -> Optional[MediaItem]:
+        panel_id = result_set["id"]
+        title = result_set["title"]
+        url = self.__get_api_url(
+            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985", {
+                "panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
+        )
+        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
         return item
 
     def create_api_static_page(self, result_set: dict) -> Optional[MediaItem]:
