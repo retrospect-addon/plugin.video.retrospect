@@ -245,7 +245,7 @@ class Channel(chn_class.Channel):
 
         def __create_item(lang_id: int, url: str):
             name = LanguageHelper.get_localized_string(lang_id)
-            item = MediaItem(name, url)
+            item = FolderItem(name, url, content_type=contenttype.VIDEOS)
             item.dontGroup = True
             return item
 
@@ -262,6 +262,12 @@ class Channel(chn_class.Channel):
             {"panelId": "3QnNaigt4Szgkyz8yMU9oF", "limit": self.__max_page_size, "offset": 0}
         )
         items.append(__create_item(LanguageHelper.Popular, popular_url))
+
+        latest_news_url = self.__get_api_url(
+            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985",
+            {"panelId": "5Rqb0w0SN16A6YHt5Mx8BU", "limit": self.__max_page_size, "offset": 0}
+        )
+        items.append(__create_item(LanguageHelper.LatestNews, latest_news_url))
         return data, items
 
     def fetch_mainlist_pages(self, data: str) -> Tuple[str, List[MediaItem]]:
@@ -338,6 +344,11 @@ class Channel(chn_class.Channel):
         elif api_type == "MediaIndexSeriesItem":
             item = self.create_api_typed_item(result_set["series"])
 
+        elif api_type == "Clip":
+            item = self.create_api_clip(result_set)
+        elif api_type == "ClipsPanelItem":
+            item = self.create_api_typed_item(result_set["clip"])
+
         elif api_type == "Episode":
             item = self.create_api_episode(result_set)
 
@@ -371,6 +382,24 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url, media_type=mediatype.MOVIE)
         item.isGeoLocked = True
         item = self.__update_base_typed_item(item, result_set)
+        return item
+
+    def create_api_clip(self, result_set: dict) -> Optional[MediaItem]:
+        clip_id = result_set["id"]
+        url = self.__get_video_url(clip_id)
+        title = result_set["title"]
+        if not title:
+            return None
+
+        item = MediaItem(title, url, media_type=mediatype.VIDEO)
+        item = self.__update_base_typed_item(item, result_set)
+        item.isPaid = not JsonHelper.get_from(
+            result_set, "clipVideo", "access", "hasAccess", fallback=True)
+        item.isLive = result_set.get("isLiveContent", False)
+
+        duration = JsonHelper.get_from(result_set, "clipVideo", "duration", "seconds", fallback=0)
+        if duration:
+            item.set_info_label(MediaItem.LabelDuration, duration)
         return item
 
     def create_api_episode(self, result_set: dict) -> Optional[MediaItem]:
