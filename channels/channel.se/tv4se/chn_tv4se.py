@@ -209,7 +209,7 @@ class Channel(chn_class.Channel):
         return token
 
     # No logon for now
-    def log_on(self):
+    def log_on(self) -> bool:
         """ Makes sure that we are logged on. """
 
         if self.__access_token:
@@ -241,17 +241,28 @@ class Channel(chn_class.Channel):
         return bool(self.__access_token)
 
     def list_main_content(self, data: str) -> Tuple[str, List[MediaItem]]:
-        tv_shows = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.TvShows),
-                             self.__mainListUri)
-        tv_shows.dontGroup = True
+        items: List[MediaItem] = []
+
+        def __create_item(lang_id: int, url: str):
+            name = LanguageHelper.get_localized_string(lang_id)
+            item = MediaItem(name, url)
+            item.dontGroup = True
+            return item
+
+        items.append(__create_item(LanguageHelper.TvShows, self.__mainListUri))
 
         recent_url = self.__get_api_url(
-            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985", {
-                "panelId": "1pDPvWRfhEg0wa5SvlP28N", "limit": self.__max_page_size, "offset": 0
-            })
-        recent = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.Recent), recent_url)
-        recent.dontGroup = True
-        return data, [tv_shows, recent]
+            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985",
+            {"panelId": "1pDPvWRfhEg0wa5SvlP28N", "limit": self.__max_page_size, "offset": 0}
+        )
+        items.append(__create_item(LanguageHelper.Recent, recent_url))
+
+        popular_url = self.__get_api_url(
+            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985",
+            {"panelId": "3QnNaigt4Szgkyz8yMU9oF", "limit": self.__max_page_size, "offset": 0}
+        )
+        items.append(__create_item(LanguageHelper.Popular, popular_url))
+        return data, items
 
     def fetch_mainlist_pages(self, data: str) -> Tuple[str, List[MediaItem]]:
         items = []
