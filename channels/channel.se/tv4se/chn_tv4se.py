@@ -1,7 +1,7 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 from random import randrange
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Tuple
 
 import pytz
 import datetime
@@ -49,7 +49,7 @@ class Channel(chn_class.Channel):
         else:
             raise Exception("Invalid channel code")
 
-        self.mainListUri = self.__get_api_url(
+        self.__mainListUri = self.__get_api_url(
             "MediaIndex",
             "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
             {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
@@ -81,10 +81,10 @@ class Channel(chn_class.Channel):
         #                       parser=["data", "page", "content", "panels"],
         #                       creator=self.create_api_typed_item)
 
-        # self.mainListUri = "#mainlist"
-        # self._add_data_parser("#mainlist",
-        #                       name="Main TV4 page", json=True,
-        #                       preprocessor=self.list_main_content)
+        self.mainListUri = "#mainlist"
+        self._add_data_parser("#mainlist",
+                              name="Main TV4 page", json=True,
+                              preprocessor=self.list_main_content)
 
         self._add_data_parser("https://client-gateway.tv4.a2d.tv/graphql?operationName=MediaIndex&",
                               name="Main show/movie list", json=True,
@@ -97,6 +97,12 @@ class Channel(chn_class.Channel):
             name="Seasons for show", json=True, requires_logon=True,
             parser=["data", "media", "allSeasonLinks"], creator=self.create_api_typed_item,
             postprocessor=self.check_for_seasons)
+
+        self._add_data_parser(
+            "https://client-gateway.tv4.a2d.tv/graphql?operationName=Panel&",
+            name="Panel results", json=True, requires_logon=True,
+            parser=["data", "panel", "content", "items"],
+            creator=self.create_api_typed_item)
 
         self._add_data_parser(
             "https://client-gateway.tv4.a2d.tv/graphql?operationName=SeasonEpisodes&",
@@ -234,13 +240,27 @@ class Channel(chn_class.Channel):
             self.parentItem.HttpHeaders.update(self.httpHeaders)
         return bool(self.__access_token)
 
-    def fetch_mainlist_pages(self, data):
+    def list_main_content(self, data: str) -> Tuple[str, List[MediaItem]]:
+        tv_shows = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+                             self.__mainListUri)
+        tv_shows.dontGroup = True
+
+        recent_url = self.__get_api_url(
+            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985", {
+                "panelId": "1pDPvWRfhEg0wa5SvlP28N", "limit": self.__max_page_size, "offset": 0
+            })
+        recent = MediaItem(LanguageHelper.get_localized_string(LanguageHelper.Recent), recent_url)
+        recent.dontGroup = True
+        return data, [tv_shows, recent]
+
+    def fetch_mainlist_pages(self, data: str) -> Tuple[str, List[MediaItem]]:
         items = []
         data = JsonHelper(data)
         page_data = data
 
         while True:
-            next_offset = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo", "nextPageOffset")
+            next_offset = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo",
+                                              "nextPageOffset")
             if not next_offset or next_offset <= 0:
                 break
 
@@ -284,8 +304,6 @@ class Channel(chn_class.Channel):
     #     item = MediaItem(result_set, url)
     #     return item
 
-
-
     def create_api_typed_item(self, result_set):
         """ Creates a new MediaItem based on the __typename attribute.
 
@@ -302,26 +320,30 @@ class Channel(chn_class.Channel):
 
         api_type = result_set["__typename"]
 
-        if api_type == "MediaIndexMovieItem":
-            item = self.create_api_typed_item(result_set["movie"])
+        if api_type == "Series":
+            item = self.create_api_series(result_set)
+        elif api_type == "MediaPanelSeriesItem":
+            item = self.create_api_series(result_set["series"])
         elif api_type == "MediaIndexSeriesItem":
             item = self.create_api_typed_item(result_set["series"])
-        elif api_type == "Series":
-            item = self.create_api_series(result_set)
+
         elif api_type == "Episode":
             item = self.create_api_episode(result_set)
+
         elif api_type == "Movie":
             item = self.create_api_movie(result_set)
+        elif api_type == "MediaPanelMovieItem":
+            item = self.create_api_movie(result_set["movie"])
+        elif api_type == "MediaIndexMovieItem":
+            item = self.create_api_typed_item(result_set["movie"])
+
         elif api_type == "SeasonLink":
             item = self.create_api_season(result_set)
         elif api_type == "PageReferenceItem":
             item = self.create_api_page_ref(result_set)
         elif api_type == "StaticPageItem":
             item = self.create_api_static_page(result_set)
-        # elif api_type == "MediaPanel":
-        #     item = self.create_api_media_panel(result_set)
-        # elif api_type == "SinglePanel":
-        #     item = self.create_api_single_panel(result_set)
+
         else:
             Logger.warning("Missing type: %s", api_type)
             return None
