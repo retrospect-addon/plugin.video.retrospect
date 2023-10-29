@@ -1,5 +1,6 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
+import time
 from random import randrange
 from typing import Optional, Union, List, Tuple
 
@@ -83,8 +84,9 @@ class Channel(chn_class.Channel):
             parser=["data", "media", "allSeasonLinks"], creator=self.create_api_typed_item,
             postprocessor=self.check_for_seasons)
 
-        self._add_data_parser(
-            "https://client-gateway.tv4.a2d.tv/graphql?operationName=Panel&",
+        self._add_data_parsers(
+            ["https://client-gateway.tv4.a2d.tv/graphql?operationName=Panel&",
+             "https://client-gateway.tv4.a2d.tv/graphql?operationName=LivePanel&"],
             name="Panel results", json=True, requires_logon=False,
             preprocessor=self.check_query_errors,
             parser=["data", "panel", "content", "items"],
@@ -185,7 +187,10 @@ class Channel(chn_class.Channel):
             Logger.warning("`PERSISTED_QUERY_NOT_FOUND` Error for TV4")
             headers = self.parentItem.HttpHeaders
             headers.update(self.httpHeaders)
-            data = UriHandler.open(self.parentItem.url, additional_headers=self.parentItem.HttpHeaders, no_cache=True)
+            # Wait for remote cache to finish
+            time.sleep(2)
+            data = UriHandler.open(self.parentItem.url,
+                                   additional_headers=self.parentItem.HttpHeaders, no_cache=True)
 
         return data, items
 
@@ -304,13 +309,32 @@ class Channel(chn_class.Channel):
 
         elif api_type == "SeasonLink":
             item = self.create_api_season(result_set)
+        elif api_type == "PageReference":
+            item = self.create_api_page(result_set)
         elif api_type == "PageReferenceItem":
-            item = self.create_api_page_ref(result_set)
+            item = self.create_api_page(result_set["pageReference"])
         elif api_type == "StaticPageItem":
             item = self.create_api_static_page(result_set)
 
-        elif api_type == "MediaPanel" or api_type == "ClipsPanel":
+        elif api_type == "SinglePanel":
+            item = self.create_api_typed_item(result_set["link"])
+        elif api_type == "SinglePanelMovieLink":
+            item = self.create_api_movie(result_set["movie"])
+
+        elif (api_type == "MediaPanel" or api_type == "ClipsPanel" or
+              api_type == "PagePanel" or api_type == "SportEventPanel"):
             item = self.create_api_panel(result_set)
+        elif api_type == "LivePanel":
+            item = self.create_api_live_panel(result_set)
+        elif api_type == "PagePanelPageItem":
+            item = self.create_api_typed_item(result_set["page"])
+        elif api_type == "SportEventPanelItem":
+            item = self.create_api_sport_event(result_set["sportEvent"])
+        elif api_type == "LivePanelEpisodeItem":
+            item = self.create_api_typed_item(result_set["episode"])
+
+        elif api_type == "ThemePanel":
+            item = self.create_api_theme_panel(result_set)
 
         else:
             Logger.warning("Missing type: %s", api_type)
@@ -368,17 +392,7 @@ class Channel(chn_class.Channel):
             item.set_info_label(MediaItem.LabelDuration, duration)
 
         # Playable from
-        if "playableFrom" in result_set:
-            from_date = result_set["playableFrom"]["isoString"]
-            # isoString=2022-07-27T22:01:00.000Z
-            time_stamp = DateHelper.get_date_from_string(from_date, "%Y-%m-%dT%H:%M:%S.%fZ")
-            item.set_date(*time_stamp[0:6])
-
-        # Playable to
-        if "playableUntil" in result_set:
-            until_data = result_set["playableUntil"]["humanDateTime"]
-            expires = "[COLOR gold]{}: {}[/COLOR]".format(MediaItem.ExpiresAt, until_data)
-            item.description = f"{expires}\n\n{item.description}"
+        self.__set_playback_window(item, result_set)
         return item
 
     def create_api_series(self, result_set: dict) -> Optional[MediaItem]:
@@ -410,8 +424,7 @@ class Channel(chn_class.Channel):
         item.metaData["seasonId"] = result_set["seasonId"]
         return item
 
-    def create_api_page_ref(self, result_set: dict) -> Optional[MediaItem]:
-        result_set = result_set["pageReference"]
+    def create_api_page(self, result_set: dict) -> Optional[MediaItem]:
         title = result_set["title"]
         page_id = result_set["id"]
 
@@ -431,8 +444,36 @@ class Channel(chn_class.Channel):
             "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985", {
                 "panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
         )
-        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
+        item = FolderItem(title, url, content_type=contenttype.VIDEOS)
         return item
+
+    def create_api_live_panel(self, result_set: dict) -> Optional[MediaItem]:
+        # perationName: LivePanel
+        # variables: {"panelId":"2VegBPUzE507oWek5kXzh9","offset":6,"limit":6}
+        # extensions: {"persistedQuery":{"version":1,"sha256Hash":"0dd12d54d8eba939d7c07778d23b1cca24abbdb1b4d62fd7728fc146231e0c08"}}
+        panel_id = result_set["id"]
+        title = result_set["title"]
+        url = self.__get_api_url(
+            "LivePanel", "0dd12d54d8eba939d7c07778d23b1cca24abbdb1b4d62fd7728fc146231e0c08", {
+                "panelId": panel_id, "limit": 100, "offset": 0}
+        )
+        item = FolderItem(title, url, content_type=contenttype.VIDEOS)
+        return item
+
+    def create_api_sport_event(self, result_set: dict) -> Optional[MediaItem]:
+        title = result_set["title"]
+        event_id = result_set["id"]
+        url = self.__get_video_url(event_id)
+
+        item = MediaItem(title, url, media_type=mediatype.VIDEO)
+        item.isLive = result_set.get("isLiveContent", False)
+        item.description = result_set.get("league")
+        self.__set_art(item, result_set["images"])
+        self.__set_playback_window(item, result_set)
+        return item
+
+    def create_api_theme_panel(self, result_set: dict) -> Optional[MediaItem]:
+        return None
 
     def create_api_static_page(self, result_set: dict) -> Optional[MediaItem]:
         result_set = result_set["staticPage"]
@@ -702,3 +743,23 @@ class Channel(chn_class.Channel):
 
         item.complete = True
         return item
+
+    def __set_playback_window(self, item: MediaItem, result_set: dict):
+        if "playableFrom" in result_set:
+            from_date = result_set["playableFrom"]["isoString"]
+            # isoString=2022-07-27T22:01:00.000Z
+            time_stamp = DateHelper.get_date_from_string(from_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+            item.set_date(*time_stamp[0:6])
+
+            # Playable to
+        if "playableUntil" in result_set and result_set["playableUntil"]:
+            until_data = result_set["playableUntil"]["humanDateTime"]
+            expires = "[COLOR gold]{}: {}[/COLOR]".format(MediaItem.ExpiresAt, until_data)
+            item.description = f"{expires}\n\n{item.description}"
+
+        elif "liveEventEnd" in result_set and result_set["liveEventEnd"]:
+            until_data = result_set["liveEventEnd"]["isoString"]
+            time_stamp = DateHelper.get_date_from_string(until_data, "%Y-%m-%dT%H:%M:%S.%fZ")
+            time_value = time.strftime('%Y-%m-%d %H:%M:%S', time_stamp)
+            expires = "[COLOR gold]{}: {}[/COLOR]".format(MediaItem.ExpiresAt, time_value)
+            item.description = f"{expires}\n\n{item.description}"
