@@ -40,7 +40,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.__max_page_size = 500
+        self.__max_page_size = 100
         self.__access_token = None
 
         if self.channelCode == "tv4segroup":
@@ -245,8 +245,10 @@ class Channel(chn_class.Channel):
         items = []
         data = JsonHelper(data)
         page_data = data
+        count = 0
 
-        while True:
+        while count < 25:
+            count += 1
             next_offset = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo",
                                               "nextPageOffset")
             if not next_offset or next_offset <= 0:
@@ -260,8 +262,13 @@ class Channel(chn_class.Channel):
                            "offset": next_offset}
                  }
             )
-            page_data = UriHandler.open(url, additional_headers=self.httpHeaders)
-            page_data = JsonHelper(page_data)
+            new_data = UriHandler.open(url, additional_headers=self.httpHeaders, force_cache_duration=60*60)
+            if "PERSISTED_QUERY_NOT_FOUND" in new_data:
+                Logger.warning("PERSISTED_QUERY_NOT_FOUND found")
+                time.sleep(2)
+                continue
+
+            page_data = JsonHelper(new_data)
             data_items = page_data.get_value(*self.currentParser.Parser)
             list_items = data.get_value(*self.currentParser.Parser)
             list_items += data_items
