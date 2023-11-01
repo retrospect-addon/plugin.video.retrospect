@@ -412,7 +412,8 @@ class Channel(chn_class.Channel):
         series_id = result_set["id"]
         url = self.__get_api_url(
             "ContentDetailsPage",
-            "fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a", {
+            # "fb3501e05a23d910fc9c636467df8578cb69d80abc0225062d8a86e77041225a", {
+            "7011f75ca9455842d183eb73301019a84038af83a4126ab8719e5dfadb70eda6", {
                 "mediaId": series_id, "panelsInput": {"offset": 0, "limit": 20}
             })
         title = result_set["title"]
@@ -430,8 +431,10 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         season_id = result_set["seasonId"]
         url = self.__get_api_url(
-            "SeasonEpisodes", "9f069a1ce297d68a0b4a3d108142919fb6d12827f35fc71b03976a251e239796",
-            {"seasonId": season_id, "input": {"limit": 100, "offset": 0}})
+            "SeasonEpisodes",
+            "e391219150504437080e46c0ff815542b70275c71bdf153b818cd37e67bc67b0",
+            {"seasonId": season_id, "input": {"limit": 100, "offset": 0}}
+        )
         item = FolderItem(title, url, content_type=contenttype.EPISODES,
                           media_type=mediatype.FOLDER)
         item.metaData["seasonId"] = result_set["seasonId"]
@@ -513,11 +516,13 @@ class Channel(chn_class.Channel):
 
         # Retry with just this url.
         season_id = items[0].metaData["seasonId"]
-        url = self.__get_api_url("SeasonEpisodes",
-                                 "9f069a1ce297d68a0b4a3d108142919fb6d12827f35fc71b03976a251e239796",
-                                 {
-                                     "seasonId": season_id, "input": {"limit": 100, "offset": 0}
-                                 })
+        url = self.__get_api_url(
+            "SeasonEpisodes",
+            "e391219150504437080e46c0ff815542b70275c71bdf153b818cd37e67bc67b0",
+            {
+                "seasonId": season_id, "input": {"limit": 100, "offset": 0}
+            }
+        )
         self.parentItem.url = url
         return self.process_folder_list(self.parentItem)
 
