@@ -195,7 +195,13 @@ class Channel:
             no_cache = item is not None and not item.is_playable and item.isLive
             if no_cache:
                 Logger.debug("Disabling cache for '%s'", item)
-            data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
+
+            if item and item.postData:
+                data = UriHandler.open(url, additional_headers=headers, data=item.postData, no_cache=no_cache)
+            elif item and item.postJson:
+                data = UriHandler.open(url, additional_headers=headers, json=item.postJson, no_cache=no_cache)
+            else:
+                data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
         # Searching a site using search_site()
         elif url == "searchSite" or url == "#searchSite":
             Logger.debug("Starting to search")
@@ -749,7 +755,12 @@ class Channel:
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
+        if item.postData:
+            data = UriHandler.open(item.url, additional_headers=item.HttpHeaders, data=item.postData)
+        elif item.postJson:
+            data = UriHandler.open(item.url, additional_headers=item.HttpHeaders, json=item.postJson)
+        else:
+            data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
 
         url = Regexer.do_regex(self.mediaUrlRegex, data)[-1]
         stream = MediaStream(url)

@@ -64,6 +64,8 @@ class MediaItem:
         self.tv_show_title = tv_show_title
         self.url = url
         self.actionUrl = None
+        self.postData = None
+        self.postJson = None
 
         self.description = ""
         self.thumb = ""                           # : The thumbnail (16:9, min 520x293)
