@@ -182,15 +182,21 @@ class Channel(chn_class.Channel):
 
     def check_query_errors(self, data: str) -> Tuple[str, List[MediaItem]]:
         items = []
+        count = 0
+        max_retries = 5
 
-        if "PERSISTED_QUERY_NOT_FOUND" in data:
+        while "PERSISTED_QUERY_NOT_FOUND" in data and count < max_retries:
             Logger.warning("`PERSISTED_QUERY_NOT_FOUND` Error for TV4")
             headers = self.parentItem.HttpHeaders
             headers.update(self.httpHeaders)
             # Wait for remote cache to finish
-            time.sleep(2)
-            data = UriHandler.open(self.parentItem.url,
-                                   additional_headers=self.parentItem.HttpHeaders, no_cache=True)
+            time.sleep(1)
+            data = UriHandler.open(
+                self.parentItem.url, additional_headers=self.parentItem.HttpHeaders, no_cache=True)
+            count += 1
+
+        if "PERSISTED_QUERY_NOT_FOUND" in data:
+            Logger.error(f"`PERSISTED_QUERY_NOT_FOUND` Error for TV4 after {count} retries")
 
         return data, items
 
