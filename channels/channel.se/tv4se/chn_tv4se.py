@@ -40,7 +40,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.__max_page_size = 100
+        self.__max_page_size = 250
         self.__access_token = None
 
         if self.channelCode == "tv4segroup":
