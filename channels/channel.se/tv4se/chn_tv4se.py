@@ -1,7 +1,8 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
+import json
+import math
 import time
-from random import randrange
 from typing import Optional, Union, List, Tuple
 
 import pytz
@@ -17,9 +18,10 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
+from resources.lib.retroconfig import Config
 from resources.lib.streams.mpd import Mpd
 from resources.lib.webdialogue import WebDialogue
-from resources.lib.xbmcwrapper import XbmcWrapper
+from resources.lib.xbmcwrapper import XbmcWrapper, XbmcDialogProgressWrapper
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
@@ -40,7 +42,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.__max_page_size = 250
+        self.__max_page_size = 100
         self.__access_token = None
 
         if self.channelCode == "tv4segroup":
@@ -210,22 +212,23 @@ class Channel(chn_class.Channel):
             item.postJson = json
             return item
 
-        tvshow_url, tvshow_data = self.__get_api_post_query(
+        tvshow_url, tvshow_data = self.__get_api_query(
             "MediaIndex",
             {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                       "limit": 100, "offset": 0}})
+                       "limit": self.__max_page_size, "offset": 0}},
+            use_get=True)
         items.append(__create_item(LanguageHelper.TvShows, tvshow_url, tvshow_data))
 
-        recent_url, recent_data = self.__get_api_post_query("Panel", {"panelId": "1pDPvWRfhEg0wa5SvlP28N", "limit": 100, "offset": 0})
+        recent_url, recent_data = self.__get_api_query("Panel", {"panelId": "1pDPvWRfhEg0wa5SvlP28N", "limit": self.__max_page_size, "offset": 0})
         items.append(__create_item(LanguageHelper.Recent, recent_url, recent_data))
 
-        popular_url, popular_data = self.__get_api_post_query("Panel", {"panelId": "3QnNaigt4Szgkyz8yMU9oF", "limit": 100, "offset": 0})
+        popular_url, popular_data = self.__get_api_query("Panel", {"panelId": "3QnNaigt4Szgkyz8yMU9oF", "limit": self.__max_page_size, "offset": 0})
         items.append(__create_item(LanguageHelper.Popular, popular_url, popular_data))
 
-        latest_news_url, latest_news_data = self.__get_api_post_query("Panel", {"panelId": "5Rqb0w0SN16A6YHt5Mx8BU", "limit": 100, "offset": 0})
+        latest_news_url, latest_news_data = self.__get_api_query("Panel", {"panelId": "5Rqb0w0SN16A6YHt5Mx8BU", "limit": self.__max_page_size, "offset": 0})
         items.append(__create_item(LanguageHelper.LatestNews, latest_news_url, latest_news_data))
 
-        category_url, json_data = self.__get_api_post_query("PageList", {"pageListId": "categories"})
+        category_url, json_data = self.__get_api_query("PageList", {"pageListId": "categories"})
         items.append(__create_item(LanguageHelper.Categories, category_url, json_data))
         return data, items
 
@@ -235,28 +238,42 @@ class Channel(chn_class.Channel):
         page_data = data
         count = 0
 
-        while count < 25:
-            count += 1
-            next_offset = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo",
-                                              "nextPageOffset")
-            if not next_offset or next_offset <= 0:
-                break
+        item_count = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo", "totalCount")
+        number_of_pages = math.ceil(1.0 * item_count / self.__max_page_size)
 
-            tvshow_url, tvshow_data = self.__get_api_post_query(
-                "MediaIndex",
-                {"input": {
-                    "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                    "limit": 100, "offset": next_offset}
-                }
-            )
-            new_data = UriHandler.open(
-                tvshow_url, additional_headers=self.httpHeaders, json=tvshow_data,
-                force_cache_duration=60 * 60)
+        # Use a progress bar
+        status = LanguageHelper.get_localized_string(LanguageHelper.FetchMultiApi)
+        updated = LanguageHelper.get_localized_string(LanguageHelper.PageOfPages)
+        progress = XbmcDialogProgressWrapper("{} - {}".format(Config.appName, self.channelName), status)
 
-            page_data = JsonHelper(new_data)
-            data_items = page_data.get_value(*self.currentParser.Parser)
-            list_items = data.get_value(*self.currentParser.Parser)
-            list_items += data_items
+        try:
+            while count < 25:
+                count += 1
+                if progress.progress_update(count, number_of_pages, int(count * 100 / number_of_pages), False, updated.format(count, number_of_pages)):
+                    break
+
+                next_offset = page_data.get_value("data", "mediaIndex", "contentList", "pageInfo", "nextPageOffset")
+                if not next_offset or next_offset <= 0:
+                    break
+
+                tvshow_url, tvshow_data = self.__get_api_query(
+                    "MediaIndex",
+                    {"input": {
+                        "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+                        "limit": self.__max_page_size, "offset": next_offset}
+                    },
+                    use_get=True
+                )
+                new_data = UriHandler.open(
+                    tvshow_url, additional_headers=self.httpHeaders, json=tvshow_data,
+                    force_cache_duration=60 * 60)
+
+                page_data = JsonHelper(new_data)
+                data_items = page_data.get_value(*self.currentParser.Parser)
+                list_items = data.get_value(*self.currentParser.Parser)
+                list_items += data_items
+        finally:
+            progress.close()
 
         Logger.debug("Pre-Processing finished")
         return data, items
@@ -276,6 +293,7 @@ class Channel(chn_class.Channel):
         """
 
         api_type = result_set.get("__typename")
+        Logger.trace(f"`create_api_typed_item` resulted in `{api_type}`")
         if not api_type:
             Logger.warning(result_set)
             raise IndexError("`__typename` missing")
@@ -412,7 +430,7 @@ class Channel(chn_class.Channel):
     def create_api_season(self, result_set: dict) -> Optional[MediaItem]:
         title = result_set["title"]
         season_id = result_set["seasonId"]
-        url, json_data = self.__get_api_post_query("SeasonEpisodes", {"seasonId": season_id, "input": {"limit": 100, "offset": 0}})
+        url, json_data = self.__get_api_query("SeasonEpisodes", {"seasonId": season_id, "input": {"limit": self.__max_page_size, "offset": 0}})
         item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
         item.postJson = json_data
         item.metaData["seasonId"] = result_set["seasonId"]
@@ -425,7 +443,7 @@ class Channel(chn_class.Channel):
         # Link goes to a page
         url = self.__get_api_url(
             "Page", "a30fb04a7dbabeaf3b08f66134c6ac1f1e4980de1f21024fa755d752608e6ad9",
-            {"pageId": page_id, "input": {"limit": 100, "offset": 0}}
+            {"pageId": page_id, "input": {"limit": self.__max_page_size, "offset": 0}}
         )
         item = FolderItem(title, url, content_type=contenttype.TVSHOWS, media_type=mediatype.FOLDER)
         self.__set_art(item, result_set.get("images"))
@@ -434,7 +452,7 @@ class Channel(chn_class.Channel):
     def create_api_panel(self, result_set: dict) -> Optional[MediaItem]:
         panel_id = result_set["id"]
         title = result_set["title"]
-        url, data = self.__get_api_post_query(
+        url, data = self.__get_api_query(
             "Panel",
             {"panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
         )
@@ -451,7 +469,7 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         url = self.__get_api_url(
             "LivePanel", "0dd12d54d8eba939d7c07778d23b1cca24abbdb1b4d62fd7728fc146231e0c08", {
-                "panelId": panel_id, "limit": 100, "offset": 0}
+                "panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
         )
         item = FolderItem(title, url, content_type=contenttype.VIDEOS)
         return item
@@ -478,10 +496,10 @@ class Channel(chn_class.Channel):
             return None
 
         title = result_set["title"]
-        url, data = self.__get_api_post_query(
+        url, data = self.__get_api_query(
             "MediaIndex",
             {"input": {
-                "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), "limit": 100, "offset": 0}
+                "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), "limit": self.__max_page_size, "offset": 0}
             }
         )
         item = FolderItem(title, url, content_type=contenttype.VIDEOS, media_type=mediatype.FOLDER)
@@ -498,9 +516,9 @@ class Channel(chn_class.Channel):
 
         # Retry with just this url.
         season_id = items[0].metaData["seasonId"]
-        url, data = self.__get_api_post_query(
+        url, data = self.__get_api_query(
             "SeasonEpisodes",
-            {"seasonId": season_id, "input": {"limit": 100, "offset": 0}}
+            {"seasonId": season_id, "input": {"limit": self.__max_page_size, "offset": 0}}
         )
         self.parentItem.url = url
         self.parentItem.postJson = data
@@ -692,11 +710,7 @@ class Channel(chn_class.Channel):
               "extensions={}".format(operation, final_vars, extensions)
         return url
 
-    def __get_api_query(self, query):
-        return "https://graphql.tv4play.se/graphql?query={}".format(
-            HtmlEntityHelper.url_encode(query))
-
-    def __get_api_post_query(self, operation: str, variables: dict) -> Tuple[str, dict]:
+    def __get_api_query(self, operation: str, variables: dict, use_get: bool = False) -> Tuple[str, Optional[dict]]:
         base_url = f"https://client-gateway.tv4.a2d.tv/graphql?operationName={operation}&"
         query = None
 
@@ -784,12 +798,22 @@ class Channel(chn_class.Channel):
         if not query:
             raise IndexError
 
-        data = {
-            "operationName": operation,
-            "query": query,
-            "variables": variables
-        }
-        return base_url, data
+        query = query.strip()
+        query_lines = query.splitlines(keepends=False)
+        query_lines = [l.strip() for l in query_lines]
+        query = " ".join(query_lines)
+
+        if not use_get:
+            data = {
+                "operationName": operation,
+                "query": query,
+                "variables": variables
+            }
+            return base_url, data
+
+        # For GETs (but the request URLs become to long!)
+        url =  f"{base_url}query={HtmlEntityHelper.url_encode(query)}&variables={HtmlEntityHelper.url_encode(json.dumps(variables))}"
+        return url, None
 
     def __update_dash_video(self, item, stream_info):
         """
