@@ -210,15 +210,11 @@ class Channel(chn_class.Channel):
             item.postJson = json
             return item
 
-        main_list_url = self.__get_api_url(
+        tvshow_url, tvshow_data = self.__get_api_post_query(
             "MediaIndex",
-            "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
             {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                       "limit": self.__max_page_size + randrange(25) * 0,
-                       "offset": 0}
-             }
-        )
-        items.append(__create_item(LanguageHelper.TvShows, main_list_url))
+                       "limit": 100, "offset": 0}})
+        items.append(__create_item(LanguageHelper.TvShows, tvshow_url, tvshow_data))
 
         recent_url, recent_data = self.__get_api_post_query("Panel", {"panelId": "1pDPvWRfhEg0wa5SvlP28N", "limit": 100, "offset": 0})
         items.append(__create_item(LanguageHelper.Recent, recent_url, recent_data))
@@ -246,20 +242,16 @@ class Channel(chn_class.Channel):
             if not next_offset or next_offset <= 0:
                 break
 
-            url = self.__get_api_url(
+            tvshow_url, tvshow_data = self.__get_api_post_query(
                 "MediaIndex",
-                "423ba183684c9ea464c94e200696c8f6ec190fe9837f542a672623fa87ef0f4e",
-                {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                           "limit": self.__max_page_size + randrange(25) * 0,
-                           "offset": next_offset}
-                 }
+                {"input": {
+                    "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+                    "limit": 100, "offset": next_offset}
+                }
             )
-            new_data = UriHandler.open(url, additional_headers=self.httpHeaders,
-                                       force_cache_duration=60 * 60)
-            if "PERSISTED_QUERY_NOT_FOUND" in new_data:
-                Logger.warning("PERSISTED_QUERY_NOT_FOUND found")
-                time.sleep(2)
-                continue
+            new_data = UriHandler.open(
+                tvshow_url, additional_headers=self.httpHeaders, json=tvshow_data,
+                force_cache_duration=60 * 60)
 
             page_data = JsonHelper(new_data)
             data_items = page_data.get_value(*self.currentParser.Parser)
@@ -442,11 +434,13 @@ class Channel(chn_class.Channel):
     def create_api_panel(self, result_set: dict) -> Optional[MediaItem]:
         panel_id = result_set["id"]
         title = result_set["title"]
-        url = self.__get_api_url(
-            "Panel", "3ef650feea500555e560903fee7fc06f8276d046ea880c5540282a5341b65985", {
-                "panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
+        url, data = self.__get_api_post_query(
+            "Panel",
+            {"panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
         )
+
         item = FolderItem(title, url, content_type=contenttype.VIDEOS)
+        item.postJson = data
         return item
 
     def create_api_live_panel(self, result_set: dict) -> Optional[MediaItem]:
@@ -484,13 +478,15 @@ class Channel(chn_class.Channel):
             return None
 
         title = result_set["title"]
-        url = self.__get_api_url(
+        url, data = self.__get_api_post_query(
             "MediaIndex",
-            "dba092c9af0e54e4e3e68dd84b16bb913a9e0e5fe83ff01cf59b6b453d0c75d4",
-            {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                       "limit": self.__max_page_size + randrange(25) * 0,
-                       "offset": 0}})
+            {"input": {
+                "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), "limit": 100, "offset": 0}
+            }
+        )
         item = FolderItem(title, url, content_type=contenttype.VIDEOS, media_type=mediatype.FOLDER)
+        item.postJson = data
+
         self.__set_art(item, result_set.get("images"))
         return item
 
@@ -770,9 +766,19 @@ class Channel(chn_class.Channel):
                         on MediaPanelMovieItem { __typename movie { ...MovieFieldsLight __typename } } ... 
                         on MediaPanelSeriesItem { __typename series { ...SeriesFieldsLight __typename} } } } } ... 
                         on ChannelPanel { id title type content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { channel { ...ChannelFields } } } } } }
-                %(ImageFieldsFull)s, %(ParentalRatingFields)s %(ImageFieldsLight)s %(VideoFields)s %(EpisodeFields)s 
+                %(ImageFieldsFull)s %(ParentalRatingFields)s %(ImageFieldsLight)s %(VideoFields)s %(EpisodeFields)s 
                 %(LabelFields)s %(MovieFieldsLight)s %(SportEventFieldsLight)s %(SeriesFieldsLight)s %(ClipFieldsLight)s 
                 %(ChannelFields)s %(PageListFields)s %(PageInfoFields)s
+            """ % fragments
+
+        elif operation == "MediaIndex":
+            query = """
+                query MediaIndex($input: MediaIndexListInput!, $genres: [String!]) { mediaIndex(genres: $genres) { overview { letterIndex { letter totalCount } } contentList(input: $input) { __typename 
+                items { 
+                    ... on MediaIndexSeriesItem { __typename letter series { ...SeriesFieldsLight __typename } } 
+                    ... on MediaIndexMovieItem { __typename letter movie { ...MovieFieldsLight __typename } } 
+                } pageInfo { hasMoreForLastLetter totalCount lastLetter nextPageOffset } } } }
+                %(SeriesFieldsLight)s %(MovieFieldsLight)s %(LabelFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(ParentalRatingFields)s 
             """ % fragments
 
         if not query:

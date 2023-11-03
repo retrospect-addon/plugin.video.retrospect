@@ -4,6 +4,7 @@
 from datetime import datetime
 from functools import reduce
 from random import getrandbits
+from typing import Optional
 
 import xbmcgui
 
@@ -30,6 +31,9 @@ class MediaItem:
         +- MediaStream
 
     """
+
+    postData: Optional[str]
+    postJson: Optional[dict]
 
     LabelEpisode = "Episode"
     LabelTrackNumber = "TrackNumber"
