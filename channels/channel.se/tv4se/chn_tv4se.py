@@ -351,8 +351,7 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, url, media_type=mediatype.VIDEO)
         item = self.__update_base_typed_item(item, result_set)
-        item.isPaid = not JsonHelper.get_from(
-            result_set, "clipVideo", "access", "hasAccess", fallback=True)
+        item.isPaid = result_set.get("upsell") is not None
         item.isLive = result_set.get("isLiveContent", False)
 
         duration = JsonHelper.get_from(result_set, "clipVideo", "duration", "seconds", fallback=0)
@@ -371,8 +370,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url, media_type=mediatype.MOVIE)
         item = self.__update_base_typed_item(item, result_set)
         item.isGeoLocked = True
-        item.isPaid = not JsonHelper.get_from(
-            result_set, "video", "access", "hasAccess", fallback=True)
+        item.isPaid = result_set.get("upsell") is not None
         item.isLive = result_set.get("isLiveContent", False)
         item.description = result_set.get("synopsis", {}).get("medium", "")
 
