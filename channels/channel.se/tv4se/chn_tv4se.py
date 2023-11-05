@@ -791,7 +791,22 @@ class Channel(chn_class.Channel):
                 query ContentDetailsPage($mediaId: ID!, $panelsInput: CdpPanelsInput!) { media(id: $mediaId) { 
                     ... on SportEvent { __typename id slug title league arena commentators country round season inStudio isLiveContent isStartOverEnabled humanCallToAction editorialInfoText synopsis { brief long } trailers { ...TrailerFields } playableFrom { humanDateTime isoString readableDate } playableUntil { readableDate } liveEventEnd { isoString } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } upsell { tierId } } 
                     ... on Movie { __typename id slug title genres humanCallToAction isPollFeatureEnabled productionYear isLiveContent isStartOverEnabled liveEventEnd { isoString } productionCountries { countryCode name } playableFrom { isoString readableDate humanDateTime readableDistance } playableUntil { isoString readableDate } video { ...VideoFields } parentalRating { ...ParentalRatingFields } credits { ...MovieCreditsFields } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } synopsis { brief long } trailers { ...TrailerFields } label { ...LabelFields } panels(input: $panelsInput) { ...CdpPanelsFields } hasPanels editorialInfoText upsell { tierId } } 
-                    ... on Series { __typename id slug title numberOfAvailableSeasons genres isPollFeatureEnabled upcomingEpisode { ...UpcomingEpisodeFields } trailers { ...TrailerFields } parentalRating { ...ParentalRatingFields } credits { ...SeriesCreditsFields } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } synopsis { brief long } allSeasonLinks { seasonId title numberOfEpisodes } label { ...LabelFields } panels(input: $panelsInput) { ...CdpPanelsFields } hasPanels editorialInfoText upsell { tierId } } } 
+                    ... on Series { __typename id slug title numberOfAvailableSeasons genres isPollFeatureEnabled 
+                        upcomingEpisode { ...UpcomingEpisodeFields } 
+                        trailers { ...TrailerFields } 
+                        parentalRating { ...ParentalRatingFields } 
+                        credits { ...SeriesCreditsFields } 
+                        images { 
+                            poster2x3 { ...ImageFieldsFull } 
+                            main16x9 { ...ImageFieldsFull } 
+                            logo { ...ImageFieldsLight } 
+                            brandLogo { ...ImageFieldsLight } } 
+                        synopsis { brief long } 
+                        allSeasonLinks { __typename seasonId title numberOfEpisodes } 
+                        label { ...LabelFields } 
+                        panels(input: $panelsInput) { ...CdpPanelsFields } 
+                        hasPanels editorialInfoText upsell { tierId } }
+                    } 
                 }
                 %(TrailerFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(VideoFields)s %(ParentalRatingFields)s 
                 %(MovieCreditsFields)s %(LabelFields)s %(CdpPanelsFields)s %(UpcomingEpisodeFields)s %(SeriesCreditsFields)s
@@ -841,6 +856,10 @@ class Channel(chn_class.Channel):
         query_lines = query.splitlines(keepends=False)
         query_lines = [l.strip() for l in query_lines]
         query = " ".join(query_lines)
+
+        # Perhaps add __typename to everything?
+        # query = query.replace("__typename ", "")
+        # query = query.replace("}", " __typename }")
 
         if not use_get:
             data = {
