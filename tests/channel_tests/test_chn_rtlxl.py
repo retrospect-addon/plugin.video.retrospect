@@ -5,6 +5,7 @@ import unittest
 from . channeltest import ChannelTest
 
 
+@unittest.skip("Broken see https://github.com/retrospect-addon/plugin.video.retrospect/issues/1724")
 class TestRtlXLChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
