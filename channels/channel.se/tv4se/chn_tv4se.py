@@ -361,6 +361,7 @@ class Channel(chn_class.Channel):
         return item
 
     def create_api_episode(self, result_set: dict) -> Optional[MediaItem]:
+        Logger.trace(result_set)
         video_id: str = result_set["id"]
         url = self.__get_video_url(video_id)
         title = result_set["title"]
