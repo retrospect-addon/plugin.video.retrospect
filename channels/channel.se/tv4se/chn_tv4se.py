@@ -96,6 +96,13 @@ class Channel(chn_class.Channel):
             parser=["data", "season", "episodes", "items"],
             creator=self.create_api_typed_item)
 
+        self._add_data_parser(
+            "https://client-gateway.tv4.a2d.tv/graphql?operationName=PanelSearch&",
+            name="Search results", json=True, requires_logon=False,
+            preprocessor=self.merge_search,
+            parser=[],
+            creator=self.create_api_typed_item)
+
         self._add_data_parser("*", updater=self.update_video_item, requires_logon=True)
 
         # ===============================================================================================================
@@ -205,6 +212,8 @@ class Channel(chn_class.Channel):
 
         category_url, json_data = self.__get_api_query("PageList", {"pageListId": "categories"})
         items.append(__create_item(LanguageHelper.Categories, category_url, json_data))
+
+        items.append(__create_item(LanguageHelper.Search, "searchSite"))
         return data, items
 
     def fetch_mainlist_pages(self, data: str) -> Tuple[str, List[MediaItem]]:
@@ -502,7 +511,7 @@ class Channel(chn_class.Channel):
         self.parentItem.postJson = data
         return self.process_folder_list(self.parentItem)
 
-    def search_site(self, url=None):
+    def search_site(self, url: Optional[str] = None) -> List[MediaItem]:
         """ Creates a list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
@@ -519,11 +528,30 @@ class Channel(chn_class.Channel):
 
         """
 
-        # url = self.__get_api_query(
-        #     '{programSearch(q:"",perPage:100){totalHits,programs%s}}' % self.__program_fields)
-        # url = url.replace("%", "%%")
-        # url = url.replace("%%22%%22", "%%22%s%%22")
-        return chn_class.Channel.search_site(self, url)
+        needle = XbmcWrapper.show_key_board()
+        if not needle:
+            return []
+
+        variables = {"input": {"query": needle}, "limit": 10, "offset": 0,
+                "shouldFetchMovieSeries": True, "shouldFetchMovieSeriesUpsell": True,
+                "shouldFetchClip": True, "shouldFetchPage": True, "shouldFetchSportEvent": True,
+                "shouldFetchSportEventUpsell": True}
+        url, data = self.__get_api_query("PanelSearch", variables)
+
+        search = MediaItem("Search", url, mediatype.FOLDER)
+        search.postJson = data
+        return self.process_folder_list(search)
+
+    def merge_search(self, data):
+        items = []
+        results = JsonHelper("[]")
+
+        data = JsonHelper(data)
+        for cat, result in data.get_value("data", "panelSearch", "data").items():
+            result_items = result["content"]["items"]
+            results.json += result_items
+
+        return results, items
 
     def update_video_item(self, item):
         """ Updates an existing MediaItem with more data.
@@ -843,6 +871,23 @@ class Channel(chn_class.Channel):
                     ... on LivePanelSportEventItem { __typename sportEvent { __typename ...SportEventVideoFields } } } } } } } 
                 %(PageInfoFields)s %(ChannelVideoFields)s %(EpisodeVideoFields)s %(MovieVideoFields)s 
                 %(SportEventVideoFields)s %(ImageFieldsLight)s %(ParentalRatingFields)s %(VideoFields)s
+            """ % fragments
+
+        elif operation == "PanelSearch":
+            query = """ 
+                query PanelSearch($input: PanelSearchInput!, $limit: Int!, $offset: Int!, $shouldFetchMovieSeries: Boolean!, $shouldFetchMovieSeriesUpsell: Boolean!, $shouldFetchClip: Boolean!, $shouldFetchPage: Boolean!, $shouldFetchSportEvent: Boolean!, $shouldFetchSportEventUpsell: Boolean!) { 
+                    panelSearch(input: $input) { 
+                        data { 
+                            movieSeries @include(if: $shouldFetchMovieSeries) { id title content(input: {limit: $limit, offset: $offset}) { items { ... on MediaPanelSeriesItem { __typename series { __typename ...SeriesFieldsLight } } ... on MediaPanelMovieItem { __typename movie { __typename ...MovieFieldsLight } } } pageInfo { ...PageInfoFields } } } 
+                            movieSeriesUpsell @include(if: $shouldFetchMovieSeriesUpsell) { id title content(input: {limit: $limit, offset: $offset}) { items { ... on MediaPanelSeriesItem { __typename series { __typename ...SeriesFieldsLight } } ... on MediaPanelMovieItem { __typename movie { __typename ...MovieFieldsLight } } } pageInfo { ...PageInfoFields } } } 
+                            clip @include(if: $shouldFetchClip) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename clip { __typename ...ClipFieldsLight } } pageInfo { ...PageInfoFields } } } 
+                            page @include(if: $shouldFetchPage) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename ... on PagePanelPageItem { __typename page { __typename ...PageListFields } } } pageInfo { ...PageInfoFields } } } 
+                            sportEvent @include(if: $shouldFetchSportEvent) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename sportEvent { __typename ...SportEventFieldsLight } } pageInfo { ...PageInfoFields } } } 
+                            sportEventUpsell @include(if: $shouldFetchSportEventUpsell) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename sportEvent { __typename ...SportEventFieldsLight } } pageInfo { ...PageInfoFields } } } } pageInfo { totalCountAll { clips movies pages series sportEvents } } order 
+                        } 
+                    }
+                    %(SeriesFieldsLight)s %(MovieFieldsLight)s %(PageInfoFields)s %(ClipFieldsLight)s %(PageListFields)s %(SportEventFieldsLight)s
+                    %(LabelFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(ParentalRatingFields)s %(VideoFields)s
             """ % fragments
 
         else:
