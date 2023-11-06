@@ -142,10 +142,10 @@ class Channel(chn_class.Channel):
                               creator=self.create_genre_item)
 
         # Favourites
-        self._add_data_parser("https://www.npostart.nl/api/account/@me/profile",
+        self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
                               match_type=ParserData.MatchExact, json=True, requires_logon=True,
                               name="Profile selection",
-                              parser=["profiles"], creator=self.create_profile_item)
+                              parser=[], creator=self.create_profile_item)
         self._add_data_parser("#list_profile",
                               name="List favourites for profile",
                               preprocessor=self.switch_profile,
@@ -225,20 +225,24 @@ class Channel(chn_class.Channel):
                 Logger.info("Username changed for NPO from '%s' to '%s'", previous_name, username)
             else:
                 Logger.info("Forcing a new login for NPO")
-            UriHandler.delete_cookie(domain="www.npostart.nl")
-            UriHandler.delete_cookie(domain=".npostart.nl")
+
+            UriHandler.delete_cookie(domain="id.npo.nl")
+            UriHandler.delete_cookie(domain="npo.nl")
             AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
 
         if not username:
             Logger.info("No user name for NPO, not logging in")
-            UriHandler.delete_cookie(domain="www.npostart.nl")
+
+            UriHandler.delete_cookie(domain="id.npo.nl")
+            UriHandler.delete_cookie(domain="npo.nl")
             return True
 
-        cookie = UriHandler.get_cookie("isAuthenticatedUser", "www.npostart.nl")
+        cookie = UriHandler.get_cookie("NpoId.Identity", "id.npo.nl")
         if cookie and not log_out:
             expire_date = DateHelper.get_date_from_posix(float(cookie.expires))
             Logger.info("Found existing valid NPO token (valid until: %s)", expire_date)
-            return True
+            profile = UriHandler.open("https://npo.nl/start/api/auth/session", no_cache=True)
+            return bool(JsonHelper(profile).json)
 
         v = Vault()
         password = v.get_channel_setting(self.guid, "password")
@@ -246,8 +250,16 @@ class Channel(chn_class.Channel):
             Logger.warning("No password found for %s", self)
             return False
 
+        # Fetch a CSRF token
+        data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
+        csrf_token = JsonHelper(data).get_value("csrfToken")
+        sign_in_data = {
+            "callbackUrl": "https://npo.nl/start",
+            "csrfToken": csrf_token,
+            "json": True
+        }
         # Will redirect to the new id.npo.nl site with a return url given.
-        data = UriHandler.open("https://www.npostart.nl/login", no_cache=True)
+        data = UriHandler.open("https://npo.nl/start/api/auth/signin/npo-id", json=sign_in_data)
 
         # Find the return url.
         if "ReturnUrl" in UriHandler.instance().status.url:
@@ -256,8 +268,10 @@ class Channel(chn_class.Channel):
         else:
             redirect_url = ""
 
+        data = UriHandler.open("https://id.npo.nl/account/login", no_cache=True)
+
         # Extract the verification token.
-        verification_code = Regexer.do_regex(r'name="__RequestVerificationToken"[^>]+value="([^"]+)"', data)
+        verification_code = Regexer.do_regex(r'name="__RequestVerificationToken"[^>]+value="([^"]+)"', data)[0]
         data = {
             "EmailAddress": username,
             "Password": password,
@@ -265,12 +279,11 @@ class Channel(chn_class.Channel):
             "__RequestVerificationToken": verification_code
         }
 
-        # The actual call for logging in.
+        # The actual call for logging in. It will result in the proper redirect.
         UriHandler.open("https://id.npo.nl/account/login", no_cache=True, data=data)
 
-        # The callback url to finish up.
-        UriHandler.open("https://id.npo.nl{}".format(redirect_url), no_cache=True)
-        return not UriHandler.instance().status.error
+        profile = UriHandler.open("https://npo.nl/start/api/auth/session", no_cache=True)
+        return bool(JsonHelper(profile).json)
 
     def extract_tiles(self, data):  # NOSONAR
         """ Extracts the JSON tiles data from the HTML.
@@ -369,7 +382,7 @@ class Channel(chn_class.Channel):
         # Favorite items that require login
         favs = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.FavouritesId),
-            "https://www.npostart.nl/api/account/@me/profile",
+            "https://npo.nl/start/api/domain/user-profiles",
             content_type=contenttype.NONE)
         favs.complete = True
         favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
@@ -607,7 +620,7 @@ class Channel(chn_class.Channel):
         item.thumb = result_set.get("thumburl", None)
         item.description = result_set.get("description", "")
         item.complete = True
-        item.metaData["id"] = result_set["id"]
+        item.metaData["id"] = result_set["guid"]
         return item
 
     def switch_profile(self, data):
@@ -1533,8 +1546,7 @@ class Channel(chn_class.Channel):
             if sub_title_path:
                 item.subtitle = sub_title_path
 
-        if AddonSettings.use_adaptive_stream_add_on(
-                with_encryption=True, ignore_add_on_config=True):
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=True, ignore_add_on_config=True):
             error = NpoStream.add_mpd_stream_from_npo(None, episode_id, item, live=item.isLive)
             if bool(error) and self.__has_premium():
                 self.__log_on(force_log_off=True)
@@ -1580,9 +1592,8 @@ class Channel(chn_class.Channel):
 
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
-        UriHandler.set_cookie(name='site_cookie_consent', value='yes',
-                              domain='.www.uitzendinggemist.nl')
-        UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
+        # UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.www.uitzendinggemist.nl')
+        # UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
 
         UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
         UriHandler.set_cookie(name='npo_cc', value='30', domain='.npo.nl')
