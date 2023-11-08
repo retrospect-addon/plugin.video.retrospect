@@ -2,6 +2,7 @@
 
 import datetime
 import time
+from typing import Optional, List
 
 import pytz
 import re
@@ -74,6 +75,20 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://npo.nl/start/live?channel=",
                               name="Live Video Updater from HTML",
                               updater=self.update_video_item_live)
+
+        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?guid=",
+                              name="Page collection updater", json=True,
+                              parser=["items"],
+                              creator=self.create_api_program_item)
+
+        self._add_data_parser("https://npo.nl/start/api/domain/series-seasons",
+                              name="Season API parser", json=True,
+                              postprocessor=self.check_for_single_season,
+                              parser=[], creator=self.create_api_season_item)
+
+        self._add_data_parser("https://npo.nl/start/api/domain/programs-by-season",
+                              name="Season content API parser", json=True,
+                              parser=[], creator=self.create_api_episode_item)
 
         # Use old urls with new Updater
         self._add_data_parser("http://e.omroep.nl/metadata/", name="e.omroep.nl classic parser",
@@ -278,6 +293,14 @@ class Channel(chn_class.Channel):
         favs.dontGroup = True
         favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
         # items.append(favs)
+
+        trending = FolderItem(
+            LanguageHelper.get_localized_string(LanguageHelper.Popular),
+            "https://npo.nl/start/api/domain/page-collection?guid=711e9595-c4af-446f-a356-1d79d917f1c5",
+            content_type=contenttype.TVSHOWS
+        )
+        trending.dontGroup = True
+        items.append(trending)
 
         extra = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
@@ -517,6 +540,60 @@ class Channel(chn_class.Channel):
             content_type=contenttype.TVSHOWS)
         items.append(tvshows)
         return data, items
+
+    def create_api_program_item(self, result_set: dict) -> Optional[MediaItem]:
+        title = result_set["title"]
+        slug = result_set["slug"]
+        item_type = result_set["type"]
+        url = f"https://npo.nl/start/api/domain/series-seasons?slug={slug}&type={item_type}"
+
+        item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        if "images" in result_set and result_set["images"]:
+            image_data = result_set["images"][0]
+            item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
+            item.description = image_data.get("description")
+        return item
+
+    def create_api_season_item(self, result_set: dict) -> Optional[MediaItem]:
+        guid = result_set["guid"]
+        title = f"{LanguageHelper.get_localized_string(LanguageHelper.SeasonId)} {result_set['seasonKey']}"
+        url = f"https://npo.nl/start/api/domain/programs-by-season?guid={guid}"
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.SEASON)
+        item.description = result_set.get("synopsis")
+
+        if "images" in result_set and result_set["images"]:
+            image_data = result_set["images"][0]
+            item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
+        return item
+
+    def check_for_single_season(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        # If not seasons, or just one, fetch the episodes
+        if len(items) != 1:
+            return items
+
+        # Retry with just this url.
+        self.parentItem.url = items[0].url
+        return self.process_folder_list(self.parentItem)
+
+    def create_api_episode_item(self, result_set: dict) -> Optional[MediaItem]:
+        title = result_set["title"]
+        poms = result_set["productId"]
+
+        item = MediaItem(title, poms, media_type=mediatype.EPISODE)
+
+        if "images" in result_set and result_set["images"]:
+            image_data = result_set["images"][0]
+            item.set_artwork(thumb=image_data["url"])
+
+        item.description = result_set.get("synopsis", {}).get("long")
+        item.set_info_label(MediaItem.LabelDuration, result_set.get("durationInSeconds", 0))
+
+        # 'firstBroadcastDate'
+        date_time = DateHelper.get_date_from_posix(result_set["firstBroadcastDate"], tz=pytz.UTC)
+        date_time = date_time.astimezone(self.__timezone)
+        item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour, date_time.minute, date_time.second)
+        # 'restrictions'
+        return item
 
     def create_json_episode_item(self, result_set):
         """ Creates a new MediaItem for an episode.
@@ -1190,6 +1267,7 @@ class Channel(chn_class.Channel):
         return iptv_epg
 
     def __has_premium(self):
+        # TODO: Fix
         if self.__has_premium_cache is None:
             subscription_cookie = UriHandler.get_cookie("subscription", "www.npostart.nl")
             if subscription_cookie:
