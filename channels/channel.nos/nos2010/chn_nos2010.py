@@ -18,7 +18,6 @@ from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.vault import Vault
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.mediaitem import MediaItem, FolderItem
@@ -266,6 +265,8 @@ class Channel(chn_class.Channel):
             # Already logged in so the login_form redirected to session info
             profile = JsonHelper(login_form)
             Logger.info("Refreshed NPO log in.")
+            expires = profile.get_value("tokenExpiresAt", fallback=0)
+            Logger.debug("NPO Token expires at %s UTC", datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
             return bool(profile.json)
 
         Logger.info("Starting new NPO log in.")
@@ -394,7 +395,7 @@ class Channel(chn_class.Channel):
                            "wordt nog niet ondersteund."
         favs.dontGroup = True
         favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        items.append(favs)
+        # items.append(favs)
 
         extra = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
@@ -1597,9 +1598,6 @@ class Channel(chn_class.Channel):
 
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
 
-        # UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.www.uitzendinggemist.nl')
-        # UriHandler.set_cookie(name='npo_cc', value='tmp', domain='.www.uitzendinggemist.nl')
-
         UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npo.nl')
         UriHandler.set_cookie(name='npo_cc', value='30', domain='.npo.nl')
 
@@ -1677,21 +1675,17 @@ class Channel(chn_class.Channel):
             item.set_date(date_time[2], month, date_time[0])
         return True
 
-    def __get_xsrf_token(self):
+    def __get_xsrf_token(self) -> str:
         """ Retrieves a JSON Token and XSRF token
 
         :return: XSRF Token and JSON Token
         :rtype: tuple[str|None,str|None]
         """
 
-        # get a token (why?), cookies and an xsrf token
-        UriHandler.open("https://www.npostart.nl/api/token",
-                        no_cache=True,
-                        additional_headers={"X-Requested-With": "XMLHttpRequest"})
-
-        xsrf_token = UriHandler.get_cookie("XSRF-TOKEN", "www.npostart.nl").value
-        xsrf_token = HtmlEntityHelper.url_decode(xsrf_token)
-        return xsrf_token
+        # Fetch a CSRF token
+        data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
+        csrf_token = JsonHelper(data).get_value("csrfToken")
+        return csrf_token
 
     def __get_name_for_api_video(self, result_set, for_epg):
         """ Determines the name of the video item given the episode name, franchise name and
