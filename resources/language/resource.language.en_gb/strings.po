@@ -751,6 +751,10 @@ msgctxt "#30370"
 msgid "All episodes"
 msgstr ""
 
+msgctxt "#30371"
+msgid "Trending"
+msgstr ""
+
 # empty strings from id 30371 to 30400
 
 msgctxt "#30401"

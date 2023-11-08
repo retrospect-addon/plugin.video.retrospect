@@ -76,10 +76,19 @@ class Channel(chn_class.Channel):
                               name="Live Video Updater from HTML",
                               updater=self.update_video_item_live)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?guid=",
-                              name="Page collection updater", json=True,
-                              parser=["items"],
-                              creator=self.create_api_program_item)
+        self._add_data_parsers([
+                "https://npo.nl/start/api/domain/page-collection?guid=",
+                "https://npo.nl/start/api/domain/recommendation-collection?key=trending"],
+            name="Collections with series", json=True,
+            parser=["items"],
+            creator=self.create_api_program_item)
+
+        self._add_data_parsers([
+                "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous"],
+            name="Collections with videos", json=True,
+            parser=["items"],
+            creator=self.create_api_episode_item_with_data
+        )
 
         self._add_data_parser("https://npo.nl/start/api/domain/series-seasons",
                               name="Season API parser", json=True,
@@ -295,12 +304,20 @@ class Channel(chn_class.Channel):
         # items.append(favs)
 
         trending = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.Popular),
-            "https://npo.nl/start/api/domain/page-collection?guid=711e9595-c4af-446f-a356-1d79d917f1c5",
+            LanguageHelper.get_localized_string(LanguageHelper.Trending),
+            "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
             content_type=contenttype.TVSHOWS
         )
         trending.dontGroup = True
         items.append(trending)
+
+        series = FolderItem(
+            LanguageHelper.get_localized_string(LanguageHelper.Popular),
+            "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0",
+            content_type=contenttype.TVSHOWS
+        )
+        series.dontGroup = True
+        items.append(series)
 
         extra = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
@@ -541,6 +558,15 @@ class Channel(chn_class.Channel):
         items.append(tvshows)
         return data, items
 
+    def check_for_single_season(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        # If not seasons, or just one, fetch the episodes
+        if len(items) != 1:
+            return items
+
+        # Retry with just this url.
+        self.parentItem.url = items[0].url
+        return self.process_folder_list(self.parentItem)
+
     def create_api_program_item(self, result_set: dict) -> Optional[MediaItem]:
         title = result_set["title"]
         slug = result_set["slug"]
@@ -566,18 +592,20 @@ class Channel(chn_class.Channel):
             item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
         return item
 
-    def check_for_single_season(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
-        # If not seasons, or just one, fetch the episodes
-        if len(items) != 1:
-            return items
+    def create_api_episode_item_with_data(self, result_set: dict) -> Optional[MediaItem]:
+        if not "series" in result_set:
+            Logger.warning("Cannot create episode with show info without a show.")
+            return None
 
-        # Retry with just this url.
-        self.parentItem.url = items[0].url
-        return self.process_folder_list(self.parentItem)
+        return self.create_api_episode_item(result_set, True)
 
-    def create_api_episode_item(self, result_set: dict) -> Optional[MediaItem]:
+    def create_api_episode_item(self, result_set: dict, show_info: bool = False) -> Optional[MediaItem]:
         title = result_set["title"]
         poms = result_set["productId"]
+
+        if show_info:
+            show_title = result_set["series"]["title"]
+            title = f"{show_title} - {title}"
 
         item = MediaItem(title, poms, media_type=mediatype.EPISODE)
 

@@ -79,6 +79,7 @@ class LanguageHelper(object):
     Extras = 30368
     Fragments = 30369
     AllEpisodes = 30370
+    Trending = 30371
 
     ChannelSelection = 30507
     ShortCutName = 30512
