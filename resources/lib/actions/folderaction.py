@@ -101,7 +101,7 @@ class FolderAction(AddonAction):
                                            is_favourite=self.__favorites is not None)
 
                 # Get the context menu items
-                context_menu_items = self._get_context_menu_items(self.__channel, item=media_item)
+                context_menu_items = self._get_context_menu_items(self.__channel, item=media_item, store_id=parent_guid)
                 kodi_item.addContextMenuItems(context_menu_items)
 
                 # Get the action URL

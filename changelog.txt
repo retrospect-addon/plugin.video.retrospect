@@ -1,6 +1,6 @@
-[B]Retrospect v5.6.6 - Changelog - 2023-09-21[/B]
+[B]Retrospect v5.6.7 - Changelog - 2023-xx-xx[/B]
 
-Added some SVT improvements.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,4 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: SVT Descriptions for some items (Fixes #1719).
+* Fixed: TV4 Play major update of API (Fixes #1714).

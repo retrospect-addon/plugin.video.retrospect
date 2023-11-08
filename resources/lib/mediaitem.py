@@ -4,6 +4,7 @@
 from datetime import datetime
 from functools import reduce
 from random import getrandbits
+from typing import Optional
 
 import xbmcgui
 
@@ -30,6 +31,9 @@ class MediaItem:
         +- MediaStream
 
     """
+
+    postData: Optional[str]
+    postJson: Optional[dict]
 
     LabelEpisode = "Episode"
     LabelTrackNumber = "TrackNumber"
@@ -64,6 +68,8 @@ class MediaItem:
         self.tv_show_title = tv_show_title
         self.url = url
         self.actionUrl = None
+        self.postData = None
+        self.postJson = None
 
         self.description = ""
         self.thumb = ""                           # : The thumbnail (16:9, min 520x293)

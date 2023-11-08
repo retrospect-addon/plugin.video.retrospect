@@ -44,12 +44,15 @@ class ChannelTest(unittest.TestCase):
         self.channel = ChannelIndex.get_register().get_channel(self._channel, self._code)
         return self.channel
 
-    def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None, retry=1):
+    def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None,
+                         retry=1, json=None, data=None):
         self.assertIsNotNone(self.channel)
 
         while retry >= 0:
             try:
                 item = self._get_media_item(url)
+                item.postJson = json
+                item.postData = data
                 item.HttpHeaders.update(headers or {})
 
                 items = self.channel.process_folder_list(item)
