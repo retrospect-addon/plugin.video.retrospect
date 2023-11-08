@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
+import time
+
 import pytz
 import re
 
@@ -217,6 +219,11 @@ class Channel(chn_class.Channel):
     def __log_on(self, force_log_off=False):
         """ Makes sure that we are logged on. """
 
+        def log_out_npo():
+            UriHandler.delete_cookie(domain="id.npo.nl")
+            UriHandler.delete_cookie(domain="npo.nl")
+            AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
+
         username = self._get_setting("username")
         previous_name = AddonSettings.get_channel_setting(self, "previous_username", store=LOCAL)
         log_out = previous_name != username
@@ -225,64 +232,62 @@ class Channel(chn_class.Channel):
                 Logger.info("Username changed for NPO from '%s' to '%s'", previous_name, username)
             else:
                 Logger.info("Forcing a new login for NPO")
-
-            UriHandler.delete_cookie(domain="id.npo.nl")
-            UriHandler.delete_cookie(domain="npo.nl")
-            AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
+            log_out_npo()
 
         if not username:
-            Logger.info("No user name for NPO, not logging in")
-
-            UriHandler.delete_cookie(domain="id.npo.nl")
-            UriHandler.delete_cookie(domain="npo.nl")
+            log_out_npo()
             return True
 
-        cookie = UriHandler.get_cookie("NpoId.Identity", "id.npo.nl")
-        if cookie and not log_out:
-            expire_date = DateHelper.get_date_from_posix(float(cookie.expires))
-            Logger.info("Found existing valid NPO token (valid until: %s)", expire_date)
-            profile = UriHandler.open("https://npo.nl/start/api/auth/session", no_cache=True)
-            return bool(JsonHelper(profile).json)
+        # https://ccm.npo.nl/sites/NPO/npo.nl/version.txt -> app version (for live channels?)
 
+        # Check for a valid token.
+        session_info_url = "https://npo.nl/start/api/auth/session"
+        profile = UriHandler.open(session_info_url, no_cache=True)
+        profile = JsonHelper(profile)
+        expires = profile.get_value("tokenExpiresAt", fallback=0)
+        if expires:
+            Logger.debug("NPO Token expires at %s UTC", datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
+        if bool(profile.json) and expires > time.time():
+            return True
+
+        # Fetch a CSRF token
+        data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
+        csrf_token = JsonHelper(data).get_value("csrfToken")
+
+        # Start an authentication session. Will redirect to the new id.npo.nl site with a return url given.
+        sign_in_data = {
+            "callbackUrl": session_info_url,
+            "csrfToken": csrf_token,
+            "json": True
+        }
+        login_form = UriHandler.open("https://npo.nl/start/api/auth/signin/npo-id", json=sign_in_data)
+
+        if UriHandler.instance().status.url == session_info_url:
+            # Already logged in so the login_form redirected to session info
+            profile = JsonHelper(login_form)
+            Logger.info("Refreshed NPO log in.")
+            return bool(profile.json)
+
+        Logger.info("Starting new NPO log in.")
         v = Vault()
         password = v.get_channel_setting(self.guid, "password")
         if not bool(password):
             Logger.warning("No password found for %s", self)
             return False
 
-        # Fetch a CSRF token
-        data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
-        csrf_token = JsonHelper(data).get_value("csrfToken")
-        sign_in_data = {
-            "callbackUrl": "https://npo.nl/start",
-            "csrfToken": csrf_token,
-            "json": True
-        }
-        # Will redirect to the new id.npo.nl site with a return url given.
-        data = UriHandler.open("https://npo.nl/start/api/auth/signin/npo-id", json=sign_in_data)
-
-        # Find the return url.
-        if "ReturnUrl" in UriHandler.instance().status.url:
-            redirect_url = UriHandler.instance().status.url.split("ReturnUrl=")[-1]
-            redirect_url = HtmlEntityHelper.url_decode(redirect_url)
-        else:
-            redirect_url = ""
-
-        data = UriHandler.open("https://id.npo.nl/account/login", no_cache=True)
-
-        # Extract the verification token.
-        verification_code = Regexer.do_regex(r'name="__RequestVerificationToken"[^>]+value="([^"]+)"', data)[0]
+        # Extract the verification token & Return Url.
+        return_url = Regexer.do_regex(r'name="ReturnUrl"[^>]+value="([^"]+)"', login_form)[0].replace("&amp;", "&")
+        verification_code = Regexer.do_regex(r'name="__RequestVerificationToken"[^>]+value="([^"]+)"', login_form)[0]
         data = {
             "EmailAddress": username,
             "Password": password,
-            "ReturnUrl": redirect_url,
-            "__RequestVerificationToken": verification_code
+            "ReturnUrl": return_url,
+            "__RequestVerificationToken": verification_code,
+            "button": "login"
         }
 
         # The actual call for logging in. It will result in the proper redirect.
-        UriHandler.open("https://id.npo.nl/account/login", no_cache=True, data=data)
-
-        profile = UriHandler.open("https://npo.nl/start/api/auth/session", no_cache=True)
+        profile = UriHandler.open("https://id.npo.nl/account/login", no_cache=True, data=data)
         return bool(JsonHelper(profile).json)
 
     def extract_tiles(self, data):  # NOSONAR
