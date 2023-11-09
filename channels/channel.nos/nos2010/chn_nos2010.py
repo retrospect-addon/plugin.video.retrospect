@@ -60,6 +60,8 @@ class Channel(chn_class.Channel):
         # live stuff
         self.baseUrlLive = "https://www.npostart.nl"
 
+        self.__user_name = self._get_setting("username")
+
         # live radio, the folders and items
         self._add_data_parser("https://start-api.npo.nl/page/live",
                               name="Live Radio Streams", json=True,
@@ -76,16 +78,19 @@ class Channel(chn_class.Channel):
                               name="Live Video Updater from HTML",
                               updater=self.update_video_item_live)
 
+        # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
                 "https://npo.nl/start/api/domain/page-collection?guid=",
                 "https://npo.nl/start/api/domain/recommendation-collection?key=trending"],
-            name="Collections with series", json=True,
+            name="Collections with series", json=True, requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_program_item)
 
+        # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-                "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous"],
-            name="Collections with videos", json=True,
+                "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous",
+                "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0"],
+            name="Collections with videos", json=True, requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_episode_item_with_data
         )
@@ -106,11 +111,6 @@ class Channel(chn_class.Channel):
         # Standard updater
         self._add_data_parser("*", requires_logon=True,
                               updater=self.update_video_item)
-
-        # recent and popular stuff and other Json data
-        self._add_data_parser(".json", name="JSON List Parser for the recent/tips/populair",
-                              parser=[], creator=self.create_video_item_json,
-                              json=True, match_type=ParserData.MatchEnd)
 
         self._add_data_parser("#recent", name="Recent items list",
                               preprocessor=self.add_recent_items)
@@ -204,7 +204,7 @@ class Channel(chn_class.Channel):
             UriHandler.delete_cookie(domain="npo.nl")
             AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
 
-        username = self._get_setting("username")
+        username = self.__user_name
         previous_name = AddonSettings.get_channel_setting(self, "previous_username", store=LOCAL)
         log_out = previous_name != username
         if log_out or force_log_off:
@@ -311,13 +311,29 @@ class Channel(chn_class.Channel):
         trending.dontGroup = True
         items.append(trending)
 
+        news = FolderItem(
+            LanguageHelper.get_localized_string(LanguageHelper.LatestNews),
+            "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown",
+            content_type=contenttype.TVSHOWS
+        )
+        news.dontGroup = True
+        items.append(news)
+
         series = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.Popular),
-            "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0",
+            "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown",
             content_type=contenttype.TVSHOWS
         )
         series.dontGroup = True
         items.append(series)
+
+        # categories = FolderItem(
+        #     LanguageHelper.get_localized_string(LanguageHelper.Categories),
+        #     "https://npo.nl/start/api/domain/page-collection?guid=2670b702-d621-44be-b411-7aae3c3820eb",
+        #     content_type=contenttype.TVSHOWS
+        # )
+        # categories.dontGroup = True
+        # items.append(categories)
 
         extra = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
@@ -354,13 +370,13 @@ class Channel(chn_class.Channel):
         # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         items.append(extra)
 
-        extra = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.Genres),
-            "https://www.npostart.nl/programmas",
-            content_type=contenttype.VIDEOS)
-        extra.complete = True
-        extra.dontGroup = True
-        items.append(extra)
+        # extra = FolderItem(
+        #     LanguageHelper.get_localized_string(LanguageHelper.Genres),
+        #     "https://www.npostart.nl/programmas",
+        #     content_type=contenttype.VIDEOS)
+        # extra.complete = True
+        # extra.dontGroup = True
+        # items.append(extra)
 
         # extra = FolderItem(
         #     "{} (A-Z)".format(LanguageHelper.get_localized_string(LanguageHelper.TvShows)),
@@ -574,6 +590,19 @@ class Channel(chn_class.Channel):
         url = f"https://npo.nl/start/api/domain/series-seasons?slug={slug}&type={item_type}"
 
         item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        if "images" in result_set and result_set["images"]:
+            image_data = result_set["images"][0]
+            item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
+            item.description = image_data.get("description")
+        return item
+
+    def create_api_category_item(self, result_set: dict) -> Optional[MediaItem]:
+        title = result_set["title"]
+        slug = result_set["slug"]
+
+        url = f"https://npo.nl/start/api/domain/page-layout?slug={slug}"
+        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
+
         if "images" in result_set and result_set["images"]:
             image_data = result_set["images"][0]
             item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
@@ -954,81 +983,6 @@ class Channel(chn_class.Channel):
         epg_result_set["channel"] = channel_name
         epg_result_set["broadcastDate"] = result_set.get("startsAt", epg_result_set["broadcastDate"])
         item = self.create_api_video_item(epg_result_set, for_epg=True)
-
-        return item
-
-    def create_video_item_json(self, result_set):
-        """ Creates a MediaItem of type 'video' using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        If the item is completely processed an no further data needs to be fetched
-        the self.complete property should be set to True. If not set to True, the
-        self.update_video_item method is called if the item is focussed or selected
-        for playback.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'video' or 'audio' (despite the method's name).
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set)
-
-        # In some cases the name, posix and description are in the root, in other cases in the
-        # 'episode' node
-        posix = result_set.get('starts_at')
-        image = result_set.get('image')
-        name = result_set.get('name')
-        description = result_set.get('description', '')
-
-        # the tips has an extra 'episodes' key
-        if 'episode' in result_set:
-            Logger.debug("Found subnode: episodes")
-            # set to episode node
-            data = result_set['episode']
-        else:
-            Logger.warning("No subnode 'episodes' found, trying anyways")
-            data = result_set
-
-        # look for better values
-        posix = data.get('broadcasted_at', posix)
-        # noinspection PyTypeChecker
-        broadcasted = DateHelper.get_date_from_posix(posix)
-        description = result_set.get('description', description)
-        video_id = data.get('whatson_id')
-
-        # try to fetch more name data
-        names = []
-        name = data.get("name", name)
-        if name:
-            names = [name, ]
-        if "series" in data and "name" in data["series"]:
-            # noinspection PyTypeChecker
-            names.insert(0, data["series"]["name"])
-
-        # Filter the duplicates
-        title = " - ".join(set(names))
-
-        item = MediaItem(title, video_id, media_type=mediatype.EPISODE)
-        item.complete = False
-        item.description = description
-
-        images = data.get('stills')
-        if images:
-            # there were images in the stills
-            # noinspection PyTypeChecker
-            item.thumb = images[-1]['url']
-        elif image:
-            # no stills, or empty, check for image
-            item.thumb = image
-
-        item.set_date(broadcasted.year, broadcasted.month, broadcasted.day, broadcasted.hour,
-                      broadcasted.minute,
-                      broadcasted.second)
 
         return item
 
