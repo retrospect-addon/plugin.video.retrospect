@@ -65,7 +65,8 @@ class Channel(chn_class.Channel):
         # live radio, the folders and items
         self._add_data_parser("https://start-api.npo.nl/page/live",
                               name="Live Radio Streams", json=True,
-                              parser=["components", ("panel", "live.regular.1", 0), "epg"], creator=self.create_live_radio)
+                              parser=["components", ("panel", "live.regular.1", 0), "epg"],
+                              creator=self.create_live_radio)
 
         self._add_data_parser("https://npo.nl/start/api/domain/guide-channels",
                               name="Main Live TV Streams json", json=True,
@@ -80,16 +81,19 @@ class Channel(chn_class.Channel):
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-                "https://npo.nl/start/api/domain/page-collection?guid=",
-                "https://npo.nl/start/api/domain/recommendation-collection?key=trending"],
+            "https://npo.nl/start/api/domain/page-collection?guid=",
+            "https://npo.nl/start/api/domain/page-collection?type=series&guid=",
+            "https://npo.nl/start/api/domain/recommendation-collection?key=trending"],
             name="Collections with series", json=True, requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_program_item)
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-                "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous",
-                "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0"],
+            "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous",
+            "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0",
+            "https://npo.nl/start/api/domain/page-collection?type=program&guid="
+        ],
             name="Collections with videos", json=True, requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_episode_item_with_data
@@ -130,6 +134,10 @@ class Channel(chn_class.Channel):
                               parser=["items"],
                               creator=self.create_api_video_item,
                               preprocessor=self.process_franchise_page)
+
+        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?slug=",
+                              name="Bare pages layout", json=True,
+                              parser=["collections"], creator=self.create_api_page_layout)
 
         # Favourites
         self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
@@ -180,11 +188,11 @@ class Channel(chn_class.Channel):
         # use a dictionary so the lookup is O(1)
         self.__channel_name_map = {
             "_101_": None,  # "NPO1 Extra", -> Mainly paid
-            "CULT": None,   # "NPO2 Extra", -> Mainly paid
-            "OPVO": None,   # "NPO Zappelin", -> Mainly paid
-            "NOSJ": None,   # "NPO Nieuws" -> Cannot be played
+            "CULT": None,  # "NPO2 Extra", -> Mainly paid
+            "OPVO": None,  # "NPO Zappelin", -> Mainly paid
+            "NOSJ": None,  # "NPO Nieuws" -> Cannot be played
             "_mcr_": None,  # "NPO Politiek" -> Niet gevonden
-            "PO24": None,   # Cannot be played,
+            "PO24": None,  # Cannot be played,
             "NED1": "NPO 1",
             "NED2": "NPO 2",
             "NED3": "NPO 3",
@@ -226,7 +234,8 @@ class Channel(chn_class.Channel):
         profile = JsonHelper(profile)
         expires = profile.get_value("tokenExpiresAt", fallback=0)
         if expires:
-            Logger.debug("NPO Token expires at %s UTC", datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
+            Logger.debug("NPO Token expires at %s UTC",
+                         datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
         if bool(profile.json) and expires > time.time():
             return True
 
@@ -240,14 +249,16 @@ class Channel(chn_class.Channel):
             "csrfToken": csrf_token,
             "json": True
         }
-        login_form = UriHandler.open("https://npo.nl/start/api/auth/signin/npo-id", json=sign_in_data)
+        login_form = UriHandler.open("https://npo.nl/start/api/auth/signin/npo-id",
+                                     json=sign_in_data)
 
         if UriHandler.instance().status.url == session_info_url:
             # Already logged in so the login_form redirected to session info
             profile = JsonHelper(login_form)
             Logger.info("Refreshed NPO log in.")
             expires = profile.get_value("tokenExpiresAt", fallback=0)
-            Logger.debug("NPO Token expires at %s UTC", datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
+            Logger.debug("NPO Token expires at %s UTC",
+                         datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
             return bool(profile.json)
 
         Logger.info("Starting new NPO log in.")
@@ -258,8 +269,11 @@ class Channel(chn_class.Channel):
             return False
 
         # Extract the verification token & Return Url.
-        return_url = Regexer.do_regex(r'name="ReturnUrl"[^>]+value="([^"]+)"', login_form)[0].replace("&amp;", "&")
-        verification_code = Regexer.do_regex(r'name="__RequestVerificationToken"[^>]+value="([^"]+)"', login_form)[0]
+        return_url = Regexer.do_regex(r'name="ReturnUrl"[^>]+value="([^"]+)"', login_form)[
+            0].replace("&amp;", "&")
+        verification_code = \
+            Regexer.do_regex(r'name="__RequestVerificationToken"[^>]+value="([^"]+)"', login_form)[
+                0]
         data = {
             "EmailAddress": username,
             "Password": password,
@@ -283,92 +297,74 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        search = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.Search), "searchSite",
-            content_type=contenttype.EPISODES)
-        search.complete = True
-        search.dontGroup = True
-        search.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        items.append(search)
+
+        def add_item(language_id: int, url: str, content_type: str,
+                     description: str = "", headers: Optional[dict] = None) -> FolderItem:
+            item = FolderItem(
+                LanguageHelper.get_localized_string(language_id), url, content_type=content_type)
+            item.description = description
+            item.complete = True
+            item.dontGroup = True
+            if headers:
+                item.HttpHeaders = headers
+            items.append(item)
+            return item
+
+        add_item(LanguageHelper.Search, "searchSite", contenttype.EPISODES,
+                 headers={"X-Requested-With": "XMLHttpRequest"})
 
         # Favorite items that require login
-        favs = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.FavouritesId),
-            "https://npo.nl/start/api/domain/user-profiles",
-            content_type=contenttype.NONE)
-        favs.complete = True
-        favs.description = "Favorieten van de NPO.nl website. Het toevoegen van favorieten " \
-                           "wordt nog niet ondersteund."
-        favs.dontGroup = True
-        favs.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        # items.append(favs)
+        add_item(LanguageHelper.FavouritesId, "https://npo.nl/start/api/domain/user-profiles",
+                 contenttype.NONE,
+                 description="Favorieten van de NPO.nl website. Het toevoegen van "
+                             "favorieten wordt nog niet ondersteund.",
+                 headers={"X-Requested-With": "XMLHttpRequest"})
 
-        trending = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.Trending),
-            "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
-            content_type=contenttype.TVSHOWS
-        )
-        trending.dontGroup = True
-        items.append(trending)
+        add_item(LanguageHelper.Trending,
+                 "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
+                 content_type=contenttype.TVSHOWS)
 
-        news = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.LatestNews),
-            "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown",
-            content_type=contenttype.TVSHOWS
-        )
-        news.dontGroup = True
-        items.append(news)
+        add_item(LanguageHelper.LatestNews,
+                 "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown",
+                 content_type=contenttype.TVSHOWS)
 
-        series = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.Popular),
-            "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown",
-            content_type=contenttype.TVSHOWS
-        )
-        series.dontGroup = True
-        items.append(series)
+        add_item(LanguageHelper.Popular,
+                 "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown",
+                 content_type=contenttype.TVSHOWS)
 
-        # categories = FolderItem(
-        #     LanguageHelper.get_localized_string(LanguageHelper.Categories),
+        # add_item(LanguageHelper.Categories,
         #     "https://npo.nl/start/api/domain/page-collection?guid=2670b702-d621-44be-b411-7aae3c3820eb",
+        #         content_type=contenttype.TVSHOWS)
+
+        add_item(LanguageHelper.TvShows,
+                 "https://npo.nl/start/api/domain/page-layout?slug=programmas",
+                 content_type=contenttype.TVSHOWS)
+
+        live_radio = add_item(
+            LanguageHelper.LiveRadio, "https://start-api.npo.nl/page/live",
+            content_type=contenttype.SONGS, headers=self.__jsonApiKeyHeader)
+        live_radio.isLive = True
+
+        live_tv = add_item(
+            LanguageHelper.LiveTv, "https://npo.nl/start/api/domain/guide-channels",
+            content_type=contenttype.VIDEOS)
+        live_tv.isLive = True
+
+        # extra = FolderItem(
+        #     "{} ({})".format(
+        #         LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+        #         LanguageHelper.get_localized_string(LanguageHelper.FullList)
+        #     ),
+        #     "https://start-api.npo.nl/media/series?pageSize={}&dateFrom=2014-01-01".format(self.__pageSize),
+        #     # "https://start-api.npo.nl/page/catalogue?pageSize={}".format(self.__pageSize),
         #     content_type=contenttype.TVSHOWS
         # )
-        # categories.dontGroup = True
-        # items.append(categories)
-
-        extra = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.LiveRadio),
-            "https://start-api.npo.nl/page/live",
-            content_type=contenttype.SONGS)
-        extra.complete = True
-        extra.dontGroup = True
-        extra.isLive = True
-        extra.HttpHeaders = self.__jsonApiKeyHeader
-        items.append(extra)
-
-        extra = FolderItem(
-            LanguageHelper.get_localized_string(LanguageHelper.LiveTv),
-            "https://npo.nl/start/api/domain/guide-channels",
-            content_type=contenttype.VIDEOS)
-        extra.complete = True
-        extra.dontGroup = True
-        extra.isLive = True
-        items.append(extra)
-
-        extra = FolderItem(
-            "{} ({})".format(
-                LanguageHelper.get_localized_string(LanguageHelper.TvShows),
-                LanguageHelper.get_localized_string(LanguageHelper.FullList)
-            ),
-            "https://start-api.npo.nl/media/series?pageSize={}&dateFrom=2014-01-01".format(self.__pageSize),
-            # "https://start-api.npo.nl/page/catalogue?pageSize={}".format(self.__pageSize),
-            content_type=contenttype.TVSHOWS
-        )
-        extra.complete = True
-        extra.dontGroup = True
-        extra.description = "Volledige programma lijst van NPO Start."
-        extra.HttpHeaders = self.__jsonApiKeyHeader
-        # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
-        items.append(extra)
+        # extra.complete = True
+        # extra.dontGroup = True
+        # extra.description = "Volledige programma lijst van NPO Start."
+        # extra.HttpHeaders = self.__jsonApiKeyHeader
+        # # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
+        # items.append(extra)
 
         # extra = FolderItem(
         #     LanguageHelper.get_localized_string(LanguageHelper.Genres),
@@ -506,7 +502,10 @@ class Channel(chn_class.Channel):
         """
 
         items = []
-        data = Regexer.do_regex(r'NPW.config.channels\s*=\s*([\w\W]+?);\s*NPW\.config\.comscore', data)[-1].rstrip(";")
+        data = \
+            Regexer.do_regex(r'NPW.config.channels\s*=\s*([\w\W]+?);\s*NPW\.config\.comscore',
+                             data)[
+                -1].rstrip(";")
         # fixUp some json
         data = re.sub(r'(\w+):([^/])', '"\\1":\\2', data)
         Logger.trace(data)
@@ -609,11 +608,33 @@ class Channel(chn_class.Channel):
             item.description = image_data.get("description")
         return item
 
+    def create_api_page_layout(self, result_set: dict) -> Optional[MediaItem]:
+        guid = result_set["guid"]
+        page_type = result_set["type"]
+        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&guid={guid}"
+
+        info = UriHandler.open(url)
+        info = JsonHelper(info)
+        title = info.get_value("title")
+
+        content_type = contenttype.VIDEOS
+        if page_type == "SERIES":
+            content_type = contenttype.TVSHOWS
+        elif page_type == "PROGRAM":
+            content_type = contenttype.EPISODES
+        else:
+            Logger.error(f"Missing for page type: {page_type}")
+            return None
+
+        item = FolderItem(title, url, content_type=content_type)
+        return item
+
     def create_api_season_item(self, result_set: dict) -> Optional[MediaItem]:
         guid = result_set["guid"]
         title = f"{LanguageHelper.get_localized_string(LanguageHelper.SeasonId)} {result_set['seasonKey']}"
         url = f"https://npo.nl/start/api/domain/programs-by-season?guid={guid}"
-        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.SEASON)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES,
+                          media_type=mediatype.SEASON)
         item.description = result_set.get("synopsis")
 
         if "images" in result_set and result_set["images"]:
@@ -628,11 +649,12 @@ class Channel(chn_class.Channel):
 
         return self.create_api_episode_item(result_set, True)
 
-    def create_api_episode_item(self, result_set: dict, show_info: bool = False) -> Optional[MediaItem]:
+    def create_api_episode_item(self, result_set: dict, show_info: bool = False) -> Optional[
+        MediaItem]:
         title = result_set["title"]
         poms = result_set["productId"]
 
-        if show_info:
+        if show_info and result_set["series"]:
             show_title = result_set["series"]["title"]
             title = f"{show_title} - {title}"
 
@@ -646,9 +668,13 @@ class Channel(chn_class.Channel):
         item.set_info_label(MediaItem.LabelDuration, result_set.get("durationInSeconds", 0))
 
         # 'firstBroadcastDate'
-        date_time = DateHelper.get_date_from_posix(result_set["firstBroadcastDate"], tz=pytz.UTC)
-        date_time = date_time.astimezone(self.__timezone)
-        item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour, date_time.minute, date_time.second)
+        if result_set.get("firstBroadcastDate"):
+            date_time = DateHelper.get_date_from_posix(result_set["firstBroadcastDate"],
+                                                       tz=pytz.UTC)
+            date_time = date_time.astimezone(self.__timezone)
+            item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
+                          date_time.minute, date_time.second)
+
         # 'restrictions'
         return item
 
@@ -761,7 +787,8 @@ class Channel(chn_class.Channel):
                 if "filter" in component and component["filter"] is not None:
                     # There is a season filter, so there may be more episodes
                     has_more_episodes = True
-                if component["data"]["_links"] is not None and "next" in component["data"]["_links"]:
+                if component["data"]["_links"] is not None and "next" in component["data"][
+                    "_links"]:
                     # There is a link to the next page with more episodes
                     has_more_episodes = True
             elif component["id"] == "grid-clips":
@@ -824,7 +851,8 @@ class Channel(chn_class.Channel):
 
         if next_url:
             next_title = LanguageHelper.get_localized_string(LanguageHelper.MorePages)
-            item = FolderItem("\b.: {} :.".format(next_title), next_url, content_type=contenttype.EPISODES)
+            item = FolderItem("\b.: {} :.".format(next_title), next_url,
+                              content_type=contenttype.EPISODES)
             item.complete = True
             item.HttpHeaders = self.__jsonApiKeyHeader
             item.dontGroup = True
@@ -856,7 +884,7 @@ class Channel(chn_class.Channel):
         """
 
         Logger.trace(result_set)
-        
+
         name = self.__get_name_for_api_video(result_set, for_epg)
         description = result_set.get('descriptionLong')
         if not description:
@@ -895,11 +923,13 @@ class Channel(chn_class.Channel):
 
             # For #933 we check for NOS Journaal
             if item.name == "NOS Journaal":
-                item.name = "{2} - {0:02d}:{1:02d}".format(date_time.hour, date_time.minute, item.name)
+                item.name = "{2} - {0:02d}:{1:02d}".format(date_time.hour, date_time.minute,
+                                                           item.name)
 
         item.isPaid = result_set.get("isOnlyOnNpoPlus", False)
         availability = result_set.get("availability")
-        if not item.isPaid and availability and availability["to"] and availability["to"] != availability["from"]:
+        if not item.isPaid and availability and availability["to"] and availability["to"] != \
+                availability["from"]:
             to_date = DateHelper.get_date_from_string(availability["to"], date_format=date_format)
             to_datetime = datetime.datetime(*to_date[:6])
             item.isPaid = to_datetime < datetime.datetime.now()
@@ -940,7 +970,8 @@ class Channel(chn_class.Channel):
 
             # Update all videos that don't have a channel specified
             epg_items = channel_epg.get("schedule", [])
-            [e["program"].update({"channel": channel_name}) for e in epg_items if not e["program"]["channel"]]
+            [e["program"].update({"channel": channel_name}) for e in epg_items if
+             not e["program"]["channel"]]
             epg_data += epg_items
 
         json.json = epg_data
@@ -981,7 +1012,8 @@ class Channel(chn_class.Channel):
             return None
 
         epg_result_set["channel"] = channel_name
-        epg_result_set["broadcastDate"] = result_set.get("startsAt", epg_result_set["broadcastDate"])
+        epg_result_set["broadcastDate"] = result_set.get("startsAt",
+                                                         epg_result_set["broadcastDate"])
         item = self.create_api_video_item(epg_result_set, for_epg=True)
 
         return item
@@ -1146,7 +1178,8 @@ class Channel(chn_class.Channel):
         Logger.debug("Fetching live stream data from item url: %s", item.url)
         html_data = UriHandler.open(item.url)
 
-        mp3_urls = Regexer.do_regex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""", html_data)
+        mp3_urls = Regexer.do_regex("""data-streams='{"url":"([^"]+)","codec":"[^"]+"}'""",
+                                    html_data)
         if len(mp3_urls) > 0:
             Logger.debug("Found MP3 URL")
             item.add_stream(mp3_urls[0], 192)
@@ -1155,7 +1188,8 @@ class Channel(chn_class.Channel):
             # NPO3 normal stream had wrong subs
             if "npo-3" in item.url and False:
                 # NPO3 has apparently switched the normal and hearing impaired streams?
-                json_urls = Regexer.do_regex('<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', html_data)
+                json_urls = Regexer.do_regex(
+                    '<div class="video-player-container"[^>]+data-alt-prid="([^"]+)"', html_data)
             else:
                 json_urls = Regexer.do_regex('<npo-player[^-][^>]*media-id="([^"]+)"', html_data)
 
@@ -1179,8 +1213,8 @@ class Channel(chn_class.Channel):
         """
         epg_url = datetime.datetime.now().strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv")
         epg_data = UriHandler.open(epg_url,
-            no_cache=True,
-            additional_headers=self.__jsonApiKeyHeader)
+                                   no_cache=True,
+                                   additional_headers=self.__jsonApiKeyHeader)
         epg = JsonHelper(epg_data)
 
         parent_item = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
@@ -1189,19 +1223,23 @@ class Channel(chn_class.Channel):
 
         for stations in epg.get_value("epg"):
             livestream = JsonHelper.get_from(stations, "channel", "liveStream")
-            item = MediaItem(JsonHelper.get_from(livestream, "title"), JsonHelper.get_from(livestream, "shareUrl"), media_type=mediatype.VIDEO)
+            item = MediaItem(JsonHelper.get_from(livestream, "title"),
+                             JsonHelper.get_from(livestream, "shareUrl"),
+                             media_type=mediatype.VIDEO)
             item.isLive = True
             item.isGeoLocked = True
             items.append(item)
 
             iptv_streams.append(dict(
-                id=JsonHelper.get_from(livestream,"id"),
-                name=JsonHelper.get_from(livestream,"title"),
-                logo=JsonHelper.get_from(livestream,"images","original","formats","tv","source"),
+                id=JsonHelper.get_from(livestream, "id"),
+                name=JsonHelper.get_from(livestream, "title"),
+                logo=JsonHelper.get_from(livestream, "images", "original", "formats", "tv",
+                                         "source"),
                 group=self.channelName,
-                stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item, store_id=parent_item.guid),
+                stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item,
+                                                          store_id=parent_item.guid),
             ))
-        
+
         parameter_parser.pickler.store_media_items(parent_item.guid, parent_item, items)
 
         return iptv_streams
@@ -1223,27 +1261,38 @@ class Channel(chn_class.Channel):
         start = datetime.datetime.now() - datetime.timedelta(days=3)
         for i in range(0, 7, 1):
             air_date = start + datetime.timedelta(i)
-            data = UriHandler.open(air_date.strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv"),
+            data = UriHandler.open(
+                air_date.strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv"),
                 no_cache=True,
                 additional_headers=self.__jsonApiKeyHeader)
 
             json_data = JsonHelper.loads(data)
-            for epg_item in JsonHelper.get_from(json_data,"epg"):
-                id = JsonHelper.get_from(epg_item,"channel",'liveStream','id')
-                iptv_epg[id]=iptv_epg.get(id, [])
-                for program in JsonHelper.get_from(epg_item,"schedule"):
-                    media_item = MediaItem(JsonHelper.get_from(program,"program","title"), JsonHelper.get_from(program,"program","id"), media_type=mediatype.EPISODE)
-                    region_restrictions = JsonHelper.get_from(program, "program", "regionRestrictions")
-                    media_item.isGeoBlocked = any([r for r in region_restrictions if r != "PLUSVOD:EU"])
+            for epg_item in JsonHelper.get_from(json_data, "epg"):
+                id = JsonHelper.get_from(epg_item, "channel", 'liveStream', 'id')
+                iptv_epg[id] = iptv_epg.get(id, [])
+                for program in JsonHelper.get_from(epg_item, "schedule"):
+                    media_item = MediaItem(JsonHelper.get_from(program, "program", "title"),
+                                           JsonHelper.get_from(program, "program", "id"),
+                                           media_type=mediatype.EPISODE)
+                    region_restrictions = JsonHelper.get_from(program, "program",
+                                                              "regionRestrictions")
+                    media_item.isGeoBlocked = any(
+                        [r for r in region_restrictions if r != "PLUSVOD:EU"])
                     media_items.append(media_item)
                     iptv_epg[id].append(dict(
                         start=JsonHelper.get_from(program, "startsAt"),
                         stop=JsonHelper.get_from(program, "endsAt"),
                         title=JsonHelper.get_from(program, "program", "title"),
-                        description=JsonHelper.get_from(program, "program","descriptionLong"),
-                        image=JsonHelper.get_from(program, "program", "images", "header", "formats", "tv", "source"),
-                        genre=JsonHelper.get_from(program, "program", "genres", 0, "terms") if JsonHelper.get_from(program, "program", "genres") else [],
-                        stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=media_item, store_id=parent.guid),
+                        description=JsonHelper.get_from(program, "program", "descriptionLong"),
+                        image=JsonHelper.get_from(program, "program", "images", "header", "formats",
+                                                  "tv", "source"),
+                        genre=JsonHelper.get_from(program, "program", "genres", 0,
+                                                  "terms") if JsonHelper.get_from(program,
+                                                                                  "program",
+                                                                                  "genres") else [],
+                        stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO,
+                                                                  item=media_item,
+                                                                  store_id=parent.guid),
                     ))
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
         return iptv_epg
@@ -1289,19 +1338,22 @@ class Channel(chn_class.Channel):
 
         # get the subtitle
         if fetch_subtitles:
-            sub_title_url = "https://assetscdn.npostart.nl/subtitles/original/nl/%s.vtt" % (episode_id,)
+            sub_title_url = "https://assetscdn.npostart.nl/subtitles/original/nl/%s.vtt" % (
+                episode_id,)
             sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
                 sub_title_url, episode_id + ".nl.srt", format='srt')
 
             if not sub_title_path:
-                sub_title_url = "https://rs.poms.omroep.nl/v1/api/subtitles/%s/nl_NL/CAPTION.vtt" % (episode_id,)
+                sub_title_url = "https://rs.poms.omroep.nl/v1/api/subtitles/%s/nl_NL/CAPTION.vtt" % (
+                    episode_id,)
                 sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
                     sub_title_url, episode_id + ".nl.srt", format='srt')
 
             if sub_title_path:
                 item.subtitle = sub_title_path
 
-        if AddonSettings.use_adaptive_stream_add_on(with_encryption=True, ignore_add_on_config=True):
+        if AddonSettings.use_adaptive_stream_add_on(with_encryption=True,
+                                                    ignore_add_on_config=True):
             error = NpoStream.add_mpd_stream_from_npo(None, episode_id, item, live=item.isLive)
             if bool(error) and self.__has_premium():
                 self.__log_on(force_log_off=True)
