@@ -284,6 +284,14 @@ class Channel(chn_class.Channel):
 
         # The actual call for logging in. It will result in the proper redirect.
         profile = UriHandler.open("https://id.npo.nl/account/login", no_cache=True, data=data)
+        if "validation-summary" in profile:
+            error = Regexer.do_regex(r"<ul><li>(.+?)</li", profile)
+            if error:
+                Logger.critical(error[0])
+                XbmcWrapper.show_dialog(LanguageHelper.LoginErrorTitle, error[0])
+            else:
+                Logger.critical("Unknown NPO error.")
+            return False
         return bool(JsonHelper(profile).json)
 
     def get_initial_folder_items(self, data):
