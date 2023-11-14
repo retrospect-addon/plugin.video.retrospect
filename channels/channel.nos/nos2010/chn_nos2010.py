@@ -17,7 +17,6 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.streams.npostream import NpoStream
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.parserdata import ParserData
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.vault import Vault
 from resources.lib.addonsettings import AddonSettings, LOCAL
@@ -48,7 +47,7 @@ class Channel(chn_class.Channel):
 
         # setup the urls
         if self.channelCode == "uzgjson":
-            self.baseUrl = "https://apps-api.uitzendinggemist.nl"
+            self.baseUrl = "https://npo.nl/start/api/"
             self.mainListUri = "#mainlist"
             self.noImage = "nosimage.png"
         else:
@@ -62,12 +61,6 @@ class Channel(chn_class.Channel):
 
         self.__user_name = self._get_setting("username")
 
-        # live radio, the folders and items
-        self._add_data_parser("https://start-api.npo.nl/page/live",
-                              name="Live Radio Streams", json=True,
-                              parser=["components", ("panel", "live.regular.1", 0), "epg"],
-                              creator=self.create_live_radio)
-
         self._add_data_parser("https://npo.nl/start/api/domain/guide-channels",
                               name="Main Live TV Streams json", json=True,
                               preprocessor=self.get_additional_live_items,
@@ -77,7 +70,7 @@ class Channel(chn_class.Channel):
                               updater=self.update_video_item_live)
 
         self._add_data_parser("https://npo.nl/start/live?channel=",
-                              name="Live Video Updater from HTML",
+                              name="Live Video Updater from json",
                               requires_logon=True,
                               updater=self.update_video_item_live)
 
@@ -110,16 +103,50 @@ class Channel(chn_class.Channel):
                               name="Season content API parser", json=True,
                               parser=[], creator=self.create_api_episode_item)
 
-        # Use old urls with new Updater
-        self._add_data_parser("http://e.omroep.nl/metadata/", name="e.omroep.nl classic parser",
-                              updater=self.update_from_poms, requires_logon=True)
-
         # Standard updater
         self._add_data_parser("*", requires_logon=True,
                               updater=self.update_video_item)
 
         self._add_data_parser("#recent", name="Recent items list",
                               preprocessor=self.add_recent_items)
+
+        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?slug=",
+                              name="Bare pages layout", json=True,
+                              parser=["collections"], creator=self.create_api_page_layout)
+
+        # Favourites (not yet implemented in the site).
+        # self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
+        #                       match_type=ParserData.MatchExact, json=True, requires_logon=True,
+        #                       name="Profile selection",
+        #                       parser=[], creator=self.create_profile_item)
+        # self._add_data_parser("#list_profile",
+        #                       name="List favourites for profile",
+        #                       preprocessor=self.switch_profile,
+        #                       requires_logon=True)
+        # self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites?",
+        #                       preprocessor=self.extract_tiles,
+        #                       parser=episode_parser,
+        #                       creator=self.create_episode_item,
+        #                       requires_logon=True)
+        # self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites/episodes?",
+        #                       preprocessor=self.extract_tiles,
+        #                       parser=video_parser,
+        #                       creator=self.create_npo_item,
+        #                       requires_logon=True)
+
+        # OLD but still working?
+        # live radio, the folders and items
+        self._add_data_parser("https://start-api.npo.nl/page/live",
+                              name="Live Radio Streams", json=True,
+                              parser=["components", ("panel", "live.regular.1", 0), "epg"],
+                              creator=self.create_live_radio)
+
+        # Alpha listing based on JSON API
+        # self._add_data_parser("https://start-api.npo.nl/page/catalogue", json=True,
+        self._add_data_parser("https://start-api.npo.nl/media/series", json=True,
+                              parser=["items"],
+                              creator=self.create_json_episode_item,
+                              preprocessor=self.extract_api_pages)
 
         self._add_data_parser("https://start-api.npo.nl/media/series/", json=True,
                               name="API based video items",
@@ -136,37 +163,6 @@ class Channel(chn_class.Channel):
                               parser=["items"],
                               creator=self.create_api_video_item,
                               preprocessor=self.process_franchise_page)
-
-        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?slug=",
-                              name="Bare pages layout", json=True,
-                              parser=["collections"], creator=self.create_api_page_layout)
-
-        # Favourites
-        self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
-                              match_type=ParserData.MatchExact, json=True, requires_logon=True,
-                              name="Profile selection",
-                              parser=[], creator=self.create_profile_item)
-        self._add_data_parser("#list_profile",
-                              name="List favourites for profile",
-                              preprocessor=self.switch_profile,
-                              requires_logon=True)
-        # self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites?",
-        #                       preprocessor=self.extract_tiles,
-        #                       parser=episode_parser,
-        #                       creator=self.create_episode_item,
-        #                       requires_logon=True)
-        # self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites/episodes?",
-        #                       preprocessor=self.extract_tiles,
-        #                       parser=video_parser,
-        #                       creator=self.create_npo_item,
-        #                       requires_logon=True)
-
-        # Alpha listing based on JSON API
-        # self._add_data_parser("https://start-api.npo.nl/page/catalogue", json=True,
-        self._add_data_parser("https://start-api.npo.nl/media/series", json=True,
-                              parser=["items"],
-                              creator=self.create_json_episode_item,
-                              preprocessor=self.extract_api_pages)
 
         self.__ignore_cookie_law()
 
@@ -355,7 +351,7 @@ class Channel(chn_class.Channel):
         #         LanguageHelper.get_localized_string(LanguageHelper.TvShows),
         #         LanguageHelper.get_localized_string(LanguageHelper.FullList)
         #     ),
-        #     "https://start-api.npo.nl/media/series?pageSize={}&dateFrom=2014-01-01".format(self.__pageSize),
+        #     f"https://start-api.npo.nl/media/series?pageSize={50}&dateFrom=2014-01-01",
         #     # "https://start-api.npo.nl/page/catalogue?pageSize={}".format(self.__pageSize),
         #     content_type=contenttype.TVSHOWS
         # )
@@ -437,62 +433,49 @@ class Channel(chn_class.Channel):
         Logger.info("Processing Live items")
 
         items = []
-        if self.parentItem.url.endswith("/live"):
-            # let's add the 3FM live stream
-            parent = self.parentItem
 
-            live_streams = {
-                "3FM Live": {
-                    "url": "http://e.omroep.nl/metadata/LI_3FM_300881",
-                    "thumb": self.get_image_location("3fm-artwork.jpg")
-                },
-                "Radio 2 Live": {
-                    "url": "http://e.omroep.nl/metadata/LI_RADIO2_300879",
-                    "thumb": self.get_image_location("radio2image.jpg")
-                    # "thumb": "http://www.radio2.nl/image/rm/48254/NPO_RD2_Logo_RGB_1200dpi.jpg?width=848&height=477"
-                },
-                "Radio 1 Live": {
-                    "url": "http://e.omroep.nl/metadata/LI_RADIO1_300877",
-                    # "thumb": "http://statischecontent.nl/img/tweederdevideo/1e7db3df-030a-4e5a-b2a2-840bd0fd8242.jpg"
-                    "thumb": self.get_image_location("radio1image.jpg")
-                },
-                "Radio 4 Live": {
-                    "url": "http://e.omroep.nl/metadata/LI_RA4_698901",
-                    "thumb": self.get_image_location("radio4image.jpg")
-                },
-                "FunX": {
-                    "url": "http://e.omroep.nl/metadata/LI_3FM_603983",
-                    "thumb": self.get_image_location("funx.jpg")
-                }
+        # let's add the 3FM live stream
+        parent = self.parentItem
+
+        live_streams = {
+            "3FM Live": {
+                "poms": "LI_3FM_300881",
+                "url": "https://npo.nl/start/live?channel=LI_3FM_300881",
+                "thumb": self.get_image_location("3fm-artwork.jpg")
+            },
+            "Radio 2 Live": {
+                "poms": "LI_RADIO2_300879",
+                "url": "https://npo.nl/start/live?channel=LI_RADIO2_300879",
+                "thumb": self.get_image_location("radio2image.jpg")
+                # "thumb": "http://www.radio2.nl/image/rm/48254/NPO_RD2_Logo_RGB_1200dpi.jpg?width=848&height=477"
+            },
+            "Radio 1 Live": {
+                "poms": "LI_RADIO1_300877",
+                "url": "https://npo.nl/start/live?channel=LI_RADIO1_300877",
+                "thumb": self.get_image_location("radio1image.jpg")
+            },
+            "Radio 4 Live": {
+                "poms": "LI_RA4_698901",
+                "url": "https://npo.nl/start/live?channel=LI_RA4_698901",
+                "thumb": self.get_image_location("radio4image.jpg")
+            },
+            "FunX": {
+                "poms": "LI_3FM_603983",
+                "url": "https://npo.nl/start/live?channel=LI_3FM_603983",
+                "thumb": self.get_image_location("funx.jpg")
             }
+        }
 
-            for stream in live_streams:
-                Logger.debug("Adding video item to '%s' sub item list: %s", parent, stream)
-                live_data = live_streams[stream]
-                item = MediaItem(stream, live_data["url"], mediatype.VIDEO)
-                item.icon = parent.icon
-                item.thumb = live_data["thumb"]
-                item.isLive = True
-                item.complete = False
-                items.append(item)
-        return data, items
-
-    def extract_json_for_live_radio(self, data):
-        """ Extracts the JSON data from the HTML for the radio streams
-
-        @param data: the HTML data
-        @return:     a valid JSON string and no items
-
-        """
-
-        items = []
-        data = \
-            Regexer.do_regex(r'NPW.config.channels\s*=\s*([\w\W]+?);\s*NPW\.config\.comscore',
-                             data)[
-                -1].rstrip(";")
-        # fixUp some json
-        data = re.sub(r'(\w+):([^/])', '"\\1":\\2', data)
-        Logger.trace(data)
+        for name, live_data in live_streams.items():
+            Logger.debug("Adding video item to '%s' sub item list: %s", parent, name)
+            item = MediaItem(name, live_data["url"], mediatype.VIDEO)
+            item.icon = parent.icon
+            item.metaData["live_pid"] = live_data["poms"]
+            item.thumb = live_data["thumb"]
+            item.isLive = True
+            item.isGeoLocked = True
+            item.complete = False
+            items.append(item)
         return data, items
 
     def create_profile_item(self, result_set):
