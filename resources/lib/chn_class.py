@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import urllib.parse as parse
-from typing import Optional
+from typing import Optional, List
 
 from resources.lib.mediaitem import MediaItem, FolderItem, MediaStream
 from resources.lib import contenttype
@@ -169,13 +169,15 @@ class Channel:
         if item is None:
             Logger.info("process_folder_list :: No item was specified. Assuming it was the main channel list")
             url = self.mainListUri
+            parser_label = None
         elif len(item.items) > 0:
             return item.items
         else:
             url = item.url
+            parser_label = item.metaData.get("retrospect:parser")
 
         # Determine the handlers and process
-        data_parsers = self.__get_data_parsers(url)
+        data_parsers = self.__get_data_parsers(url, parser_label=parser_label)
         # Exclude the updaters only
         data_parsers = [p for p in data_parsers if not p.is_video_updater_only()]
 
@@ -909,14 +911,16 @@ class Channel:
 
         for url in urls:
             self._add_data_parser(url, name, preprocessor, parser, creator, updater, postprocessor,
-                                  json, match_type=match_type, requires_logon=requires_logon)
+                                  json, match_type=match_type, requires_logon=requires_logon,
+                                  label=None)
         return
 
     # noinspection PyPropertyAccess
     def _add_data_parser(self, url, name=None, preprocessor=None,
                          parser=None, creator=None, updater=None,
                          postprocessor=None,
-                         json=False, match_type=ParserData.MatchStart, requires_logon=False):
+                         json=False, match_type=ParserData.MatchStart, requires_logon=False,
+                         label=None):
         """ Adds a DataParser to the handlers dictionary
 
         :param preprocessor:                    The pre-processor called
@@ -947,6 +951,7 @@ class Channel:
 
         data = ParserData(url)
         data.Name = name
+        data.Label = label
         data.PreProcessor = preprocessor
         data.Parser = parser
         data.Creator = creator
@@ -1006,7 +1011,7 @@ class Channel:
 
         return url
 
-    def __get_data_parsers(self, url):
+    def __get_data_parsers(self, url: str, parser_label: Optional[str] = None) -> List[ParserData]:
         """ Fetches a list of dataparsers that are valid for this URL. The Parsers and Creators can then
         be used to parse the data from the url. The first match is returned.
 
@@ -1059,6 +1064,8 @@ class Channel:
             key = "*"
             data_parsers = self.dataParsers.get(key, None)
 
+        if parser_label:
+            data_parsers = [d for d in data_parsers if d.Label == parser_label]
         # watch.lap("DataParsers processed")
 
         if not data_parsers:
