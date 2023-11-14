@@ -10,6 +10,7 @@ import re
 from resources.lib import chn_class
 from resources.lib import contenttype
 from resources.lib import mediatype
+from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
 from resources.lib.helpers import subtitlehelper
@@ -78,6 +79,7 @@ class Channel(chn_class.Channel):
         self._add_data_parsers([
             "https://npo.nl/start/api/domain/page-collection?guid=",
             "https://npo.nl/start/api/domain/page-collection?type=series&guid=",
+            "https://npo.nl/start/api/domain/search-results?searchType=series",
             "https://npo.nl/start/api/domain/recommendation-collection?key=trending"],
             name="Collections with series", json=True, requires_logon=bool(self.__user_name),
             parser=["items"],
@@ -87,6 +89,7 @@ class Channel(chn_class.Channel):
         self._add_data_parsers([
             "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous",
             "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0",
+            "https://npo.nl/start/api/domain/search-results?searchType=broadcasts",
             "https://npo.nl/start/api/domain/page-collection?type=program&guid="
         ],
             name="Collections with videos", json=True, requires_logon=bool(self.__user_name),
@@ -346,20 +349,20 @@ class Channel(chn_class.Channel):
             content_type=contenttype.VIDEOS)
         live_tv.isLive = True
 
-        # extra = FolderItem(
-        #     "{} ({})".format(
-        #         LanguageHelper.get_localized_string(LanguageHelper.TvShows),
-        #         LanguageHelper.get_localized_string(LanguageHelper.FullList)
-        #     ),
-        #     f"https://start-api.npo.nl/media/series?pageSize={50}&dateFrom=2014-01-01",
-        #     # "https://start-api.npo.nl/page/catalogue?pageSize={}".format(self.__pageSize),
-        #     content_type=contenttype.TVSHOWS
-        # )
-        # extra.complete = True
-        # extra.dontGroup = True
-        # extra.description = "Volledige programma lijst van NPO Start."
-        # extra.HttpHeaders = self.__jsonApiKeyHeader
-        # # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
+        extra = FolderItem(
+            "{} ({})".format(
+                LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+                LanguageHelper.get_localized_string(LanguageHelper.FullList)
+            ),
+            f"https://start-api.npo.nl/media/series?pageSize={50}&dateFrom=2014-01-01",
+            # "https://start-api.npo.nl/page/catalogue?pageSize={}".format(self.__pageSize),
+            content_type=contenttype.TVSHOWS
+        )
+        extra.complete = True
+        extra.dontGroup = True
+        extra.description = "Volledige programma lijst van NPO Start."
+        extra.HttpHeaders = self.__jsonApiKeyHeader
+        # API Key from here: https://packagist.org/packages/kro-ncrv/npoplayer?q=&p=0&hFR%5Btype%5D%5B0%5D=concrete5-package
         # items.append(extra)
 
         # extra = FolderItem(
@@ -711,14 +714,26 @@ class Channel(chn_class.Channel):
 
         """
 
-        # The Videos
-        url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=episodes&dateFrom=2014-01-01&tileMapping=search&tileType=asset&pageType=search"
+        shows_url = "https://npo.nl/start/api/domain/search-results?searchType=series&query=%s&subscriptionType=anonymous"
+        videos_url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&query=%s&subscriptionType=anonymous"
 
-        # The Shows
-        # url = "https://www.npostart.nl/search/extended?page=1&query=%s&filter=programs&dateFrom=2014-01-01&tileMapping=normal&tileType=teaser&pageType=search"
+        items = []
+        needle = XbmcWrapper.show_key_board()
+        if not needle:
+            return []
 
-        self.httpHeaders = {"X-Requested-With": "XMLHttpRequest"}
-        return chn_class.Channel.search_site(self, url)
+        Logger.debug("Searching for '%s'", needle)
+        # convert to HTML
+        needle = HtmlEntityHelper.url_encode(needle)
+
+        search_url = shows_url % (needle, )
+        temp = MediaItem("Search", search_url, mediatype.FOLDER)
+        items += self.process_folder_list(temp)
+
+        search_url = videos_url % (needle, )
+        temp = MediaItem("Search", search_url, mediatype.FOLDER)
+        items += self.process_folder_list(temp)
+        return items
 
     def process_franchise_page(self, data):
         """ Prepares the main folder for a show.
