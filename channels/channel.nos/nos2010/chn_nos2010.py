@@ -71,12 +71,14 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://npo.nl/start/api/domain/guide-channels",
                               name="Main Live TV Streams json", json=True,
                               preprocessor=self.get_additional_live_items,
+                              requires_logon=True,
                               parser=[],
                               creator=self.create_live_tv,
                               updater=self.update_video_item_live)
 
         self._add_data_parser("https://npo.nl/start/live?channel=",
                               name="Live Video Updater from HTML",
+                              requires_logon=True,
                               updater=self.update_video_item_live)
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
@@ -166,21 +168,11 @@ class Channel(chn_class.Channel):
                               creator=self.create_json_episode_item,
                               preprocessor=self.extract_api_pages)
 
-        # New API endpoints:
-        # https://start-api.npo.nl/epg/2018-12-22?type=tv
-        # https://start-api.npo.nl/page/catalogue?az=C&pageSize=1000
-        # https://start-api.npo.nl/page/catalogue?pageSize=0
-        # https://start-api.npo.nl/page/catalogue?pageSize=500
-        # https://start-api.npo.nl/search?query=sinterklaas&pageSize=1000
-
         self.__ignore_cookie_law()
 
         # ===============================================================================================================
         # non standard items
-        self.__NextPageAdded = False
         self.__jsonApiKeyHeader = {"apikey": "07896f1ee72645f68bc75581d7f00d54"}
-        self.__useJson = True
-        self.__pageSize = 50
         self.__max_page_count = 10
         self.__has_premium_cache = None
         self.__timezone = pytz.timezone("Europe/Amsterdam")
@@ -322,11 +314,11 @@ class Channel(chn_class.Channel):
                  headers={"X-Requested-With": "XMLHttpRequest"})
 
         # Favorite items that require login
-        add_item(LanguageHelper.FavouritesId, "https://npo.nl/start/api/domain/user-profiles",
-                 contenttype.NONE,
-                 description="Favorieten van de NPO.nl website. Het toevoegen van "
-                             "favorieten wordt nog niet ondersteund.",
-                 headers={"X-Requested-With": "XMLHttpRequest"})
+        # add_item(LanguageHelper.FavouritesId, "https://npo.nl/start/api/domain/user-profiles",
+        #          contenttype.NONE,
+        #          description="Favorieten van de NPO.nl website. Het toevoegen van "
+        #                      "favorieten wordt nog niet ondersteund.",
+        #          headers={"X-Requested-With": "XMLHttpRequest"})
 
         add_item(LanguageHelper.Trending,
                  "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
@@ -382,15 +374,6 @@ class Channel(chn_class.Channel):
         # extra.dontGroup = True
         # items.append(extra)
 
-        # extra = FolderItem(
-        #     "{} (A-Z)".format(LanguageHelper.get_localized_string(LanguageHelper.TvShows)),
-        #     "#alphalisting",
-        #     content_type=contenttype.TVSHOWS)
-        # extra.complete = True
-        # extra.description = "Alfabetische lijst van de NPO.nl site."
-        # extra.dontGroup = True
-        # items.append(extra)
-
         recent = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.Recent), "#recent",
             content_type=contenttype.EPISODES)
@@ -428,19 +411,12 @@ class Channel(chn_class.Channel):
             title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
 
             # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
-            if self.__useJson:
-                url = "https://start-api.npo.nl/epg/%04d-%02d-%02d?type=tv" % \
-                      (air_date.year, air_date.month, air_date.day)
-            else:
-                url = "https://www.npostart.nl/gids?date=%04d-%02d-%02d&type=tv" % \
-                      (air_date.year, air_date.month, air_date.day)
+            url = "https://start-api.npo.nl/epg/%04d-%02d-%02d?type=tv" % \
+                  (air_date.year, air_date.month, air_date.day)
             extra = FolderItem(title, url, content_type=contenttype.EPISODES)
             extra.complete = True
             extra.dontGroup = True
-            if self.__useJson:
-                extra.HttpHeaders = self.__jsonApiKeyHeader
-            else:
-                extra.HttpHeaders["X-Requested-With"] = "XMLHttpRequest"
+            extra.HttpHeaders = self.__jsonApiKeyHeader
             extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
             extra.set_date(air_date.year, air_date.month, air_date.day, text="")
 
@@ -581,6 +557,7 @@ class Channel(chn_class.Channel):
         items.append(tvshows)
         return data, items
 
+    # noinspection PyUnusedLocal
     def check_for_single_season(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
         # If not seasons, or just one, fetch the episodes
         if len(items) != 1:
@@ -625,7 +602,6 @@ class Channel(chn_class.Channel):
         info = JsonHelper(info)
         title = info.get_value("title")
 
-        content_type = contenttype.VIDEOS
         if page_type == "SERIES":
             content_type = contenttype.TVSHOWS
         elif page_type == "PROGRAM":
@@ -717,10 +693,7 @@ class Channel(chn_class.Channel):
         item = FolderItem(name, url, media_type=mediatype.TVSHOW, content_type=contenttype.EPISODES)
         item.complete = True
         item.description = description
-        if self.__useJson:
-            item.HttpHeaders = self.__jsonApiKeyHeader
-        else:
-            item.HttpHeaders = {"X-Requested-With": "XMLHttpRequest"}
+        item.HttpHeaders = self.__jsonApiKeyHeader
         # This should always be a full list as we already have a default alphabet listing available
         # from NPO
         item.dontGroup = True
@@ -1276,8 +1249,8 @@ class Channel(chn_class.Channel):
 
             json_data = JsonHelper.loads(data)
             for epg_item in JsonHelper.get_from(json_data, "epg"):
-                id = JsonHelper.get_from(epg_item, "channel", 'liveStream', 'id')
-                iptv_epg[id] = iptv_epg.get(id, [])
+                epg_id = JsonHelper.get_from(epg_item, "channel", 'liveStream', 'id')
+                iptv_epg[epg_id] = iptv_epg.get(epg_id, [])
                 for program in JsonHelper.get_from(epg_item, "schedule"):
                     media_item = MediaItem(JsonHelper.get_from(program, "program", "title"),
                                            JsonHelper.get_from(program, "program", "id"),
@@ -1287,7 +1260,7 @@ class Channel(chn_class.Channel):
                     media_item.isGeoBlocked = any(
                         [r for r in region_restrictions if r != "PLUSVOD:EU"])
                     media_items.append(media_item)
-                    iptv_epg[id].append(dict(
+                    iptv_epg[epg_id].append(dict(
                         start=JsonHelper.get_from(program, "startsAt"),
                         stop=JsonHelper.get_from(program, "endsAt"),
                         title=JsonHelper.get_from(program, "program", "title"),
@@ -1306,15 +1279,12 @@ class Channel(chn_class.Channel):
         return iptv_epg
 
     def __has_premium(self):
-        # TODO: Fix
         if self.__has_premium_cache is None:
-            subscription_cookie = UriHandler.get_cookie("subscription", "www.npostart.nl")
-            if subscription_cookie:
-                self.__has_premium_cache = subscription_cookie.value == "npoplus"
-                if self.__has_premium_cache:
-                    Logger.debug("NPO Plus account, so all items can be played.")
-            else:
-                self.__has_premium_cache = False
+            data = UriHandler.open("https://npo.nl/start/api/auth/session")
+            json = JsonHelper(data)
+            subscriptions = json.get_value("subscription", None)
+            self.__has_premium_cache = subscriptions is not None
+            Logger.debug("Found subscriptions: %s", subscriptions)
 
         return self.__has_premium_cache
 
@@ -1415,13 +1385,7 @@ class Channel(chn_class.Channel):
         return
 
     def __get_url_for_pom(self, pom):
-        if self.__useJson:
-            url = "https://start-api.npo.nl/page/franchise/{0}".format(pom)
-            # The Franchise URL will give use seasons
-            # url = "https://start-api.npo.nl/page/franchise/{0}".format(result_set['id'])
-        else:
-            url = "https://www.npostart.nl/media/series/{0}/episodes?page=1" \
-                  "&tileMapping=dedicated&tileType=asset&pageType=franchise".format(pom)
+        url = "https://start-api.npo.nl/page/franchise/{0}".format(pom)
         return url
 
     def __determine_date_time_for_npo_item(self, item, date_time, date_premium):
