@@ -554,6 +554,16 @@ class Channel(chn_class.Channel):
         if len(items) != 1:
             return items
 
+            # Not the perfect way as we don't know for sure if the seasonkey is the right value
+            # to sort by.
+            # def season_index(item: MediaItem):
+            #     return int(item.metaData.get("seasonKey", 0))
+            #
+            # items.sort(key=season_index)
+            # last_season = items.pop()
+            # season_items = self.process_folder_list(last_season)
+            # return items + season_items
+
         # Retry with just this url.
         self.parentItem.url = items[0].url
         return self.process_folder_list(self.parentItem)
@@ -606,11 +616,15 @@ class Channel(chn_class.Channel):
 
     def create_api_season_item(self, result_set: dict) -> Optional[MediaItem]:
         guid = result_set["guid"]
+        label = result_set.get("label")
         title = f"{LanguageHelper.get_localized_string(LanguageHelper.SeasonId)} {result_set['seasonKey']}"
+        if label:
+            title = f"{title} - {label}"
         url = f"https://npo.nl/start/api/domain/programs-by-season?guid={guid}"
         item = FolderItem(title, url, content_type=contenttype.EPISODES,
                           media_type=mediatype.SEASON)
         item.description = result_set.get("synopsis")
+        item.metaData["seasonKey"] = result_set["seasonKey"]
 
         if "images" in result_set and result_set["images"]:
             image_data = result_set["images"][0]
