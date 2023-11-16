@@ -1066,6 +1066,8 @@ class Channel:
 
         if parser_label:
             data_parsers = [d for d in data_parsers if d.Label == parser_label]
+        else:
+            data_parsers = [d for d in data_parsers if not d.Label]
         # watch.lap("DataParsers processed")
 
         if not data_parsers:
