@@ -108,15 +108,18 @@ class Channel(chn_class.Channel):
             creator=self.create_api_episode_item_with_data
         )
 
-        self._add_data_parser("https://npo.nl/start/api/domain/series-seasons",
-                              name="Season API parser (and updater for EPG)", json=True,
-                              postprocessor=self.check_for_single_season,
-                              parser=[], creator=self.create_api_season_item,
-                              updater=self.update_epg_series_item)
+        self._add_data_parser(
+            "https://npo.nl/start/api/domain/series-seasons",
+            name="Season API parser (and updater for EPG)", json=True,
+            postprocessor=self.check_for_single_season,
+            parser=[], creator=self.create_api_season_item,
+            updater=self.update_epg_series_item)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/programs-by-season",
-                              name="Season content API parser", json=True,
-                              parser=[], creator=self.create_api_episode_item)
+        self._add_data_parsers([
+            "https://npo.nl/start/api/domain/programs-by-season",
+            "https://npo.nl/start/api/domain/programs-by-series"],
+            name="Season content API parser", json=True,
+            parser=[], creator=self.create_api_episode_item)
 
         # Standard updater
         self._add_data_parser("*", requires_logon=True,
@@ -572,7 +575,15 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         slug = result_set["slug"]
         item_type = result_set["type"]
-        url = f"https://npo.nl/start/api/domain/series-seasons?slug={slug}&type={item_type}"
+        guid = result_set["guid"]
+
+        # timebound_daily, timeless_series
+        if item_type.endswith("series"):
+            # Series go by season
+            url = f"https://npo.nl/start/api/domain/series-seasons?slug={slug}&type={item_type}"
+        else:
+            # The dailies not.
+            url = f"https://npo.nl/start/api/domain/programs-by-series?seriesGuid={guid}&limit=20&sort=-firstBroadcastDate"
 
         item = FolderItem(title, url, content_type=contenttype.EPISODES)
         if "images" in result_set and result_set["images"]:
