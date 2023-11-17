@@ -553,23 +553,32 @@ class Channel(chn_class.Channel):
 
     # noinspection PyUnusedLocal
     def check_for_single_season(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        if len(items) == 1:
+            # Retry with just this url.
+            self.parentItem.url = items[0].url
+            return self.process_folder_list(self.parentItem)
+
+        # Not the perfect way as we don't know for sure if the seasonkey is the right value
+        # to sort by.
+        # def season_index(item: MediaItem):
+        #     return int(item.metaData.get("seasonKey", 0))
+        #
+        # items.sort(key=season_index)
+        # last_season = items.pop()
+        # season_items = self.process_folder_list(last_season)
+        # return items + season_items
+
         # If not seasons, or just one, fetch the episodes
-        if len(items) != 1:
-            return items
+        guid = self.parentItem.metaData.get("guid")
+        if guid:
+            url = f"https://npo.nl/start/api/domain/programs-by-series?seriesGuid={guid}&limit=20&sort=-firstBroadcastDate"
+            recent_data = JsonHelper(UriHandler.open(url))
+            for result_set in recent_data.get_value():
+                item = self.create_api_episode_item(result_set)
+                if item:
+                    items.append(item)
 
-            # Not the perfect way as we don't know for sure if the seasonkey is the right value
-            # to sort by.
-            # def season_index(item: MediaItem):
-            #     return int(item.metaData.get("seasonKey", 0))
-            #
-            # items.sort(key=season_index)
-            # last_season = items.pop()
-            # season_items = self.process_folder_list(last_season)
-            # return items + season_items
-
-        # Retry with just this url.
-        self.parentItem.url = items[0].url
-        return self.process_folder_list(self.parentItem)
+        return items
 
     def create_api_program_item(self, result_set: dict) -> Optional[MediaItem]:
         title = result_set["title"]
@@ -586,6 +595,7 @@ class Channel(chn_class.Channel):
             url = f"https://npo.nl/start/api/domain/programs-by-series?seriesGuid={guid}&limit=20&sort=-firstBroadcastDate"
 
         item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        item.metaData["guid"] = guid
         if "images" in result_set and result_set["images"]:
             image_data = result_set["images"][0]
             item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
