@@ -390,47 +390,6 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def add_recent_items(self, data):
-        """ Builds the "Recent" folder for this channel.
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        items = []
-        today = datetime.datetime.now() - datetime.timedelta(hours=5)
-        days = LanguageHelper.get_days_list()
-        for i in range(0, 7, 1):
-            air_date = today - datetime.timedelta(i)
-            Logger.trace("Adding item for: %s", air_date)
-
-            # Determine a nice display date
-            day = days[air_date.weekday()]
-            if i == 0:
-                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
-            elif i == 1:
-                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
-            # elif i == 2:
-            #     day = LanguageHelper.get_localized_string(LanguageHelper.DayBeforeYesterday)
-            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
-
-            # url = "https://www.npostart.nl/media/series?page=1&dateFrom=%04d-%02d-%02d&tileMapping=normal&tileType=teaser&pageType=catalogue" % \
-            url = "https://start-api.npo.nl/epg/%04d-%02d-%02d?type=tv" % \
-                  (air_date.year, air_date.month, air_date.day)
-            extra = FolderItem(title, url, content_type=contenttype.EPISODES)
-            extra.complete = True
-            extra.dontGroup = True
-            extra.HttpHeaders = self.__jsonApiKeyHeader
-            extra.HttpHeaders["Accept"] = "text/html, */*; q=0.01"
-            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
-
-            items.append(extra)
-
-        return data, items
-
     def get_additional_live_items(self, data):
         """ Adds some missing live items to the list of live items.
 
@@ -784,24 +743,6 @@ class Channel(chn_class.Channel):
 
         return data, list(day_lookup.values())
 
-    def create_api_recent_item(self, result_set: dict) -> Optional[MediaItem]:
-        name = result_set["title"]
-        if name not in ["NPO1", "NPO2", "NPO3"]:
-            return None
-
-        guid = result_set["guid"]
-        poms = result_set["externalId"]
-        url = f"https://npo.nl/start/api/domain/guide-channel?guid={guid}"
-
-        item = FolderItem(name, url, content_type=contenttype.FILES)
-        item.metaData["guid"] = guid
-        item.metaData["poms"] = poms
-
-        channel_number = name[-1]
-        icon = self.get_image_location(f"{channel_number}large.png")
-        item.set_artwork(icon=icon, thumb=icon)
-        return item
-
     def create_api_epg_day(self, result_set: dict) -> Optional[MediaItem]:
         date = result_set["date"]
         day, month, year = date.split("-")
@@ -885,54 +826,6 @@ class Channel(chn_class.Channel):
         product_id = program["productId"]
 
         return self.__update_video_item(item, product_id)
-
-    def create_json_episode_item(self, result_set):
-        """ Creates a new MediaItem for an episode.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        Logger.trace(result_set)
-        if not result_set:
-            return None
-
-        # if we should not use the mobile listing and we have a non-mobile ID)
-        if 'id' in result_set:
-            url = self.__get_url_for_pom(result_set['id'])
-        else:
-            Logger.warning("Skipping (no '(m)id' ID): %(title)s", result_set)
-            return None
-
-        name = result_set['title']
-        description = result_set.get('description', '')
-
-        item = FolderItem(name, url, media_type=mediatype.TVSHOW, content_type=contenttype.EPISODES)
-        item.complete = True
-        item.description = description
-        item.HttpHeaders = self.__jsonApiKeyHeader
-        # This should always be a full list as we already have a default alphabet listing available
-        # from NPO
-        item.dontGroup = True
-
-        if "images" not in result_set:
-            return item
-
-        images = result_set["images"]
-        for image_type, image_data in images.items():
-            if image_type == "original" and "tv" in image_data["formats"]:
-                item.fanart = image_data["formats"]["tv"]["source"]
-            elif image_type == "grid.tile":
-                item.thumb = image_data["formats"]["tv"]["source"]
-
-        return item
 
     # noinspection PyUnusedLocal
     def search_site(self, url=None):  # @UnusedVariable
