@@ -142,8 +142,8 @@ class Channel:
     def sort_key(self):
         return "{0}-{1}".format(self.sortOrderPerCountry, self.channelName)
 
-    def process_folder_list(self, item=None):  # NOSONAR
-        """ Process the selected item and get's it's child items using the available dataparsers.
+    def process_folder_list(self, parent_item: Optional[MediaItem]=None) -> List[MediaItem]:  # NOSONAR
+        """ Process the selected item and gets it's child items using the available dataparsers.
 
         Accepts an <item> and returns a list of MediaListems with at least name & url
         set. The following actions are done:
@@ -156,25 +156,24 @@ class Channel:
         if the item is None, we assume that we are dealing with the first call for this channel and the mainlist uri
         is used.
 
-        :param MediaItem|None item: The parent item.
+        :param: The parent item.
 
         :return: A list of MediaItems that form the childeren of the <item>.
-        :rtype: list[MediaItem]
 
         """
 
         items = []
-        self.parentItem = item
+        self.parentItem = parent_item
 
-        if item is None:
+        if parent_item is None:
             Logger.info("process_folder_list :: No item was specified. Assuming it was the main channel list")
             url = self.mainListUri
             parser_label = None
-        elif len(item.items) > 0:
-            return item.items
+        elif len(parent_item.items) > 0:
+            return parent_item.items
         else:
-            url = item.url
-            parser_label = item.metaData.get("retrospect:parser")
+            url = parent_item.url
+            parser_label = parent_item.metaData.get("retrospect:parser")
 
         # Determine the handlers and process
         data_parsers = self.__get_data_parsers(url, parser_label=parser_label)
@@ -186,22 +185,22 @@ class Channel:
             self.loggedOn = self.log_on()
 
         # now set the headers here and not earlier in case they might have been update by the logon
-        if item is not None and item.HttpHeaders:
-            headers = item.HttpHeaders
+        if parent_item is not None and parent_item.HttpHeaders:
+            headers = parent_item.HttpHeaders
         else:
             headers = self.httpHeaders
 
         # Let's retrieve the required data. Main url's
         if url.startswith("http:") or url.startswith("https:") or url.startswith("file:"):
             # Disable cache on live folders
-            no_cache = item is not None and not item.is_playable and item.isLive
+            no_cache = parent_item is not None and not parent_item.is_playable and parent_item.isLive
             if no_cache:
-                Logger.debug("Disabling cache for '%s'", item)
+                Logger.debug("Disabling cache for '%s'", parent_item)
 
-            if item and item.postData:
-                data = UriHandler.open(url, additional_headers=headers, data=item.postData, no_cache=no_cache)
-            elif item and item.postJson:
-                data = UriHandler.open(url, additional_headers=headers, json=item.postJson, no_cache=no_cache)
+            if parent_item and parent_item.postData:
+                data = UriHandler.open(url, additional_headers=headers, data=parent_item.postData, no_cache=no_cache)
+            elif parent_item and parent_item.postJson:
+                data = UriHandler.open(url, additional_headers=headers, json=parent_item.postJson, no_cache=no_cache)
             else:
                 data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
         # Searching a site using search_site()
@@ -405,8 +404,8 @@ class Channel:
             # prefixes = ("de", "het", "the", "een", "a", "an")
 
             # Copy the parent's content-type for the sub-folder items
-            if self.parentItem:
-                content_type = self.parentItem.content_type
+            if parent_item:
+                content_type = parent_item.content_type
             else:
                 content_type = self.mainListContentType
 
@@ -433,16 +432,16 @@ class Channel:
                 if char not in result:
                     Logger.trace("Creating Grouped item from: %s", sub_item)
                     if char == other:
-                        item = MediaItem(title_format.replace("'", "") % (char,), "", mediatype.FOLDER)
+                        char_item = MediaItem(title_format.replace("'", "") % (char,), "", mediatype.FOLDER)
                     else:
-                        item = MediaItem(title_format % (char.upper(),), "", mediatype.FOLDER)
-                    item.complete = True
-                    item.content_type = content_type
+                        char_item = MediaItem(title_format % (char.upper(),), "", mediatype.FOLDER)
+                    char_item.complete = True
+                    char_item.content_type = content_type
                     # item.set_date(2100 + ord(char[0]), 1, 1, text='')
-                    result[char] = item
+                    result[char] = char_item
                 else:
-                    item = result[char]
-                item.items.append(sub_item)
+                    char_item = result[char]
+                char_item.items.append(sub_item)
 
             items = non_grouped + list(result.values())
 
