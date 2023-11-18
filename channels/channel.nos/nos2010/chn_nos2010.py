@@ -612,7 +612,7 @@ class Channel(chn_class.Channel):
         return item
 
     def create_api_episode_item_with_data(self, result_set: dict) -> Optional[MediaItem]:
-        if not "series" in result_set:
+        if "series" not in result_set:
             Logger.warning("Cannot create episode with show info without a show.")
             return None
 
@@ -797,6 +797,10 @@ class Channel(chn_class.Channel):
             "program_guid": program_guid
         }
         item.set_date(date_stamp.year, date_stamp.month, date_stamp.day, date_stamp.hour, date_stamp.minute, date_stamp.second)
+
+        duration = result_set.get("durationInSeconds")
+        if duration:
+            item.set_info_label(MediaItem.LabelDuration, duration)
 
         if "images" in result_set and result_set["images"]:
             image_data = result_set["images"][0]

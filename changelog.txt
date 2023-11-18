@@ -1,6 +1,6 @@
-[B]Retrospect v5.6.7 - Changelog - 2023-xx-xx[/B]
+[B]Retrospect v5.7.0 - Changelog - 2023-11-18[/B]
 
-t.b.d.
+This update includes two major fixes for both TV4 Play (Sweden) en NPO Start (Netherlands). Both channels had their API renewed and needed a complete rewrite.
 
 [B]Framework related[/B]
 * Added: Web-based dialog to insert values.
