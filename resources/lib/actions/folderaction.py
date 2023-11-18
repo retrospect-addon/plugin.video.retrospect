@@ -285,11 +285,11 @@ class FolderAction(AddonAction):
                 sort_methods.insert(0, xbmcplugin.SORT_METHOD_TRACKNUM)
 
             # Check for episodes
-            if all([i.has_info_label(MediaItem.LabelEpisode) for i in items if i.is_playable]):
+            if all([(i.has_info_label(MediaItem.LabelEpisode) and i.is_playable) for i in items]):
                 # All playable items have episodes, pre-sort them on that.
                 sort_methods.insert(0, xbmcplugin.SORT_METHOD_EPISODE)  # 24
 
-            elif any([i.has_info_label(MediaItem.LabelEpisode)] for i in items):
+            elif any([i.has_info_label(MediaItem.LabelEpisode) for i in items]):
                 # Some items have episodes, only add the sorting options.
                 sort_methods.append(xbmcplugin.SORT_METHOD_EPISODE)  # 24
 

@@ -589,6 +589,10 @@ class MediaItem:
     def title(self):
         return self.name
 
+    @staticmethod
+    def is_search(url):
+        return url == "searchSite" or url == "#searchSite"
+
     def __get_matching_stream(self, bitrate):
         """ Returns the MediaStream for the requested bitrate.
 
@@ -682,8 +686,9 @@ class MediaItem:
                 EncodingHelper.encode_md5(self.name), EncodingHelper.encode_md5(self.url or ""))
             self.__guid_value = int("0x%s" % (self.guid,), 0)
 
-            # For live items, append a random part to the textual guid.
-            if self.isLive:
+            # For live items and search, append a random part to the textual guid, as these items
+            # actually have different content for the same URL.
+            if self.isLive or self.is_search(self.url):
                 self.__guid = "%s%s" % (self.__guid, ("%0x" % getrandbits(8 * 4)).upper())
         except:
             Logger.error("Error setting GUID for title:'%s' and url:'%s'. Falling back to UUID",
