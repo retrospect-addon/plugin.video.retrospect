@@ -205,7 +205,7 @@ class Channel:
             else:
                 data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
         # Searching a site using search_site()
-        elif url == "searchSite" or url == "#searchSite":
+        elif MediaItem.is_search(url):
             Logger.debug("Starting to search")
             return self.search_site()
         # Labels instead of url's
@@ -1027,7 +1027,7 @@ class Channel:
 
         """
 
-        if url == "searchSite" or url == "#searchSite":
+        if MediaItem.is_search(url):
             return []
 
         # For now we need to be backwards compatible:
