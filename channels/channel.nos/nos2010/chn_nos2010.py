@@ -705,6 +705,8 @@ class Channel(chn_class.Channel):
             # Fetch channel EPG
             url = f"https://npo.nl/start/api/domain/guide-channel?guid={guid}"
             channel_info = JsonHelper(UriHandler.open(url))
+            # The time to add to the "Today" end-time.
+            delta = datetime.timedelta(hours=5)
 
             for day_info in channel_info.get_value("days"):
                 # Check if a day already exists
@@ -714,34 +716,43 @@ class Channel(chn_class.Channel):
                     day, month, year = date.split("-")
                     time_stamp = datetime.datetime(int(year), int(month), int(day))
                     # See"Today" as the day before until 05:00 AM.
-                    now = datetime.datetime.now() - datetime.timedelta(hours=5)
-                    if time_stamp > now:
+                    now = datetime.datetime.now() - delta
+                    if time_stamp <= now:
+                        # Only add days up until "Today"
+                        days = LanguageHelper.get_days_list()
+                        day_name = days[time_stamp.weekday()]
+
+                        if time_stamp.date() == now.date():
+                            day_name = LanguageHelper.get_localized_string(LanguageHelper.Today)
+                        elif time_stamp.date() == now.date() - datetime.timedelta(days=1):
+                            day_name = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
+
+                        day_item = FolderItem(f"{date} - {day_name}", "", content_type=contenttype.EPISODES)
+                        day_item.set_date(year, month, day)
+                        day_lookup[date] = day_item
+                    elif time_stamp > now + datetime.timedelta(days=1):
+                        # Don't add show after "Tomorrow". That way the `delta` after midnight of
+                        # `Today` can be filled.
                         continue
-
-                    days = LanguageHelper.get_days_list()
-                    day_name = days[time_stamp.weekday()]
-
-                    if time_stamp.date() == now.date():
-                        day_name = LanguageHelper.get_localized_string(LanguageHelper.Today)
-                    elif time_stamp.date() == now.date() - datetime.timedelta(days=1):
-                        day_name = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
-
-                    day_item = FolderItem(f"{date} - {day_name}", "", content_type=contenttype.EPISODES)
-                    day_item.set_date(year, month, day)
-                    day_lookup[date] = day_item
 
                 for program in day_info["scheduledPrograms"]:
                     item = self.create_api_epg_item(program, channel)
                     if not item:
                         continue
 
-                    # We should show all shows until 5:00 am the next day so link them up.
                     date_stamp = DateHelper.get_date_from_posix(program["programStart"], tz=pytz.UTC)
                     date_stamp = date_stamp.astimezone(tz=self.__timezone)
                     date_label = date_stamp.strftime("%d-%m-%Y")
                     if date_label in day_lookup:
                         day_item = day_lookup[date_label]
                         day_item.items.append(item)
+                    else:
+                        # See if we passed midnight on today.
+                        date_stamp -= delta
+                        date_label = date_stamp.strftime("%d-%m-%Y")
+                        if date_label in day_lookup:
+                            day_item = day_lookup[date_label]
+                            day_item.items.append(item)
 
         return data, list(day_lookup.values())
 
