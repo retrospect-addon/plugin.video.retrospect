@@ -3,10 +3,11 @@
 t.b.d.
 
 [B]Framework related[/B]
-_None_
+* Added: Web-based dialog to insert values.
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Updated: Some translations.
 
 [B]Channel related[/B]
 * Fixed: TV4 Play major update of API (Fixes #1714).
+* Fixed: NPO Start major update of API (Fixes #1730).
