@@ -206,6 +206,11 @@ class Channel(chn_class.Channel):
         """ Makes sure that we are logged on. """
 
         def log_out_npo():
+            # Old cookies
+            UriHandler.delete_cookie(domain=".npostart.nl")
+            UriHandler.delete_cookie(domain=".npo.nl")
+            UriHandler.delete_cookie(domain="www.npostart.nl")
+            # New cookies
             UriHandler.delete_cookie(domain="id.npo.nl")
             UriHandler.delete_cookie(domain="npo.nl")
             AddonSettings.set_channel_setting(self, "previous_username", username, store=LOCAL)
@@ -236,6 +241,8 @@ class Channel(chn_class.Channel):
                          datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
         if bool(profile.json) and expires > time.time():
             return True
+
+        log_out_npo()
 
         # Fetch a CSRF token
         data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
