@@ -659,7 +659,8 @@ class Channel(chn_class.Channel):
         if "restrictions" in result_set:
             for restriction in result_set["restrictions"]:
                 subscription = restriction.get("subscriptionType", "free")
-                if subscription == "free":
+                has_stream = restriction.get("isStreamReady", False)
+                if subscription == "free" and has_stream:
                     item.isPaid = False
                     # Always stop after a "free"
                     break
@@ -1319,7 +1320,7 @@ class Channel(chn_class.Channel):
         if self.__has_premium_cache is None:
             data = UriHandler.open("https://npo.nl/start/api/auth/session")
             json = JsonHelper(data)
-            subscriptions = json.get_value("subscription", None)
+            subscriptions = json.get_value("subscription", fallback=None)
             self.__has_premium_cache = subscriptions is not None
             Logger.debug("Found subscriptions: %s", subscriptions)
 
