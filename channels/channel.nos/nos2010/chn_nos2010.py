@@ -633,7 +633,8 @@ class Channel(chn_class.Channel):
 
         if show_info and result_set["series"]:
             show_title = result_set["series"]["title"]
-            title = f"{show_title} - {title}"
+            if show_title:
+                title = f"{show_title} - {title}"
 
         item = MediaItem(title, poms, media_type=mediatype.EPISODE)
 
@@ -661,6 +662,12 @@ class Channel(chn_class.Channel):
                 subscription = restriction.get("subscriptionType", "free")
                 has_stream = restriction.get("isStreamReady", False)
                 if subscription == "free" and has_stream:
+                    # Check if the 'till' date was in the past
+                    till_stamp = restriction.get("available", {}).get("till", 0)
+                    till = DateHelper.get_date_from_posix(till_stamp, tz=pytz.UTC)
+                    if till_stamp and till < datetime.datetime.now(tz=pytz.UTC):
+                        item.isPaid = True
+                        break
                     item.isPaid = False
                     # Always stop after a "free"
                     break
