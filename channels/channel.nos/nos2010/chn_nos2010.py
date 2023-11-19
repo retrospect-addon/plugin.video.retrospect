@@ -668,7 +668,10 @@ class Channel(chn_class.Channel):
                     till = DateHelper.get_date_from_posix(till_stamp, tz=pytz.UTC)
                     if till_stamp and till < datetime.datetime.now(tz=pytz.UTC):
                         item.isPaid = True
-                        break
+                        # break
+                        # Due to a bug in the NPO API, this content could be viewed for free.
+                        # for now we just don't show it.
+                        return None
                     item.isPaid = False
                     # Always stop after a "free"
                     break
