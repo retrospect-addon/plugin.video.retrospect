@@ -629,6 +629,7 @@ class Channel(chn_class.Channel):
         MediaItem]:
         title = result_set["title"]
         poms = result_set["productId"]
+        serie_info = result_set.get("series", {})
 
         if show_info and result_set["series"]:
             show_title = result_set["series"]["title"]
@@ -651,7 +652,6 @@ class Channel(chn_class.Channel):
             item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
                           date_time.minute, date_time.second)
 
-            serie_info = result_set.get("series", {})
             serie_slug = serie_info.get("slug", "")
             if serie_slug in ("nos-journaal", "nos-journaal-met-gebarentaal"):
                 item.name = f"{item.name} {date_time.hour:02d}:{round(date_time.minute, -1):02d}"
@@ -668,7 +668,8 @@ class Channel(chn_class.Channel):
 
         episode_number = result_set.get("programKey")
         season_number = result_set.get("season", {}).get("seasonKey")
-        if episode_number and season_number:
+        show_type = serie_info.get("type")
+        if episode_number and season_number and show_type.endswith("series"):
             item.set_season_info(season_number, episode_number)
 
         return item
