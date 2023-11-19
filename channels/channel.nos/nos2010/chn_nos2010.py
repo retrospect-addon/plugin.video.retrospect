@@ -243,8 +243,6 @@ class Channel(chn_class.Channel):
         if bool(profile.json) and expires > time.time():
             return True
 
-        log_out_npo()
-
         # Fetch a CSRF token
         data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
         csrf_token = JsonHelper(data).get_value("csrfToken")
@@ -266,6 +264,9 @@ class Channel(chn_class.Channel):
             Logger.debug("NPO Token expires at %s UTC",
                          datetime.datetime.utcfromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S'))
             return bool(profile.json)
+
+        # Force a full check-out
+        log_out_npo()
 
         Logger.info("Starting new NPO log in.")
         v = Vault()
@@ -663,7 +664,7 @@ class Channel(chn_class.Channel):
                 has_stream = restriction.get("isStreamReady", False)
                 if subscription == "free" and has_stream:
                     # Check if the 'till' date was in the past
-                    till_stamp = restriction.get("available", {}).get("till", 0)
+                    till_stamp = restriction.get("available", {}).get("till", 0) or 0
                     till = DateHelper.get_date_from_posix(till_stamp, tz=pytz.UTC)
                     if till_stamp and till < datetime.datetime.now(tz=pytz.UTC):
                         item.isPaid = True
