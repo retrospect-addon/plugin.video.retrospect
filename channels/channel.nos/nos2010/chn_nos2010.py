@@ -609,7 +609,7 @@ class Channel(chn_class.Channel):
             title = f"{title} - {label}"
         url = f"https://npo.nl/start/api/domain/programs-by-season?guid={guid}"
         item = FolderItem(title, url, content_type=contenttype.EPISODES,
-                          media_type=mediatype.SEASON)
+                          media_type=mediatype.FOLDER)
         item.description = result_set.get("synopsis")
         item.metaData["seasonKey"] = result_set["seasonKey"]
 
@@ -665,6 +665,12 @@ class Channel(chn_class.Channel):
                     break
                 if subscription == "premium":
                     item.isPaid = True
+
+        episode_number = result_set.get("programKey")
+        season_number = result_set.get("season", {}).get("seasonKey")
+        if episode_number and season_number:
+            item.set_season_info(season_number, episode_number)
+
         return item
 
 
