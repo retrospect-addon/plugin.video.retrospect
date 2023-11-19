@@ -644,6 +644,11 @@ class Channel(chn_class.Channel):
             item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
                           date_time.minute, date_time.second)
 
+            serie_info = result_set.get("series", {})
+            serie_slug = serie_info.get("slug", "")
+            if serie_slug in ("nos-journaal", "nos-journaal-met-gebarentaal"):
+                item.name = f"{item.name} {date_time.hour:02d}:{round(date_time.minute, -1):02d}"
+
         if "restrictions" in result_set:
             for restriction in result_set["restrictions"]:
                 subscription = restriction.get("subscriptionType", "free")
