@@ -2,13 +2,14 @@
 
 import datetime
 import time
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, List, Tuple, Dict, Union
 
 import pytz
 
 from resources.lib import chn_class
 from resources.lib import contenttype
 from resources.lib import mediatype
+from resources.lib.channelinfo import ChannelInfo
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
@@ -30,7 +31,7 @@ class Channel(chn_class.Channel):
     main class from which all channels inherit
     """
 
-    def __init__(self, channel_info):
+    def __init__(self, channel_info: ChannelInfo):
         """ Initialisation of the class.
 
         All class variables should be instantiated here and this method should not
@@ -199,13 +200,13 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
-    def log_on(self):
+    def log_on(self) -> bool:
         return self.__log_on(False)
 
-    def __log_on(self, force_log_off=False):
+    def __log_on(self, force_log_off: bool = False) -> bool:
         """ Makes sure that we are logged on. """
 
-        def log_out_npo():
+        def log_out_npo() -> None:
             # Old cookies
             UriHandler.delete_cookie(domain=".npostart.nl")
             UriHandler.delete_cookie(domain=".npo.nl")
@@ -299,7 +300,7 @@ class Channel(chn_class.Channel):
             return False
         return bool(JsonHelper(profile).json)
 
-    def get_initial_folder_items(self, data):
+    def get_initial_folder_items(self, data: Union[str, JsonHelper]) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
         """ Creates the initial folder items for this channel.
 
         :param str data: The retrieve data that was loaded for the current item and URL.
@@ -397,13 +398,12 @@ class Channel(chn_class.Channel):
 
         return data, items
 
-    def get_additional_live_items(self, data):
+    def get_additional_live_items(self, data: Union[str, JsonHelper]) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
         """ Adds some missing live items to the list of live items.
 
-        :param str data: The retrieve data that was loaded for the current item and URL.
+        :param data: The retrieve data that was loaded for the current item and URL.
 
         :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
 
         """
 
@@ -455,7 +455,7 @@ class Channel(chn_class.Channel):
             items.append(item)
         return data, items
 
-    def create_profile_item(self, result_set):
+    def create_profile_item(self, result_set: dict) -> Optional[MediaItem]:
         """ Creates a new MediaItem for a the profiles in NPO Start.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -477,7 +477,7 @@ class Channel(chn_class.Channel):
         item.metaData["id"] = result_set["guid"]
         return item
 
-    def switch_profile(self, data):
+    def switch_profile(self, data: Union[str, JsonHelper]) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
         """ Switches to the selected profile.
 
         :param str data: The retrieve data that was loaded for the current item and URL.
@@ -676,7 +676,7 @@ class Channel(chn_class.Channel):
         return item
 
 
-    def create_api_live_tv(self, result_set):
+    def create_api_live_tv(self, result_set: dict, show_info: bool = False) -> Optional[MediaItem]:
         """ Creates a MediaItem for a live item of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -711,7 +711,7 @@ class Channel(chn_class.Channel):
         item.isLive = True
         return item
 
-    def create_api_epg_tree(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
+    def create_api_epg_tree(self, data: Union[str, JsonHelper]) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
         data = JsonHelper(data)
         # Keep a list of the days.
         day_lookup: Dict[str, MediaItem] = {}
@@ -839,7 +839,7 @@ class Channel(chn_class.Channel):
             item.description = image_data.get("description")
         return item
 
-    def update_epg_series_item(self, item: MediaItem):
+    def update_epg_series_item(self, item: MediaItem) -> MediaItem:
         # Go from season slug, show slug & program guid ->
         # ?? https://npo.nl/start/api/domain/series-detail?slug=boer-zoekt-vrouw
         # ?? Fetch the type
@@ -865,7 +865,7 @@ class Channel(chn_class.Channel):
         return self.__update_video_item(item, product_id)
 
     # noinspection PyUnusedLocal
-    def search_site(self, url=None):  # @UnusedVariable
+    def search_site(self, url=None) -> List[MediaItem]:  # @UnusedVariable
         """ Creates an list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
@@ -1097,7 +1097,7 @@ class Channel(chn_class.Channel):
     #     item.isGeoLocked = any([r for r in region_restrictions if r != "PLUSVOD:EU"])
     #     return item
 
-    def create_live_radio(self, result_set):
+    def create_live_radio(self, result_set: dict) -> Optional[MediaItem]:
         """ Creates a MediaItem for a live radio item of type 'video' using the
         result_set from the regex.
 
@@ -1138,7 +1138,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-    def update_video_item(self, item):
+    def update_video_item(self, item: MediaItem) -> MediaItem:
         """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
@@ -1167,7 +1167,7 @@ class Channel(chn_class.Channel):
         whatson_id = item.url
         return self.__update_video_item(item, whatson_id)
 
-    def update_video_item_live(self, item):
+    def update_video_item_live(self, item: MediaItem) -> MediaItem:
         """ Updates an existing Live MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
@@ -1316,7 +1316,7 @@ class Channel(chn_class.Channel):
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
         return iptv_epg
 
-    def __has_premium(self):
+    def __has_premium(self) -> bool:
         if self.__has_premium_cache is None:
             data = UriHandler.open("https://npo.nl/start/api/auth/session")
             json = JsonHelper(data)
@@ -1326,7 +1326,7 @@ class Channel(chn_class.Channel):
 
         return self.__has_premium_cache
 
-    def __update_video_item(self, item, episode_id, fetch_subtitles=True):
+    def __update_video_item(self, item: MediaItem, episode_id: str, fetch_subtitles: bool = True) -> MediaItem:
         """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
@@ -1410,7 +1410,7 @@ class Channel(chn_class.Channel):
         #     )
         return item
 
-    def __ignore_cookie_law(self):
+    def __ignore_cookie_law(self) -> None:
         """ Accepts the cookies from UZG in order to have the site available """
 
         Logger.info("Setting the Cookie-Consent cookie for www.uitzendinggemist.nl")
@@ -1421,10 +1421,6 @@ class Channel(chn_class.Channel):
         UriHandler.set_cookie(name='site_cookie_consent', value='yes', domain='.npostart.nl')
         UriHandler.set_cookie(name='npo_cc', value='30', domain='.npostart.nl')
         return
-
-    def __get_url_for_pom(self, pom):
-        url = "https://start-api.npo.nl/page/franchise/{0}".format(pom)
-        return url
 
     def __get_xsrf_token(self) -> str:
         """ Retrieves a JSON Token and XSRF token
@@ -1437,40 +1433,3 @@ class Channel(chn_class.Channel):
         data = UriHandler.open("https://npo.nl/start/api/auth/csrf", no_cache=True)
         csrf_token = JsonHelper(data).get_value("csrfToken")
         return csrf_token
-
-    def __get_name_for_api_video(self, result_set, for_epg):
-        """ Determines the name of the video item given the episode name, franchise name and
-        show title.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-        :param bool for_epg: use this item in an EPG listing
-
-        :return: The name of the video item
-        :rtype: string
-
-        """
-
-        # We need to strip the : because some shows have them and they make no sense.
-        show_title = result_set["title"] or result_set["franchiseTitle"]
-        show_title = show_title.strip(":")
-        episode_title = result_set["episodeTitle"]
-        if result_set["type"] == "fragment":
-            episode_title = episode_title or result_set["title"]
-        if for_epg:
-            channel = result_set["channel"]
-            name = "{} - {}".format(channel, show_title)
-            if episode_title and show_title != episode_title:
-                name = "{} - {}".format(name, episode_title)
-        else:
-            name = episode_title
-            if not bool(name):
-                name = result_set.get('franchiseTitle')
-
-            # In some cases the title of the show (not episode) is different from the franchise
-            # title. In that case we want to add the title of the show in front of the name, but
-            # only if that does not lead to duplication
-            elif show_title != result_set.get('franchiseTitle') \
-                    and show_title != name:
-                name = "{} - {}".format(show_title, name)
-
-        return name
