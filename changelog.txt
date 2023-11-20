@@ -1,4 +1,4 @@
-[B]Retrospect v5.7.1 - Changelog - 2023-11-20[/B]
+[B]Retrospect v5.7.2 - Changelog - 2023-11-20[/B]
 
 Minor 'after-care'-updates for the NPO channel. After the large update for both TV4 Play (Sweden) en NPO Start (Netherlands). Both channels had their API renewed and needed a complete rewrite.
 
