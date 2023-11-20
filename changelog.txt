@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.0 - Changelog - 2023-11-18[/B]
+[B]Retrospect v5.7.1 - Changelog - 2023-11-20[/B]
 
-This update includes two major fixes for both TV4 Play (Sweden) en NPO Start (Netherlands). Both channels had their API renewed and needed a complete rewrite.
+Minor 'after-care'-updates for the NPO channel. After the large update for both TV4 Play (Sweden) en NPO Start (Netherlands). Both channels had their API renewed and needed a complete rewrite.
 
 [B]Framework related[/B]
 * Added: Web-based dialog to insert values.
@@ -11,3 +11,9 @@ This update includes two major fixes for both TV4 Play (Sweden) en NPO Start (Ne
 [B]Channel related[/B]
 * Fixed: TV4 Play major update of API (Fixes #1714).
 * Fixed: NPO Start major update of API (Fixes #1730).
+* Fixed: "Today" is not update after 23:59 (NPO).
+* Added: broadcast time for "dailies" (NPO).
+* Changed: Improved log-in experience (NPO).
+* Added: season and episode info for "series" (NPO).
+* Fixed: Folder Icon for seasons.
+* Fixed: Improved NPO Plus filtering.
