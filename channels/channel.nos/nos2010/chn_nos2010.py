@@ -201,6 +201,9 @@ class Channel(chn_class.Channel):
         return
 
     def log_on(self) -> bool:
+        if self.loggedOn:
+            return True
+
         return self.__log_on(False)
 
     def __log_on(self, force_log_off: bool = False) -> bool:
@@ -668,10 +671,12 @@ class Channel(chn_class.Channel):
                     till = DateHelper.get_date_from_posix(till_stamp, tz=pytz.UTC)
                     if till_stamp and till < datetime.datetime.now(tz=pytz.UTC):
                         item.isPaid = True
-                        # break
                         # Due to a bug in the NPO API, this content could be viewed for free.
                         # for now we just don't show it.
-                        return None
+                        if not self.__has_premium():
+                            return None
+                        else:
+                            break
                     item.isPaid = False
                     # Always stop after a "free"
                     break
@@ -1329,6 +1334,9 @@ class Channel(chn_class.Channel):
 
     def __has_premium(self) -> bool:
         if self.__has_premium_cache is None:
+            if not self.loggedOn:
+                self.log_on()
+
             data = UriHandler.open("https://npo.nl/start/api/auth/session")
             json = JsonHelper(data)
             subscriptions = json.get_value("subscription", fallback=None)
