@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-11-09 22:11+0000\n"
+"PO-Revision-Date: 2023-11-21 18:11+0000\n"
 "Last-Translator: José Antonio Alvarado <jalvarado0.eses@gmail.com>\n"
 "Language-Team: Spanish (Spain) <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/es_es/>\n"
 "Language: es_es\n"
@@ -733,7 +733,7 @@ msgstr "Todos los episodios"
 
 msgctxt "#30371"
 msgid "Trending"
-msgstr ""
+msgstr "Tendencias"
 
 # empty strings from id 30365 to 30400
 msgctxt "#30401"
