@@ -71,5 +71,5 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&guid=cc065da7-e6d2-44d6-bbce-2d600954e0b0", 10)
 
     def test_update_stream_pow(self):
-        url = "POW_04508304"
+        url = "POW_05467583"
         self._test_video_url(url)
