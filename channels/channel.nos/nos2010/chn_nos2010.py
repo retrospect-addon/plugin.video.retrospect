@@ -633,7 +633,7 @@ class Channel(chn_class.Channel):
         MediaItem]:
         title = result_set["title"]
         poms = result_set["productId"]
-        serie_info = result_set.get("series", {})
+        serie_info = result_set.get("series") or {}
 
         if show_info and result_set["series"]:
             show_title = result_set["series"]["title"]
@@ -646,7 +646,7 @@ class Channel(chn_class.Channel):
             image_data = result_set["images"][0]
             item.set_artwork(thumb=image_data["url"])
 
-        item.description = result_set.get("synopsis", {}).get("long")
+        item.description = (result_set.get("synopsis") or {}).get("long")
         item.set_info_label(MediaItem.LabelDuration, result_set.get("durationInSeconds", 0))
 
         # 'firstBroadcastDate'
@@ -684,7 +684,7 @@ class Channel(chn_class.Channel):
                     item.isPaid = True
 
         episode_number = result_set.get("programKey")
-        season_number = result_set.get("season", {}).get("seasonKey")
+        season_number = (result_set.get("season") or {}).get("seasonKey")
         show_type = serie_info.get("type")
         if episode_number and season_number and show_type.endswith("series"):
             item.set_season_info(season_number, episode_number)
