@@ -731,6 +731,7 @@ class Channel(chn_class.Channel):
         data = JsonHelper(data)
         # Keep a list of the days.
         day_lookup: Dict[str, MediaItem] = {}
+        show_future = self._get_setting("show_future", "true") == "true"
 
         for channel in data.get_value():
             guid = channel["guid"]
@@ -779,6 +780,10 @@ class Channel(chn_class.Channel):
                     date_stamp = DateHelper.get_date_from_posix(program["programStart"], tz=pytz.UTC)
                     date_stamp = date_stamp.astimezone(tz=self.__timezone)
                     date_label = date_stamp.strftime("%d-%m-%Y")
+
+                    if not show_future and date_stamp > datetime.datetime.now(tz=pytz.UTC):
+                        continue
+
                     if date_label in day_lookup:
                         day_item = day_lookup[date_label]
                         day_item.items.append(item)
