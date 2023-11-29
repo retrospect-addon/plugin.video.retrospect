@@ -523,8 +523,13 @@ msgctxt "#30124"
 msgid "Find the <b>refresh token</b> for your account by examining the site's cookies and paste the <b>value</b> of the refresh token cookie here."
 msgstr "Zoek de <b>refresh-token</b> voor het account door de cookies van de website te inspecteren. Plak de <b>inhoud</b> van het refresh-token-cookie hier."
 
+msgctxt "#30125"
+msgid "Toon toekomstige afleveringen onder Recent > Vandaag'"
+msgstr ""
+
 # used for list limits
-# empty strings from id 30109 to 30189
+# empty strings from id 30126 to 30189
+
 msgctxt "#30190"
 msgid "Monday"
 msgstr "Maandag"

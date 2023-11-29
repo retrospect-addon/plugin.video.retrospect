@@ -36,7 +36,7 @@
     },
     {
       "order": 4,
-      "value": "type=\"bool\" default=\"true\" label=\"Show Future\"",
+      "value": "type=\"bool\" default=\"true\" label=\"30125\"",
       "id": "show_future"
     }
 
