@@ -358,10 +358,10 @@ class Channel(chn_class.Channel):
                  "https://npo.nl/start/api/domain/page-layout?slug=programmas",
                  content_type=contenttype.TVSHOWS)
 
-        live_radio = add_item(
-            LanguageHelper.LiveRadio, "https://start-api.npo.nl/page/live",
-            content_type=contenttype.SONGS, headers=self.__jsonApiKeyHeader)
-        live_radio.isLive = True
+        # live_radio = add_item(
+        #     LanguageHelper.LiveRadio, "https://start-api.npo.nl/page/live",
+        #     content_type=contenttype.SONGS, headers=self.__jsonApiKeyHeader)
+        # live_radio.isLive = True
 
         live_tv = add_item(
             LanguageHelper.LiveTv, "https://npo.nl/start/api/domain/guide-channels",
@@ -1378,16 +1378,9 @@ class Channel(chn_class.Channel):
 
         # get the subtitle
         if fetch_subtitles:
-            sub_title_url = "https://assetscdn.npostart.nl/subtitles/original/nl/%s.vtt" % (
-                episode_id,)
+            sub_title_url = f"https://cdn.npoplayer.nl/subtitles/nl/{episode_id}.vtt"
             sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
                 sub_title_url, episode_id + ".nl.srt", format='srt')
-
-            if not sub_title_path:
-                sub_title_url = "https://rs.poms.omroep.nl/v1/api/subtitles/%s/nl_NL/CAPTION.vtt" % (
-                    episode_id,)
-                sub_title_path = subtitlehelper.SubtitleHelper.download_subtitle(
-                    sub_title_url, episode_id + ".nl.srt", format='srt')
 
             if sub_title_path:
                 item.subtitle = sub_title_path
