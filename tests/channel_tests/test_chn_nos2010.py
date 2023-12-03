@@ -14,16 +14,22 @@ class TestNpoChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 7, "No items found in mainlist")
+        self.assertEqual(8, len(items), "No items found in mainlist")
 
-    @unittest.skip("Broken for now")
     def test_live_radio(self):
-        self._test_folder_url("https://start-api.npo.nl/page/live",
-                              headers={"apikey": "07896f1ee72645f68bc75581d7f00d54"},
-                              expected_results=8)
+        self._test_folder_url("https://www.npoluister.nl/",
+                              expected_results=4)
+
+    def test_live_radio_video(self):
+        url = "https://www.npo3fm.nl/"
+        self._test_video_url(url, parser="liveRadio")
+
+    def test_live_radio_audio(self):
+        url = "https://www.nporadio2.nl/soulenjazz"
+        self._test_video_url(url, parser="liveRadio")
 
     def test_live_tv(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/guide-channels", 11)
+        self._test_folder_url("https://npo.nl/start/api/domain/guide-channels", 4)
 
     def test_recent_week_list(self):
         from resources.lib.mediaitem import MediaItem
