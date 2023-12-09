@@ -506,7 +506,7 @@ class Channel(chn_class.Channel):
         guid = result_set["guid"]
 
         # timebound_daily, timeless_series
-        if item_type.endswith("series"):
+        if item_type and item_type.endswith("series"):
             # Series go by season
             url = f"https://npo.nl/start/api/domain/series-seasons?slug={slug}&type={item_type}"
         else:
