@@ -1,19 +1,18 @@
-[B]Retrospect v5.7.2 - Changelog - 2023-11-20[/B]
+[B]Retrospect v5.7.3 - Changelog - 2023-12-09[/B]
 
-Minor 'after-care'-updates for the NPO channel. After the large update for both TV4 Play (Sweden) en NPO Start (Netherlands). Both channels had their API renewed and needed a complete rewrite.
+Another minor 'after-care'-updates for the NPO channel. This patch also fixes a minor TV4 Play issue.
 
 [B]Framework related[/B]
-* Added: Web-based dialog to insert values.
+* Added: Option to disable the Kodi directory cache.
+* Added: Use `retrospect:parser` for updaters.
 
 [B]GUI/Settings/Language related[/B]
-* Updated: Some translations.
+* None
 
 [B]Channel related[/B]
-* Fixed: TV4 Play major update of API (Fixes #1714).
-* Fixed: NPO Start major update of API (Fixes #1730).
-* Fixed: "Today" is not update after 23:59 (NPO).
-* Added: broadcast time for "dailies" (NPO).
-* Changed: Improved log-in experience (NPO).
-* Added: season and episode info for "series" (NPO).
-* Fixed: Folder Icon for seasons.
-* Fixed: Improved NPO Plus filtering.
+* Fixed: Items without type break NPO.
+* Fixed: Don't cache the "recent" list by Kodi.
+* Fixed: Radio live streams for NPO.
+* Fixed: NPO subtitles (Fixes #1742).
+* Fixed: TV4 Play main list not working.
+* Added: Option to not show future items in NPO Start "Recent" listings.
