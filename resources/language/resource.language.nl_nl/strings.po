@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-11-21 18:11+0000\n"
 "Last-Translator: bas <bas@kodi.tv>\n"
@@ -524,12 +524,11 @@ msgid "Find the <b>refresh token</b> for your account by examining the site's co
 msgstr "Zoek de <b>refresh-token</b> voor het account door de cookies van de website te inspecteren. Plak de <b>inhoud</b> van het refresh-token-cookie hier."
 
 msgctxt "#30125"
-msgid "Toon toekomstige afleveringen onder Recent > Vandaag'"
+msgid "Show future episodes under 'Recent > Today'"
 msgstr ""
 
 # used for list limits
 # empty strings from id 30126 to 30189
-
 msgctxt "#30190"
 msgid "Monday"
 msgstr "Maandag"
