@@ -71,13 +71,15 @@ class ChannelTest(unittest.TestCase):
                 else:
                     raise
 
-    def _test_video_url(self, url, headers=None, retry=1):
+    def _test_video_url(self, url, headers=None, retry=1, parser=None):
         self.assertIsNotNone(self.channel)
 
         while retry >= 0:
             try:
                 item = self._get_media_item(url)
                 item.HttpHeaders.update(headers or {})
+                if parser:
+                    item.metaData["retrospect:parser"] = parser
                 item = self.channel.process_video_item(item)
 
                 self.assertTrue(item.has_streams())
