@@ -403,6 +403,7 @@ class Channel(chn_class.Channel):
         recent.complete = True
         recent.dontGroup = True
         recent.metaData["retrospect:parser"] = "recent"
+        recent.cacheToDisc = False
         items.append(recent)
 
         return data, items
