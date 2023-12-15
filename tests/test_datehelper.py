@@ -21,6 +21,14 @@ class TestDateHelper(unittest.TestCase):
 
         self.__compareDates(should_be, date_time)
 
+    def test_from_posix_no_tz(self):
+        date_time = DateHelper.get_date_from_posix(1477491485)
+        # Wed, 26 Oct 2016 14:18:05 GMT
+        should_be = datetime.datetime(2016, 10, 26, 14, 18, 5)
+
+        self.__compareDates(should_be, date_time)
+        self.assertEqual(date_time, should_be)
+
     def test_from_posix_float(self):
         tz = UTC()  # test using UTC
         date_time = DateHelper.get_date_from_posix(1477491485.9, tz)
@@ -34,9 +42,30 @@ class TestDateHelper(unittest.TestCase):
         tz = PlusOne()  # test using UTC
         date_time = DateHelper.get_date_from_posix(3700161184, tz)
         # Wed, 26 Oct 2016 14:18:05 GMT
-        should_be = datetime.datetime(2087, 4, 2, 22, 33, 4, 0, tzinfo=tz)
+        should_be = datetime.datetime(2087, 4, 2, 23, 33, 4, 0, tzinfo=tz)
 
         self.__compareDates(should_be, date_time)
+        self.assertEqual(should_be.microsecond, date_time.microsecond)
+
+    def test_from_posix_with_timezone_amsterdam_past(self):
+        tz = pytz.timezone("Europe/Amsterdam")
+        date_time = DateHelper.get_date_from_posix(1402666422, tz)
+        # Wed, 26 Oct 2016 14:18:05 GMT
+        should_be = datetime.datetime(2014, 6, 13, 15, 33, 42, 0)
+        should_be = tz.localize(should_be)
+
+        self.__compareDates(should_be, date_time)
+        self.assertEqual(should_be.microsecond, date_time.microsecond)
+
+    def test_from_posix_with_timezone_amsterdam_future(self):
+        tz = pytz.timezone("Europe/Amsterdam")
+        date_time = DateHelper.get_date_from_posix(1713207222, tz)
+        # Wed, 26 Oct 2016 14:18:05 GMT
+        should_be = datetime.datetime(2024, 4, 15, 20, 53, 42, 0)
+        should_be = tz.localize(should_be)
+
+        self.__compareDates(should_be, date_time)
+        self.assertEqual(should_be, date_time)
         self.assertEqual(should_be.microsecond, date_time.microsecond)
 
     def test_from_posix_out_of_range(self):
