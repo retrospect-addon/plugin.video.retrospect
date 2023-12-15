@@ -701,8 +701,9 @@ class Channel(chn_class.Channel):
                     # Create a Day media-item
                     day, month, year = date.split("-")
                     time_stamp = datetime.datetime(int(year), int(month), int(day))
+                    time_stamp = self.__timezone.localize(time_stamp)
                     # See"Today" as the day before until 05:00 AM.
-                    now = datetime.datetime.now() - delta
+                    now = datetime.datetime.now(tz=self.__timezone) - delta
                     if time_stamp <= now:
                         # Only add days up until "Today"
                         days = LanguageHelper.get_days_list()
@@ -786,8 +787,7 @@ class Channel(chn_class.Channel):
         season_slug = result_set["season"]["slug"]
         start = result_set["programStart"]
 
-        date_stamp = DateHelper.get_date_from_posix(start, tz=pytz.UTC)
-        date_stamp = date_stamp.astimezone(self.__timezone)
+        date_stamp = DateHelper.get_date_from_posix(start, tz=self.__timezone)
 
         if channel:
             item = MediaItem(f"{date_stamp.hour:02d}:{date_stamp.minute:02d} - {channel} - {name}", url, media_type=mediatype.EPISODE)
