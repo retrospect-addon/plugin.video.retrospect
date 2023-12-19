@@ -2,7 +2,7 @@
 
 import datetime
 import time
-from typing import Optional, List, Tuple, Dict, Union
+from typing import Optional, List, Tuple, Union
 
 import pytz
 
