@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import datetime
 import unittest
 
 from . channeltest import ChannelTest
@@ -40,10 +41,14 @@ class TestNpoChannel(ChannelTest):
 
     def test_recent_sub_items(self):
         from resources.lib.mediaitem import MediaItem
-        item = MediaItem("recent", "https://npo.nl/start/api/domain/guide-channels")
-        item.metaData["retrospect:parser"] = "recent"
+        item = MediaItem("recent", "#recentday")
+        now = datetime.datetime.now()
+        item.metaData["date"] = f"{now.day:02}-{now.month:02}-{now.year}"
+        item.metaData["channels"] = {
+            "83dc1f25-a065-496c-9418-bd5c60dfb36d": "NPO"
+        }
         items = self.channel.process_folder_list(item)
-        self.assertGreater(len(items[0].items), 10)
+        self.assertGreater(len(items), 10)
 
     def test_series_without_season(self):
         items = self._test_folder_url("https://npo.nl/start/api/domain/programs-by-season?guid=9d87c512-bf2d-4df9-8e33-e0792615ed50", 3)
