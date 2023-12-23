@@ -53,6 +53,6 @@ class TestListFilter(ChannelTest):
 
     def __get_items(self):
         items = self._test_folder_url(
-            "https://npo.nl/start/api/domain/programs-by-season?guid=4a1b312d-6a54-4838-ac8c-640ded14fb07",
+            "https://npo.nl/start/api/domain/programs-by-season?guid=43eb0443-7ac8-4629-a7ed-b39ab65574b5",
             expected_results=1, retry=0)
         return items
