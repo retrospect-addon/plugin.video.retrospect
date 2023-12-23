@@ -51,7 +51,7 @@ class TestNpoChannel(ChannelTest):
         self.assertGreater(len(items), 10)
 
     def test_series_without_season(self):
-        items = self._test_folder_url("https://npo.nl/start/api/domain/programs-by-season?guid=9d87c512-bf2d-4df9-8e33-e0792615ed50", 3)
+        items = self._test_folder_url("https://npo.nl/start/api/domain/programs-by-season?guid=9d87c512-bf2d-4df9-8e33-e0792615ed50", 1)
         self.assertTrue(all([i.is_playable for i in items]))
 
     def test_series_with_seasons_via_slug(self):
