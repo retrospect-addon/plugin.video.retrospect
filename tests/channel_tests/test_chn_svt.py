@@ -45,8 +45,8 @@ class TestSvtChannel(ChannelTest):
         self._test_folder_url(url, expected_results=4)
 
     def test_new_on_svt(self):
-        # url = "https://contento.svt.se/graphql?operationName=FionaPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22svtId_82dDX2v%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-prod-low-prio-client"
-        url = "https://api.svt.se/contento/graphql?operationName=FionaPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22svtId_82dDX2v%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client"
+        # url = "https://contento.svt.se/graphql?operationName=FionaPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22svtId_jGVZ7AL%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-prod-low-prio-client"
+        url = "https://api.svt.se/contento/graphql?operationName=FionaPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22svtId_jGVZ7AL%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client"
         self._test_folder_url(url, expected_results=4)
 
     def test_latest_news(self):

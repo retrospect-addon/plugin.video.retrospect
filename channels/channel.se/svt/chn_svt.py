@@ -226,7 +226,7 @@ class Channel(chn_class.Channel):
                 self.__get_api_url(
                     "FionaPage",
                     "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
-                    variables={"includeFullOppetArkiv": True, "selectionId": "svtId_82dDX2v"}),
+                    variables={"includeFullOppetArkiv": True, "selectionId": "svtId_jGVZ7AL"}),
                 False)
         }
         # https://api.svt.se/contento/graphql?operationName=FionaPage&variables={"includeFullOppetArkiv":true,"selectionId":"svtId_egWQ3y7","userIsAbroad":true}&extensions={"persistedQuery":{"sha256Hash":"dc8f85e195903fe6227a76ec1e1d300d470ee8ea123bea6bee26215cc6e4959d","version":1}}&ua=svtplaywebb-render-low-prio-client
