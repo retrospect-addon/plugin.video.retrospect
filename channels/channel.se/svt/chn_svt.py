@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
-from typing import Optional
+from typing import Optional, List, Tuple
 
 import pytz
 
@@ -115,6 +115,10 @@ class Channel(chn_class.Channel):
                               parser=["videos"],
                               creator=self.create_api_typed_item)
 
+        self._add_data_parser("https://www.svtplay.se", match_type=ParserData.MatchExact,
+                              name="SVTPlay data retriever for New on SVT",
+                              preprocessor=self.extract_new_on_svt_id)
+
         # Setup channel listing based on JSON data in the HTML
         self._add_data_parser(
             "https://api.svt.se/contento/graphql?operationName=BroadcastSchedule",
@@ -222,11 +226,13 @@ class Channel(chn_class.Channel):
             ),
 
             # The selection ID might change over time.
+            # We need to determine the `selectionId`
             LanguageHelper.get_localized_string(LanguageHelper.NewOnChannel) % self.channelName: (
-                self.__get_api_url(
-                    "FionaPage",
-                    "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
-                    variables={"includeFullOppetArkiv": True, "selectionId": "svtId_jGVZ7AL"}),
+                # self.__get_api_url(
+                #     "FionaPage",
+                #     "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
+                #     variables={"includeFullOppetArkiv": True, "selectionId": "svtId_jGVZ7AL"}),
+                "https://www.svtplay.se",
                 False)
         }
         # https://api.svt.se/contento/graphql?operationName=FionaPage&variables={"includeFullOppetArkiv":true,"selectionId":"svtId_egWQ3y7","userIsAbroad":true}&extensions={"persistedQuery":{"sha256Hash":"dc8f85e195903fe6227a76ec1e1d300d470ee8ea123bea6bee26215cc6e4959d","version":1}}&ua=svtplaywebb-render-low-prio-client
@@ -874,6 +880,17 @@ class Channel(chn_class.Channel):
             return self.create_api_typed_item(result_set)
         else:
             return self.create_api_genre_type(result_set)
+
+    def extract_new_on_svt_id(self, data: str) -> Tuple[str, List[MediaItem]]:
+        new_id = Regexer.do_regex(r'href="/lista/(svtId_8YqXpEz)/nytt-pa-play"', data)[0]
+        url = self.__get_api_url(
+            "FionaPage",
+            "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
+            variables={"includeFullOppetArkiv": True, "selectionId": new_id})
+
+        self.parentItem.url = url
+        items = self.process_folder_list(self.parentItem)
+        return data, items
 
     # noinspection PyUnusedLocal
     def fetch_program_api_data(self, data):
