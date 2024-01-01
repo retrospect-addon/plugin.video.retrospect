@@ -25,7 +25,7 @@ class AuthenticationHandler(object):
     def realm(self):
         return self._realm
 
-    def log_on(self, username, password):
+    def log_on(self, username, password) -> AuthenticationResult:
         """ Peforms the logon of a user.
 
         :param str username:    The username
@@ -37,7 +37,7 @@ class AuthenticationHandler(object):
         """
         raise NotImplementedError
 
-    def active_authentication(self):
+    def active_authentication(self) -> AuthenticationResult:
         """ Check if the user with the given name is currently authenticated.
 
         :returns: a AuthenticationResult with the account data.
@@ -47,7 +47,7 @@ class AuthenticationHandler(object):
 
         raise NotImplementedError
 
-    def log_off(self, username):
+    def log_off(self, username) -> bool:
         """ Check if the user with the given name is currently authenticated.
 
         :param str username:    The username to log off
@@ -59,7 +59,7 @@ class AuthenticationHandler(object):
 
         raise NotImplementedError
 
-    def get_authentication_token(self):
+    def get_authentication_token(self) -> str:
         """ Returns a token that can be used for authentication of the current session.
 
         The user needs to be logged in for this.
