@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import urllib.parse as parse
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from resources.lib.mediaitem import MediaItem, FolderItem, MediaStream
 from resources.lib import contenttype
@@ -522,7 +522,7 @@ class Channel:
 
         return items
 
-    def create_episode_item(self, result_set):
+    def create_episode_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
         """ Creates a new MediaItem for an episode.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -931,7 +931,7 @@ class Channel:
         :param str|list[str|int|tuple] parser:  The parser (regex or json).
 
         :param creator:                         The creator called with the results from the parser
-        :type creator:                          (list[str]|dict) -> MediaItem|None
+        :type creator:                          (list[str]|dict) -> MediaItem|None|list[MediaItem]
 
         :param updater:                         The updater called for updating a item
         :type updater:                          MediaItem -> MediaItem
