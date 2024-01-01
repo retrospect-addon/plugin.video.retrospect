@@ -10,7 +10,7 @@ from resources.lib.urihandler import UriHandler
 
 class GigyaHandler(AuthenticationHandler):
     def __init__(self, realm: str, api_key_3: str, api_key_4: str, device_id: str):
-        super().__init__(realm, device_id)
+        super().__init__(realm, device_id.replace("-", "") + device_id.replace("-", "")[::-1])
 
         self.__api_key_3 = api_key_3
         self.__api_key_4 = api_key_4
@@ -96,6 +96,7 @@ class GigyaHandler(AuthenticationHandler):
         return True
 
     def get_authentication_token(self) -> Optional[str]:
+        # Get a generic token
         url = "https://front-auth.videoland.bedrock.tech/v2/platforms/m6group_web/getJwt"
         headers = {
             "x-auth-device-id": self._device_id,
@@ -105,9 +106,23 @@ class GigyaHandler(AuthenticationHandler):
         }
 
         token = UriHandler.open(url, additional_headers=headers, no_cache=True)
-        if token:
-            return JsonHelper(token).get_value("token")
-        return None
+        if not token:
+            return None
+
+        # Now load it for a profile
+        # TODO: Might be the wrong profile if there are more.
+        token_value = JsonHelper(token).get_value("token")
+        profile_url = "https://users.videoland.bedrock.tech/v2/platforms/m6group_web/users/ac6a19c647974c858e0c30e1105ff3b6/profiles"
+        profile_headers = {
+            "Authorization": f"Bearer {token_value}"
+        }
+        profile_info = JsonHelper(UriHandler.open(profile_url, additional_headers=profile_headers, no_cache=True))
+        puid = profile_info.get_value(0, "uid")
+
+        # Actually fetch a token for it.
+        headers["x-auth-profile-id"] = puid
+        token_value = JsonHelper(UriHandler.open(url, additional_headers=headers, no_cache=True)).get_value("token")
+        return token_value
 
     def __extract_token_info(self, token: JsonHelper) -> None:
         self.__uid = token.get_value("UID")
