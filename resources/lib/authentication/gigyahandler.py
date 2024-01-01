@@ -1,6 +1,11 @@
 from typing import Optional
 
-import jwt
+try:
+    import jwt
+except ImportError:
+    # The package is named pyjwt in Kodi 18: https://github.com/lottaboost/script.module.pyjwt/pull/1
+    # noinspection PyUnresolvedReferences
+    import pyjwt as jwt
 
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.authentication.authenticationhandler import AuthenticationHandler
