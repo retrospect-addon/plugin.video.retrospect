@@ -882,7 +882,7 @@ class Channel(chn_class.Channel):
             return self.create_api_genre_type(result_set)
 
     def extract_new_on_svt_id(self, data: str) -> Tuple[str, List[MediaItem]]:
-        new_id = Regexer.do_regex(r'href="/lista/(svtId_8YqXpEz)/nytt-pa-play"', data)[0]
+        new_id = Regexer.do_regex(r'href="/lista/([^/]+)/nytt-pa-play"', data)[0]
         url = self.__get_api_url(
             "FionaPage",
             "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
