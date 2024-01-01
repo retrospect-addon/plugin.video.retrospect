@@ -7,12 +7,12 @@
         "en": "Broadcasts of Videoland.",
         "nl": "Uitzendingen van Videoland."
       },
-      "icon": "videoland.png",
+      "icon": "videolandnl-icon.png",
       "category": "National",
       "sortorder": 4,
       "language": "nl",
-      "fanart": "videolandfanart.png",
-      "poster": "videolandposter.png"
+      "fanart": "videolandnl-fanart-red.jpg",
+      "poster": "videolandnl-poster.jpg"
     }
   ],
   "settings": [
