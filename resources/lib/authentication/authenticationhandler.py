@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Optional
 
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.addonsettings import LOCAL
@@ -59,7 +60,7 @@ class AuthenticationHandler(object):
 
         raise NotImplementedError
 
-    def get_authentication_token(self) -> str:
+    def get_authentication_token(self) -> Optional[str]:
         """ Returns a token that can be used for authentication of the current session.
 
         The user needs to be logged in for this.
