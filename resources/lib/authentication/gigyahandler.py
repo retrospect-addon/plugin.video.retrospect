@@ -1,6 +1,8 @@
-import uuid
 from typing import Optional
 
+import jwt
+
+from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.authentication.authenticationhandler import AuthenticationHandler
 from resources.lib.authentication.authenticationresult import AuthenticationResult
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -96,6 +98,16 @@ class GigyaHandler(AuthenticationHandler):
         return True
 
     def get_authentication_token(self) -> Optional[str]:
+        token_value = AddonSettings.get_setting(f"{self.realm}-jwt", store=LOCAL)
+        if token_value:
+            try:
+                token = jwt.decode(token_value, options={"verify_signature": False})
+            except jwt.ExpiredSignatureError:
+                Logger.debug(f"JWT for {self.realm} expired.")
+                token = None
+            if token:
+                return token_value
+
         # Get a generic token
         url = "https://front-auth.videoland.bedrock.tech/v2/platforms/m6group_web/getJwt"
         headers = {
@@ -122,6 +134,8 @@ class GigyaHandler(AuthenticationHandler):
         # Actually fetch a token for it.
         headers["x-auth-profile-id"] = puid
         token_value = JsonHelper(UriHandler.open(url, additional_headers=headers, no_cache=True)).get_value("token")
+
+        AddonSettings.set_setting(f"{self.realm}-jwt", token_value, store=LOCAL)
         return token_value
 
     def __extract_token_info(self, token: JsonHelper) -> None:
