@@ -1,3 +1,5 @@
+import time
+from datetime import datetime, timezone
 from typing import Optional
 
 try:
@@ -105,11 +107,11 @@ class GigyaHandler(AuthenticationHandler):
     def get_authentication_token(self) -> Optional[str]:
         token_value = AddonSettings.get_setting(f"{self.realm}-jwt", store=LOCAL)
         if token_value:
-            try:
-                token = jwt.decode(token_value, options={"verify_signature": False})
-            except jwt.ExpiredSignatureError:
-                Logger.debug(f"JWT for {self.realm} expired.")
+            token = jwt.decode(token_value, options={"verify_signature": False})
+            expire = token.get("exp")
+            if expire < time.time():
                 token = None
+
             if token:
                 return token_value
 
