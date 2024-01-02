@@ -1,5 +1,4 @@
 import time
-from datetime import datetime, timezone
 from typing import Optional
 
 try:
@@ -62,6 +61,10 @@ class GigyaHandler(AuthenticationHandler):
         }
         login_result = UriHandler.open(login_url, data=login_data, no_cache=True, additional_headers=headers)
         result = JsonHelper(login_result)
+
+        error = result.get_value("errorDetails", fallback=None)
+        if error:
+            return AuthenticationResult(None, error=error)
         account = result.get_value("profile", "email")
 
         self.__extract_token_info(result)

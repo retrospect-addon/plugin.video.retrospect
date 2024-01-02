@@ -4,6 +4,7 @@ from .authenticationhandler import AuthenticationHandler
 from .authenticationresult import AuthenticationResult
 from ..logger import Logger
 from ..vault import Vault
+from ..xbmcwrapper import XbmcWrapper
 
 
 class Authenticator(object):
@@ -67,6 +68,8 @@ class Authenticator(object):
             return AuthenticationResult(None)
 
         res = self.__hander.log_on(username, password)
+        if res.error:
+            XbmcWrapper.show_dialog(None, res.error)
         return res
 
     def active_authentication(self):
