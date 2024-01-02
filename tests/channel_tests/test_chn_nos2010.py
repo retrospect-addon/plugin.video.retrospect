@@ -39,6 +39,7 @@ class TestNpoChannel(ChannelTest):
         items = self.channel.process_folder_list(item)
         self.assertGreaterEqual(len(items), 7)
 
+    @unittest.skipUnless(6 < datetime.datetime.utcnow().hour < 23, "No now broadcasts after 00:00")
     def test_recent_sub_items(self):
         from resources.lib.mediaitem import MediaItem
         item = MediaItem("recent", "#recentday")
