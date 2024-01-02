@@ -32,8 +32,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.noImage = "videolandimage.png"
-        self.poster = "videolandposter.png"
+        self.noImage = "videolandnl-thumb.jpg"
 
         # setup the urls
         self.mainListUri = "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/alias/home/layout?nbPages=1"
