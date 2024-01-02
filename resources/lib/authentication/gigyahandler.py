@@ -66,7 +66,7 @@ class GigyaHandler(AuthenticationHandler):
 
         self.__extract_token_info(result)
 
-        return AuthenticationResult(username=account)
+        return AuthenticationResult(username=account, uid=self.__uid)
 
     def active_authentication(self) -> AuthenticationResult:
         login_token_cookie = UriHandler.get_cookie(f"glt_{self.__api_key_4}", domain=f".{self.realm}")
@@ -97,7 +97,7 @@ class GigyaHandler(AuthenticationHandler):
 
         username = json_data.get_value("profile", "email")
         self.__extract_token_info(json_data)
-        return AuthenticationResult(username, existing_login=True)
+        return AuthenticationResult(username, existing_login=True, uid=self.__uid)
 
     def log_off(self, username) -> bool:
         UriHandler.delete_cookie(domain=".gigya.com")
