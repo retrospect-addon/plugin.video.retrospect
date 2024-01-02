@@ -102,6 +102,11 @@ class GigyaHandler(AuthenticationHandler):
     def log_off(self, username) -> bool:
         UriHandler.delete_cookie(domain=".gigya.com")
         UriHandler.delete_cookie(domain=f".{self.realm}")
+        AddonSettings.set_setting(f"{self.realm}-jwt", "", store=LOCAL)
+
+        self.__uid = None
+        self.__uid_signature = None
+        self.__uid_signature_timestamp = None
         return True
 
     def get_authentication_token(self) -> Optional[str]:
@@ -114,6 +119,9 @@ class GigyaHandler(AuthenticationHandler):
 
             if token:
                 return token_value
+
+        if not self.__uid:
+            return None
 
         # Get a generic token
         url = "https://front-auth.videoland.bedrock.tech/v2/platforms/m6group_web/getJwt"
