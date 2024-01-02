@@ -198,7 +198,6 @@ class Channel(chn_class.Channel):
         username: Optional[str] = self._get_setting("videolandnl_username", value_for_none=None)
         if not username:
             XbmcWrapper.show_dialog(None, LanguageHelper.MissingCredentials)
-            return False
 
         result = self.__authenticator.log_on(username=username, channel_guid=self.guid, setting_id="videolandnl_password")
 
