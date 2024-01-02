@@ -131,7 +131,7 @@ class GigyaHandler(AuthenticationHandler):
         # Now load it for a profile
         # TODO: Might be the wrong profile if there are more.
         token_value = JsonHelper(token).get_value("token")
-        profile_url = "https://users.videoland.bedrock.tech/v2/platforms/m6group_web/users/ac6a19c647974c858e0c30e1105ff3b6/profiles"
+        profile_url = f"https://users.videoland.bedrock.tech/v2/platforms/m6group_web/users/{self.__uid}/profiles"
         profile_headers = {
             "Authorization": f"Bearer {token_value}"
         }
