@@ -28,7 +28,7 @@ class GigyaHandler(AuthenticationHandler):
         self.__uid_signature = None
         self.__uid_signature_timestamp = None
 
-    def log_on(self, username, password) -> AuthenticationResult:
+    def log_on(self, username: str, password: str) -> AuthenticationResult:
         bootstrap_url = f"https://accounts.eu1.gigya.com/accounts.webSdkBootstrap?apiKey={self.__api_key_3}&sdk=js_latest&sdkBuild={self.__build_id}&format=json"
         bootstrap = UriHandler.open(bootstrap_url, no_cache=True)
         bootstrap_json = JsonHelper(bootstrap)
