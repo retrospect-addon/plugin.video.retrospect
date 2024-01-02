@@ -37,9 +37,9 @@ class GigyaHandler(AuthenticationHandler):
             return AuthenticationResult(None)
 
         gmid = UriHandler.get_cookie("gmid", ".gigya.com").value
-        UriHandler.set_cookie(name="gmid", value=gmid, domain=".videoland.com")
+        UriHandler.set_cookie(name="gmid", value=gmid, domain=f".{self._realm}")
 
-        login_url = "https://gigya-merge.videoland.com/accounts.login"
+        login_url = f"https://gigya-merge.{self._realm}/accounts.login"
         login_data = {
             "loginID": username,
             "password": password,
@@ -51,7 +51,7 @@ class GigyaHandler(AuthenticationHandler):
             "APIKey": self.__api_key_4,
             "sdk": "js_latest",
             "authMode": "cookie",
-            "pageURL": "https://www.videoland.com/inloggen",
+            "pageURL": f"https://www.{self._realm}/inloggen",
             "sdkBuild": 15627,
             "format": "json",
         }
@@ -90,7 +90,7 @@ class GigyaHandler(AuthenticationHandler):
         headers = {
             "content-type": "application/x-www-form-urlencoded"
         }
-        data = UriHandler.open("https://gigya-merge.videoland.com/accounts.getAccountInfo", additional_headers=headers, data=profile_data)
+        data = UriHandler.open(f"https://gigya-merge.{self._realm}/accounts.getAccountInfo", additional_headers=headers, data=profile_data)
         json_data = JsonHelper(data)
         if json_data.get_value("errorCode"):
             error = json_data.get_value("statusReason")
