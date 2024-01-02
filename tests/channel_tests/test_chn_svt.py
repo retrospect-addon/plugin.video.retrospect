@@ -27,7 +27,7 @@ class TestSvtChannel(ChannelTest):
         show_item = self._get_media_item("#program_item")
         show_item.metaData["slug"] = "/aktuellt"
         items = self.channel.process_folder_list(show_item)
-        self.assertGreaterEqual(2, len(items))
+        self.assertGreaterEqual(len(items), 2)
 
     def test_list_for_genre_barn(self):
         show_item = self._get_media_item("#genre_item")
