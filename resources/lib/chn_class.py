@@ -733,7 +733,7 @@ class Channel:
         item.complete = False
         return item
 
-    def update_video_item(self, item):
+    def update_video_item(self, item: MediaItem) -> MediaItem:
         """ Updates an existing MediaItem with more data.
 
         Used to update none complete MediaItems (self.complete = False). This
