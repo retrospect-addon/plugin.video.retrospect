@@ -40,7 +40,7 @@ class TestNpoChannel(ChannelTest):
         self.assertGreaterEqual(len(items), 7)
 
     def test_single_video(self):
-        url = "https://npo.nl/start/video/de-beentjes-van-sint-hildegard"
+        url = "https://npo.nl/start/video/natuur-op-2"
         self._test_video_url(url)
 
     @unittest.skipUnless(6 < datetime.datetime.utcnow().hour < 23, "No now broadcasts after 00:00")

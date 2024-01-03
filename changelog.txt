@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.4 - Changelog - 2023-12-20[/B]
+[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
 
-Minor fix for the NPO `Recent` items.
+t.b.d.
 
 [B]Framework related[/B]
 * None
@@ -9,4 +9,4 @@ Minor fix for the NPO `Recent` items.
 * None
 
 [B]Channel related[/B]
-* Fixed: Recent times broke (Fixes #1750).
+* Fixed: NPO Recent items did not display videos unrelated to shows.
