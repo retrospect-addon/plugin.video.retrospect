@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import os
 import unittest
 
 from . channeltest import ChannelTest
@@ -39,6 +40,7 @@ class TestNpoChannel(ChannelTest):
         items = self.channel.process_folder_list(item)
         self.assertGreaterEqual(len(items), 7)
 
+    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_single_video(self):
         url = "https://npo.nl/start/video/natuur-op-2"
         self._test_video_url(url)
