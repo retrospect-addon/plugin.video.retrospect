@@ -117,6 +117,10 @@ class Channel(chn_class.Channel):
             name="Season content API parser", json=True,
             parser=[], creator=self.create_api_episode_item)
 
+        self._add_data_parser("https://npo.nl/start/video/",
+                              name="Single video items from recent guid",
+                              updater=self.update_single_video)
+
         # Standard updater
         self._add_data_parser("*", requires_logon=True,
                               updater=self.update_video_item)
@@ -711,15 +715,20 @@ class Channel(chn_class.Channel):
 
     def create_api_epg_item(self, result_set: dict) -> Optional[MediaItem]:
         series_slug = (result_set["series"] or {}).get("slug")
-        if not series_slug:
-            return None
         program_guid = (result_set["program"] or {}).get("guid")
-        if not program_guid:
+        season_slug = None
+
+        if not series_slug and program_guid:
+            # It is a single video not belonging to a series.
+            program_slug = result_set["program"]["slug"]
+            url = f"https://npo.nl/start/video/{program_slug}"
+        elif series_slug and program_guid:
+            url = f"https://npo.nl/start/api/domain/series-seasons?slug={series_slug}"
+            season_slug = result_set["season"]["slug"]
+        else:
             return None
 
-        url = f"https://npo.nl/start/api/domain/series-seasons?slug={series_slug}"
         name = result_set["title"]
-        season_slug = result_set["season"]["slug"]
         start = result_set["programStart"]
         channel = result_set["channel"]
 
@@ -728,10 +737,11 @@ class Channel(chn_class.Channel):
             return None
 
         item = MediaItem(f"{date_stamp.hour:02d}:{date_stamp.minute:02d} - {channel} - {name}", url, media_type=mediatype.EPISODE)
-        item.metaData = {
-            "season_slug": season_slug,
-            "program_guid": program_guid
-        }
+        if season_slug and program_guid:
+            item.metaData = {
+                "season_slug": season_slug,
+                "program_guid": program_guid
+            }
         item.set_date(date_stamp.year, date_stamp.month, date_stamp.day, date_stamp.hour, date_stamp.minute, date_stamp.second)
 
         duration = result_set.get("durationInSeconds")
@@ -743,6 +753,17 @@ class Channel(chn_class.Channel):
             item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
             item.description = image_data.get("description")
         return item
+
+    def update_single_video(self, item: MediaItem) -> MediaItem:
+        data = UriHandler.open(item.url)
+        whatson_info = Regexer.do_regex(r'"productId"\W+"([^"]+)"', data)
+        if not whatson_info:
+            # Retry as with a login it might fail
+            data = UriHandler.open(item.url)
+            whatson_info = Regexer.do_regex(r'"productId"\W+"([^"]+)"', data)
+
+        whatson_id = whatson_info[0]
+        return self.__update_video_item(item, whatson_id)
 
     def update_epg_series_item(self, item: MediaItem) -> MediaItem:
         # Go from season slug, show slug & program guid ->
