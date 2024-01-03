@@ -14,6 +14,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.parserdata import ParserData
 from resources.lib.streams.mpd import Mpd
+from resources.lib.textures import TextureHandler
 from resources.lib.urihandler import UriHandler
 from resources.lib.xbmcwrapper import XbmcWrapper
 
@@ -81,6 +82,12 @@ class Channel(chn_class.Channel):
 
         feature_id = result_set["featureId"]
         item = FolderItem(title, url, content_type=contenttype.EPISODES if feature_id.startswith("videos") else contenttype.TVSHOWS)
+
+        if title.lower().startswith("rtl"):
+            poster_slug = title.lower().replace(" ", "")
+            poster = f"{poster_slug}-poster.png"
+            poster_url = TextureHandler.instance().get_texture_uri(self, poster)
+            item.poster = poster_url
         return item
 
     def create_content_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
