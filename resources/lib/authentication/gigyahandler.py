@@ -27,6 +27,8 @@ class GigyaHandler(AuthenticationHandler):
         self.__uid = None
         self.__uid_signature = None
         self.__uid_signature_timestamp = None
+        self.__has_premium = False
+        self.__jwt = None
 
     def log_on(self, username: str, password: str) -> AuthenticationResult:
         bootstrap_url = f"https://accounts.eu1.gigya.com/accounts.webSdkBootstrap?apiKey={self.__api_key_3}&sdk=js_latest&sdkBuild={self.__build_id}&format=json"
@@ -67,9 +69,14 @@ class GigyaHandler(AuthenticationHandler):
             return AuthenticationResult(None, error=error)
         account = result.get_value("profile", "email")
 
-        self.__extract_token_info(result)
+        self.__extract_uid_info(result)
 
-        return AuthenticationResult(username=account, uid=self.__uid)
+        # Check for premium, which also happens to need the JWT
+        self.__check_for_premium()
+
+        return AuthenticationResult(
+            username=account, uid=self.__uid,
+            has_premium=self.__has_premium, jwt=self.__jwt)
 
     def active_authentication(self) -> AuthenticationResult:
         login_token_cookie = UriHandler.get_cookie(f"glt_{self.__api_key_4}", domain=f".{self.realm}")
@@ -99,8 +106,14 @@ class GigyaHandler(AuthenticationHandler):
             return AuthenticationResult(None)
 
         username = json_data.get_value("profile", "email")
-        self.__extract_token_info(json_data)
-        return AuthenticationResult(username, existing_login=True, uid=self.__uid)
+        self.__extract_uid_info(json_data)
+
+        # Check for premium, which also happens to need the JWT
+        self.__check_for_premium()
+
+        return AuthenticationResult(
+            username, existing_login=True, uid=self.__uid,
+            has_premium=self.__has_premium, jwt=self.__jwt)
 
     def log_off(self, username) -> bool:
         UriHandler.delete_cookie(domain=".gigya.com")
@@ -110,9 +123,14 @@ class GigyaHandler(AuthenticationHandler):
         self.__uid = None
         self.__uid_signature = None
         self.__uid_signature_timestamp = None
+        self.__has_premium = False
+        self.__jwt = None
         return True
 
     def get_authentication_token(self) -> Optional[str]:
+        if self.__jwt:
+            return self.__jwt
+
         token_value = AddonSettings.get_setting(f"{self.realm}-jwt", store=LOCAL)
         if token_value:
             token = jwt.decode(token_value, options={"verify_signature": False})
@@ -121,6 +139,7 @@ class GigyaHandler(AuthenticationHandler):
                 token = None
 
             if token:
+                self.__jwt = token_value
                 return token_value
 
         if not self.__uid:
@@ -154,9 +173,18 @@ class GigyaHandler(AuthenticationHandler):
         token_value = JsonHelper(UriHandler.open(url, additional_headers=headers, no_cache=True)).get_value("token")
 
         AddonSettings.set_setting(f"{self.realm}-jwt", token_value, store=LOCAL)
+        self.__jwt = token_value
         return token_value
 
-    def __extract_token_info(self, token: JsonHelper) -> None:
+    def __check_for_premium(self):
+        url = f"https://stores.videoland.bedrock.tech/premium/v4/customers/rtlnl/platforms/m6group_web/users/{self.__uid}/subscriptions"
+        jwt = self.get_authentication_token()
+        headers = {"Authorization": f"Bearer {jwt}"}
+        subscriptions = JsonHelper(UriHandler.open(url, additional_headers=headers))
+        current_subscription = subscriptions.get_value("current", 0, "current_contract")
+        self.__has_premium = False if current_subscription.get("variant_id", "") == "Free" else True
+
+    def __extract_uid_info(self, token: JsonHelper) -> None:
         self.__uid = token.get_value("UID")
         self.__uid_signature = token.get_value("UIDSignature")
         self.__uid_signature_timestamp = token.get_value("signatureTimestamp")

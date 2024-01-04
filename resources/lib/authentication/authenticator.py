@@ -48,7 +48,7 @@ class Authenticator(object):
             self.__hander.log_off(logged_on_user)
 
         elif logged_on_user and logged_on_user == username:
-            Logger.warning("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
+            Logger.info("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
             return res
 
         if not username:
