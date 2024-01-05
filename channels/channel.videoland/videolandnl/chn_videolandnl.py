@@ -197,11 +197,13 @@ class Channel(chn_class.Channel):
             quality = asset["video_quality"]
             url = asset["path"]
             video_type = asset["video_container"]
+            # video_container = asset["container"]
+            video_format = asset["format"]
 
             if quality == "hd":
                 continue
 
-            if video_type == "mpd":
+            if video_type == "mpd" or video_format == "dashcenc":
                 stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
                 Mpd.set_input_stream_addon_input(stream, license_key=license_key)
                 item.complete = True
