@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
-from typing import Union, List, Optional, Tuple
+from typing import Union, List, Optional, Tuple, Dict
 
 import pytz
 
@@ -11,6 +11,7 @@ from resources.lib.authentication.gigyahandler import GigyaHandler
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.parserdata import ParserData
 from resources.lib.streams.mpd import Mpd
@@ -41,7 +42,7 @@ class Channel(chn_class.Channel):
         # https://pc.middleware.videoland.bedrock.tech/6play/v2/platforms/m6group_web/services/videoland/programs/first-letters?csa=tot_18_jaar
 
         self._add_data_parser(self.mainListUri, requires_logon=True, json=True,
-                              name="Mainlist for Videoland",
+                              name="Mainlist for Videoland", preprocessor=self.add_others_and_check_correct_url,
                               parser=["blocks"], creator=self.create_mainlist_item)
 
         self._add_data_parsers([r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/",
@@ -73,6 +74,35 @@ class Channel(chn_class.Channel):
         self.__program_id = None
         self.__pages = 10
         self.__timezone = pytz.timezone("Europe/Amsterdam")
+
+    def add_others_and_check_correct_url(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
+        items = []
+        extras: Dict[int, Tuple[str, str]] = {
+            LanguageHelper.Recent: ("page_6599c70de291a2.86703456--6918fda7-49db-49d5-b7f3-1e4a5b6bfab3", contenttype.TVSHOWS),
+            # Already a standard item
+            # LanguageHelper.Popular: ("page_6599c70de291a2.86703456--47a90b2c-669e-453f-8e3d-07eebbe4d4d0_167", contenttype.TVSHOWS)
+        }
+
+        for lang_id, extra in extras.items():
+            page_id, content_type = extra
+            title = LanguageHelper.get_localized_string(lang_id)
+            url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/{page_id}?nbPages={self.__pages}"
+            item = FolderItem(title, url, content_type=content_type)
+            items.append(item)
+
+        # Now apparently the root of Videoland returns a different response every now and then. We
+        # need to check that and retry otherwise.
+        json_data = JsonHelper(data)
+        blockes = json_data.get_value("blocks")
+        retry = 0
+        while retry < 5 and len(blockes) > 10:
+            retry += 1
+            Logger.warning("Wrong `videoland_root` response. Retry")
+            data = UriHandler.open(self.mainListUri, additional_headers=self.httpHeaders)
+            json_data = JsonHelper(data)
+            blockes = json_data.get_value("blocks")
+
+        return json_data, items
 
     def create_mainlist_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
         if not result_set["title"]:
@@ -108,6 +138,8 @@ class Channel(chn_class.Channel):
         if "content" in action:
             url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/{item_id}/layout?nbPages={self.__pages}"
             item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
+        elif "collectie" in action:
+            return None
         else:
             url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/video/{item_id}/layout?nbPages=2"
             item = MediaItem(title, url, media_type=mediatype.EPISODE)
