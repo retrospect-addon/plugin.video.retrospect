@@ -66,6 +66,7 @@ class Channel(chn_class.Channel):
         self.__authenticator = Authenticator(handler)
         self.__jwt = None
         self.__uid = None
+        self.__has_premium = False
 
         #===============================================================================================================
         # non standard items
@@ -240,7 +241,8 @@ class Channel(chn_class.Channel):
         result = self.__authenticator.log_on(username=username, channel_guid=self.guid, setting_id="videolandnl_password")
 
         # Set some defaults
-        self.__jwt = self.__authenticator.get_authentication_token()
         self.__uid = result.uid
+        self.__has_premium = result.has_premium
+        self.__jwt = result.jwt if result.jwt else self.__authenticator.get_authentication_token()
         self.httpHeaders["Authorization"] = f"Bearer {self.__jwt}"
         return result.logged_on
