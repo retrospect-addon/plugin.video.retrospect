@@ -1177,6 +1177,17 @@ class Channel(chn_class.Channel):
         parent_item = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
         items = []
         iptv_streams = []
+
+        # NPO start switched to SVG files embedded in code. So, get them from Wikipedia, which should be stable.
+        # 800px width recommended https://kodi.wiki/view/Live_TV_Artwork
+        logo_sources = {
+            "NPO1": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/NPO_1_logo_2014.svg/800px-NPO_1_logo_2014.svg.png",
+            "NPO2": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/NPO_2_logo_2014.svg/800px-NPO_2_logo_2014.svg.png",
+            "NPO3": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/NPO_3_logo_2014.svg/800px-NPO_3_logo_2014.svg.png",
+            "NPO1 Extra": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/NPO_1_Extra_logo_2018.svg/800px-NPO_1_Extra_logo_2018.svg.png",
+            "NPO2 Extra": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/NPO_2_Extra_logo_2018.svg/800px-NPO_2_Extra_logo_2018.svg.png",
+            "NPO Politiek en Nieuws": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/NPO_Politiek_en_Nieuws_logo.svg/800px-NPO_Politiek_en_Nieuws_logo.svg.png"
+        }
         
         for livestream in guide_channel_data.json:
             item = self.create_api_live_tv(livestream)
@@ -1185,8 +1196,7 @@ class Channel(chn_class.Channel):
             iptv_streams.append(dict(
                 id=JsonHelper.get_from(livestream, "id"),
                 name=JsonHelper.get_from(livestream, "title"),
-                logo=JsonHelper.get_from(livestream, "images", "original", "formats", "tv",
-                                         "source"),
+                logo=logo_sources[JsonHelper.get_from(livestream, "title")],
                 group=self.channelName,
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item,
                                                           store_id=parent_item.guid),
