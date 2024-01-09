@@ -1173,12 +1173,12 @@ class Channel(chn_class.Channel):
         :return: Formatted stations
         :rtype: list
         """
-        guide_channel_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channels"))
+        channel_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channels"))
         parent_item = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
         items = []
         iptv_streams = []
 
-        # NPO start switched to SVG files embedded in code. So, get them from Wikipedia, which should be stable.
+        # NPO start switched to SVG logos embedded in code. So, get them from Wikipedia instead, which should be stable-ish.
         # 800px width recommended https://kodi.wiki/view/Live_TV_Artwork
         logo_sources = {
             "NPO1": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/NPO_1_logo_2014.svg/800px-NPO_1_logo_2014.svg.png",
@@ -1189,12 +1189,12 @@ class Channel(chn_class.Channel):
             "NPO Politiek en Nieuws": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/NPO_Politiek_en_Nieuws_logo.svg/800px-NPO_Politiek_en_Nieuws_logo.svg.png"
         }
         
-        for livestream in guide_channel_data.json:
+        for livestream in channel_data.json:
             item = self.create_api_live_tv(livestream)
             items.append(item)
 
             iptv_streams.append(dict(
-                id=JsonHelper.get_from(livestream, "id"),
+                id=JsonHelper.get_from(livestream, "guid"),
                 name=JsonHelper.get_from(livestream, "title"),
                 logo=logo_sources[JsonHelper.get_from(livestream, "title")],
                 group=self.channelName,
@@ -1214,47 +1214,41 @@ class Channel(chn_class.Channel):
         :return: Formatted stations
         :rtype: dict
         """
-        return dict()
+
+        channel_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channels"))
         parent = MediaItem("EPG", "https://start-api.npo.nl/epg/", media_type=mediatype.FOLDER)
         iptv_epg = dict()
         media_items = []
+        
+        for livestream in channel_data.json:
+            iptv_epg[livestream["guid"]] = []
+            
+            # Fetch 3 days in the past and in the future
+            start = datetime.datetime.now() - datetime.timedelta(days=3)
+            for i in range(0, 6, 1):
+                air_date = start + datetime.timedelta(i)
+                date = air_date.strftime("%d-%m-%Y")
+                guid = livestream["guid"]
+                guide_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channel?guid={guid}&date={date}"))
+        
+                for item in guide_data.json:
+                    item["channel"] = livestream["title"]
+                    media_item = self.create_api_epg_item(item)
+                    iptv_epg_item = dict(
+                        start=datetime.datetime.fromtimestamp(JsonHelper.get_from(item, "programStart"), datetime.timezone.utc).isoformat(),
+                        stop=datetime.datetime.fromtimestamp(JsonHelper.get_from(item, "programEnd"), datetime.timezone.utc).isoformat(),
+                        title=JsonHelper.get_from(item, "title"))
+                    
+                    if len(JsonHelper.get_from(item, "images")) > 0:
+                        iptv_epg_item["image"] = JsonHelper.get_from(item, "images")[0].get("url")
 
-        start = datetime.datetime.now() - datetime.timedelta(days=3)
-        for i in range(0, 7, 1):
-            air_date = start + datetime.timedelta(i)
-            data = UriHandler.open(
-                air_date.strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv"),
-                no_cache=True,
-                additional_headers=self.__jsonApiKeyHeader)
+                    if media_item is not None:
+                        iptv_epg_item["stream"] = parameter_parser.create_action_url(self, action=action.PLAY_VIDEO,
+                            item=media_item,
+                            store_id=parent.guid)
 
-            json_data = JsonHelper.loads(data)
-            for epg_item in JsonHelper.get_from(json_data, "epg"):
-                epg_id = JsonHelper.get_from(epg_item, "channel", 'liveStream', 'id')
-                iptv_epg[epg_id] = iptv_epg.get(epg_id, [])
-                for program in JsonHelper.get_from(epg_item, "schedule"):
-                    media_item = MediaItem(JsonHelper.get_from(program, "program", "title"),
-                                           JsonHelper.get_from(program, "program", "id"),
-                                           media_type=mediatype.EPISODE)
-                    region_restrictions = JsonHelper.get_from(program, "program",
-                                                              "regionRestrictions")
-                    media_item.isGeoBlocked = any(
-                        [r for r in region_restrictions if r != "PLUSVOD:EU"])
-                    media_items.append(media_item)
-                    iptv_epg[epg_id].append(dict(
-                        start=JsonHelper.get_from(program, "startsAt"),
-                        stop=JsonHelper.get_from(program, "endsAt"),
-                        title=JsonHelper.get_from(program, "program", "title"),
-                        description=JsonHelper.get_from(program, "program", "descriptionLong"),
-                        image=JsonHelper.get_from(program, "program", "images", "header", "formats",
-                                                  "tv", "source"),
-                        genre=JsonHelper.get_from(program, "program", "genres", 0,
-                                                  "terms") if JsonHelper.get_from(program,
-                                                                                  "program",
-                                                                                  "genres") else [],
-                        stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO,
-                                                                  item=media_item,
-                                                                  store_id=parent.guid),
-                    ))
+                    iptv_epg[livestream["guid"]].append(iptv_epg_item)
+
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
         return iptv_epg
 
