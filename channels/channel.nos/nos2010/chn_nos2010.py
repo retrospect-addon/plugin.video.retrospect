@@ -1165,7 +1165,7 @@ class Channel(chn_class.Channel):
         return item
 
     def create_iptv_streams(self, parameter_parser):
-        """ Fetch the available live channels using EPG endpoint and format them into JSON-STREAMS
+        """ Fetch the available live channels using guide-channels endpoint and format them into JSON-STREAMS
 
         :param ActionParser parameter_parser: a ActionParser object to is used to parse and
                                                    create urls
@@ -1173,23 +1173,13 @@ class Channel(chn_class.Channel):
         :return: Formatted stations
         :rtype: list
         """
-        epg_url = datetime.datetime.now().strftime("https://start-api.npo.nl/epg/%Y-%m-%d?type=tv")
-        epg_data = UriHandler.open(epg_url,
-                                   no_cache=True,
-                                   additional_headers=self.__jsonApiKeyHeader)
-        epg = JsonHelper(epg_data)
-
+        guide_channel_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channels"))
         parent_item = MediaItem("Live", "https://www.npostart.nl/live", media_type=mediatype.FOLDER)
         items = []
         iptv_streams = []
-
-        for stations in epg.get_value("epg"):
-            livestream = JsonHelper.get_from(stations, "channel", "liveStream")
-            item = MediaItem(JsonHelper.get_from(livestream, "title"),
-                             JsonHelper.get_from(livestream, "shareUrl"),
-                             media_type=mediatype.VIDEO)
-            item.isLive = True
-            item.isGeoLocked = True
+        
+        for livestream in guide_channel_data.json:
+            item = self.create_api_live_tv(livestream)
             items.append(item)
 
             iptv_streams.append(dict(
@@ -1201,9 +1191,8 @@ class Channel(chn_class.Channel):
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item,
                                                           store_id=parent_item.guid),
             ))
-
+        
         parameter_parser.pickler.store_media_items(parent_item.guid, parent_item, items)
-
         return iptv_streams
 
     def create_iptv_epg(self, parameter_parser):
@@ -1215,7 +1204,7 @@ class Channel(chn_class.Channel):
         :return: Formatted stations
         :rtype: dict
         """
-
+        return dict()
         parent = MediaItem("EPG", "https://start-api.npo.nl/epg/", media_type=mediatype.FOLDER)
         iptv_epg = dict()
         media_items = []
