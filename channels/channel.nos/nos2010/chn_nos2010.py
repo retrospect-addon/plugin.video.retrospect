@@ -734,8 +734,10 @@ class Channel(chn_class.Channel):
         channel = result_set["channel"]
 
         date_stamp = DateHelper.get_date_from_posix(start, tz=self.__timezone)
-        if date_stamp > datetime.datetime.now(tz=pytz.UTC):
-            return None
+        # Check not needed. Programs in the future that are unavailable don't have a result_set.program property, which is already checked above.
+        # https://github.com/retrospect-addon/plugin.video.retrospect/pull/1754#issuecomment-1884550951
+        # if date_stamp > datetime.datetime.now(tz=pytz.UTC):
+        #     return None
 
         item = MediaItem(f"{date_stamp.hour:02d}:{date_stamp.minute:02d} - {channel} - {name}", url, media_type=mediatype.EPISODE)
         if season_slug and program_guid:
