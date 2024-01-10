@@ -10,3 +10,4 @@ t.b.d.
 
 [B]Channel related[/B]
 * Fixed: NPO Recent items did not display videos unrelated to shows.
+* Fixed: MTV channels.
