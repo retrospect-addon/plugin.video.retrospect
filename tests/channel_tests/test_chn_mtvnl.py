@@ -23,5 +23,6 @@ class TestMtvNlChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_video(self):
-        url = "https://www.mtv.nl/clip/4jnx08/teen-mom-young-pregnant-teen-mom-young-pregnant-ik-denk-niet-dat-ze-er-klaar-voor-is"
+        # url = "https://www.mtv.nl/clip/4jnx08/teen-mom-young-pregnant-teen-mom-young-pregnant-ik-denk-niet-dat-ze-er-klaar-voor-is"
+        url = "https://topaz.viacomcbs.digital/topaz/api/mgid:arc:showvideo:mtv.nl:94baade0-7d7f-4982-a2ad-a9f9b0276c39/mica.json?clientPlatform=desktop&ssus=44545c3d-6208-45e5-953e-801abf27ae7b&browser=Chrome&device=Desktop&os=Windows+10"
         self._test_video_url(url)
