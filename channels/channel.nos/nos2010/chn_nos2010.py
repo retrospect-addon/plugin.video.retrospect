@@ -1246,6 +1246,7 @@ class Channel(chn_class.Channel):
                         iptv_epg_item["stream"] = parameter_parser.create_action_url(self, action=action.PLAY_VIDEO,
                             item=media_item,
                             store_id=parent.guid)
+                        media_items.append(media_item)
 
                     iptv_epg[livestream["guid"]].append(iptv_epg_item)
 
