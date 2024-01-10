@@ -177,12 +177,14 @@ class GigyaHandler(AuthenticationHandler):
         return token_value
 
     def __check_for_premium(self):
-        url = f"https://stores.videoland.bedrock.tech/premium/v4/customers/rtlnl/platforms/m6group_web/users/{self.__uid}/subscriptions"
-        jwt = self.get_authentication_token()
-        headers = {"Authorization": f"Bearer {jwt}"}
-        subscriptions = JsonHelper(UriHandler.open(url, additional_headers=headers))
-        current_subscription = subscriptions.get_value("current", 0, "current_contract")
-        self.__has_premium = False if current_subscription.get("variant_id", "") == "Free" else True
+        return
+
+        # url = f"https://stores.videoland.bedrock.tech/premium/v4/customers/rtlnl/platforms/m6group_web/users/{self.__uid}/subscriptions"
+        # jwt = self.get_authentication_token()
+        # headers = {"Authorization": f"Bearer {jwt}"}
+        # subscriptions = JsonHelper(UriHandler.open(url, additional_headers=headers))
+        # current_subscription = subscriptions.get_value("current", 0, "current_contract")
+        # self.__has_premium = False if current_subscription.get("variant_id", "") == "Free" else True
 
     def __extract_uid_info(self, token: JsonHelper) -> None:
         self.__uid = token.get_value("UID")

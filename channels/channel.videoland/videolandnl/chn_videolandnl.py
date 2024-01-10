@@ -35,6 +35,10 @@ class Channel(chn_class.Channel):
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         self.noImage = "videolandnl-thumb.jpg"
+        self.httpHeaders = {
+            "X-Client-Release": "5.81.1",
+            "X-Customer-Name": "rtlnl"
+        }
 
         # setup the urls
         self.mainListUri = "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/alias/home/layout?nbPages=1"
@@ -42,23 +46,33 @@ class Channel(chn_class.Channel):
         # https://pc.middleware.videoland.bedrock.tech/6play/v2/platforms/m6group_web/services/videoland/programs/first-letters?csa=tot_18_jaar
 
         self._add_data_parser(self.mainListUri, requires_logon=True, json=True,
-                              name="Mainlist for Videoland", preprocessor=self.add_others_and_check_correct_url,
+                              name="Mainlist for Videoland",
+                              preprocessor=self.add_others_and_check_correct_url,
                               parser=["blocks"], creator=self.create_mainlist_item)
 
-        self._add_data_parsers([r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/",
-                                r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/\d+/block/"],
-                               match_type=ParserData.MatchRegex,
-                               name="Main processor that create content items (folders/videos) from blocks", json=True, requires_logon=True,
-                               parser=["content", "items"], creator=self.create_content_item)
+        self._add_data_parsers([
+            r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/",
+            r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/\d+/block/"],
+            match_type=ParserData.MatchRegex,
+            name="Main processor that create content items (folders/videos) from blocks",
+            json=True, requires_logon=True,
+            parser=["content", "items"], creator=self.create_content_item)
 
-        self._add_data_parser(r"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/\d+/layout",
-                              match_type=ParserData.MatchRegex, json=True, requires_logon=True,
-                              name="Parser for the main folder of a show show/program.",
-                              preprocessor=self.extract_program_id,
-                              parser=["blocks"], creator=self.create_program_item)
+        self._add_data_parser(
+            r"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/\d+/layout",
+            match_type=ParserData.MatchRegex, json=True, requires_logon=True,
+            name="Parser for the main folder of a show show/program.",
+            preprocessor=self.extract_program_id,
+            parser=["blocks"], creator=self.create_program_item)
 
-        self._add_data_parser("https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/video/", requires_logon=True,
-                              name="Video updater", json=True, updater=self.update_video_item)
+        self._add_data_parser(
+            "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/video/",
+            requires_logon=True,
+            name="Video updater", json=True, updater=self.update_video_item)
+
+        self._add_data_parser("algolia.net", match_type=ParserData.MatchContains, json=True,
+                              name="Search results",
+                              parser=["results", 0, "hits"], creator=self.create_search_result)
 
         # Authentication
         handler = GigyaHandler(
@@ -69,7 +83,7 @@ class Channel(chn_class.Channel):
         self.__uid = None
         self.__has_premium = False
 
-        #===============================================================================================================
+        # ===============================================================================================================
         # non standard items
         self.__program_id = None
         self.__pages = 10
@@ -77,8 +91,14 @@ class Channel(chn_class.Channel):
 
     def add_others_and_check_correct_url(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
         items = []
+        search = FolderItem(LanguageHelper.get_localized_string(LanguageHelper.Search),
+                            "#searchSite", content_type=contenttype.TVSHOWS)
+        items.append(search)
+
         extras: Dict[int, Tuple[str, str]] = {
-            LanguageHelper.Recent: ("page_6599c70de291a2.86703456--6918fda7-49db-49d5-b7f3-1e4a5b6bfab3", contenttype.TVSHOWS),
+            LanguageHelper.Recent: (
+                "page_6599c70de291a2.86703456--6918fda7-49db-49d5-b7f3-1e4a5b6bfab3",
+                contenttype.TVSHOWS),
             # Already a standard item
             # LanguageHelper.Popular: ("page_6599c70de291a2.86703456--47a90b2c-669e-453f-8e3d-07eebbe4d4d0_167", contenttype.TVSHOWS)
         }
@@ -104,7 +124,8 @@ class Channel(chn_class.Channel):
 
         return json_data, items
 
-    def create_mainlist_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
+    def create_mainlist_item(self, result_set: Union[str, dict]) -> Union[
+        MediaItem, List[MediaItem], None]:
         if not result_set["title"]:
             return None
         title = result_set["title"].get("long", result_set["title"].get("short"))
@@ -112,7 +133,8 @@ class Channel(chn_class.Channel):
         url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/{page_id}?nbPages={self.__pages}"
 
         feature_id = result_set["featureId"]
-        item = FolderItem(title, url, content_type=contenttype.EPISODES if feature_id.startswith("videos") else contenttype.TVSHOWS)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES if feature_id.startswith(
+            "videos") else contenttype.TVSHOWS)
 
         if title.lower().startswith("rtl"):
             poster_slug = title.lower().replace(" ", "")
@@ -121,7 +143,8 @@ class Channel(chn_class.Channel):
             item.poster = poster_url
         return item
 
-    def create_content_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
+    def create_content_item(self, result_set: Union[str, dict]) -> Union[
+        MediaItem, List[MediaItem], None]:
         result_set: dict = result_set["itemContent"]
 
         title = result_set["title"]
@@ -213,6 +236,58 @@ class Channel(chn_class.Channel):
 
         return item
 
+    def search_site(self, url=None):
+        """ Creates an list of items by searching the site.
+
+        This method is called when the URL of an item is "searchSite". The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with an URL encoded representation of the
+        text to search for.
+
+        :param str url:     Url to use to search with a %s for the search parameters.
+
+        :return: A list with search results as MediaItems.
+        :rtype: list[MediaItem]
+
+        """
+
+        needle = XbmcWrapper.show_key_board()
+        if not needle:
+            return []
+
+        url = "https://nhacvivxxk-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.14.2)%3B%20Browser"
+        data = {"requests": [{
+            "indexName": "videoland_prod_bedrock_layout_items_v2_rtlnl_main",
+            "query": needle,
+            "params": "hitsPerPage=50&facetFilters=%5B%5B%22metadata.item_type%3Aprogram%22%5D%2C%5B%22metadata.platforms_assets%3Am6group_web%22%5D%5D"
+        }]}
+
+        headers = {
+            "X-Algolia-Api-Key": "6ef59fc6d78ac129339ab9c35edd41fa",
+            "X-Algolia-Application-Id": "NHACVIVXXK"
+        }
+        search_item = FolderItem("search", url, content_type=contenttype.TVSHOWS)
+        search_item.HttpHeaders = headers
+        search_item.postJson = data
+        return self.process_folder_list(search_item)
+
+    def create_search_result(
+            self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
+        last_activity_date = result_set["metadata"].get("last_activity_date")
+
+        result_set = result_set["item"]
+        item = self.create_content_item(result_set)
+        if not item:
+            return None
+
+        if not item.has_date():
+            # 2021-11-30 00:00:00
+            time_stamp = DateHelper.get_date_from_string(last_activity_date, "%Y-%m-%d %H:%M:%S")
+            item.set_date(*time_stamp[0:6])
+        return item
+
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = JsonHelper(UriHandler.open(item.url, additional_headers=self.httpHeaders))
         video_info = data.get_value("blocks", 0, "content", "items", 0, "itemContent", "video")
@@ -220,11 +295,14 @@ class Channel(chn_class.Channel):
 
         # Construct license info
         license_token_url = f"https://drm.videoland.bedrock.tech/v1/customers/rtlnl/platforms/m6group_web/services/videoland_catchup/users/{self.__uid}/videos/{video_id}/upfront-token"
-        license_token = JsonHelper(UriHandler.open(license_token_url, additional_headers=self.httpHeaders)).get_value("token")
-        license_key = Mpd.get_license_key("https://lic.drmtoday.com/license-proxy-widevine/cenc/", key_headers={
-            "x-dt-auth-token": license_token,
-            "content-type": "application/octstream"
-        }, json_filter="JBlicense")
+        license_token = JsonHelper(
+            UriHandler.open(license_token_url, additional_headers=self.httpHeaders)).get_value(
+            "token")
+        license_key = Mpd.get_license_key("https://lic.drmtoday.com/license-proxy-widevine/cenc/",
+                                          key_headers={
+                                              "x-dt-auth-token": license_token,
+                                              "content-type": "application/octstream"
+                                          }, json_filter="JBlicense")
 
         for asset in video_info["assets"]:
             quality = asset["video_quality"]
@@ -270,7 +348,8 @@ class Channel(chn_class.Channel):
         if not username:
             XbmcWrapper.show_dialog(None, LanguageHelper.MissingCredentials)
 
-        result = self.__authenticator.log_on(username=username, channel_guid=self.guid, setting_id="videolandnl_password")
+        result = self.__authenticator.log_on(username=username, channel_guid=self.guid,
+                                             setting_id="videolandnl_password")
 
         # Set some defaults
         self.__uid = result.uid
