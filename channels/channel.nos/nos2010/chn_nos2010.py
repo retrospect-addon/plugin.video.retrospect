@@ -1181,15 +1181,13 @@ class Channel(chn_class.Channel):
         items = []
         iptv_streams = []
 
-        # NPO start switched to SVG logos embedded in code. So, get them from Wikipedia instead, which should be stable-ish.
-        # 800px width recommended https://kodi.wiki/view/Live_TV_Artwork
         logo_sources = {
-            "NPO1": TextureHandler.instance().get_texture_uri(self, "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/NPO_1_logo_2014.svg/800px-NPO_1_logo_2014.svg.png"),
-            "NPO2": TextureHandler.instance().get_texture_uri(self, "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/NPO_2_logo_2014.svg/800px-NPO_2_logo_2014.svg.png"),
-            "NPO3": TextureHandler.instance().get_texture_uri(self, "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/NPO_3_logo_2014.svg/800px-NPO_3_logo_2014.svg.png"),
-            "NPO1 Extra": TextureHandler.instance().get_texture_uri(self, "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/NPO_1_Extra_logo_2018.svg/800px-NPO_1_Extra_logo_2018.svg.png"),
-            "NPO2 Extra": TextureHandler.instance().get_texture_uri(self, "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/NPO_2_Extra_logo_2018.svg/800px-NPO_2_Extra_logo_2018.svg.png"),
-            "NPO Politiek en Nieuws": TextureHandler.instance().get_texture_uri(self, "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/NPO_Politiek_en_Nieuws_logo.svg/800px-NPO_Politiek_en_Nieuws_logo.svg.png")
+            "NPO1": TextureHandler.instance().get_texture_uri(self, "npo1.png"),
+            "NPO2": TextureHandler.instance().get_texture_uri(self, "npo2.png"),
+            "NPO3": TextureHandler.instance().get_texture_uri(self, "npo3.png"),
+            "NPO1 Extra": TextureHandler.instance().get_texture_uri(self, "npo1extra.png"),
+            "NPO2 Extra": TextureHandler.instance().get_texture_uri(self, "npo2extra.png"),
+            "NPO Politiek en Nieuws": TextureHandler.instance().get_texture_uri(self, "npopolitiekennieuws.png")
         }
         
         for livestream in channel_data.json:
