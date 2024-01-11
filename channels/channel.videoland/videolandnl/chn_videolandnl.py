@@ -314,7 +314,7 @@ class Channel(chn_class.Channel):
             if quality == "hd":
                 continue
 
-            if video_type == "mpd" or video_format == "dashcenc":
+            if video_type == "mpd" or video_format == "dashcenc" or video_format == "dash":
                 stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
                 Mpd.set_input_stream_addon_input(stream, license_key=license_key)
                 item.complete = True
