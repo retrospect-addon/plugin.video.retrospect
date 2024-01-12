@@ -27,13 +27,13 @@ class TestLocalTextures(unittest.TestCase):
 
     def test_local_texture_file(self):
         local = Local(Logger.instance())
-        url = local._get_texture_uri(self.channel_path, "3large.png")
+        url = local._get_texture_uri(self.channel_path, "npo3.png")
         self.assertTrue(os.path.isabs(url))
         self.assertTrue(os.path.isfile(url))
 
     def test_local_texture_file_abs(self):
         local = Local(Logger.instance())
-        path = os.path.abspath(os.path.join(self.channel_path, "3large.png"))
+        path = os.path.abspath(os.path.join(self.channel_path, "npo3.png"))
         url = local._get_texture_uri(self.channel_path, path)
         self.assertTrue(os.path.isabs(url))
         self.assertTrue(os.path.isfile(url))
