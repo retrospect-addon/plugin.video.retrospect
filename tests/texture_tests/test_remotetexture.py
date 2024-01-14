@@ -31,8 +31,8 @@ class TestResourceTextures(unittest.TestCase):
 
     def test_remote_texture_from_remote(self):
         texture = self._get_texture_handler()
-        texture_path = "3large.png"
-        online_path = "https://retrospect-addon.github.io/resource.images.retrospect/resources/channels/3/3large.png"
+        texture_path = "npo3.png"
+        online_path = "https://retrospect-addon.github.io/resource.images.retrospect/resources/channels/n/npo3.png"
 
         # Get url and check if it exists
         url = texture._get_texture_uri(self.channel_path, texture_path)
@@ -65,7 +65,7 @@ class TestResourceTextures(unittest.TestCase):
     def test_remote_is_texture_for_texture(self):
         texture = self._get_texture_handler()
         self.assertTrue(texture.is_texture_or_empty(
-            "https://retrospect-addon.github.io/resource.images.retrospect/resources/channel.nos.nos2010/3large.png"))
+            "https://retrospect-addon.github.io/resource.images.retrospect/resources/channel.nos.nos2010/npo3.png"))
 
     def test_remote_is_texture_other(self):
         texture = self._get_texture_handler()

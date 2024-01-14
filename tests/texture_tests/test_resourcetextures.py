@@ -40,8 +40,8 @@ class TestResourceTextures(unittest.TestCase):
 
     def test_resource_texture_file_from_local_disk(self):
         texture = self._get_texture_handler()
-        texture_path = "3large.png"
-        resource_path = "resource://resource.images.retrospect/channels/3/3large.png"
+        texture_path = "npo3.png"
+        resource_path = "resource://resource.images.retrospect/channels/n/npo3.png"
 
         # Get url and check if it exists
         url = texture._get_texture_uri(self.channel_path, texture_path)
@@ -58,7 +58,7 @@ class TestResourceTextures(unittest.TestCase):
 
     def test_resource_texture_file_resource(self):
         texture = self._get_texture_handler()
-        texture_path = "resource://{}/{}".format(Config.textureResource, "3large.png")
+        texture_path = "resource://{}/{}".format(Config.textureResource, "npo3.png")
         url = texture._get_texture_uri(self.channel_path, texture_path)
         self.assertEqual(texture_path, url)
 
