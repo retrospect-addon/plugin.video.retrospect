@@ -11,7 +11,6 @@ from resources.lib.authentication.gigyahandler import GigyaHandler
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.parserdata import ParserData
 from resources.lib.streams.mpd import Mpd
@@ -114,13 +113,51 @@ class Channel(chn_class.Channel):
         # need to check that and retry otherwise.
         json_data = JsonHelper(data)
         blockes = json_data.get_value("blocks")
-        retry = 0
-        while retry < 5 and len(blockes) > 10:
-            retry += 1
-            Logger.warning("Wrong `videoland_root` response. Retry")
-            data = UriHandler.open(self.mainListUri, additional_headers=self.httpHeaders)
-            json_data = JsonHelper(data)
-            blockes = json_data.get_value("blocks")
+        if len(blockes) > 10:
+            fallback = [
+                {
+                    "title": {"long": LanguageHelper.get_localized_string(LanguageHelper.Popular)},
+                    "id": "page_65a44d889f7982.33185461--6d1869d5-ef61-461c-b634-226a1bb29c7d",
+                    "featureId": "programs_by_segment"
+                },
+                {
+                    "title": {"long": "Verder kijken"},
+                    "id": "page_65a44d889f7982.33185461--2d2d40f6-8648-449a-9af4-a68162e6404a",
+                    "featureId": "recommended_videos_by_user"
+                },
+                {
+                    "title": {"long": "Dagelijkse programma's"},
+                    "id": "page_65a453843fcbe7.99183628--35d0c383-60fb-49b0-9852-f05bfa1bfeaa_494",
+                    "featureId": "programs_by_folder_by_service"
+                },
+                {
+                    "title": {"long": "RTL 4"},
+                    "id": "page_65a45411767f89.39008634--582cb0eb-3bd2-4d20-9732-8963d05d05ef",
+                    "featureId": "videos_by_tags"
+                },
+                {
+                    "title": {"long": "RTL 5"},
+                    "id": "page_65a45411767f89.39008634--810d0bf5-2bd9-4e79-8ad1-af5700fa614c",
+                    "featureId": "videos_by_tags"
+                },
+                {
+                    "title": {"long": "RTL 7"},
+                    "id": "page_65a45411767f89.39008634--2cf10b26-4064-49d3-9729-69011dba752e",
+                    "featureId": "videos_by_tags"
+                },
+                {
+                    "title": {"long": "RTL 8"},
+                    "id": "page_65a45411767f89.39008634--7099088c-902b-4d43-817e-c6b0661f0ba5",
+                    "featureId": "videos_by_tags"
+                },
+                {
+                    "title": {"long": "RTL Z"},
+                    "id": "page_65a45411767f89.39008634--a97c9122-7731-45be-a884-fd7cc1399250",
+                    "featureId": "videos_by_tags"
+                }
+            ]
+            for result_set in fallback:
+                items.append(self.create_mainlist_item(result_set))
 
         return json_data, items
 
@@ -133,8 +170,7 @@ class Channel(chn_class.Channel):
         url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/{page_id}?nbPages={self.__pages}"
 
         feature_id = result_set["featureId"]
-        item = FolderItem(title, url, content_type=contenttype.EPISODES if feature_id.startswith(
-            "videos") else contenttype.TVSHOWS)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES if "videos" in feature_id else contenttype.TVSHOWS)
 
         if title.lower().startswith("rtl"):
             poster_slug = title.lower().replace(" ", "")
