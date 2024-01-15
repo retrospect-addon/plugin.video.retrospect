@@ -142,6 +142,12 @@ class Channel:
     def sort_key(self):
         return "{0}-{1}".format(self.sortOrderPerCountry, self.channelName)
 
+    def filter_premium(self) -> Optional[bool]:
+        """ Does the channel have a specific 'filter premium' filter. If not None, it will
+        override the main Retrospect one """
+
+        return None
+
     def process_folder_list(self, parent_item: Optional[MediaItem]=None) -> List[MediaItem]:  # NOSONAR
         """ Process the selected item and gets it's child items using the available dataparsers.
 
@@ -336,10 +342,13 @@ class Channel:
             Logger.trace("Post-processing returned %d items", len(items))
         self.currentParser = None
 
+        # Hide premium. First consider a channel setting, otherwise overall.
+        hide_premium = self.filter_premium()
+        hide_premium = AddonSettings.hide_premium_items() if hide_premium is None else hide_premium
+
         # should we exclude DRM/GEO?
         hide_geo_locked = AddonSettings.hide_geo_locked_items_for_location(self.language)
         hide_drm_protected = AddonSettings.hide_drm_items()
-        hide_premium = AddonSettings.hide_premium_items()
         hide_folders = AddonSettings.hide_restricted_folders()
         type_to_exclude = []
         if not hide_folders:
