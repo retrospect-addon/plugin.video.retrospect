@@ -324,6 +324,14 @@ class Channel(chn_class.Channel):
             item.set_date(*time_stamp[0:6])
         return item
 
+    def filter_premium(self) -> Optional[bool]:
+        filter_paid = int(self._get_setting("filter_premium", '0'))
+        if not filter_paid:
+            return None
+
+        # 0: Default, 1: Show all, 2: Filter
+        return filter_paid > 1
+
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = JsonHelper(UriHandler.open(item.url, additional_headers=self.httpHeaders))
         video_info = data.get_value("blocks", 0, "content", "items", 0, "itemContent", "video")
