@@ -3,10 +3,11 @@
 t.b.d.
 
 [B]Framework related[/B]
-* None
+* Fixed: For search results, keep the sort order as "unsorted".
+* Changed: Various fixes for log-in and log-out.
 
 [B]GUI/Settings/Language related[/B]
-* None
+* Added: Option to have a channel dedicated filter of premium items.
 
 [B]Channel related[/B]
 * Fixed: NPO Recent items did not display videos unrelated to shows.

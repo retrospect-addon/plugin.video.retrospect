@@ -14,6 +14,7 @@
         <import addon="script.module.pyscrypt" version="1.6.2" />
         <import addon="script.module.pyaes" version="1.6.1" />
         <import addon="resource.images.retrospect" version="1.0.12" />
+        <import addon="script.module.pyjwt" version="2.8.0" />
     </requires>
 
     <extension  point="xbmc.python.pluginsource"
