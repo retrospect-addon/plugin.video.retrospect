@@ -1220,25 +1220,37 @@ class Channel(chn_class.Channel):
         parent = MediaItem("EPG", "https://start-api.npo.nl/epg/", media_type=mediatype.FOLDER)
         iptv_epg = dict()
         media_items = []
+        channel_slugs = {
+            "NPO1": "npo-1",
+            "NPO2": "npo-2",
+            "NPO3": "npo-3",
+            "NPO1 Extra": "npo-1-extra",
+            "NPO2 Extra": "npo-2-extra"
+        }
         
         for livestream in channel_data.json:
             iptv_epg[livestream["guid"]] = []
             
-            # Fetch 3 days in the past and in the future
-            start = datetime.datetime.now() - datetime.timedelta(days=3)
-            for i in range(0, 6, 1):
+            # Fetch 2 days in the past and in the future
+            start = datetime.datetime.now() - datetime.timedelta(days=2)
+            for i in range(0, 4, 1):
                 air_date = start + datetime.timedelta(i)
                 date = air_date.strftime("%d-%m-%Y")
                 guid = livestream["guid"]
-                guide_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channel?guid={guid}&date={date}"))
+                channel_slug = channel_slugs.get(JsonHelper.get_from(livestream, "title"))
+                npo_guide_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channel?guid={guid}&date={date}"))
+                if channel_slug:
+                    vpro_guide = self.fetch_vpro_guide(channel_slug, air_date)
         
-                for item in guide_data.json:
+                for item in npo_guide_data.json:
                     item["channel"] = livestream["title"]
                     media_item = self.create_api_epg_item(item)
                     iptv_epg_item = dict(
                         start=datetime.datetime.fromtimestamp(JsonHelper.get_from(item, "programStart"), datetime.timezone.utc).isoformat(),
                         stop=datetime.datetime.fromtimestamp(JsonHelper.get_from(item, "programEnd"), datetime.timezone.utc).isoformat(),
-                        title=JsonHelper.get_from(item, "title"))
+                        title=JsonHelper.get_from(item, "title"),
+                        description=self.match_vpro_guide_item(vpro_guide, JsonHelper.get_from(item, "programStart")).get("description"),
+                        subtitle=self.match_vpro_guide_item(vpro_guide, JsonHelper.get_from(item, "programStart")).get("episodeTitle"))
                     
                     if len(JsonHelper.get_from(item, "images")) > 0:
                         iptv_epg_item["image"] = JsonHelper.get_from(item, "images")[0].get("url")
@@ -1253,6 +1265,33 @@ class Channel(chn_class.Channel):
 
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
         return iptv_epg
+
+    def match_vpro_guide_item(self, vpro_guide, programStart):
+        """
+        Match VPRO description with NPO EPG by programstart and offsetting it with 3 minutes, if match not found.
+        """
+        max_offset = 60 * 3 # 3 minutes
+        start_date_time = ""
+        for i in range(programStart - max_offset, programStart + max_offset, 60):
+            if datetime.datetime.fromtimestamp(i).isoformat() in vpro_guide:  
+                start_date_time = datetime.datetime.fromtimestamp(i).isoformat()
+        return JsonHelper.get_from(vpro_guide, start_date_time) or {}
+
+
+    def fetch_vpro_guide(self, channel_slug, air_date):
+        """
+        Fetch VPRO EPG, because it contains data in addition to the NPO EPG (description, episode title).
+        :return: items, with startDateTime as key
+        :rtype: dict
+        """
+        vpro_guide = {}
+        # Fetch air_date and day before, because programs during the night are bound to the day before
+        for i in range(-1,1):
+            date = (air_date + datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+            vpro_guide_data = JsonHelper(UriHandler.open(f"https://www.vprogids.nl/.rest/schedule/v1/schedule/{date}?channel={channel_slug}"))
+            for item in JsonHelper.get_from(vpro_guide_data.json, "data", 0, "items") or []:
+                vpro_guide[JsonHelper.get_from(item, "startDateTime")] = item
+        return vpro_guide
 
     def __has_premium(self) -> bool:
         if self.__has_premium_cache is None:
