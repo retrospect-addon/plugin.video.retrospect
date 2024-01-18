@@ -1266,13 +1266,13 @@ class Channel(chn_class.Channel):
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
         return iptv_epg
 
-    def match_vpro_guide_item(self, vpro_guide, programStart):
+    def match_vpro_guide_item(self, vpro_guide, program_start):
         """
         Match VPRO description with NPO EPG by programstart and offsetting it with 3 minutes, if match not found.
         """
         max_offset = 60 * 3 # 3 minutes
         start_date_time = ""
-        for i in range(programStart - max_offset, programStart + max_offset, 60):
+        for i in range(program_start - max_offset, program_start + max_offset, 60):
             if datetime.datetime.fromtimestamp(i).isoformat() in vpro_guide:  
                 start_date_time = datetime.datetime.fromtimestamp(i).isoformat()
         return JsonHelper.get_from(vpro_guide, start_date_time) or {}
