@@ -1,13 +1,16 @@
-[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
+[B]Retrospect v5.7.5 - Changelog - 2024-01-18[/B]
 
-t.b.d.
+This release fixes issues with MTV and NPO. It also restores the IPTV functionality for NPO and introduces Videoland as a replacement for RTL XL.
 
 [B]Framework related[/B]
-* None
+* Fixed: For search results, keep the sort order as "unsorted".
+* Changed: Various fixes for log-in and log-out.
 
 [B]GUI/Settings/Language related[/B]
-* None
+* Added: Option to have a channel dedicated filter of premium items.
 
 [B]Channel related[/B]
 * Fixed: NPO Recent items did not display videos unrelated to shows.
 * Fixed: MTV channels.
+* Fixed: NPO IPTV Support.
+* Fixed: SVT `new`-items
