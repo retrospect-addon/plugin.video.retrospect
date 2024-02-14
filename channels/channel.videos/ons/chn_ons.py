@@ -4,7 +4,6 @@ from typing import Union, List
 from resources.lib import chn_class, contenttype, mediatype
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.logger import Logger
-from resources.lib.regexer import Regexer
 from resources.lib.mediaitem import MediaItem, FolderItem
 
 
