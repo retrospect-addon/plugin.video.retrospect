@@ -45,7 +45,7 @@ class ChannelTest(unittest.TestCase):
         return self.channel
 
     def _test_folder_url(self, url, expected_results=None, exact_results=False, headers=None,
-                         retry=1, json=None, data=None):
+                         retry=1, json=None, data=None, parser=None, meta=None):
         self.assertIsNotNone(self.channel)
 
         while retry >= 0:
@@ -54,6 +54,9 @@ class ChannelTest(unittest.TestCase):
                 item.postJson = json
                 item.postData = data
                 item.HttpHeaders.update(headers or {})
+                item.metaData = meta or {}
+                if parser:
+                    item.metaData["retrospect:parser"] = parser
 
                 items = self.channel.process_folder_list(item)
                 if exact_results:
