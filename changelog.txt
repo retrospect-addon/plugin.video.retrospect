@@ -1,6 +1,6 @@
 [B]Retrospect v5.7.7 - Changelog - 2024-02-23[/B]
 
-This is a quick fix for the NPO and ONS channel.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,5 +9,5 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: ONS Playback (Fixes #1761)
-* Fixed: NPO Playback (Fixes #1762)
+* Fixed: NRK occasionally using timestamps with sub-second precision.
+* Fixed: Some TV4 seasons did not have a title, which broke listings (Fixes #1766).
