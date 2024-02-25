@@ -541,6 +541,11 @@ class Channel(chn_class.Channel):
             time_stamp = DateHelper.get_date_from_string(date_value, date_format="%Y-%m-%dT%H:%M:%S")
             item.set_date(*time_stamp[0:6])
 
+        if "durationInSeconds" in result_set:
+            duration = result_set["durationInSeconds"]
+            Logger.trace("Setting duration to: '%s'", duration)
+            item.set_info_label(MediaItem.LabelDuration, duration)
+
         return item
 
     def create_live_channel_item(self, result_set):
