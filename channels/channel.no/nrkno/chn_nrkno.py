@@ -537,9 +537,14 @@ class Channel(chn_class.Channel):
         elif "usageRights" in result_set and "from" in result_set["usageRights"] and result_set["usageRights"]["from"] is not None:
             Logger.trace("Using 'usageRights.from.date' for date")
             # noinspection PyTypeChecker
-            date_value = result_set["usageRights"]["from"]["date"].split("+")[0]
+            date_value = result_set["usageRights"]["from"]["date"].split("+")[0].split(".")[0]
             time_stamp = DateHelper.get_date_from_string(date_value, date_format="%Y-%m-%dT%H:%M:%S")
             item.set_date(*time_stamp[0:6])
+
+        if "durationInSeconds" in result_set:
+            duration = result_set["durationInSeconds"]
+            Logger.trace("Setting duration to: '%s'", duration)
+            item.set_info_label(MediaItem.LabelDuration, duration)
 
         return item
 

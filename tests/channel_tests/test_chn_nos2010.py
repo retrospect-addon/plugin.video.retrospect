@@ -42,7 +42,7 @@ class TestNpoChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
     def test_single_video(self):
-        url = "https://npo.nl/start/video/natuur-op-2"
+        url = "https://npo.nl/start/video/de-otter-een-legende-keert-terug"
         self._test_video_url(url)
 
     @unittest.skipUnless(6 < datetime.datetime.utcnow().hour < 23, "No now broadcasts after 00:00")
@@ -73,7 +73,7 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/programs-by-series?seriesGuid=b89e4e01-5966-4d26-ba7d-b5e1eae45362&limit=20&sort=-firstBroadcastDate", 4)
 
     def test_series_with_single_season(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=the-ex-wife&type=timeless_series", expected_results=2)
+        self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=selma-s-oorlog&type=timeless_series", expected_results=1)
 
     def test_trending(self):
         self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0", 10)

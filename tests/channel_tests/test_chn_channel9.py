@@ -39,7 +39,8 @@ class TestChannel9Channel(ChannelTest):
             self.assertTrue(stream.Url.startswith("http"))
 
     def test_video_list_with_episodes(self):
-        url = "https://docs.microsoft.com/api/hierarchy/shows/xamarin-101/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
+        url = "https://docs.microsoft.com/api/hierarchy/shows/visual-studio-toolbox/episodes?page=0&locale=en-us&pageSize=30&orderBy=uploaddate%20desc"
+        # https://learn.microsoft.com/api/contentbrowser/search/shows/visual-studio-toolbox/episodes?locale=en-us&facet=products&facet=levels&facet=roles&facet=languages&%24orderBy=upload_date%20desc&%24top=30&fuzzySearch=false
         items = self._test_folder_url(url, expected_results=5)
         for item in items:
             self.assertIsNotNone(item.season)
