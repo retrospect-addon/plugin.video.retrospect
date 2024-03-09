@@ -14,7 +14,7 @@ class TestNrkNoChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 8, "No items found in mainlist")
+        self.assertEqual(len(items), 9, "No items found in mainlist")
 
     def test_abcxyz(self):
         url = "https://psapi.nrk.no/medium/tv/letters?apiKey=d1381d92278a47c09066460f2522a67d"
@@ -46,6 +46,10 @@ class TestNrkNoChannel(ChannelTest):
 
     def test_list_liv_tv(self):
         url = "https://psapi.nrk.no/tv/live?apiKey=d1381d92278a47c09066460f2522a67d"
+        self._test_folder_url(url, expected_results=2)
+
+    def test_headliner(self):
+        url = "https://psapi.nrk.no/tv/headliners/default?apiKey=d1381d92278a47c09066460f2522a67d"
         self._test_folder_url(url, expected_results=2)
 
     @unittest.skip("No longer available in the new API.")

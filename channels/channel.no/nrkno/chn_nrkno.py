@@ -59,6 +59,11 @@ class Channel(chn_class.Channel):
             ],
             json=True, parser=[], creator=self.create_video_item)
 
+        self._add_data_parser("https://psapi.nrk.no/tv/headliners/default", json=True,
+                              name="Headliner items",
+                              parser=["headliners", ],
+                              creator=self.create_headliner_installment_item)
+
         self._add_data_parsers(["https://psapi.nrk.no/tv/live", "https://psapi.nrk.no/radio/live"],
                                json=True, name="Live items",
                                parser=[], creator=self.create_live_channel_item)
@@ -162,6 +167,7 @@ class Channel(chn_class.Channel):
         links = {
             live_tv: "https://psapi.nrk.no/tv/live?apiKey={}".format(self.__api_key),
             live_radio: "https://psapi.nrk.no/radio/live?apiKey={}".format(self.__api_key),
+            "Headliner": "https://psapi.nrk.no/tv/headliners/default?apiKey={}".format(self.__api_key),
             "Recommended": "https://psapi.nrk.no/medium/tv/recommendedprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Popular": "https://psapi.nrk.no/medium/tv/popularprograms/week?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Recent": "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
@@ -389,6 +395,48 @@ class Channel(chn_class.Channel):
 
         # noinspection PyTypeChecker
         item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
+
+        # see if there is a date?
+        self.__set_date(result_set, item)
+        return item
+
+    def create_headliner_installment_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' or  'video' using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        If the item is completely processed an no further data needs to be fetched
+        the self.complete property should be set to True. If not set to True, the
+        self.update_video_item method is called if the item is focussed or selected
+        for playback.
+
+        :param dict[str,str] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'video' or 'folder'.
+        :rtype: MediaItem|None
+
+        """
+        title = result_set["title"]
+
+        item_id = result_set["_links"]["self"]["href"].rsplit('/', 1)[-1]
+        program_type = result_set["type"]
+
+        if program_type == "program":
+            url = self.__get_video_url(item_id)
+            item = MediaItem(title, url, media_type=mediatype.VIDEO)
+        else:
+            url = "https://psapi.nrk.no/tv/catalog/series/{}?apiKey={}".format(item_id, self.__api_key)
+            item = MediaItem(title, url)
+
+        description = result_set.get("subTitle")
+        if description and description.lower() != "no description":
+            item.description = description
+
+        if "images" in result_set:
+            # noinspection PyTypeChecker
+            item.thumb = self.__get_image(result_set["images"], "width", "uri")
 
         # see if there is a date?
         self.__set_date(result_set, item)
