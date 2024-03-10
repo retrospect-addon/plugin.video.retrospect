@@ -122,6 +122,8 @@ class CacheHTTPAdapter(HTTPAdapter):
 
         if "cache-control" in headers:
             cache_control = headers['cache-control']
+            #The "Headliner" NRK API endpoint uses ';' instead of ',' as a field delimiter
+            cache_control = cache_control.replace(";", ",")
             for entry in cache_control.strip().split(","):
                 if entry.find("=") > 0:
                     (key, value) = entry.split("=")
