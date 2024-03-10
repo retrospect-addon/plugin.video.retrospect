@@ -1,8 +1,9 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Union, Optional, List
 
-from resources.lib import chn_class, mediatype
-from resources.lib.mediaitem import MediaItem
+from resources.lib import chn_class, mediatype, contenttype
+from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
@@ -70,13 +71,19 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://psapi.nrk.no/playback/manifest/channel/",
                               updater=self.update_live_channel)
 
-        self._add_data_parser("http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories?", json=True,
+        # https://psapi.nrk.no/documentation/redoc/pages-tv/v3.7/#tag/Pages/operation/GetAllTVSubPages
+        self._add_data_parser("https://psapi.nrk.no/tv/pages?", json=True,
                               # match_type=ParserData.MatchExact,
                               name="Category listing",
-                              parser=[], creator=self.create_category_item)
-        self._add_data_parser("http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories", json=True,
+                              parser=["pageListItems"], creator=self.create_category_item)
+
+        self._add_data_parser("https://psapi.nrk.no/tv/pages/", json=True,
                               name="Category Items",
-                              parser=[], creator=self.create_category_episode_item)
+                              parser=["sections"], creator=self.create_category_sub_item)
+
+        # self._add_data_parser("https://psapi.nrk.no/tv/pages/", json=True,
+        #                       name="Category Items",
+        #                       parser=[], creator=self.create_category_episode_item)
 
         # The new Series/Instalments API (https://psapi-catalog-prod-we.azurewebsites.net/swagger/index.html)
         self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/",
@@ -171,7 +178,7 @@ class Channel(chn_class.Channel):
             #"Recommended": "https://psapi.nrk.no/medium/tv/recommendedprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Popular": "https://psapi.nrk.no/medium/tv/popularprograms/week?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Recent": "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
-            "Categories": "http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories?apiKey={}".format(self.__api_key),
+            "Categories": "https://psapi.nrk.no/tv/pages?apiKey={}".format(self.__api_key),
             "A - Å": "https://psapi.nrk.no/medium/tv/letters?apiKey={}".format(self.__api_key),
             "S&oslash;k": "#searchSite"
         }
@@ -234,37 +241,14 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url)
         return item
 
-    def create_category_item(self, result_set):
+    def create_category_item(self, result_set: dict) -> Union[MediaItem, None]:
         """ Creates a MediaItem of type 'folder' for a category using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
         results <result_set>. The method should be implemented by derived classes
         and are specific to the channel.
 
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        title = result_set["displayValue"]
-        category_id = result_set["id"]
-        url = "http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories/{}/indexelements?apiKey={}"\
-            .format(category_id, self.__api_key)
-        item = MediaItem(title, url)
-        item.thumb = self.__category_thumbs.get(category_id.lower(), self.noImage)
-        return item
-
-    def create_category_episode_item(self, result_set):
-        """ Creates a MediaItem of type 'folder' for a category list item
-        using the result_set from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,str] result_set: The result_set of the self.episodeItemRegex
+        :param result_set: The result_set of the self.episodeItemRegex
 
         :return: A new MediaItem of type 'folder'.
         :rtype: MediaItem|None
@@ -272,13 +256,69 @@ class Channel(chn_class.Channel):
         """
 
         title = result_set["title"]
+        category_id = result_set["id"]
+        url = "https://psapi.nrk.no/tv/pages/{}?apiKey={}"\
+            .format(category_id, self.__api_key)
+        item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
+        # self.__set_image(item, result_set["image"]["webImages"], "width", "uri", False)
+        # thumb = "https://gfx.nrk.no/VachtaD3sq2-KusBxRIAkgTPs1qGm0-yd7655JQB9ojQ"
+        # item.set_artwork(thumb=thumb, fanart=thumb)
+        return item
 
-        program_type = result_set.get("type", "???").lower()
-        if program_type != "series":
-            Logger.debug("Item '%s' has type '%s'. Ignoring", title, program_type)
+    def create_category_sub_item(self, result_set: dict) -> Optional[Union[List[MediaItem], MediaItem]]:
+        """ Creates a MediaItem of type 'folder' for a category list item
+        using the result_set from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder'.
+        :rtype: MediaItem|None
+
+        """
+
+        data = result_set.get("included")
+        if not data:
             return None
 
-        return self.create_generic_item(result_set, program_type)
+        if data["count"] <= 0:
+            return None
+
+        image_orientation = data["displayContract"]
+
+        items = []
+        for plug in data.get("plugs") or []:
+            title = plug["displayContractContent"]["contentTitle"]
+            description = plug["displayContractContent"]["description"]
+
+            target_type = plug["targetType"]
+            if target_type == "series":
+                series = plug["series"]
+                series_id = series["seriesId"]
+                is_geo_locked = result_set.get("isGeoBlocked") or False
+                url = "https://psapi.nrk.no/tv/catalog/series/{}?apiKey={}".format(series_id, self.__api_key)
+                item = FolderItem(title, url, content_type=contenttype.EPISODES)
+                item.description = description
+                item.isGeoLocked = is_geo_locked
+
+                if image_orientation == "portrait":
+                    self.__set_image(item, plug["displayContractContent"]["displayContractImage"]["webImages"], "width", "uri", True)
+                self.__set_image(item, plug["displayContractContent"]["fallbackImage"]["webImages"], "width", "uri", False)
+                items.append(item)
+            else:
+                pass
+
+        return items
+
+        # program_type = result_set.get("type", "???").lower()
+        # if program_type != "series":
+        #     Logger.debug("Item '%s' has type '%s'. Ignoring", title, program_type)
+        #     return None
+        #
+        # return self.create_generic_item(result_set, program_type)
 
     def create_episode_item(self, result_set):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
@@ -468,7 +508,7 @@ class Channel(chn_class.Channel):
 
         parent_url, qs = self.parentItem.url.split("?", 1)
         url = "{}/seasons/{}/episodes?apiKey={}".format(parent_url, season_id, self.__api_key)
-        item = MediaItem(title, url)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES)
         return item
 
     def create_series_video_item(self, result_set):
@@ -534,7 +574,7 @@ class Channel(chn_class.Channel):
 
         title = result_set["title"]
         season_id = result_set["name"]
-        if title != season_id:
+        if title != season_id and not season_id.isnumeric():
             title = "{} - {}".format(season_id, title)
 
         url = "{}{}?apiKey={}".format(self.baseUrl, result_set["href"], self.__api_key)
@@ -802,3 +842,21 @@ class Channel(chn_class.Channel):
                 thumb = src
 
         return thumb
+
+    def __set_image(self, item: MediaItem, images: List, width_attribute: str, url_attribute: str, portrait: bool):
+        max_width = 0
+        url = None
+
+        for image_data in images:
+            width = image_data[width_attribute]
+            if width > max_width:
+                max_width = image_data[width_attribute]
+                url = image_data[url_attribute]
+
+        if not url:
+            return
+
+        if portrait:
+            item.set_artwork(poster=url)
+        else:
+            item.set_artwork(thumb=url, fanart=url)
