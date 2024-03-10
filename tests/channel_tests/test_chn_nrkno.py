@@ -14,7 +14,7 @@ class TestNrkNoChannel(ChannelTest):
 
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertEqual(len(items), 9, "No items found in mainlist")
+        self.assertEqual(len(items), 8, "No items found in mainlist")
 
     def test_abcxyz(self):
         url = "https://psapi.nrk.no/medium/tv/letters?apiKey=d1381d92278a47c09066460f2522a67d"

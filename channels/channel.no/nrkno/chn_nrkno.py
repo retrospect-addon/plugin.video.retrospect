@@ -167,8 +167,8 @@ class Channel(chn_class.Channel):
         links = {
             live_tv: "https://psapi.nrk.no/tv/live?apiKey={}".format(self.__api_key),
             live_radio: "https://psapi.nrk.no/radio/live?apiKey={}".format(self.__api_key),
-            "Headliner": "https://psapi.nrk.no/tv/headliners/default?apiKey={}".format(self.__api_key),
-            "Recommended": "https://psapi.nrk.no/medium/tv/recommendedprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
+            "Recommended": "https://psapi.nrk.no/tv/headliners/default?apiKey={}".format(self.__api_key),
+            #"Recommended": "https://psapi.nrk.no/medium/tv/recommendedprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Popular": "https://psapi.nrk.no/medium/tv/popularprograms/week?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Recent": "https://psapi.nrk.no/medium/tv/recentlysentprograms?maxnumber=100&startRow=0&apiKey={}".format(self.__api_key),
             "Categories": "http://psapi-granitt-prod-we.cloudapp.net/medium/tv/categories?apiKey={}".format(self.__api_key),
