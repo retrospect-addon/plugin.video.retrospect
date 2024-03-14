@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.7 - Changelog - 2024-02-23[/B]
+[B]Retrospect v5.7.8 - Changelog - 2024-03-14[/B]
 
-t.b.d.
+This release contains a number of fixes for the NRK, TV4 and NPO channels.
 
 [B]Framework related[/B]
 _None_
