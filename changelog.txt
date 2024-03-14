@@ -13,3 +13,4 @@ _None_
 * Fixed: Some TV4 seasons did not have a title, which broke listings (Fixes #1766).
 * Fixed: NRK Categories.
 * Fixed: NRK Recommended (See #1770).
+* Fixed: NPO Recent parsing (Fixes #1771).
