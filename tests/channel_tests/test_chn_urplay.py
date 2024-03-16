@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -23,6 +25,7 @@ class TestUrPlayChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 6, "No items found in mainlist")
 
+    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_category(self):
         url = "https://urplay.se/api/v1/search?" \
               "main_genre_must_not[]=forelasning&" \
@@ -50,6 +53,7 @@ class TestUrPlayChannel(ChannelTest):
         url = "https://urplay.se/api/v1/search?product_type=program&rows=150&start=0&view=last_chance"
         self._test_folder_url(url, expected_results=10)
 
+    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_category_radio(self):
         url = "https://urplay.se/api/v1/search?" \
                 "type=programradio&" \
