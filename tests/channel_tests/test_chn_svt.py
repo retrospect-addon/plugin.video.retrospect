@@ -40,7 +40,7 @@ class TestSvtChannel(ChannelTest):
         url = ("https://api.svt.se/contento/graphql?operationName=CategoryPageQuery&variables=%7B"
                "%22id%22%3A%22nyheter%22%2C%22includeFullOppetArkiv%22%3Atrue%2C%22tab%22%3A%22all"
                "%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22"
-               "00be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf%22%2C"
+               "c51c2c12a390014f864a03a319e89c3e1332cf81cf39ef8f59cd01d1858ec989%22%2C"
                "%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client")
         self._test_folder_url(url, expected_results=4)
 
@@ -50,7 +50,7 @@ class TestSvtChannel(ChannelTest):
         self._test_folder_url(url, expected_results=4)
 
     def test_latest_news(self):
-        url = "https://api.svt.se/contento/graphql?operationName=CategoryPageQuery&variables=%7B%22id%22%3A%20%22nyheter%22%2C%20%22includeFullOppetArkiv%22%3A%20true%2C%20%22tab%22%3A%20%22all%22%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%2200be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
+        url = "https://api.svt.se/contento/graphql?operationName=CategoryPageQuery&variables=%7B%22id%22%3A%20%22nyheter%22%2C%20%22includeFullOppetArkiv%22%3A%20true%2C%20%22tab%22%3A%20%22all%22%7D&extensions=%7B%22persistedQuery%22%3A%20%7B%22version%22%3A%201%2C%20%22sha256Hash%22%3A%20%22c51c2c12a390014f864a03a319e89c3e1332cf81cf39ef8f59cd01d1858ec989%22%7D%7D&ua=svtplaywebb-play-render-prod-client"
         self._test_folder_url(url, expected_results=4)
 
     def test_most_viewed(self):

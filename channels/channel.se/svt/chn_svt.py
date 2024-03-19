@@ -220,7 +220,7 @@ class Channel(chn_class.Channel):
             LanguageHelper.get_localized_string(LanguageHelper.LatestNews): (
                 self.__get_api_url(
                     "CategoryPageQuery",
-                    "00be06320342614f4b186e9c7710c29a7fc235a1936bde08a6ab0f427131bfaf",
+                    "c51c2c12a390014f864a03a319e89c3e1332cf81cf39ef8f59cd01d1858ec989",
                     variables={"id": "nyheter", "includeFullOppetArkiv": True, "tab": "all"}),
                 False
             ),
