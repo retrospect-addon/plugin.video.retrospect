@@ -257,7 +257,7 @@ class Channel(chn_class.Channel):
         self.__program_id = json_data.get_value("entity", "id", fallback=None)
         return json_data, []
 
-    def postprocess_episodes(self, data, items: list[MediaItem]) -> list[MediaItem]:        
+    def postprocess_episodes(self, data, items: List[MediaItem]) -> List[MediaItem]:
         # Season episodes can be named ["Aflevering 1", "Aflevering 2"] and so on, or ["Some episode name", "Another episode name", "Yet another episode name"]
         # without an episode number. Some episodes have a date, and some have no date, even within a single season.
 
@@ -271,15 +271,17 @@ class Channel(chn_class.Channel):
         # Numbered episodes are fairly common, and in this case it is useful to achieve the right sort order by name.
 
         # This postprocessing function fixes date ordering by setting the date of an episode, if it has no date, to the date of the previous episode.
+        # This is probably not the real broadcast date, but it at least fixes the order.
         if (len(items) > 1
             and data.json.get("featureId") == "videos_by_season_by_program"
-            and all(item.media_type == "episode" and not re.match("[Aa]flevering \d+", item.name) for item in items)):
+            and all(item.media_type == mediatype.EPISODE and not re.match("[Aa]flevering \d+", item.name) for item in items)):
             date = ""
             for index, item in enumerate(items, start=1):
                 item.name = f"{index:02} {item.name}"
                 if (not item.has_date() and date):
-                    timestamp = datetime.datetime.strptime(date, "%Y-%m-%d")
-                    item.set_date(timestamp.year, timestamp.month, timestamp.day)
+                    previous_episode_date = DateHelper.get_datetime_from_string(date, "%Y-%m-%d")
+                    item.set_date(previous_episode_date.year, previous_episode_date.month, previous_episode_date.day)
+                    item.name = f"{item.name} [date unknown]"
                 else:
                     date = item.get_date()
 

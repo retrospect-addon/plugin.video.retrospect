@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+
+from resources.lib.helpers.datehelper import DateHelper
 from . channeltest import ChannelTest
 
 class TestVideolandNLChannel(ChannelTest):
@@ -83,7 +85,7 @@ class TestVideolandNLChannel(ChannelTest):
         self.assertCountEqual(changed, items)
         self.assertEqual(changed[0].name, "01 Some episode name")
         self.assertEqual(changed[1].name, "02 Another episode name")
-        self.assertEqual(changed[2].name, "03 Yet another episode name")
+        self.assertEqual(changed[2].name, "03 Yet another episode name [date unknown]")
         self.assertTrue(changed[0].has_date())
         self.assertTrue(changed[1].has_date())
         self.assertTrue(changed[2].has_date())
@@ -95,6 +97,6 @@ class TestVideolandNLChannel(ChannelTest):
         item = self._get_media_item("", name)
         item.media_type = media_type
         if (date):
-            timestamp = datetime.datetime.strptime(date, "%Y-%m-%d")
+            timestamp = DateHelper.get_datetime_from_string(date, "%Y-%m-%d")
             item.set_date(timestamp.year, timestamp.month, timestamp.day)
         return item
