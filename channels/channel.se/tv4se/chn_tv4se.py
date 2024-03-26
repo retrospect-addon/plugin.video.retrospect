@@ -406,7 +406,7 @@ class Channel(chn_class.Channel):
         if not title:
             return None
 
-        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.TVSHOW)
+        item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
         item = self.__update_base_typed_item(item, result_set)
         item.postJson = data
         item.HttpHeaders.update({"feature_flag_enable_season_upsell_on_cdp": "true"})
