@@ -12,3 +12,4 @@ _None_
 * Fixed: SVT Nyheter & Categories.
 * Fixed: Folder icons for TV4 Play (Fixes #1774).
 * Fixed: TV4 Play artwork did not work with HEAD requests.
+* Fixed: SVT subtitles were selecting the incorrect ones (Fixes #1777).
