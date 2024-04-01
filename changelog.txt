@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.x - Changelog - 2024-0x-xx[/B]
+[B]Retrospect v5.7.9 - Changelog - 2024-04-01[/B]
 
-t.b.d.
+Minor updates for SVT and TV4 channels.
 
 [B]Framework related[/B]
 _None_
