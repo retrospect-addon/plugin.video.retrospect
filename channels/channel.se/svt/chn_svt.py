@@ -1396,22 +1396,17 @@ class Channel(chn_class.Channel):
                 item.add_stream(url, 0)
 
         if subtitles:
-            Logger.info("Found subtitles to play")
-            for sub in subtitles:
-                sub_format = sub["format"].lower()
-                url = sub["url"]
-                if sub_format == "websrt":
-                    sub_url = url
-                elif sub_format == "webvtt":
-                    sub_url = url
-                else:
-                    # look for more
-                    continue
+            types = {s["type"]: s for s in subtitles if s["format"].lower() in ["websrt", "webvtt"]}
+            if "caption-sdh" in types:
+                sub_url = types["caption-sdh"]["url"]
+            elif len(types) > 0:
+                sub_url = list(types.values())[0]["url"]
+            else:
+                sub_url = None
 
+            if sub_url:
                 item.subtitle = subtitlehelper.SubtitleHelper.download_subtitle(
                     sub_url, format="srt", replace={"&amp;": "&"})
-                # stop when finding one
-                break
 
         item.complete = True
         return item
