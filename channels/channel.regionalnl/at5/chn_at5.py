@@ -289,8 +289,17 @@ class Channel(chn_class.Channel):
         """
 
         Logger.debug("Updating the live stream")
-        url = "https://rrr.sz.xlcdn.com/?account=atvijf" \
-              "&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
+
+        if self.channelCode == "rtvnh":
+            url = "https://takeoff.jetstre.am/?account=nhnieuws" \
+                  "&file=live" \
+                  "&type=live" \
+                  "&service=wowza" \
+                  "&protocol=https" \
+                  "&output=playlist.m3u8"
+        else:
+            url = "https://rrr.sz.xlcdn.com/?account=atvijf" \
+                  "&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
 
         item.complete = \
             M3u8.update_part_with_m3u8_streams(item, url, channel=self)

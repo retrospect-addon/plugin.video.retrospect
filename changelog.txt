@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.9 - Changelog - 2024-04-01[/B]
+[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
 
-Minor updates for SVT and TV4 channels.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,7 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: SVT Nyheter & Categories.
-* Fixed: Folder icons for TV4 Play (Fixes #1774).
-* Fixed: TV4 Play artwork did not work with HEAD requests.
-* Fixed: SVT subtitles were selecting the incorrect ones (Fixes #1777).
+* Fixed: RTV NH Live stream (Fixes #1782).
