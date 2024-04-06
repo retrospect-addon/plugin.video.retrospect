@@ -33,7 +33,6 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
-        self.noImage = "at5image.png"
         self.apiFormat = None
 
         # setup the urls
@@ -41,10 +40,12 @@ class Channel(chn_class.Channel):
             self.mainListUri = "https://www.nhnieuws.nl/media"
             self.apiFormat = "https://ditisdesupercooleappapi.nhnieuws.nl/api/news?source=web&slug=themas&page={}"
             self.baseUrl = "https://ditisdesupercooleappapi.nhnieuws.nl"
+            self.noImage = "rtvnhimage.png"
         else:
             self.mainListUri = "http://www.at5.nl/gemist/tv"
             self.apiFormat = "https://ditisdesupercooleappapi.at5.nl/api/news?source=web&slug=tv&page={}"
             self.baseUrl = "https://ditisdesupercooleappapi.at5.nl"
+            self.noImage = "at5image.png"
 
         self.mainListUri = "#json_episodes"
 
