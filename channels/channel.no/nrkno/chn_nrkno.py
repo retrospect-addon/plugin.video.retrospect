@@ -88,7 +88,7 @@ class Channel(chn_class.Channel):
         # The new Series/Instalments API (https://psapi-catalog-prod-we.azurewebsites.net/swagger/index.html)
         self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/",
                               json=True, name="Main Series parser",
-                              parser=["_links", "seasons"], creator=self.create_instalment_season_item)
+                              parser=["_embedded", "seasons"], creator=self.create_instalment_season_item)
 
         self._add_data_parser("https://psapi.nrk.no/tv/catalog/series/[^/]+/seasons/", json=True,
                               match_type=ParserData.MatchRegex,
@@ -434,7 +434,7 @@ class Channel(chn_class.Channel):
             return item
 
         # noinspection PyTypeChecker
-        item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
+        self.__set_image(item, result_set["image"]["webImages"], "pixelWidth", "imageUrl", False)
 
         # see if there is a date?
         self.__set_date(result_set, item)
@@ -476,7 +476,7 @@ class Channel(chn_class.Channel):
 
         if "images" in result_set:
             # noinspection PyTypeChecker
-            item.thumb = self.__get_image(result_set["images"], "width", "uri")
+            self.__set_image(item, result_set["images"], "width", "uri",False)
 
         # see if there is a date?
         self.__set_date(result_set, item)
@@ -544,7 +544,7 @@ class Channel(chn_class.Channel):
         item.type = 'video'
 
         # noinspection PyTypeChecker
-        item.thumb = self.__get_image(result_set["image"]["webImages"], "pixelWidth", "imageUrl")
+        self.__set_image(item, result_set["image"]["webImages"], "pixelWidth", "imageUrl", False)
         item.description = result_set.get("longDescription", "")
         if not item.description:
             item.description = result_set.get("shortDescription", "")
@@ -572,14 +572,20 @@ class Channel(chn_class.Channel):
 
         """
 
-        title = result_set["title"]
-        season_id = result_set["name"]
-        if title != season_id and not season_id.isnumeric():
-            title = "{} - {}".format(season_id, title)
+        title = result_set["titles"]["title"]
+        sub_title = result_set["titles"].get("subtitle", None)
+        if sub_title:
+            title = "{} - {}".format(title, sub_title)
 
-        url = "{}{}?apiKey={}".format(self.baseUrl, result_set["href"], self.__api_key)
+        url = "{}{}?apiKey={}".format(self.baseUrl, result_set["_links"]["self"]["href"], self.__api_key)
 
-        item = MediaItem(title, url)
+        item = MediaItem(title, url, media_type=mediatype.SEASON)
+
+        if "backdropImage" in result_set:
+            self.__set_image(item, result_set["backdropImage"], "width", "url", False)
+        if "posterImage" in result_set:
+            self.__set_image(item, result_set["posterImage"], "width", "url", True)
+
         return item
 
     def create_instalment_video_item(self, result_set):
@@ -611,7 +617,7 @@ class Channel(chn_class.Channel):
 
         url = self.__get_video_url(result_set["prfId"])
         item = MediaItem(title, url, media_type=mediatype.EPISODE)
-        item.thumb = self.__get_image(result_set["image"], "width", "url")
+        self.__set_image(item, result_set["image"], "width", "url", False)
 
         # noinspection PyTypeChecker
         item.isGeoLocked = result_set.get("usageRights", {}).get("geoBlock", {}).get("isGeoBlocked", False)
@@ -665,7 +671,7 @@ class Channel(chn_class.Channel):
         item.isGeoLocked = live_data.get("isGeoBlocked")
 
         # noinspection PyTypeChecker
-        self.__get_image(live_data["posters"][0]["image"]["items"], "pixelWidth", "url")
+        self.__set_image(item, live_data["posters"][0]["image"]["items"], "pixelWidth", "url", False)
         return item
 
     def update_live_channel(self, item):
@@ -828,20 +834,6 @@ class Channel(chn_class.Channel):
             if len(date_parts) == 3:
                 item.set_date(date_parts[2], date_parts[1], date_parts[0])
         return
-
-    def __get_image(self, images, width_attribute, url_attribute):
-        max_width = 0
-        thumb = None
-        for image_data in images:
-            src = image_data[url_attribute]
-            width = image_data[width_attribute]
-            # No Fanart for now
-            # if  width > max_width:
-            #     item.fanart = src
-            if max_width < width < 521:
-                thumb = src
-
-        return thumb
 
     def __set_image(self, item: MediaItem, images: List, width_attribute: str, url_attribute: str, portrait: bool):
         max_width = 0
