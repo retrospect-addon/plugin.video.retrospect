@@ -101,9 +101,10 @@ class Channel(chn_class.Channel):
                               parser=["_embedded", "episodes"],
                               creator=self.create_instalment_video_item)
 
-        self._add_data_parser("https://psapi-ne.nrk.no/autocomplete?q=", json=True,
-                              name="Search regex item",
-                              parser=["result", ],
+        #https://psapi.nrk.no/documentation/redoc/search/
+        self._add_data_parser("https://psapi.nrk.no/tv/titleSearch/global?q=", json=True,
+                              name="Search result item",
+                              parser=["results", "plugs"],
                               creator=self.create_search_item)
 
         # The old Series API (http://nrkpswebapi2ne.cloudapp.net/swagger/ui/index#/)
@@ -208,7 +209,7 @@ class Channel(chn_class.Channel):
 
         """
 
-        url = "https://psapi-ne.nrk.no/autocomplete?q=%s&apiKey={}".format(self.__api_key)
+        url = "https://psapi.nrk.no/tv/titleSearch/global?q=%s&apiKey={}".format(self.__api_key)
         return chn_class.Channel.search_site(self, url)
 
     def create_alpha_item(self, result_set):
@@ -320,6 +321,36 @@ class Channel(chn_class.Channel):
         #
         # return self.create_generic_item(result_set, program_type)
 
+    def create_search_item(self, result_set):
+        """ Creates a MediaItem of type 'folder' for a search result using the result_set
+        from the regex.
+
+        This method creates a new MediaItem from the Regular Expression or Json
+        results <result_set>. The method should be implemented by derived classes
+        and are specific to the channel.
+
+        :param list[str]|dict[str,Any] result_set: The result_set of the self.episodeItemRegex
+
+        :return: A new MediaItem of type 'folder' or 'video'.
+        :rtype: MediaItem|None
+
+        """
+
+        title = result_set["title"]
+        content_id = result_set["contentId"]
+
+        if result_set["type"] == "series":
+            url = "https://psapi.nrk.no/tv/catalog/series/{}?apiKey={}".format(content_id, self.__api_key)
+            item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
+        else:
+            url = self.__get_video_url(content_id)
+            item = MediaItem(title, url, media_type=mediatype.VIDEO)
+
+        self.__set_image(item, result_set["webImages"], "width", "uri", False)
+
+
+        return item
+
     def create_episode_item(self, result_set):
         """ Creates a MediaItem of type 'folder' using the result_set from the regex.
 
@@ -342,26 +373,6 @@ class Channel(chn_class.Channel):
             return None
 
         return self.create_generic_item(result_set, program_type)
-
-    def create_search_item(self, result_set):
-        """ Creates a MediaItem of type 'folder' for a search result using the result_set
-        from the regex.
-
-        This method creates a new MediaItem from the Regular Expression or Json
-        results <result_set>. The method should be implemented by derived classes
-        and are specific to the channel.
-
-        :param list[str]|dict[str,Any] result_set: The result_set of the self.episodeItemRegex
-
-        :return: A new MediaItem of type 'folder'.
-        :rtype: MediaItem|None
-
-        """
-
-        if "_source" not in result_set:
-            return None
-
-        return self.create_generic_item(result_set["_source"], "series")
 
     def create_video_item(self, result_set):
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
