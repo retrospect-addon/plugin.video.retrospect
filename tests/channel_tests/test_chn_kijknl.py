@@ -82,10 +82,23 @@ class TestKijkNlChannel(ChannelTest):
 
     def test_graphql_drm_video(self):
         item = self._test_video_url(
-            "https://api.prd.video.talpa.network/graphql?query=query%20sources(%24guid%3A%5BString"
-            "%5D)%7Bprograms(guid%3A%24guid)%7Bitems%7Bguid%20sources%7Btype%20file%20drm%20"
-            "__typename%7D%20tracks%7Bfile%20type%7D%20__typename%7D__typename%7D%7D&"
-            "operationName=sources&variables=%7B%22guid%22%3A%22LRu7oEhyb5x%22%7D")
+            "https://api.prd.video.talpa.network/graphql?query=query%20programs(%24guid%3A%5BString"
+            "%5D%24limit%3AInt)%7Bprograms(guid%3A%24guid%20limit%3A%24limit)%7Bitems%7Bid%20"
+            "guid%20availableRegion%20slug%20tvSeasonId%20sourceProgram%20type%20title%20sortTitle"
+            "%20added%20publicationDateTime%20description%20longDescription%20shortDescription"
+            "%20displayGenre%20tvSeasonEpisodeNumber%20seasonNumber%20seriesId%20duration%20series"
+            "%7Bid%20guid%20slug%20title%20__typename%7Dmetadata%20...ImageMedia%20...Media%20..."
+            "SeriesTvSeasons%20...Sources%20...Tracks%20...Ratings%20__typename%7D__typename%7D"
+            "%7Dfragment%20Media%20on%20Program%7Bmedia%7BavailableDate%20availabilityState"
+            "%20airedDateTime%20expirationDate%20type%20__typename%7D__typename%7Dfragment"
+            "%20ImageMedia%20on%20Program%7BimageMedia%7Burl%20title%20label%20type"
+            "%20__typename%7D__typename%7Dfragment%20SeriesTvSeasons%20on%20Program"
+            "%7BseriesTvSeasons%7Bid%20guid%20title%20seasonNumber%20__typename%7D__typename"
+            "%7Dfragment%20Sources%20on%20Program%7Bsources%7Btype%20file%20drm%20__typename"
+            "%7D__typename%7Dfragment%20Tracks%20on%20Program%7Btracks%7Btype%20file%20kind"
+            "%20label%20__typename%7D__typename%7Dfragment%20Ratings%20on%20Program"
+            "%7Bratings%7Brating%20subRatings%20__typename%7D__typename"
+            "%7D&operationName=programs&variables=%7B%22guid%22%3A%22dYhkgQM52Yy%22%7D")
 
         mpd = [s for s in item.streams if ".mpd" in s.Url]
         self.assertGreaterEqual(len(mpd), 1)
