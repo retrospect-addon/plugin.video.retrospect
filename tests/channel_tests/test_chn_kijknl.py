@@ -85,7 +85,7 @@ class TestKijkNlChannel(ChannelTest):
             "https://api.prd.video.talpa.network/graphql?query=query%20sources(%24guid%3A%5BString"
             "%5D)%7Bprograms(guid%3A%24guid)%7Bitems%7Bguid%20sources%7Btype%20file%20drm%20"
             "__typename%7D%20tracks%7Bfile%20type%7D%20__typename%7D__typename%7D%7D&"
-            "operationName=sources&variables=%7B%22guid%22%3A%224yeE3JpI1Sy%22%7D")
+            "operationName=sources&variables=%7B%22guid%22%3A%22LRu7oEhyb5x%22%7D")
 
         mpd = [s for s in item.streams if ".mpd" in s.Url]
         self.assertGreaterEqual(len(mpd), 1)
