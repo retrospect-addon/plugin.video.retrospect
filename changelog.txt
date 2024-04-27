@@ -12,3 +12,4 @@ _None_
 * Fixed: RTV NH Live stream (Fixes #1782).
 * Updated: Posters for Dutch channels.
 * Removed: Apple Movie Trailers (Fixes #1785).
+* Changed: Default to Dash streams for TV4.
