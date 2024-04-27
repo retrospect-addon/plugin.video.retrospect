@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
+[B]Retrospect v5.7.10 - Changelog - 2024-04-27[/B]
 
-t.b.d.
+This update includes minor fixes for some channels.
 
 [B]Framework related[/B]
 _None_
@@ -13,3 +13,4 @@ _None_
 * Updated: Posters for Dutch channels.
 * Removed: Apple Movie Trailers (Fixes #1785).
 * Changed: Default to Dash streams for TV4.
+* Fixed: NRK broken search
