@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import time
 import unittest
+
 import xbmc
 
 from resources.lib import mediatype
@@ -13,7 +14,7 @@ from resources.lib.urihandler import UriHandler
 
 class ChannelTest(unittest.TestCase):
     # noinspection PyPep8Naming
-    def __init__(self, methodName, channel, code):  # NOSONAR
+    def __init__(self, methodName, channel=None, code=None):  # NOSONAR
         super(ChannelTest, self).__init__(methodName)
         self._channel = channel
         self._code = code
