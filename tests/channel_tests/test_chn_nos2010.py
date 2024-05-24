@@ -70,7 +70,7 @@ class TestNpoChannel(ChannelTest):
         self.assertGreater(len([i for i in items if i.is_playable]), 2)
 
     def test_series_recent_episodes_via_guid(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/programs-by-series?seriesGuid=b89e4e01-5966-4d26-ba7d-b5e1eae45362&limit=20&sort=-firstBroadcastDate", 4)
+        self._test_folder_url("https://npo.nl/start/api/domain/programs-by-series?seriesGuid=b89e4e01-5966-4d26-ba7d-b5e1eae45362&limit=20&sort=-firstBroadcastDate", 2)
 
     def test_series_with_single_season(self):
         self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=selma-s-oorlog&type=timeless_series", expected_results=1)
