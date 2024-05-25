@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Case-insensitive comparison of logged on users (Fixes #1791).
+* Fixed: Rootfolders of channels could not be added to Kodi favourites as they broke fast (Fixes #1794).

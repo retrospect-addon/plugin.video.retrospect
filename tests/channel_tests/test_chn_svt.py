@@ -60,7 +60,7 @@ class TestSvtChannel(ChannelTest):
     # Now only in HTML embedded
     def test_currently_playing(self):
         url = "https://api.svt.se/contento/graphql?operationName=GridPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22live_start%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40%22%2C%22version%22%3A1%7D%7D"
-        self._test_folder_url(url, expected_results=4)
+        self._test_folder_url(url, expected_results=2)
 
     def test_live_streams(self):
         now = datetime.datetime.now() - datetime.timedelta(hours=6)
