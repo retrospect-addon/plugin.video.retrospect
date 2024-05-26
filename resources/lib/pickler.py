@@ -140,14 +140,32 @@ class Pickler:
         pickles_path = os.path.join(
             self.__pickle_store_path, "pickles", "*", "*", "*.{}".format(self.__ext))
 
-        cache_time = age * 30 * 24 * 60 * 60
+        cache_time = age * 24 * 60 * 60
         for filename in glob.glob(pickles_path):
             create_time = os.path.getctime(filename)
             pickle_store_id = os.path.split(filename)[1].split(".", 1)[0]
             if create_time + cache_time < time.time():
                 if pickle_store_id in favourite_pickle_stores:
-                    Logger.debug("PickleStore: Skipping purge of favourite '%s'", filename)
+                    Logger.debug("PickleStore: Advanced cleaning of favourite '%s'", filename)
+                    pickle_favs = favourite_pickle_stores[pickle_store_id]
+
+                    # Clear all but the favourites.
+                    pickles_dir, pickles_path = self.__get_pickle_path(pickle_store_id)
+
+                    # Update the content and save it.
+                    content = self.__load_pickle_store_file(pickles_path)
+                    store_children: dict = content["children"]
+                    content["favourites"] = pickle_favs
+                    content["children"] = {k: v for k, v in store_children.items() if k in pickle_favs}
+                    self.__save_pickle_store_file(content, pickles_path)
+
+                    Logger.debug(
+                        "PickleStore Clean Result: %d children, %d favourites",
+                        len(content["children"]),
+                        len(content.get("favourites", []))
+                    )
                     continue
+
                 os.remove(filename)
                 Logger.debug("PickleStore: Removed file '%s'", filename)
 
@@ -176,21 +194,35 @@ class Pickler:
         if not os.path.isdir(pickles_dir):
             os.makedirs(pickles_dir)
 
-        content = {
+        current_content = {
             "parent": parent,
             "children": {item.guid: item for item in children}
         }
 
-        if self.__compress:
-            pickle_content = pickle.dumps(content, protocol=pickle.HIGHEST_PROTOCOL)
-            import zlib
-            with io.open(pickles_path, 'wb+') as fp:
-                fp.write(zlib.compress(pickle_content, zlib.Z_BEST_COMPRESSION))
-        else:
-            with io.open(pickles_path, "wb+") as fp:
-                pickle.dump(content, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        # If there was previous content create a combined list, but keep
+        # track of the favourite items' GUIDs.
+        if os.path.isfile(pickles_path):
+            Logger.debug("PickleStore: Merging '%s'", pickles_path)
+            prevous_content = self.__load_pickle_store_file(pickles_path) or {}
+            prev_children = prevous_content.get("children", {})
+            if prev_children:
+                # Combine the previous children and update it with the new ones as
+                # we always want to keep the most recent ones.
+                prev_children.update(current_content["children"])
+                current_content["children"] = prev_children
 
-        return
+            # ...and copy the favourites.
+            favourites = prevous_content.get("favourites", {})
+            if favourites:
+                current_content["favourites"] = favourites
+
+            Logger.debug(
+                "PickleStore: Merged into %d children, %d favourites",
+                len(current_content["children"]),
+                len(current_content.get("favourites", []))
+            )
+
+        self.__save_pickle_store_file(current_content, pickles_path)
 
     def is_pickle_store_id(self, pickle):
         """ Checks if a Pickle string is an actual pickle or a reference to a PickleStore entry
@@ -209,19 +241,8 @@ class Pickler:
             return items
 
         pickles_dir, pickles_path = self.__get_pickle_path(store_guid)
-        Logger.debug("PickleStore: Reading items from '%s'", pickles_path)
-
-        try:
-            if self.__compress:
-                import zlib
-                with io.open(pickles_path, 'rb') as fp:
-                    pickle_bytes = zlib.decompress(fp.read())
-                    content = pickle.loads(pickle_bytes)
-            else:
-                with io.open(pickles_path, "rb") as fp:
-                    content = pickle.load(fp)
-        except:
-            Logger.error("Error opening '%s'", pickles_path, exc_info=True)
+        content = self.__load_pickle_store_file(pickles_path)
+        if not content:
             return None
 
         items = content.get("children")
@@ -263,7 +284,10 @@ class Pickler:
         req = {
             "jsonrpc": "2.0",
             "method": "Favourites.GetFavourites",
-            "params": [None, ["path", "windowparameter"]],
+            "params": {
+                "type": None,
+                "properties": ["path", "windowparameter"]
+            },
             "id": 1
         }
         rpc_result = xbmc.executeJSONRPC(json.dumps(req))
@@ -283,12 +307,44 @@ class Pickler:
                 continue
 
             # Is it a favourite with a PickleStore ID?
-            pickle_store_id = Regexer.do_regex(
-                r"pickle=([^&]+){}[^&]+".format(Pickler.__store_separator), fav_path)
+            pickle_store_id, pickle_id = Regexer.do_regex(
+                r"pickle=([^&]+){}([^&]+)".format(Pickler.__store_separator), fav_path)[0]
             if not pickle_store_id:
                 continue
 
             Logger.debug("PickleStore: Found favourite: %s (%s)", fav_name, fav_path)
-            favourite_pickle_stores.add(pickle_store_id[0].lower())
+
+            if pickle_store_id.lower() in favourite_pickle_stores:
+                favourite_pickle_stores[pickle_store_id.lower()].append(pickle_id)
+            else:
+                favourite_pickle_stores[pickle_store_id.lower()] = [pickle_id]
 
         return favourite_pickle_stores
+
+    def __save_pickle_store_file(self, current_content: dict, pickles_path: str):
+        Logger.debug("PickleStore: Storing items into '%s'", pickles_path)
+        if self.__compress:
+            pickle_content = pickle.dumps(current_content, protocol=pickle.HIGHEST_PROTOCOL)
+            import zlib
+            with io.open(pickles_path, 'wb+') as fp:
+                fp.write(zlib.compress(pickle_content, zlib.Z_BEST_COMPRESSION))
+        else:
+            with io.open(pickles_path, "wb+") as fp:
+                pickle.dump(current_content, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def __load_pickle_store_file(self, pickles_path: str):
+        Logger.debug("PickleStore: Reading items from '%s'", pickles_path)
+        try:
+            if self.__compress:
+                import zlib
+                with io.open(pickles_path, 'rb') as fp:
+                    pickle_bytes = zlib.decompress(fp.read())
+                    content = pickle.loads(pickle_bytes)
+            else:
+                with io.open(pickles_path, "rb") as fp:
+                    content = pickle.load(fp)
+        except:
+            Logger.error("Error opening '%s'", pickles_path, exc_info=True)
+            return None
+
+        return content
