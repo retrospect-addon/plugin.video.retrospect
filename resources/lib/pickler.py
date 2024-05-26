@@ -6,6 +6,7 @@ import io
 import sys
 import base64
 from functools import reduce
+from typing import List, Tuple, Dict
 
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
@@ -38,23 +39,21 @@ class Pickler:
         self.__pickle_container = dict()  # : storage for pickled items to prevent duplicate pickling
         self.__depickle_container = dict()  # : storage for depickled items.
 
-        self.__pickle_store_path = pickle_store_path
+        self.__pickle_store_path: str = pickle_store_path
         self.__compress = True
         if self.__compress:
             self.__ext = "store.z"
         else:
             self.__ext = "store"
 
-    def de_pickle_child_items(self, hex_string):
+    def de_pickle_child_items(self, hex_string: str) -> Tuple[str, Dict[str, List[MediaItem]]]:
         """ De-serializes a serialized mediaitem.
 
         Warning: Pickling from Python2 to Python3 will not work.
 
-        :param str|unicode hex_string: Base64 encoded string that should be decoded.
+        :param hex_string: Base64 encoded string that should be decoded.
 
         :return: The object that was Pickled and Base64 encoded.
-        :rtype: tuple[str, dict[str, list[MediaItem]]]
-
         """
 
         if not self.is_pickle_store_id(hex_string):
@@ -63,15 +62,14 @@ class Pickler:
         store_guid, item_guid = hex_string.split(Pickler.__store_separator)
         return store_guid, self.__retrieve_media_items_from_store(store_guid)
 
-    def de_pickle_media_item(self, hex_string):
+    def de_pickle_media_item(self, hex_string: str) -> MediaItem:
         """ De-serializes a serialized mediaitem.
 
         Warning: Pickling from Python2 to Python3 will not work.
 
-        :param str|unicode hex_string: Base64 encoded string that should be decoded.
+        :param hex_string: Base64 encoded string that should be decoded.
 
         :return: The object that was Pickled and Base64 encoded.
-        :rtype: MediaItem
 
         """
 
@@ -91,15 +89,15 @@ class Pickler:
         Logger.trace("DePickle: HexString: %s (might be truncated)", hex_string[0:256])
 
         pickle_string = base64.b64decode(hex_string)  # type: bytes
-        pickle_item = pickle.loads(pickle_string)  # type: object
+        pickle_item = pickle.loads(pickle_string)  # type: MediaItem
         return pickle_item
 
-    def pickle_media_item(self, item):
+    def pickle_media_item(self, item: MediaItem) -> str:
         """ Serialises a mediaitem using Pickle
 
-        :param Any item: The item that should be serialized
+        :param item: The item that should be serialised
+
         :return: A pickled and Base64 encoded serialization of the `item`.
-        :rtype: str
 
         """
 
@@ -119,7 +117,7 @@ class Pickler:
         self.__pickle_container[item.guid] = hex_string
         return hex_string
 
-    def purge_store(self, addon_id, age=30):
+    def purge_store(self, addon_id: str, age: int = 30):
         """ Purges all files older than xx days.
 
         :param str addon_id: The ID of this add-on
@@ -153,14 +151,12 @@ class Pickler:
                 os.remove(filename)
                 Logger.debug("PickleStore: Removed file '%s'", filename)
 
-    def store_media_items(self, store_guid, parent, children):
+    def store_media_items(self, store_guid: str, parent: MediaItem, children: List[MediaItem]) -> None:
         """ Store the MediaItems in the given store path
 
-        :param str store_guid:              The guid used for storage
-        :param MediaItem parent:            The parent item
-        :param list[MediaItem] children:    The child items
-
-        :rtype: str
+        :param store_guid:  The guid used for storage
+        :param parent:      The parent item
+        :param children:    The child items
 
         """
 
@@ -232,14 +228,14 @@ class Pickler:
         self.__depickle_container[store_guid] = content
         return items
 
-    def __retrieve_media_item_from_store(self, storage_location):
+    def __retrieve_media_item_from_store(self, storage_location: str) -> MediaItem:
         store_guid, item_guid = storage_location.split(Pickler.__store_separator)
         items = self.__retrieve_media_items_from_store(store_guid)
 
         item_pickle = items.get(item_guid)
         return item_pickle
 
-    def __get_pickle_path(self, store_guid):
+    def __get_pickle_path(self, store_guid) -> Tuple[str, str]:
         # file storage is always lower case
         store_guid = store_guid.lower()
         pickles_file = "{}.{}".format(store_guid, self.__ext)
@@ -249,7 +245,7 @@ class Pickler:
         pickles_path = os.path.join(pickles_dir, pickles_file)
         return pickles_dir, pickles_path
 
-    def __get_kodi_favourites(self, addon_id):
+    def __get_kodi_favourites(self, addon_id: str) -> Dict[str, List[str]]:
         """ Retrieves the PickleStore ID's corresponding to Kodi Favourites using the json RPC
 
         :return: A set of PickleStore ID's
@@ -261,7 +257,7 @@ class Pickler:
         import xbmc
 
         # Use a set() for performance
-        favourite_pickle_stores = set()
+        favourite_pickle_stores = dict()
 
         # Do the RPC
         req = {
