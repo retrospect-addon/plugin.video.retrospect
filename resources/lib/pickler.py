@@ -307,10 +307,12 @@ class Pickler:
                 continue
 
             # Is it a favourite with a PickleStore ID?
-            pickle_store_id, pickle_id = Regexer.do_regex(
-                r"pickle=([^&]+){}([^&]+)".format(Pickler.__store_separator), fav_path)[0]
-            if not pickle_store_id:
+            pickle_match = Regexer.do_regex(
+                r"pickle=([^&]+){}([^&]+)".format(Pickler.__store_separator), fav_path)
+            if not pickle_match:
                 continue
+
+            pickle_store_id, pickle_id = pickle_match[0]
 
             Logger.debug("PickleStore: Found favourite: %s (%s)", fav_name, fav_path)
 
