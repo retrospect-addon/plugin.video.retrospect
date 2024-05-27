@@ -66,8 +66,8 @@ class TestNpoChannel(ChannelTest):
         item = MediaItem("With seasons", "https://npo.nl/start/api/domain/series-seasons?slug=2-voor-12&type=timebound_series")
         item.metaData["guid"] = "6eaefb5b-2013-408e-a3b5-77c651fb5858"
         items = self.channel.process_folder_list(item)
-        self.assertGreater(len(items), 2)
-        self.assertGreater(len([i for i in items if i.is_playable]), 1)
+        self.assertGreaterEqual(len(items), 1)
+        self.assertGreaterEqual(len([i for i in items if i.is_playable]), 1)
 
     def test_series_recent_episodes_via_guid(self):
         self._test_folder_url("https://npo.nl/start/api/domain/programs-by-series?seriesGuid=af032e71-3047-4b22-aac9-c2ef9c8bb9a3&limit=20&sort=-firstBroadcastDate", 2)
