@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.12 - Changelog - 2024-05-27[/B]
+[B]Retrospect v5.7.13 - Changelog - 2024-06-14[/B]
 
-Fixed another issue with Kodi Favourites and content views.
+Fixed a number of Swedish channel issues.
 
 [B]Framework related[/B]
 * Added: Fallback format option to DateHelper.
