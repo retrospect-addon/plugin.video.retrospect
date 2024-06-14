@@ -3,10 +3,12 @@
 Fixed another issue with Kodi Favourites and content views.
 
 [B]Framework related[/B]
-_None_
+* Added: Fallback format option to DateHelper.
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
 * Fixed: ONS TV season/episode issue.
+* Fixed: Playback of some SVT streams (Fixes #1801).
+* Fixed: Some timestamps are with and some without milliseconds (Fixes #1800).
