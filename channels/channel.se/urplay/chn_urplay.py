@@ -31,7 +31,7 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes ====
-        self.noImage = "urplayimage.png"
+        self.noImage = "urplayimage.jpg"
 
         # setup the urls
         self.mainListUri = "#mainlist_merge"
@@ -70,8 +70,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser("*", updater=self.update_video_item)
 
         # Categories
-        cat_reg = r'<a[^>]+href="(?<url>/blad[^"]+/(?<slug>[^"]+))"[^>]*>' \
-                  r'(?:<svg[\w\W]{0,2000}?</svg>)?(?<title>[^<]+)<'
+        cat_reg = r'<a[^>]+href="(?<url>/blad[^"]+/(?<slug>[^"]+))"[^>]*><div[^>]+>(?<title>[^<]+)<'
         cat_reg = Regexer.from_expresso(cat_reg)
         self._add_data_parser("https://urplay.se/", name="Category parser",
                               match_type=ParserData.MatchExact,
