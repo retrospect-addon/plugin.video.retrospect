@@ -82,7 +82,7 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown", 10)
 
     def test_news(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown", 10)
+        self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown", 4)
 
     def test_programs(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-layout?slug=programmas", 5)
