@@ -498,6 +498,7 @@ class Channel(chn_class.Channel):
             url = f"https://npo.nl/start/api/domain/programs-by-series?seriesGuid={guid}&limit=20&sort=-firstBroadcastDate"
 
         item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        # Store the series GUID as we need it later one.
         item.metaData["guid"] = guid
         if "images" in result_set and result_set["images"]:
             image_data = result_set["images"][0]
@@ -562,8 +563,8 @@ class Channel(chn_class.Channel):
 
         return self.create_api_episode_item(result_set, True)
 
-    def create_api_episode_item(self, result_set: dict, show_info: bool = False) -> Optional[
-        MediaItem]:
+    def create_api_episode_item(self, result_set: dict, show_info: bool = False) -> (
+            Optional)[MediaItem]:
         title = result_set["title"]
         poms = result_set["productId"]
         serie_info = result_set.get("series") or {}
@@ -624,7 +625,7 @@ class Channel(chn_class.Channel):
 
         return item
 
-
+    # noinspection PyUnusedLocal
     def create_api_live_tv(self, result_set: dict, show_info: bool = False) -> Optional[MediaItem]:
         """ Creates a MediaItem for a live item of type 'video' using the result_set from the regex.
 
@@ -652,6 +653,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(name, url, media_type=mediatype.VIDEO)
         item.metaData["poms"] = poms
         item.metaData["live_pid"] = poms
+        # Store the series GUID as we need it later.
         item.metaData["guid"] = guid
         item.isLive = True
         item.isGeoLocked = True
@@ -697,6 +699,7 @@ class Channel(chn_class.Channel):
 
         return data, items
 
+    # noinspection PyUnusedLocal
     def load_all_epg_channels(self, data: Union[str, JsonHelper]) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
         channels = self.parentItem.metaData["channels"]
         date = self.parentItem.metaData["date"]
@@ -1062,8 +1065,6 @@ class Channel(chn_class.Channel):
         item.metaData["retrospect:parser"] = "liveRadio"
         return item
 
-
-
     def update_live_radio(self, item: MediaItem) -> MediaItem:
         # First fetch the Javascript data file
         www_data = UriHandler.open(item.url)
@@ -1245,9 +1246,8 @@ class Channel(chn_class.Channel):
                         iptv_epg_item["image"] = JsonHelper.get_from(item, "images")[0].get("url")
 
                     if media_item is not None:
-                        iptv_epg_item["stream"] = parameter_parser.create_action_url(self, action=action.PLAY_VIDEO,
-                            item=media_item,
-                            store_id=parent.guid)
+                        iptv_epg_item["stream"] = parameter_parser.create_action_url(
+                            self, action=action.PLAY_VIDEO, item=media_item, store_id=parent.guid)
                         media_items.append(media_item)
 
                     iptv_epg[livestream["guid"]].append(iptv_epg_item)

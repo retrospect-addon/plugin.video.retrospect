@@ -63,8 +63,8 @@ class TestNpoChannel(ChannelTest):
 
     def test_series_with_seasons_via_slug(self):
         from resources.lib.mediaitem import MediaItem
-        item = MediaItem("With seasons", "https://npo.nl/start/api/domain/series-seasons?slug=2-voor-12&type=timebound_series")
-        item.metaData["guid"] = "6eaefb5b-2013-408e-a3b5-77c651fb5858"
+        item = MediaItem("With seasons", "https://npo.nl/start/api/domain/series-seasons?slug=betreden-op-eigen-risico&type=timebound_series")
+        item.metaData["guid"] = "b6b7fa82-d565-42a1-8a75-46dbab66bd74"
         items = self.channel.process_folder_list(item)
         self.assertGreaterEqual(len(items), 1)
         self.assertGreaterEqual(len([i for i in items if i.is_playable]), 1)
