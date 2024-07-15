@@ -317,7 +317,7 @@ class Channel(chn_class.Channel):
             items.append(item)
             return item
 
-        add_item(LanguageHelper.Search, "searchSite", contenttype.EPISODES,
+        add_item(LanguageHelper.Search, self.search_url, contenttype.EPISODES,
                  headers={"X-Requested-With": "XMLHttpRequest"})
 
         # Favorite items that require login
@@ -798,35 +798,31 @@ class Channel(chn_class.Channel):
         return self.__update_video_item(item, product_id)
 
     # noinspection PyUnusedLocal
-    def search_site(self, url=None) -> List[MediaItem]:  # @UnusedVariable
-        """ Creates an list of items by searching the site.
+    def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
+        """ Creates a list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
-        The %s the url will be replaced with an URL encoded representation of the
+        The %s the url will be replaced with a URL encoded representation of the
         text to search for.
 
-        :param str url:     Url to use to search with a %s for the search parameters.
+        :param url:     Url to use to search with an %s for the search parameters.
+        :param needle:  The URL needle to search for.
 
         :return: A list with search results as MediaItems.
-        :rtype: list[MediaItem]
 
         """
 
         shows_url = "https://npo.nl/start/api/domain/search-results?searchType=series&query=%s&subscriptionType=anonymous"
         videos_url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&query=%s&subscriptionType=anonymous"
 
-        items = []
-        needle = XbmcWrapper.show_key_board()
         if not needle:
-            return []
+            raise ValueError("No needle present")
 
-        Logger.debug("Searching for '%s'", needle)
-        # convert to HTML
+        items = []
         needle = HtmlEntityHelper.url_encode(needle)
-
         search_url = shows_url % (needle, )
         temp = MediaItem("Search", search_url, mediatype.FOLDER)
         items += self.process_folder_list(temp)

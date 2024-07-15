@@ -4,6 +4,7 @@
 import urllib.parse as parse
 from typing import Optional, List, Union
 
+from resources.lib.actions import keyword, action
 from resources.lib.mediaitem import MediaItem, FolderItem, MediaStream
 from resources.lib import contenttype
 from resources.lib import mediatype
@@ -58,6 +59,7 @@ class Channel:
         self.channelCode = channel_info.channelCode
         self.channelDescription = channel_info.channelDescription
         self.moduleName = channel_info.moduleName
+        self.uses_external_addon = channel_info.uses_external_addon
         self.ignore = channel_info.ignore
         self.sortOrder = channel_info.sortOrder
         self.sortOrderPerCountry = channel_info.sortOrderPerCountry
@@ -137,6 +139,16 @@ class Channel:
         self.noImage = TextureHandler.instance().get_texture_uri(self, self.noImage)
         self.poster = TextureHandler.instance().get_texture_uri(self, self.poster)
         return
+
+    @property
+    def search_url(self):
+        if self.channelCode:
+            return (f"plugin://{Config.addonId}/?{keyword.CHANNEL}={self.url_id}"
+                    f"&{keyword.CHANNEL_CODE}={self.channelCode}"
+                    f"&{keyword.ACTION}={action.SEARCH}")
+        else:
+            return (f"plugin://{Config.addonId}/?{keyword.CHANNEL}={self.url_id}"
+                    f"&{keyword.ACTION}={action.SEARCH}")
 
     @property
     def sort_key(self):
@@ -497,20 +509,20 @@ class Channel:
         Logger.debug("Processing Updater from %s", data_parser)
         return data_parser.Updater(item)
 
-    def search_site(self, url=None):
-        """ Creates an list of items by searching the site.
+    def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
+        """ Creates a list of items by searching the site.
 
         This method is called when the URL of an item is "searchSite". The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
-        The %s the url will be replaced with an URL encoded representation of the
+        The %s the url will be replaced with a URL encoded representation of the
         text to search for.
 
-        :param str|None url:     Url to use to search with a %s for the search parameters.
+        :param url:     Url to use to search with an %s for the search parameters.
+        :param needle:  The URL needle to search for.
 
         :return: A list with search results as MediaItems.
-        :rtype: list[MediaItem]
 
         """
 
@@ -518,16 +530,18 @@ class Channel:
         if url is None:
             item = MediaItem("Search Not Implented", "", media_type=mediatype.VIDEO)
             items.append(item)
+
+        elif not needle:
+            item = MediaItem("No Needle Present For Search", "", media_type=mediatype.VIDEO)
+            items.append(item)
+
         else:
-            items = []
-            needle = XbmcWrapper.show_key_board()
-            if needle:
-                Logger.debug("Searching for '%s'", needle)
-                # convert to HTML
-                needle = HtmlEntityHelper.url_encode(needle)
-                search_url = url % (needle, )
-                temp = MediaItem("Search", search_url, mediatype.FOLDER)
-                return self.process_folder_list(temp)
+            Logger.debug("Searching for '%s'", needle)
+            # convert to HTML
+            needle = HtmlEntityHelper.url_encode(needle)
+            search_url = url % (needle, )
+            temp = MediaItem("Search", search_url, mediatype.FOLDER)
+            items = self.process_folder_list(temp)
 
         return items
 

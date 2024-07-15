@@ -16,6 +16,7 @@ from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib import mediatype
 from resources.lib import contenttype
+from resources.lib.retroconfig import Config
 from resources.lib.streams.adaptive import Adaptive
 from resources.lib.proxyinfo import ProxyInfo
 
@@ -584,7 +585,9 @@ class MediaItem:
 
     @property
     def uses_external_addon(self):
-        return self.url is not None and self.url.startswith("plugin://")
+        return (self.url is not None
+                and self.url.startswith("plugin://")
+                and not self.url.startswith(f"plugin://{Config.addonId}"))
 
     @property
     def title(self):

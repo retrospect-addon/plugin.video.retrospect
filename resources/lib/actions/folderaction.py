@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import List
 
 import xbmcplugin
 
@@ -20,6 +21,9 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 
 
 class FolderAction(AddonAction):
+    _channel: Channel
+    _media_item: MediaItem
+
     def __init__(self, parameter_parser, channel, favorites=None):
         """Wraps the channel.process_folder_list
 
@@ -35,8 +39,8 @@ class FolderAction(AddonAction):
         if channel is None and favorites is None:
             raise ValueError("No Channel specified for folder to list")
 
-        self.__channel = channel
-        self.__media_item = parameter_parser.media_item
+        self._channel = channel
+        self._media_item = parameter_parser.media_item
         self.__favorites = favorites
 
     def execute(self):
@@ -45,14 +49,14 @@ class FolderAction(AddonAction):
             ok = True
 
             # read the item from the parameters
-            selected_item = self.__media_item
+            selected_item = self._media_item
 
             # determine the parent guid
-            parent_guid = self.parameter_parser.get_parent_guid(self.__channel, selected_item)
+            parent_guid = self.parameter_parser.get_parent_guid(self._channel, selected_item)
 
             if self.__favorites is None:
                 watcher = StopWatch("Plugin process_folder_list", Logger.instance())
-                media_items = self.__channel.process_folder_list(selected_item)
+                media_items = self._channel.process_folder_list(selected_item)
                 watcher.lap("Class process_folder_list finished")
             else:
                 parent_guid = "{}.fav".format(parent_guid)
@@ -64,72 +68,9 @@ class FolderAction(AddonAction):
                 ok = self.__show_empty_information(media_items, favs=self.__favorites is not None)
             else:
                 Logger.debug("process_folder_list returned %s items", len(media_items))
+                ok = True
 
-            kodi_items = []
-
-            use_thumbs_as_fanart = AddonSettings.use_thumbs_as_fanart()
-
-            # Determine the TV Show title. Use the TV Show title of the selected item if it has one,
-            # or use the title of the selected item if the content has `episodes`. Becaue in that
-            # case the selected item is a TV Show.
-            tv_show_title = None
-            if selected_item:
-                tv_show_title = selected_item.tv_show_title or (
-                    selected_item.title if selected_item.content_type == contenttype.EPISODES else None
-                )
-
-            for media_item in media_items:  # type: MediaItem
-                self.__update_artwork(media_item, self.__channel, use_thumbs_as_fanart)
-                # Set the TV Show title if it was set before, but don't override existing values.
-                if tv_show_title and not media_item.tv_show_title:
-                    Logger.trace("Updating TV Show title to: %s", tv_show_title)
-                    media_item.tv_show_title = tv_show_title
-
-                if media_item.is_folder:
-                    action_value = action.LIST_FOLDER
-                    folder = True
-                elif media_item.is_playable:
-                    action_value = action.PLAY_VIDEO
-                    folder = False
-                else:
-                    Logger.critical("Plugin::process_folder_list: Cannot determine what to add")
-                    continue
-
-                # Get the Kodi item
-                kodi_item = media_item.get_kodi_item()
-                self.__set_kodi_properties(kodi_item, media_item, folder,
-                                           is_favourite=self.__favorites is not None)
-
-                # Get the context menu items
-                context_menu_items = self._get_context_menu_items(self.__channel, item=media_item, store_id=parent_guid)
-                kodi_item.addContextMenuItems(context_menu_items)
-
-                # Get the action URL
-                url = media_item.actionUrl
-                if url is None:
-                    url = self.parameter_parser.create_action_url(
-                        self.__channel, action=action_value, item=media_item, store_id=parent_guid)
-
-                # Add them to the list of Kodi items
-                kodi_items.append((url, kodi_item, folder))
-
-            watcher.lap("Kodi Items generated")
-
-            # add items but if OK was False, keep it like that
-            ok = ok and xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
-            watcher.lap("items send to Kodi")
-
-            if ok and parent_guid is not None:
-                self.parameter_parser.pickler.store_media_items(parent_guid, selected_item, media_items)
-
-            watcher.stop()
-
-            self.__add_sort_method_to_handle(self.handle, media_items)
-            self.__add_breadcrumb(self.handle, self.__channel, selected_item)
-            self.__add_content_type(self.handle, self.__channel, selected_item)
-
-            cache_to_disk = selected_item.cacheToDisc if selected_item else True
-            xbmcplugin.endOfDirectory(self.handle, ok, cacheToDisc=cache_to_disk)
+            self._generate_kodi_items(media_items, parent_guid, selected_item, watcher, ok)
         except Exception:
             Logger.error("Plugin::Error Processing FolderList", exc_info=True)
             XbmcWrapper.show_notification(
@@ -137,6 +78,74 @@ class FolderAction(AddonAction):
                 LanguageHelper.get_localized_string(LanguageHelper.ErrorList),
                 XbmcWrapper.Error, 4000)
             xbmcplugin.endOfDirectory(self.handle, False)
+
+    def _generate_kodi_items(self, media_items: List[MediaItem], parent_guid: str,
+                             selected_item: MediaItem, watcher: StopWatch, ok: bool = True) -> None:
+        kodi_items = []
+        use_thumbs_as_fanart = AddonSettings.use_thumbs_as_fanart()
+
+        # Determine the TV Show title. Use the TV Show title of the selected item if it has one,
+        # or use the title of the selected item if the content has `episodes`. Becaue in that
+        # case the selected item is a TV Show.
+        tv_show_title = None
+        if selected_item:
+            tv_show_title = selected_item.tv_show_title or (
+                selected_item.title if selected_item.content_type == contenttype.EPISODES else None
+            )
+
+        for media_item in media_items:  # type: MediaItem
+            self.__update_artwork(media_item, self._channel, use_thumbs_as_fanart)
+            # Set the TV Show title if it was set before, but don't override existing values.
+            if tv_show_title and not media_item.tv_show_title:
+                Logger.trace("Updating TV Show title to: %s", tv_show_title)
+                media_item.tv_show_title = tv_show_title
+
+            if media_item.is_folder:
+                action_value = action.LIST_FOLDER
+                folder = True
+            elif media_item.is_playable:
+                action_value = action.PLAY_VIDEO
+                folder = False
+            else:
+                Logger.critical("Plugin::process_folder_list: Cannot determine what to add")
+                continue
+
+            # Get the Kodi item
+            kodi_item = media_item.get_kodi_item()
+            self.__set_kodi_properties(kodi_item, media_item, folder,
+                                       is_favourite=self.__favorites is not None)
+
+            # Get the context menu items
+            context_menu_items = self._get_context_menu_items(
+                self._channel, item=media_item, store_id=parent_guid)
+            kodi_item.addContextMenuItems(context_menu_items)
+
+            # Get the action URL
+            url = media_item.actionUrl
+            if url is None:
+                url = self.parameter_parser.create_action_url(
+                    self._channel, action=action_value, item=media_item, store_id=parent_guid)
+
+            # Add them to the list of Kodi items
+            kodi_items.append((url, kodi_item, folder))
+
+        watcher.lap("Kodi Items generated")
+
+        # add items but if OK was False, keep it like that
+        ok = ok and xbmcplugin.addDirectoryItems(self.handle, kodi_items, len(kodi_items))
+        watcher.lap("items send to Kodi")
+
+        if ok and parent_guid is not None:
+            self.parameter_parser.pickler.store_media_items(parent_guid, selected_item, media_items)
+
+        watcher.stop()
+
+        self.__add_sort_method_to_handle(self.handle, media_items)
+        self.__add_breadcrumb(self.handle, self._channel, selected_item)
+        self.__add_content_type(self.handle, self._channel, selected_item)
+
+        cache_to_disk = selected_item.cacheToDisc if selected_item else True
+        xbmcplugin.endOfDirectory(self.handle, ok, cacheToDisc=cache_to_disk)
 
     def __show_empty_information(self, items, favs=False):
         """ Adds an empty item to a list or just shows a message.
@@ -249,10 +258,10 @@ class FolderAction(AddonAction):
         elif media_item.isCloaked:
             kodi_item.setProperty(self._propertyRetrospectCloaked, "true")
 
-        if self.__channel and self.__channel.adaptiveAddonSelectable:
+        if self._channel and self._channel.adaptiveAddonSelectable:
             kodi_item.setProperty(self._propertyRetrospectAdaptive, "true")
 
-        if self.__channel and self.__channel.hasSettings:
+        if self._channel and self._channel.hasSettings:
             kodi_item.setProperty(self._propertyRetrospectChannelSetting, "true")
 
     def __add_sort_method_to_handle(self, handle, items=None):
@@ -295,7 +304,7 @@ class FolderAction(AddonAction):
                 # Some items have episodes, only add the sorting options.
                 sort_methods.append(xbmcplugin.SORT_METHOD_EPISODE)  # 24
 
-        is_search = self.__media_item.is_search(self.__media_item.url) if self.__media_item else False
+        is_search = self._media_item.is_search(self._media_item.url) if self._media_item else False
         if is_search:
             sort_methods.remove(xbmcplugin.SORT_METHOD_UNSORTED)
             sort_methods.insert(0, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -323,7 +332,7 @@ class FolderAction(AddonAction):
                 bread_crumb = "{} / {}".format(selected_item.tv_show_title, selected_item.name)
             else:
                 bread_crumb = selected_item.name
-        elif self.__channel is not None:
+        elif self._channel is not None:
             bread_crumb = channel.channelName
 
         if not bread_crumb:
