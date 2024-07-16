@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-
+import re
 from typing import Optional, List
 
 import xbmc
@@ -72,6 +72,11 @@ class SearchAction(AddonAction):
 
         else:
             media_items = self.__channel.search_site(needle=self.__needle)
+            highlighter = re.compile(f"({self.__needle})", re.IGNORECASE)
+            for item in media_items:
+                item.name = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.name)
+                if item.description:
+                    item.description = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.description)
             folder_action = FolderAction(self.parameter_parser, self.__channel, items=media_items)
             folder_action.execute()
 
