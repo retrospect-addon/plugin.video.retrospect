@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import xbmcplugin
+import xbmcplugin  # type: ignore
 
 from resources.lib.actions import action
 from resources.lib import contenttype
@@ -244,6 +244,11 @@ class FolderAction(AddonAction):
 
         # Set the properties for the context menu add-on
         kodi_item.setProperty(self._propertyRetrospect, "true")
+
+        if media_item.is_search_folder:
+            # Search folders don't need more.
+            return
+
         kodi_item.setProperty(self._propertyRetrospectFolder
                               if is_folder
                               else self._propertyRetrospectVideo, "true")

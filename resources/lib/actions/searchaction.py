@@ -1,8 +1,7 @@
 from typing import Optional, List
 
-import xbmc
-
-import xbmcplugin
+import xbmc  # type: ignore
+import xbmcplugin  # type: ignore
 
 from resources.lib import contenttype
 from resources.lib.actions import action, keyword
@@ -59,7 +58,7 @@ class SearchAction(AddonAction):
                 return
 
             # noinspection PyTypeChecker
-            history: List[str] = self.__settings.get_setting("search", self.__channel, [])
+            history: List[str] = self.__settings.get_setting("search", self.__channel, [])  # type: ignore
             history = list(set([needle] + history))
             self.__settings.set_setting("search", history[0:10], self.__channel)
 
@@ -84,6 +83,7 @@ class SearchAction(AddonAction):
             f"{self.__channel.search_url}&{keyword.NEEDLE}=",
             content_type=contenttype.VIDEOS
         )
+        search_item.actionUrl = search_item.url
         media_items.append(search_item)
 
         for needle in history:
@@ -91,8 +91,9 @@ class SearchAction(AddonAction):
             url = self.parameter_parser.create_action_url(self.__channel, action.SEARCH,
                                                           needle=encoded_needle)
             item = FolderItem(needle, url, content_type=contenttype.VIDEOS)
+            item.actionUrl = url
+            item.metaData["retrospect:needle"] = needle
             media_items.append(item)
 
         folder_action = FolderAction(self.parameter_parser, self.__channel, items=media_items)
         folder_action.execute()
-

@@ -4,9 +4,9 @@
 from datetime import datetime
 from functools import reduce
 from random import getrandbits
-from typing import Optional
+from typing import Optional, Dict, Any, List
 
-import xbmcgui
+import xbmcgui  # type: ignore
 
 from resources.lib.addonsettings import AddonSettings
 from resources.lib import kodifactory
@@ -33,8 +33,33 @@ class MediaItem:
 
     """
 
+    actionUrl: Optional[str]
+    cacheToDisc: bool
+    complete: bool
+    content_type: str
+    description: str
+    dontGroup: bool
+    episode: int
+    fanart: str
+    HttpHeaders: Dict[str, str]
+    icon: str
+    isCloaked: bool
+    isDrmProtected: bool
+    isGeoLocked: bool
+    isLive: bool
+    isPaid: bool
+    items: List["MediaItem"]
+    media_type: Optional[str]
+    metaData: Dict[Any, Any]
+    name: str
     postData: Optional[str]
+    poster: str
     postJson: Optional[dict]
+    streams: List["MediaStream"]
+    subtitle: Optional[str]
+    thumb: str
+    tv_show_title: Optional[str]
+    url: str
 
     LabelEpisode = "Episode"
     LabelTrackNumber = "TrackNumber"
@@ -106,7 +131,7 @@ class MediaItem:
         # musicvideos, videos, images, games. Defaults to 'episodes'
         self.content_type = contenttype.EPISODES
 
-        self.streams = []  # type: list[MediaStream]
+        self.streams = []
         self.subtitle = None
 
         if depickle:
@@ -212,6 +237,10 @@ class MediaItem:
 
         """
         return self.media_type in mediatype.AUDIO_TYPES
+
+    @property
+    def is_search_folder(self) -> bool:
+        return self.is_folder and "retrospect:needle" in self.metaData
 
     def has_track(self):
         """ Does this MediaItem have a TrackNumber InfoLabel
