@@ -126,7 +126,7 @@ class Channel(chn_class.Channel):
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
         """ Creates a list of items by searching the site.
 
-        This method is called when the URL of an item is "searchSite". The channel
+        This method is called when and item with `self.search_url` is opened. The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
@@ -134,7 +134,7 @@ class Channel(chn_class.Channel):
         text to search for.
 
         :param url:     Url to use to search with an %s for the search parameters.
-        :param needle:  The URL needle to search for.
+        :param needle:  The needle to search for.
 
         :return: A list with search results as MediaItems.
 

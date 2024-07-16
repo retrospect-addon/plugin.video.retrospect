@@ -111,6 +111,10 @@ class ActionParser(object):
         return self.__media_item
 
     @property
+    def action(self):
+        return self.params.get(keyword.ACTION)
+
+    @property
     def pickle_hash(self):
         """ Returns the pickle hash of the current item.
 

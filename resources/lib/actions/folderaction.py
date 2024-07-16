@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import xbmcplugin  # type: ignore
+import xbmcplugin
 
 from resources.lib.actions import action
 from resources.lib import contenttype
@@ -304,7 +304,7 @@ class FolderAction(AddonAction):
                 # Some items have episodes, only add the sorting options.
                 sort_methods.append(xbmcplugin.SORT_METHOD_EPISODE)  # 24
 
-        is_search = self.__media_item.is_search(self.__media_item.url) if self.__media_item else False
+        is_search = self.parameter_parser.action == action.SEARCH
         if is_search:
             sort_methods.remove(xbmcplugin.SORT_METHOD_UNSORTED)
             sort_methods.insert(0, xbmcplugin.SORT_METHOD_UNSORTED)

@@ -141,7 +141,7 @@ class Channel:
         return
 
     @property
-    def search_url(self):
+    def search_url(self) -> str:
         if self.channelCode:
             return (f"plugin://{Config.addonId}/?{keyword.CHANNEL}={self.url_id}"
                     f"&{keyword.CHANNEL_CODE}={self.channelCode}"
@@ -221,10 +221,6 @@ class Channel:
                 data = UriHandler.open(url, additional_headers=headers, json=parent_item.postJson, no_cache=no_cache)
             else:
                 data = UriHandler.open(url, additional_headers=headers, no_cache=no_cache)
-        # Searching a site using search_site()
-        elif MediaItem.is_search(url):
-            Logger.debug("Starting to search")
-            return self.search_site()
         # Labels instead of url's
         elif url.startswith("#"):
             data = ""
@@ -512,7 +508,7 @@ class Channel:
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
         """ Creates a list of items by searching the site.
 
-        This method is called when the URL of an item is "searchSite". The channel
+        This method is called when and item with `self.search_url` is opened. The channel
         calling this should implement the search functionality. This could also include
         showing of an input keyboard and following actions.
 
@@ -520,7 +516,7 @@ class Channel:
         text to search for.
 
         :param url:     Url to use to search with an %s for the search parameters.
-        :param needle:  The URL needle to search for.
+        :param needle:  The needle to search for.
 
         :return: A list with search results as MediaItems.
 
@@ -1048,9 +1044,6 @@ class Channel:
         :rtype: list[ParserData]
 
         """
-
-        if MediaItem.is_search(url):
-            return []
 
         # For now we need to be backwards compatible:
         if not self.dataParsers:

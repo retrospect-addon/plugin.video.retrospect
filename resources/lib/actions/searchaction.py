@@ -1,7 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from typing import Optional, List
 
-import xbmc  # type: ignore
-import xbmcplugin  # type: ignore
+import xbmc
+import xbmcplugin
 
 from resources.lib import contenttype
 from resources.lib.actions import action, keyword
