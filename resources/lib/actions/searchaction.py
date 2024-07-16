@@ -72,7 +72,10 @@ class SearchAction(AddonAction):
 
         else:
             media_items = self.__channel.search_site(needle=self.__needle)
-            highlighter = re.compile(f"({self.__needle})", re.IGNORECASE)
+            re_needle = re.escape(self.__needle)
+            Logger.debug(f"Highlighting {self.__needle} `{re_needle}` in results.")
+            highlighter = re.compile(f"({re_needle})", re.IGNORECASE)
+
             for item in media_items:
                 item.name = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.name)
                 if item.description:
