@@ -44,6 +44,22 @@
       "language": "be",
       "fanart": "zesfanart.jpg",
       "adaptiveAddonSelectable": true
+    },
+    {
+      "guid": "3C96398D-22E5-4C61-9308-092FC34A19C0",
+      "name": "Zeven",
+      "description": {
+        "en": "Online Online video on demand from www.zeventv.be.\n\nA username and password can be configured for this channel. This enables you to watch all shows to which you are eligible.",
+        "nl": "Online uitzendingen van www.goplay.be.\n\nHet is mogelijk een gebruikersnaam en wachtwoord te configuren voor dit kanaal. Zo is het mogelijk om alle content te bekijken waarvoor het account is gerechtigd."
+      },
+      "icon": "zeveniconlight.png",
+      "poster": "zevenposter.jpg",
+      "category": "National",
+      "channelcode": "zevenbe",
+      "sortorder": 6,
+      "language": "be",
+      "fanart": "zevenfanart.jpg",
+      "adaptiveAddonSelectable": true
     }
   ],
   "settings": [

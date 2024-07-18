@@ -9,6 +9,7 @@ from awsidp import AwsIdp
 from resources.lib import chn_class, contenttype, mediatype
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, MediaItemResult, FolderItem
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
@@ -22,9 +23,18 @@ class NextJsParser:
 
     def __call__(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
         nextjs_regex = self.__regex
-        nextjs_data = Regexer.do_regex(nextjs_regex, data)[0]
+        try:
+            nextjs_data = Regexer.do_regex(nextjs_regex, data)[0]
+        except:
+            Logger.debug(f"RAW NextJS: {data}")
+            raise
+
+        Logger.trace(f"NextJS: {nextjs_data}")
         nextjs_json = JsonHelper(nextjs_data)
         return nextjs_json, []
+
+    def __str__(self):
+        return f"NextJS parser: {self.__regex}"
 
 
 class Channel(chn_class.Channel):
@@ -75,19 +85,25 @@ class Channel(chn_class.Channel):
 
         if self.channelCode == "vijfbe":
             self.noImage = "vijfimage.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play5"
+            self.mainListUri = "https://www.goplay.be/programmas/play-5"
             self.__channel_brand = "play5"
             self.__channel_slug = "vijf"
 
         elif self.channelCode == "zesbe":
             self.noImage = "zesimage.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play6"
+            self.mainListUri = "https://www.goplay.be/programmas/play-6"
             self.__channel_brand = "play6"
             self.__channel_slug = "zes"
 
+        elif self.channelCode == "zevenbe":
+            self.noImage = "zevenimage.png"
+            self.mainListUri = "https://www.goplay.be/programmas/play-7"
+            self.__channel_brand = "play7"
+            self.__channel_slug = "zeven"
+
         else:
             self.noImage = "vierimage.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play4"
+            self.mainListUri = "https://www.goplay.be/programmas/play-4"
             self.__channel_brand = "play4"
             self.__channel_slug = "vier"
 
@@ -101,6 +117,11 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(r"{\"playlists\":(.+)}\]}\]\]$"),
                               parser=[],
                               creator=self.create_season_item)
+
+        self._add_data_parser("https://www.goplay.be/", json=True, name="Main movie parser",
+                              preprocessor=NextJsParser(r"{\"playlists\":(.+)}\]}\]\]$"),
+                              label="movie", parser=[],
+                              creator=self.create_movie_item)
 
         # self._add_data_parser("*", match_type=ParserData.MatchExact,
         #                       name="Json video items", json=True,
@@ -153,15 +174,24 @@ class Channel(chn_class.Channel):
 
     def create_typed_nextjs_item(self, result_set: dict) -> MediaItemResult:
         item_type = result_set["type"]
+        item_sub_type = result_set["subtype"]
 
         if item_type == "program":
             return self.create_program_typed_item(result_set)
 
+        else:
+            Logger.warning(f"Unknown type: {item_type}:{item_sub_type}")
         return None
 
     def create_program_typed_item(self, result_set: dict) -> MediaItemResult:
+        item_sub_type = result_set["subtype"]
         data = result_set.get("data")
+
         if not data:
+            return None
+
+        brand = data["brandName"].lower()
+        if brand != self.__channel_brand:
             return None
 
         title = data["title"]
@@ -176,7 +206,15 @@ class Channel(chn_class.Channel):
             item.metaData["parental"] = data["parentalRating"]
 
         self.__extract_artwork(item, data.get("images"))
+
+        if item_sub_type == "movie":
+            item.metaData["retrospect:parser"] = "movie"
         return item
+
+    def create_movie_item(self, result_set):
+        # Need to use the long-form here:
+        # https://api.goplay.be/web/v1/videos/long-form/ba6a5377-cfbe-4adf-9579-9e4eb7e38547
+        return None
 
     def create_season_item(self, result_set):
         videos = []
@@ -186,11 +224,10 @@ class Channel(chn_class.Channel):
         for video_info in result_set.get("videos", []):
             title = video_info["title"]
             url = f"{self.baseUrl}{video_info['path']}"
-            published = video_info["datePublished"]
+            video_date = video_info["dateCreated"]
             description = video_info["description"]
             # video_id = video_info["uuid"]
             episode = video_info.get("episodeNumber", 0)
-            streams = (video_info.get("streamCollection", {}) or {}).get("streams", [])
 
             item = MediaItem(title, url, media_type=mediatype.EPISODE)
             item.description = description
@@ -200,18 +237,32 @@ class Channel(chn_class.Channel):
             if episode and season:
                 item.set_season_info(season, episode)
 
-            date_stamp = DateHelper.get_date_from_posix(published, tz=self.__tz)
+            date_stamp = DateHelper.get_date_from_posix(int(video_date), tz=self.__tz)
             item.set_date(date_stamp.year, date_stamp.month, date_stamp.day, date_stamp.hour,
                           date_stamp.minute, date_stamp.second)
 
-            for stream in streams:
-                proto = stream["protocol"]
-                if proto == "dash":
-                    stream = item.add_stream(stream["url"], 1501)
-                    Mpd.set_input_stream_addon_input(stream)
-                elif proto == "hls":
-                    stream = item.add_stream(stream["url"], 1500)
-                    M3u8.set_input_stream_addon_input(stream)
+            stream_collection = video_info.get("streamCollection", {})
+            if stream_collection:
+                drm_key = stream_collection["drmKey"]
+                streams = stream_collection["streams"]
+                duration = stream_collection["duration"]
+                if duration:
+                    item.set_info_label(MediaItem.LabelDuration, duration)
+                for stream in streams:
+                    proto = stream["protocol"]
+                    stream_url = stream["url"]
+                    if proto == "dash":
+                        stream = item.add_stream(stream_url, 1501)
+                        Mpd.set_input_stream_addon_input(stream)
+                    elif proto == "hls":
+                        stream = item.add_stream(stream_url, 1500)
+                        M3u8.set_input_stream_addon_input(stream)
+
+                    if "/geo" in stream_url:
+                        item.isGeoLocked = True
+
+            # flags = video_info.get("flags", {})
+            # item.isGeoLocked = flags["isProtected"]
 
             item.complete = item.has_streams()
             videos.append(item)
