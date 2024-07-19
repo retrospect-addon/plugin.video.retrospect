@@ -942,7 +942,7 @@ class Channel:
         """ Adds a DataParser to the handlers dictionary
 
         :param preprocessor:                    The pre-processor called
-        :type preprocessor:                     (str) -> (str|JsonHelper,list[MediaItem])
+        :type preprocessor:                     (str|JsonHelper) -> (str|JsonHelper,list[MediaItem])
 
         :param str name:                        The name of the DataParser
         :param str url:                         The URLs that triggers these handlers
