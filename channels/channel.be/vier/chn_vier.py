@@ -59,58 +59,34 @@ class Channel(chn_class.Channel):
 
         chn_class.Channel.__init__(self, channel_info)
 
-        # https://www.goplay.be/api/programs/popular/vier
-        # https://www.goplay.be/api/epg/vier/2021-01-28
-
-        # https://www.goplay.be/programmas?type=series
-        # nextjs parsing from `\"results\":[` tot `,\"categories\":[`
-        # https://www.goplay.be/hetisingewikkeld
-        # nextjs parsing from `\"playlists\":[`
-
-        # add header `rsc: 1`
-
-        # https://www.goplay.be/tv-gids/vier?_rsc=fe9ep
-        # https://www.goplay.be/tv-gids/vier/2024-07-14?_rsc=fe9ep
-        # https://www.goplay.be/tv-gids/vijf?_rsc=fe9ep
-        # https://www.goplay.be/tv-gids/zes?_rsc=fe9ep
-        # https://www.goplay.be/tv-gids/zeven?_rsc=fe9ep
-        # https://www.goplay.be/tv-gids/playcrime?_rsc=fe9ep
-        # nextjs parsing from `"children":`
-
-        # https://www.goplay.be/programmas?type=series  (&_rsc=fe9ep)
-        # https://www.goplay.be/programmas?type=movies  (&_rsc=fe9ep)
-
-        # https://api.goplay.be/web/v1/videos/long-form/ba6a5377-cfbe-4adf-9579-9e4eb7e38547
-        # https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-s2/hetisingewikkeld-s2-aflevering-2
-        # https://pubads.g.doubleclick.net/ondemand/dash/content/2615619/vid/10137607496827527/GRQ/streams/518f68f5-8d43-4cc4-8565-38050183281d/manifest.mpd
-
         # setup the main parsing data
         self.baseUrl = "https://www.goplay.be"
         self.httpHeaders = {"rsc": "1"}
 
         if self.channelCode == "vijfbe":
-            self.noImage = "vijfimage.png"
+            self.noImage = "vijffanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-5"
             self.__channel_brand = "play5"
             self.__channel_slug = "vijf"
 
         elif self.channelCode == "zesbe":
-            self.noImage = "zesimage.png"
+            self.noImage = "zesfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-6"
             self.__channel_brand = "play6"
-            self.__channel_slug = "zes"
 
         elif self.channelCode == "zevenbe":
-            self.noImage = "zevenimage.png"
+            self.noImage = "zevenfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-7"
             self.__channel_brand = "play7"
-            self.__channel_slug = "zeven"
 
+        elif self.channelCode == "goplay":
+            self.noImage = "goplayfanart.png"
+            self.mainListUri = "https://www.goplay.be/programmas/"
+            self.__channel_brand = None
         else:
-            self.noImage = "vierimage.png"
+            self.noImage = "vierfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-4"
             self.__channel_brand = "play4"
-            self.__channel_slug = "vier"
 
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
                               preprocessor=NextJsParser(r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"),
@@ -156,7 +132,7 @@ class Channel(chn_class.Channel):
             return None
 
         brand = data["brandName"].lower()
-        if brand != self.__channel_brand:
+        if self.__channel_brand and brand != self.__channel_brand:
             return None
 
         title = data["title"]
