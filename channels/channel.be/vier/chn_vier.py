@@ -14,7 +14,6 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, MediaItemResult, FolderItem
-from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.retroconfig import Config
 from resources.lib.streams.m3u8 import M3u8
