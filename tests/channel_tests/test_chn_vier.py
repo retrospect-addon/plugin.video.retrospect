@@ -31,7 +31,7 @@ class TestVierBeChannel(ChannelTest):
 
     def test_season_listing(self):
         url = "https://www.goplay.be/hetisingewikkeld"
-        self._test_folder_url(url, 5)
+        self._test_folder_url(url, 1)
 
     def test_resolve_via_url(self):
         url = "https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-seizoen-1/hetisingewikkeld-s1-aflevering-8"

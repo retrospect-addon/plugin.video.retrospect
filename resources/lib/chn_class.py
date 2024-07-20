@@ -604,7 +604,7 @@ class Channel:
         return data, items
 
     # noinspection PyUnusedLocal
-    def post_process_folder_list(self, data, items):
+    def post_process_folder_list(self, data: Union[str, JsonHelper], items: List[MediaItem]) -> List[MediaItem]:
         """ Performs post-process actions for data processing.
 
         Accepts an data from the process_folder_list method, BEFORE the items are
@@ -614,12 +614,10 @@ class Channel:
 
         The return values should always be instantiated in at least ("", []).
 
-        :param str|JsonHelper data:     The retrieve data that was loaded for the
-                                         current item and URL.
-        :param list[MediaItem] items:   The currently available items
+        :param data:     The retrieve data that was loaded for the current item and URL.
+        :param items:    The currently available items
 
         :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: list[MediaItem]
 
         """
 

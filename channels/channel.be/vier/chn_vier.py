@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Union
 
 import pytz
 
@@ -100,7 +100,8 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
                               preprocessor=NextJsParser(r"{\"playlists\":(.+)}\]}\]\]$"),
-                              parser=[], creator=self.create_season_item)
+                              parser=[], creator=self.create_season_item,
+                              postprocessor=self.show_single_season)
 
         self._add_data_parser("https://api.goplay.be/web/v1/search", json=True,
                               name="Search results parser",
@@ -239,9 +240,14 @@ class Channel(chn_class.Channel):
         return item
 
     def create_season_item(self, result_set):
-        videos = []
+        season_item = None
         season = result_set.get("season", 0)
 
+        if season:
+            title = f"{LanguageHelper.get_localized_string(LanguageHelper.SeasonId)} {season}"
+            season_item = FolderItem(title, result_set["uuid"], content_type=contenttype.EPISODES)
+
+        videos = []
         video_info: dict
         for video_info in result_set.get("videos", []):
             title = video_info["title"]
@@ -265,8 +271,19 @@ class Channel(chn_class.Channel):
 
             self.__extract_stream_collection(item, video_info)
             videos.append(item)
+            if season_item:
+                season_item.items.append(item)
 
+        if season_item:
+            return season_item
         return videos
+
+    # noinspection PyUnusedLocal
+    def show_single_season(self, data: Union[str, JsonHelper], items: List[MediaItem]) -> List[MediaItem]:
+        if len(items) == 1 and len(items[0].items) > 0:
+            Logger.info("Showing the full listing of a single season.")
+            return items[0].items
+        return items
 
     def create_search_result(self, result_set: dict) -> MediaItemResult:
         data = result_set["_source"]
