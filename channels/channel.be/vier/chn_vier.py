@@ -394,7 +394,13 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
         json_data = Regexer.do_regex(r"({\"video\":{.+?})\]}\],", data)[0]
         nextjs_json = JsonHelper(json_data)
+
+        # See if the NextJS data has stream info.
         self.__extract_stream_collection(item, nextjs_json.get_value("video"))
+
+        # if not streams were included, perhaps this is a drm protected sstream.
+        if not item.has_streams():
+            return self.update_video_item_with_id(item)
         return item
 
     def update_video_item_with_id(self, item: MediaItem) -> MediaItem:
@@ -431,15 +437,19 @@ class Channel(chn_class.Channel):
             "content-type": "application/json"
         }
 
-        data = UriHandler.open(item.url, additional_headers=authentication_header)
+        data = UriHandler.open(item.url, additional_headers=authentication_header, no_cache=True)
         json_data = JsonHelper(data)
-        m3u8_url = json_data.get_value("manifestUrls", "hls")
 
-        # If there's no m3u8 URL, try to use a SSAI stream instead
-        if m3u8_url is None and json_data.get_value("ssai") is not None:
+        if json_data.get_value("ssai") is not None:
             return self.__get_ssai_streams(item, json_data)
 
-        elif m3u8_url is None and json_data.get_value('message') is not None:
+        m3u8_url = json_data.get_value("manifestUrls", "hls")
+
+        # # If there's no m3u8 URL, try to use a SSAI stream instead
+        # if m3u8_url is None and json_data.get_value("ssai") is not None:
+        #     return self.__get_ssai_streams(item, json_data)
+
+        if m3u8_url is None and json_data.get_value('message') is not None:
             error_message = json_data.get_value('message')
             if error_message == "Locked":
                 # set it for the error statistics
@@ -467,6 +477,7 @@ class Channel(chn_class.Channel):
                 Logger.info(f"Found DRM enabled item: {item.name}")
                 item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
                 item.isGeoLocked = True
+                item.isDrmProtected = True
                 item.metaData["drm"] = drm_key
                 return
 
@@ -508,9 +519,13 @@ class Channel(chn_class.Channel):
         Logger.info("No stream data found, trying SSAI data")
         content_source_id = json_data.get_value("ssai", "contentSourceID")
         video_id = json_data.get_value("ssai", "videoID")
+        drm_header = json_data.get_value("drmXml", fallback=None)
 
         streams_url = 'https://dai.google.com/ondemand/dash/content/{}/vid/{}/streams'.format(
             content_source_id, video_id)
+        # streams_url = "https://pubads.g.doubleclick.net/ondemand/dash/content/{}/vid/{}/streams".format(
+        #     content_source_id, video_id)
+
         streams_input_data = {
             "api-key": "null"
             # "api-key": item.metaData.get("drm", "null")
@@ -519,11 +534,19 @@ class Channel(chn_class.Channel):
             "content-type": "application/json"
         }
         data = UriHandler.open(streams_url, data=streams_input_data,
-                               additional_headers=streams_headers)
+                               additional_headers=streams_headers, no_cache=True)
         json_data = JsonHelper(data)
         mpd_url = json_data.get_value("stream_manifest")
 
         stream = item.add_stream(mpd_url, 0)
-        Mpd.set_input_stream_addon_input(stream)
+
+        if drm_header:
+            header = {"customdata": drm_header, "content-type": "application/octet-stream"}
+            license_key = Mpd.get_license_key(
+                "https://wv-keyos.licensekeyserver.com/", key_type="R",
+                key_headers=header)
+            Mpd.set_input_stream_addon_input(stream, license_key=license_key)
+        else:
+            Mpd.set_input_stream_addon_input(stream)
         item.complete = True
         return item
