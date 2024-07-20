@@ -12,3 +12,4 @@ _None_
 * Updated: UR Play artwork and fixed categories.
 * Updated: SVT poster and icon.
 * Fixed: SVT HTML based videos (Fixes #1808).
+* Fixed: UR Play listings (Fixes #1812).
