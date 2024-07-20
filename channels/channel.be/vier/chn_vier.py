@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 import pytz
 
@@ -89,17 +89,24 @@ class Channel(chn_class.Channel):
             self.__channel_brand = "play4"
 
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              preprocessor=NextJsParser(r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"),
-                              parser=[],
-                              creator=self.create_typed_nextjs_item)
+                              preprocessor=NextJsParser(
+                                  r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"))
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              preprocessor=self.add_specials,
+                              parser=[], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
                               preprocessor=NextJsParser(r"{\"playlists\":(.+)}\]}\]\]$"),
-                              parser=[],
-                              creator=self.create_season_item)
+                              parser=[], creator=self.create_season_item)
+
+        self._add_data_parser("https://api.goplay.be/web/v1/search", json=True,
+                              name="Search results parser",
+                              parser=["hits", "hits"], creator=self.create_search_result)
 
         self._add_data_parser("https://api.goplay.be/web/v1/videos/long-form/",
                               updater=self.update_video_item_with_id)
+        self._add_data_parser("https://www.goplay.be/video/",
+                              updater=self.update_video_item_from_nextjs)
         self._add_data_parser("https://www.goplay.be/",
                               updater=self.update_video_item)
 
@@ -113,6 +120,41 @@ class Channel(chn_class.Channel):
 
         # ====================================== Actual channel setup STOPS here ===================
         return
+
+    def add_specials(self, data: JsonHelper) -> Tuple[JsonHelper, List[MediaItem]]:
+        if self.channelCode != "goplay":
+            return data, []
+
+        search_title = LanguageHelper.get_localized_string(LanguageHelper.Search)
+        search_item = FolderItem(f"\a.: {search_title} :.", self.search_url,
+                                 content_type=contenttype.VIDEOS)
+        return data, [search_item]
+
+    def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
+        """ Creates a list of items by searching the site.
+
+        This method is called when and item with `self.search_url` is opened. The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with a URL encoded representation of the
+        text to search for.
+
+        :param url:     Url to use to search with an %s for the search parameters.
+        :param needle:  The needle to search for.
+
+        :return: A list with search results as MediaItems.
+
+        """
+
+        if not needle:
+            raise ValueError("No needle present")
+
+        url = f"https://api.goplay.be/web/v1/search"
+        payload = {"mode": "byDate", "page": 0, "query": needle}
+        temp = MediaItem("Search", url, mediatype.FOLDER)
+        temp.postJson = payload
+        return self.process_folder_list(temp)
 
     def create_typed_nextjs_item(self, result_set: dict) -> MediaItemResult:
         item_type = result_set["type"]
@@ -180,90 +222,35 @@ class Channel(chn_class.Channel):
             item.set_date(date_stamp.year, date_stamp.month, date_stamp.day, date_stamp.hour,
                           date_stamp.minute, date_stamp.second)
 
-            stream_collection = video_info.get("streamCollection", {})
-            if stream_collection:
-                drm_key = stream_collection["drmKey"]
-                streams = stream_collection["streams"]
-                duration = stream_collection["duration"]
-                if duration:
-                    item.set_info_label(MediaItem.LabelDuration, duration)
-                for stream in streams:
-                    proto = stream["protocol"]
-                    stream_url = stream["url"]
-                    if proto == "dash":
-                        stream = item.add_stream(stream_url, 1501)
-                        Mpd.set_input_stream_addon_input(stream)
-                    elif proto == "hls":
-                        stream = item.add_stream(stream_url, 1500)
-                        M3u8.set_input_stream_addon_input(stream)
-
-                    if "/geo" in stream_url:
-                        item.isGeoLocked = True
-
-            # flags = video_info.get("flags", {})
-            # item.isGeoLocked = flags["isProtected"]
-
-            item.complete = item.has_streams()
+            self.__extract_stream_collection(item, video_info)
             videos.append(item)
 
         return videos
 
-    def update_video_item(self, item: MediaItem) -> MediaItem:
-        data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
-        list_id = Regexer.do_regex(r"listId\":\"([^\"]+)\"", data)[0]
-        item.url = f"https://api.goplay.be/web/v1/videos/long-form/{list_id}"
-        return self.update_video_item_with_id(item)
+    def create_search_result(self, result_set: dict) -> MediaItemResult:
+        data = result_set["_source"]
 
-    def log_on(self):
-        """ Logs on to a website, using an url.
+        title = data["title"]
+        url = data["url"]
+        description = data["intro"]
+        thumb = data["img"]
+        video_date = data["created"]
+        item_type = data["bundle"]
 
-        First checks if the channel requires log on. If so and it's not already
-        logged on, it should handle the log on. That part should be implemented
-        by the specific channel.
+        if item_type == "video":
+            item = MediaItem(title, url, media_type=mediatype.VIDEO)
+        elif item_type == "program":
+            item = FolderItem(title, url, content_type=contenttype.EPISODES)
+        else:
+            Logger.warning("Unknown search result type.")
+            return None
 
-        More arguments can be passed on, but must be handled by custom code.
-
-        After a successful log on the self.loggedOn property is set to True and
-        True is returned.
-
-        :return: indication if the login was successful.
-        :rtype: bool
-
-        """
-
-        if self.__idToken:
-            return True
-
-        # check if there is a refresh token
-        refresh_token = AddonSettings.get_setting("viervijfzes_refresh_token")
-        client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
-                        logger=Logger.instance())
-        if refresh_token:
-            id_token = client.renew_token(refresh_token)
-            if id_token:
-                self.__idToken = id_token
-                return True
-            else:
-                Logger.info("Extending token for VierVijfZes failed.")
-
-        username = AddonSettings.get_setting("viervijfzes_username")
-        v = Vault()
-        password = v.get_setting("viervijfzes_password")
-        if not username or not password:
-            XbmcWrapper.show_dialog(
-                title=None,
-                message=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
-            )
-            return False
-
-        id_token, refresh_token = client.authenticate(username, password)
-        if not id_token or not refresh_token:
-            Logger.error("Error getting a new token. Wrong password?")
-            return False
-
-        self.__idToken = id_token
-        AddonSettings.set_setting("viervijfzes_refresh_token", refresh_token)
-        return True
+        item.description = description
+        item.set_artwork(thumb=thumb)
+        date_stamp = DateHelper.get_date_from_posix(int(video_date), tz=self.__tz)
+        item.set_date(date_stamp.year, date_stamp.month, date_stamp.day, date_stamp.hour,
+                      date_stamp.minute, date_stamp.second)
+        return item
 
     # def add_recent_items(self, data):
     #     """ Performs pre-process actions for data processing.
@@ -346,6 +333,70 @@ class Channel(chn_class.Channel):
     #
     #     return data, items
 
+    def log_on(self):
+        """ Logs on to a website, using an url.
+
+        First checks if the channel requires log on. If so and it's not already
+        logged on, it should handle the log on. That part should be implemented
+        by the specific channel.
+
+        More arguments can be passed on, but must be handled by custom code.
+
+        After a successful log on the self.loggedOn property is set to True and
+        True is returned.
+
+        :return: indication if the login was successful.
+        :rtype: bool
+
+        """
+
+        if self.__idToken:
+            return True
+
+        # check if there is a refresh token
+        refresh_token = AddonSettings.get_setting("viervijfzes_refresh_token")
+        client = AwsIdp("eu-west-1_dViSsKM5Y", "6s1h851s8uplco5h6mqh1jac8m",
+                        logger=Logger.instance())
+        if refresh_token:
+            id_token = client.renew_token(refresh_token)
+            if id_token:
+                self.__idToken = id_token
+                return True
+            else:
+                Logger.info("Extending token for VierVijfZes failed.")
+
+        username = AddonSettings.get_setting("viervijfzes_username")
+        v = Vault()
+        password = v.get_setting("viervijfzes_password")
+        if not username or not password:
+            XbmcWrapper.show_dialog(
+                title=None,
+                message=LanguageHelper.get_localized_string(LanguageHelper.MissingCredentials),
+            )
+            return False
+
+        id_token, refresh_token = client.authenticate(username, password)
+        if not id_token or not refresh_token:
+            Logger.error("Error getting a new token. Wrong password?")
+            return False
+
+        self.__idToken = id_token
+        AddonSettings.set_setting("viervijfzes_refresh_token", refresh_token)
+        return True
+
+    def update_video_item(self, item: MediaItem) -> MediaItem:
+        data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
+        list_id = Regexer.do_regex(r"listId\":\"([^\"]+)\"", data)[0]
+        item.url = f"https://api.goplay.be/web/v1/videos/long-form/{list_id}"
+        return self.update_video_item_with_id(item)
+
+    def update_video_item_from_nextjs(self, item: MediaItem) -> MediaItem:
+        data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
+        json_data = Regexer.do_regex(r"({\"video\":{.+?})\]}\],", data)[0]
+        nextjs_json = JsonHelper(json_data)
+        self.__extract_stream_collection(item, nextjs_json.get_value("video"))
+        return item
+
     def update_video_item_with_id(self, item: MediaItem) -> MediaItem:
         """ Updates an existing MediaItem with more data.
 
@@ -405,6 +456,39 @@ class Channel(chn_class.Channel):
         item.complete = M3u8.update_part_with_m3u8_streams(
             item, m3u8_url, channel=self, encrypted=False)
 
+    def __extract_stream_collection(self, item, video_info):
+        stream_collection = video_info.get("streamCollection", {})
+        prefer_widevine = True  # video_info.get("videoType") != "longForm"
+
+        if stream_collection:
+            drm_key = stream_collection["drmKey"]
+            video_id = video_info["uuid"]
+            if drm_key:
+                Logger.info(f"Found DRM enabled item: {item.name}")
+                item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
+                item.isGeoLocked = True
+                item.metaData["drm"] = drm_key
+                return
+
+            streams = stream_collection["streams"]
+            duration = stream_collection["duration"]
+            if duration:
+                item.set_info_label(MediaItem.LabelDuration, duration)
+            for stream in streams:
+                proto = stream["protocol"]
+                stream_url = stream["url"]
+                if proto == "dash":
+                    stream = item.add_stream(stream_url, 1550 if prefer_widevine else 1450)
+                    Mpd.set_input_stream_addon_input(stream)
+                elif proto == "hls":
+                    stream = item.add_stream(stream_url, 1500)
+                    M3u8.set_input_stream_addon_input(stream)
+
+                if "/geo" in stream_url:
+                    item.isGeoLocked = True
+
+            item.complete = item.has_streams()
+
     def __extract_artwork(self, item: MediaItem, images: dict, set_fanart: bool = True):
         if not images:
             return
@@ -429,11 +513,13 @@ class Channel(chn_class.Channel):
             content_source_id, video_id)
         streams_input_data = {
             "api-key": "null"
+            # "api-key": item.metaData.get("drm", "null")
         }
         streams_headers = {
             "content-type": "application/json"
         }
-        data = UriHandler.open(streams_url, data=streams_input_data, additional_headers=streams_headers)
+        data = UriHandler.open(streams_url, data=streams_input_data,
+                               additional_headers=streams_headers)
         json_data = JsonHelper(data)
         mpd_url = json_data.get_value("stream_manifest")
 
