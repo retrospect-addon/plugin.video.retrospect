@@ -7,6 +7,7 @@ import pytz
 # noinspection PyUnresolvedReferences
 from awsidp import AwsIdp
 from resources.lib import chn_class, contenttype, mediatype
+from resources.lib.actions import keyword, action
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -15,6 +16,7 @@ from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, MediaItemResult, FolderItem
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
+from resources.lib.retroconfig import Config
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
@@ -67,7 +69,6 @@ class Channel(chn_class.Channel):
             self.noImage = "vijffanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-5"
             self.__channel_brand = "play5"
-            self.__channel_slug = "vijf"
 
         elif self.channelCode == "zesbe":
             self.noImage = "zesfanart.png"
@@ -81,18 +82,21 @@ class Channel(chn_class.Channel):
 
         elif self.channelCode == "goplay":
             self.noImage = "goplayfanart.png"
-            self.mainListUri = "https://www.goplay.be/programmas/"
+            # self.mainListUri = "https://www.goplay.be/programmas/"
+            self.mainListUri = "#goplay"
             self.__channel_brand = None
         else:
             self.noImage = "vierfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-4"
             self.__channel_brand = "play4"
 
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+        self._add_data_parser("#goplay", preprocessor=self.add_specials)
+
+        self._add_data_parser("https://www.goplay.be/programmas/", json=True,
                               preprocessor=NextJsParser(
                                   r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"))
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              preprocessor=self.add_specials,
+
+        self._add_data_parser("https://www.goplay.be/programmas/", json=True,
                               parser=[], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
@@ -126,9 +130,47 @@ class Channel(chn_class.Channel):
             return data, []
 
         search_title = LanguageHelper.get_localized_string(LanguageHelper.Search)
-        search_item = FolderItem(f"\a.: {search_title} :.", self.search_url,
-                                 content_type=contenttype.VIDEOS)
-        return data, [search_item]
+        search_item = FolderItem(search_title, self.search_url, content_type=contenttype.VIDEOS)
+
+        url_format = f"plugin://{Config.addonId}/?{keyword.CHANNEL}={{}}&{keyword.ACTION}={action.LIST_FOLDER}"
+        vier = FolderItem("4: Vier", url_format.format("channel.be.vier"),
+                          content_type=contenttype.TVSHOWS)
+        vier.set_artwork(
+            poster=self.get_image_location("vierposter.png"),
+            fanart=self.get_image_location("vierfanart.jpg"),
+            icon=self.get_image_location("viericon.png")
+        )
+
+        vijf = FolderItem("5: Vijf", url_format.format("channel.be.vier-vijfbe"),
+                          content_type=contenttype.TVSHOWS)
+        vijf.set_artwork(
+            poster=self.get_image_location("vijfposter.png"),
+            fanart=self.get_image_location("vijffanart.jpg"),
+            icon=self.get_image_location("vijficon.png")
+        )
+
+        zes = FolderItem("6: Zes", url_format.format("channel.be.vier-zesbe"),
+                         content_type=contenttype.TVSHOWS)
+        zes.set_artwork(
+            poster=self.get_image_location("zesposter.png"),
+            fanart=self.get_image_location("zesfanart.jpg"),
+            icon=self.get_image_location("zesicon.png")
+        )
+
+        zeven = FolderItem("7: Zeven", url_format.format("channel.be.vier-zevenbe"),
+                           content_type=contenttype.TVSHOWS)
+        zeven.set_artwork(
+            poster=self.get_image_location("zevenposter.jpg"),
+            fanart=self.get_image_location("zevenfanart.jpg"),
+            icon=self.get_image_location("zevenicon.png")
+        )
+
+        all_items = FolderItem(
+            LanguageHelper.get_localized_string(LanguageHelper.TvShows),
+            "https://www.goplay.be/programmas/",
+            content_type=contenttype.TVSHOWS
+        )
+        return data, [search_item, vier, vijf, zes, zeven, all_items]
 
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
         """ Creates a list of items by searching the site.
