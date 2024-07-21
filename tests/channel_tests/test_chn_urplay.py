@@ -17,6 +17,7 @@ class TestUrPlayChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 6, "No items found in mainlist")
 
+    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_main_tv_show_list(self):
         url = "#tvshows"
         self._test_folder_url(url, 100)
