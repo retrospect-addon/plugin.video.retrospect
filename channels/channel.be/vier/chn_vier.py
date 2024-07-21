@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-
+import datetime
 from typing import Tuple, List, Optional, Union
 
 import pytz
@@ -68,16 +68,19 @@ class Channel(chn_class.Channel):
             self.noImage = "vijffanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-5"
             self.__channel_brand = "play5"
+            self.__channel_slug = "vijf"
 
         elif self.channelCode == "zesbe":
             self.noImage = "zesfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-6"
             self.__channel_brand = "play6"
+            self.__channel_slug = "zes"
 
         elif self.channelCode == "zevenbe":
             self.noImage = "zevenfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-7"
             self.__channel_brand = "play7"
+            self.__channel_slug = "zeven"
 
         elif self.channelCode == "goplay":
             self.noImage = "goplayfanart.png"
@@ -88,20 +91,29 @@ class Channel(chn_class.Channel):
             self.noImage = "vierfanart.png"
             self.mainListUri = "https://www.goplay.be/programmas/play-4"
             self.__channel_brand = "play4"
+            self.__channel_slug = "vier"
 
         self._add_data_parser("#goplay", preprocessor=self.add_specials)
+
+        self._add_data_parser("#recent", preprocessor=self.add_recent_items)
 
         self._add_data_parser("https://www.goplay.be/programmas/", json=True,
                               preprocessor=NextJsParser(
                                   r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"))
 
         self._add_data_parser("https://www.goplay.be/programmas/", json=True,
+                              preprocessor=self.add_recents,
                               parser=[], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
                               preprocessor=NextJsParser(r"{\"playlists\":(.+)}\]}\]\]$"),
                               parser=[], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
+
+        self._add_data_parser("https://www.goplay.be/tv-gids/", json=True, name="TV Guides",
+                              preprocessor=NextJsParser(
+                                  r"children\":(\[\[\"\$\",[^{]+{\"program.+\])}\]\]}\]"),
+                              parser=[], creator=self.create_epg_item)
 
         self._add_data_parser("https://api.goplay.be/web/v1/search", json=True,
                               name="Search results parser",
@@ -171,6 +183,58 @@ class Channel(chn_class.Channel):
             content_type=contenttype.TVSHOWS
         )
         return data, [search_item, vier, vijf, zes, zeven, all_items]
+
+    def add_recents(self, data: JsonHelper) -> Tuple[JsonHelper, List[MediaItem]]:
+        title = LanguageHelper.get_localized_string(LanguageHelper.Recent)
+        recent = FolderItem(title, "#recent", content_type=contenttype.TVSHOWS)
+        recent.dontGroup = True
+        recent.name = f".: {title} :."
+        return data, [recent]
+
+    def add_recent_items(self, data: JsonHelper) -> Tuple[JsonHelper, List[MediaItem]]:
+        """ Performs pre-process actions for data processing.
+
+        Accepts a data from the process_folder_list method, BEFORE the items are
+        processed. Allows setting of parameters (like title etc) for the channel.
+        Inside this method the <data> could be changed and additional items can
+        be created.
+
+        The return values should always be instantiated in at least ("", []).
+
+        :param str data: The retrieve data that was loaded for the current item and URL.
+
+        :return: A tuple of the data and a list of MediaItems that were generated.
+        :rtype: tuple[str|JsonHelper,list[MediaItem]]
+
+        """
+
+        items = []
+        today = datetime.datetime.now()
+        days = LanguageHelper.get_days_list()
+        for d in range(0, 7, 1):
+            air_date = today - datetime.timedelta(d)
+            Logger.trace("Adding item for: %s", air_date)
+
+            # Determine a nice display date
+            day = days[air_date.weekday()]
+            if d == 0:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Today)
+            elif d == 1:
+                day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
+
+            title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
+            url = "https://www.goplay.be/tv-gids/{}/{:04d}-{:02d}-{:02d}".\
+                format(self.__channel_slug, air_date.year, air_date.month, air_date.day)
+
+            extra = MediaItem(title, url)
+            extra.complete = True
+            extra.dontGroup = True
+            extra.HttpHeaders = self.httpHeaders
+            extra.set_date(air_date.year, air_date.month, air_date.day, text="")
+            extra.content_type = contenttype.VIDEOS
+            items.append(extra)
+
+        return data, items
 
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
         """ Creates a list of items by searching the site.
@@ -310,50 +374,44 @@ class Channel(chn_class.Channel):
                       date_stamp.minute, date_stamp.second)
         return item
 
-    # def add_recent_items(self, data):
-    #     """ Performs pre-process actions for data processing.
-    #
-    #     Accepts an data from the process_folder_list method, BEFORE the items are
-    #     processed. Allows setting of parameters (like title etc) for the channel.
-    #     Inside this method the <data> could be changed and additional items can
-    #     be created.
-    #
-    #     The return values should always be instantiated in at least ("", []).
-    #
-    #     :param str data: The retrieve data that was loaded for the current item and URL.
-    #
-    #     :return: A tuple of the data and a list of MediaItems that were generated.
-    #     :rtype: tuple[str|JsonHelper,list[MediaItem]]
-    #
-    #     """
-    #
-    #     items = []
-    #     today = datetime.datetime.now()
-    #     days = LanguageHelper.get_days_list()
-    #     for d in range(0, 7, 1):
-    #         air_date = today - datetime.timedelta(d)
-    #         Logger.trace("Adding item for: %s", air_date)
-    #
-    #         # Determine a nice display date
-    #         day = days[air_date.weekday()]
-    #         if d == 0:
-    #             day = LanguageHelper.get_localized_string(LanguageHelper.Today)
-    #         elif d == 1:
-    #             day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
-    #
-    #         title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
-    #         url = "https://www.goplay.be/api/epg/{}/{:04d}-{:02d}-{:02d}".\
-    #             format(self.__channel_slug, air_date.year, air_date.month, air_date.day)
-    #
-    #         extra = MediaItem(title, url)
-    #         extra.complete = True
-    #         extra.dontGroup = True
-    #         extra.set_date(air_date.year, air_date.month, air_date.day, text="")
-    #         extra.content_type = contenttype.VIDEOS
-    #         items.append(extra)
-    #
-    #     return data, items
-    #
+    def create_epg_item(self, result_set: dict) -> MediaItemResult:
+        data = result_set[-1]["program"]
+        if not data["video"]:
+            return None
+
+        title = data["programTitle"]
+        episode_title = data["episodeTitle"]
+        time_value = data["timeString"]
+        if episode_title:
+            title = f"{time_value} - {title} - {episode_title}"
+        else:
+            title = f"{time_value} - {title}"
+
+        description = data["contentEpisode"]
+        time_stamp = data["timestamp"]
+        duration = data["duration"]
+
+        video_info = data["video"]["data"]
+        path = video_info["path"]
+        video_type = video_info["type"]
+        if video_type != "video":
+            Logger.warning(f"Unknown EPG type: {video_type}")
+
+        item = MediaItem(title, f"{self.baseUrl}{path}", media_type=mediatype.EPISODE)
+        item.description = description
+        item.set_info_label(MediaItem.LabelDuration, duration)
+
+        # Setting this messes up the sorting.
+        # episode = data["episodeNr"]
+        # season = data["season"]
+        # item.set_season_info(season, episode)
+
+        date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__tz)
+        item.set_date(date_stamp.year, date_stamp.month, date_stamp.day, date_stamp.hour,
+                      date_stamp.minute, date_stamp.second)
+        self.__extract_artwork(item, video_info["images"], set_fanart=False)
+        return item
+
     # def add_specials(self, data):
     #     """ Performs pre-process actions for data processing.
     #

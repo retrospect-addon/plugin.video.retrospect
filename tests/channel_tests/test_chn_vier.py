@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import datetime
 
 from . channeltest import ChannelTest
 
@@ -36,3 +37,9 @@ class TestVierBeChannel(ChannelTest):
     def test_resolve_via_url(self):
         url = "https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-seizoen-1/hetisingewikkeld-s1-aflevering-8"
         self._test_video_url(url)
+
+    def test_epg_listing(self):
+        day = datetime.datetime.now() - datetime.timedelta(days=2)
+        url = "https://www.goplay.be/tv-gids/vier/{:04d}-{:02d}-{:02d}".format(
+            day.year, day.month, day.day)
+        self._test_folder_url(url, 5)
