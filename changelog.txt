@@ -3,7 +3,7 @@
 t.b.d.
 
 [B]Framework related[/B]
-_None_
+* Added: New search functionality with search history options (Fixes #1805).
 
 [B]GUI/Settings/Language related[/B]
 _None_
