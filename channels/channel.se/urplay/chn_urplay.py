@@ -302,7 +302,7 @@ class Channel(chn_class.Channel):
     def build_version(self) -> str:
         if not self.__build_version:
             data = UriHandler.open("https://urplay.se")
-            build_version = Regexer.do_regex(f"<script src=\".+/([^/]+)/_buildManifest.js\"", data)[0]
+            build_version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
             Logger.info(f"Found build version: {build_version}")
             self.__build_version = build_version
 
