@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.xx - Changelog - 2024-xx-xx[/B]
+[B]Retrospect v5.7.14 - Changelog - 2024-07-21[/B]
 
-t.b.d.
+This version introduces enhanced searching and keeps track of previous searches, so you can reuse them. It also includes a number of fixes for channels, such as GoPlay and UR Play. And finally some artwork was updated.
 
 [B]Framework related[/B]
 * Added: New search functionality with search history options (Fixes #1805).
