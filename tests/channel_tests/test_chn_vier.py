@@ -1,12 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-
-import os
-import unittest
+import datetime
 
 from . channeltest import ChannelTest
 
 
-@unittest.skip("Broken for now.")
 class TestVierBeChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
@@ -19,37 +16,30 @@ class TestVierBeChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 20, "No items found in mainlist")
 
-    def test_main_list_vijf(self):
-        self._switch_channel("vijfbe")
-        items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 10, "No items found in mainlist")
+    def test_tv4_tv_shows(self):
+        url = "https://www.goplay.be/programmas/"
+        items = self._test_folder_url(url, 20)
+        self.assertLess(len(items), 100)
 
-    def test_main_list_zes(self):
-        self._switch_channel("zesbe")
-        items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 10, "No items found in mainlist")
+    def test_go_play_tv_shows(self):
+        self._switch_channel("goplay")
+        url = "https://www.goplay.be/programmas/"
+        self._test_folder_url(url, 200)
 
-    def test_guide_day_list(self):
-        import datetime
-        day = datetime.datetime.now() - datetime.timedelta(days=1)
-        self._test_folder_url(
-            "https://www.goplay.be/api/epg/vier/{:04d}-{:02d}-{:02d}".format(day.year, day.month, day.day),
-            expected_results=3
-        )
+    def test_search(self):
+        media_items = self.channel.search_site(needle="cops")
+        self.assertGreater(len(media_items), 5)
 
-    def test_popular(self):
-        url = "https://www.goplay.be/api/programs/popular/vier"
-        self._test_folder_url(url, expected_results=5)
+    def test_season_listing(self):
+        url = "https://www.goplay.be/hetisingewikkeld"
+        self._test_folder_url(url, 1)
 
-    def test_video_listing_for_show_with_seasons(self):
-        url = "https://www.goplay.be/big-brother"
-        self._test_folder_url(url, expected_results=3)
-
-    def test_video_listing_for_show_no_season(self):
-        url = "https://www.goplay.be/before-they-were-royal"
-        self._test_folder_url(url, expected_results=4)
-
-    @unittest.skipIf("CI" in os.environ, "Skipping in CI due to Geo-Restrictions")
-    def test_html_video(self):
-        url = "https://www.goplay.be/video/auwch/ben-segers-vreest-dat-dit-een-thaise-massage-met-happy-ending-is"
+    def test_resolve_via_url(self):
+        url = "https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-seizoen-1/hetisingewikkeld-s1-aflevering-8"
         self._test_video_url(url)
+
+    def test_epg_listing(self):
+        day = datetime.datetime.now() - datetime.timedelta(days=2)
+        url = "https://www.goplay.be/tv-gids/vier/{:04d}-{:02d}-{:02d}".format(
+            day.year, day.month, day.day)
+        self._test_folder_url(url, 5)

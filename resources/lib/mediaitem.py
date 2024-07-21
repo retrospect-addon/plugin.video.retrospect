@@ -4,7 +4,7 @@
 from datetime import datetime
 from functools import reduce
 from random import getrandbits
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 
 import xbmcgui
 
@@ -1070,3 +1070,6 @@ class MediaStream:
             text = "%s\n    + Property: %s=%s" % (text, prop[0], prop[1])
 
         return text
+
+
+MediaItemResult = Optional[Union[List[MediaItem], MediaItem]]
