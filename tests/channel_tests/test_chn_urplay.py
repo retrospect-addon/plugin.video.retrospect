@@ -18,8 +18,13 @@ class TestUrPlayChannel(ChannelTest):
         self.assertGreaterEqual(len(items), 6, "No items found in mainlist")
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
+    def test_main_tv_show_list(self):
+        url = "#tvshows"
+        self._test_folder_url(url, 100)
+
+    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_video_play(self):
-        url = "https://urplay.se/serie/189896-aarons-nya-land"
+        url = "https://urplay.se/program/181051-pregunta-ya-pascua"
         self._test_video_url(url)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
@@ -76,15 +81,9 @@ class TestUrPlayChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_show_with_seasons(self):
-        # url = "https://urplay.se/api/v1/series?id=224990"
-        url = "https://urplay.se/api/v1/series?id=156160"
+        url = "https://urplay.se/_next/data/GA__A10ZjqJt3LcPhc8nZ/serie/193272-pregunta-ya.json"
         items = self._test_folder_url(url, expected_results=2)
         folders = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(folders), 2)
         videos = [i for i in items if i.is_playable]
         self.assertEqual(len(videos), 0)
-
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_tvshow_list(self):
-        url = "#tvshows"
-        self._test_folder_url(url, expected_results=100)

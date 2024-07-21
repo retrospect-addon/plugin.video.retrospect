@@ -13,3 +13,4 @@ _None_
 * Updated: SVT poster and icon.
 * Fixed: SVT HTML based videos (Fixes #1808).
 * Fixed: GoPlay (Vier, Vijf, Zes, Zeven) channels broken (Fixes #1809).
+* Fixed: UR Play listings (Fixes #1812).

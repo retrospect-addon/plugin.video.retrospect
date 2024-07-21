@@ -1,6 +1,6 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import pytz
 
@@ -9,7 +9,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
-from resources.lib.mediaitem import MediaItem, FolderItem
+from resources.lib.mediaitem import MediaItem, FolderItem, MediaItemResult
 from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
@@ -30,6 +30,9 @@ class Channel(chn_class.Channel):
 
         """
 
+        # https://media-api.urplay.se/config-streaming/v1/urplay/sources/194128
+
+        self.__build_version = None
         chn_class.Channel.__init__(self, channel_info)
 
         # ==== Actual channel setup STARTS here and should be overwritten from derived classes ====
@@ -46,28 +49,31 @@ class Channel(chn_class.Channel):
                               match_type=ParserData.MatchExact,
                               preprocessor=self.merge_add_categories_and_search)
 
-        self._add_data_parser("#tvshows", preprocessor=self.merge_tv_show,
-                              name="Main listing of merged TV Shows.", json=True,
-                              parser=["results"], creator=self.create_episode_json_item)
+        self._add_data_parser("#tvshows", json=True, match_type=ParserData.MatchExact,
+                              name="Main listing of merged TV Shows.",
+                              preprocessor=self.load_az_listing,
+                              parser=["pageProps", "alphabeticProductGroups"],
+                              creator=self.create_az_items)
 
-        self._add_data_parser("https://urplay.se/api/v1/series", json=True,
-                              name="Main serie content parser",
-                              parser=["programs"], creator=self.create_video_item_json)
+        self._add_data_parser("/serie/", json=True, match_type=ParserData.MatchContains,
+                              name="Processor of shows in a TV serie",
+                              parser=["pageProps", "accessibleEpisodes"],
+                              creator=self.create_video_item)
 
-        self._add_data_parser("https://urplay.se/api/v1/series", json=True,
-                              name="Main serie season parser",
-                              parser=["seasonLabels"], creator=self.create_season_item,
+        self._add_data_parser("/serie/", json=True, match_type=ParserData.MatchContains,
+                              name="Processor of seasons for a TV serie",
+                              parser=["pageProps", "superSeriesSeasons"],
+                              creator=self.create_season_item,
                               postprocessor=self.check_seasons)
 
-        # Match Videos (programs)
         self._add_data_parser("https://urplay.se/api/v1/search?product_type=program",
                               name="Most viewed", json=True,
-                              parser=["results"], creator=self.create_video_item_json_with_show_title)
+                              parser=["results"], creator=self.create_video_item_with_show_title)
 
-        self._add_data_parser("*", json=True,
-                              name="Json based video parser",
-                              parser=["accessibleEpisodes"],
-                              creator=self.create_video_item_json)
+        # self._add_data_parser("*", json=True,
+        #                       name="Json based video parser",
+        #                       parser=["accessibleEpisodes"],
+        #                       creator=self.create_video_item_json)
 
         self._add_data_parser("*", updater=self.update_video_item)
 
@@ -98,6 +104,7 @@ class Channel(chn_class.Channel):
         #===========================================================================================
         # non standard items
         self.__videoItemFound = False
+        self.__build_version = None
 
         # There is either a slug lookup or an url lookup
         self.__cateogory_slugs = {
@@ -291,6 +298,32 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here ===================
         return
 
+    @property
+    def build_version(self) -> str:
+        if not self.__build_version:
+            data = UriHandler.open("https://urplay.se")
+            build_version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
+            Logger.info(f"Found build version: {build_version}")
+            self.__build_version = build_version
+
+        return self.__build_version
+
+    # noinspection PyUnusedLocal
+    def load_az_listing(self, data: str) -> Tuple[str, List[MediaItem]]:
+        # Load it here, to prevent the `self.build_version` to start unwanted.
+        data = UriHandler.open(f"https://urplay.se/_next/data/{self.build_version}/bladdra/alla-program.json")
+        return data, []
+
+    def create_az_items(self, result_set: dict) -> MediaItemResult:
+        items = []
+        for k, result_sets in result_set.items():
+            for r in result_sets:
+                item = self.create_episode_item(r)
+                if item:
+                    items.append(item)
+
+        return items
+
     def merge_category_items(self, data):
         """ Merge the multipage category result items into a single list.
 
@@ -380,30 +413,30 @@ class Channel(chn_class.Channel):
         Logger.debug("Pre-Processing finished")
         return data, items
 
-    def merge_tv_show(self, data):
-        """ Adds some generic items such as search and categories to the main listing.
-
-        The return values should always be instantiated in at least ("", []).
-
-        :param str data: The retrieve data that was loaded for the current item and URL.
-
-        :return: A tuple of the data and a list of MediaItems that were generated.
-        :rtype: tuple[str|JsonHelper,list[MediaItem]]
-
-        """
-
-        # merge the main list items:
-        # https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows=20&sort=title&start=20
-        max_items_per_page = 20
-        main_list_pages = int(self._get_setting("mainlist_pages"))
-        data = self.__iterate_results(
-            "https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows={}&sort=published&start={}",
-            results_per_page=max_items_per_page,
-            max_iterations=main_list_pages,
-            use_pb=True
-        )
-
-        return data, []
+    # def merge_tv_show(self, data):
+    #     """ Adds some generic items such as search and categories to the main listing.
+    #
+    #     The return values should always be instantiated in at least ("", []).
+    #
+    #     :param str data: The retrieve data that was loaded for the current item and URL.
+    #
+    #     :return: A tuple of the data and a list of MediaItems that were generated.
+    #     :rtype: tuple[str|JsonHelper,list[MediaItem]]
+    #
+    #     """
+    #
+    #     # merge the main list items:
+    #     # https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows=20&sort=title&start=20
+    #     max_items_per_page = 20
+    #     main_list_pages = int(self._get_setting("mainlist_pages"))
+    #     data = self.__iterate_results(
+    #         "https://urplay.se/api/v1/search?product_type=series&response_type=limited&rows={}&sort=published&start={}",
+    #         results_per_page=max_items_per_page,
+    #         max_iterations=main_list_pages,
+    #         use_pb=True
+    #     )
+    #
+    #     return data, []
 
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
         """ Creates a list of items by searching the site.
@@ -428,7 +461,7 @@ class Channel(chn_class.Channel):
         url = "https://urplay.se/api/v1/search?query=%s"
         return chn_class.Channel.search_site(self, url, needle)
 
-    def create_episode_json_item(self, result_set):
+    def create_episode_item(self, result_set: dict) -> MediaItemResult:
         """ Creates a new MediaItem for an episode.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -445,7 +478,7 @@ class Channel(chn_class.Channel):
         Logger.trace(result_set)
 
         title = "%(title)s" % result_set
-        url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
+        url = f"https://urplay.se/_next/data/{self.build_version}{result_set['link']}.json"
         fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
         thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
         item = MediaItem(title, url)
@@ -455,7 +488,7 @@ class Channel(chn_class.Channel):
         item.dontGroup = True
         return item
 
-    def create_season_item(self, result_set):
+    def create_season_item(self, result_set: dict) -> MediaItemResult:
         """ Creates a new MediaItem for a season.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -475,7 +508,7 @@ class Channel(chn_class.Channel):
             return None
 
         title = "%(label)s" % result_set
-        url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
+        url = f"https://urplay.se/_next/data/{self.build_version}{result_set['link']}.json"
         fanart = "https://assets.ur.se/id/%(id)s/images/1_hd.jpg" % result_set
         thumb = "https://assets.ur.se/id/%(id)s/images/1_l.jpg" % result_set
         item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
@@ -485,10 +518,11 @@ class Channel(chn_class.Channel):
         item.metaData["season"] = True
         return item
 
-    def check_seasons(self, data, items):
+    # noinspection PyUnusedLocal
+    def check_seasons(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
         """ Performs post-process actions for data processing.
 
-        Accepts an data from the process_folder_list method, BEFORE the items are
+        Accepts a data from the process_folder_list method, BEFORE the items are
         processed. Allows setting of parameters (like title etc) for the channel.
         Inside this method the <data> could be changed and additional items can
         be created.
@@ -508,14 +542,18 @@ class Channel(chn_class.Channel):
 
         # check if there are seasons, if so, filter all the videos out
         seasons = [i for i in items if i.metaData.get("season", False)]
-        if seasons:
+        if seasons and len(seasons) > 1:
             Logger.debug("Seasons found, skipping any videos.")
             return seasons
+
+        if seasons and len(seasons) == 1:
+            Logger.debug("Remove the season entry")
+            return [i for i in items if not i.metaData.get("season", False)]
 
         Logger.debug("Post-Processing finished")
         return items
 
-    def create_video_item_json_with_show_title(self, result_set):
+    def create_video_item_with_show_title(self, result_set: dict) -> MediaItemResult:
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -534,9 +572,9 @@ class Channel(chn_class.Channel):
 
         """
 
-        return self.create_video_item_json(result_set, include_show_title=True)
+        return self.create_video_item(result_set, include_show_title=True)
 
-    def create_video_item_json(self, result_set, include_show_title=False):
+    def create_video_item(self, result_set: dict, include_show_title: bool = False) -> MediaItemResult:
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json
@@ -731,9 +769,8 @@ class Channel(chn_class.Channel):
         """
 
         # Logger.trace(result_set)
-
         if result_type == "series":
-            url = "https://urplay.se/api/v1/series?id={}".format(result_set["id"])
+            url = f"https://urplay.se/_next/data/{self.build_version}{result_set['link']}.json"
             item = FolderItem(result_set["title"], url, contenttype.EPISODES, media_type=mediatype.FOLDER)
         else:
             url = "https://urplay.se/{}/{}".format(result_type, result_set["slug"])
