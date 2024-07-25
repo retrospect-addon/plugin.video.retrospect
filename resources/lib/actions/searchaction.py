@@ -61,7 +61,11 @@ class SearchAction(AddonAction):
 
             # noinspection PyTypeChecker
             history: List[str] = self.__settings.get_setting("search", self.__channel, [])  # type: ignore
-            history = list(set([needle] + history))
+            history = [needle] + history
+            # de-duplicate without changing order:
+            seen = set()
+            history = [h for h in history if h not in seen and not seen.add(h)]
+
             self.__settings.set_setting("search", history[0:10], self.__channel)
 
             # Make sure we actually load a new URL so a refresh won't pop up a loading screen.
