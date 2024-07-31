@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2024-03-25 10:13+0000\n"
 "Last-Translator: Oskari Lavinto <olavinto@protonmail.com>\n"
@@ -744,6 +744,10 @@ msgstr "Kaikki jaksot"
 
 msgctxt "#30371"
 msgid "Trending"
+msgstr ""
+
+msgctxt "#30372"
+msgid "New Search"
 msgstr ""
 
 msgctxt "#30401"
