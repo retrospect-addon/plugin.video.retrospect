@@ -587,18 +587,19 @@ class Channel(chn_class.Channel):
         prefer_widevine = True  # video_info.get("videoType") != "longForm"
 
         if stream_collection:
-            drm_key = stream_collection["drmKey"]
+            drm_key = stream_collection.get("drmKey", False)
+            drm_protected = stream_collection.get("drmProtected", False)
             video_id = video_info["uuid"]
-            if drm_key:
+            if drm_key or drm_protected:
                 Logger.info(f"Found DRM enabled item: {item.name}")
                 item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
                 item.isGeoLocked = True
                 item.isDrmProtected = True
-                item.metaData["drm"] = drm_key
+                item.metaData["drm"] = True
                 return
 
-            streams = stream_collection["streams"]
-            duration = stream_collection["duration"]
+            streams = stream_collection.get("streams", [])
+            duration = stream_collection.get("duration", 0)
             if duration:
                 item.set_info_label(MediaItem.LabelDuration, duration)
             for stream in streams:
