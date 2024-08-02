@@ -600,6 +600,7 @@ class Channel(chn_class.Channel):
 
             streams = stream_collection.get("streams", [])
             duration = stream_collection.get("duration", 0)
+
             if duration:
                 item.set_info_label(MediaItem.LabelDuration, duration)
             for stream in streams:
@@ -614,6 +615,9 @@ class Channel(chn_class.Channel):
 
                 if "/geo" in stream_url:
                     item.isGeoLocked = True
+
+            if not streams:
+                item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
 
             item.complete = item.has_streams()
 
