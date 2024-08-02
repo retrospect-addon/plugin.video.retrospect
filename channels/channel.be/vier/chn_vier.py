@@ -570,6 +570,12 @@ class Channel(chn_class.Channel):
             if error_message == "Locked":
                 # set it for the error statistics
                 item.isGeoLocked = True
+
+                whatsonId = item.metaData.get("whatsonId", None)
+                if whatsonId:
+                    # 2615619 = GoPlay contentSourceID.
+                    return self.__get_ssai_streams(item, 2615619, whatsonId, None)
+
             Logger.info("No stream manifest found: {}".format(error_message))
             item.complete = False
             return item
@@ -618,6 +624,7 @@ class Channel(chn_class.Channel):
 
             if not streams:
                 item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
+                item.metaData["whatsonId"] = video_info.get("tracking", []).get("whatsonId", "");
 
             item.complete = item.has_streams()
 
@@ -641,7 +648,11 @@ class Channel(chn_class.Channel):
         content_source_id = json_data.get_value("ssai", "contentSourceID")
         video_id = json_data.get_value("ssai", "videoID")
         drm_header = json_data.get_value("drmXml", fallback=None)
-
+        return self.__get_ssai_streams(item, content_source_id, video_id, drm_header)
+    
+    def __get_ssai_streams(self, item, content_source_id, video_id, drm_header):
+        Logger.info("No stream data found, trying SSAI data")
+        
         streams_url = 'https://dai.google.com/ondemand/dash/content/{}/vid/{}/streams'.format(
             content_source_id, video_id)
         # streams_url = "https://pubads.g.doubleclick.net/ondemand/dash/content/{}/vid/{}/streams".format(
