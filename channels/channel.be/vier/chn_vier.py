@@ -366,7 +366,11 @@ class Channel(chn_class.Channel):
         if item_type == "video":
             item = MediaItem(title, url, media_type=mediatype.VIDEO)
         elif item_type == "program":
-            item = FolderItem(title, url, content_type=contenttype.EPISODES)
+            if data["tracking"] and data["tracking"]["item_category"] == "Film":
+                url = url.replace(self.baseUrl, f"{self.baseUrl}/video")
+                item = MediaItem(title, url, media_type=mediatype.VIDEO)
+            else:
+                item = FolderItem(title, url, content_type=contenttype.EPISODES)
         else:
             Logger.warning("Unknown search result type.")
             return None
