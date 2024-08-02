@@ -557,13 +557,12 @@ class Channel(chn_class.Channel):
         json_data = JsonHelper(data)
 
         if json_data.get_value("ssai") is not None:
-            return self.__get_ssai_streams(item, json_data)
+            content_source_id = json_data.get_value("ssai", "contentSourceID")
+            video_id = json_data.get_value("ssai", "videoID")
+            drm_header = json_data.get_value("drmXml", fallback=None)        
+            return self.__get_ssai_streams(item, content_source_id, video_id, drm_header)
 
         m3u8_url = json_data.get_value("manifestUrls", "hls")
-
-        # # If there's no m3u8 URL, try to use a SSAI stream instead
-        # if m3u8_url is None and json_data.get_value("ssai") is not None:
-        #     return self.__get_ssai_streams(item, json_data)
 
         if m3u8_url is None and json_data.get_value('message') is not None:
             error_message = json_data.get_value('message')
@@ -571,10 +570,10 @@ class Channel(chn_class.Channel):
                 # set it for the error statistics
                 item.isGeoLocked = True
 
-                whatsonId = item.metaData.get("whatsonId", None)
-                if whatsonId:
+                whatson_id = item.metaData.get("whatsonId", None)
+                if whatson_id:
                     # 2615619 = GoPlay contentSourceID.
-                    return self.__get_ssai_streams(item, 2615619, whatsonId, None)
+                    return self.__get_ssai_streams(item, 2615619, whatson_id, None)
 
             Logger.info("No stream manifest found: {}".format(error_message))
             item.complete = False
@@ -593,8 +592,8 @@ class Channel(chn_class.Channel):
         prefer_widevine = True  # video_info.get("videoType") != "longForm"
 
         if stream_collection:
-            drm_key = stream_collection.get("drmKey", False)
-            drm_protected = stream_collection.get("drmProtected", False)
+            drm_key = stream_collection.get("drmKey", None)
+            drm_protected = stream_collection.get("drmProtected", None)
             video_id = video_info["uuid"]
             if drm_key or drm_protected:
                 Logger.info(f"Found DRM enabled item: {item.name}")
@@ -609,6 +608,7 @@ class Channel(chn_class.Channel):
 
             if duration:
                 item.set_info_label(MediaItem.LabelDuration, duration)
+
             for stream in streams:
                 proto = stream["protocol"]
                 stream_url = stream["url"]
@@ -624,7 +624,7 @@ class Channel(chn_class.Channel):
 
             if not streams:
                 item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
-                item.metaData["whatsonId"] = video_info.get("tracking", []).get("whatsonId", "");
+                item.metaData["whatsonId"] = video_info.get("tracking", []).get("whatsonId", "")
 
             item.complete = item.has_streams()
 
@@ -642,13 +642,6 @@ class Channel(chn_class.Channel):
             item.thumb = images["posterLandscape"]
             if set_fanart:
                 item.fanart = images["posterLandscape"]
-
-    def __get_ssai_streams(self, item, json_data):
-        Logger.info("No stream data found, trying SSAI data")
-        content_source_id = json_data.get_value("ssai", "contentSourceID")
-        video_id = json_data.get_value("ssai", "videoID")
-        drm_header = json_data.get_value("drmXml", fallback=None)
-        return self.__get_ssai_streams(item, content_source_id, video_id, drm_header)
     
     def __get_ssai_streams(self, item, content_source_id, video_id, drm_header):
         Logger.info("No stream data found, trying SSAI data")
