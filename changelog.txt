@@ -10,4 +10,4 @@ t.b.d.
 _None_
 
 [B]Channel related[/B]
-_None_
+* Fixed: Vier.be season and video parsing (See #1820).
