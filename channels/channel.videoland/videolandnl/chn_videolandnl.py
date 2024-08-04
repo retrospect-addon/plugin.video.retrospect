@@ -10,6 +10,7 @@ from resources.lib.addonsettings import AddonSettings
 from resources.lib.authentication.authenticator import Authenticator
 from resources.lib.authentication.gigyahandler import GigyaHandler
 from resources.lib.helpers.datehelper import DateHelper
+from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.mediaitem import MediaItem, FolderItem
@@ -366,17 +367,24 @@ class Channel(chn_class.Channel):
         data = JsonHelper(UriHandler.open(item.url, additional_headers=self.httpHeaders))
         video_info = data.get_value("blocks", 0, "content", "items", 0, "itemContent", "video")
         video_id = video_info["id"]
+        preferred_service = "videoland"
 
         # Construct license info
-        license_token_url = f"https://drm.videoland.bedrock.tech/v1/customers/rtlnl/platforms/m6group_web/services/videoland_catchup/users/{self.__uid}/videos/{video_id}/upfront-token"
-        license_token = JsonHelper(
-            UriHandler.open(license_token_url, additional_headers=self.httpHeaders)).get_value(
-            "token")
-        license_key = Mpd.get_license_key("https://lic.drmtoday.com/license-proxy-widevine/cenc/",
-                                          key_headers={
-                                              "x-dt-auth-token": license_token,
-                                              "content-type": "application/octstream"
-                                          }, json_filter="JBlicense")
+        license_token_url = f"https://drm.videoland.bedrock.tech/v1/customers/rtlnl/platforms/m6group_web/services/{preferred_service}/users/{self.__uid}/videos/{video_id}/upfront-token"
+        license_token = JsonHelper(UriHandler.open(license_token_url, additional_headers=self.httpHeaders)).get_value("token")
+        license_key = Mpd.get_license_key(
+            "https://lic.drmtoday.com/license-proxy-widevine/cenc/",
+            key_headers={
+                "x-dt-auth-token": license_token,
+                "content-type": "application/octstream"
+            }, json_filter="JBlicense")
+
+        base_token = license_token.split(".", 2)[1]
+        token_json = JsonHelper(EncodingHelper.decode_base64(base_token))
+        hdcp_version = JsonHelper(token_json.get_value("crt")).get_value(
+            0, "op", "config", "HD", "WidevineM", "requireHDCP", fallback=None)
+
+        allow_hd = hdcp_version == "HDCP_NONE"
 
         for asset in video_info["assets"]:
             quality = asset["video_quality"]
@@ -385,13 +393,18 @@ class Channel(chn_class.Channel):
             # video_container = asset["container"]
             video_format = asset["format"]
 
-            if quality == "hd":
+            if quality == "hd" and not allow_hd:  # and not self.__has_premium:
                 continue
+
+            # service = asset["service"]
+            # if service != preferred_service:
+            #     continue
 
             if video_type == "mpd" or video_format == "dashcenc" or video_format == "dash":
                 stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
                 Mpd.set_input_stream_addon_input(stream, license_key=license_key)
                 item.complete = True
+
             # elif video_type == "m3u8":
             #     # Not working in Kodi
             #     stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
