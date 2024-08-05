@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import re
-from typing import Union, List, Optional, Tuple, Dict
+from typing import Union, List, Optional, Tuple
 
 import pytz
 
@@ -10,7 +10,6 @@ from resources.lib.addonsettings import AddonSettings
 from resources.lib.authentication.authenticator import Authenticator
 from resources.lib.authentication.gigyahandler import GigyaHandler
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.mediaitem import MediaItem, FolderItem
@@ -67,8 +66,10 @@ class Channel(chn_class.Channel):
             preprocessor=self.extract_program_id,
             parser=["blocks"], creator=self.create_program_item)
 
-        self._add_data_parser(
-            "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/video/",
+        self._add_data_parsers([
+                "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/video/",
+                "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/live/"
+            ],
             requires_logon=True,
             name="Video updater", json=True, updater=self.update_video_item)
 
@@ -97,20 +98,20 @@ class Channel(chn_class.Channel):
                             self.search_url, content_type=contenttype.TVSHOWS)
         items.append(search)
 
-        extras: Dict[int, Tuple[str, str]] = {
-            LanguageHelper.Recent: (
-                "page_6599c70de291a2.86703456--6918fda7-49db-49d5-b7f3-1e4a5b6bfab3",
-                contenttype.TVSHOWS),
-            # Already a standard item
-            # LanguageHelper.Popular: ("page_6599c70de291a2.86703456--47a90b2c-669e-453f-8e3d-07eebbe4d4d0_167", contenttype.TVSHOWS)
-        }
-
-        for lang_id, extra in extras.items():
-            page_id, content_type = extra
-            title = LanguageHelper.get_localized_string(lang_id)
-            url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/{page_id}?nbPages={self.__pages}"
-            item = FolderItem(title, url, content_type=content_type)
-            items.append(item)
+        # extras: Dict[int, Tuple[str, str]] = {
+        #     LanguageHelper.Recent: (
+        #         "page_6599c70de291a2.86703456--6918fda7-49db-49d5-b7f3-1e4a5b6bfab3",
+        #         contenttype.TVSHOWS),
+        #     # Already a standard item
+        #     # LanguageHelper.Popular: ("page_6599c70de291a2.86703456--47a90b2c-669e-453f-8e3d-07eebbe4d4d0_167", contenttype.TVSHOWS)
+        # }
+        #
+        # for lang_id, extra in extras.items():
+        #     page_id, content_type = extra
+        #     title = LanguageHelper.get_localized_string(lang_id)
+        #     url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/{page_id}?nbPages={self.__pages}"
+        #     item = FolderItem(title, url, content_type=content_type)
+        #     items.append(item)
 
         # Now apparently the root of Videoland returns a different response every now and then. We
         # need to check that and retry otherwise.
@@ -181,8 +182,7 @@ class Channel(chn_class.Channel):
             item.poster = poster_url
         return item
 
-    def create_content_item(self, result_set: Union[str, dict]) -> Union[
-        MediaItem, List[MediaItem], None]:
+    def create_content_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
         result_set: dict = result_set["itemContent"]
 
         title = result_set["title"]
@@ -201,6 +201,11 @@ class Channel(chn_class.Channel):
             item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
         elif "collectie" in action:
             return None
+        elif "live" in action:
+            item_id = action_info["target"]["value_layout"]["seo"]
+            url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/live/{item_id}/layout?nbPages={self.__pages}"
+            item = MediaItem(title, url, media_type=mediatype.EPISODE)
+            item.isLive = True
         else:
             url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/video/{item_id}/layout?nbPages=2"
             item = MediaItem(title, url, media_type=mediatype.EPISODE)
@@ -274,11 +279,11 @@ class Channel(chn_class.Channel):
         # This is probably not the real broadcast date, but it at least fixes the order.
         if (len(items) > 1
             and data.json.get("featureId") == "videos_by_season_by_program"
-            and all(item.media_type == mediatype.EPISODE and not re.match("[Aa]flevering \d+", item.name) for item in items)):
+            and all(item.media_type == mediatype.EPISODE and not re.match(r"[Aa]flevering \d+", item.name) for item in items)):
             date = ""
             for index, item in enumerate(items, start=1):
                 item.name = f"{index:02} {item.name}"
-                if (not item.has_date() and date):
+                if not item.has_date() and date:
                     previous_episode_date = DateHelper.get_datetime_from_string(date, "%Y-%m-%d")
                     item.set_date(previous_episode_date.year, previous_episode_date.month, previous_episode_date.day)
                     item.name = f"{item.name} [date unknown]"
@@ -288,7 +293,12 @@ class Channel(chn_class.Channel):
         return items
 
     def create_program_item(self, result_set: dict) -> Union[MediaItem, List[MediaItem], None]:
-        if not result_set["title"]:
+        if not result_set["title"] and result_set.get("blockTemplateId") == "Solo":
+            # Most likely a single video or movie
+            if result_set.get("content", {}).get("items"):
+                result_set["content"]["items"][0]["itemContent"]["title"] = self.parentItem.name
+                return self.create_content_item(result_set["content"]["items"][0])
+
             return None
 
         title = result_set["title"].get("long", result_set["title"].get("short"))
@@ -366,11 +376,17 @@ class Channel(chn_class.Channel):
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = JsonHelper(UriHandler.open(item.url, additional_headers=self.httpHeaders))
         video_info = data.get_value("blocks", 0, "content", "items", 0, "itemContent", "video")
-        video_id = video_info["id"]
-        preferred_service = "videoland"
+
+        # Find the first Dash item for DRM info (assuming they are all equally DRM-ed).
+        dash_assets = [v for v in video_info["assets"] if v["format"] == "dashcenc"]
+        dash_asset = dash_assets[0]
+        drm_config = dash_asset["drm"]["config"]
+        preferred_service = drm_config["serviceCode"]
+        content_type = drm_config["contentType"]
+        video_id = drm_config["contentId"]
 
         # Construct license info
-        license_token_url = f"https://drm.videoland.bedrock.tech/v1/customers/rtlnl/platforms/m6group_web/services/{preferred_service}/users/{self.__uid}/videos/{video_id}/upfront-token"
+        license_token_url = f"https://drm.videoland.bedrock.tech/v1/customers/rtlnl/platforms/m6group_web/services/{preferred_service}/users/{self.__uid}/{content_type}/{video_id}/upfront-token"
         license_token = JsonHelper(UriHandler.open(license_token_url, additional_headers=self.httpHeaders)).get_value("token")
         license_key = Mpd.get_license_key(
             "https://lic.drmtoday.com/license-proxy-widevine/cenc/",
@@ -379,26 +395,16 @@ class Channel(chn_class.Channel):
                 "content-type": "application/octstream"
             }, json_filter="JBlicense")
 
-        base_token = license_token.split(".", 2)[1]
-        token_json = JsonHelper(EncodingHelper.decode_base64(base_token))
-        hdcp_version = JsonHelper(token_json.get_value("crt")).get_value(
-            0, "op", "config", "HD", "WidevineM", "requireHDCP", fallback=None)
-
-        allow_hd = hdcp_version == "HDCP_NONE"
-
         for asset in video_info["assets"]:
             quality = asset["video_quality"]
             url = asset["path"]
             video_type = asset["video_container"]
             # video_container = asset["container"]
             video_format = asset["format"]
+            can_playback_drm = asset["drm"]["type"].lower() == "software"
 
-            if quality == "hd" and not allow_hd:  # and not self.__has_premium:
+            if not can_playback_drm:
                 continue
-
-            # service = asset["service"]
-            # if service != preferred_service:
-            #     continue
 
             if video_type == "mpd" or video_format == "dashcenc" or video_format == "dash":
                 stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
