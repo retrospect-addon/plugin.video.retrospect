@@ -204,6 +204,10 @@ class Channel(chn_class.Channel):
         elif "live" in action:
             item_id = action_info["target"]["value_layout"]["seo"]
             url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/live/{item_id}/layout?nbPages={self.__pages}"
+            if "rtl" in item_id:
+                title = f"{item_id.upper()}: {title}"
+            else:
+                title = f"{item_id.title()}: {title}"
             item = MediaItem(title, url, media_type=mediatype.EPISODE)
             item.isLive = True
         else:

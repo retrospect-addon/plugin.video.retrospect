@@ -10,4 +10,4 @@ t.b.d.
 _None_
 
 [B]Channel related[/B]
-- Fixed: Would not play live channels and movies (See #1813).
+* Fixed: Videoland streams and live TV (Fixes #1813 and Fixes #1804)
