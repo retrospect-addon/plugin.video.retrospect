@@ -368,7 +368,7 @@ class Channel(chn_class.Channel):
         elif item_type == "program":
             if data["tracking"] and data["tracking"]["item_category"] == "Film":
                 url = url.replace(self.baseUrl, f"{self.baseUrl}/video")
-                item = MediaItem(title, url, media_type=mediatype.VIDEO)
+                item = MediaItem(title, url, media_type=mediatype.MOVIE)
             else:
                 item = FolderItem(title, url, content_type=contenttype.EPISODES)
         else:
