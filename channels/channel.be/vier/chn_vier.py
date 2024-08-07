@@ -366,7 +366,7 @@ class Channel(chn_class.Channel):
         if item_type == "video":
             item = MediaItem(title, url, media_type=mediatype.VIDEO)
         elif item_type == "program":
-            if data["tracking"] and data["tracking"]["item_category"] == "Film":
+            if (data["tracking"] and data["tracking"]["item_category"] == "Film") or data["program"] == "":
                 url = url.replace(self.baseUrl, f"{self.baseUrl}/video")
                 item = MediaItem(title, url, media_type=mediatype.MOVIE)
             else:
