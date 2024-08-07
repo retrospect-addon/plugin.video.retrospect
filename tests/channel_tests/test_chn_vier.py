@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import unittest
 
 from . channeltest import ChannelTest
 
@@ -34,6 +35,7 @@ class TestVierBeChannel(ChannelTest):
         url = "https://www.goplay.be/hetisingewikkeld"
         self._test_folder_url(url, 1)
 
+    @unittest.skip("Requires a log in.")
     def test_resolve_via_url(self):
         url = "https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-seizoen-1/hetisingewikkeld-s1-aflevering-8"
         self._test_video_url(url)
