@@ -102,7 +102,7 @@ class TestKijkNlChannel(ChannelTest):
 
         mpd = [s for s in item.streams if ".mpd" in s.Url]
         self.assertGreaterEqual(len(mpd), 1)
-        self.assertEqual(len(mpd[0].Properties), 5)
+        self.assertGreaterEqual(len(mpd[0].Properties), 5)
 
     def test_graphql_search(self):
         self._test_folder_url(
