@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.15 - Changelog - 2024-08-07[/B]
+[B]Retrospect v5.7.16 - Changelog - 2024-08-08[/B]
 
-This version includes some minor fixes in the "search" feature and fixes the GoPlay and Videoland channels.
+Fixed: Videoland Single detection (Fixed #1824).
 
 [B]Framework related[/B]
 * Fixed: Highlighter of searchresults were shown in the favourites (Fixes #1818).
@@ -11,4 +11,5 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Vier.be season and video parsing (See #1820).
-* Fixed: Videoland streams and live TV (Fixes #1813 and Fixes #1804)
+* Fixed: Videoland streams and live TV (Fixes #1813 and Fixes #1804).
+* Fixed: Videoland Single detection (Fixed #1824).
