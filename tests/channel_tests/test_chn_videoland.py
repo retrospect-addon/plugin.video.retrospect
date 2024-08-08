@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-import datetime
-
 from resources.lib.helpers.datehelper import DateHelper
 from . channeltest import ChannelTest
+
 
 class TestVideolandNLChannel(ChannelTest):
     class JsonWrapper:

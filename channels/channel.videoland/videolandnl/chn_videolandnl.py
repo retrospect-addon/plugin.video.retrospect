@@ -297,11 +297,13 @@ class Channel(chn_class.Channel):
         return items
 
     def create_program_item(self, result_set: dict) -> Union[MediaItem, List[MediaItem], None]:
-        if not result_set["title"] and result_set.get("blockTemplateId") == "Solo":
-            # Most likely a single video or movie
-            if result_set.get("content", {}).get("items"):
-                result_set["content"]["items"][0]["itemContent"]["title"] = self.parentItem.name
-                return self.create_content_item(result_set["content"]["items"][0])
+        if not result_set["title"]:
+            # Perhaps it is a single video?
+            if result_set.get("blockTemplateId") == "Solo":
+                # Most likely a single video or movie
+                if result_set.get("content", {}).get("items"):
+                    result_set["content"]["items"][0]["itemContent"]["title"] = self.parentItem.name
+                    return self.create_content_item(result_set["content"]["items"][0])
 
             return None
 
