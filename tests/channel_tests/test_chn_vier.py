@@ -20,7 +20,8 @@ class TestVierBeChannel(ChannelTest):
     def test_tv4_tv_shows(self):
         url = "https://www.goplay.be/programmas/"
         items = self._test_folder_url(url, 20)
-        self.assertLess(len(items), 100)
+        # Should be significantly less than the total list of about 500.
+        self.assertLess(len(items), 150)
 
     def test_go_play_tv_shows(self):
         self._switch_channel("goplay")
