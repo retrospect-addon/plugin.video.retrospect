@@ -146,7 +146,7 @@ class Channel(chn_class.Channel):
                               name="Profile selection",
                               parser=[], creator=self.create_profile_item)
 
-        self._add_data_parser("#list_profile", name="List favourites for profile", json=True,
+        self._add_data_parser("#list_profile", name="List profile content", json=True,
                               preprocessor=self.switch_profile,
                               parser=["collections"], creator=self.create_profile_content_item,
                               requires_logon=True)
@@ -238,7 +238,7 @@ class Channel(chn_class.Channel):
 
         if not username:
             log_out_npo()
-            return True
+            return False
 
         # https://ccm.npo.nl/sites/NPO/npo.nl/version.txt -> app version (for live channels?)
 
@@ -341,10 +341,10 @@ class Channel(chn_class.Channel):
                  headers={"X-Requested-With": "XMLHttpRequest"})
 
         # Favorite items that require login
-        add_item(LanguageHelper.Profiles, "https://npo.nl/start/api/domain/user-profiles",
-                 contenttype.NONE,
-                 description="Favorieten van de NPO.nl website. Het toevoegen van "
-                             "favorieten wordt nog niet ondersteund.")
+        if self.__user_name:
+            add_item(LanguageHelper.Profiles, "https://npo.nl/start/api/domain/user-profiles",
+                     contenttype.NONE,
+                     description="Profile van de  npostart.nl website.")
 
         add_item(LanguageHelper.Trending,
                  "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
