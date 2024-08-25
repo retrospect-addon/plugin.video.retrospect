@@ -14,6 +14,7 @@ class LanguageHelper(object):
     ChannelsId = 30507
     NoFavsId = 30508
     NoPlaybackId = 30509
+    Profiles = 30513
     NewVersionId = 30516
     NewVersion2Id = 30517
     RepoWarningId = 30520

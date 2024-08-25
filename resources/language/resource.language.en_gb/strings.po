@@ -898,7 +898,11 @@ msgctxt "#30512"
 msgid "Please provide a name for the shortcut."
 msgstr ""
 
-# empty strings from id 30513 to 30515
+msgctxt "#30513"
+msgid "Profiles"
+msgstr ""
+
+# empty strings from id 30514 to 30515
 
 msgctxt "#30516"
 msgid "New Version Available."
