@@ -151,17 +151,6 @@ class Channel(chn_class.Channel):
                               parser=["collections"], creator=self.create_profile_content_item,
                               requires_logon=True)
 
-        # self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites?",
-        #                       preprocessor=self.extract_tiles,
-        #                       parser=episode_parser,
-        #                       creator=self.create_episode_item,
-        #                       requires_logon=True)
-        # self._add_data_parser("https://www.npostart.nl/ums/accounts/@me/favourites/episodes?",
-        #                       preprocessor=self.extract_tiles,
-        #                       parser=video_parser,
-        #                       creator=self.create_npo_item,
-        #                       requires_logon=True)
-
         # OLD but still working?
         # live radio, the folders and items
         self._add_data_parser(
@@ -196,6 +185,23 @@ class Channel(chn_class.Channel):
             "NED1": "NPO 1",
             "NED2": "NPO 2",
             "NED3": "NPO 3",
+        }
+
+        self.__collection_names = {
+            "follows": LanguageHelper.Following,
+            "trending": LanguageHelper.Trending,
+            "because-you-watched": LanguageHelper.RecommendedTvShows,
+            "recent": LanguageHelper.Recent,
+            "public-value": None,
+            "series": LanguageHelper.TvShows,
+            "crime": None,
+            "documentaries": None,
+            "continue": LanguageHelper.ContinueWatching,
+            "news": LanguageHelper.LatestNews,
+            "popular": LanguageHelper.Popular,
+            "recommended-for-you": LanguageHelper.RecommendedVideos,
+            "films": LanguageHelper.Movies,
+            "youth": None,
         }
 
         # ====================================== Actual channel setup STOPS here =======================================
@@ -478,28 +484,18 @@ class Channel(chn_class.Channel):
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"
         )
-
-        # because-you-watched-free-v0
-        # continue-watching-v1
-        # crime-anonymous-v0
-        # documentaries-anonymous-v0
-        # films-anonymous-v0
-        # follows-v0
-        # news-anonymous-v0
-        # popular-anonymous-v0
-        # public-value-free-v0
-        # recent-free-v0
-        # recommended-for-you-free-v0
-        # series-anonymous-v0
-        # trending-anonymous-v0
-        # youth-anonymous-v0
+        title_key = folder_key.rsplit("-", 2)[0]
+        title_id = self.__collection_names.get(title_key, None)
+        if not title_id:
+            return None
+        title = LanguageHelper.get_localized_string(title_id)
 
         list_type = result_set["type"].lower()
         if list_type == "program":
-            result = FolderItem(folder_key, url, content_type=contenttype.EPISODES, media_type=mediatype.TVSHOW)
+            result = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.TVSHOW)
             result.metaData["retrospect:parser"] = "collection-with-videos"
         elif list_type == "series":
-            result = FolderItem(folder_key, url, content_type=contenttype.TVSHOWS)
+            result = FolderItem(title, url, content_type=contenttype.TVSHOWS)
             result.metaData["retrospect:parser"] = "collection-with-series"
         else:
             Logger.warning(f"Missing list type: {list_type}")

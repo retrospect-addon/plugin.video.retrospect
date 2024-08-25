@@ -82,6 +82,10 @@ class LanguageHelper(object):
     AllEpisodes = 30370
     Trending = 30371
     NewSearch = 30372
+    Following = 30373
+    RecommendedTvShows = 30374
+    RecommendedVideos = 30375
+    ContinueWatching = 30376
 
     ChannelSelection = 30507
     ShortCutName = 30512
