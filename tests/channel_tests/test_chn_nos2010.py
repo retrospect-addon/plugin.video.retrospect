@@ -93,6 +93,14 @@ class TestNpoChannel(ChannelTest):
         items = self.channel.process_folder_list(item)
         self.assertGreater(len(items), 4)
 
+    def test_search_serie(self):
+        url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=journaal&subscriptionType=anonymous"
+        self._test_folder_url(url, 5)
+
+    def test_search_video(self):
+        url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&searchQuery=journaal&subscriptionType=anonymous"
+        self._test_folder_url(url, 5)
+
     def test_programs(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-layout?slug=programmas", 5)
 

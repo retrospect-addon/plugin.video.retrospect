@@ -10,3 +10,5 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Older url's would have the incorrect build-version of the UR Play app (Fixes #1827).
+* Added: NPO profiles and related stuff (Fixes #1828).
+* Fixed: NPO Search.

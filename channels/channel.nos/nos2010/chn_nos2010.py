@@ -867,8 +867,8 @@ class Channel(chn_class.Channel):
         if not needle:
             raise ValueError("No needle present")
 
-        shows_url = "https://npo.nl/start/api/domain/search-results?searchType=series&query=%s&subscriptionType=anonymous"
-        videos_url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&query=%s&subscriptionType=anonymous"
+        shows_url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=%s&subscriptionType=anonymous"
+        videos_url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&searchQuery=%s&subscriptionType=anonymous"
 
         items = []
         needle = HtmlEntityHelper.url_encode(needle)
