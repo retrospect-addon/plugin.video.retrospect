@@ -76,13 +76,30 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=selma-s-oorlog&type=timeless_series", expected_results=1)
 
     def test_trending(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0", 10)
+        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0", "test_trending")
+        item.metaData["retrospect:parser"] = "collection-with-series"
+        items = self.channel.process_folder_list(item)
+        self.assertGreater(len(items), 10)
 
     def test_popular(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown", 10)
+        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown", "test_popular")
+        item.metaData["retrospect:parser"] = "collection-with-videos"
+        items = self.channel.process_folder_list(item)
+        self.assertGreater(len(items), 10)
 
     def test_news(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown", 4)
+        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown", "test_news")
+        item.metaData["retrospect:parser"] = "collection-with-videos"
+        items = self.channel.process_folder_list(item)
+        self.assertGreater(len(items), 4)
+
+    def test_search_serie(self):
+        url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=journaal&subscriptionType=anonymous"
+        self._test_folder_url(url, 5)
+
+    def test_search_video(self):
+        url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&searchQuery=journaal&subscriptionType=anonymous"
+        self._test_folder_url(url, 5)
 
     def test_programs(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-layout?slug=programmas", 5)
