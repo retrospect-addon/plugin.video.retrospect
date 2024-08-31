@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
+[B]Retrospect v5.7.17 - Changelog - 2024-08-31[/B]
 
-t.b.d.
+Fixed some minor channel issues. 
 
 [B]Framework related[/B]
 _None_
