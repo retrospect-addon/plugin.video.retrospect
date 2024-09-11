@@ -384,6 +384,9 @@ class Channel(chn_class.Channel):
 
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = JsonHelper(UriHandler.open(item.url, additional_headers=self.httpHeaders))
+        from resources.lib.logger import Logger
+        import json
+        Logger.debug(json.dumps(data.json, indent=2))
         video_info = data.get_value("blocks", 0, "content", "items", 0, "itemContent", "video")
 
         # Find the first Dash item for DRM info (assuming they are all equally DRM-ed).
