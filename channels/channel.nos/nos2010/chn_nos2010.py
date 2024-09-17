@@ -782,7 +782,7 @@ class Channel(chn_class.Channel):
         else:
             return None
 
-        name = result_set["title"]
+        name = result_set["mainTitle"]
         start = result_set["programStart"]
         channel = result_set["channel"]
 
