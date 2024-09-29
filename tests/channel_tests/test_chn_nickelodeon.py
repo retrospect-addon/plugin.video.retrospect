@@ -6,6 +6,7 @@ import unittest
 from . channeltest import ChannelTest
 
 
+@unittest.skip("Broken channel: no more videos")
 class TestNickelodeonChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
