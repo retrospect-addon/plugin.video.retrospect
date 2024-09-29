@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.17 - Changelog - 2024-08-31[/B]
+[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
 
-Fixed some minor channel issues. 
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,6 +9,5 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: Older url's would have the incorrect build-version of the UR Play app (Fixes #1827).
-* Added: NPO profiles and related stuff (Fixes #1828).
-* Fixed: NPO Search.
+* Fixed: NPO Start recent items broke due to an API change (Fixes #1838).
+* Removed: Nickelodeon & MTV channels as they no longer provide videos.
