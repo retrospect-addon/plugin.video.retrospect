@@ -1,9 +1,9 @@
-[B]Retrospect v5.7.x - Changelog - 2024-xx-xx[/B]
+[B]Retrospect v5.7.18 - Changelog - 2024-09-29[/B]
 
-t.b.d.
+Updated: Minor channel updates.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Logging out when no username is set.
 
 [B]GUI/Settings/Language related[/B]
 _None_
