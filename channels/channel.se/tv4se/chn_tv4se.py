@@ -48,7 +48,7 @@ class Channel(chn_class.Channel):
         if self.channelCode == "tv4segroup":
             self.noImage = "tv4image.png"
             self.httpHeaders = {"Content-Type": "application/json", "Client-Name": "tv4-web",
-                                "Client-Version": "4.0.0"}
+                                "Client-Version": "5.2.0"}
         else:
             raise Exception("Invalid channel code")
 
