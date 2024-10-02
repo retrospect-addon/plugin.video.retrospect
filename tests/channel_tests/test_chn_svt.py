@@ -84,6 +84,12 @@ class TestSvtChannel(ChannelTest):
         result = self.channel.process_folder_list(item)
         self.assertGreater(len(result), 10)
 
+    def test_category_listing(self):
+        item = self._get_media_item("#genre_item", "Genre")
+        item.metaData["genre_id"] = "nyheter"
+        items = self.channel.process_folder_list(item)
+        self.assertGreater(len(items), 10)
+
     def test_recent_listing(self):
         url = "https://api.svt.se/contento/graphql?operationName=GridPage&variables=%7B%22includeFullOppetArkiv%22%3Atrue%2C%22selectionId%22%3A%22latest_start%22%2C%22userIsAbroad%22%3Atrue%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%22a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40%22%2C%22version%22%3A1%7D%7D&ua=svtplaywebb-render-low-prio-client"
         self._test_folder_url(url, expected_results=10)
@@ -96,4 +102,4 @@ class TestSvtChannel(ChannelTest):
     def test_html_video_update(self):
         url = "https://www.svtplay.se/video/33718658/anders-matresa/anders-matresa-bjorn-i-harjedalen?info=visa"
         item = self._test_video_url(url)
-        self.assertTrue(item.url.endswith("jp9dDmp"))
+        self.assertTrue(item.url.endswith("8Wv7Jb7"))
