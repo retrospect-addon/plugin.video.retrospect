@@ -12,3 +12,4 @@ _None_
 * Fixed: SVT category listings broke (Fixes #1843).
 * Fixed: TV4 API issues.
 * Fixed: RegioGroei Broke.
+* Fixed: Vier parsing (Fixes #1846).
