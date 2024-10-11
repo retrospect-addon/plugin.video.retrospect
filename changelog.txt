@@ -13,3 +13,4 @@ _None_
 * Fixed: TV4 API issues.
 * Fixed: RegioGroei Broke.
 * Fixed: Vier parsing (Fixes #1846).
+* Fixed: TV4 Category listing (Fixes #1844).
