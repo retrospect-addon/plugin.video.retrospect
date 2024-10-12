@@ -192,7 +192,7 @@ class Channel(chn_class.Channel):
             LanguageHelper.get_localized_string(LanguageHelper.CurrentlyPlayingEpisodes): (
                 self.__get_api_url(
                     "GridPage",
-                    "a8248fc130da34208aba94c4d5cc7bd44187b5f36476d8d05e03724321aafb40",
+                    "1e2d15ff7ffa578d33ebf1287d3f7af7fd47125552b564e96fd277a744345a69",
                     variables={"includeFullOppetArkiv": True, "selectionId": "live_start"}),
                 False),
 
