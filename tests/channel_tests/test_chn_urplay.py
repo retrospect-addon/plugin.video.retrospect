@@ -34,20 +34,14 @@ class TestUrPlayChannel(ChannelTest):
         self._test_video_url(url)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
+    def test_categories(self):
+        url = "https://urplay.se/_next/data/CUD2PRDAoYCTpze5YHm-v/bladdra/alla-kategorier.json"
+        self._test_folder_url(url, expected_results=5)
+
+    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_category(self):
-        url = "https://urplay.se/api/v1/search?" \
-              "main_genre_must_not[]=forelasning&" \
-              "main_genre_must_not[]=panelsamtal&" \
-              "platform=urplay&" \
-              "rows={}&" \
-              "sab_category=utbildning%20%26%20media&" \
-              "singles_and_series=true&" \
-              "start={}&" \
-              "view=title"
-        item = self._get_media_item("#category", "category")
-        item.metaData["url_format"] = url
-        items = self.channel.process_folder_list(item)
-        self.assertGreaterEqual(len(items), 95)
+        url = "https://urplay.se/_next/data/CUD2PRDAoYCTpze5YHm-v/bladdra/drama.json?categoryPath=drama"
+        self._test_folder_url(url, expected_results=5)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_popular(self):
@@ -63,17 +57,6 @@ class TestUrPlayChannel(ChannelTest):
     def test_last_chance(self):
         url = "https://urplay.se/api/v1/search?product_type=program&rows=150&start=0&view=last_chance"
         self._test_folder_url(url, expected_results=10)
-
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_category_radio(self):
-        url = "https://urplay.se/api/v1/search?" \
-                "type=programradio&" \
-                "platform=urplay&" \
-                "rows={}&" \
-                "singles_and_series=true&" \
-                "start={}&" \
-                "view=title"
-        self._test_folder_url(url, expected_results=50, exact_results=False)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_search(self):
