@@ -13,7 +13,7 @@ class TestUrPlayChannel(ChannelTest):
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions of the build version.")
+    # @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions of the build version.")
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
         self.assertGreaterEqual(len(items), 6, "No items found in mainlist")

@@ -126,7 +126,11 @@ class Channel(chn_class.Channel):
     def build_version(self) -> str:
         if not self.__build_version:
             data = UriHandler.open("https://urplay.se")
-            build_version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
+            try:
+                build_version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
+            except:
+                Logger.error(data)
+                raise
             Logger.info(f"Found build version: {build_version}")
             self.__build_version = build_version
 
@@ -203,6 +207,7 @@ class Channel(chn_class.Channel):
         if next_rows + next_start > total_count:
             next_rows = total_count - next_start
 
+        progress = None
         try:
             from resources.lib.xbmcwrapper import XbmcDialogProgressWrapper
             status = LanguageHelper.get_localized_string(LanguageHelper.FetchMultiApi)
@@ -233,7 +238,8 @@ class Channel(chn_class.Channel):
                 if next_rows + next_start > total_count:
                     next_rows = total_count - next_start
         finally:
-            progress.close()
+            if progress:
+                progress.close()
         return json_data, []
 
     def create_category_item(self, result_set):
