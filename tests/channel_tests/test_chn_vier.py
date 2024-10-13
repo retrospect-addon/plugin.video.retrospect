@@ -33,7 +33,7 @@ class TestVierBeChannel(ChannelTest):
         self.assertGreater(len(media_items), 5)
 
     def test_season_listing(self):
-        url = "https://www.goplay.be/hetisingewikkeld"
+        url = "https://www.goplay.be/bake-off-vlaanderen-kerst"
         self._test_folder_url(url, 1)
 
     @unittest.skip("Requires a log in.")

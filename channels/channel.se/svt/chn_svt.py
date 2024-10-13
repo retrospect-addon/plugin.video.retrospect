@@ -964,7 +964,7 @@ class Channel(chn_class.Channel):
 
         data = UriHandler.open(url)
         json_data = JsonHelper(data)
-        possible_lists = json_data.get_value("data", "categoryPage", "lazyLoadedTabs", 1, "selections")
+        possible_lists = json_data.get_value("data", "categoryPage", "lazyLoadedTabs", -1, "selections")
         program_items = [genres["items"] for genres in possible_lists if
                          genres["selectionType"] == "all"]
         json_data.json = {
