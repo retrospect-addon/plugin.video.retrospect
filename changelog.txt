@@ -14,3 +14,4 @@ _None_
 * Fixed: RegioGroei Broke.
 * Fixed: Vier parsing (Fixes #1846).
 * Fixed: TV4 Category listing (Fixes #1844).
+* Fixed: UR Play Category listing (Fixes #1847).
