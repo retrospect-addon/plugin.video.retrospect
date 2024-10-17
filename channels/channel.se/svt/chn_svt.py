@@ -1362,11 +1362,11 @@ class Channel(chn_class.Channel):
         # LB = Low Bandwidth
 
         if in_sweden or not item.isGeoLocked:
-            supported_formats = {"hls": 0, "hls-ts-full": 2, "hls-cmaf-full": 3}
+            supported_formats = {"hls": 10, "hls-ts-full": 12, "hls-cmaf-full": 13}
             if not is_drm_protected:
                 supported_formats.update({"dash": 3, "dash-hbbtv-avc": 4, "dashhbbtv": 4})
         else:
-            supported_formats = {"hls": 0, "hls-ts-avc-51": 1}
+            supported_formats = {"hls": 10, "hls-ts-avc-51": 11}
             if not is_drm_protected:
                 supported_formats.update({"dash": 2, "dash-avc-51": 3})
 
