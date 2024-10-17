@@ -151,7 +151,7 @@ class Channel(chn_class.Channel):
             UriHandler.header(old_url)
             if UriHandler.instance().status.code >= 400:
                 # Replace the build version!
-                parts = Regexer.do_regex(r"^(.+/_next/data/)[^/]+(/.+\.json)$", old_url)[0]
+                parts = Regexer.do_regex(r"^(.+/_next/data/)[^/]+(/.+\.json.*)$", old_url)[0]
                 new_url = f"{parts[0]}{self.build_version}{parts[1]}"
                 parent_item.url = new_url
 
