@@ -1,4 +1,4 @@
-[B]Retrospect v5.7.19 - Changelog - 2024-10-17[/B]
+[B]Retrospect v5.7.20 - Changelog - 2024-10-21[/B]
 
 Fixed the NPO channel that broke.
 
