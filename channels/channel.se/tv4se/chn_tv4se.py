@@ -201,7 +201,7 @@ class Channel(chn_class.Channel):
             use_get=True)
         items.append(__create_item(LanguageHelper.TvShows, tvshow_url, tvshow_data))
 
-        recent_url, recent_data = self.__get_api_query("Panel", {"panelId": "5qGBwTBSPdxO55EzbpOeNg", "limit": self.__max_page_size, "offset": 0})
+        recent_url, recent_data = self.__get_api_query("Panel", {"panelId": "2K0BCBpDDfhpW1NRLY0jET", "limit": self.__max_page_size, "offset": 0})
         items.append(__create_item(LanguageHelper.Recent, recent_url, recent_data))
 
         popular_url, popular_data = self.__get_api_query("Panel", {"panelId": "4nNp00Z12bjEiNboaW2uxB", "limit": self.__max_page_size, "offset": 0})

@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.20 - Changelog - 2024-10-21[/B]
+[B]Retrospect v5.7.xx - Changelog - 2024-10-21[/B]
 
-Fixed the NPO channel that broke.
+.....
 
 [B]Framework related[/B]
 _None_
@@ -9,4 +9,5 @@ _None_
 _None_
 
 [B]Channel related[/B]
+* Fixed: TV4 Recent.
 * Fixed: NPO streams (Fixes #1854).
