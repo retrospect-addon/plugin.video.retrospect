@@ -18,6 +18,7 @@ on:
       - '**.po'
       - '**.xml'
       - '**.md'
+      - '**.yaml'
 
   pull_request:
     # The branches below must be a subset of the branches above
@@ -26,6 +27,7 @@ on:
       - '**.po'
       - '**.xml'
       - '**.md'
+      - '**.yaml'
 
   schedule:
     - cron: '20 13 * * 5'
