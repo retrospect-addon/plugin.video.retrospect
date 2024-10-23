@@ -12,6 +12,7 @@ on:
       - '**.yml'
       - '**.properties'
       - '**.txt'
+      - '**.yaml'
 
   pull_request:
     branches:
