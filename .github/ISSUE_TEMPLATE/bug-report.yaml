@@ -60,8 +60,6 @@ body:
       label: Screenshots
       description:  You can add screenshots to help explain your problem.
       placeholder: "Tip: You can attach screenshots by clicking this area to highlight it and then dragging the files in."
-    validations:
-      required: true
 
   - type: checkboxes
     id: environment
