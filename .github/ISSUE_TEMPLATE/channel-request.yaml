@@ -1,0 +1,62 @@
+name: New Channel Request
+description: Request a new channel to be added to Retrospect.
+labels: [channel]
+assignees: []
+
+body:
+  - type: textarea
+    attributes:
+      label: Channel name
+      description: What is the name of the channel you would like to see added?
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Name of the channel in English
+      description: Provide the name of the channel in English.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Name of the channel in native language
+      description: Provide the name of the channel in its native language.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Website for the channel
+      description: Provide the website URL for the channel.
+      placeholder: 'e.g., https://www.bbc.com/news'
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Android App
+      description: Provide the link to the Android app if available.
+      placeholder: 'e.g., https://play.google.com/store/apps/details?id=com.bbc.news'
+
+  - type: textarea
+    attributes:
+      label: Artwork
+      description:  Please provide the channels logo or other artwork here.
+      placeholder: "Tip: You can attach artwork by clicking this area to highlight it and then dragging the files in OR you can simply provide a link to it."
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Check which features should be implemented
+      options:
+        - label: Video on-demand content
+        - label: TV live streams
+        - label: Use your account for the VOD services from Retrospect
+        - label: Access the premium content if you are eligible
+
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: provide any additional information that could be of use.
