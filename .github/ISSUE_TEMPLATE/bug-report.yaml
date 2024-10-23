@@ -1,0 +1,96 @@
+name: Bug Report
+description: Create a report to help us improve
+labels:
+  - bug
+assignees: []
+
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+
+  - type: textarea
+    id: bug_report
+    attributes:
+      label: Describe the bug
+      description: Provide a more detailed introduction to the issue itself, and why you consider it to be a bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide a link to a live example, or an unambiguous set of steps to reproduce this bug. Include code to reproduce, if relevant.
+      placeholder: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: Tell us what should happen.
+
+  - type: textarea
+    id: possible_fix
+    attributes:
+      label: Possible Fix
+      description: Not obligatory, but suggest a fix or reason for the bug.
+
+  - type: textarea
+    id: debuglog
+    attributes:
+      label: Debuglog
+      description: "A debug-log is ALWAYS mandatory when creating an issue. To get one, enable debug logging in Retrospect, reproduce the problem and then upload (don't copy paste) the full log here. You can also use the built-in feature in Retrospect to upload the log to https://paste.kodi.tv. More info can be found here: https://github.com/retrospect-addon/plugin.video.retrospect/wiki/Logging"
+      placeholder: "Tip: You can attach log files by clicking this area to highlight it and then dragging log files in."
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description:  You can add screenshots to help explain your problem.
+      placeholder: "Tip: You can attach screenshots by clicking this area to highlight it and then dragging the files in."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: Your Environment
+      description: Please select the environment for which you experience this problem.
+      options:
+        - label: Android
+        - label: iOS
+        - label: Linux
+        - label: OSX
+        - label: Raspberry-Pi
+        - label: Windows
+        - label: Windows UWP
+    validations:
+      required: true
+
+  - type: input
+    id: kodi_version
+    attributes:
+      label: Kodi version
+      description: Specify the version of Kodi you are using.
+    validations:
+      required: true
+
+  - type: input
+    id: retrospect_version
+    attributes:
+      label: Retrospect version
+      description: Specify the version of Retrospect you are using.
+    validations:
+      required: true
