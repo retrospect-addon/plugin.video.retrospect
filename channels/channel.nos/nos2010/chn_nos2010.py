@@ -1307,7 +1307,7 @@ class Channel(chn_class.Channel):
 
             data = UriHandler.open("https://npo.nl/start/api/auth/session")
             json = JsonHelper(data)
-            subscriptions = json.get_value("subscription", fallback=None)
+            subscriptions = json.get_value("hasSubscription", fallback=None)
             self.__has_premium_cache = subscriptions is not None
             Logger.debug("Found subscriptions: %s", subscriptions)
 
