@@ -9,6 +9,5 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: TV4 Recent.
-* Fixed: NPO streams (Fixes #1854).
 * Fixed: NPO Plus content not showing (Fixes #1862).
+* Fixed: Some TV4 content (with encryption) was not playing (Fixes #1853).

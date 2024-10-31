@@ -951,7 +951,7 @@ class Channel(chn_class.Channel):
 
         license_info = playback_item.get("license", None)
         if license_info is not None:
-            license_key_token = license_info["token"]
+            license_key_token = license_info.get("token")
             auth_token = license_info["castlabsToken"]
             header = {
                 "x-dt-auth-token": auth_token,
