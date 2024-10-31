@@ -1,4 +1,5 @@
 import time
+import uuid
 from typing import Optional
 
 try:
@@ -116,15 +117,21 @@ class GigyaHandler(AuthenticationHandler):
             has_premium=self.__has_premium, jwt=self.__jwt)
 
     def log_off(self, username) -> bool:
-        # https://gigya-merge.videoland.com/accounts.logout
-        # bootstrap_url = f"https://accounts.eu1.gigya.com/accounts.webSdkBootstrap?apiKey={self.__api_key_3}&sdk=js_latest&sdkBuild={self.__build_id}&format=json"
-        # bootstrap = UriHandler.open(bootstrap_url, no_cache=True)
-        # bootstrap_json = JsonHelper(bootstrap)
-        # if not bootstrap_json.get_value("statusReason") == "OK":
-        #     Logger.error("Error initiating login")
+        # Revoke the device
+        revoke_url = "https://users.videoland.bedrock.tech/v3/rtlnl/m6group_web/devices/revokeCurrentDevice"
+        revoke_data = {}
+        headers = {
+            "authorization": f"Bearer {self.get_authentication_token()}"
+        }
+        revoke_result = UriHandler.open(revoke_url, no_cache=True, json=revoke_data, method="PATCH", additional_headers=headers)
+        revoke_json = JsonHelper(revoke_result)
+        if not revoke_json.get_value("status") == "revoked":
+            Logger.error(f"Error revoking device: {revoke_result}.")
+            return AuthenticationResult(None)
 
         login_token_cookie = UriHandler.get_cookie(f"glt_{self.__api_key_4}", domain=f".{self.realm}")
         if not login_token_cookie:
+            Logger.error("No login token cookie found.")
             return AuthenticationResult(None)
 
         logoff_url = f"https://gigya-merge.{self._realm}/accounts.logout"
@@ -143,11 +150,12 @@ class GigyaHandler(AuthenticationHandler):
         logoff_result = UriHandler.open(logoff_url, data=logoff_data, no_cache=True, additional_headers=headers)
         logoff_json = JsonHelper(logoff_result)
         if not logoff_json.get_value("statusReason") == "OK":
-            Logger.error("Error logging off")
+            Logger.error(f"Error logging off: {logoff_result}")
 
         UriHandler.delete_cookie(domain=".gigya.com")
         UriHandler.delete_cookie(domain=f".{self.realm}")
         AddonSettings.set_setting(f"{self.realm}-jwt", "", store=LOCAL)
+        AddonSettings.set_setting(f"{self.realm}-deviceid", "", store=LOCAL)
 
         self.__uid = None
         self.__uid_signature = None
@@ -177,7 +185,7 @@ class GigyaHandler(AuthenticationHandler):
         # Get a generic token
         url = "https://front-auth.videoland.bedrock.tech/v2/platforms/m6group_web/getJwt"
         headers = {
-            "x-auth-device-id": self._device_id,
+            "x-auth-device-id": f"{self._device_id}",
             "x-auth-gigya-signature": self.__uid_signature,
             "x-auth-gigya-signature-timestamp": str(self.__uid_signature_timestamp),
             "x-auth-gigya-uid": self.__uid
