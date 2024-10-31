@@ -101,7 +101,7 @@ class UriHandler(object):
     @staticmethod
     def open(uri, proxy=None, params=None, data=None, json=None,
              referer=None, additional_headers=None, no_cache=False,
-             force_text=False, force_cache_duration=None):
+             force_text=False, force_cache_duration=None, method=""):
         """ Open an URL Async using a thread
 
         :param str uri:                         The URI to download.
@@ -115,7 +115,7 @@ class UriHandler(object):
         :param bool no_cache:                   Should cache be disabled.
         :param bool force_text:                 In case no content type is specified, force text.
         :param int|None force_cache_duration:   Should a forced cache duration be used?
-
+        :param str|None method:                 Override for the method to use.
 
         :return: The data that was retrieved from the URI.
         :rtype: str|unicode
@@ -124,7 +124,7 @@ class UriHandler(object):
 
         return UriHandler.instance().open(
             uri, proxy, params, data, json, referer,
-            additional_headers, no_cache, force_text, force_cache_duration)
+            additional_headers, no_cache, force_text, force_cache_duration, method=method)
 
     @staticmethod
     def header(uri, proxy=None, referer=None, additional_headers=None):
@@ -385,7 +385,7 @@ class _RequestsHandler(object):
         Logger.info("Creating Downloader for url '%s' to filename '%s'", uri, download_path)
         r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
                             referer=referer, additional_headers=additional_headers,
-                            no_cache=True, stream=True, force_cache_duration=None)
+                            no_cache=True, stream=True, force_cache_duration=None, method="")
         if r is None:
             return ""
 
@@ -417,7 +417,7 @@ class _RequestsHandler(object):
 
     def open(self, uri, proxy=None, params=None, data=None, json=None,
              referer=None, additional_headers=None, no_cache=False,
-             force_text=False, force_cache_duration=None):
+             force_text=False, force_cache_duration=None, method=""):
         """ Open an URL Async using a thread
 
         :param str uri:                         The URI to download.
@@ -431,6 +431,7 @@ class _RequestsHandler(object):
         :param bool no_cache:                   Should cache be disabled.
         :param bool|None force_text:            In case no content type is specified, force text.
         :param int|None force_cache_duration:   Should a forced cache duration be used?
+        :param str|None method:                 Override for the method to use.
 
         :return: The data that was retrieved from the URI.
         :rtype: str|unicode
@@ -444,7 +445,8 @@ class _RequestsHandler(object):
         r = self.__requests(uri, proxy=proxy, params=params, data=data, json=json,
                             referer=referer, additional_headers=additional_headers,
                             no_cache=no_cache, stream=False,
-                            force_cache_duration=force_cache_duration)
+                            force_cache_duration=force_cache_duration,
+                            method=method)
         if r is None:
             return ""
 
@@ -512,7 +514,7 @@ class _RequestsHandler(object):
 
     # noinspection PyUnusedLocal
     def __requests(self, uri, proxy, params, data, json, referer,
-                   additional_headers, no_cache, stream, force_cache_duration):
+                   additional_headers, no_cache, stream, force_cache_duration, method):
 
         with requests.session() as s:
             s.cookies = self.cookieJar
@@ -537,12 +539,20 @@ class _RequestsHandler(object):
             elif data is not None:
                 # Normal Requests compatible data object
                 Logger.info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-                r = s.post(uri, data=data, proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
+                if method.lower() == "patch":
+                    r = s.patch(uri, data=data, proxies=proxies, headers=headers,
+                               stream=stream, timeout=self.webTimeOut)
+                else:
+                    r = s.post(uri, data=data, proxies=proxies, headers=headers,
+                               stream=stream, timeout=self.webTimeOut)
             elif json is not None:
                 Logger.info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-                r = s.post(uri, json=json, proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
+                if method.lower() == "patch":
+                    r = s.patch(uri, json=json, proxies=proxies, headers=headers,
+                                stream=stream, timeout=self.webTimeOut)
+                else:
+                    r = s.post(uri, json=json, proxies=proxies, headers=headers,
+                               stream=stream, timeout=self.webTimeOut)
             else:
                 Logger.info("Performing a GET for %s", uri)
                 r = s.get(uri, proxies=proxies, headers=headers,
