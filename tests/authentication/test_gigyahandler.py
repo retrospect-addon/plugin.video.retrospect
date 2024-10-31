@@ -7,7 +7,6 @@ import uuid
 from resources.lib.authentication.gigyahandler import GigyaHandler
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
-from resources.lib.authentication.rtlxlhandler import RtlXlHandler
 
 
 class TestGigyaHandler(unittest.TestCase):
@@ -16,8 +15,8 @@ class TestGigyaHandler(unittest.TestCase):
     def __init__(self, methodName):  # NOSONAR
         super(TestGigyaHandler, self).__init__(methodName)
 
-        self.user_name = os.environ.get("VL_USERNAME")
-        self.password = os.environ.get("VL_PASSWORD")
+        self.user_name = os.environ.get("VIDEOLAND_USERNAME")
+        self.password = os.environ.get("VIDEOLAND_PASSWORD")
         self.api_key_3 = "3_t2Z1dFrbWR-IjcC-Bod1kei6W91UKmeiu3dETVG5iKaY4ILBRzVsmgRHWWo0fqqd"
         self.api_key_4 = "4_hRanGnYDFjdiZQfh-ghhhg"
         self.realm = "videoland.com"
@@ -43,21 +42,21 @@ class TestGigyaHandler(unittest.TestCase):
         a = GigyaHandler(self.realm, self.api_key_3, self.api_key_4, self.__device_id)
         self.assertIsNotNone(a)
 
-    @unittest.skipIf(not os.environ.get("VL_USERNAME"), "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"), "Not testing login without credentials")
     def test_log_on(self):
         a = GigyaHandler(self.realm, self.api_key_3, self.api_key_4, self.__device_id)
 
         logged_on = a.log_on(self.user_name, self.password)
         self.assertTrue(logged_on)
 
-    @unittest.skipIf(not os.environ.get("VL_USERNAME"), "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"), "Not testing login without credentials")
     def test_is_authenticated_without_login(self):
         a = GigyaHandler(self.realm, self.api_key_3, self.api_key_4, self.__device_id)
         res = a.active_authentication()
         self.assertFalse(res.logged_on)
         self.assertIsNone(res.username)
 
-    @unittest.skipIf(not os.environ.get("VL_USERNAME"), "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"), "Not testing login without credentials")
     def test_is_authenticated_after_login(self):
         a = GigyaHandler(self.realm, self.api_key_3, self.api_key_4, self.__device_id)
         auth_session = a.log_on(self.user_name, self.password)
@@ -72,7 +71,7 @@ class TestGigyaHandler(unittest.TestCase):
         res = a.log_on("nobody", "secret")
         self.assertFalse(res.logged_on)
 
-    @unittest.skipIf(not os.environ.get("VL_USERNAME"), "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"), "Not testing login without credentials")
     def test_log_off(self):
         a = GigyaHandler(self.realm, self.api_key_3, self.api_key_4, self.__device_id)
         logged_on = a.log_on(self.user_name, self.password)
@@ -82,7 +81,7 @@ class TestGigyaHandler(unittest.TestCase):
         self.assertFalse(res.logged_on)
         self.assertIsNone(res.username)
 
-    @unittest.skipIf(not os.environ.get("VL_USERNAME"), "Not testing login without credentials")
+    @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"), "Not testing login without credentials")
     def test_token_fetch(self):
         a = GigyaHandler(self.realm, self.api_key_3, self.api_key_4, self.__device_id)
         logged_on = a.log_on(self.user_name, self.password)

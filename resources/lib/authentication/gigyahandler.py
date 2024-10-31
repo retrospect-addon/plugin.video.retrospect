@@ -22,7 +22,7 @@ class GigyaHandler(AuthenticationHandler):
 
         self.__api_key_3 = api_key_3
         self.__api_key_4 = api_key_4
-        self.__build_id = "15627"
+        self.__build_id = "16506"
 
         self.__uid = None
         self.__uid_signature = None
@@ -54,7 +54,7 @@ class GigyaHandler(AuthenticationHandler):
             "sdk": "js_latest",
             "authMode": "cookie",
             "pageURL": f"https://www.{self._realm}/inloggen",
-            "sdkBuild": 15627,
+            "sdkBuild": self.__build_id,
             "format": "json",
         }
 
@@ -91,13 +91,13 @@ class GigyaHandler(AuthenticationHandler):
             "login_token": login_token_cookie.value,
             "authMode": "cookie",
             # "pageURL": "",
-            "sdkBuild": 15627,
+            "sdkBuild": self.__build_id,
             "format": "json",
         }
         headers = {
             "content-type": "application/x-www-form-urlencoded"
         }
-        data = UriHandler.open(f"https://gigya-merge.{self._realm}/accounts.getAccountInfo", additional_headers=headers, data=profile_data)
+        data = UriHandler.open(f"https://gigya-merge.{self._realm}/accounts.getAccountInfo", additional_headers=headers, data=profile_data, no_cache=True)
         json_data = JsonHelper(data)
         if json_data.get_value("errorCode"):
             error = json_data.get_value("statusReason")
@@ -116,6 +116,35 @@ class GigyaHandler(AuthenticationHandler):
             has_premium=self.__has_premium, jwt=self.__jwt)
 
     def log_off(self, username) -> bool:
+        # https://gigya-merge.videoland.com/accounts.logout
+        # bootstrap_url = f"https://accounts.eu1.gigya.com/accounts.webSdkBootstrap?apiKey={self.__api_key_3}&sdk=js_latest&sdkBuild={self.__build_id}&format=json"
+        # bootstrap = UriHandler.open(bootstrap_url, no_cache=True)
+        # bootstrap_json = JsonHelper(bootstrap)
+        # if not bootstrap_json.get_value("statusReason") == "OK":
+        #     Logger.error("Error initiating login")
+
+        login_token_cookie = UriHandler.get_cookie(f"glt_{self.__api_key_4}", domain=f".{self.realm}")
+        if not login_token_cookie:
+            return AuthenticationResult(None)
+
+        logoff_url = f"https://gigya-merge.{self._realm}/accounts.logout"
+        logoff_data = {
+            "signIDs": True,
+            "APIKey": self.__api_key_4,
+            "sdk": "js_latest",
+            "login_token": login_token_cookie.value,
+            "authMode": "cookie",
+            "pageURL": f"https://www.{self._realm}/uitloggen",
+            "sdkBuild": self.__build_id,
+            "format": "json"
+        }
+
+        headers = { "content-type": "application/x-www-form-urlencoded" }
+        logoff_result = UriHandler.open(logoff_url, data=logoff_data, no_cache=True, additional_headers=headers)
+        logoff_json = JsonHelper(logoff_result)
+        if not logoff_json.get_value("statusReason") == "OK":
+            Logger.error("Error logging off")
+
         UriHandler.delete_cookie(domain=".gigya.com")
         UriHandler.delete_cookie(domain=f".{self.realm}")
         AddonSettings.set_setting(f"{self.realm}-jwt", "", store=LOCAL)

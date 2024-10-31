@@ -101,9 +101,10 @@ class TestVideolandNLChannel(ChannelTest):
     def test_folder_with_single(self):
         self.__log_on()
 
-        url = "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/439/layout?nbPages=10"
+        url = "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/1714/layout?nbPages=10"
         items = self._test_folder_url(url, 3)
 
+        # If this fails with: Devices List, then there are too many sessions!
         videos = [i for i in items if i.is_playable]
         self.assertGreaterEqual(len(videos), 1)
 
