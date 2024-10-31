@@ -3,7 +3,7 @@
 .....
 
 [B]Framework related[/B]
-_None_
+* Added: Patch option to UriHandler.
 
 [B]GUI/Settings/Language related[/B]
 _None_
@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: NPO Plus content not showing (Fixes #1862).
 * Fixed: Some TV4 content (with encryption) was not playing (Fixes #1853).
+* Fixed: Revoking a device from Videoland.nl broke Retrospect listing (Fixes #1852).
