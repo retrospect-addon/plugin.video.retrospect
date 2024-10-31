@@ -35,6 +35,11 @@
       "order": 4,
       "value": "type=\"select\" lvalues=\"30126|30127|30128\" default=\"0\" label=\"30081\"",
       "id": "filter_premium"
+    },
+    {
+      "order": 5,
+      "id": "re-authenticate",
+      "value": "label=\"30129\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.videoland.videolandnl&amp;action=execute&amp;command=log_off)\" option=\"close\""
     }
   ]
 }

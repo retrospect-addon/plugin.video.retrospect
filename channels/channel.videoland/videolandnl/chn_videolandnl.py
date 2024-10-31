@@ -4,6 +4,7 @@ import re
 from typing import Union, List, Optional, Tuple
 
 import pytz
+import xbmc
 
 from resources.lib import chn_class, contenttype, mediatype
 from resources.lib.addonsettings import AddonSettings
@@ -437,6 +438,11 @@ class Channel(chn_class.Channel):
             #     item.complete = True
             #     M3u8.set_input_stream_addon_input(stream)
         return item
+
+    def log_off(self):
+        """ Force a logoff for the channel. """
+        self.__authenticator.log_off("", force=True)
+        xbmc.executebuiltin("Container.Refresh()")
 
     def log_on(self, username=None, password=None) -> bool:
         """ Logs on to a website, using an url.

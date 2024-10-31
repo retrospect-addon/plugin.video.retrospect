@@ -1,5 +1,4 @@
 import time
-import uuid
 from typing import Optional
 
 try:
@@ -155,7 +154,6 @@ class GigyaHandler(AuthenticationHandler):
         UriHandler.delete_cookie(domain=".gigya.com")
         UriHandler.delete_cookie(domain=f".{self.realm}")
         AddonSettings.set_setting(f"{self.realm}-jwt", "", store=LOCAL)
-        AddonSettings.set_setting(f"{self.realm}-deviceid", "", store=LOCAL)
 
         self.__uid = None
         self.__uid_signature = None
@@ -185,7 +183,7 @@ class GigyaHandler(AuthenticationHandler):
         # Get a generic token
         url = "https://front-auth.videoland.bedrock.tech/v2/platforms/m6group_web/getJwt"
         headers = {
-            "x-auth-device-id": f"{self._device_id}",
+            "x-auth-device-id": self._device_id,
             "x-auth-gigya-signature": self.__uid_signature,
             "x-auth-gigya-signature-timestamp": str(self.__uid_signature_timestamp),
             "x-auth-gigya-uid": self.__uid
