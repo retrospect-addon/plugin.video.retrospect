@@ -21,7 +21,7 @@ class TestNosChannel(ChannelTest):
     #     self._test_folder_url(url, expected_results=10)
 
     def test_video_update(self):
-        url = "https://api.nos.nl/mobile/video/2380242/phone.json"
+        url = "https://nos.nl/video/2544381"
         from resources.lib.mediaitem import MediaItem
         item = self._test_video_url(url)    # type: MediaItem
 
