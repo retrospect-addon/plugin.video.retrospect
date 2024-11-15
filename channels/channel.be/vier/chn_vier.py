@@ -319,7 +319,7 @@ class Channel(chn_class.Channel):
             title = video_info["title"]
             url = f"{self.baseUrl}{video_info['path']}"
             video_date = video_info["dateCreated"]
-            description = video_info["description"]
+            description = video_info.get("description")
             # video_id = video_info["uuid"]
             episode = video_info.get("episodeNumber", 0)
 
