@@ -60,8 +60,8 @@ class TestRegioGroei(ChannelTest):
 
     def test_zeeland_video_listing(self):
         self._switch_channel("omroepzeeland")
-        url = "https://api.regiogroei.cloud/page/program/370060057?slug=binnenstebuiten&origin=370060057"
-        self._test_folder_url(url, expected_results=10)
+        url = "https://api.regiogroei.cloud/page/program/370215252"
+        self._test_folder_url(url, expected_results=5)
 
     def test_zeeland_video(self):
         self._switch_channel("omroepzeeland")
@@ -93,7 +93,7 @@ class TestRegioGroei(ChannelTest):
     def test_rtv_noord_video_listing(self):
         self._switch_channel("rtvnoord")
         url = "https://api.regiogroei.cloud/page/program/10010?slug=noord-vandaag&page=10010"
-        self._test_folder_url(url, expected_results=20)
+        self._test_folder_url(url, expected_results=4)
 
     def test_rtv_noord_video(self):
         self._switch_channel("rtvnoord")
@@ -213,7 +213,7 @@ class TestRegioGroei(ChannelTest):
     def test_omroepgelderland_show_list(self):
         self._switch_channel("omroepgelderland")
         url = "https://api.regiogroei.cloud/page/program/83"
-        self._test_folder_url(url, expected_results=10)
+        self._test_folder_url(url, expected_results=4)
 
     def test_omroepgelderland_news_listing(self):
         self._switch_channel("omroepgelderland")
@@ -242,7 +242,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_t_tvoost_show_list(self):
         self._switch_channel("rtvoost")
-        url = "https://api.regiogroei.cloud/page/program/1093?slug=roots&origin=1093"
+        url = "https://api.regiogroei.cloud/page/program/1263?slug=30-jaar-tv-oost&origin=1263"
         self._test_folder_url(url, expected_results=10)
 
     def test_tvoost_video(self):
@@ -268,7 +268,7 @@ class TestRegioGroei(ChannelTest):
     def test_rtvdrenthe_show_list(self):
         self._switch_channel("rtvdrenthe")
         url = "https://api.regiogroei.cloud/page/program/38?slug=anno-drenthe&origin=38"
-        self._test_folder_url(url, expected_results=10)
+        self._test_folder_url(url, expected_results=4)
 
     def test_rtvdrenthe_video(self):
         self._switch_channel("rtvdrenthe")

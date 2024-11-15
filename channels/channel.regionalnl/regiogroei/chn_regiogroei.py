@@ -247,6 +247,7 @@ class Channel(chn_class.Channel):
         base = result_set["_links"]["page"]["href"]
         slug = result_set["_links"]["web"]["slug"]
         origin = result_set["_links"]["web"]["originId"]
+        # url = f"{self.baseUrl}{base}"
         url = "{}{}?slug={}&origin={}".format(self.baseUrl, base, slug, origin)
 
         item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.TVSHOW)
