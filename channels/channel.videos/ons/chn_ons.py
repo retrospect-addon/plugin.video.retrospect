@@ -71,7 +71,7 @@ class Channel(chn_class.Channel):
         url = f"http://api.ibbroadcast.nl/clips.ashx?key={self.api_key}&mode=getclip&id={clip_id}&output=json"
         item = MediaItem(name, url, media_type=mediatype.EPISODE)
         item.description = result_set["description"]
-        item.set_artwork(thumb=result_set["screenshot"])
+        item.set_artwork(thumb=result_set.get("screenshot"))
 
         # date: '01-02-2024 11:15:09'
         changed = result_set.get("changedate")
