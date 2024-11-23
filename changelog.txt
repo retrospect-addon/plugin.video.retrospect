@@ -12,3 +12,4 @@ _None_
 * Fixed: NPO Plus content not showing (Fixes #1862).
 * Fixed: Some TV4 content (with encryption) was not playing (Fixes #1853).
 * Fixed: Revoking a device from Videoland.nl broke Retrospect listing (Fixes #1852).
+* Fixed: Don't use HVEC for SVT (Fixes #1865).
