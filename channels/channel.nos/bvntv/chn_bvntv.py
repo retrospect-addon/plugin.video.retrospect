@@ -101,7 +101,10 @@ class Channel(chn_class.Channel):
         if not item.url.endswith("/"):
             item.url = "{}/".format(item.url)
 
-        item.thumb = "{}{}".format(self.baseUrl, result_set["thumburl"])
+        thumb_url = result_set["thumburl"]
+        if "://" not in thumb_url:
+            item.thumb = "{}{}".format(self.baseUrl, thumb_url)
+
         item.fanart = item.thumb.replace("600/338", "1280/720")
         return item
 
@@ -117,7 +120,10 @@ class Channel(chn_class.Channel):
         # date_time = DateHelper.get_date_from_string(date_value, "%  Y-%m-%d %H:%M:%S")
         # item.set_date(*date_time[0:6])
 
-        item.thumb = "{}{}".format(self.baseUrl, result_set["thumburl"])
+        thumb_url = result_set["thumburl"]
+        if "://" not in thumb_url:
+            item.thumb = "{}{}".format(self.baseUrl, thumb_url)
+
         item.metaData["pow"] = result_set["pow"]
 
         return item
