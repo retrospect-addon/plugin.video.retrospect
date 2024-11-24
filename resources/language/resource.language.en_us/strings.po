@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2024-09-02 01:26+0000\n"
+"PO-Revision-Date: 2024-11-02 13:46+0000\n"
 "Last-Translator: bas <bas@kodi.tv>\n"
 "Language-Team: English (United States) <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/en_us/>\n"
 "Language: en_us\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.7.1\n"
+"X-Generator: Weblate 5.8.2\n"
 
 msgctxt "Addon Summary"
 msgid "Retrospect allows you to watch re-runs/catch-ups of TV shows made available via their official broadcasters."
@@ -535,6 +535,10 @@ msgstr "Show All"
 msgctxt "#30128"
 msgid "Filter Premium"
 msgstr "Filter Premium"
+
+msgctxt "#30129"
+msgid "Re-Authenticate"
+msgstr "Re-Authenticate"
 
 # used for list limits
 # empty strings from id 30109 to 30189
@@ -1164,7 +1168,7 @@ msgstr "Show streams with accessibility features"
 
 msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
-msgstr ""
+msgstr "This stream cannot be played due to geographical restrictions."
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
