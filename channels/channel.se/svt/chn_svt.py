@@ -1358,11 +1358,12 @@ class Channel(chn_class.Channel):
         # For HLS:
         # "hls-cmaf-full" has x264/x264 with 5.1
         # "hls"/"hls-ts-avc" has x264 and 2.0 audio
+        # hls-ts-full has x264 with 5.1 audio
 
         # LB = Low Bandwidth
 
         if in_sweden or not item.isGeoLocked:
-            supported_formats = {"hls": 10, "hls-ts-full": 12, "hls-cmaf-full": 13}
+            supported_formats = {"hls": 10, "hls-ts-full": 12, "hls-cmaf-full": 0}
             if not is_drm_protected:
                 supported_formats.update({"dash": 3, "dash-hbbtv-avc": 4, "dashhbbtv": 4})
         else:

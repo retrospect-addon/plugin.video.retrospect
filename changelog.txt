@@ -13,3 +13,4 @@ _None_
 * Fixed: Some TV4 content (with encryption) was not playing (Fixes #1853).
 * Fixed: Revoking a device from Videoland.nl broke Retrospect listing (Fixes #1852).
 * Fixed: BVN Images did not show (Fixes #1864).
+* Fixed: Don't use HVEC for SVT (Fixes #1865).
