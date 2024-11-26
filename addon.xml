@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.20"
+        version="5.7.21"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -123,19 +123,22 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.20 - Changelog - 2024-10-21[/B]
+        <news>[B]Retrospect v5.7.21 - Changelog - 2024-11-26[/B]
 
-Fixed the NPO channel that broke.
+Fixed some minor channel issues for Dutch and Swedish channels.
 
 [B]Framework related[/B]
-_None_
+* Added: Patch option to UriHandler.
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO streams (Fixes #1854).
-
+* Fixed: NPO Plus content not showing (Fixes #1862).
+* Fixed: Some TV4 content (with encryption) was not playing (Fixes #1853).
+* Fixed: Revoking a device from Videoland.nl broke Retrospect listing (Fixes #1852).
+* Fixed: BVN Images did not show (Fixes #1864).
+* Fixed: Don&#x27;t use HVEC for SVT (Fixes #1865).
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

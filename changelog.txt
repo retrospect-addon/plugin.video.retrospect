@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.xx - Changelog - 2024-10-21[/B]
+[B]Retrospect v5.7.21 - Changelog - 2024-11-26[/B]
 
-.....
+Fixed some minor channel issues for Dutch and Swedish channels.
 
 [B]Framework related[/B]
 * Added: Patch option to UriHandler.
