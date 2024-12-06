@@ -16,12 +16,12 @@ class TestAt5Channel(ChannelTest):
         self.assertGreater(len(items), 5)
 
     def test_channel_at5_show_folder(self):
-        url = "https://ditisdesupercooleappapi.at5.nl/api/article/p123"
-        self._test_folder_url(url, expected_results=10)
+        url = "https://ditisdesupercooleappapi.at5.nl/api/article/p450"
+        self._test_folder_url(url, expected_results=3)
 
     def test_channel_at5_video_resolving(self):
-        url = "https://ditisdesupercooleappapi.at5.nl/api/article/p123"
-        items = self._test_folder_url(url, expected_results=10)
+        url = "https://ditisdesupercooleappapi.at5.nl/api/article/p450"
+        items = self._test_folder_url(url, expected_results=3)
         self._test_video_url(items[0].url)
 
     def test_channel_rtv_noord_holland_exists(self):

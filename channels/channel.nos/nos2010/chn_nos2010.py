@@ -122,6 +122,12 @@ class Channel(chn_class.Channel):
             parser=[], creator=self.create_api_season_item,
             updater=self.update_epg_series_item)
 
+        self._add_data_parser(
+            "https://npo.nl/start/serie/",
+            name="Direct link to video", json=True,
+            updater=self.update_nextjs_video
+        )
+
         self._add_data_parsers([
             "https://npo.nl/start/api/domain/programs-by-season",
             "https://npo.nl/start/api/domain/programs-by-series"],
@@ -777,8 +783,10 @@ class Channel(chn_class.Channel):
             program_slug = result_set["program"]["slug"]
             url = f"https://npo.nl/start/video/{program_slug}"
         elif series_slug and program_guid:
-            url = f"https://npo.nl/start/api/domain/series-seasons?slug={series_slug}"
+            program_slug = result_set["program"]["slug"]
             season_slug = result_set["season"]["slug"]
+            # url = f"https://npo.nl/start/api/domain/series-seasons?slug={series_slug}"
+            url = f"https://npo.nl/start/serie/{series_slug}/{season_slug}/{program_slug}"
         else:
             return None
 
@@ -845,6 +853,17 @@ class Channel(chn_class.Channel):
         product_id = program["productId"]
 
         return self.__update_video_item(item, product_id)
+
+    def update_nextjs_video(self, item: MediaItem) -> MediaItem:
+        data = UriHandler.open(item.url)
+        next_js_data = Regexer.do_regex(r"__NEXT_DATA__[^>]+>(.+?)</script>", data)[0]
+        next_js_json = JsonHelper(next_js_data)
+        data = next_js_json.get_value("props", "pageProps", "dehydratedState", "queries", -1, "state", "data")
+        if isinstance(data, list):
+            p = [p for p in data if p["guid"] == item.metaData["program_guid"]][0]
+        else:
+            p = data
+        return self.__update_video_item(item, p["productId"])
 
     # noinspection PyUnusedLocal
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:

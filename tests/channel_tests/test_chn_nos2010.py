@@ -69,6 +69,16 @@ class TestNpoChannel(ChannelTest):
         self.assertGreaterEqual(len(items), 1)
         self.assertGreaterEqual(len([i for i in items if i.is_playable]), 1)
 
+    def test_update_next_js(self):
+        from resources.lib.mediaitem import MediaItem
+        url = "https://npo.nl/start/serie/nos-journaal-20-00-uur/seizoen-61/nos-journaal_96627"
+        item = MediaItem("Video via NextJS", url)
+        item.metaData["program_guid"] = "7917478b-8750-498f-8ced-dc6548ef2612"
+
+        item = self.channel.process_video_item(item)
+        self.assertTrue(item.has_streams())
+        self.assertTrue(item.complete)
+
     def test_series_recent_episodes_via_guid(self):
         self._test_folder_url("https://npo.nl/start/api/domain/programs-by-series?seriesGuid=af032e71-3047-4b22-aac9-c2ef9c8bb9a3&limit=20&sort=-firstBroadcastDate", 2)
 
