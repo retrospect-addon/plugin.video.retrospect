@@ -265,10 +265,12 @@ class Channel(chn_class.Channel):
         if introduction:
             item.description += "\n" + introduction
 
-        url = json_data.get_value("video", "vodUrl")
-
+        # Use the LIVE url as it works with InputStream Adaptive.
+        url = json_data.get_value("video", "url")
+        # Append time stamps.
         url += '&start=%s&end=%s' % (HtmlEntityHelper.url_encode(json_data.get_value('startedAt')),
                                      HtmlEntityHelper.url_encode(json_data.get_value('endedAt')))
+        item.complete = M3u8.update_part_with_m3u8_streams(item, url, channel=self, encrypted=False)
 
         Logger.info('Starting update_video_item: url = %s', url)
 
@@ -286,9 +288,8 @@ class Channel(chn_class.Channel):
         # item.complete = M3u8.update_part_with_m3u8_streams(item, url, channel=self, encrypted=False, map_audio=True)
 
         # use Retrospect code to extract streams
-        for s, b in M3u8.get_streams_from_m3u8(url):
-            item.add_stream(s, b)
-        item.complete = True
+        # for s, b in M3u8.get_streams_from_m3u8(url):
+        #     item.add_stream(s, b)
 
         Logger.debug('Finished update_video_item: %s', item.name)
         return item

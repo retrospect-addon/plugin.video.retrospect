@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: NPO 'Recent' items broke if there were too many season results (Fixes #1871).
+* Fixed: Tweede kamer streams broke (Fixes #1872).
