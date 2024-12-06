@@ -859,7 +859,10 @@ class Channel(chn_class.Channel):
         next_js_data = Regexer.do_regex(r"__NEXT_DATA__[^>]+>(.+?)</script>", data)[0]
         next_js_json = JsonHelper(next_js_data)
         data = next_js_json.get_value("props", "pageProps", "dehydratedState", "queries", -1, "state", "data")
-        p = [p for p in data if p["guid"] == item.metaData["program_guid"]][0]
+        if isinstance(data, list):
+            p = [p for p in data if p["guid"] == item.metaData["program_guid"]][0]
+        else:
+            p = data
         return self.__update_video_item(item, p["productId"])
 
     # noinspection PyUnusedLocal
