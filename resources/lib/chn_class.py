@@ -500,7 +500,9 @@ class Channel:
                 Logger.warning("Could not log on for: %s", self)
                 title = LanguageHelper.get_localized_string(LanguageHelper.LoginErrorTitle)
                 text = LanguageHelper.get_localized_string(LanguageHelper.LoginErrorText)
-                XbmcWrapper.show_dialog(title, text)
+                XbmcWrapper.show_notification(
+                    title, text, display_time=2000, notification_type=XbmcWrapper.Error, logger=Logger.instance())
+                # XbmcWrapper.show_dialog(title, text)
 
         Logger.debug("Processing Updater from %s", data_parser)
         return data_parser.Updater(item)
