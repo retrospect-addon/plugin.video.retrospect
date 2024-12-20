@@ -246,6 +246,7 @@ class FolderAction(AddonAction):
         kodi_item.setProperty(self._propertyRetrospect, "true")
 
         if media_item.is_search_folder:
+            kodi_item.setProperty(self._propertyRetrospectSearchFolder, "true")
             # Search folders don't need more.
             return
 

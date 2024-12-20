@@ -27,6 +27,7 @@ class AddonAction(object):
         self._propertyRetrospectCategory = "RetrospectCategory"
         self._propertyRetrospectFavorite = "RetrospectFavorite"
         self._propertyRetrospectAdaptive = "RetrospectAdaptive"
+        self._propertyRetrospectSearchFolder = "RetrospectSearchFolder"
 
         self.parameter_parser = parameter_parser
         if self.parameter_parser is None:

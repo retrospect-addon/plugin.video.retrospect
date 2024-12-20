@@ -46,6 +46,16 @@
                 <visible>ListItem.Property(RetrospectCloaked)</visible>
             </item>
 
+            <item library="retromenu.py" args="clear_search">
+                <label>30377</label>
+                <visible>ListItem.Property(RetrospectSearchFolder)</visible>
+            </item>
+
+            <item library="retromenu.py" args="remove_search_item">
+                <label>30378</label>
+                <visible>ListItem.Property(RetrospectSearchFolder)</visible>
+            </item>
+
             <!-- Channel settings -->
             <menu>
                 <label>30580</label>
@@ -119,7 +129,7 @@
     </extension>
 
     <extension point="xbmc.addon.metadata">
-        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <reuselanguageinvoker>false</reuselanguageinvoker>
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
