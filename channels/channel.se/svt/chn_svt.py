@@ -669,6 +669,8 @@ class Channel(chn_class.Channel):
         elif bool(valid_from):
             # Remove the Timezone information
             valid_from = valid_from.split("+")[0]
+            # Remove milliseconds.
+            valid_from = valid_from.split(".")[0]
             valid_from_date = DateHelper.get_date_from_string(valid_from, "%Y-%m-%dT%H:%M:%S")
             item.set_date(*valid_from_date[0:6])
 
