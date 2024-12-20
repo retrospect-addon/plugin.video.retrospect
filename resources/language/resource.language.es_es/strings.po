@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2024-11-04 17:05+0000\n"
 "Last-Translator: Alfonso Cachero <alfonso.cachero@gmail.com>\n"
@@ -774,6 +774,14 @@ msgstr "Vídeos Recomendados"
 msgctxt "#30376"
 msgid "Continue Watching"
 msgstr "Seguir Viendo"
+
+msgctxt "#30377"
+msgid "Clear Search History"
+msgstr ""
+
+msgctxt "#30378"
+msgid "Remove Item"
+msgstr ""
 
 # empty strings from id 30365 to 30400
 msgctxt "#30401"
