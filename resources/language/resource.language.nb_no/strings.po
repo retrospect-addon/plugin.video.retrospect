@@ -770,6 +770,14 @@ msgctxt "#30376"
 msgid "Continue Watching"
 msgstr ""
 
+msgctxt "#30377"
+msgid "Clear Search History"
+msgstr ""
+
+msgctxt "#30378"
+msgid "Remove Item"
+msgstr ""
+
 msgctxt "#30401"
 msgid "Dutch"
 msgstr "Nederlandsk"

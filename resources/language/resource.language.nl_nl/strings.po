@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2024-11-02 13:46+0000\n"
 "Last-Translator: bas <bas@kodi.tv>\n"
@@ -787,7 +787,6 @@ msgid "Remove Item"
 msgstr "Verwijder"
 
 # empty strings from id 30379 to 30400
-
 msgctxt "#30401"
 msgid "Dutch"
 msgstr "Nederlands"
