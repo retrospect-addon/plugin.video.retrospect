@@ -6,7 +6,7 @@ t.b.d.
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+* Fixed: Show notification on logon failure (Fixes #1842).
 
 [B]Channel related[/B]
 * Fixed: NPO 'Recent' items broke if there were too many season results (Fixes #1871).

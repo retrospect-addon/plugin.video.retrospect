@@ -66,7 +66,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://npo.nl/start/api/domain/guide-channels",
                               name="Main Live TV Streams json", json=True,
-                              requires_logon=True,
+                              requires_logon=bool(self.__user_name),
                               parser=[],
                               creator=self.create_api_live_tv,
                               updater=self.update_video_item_live)
@@ -81,7 +81,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://npo.nl/start/live?channel=",
                               name="Live Video Updater from json",
-                              requires_logon=True,
+                              requires_logon=bool(self.__user_name),
                               updater=self.update_video_item_live)
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
@@ -89,13 +89,15 @@ class Channel(chn_class.Channel):
             "https://npo.nl/start/api/domain/page-collection?guid=",
             "https://npo.nl/start/api/domain/page-collection?type=series&guid=",
             "https://npo.nl/start/api/domain/search-results?searchType=series"],
-            name="Collections with series", json=True, requires_logon=bool(self.__user_name),
+            name="Collections with series", json=True,
+            requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_program_item)
         # Use the new `label` options for the collections
         self._add_data_parser(
             "https://npo.nl/start/api/domain/recommendation-collection?key=", name="Collection with series",
-            json=True, label="collection-with-series", requires_logon=bool(self.__user_name),
+            json=True, label="collection-with-series",
+            requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_program_item)
 
@@ -104,14 +106,16 @@ class Channel(chn_class.Channel):
             "https://npo.nl/start/api/domain/search-results?searchType=broadcasts",
             "https://npo.nl/start/api/domain/page-collection?type=program&guid="
         ],
-            name="Collections with videos", json=True, requires_logon=bool(self.__user_name),
+            name="Collections with videos", json=True,
+            requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_episode_item_with_data
         )
         # Use the new `label` options for the collections
         self._add_data_parser(
             "https://npo.nl/start/api/domain/recommendation-collection?key=", name="Collection with videos",
-            json=True, label="collection-with-videos", requires_logon=bool(self.__user_name),
+            json=True, label="collection-with-videos",
+            requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_episode_item_with_data)
 
@@ -139,7 +143,8 @@ class Channel(chn_class.Channel):
                               updater=self.update_single_video)
 
         # Standard updater
-        self._add_data_parser("*", requires_logon=True,
+        self._add_data_parser("*",
+                              requires_logon=bool(self.__user_name),
                               updater=self.update_video_item)
 
         self._add_data_parser("https://npo.nl/start/api/domain/page-layout?slug=",
@@ -148,7 +153,8 @@ class Channel(chn_class.Channel):
 
         # Favourites (not yet implemented in the site).
         self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
-                              match_type=ParserData.MatchExact, json=True, requires_logon=True,
+                              match_type=ParserData.MatchExact, json=True,
+                              requires_logon=True,
                               name="Profile selection",
                               parser=[], creator=self.create_profile_item)
 
