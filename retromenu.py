@@ -49,5 +49,9 @@ else:
             m.show_country_settings()
         elif command == "settings":
             m.show_settings()
+        elif command == "clear_search":
+            m.clear_search()
+        elif command == "remove_search_item":
+            m.remove_search_item()
         else:
             raise IndexError("Missing command in sys.argv: {}".format(sys.argv))

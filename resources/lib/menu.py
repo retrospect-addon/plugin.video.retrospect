@@ -2,6 +2,8 @@
 
 import os
 import sys
+from typing import List
+
 import xbmc
 import xbmcgui
 
@@ -121,6 +123,23 @@ class Menu(ActionParser):
         """ Shows the add-on settings page and refreshes when closing it. """
 
         AddonSettings.show_settings()
+        self.refresh()
+
+    def clear_search(self):
+        """ Clears the complete search history for a channel."""
+
+        settings = AddonSettings.store(LOCAL)
+        settings.set_setting("search", [], self.channelObject)
+        self.refresh()
+
+    def remove_search_item(self):
+        """ Removes a single item from the search history for a folder """
+
+        settings = AddonSettings.store(LOCAL)
+        history: List[str] = settings.get_setting("search", self.channelObject, [])  # type: ignore
+        needle = self.params[keyword.NEEDLE]
+        history.remove(needle)
+        settings.set_setting("search", history, self.channelObject)
         self.refresh()
 
     def channel_settings(self):
