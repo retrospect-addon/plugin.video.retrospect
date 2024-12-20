@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.21"
+        version="5.7.22"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,22 +133,24 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.21 - Changelog - 2024-11-26[/B]
+        <news>[B]Retrospect v5.7.22 - Changelog - 2024-12-20[/B]
 
-Fixed some minor channel issues for Dutch and Swedish channels.
+Fixed some channel related stuff.
 
 [B]Framework related[/B]
-* Added: Patch option to UriHandler.
-
-[B]GUI/Settings/Language related[/B]
 _None_
 
+[B]GUI/Settings/Language related[/B]
+* Fixed: Show notification on logon failure (Fixes #1842).
+* Added: Allow clearing of search history or history items (Fixes #1874).
+* Fixed: Show notification on logon failure (Fixes #1842).
+
 [B]Channel related[/B]
-* Fixed: NPO Plus content not showing (Fixes #1862).
-* Fixed: Some TV4 content (with encryption) was not playing (Fixes #1853).
-* Fixed: Revoking a device from Videoland.nl broke Retrospect listing (Fixes #1852).
-* Fixed: BVN Images did not show (Fixes #1864).
-* Fixed: Don&#x27;t use HVEC for SVT (Fixes #1865).
+* Fixed: NPO &#x27;Recent&#x27; items broke if there were too many season results (Fixes #1871).
+* Fixed: Tweede kamer streams broke (Fixes #1872).
+* Fixed: SVT date parsing.
+* Changed: Make login optional for NPO (See #1842).
+
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

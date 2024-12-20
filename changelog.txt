@@ -1,14 +1,17 @@
-[B]Retrospect v5.7.xx - Changelog - 2024-xx-xx[/B]
+[B]Retrospect v5.7.22 - Changelog - 2024-12-20[/B]
 
-t.b.d.
+Fixed some channel related stuff.
 
 [B]Framework related[/B]
 _None_
 
 [B]GUI/Settings/Language related[/B]
 * Fixed: Show notification on logon failure (Fixes #1842).
+* Added: Allow clearing of search history or history items (Fixes #1874).
+* Fixed: Show notification on logon failure (Fixes #1842).
 
 [B]Channel related[/B]
 * Fixed: NPO 'Recent' items broke if there were too many season results (Fixes #1871).
 * Fixed: Tweede kamer streams broke (Fixes #1872).
 * Fixed: SVT date parsing.
+* Changed: Make login optional for NPO (See #1842).
