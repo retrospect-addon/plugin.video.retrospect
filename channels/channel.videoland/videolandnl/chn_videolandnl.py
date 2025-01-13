@@ -118,11 +118,11 @@ class Channel(chn_class.Channel):
         # need to check that and retry otherwise.
         json_data = JsonHelper(data)
         blockes = json_data.get_value("blocks")
-        if len(blockes) > 10:
+        if len(blockes) < 10:
             fallback = [
                 {
                     "title": {"long": LanguageHelper.get_localized_string(LanguageHelper.Popular)},
-                    "id": "page_65a44d889f7982.33185461--6d1869d5-ef61-461c-b634-226a1bb29c7d",
+                    "id": "page_678591b18340e0.89781000--f9da1016-dc0d-4d0d-a38f-241c0d451e09",
                     "featureId": "programs_by_segment"
                 },
                 {
