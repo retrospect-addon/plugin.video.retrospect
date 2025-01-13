@@ -3,6 +3,7 @@
 import os
 import io
 import sys
+import importlib
 
 import xbmcgui
 
@@ -91,12 +92,10 @@ class ChannelInfo(object):
         Logger.trace("Importing module %s from path %s", self.moduleName, self.path)
 
         sys.path.append(self.path)
-        exec("import {}".format(self.moduleName))
-
-        channel_command = '%s.Channel(self)' % (self.moduleName,)
+        channel_module = importlib.import_module(self.moduleName)
         try:
-            Logger.trace("Running command: %s", channel_command)
-            channel = eval(channel_command)
+            Logger.trace(f"Creating channel: {self}")
+            channel = channel_module.Channel(self)
         except:
             Logger.error("Cannot Create channel for %s", self, exc_info=True)
             return None
