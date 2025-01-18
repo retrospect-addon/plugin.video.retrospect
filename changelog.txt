@@ -11,3 +11,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Video land duplicate entries.
+* Fixed: TV4 Latest News.

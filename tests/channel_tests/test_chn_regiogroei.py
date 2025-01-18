@@ -180,7 +180,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_tv_westd_video_update(self):
         self._switch_channel("omroepwest")
-        url = "https://api.regiogroei.cloud/page/episode/170392546?slug=tv-west-nieuws&origin=170392546"
+        url = "https://api.regiogroei.cloud/page/episode/1170499063?slug=west-vandaag&page=1170499063"
         item = self._test_video_url(url)
         self.assertFalse(item.isLive)
 
