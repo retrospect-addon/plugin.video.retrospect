@@ -4,6 +4,7 @@ t.b.d.
 
 [B]Framework related[/B]
 * Fixed: Import issue with Python 3.13 and above.
+* Fixed: Remove search history item with space or special chars.
 
 [B]GUI/Settings/Language related[/B]
 _None_

@@ -58,6 +58,7 @@ class Menu(ActionParser):
         super(Menu, self).__init__(name, -1, params)
 
         self.channelObject = self.__get_channel()
+        self.params["menu_command"] = menu_action
         Logger.debug(self)
 
     def hide_channel(self):
@@ -137,7 +138,8 @@ class Menu(ActionParser):
 
         settings = AddonSettings.store(LOCAL)
         history: List[str] = settings.get_setting("search", self.channelObject, [])  # type: ignore
-        needle = self.params[keyword.NEEDLE]
+        needle: str = self.params[keyword.NEEDLE]
+        needle = HtmlEntityHelper.url_decode(needle)
         history.remove(needle)
         settings.set_setting("search", history, self.channelObject)
         self.refresh()
