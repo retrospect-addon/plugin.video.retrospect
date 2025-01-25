@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.22"
+        version="5.7.23"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,23 +133,20 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.22 - Changelog - 2024-12-20[/B]
+        <news>[B]Retrospect v5.7.23 - Changelog - 2025-01-25[/B]
 
-Fixed some channel related stuff.
+Some small channel bugfixes and Python 3.13 support.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Import issue with Python 3.13 and above.
+* Fixed: Remove search history item with space or special chars.
 
 [B]GUI/Settings/Language related[/B]
-* Fixed: Show notification on logon failure (Fixes #1842).
-* Added: Allow clearing of search history or history items (Fixes #1874).
-* Fixed: Show notification on logon failure (Fixes #1842).
+_None_
 
 [B]Channel related[/B]
-* Fixed: NPO &#x27;Recent&#x27; items broke if there were too many season results (Fixes #1871).
-* Fixed: Tweede kamer streams broke (Fixes #1872).
-* Fixed: SVT date parsing.
-* Changed: Make login optional for NPO (See #1842).
+* Fixed: Video land duplicate entries.
+* Fixed: TV4 Latest News.
 
         </news>
         <assets>
