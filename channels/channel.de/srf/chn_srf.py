@@ -50,7 +50,7 @@ class Channel(chn_class.Channel):
                               creator=self.create_video_item)
 
         # Generic updater
-        self._add_data_parser("https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn", updater=self.update_video_item)
+        self._add_data_parser("https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn", updater=self.update_video_item)
 
         # ===============================================================================================================
         # Test cases:
@@ -131,7 +131,7 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
         video_urn = result_set["urn"]
-        url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/{}.json?onlyChapters=false&vector=portalplay".format(video_urn)
+        url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/{}.json?onlyChapters=false&vector=portalplay".format(video_urn)
         item = MediaItem(result_set["title"], url)
 
         item.media_type = mediatype.EPISODE
@@ -174,7 +174,7 @@ class Channel(chn_class.Channel):
 
         Logger.trace(result_set)
         video_urn = result_set["livestreamUrn"]
-        url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/{}.json?onlyChapters=false&vector=portalplay".format(video_urn)
+        url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/{}.json?onlyChapters=false&vector=portalplay".format(video_urn)
         station = result_set["title"]
         description = []
 

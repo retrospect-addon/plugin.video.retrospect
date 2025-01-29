@@ -19,7 +19,7 @@ class TestSrfChannel(ChannelTest):
         self._test_folder_url(url, expected_results=4)
 
     def test_video_update(self):
-        url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:28af922c-92a9-48b4-8d9c-35ba3a327620.json?onlyChapters=false&vector=portalplay"
+        url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:28af922c-92a9-48b4-8d9c-35ba3a327620.json?onlyChapters=false&vector=portalplay"
         self._test_video_url(url)
 
     def test_live_channels(self):
@@ -37,11 +37,11 @@ class TestSrfChannel(ChannelTest):
         self.assertTrue(live_items[0].dontGroup)
 
     def test_update_live_channel(self):
-        url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
+        url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
         self._test_video_url(url)
 
     def test_update_live_channel_widevine(self):
-        url = "https://il.srgssr.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
+        url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
         item = self._test_video_url(url)
         streams = [i for i in item.streams if "mpd" in i.Url]
         self.assertGreaterEqual(len(streams), 1)
