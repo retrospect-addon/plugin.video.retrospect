@@ -1,14 +1,12 @@
-[B]Retrospect v5.7.23 - Changelog - 2025-01-25[/B]
+[B]Retrospect v5.7.x - Changelog - 2025-xx-xx[/B]
 
-Some small channel bugfixes and Python 3.13 support.
+t.b.d.
 
 [B]Framework related[/B]
-* Fixed: Import issue with Python 3.13 and above.
-* Fixed: Remove search history item with space or special chars.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Video land duplicate entries.
-* Fixed: TV4 Latest News.
+* Fixed: NPO Luister radio stations.

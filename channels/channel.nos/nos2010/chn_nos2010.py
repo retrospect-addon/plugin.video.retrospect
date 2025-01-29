@@ -167,7 +167,7 @@ class Channel(chn_class.Channel):
         # live radio, the folders and items
         self._add_data_parser(
             "https://www.npoluister.nl/", name="Live Radio Streams",
-            parser=Regexer.from_expresso('<li><a[^>]+href="(?<url>https:[^"]+)"[^>]*><img[^>]+src="(?<thumb>https:[^"]+)[^>]+alt="(?<title>[^"]+)"'),
+            parser=Regexer.from_expresso('<li><a[^>]+href="(?<url>https:[^"]+)"[^>]*>(?<title>[^<]+)'),
             creator=self.create_live_radio
         )
         self._add_data_parser(
@@ -1126,11 +1126,9 @@ class Channel(chn_class.Channel):
         if "blend" in url:
             return None
         title = result_set["title"]
-        logo = result_set["thumb"]
         item = MediaItem(title, url, media_type=mediatype.VIDEO)
         item.isLive = True
         item.complete = False
-        item.thumb = logo
         item.isLive = True
         item.metaData["retrospect:parser"] = "liveRadio"
         return item
