@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: NPO Luister radio stations.
 * Fixed: SRF Channel.
+* Fixed: TV4 Play Channel needs POSTs now (Fixes #1886).

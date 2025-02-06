@@ -197,8 +197,7 @@ class Channel(chn_class.Channel):
         tvshow_url, tvshow_data = self.__get_api_query(
             "MediaIndex",
             {"input": {"letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                       "limit": self.__max_page_size, "offset": 0}},
-            use_get=True)
+                       "limit": self.__max_page_size, "offset": 0}})
         items.append(__create_item(LanguageHelper.TvShows, tvshow_url, tvshow_data))
 
         recent_url, recent_data = self.__get_api_query("Panel", {"panelId": "2K0BCBpDDfhpW1NRLY0jET", "limit": self.__max_page_size, "offset": 0})
@@ -242,11 +241,11 @@ class Channel(chn_class.Channel):
 
                 tvshow_url, tvshow_data = self.__get_api_query(
                     "MediaIndex",
-                    {"input": {
-                        "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-                        "limit": self.__max_page_size, "offset": next_offset}
-                    },
-                    use_get=True
+                    {
+                        "input": {
+                            "letterFilters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+                            "limit": self.__max_page_size, "offset": next_offset}
+                    }
                 )
                 new_data = UriHandler.open(
                     tvshow_url, additional_headers=self.httpHeaders, json=tvshow_data,
@@ -400,7 +399,6 @@ class Channel(chn_class.Channel):
         url, data = self.__get_api_query(
             operation="ContentDetailsPage",
             variables={"mediaId": series_id, "panelsInput": {"offset": 0, "limit": 20}},
-            use_get=True
         )
         title = result_set["title"]
         if not title:
@@ -432,7 +430,6 @@ class Channel(chn_class.Channel):
         url, data = self.__get_api_query(
             operation="Page",
             variables={"pageId": page_id, "input": {"limit": self.__max_page_size, "offset": 0}},
-            use_get=False
         )
 
         item = FolderItem(title, url, content_type=contenttype.TVSHOWS, media_type=mediatype.FOLDER)
@@ -458,8 +455,7 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         url, data = self.__get_api_query(
             operation="LivePanel",
-            variables={"panelId": panel_id, "limit": self.__max_page_size, "offset": 0},
-            use_get=True
+            variables={"panelId": panel_id, "limit": self.__max_page_size, "offset": 0}
         )
 
         item = FolderItem(title, url, content_type=contenttype.VIDEOS)
@@ -928,7 +924,7 @@ class Channel(chn_class.Channel):
             return base_url, data
 
         # For GETs (but the request URLs become to long!)
-        url =  f"{base_url}query={HtmlEntityHelper.url_encode(query)}&variables={HtmlEntityHelper.url_encode(json.dumps(variables))}"
+        url = f"{base_url}query={HtmlEntityHelper.url_encode(query)}&variables={HtmlEntityHelper.url_encode(json.dumps(variables))}"
         return url, None
 
     def __update_dash_video(self, item, stream_info):
