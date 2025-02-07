@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.x - Changelog - 2025-xx-xx[/B]
+[B]Retrospect v5.7.24 - Changelog - 2025-02-08[/B]
 
-t.b.d.
+Fixed some minor issues with channels.
 
 [B]Framework related[/B]
 _None_
@@ -12,3 +12,4 @@ _None_
 * Fixed: NPO Luister radio stations.
 * Fixed: SRF Channel.
 * Fixed: TV4 Play Channel needs POSTs now (Fixes #1886).
+* Fixed: item 'ondek meer genres' missing in NPO's 'TV shows'

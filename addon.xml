@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.23"
+        version="5.7.24"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,20 +133,21 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.23 - Changelog - 2025-01-25[/B]
+        <news>[B]Retrospect v5.7.24 - Changelog - 2025-02-08[/B]
 
-Some small channel bugfixes and Python 3.13 support.
+Fixed some minor issues with channels.
 
 [B]Framework related[/B]
-* Fixed: Import issue with Python 3.13 and above.
-* Fixed: Remove search history item with space or special chars.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Video land duplicate entries.
-* Fixed: TV4 Latest News.
+* Fixed: NPO Luister radio stations.
+* Fixed: SRF Channel.
+* Fixed: TV4 Play Channel needs POSTs now (Fixes #1886).
+* Fixed: item &#x27;ondek meer genres&#x27; missing in NPO&#x27;s &#x27;TV shows&#x27;
 
         </news>
         <assets>
