@@ -114,6 +114,9 @@ class TestNpoChannel(ChannelTest):
     def test_programs(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-layout?slug=programmas", 5)
 
+    def test_more_genres(self):
+        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&guid=2670b702-d621-44be-b411-7aae3c3820eb", 9)
+
     def test_page(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&guid=cc065da7-e6d2-44d6-bbce-2d600954e0b0", 10)
 

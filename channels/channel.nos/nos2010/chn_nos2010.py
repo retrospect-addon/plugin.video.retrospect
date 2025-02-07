@@ -151,6 +151,10 @@ class Channel(chn_class.Channel):
                               name="Bare pages layout", json=True,
                               parser=["collections"], creator=self.create_api_page_layout)
 
+        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&guid=",
+                              name="Categories layout", json=True,
+                              parser=["items"], creator=self.create_api_category_item)
+
         # Favourites (not yet implemented in the site).
         self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
                               match_type=ParserData.MatchExact, json=True,
@@ -593,6 +597,8 @@ class Channel(chn_class.Channel):
             content_type = contenttype.TVSHOWS
         elif page_type == "PROGRAM":
             content_type = contenttype.EPISODES
+        elif page_type == "DYNAMIC_PAGE":
+            content_type = contenttype.VIDEOS
         else:
             Logger.error(f"Missing for page type: {page_type}")
             return None
