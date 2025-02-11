@@ -167,6 +167,10 @@ class Channel(chn_class.Channel):
                               parser=["collections"], creator=self.create_profile_content_item,
                               requires_logon=True)
 
+        self._add_data_parser("https://npo.nl/start/_next/data", name="NextJS data", json=True,
+                              preprocessor=self.extract_nextjs_data,
+                              parser=[], creator=self.create_next_js_item)
+
         # OLD but still working?
         # live radio, the folders and items
         self._add_data_parser(
@@ -189,6 +193,7 @@ class Channel(chn_class.Channel):
         self.__has_premium_cache = None
         self.__timezone = pytz.timezone("Europe/Amsterdam")
         self.__show_future = self._get_setting("show_future", "true") == "true"
+        self.__build_version = None
 
         # use a dictionary so the lookup is O(1)
         self.__channel_name_map = {
@@ -223,11 +228,56 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    @property
+    def build_version(self) -> str:
+        if not self.__build_version:
+            data = UriHandler.open("https://npo.nl/start")
+            try:
+                build_version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
+            except:
+                Logger.error(data)
+                raise
+            Logger.info(f"Found build version: {build_version}")
+            self.__build_version = build_version
+
+        return self.__build_version
+
     def log_on(self) -> bool:
         if self.loggedOn:
             return True
 
         return self.__log_on(False)
+
+    def create_next_js_item(self, result_set: dict) -> Optional[Union[MediaItem, List[MediaItem]]]:
+        next_js_type = result_set["next_js_type"]
+        if next_js_type == "SERIES":
+            return self.create_api_program_item(result_set)
+        elif next_js_type == "PROGRAM":
+            return self.create_api_episode_item_with_data(result_set)
+        else:
+            Logger.error(f"Missing NextJS Type: {next_js_type}")
+        return None
+
+    def extract_nextjs_data(self, data: Union[str, JsonHelper]) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
+        data = JsonHelper(data)
+        result_data = []
+
+        pages = data.get_value("pageProps", "dehydratedState", "queries")
+        for page in pages:
+            if "items" in page.get("state", {}).get("data", {}):
+                items = page["state"]["data"]["items"]
+
+                # Update the items with the NextJS type.
+                next_js_type = page["state"]["data"]["type"]
+                _ = [i.update({"next_js_type": next_js_type}) for i in items]
+
+                # Append the result.
+                result_data += items
+            pass
+
+        result = JsonHelper("[]")
+        result.json = result_data
+        return result, []
 
     def __log_on(self, force_log_off: bool = False) -> bool:
         """ Makes sure that we are logged on. """
@@ -367,12 +417,12 @@ class Channel(chn_class.Channel):
                  content_type=contenttype.TVSHOWS, parser="collection-with-series")
 
         add_item(LanguageHelper.LatestNews,
-                 "https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown",
-                 content_type=contenttype.TVSHOWS, parser="collection-with-videos")
+                 f"https://npo.nl/start/_next/data/{self.build_version}/collectie/nieuws-en-achtergronden.json?slug=nieuws-en-achtergronden",
+                 content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.Popular,
-                 "https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown",
-                 content_type=contenttype.TVSHOWS, parser="collection-with-videos")
+                 f"https://npo.nl/start/_next/data/{self.__build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair",
+                 content_type=contenttype.TVSHOWS)
 
         # add_item(LanguageHelper.Categories,
         #     "https://npo.nl/start/api/domain/page-collection?guid=2670b702-d621-44be-b411-7aae3c3820eb",

@@ -92,16 +92,14 @@ class TestNpoChannel(ChannelTest):
         self.assertGreater(len(items), 10)
 
     def test_popular(self):
-        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?key=popular-anonymous-v0&partyId=unknown", "test_popular")
-        item.metaData["retrospect:parser"] = "collection-with-videos"
-        items = self.channel.process_folder_list(item)
-        self.assertGreater(len(items), 10)
+        build_version = self.channel.build_version
+        url = f"https://npo.nl/start/_next/data/{build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair"
+        self._test_folder_url(url, 50)
 
     def test_news(self):
-        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?key=news-anonymous-v0&partyId=unknown", "test_news")
-        item.metaData["retrospect:parser"] = "collection-with-videos"
-        items = self.channel.process_folder_list(item)
-        self.assertGreater(len(items), 4)
+        build_version = self.channel.build_version
+        url = f"https://npo.nl/start/_next/data/{build_version}/collectie/nieuws-en-achtergronden.json?slug=nieuws-en-achtergronden"
+        self._test_folder_url(url, 50)
 
     def test_search_serie(self):
         url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=journaal&subscriptionType=anonymous"
@@ -118,7 +116,7 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&guid=2670b702-d621-44be-b411-7aae3c3820eb", 9)
 
     def test_page(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&guid=cc065da7-e6d2-44d6-bbce-2d600954e0b0", 10)
+        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&guid=db612122-75e0-4f6c-8a32-e9202ae9fce8", 10)
 
     def test_update_stream_pow(self):
         url = "POW_05467583"
