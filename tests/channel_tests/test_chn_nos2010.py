@@ -63,7 +63,7 @@ class TestNpoChannel(ChannelTest):
 
     def test_series_with_seasons_via_slug(self):
         from resources.lib.mediaitem import MediaItem
-        item = MediaItem("With seasons", "https://npo.nl/start/api/domain/series-seasons?slug=betreden-op-eigen-risico&type=timebound_series")
+        item = MediaItem("With seasons", "https://npo.nl/start/api/domain/programs-by-season?guid=6df6cea2-4137-4f42-a183-830072f6b0ea&type=timeless_series")
         item.metaData["guid"] = "b6b7fa82-d565-42a1-8a75-46dbab66bd74"
         items = self.channel.process_folder_list(item)
         self.assertGreaterEqual(len(items), 1)
@@ -119,5 +119,5 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&guid=db612122-75e0-4f6c-8a32-e9202ae9fce8", 10)
 
     def test_update_stream_pow(self):
-        url = "POW_05467583"
+        url = "KN_1693383"
         self._test_video_url(url)
