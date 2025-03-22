@@ -101,5 +101,6 @@ class TestSvtChannel(ChannelTest):
 
     def test_html_video_update(self):
         url = "https://www.svtplay.se/video/33718658/anders-matresa/anders-matresa-bjorn-i-harjedalen?info=visa"
+        url = "https://www.svtplay.se/video/Kxgk12b/aktuellt/igar-21-00?video=visa"
         item = self._test_video_url(url)
-        self.assertTrue(item.url.endswith("8Wv7Jb7"))
+        self.assertTrue(item.url.endswith("Kxgk12b"))

@@ -206,7 +206,7 @@ class Channel(chn_class.Channel):
         popular_url, popular_data = self.__get_api_query("Panel", {"panelId": "4nNp00Z12bjEiNboaW2uxB", "limit": self.__max_page_size, "offset": 0})
         items.append(__create_item(LanguageHelper.Popular, popular_url, popular_data))
 
-        latest_news_url, latest_news_data = self.__get_api_query("Panel", {"panelId": "1aF6XTvnEEmvAP6usqWYl1", "limit": self.__max_page_size, "offset": 0})
+        latest_news_url, latest_news_data = self.__get_api_query("Panel", {"panelId": "4OsLKff6znSeWNeOfewYNw", "limit": self.__max_page_size, "offset": 0})
         items.append(__create_item(LanguageHelper.LatestNews, latest_news_url, latest_news_data))
 
         category_url, json_data = self.__get_api_query("PageList", {"pageListId": "categories"})
