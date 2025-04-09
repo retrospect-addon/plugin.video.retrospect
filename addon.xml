@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.24"
+        version="5.7.25"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,9 +133,9 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.24 - Changelog - 2025-02-08[/B]
+        <news>[B]Retrospect v5.7.25 - Changelog - 2025-04-09[/B]
 
-Fixed some minor issues with channels.
+Just some minor channel fixes for NPO and Videoland.
 
 [B]Framework related[/B]
 _None_
@@ -144,10 +144,8 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO Luister radio stations.
-* Fixed: SRF Channel.
-* Fixed: TV4 Play Channel needs POSTs now (Fixes #1886).
-* Fixed: item &#x27;ondek meer genres&#x27; missing in NPO&#x27;s &#x27;TV shows&#x27;
+* Fixed: NPO &quot;news&quot; and &quot;populair&quot; categories.
+* Fixed: VideoLand video playback (Fixes #1894).
 
         </news>
         <assets>

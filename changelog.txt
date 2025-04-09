@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.xx - Changelog - 2025-xx-xx[/B]
+[B]Retrospect v5.7.25 - Changelog - 2025-04-09[/B]
 
-t.b.d.
+Just some minor channel fixes for NPO and Videoland.
 
 [B]Framework related[/B]
 _None_
