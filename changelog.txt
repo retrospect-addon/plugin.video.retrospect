@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: NPO "news" and "populair" categories.
+* Fixed: VideoLand video playback (Fixes #1894).

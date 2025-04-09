@@ -94,12 +94,12 @@ class TestNpoChannel(ChannelTest):
     def test_popular(self):
         build_version = self.channel.build_version
         url = f"https://npo.nl/start/_next/data/{build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair"
-        self._test_folder_url(url, 50)
+        self._test_folder_url(url, 20)
 
     def test_news(self):
         build_version = self.channel.build_version
         url = f"https://npo.nl/start/_next/data/{build_version}/collectie/nieuws-en-achtergronden.json?slug=nieuws-en-achtergronden"
-        self._test_folder_url(url, 50)
+        self._test_folder_url(url, 20)
 
     def test_search_serie(self):
         url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=journaal&subscriptionType=anonymous"

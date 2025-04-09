@@ -197,10 +197,10 @@ class Channel(chn_class.Channel):
         action_info = result_set.get("action", {})
         action = action_info.get("label", "").lower()
         item_id = action_info["target"]["value_layout"]["id"]
-        if "content" in action:
+        if "content" in action or "programma" in action:
             url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/{item_id}/layout?nbPages={self.__pages}"
             item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
-        elif "collectie" in action:
+        elif "collectie" in action or "abonneren" in action:
             return None
         elif "live" in action:
             item_id = action_info["target"]["value_layout"]["seo"]

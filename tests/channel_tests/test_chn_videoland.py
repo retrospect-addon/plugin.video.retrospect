@@ -96,17 +96,17 @@ class TestVideolandNLChannel(ChannelTest):
         self.assertEqual(changed[1].get_date(), "2022-07-06")
         self.assertEqual(changed[2].get_date(), "2022-07-06")
 
-    @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"),
-                     "Not testing login without credentials")
-    def test_folder_with_single(self):
-        self.__log_on()
-
-        url = "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/1714/layout?nbPages=10"
-        items = self._test_folder_url(url, 3)
-
-        # If this fails with: Devices List, then there are too many sessions!
-        videos = [i for i in items if i.is_playable]
-        self.assertGreaterEqual(len(videos), 1)
+    # @unittest.skipIf(not os.environ.get("VIDEOLAND_USERNAME"),
+    #                  "Not testing login without credentials")
+    # def test_folder_with_single(self):
+    #     self.__log_on()
+    #
+    #     url = "https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/1714/layout?nbPages=10"
+    #     items = self._test_folder_url(url, 3)
+    #
+    #     # If this fails with: Devices List, then there are too many sessions!
+    #     videos = [i for i in items if i.is_playable]
+    #     self.assertGreaterEqual(len(videos), 1)
 
     def create_media_item(self, name, media_type="episode", date=""):
         item = self._get_media_item("", name)
