@@ -32,6 +32,10 @@ class TestVierBeChannel(ChannelTest):
         media_items = self.channel.search_site(needle="cops")
         self.assertGreater(len(media_items), 5)
 
+    def test_show_seasons_listing(self):
+        url = "https://www.goplay.be/de-slimste-mens-ter-wereld"
+        self._test_folder_url(url, 1)
+
     def test_season_listing(self):
         url = "https://www.goplay.be/bake-off-vlaanderen-kerst"
         self._test_folder_url(url, 1)

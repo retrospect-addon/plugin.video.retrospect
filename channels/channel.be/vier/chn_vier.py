@@ -107,7 +107,7 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
-                              preprocessor=NextJsParser(r"{\"playlists\":(.+)}\]}\]\][\r\n]"),
+                              preprocessor=NextJsParser(r"{\"playlists\":(.+}\]).+?}\]}\]\][\r\n]"),
                               parser=[], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
 
