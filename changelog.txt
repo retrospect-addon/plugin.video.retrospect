@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.xx - Changelog - 2025-xx-xx[/B]
+[B]Retrospect v5.7.26 - Changelog - 2025-04-26[/B]
 
-t.b.d.
+A small fix for the Vier.be channel.
 
 [B]Framework related[/B]
 _None_
