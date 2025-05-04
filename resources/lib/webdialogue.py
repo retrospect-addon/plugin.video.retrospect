@@ -254,6 +254,11 @@ class WebDialogue(object):
             th.start()
 
             ipaddress = xbmc.getInfoLabel("network.ipaddress")
+            if not ipaddress or ipaddress.lower() == "busy":
+                mon = xbmc.Monitor()
+                mon.waitForAbort(2)
+                ipaddress = xbmc.getInfoLabel("network.ipaddress")
+
             pb.update(2, LanguageHelper.get_localized_string(30119).format(ipaddress, self.port))
 
             Logger.info("RetroServer: Serving on %s", self.port)
