@@ -27,5 +27,6 @@ class TestOnsChannel(ChannelTest):
     def test_video(self):
         data = UriHandler.open(self.channel.mainListUri)
         data = JsonHelper(data)
-        clip_id = data.get_value(0, "id")
+        # clip_id = data.get_value(0, "id")
+        clip_id = "Y11bDoeemyW7oLnEhXMQiw=="
         self._test_video_url(f"http://api.ibbroadcast.nl/clips.ashx?key={self.channel.api_key}&mode=getclip&id={clip_id}&output=json")
