@@ -86,7 +86,7 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=selma-s-oorlog&type=timeless_series", expected_results=1)
 
     def test_trending(self):
-        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0", "test_trending")
+        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?collectionId=trending-anonymous-v0&partyId=2640c596-09ac-4c41-841c-c7fc68b4a7e5", "test_trending")
         item.metaData["retrospect:parser"] = "collection-with-series"
         items = self.channel.process_folder_list(item)
         self.assertGreater(len(items), 10)

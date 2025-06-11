@@ -95,7 +95,7 @@ class Channel(chn_class.Channel):
             creator=self.create_api_program_item)
         # Use the new `label` options for the collections
         self._add_data_parser(
-            "https://npo.nl/start/api/domain/recommendation-collection?key=", name="Collection with series",
+            "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=", name="Collection with series",
             json=True, label="collection-with-series",
             requires_logon=bool(self.__user_name),
             parser=["items"],
@@ -113,7 +113,7 @@ class Channel(chn_class.Channel):
         )
         # Use the new `label` options for the collections
         self._add_data_parser(
-            "https://npo.nl/start/api/domain/recommendation-collection?key=", name="Collection with videos",
+            "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=", name="Collection with videos",
             json=True, label="collection-with-videos",
             requires_logon=bool(self.__user_name),
             parser=["items"],
@@ -413,7 +413,7 @@ class Channel(chn_class.Channel):
                      description="Profile van de  npostart.nl website.")
 
         add_item(LanguageHelper.Trending,
-                 "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
+                 "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0",
                  content_type=contenttype.TVSHOWS, parser="collection-with-series")
 
         add_item(LanguageHelper.LatestNews,
@@ -545,7 +545,8 @@ class Channel(chn_class.Channel):
         folder_key = result_set["key"]
         url = (
             f"https://npo.nl/start/api/domain/recommendation-collection?"
-            f"key={folder_key}&"
+            f"partyId=1&"
+            f"collectionId={folder_key}&"
             # f"partyId=1%3Alp08hirt%3A2c8e90d7048a467babf108e0146ad52d&"
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"

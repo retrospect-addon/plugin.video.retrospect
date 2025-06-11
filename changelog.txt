@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.26 - Changelog - 2025-04-26[/B]
+[B]Retrospect v5.7.xx - Changelog - 2025-xx-xx[/B]
 
-A small fix for the Vier.be channel.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,4 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: Vier.be not listing shows (Fixes #1897).
+* Fixed: NPO broken (Fixes #1904).
