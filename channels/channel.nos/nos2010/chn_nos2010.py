@@ -86,9 +86,9 @@ class Channel(chn_class.Channel):
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-            "https://npo.nl/start/api/domain/page-collection?guid=",
-            "https://npo.nl/start/api/domain/page-collection?type=series&guid=",
-            "https://npo.nl/start/api/domain/search-results?searchType=series"],
+            "https://npo.nl/start/api/domain/page-collection?collectionId=",
+            "https://npo.nl/start/api/domain/page-collection?type=series&collectionId=",
+            "https://npo.nl/start/api/domain/search-collection-items?searchType=series"],
             name="Collections with series", json=True,
             requires_logon=bool(self.__user_name),
             parser=["items"],
@@ -103,8 +103,8 @@ class Channel(chn_class.Channel):
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-            "https://npo.nl/start/api/domain/search-results?searchType=broadcasts",
-            "https://npo.nl/start/api/domain/page-collection?type=program&guid="
+            "https://npo.nl/start/api/domain/search-collection-items?searchType=broadcasts",
+            "https://npo.nl/start/api/domain/page-collection?type=program&collectionId="
         ],
             name="Collections with videos", json=True,
             requires_logon=bool(self.__user_name),
@@ -151,7 +151,7 @@ class Channel(chn_class.Channel):
                               name="Bare pages layout", json=True,
                               parser=["collections"], creator=self.create_api_page_layout)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&guid=",
+        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=",
                               name="Categories layout", json=True,
                               parser=["items"], creator=self.create_api_category_item)
 
@@ -425,7 +425,7 @@ class Channel(chn_class.Channel):
                  content_type=contenttype.TVSHOWS)
 
         # add_item(LanguageHelper.Categories,
-        #     "https://npo.nl/start/api/domain/page-collection?guid=2670b702-d621-44be-b411-7aae3c3820eb",
+        #     "https://npo.nl/start/api/domain/page-collection?collectionId=2670b702-d621-44be-b411-7aae3c3820eb",
         #         content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.TvShows,
@@ -526,6 +526,7 @@ class Channel(chn_class.Channel):
 
         profile_content_url = (
             f"https://npo.nl/start/api/domain/recommendation-layout?"
+            f"partyId=1&"
             f"page=home&"
             #f"partyId=1%3Alp08hirt%3A2c8e90d7048a467babf108e0146ad52d&"
             f"profileGuid={profile_id}&"
@@ -638,7 +639,7 @@ class Channel(chn_class.Channel):
     def create_api_page_layout(self, result_set: dict) -> Optional[MediaItem]:
         guid = result_set["guid"]
         page_type = result_set["type"]
-        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&guid={guid}"
+        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&collectionId={guid}&partyId=1"
 
         info = UriHandler.open(url)
         info = JsonHelper(info)
@@ -949,8 +950,8 @@ class Channel(chn_class.Channel):
         if not needle:
             raise ValueError("No needle present")
 
-        shows_url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=%s&subscriptionType=anonymous"
-        videos_url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&searchQuery=%s&subscriptionType=anonymous"
+        shows_url = "https://npo.nl/start/api/domain/search-collection-items?searchType=series&partyId=1&searchQuery=%s&subscriptionType=anonymous"
+        videos_url = "https://npo.nl/start/api/domain/search-collection-items?searchType=broadcasts&partyId=1&searchQuery=%s&subscriptionType=anonymous"
 
         items = []
         needle = HtmlEntityHelper.url_encode(needle)
