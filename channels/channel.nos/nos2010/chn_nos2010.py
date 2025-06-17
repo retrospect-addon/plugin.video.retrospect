@@ -147,7 +147,7 @@ class Channel(chn_class.Channel):
                               requires_logon=bool(self.__user_name),
                               updater=self.update_video_item)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?slug=",
+        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?layoutId=",
                               name="Bare pages layout", json=True,
                               parser=["collections"], creator=self.create_api_page_layout)
 
@@ -429,7 +429,7 @@ class Channel(chn_class.Channel):
         #         content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.TvShows,
-                 "https://npo.nl/start/api/domain/page-layout?slug=programmas",
+                 "https://npo.nl/start/api/domain/page-layout?layoutId=programmas",
                  content_type=contenttype.TVSHOWS)
 
         live_radio = add_item(
@@ -637,13 +637,18 @@ class Channel(chn_class.Channel):
         return item
 
     def create_api_page_layout(self, result_set: dict) -> Optional[MediaItem]:
-        guid = result_set["guid"]
+        if "guid" in result_set:
+            guid = result_set["guid"]
+        else:
+            guid = result_set["collectionId"]
         page_type = result_set["type"]
         url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&collectionId={guid}&partyId=1"
 
         info = UriHandler.open(url)
         info = JsonHelper(info)
         title = info.get_value("title")
+        if not title or title.strip() == "" and "layoutId=programmas" in self.parentItem.url:
+            title = LanguageHelper.get_localized_string(LanguageHelper.Categories)
 
         if page_type == "SERIES":
             content_type = contenttype.TVSHOWS
