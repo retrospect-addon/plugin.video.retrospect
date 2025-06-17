@@ -524,11 +524,15 @@ class Channel(chn_class.Channel):
             "https://npo.nl/start/api/auth/session",
             json=profile_data, additional_headers=headers)
 
+        #     https://npo.nl/start/api/domain/recommendation-layout?
+        #     layoutId=home&partyId=1%3Ambsf8b0g%3A15625624970147ebb696ae0a9768d49
+        #     profileGuid=0dba0d55-640e-4e70-9b00-1449816f13cf&
+        #     subscriptionType=free
         profile_content_url = (
             f"https://npo.nl/start/api/domain/recommendation-layout?"
             f"partyId=1&"
-            f"page=home&"
-            #f"partyId=1%3Alp08hirt%3A2c8e90d7048a467babf108e0146ad52d&"
+            f"layoutId=home&"
+            f"partyId=1&"
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"
         )
@@ -543,7 +547,12 @@ class Channel(chn_class.Channel):
 
     def create_profile_content_item(self, result_set: Dict[str, str]) -> Union[MediaItem, List[MediaItem], None]:
         profile_id = self.parentItem.metaData["id"]
-        folder_key = result_set["key"]
+
+        if "key" in result_set:
+            folder_key = result_set["key"]
+        else:
+            folder_key = result_set["collectionId"]
+
         url = (
             f"https://npo.nl/start/api/domain/recommendation-collection?"
             f"partyId=1&"
