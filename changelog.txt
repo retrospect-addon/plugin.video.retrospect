@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.xx - Changelog - 2025-xx-xx[/B]
+[B]Retrospect v5.7.27 - Changelog - 2025-06-20[/B]
 
-t.b.d.
+Minor fix for the NPO channel.
 
 [B]Framework related[/B]
 _None_
