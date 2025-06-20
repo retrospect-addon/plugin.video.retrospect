@@ -421,7 +421,7 @@ class Channel(chn_class.Channel):
                  content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.Popular,
-                 f"https://npo.nl/start/_next/data/{self.__build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair",
+                 f"https://npo.nl/start/_next/data/{self.build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair",
                  content_type=contenttype.TVSHOWS)
 
         # add_item(LanguageHelper.Categories,
@@ -636,7 +636,7 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         slug = result_set["slug"]
 
-        url = f"https://npo.nl/start/api/domain/page-layout?slug={slug}"
+        url = f"https://npo.nl/start/_next/data/{self.build_version}/collectie/{slug}.json?slug={slug}"
         item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
 
         if "images" in result_set and result_set["images"]:
