@@ -86,16 +86,16 @@ class Channel(chn_class.Channel):
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-            "https://npo.nl/start/api/domain/page-collection?guid=",
-            "https://npo.nl/start/api/domain/page-collection?type=series&guid=",
-            "https://npo.nl/start/api/domain/search-results?searchType=series"],
+            "https://npo.nl/start/api/domain/page-collection?collectionId=",
+            "https://npo.nl/start/api/domain/page-collection?type=series&collectionId=",
+            "https://npo.nl/start/api/domain/search-collection-items?searchType=series"],
             name="Collections with series", json=True,
             requires_logon=bool(self.__user_name),
             parser=["items"],
             creator=self.create_api_program_item)
         # Use the new `label` options for the collections
         self._add_data_parser(
-            "https://npo.nl/start/api/domain/recommendation-collection?key=", name="Collection with series",
+            "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=", name="Collection with series",
             json=True, label="collection-with-series",
             requires_logon=bool(self.__user_name),
             parser=["items"],
@@ -103,8 +103,8 @@ class Channel(chn_class.Channel):
 
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
-            "https://npo.nl/start/api/domain/search-results?searchType=broadcasts",
-            "https://npo.nl/start/api/domain/page-collection?type=program&guid="
+            "https://npo.nl/start/api/domain/search-collection-items?searchType=broadcasts",
+            "https://npo.nl/start/api/domain/page-collection?type=program&collectionId="
         ],
             name="Collections with videos", json=True,
             requires_logon=bool(self.__user_name),
@@ -113,7 +113,7 @@ class Channel(chn_class.Channel):
         )
         # Use the new `label` options for the collections
         self._add_data_parser(
-            "https://npo.nl/start/api/domain/recommendation-collection?key=", name="Collection with videos",
+            "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=", name="Collection with videos",
             json=True, label="collection-with-videos",
             requires_logon=bool(self.__user_name),
             parser=["items"],
@@ -147,11 +147,11 @@ class Channel(chn_class.Channel):
                               requires_logon=bool(self.__user_name),
                               updater=self.update_video_item)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?slug=",
+        self._add_data_parser("https://npo.nl/start/api/domain/page-layout?layoutId=",
                               name="Bare pages layout", json=True,
                               parser=["collections"], creator=self.create_api_page_layout)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&guid=",
+        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=",
                               name="Categories layout", json=True,
                               parser=["items"], creator=self.create_api_category_item)
 
@@ -413,7 +413,7 @@ class Channel(chn_class.Channel):
                      description="Profile van de  npostart.nl website.")
 
         add_item(LanguageHelper.Trending,
-                 "https://npo.nl/start/api/domain/recommendation-collection?key=trending-anonymous-v0",
+                 "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0",
                  content_type=contenttype.TVSHOWS, parser="collection-with-series")
 
         add_item(LanguageHelper.LatestNews,
@@ -421,15 +421,15 @@ class Channel(chn_class.Channel):
                  content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.Popular,
-                 f"https://npo.nl/start/_next/data/{self.__build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair",
+                 f"https://npo.nl/start/_next/data/{self.build_version}/collectie/nieuw-en-populair.json?slug=nieuw-en-populair",
                  content_type=contenttype.TVSHOWS)
 
         # add_item(LanguageHelper.Categories,
-        #     "https://npo.nl/start/api/domain/page-collection?guid=2670b702-d621-44be-b411-7aae3c3820eb",
+        #     "https://npo.nl/start/api/domain/page-collection?collectionId=2670b702-d621-44be-b411-7aae3c3820eb",
         #         content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.TvShows,
-                 "https://npo.nl/start/api/domain/page-layout?slug=programmas",
+                 "https://npo.nl/start/api/domain/page-layout?layoutId=programmas",
                  content_type=contenttype.TVSHOWS)
 
         live_radio = add_item(
@@ -524,10 +524,15 @@ class Channel(chn_class.Channel):
             "https://npo.nl/start/api/auth/session",
             json=profile_data, additional_headers=headers)
 
+        #     https://npo.nl/start/api/domain/recommendation-layout?
+        #     layoutId=home&partyId=1%3Ambsf8b0g%3A15625624970147ebb696ae0a9768d49
+        #     profileGuid=0dba0d55-640e-4e70-9b00-1449816f13cf&
+        #     subscriptionType=free
         profile_content_url = (
             f"https://npo.nl/start/api/domain/recommendation-layout?"
-            f"page=home&"
-            #f"partyId=1%3Alp08hirt%3A2c8e90d7048a467babf108e0146ad52d&"
+            f"partyId=1&"
+            f"layoutId=home&"
+            f"partyId=1&"
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"
         )
@@ -542,10 +547,16 @@ class Channel(chn_class.Channel):
 
     def create_profile_content_item(self, result_set: Dict[str, str]) -> Union[MediaItem, List[MediaItem], None]:
         profile_id = self.parentItem.metaData["id"]
-        folder_key = result_set["key"]
+
+        if "key" in result_set:
+            folder_key = result_set["key"]
+        else:
+            folder_key = result_set["collectionId"]
+
         url = (
             f"https://npo.nl/start/api/domain/recommendation-collection?"
-            f"key={folder_key}&"
+            f"partyId=1&"
+            f"collectionId={folder_key}&"
             # f"partyId=1%3Alp08hirt%3A2c8e90d7048a467babf108e0146ad52d&"
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"
@@ -625,7 +636,7 @@ class Channel(chn_class.Channel):
         title = result_set["title"]
         slug = result_set["slug"]
 
-        url = f"https://npo.nl/start/api/domain/page-layout?slug={slug}"
+        url = f"https://npo.nl/start/_next/data/{self.build_version}/collectie/{slug}.json?slug={slug}"
         item = FolderItem(title, url, content_type=contenttype.TVSHOWS)
 
         if "images" in result_set and result_set["images"]:
@@ -635,13 +646,18 @@ class Channel(chn_class.Channel):
         return item
 
     def create_api_page_layout(self, result_set: dict) -> Optional[MediaItem]:
-        guid = result_set["guid"]
+        if "guid" in result_set:
+            guid = result_set["guid"]
+        else:
+            guid = result_set["collectionId"]
         page_type = result_set["type"]
-        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&guid={guid}"
+        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&collectionId={guid}&partyId=1"
 
         info = UriHandler.open(url)
         info = JsonHelper(info)
         title = info.get_value("title")
+        if not title or title.strip() == "" and "layoutId=programmas" in self.parentItem.url:
+            title = LanguageHelper.get_localized_string(LanguageHelper.Categories)
 
         if page_type == "SERIES":
             content_type = contenttype.TVSHOWS
@@ -948,8 +964,8 @@ class Channel(chn_class.Channel):
         if not needle:
             raise ValueError("No needle present")
 
-        shows_url = "https://npo.nl/start/api/domain/search-results?searchType=series&searchQuery=%s&subscriptionType=anonymous"
-        videos_url = "https://npo.nl/start/api/domain/search-results?searchType=broadcasts&searchQuery=%s&subscriptionType=anonymous"
+        shows_url = "https://npo.nl/start/api/domain/search-collection-items?searchType=series&partyId=1&searchQuery=%s&subscriptionType=anonymous"
+        videos_url = "https://npo.nl/start/api/domain/search-collection-items?searchType=broadcasts&partyId=1&searchQuery=%s&subscriptionType=anonymous"
 
         items = []
         needle = HtmlEntityHelper.url_encode(needle)
