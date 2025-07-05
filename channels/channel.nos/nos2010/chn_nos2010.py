@@ -413,7 +413,7 @@ class Channel(chn_class.Channel):
                      description="Profile van de  npostart.nl website.")
 
         add_item(LanguageHelper.Trending,
-                 "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0",
+                 "https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0&layoutType=RECOMMENDATION",
                  content_type=contenttype.TVSHOWS, parser="collection-with-series")
 
         add_item(LanguageHelper.LatestNews,
@@ -429,7 +429,7 @@ class Channel(chn_class.Channel):
         #         content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.TvShows,
-                 "https://npo.nl/start/api/domain/page-layout?layoutId=programmas",
+                 "https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE",
                  content_type=contenttype.TVSHOWS)
 
         live_radio = add_item(
@@ -535,6 +535,7 @@ class Channel(chn_class.Channel):
             f"partyId=1&"
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"
+            f"layoutType=RECOMMENDATION"
         )
 
         data = UriHandler.open(profile_content_url)
@@ -560,6 +561,7 @@ class Channel(chn_class.Channel):
             # f"partyId=1%3Alp08hirt%3A2c8e90d7048a467babf108e0146ad52d&"
             f"profileGuid={profile_id}&"
             # f"subscriptionType=free"
+            f"layoutType=RECOMMENDATION"
         )
         title_key = folder_key.rsplit("-", 2)[0]
         title_id = self.__collection_names.get(title_key, None)
@@ -651,7 +653,7 @@ class Channel(chn_class.Channel):
         else:
             guid = result_set["collectionId"]
         page_type = result_set["type"]
-        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&collectionId={guid}&partyId=1"
+        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&collectionId={guid}&partyId=1&layoutType=PAGE"
 
         info = UriHandler.open(url)
         info = JsonHelper(info)

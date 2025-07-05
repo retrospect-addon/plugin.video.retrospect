@@ -86,7 +86,7 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url("https://npo.nl/start/api/domain/series-seasons?slug=selma-s-oorlog&type=timeless_series", expected_results=1)
 
     def test_trending(self):
-        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0&partyId=2640c596-09ac-4c41-841c-c7fc68b4a7e5", "test_trending")
+        item = self._get_media_item("https://npo.nl/start/api/domain/recommendation-collection?partyId=1&collectionId=trending-anonymous-v0&partyId=2640c596-09ac-4c41-841c-c7fc68b4a7e5&layoutType=RECOMMENDATION", "test_trending")
         item.metaData["retrospect:parser"] = "collection-with-series"
         items = self.channel.process_folder_list(item)
         self.assertGreater(len(items), 10)
@@ -110,13 +110,13 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url(url, 5)
 
     def test_programs(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-layout?layoutId=programmas", 5)
+        self._test_folder_url("https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE", 5)
 
     def test_more_genres(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=2670b702-d621-44be-b411-7aae3c3820eb&partyId=1", 7)
+        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=118e43f3-864a-4dbd-91ea-c6450a8d2c25&partyId=1&layoutType=PAGE", 7)
 
     def test_page(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&collectionId=db612122-75e0-4f6c-8a32-e9202ae9fce8&partyId=1", 10)
+        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&collectionId=db612122-75e0-4f6c-8a32-e9202ae9fce8&partyId=1&layoutType=PAGE", 10)
 
     def test_update_stream_pow(self):
         url = "KN_1693383"
