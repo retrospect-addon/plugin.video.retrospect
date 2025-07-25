@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.28 - Changelog - 2025-07-05[/B]
+[B]Retrospect v5.7.xx - Changelog - 2025-xx-xx[/B]
 
-More fixes for the NPO channel.
+t.b.d.
 
 [B]Framework related[/B]
 _None_
@@ -9,4 +9,4 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO broken again (See #1904).
+* Fixed: OpenRegio format JSON glitch fixed.

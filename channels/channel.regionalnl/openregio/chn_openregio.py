@@ -116,6 +116,9 @@ class Channel(chn_class.Channel):
 
         items = []
 
+        if isinstance(data, str):
+            data = data.replace(",,", ",")
+
         if self.liveUrls:
             live_title = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamTitleId)
             live_item = MediaItem("\a{}".format(live_title), "")
