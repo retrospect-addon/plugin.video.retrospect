@@ -60,7 +60,7 @@ class Logger:
 
         """
 
-        if "RETROSPECT_STDOUT_LOGGING" in os.environ:
+        if "RETROSPECT_STDOUT_LOGGING" in os.environ and os.environ.get("RETROSPECT_STDOUT_LOGGING") == "1":
             log_file_name = None
 
         if Logger.__logger is None:
