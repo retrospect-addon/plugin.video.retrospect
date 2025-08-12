@@ -65,7 +65,7 @@ class TestRegioGroei(ChannelTest):
 
     def test_zeeland_video(self):
         self._switch_channel("omroepzeeland")
-        url = "https://api.regiogroei.cloud/page/episode/370275114"
+        url = "https://api.regiogroei.cloud/page/episode/370533031"
         self._test_video_url(url)
 
     def test_zeeland_live(self):
