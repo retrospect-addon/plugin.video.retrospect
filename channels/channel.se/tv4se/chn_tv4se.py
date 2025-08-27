@@ -967,7 +967,7 @@ class Channel(chn_class.Channel):
         return item
 
     def __set_playback_window(self, item: MediaItem, result_set: dict):
-        if "playableFrom" in result_set:
+        if "playableFrom" in result_set and result_set["playableFrom"]:
             from_date = result_set["playableFrom"]["isoString"]
             # isoString=2022-07-27T22:01:00.000Z
             time_stamp = DateHelper.get_date_from_string(from_date, "%Y-%m-%dT%H:%M:%S.%fZ", fallback_format="%Y-%m-%dT%H:%M:%SZ")

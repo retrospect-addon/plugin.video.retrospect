@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: OpenRegio format JSON glitch fixed.
+* Fixed: TV4 Play `playable from`-parsing.
