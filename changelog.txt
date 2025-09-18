@@ -1,13 +1,13 @@
-[B]Retrospect v5.7.xx - Changelog - 2025-xx-xx[/B]
+[B]Retrospect v5.7.29 - Changelog - 2025-09-18[/B]
 
-t.b.d.
+Quick workaround for InputStream Adaptive Helper not working which prevented playback of all videos.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Temporarily fix ISA Helper issue (Fixes #1916).
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: OpenRegio format JSON glitch fixed.
 * Fixed: TV4 Play `playable from`-parsing.
+* Fixed: OpenRegio format JSON glitch fixed.

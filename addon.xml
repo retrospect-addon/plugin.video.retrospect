@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.28"
+        version="5.7.29"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,18 +133,19 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.28 - Changelog - 2025-07-05[/B]
+        <news>[B]Retrospect v5.7.29 - Changelog - 2025-09-18[/B]
 
-More fixes for the NPO channel.
+Quick workaround for InputStream Adaptive Helper not working which prevented playback of all videos.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Temporarily fix ISA Helper issue (Fixes #1916).
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: NPO broken again (See #1904).
+* Fixed: TV4 Play `playable from`-parsing.
+* Fixed: OpenRegio format JSON glitch fixed.
 
         </news>
         <assets>
