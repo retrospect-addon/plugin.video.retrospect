@@ -260,7 +260,7 @@ class SubtitleHelper(object):
         result = ""
         for line in webvvt.split("\n"):
             line = line.strip()
-            if line.endswith("WEBVTT") or line.startswith("X-TIMESTAMP"):
+            if line.startswith("WEBVTT") or line.startswith("X-TIMESTAMP"):
                 continue
             if not line:
                 continue
