@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
+import json
 from typing import List, Optional
 
 import pytz
@@ -796,6 +797,8 @@ class Channel(chn_class.Channel):
             item.set_date(date_time.year, date_time.month, date_time.day, date_time.hour,
                           date_time.minute,
                           date_time.second)
+            if date_time > datetime.datetime.now():
+                return None
 
         # DRM only
         no_drm_items = [src for src in result_set["sources"] if not src["drm"]]
@@ -836,23 +839,42 @@ class Channel(chn_class.Channel):
                 bitrate = 0 if hls_over_dash else 1
                 stream = item.add_stream(url, bitrate)
 
-                # fetch the authentication token:
-                # url = self.__get_api_persisted_url("drmToken", "634c83ae7588a877e2bb67d078dda618cfcfc70ac073aef5e134e622686c0bb6", variables={})
-                url = self.__get_api_query_url("drmToken", "{token,expiration}")
-                token_data = UriHandler.open(url, no_cache=True)
-                token_json = JsonHelper(token_data)
-                token = token_json.get_value("data", "drmToken", "token")
-
-                # we need to POST to this url using this wrapper:
                 key_url = drm["widevine"]["url"]
                 release_pid = drm["widevine"]["releasePid"]
-                encryption_json = '{{"getRawWidevineLicense":{{"releasePid":"{}","widevineChallenge":"b{{SSM}}"}}}}'.format(release_pid)
-                encryption_key = Mpd.get_license_key(
-                    key_url=key_url,
-                    key_type="b",
-                    key_value=encryption_json,
-                    key_headers={"Content-Type": "application/json", "authorization": "Basic {}".format(token)}
-                )
+
+                # fetch the authentication token:
+                if "vudrm" in key_url:
+                    url = self.__get_api_query_url(
+                        f"drmToken(drmProvider:JWP)", "{token,expiration}")
+                    token_data = UriHandler.open(url)
+                    token_json = JsonHelper(token_data)
+                    token = token_json.get_value("data", "drmToken", "token")
+                    encryption_key = Mpd.get_license_key(
+                        key_url=key_url,
+                        key_type="R",
+                        key_headers={
+                            "x-vudrm-token": token,
+                            # "user-agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
+                            # "origin": "https://kijk.nl",
+                            # "referer": "https://kijk.nl/"
+                        }
+                    )
+                else:
+                    # url = self.__get_api_persisted_url("drmToken", "634c83ae7588a877e2bb67d078dda618cfcfc70ac073aef5e134e622686c0bb6", variables={})
+                    url = self.__get_api_query_url("drmToken", "{token,expiration}")
+                    token_data = UriHandler.open(url, no_cache=True)
+                    token_json = JsonHelper(token_data)
+                    token = token_json.get_value("data", "drmToken", "token")
+
+                    # we need to POST to this url using this wrapper:
+                    encryption_json = '{{"getRawWidevineLicense":{{"releasePid":"{}","widevineChallenge":"b{{SSM}}"}}}}'.format(release_pid)
+                    encryption_key = Mpd.get_license_key(
+                        key_url=key_url,
+                        key_type="b",
+                        key_value=encryption_json,
+                        key_headers={"Content-Type": "application/json", "authorization": "Basic {}".format(token)}
+                    )
+
                 Mpd.set_input_stream_addon_input(
                     stream, license_key=encryption_key,
                     stream_headers={"user-agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"})
