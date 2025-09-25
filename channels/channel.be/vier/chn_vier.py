@@ -107,7 +107,7 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
-                              preprocessor=NextJsParser(r"{\"playlists\":(.+}\]).+?}\]}\]\][\r\n]"),
+                              preprocessor=NextJsParser(r"{\"playlists\":(.+}\]).+?}\]}\]"),
                               parser=[], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
 
@@ -384,6 +384,9 @@ class Channel(chn_class.Channel):
         return item
 
     def create_epg_item(self, result_set: dict) -> MediaItemResult:
+        if isinstance(result_set, str):
+            return None
+
         data = result_set[-1]["program"]
         if not data["video"]:
             return None

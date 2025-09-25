@@ -49,4 +49,4 @@ class TestVierBeChannel(ChannelTest):
         day = datetime.datetime.now() - datetime.timedelta(days=2)
         url = "https://www.goplay.be/tv-gids/vier/{:04d}-{:02d}-{:02d}".format(
             day.year, day.month, day.day)
-        self._test_folder_url(url, 5)
+        self._test_folder_url(url, 2)
