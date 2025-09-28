@@ -100,6 +100,6 @@ class TestSvtChannel(ChannelTest):
         self.assertIsNotNone(item)
 
     def test_html_video_update(self):
-        url = "https://www.svtplay.se/video/KBMYkgV/nar-vi-var-samer?video=visa"
+        url = "https://www.svtplay.se/video/KXYZx9k/utvandrarna/utvandrarna?video=visa"
         item = self._test_video_url(url)
-        self.assertTrue(item.url.endswith("KBMYkgV"))
+        self.assertTrue(item.url.endswith("KXYZx9k"))
