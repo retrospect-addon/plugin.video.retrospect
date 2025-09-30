@@ -2,6 +2,8 @@
 
 import datetime
 import json
+import random
+import sys
 from typing import List, Optional
 
 import pytz
@@ -844,9 +846,15 @@ class Channel(chn_class.Channel):
 
                 # fetch the authentication token:
                 if "vudrm" in key_url:
-                    url = self.__get_api_query_url(
-                        f"drmToken(drmProvider:JWP)", "{token,expiration}")
-                    token_data = UriHandler.open(url)
+                    # url = self.__get_api_query_url(
+                    #     f"drmToken(drmProvider:JWP)", "{token,expiration}")
+                    # url = f"{url}&rnd={random.randint(0, sys.maxsize)}"
+                    # token_data = UriHandler.open(url, no_cache=True)
+                    url = "https://graph.kijk.nl/graphql"
+                    data = {
+                        "query": "query DrmTokenQuery($provider: DrmProvider) {drmToken(drmProvider:$provider) {expiration,token}}",
+                        "variables": {"provider": "JWP"}}
+                    token_data = UriHandler.open(url, json=data)
                     token_json = JsonHelper(token_data)
                     token = token_json.get_value("data", "drmToken", "token")
                     encryption_key = Mpd.get_license_key(
