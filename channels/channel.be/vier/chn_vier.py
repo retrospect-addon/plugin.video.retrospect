@@ -31,7 +31,13 @@ class NextJsParser:
         nextjs_regex = self.__regex
         try:
             result = Regexer.do_regex(nextjs_regex, data)
-            nextjs_data = result[0]
+            if len(result) == 1:
+                nextjs_data = result[0]
+            else:
+                nextjs_json = [JsonHelper.loads(j) for j in result]
+                helper = JsonHelper("{}")
+                helper.json = nextjs_json
+                return helper, []
         except:
             Logger.debug(f"RAW NextJS: {data}")
             raise
@@ -107,13 +113,13 @@ class Channel(chn_class.Channel):
                               parser=[], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
-                              preprocessor=NextJsParser(r"{\"playlists\":(.+}\]).+?}\]}\]"),
+                              preprocessor=NextJsParser(r"{\"playlists\":([^\n\r]+}\])[^}\]]+?}\]}\]"),
                               parser=[], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
 
         self._add_data_parser("https://www.goplay.be/tv-gids/", json=True, name="TV Guides",
                               preprocessor=NextJsParser(
-                                  r"children\":(\[\[\"\$\",[^{]+{\"program.+\])}\]\]}\]"),
+                                  r"({\"program\":{\"classification\".+?})\]"),
                               parser=[], creator=self.create_epg_item)
 
         self._add_data_parser("https://api.goplay.be/web/v1/search", json=True,
@@ -387,7 +393,7 @@ class Channel(chn_class.Channel):
         if isinstance(result_set, str):
             return None
 
-        data = result_set[-1]["program"]
+        data = result_set["program"]
         if not data["video"]:
             return None
 
