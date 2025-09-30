@@ -78,7 +78,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser("*", updater=self.update_video_item)
 
         self._add_data_parser("/bladdra/alla-kategorier.json", match_type=ParserData.MatchEnd, json=True,
-                              parser=["pageProps", "categoriesForMenu"], creator=self.create_category_item)
+                              parser=["pageProps", "highlightedCategories"], creator=self.create_category_item)
 
         self._add_data_parser("/bladdra/", json=True, match_type=ParserData.MatchContains,
                               preprocessor=self.iterate_page_props,
