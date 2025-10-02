@@ -3,7 +3,7 @@
 Fixed Kijk.nl and Vier.be playback.
 
 [B]Framework related[/B]
-* Fixed: Temporarily fix ISA Helper issue (Fixes #1916).
+* Fixed: Restored ISA Helper (See #1916).
 
 [B]GUI/Settings/Language related[/B]
 _None_

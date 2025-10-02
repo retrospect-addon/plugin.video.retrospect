@@ -62,15 +62,15 @@ class Mpd(object):
 
         if license_key is not None:
             # Local import to make sure the overhead is low
-            #import inputstreamhelper
-            #from resources.lib.logger import Logger
+            import inputstreamhelper
+            from resources.lib.logger import Logger
             pass
 
-            #is_helper = inputstreamhelper.Helper("mpd", drm=license_type)
-            #if is_helper.check_inputstream():
-            #    Logger.info("Widevine library was already installed or installed successfully.")
-            #else:
-            #    Logger.error("Widevine was not installed or failed to install.")
+            is_helper = inputstreamhelper.Helper("mpd", drm=license_type)
+            if is_helper.check_inputstream():
+                Logger.info("Widevine library was already installed or installed successfully.")
+            else:
+                Logger.error("Widevine was not installed or failed to install.")
 
         return Adaptive.set_input_stream_addon_input(strm,
                                                      stream_headers=stream_headers,
