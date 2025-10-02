@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.29"
+        version="5.7.30"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,9 +133,9 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.29 - Changelog - 2025-09-18[/B]
+        <news>[B]Retrospect v5.7.30 - Changelog - 2025-10-02[/B]
 
-Quick workaround for InputStream Adaptive Helper not working which prevented playback of all videos.
+Fixed Kijk.nl and Vier.be playback.
 
 [B]Framework related[/B]
 * Fixed: Temporarily fix ISA Helper issue (Fixes #1916).
@@ -144,9 +144,9 @@ Quick workaround for InputStream Adaptive Helper not working which prevented pla
 _None_
 
 [B]Channel related[/B]
-* Fixed: TV4 Play `playable from`-parsing.
-* Fixed: OpenRegio format JSON glitch fixed.
-
+* Fixed: Kijk.nl broke playback (Fixes #1916).
+* Fixed: Vier.be parsing (Fixes #1919).
+* Fixed: UR Play categories.
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

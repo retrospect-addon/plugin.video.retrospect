@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.29 - Changelog - 2025-09-18[/B]
+[B]Retrospect v5.7.30 - Changelog - 2025-10-02[/B]
 
-Quick workaround for InputStream Adaptive Helper not working which prevented playback of all videos.
+Fixed Kijk.nl and Vier.be playback.
 
 [B]Framework related[/B]
 * Fixed: Temporarily fix ISA Helper issue (Fixes #1916).
