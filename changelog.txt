@@ -1,4 +1,4 @@
-[B]Retrospect v5.7.30 - Changelog - 2025-10-02[/B]
+[B]Retrospect v5.7.31 - Changelog - 2025-10-02[/B]
 
 Fixed Kijk.nl and Vier.be playback.
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.30"
+        version="5.7.31"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,12 +133,12 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.30 - Changelog - 2025-10-02[/B]
+        <news>[B]Retrospect v5.7.31 - Changelog - 2025-10-02[/B]
 
 Fixed Kijk.nl and Vier.be playback.
 
 [B]Framework related[/B]
-* Fixed: Temporarily fix ISA Helper issue (Fixes #1916).
+* Fixed: Restored ISA Helper (See #1916).
 
 [B]GUI/Settings/Language related[/B]
 _None_
