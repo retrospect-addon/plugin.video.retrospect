@@ -14,6 +14,8 @@ from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
 from resources.lib.retroconfig import Config
+from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 
@@ -57,12 +59,12 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("/serie/", json=True, match_type=ParserData.MatchContains,
                               name="Processor of shows in a TV serie",
-                              parser=["pageProps", "accessibleEpisodes"],
+                              parser=["pageProps", "productData", "programs"],
                               creator=self.create_video_item)
 
         self._add_data_parser("/serie/", json=True, match_type=ParserData.MatchContains,
                               name="Processor of seasons for a TV serie",
-                              parser=["pageProps", "superSeriesSeasons"],
+                              parser=["pageProps", "productData", "seasonLabels"],
                               creator=self.create_season_item,
                               postprocessor=self.check_seasons)
 
@@ -502,8 +504,9 @@ class Channel(chn_class.Channel):
         elif bool(episode):
             title = "{} {:02d} - {}".format(self.__episode_text, episode, title)
 
-        slug = result_set['slug']
-        url = "%s/program/%s" % (self.baseUrl, slug)
+        # slug = result_set['slug']
+        # url = "%s/program/%s" % (self.baseUrl, slug)
+        url = f"https://media-api.urplay.se/config-streaming/v1/urplay/sources/{result_set['id']}"
 
         item = MediaItem(title, url)
         item.media_type = mediatype.EPISODE
@@ -592,46 +595,59 @@ class Channel(chn_class.Channel):
 
         """
 
-        data = UriHandler.open(item.url)
-        # Extract stream JSON data from HTML
-        # streams = Regexer.do_regex(r'ProgramContainer" data-react-props="({[^"]+})"', data)
-        # json_data = streams[0]
-        # json_data = HtmlEntityHelper.convert_html_entities(json_data)
-        json_data = Regexer.do_regex(r'__NEXT_DATA__" type="application/json">(.*?)</script>', data)[0]
-        json = JsonHelper(json_data, logger=Logger.instance())
-        Logger.trace(json.json)
+        data = UriHandler.open(item.url, no_cache=True)
+        json = JsonHelper(data)
 
-        item.streams = []
-
-        # generic server information
-        proxy_data = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json",
-                                     no_cache=True)
-        proxy_json = JsonHelper(proxy_data)
-        proxy = proxy_json.get_value("redirect")
-        Logger.trace("Found RTMP Proxy: %s", proxy)
-
-        stream_infos = json.get_value("props", "pageProps", "program", "streamingInfo")
-        for stream_type, stream_info in stream_infos.items():
-            Logger.trace(stream_info)
-            default_stream = stream_info.get("default", False)
-            bitrates = {"mp3": 400, "m4a": 250, "sd": 1200, "hd": 2000, "tt": None}
-            for quality, bitrate in bitrates.items():
-                stream = stream_info.get(quality)
-                if stream is None:
-                    continue
-                stream_url = stream["location"]
-                if quality == "tt":
-                    item.subtitle = SubtitleHelper.download_subtitle(
-                        stream_url, format="ttml")
-                    continue
-
-                bitrate = bitrate if default_stream else bitrate + 1
-                if stream_type == "raw":
-                    bitrate += 1
-                url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
-                item.add_stream(url, bitrate)
-
-        item.complete = True
+        for stream_type, stream_url in json.get_value("sources").items():
+            if stream_type == "dash":
+                stream = item.add_stream(stream_url, 1)
+                Mpd.set_input_stream_addon_input(stream)
+                item.complete = True
+            elif stream_type == "hls":
+                stream = item.add_stream(stream_url, 0)
+                M3u8.set_input_stream_addon_input(stream)
+                item.complete = True
+        #
+        # # Extract stream JSON data from HTML
+        # # streams = Regexer.do_regex(r'ProgramContainer" data-react-props="({[^"]+})"', data)
+        # # json_data = streams[0]
+        # # json_data = HtmlEntityHelper.convert_html_entities(json_data)
+        # json_data = Regexer.do_regex(r'__NEXT_DATA__" type="application/json">(.*?)</script>', data)[0]
+        #
+        # json = JsonHelper(json_data, logger=Logger.instance())
+        # Logger.trace(json.json)
+        #
+        # item.streams = []
+        #
+        # # generic server information
+        # proxy_data = UriHandler.open("https://streaming-loadbalancer.ur.se/loadbalancer.json",
+        #                              no_cache=True)
+        # proxy_json = JsonHelper(proxy_data)
+        # proxy = proxy_json.get_value("redirect")
+        # Logger.trace("Found RTMP Proxy: %s", proxy)
+        #
+        # stream_infos = json.get_value("props", "pageProps", "program", "streamingInfo")
+        # for stream_type, stream_info in stream_infos.items():
+        #     Logger.trace(stream_info)
+        #     default_stream = stream_info.get("default", False)
+        #     bitrates = {"mp3": 400, "m4a": 250, "sd": 1200, "hd": 2000, "tt": None}
+        #     for quality, bitrate in bitrates.items():
+        #         stream = stream_info.get(quality)
+        #         if stream is None:
+        #             continue
+        #         stream_url = stream["location"]
+        #         if quality == "tt":
+        #             item.subtitle = SubtitleHelper.download_subtitle(
+        #                 stream_url, format="ttml")
+        #             continue
+        #
+        #         bitrate = bitrate if default_stream else bitrate + 1
+        #         if stream_type == "raw":
+        #             bitrate += 1
+        #         url = "https://%s/%smaster.m3u8" % (proxy, stream_url)
+        #         item.add_stream(url, bitrate)
+        #
+        # item.complete = True
         return item
 
     def create_search_result(self, result_set):

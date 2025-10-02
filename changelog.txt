@@ -1,14 +1,12 @@
-[B]Retrospect v5.7.31 - Changelog - 2025-10-02[/B]
+[B]Retrospect v5.7.xx Changelog - 2025-xx-xx[/B]
 
-Fixed Kijk.nl and Vier.be playback.
+t.b.d.
 
 [B]Framework related[/B]
-* Fixed: Restored ISA Helper (See #1916).
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Kijk.nl broke playback (Fixes #1916).
-* Fixed: Vier.be parsing (Fixes #1919).
-* Fixed: UR Play categories.
+* Fixed: UR Play video playback.

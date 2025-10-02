@@ -10,6 +10,15 @@ class TestUrPlayChannel(ChannelTest):
     def __init__(self, methodName):  # NOSONAR
         super(TestUrPlayChannel, self).__init__(methodName, "channel.se.urplay", None)
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        from resources.lib.urihandler import UriHandler
+        from resources.lib.regexer import Regexer
+
+        data = UriHandler.open("https://urplay.se")
+        cls._version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
+
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
@@ -25,12 +34,12 @@ class TestUrPlayChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_video_play(self):
-        url = "https://urplay.se/program/181051-pregunta-ya-pascua"
+        url = "https://media-api.urplay.se/config-streaming/v1/urplay/sources/175178"
         self._test_video_url(url)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_video_audio(self):
-        url = "https://urplay.se/program/216777-ajatuksia-suomeksi-unelmaelama"
+        url = "https://media-api.urplay.se/config-streaming/v1/urplay/sources/216777"
         self._test_video_url(url)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
@@ -65,7 +74,7 @@ class TestUrPlayChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_show_with_seasons(self):
-        url = "https://urplay.se/_next/data/GA__A10ZjqJt3LcPhc8nZ/serie/193272-pregunta-ya.json"
+        url = f"https://urplay.se/_next/data/{self._version}/serie/175177-pregunta-ya.json"
         items = self._test_folder_url(url, expected_results=2)
         folders = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(folders), 2)
