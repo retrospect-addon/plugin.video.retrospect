@@ -35,7 +35,7 @@ class TestUrPlayChannel(ChannelTest):
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_categories(self):
-        url = "https://urplay.se/_next/data/CUD2PRDAoYCTpze5YHm-v/bladdra/alla-kategorier.json"
+        url = "https://urplay.se/_next/data/gzO3h3V5Cycs_u1Wjwt8k/bladdra/alla-kategorier.json"
         self._test_folder_url(url, expected_results=5)
 
     @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")

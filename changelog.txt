@@ -9,5 +9,6 @@ Quick workaround for InputStream Adaptive Helper not working which prevented pla
 _None_
 
 [B]Channel related[/B]
-* Fixed: TV4 Play `playable from`-parsing.
-* Fixed: OpenRegio format JSON glitch fixed.
+* Fixed: Kijk.nl broke playback (Fixes #1916).
+* Fixed: Vier.be parsing (Fixes #1919).
+* Fixed: UR Play categories.
