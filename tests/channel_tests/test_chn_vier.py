@@ -33,7 +33,7 @@ class TestVierBeChannel(ChannelTest):
         self.assertGreater(len(media_items), 5)
 
     def test_show_seasons_listing(self):
-        url = "https://www.goplay.be/de-slimste-mens-ter-wereld"
+        url = "https://www.goplay.be/komen-eten-celebs"
         self._test_folder_url(url, 1)
 
     def test_season_listing(self):
