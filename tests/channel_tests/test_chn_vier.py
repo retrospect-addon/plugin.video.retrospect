@@ -47,6 +47,11 @@ class TestVierBeChannel(ChannelTest):
         url = "https://www.goplay.be/video/hetisingewikkeld/hetisingewikkeld-seizoen-1/hetisingewikkeld-s1-aflevering-8"
         self._test_video_url(url)
 
+    @unittest.skip("Requires a log in.")
+    def test_resolve_via_url_2(self):
+        url = "https://www.goplay.be/video/junior-bake-off-vlaanderen/junior-bake-off-vlaanderen-s5/junior-bake-off-vlaanderen-s5-aflevering-6"
+        self._test_video_url(url)
+
     def test_epg_listing(self):
         day = datetime.datetime.now() - datetime.timedelta(days=2)
         url = "https://www.goplay.be/tv-gids/vier/{:04d}-{:02d}-{:02d}".format(

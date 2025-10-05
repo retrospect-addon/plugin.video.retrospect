@@ -526,7 +526,7 @@ class Channel(chn_class.Channel):
 
     def update_video_item_from_nextjs(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
-        json_data = Regexer.do_regex(r"({\"video\":{.+?})\]}\],", data)[0]
+        json_data = Regexer.do_regex(r"({\"video\":{[^\n\r]+})]]}", data)[0]
         nextjs_json = JsonHelper(json_data)
         video_id = nextjs_json.get_value("videoId")
         item.metaData["whatsonId"] = nextjs_json.get_value("video", "tracking", "whatsonId")
