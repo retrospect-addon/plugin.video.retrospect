@@ -68,35 +68,35 @@ class Channel(chn_class.Channel):
         chn_class.Channel.__init__(self, channel_info)
 
         # setup the main parsing data
-        self.baseUrl = "https://www.goplay.be"
+        self.baseUrl = "https://www.play.tv"
         self.httpHeaders = {"rsc": "1"}
 
         if self.channelCode == "vijfbe":
             self.noImage = "vijffanart.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play-5"
+            self.mainListUri = "https://www.play.tv/programmas/play-5"
             self.__channel_brand = "play5"
             self.__channel_slug = "vijf"
 
         elif self.channelCode == "zesbe":
             self.noImage = "zesfanart.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play-6"
+            self.mainListUri = "https://www.play.tv/programmas/play-6"
             self.__channel_brand = "play6"
             self.__channel_slug = "zes"
 
         elif self.channelCode == "zevenbe":
             self.noImage = "zevenfanart.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play-7"
+            self.mainListUri = "https://www.play.tv/programmas/play-7"
             self.__channel_brand = "play7"
             self.__channel_slug = "zeven"
 
         elif self.channelCode == "goplay":
             self.noImage = "goplayfanart.png"
-            # self.mainListUri = "https://www.goplay.be/programmas/"
+            # self.mainListUri = "https://www.play.tv/programmas/"
             self.mainListUri = "#goplay"
             self.__channel_brand = None
         else:
             self.noImage = "vierfanart.png"
-            self.mainListUri = "https://www.goplay.be/programmas/play-4"
+            self.mainListUri = "https://www.play.tv/programmas/play-4"
             self.__channel_brand = "play4"
             self.__channel_slug = "vier"
 
@@ -104,33 +104,33 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("#recent", preprocessor=self.add_recent_items)
 
-        self._add_data_parser("https://www.goplay.be/programmas/", json=True,
+        self._add_data_parser("https://www.play.tv/programmas/", json=True,
                               preprocessor=NextJsParser(
                                   r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"))
 
-        self._add_data_parser("https://www.goplay.be/programmas/", json=True,
+        self._add_data_parser("https://www.play.tv/programmas/", json=True,
                               preprocessor=self.add_recents,
                               parser=[], creator=self.create_typed_nextjs_item)
 
-        self._add_data_parser("https://www.goplay.be/", json=True, name="Main show parser",
+        self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
                               preprocessor=NextJsParser(r"{\"playlists\":([^\n\r]+}\])[^}\]]+?}\]}\]"),
                               parser=[], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
 
-        self._add_data_parser("https://www.goplay.be/tv-gids/", json=True, name="TV Guides",
+        self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guides",
                               preprocessor=NextJsParser(
                                   r"({\"program\":{\"classification\".+?})\]"),
                               parser=[], creator=self.create_epg_item)
 
-        self._add_data_parser("https://api.goplay.be/web/v1/search", json=True,
+        self._add_data_parser("https://api.play.tv/web/v1/search", json=True,
                               name="Search results parser",
                               parser=["hits", "hits"], creator=self.create_search_result)
 
-        self._add_data_parser("https://api.goplay.be/web/v1/videos/long-form/",
+        self._add_data_parser("https://api.play.tv/web/v1/videos/long-form/",
                               updater=self.update_video_item_with_id)
-        self._add_data_parser("https://www.goplay.be/video/",
+        self._add_data_parser("https://www.play.tv/video/",
                               updater=self.update_video_item_from_nextjs)
-        self._add_data_parser("https://www.goplay.be/",
+        self._add_data_parser("https://www.play.tv/",
                               updater=self.update_video_item)
 
         # ==========================================================================================
@@ -186,7 +186,7 @@ class Channel(chn_class.Channel):
 
         all_items = FolderItem(
             LanguageHelper.get_localized_string(LanguageHelper.TvShows),
-            "https://www.goplay.be/programmas/",
+            "https://www.play.tv/programmas/",
             content_type=contenttype.TVSHOWS
         )
         return data, [search_item, vier, vijf, zes, zeven, all_items]
@@ -230,7 +230,7 @@ class Channel(chn_class.Channel):
                 day = LanguageHelper.get_localized_string(LanguageHelper.Yesterday)
 
             title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
-            url = "https://www.goplay.be/tv-gids/{}/{:04d}-{:02d}-{:02d}".\
+            url = "https://www.play.tv/tv-gids/{}/{:04d}-{:02d}-{:02d}".\
                 format(self.__channel_slug, air_date.year, air_date.month, air_date.day)
 
             extra = MediaItem(title, url)
@@ -263,7 +263,7 @@ class Channel(chn_class.Channel):
         if not needle:
             raise ValueError("No needle present")
 
-        url = f"https://api.goplay.be/web/v1/search"
+        url = f"https://api.play.tv/web/v1/search"
         payload = {"mode": "byDate", "page": 0, "query": needle}
         temp = MediaItem("Search", url, mediatype.FOLDER)
         temp.postJson = payload
@@ -286,9 +286,9 @@ class Channel(chn_class.Channel):
         if not data:
             return None
 
-        brand = data["brandName"].lower()
-        if self.__channel_brand and brand != self.__channel_brand:
-            return None
+        # brand = data["brandName"].lower()
+        # if self.__channel_brand and brand != self.__channel_brand:
+        #     return None
 
         title = data["title"]
         path = data["path"]
@@ -450,7 +450,7 @@ class Channel(chn_class.Channel):
     #     items = []
     #
     #     specials = {
-    #         "https://www.goplay.be/api/programs/popular/{}".format(self.__channel_slug): (
+    #         "https://www.play.tv/api/programs/popular/{}".format(self.__channel_slug): (
     #             LanguageHelper.get_localized_string(LanguageHelper.Popular),
     #             contenttype.TVSHOWS
     #         ),
@@ -521,7 +521,7 @@ class Channel(chn_class.Channel):
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
         list_id = Regexer.do_regex(r"listId\":\"([^\"]+)\"", data)[0]
-        item.url = f"https://api.goplay.be/web/v1/videos/long-form/{list_id}"
+        item.url = f"https://api.play.tv/web/v1/videos/long-form/{list_id}"
         return self.update_video_item_with_id(item)
 
     def update_video_item_from_nextjs(self, item: MediaItem) -> MediaItem:
@@ -530,7 +530,7 @@ class Channel(chn_class.Channel):
         nextjs_json = JsonHelper(json_data)
         video_id = nextjs_json.get_value("videoId")
         item.metaData["whatsonId"] = nextjs_json.get_value("video", "tracking", "whatsonId")
-        item.url = f"https://api.goplay.be/web/v1/videos/long-form/{video_id}"
+        item.url = f"https://api.play.tv/web/v1/videos/long-form/{video_id}"
         return self.update_video_item_with_id(item)
 
     def update_video_item_with_id(self, item: MediaItem) -> MediaItem:
