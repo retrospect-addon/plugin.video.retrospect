@@ -168,9 +168,12 @@ class Channel(chn_class.Channel):
         if not token:
             return False
 
-        url = "https://avod-auth-alb.a2d.tv/oauth/refresh"
+        url = "https://auth.tv4.a2d.tv/v2/auth/token"
         result = UriHandler.open(
-            url, json={"refresh_token": token, "client_id": "tv4-web"}, no_cache=True)
+            url, no_cache=True,
+            json={"refresh_token": token, "grant_type": "refresh_token", "is_child": False},
+            additional_headers={"client-name": "tv4-web"}
+        )
         result = JsonHelper(result)
         self.__access_token = result.get_value("access_token", fallback=None)
 
