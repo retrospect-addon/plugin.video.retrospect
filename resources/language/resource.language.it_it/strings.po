@@ -2,17 +2,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2024-11-02 04:27+0000\n"
-"Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
+"PO-Revision-Date: 2025-08-24 02:29+0000\n"
+"Last-Translator: Galli <galliano16@yahoo.com>\n"
 "Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/it_it/>\n"
 "Language: it_it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.7.2\n"
+"X-Generator: Weblate 5.13\n"
 
 msgctxt "Addon Summary"
 msgid "Retrospect allows you to watch re-runs/catch-ups of TV shows made available via their official broadcasters."
@@ -72,7 +72,7 @@ msgstr "Canali"
 
 msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
-msgstr "Richiede il riavvio di Retrospect per avere effetto."
+msgstr "Per rendere effettive le modifiche, è necessario riavviare Retrospect."
 
 msgctxt "#30012"
 msgid "Login Failed"
@@ -100,7 +100,7 @@ msgstr "Data"
 
 msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
-msgstr "Mostra avviso DRM/Pagato prima della riproduzione"
+msgstr "Mostra avviso DRM/A pagamento prima della riproduzione"
 
 msgctxt "#30020"
 msgid "Maximum Stream Bitrate [COLOR=gray](0=disabled)[/COLOR]"
@@ -128,7 +128,7 @@ msgstr "Nessuno"
 
 msgctxt "#30026"
 msgid "Group list if it exceeds # folders"
-msgstr "Elenco dei gruppi se supera # cartelle"
+msgstr "Raggruppa l'elenco se supera # cartelle"
 
 msgctxt "#30027"
 msgid "Autorun Retrospect on Kodi start"
@@ -156,7 +156,7 @@ msgstr "Impostazioni canale"
 
 msgctxt "#30033"
 msgid "Expires at"
-msgstr "Scade alle"
+msgstr "Scadenza"
 
 msgctxt "#30034"
 msgid "No channel selected"
@@ -204,7 +204,7 @@ msgstr "È richiesto l'aggiornamento di Kodi"
 
 msgctxt "#30045"
 msgid "This feature of Retrospect requires a more recent version of Kodi. Please install the most recent version of your current Kodi build. Depending on your installation this can either be a 'stable' or 'nightly' build."
-msgstr "Questa funzionalità di Retrospect richiede una versione più recente di Kodi. Installa la versione più recente della tua attuale build Kodi. A seconda dell'installazione, questa può essere una build 'stable' o 'nightly'."
+msgstr "Questa funzionalità di Retrospect richiede una versione più recente di Kodi. Installa la versione più recente della tua build attuale di Kodi. A seconda dell'installazione, questa può essere una build 'stabile' o 'nightly'."
 
 msgctxt "#30046"
 msgid "DRM/Geo-blocked/Premium filters"
@@ -212,16 +212,16 @@ msgstr "Filtri DRM/Geobloccati/Premium"
 
 msgctxt "#30047"
 msgid "Cannot playback this YouTube Video because the Kodi YouTube add-on is missing."
-msgstr "Impossibile riprodurre questo video di YouTube perché manca il componente aggiuntivo Kodi YouTube."
+msgstr "Impossibile riprodurre questo video di YouTube perché manca l'add-on YouTube di Kodi."
 
 # empty string with id 30047
 msgctxt "#30048"
 msgid "Log level"
-msgstr ""
+msgstr "Livello di log"
 
 msgctxt "#30049"
 msgid "Premium/Paid"
-msgstr ""
+msgstr "Premium/A pagamento"
 
 msgctxt "#30050"
 msgid "DRM Protected"
@@ -229,15 +229,15 @@ msgstr "Protetto da DRM"
 
 msgctxt "#30051"
 msgid "Hidden item"
-msgstr ""
+msgstr "Elemento nascosto"
 
 msgctxt "#30052"
 msgid "Send usage statistics"
-msgstr ""
+msgstr "Invia statistiche di utilizzo"
 
 msgctxt "#30053"
 msgid "Appearance"
-msgstr ""
+msgstr "Aspetto"
 
 msgctxt "#30054"
 msgid "[COLOR gold][B]The Retrospect Password Vault[/B][/COLOR][CR]'The Vault' enables storing sensitive data in a more secure way. How does this work:[CR][CR]* The users selects a simple Vault PIN that is used as the main code for accessing the Vault data.[CR]* This PIN can be rather simple and short and easy to remember: for example 3145.[CR]* That PIN is then used to generate a much stronger and complexer encryption key using Scrypt.[CR]* As a user you will not need to know this complex key.[CR][CR][COLOR gold][B]Storing sensitive data[/B][/COLOR][CR]Whenever sensitive data is being [B]stored[/B]:[CR][CR]* The user will be asked for their PIN first.[CR]* After a correct PIN the actual data to store will be asked.[CR][CR][COLOR gold][B]Retrieving sensitive data[/B][/COLOR][CR]Whenever sensitive data is being [B]retrieved[/B]:[CR][CR]* The user will only be asked for their PIN.[CR]* That PIN is then used to securely fetch the actual data.[CR][CR][COLOR gold][B]Resetting the Vault[/B][/COLOR][CR]If a user has forgotten the PIN, there is no way of recovering the data. The only solution is to reset the Vault and pick a new PIN and generate a new Vault Key. [B]This will invalidate all encrypted data[/B]. This data must be entered again."
@@ -249,24 +249,24 @@ msgstr "Avanzate"
 
 msgctxt "#30056"
 msgid "Install the Up Next add-on"
-msgstr ""
+msgstr "Installa l'add-on Up Next"
 
 msgctxt "#30057"
 msgid "Enable the Up Next add-on"
-msgstr ""
+msgstr "Abilita l'add-on Up Next"
 
 # empty strings from id 30056 to 30058
 msgctxt "#30059"
 msgid "Other Countries"
-msgstr ""
+msgstr "Altri paesi"
 
 msgctxt "#30060"
 msgid "Enable/Disable channels by country of origin"
-msgstr ""
+msgstr "Abilita/disabilita canali in base al paese di origine"
 
 msgctxt "#30061"
 msgid "Channel Origin"
-msgstr ""
+msgstr "Origine del canale"
 
 msgctxt "#30062"
 msgid "HTTP"
@@ -274,27 +274,27 @@ msgstr "HTTP"
 
 msgctxt "#30063"
 msgid "Channel to configure"
-msgstr ""
+msgstr "Canale da configurare"
 
 msgctxt "#30064"
 msgid "Proxy Group"
-msgstr ""
+msgstr "Gruppo proxy"
 
 msgctxt "#30065"
 msgid "Country Settings"
-msgstr ""
+msgstr "Impostazioni paese"
 
 msgctxt "#30066"
 msgid "DNS"
-msgstr ""
+msgstr "DNS"
 
 msgctxt "#30067"
 msgid "Show channels in categories"
-msgstr ""
+msgstr "Mostra canali in categorie"
 
 msgctxt "#30068"
 msgid "Active"
-msgstr ""
+msgstr "Attivo"
 
 msgctxt "#30069"
 msgid "Settings"
@@ -302,7 +302,7 @@ msgstr "Impostazioni"
 
 msgctxt "#30070"
 msgid "Let Kodi determine bitrate if possible"
-msgstr ""
+msgstr "Lascia che Kodi determini il bitrate, se possibile"
 
 msgctxt "#30071"
 msgid "Set the proxy and local IP to all channels related to this country"
@@ -314,11 +314,11 @@ msgstr ""
 
 msgctxt "#30073"
 msgid "- Geo-blocked = º, DRM protected = ^ and Premium = ª."
-msgstr ""
+msgstr "- Blocco geografico = º, Protezione DRM = ^ e Premium = ª."
 
 msgctxt "#30074"
 msgid "Disabled"
-msgstr ""
+msgstr "Disabilitato"
 
 msgctxt "#30075"
 msgid "Empty list behaviour"
@@ -326,47 +326,47 @@ msgstr ""
 
 msgctxt "#30076"
 msgid "Show error"
-msgstr ""
+msgstr "Visualizza errore"
 
 msgctxt "#30077"
 msgid "Show empty list"
-msgstr ""
+msgstr "Mostra elenco vuoto"
 
 msgctxt "#30078"
 msgid "Show dummy item"
-msgstr ""
+msgstr "Mostra elemento fittizio"
 
 msgctxt "#30079"
 msgid "Local IP (0.0.0.0=disabled)"
-msgstr ""
+msgstr "IP locale (0.0.0.0=disabilitato)"
 
 msgctxt "#30080"
 msgid "Filter DRM protected items"
-msgstr ""
+msgstr "Filtra elementi protetti da DRM"
 
 msgctxt "#30081"
 msgid "Filter Premium/Paid items"
-msgstr ""
+msgstr "Filtra elementi Premium/A pagamento"
 
 msgctxt "#30082"
 msgid "Apply filter to"
-msgstr ""
+msgstr "Applica filtro a"
 
 msgctxt "#30083"
 msgid "Folders & Streams"
-msgstr ""
+msgstr "Cartelle e flussi"
 
 msgctxt "#30084"
 msgid "Streams Only"
-msgstr ""
+msgstr "Solo flussi"
 
 msgctxt "#30085"
 msgid "Geo Location"
-msgstr ""
+msgstr "Geolocalizzazione"
 
 msgctxt "#30086"
 msgid "Hide Fanart"
-msgstr ""
+msgstr "Nascondi fanart"
 
 msgctxt "#30087"
 msgid "Mix folders and streams while sorting"
@@ -374,23 +374,23 @@ msgstr ""
 
 msgctxt "#30088"
 msgid "Show thumbnail as fanart if no fanart is available"
-msgstr ""
+msgstr "Mostra la miniatura come fanart se non è disponibile alcuna fanart"
 
 msgctxt "#30089"
 msgid "Password Vault"
-msgstr ""
+msgstr "Password Vault"
 
 msgctxt "#30090"
 msgid "The 'Password Vault' protects stored password with encryption using a PIN."
-msgstr ""
+msgstr "La funzione 'Password Vault' protegge le password memorizzate con crittografia tramite PIN."
 
 msgctxt "#30091"
 msgid "Change Vault Pin"
-msgstr ""
+msgstr "Cambia PIN del Vault"
 
 msgctxt "#30092"
 msgid "Reset Vault"
-msgstr ""
+msgstr "Reimposta Vault"
 
 msgctxt "#30093"
 msgid "Password"
@@ -402,15 +402,15 @@ msgstr "Nome utente"
 
 msgctxt "#30095"
 msgid "Show Hidden Items"
-msgstr ""
+msgstr "Mostra elementi nascosti"
 
 msgctxt "#30096"
 msgid "Country"
-msgstr ""
+msgstr "Nazione"
 
 msgctxt "#30097"
 msgid "Local IP"
-msgstr ""
+msgstr "IP locale"
 
 msgctxt "#30098"
 msgid "Logging & Diagnostics"
