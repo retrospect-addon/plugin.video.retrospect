@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.31"
+        version="5.7.32"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,20 +133,20 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.31 - Changelog - 2025-10-02[/B]
+        <news>[B]Retrospect v5.7.32 - Changelog - 2025-11-04[/B]
 
-Fixed Kijk.nl and Vier.be playback.
+Fixed some Swedish channel-related issues.
 
 [B]Framework related[/B]
-* Fixed: Restored ISA Helper (See #1916).
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Kijk.nl broke playback (Fixes #1916).
-* Fixed: Vier.be parsing (Fixes #1919).
-* Fixed: UR Play categories.
+* Fixed: UR Play video playback.
+* Fixed: UR Play search.
+* Fixed: Log-in issue for TV4play.se (Fixes 1922).
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
