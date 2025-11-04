@@ -95,11 +95,16 @@ class TestSvtChannel(ChannelTest):
         self._test_folder_url(url, expected_results=10)
 
     def test_api_video_update(self):
-        url = "https://api.svt.se/videoplayer-api/video/KXYZx9k"
+        url = "https://api.svt.se/videoplayer-api/video/emyVR51"
+        item = self._test_video_url(url)
+        self.assertIsNotNone(item)
+
+    def test_api_video_update_new(self):
+        url = "https://video.svt.se/video/emyVR51"
         item = self._test_video_url(url)
         self.assertIsNotNone(item)
 
     def test_html_video_update(self):
-        url = "https://www.svtplay.se/video/KXYZx9k/utvandrarna/utvandrarna?video=visa"
+        url = "https://www.svtplay.se/video/KNw7WxW/sa-byggdes-sverige/1-villagatan-drommen-om-ett-eget-hem?video=visa"
         item = self._test_video_url(url)
-        self.assertTrue(item.url.endswith("KXYZx9k"))
+        self.assertTrue(item.url.endswith("KNw7WxW"))
