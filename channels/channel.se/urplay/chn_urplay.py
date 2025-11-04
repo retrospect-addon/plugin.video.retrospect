@@ -651,10 +651,10 @@ class Channel(chn_class.Channel):
         return item
 
     def create_search_result(self, result_set):
-        result_type = result_set["mediaType"].lower()
+        result_type = result_set["productType"].lower()
         if result_type == "series":
             return self.__create_search_result(result_set, "series")
-        elif result_type == "episode" or result_type == "single":
+        elif result_type in ("episode", "program", "single"):
             return self.__create_search_result(result_set, "program")
 
         Logger.error("Missing search result type: %s", result_type)
