@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import os
 import unittest
 
 from . channeltest import ChannelTest
 
 
+@unittest.skipIf("CI" in os.environ, "Skipping in CI due to broken api")
 class TestVierBeChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
