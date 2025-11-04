@@ -5,6 +5,7 @@ import unittest
 from . channeltest import ChannelTest
 
 
+@unittest.skipIf("CI" in os.environ, "Not working on CI due to GitHub IP blocks.")
 class TestUrPlayChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
@@ -16,7 +17,7 @@ class TestUrPlayChannel(ChannelTest):
         from resources.lib.urihandler import UriHandler
         from resources.lib.regexer import Regexer
 
-        data = UriHandler.open("https://urplay.se")
+        data = UriHandler.open("https://urplay.se", additional_headers=headers)
         cls._version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
 
     def test_channel_exists(self):
