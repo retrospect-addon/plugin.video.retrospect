@@ -112,6 +112,7 @@ class TestNpoChannel(ChannelTest):
     def test_programs(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE", 5)
 
+    @unittest.skip("No longer used")
     def test_more_genres(self):
         self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=118e43f3-864a-4dbd-91ea-c6450a8d2c25&partyId=1&layoutType=PAGE", 7)
 
