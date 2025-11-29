@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
+
 from . channeltest import ChannelTest
 
 
@@ -36,10 +38,12 @@ class TestSrfChannel(ChannelTest):
         live_items = [i for i in items if i.isLive]
         self.assertTrue(live_items[0].dontGroup)
 
+    @unittest.skip("Skip due to GEO")
     def test_update_live_channel(self):
         url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
         self._test_video_url(url)
 
+    @unittest.skip("Skip due to GEO")
     def test_update_live_channel_widevine(self):
         url = "https://il.srf.ch/integrationlayer/2.0/mediaComposition/byUrn/urn:srf:video:c4927fcf-e1a0-0001-7edd-1ef01d441651.json?onlyChapters=false&vector=portalplay"
         item = self._test_video_url(url)
