@@ -13,7 +13,8 @@
       "language": "nl",
       "fanart": "onsfanart.jpg",
       "adaptiveAddonSelectable": false,
-      "poster": "onsposter.jpg"
+      "poster": "onsposter.jpg",
+      "ignore": true
     }
   ]
 }

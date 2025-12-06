@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import unittest
+
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.urihandler import UriHandler
 from . channeltest import ChannelTest
 
 
+@unittest.skip("Broken channel: no more videos")
 class TestOnsChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
