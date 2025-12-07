@@ -71,61 +71,35 @@ class Channel(chn_class.Channel):
         self.baseUrl = "https://www.play.tv"
         self.httpHeaders = {"rsc": "1"}
 
-        if self.channelCode == "vijfbe":
-            self.noImage = "vijffanart.png"
-            self.mainListUri = "https://www.play.tv/programmas/play-5"
-            self.__channel_brand = "play5"
-            self.__channel_slug = "vijf"
-
-        elif self.channelCode == "zesbe":
-            self.noImage = "zesfanart.png"
-            self.mainListUri = "https://www.play.tv/programmas/play-6"
-            self.__channel_brand = "play6"
-            self.__channel_slug = "zes"
-
-        elif self.channelCode == "zevenbe":
-            self.noImage = "zevenfanart.png"
-            self.mainListUri = "https://www.play.tv/programmas/play-7"
-            self.__channel_brand = "play7"
-            self.__channel_slug = "zeven"
-
-        elif self.channelCode == "goplay":
-            self.noImage = "goplayfanart.png"
-            # self.mainListUri = "https://www.play.tv/programmas/"
-            self.mainListUri = "#goplay"
-            self.__channel_brand = None
-        else:
-            self.noImage = "vierfanart.png"
-            self.mainListUri = "https://www.play.tv/programmas/play-4"
-            self.__channel_brand = "play4"
-            self.__channel_slug = "vier"
-
-        self._add_data_parser("#goplay", preprocessor=self.add_specials)
+        self.noImage = "playtv.png"
+        self.mainListUri = "https://www.play.tv/programmas"
+        self.__channel_brand = None
+        self.__channel_slug = None
 
         self._add_data_parser("#recent", preprocessor=self.add_recent_items)
 
-        self._add_data_parser("https://www.play.tv/programmas/", json=True,
+        self._add_data_parser("https://www.play.tv/programmas", json=True,
                               preprocessor=NextJsParser(
-                                  r"{\"brand\":\".+?\",\"results\":(.+),\"categories\":"))
+                                  r"\W{2,}f:([^\n\r]+)"))
 
-        self._add_data_parser("https://www.play.tv/programmas/", json=True,
+        self._add_data_parser("https://www.play.tv/programmas", json=True,
                               preprocessor=self.add_recents,
-                              parser=[], creator=self.create_typed_nextjs_item)
+                              parser=[0, -1, "children", -1, -1, "children", -1, "results"], creator=self.create_typed_nextjs_item)
 
         self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
-                              preprocessor=NextJsParser(r"{\"playlists\":([^\n\r]+}\])[^}\]]+?}\]}\]"),
-                              parser=[], creator=self.create_season_item,
+                              preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
+                              parser=[-1, "children", -1, "children", -1, "playlists"], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
 
-        self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guides",
-                              preprocessor=NextJsParser(
-                                  r"({\"program\":{\"classification\".+?})\]"),
-                              parser=[], creator=self.create_epg_item)
-
-        self._add_data_parser("https://api.play.tv/web/v1/search", json=True,
-                              name="Search results parser",
-                              parser=["hits", "hits"], creator=self.create_search_result)
-
+        # self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guides",
+        #                       preprocessor=NextJsParser(
+        #                           r"({\"program\":{\"classification\".+?})\]"),
+        #                       parser=[], creator=self.create_epg_item)
+        #
+        # self._add_data_parser("https://api.play.tv/web/v1/search", json=True,
+        #                       name="Search results parser",
+        #                       parser=["hits", "hits"], creator=self.create_search_result)
+        #
         self._add_data_parser("https://api.play.tv/web/v1/videos/long-form/",
                               updater=self.update_video_item_with_id)
         self._add_data_parser("https://www.play.tv/video/",
