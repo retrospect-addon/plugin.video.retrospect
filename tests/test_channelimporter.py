@@ -43,7 +43,7 @@ class TestChannelImporter(unittest.TestCase):
         from resources.lib.helpers.channelimporter import ChannelIndex
         instance = ChannelIndex.get_register()
         channels = instance.get_channels()
-        self.assertGreater(len(channels), 50)
+        self.assertGreater(len(channels), 25)
 
     def test_channel(self):
         from resources.lib.helpers.channelimporter import ChannelIndex

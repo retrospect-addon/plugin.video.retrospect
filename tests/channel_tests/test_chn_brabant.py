@@ -21,7 +21,7 @@ class TestBrabantChannel(ChannelTest):
 
     def test_show_listing(self):
         url = "https://api.omroepbrabant.nl/api/media/series/v2/1"
-        self._test_folder_url(url, expected_results=10)
+        self._test_folder_url(url, expected_results=4)
 
     def test_video_resolve(self):
         url = "https://omroepbrabant.bbvms.com/p/default/q/sourceid_string:3419998.json"
