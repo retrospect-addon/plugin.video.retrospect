@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-05-21 22:42+0000\n"
+"PO-Revision-Date: 2025-11-27 12:13+0000\n"
 "Last-Translator: Kai Sommerfeld <ksooo@users.noreply.kodi.weblate.cloud>\n"
 "Language-Team: German <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/de_de/>\n"
 "Language: de_de\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.17\n"
+"X-Generator: Weblate 5.14.3\n"
 
 msgctxt "Addon Summary"
 msgid "Retrospect allows you to watch re-runs/catch-ups of TV shows made available via their official broadcasters."
@@ -20,7 +20,7 @@ msgstr "Mit Retrospect kann man Wiederholungen / vorherige Folgen von Serien, di
 
 msgctxt "Addon Description"
 msgid "Retrospect uses the official websites and freely available streams of different broadcasting companies (mainly Dutch, Belgian, British, Norwegian and Swedish) to make their re-run/catch-up episodes available on the Kodi platform. [CR][CR]Some channels that are included are: NPO Start, Kijk.nl (SBS6, NET5, Veronica, SBS9), RTL XL, NOS, Nickelodeon, AT5, Omroep Flevoland, L1, RTV Drenthe, RTV Oost, RTV Noord, RTV Noord-Holland, RTV Rijnmond, Omroep West, Omroep Gelderland, Omroep Brabant, Omrop Fryslân, WOS, DTV, Omroep Venlo Omroep Horst aan de Maas, Studio 040, RTV Utrecht, Omroep Zeeland, Eén, Vier, VRT.nu, VTM, Stieve, Ketnet, DPlay, SVT, ViaFree, Viasat, UR Play, MTV, NRK, BBC, Dumpert, Fox Sports, Pathé Nederland, Hardware.info and Ons.[CR][CR]More information can be found at https://github.com/retrospect-addon/plugin.video.retrospect or the Retrospect wiki at https://github.com/retrospect-addon/plugin.video.retrospect/wiki/."
-msgstr ""
+msgstr "Retrospect nutzt die offiziellen Websites und frei verfügbaren Streams verschiedener Rundfunkunternehmen (hauptsächlich aus den Niederlanden, Belgien, Großbritannien, Norwegen und Schweden), um deren Wiederholungen/Nachholfolgen auf der Kodi-Plattform verfügbar zu machen. [CR][CR]Einige der enthaltenen Sender sind: NPO Start, Kijk.nl (SBS6, NET5, Veronica, SBS9), RTL XL, NOS, Nickelodeon, AT5, Omroep Flevoland, L1, RTV Drenthe, RTV Oost, RTV Noord, RTV Noord-Holland, RTV Rijnmond, Omroep West, Omroep Gelderland, Omroep Brabant, Omrop Fryslân, WOS, DTV, Omroep Venlo Omroep Horst aan de Maas, Studio 040, RTV Utrecht, Omroep Zeeland, Eén, Vier, VRT.nu, VTM, Stieve, Ketnet, DPlay, SVT, ViaFree, Viasat, UR Play, MTV, NRK, BBC, Dumpert, Fox Sports, Pathé Nederland, Hardware.info und Ons. [CR][CR]Weitere Informationen unter https://github.com/retrospect-addon/plugin.video.retrospect oder im Retrospect-Wiki unter https://github.com/retrospect-addon/plugin.video.retrospect/wiki/."
 
 msgctxt "Addon Disclaimer"
 msgid "Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage caused to your system. Nor do we take responsibility for the content that can be watched using this add-on or any consequences of using this add-on to watch content via the content providers' platforms."
@@ -526,7 +526,7 @@ msgstr ""
 
 msgctxt "#30126"
 msgid "Default"
-msgstr ""
+msgstr "Standard"
 
 msgctxt "#30127"
 msgid "Show All"
@@ -753,11 +753,11 @@ msgstr "Alle Episoden"
 
 msgctxt "#30371"
 msgid "Trending"
-msgstr ""
+msgstr "Angesagt"
 
 msgctxt "#30372"
 msgid "New Search"
-msgstr ""
+msgstr "Neue Suche"
 
 msgctxt "#30373"
 msgid "Following"
