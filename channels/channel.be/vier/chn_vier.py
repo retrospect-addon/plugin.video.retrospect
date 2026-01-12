@@ -12,6 +12,7 @@ from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
+from resources.lib.helpers.reactrsc import RSCHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, MediaItemResult, FolderItem
 from resources.lib.regexer import Regexer
@@ -24,30 +25,19 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 
 
 class NextJsParser:
-    def __init__(self, regex: str):
-        self.__regex = regex
+    def __init__(self, key: str, value: str):
+        self._key = key
+        self._value = value
 
-    def __call__(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
-        nextjs_regex = self.__regex
-        try:
-            result = Regexer.do_regex(nextjs_regex, data)
-            if len(result) == 1:
-                nextjs_data = result[0]
-            else:
-                nextjs_json = [JsonHelper.loads(j) for j in result]
-                helper = JsonHelper("{}")
-                helper.json = nextjs_json
-                return helper, []
-        except:
-            Logger.debug(f"RAW NextJS: {data}")
-            raise
-
-        Logger.trace(f"NextJS: {nextjs_data}")
-        nextjs_json = JsonHelper(nextjs_data)
-        return nextjs_json, []
-
-    def __str__(self):
-        return f"NextJS parser: {self.__regex}"
+    def __call__(self, data: str) -> Tuple[Union[JsonHelper, str], List[MediaItem]]:
+        helper = RSCHelper(data)
+        json_data = helper.convert_to_json()
+        result_data = JsonHelper.find_dict_by_key_value_from(json_data, self._key, self._value)
+        if result_data:
+            Logger.debug("Found NextJs data: %s", JsonHelper.dump(result_data, pretty_print=False))
+            return JsonHelper(result_data), []
+        Logger.warning("Could not find NextJs data for key: %s, value: %s", self._key, self._value)
+        return "", []
 
 
 class Channel(chn_class.Channel):
@@ -74,22 +64,31 @@ class Channel(chn_class.Channel):
         self.noImage = "playtv.png"
         self.mainListUri = "https://www.play.tv/programmas"
         self.__channel_brand = None
-        self.__channel_slug = None
+        self.__channel_slug = "play"
 
         self._add_data_parser("#recent", preprocessor=self.add_recent_items)
 
         self._add_data_parser("https://www.play.tv/programmas", json=True,
-                              preprocessor=NextJsParser(
-                                  r"\W{2,}f:([^\n\r]+)"))
+                              preprocessor=NextJsParser("className", "mb-sect-c-s lg:mb-sect-c-l flex w-full flex-col"))
 
         self._add_data_parser("https://www.play.tv/programmas", json=True,
                               preprocessor=self.add_recents,
-                              parser=[0, -1, "children", -1, -1, "children", -1, "results"], creator=self.create_typed_nextjs_item)
+                              parser=["children", -1, -1, "children", -1, "results"], creator=self.create_typed_nextjs_item)
 
-        self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
-                              preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
-                              parser=[-1, "children", -1, "children", -1, "playlists"], creator=self.create_season_item,
-                              postprocessor=self.show_single_season)
+        # self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
+        #                       preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
+        #                       parser=[-1, "children", -1, "children", -1, "playlists"], creator=self.create_season_item,
+        #                       postprocessor=self.show_single_season)
+        #
+        # self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser without children",
+        #                       preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
+        #                       parser=[-1, "playlists", -1], creator=self.create_season_item,
+        #                       postprocessor=self.show_single_season)
+        #
+        # self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guide parser",
+        #                       preprocessor=NextJsParser(
+        #                           r"({\"program\":{\"classification\".+?})\]"),
+        #                       parser=[], creator=self.create_epg_item)
 
         # self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guides",
         #                       preprocessor=NextJsParser(
