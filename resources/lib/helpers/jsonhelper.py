@@ -127,6 +127,9 @@ class JsonHelper(object):
     def find_dict_by_key_value(self, key: str, value: Any) -> Optional[Dict]:
         return JsonHelper.find_dict_by_key_value_from(self.json, key, value)
 
+    def find_dict_by_key(self, key: str, value: Any) -> Optional[Dict]:
+        return JsonHelper.find_dict_by_key_from(self.json, key, value)
+
     @staticmethod
     def find_dict_by_key_value_from(data: Union[List, Dict], key: str, value: Any) -> Optional[Dict]:
         """
@@ -146,6 +149,30 @@ class JsonHelper(object):
         elif isinstance(data, list):
             for item in data:
                 result = JsonHelper.find_dict_by_key_value_from(item, key, value)
+                if result is not None:
+                    return result
+
+        return None
+
+    @staticmethod
+    def find_dict_by_key_from(data: Union[List, Dict], key: str) -> Optional[Dict]:
+        """
+        Search recursively for a dictionary containing a specific key-value pair.
+        Returns the dictionary and all its content if found, otherwise None.
+        """
+
+        if isinstance(data, dict):
+            if key in data:
+                return data[key]
+
+            for child in data.values():
+                result = JsonHelper.find_dict_by_key_from(child, key)
+                if result is not None:
+                    return result
+
+        elif isinstance(data, list):
+            for item in data:
+                result = JsonHelper.find_dict_by_key_from(item, key)
                 if result is not None:
                     return result
 

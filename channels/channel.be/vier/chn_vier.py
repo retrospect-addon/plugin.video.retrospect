@@ -25,20 +25,29 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 
 
 class NextJsParser:
-    def __init__(self, key: str, value: str):
+    def __init__(self, key: str = "", value: str = ""):
         self._key = key
         self._value = value
 
     def __call__(self, data: str) -> Tuple[Union[JsonHelper, str], List[MediaItem]]:
         helper = RSCHelper(data)
-        json_data = helper.convert_to_json()
-        result_data = JsonHelper.find_dict_by_key_value_from(json_data, self._key, self._value)
+        result_data = helper.convert_to_json()
         if result_data:
             Logger.debug("Found NextJs data: %s", JsonHelper.dump(result_data, pretty_print=False))
+
+        if self._key and self._value:
+            result_data = JsonHelper.find_dict_by_key_value_from(result_data, self._key, self._value)
+        elif self._key:
+            result_data = JsonHelper.find_dict_by_key_from(result_data, self._key)
+
+        if result_data:
             return JsonHelper(result_data), []
+
         Logger.warning("Could not find NextJs data for key: %s, value: %s", self._key, self._value)
         return "", []
 
+    def __str__(self):
+        return f"NextJsParser(key={self._key}, value={self._value})"
 
 class Channel(chn_class.Channel):
     """
@@ -75,11 +84,11 @@ class Channel(chn_class.Channel):
                               preprocessor=self.add_recents,
                               parser=["children", -1, -1, "children", -1, "results"], creator=self.create_typed_nextjs_item)
 
-        # self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
-        #                       preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
-        #                       parser=[-1, "children", -1, "children", -1, "playlists"], creator=self.create_season_item,
-        #                       postprocessor=self.show_single_season)
-        #
+        self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
+                              preprocessor=NextJsParser(key="playlists"),
+                              parser=[-1], creator=self.create_season_item,
+                              postprocessor=self.show_single_season)
+
         # self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser without children",
         #                       preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
         #                       parser=[-1, "playlists", -1], creator=self.create_season_item,
