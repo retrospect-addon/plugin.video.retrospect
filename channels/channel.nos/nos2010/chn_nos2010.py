@@ -87,7 +87,7 @@ class Channel(chn_class.Channel):
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
             "https://npo.nl/start/api/domain/page-collection?collectionId=",
-            "https://npo.nl/start/api/domain/page-collection?type=series&collectionId=",
+            "https://npo.nl/start/api/domain/page-collection?collectionType=SERIES&collectionId=",
             "https://npo.nl/start/api/domain/search-collection-items?searchType=series"],
             name="Collections with series", json=True,
             requires_logon=bool(self.__user_name),
@@ -104,7 +104,7 @@ class Channel(chn_class.Channel):
         # If the user was logged in, we need to refresh the token otherwise it will result in 403
         self._add_data_parsers([
             "https://npo.nl/start/api/domain/search-collection-items?searchType=broadcasts",
-            "https://npo.nl/start/api/domain/page-collection?type=program&collectionId="
+            "https://npo.nl/start/api/domain/page-collection?collectionType=PROGRAM&collectionId="
         ],
             name="Collections with videos", json=True,
             requires_logon=bool(self.__user_name),
@@ -151,9 +151,12 @@ class Channel(chn_class.Channel):
                               name="Bare pages layout", json=True,
                               parser=["collections"], creator=self.create_api_page_layout)
 
-        self._add_data_parser("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=",
-                              name="Categories layout", json=True,
-                              parser=["items"], creator=self.create_api_category_item)
+        self._add_data_parsers([
+            "https://npo.nl/start/api/domain/page-collection?collectionType=PAGE&collectionId=",
+            # Not quite sure if dynamic_page still exists, but kept in just in case it does.
+            "https://npo.nl/start/api/domain/page-collection?collectionType=DYNAMIC_PAGE&collectionId="],
+            name="Categories layout", json=True,
+            parser=["items"], creator=self.create_api_category_item)
 
         # Favourites (not yet implemented in the site).
         self._add_data_parser("https://npo.nl/start/api/domain/user-profiles",
@@ -429,7 +432,8 @@ class Channel(chn_class.Channel):
         #         content_type=contenttype.TVSHOWS)
 
         add_item(LanguageHelper.TvShows,
-                 "https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE",
+                 "https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE&includePremiumContent={}&partyId=1".format(
+                     'false' if AddonSettings.hide_premium_items() else 'true'),
                  content_type=contenttype.TVSHOWS)
 
         live_radio = add_item(
@@ -653,8 +657,9 @@ class Channel(chn_class.Channel):
         else:
             guid = result_set["collectionId"]
         page_type = result_set["type"]
-        url = f"https://npo.nl/start/api/domain/page-collection?type={page_type.lower()}&collectionId={guid}&partyId=1&layoutType=PAGE"
-
+        include_premium = 'false' if AddonSettings.hide_premium_items() else 'true'
+        url = (f"https://npo.nl/start/api/domain/page-collection?collectionType={page_type}"
+               f"&collectionId={guid}&partyId=1&layoutType=PAGE&includePremiumContent={include_premium}")
         info = UriHandler.open(url)
         info = JsonHelper(info)
         title = info.get_value("title")
@@ -665,7 +670,7 @@ class Channel(chn_class.Channel):
             content_type = contenttype.TVSHOWS
         elif page_type == "PROGRAM":
             content_type = contenttype.EPISODES
-        elif page_type == "DYNAMIC_PAGE":
+        elif page_type in ("DYNAMIC_PAGE", "PAGE"):
             content_type = contenttype.VIDEOS
         else:
             Logger.error(f"Missing for page type: {page_type}")

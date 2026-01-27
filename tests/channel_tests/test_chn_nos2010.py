@@ -110,14 +110,19 @@ class TestNpoChannel(ChannelTest):
         self._test_folder_url(url, 5)
 
     def test_programs(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE", 5)
+        url = "https://npo.nl/start/api/domain/page-layout?layoutId=programmas&layoutType=PAGE&includePremiumContent=true&partyId=1"
+        self._test_folder_url(url, 5)
 
     @unittest.skip("No longer used")
     def test_more_genres(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=dynamic_page&collectionId=118e43f3-864a-4dbd-91ea-c6450a8d2c25&partyId=1&layoutType=PAGE", 7)
+        # TV shows/Genres
+        url = "https://npo.nl/start/api/domain/page-collection?collectionType=PAGE&collectionId=5817f2c3-dd7f-4c68-9c46-8fe2e630f85f&partyId=1&layoutType=PAGE&includePremiumContent=true"
+        self._test_folder_url(url, 5)
 
     def test_page(self):
-        self._test_folder_url("https://npo.nl/start/api/domain/page-collection?type=series&collectionId=db612122-75e0-4f6c-8a32-e9202ae9fce8&partyId=1&layoutType=PAGE", 10)
+        # TV shows/Nieuws en actualiteiten
+        url = "https://npo.nl/start/api/domain/page-collection?collectionType=SERIES&collectionId=cab647cf-7bf6-4c7c-9610-cb9e46dbfdde&partyId=1&layoutType=PAGE&includePremiumContent=true"
+        self._test_folder_url(url, 10)
 
     def test_update_stream_pow(self):
         url = "KN_1693383"
