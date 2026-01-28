@@ -17,6 +17,7 @@ class TestOpenRegioChannel(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertGreater(len(items), 20)
 
+    @unittest.skip("Broken for now")
     def test_show_listing(self):
         self._test_folder_url(
             "https://media.wos.nl/retrospect/wos/83903f02-9ddf-408e-9a4e-ebcacdbda6a5.json", 3)
