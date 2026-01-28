@@ -1,4 +1,4 @@
-[B]Retrospect v5.7.32 - Changelog - 2025-11-04[/B]
+[B]Retrospect v5.7.xx - Changelog - 2026-xx-xx[/B]
 
 Fixed some Swedish channel-related issues.
 
@@ -9,6 +9,5 @@ _None_
 _None_
 
 [B]Channel related[/B]
-* Fixed: UR Play video playback.
-* Fixed: UR Play search.
-* Fixed: Log-in issue for TV4play.se (Fixes 1922).
+* Fixed: TV4 Recents.
+* Fixed: NPO TV programmes (See #1931).
