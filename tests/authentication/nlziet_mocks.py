@@ -8,6 +8,7 @@ enabling all NLZiet authentication tests to run without credentials.
 
 import base64
 import json
+import re
 from urllib.parse import urlparse, parse_qs
 
 from resources.lib.urihandler import UriStatus
@@ -202,6 +203,51 @@ MOCK_DEVICE_PENDING_RESPONSE = {"error": "authorization_pending"}
 # Mock Dispatcher
 # ============================================================================
 
+MOCK_HOME_PLACEMENT_RESPONSE = {
+    "components": [
+        {
+            "type": "ItemTileList",
+            "title": "Trending",
+            "url": "https://api.nlziet.nl/v9/recommend/filtered?category=Trending&limit=10",
+        }
+    ]
+}
+
+MOCK_SERIES_DETAIL_RESPONSE = {
+    "content": {
+        "id": "mock-series-001",
+        "title": "Mock Series",
+        "seasons": [
+            {
+                "id": "mock-season-001",
+                "title": "Seizoen 1",
+                "seasonNumber": 1,
+                "episodes": [
+                    {"id": "mock-ep-001", "title": "Aflevering 1", "episodeNumber": 1}
+                ],
+            }
+        ],
+    }
+}
+
+MOCK_EPG_LIVE_RESPONSE = {
+    "data": [
+        {
+            "channel": {
+                "content": {
+                    "id": "npo1",
+                    "title": "NPO 1",
+                    "logo": {"normalUrl": "https://example.com/npo1.png"},
+                }
+            },
+            "programLocations": [
+                {"content": {"assetId": "live-abc", "title": "Journaal"}}
+            ],
+        }
+    ]
+}
+
+
 class NLZietMockDispatcher:
     """Routes UriHandler.open() calls to canned responses.
 
@@ -270,6 +316,16 @@ class NLZietMockDispatcher:
         if "api.nlziet.nl" in host:
             if path == "/v8/profile":
                 return self._handle_profile_list(uri, uri_handler_instance)
+            if path.startswith("/v9/placement/"):
+                uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
+                return json.dumps(MOCK_HOME_PLACEMENT_RESPONSE)
+            if re.match(r"^/v8/series/", path):
+                uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
+                return json.dumps(MOCK_SERIES_DETAIL_RESPONSE)
+            if path == "/v9/epg/live":
+                uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
+                return json.dumps(MOCK_EPG_LIVE_RESPONSE)
+
 
         uri_handler_instance.status = UriStatus(code=404, url=uri, error=True, reason="Not Found")
         return ""

@@ -158,6 +158,7 @@ class LanguageHelper(object):
     CleanupCache = 30604
     CleanupConfirmation = 30605
 
+    LogOut = 30611
     DeviceSetupTitle = 30612
     DeviceSetupQrInstruction = 30613
     DeviceSetupVisit = 30614
@@ -166,6 +167,10 @@ class LanguageHelper(object):
     ManualLogin = 30618
     DeviceSetupTimeout = 30619
     DeviceSetupFailed = 30620
+    WelcomeUser = 30621
+    SelectProfile = 30622
+    SwitchProfile = 30625
+    LoginFirst = 30626
     QrAddonMissing = 30629
 
     Today = 30551
