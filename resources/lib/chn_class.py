@@ -201,6 +201,15 @@ class Channel:
         if [p for p in data_parsers if p.LogOnRequired]:
             Logger.info("One or more dataparsers require logging in.")
             self.loggedOn = self.log_on()
+            if not self.loggedOn:
+                Logger.warning("Could not log on for: %s", self)
+                title = LanguageHelper.get_localized_string(LanguageHelper.LoginErrorTitle)
+                text = LanguageHelper.get_localized_string(LanguageHelper.LoginErrorText)
+                XbmcWrapper.show_notification(
+                    title, text, display_time=2000,
+                    notification_type=XbmcWrapper.Error,
+                    logger=Logger.instance())
+                return None
 
         # now set the headers here and not earlier in case they might have been update by the logon
         if parent_item is not None and parent_item.HttpHeaders:
