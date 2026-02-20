@@ -1302,6 +1302,10 @@ msgctxt "#30611"
 msgid "Log Out"
 msgstr ""
 
+msgctxt "#30628"
+msgid "Live start offset (seconds)"
+msgstr ""
+
 msgctxt "#30612"
 msgid "Device Setup"
 msgstr ""
@@ -1312,6 +1316,10 @@ msgstr ""
 
 msgctxt "#30614"
 msgid "To set up your device, visit:"
+msgstr ""
+
+msgctxt "#30615"
+msgid "Could not connect to service. Please try again later."
 msgstr ""
 
 msgctxt "#30616"
@@ -1342,12 +1350,24 @@ msgctxt "#30622"
 msgid "Please select your profile."
 msgstr ""
 
+msgctxt "#30623"
+msgid "Your session has expired. Please log in again."
+msgstr ""
+
+msgctxt "#30624"
+msgid "Logged out successfully."
+msgstr ""
+
 msgctxt "#30625"
 msgid "Switch Profile"
 msgstr ""
 
 msgctxt "#30626"
 msgid "Please log in first."
+msgstr ""
+
+msgctxt "#30627"
+msgid "Maximum number of concurrent streams reached ({0} out of {1} available streams)."
 msgstr ""
 
 msgctxt "#30629"

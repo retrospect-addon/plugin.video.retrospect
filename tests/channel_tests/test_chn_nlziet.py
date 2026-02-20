@@ -4,6 +4,17 @@ import unittest
 
 from resources.lib.urihandler import UriHandler
 
+import json
+import sys
+from unittest.mock import MagicMock, patch
+
+sys.path.insert(0, "channels/channel.nlziet/nlziet")
+from api import (  # noqa: E402
+    API_V8_SERIES, API_V9_VOD_HANDSHAKE, API_V9_PLACEMENT,
+    API_V9_RECOMMEND_FILTERED,
+)
+
+from resources.lib import mediatype
 from .channeltest import ChannelTest
 
 
@@ -11,6 +22,10 @@ class TestNLZietChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
         super(TestNLZietChannel, self).__init__(methodName, "channel.nlziet.nlziet", None)
+
+    def _make_media_item(self, name="test", url="http://example.com"):
+        from resources.lib.mediaitem import MediaItem
+        return MediaItem(name, url)
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
@@ -25,9 +40,953 @@ class TestNLZietChannel(ChannelTest):
         finally:
             self.channel.log_on = original_log_on
 
+    # -- create_vod_item tests -----------------------------------------------
 
-class TestNLZietChannelLive(TestNLZietChannel):
+    def test_create_vod_item_series(self):
+        """Series items (no type field) become FolderItems."""
+        from resources.lib.mediaitem import FolderItem
+        result_set = {
+            "content": {
+                "id": "abc123",
+                "title": "Test Series",
+                "image": {
+                    "portraitUrl": "https://example.com/portrait.jpg",
+                    "landscapeUrl": "https://example.com/landscape.jpg"
+                },
+                "logo": {
+                    "normalUrl": "https://example.com/logo.png"
+                },
+                "tags": []
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, FolderItem)
+        self.assertIn("/v8/series/abc123", item.url)
+        self.assertEqual(item.name, "Test Series")
+
+    def test_create_vod_item_movie(self):
+        """Items tagged 'Movie' become playable MediaItems."""
+        from resources.lib.mediaitem import MediaItem
+        result_set = {
+            "content": {
+                "id": "mov456",
+                "title": "Test Movie",
+                "type": "Epg",
+                "description": "A great movie.",
+                "formattedDuration": "2u 10m",
+                "tags": ["Movie"],
+                "image": {"portraitUrl": None, "landscapeUrl": "https://example.com/thumb.jpg"},
+                "logo": {"normalUrl": "https://example.com/logo.png"},
+                "contentProvider": "Rtl",
+                "broadcastedAt": "2026-02-13T20:27:18+01:00",
+                "formattedDate": "Vr 13 feb",
+                "availableUntil": "2026-02-22T00:05:37+01:00",
+                "formattedAvailabilityWindow": "Nog 1 dag beschikbaar",
+                "isAvailable": True,
+                "seriesId": None,
+                "seasonId": None
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, MediaItem)
+        self.assertEqual(item.media_type, mediatype.MOVIE)
+        self.assertIn("/v9/stream/handshake", item.url)
+        self.assertIn("context=OnDemand", item.url)
+        self.assertIn("id=mov456", item.url)
+        self.assertTrue(item.isGeoLocked)
+        self.assertIn("A great movie.", item.description)
+        self.assertIn("Nog 1 dag beschikbaar", item.description)
+        self.assertEqual(item.thumb, "https://example.com/thumb.jpg")
+        self.assertEqual(item.icon, "https://example.com/logo.png")
+
+    def test_create_vod_item_episode(self):
+        """Vod-type items become episode MediaItems."""
+        from resources.lib.mediaitem import MediaItem
+        result_set = {
+            "content": {
+                "id": "ep789",
+                "title": "Test Show",
+                "type": "Vod",
+                "subtitle": "Afl. 22",
+                "description": "Episode description.",
+                "formattedDuration": "1u 3m",
+                "tags": ["NewEpisode"],
+                "image": {"portraitUrl": None, "landscapeUrl": "https://example.com/ep.jpg"},
+                "logo": {"normalUrl": None},
+                "contentProvider": "Talpa",
+                "seriesId": "ser-id",
+                "seasonId": "sea-id",
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, MediaItem)
+        self.assertEqual(item.media_type, mediatype.EPISODE)
+
+    def test_create_vod_item_unavailable_skipped(self):
+        """Items with isAvailable=False are skipped."""
+        result_set = {
+            "content": {
+                "id": "gone",
+                "title": "Gone Movie",
+                "type": "Vod",
+                "tags": [],
+                "isAvailable": False,
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNone(item)
+
+    def test_create_vod_item_empty_content(self):
+        """Empty content dict returns None."""
+        self.assertIsNone(self.channel.create_vod_item({"content": {}}))
+        self.assertIsNone(self.channel.create_vod_item({}))
+
+    def test_create_vod_item_episode_numbering(self):
+        """Trending items with formattedEpisodeNumbering get season info."""
+        result_set = {
+            "content": {
+                "id": "ep-num",
+                "title": "Some Show",
+                "type": "Vod",
+                "tags": [],
+                "formattedEpisodeNumbering": "S02:A05",
+                "image": {}, "logo": {},
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.season, 2)
+        self.assertEqual(item.episode, 5)
+
+    # -- create_episode_item tests -------------------------------------------
+
+    def test_create_episode_item(self):
+        """Episode items get season/episode info from formattedEpisodeNumbering."""
+        from resources.lib.mediaitem import MediaItem
+        result_set = {
+            "content": {
+                "id": "epid",
+                "title": "Episode Title",
+                "subtitle": "Afl. 3",
+                "formattedEpisodeNumbering": "S01:A03",
+                "formattedDuration": "45m",
+                "description": "Episode plot.",
+                "image": {"portraitUrl": None, "landscapeUrl": "https://example.com/ep.jpg"},
+                "logo": {"normalUrl": None},
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, MediaItem)
+        self.assertEqual(item.season, 1)
+        self.assertEqual(item.episode, 3)
+        self.assertTrue(item.isDrmProtected)
+
+    def test_create_episode_item_no_numbering(self):
+        """Episodes without formattedEpisodeNumbering still work."""
+        result_set = {
+            "content": {
+                "id": "epid2",
+                "title": "Unnamed Episode",
+                "image": {}, "logo": {},
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.name, "Unnamed Episode")
+
+    # -- create_search_result_item tests -------------------------------------
+
+    def test_create_search_result_series(self):
+        """Search result with type 'Series' becomes a FolderItem."""
+        from resources.lib.mediaitem import FolderItem
+        result_set = {
+            "content": {
+                "id": "srid",
+                "title": "Found Series",
+                "type": "Series",
+                "tags": [],
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_search_result_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, FolderItem)
+        self.assertIn("/v8/series/srid", item.url)
+
+    def test_create_search_result_movie(self):
+        """Search result with type 'Movie' becomes a playable movie."""
+        from resources.lib.mediaitem import MediaItem
+        result_set = {
+            "content": {
+                "id": "mrid",
+                "title": "Found Movie",
+                "type": "Movie",
+                "tags": [],
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_search_result_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, MediaItem)
+        self.assertEqual(item.media_type, mediatype.MOVIE)
+        self.assertIn("/v9/stream/handshake", item.url)
+        self.assertIn("context=OnDemand", item.url)
+        self.assertIn("id=mrid", item.url)
+
+    def test_parse_duration_hours_and_minutes(self):
+        self.assertEqual(self.channel._Channel__parse_duration("1u 23m"), 4980)
+
+    def test_parse_duration_hours_only(self):
+        self.assertEqual(self.channel._Channel__parse_duration("2u"), 7200)
+
+    def test_parse_duration_minutes_only(self):
+        self.assertEqual(self.channel._Channel__parse_duration("45m"), 2700)
+
+    def test_parse_duration_empty(self):
+        self.assertEqual(self.channel._Channel__parse_duration(""), 0)
+
+    def test_parse_duration_garbage(self):
+        self.assertEqual(self.channel._Channel__parse_duration("no numbers"), 0)
+
+    # -- __set_vod_metadata tests --------------------------------------------
+
+    def test_metadata_description_with_subtitle(self):
+        """Subtitle is shown as bold heading above description."""
+        item = self._make_media_item()
+        content = {
+            "subtitle": "Afl. 5",
+            "description": "Episode plot text.",
+            "image": {}, "logo": {}
+        }
+        self.channel._Channel__set_vod_metadata(item, content)
+        self.assertIn("[B]Afl. 5[/B]", item.description)
+        self.assertIn("Episode plot text.", item.description)
+
+    def test_metadata_subtitle_equals_description(self):
+        """When subtitle equals description, no duplication."""
+        item = self._make_media_item()
+        content = {
+            "subtitle": "Same Title",
+            "description": "Same Title",
+            "image": {}, "logo": {}
+        }
+        self.channel._Channel__set_vod_metadata(item, content)
+        self.assertEqual(item.description, "Same Title")
+
+    def test_metadata_subtitle_only(self):
+        """When there's only subtitle and no description, subtitle is used."""
+        item = self._make_media_item()
+        content = {
+            "subtitle": "Just Subtitle",
+            "image": {}, "logo": {}
+        }
+        self.channel._Channel__set_vod_metadata(item, content)
+        self.assertEqual(item.description, "Just Subtitle")
+
+    def test_metadata_poster_and_thumb(self):
+        """Portrait image → poster, landscape → thumb."""
+        item = self._make_media_item()
+        content = {
+            "image": {
+                "portraitUrl": "https://example.com/portrait.jpg",
+                "landscapeUrl": "https://example.com/landscape.jpg"
+            },
+            "logo": {}
+        }
+        self.channel._Channel__set_vod_metadata(item, content)
+        self.assertEqual(item.thumb, "https://example.com/landscape.jpg")
+        self.assertEqual(item.poster, "https://example.com/portrait.jpg")
+
+    def test_metadata_studio(self):
+        """contentProvider maps to studio info label."""
+        item = self._make_media_item()
+        content = {"contentProvider": "Rtl", "image": {}, "logo": {}}
+        self.channel._Channel__set_vod_metadata(item, content)
+        self.assertTrue(item.has_info_label("studio"))
+
+    def test_metadata_broadcast_date(self):
+        """broadcastedAt is parsed into set_date."""
+        item = self._make_media_item()
+        content = {
+            "broadcastedAt": "2026-02-19T20:30:00+01:00",
+            "formattedDate": "Do 19 feb",
+            "image": {}, "logo": {}
+        }
+        self.channel._Channel__set_vod_metadata(item, content)
+        self.assertIn("19 feb", str(item))
+
+    # -- get_initial_folder_items tests --------------------------------------
+
+    def test_initial_folder_items(self):
+        """Main list returns dynamic placement rows when logged on."""
+        self.channel.loggedOn = True
+        _data, items = self.channel.get_initial_folder_items("")
+        self.assertIsNotNone(items)
+        self.assertGreaterEqual(len(items), 1)
+        self.assertTrue(any(i.url and "search" in i.url.lower() for i in items),
+                        "Expected a Search folder")
+
+    def test_initial_folder_items_not_logged_in(self):
+        """Main list returns empty when not logged in."""
+        self.channel.loggedOn = False
+        _data, items = self.channel.get_initial_folder_items("")
+        self.assertEqual(len(items), 0)
+
+    def test_initial_folder_items_search_is_first(self):
+        """Search should be the first item in the main menu."""
+        self.channel.loggedOn = True
+        _data, items = self.channel.get_initial_folder_items("")
+        self.assertGreaterEqual(len(items), 1)
+        self.assertIn("search", items[0].url.lower())
+
+    def test_initial_folder_items_includes_explore_pages(self):
+        """Placements component creates explore category folders."""
+        self.channel.loggedOn = True
+        placement_response = json.dumps({"components": [
+            {"type": "Placements", "title": "Ontdek hier", "items": [
+                {"id": "explore-series", "title": "Series"},
+                {"id": "explore-movies", "title": "Films"},
+            ]},
+        ]})
+        with patch("resources.lib.urihandler.UriHandler.open",
+                   return_value=placement_response):
+            _data, items = self.channel.get_initial_folder_items("")
+        titles = [i.name for i in items]
+        self.assertIn("Series", titles)
+        self.assertIn("Films", titles)
+        series_item = next(i for i in items if i.name == "Series")
+        self.assertEqual(series_item.url, API_V9_PLACEMENT.format("explore-series"))
+
+    def test_get_explore_items_creates_genre_folders(self):
+        """Explore page components become genre folder items."""
+        explore_response = json.dumps({"components": [
+            {"type": "Header", "title": "Films"},
+            {"type": "Filters", "url": "https://api.nlziet.nl/v9/filters/genres/movies"},
+            {"type": "ItemTileList", "title": "Drama",
+             "url": API_V9_RECOMMEND_FILTERED + "?category=Movies&genre=Drama&limit=50"},
+            {"type": "ItemTileList", "title": "Comedy",
+             "url": API_V9_RECOMMEND_FILTERED + "?category=Movies&genre=Comedy&limit=50"},
+        ]})
+        _data, items = self.channel.get_explore_items(explore_response)
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0].name, "Drama")
+        self.assertEqual(items[1].name, "Comedy")
+        self.assertIn("recommend/filtered", items[0].url)
+
+    def test_get_explore_items_series_mixed_urls(self):
+        """Series page has curated (withcontext) and genre-filtered rows."""
+        explore_response = json.dumps({"components": [
+            {"type": "Header", "title": "Series"},
+            {"type": "Filters",
+             "itemsUrl": API_V9_RECOMMEND_FILTERED + "?category=Series&limit=50",
+             "url": "https://api.nlziet.nl/v9/filters/genres/series"},
+            {"type": "ItemTileList", "title": "Nieuwste series",
+             "url": "https://api.nlziet.nl/v9/recommend/withcontext?contextName=allNewestSeries&limit=50"},
+            {"type": "ItemTileList", "title": "Drama",
+             "url": API_V9_RECOMMEND_FILTERED + "?category=Series&genre=Drama&limit=50"},
+            {"type": "ItemTileList", "title": "Thriller/Crime",
+             "url": API_V9_RECOMMEND_FILTERED + "?category=Series&genre=Crime&limit=50"},
+        ]})
+        _data, items = self.channel.get_explore_items(explore_response)
+        self.assertEqual(len(items), 3)
+        self.assertIn("withcontext", items[0].url)
+        self.assertIn("recommend/filtered", items[1].url)
+
+    def test_get_explore_items_kids_no_filters(self):
+        """Kids page has curated lists only, no Filters component."""
+        explore_response = json.dumps({"components": [
+            {"type": "Header", "title": "Kids"},
+            {"type": "ItemTileList", "title": "Populair",
+             "url": "https://api.nlziet.nl/v9/recommend/withcontext?contextName=popularSeriesYouthMediumPreTeen&limit=50"},
+            {"type": "ItemTileList", "title": "Animatieseries",
+             "url": "https://api.nlziet.nl/v9/recommend/withcontext?contextName=moderatedSeriesList&listname=youth_series_animatie&limit=50"},
+        ]})
+        _data, items = self.channel.get_explore_items(explore_response)
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0].name, "Populair")
+
+    def test_get_explore_items_documentaries_mixed(self):
+        """Documentaries page mixes filtered and curated rows."""
+        explore_response = json.dumps({"components": [
+            {"type": "Header", "title": "Documentaires"},
+            {"type": "ItemTileList", "title": "Documentaire series",
+             "url": API_V9_RECOMMEND_FILTERED + "?category=Programs&genre=Documentary&limit=50"},
+            {"type": "ItemTileList", "title": "Meest bekeken documentaires",
+             "url": "https://api.nlziet.nl/v9/recommend/withcontext?contextName=trendingDocumentaries&limit=50"},
+        ]})
+        _data, items = self.channel.get_explore_items(explore_response)
+        self.assertEqual(len(items), 2)
+        self.assertIn("recommend/filtered", items[0].url)
+        self.assertIn("withcontext", items[1].url)
+
+    def test_get_explore_items_empty_data(self):
+        """Empty data returns no items."""
+        _data, items = self.channel.get_explore_items("")
+        self.assertEqual(len(items), 0)
+
+    # -- create_live_channel_item tests --------------------------------------
+
+    def test_create_live_channel_item(self):
+        """Live channel with full data becomes a playable live item."""
+        result_set = {
+            "channel": {
+                "content": {
+                    "id": "npo1",
+                    "title": "NPO 1",
+                    "logo": {"normalUrl": "https://example.com/npo1.png"}
+                }
+            },
+            "programLocations": [
+                {"content": {"assetId": "abc", "title": "Current Show"}}
+            ]
+        }
+        item = self.channel.create_live_channel_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertTrue(item.isLive)
+        self.assertTrue(item.isDrmProtected)
+        self.assertIn("channel=npo1", item.url)
+        self.assertEqual(item.thumb, "https://example.com/npo1.png")
+        self.assertEqual(item.description, "Current Show")
+        self.assertEqual(item.metaData.get("asset_id"), "abc")
+
+    def test_create_live_channel_item_no_channel(self):
+        """Missing channel dict returns None."""
+        self.assertIsNone(self.channel.create_live_channel_item({}))
+
+    def test_create_live_channel_item_no_id(self):
+        """Channel without id returns None."""
+        result_set = {"channel": {"content": {"title": "No ID"}}}
+        self.assertIsNone(self.channel.create_live_channel_item(result_set))
+
+    def test_create_live_channel_item_paid(self):
+        """Channel with missingSubscriptionFeature is marked paid."""
+        result_set = {
+            "channel": {
+                "content": {"id": "x", "title": "Premium"},
+                "missingSubscriptionFeature": "PremiumFeature"
+            }
+        }
+        item = self.channel.create_live_channel_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertTrue(item.isPaid)
+
+    # -- extract_series_data tests -------------------------------------------
+
+    def test_extract_series_data_seasons(self):
+        """Series detail response produces season folders newest-first."""
+        import json
+        from resources.lib.mediaitem import FolderItem, MediaItem as MI
+        self.channel.parentItem = MI("Series", API_V8_SERIES.format("sid"))
+        # API returns seasons newest-first.
+        data = json.dumps({
+            "content": {
+                "id": "sid",
+                "title": "My Series",
+                "seasons": [
+                    {"id": "s2", "title": "Season 2"},
+                    {"id": "s1", "title": "Season 1"}
+                ]
+            }
+        })
+        result_data, items = self.channel.extract_series_data(data)
+        self.assertEqual(result_data, "")
+        self.assertEqual(len(items), 2)
+        self.assertIsInstance(items[0], FolderItem)
+        # Presented newest-first to the user.
+        self.assertIn("seasonId=s2", items[0].url)
+        self.assertIn("seasonId=s1", items[1].url)
+
+    def test_extract_series_data_empty_content(self):
+        """Empty content returns no items."""
+        from resources.lib.mediaitem import MediaItem as MI
+        self.channel.parentItem = MI("S", API_V8_SERIES.format("sid"))
+        result_data, items = self.channel.extract_series_data('{}')
+        self.assertEqual(len(items), 0)
+
+    def test_extract_series_data_nested_content(self):
+        """Handles data.content wrapper format."""
+        import json
+        from resources.lib.mediaitem import FolderItem, MediaItem as MI
+        self.channel.parentItem = MI("S", API_V8_SERIES.format("sid"))
+        data = json.dumps({
+            "data": {
+                "content": {
+                    "id": "sid",
+                    "title": "Nested",
+                    "seasons": [{"id": "s1", "title": "S1"}]
+                }
+            }
+        })
+        result_data, items = self.channel.extract_series_data(data)
+        self.assertEqual(len(items), 1)
+
+    @patch("chn_nlziet.chn_class.Channel.process_folder_list")
+    def test_extract_series_data_seasonless(self, mock_pfl):
+        """Seasonless series fetches episodes directly (no intermediate folder)."""
+        import json
+        from resources.lib.mediaitem import MediaItem as MI
+        self.channel.parentItem = MI("Series", API_V8_SERIES.format("sid"))
+        ep = MI("Episode 1", "https://example.com/ep1")
+        mock_pfl.return_value = [ep]
+        data = json.dumps({
+            "content": {
+                "id": "sid",
+                "title": "Koekiemonsters eetkar",
+                "seasons": [],
+                "isSeasonSelectorEnabled": False
+            }
+        })
+        result_data, items = self.channel.extract_series_data(data)
+        self.assertEqual(result_data, "")
+        mock_pfl.assert_called_once()
+        parent = mock_pfl.call_args[0][0]
+        self.assertIn("/v9/series/sid/episodes?", parent.url)
+        self.assertNotIn("seasonId", parent.url)
+        self.assertIn(ep, items)
+
+    def test_create_vod_item_series_type(self):
+        """Items with explicit type 'Series' become FolderItems."""
+        from resources.lib.mediaitem import FolderItem
+        result_set = {
+            "content": {
+                "id": "ser456",
+                "title": "Trending Series",
+                "type": "Series",
+                "tags": [],
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertIsInstance(item, FolderItem)
+        self.assertIn("/v8/series/ser456", item.url)
+
+    # -- create_vod_item null edge cases ------------------------------------
+
+    def test_create_vod_item_null_numbering(self):
+        """Null formattedEpisodeNumbering does not crash."""
+        result_set = {
+            "content": {
+                "id": "null-num",
+                "title": "Null Numbering",
+                "type": "Vod",
+                "tags": [],
+                "formattedEpisodeNumbering": None,
+                "image": {}, "logo": {},
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_vod_item(result_set)
+        self.assertIsNotNone(item)
+
+    def test_create_episode_item_null_numbering(self):
+        """Null formattedEpisodeNumbering in episode does not crash."""
+        result_set = {
+            "content": {
+                "id": "ep-null",
+                "title": "Null Episode",
+                "formattedEpisodeNumbering": None,
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertIsNotNone(item)
+
+    def test_create_episode_item_numbering_from_subtitle(self):
+        """Episode numbering is parsed from subtitle when formattedEpisodeNumbering is None."""
+        result_set = {
+            "content": {
+                "id": "ep-sub",
+                "title": "Patience",
+                "subtitle": "S1:A6 Pandora's box",
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.season, 1)
+        self.assertEqual(item.episode, 6)
+        self.assertEqual(item.metaData.get("nlziet:subtitle"), "Pandora's box")
+
+    def test_create_episode_item_dontgroup(self):
+        """Episode items have dontGroup set to preserve API order."""
+        result_set = {
+            "content": {
+                "id": "ep-dg", "title": "Show", "subtitle": "Sub",
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertTrue(item.dontGroup)
+
+    def test_create_episode_item_empty_content(self):
+        """Empty content returns None."""
+        self.assertIsNone(self.channel.create_episode_item({"content": {}}))
+        self.assertIsNone(self.channel.create_episode_item({}))
+
+    # -- create_search_result_item edge cases --------------------------------
+
+    def test_create_search_result_episode(self):
+        """Search result with unknown type becomes an episode."""
+        result_set = {
+            "content": {
+                "id": "eid",
+                "title": "Some Episode",
+                "type": "Vod",
+                "tags": [],
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_search_result_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.media_type, mediatype.EPISODE)
+
+    def test_create_search_result_empty(self):
+        """Empty search result returns None."""
+        self.assertIsNone(self.channel.create_search_result_item({}))
+        self.assertIsNone(self.channel.create_search_result_item({"content": {}}))
+
+    # -- __set_vod_metadata edge cases --------------------------------------
+
+    def test_metadata_null_fields(self):
+        """Null image/logo/description fields don't crash."""
+        item = self._make_media_item()
+        content = {
+            "subtitle": None,
+            "description": None,
+            "image": None,
+            "logo": None,
+            "contentProvider": None,
+            "broadcastedAt": None,
+            "formattedDuration": None
+        }
+        self.channel._Channel__set_vod_metadata(item, content)
+
+    # -- __handle_stream_handshake error handling ----------------------------
+
+    @patch("chn_nlziet.UriHandler")
+    def test_handshake_errors_as_dict(self, mock_uri):
+        """Handshake errors returned as a dict (not list) don't crash."""
+        error_response = json.dumps({
+            "errors": {
+                "assetId": {"type": "InvalidAsset", "message": "Not playable"}
+            }
+        })
+        mock_uri.open.return_value = error_response
+        item = self._make_media_item()
+        result = self.channel._Channel__handle_stream_handshake(
+            item, API_V9_VOD_HANDSHAKE.format("x"))
+        self.assertFalse(result.complete)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_handshake_errors_as_list(self, mock_uri):
+        """Handshake errors returned as a list are handled normally."""
+        error_response = json.dumps({
+            "errors": [{"type": "MaximumStreamsReached",
+                        "message": "Too many",
+                        "data": {"maximumNumberOfStreams": 2}}]
+        })
+        mock_uri.open.return_value = error_response
+        item = self._make_media_item()
+        result = self.channel._Channel__handle_stream_handshake(
+            item, API_V9_VOD_HANDSHAKE.format("x"))
+        self.assertFalse(result.complete)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_handshake_errors_as_strings(self, mock_uri):
+        """Handshake errors returned as a list of strings don't crash."""
+        error_response = json.dumps({
+            "errors": ["Invalid request parameter"]
+        })
+        mock_uri.open.return_value = error_response
+        item = self._make_media_item()
+        result = self.channel._Channel__handle_stream_handshake(
+            item, API_V9_VOD_HANDSHAKE.format("x"))
+        self.assertFalse(result.complete)
+
+    # -- IPTV Manager tests --------------------------------------------------
+
+    _LIVE_FIXTURE = json.dumps({"data": [
+        {
+            "channel": {
+                "content": {
+                    "id": "npo1",
+                    "title": "NPO 1",
+                    "logo": {"normalUrl": "https://example.com/npo1.png"}
+                }
+            },
+            "programLocations": [
+                {"content": {"assetId": "live-abc", "title": "Current Show"}}
+            ]
+        },
+        {
+            "channel": {
+                "content": {
+                    "id": "rtl4",
+                    "title": "RTL 4",
+                    "logo": {"normalUrl": "https://example.com/rtl4.png"}
+                }
+            },
+            "programLocations": []
+        }
+    ]})
+
+    _EPG_FIXTURE = json.dumps({"data": [
+        {
+            "channel": {"content": {"id": "npo1"}},
+            "programLocations": [
+                {
+                    "content": {
+                        "title": "News",
+                        "startAt": "2026-02-21T20:00:00+01:00",
+                        "endAt": "2026-02-21T20:30:00+01:00",
+                        "image": {"landscapeUrl": "https://example.com/news.jpg"},
+                        "isReplayAllowed": True,
+                        "assetId": "replay-123"
+                    }
+                },
+                {
+                    "content": {
+                        "title": "Drama",
+                        "startAt": "2026-02-21T20:30:00+01:00",
+                        "endAt": "2026-02-21T21:30:00+01:00",
+                        "image": {},
+                        "isReplayAllowed": False
+                    }
+                }
+            ]
+        }
+    ]})
+
+    def _make_mock_parser(self):
+        parser = MagicMock()
+        parser.create_action_url.return_value = "plugin://plugin.video.retrospect/play"
+        return parser
+
+    def test_iptv_streams_not_authenticated(self):
+        """Returns empty list when not logged in."""
+        self.channel.loggedOn = False
+        original = self.channel.log_on
+        try:
+            self.channel.log_on = lambda *a, **kw: False
+            result = self.channel.create_iptv_streams(self._make_mock_parser())
+            self.assertEqual(result, [])
+        finally:
+            self.channel.log_on = original
+
+    def test_iptv_epg_not_authenticated(self):
+        """Returns empty dict when not logged in."""
+        self.channel.loggedOn = False
+        original = self.channel.log_on
+        try:
+            self.channel.log_on = lambda *a, **kw: False
+            result = self.channel.create_iptv_epg(self._make_mock_parser())
+            self.assertEqual(result, {})
+        finally:
+            self.channel.log_on = original
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_streams_parsing(self, mock_uri):
+        """Parses live channel JSON into stream dicts."""
+        mock_uri.open.return_value = self._LIVE_FIXTURE
+        self.channel.loggedOn = True
+        parser = self._make_mock_parser()
+
+        streams = self.channel.create_iptv_streams(parser)
+
+        self.assertEqual(len(streams), 2)
+        self.assertEqual(streams[0]["id"], "npo1")
+        self.assertEqual(streams[0]["name"], "NPO 1")
+        self.assertEqual(streams[0]["logo"], "https://example.com/npo1.png")
+        self.assertIn("stream", streams[0])
+        self.assertEqual(streams[1]["id"], "rtl4")
+        parser.pickler.store_media_items.assert_called_once()
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_streams_empty_response(self, mock_uri):
+        """Empty API response returns empty list."""
+        mock_uri.open.return_value = ""
+        self.channel.loggedOn = True
+
+        streams = self.channel.create_iptv_streams(self._make_mock_parser())
+        self.assertEqual(streams, [])
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_parsing(self, mock_uri):
+        """Parses EPG JSON into channel-keyed dict with program entries."""
+        mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 5
+        self.channel.loggedOn = True
+        parser = self._make_mock_parser()
+
+        epg = self.channel.create_iptv_epg(parser)
+
+        self.assertIn("npo1", epg)
+        programs = epg["npo1"]
+        self.assertEqual(len(programs), 2)
+        self.assertEqual(programs[0]["title"], "News")
+        self.assertEqual(programs[0]["start"], "2026-02-21T20:00:00+01:00")
+        self.assertEqual(programs[0]["stop"], "2026-02-21T20:30:00+01:00")
+        self.assertEqual(programs[0]["image"], "https://example.com/news.jpg")
+        self.assertEqual(programs[1]["title"], "Drama")
+        self.assertNotIn("image", programs[1])
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_replay_stream(self, mock_uri):
+        """Replay-allowed programs include a stream URL."""
+        mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 5
+        self.channel.loggedOn = True
+        parser = self._make_mock_parser()
+
+        epg = self.channel.create_iptv_epg(parser)
+
+        programs = epg["npo1"]
+        self.assertIn("stream", programs[0])
+        self.assertNotIn("stream", programs[1])
+        parser.pickler.store_media_items.assert_called()
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_skips_incomplete_programs(self, mock_uri):
+        """Programs missing title/startAt/endAt are skipped."""
+        fixture = json.dumps({"data": [{
+            "channel": {"content": {"id": "ch1"}},
+            "programLocations": [
+                {"content": {"title": "Good", "startAt": "T1", "endAt": "T2"}},
+                {"content": {"title": "No End", "startAt": "T1"}},
+                {"content": {"startAt": "T1", "endAt": "T2"}},
+            ]
+        }]})
+        mock_uri.open.side_effect = [fixture] + [""] * 5
+        self.channel.loggedOn = True
+
+        epg = self.channel.create_iptv_epg(self._make_mock_parser())
+
+        self.assertEqual(len(epg["ch1"]), 1)
+        self.assertEqual(epg["ch1"][0]["title"], "Good")
+
+    # -- deduplicate_episode_titles tests ------------------------------------
+
+    def test_deduplicate_episode_titles_all_same(self):
+        """When all episodes share one title, use 'subtitle (title)' format."""
+        from resources.lib.mediaitem import MediaItem
+        items = []
+        for sub in ["Dieren", "Op de boerderij", "Naar school"]:
+            item = MediaItem("Woezel & Pip", "http://example.com/v", media_type=mediatype.EPISODE)
+            item.metaData["nlziet:subtitle"] = sub
+            items.append(item)
+
+        result = self.channel.deduplicate_episode_titles(None, items)
+        self.assertEqual([i.name for i in result], [
+            "Dieren (Woezel & Pip)",
+            "Op de boerderij (Woezel & Pip)",
+            "Naar school (Woezel & Pip)"])
+
+    def test_deduplicate_episode_titles_different(self):
+        """When titles differ, no substitution happens."""
+        from resources.lib.mediaitem import MediaItem
+        items = [
+            MediaItem("Ep 1", "http://example.com/1", media_type=mediatype.EPISODE),
+            MediaItem("Ep 2", "http://example.com/2", media_type=mediatype.EPISODE),
+        ]
+        result = self.channel.deduplicate_episode_titles(None, items)
+        self.assertEqual([i.name for i in result], ["Ep 1", "Ep 2"])
+
+    def test_deduplicate_episode_titles_single_item(self):
+        """A single episode is never deduplicated."""
+        from resources.lib.mediaitem import MediaItem
+        item = MediaItem("Solo", "http://example.com/1", media_type=mediatype.EPISODE)
+        item.metaData["nlziet:subtitle"] = "Subtitle"
+        result = self.channel.deduplicate_episode_titles(None, [item])
+        self.assertEqual(result[0].name, "Solo")
+
+    def test_deduplicate_episode_titles_skips_folders(self):
+        """Folder items are ignored when checking title uniqueness."""
+        from resources.lib.mediaitem import MediaItem, FolderItem
+        from resources.lib import contenttype
+        folder = FolderItem("Same Title", "http://example.com/f",
+                            content_type=contenttype.EPISODES)
+        ep1 = MediaItem("Same Title", "http://example.com/1", media_type=mediatype.EPISODE)
+        ep1.metaData["nlziet:subtitle"] = "Sub A"
+        ep2 = MediaItem("Same Title", "http://example.com/2", media_type=mediatype.EPISODE)
+        ep2.metaData["nlziet:subtitle"] = "Sub B"
+
+        result = self.channel.deduplicate_episode_titles(None, [folder, ep1, ep2])
+        self.assertEqual(result[0].name, "Same Title")  # folder unchanged
+        self.assertEqual(result[1].name, "Sub A (Same Title)")
+        self.assertEqual(result[2].name, "Sub B (Same Title)")
+
+    def test_deduplicate_episode_titles_no_subtitle(self):
+        """Episodes without a stored subtitle keep their original title."""
+        from resources.lib.mediaitem import MediaItem
+        ep1 = MediaItem("Same", "http://example.com/1", media_type=mediatype.EPISODE)
+        ep1.metaData["nlziet:subtitle"] = "Has Sub"
+        ep2 = MediaItem("Same", "http://example.com/2", media_type=mediatype.EPISODE)
+        # ep2 has no subtitle stored
+
+        result = self.channel.deduplicate_episode_titles(None, [ep1, ep2])
+        self.assertEqual(result[0].name, "Has Sub (Same)")
+        self.assertEqual(result[1].name, "Same")
+
+    def test_create_episode_item_stores_subtitle(self):
+        """create_episode_item stores subtitle in metaData when different from title."""
+        result_set = {
+            "content": {
+                "id": "epid",
+                "title": "Woezel & Pip",
+                "subtitle": "Dieren",
+                "image": {}, "logo": {},
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertEqual(item.metaData.get("nlziet:subtitle"), "Dieren")
+
+    def test_create_episode_item_no_subtitle_stored_when_same(self):
+        """No subtitle stored when it equals the title."""
+        result_set = {
+            "content": {
+                "id": "epid",
+                "title": "Same Name",
+                "subtitle": "Same Name",
+                "image": {}, "logo": {},
+                "isAvailable": True
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertNotIn("nlziet:subtitle", item.metaData)
+
+    def test_deduplicate_episode_titles_partial_duplicates(self):
+        """Partial duplicates get 'subtitle (title)' format."""
+        from resources.lib.mediaitem import MediaItem
+        ep1 = MediaItem("NOS Olympische Spelen", "http://example.com/1",
+                         media_type=mediatype.EPISODE)
+        ep1.metaData["nlziet:subtitle"] = "Schaatsen"
+        ep2 = MediaItem("NOS Olympische Spelen", "http://example.com/2",
+                         media_type=mediatype.EPISODE)
+        ep2.metaData["nlziet:subtitle"] = "Live"
+        ep3 = MediaItem("Unique Title", "http://example.com/3",
+                         media_type=mediatype.EPISODE)
+        ep3.metaData["nlziet:subtitle"] = "Some Sub"
+
+        result = self.channel.deduplicate_episode_titles(None, [ep1, ep2, ep3])
+        self.assertEqual(result[0].name, "Schaatsen (NOS Olympische Spelen)")
+        self.assertEqual(result[1].name, "Live (NOS Olympische Spelen)")
+        self.assertEqual(result[2].name, "Unique Title")
+
+class TestNLZietChannelLive(ChannelTest):
     """Live integration tests — requires NLZIET_USERNAME and NLZIET_PASSWORD."""
+
+    # noinspection PyPep8Naming
+    def __init__(self, methodName):  # NOSONAR
+        super().__init__(methodName, "channel.nlziet.nlziet", None)
 
     @classmethod
     def setUpClass(cls):
@@ -67,6 +1026,13 @@ class TestNLZietChannelLive(TestNLZietChannel):
     def test_login_succeeds(self):
         """Live: log_on() with real credentials succeeds."""
         self.assertTrue(self.channel.loggedOn)
+
+
+    def test_process_folder_list_returns_items(self):
+        """Live: process_folder_list(None) returns a non-empty item list after login."""
+        items = self.channel.process_folder_list(None)
+        self.assertIsNotNone(items)
+        self.assertGreater(len(items), 0)
 
 
 class TestNLZietChannelMocked(TestNLZietChannelLive):

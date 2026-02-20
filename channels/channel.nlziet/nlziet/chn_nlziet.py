@@ -31,7 +31,7 @@ from api import (
     API_V8_PROFILE, API_V8_RECOMMEND,
     API_V8_SERIES, API_V8_SERIES_PREFIX, API_V8_TRACKED_SERIES,
     API_V9_CONTINUE_WATCHING,
-    API_V9_EPG, API_V9_EPG_LIVE_CHANNEL, API_V9_EPG_DATE, API_V9_EPG_LIVE,
+    API_V9_EPG, API_V9_EPG_ITEM_DETAIL, API_V9_EPG_LIVE_CHANNEL, API_V9_EPG_DATE, API_V9_EPG_LIVE,
     API_V9_PLACEMENT_EXPLORE_PREFIX, API_V9_LIVE_HANDSHAKE,
     API_V9_PLACEMENT,
     API_V9_RECOMMEND_WITH, API_V9_RECOMMEND_FILTERED,
@@ -1423,6 +1423,8 @@ class Channel(chn_class.Channel):
         """Provide EPG data for IPTV Manager.
 
         Fetches 3 days in the past and 3 days in the future.
+        Genre data is enriched for currently-airing programmes only
+        (one item/detail call per channel, ~20 calls total).
 
         :param ActionParser parameter_parser: Action parser for building URLs.
         :return: EPG dict keyed by channel ID.
@@ -1435,6 +1437,8 @@ class Channel(chn_class.Channel):
         if not self.loggedOn:
             Logger.warning("NLZIET IPTV: Not authenticated, returning empty EPG")
             return {}
+
+        genre_by_content_item_id = self.__fetch_live_genres()
 
         parent = MediaItem("EPG", API_V9_EPG,
                            media_type=mediatype.FOLDER)
@@ -1480,6 +1484,12 @@ class Channel(chn_class.Channel):
                     if landscape:
                         epg_item["image"] = landscape
 
+                    genre = genre_by_content_item_id.get(content.get("contentItemId"))
+                    if genre:
+                        epg_item["genre"] = genre
+                    elif content.get("isMovie"):
+                        epg_item["genre"] = "Film"
+
                     if content.get("isReplayAllowed"):
                         replay_item = self.__create_replay_item(content, channel_id)
                         if replay_item:
@@ -1493,6 +1503,54 @@ class Channel(chn_class.Channel):
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
         Logger.info("NLZIET IPTV: Returning EPG for %d channels", len(iptv_epg))
         return iptv_epg
+
+    def __fetch_live_genres(self):
+        """Fetch genre names for currently-airing programmes.
+
+        Calls /v9/epg/programlocations/live (one request) to get the
+        currently-airing programme on every channel, then calls
+        /v9/item/detail/{contentItemId}/{assetId} for each (~20 calls).
+
+        :return: Mapping of contentItemId → primary genre name (Dutch).
+        :rtype: dict[str, str]
+        """
+
+        live_data = UriHandler.open(API_V9_EPG_LIVE, additional_headers=self.httpHeaders)
+        if not live_data:
+            return {}
+
+        json_data = JsonHelper(live_data)
+        channel_entries = json_data.get_value("data", fallback=json_data.json)
+        if not isinstance(channel_entries, list):
+            return {}
+
+        genre_map = {}
+        for ch in channel_entries:
+            progs = ch.get("programLocations") or []
+            if not progs:
+                continue
+            # Only the first entry is currently airing; the second is "up next"
+            content = progs[0].get("content", {})
+            content_item_id = content.get("contentItemId")
+            asset_id = content.get("assetId")
+            if not content_item_id or not asset_id:
+                continue
+
+            detail_data = UriHandler.open(
+                API_V9_EPG_ITEM_DETAIL.format(content_item_id, asset_id),
+                additional_headers=self.httpHeaders)
+            if not detail_data:
+                continue
+
+            detail = JsonHelper(detail_data)
+            genres = detail.get_value("content", "genres", fallback=[])
+            if genres and isinstance(genres, list):
+                name = genres[0].get("name")
+                if name:
+                    genre_map[content_item_id] = name
+
+        Logger.debug("NLZIET IPTV: Fetched genres for %d live programmes", len(genre_map))
+        return genre_map
 
     def __create_replay_item(self, content, channel_id):
         """Create a playable MediaItem for an EPG replay stream.
