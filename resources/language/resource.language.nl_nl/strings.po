@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2025-01-08 18:27+0000\n"
+"PO-Revision-Date: 2026-02-22 08:32+0100\n"
 "Last-Translator: Smarttube01 da gamer <smarttubed@gmail.com>\n"
 "Language-Team: Dutch <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/nl_nl/>\n"
 "Language: nl_nl\n"
@@ -786,7 +786,15 @@ msgctxt "#30378"
 msgid "Remove Item"
 msgstr "Verwijder"
 
-# empty strings from id 30379 to 30400
+msgctxt "#30379"
+msgid "First Episode"
+msgstr "Eerste aflevering"
+
+msgctxt "#30380"
+msgid "Most Recent Episode"
+msgstr "Nieuwste aflevering"
+
+# empty strings from id 30381 to 30400
 msgctxt "#30401"
 msgid "Dutch"
 msgstr "Nederlands"
@@ -1278,3 +1286,83 @@ msgstr "Foutmelding"
 #~ msgctxt "#30039"
 #~ msgid "Are you sure you want to update all channels for this country with this proxy?"
 #~ msgstr "Weet je zeker dat je alle kanalen van dit land wilt updaten met de geselecteerde proxy?"
+
+msgctxt "#30610"
+msgid "Setup Device"
+msgstr "Koppel apparaat"
+
+msgctxt "#30611"
+msgid "Log Out"
+msgstr "Uitloggen"
+
+msgctxt "#30628"
+msgid "Live start offset (seconds)"
+msgstr "Startverschuiving live-stream (seconden)"
+
+msgctxt "#30612"
+msgid "Device Setup"
+msgstr "Apparaat koppelen"
+
+msgctxt "#30613"
+msgid "Scan this QR code to add your device."
+msgstr "Scan de QR-code om het apparaat te koppelen."
+
+msgctxt "#30614"
+msgid "To manually set up your device, visit:"
+msgstr "Om handmatig te koppelen, ga naar:"
+
+msgctxt "#30615"
+msgid "Could not connect to service. Please try again later."
+msgstr "Kan geen verbinding maken met de dienst. Probeer het later opnieuw."
+
+msgctxt "#30616"
+msgid "and enter this code:"
+msgstr "en voer deze code in:"
+
+msgctxt "#30617"
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgctxt "#30618"
+msgid "Manual Login"
+msgstr "Handmatig inloggen"
+
+msgctxt "#30619"
+msgid "Device activation timed out. Try again?"
+msgstr "Koppeling verlopen. Opnieuw proberen?"
+
+msgctxt "#30620"
+msgid "Failed to start device setup."
+msgstr "Koppelen mislukt."
+
+msgctxt "#30621"
+msgid "Welcome, {0}!"
+msgstr "Welkom, {0}!"
+
+msgctxt "#30622"
+msgid "Please select your profile."
+msgstr "Selecteer een profiel."
+
+msgctxt "#30623"
+msgid "Your session has expired. Please log in again."
+msgstr "Sessie verlopen. Log opnieuw in."
+
+msgctxt "#30624"
+msgid "Logged out successfully."
+msgstr "Uitgelogd."
+
+msgctxt "#30625"
+msgid "Switch Profile"
+msgstr "Profiel wisselen"
+
+msgctxt "#30626"
+msgid "Please log in first."
+msgstr "Log eerst in."
+
+msgctxt "#30627"
+msgid "Maximum number of concurrent streams reached ({0} out of {1} available streams)."
+msgstr "Maximaal aantal gelijktijdige streams bereikt ({0} van {1} beschikbare streams)."
+
+msgctxt "#30629"
+msgid "Please install the script.module.qrcode addon to scan a QR code."
+msgstr "Installeer de script.module.qrcode addon om een QR-code te scannen."
