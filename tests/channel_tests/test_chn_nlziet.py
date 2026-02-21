@@ -1276,6 +1276,24 @@ class TestNLZietChannelLive(ChannelTest):
         self.assertIsNotNone(items)
 
 
+    def test_iptv_streams_returns_channels(self):
+        """Live: create_iptv_streams() returns a non-empty list when authenticated."""
+        from unittest.mock import MagicMock
+        parser = MagicMock()
+        parser.create_action_url.return_value = "plugin://plugin.video.retrospect/play"
+        streams = self.channel.create_iptv_streams(parser)
+        self.assertIsNotNone(streams)
+        self.assertGreater(len(streams), 0)
+
+    def test_iptv_epg_returns_data(self):
+        """Live: create_iptv_epg() returns EPG entries when authenticated."""
+        from unittest.mock import MagicMock
+        parser = MagicMock()
+        parser.create_action_url.return_value = "plugin://plugin.video.retrospect/play"
+        epg = self.channel.create_iptv_epg(parser)
+        self.assertIsNotNone(epg)
+
+
 class TestNLZietChannelMocked(TestNLZietChannelLive):
     """Mocked channel tests — always runs, uses NLZietMockDispatcher."""
 

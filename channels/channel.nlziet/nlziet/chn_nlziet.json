@@ -11,6 +11,7 @@
       "category": "National",
       "sortorder": 2,
       "language": "nl",
+      "hasIptv": true,
       "fanart": "nlzietfanart.jpg",
       "poster": "nlzietposter.png"
     }

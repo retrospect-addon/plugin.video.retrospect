@@ -322,7 +322,7 @@ class NLZietMockDispatcher:
             if re.match(r"^/v8/series/", path):
                 uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
                 return json.dumps(MOCK_SERIES_DETAIL_RESPONSE)
-            if path == "/v9/epg/live":
+            if path == "/v9/epg/programlocations/live":
                 uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
                 return json.dumps(MOCK_EPG_LIVE_RESPONSE)
 
