@@ -126,22 +126,32 @@ class Menu(ActionParser):
         AddonSettings.show_settings()
         self.refresh()
 
+    def __get_search_key(self) -> str:
+        # SearchAction may store history under a profile-scoped key
+        # (e.g. "search:{profile_id}").  We record the active key so
+        # Menu can find it without instantiating the full channel.
+        settings = AddonSettings.store(LOCAL)
+        key = settings.get_setting("search:active_key", self.channelObject, None)
+        return key or "search"
+
     def clear_search(self):
         """ Clears the complete search history for a channel."""
 
         settings = AddonSettings.store(LOCAL)
-        settings.set_setting("search", [], self.channelObject)
+        settings.set_setting(self.__get_search_key(), [], self.channelObject)
         self.refresh()
 
     def remove_search_item(self):
         """ Removes a single item from the search history for a folder """
 
         settings = AddonSettings.store(LOCAL)
-        history: List[str] = settings.get_setting("search", self.channelObject, [])  # type: ignore
+        key = self.__get_search_key()
+        history: List[str] = settings.get_setting(key, self.channelObject, [])  # type: ignore
         needle: str = self.params[keyword.NEEDLE]
         needle = HtmlEntityHelper.url_decode(needle)
-        history.remove(needle)
-        settings.set_setting("search", history, self.channelObject)
+        if needle in history:
+            history.remove(needle)
+        settings.set_setting(key, history, self.channelObject)
         self.refresh()
 
     def channel_settings(self):

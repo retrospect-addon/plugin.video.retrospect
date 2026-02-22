@@ -141,6 +141,18 @@ class Channel:
         return
 
     @property
+    def search_profile_id(self) -> Optional[str]:
+        """Return the active profile ID for profile-scoped search history.
+
+        Channels that support user profiles should override this to return
+        the active profile ID.  When set, SearchAction stores search history
+        per profile instead of per channel.
+
+        :return: The active profile ID, or None if profiles are not supported.
+        """
+        return None
+
+    @property
     def search_url(self) -> str:
         if self.channelCode:
             return (f"plugin://{Config.addonId}/?{keyword.CHANNEL}={self.url_id}"
