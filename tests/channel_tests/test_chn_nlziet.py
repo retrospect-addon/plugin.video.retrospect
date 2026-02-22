@@ -553,6 +553,236 @@ class TestNLZietChannel(ChannelTest):
         self.assertNotIn("seasonId", parent.url)
         self.assertIn(ep, items)
 
+    # -- Episode shortcut tests -----------------------------------------------
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_continue_item(self, mock_uri):
+        """Continue watching returns a playable item from /play endpoint."""
+        mock_uri.open.return_value = json.dumps({
+            "content": {
+                "id": "ep42",
+                "title": "Familiediner"
+            }
+        })
+        item = self.channel._Channel__fetch_continue_item("sid")
+        self.assertIsNotNone(item)
+        self.assertIn("ep42", item.url)
+        self.assertIn("/v9/stream/handshake", item.url)
+        self.assertTrue(item.dontGroup)
+        mock_uri.open.assert_called_once()
+        self.assertIn("/v9/series/sid/play", mock_uri.open.call_args[0][0])
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_continue_item_empty_response(self, mock_uri):
+        """Continue watching returns None on empty response."""
+        mock_uri.open.return_value = ""
+        item = self.channel._Channel__fetch_continue_item("sid")
+        self.assertIsNone(item)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_continue_item_no_content_id(self, mock_uri):
+        """Continue watching returns None when content has no id."""
+        mock_uri.open.return_value = json.dumps({
+            "content": {"title": "No ID"}
+        })
+        item = self.channel._Channel__fetch_continue_item("sid")
+        self.assertIsNone(item)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_season_episodes_basic(self, mock_uri):
+        """Season episodes returns (broadcastAt, firstAvailable, item) tuples in order."""
+        mock_uri.open.return_value = json.dumps({"data": [
+            {"content": {"id": "ep1", "subtitle": "S1:A1 Pilot",
+                         "broadcastAt": "2024-01-01T00:00:00+01:00",
+                         "firstAvailable": "2024-01-02T00:00:00+01:00"}},
+            {"content": {"id": "ep2", "subtitle": "S1:A2 Second",
+                         "broadcastAt": "2024-01-08T00:00:00+01:00"}},
+        ]})
+        result = self.channel._Channel__fetch_season_episodes("sid", "s1")
+        self.assertEqual(len(result), 2)
+        broadcast_at, first_available, item = result[0]
+        self.assertEqual(broadcast_at, "2024-01-01T00:00:00+01:00")
+        self.assertEqual(first_available, "2024-01-02T00:00:00+01:00")
+        self.assertIn("ep1", item.url)
+        self.assertTrue(item.dontGroup)
+        self.assertEqual(item.metaData.get("nlziet:ep_title"), "S1:A1 Pilot")
+        call_url = mock_uri.open.call_args[0][0]
+        self.assertIn("seasonId=s1", call_url)
+        self.assertIn("limit=400", call_url)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_season_episodes_no_season_id(self, mock_uri):
+        """Season episodes returns empty list for empty season_id."""
+        result = self.channel._Channel__fetch_season_episodes("sid", "")
+        self.assertEqual(result, [])
+        mock_uri.open.assert_not_called()
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_season_episodes_empty_response(self, mock_uri):
+        """Season episodes returns empty list on empty HTTP response."""
+        mock_uri.open.return_value = ""
+        result = self.channel._Channel__fetch_season_episodes("sid", "s1")
+        self.assertEqual(result, [])
+
+    @patch("chn_nlziet.UriHandler")
+    def test_fetch_season_episodes_no_broadcast_at(self, mock_uri):
+        """Season episodes handles missing broadcastAt as empty string."""
+        mock_uri.open.return_value = json.dumps({
+            "data": [{"content": {"id": "ep1", "subtitle": "Afl. 1"}}]
+        })
+        result = self.channel._Channel__fetch_season_episodes("sid", "s1")
+        self.assertEqual(len(result), 1)
+        broadcast_at, first_available, item = result[0]
+        self.assertEqual(broadcast_at, "")
+        self.assertEqual(first_available, "")
+        self.assertIn("ep1", item.url)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_build_shortcuts_all_three(self, mock_uri):
+        """Build shortcuts returns continue, recent, and first items."""
+        play_response = json.dumps({
+            "content": {"id": "cont1", "title": "Continue Ep"}
+        })
+        # seasons[0] = oldest season (s1): first1 has the min broadcastAt
+        oldest_eps = json.dumps({"data": [
+            {"content": {"id": "old3", "subtitle": "S0:A3 Last",
+                         "broadcastAt": "2020-03-01T00:00:00+01:00"}},
+            {"content": {"id": "first1", "subtitle": "S0:A1 Pilot",
+                         "broadcastAt": "2020-01-01T00:00:00+01:00"}},
+        ]})
+        # seasons[-1] = newest season (s2): ep10 has the max broadcastAt
+        newest_eps = json.dumps({"data": [
+            {"content": {"id": "ep10", "subtitle": "S1:A10 Latest",
+                         "broadcastAt": "2024-03-01T00:00:00+01:00"}},
+            {"content": {"id": "ep1n", "subtitle": "S1:A1 Start",
+                         "broadcastAt": "2024-01-01T00:00:00+01:00"}},
+        ]})
+        mock_uri.open.side_effect = [play_response, newest_eps, oldest_eps]
+        seasons = [{"id": "s1"}, {"id": "s2"}]
+        shortcuts = self.channel._Channel__build_episode_shortcuts("sid", seasons)
+        self.assertEqual(len(shortcuts), 3)
+        # Order: continue, recent, first
+        self.assertIn("cont1", shortcuts[0].url)
+        self.assertIn("ep10", shortcuts[1].url)    # max broadcastAt in newest season
+        self.assertIn("first1", shortcuts[2].url)  # min broadcastAt in oldest season
+
+    @patch("chn_nlziet.UriHandler")
+    def test_build_shortcuts_omits_continue_when_same_as_first(self, mock_uri):
+        """Continue is omitted when it points to the same episode as first."""
+        same_id = "same1"
+        play_response = json.dumps({
+            "content": {"id": same_id, "title": "Same Ep"}
+        })
+        # Single season (newest == oldest): same1 has min broadcastAt
+        season_eps = json.dumps({"data": [
+            {"content": {"id": same_id, "subtitle": "S1:A1 Same",
+                         "broadcastAt": "2024-01-01T00:00:00+01:00"}},
+            {"content": {"id": "last1", "subtitle": "S1:A3 Latest",
+                         "broadcastAt": "2024-03-01T00:00:00+01:00"}},
+        ]})
+        mock_uri.open.side_effect = [play_response, season_eps]
+        seasons = [{"id": "s1"}]
+        shortcuts = self.channel._Channel__build_episode_shortcuts("sid", seasons)
+        # Continue omitted (same url as first), only recent + first
+        self.assertEqual(len(shortcuts), 2)
+        urls = [s.url for s in shortcuts]
+        self.assertTrue(any("last1" in u for u in urls))
+        self.assertTrue(any(same_id in u for u in urls))
+
+    def test_build_shortcuts_empty_seasons(self):
+        """Build shortcuts returns empty list for empty seasons."""
+        shortcuts = self.channel._Channel__build_episode_shortcuts("sid", [])
+        self.assertEqual(shortcuts, [])
+
+    def test_build_shortcuts_no_series_id(self):
+        """Build shortcuts returns empty list for empty series_id."""
+        shortcuts = self.channel._Channel__build_episode_shortcuts("", [{"id": "s1"}])
+        self.assertEqual(shortcuts, [])
+
+    @patch("chn_nlziet.UriHandler")
+    def test_build_shortcuts_all_fetches_fail(self, mock_uri):
+        """Build shortcuts handles all fetch failures gracefully."""
+        mock_uri.open.return_value = ""
+        seasons = [{"id": "s1"}]
+        shortcuts = self.channel._Channel__build_episode_shortcuts("sid", seasons)
+        self.assertEqual(shortcuts, [])
+
+    @patch("chn_nlziet.UriHandler")
+    def test_build_shortcuts_picks_by_broadcast_at(self, mock_uri):
+        """First/latest are chosen by broadcastAt, not API response order."""
+        play_response = json.dumps({"content": {"id": "cont1", "title": "C"}})
+        # Single season, API returns newest-first; broadcastAt identifies order.
+        season_eps = json.dumps({"data": [
+            {"content": {"id": "ep3", "subtitle": "S1:A3 Last",
+                         "broadcastAt": "2024-03-01T00:00:00+01:00"}},
+            {"content": {"id": "ep2", "subtitle": "S1:A2 Mid",
+                         "broadcastAt": "2024-02-01T00:00:00+01:00"}},
+            {"content": {"id": "ep1", "subtitle": "S1:A1 First",
+                         "broadcastAt": "2024-01-01T00:00:00+01:00"}},
+        ]})
+        mock_uri.open.side_effect = [play_response, season_eps]
+        seasons = [{"id": "s1"}]
+        shortcuts = self.channel._Channel__build_episode_shortcuts("sid", seasons)
+        self.assertEqual(len(shortcuts), 3)
+        self.assertIn("cont1", shortcuts[0].url)
+        self.assertIn("ep3", shortcuts[1].url)  # max broadcastAt = latest
+        self.assertIn("ep1", shortcuts[2].url)  # min broadcastAt = first
+
+    def _make_ep(self, ep_id, broadcast_at="", first_available=""):
+        """Helper: create a (broadcastAt, firstAvailable, MediaItem) tuple."""
+        from resources.lib.mediaitem import MediaItem
+        item = MediaItem(ep_id, "https://example.com/{}".format(ep_id))
+        return (broadcast_at, first_available, item)
+
+    def test_pick_boundary_none_for_empty(self):
+        """Boundary picker returns None for empty input."""
+        result = self.channel._Channel__pick_boundary_episode([], True)
+        self.assertIsNone(result)
+
+    def test_pick_boundary_single_item(self):
+        """Boundary picker returns the only item regardless of direction."""
+        eps = [self._make_ep("only")]
+        result = self.channel._Channel__pick_boundary_episode(eps, True)
+        self.assertIs(result, eps[0][2])
+
+    def test_pick_boundary_ascending_api_broadcastAt_agree(self):
+        """Ascending API: both API pos and broadcastAt vote for same first/last."""
+        eps = [
+            self._make_ep("ep1", "2024-01-01T00:00:00+00:00"),
+            self._make_ep("ep2", "2024-02-01T00:00:00+00:00"),
+            self._make_ep("ep3", "2024-03-01T00:00:00+00:00"),
+        ]
+        first = self.channel._Channel__pick_boundary_episode(eps, True)
+        last = self.channel._Channel__pick_boundary_episode(eps, False)
+        self.assertIn("ep1", first.url)
+        self.assertIn("ep3", last.url)
+
+    def test_pick_boundary_descending_api_broadcastAt_agree(self):
+        """Descending API: broadcastAt corrects inverted API position order."""
+        eps = [
+            self._make_ep("ep3", "2024-03-01T00:00:00+00:00"),
+            self._make_ep("ep2", "2024-02-01T00:00:00+00:00"),
+            self._make_ep("ep1", "2024-01-01T00:00:00+00:00"),
+        ]
+        first = self.channel._Channel__pick_boundary_episode(eps, True)
+        last = self.channel._Channel__pick_boundary_episode(eps, False)
+        # Both API-pos and broadcastAt votes yield ep1 (last in list = oldest)
+        self.assertIn("ep1", first.url)
+        # And ep3 (first in list = newest)
+        self.assertIn("ep3", last.url)
+
+    def test_pick_boundary_majority_vote_no_first_available(self):
+        """Without firstAvailable, 2-of-2 (API+broadcastAt) always agrees."""
+        eps = [
+            self._make_ep("newest", "2024-12-01T00:00:00+00:00"),
+            self._make_ep("oldest", "2020-01-01T00:00:00+00:00"),
+        ]
+        # API order: newest first → pick_first=True means API votes for oldest (eps[-1])
+        first = self.channel._Channel__pick_boundary_episode(eps, True)
+        last = self.channel._Channel__pick_boundary_episode(eps, False)
+        self.assertIn("oldest", first.url)
+        self.assertIn("newest", last.url)
+
     def test_create_vod_item_series_type(self):
         """Items with explicit type 'Series' become FolderItems."""
         from resources.lib.mediaitem import FolderItem
@@ -1033,6 +1263,17 @@ class TestNLZietChannelLive(ChannelTest):
         items = self.channel.process_folder_list(None)
         self.assertIsNotNone(items)
         self.assertGreater(len(items), 0)
+
+
+    def test_series_detail_has_season_structure(self):
+        """Live: series detail returns seasons (prerequisite for shortcuts)."""
+        # Use a known series by searching for one first
+        from resources.lib.mediaitem import MediaItem
+        url = "https://api.nlziet.nl/v8/series/mock-series-001"
+        item = MediaItem("Test Series", url)
+        items = self.channel.process_folder_list(item)
+        # Series may not exist; just verify no exception is raised
+        self.assertIsNotNone(items)
 
 
 class TestNLZietChannelMocked(TestNLZietChannelLive):

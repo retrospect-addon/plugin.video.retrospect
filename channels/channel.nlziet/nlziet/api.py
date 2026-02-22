@@ -51,11 +51,10 @@ API_V9_SEARCH = (
 )
 API_V9_SEARCH_PREFIX = f"{_API_BASE_URL}/v9/search?"
 
-API_V9_SERIES_EPISODE_AT = (
+API_V9_SEASON_ALL_EPISODES = (
     f"{_API_BASE_URL}/v9/series/{{}}/episodes"
     "?seasonId={}"
-    "&limit=1"
-    "&offset={}"
+    "&limit=400"
 )
 API_V9_SERIES_EPISODES = (
     f"{_API_BASE_URL}/v9/series/{{}}/episodes"
