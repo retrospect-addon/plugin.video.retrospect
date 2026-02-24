@@ -561,6 +561,11 @@ class _RequestsHandler(object):
                             headers=headers, stream=stream,
                             timeout=self.webTimeOut)
 
+            if http_method == "DELETE":
+                Logger.info("Performing a DELETE for %s", uri)
+                r = s.delete(uri, proxies=proxies, headers=headers,
+                             stream=stream, timeout=self.webTimeOut)
+
             if r.ok:
                 Logger.info("%s resulted in '%s %s' (%s) for %s",
                             r.request.method, r.status_code, r.reason, r.elapsed, r.url)
