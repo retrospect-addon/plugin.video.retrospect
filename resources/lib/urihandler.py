@@ -528,35 +528,38 @@ class _RequestsHandler(object):
 
             headers = self.__get_headers(referer, additional_headers)
 
-            if params is not None:
-                # Old UriHandler behaviour. Set form header to keep compatible
-                if "content-type" not in headers:
-                    headers["content-type"] = "application/x-www-form-urlencoded"
+            r = None
 
-                Logger.info("Performing a POST with '%s' for %s", headers["content-type"], uri)
-                r = s.post(uri, data=params, proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
-            elif data is not None:
-                # Normal Requests compatible data object
-                Logger.info("Performing a POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-                if method.lower() == "patch":
-                    r = s.patch(uri, data=data, proxies=proxies, headers=headers,
-                               stream=stream, timeout=self.webTimeOut)
-                else:
-                    r = s.post(uri, data=data, proxies=proxies, headers=headers,
-                               stream=stream, timeout=self.webTimeOut)
-            elif json is not None:
-                Logger.info("Performing a json POST with '%s' for %s", headers.get("content-type", "<No Content-Type>"), uri)
-                if method.lower() == "patch":
-                    r = s.patch(uri, json=json, proxies=proxies, headers=headers,
-                                stream=stream, timeout=self.webTimeOut)
-                else:
-                    r = s.post(uri, json=json, proxies=proxies, headers=headers,
-                               stream=stream, timeout=self.webTimeOut)
-            else:
+            http_method = method.upper() if method else ""
+            if not http_method:
+                has_body = params is not None or data is not None or json is not None
+                # Promote to POST when body arguments are present
+                http_method = "POST" if has_body else "GET"
+
+            if http_method == "GET":
                 Logger.info("Performing a GET for %s", uri)
                 r = s.get(uri, proxies=proxies, headers=headers,
                           stream=stream, timeout=self.webTimeOut)
+
+            if http_method == "POST":
+                body_data, body_json = data, json
+                if params is not None:
+                    # Old UriHandler behavior. Set form header to keep compatible
+                    if "content-type" not in headers:
+                        headers["content-type"] = "application/x-www-form-urlencoded"
+                    body_data, body_json = params, None
+                Logger.info("Performing a POST with '%s' for %s",
+                            headers.get("content-type", "<No Content-Type>"), uri)
+                r = s.post(uri, data=body_data, json=body_json,
+                           proxies=proxies, headers=headers,
+                           stream=stream, timeout=self.webTimeOut)
+
+            if http_method == "PATCH":
+                Logger.info("Performing a PATCH with '%s' for %s",
+                            headers.get("content-type", "<No Content-Type>"), uri)
+                r = s.patch(uri, data=data, json=json, proxies=proxies,
+                            headers=headers, stream=stream,
+                            timeout=self.webTimeOut)
 
             if r.ok:
                 Logger.info("%s resulted in '%s %s' (%s) for %s",
