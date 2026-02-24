@@ -84,6 +84,20 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual([post_data], data_object["form"]["test"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
+    def test_patch(self):
+        UriHandler.create_uri_handler()
+
+        url = self.base_url + "/patch"
+        patch_data = {"test": "patch value"}
+
+        data = UriHandler.open(url, json=patch_data, method="PATCH")
+        self.assertIsNot(data, "")
+        data_object = json.loads(data)
+        self.assertIsNotNone(data_object)
+        self.assertTrue("headers" in data_object)
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
+        self.assertEqual(200, UriHandler.instance().status.code)
+
     def test_gzip(self):
         UriHandler.create_uri_handler()
 
