@@ -98,6 +98,19 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
+    def test_delete(self):
+        UriHandler.create_uri_handler()
+
+        url = self.base_url + "/delete"
+
+        data = UriHandler.open(url, method="DELETE")
+        self.assertIsNot(data, "")
+        data_object = json.loads(data)
+        self.assertIsNotNone(data_object)
+        self.assertTrue("headers" in data_object)
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
+        self.assertEqual(200, UriHandler.instance().status.code)
+
     def test_gzip(self):
         UriHandler.create_uri_handler()
 
