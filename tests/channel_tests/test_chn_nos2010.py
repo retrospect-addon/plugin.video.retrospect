@@ -19,7 +19,7 @@ class TestNpoChannel(ChannelTest):
         self.assertEqual(8, len(items), "No items found in mainlist")
 
     def test_live_radio(self):
-        self._test_folder_url("https://www.npoluister.nl/",
+        self._test_folder_url("https://npo.nl/luister",
                               expected_results=4)
 
     def test_live_radio_video(self):
