@@ -553,6 +553,43 @@ class TestNLZietChannel(ChannelTest):
         self.assertNotIn("seasonId", parent.url)
         self.assertIn(ep, items)
 
+    def test_extract_series_data_stores_series_title_in_season_metadata(self):
+        """Season folder items carry nlziet:series_title for Up Next support."""
+        import json
+        from resources.lib.mediaitem import MediaItem as MI
+        self.channel.parentItem = MI("Series", API_V8_SERIES.format("sid"))
+        data = json.dumps({
+            "content": {
+                "id": "sid",
+                "title": "Great Show",
+                "seasons": [{"id": "s1", "title": "Season 1"}]
+            }
+        })
+        _, items = self.channel.extract_series_data(data)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].metaData.get("nlziet:series_title"), "Great Show")
+
+    def test_extract_series_title_reads_parent_metadata(self):
+        """extract_series_title preprocessor caches series title on channel instance."""
+        from resources.lib.mediaitem import FolderItem
+        from resources.lib.helpers.jsonhelper import JsonHelper
+        parent = FolderItem("Season 1", "https://api.nlziet.nl/v9/series/sid/episodes?seasonId=s1",
+                            content_type="episodes")
+        parent.metaData["nlziet:series_title"] = "Great Show"
+        self.channel.parentItem = parent
+        data, items = self.channel.extract_series_title("{}")
+        self.assertEqual(items, [])
+        self.assertEqual(self.channel._Channel__current_series_title, "Great Show")
+
+    def test_extract_series_title_no_parent_metadata(self):
+        """extract_series_title sets empty string when parent has no series title."""
+        from resources.lib.mediaitem import FolderItem
+        parent = FolderItem("Season 1", "https://api.nlziet.nl/v9/series/sid/episodes?seasonId=s1",
+                            content_type="episodes")
+        self.channel.parentItem = parent
+        self.channel.extract_series_title("{}")
+        self.assertEqual(self.channel._Channel__current_series_title, "")
+
     # -- Episode shortcut tests -----------------------------------------------
 
     @patch("chn_nlziet.UriHandler")
@@ -857,6 +894,33 @@ class TestNLZietChannel(ChannelTest):
         }
         item = self.channel.create_episode_item(result_set)
         self.assertTrue(item.dontGroup)
+
+    def test_create_episode_item_tv_show_title(self):
+        """Episode items inherit tv_show_title from __current_series_title."""
+        self.channel._Channel__current_series_title = "My Series"
+        result_set = {
+            "content": {
+                "id": "ep-tvt", "title": "An Episode",
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.tv_show_title, "My Series")
+
+    def test_create_episode_item_no_series_title(self):
+        """Episode items work without __current_series_title set."""
+        if hasattr(self.channel, "_Channel__current_series_title"):
+            del self.channel._Channel__current_series_title
+        result_set = {
+            "content": {
+                "id": "ep-nst", "title": "An Episode",
+                "image": {}, "logo": {}
+            }
+        }
+        item = self.channel.create_episode_item(result_set)
+        self.assertIsNotNone(item)
+        self.assertFalse(item.tv_show_title)
 
     def test_create_episode_item_empty_content(self):
         """Empty content returns None."""
