@@ -1543,6 +1543,64 @@ class TestNLZietChannelLive(ChannelTest):
         epg = self.channel.create_iptv_epg(parser)
         self.assertIsNotNone(epg)
 
+    # -- boundary episode detection ------------------------------------------
+
+    def _boundary_eps(self, series_id, season_id):
+        """Fetch episodes via the channel and return the list of tuples."""
+        return self.channel._Channel__fetch_season_episodes(series_id, season_id)
+
+    def test_boundary_fm_s18_descending_first(self):
+        """Live: Flikken Maastricht S18 (descending) → first episode is A1."""
+        from tests.authentication.nlziet_mocks import MOCK_FM_S18_SERIES_ID, MOCK_FM_S18_SEASON_ID
+        eps = self._boundary_eps(MOCK_FM_S18_SERIES_ID, MOCK_FM_S18_SEASON_ID)
+        self.assertGreater(len(eps), 0)
+        result = self.channel._Channel__pick_boundary_episode(eps, pick_first=True)
+        self.assertIn("S18:A1", result.name)
+
+    def test_boundary_fm_s18_descending_recent(self):
+        """Live: Flikken Maastricht S18 (descending) → most-recent episode is A13."""
+        from tests.authentication.nlziet_mocks import MOCK_FM_S18_SERIES_ID, MOCK_FM_S18_SEASON_ID
+        eps = self._boundary_eps(MOCK_FM_S18_SERIES_ID, MOCK_FM_S18_SEASON_ID)
+        self.assertGreater(len(eps), 0)
+        result = self.channel._Channel__pick_boundary_episode(eps, pick_first=False)
+        self.assertIn("S18:A13", result.name)
+
+    def test_boundary_luizenmoeder_s1_rebroadcast_first(self):
+        """Live: De Luizenmoeder S1 (rebroadcast dates) → first episode is A1."""
+        from tests.authentication.nlziet_mocks import (
+            MOCK_LUIZENMOEDER_S1_SERIES_ID, MOCK_LUIZENMOEDER_S1_SEASON_ID)
+        eps = self._boundary_eps(MOCK_LUIZENMOEDER_S1_SERIES_ID, MOCK_LUIZENMOEDER_S1_SEASON_ID)
+        self.assertGreater(len(eps), 0)
+        result = self.channel._Channel__pick_boundary_episode(eps, pick_first=True)
+        self.assertIn("S1:A1", result.name)
+
+    def test_boundary_luizenmoeder_s1_rebroadcast_recent(self):
+        """Live: De Luizenmoeder S1 (rebroadcast dates) → most-recent episode is A10."""
+        from tests.authentication.nlziet_mocks import (
+            MOCK_LUIZENMOEDER_S1_SERIES_ID, MOCK_LUIZENMOEDER_S1_SEASON_ID)
+        eps = self._boundary_eps(MOCK_LUIZENMOEDER_S1_SERIES_ID, MOCK_LUIZENMOEDER_S1_SEASON_ID)
+        self.assertGreater(len(eps), 0)
+        result = self.channel._Channel__pick_boundary_episode(eps, pick_first=False)
+        self.assertIn("S1:A10", result.name)
+
+    def test_boundary_fawlty_s1_ascending_first(self):
+        """Live: Fawlty Towers S1 (ascending) → first episode is A1."""
+        from tests.authentication.nlziet_mocks import (
+            MOCK_FAWLTY_S1_SERIES_ID, MOCK_FAWLTY_S1_SEASON_ID)
+        eps = self._boundary_eps(MOCK_FAWLTY_S1_SERIES_ID, MOCK_FAWLTY_S1_SEASON_ID)
+        self.assertGreater(len(eps), 0)
+        result = self.channel._Channel__pick_boundary_episode(eps, pick_first=True)
+        self.assertIn("S1:A1", result.name)
+
+    def test_boundary_fawlty_s1_ascending_recent(self):
+        """Live: Fawlty Towers S1 (ascending) → most-recent episode is A6."""
+        from tests.authentication.nlziet_mocks import (
+            MOCK_FAWLTY_S1_SERIES_ID, MOCK_FAWLTY_S1_SEASON_ID)
+        eps = self._boundary_eps(MOCK_FAWLTY_S1_SERIES_ID, MOCK_FAWLTY_S1_SEASON_ID)
+        self.assertGreater(len(eps), 0)
+        result = self.channel._Channel__pick_boundary_episode(eps, pick_first=False)
+        self.assertIn("S1:A6", result.name)
+
 
 class TestNLZietChannelMocked(TestNLZietChannelLive):
     """Mocked channel tests — always runs, uses NLZietMockDispatcher."""

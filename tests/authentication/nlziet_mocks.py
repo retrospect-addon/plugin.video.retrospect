@@ -230,6 +230,95 @@ MOCK_SERIES_DETAIL_RESPONSE = {
     }
 }
 
+# Real HAR data for boundary-detection live tests.
+# Flikken Maastricht S18: descending API order, clean broadcastAt.
+# series=noplAjB-l0e8onWe66xr_g  season=T8MyYV32fkOB68ZrA15zzg
+MOCK_FM_S18_SERIES_ID = "noplAjB-l0e8onWe66xr_g"
+MOCK_FM_S18_SEASON_ID = "T8MyYV32fkOB68ZrA15zzg"
+MOCK_FM_S18_EPISODES_RESPONSE = {"data": [
+    {"content": {"id": "glAJoJ9h1EKtk1PnSJndCw", "subtitle": "S18:A13 Vendetta",
+                 "broadcastAt": "2024-04-26T20:35:00+02:00"}},
+    {"content": {"id": "VeNwZlhKb0qAWkrMvOJ30Q", "subtitle": "S18:A12 Cluster B",
+                 "broadcastAt": "2024-04-19T20:35:00+02:00"}},
+    {"content": {"id": "XWcwoMsvj0-Q3yZ__jWvsg", "subtitle": "S18:A11 Ontvoerd",
+                 "broadcastAt": "2024-04-12T20:35:00+02:00"}},
+    {"content": {"id": "zGvggxtv_k2amuN1wWzf2g", "subtitle": "S18:A10 Leviticus 18:22",
+                 "broadcastAt": "2024-04-05T20:35:00+02:00"}},
+    {"content": {"id": "xY2ZFzySAUmeY_o9WSWwBw", "subtitle": "S18:A9 Tuig",
+                 "broadcastAt": "2024-03-29T20:35:00+01:00"}},
+    {"content": {"id": "VKyydgLJxkapvMoDzep1Ug", "subtitle": "S18:A8 Asiel",
+                 "broadcastAt": "2024-03-22T20:35:00+01:00"}},
+    {"content": {"id": "ttJ9bQpBS0a4yXeN_x_hMw", "subtitle": "S18:A7 Gangsters",
+                 "broadcastAt": "2024-03-15T20:35:00+01:00"}},
+    {"content": {"id": "5Y2Ya6UTBU6jgLUnt5urvw", "subtitle": "S18:A6 Jaloezie",
+                 "broadcastAt": "2024-03-08T20:35:00+01:00"}},
+    {"content": {"id": "wKcZAqWIW0KX0TMV9gezAA", "subtitle": "S18:A5 Beschuldigd",
+                 "broadcastAt": "2024-03-01T20:35:00+01:00"}},
+    {"content": {"id": "u1fyvBsN3EmR0sWCAyUudA", "subtitle": "S18:A4 Larry Konings",
+                 "broadcastAt": "2024-02-23T20:35:00+01:00"}},
+    {"content": {"id": "fBh2HAYhyUOepl0NSucnKw", "subtitle": "S18:A3 Juice",
+                 "broadcastAt": "2024-02-16T20:35:00+01:00"}},
+    {"content": {"id": "bVawig8-1kqcC9-TXlcrcQ", "subtitle": "S18:A2 Beste vrienden",
+                 "broadcastAt": "2024-02-09T20:35:00+01:00"}},
+    {"content": {"id": "mAbab8km6kunAmBJ4-goxQ", "subtitle": "S18:A1 Masker 19",
+                 "broadcastAt": "2024-02-02T20:35:00+01:00"}},
+]}
+
+# De Luizenmoeder S1: descending API order, non-monotonic broadcastAt (re-broadcasts).
+# series=ngpiHZQzmUq4q1uktOmlIQ  season=ml2xrgt2TkWWv9enhMd-sQ
+MOCK_LUIZENMOEDER_S1_SERIES_ID = "ngpiHZQzmUq4q1uktOmlIQ"
+MOCK_LUIZENMOEDER_S1_SEASON_ID = "ml2xrgt2TkWWv9enhMd-sQ"
+MOCK_LUIZENMOEDER_S1_EPISODES_RESPONSE = {"data": [
+    {"content": {"id": "lm-ep10", "subtitle": "S1:A10 Special",
+                 "broadcastAt": "2018-03-18T20:25:00+01:00"}},
+    {"content": {"id": "lm-ep09", "subtitle": "S1:A9 Send in the clowns",
+                 "broadcastAt": "2018-03-11T20:25:00+01:00"}},
+    {"content": {"id": "lm-ep08", "subtitle": "S1:A8 Kanjertraining",
+                 "broadcastAt": "2018-03-04T20:25:00+01:00"}},
+    {"content": {"id": "lm-ep07", "subtitle": "S1:A7 Een helder licht",
+                 "broadcastAt": "2018-02-25T20:25:00+01:00"}},
+    {"content": {"id": "lm-ep06", "subtitle": "S1:A6 Lentekriebels",
+                 "broadcastAt": "2018-02-18T20:25:00+01:00"}},
+    {"content": {"id": "lm-ep05", "subtitle": "S1:A5 Winterklaas",
+                 "broadcastAt": "2020-12-04T20:25:00+01:00"}},  # re-broadcast
+    {"content": {"id": "lm-ep04", "subtitle": "S1:A4 Laat ze maar glanzen",
+                 "broadcastAt": "2018-02-04T20:25:00+01:00"}},
+    {"content": {"id": "lm-ep03", "subtitle": "S1:A3 Er zijn er twee jarig, hoera hoera",
+                 "broadcastAt": "2020-12-11T20:25:00+01:00"}},  # re-broadcast
+    {"content": {"id": "lm-ep02", "subtitle": "S1:A2 Afspraak is afspraak",
+                 "broadcastAt": "2022-05-08T02:05:00+02:00"}},  # re-broadcast
+    {"content": {"id": "lm-ep01", "subtitle": "S1:A1 Het zijn altijd de nieuwkomers",
+                 "broadcastAt": "2018-01-14T20:25:00+01:00"}},
+]}
+
+# Fawlty Towers S1: ascending API order, clean broadcastAt.
+# series=PBby8G53Rk2xtH67ku044g  season=OssVKJHye0WUMhPSig9A5w
+MOCK_FAWLTY_S1_SERIES_ID = "PBby8G53Rk2xtH67ku044g"
+MOCK_FAWLTY_S1_SEASON_ID = "OssVKJHye0WUMhPSig9A5w"
+MOCK_FAWLTY_S1_EPISODES_RESPONSE = {"data": [
+    {"content": {"id": "ft-ep01", "subtitle": "S1:A1 A Touch of Class",
+                 "broadcastAt": "1975-09-19T01:00:00+01:00"}},
+    {"content": {"id": "ft-ep02", "subtitle": "S1:A2 The Builders",
+                 "broadcastAt": "1975-09-26T01:00:00+01:00"}},
+    {"content": {"id": "ft-ep03", "subtitle": "S1:A3 The Wedding",
+                 "broadcastAt": "1975-10-03T01:00:00+01:00"}},
+    {"content": {"id": "ft-ep04", "subtitle": "S1:A4 The Hotel Inspectors",
+                 "broadcastAt": "1975-10-10T01:00:00+01:00"}},
+    {"content": {"id": "ft-ep05", "subtitle": "S1:A5 Gourmet Night",
+                 "broadcastAt": "1975-10-17T01:00:00+01:00"}},
+    {"content": {"id": "ft-ep06", "subtitle": "S1:A6 The Germans",
+                 "broadcastAt": "1975-10-24T01:00:00+01:00"}},
+]}
+
+# Map of (series_id, season_id) → mock episodes response.
+MOCK_EPISODES_BY_SEASON = {
+    (MOCK_FM_S18_SERIES_ID, MOCK_FM_S18_SEASON_ID): MOCK_FM_S18_EPISODES_RESPONSE,
+    (MOCK_LUIZENMOEDER_S1_SERIES_ID, MOCK_LUIZENMOEDER_S1_SEASON_ID):
+        MOCK_LUIZENMOEDER_S1_EPISODES_RESPONSE,
+    (MOCK_FAWLTY_S1_SERIES_ID, MOCK_FAWLTY_S1_SEASON_ID): MOCK_FAWLTY_S1_EPISODES_RESPONSE,
+}
+
+
 MOCK_EPG_LIVE_RESPONSE = {
     "data": [
         {
@@ -322,6 +411,16 @@ class NLZietMockDispatcher:
             if re.match(r"^/v8/series/", path):
                 uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
                 return json.dumps(MOCK_SERIES_DETAIL_RESPONSE)
+            episode_m = re.match(r"^/v9/series/([^/]+)/episodes$", parsed.path)
+            if episode_m:
+                qs = parse_qs(parsed.query)
+                season_id = qs.get("seasonId", [""])[0]
+                series_id_raw = episode_m.group(1)
+                key = (series_id_raw, season_id)
+                response = MOCK_EPISODES_BY_SEASON.get(key, {"data": []})
+                uri_handler_instance.status = UriStatus(
+                    code=200, url=uri, error=False, reason="OK")
+                return json.dumps(response)
             if path == "/v9/epg/programlocations/live":
                 uri_handler_instance.status = UriStatus(code=200, url=uri, error=False, reason="OK")
                 return json.dumps(MOCK_EPG_LIVE_RESPONSE)
