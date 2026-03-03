@@ -27,11 +27,12 @@ from resources.lib.urihandler import UriHandler
 from resources.lib.xbmcwrapper import XbmcWrapper
 
 from api import (
+    API_V7_APPCONFIG,
     API_V7_CONTINUE_WATCHING,
     API_V8_PROFILE, API_V8_RECOMMEND,
     API_V8_SERIES, API_V8_SERIES_PREFIX, API_V8_TRACKED_SERIES,
     API_V9_CONTINUE_WATCHING,
-    API_V9_EPG, API_V9_EPG_ITEM_DETAIL, API_V9_EPG_LIVE_CHANNEL, API_V9_EPG_DATE, API_V9_EPG_LIVE,
+    API_V9_EPG, API_V9_EPG_LIVE_CHANNEL, API_V9_EPG_DATE, API_V9_EPG_LIVE,
     API_V9_PLACEMENT_EXPLORE_PREFIX, API_V9_LIVE_HANDSHAKE,
     API_V9_PLACEMENT,
     API_V9_RECOMMEND_WITH, API_V9_RECOMMEND_FILTERED,
@@ -41,7 +42,9 @@ from api import (
     API_V9_SERIES_SEASON_EPISODES,
     API_V9_STREAM_HANDSHAKE, API_V9_TRACKED_SERIES,
     API_V9_VOD_HANDSHAKE, API_V9_WATCH_IN_ADVANCE,
+    EPG_ENRICH_BATCH_SIZE,
 )
+import epg_enrichment
 
 
 class Channel(chn_class.Channel):
@@ -1426,9 +1429,21 @@ class Channel(chn_class.Channel):
     def create_iptv_epg(self, parameter_parser):
         """Provide EPG data for IPTV Manager.
 
-        Fetches 3 days in the past and 3 days in the future.
-        Genre data is enriched for currently-airing programmes only
-        (one item/detail call per channel, ~20 calls total).
+        The date window (past/future days) is read dynamically from the
+        ``/v7/appconfig`` endpoint (``epgDateRangePastDays`` /
+        ``epgDateRangeFutureDays``), falling back to ±7 days — matching
+        the range the NLZIET app exposes in its date selector.
+
+        Before building the EPG, drains a batch of up to
+        ``EPG_ENRICH_BATCH_SIZE`` items from the saved enrichment queue so
+        that freshly-fetched descriptions and genres are immediately included
+        in the returned data.
+
+        After building the full EPG, a new enrichment queue is written to
+        LocalSettings with uncached programmes ordered by priority:
+          1. Currently-airing (now column), in channel order
+          2. Future slots, soonest first
+          3. Past slots, most-recent first (idle backfill)
 
         :param ActionParser parameter_parser: Action parser for building URLs.
         :return: EPG dict keyed by channel ID.
@@ -1442,15 +1457,34 @@ class Channel(chn_class.Channel):
             Logger.warning("NLZIET IPTV: Not authenticated, returning empty EPG")
             return {}
 
-        genre_by_content_item_id = self.__fetch_live_genres()
+        # Pipeline: drain the batch queued by the previous call so newly-fetched
+        # details are immediately included in the EPG we're about to build.
+        # The queue is rebuilt at the end of this method, closing the loop.
+        prev_queue = epg_enrichment.load_enrich_queue()
+        if prev_queue:
+            batch = prev_queue[:EPG_ENRICH_BATCH_SIZE]
+            epg_enrichment.fetch_and_cache(batch, self.httpHeaders)
 
-        parent = MediaItem("EPG", API_V9_EPG,
-                           media_type=mediatype.FOLDER)
+        cache = epg_enrichment.load_detail_cache()
+
+        parent = MediaItem("EPG", API_V9_EPG, media_type=mediatype.FOLDER)
         iptv_epg = {}
         media_items = []
+        # Collect (contentItemId, assetId, start_ts, is_now, is_past) for queue building
+        all_programmes = []
+        now_ts = time.time()
 
-        start = datetime.datetime.now() - datetime.timedelta(days=3)
-        for day_offset in range(6):
+        # The server-side appconfig defines how many days past/future the EPG
+        # calendar allows.  Fall back to ±7 if the call fails.
+        days_past, days_future = 7, 7
+        appconfig_raw = UriHandler.open(API_V7_APPCONFIG, additional_headers=self.httpHeaders)
+        if appconfig_raw:
+            appconfig = JsonHelper(appconfig_raw)
+            days_past = appconfig.get_value("epgDateRangePastDays", fallback=7)
+            days_future = appconfig.get_value("epgDateRangeFutureDays", fallback=7)
+
+        start = datetime.datetime.now() - datetime.timedelta(days=days_past)
+        for day_offset in range(days_past + days_future + 1):
             air_date = start + datetime.timedelta(days=day_offset)
             date_str = air_date.strftime("%Y-%m-%d")
             epg_url = API_V9_EPG_DATE.format(date_str)
@@ -1488,9 +1522,16 @@ class Channel(chn_class.Channel):
                     if landscape:
                         epg_item["image"] = landscape
 
-                    genre = genre_by_content_item_id.get(content.get("contentItemId"))
-                    if genre:
-                        epg_item["genre"] = genre
+                    content_item_id = content.get("contentItemId")
+                    asset_id = content.get("assetId")
+
+                    # Apply cached enrichment (description + genre)
+                    cached = cache.get(content_item_id) if content_item_id else None
+                    if cached:
+                        if cached.get("description"):
+                            epg_item["description"] = cached["description"]
+                        if cached.get("genre"):
+                            epg_item["genre"] = cached["genre"]
                     elif content.get("isMovie"):
                         epg_item["genre"] = "Film"
 
@@ -1504,57 +1545,30 @@ class Channel(chn_class.Channel):
 
                     iptv_epg[channel_id].append(epg_item)
 
+                    if content_item_id and asset_id:
+                        # Parse ISO start/stop to epoch for queue priority
+                        try:
+                            start_dt = datetime.datetime.fromisoformat(start_at)
+                            stop_dt = datetime.datetime.fromisoformat(end_at)
+                            start_epoch = start_dt.timestamp()
+                            stop_epoch = stop_dt.timestamp()
+                        except (ValueError, AttributeError):
+                            start_epoch = now_ts
+                            stop_epoch = now_ts
+                        is_now = start_epoch <= now_ts < stop_epoch
+                        is_past = stop_epoch < now_ts
+                        all_programmes.append(
+                            (content_item_id, asset_id, start_epoch, is_now, is_past))
+
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
+
+        # Rebuild enrichment queue for the background service
+        queue = epg_enrichment.build_enrich_queue(all_programmes, cache)
+        epg_enrichment.save_enrich_queue(queue)
+        Logger.debug("NLZIET IPTV: Enrich queue rebuilt (%d items)", len(queue))
+
         Logger.info("NLZIET IPTV: Returning EPG for %d channels", len(iptv_epg))
         return iptv_epg
-
-    def __fetch_live_genres(self):
-        """Fetch genre names for currently-airing programmes.
-
-        Calls /v9/epg/programlocations/live (one request) to get the
-        currently-airing programme on every channel, then calls
-        /v9/item/detail/{contentItemId}/{assetId} for each (~20 calls).
-
-        :return: Mapping of contentItemId → primary genre name (Dutch).
-        :rtype: dict[str, str]
-        """
-
-        live_data = UriHandler.open(API_V9_EPG_LIVE, additional_headers=self.httpHeaders)
-        if not live_data:
-            return {}
-
-        json_data = JsonHelper(live_data)
-        channel_entries = json_data.get_value("data", fallback=json_data.json)
-        if not isinstance(channel_entries, list):
-            return {}
-
-        genre_map = {}
-        for ch in channel_entries:
-            progs = ch.get("programLocations") or []
-            if not progs:
-                continue
-            # Only the first entry is currently airing; the second is "up next"
-            content = progs[0].get("content", {})
-            content_item_id = content.get("contentItemId")
-            asset_id = content.get("assetId")
-            if not content_item_id or not asset_id:
-                continue
-
-            detail_data = UriHandler.open(
-                API_V9_EPG_ITEM_DETAIL.format(content_item_id, asset_id),
-                additional_headers=self.httpHeaders)
-            if not detail_data:
-                continue
-
-            detail = JsonHelper(detail_data)
-            genres = detail.get_value("content", "genres", fallback=[])
-            if genres and isinstance(genres, list):
-                name = genres[0].get("name")
-                if name:
-                    genre_map[content_item_id] = name
-
-        Logger.debug("NLZIET IPTV: Fetched genres for %d live programmes", len(genre_map))
-        return genre_map
 
     def __create_replay_item(self, content, channel_id):
         """Create a playable MediaItem for an EPG replay stream.

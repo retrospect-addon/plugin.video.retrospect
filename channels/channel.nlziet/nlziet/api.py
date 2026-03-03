@@ -17,6 +17,7 @@ external code should import the versioned ``API_V*_`` constants instead.
 _API_BASE_URL = "https://api.nlziet.nl"
 
 # ── v7 ────────────────────────────────────────────────────────────────
+API_V7_APPCONFIG = f"{_API_BASE_URL}/v7/appconfig?os=web&origin=app"
 API_V7_CONTINUE_WATCHING = f"{_API_BASE_URL}/v7/continueWatching"
 
 # ── v8 ────────────────────────────────────────────────────────────────
@@ -91,3 +92,9 @@ API_V9_VOD_HANDSHAKE = (
 
 API_V9_TRACKED_SERIES = f"{_API_BASE_URL}/v9/trackedseries"
 API_V9_WATCH_IN_ADVANCE = f"{_API_BASE_URL}/v9/watchinadvance"
+
+# ── EPG enrichment cache / queue keys (stored in LocalSettings) ───────
+EPG_DETAIL_CACHE_KEY = "nlziet_epg_detail_cache"
+EPG_ENRICH_QUEUE_KEY = "nlziet_epg_enrich_queue"
+EPG_ENRICH_BATCH_SIZE = 10
+EPG_CACHE_TTL_DAYS = 3
