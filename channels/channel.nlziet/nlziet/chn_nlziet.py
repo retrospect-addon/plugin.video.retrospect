@@ -45,7 +45,7 @@ from api import (
     API_V9_STREAM_HANDSHAKE, API_V9_TRACKED_SERIES,
     API_V9_VOD_HANDSHAKE, API_V9_WATCH_IN_ADVANCE,
     APPCONFIG_CACHE_KEY, APPCONFIG_CACHE_TTL,
-    EPG_ENRICH_BATCH_SIZE,
+    EPG_ENRICH_BATCH_SIZE, EPG_SIGNAL_FILE_NAME,
 )
 import epg_enrichment
 
@@ -1713,19 +1713,24 @@ class Channel(chn_class.Channel):
 
     @staticmethod
     def __signal_iptv_manager(delay_seconds: int) -> None:
-        """Tell IPTV Manager to call ``create_iptv_epg`` again in ~delay_seconds.
+        """Write a signal file so retroservice.py can trigger IPTV Manager refresh.
+
+        ``Addon.refresh()`` in service.iptv.manager overwrites ``last_refreshed``
+        *after* ``create_iptv_epg`` returns, so we cannot write to IPTV Manager
+        settings from here.  Instead we write a plain file containing the Unix
+        timestamp at which the next refresh should fire.  retroservice.py checks
+        this file every 30s and writes ``last_refreshed = "0"`` once the time
+        arrives — i.e. after ``Addon.refresh()`` has already finished.
 
         :param int delay_seconds: Desired gap before the next call (30 – 600).
-                                  Values ≤ 30 trigger on the next 30-second tick.
         """
+        import os
+        import xbmcvfs
         try:
-            iptv_mgr = xbmcaddon.Addon("service.iptv.manager")
-            if delay_seconds <= 30:
-                iptv_mgr.setSetting("last_refreshed", "0")
-            else:
-                refresh_interval = int(
-                    iptv_mgr.getSetting("refresh_interval") or "86400")
-                fake_ts = time.time() - refresh_interval + delay_seconds
-                iptv_mgr.setSetting("last_refreshed", str(fake_ts))
-        except Exception:  # NOSONAR — addon may not be installed
+            addon_data = xbmcvfs.translatePath(
+                "special://profile/addon_data/plugin.video.retrospect/")
+            signal_path = os.path.join(addon_data, EPG_SIGNAL_FILE_NAME)
+            with open(signal_path, "w") as fh:
+                fh.write(str(time.time() + delay_seconds))
+        except Exception:  # NOSONAR — best-effort IPC
             pass

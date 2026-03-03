@@ -104,3 +104,4 @@ EPG_PROGLOC_CACHE_KEY = "nlziet_epg_progloc_cache"
 EPG_BACKOFF_CYCLES_KEY = "nlziet_epg_backoff_cycles"
 EPG_ENRICH_BATCH_SIZE = 10
 EPG_CACHE_TTL_DAYS = 3
+EPG_SIGNAL_FILE_NAME = "nlziet_epg_signal_at"   # plain file in addon-data dir
