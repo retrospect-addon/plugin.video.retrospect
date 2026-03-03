@@ -227,3 +227,84 @@ class TestFetchAndCache(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestProlocCache(unittest.TestCase):
+    """load_progloc_cache / save_progloc_cache round-trip and staleness."""
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_load_empty_is_stale(self, mock_settings):
+        mock_settings.get_setting.return_value = ""
+        cache, is_stale = epg_enrichment.load_progloc_cache()
+        self.assertEqual(cache, {})
+        self.assertTrue(is_stale)
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_load_fresh_not_stale(self, mock_settings):
+        data = {"fetched_at": time.time(), "2026-01-01": []}
+        mock_settings.get_setting.return_value = json.dumps(data)
+        cache, is_stale = epg_enrichment.load_progloc_cache()
+        self.assertFalse(is_stale)
+        self.assertIn("2026-01-01", cache)
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_load_expired_is_stale(self, mock_settings):
+        data = {"fetched_at": time.time() - 400, "2026-01-01": []}  # > 300s TTL
+        mock_settings.get_setting.return_value = json.dumps(data)
+        _, is_stale = epg_enrichment.load_progloc_cache()
+        self.assertTrue(is_stale)
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_load_invalid_json_is_stale(self, mock_settings):
+        mock_settings.get_setting.return_value = "not-json"
+        cache, is_stale = epg_enrichment.load_progloc_cache()
+        self.assertEqual(cache, {})
+        self.assertTrue(is_stale)
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_save_round_trips(self, mock_settings):
+        saved = {}
+        mock_settings.set_setting.side_effect = lambda k, v, store: saved.update({k: v})
+        data = {"fetched_at": time.time(), "2026-01-01": [["cid1", "aid1", 1000.0, 2000.0]]}
+        epg_enrichment.save_progloc_cache(data)
+        from api import EPG_PROGLOC_CACHE_KEY
+        self.assertIn(EPG_PROGLOC_CACHE_KEY, saved)
+        loaded = json.loads(saved[EPG_PROGLOC_CACHE_KEY])
+        self.assertIn("2026-01-01", loaded)
+
+
+class TestBackoff(unittest.TestCase):
+    """load_backoff_cycles / save_backoff_cycles / compute_signal_delay."""
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_load_default_zero(self, mock_settings):
+        mock_settings.get_setting.return_value = ""
+        self.assertEqual(epg_enrichment.load_backoff_cycles(), 0)
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_save_and_load(self, mock_settings):
+        saved = {}
+        mock_settings.set_setting.side_effect = lambda k, v, store: saved.update({k: v})
+        epg_enrichment.save_backoff_cycles(5)
+        from api import EPG_BACKOFF_CYCLES_KEY
+        self.assertEqual(saved[EPG_BACKOFF_CYCLES_KEY], "5")
+
+    @patch("epg_enrichment.AddonSettings")
+    def test_save_clamps_max(self, mock_settings):
+        saved = {}
+        mock_settings.set_setting.side_effect = lambda k, v, store: saved.update({k: v})
+        epg_enrichment.save_backoff_cycles(999)
+        from api import EPG_BACKOFF_CYCLES_KEY
+        self.assertEqual(int(saved[EPG_BACKOFF_CYCLES_KEY]),
+                         epg_enrichment._MAX_BACKOFF_CYCLES)
+
+    def test_compute_signal_delay_zero_cycles(self):
+        self.assertEqual(epg_enrichment.compute_signal_delay(0), 30)
+
+    def test_compute_signal_delay_grows(self):
+        delay_1 = epg_enrichment.compute_signal_delay(1)
+        delay_0 = epg_enrichment.compute_signal_delay(0)
+        self.assertGreater(delay_1, delay_0)
+
+    def test_compute_signal_delay_capped_at_600(self):
+        self.assertEqual(epg_enrichment.compute_signal_delay(999), 600)

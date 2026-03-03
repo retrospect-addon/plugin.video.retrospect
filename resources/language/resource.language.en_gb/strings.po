@@ -1311,7 +1311,7 @@ msgid "Log Out"
 msgstr ""
 
 msgctxt "#30628"
-msgid "Live start offset (seconds)"
+msgid "Live start offset adjustment (seconds, relative to broadcast start)"
 msgstr ""
 
 msgctxt "#30612"

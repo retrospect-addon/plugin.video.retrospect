@@ -2,12 +2,14 @@
 """NLZiet channel for Retrospect."""
 
 import datetime
+import json
 import re
 import threading
 import time
 from typing import Optional, List, Tuple, Union
 
 import xbmc
+import xbmcaddon
 
 from http import HTTPStatus
 
@@ -42,6 +44,7 @@ from api import (
     API_V9_SERIES_SEASON_EPISODES,
     API_V9_STREAM_HANDSHAKE, API_V9_TRACKED_SERIES,
     API_V9_VOD_HANDSHAKE, API_V9_WATCH_IN_ADVANCE,
+    APPCONFIG_CACHE_KEY, APPCONFIG_CACHE_TTL,
     EPG_ENRICH_BATCH_SIZE,
 )
 import epg_enrichment
@@ -470,11 +473,17 @@ class Channel(chn_class.Channel):
             return item
 
         try:
-            offset = AddonSettings.get_channel_setting(self, "nlziet_live_start_offset")
-            start_offset = int(float(offset)) if offset else 0
-            start_offset = max(-60, min(300, start_offset))
+            adjustment = AddonSettings.get_channel_setting(self, "nlziet_live_start_offset")
+            adjustment = int(float(adjustment)) if adjustment else 0
+            adjustment = max(-120, min(120, adjustment))
         except (ValueError, TypeError):
-            start_offset = 0
+            adjustment = 0
+
+        appconfig = self.__load_appconfig()
+        base_offset = appconfig.get("liveStreamRestartStartPadding", 180)
+        start_offset = base_offset + adjustment
+        start_offset = max(0, start_offset)
+
         handshake_url = API_V9_LIVE_HANDSHAKE.format(channel_id)
         if start_offset != 0:
             handshake_url = f"{handshake_url}&startOffsetInSeconds={start_offset}"
@@ -1429,21 +1438,17 @@ class Channel(chn_class.Channel):
     def create_iptv_epg(self, parameter_parser):
         """Provide EPG data for IPTV Manager.
 
-        The date window (past/future days) is read dynamically from the
-        ``/v7/appconfig`` endpoint (``epgDateRangePastDays`` /
-        ``epgDateRangeFutureDays``), falling back to ±7 days — matching
-        the range the NLZIET app exposes in its date selector.
+        The date window (past/future days) is read from the cached
+        ``/v7/appconfig`` payload.  Programme-location data is fetched once
+        per ``APPCONFIG_CACHE_TTL`` (300s) and cached locally; drain cycles
+        reuse cached data so only the 10 item/detail enrichment calls hit
+        the network.
 
-        Before building the EPG, drains a batch of up to
-        ``EPG_ENRICH_BATCH_SIZE`` items from the saved enrichment queue so
-        that freshly-fetched descriptions and genres are immediately included
-        in the returned data.
-
-        After building the full EPG, a new enrichment queue is written to
-        LocalSettings with uncached programmes ordered by priority:
-          1. Currently-airing (now column), in channel order
-          2. Future slots, soonest first
-          3. Past slots, most-recent first (idle backfill)
+        At the end of every call this method signals IPTV Manager to call
+        again — with an adaptive delay that starts at 30s and backs off by
+        30s per "empty cycle" (no new data) up to a 10-minute cap.  This
+        keeps the EPG perpetually fresh while avoiding unnecessary load
+        when the schedule is stable.
 
         :param ActionParser parameter_parser: Action parser for building URLs.
         :return: EPG dict keyed by channel ID.
@@ -1457,9 +1462,16 @@ class Channel(chn_class.Channel):
             Logger.warning("NLZIET IPTV: Not authenticated, returning empty EPG")
             return {}
 
+        # Load appconfig (cached); abort if the server has blocked the app.
+        appconfig = self.__load_appconfig()
+        if self.__check_app_blocked(appconfig):
+            return {}
+
+        days_past = appconfig.get("epgDateRangePastDays", 7)
+        days_future = appconfig.get("epgDateRangeFutureDays", 7)
+
         # Pipeline: drain the batch queued by the previous call so newly-fetched
-        # details are immediately included in the EPG we're about to build.
-        # The queue is rebuilt at the end of this method, closing the loop.
+        # details are immediately included in the EPG we are about to build.
         prev_queue = epg_enrichment.load_enrich_queue()
         if prev_queue:
             batch = prev_queue[:EPG_ENRICH_BATCH_SIZE]
@@ -1470,102 +1482,135 @@ class Channel(chn_class.Channel):
         parent = MediaItem("EPG", API_V9_EPG, media_type=mediatype.FOLDER)
         iptv_epg = {}
         media_items = []
-        # Collect (contentItemId, assetId, start_ts, is_now, is_past) for queue building
-        all_programmes = []
+        all_programmes = []  # (contentItemId, assetId, start_ts, is_now, is_past)
         now_ts = time.time()
 
-        # The server-side appconfig defines how many days past/future the EPG
-        # calendar allows.  Fall back to ±7 if the call fails.
-        days_past, days_future = 7, 7
-        appconfig_raw = UriHandler.open(API_V7_APPCONFIG, additional_headers=self.httpHeaders)
-        if appconfig_raw:
-            appconfig = JsonHelper(appconfig_raw)
-            days_past = appconfig.get_value("epgDateRangePastDays", fallback=7)
-            days_future = appconfig.get_value("epgDateRangeFutureDays", fallback=7)
+        # Load programme-location cache.  A stale cache triggers a full API
+        # fetch and counts as an "interesting" cycle (resets backoff).
+        progloc_cache, is_stale = epg_enrichment.load_progloc_cache()
+        interesting_cycle = is_stale  # also set True if queue non-empty
+
+        if is_stale:
+            new_progloc = {"fetched_at": now_ts}
+        else:
+            new_progloc = progloc_cache  # reuse; fetched_at is preserved
 
         start = datetime.datetime.now() - datetime.timedelta(days=days_past)
         for day_offset in range(days_past + days_future + 1):
             air_date = start + datetime.timedelta(days=day_offset)
             date_str = air_date.strftime("%Y-%m-%d")
-            epg_url = API_V9_EPG_DATE.format(date_str)
 
-            epg_data = UriHandler.open(epg_url, additional_headers=self.httpHeaders)
-            if not epg_data:
-                Logger.warning("NLZIET IPTV: No EPG data for %s", date_str)
-                continue
+            if is_stale:
+                epg_data = UriHandler.open(
+                    API_V9_EPG_DATE.format(date_str),
+                    additional_headers=self.httpHeaders)
+                if not epg_data:
+                    Logger.warning("NLZIET IPTV: No EPG data for %s", date_str)
+                    continue
+                json_data = JsonHelper(epg_data)
+                channels = json_data.get_value("data", fallback=json_data.json)
+                if not isinstance(channels, list):
+                    continue
 
-            json_data = JsonHelper(epg_data)
-            channels = json_data.get_value("data", fallback=json_data.json)
-            if not isinstance(channels, list):
-                continue
+                day_entries = []
+                for channel_entry in channels:
+                    channel_id = (channel_entry.get("channel", {})
+                                  .get("content", {}).get("id"))
+                    if not channel_id:
+                        continue
+                    for prog in channel_entry.get("programLocations", []):
+                        cdata = prog.get("content", {})
+                        cid = cdata.get("contentItemId")
+                        asset_id = cdata.get("assetId")
+                        start_at = cdata.get("startAt")
+                        end_at = cdata.get("endAt")
+                        if not cid or not asset_id or not start_at or not end_at:
+                            continue
+                        try:
+                            s_ts = datetime.datetime.fromisoformat(start_at).timestamp()
+                            e_ts = datetime.datetime.fromisoformat(end_at).timestamp()
+                        except (ValueError, AttributeError):
+                            s_ts = e_ts = now_ts
+                        day_entries.append([
+                            cid, asset_id, s_ts, e_ts, channel_id,
+                            start_at, end_at,
+                            cdata.get("title"),
+                            cdata.get("image", {}),
+                            cdata.get("isMovie", False),
+                            cdata.get("isReplayAllowed", False),
+                            cdata,
+                        ])
+                new_progloc[date_str] = day_entries
+            else:
+                day_entries = progloc_cache.get(date_str, [])
 
-            for channel_entry in channels:
-                channel_id = channel_entry.get("channel", {}).get("content", {}).get("id")
-                if not channel_id:
+            for entry in day_entries:
+                (cid, asset_id, s_ts, e_ts, channel_id,
+                 start_at, end_at, title, image, is_movie,
+                 is_replay, cdata) = entry
+
+                if not title or not start_at or not end_at:
                     continue
 
                 if channel_id not in iptv_epg:
                     iptv_epg[channel_id] = []
 
-                for prog in channel_entry.get("programLocations", []):
-                    content = prog.get("content", {})
-                    title = content.get("title")
-                    start_at = content.get("startAt")
-                    end_at = content.get("endAt")
-                    if not title or not start_at or not end_at:
-                        continue
+                epg_item = dict(start=start_at, stop=end_at, title=title)
+                landscape = image.get("landscapeUrl") if isinstance(image, dict) else None
+                if landscape:
+                    epg_item["image"] = landscape
 
-                    epg_item = dict(start=start_at, stop=end_at, title=title)
+                cached = cache.get(cid) if cid else None
+                if cached:
+                    if cached.get("description"):
+                        epg_item["description"] = cached["description"]
+                    if cached.get("genre"):
+                        epg_item["genre"] = cached["genre"]
+                elif is_movie:
+                    epg_item["genre"] = "Film"
 
-                    image = content.get("image", {})
-                    landscape = image.get("landscapeUrl")
-                    if landscape:
-                        epg_item["image"] = landscape
+                if is_replay and isinstance(cdata, dict):
+                    replay_item = self.__create_replay_item(cdata, channel_id)
+                    if replay_item:
+                        media_items.append(replay_item)
+                        epg_item["stream"] = parameter_parser.create_action_url(
+                            self, action=action.PLAY_VIDEO,
+                            item=replay_item, store_id=parent.guid)
 
-                    content_item_id = content.get("contentItemId")
-                    asset_id = content.get("assetId")
+                iptv_epg[channel_id].append(epg_item)
 
-                    # Apply cached enrichment (description + genre)
-                    cached = cache.get(content_item_id) if content_item_id else None
-                    if cached:
-                        if cached.get("description"):
-                            epg_item["description"] = cached["description"]
-                        if cached.get("genre"):
-                            epg_item["genre"] = cached["genre"]
-                    elif content.get("isMovie"):
-                        epg_item["genre"] = "Film"
+                if cid and asset_id:
+                    is_now = s_ts <= now_ts < e_ts
+                    is_past = e_ts < now_ts
+                    all_programmes.append((cid, asset_id, s_ts, is_now, is_past))
 
-                    if content.get("isReplayAllowed"):
-                        replay_item = self.__create_replay_item(content, channel_id)
-                        if replay_item:
-                            media_items.append(replay_item)
-                            epg_item["stream"] = parameter_parser.create_action_url(
-                                self, action=action.PLAY_VIDEO,
-                                item=replay_item, store_id=parent.guid)
-
-                    iptv_epg[channel_id].append(epg_item)
-
-                    if content_item_id and asset_id:
-                        # Parse ISO start/stop to epoch for queue priority
-                        try:
-                            start_dt = datetime.datetime.fromisoformat(start_at)
-                            stop_dt = datetime.datetime.fromisoformat(end_at)
-                            start_epoch = start_dt.timestamp()
-                            stop_epoch = stop_dt.timestamp()
-                        except (ValueError, AttributeError):
-                            start_epoch = now_ts
-                            stop_epoch = now_ts
-                        is_now = start_epoch <= now_ts < stop_epoch
-                        is_past = stop_epoch < now_ts
-                        all_programmes.append(
-                            (content_item_id, asset_id, start_epoch, is_now, is_past))
+        if is_stale:
+            epg_enrichment.save_progloc_cache(new_progloc)
 
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
 
-        # Rebuild enrichment queue for the background service
+        # Rebuild enrichment queue with fresh time-relative priority ordering
         queue = epg_enrichment.build_enrich_queue(all_programmes, cache)
         epg_enrichment.save_enrich_queue(queue)
         Logger.debug("NLZIET IPTV: Enrich queue rebuilt (%d items)", len(queue))
+
+        if queue:
+            interesting_cycle = True
+
+        # Adaptive backoff: slow down when idle, reset when there is work to do
+        backoff_cycles = epg_enrichment.load_backoff_cycles()
+        if interesting_cycle:
+            backoff_cycles = 0
+        else:
+            backoff_cycles = min(
+                backoff_cycles + 1,
+                epg_enrichment._MAX_BACKOFF_CYCLES)  # NOSONAR
+        epg_enrichment.save_backoff_cycles(backoff_cycles)
+
+        delay = epg_enrichment.compute_signal_delay(backoff_cycles)
+        Logger.debug("NLZIET IPTV: Signalling IPTV Manager (delay=%ds, backoff=%d)",
+                     delay, backoff_cycles)
+        self.__signal_iptv_manager(delay)
 
         Logger.info("NLZIET IPTV: Returning EPG for %d channels", len(iptv_epg))
         return iptv_epg
@@ -1600,3 +1645,87 @@ class Channel(chn_class.Channel):
         msg = LanguageHelper.get_localized_string(LanguageHelper.LoggedOutSuccessfully)
         XbmcWrapper.show_dialog("NLZIET", msg)
         xbmc.executebuiltin("Container.Refresh()")
+
+    # -- private helpers ---------------------------------------------------
+
+    def __load_appconfig(self) -> dict:
+        """Fetch and cache the /v7/appconfig payload.
+
+        The response is cached in LocalSettings for ``APPCONFIG_CACHE_TTL``
+        seconds (default 300s, matches the server's own ``epgCacheTime``).
+        A fresh fetch is forced when the cache is absent or stale.
+
+        Side-effects:
+        - Logs a prominent warning if ``isUpdateRequired`` is True.
+        - Shows an error notification and returns empty dict if ``isAppBlocked``
+          is True (caller should bail out of its API work immediately).
+
+        :return: Appconfig payload dict, or empty dict on failure.
+        :rtype: dict
+        """
+        raw_cached = AddonSettings.get_setting(APPCONFIG_CACHE_KEY, store=LOCAL) or ""
+        if raw_cached:
+            try:
+                cached = json.loads(raw_cached)
+                age = time.time() - cached.get("_fetched_at", 0)
+                if age < APPCONFIG_CACHE_TTL:
+                    return cached
+            except (ValueError, TypeError):
+                pass
+
+        raw = UriHandler.open(API_V7_APPCONFIG, additional_headers=self.httpHeaders)
+        if not raw:
+            Logger.warning("NLZIET: Could not fetch appconfig")
+            return {}
+
+        try:
+            data = json.loads(raw)
+        except (ValueError, TypeError):
+            Logger.warning("NLZIET: Could not parse appconfig")
+            return {}
+
+        data["_fetched_at"] = time.time()
+        AddonSettings.set_setting(APPCONFIG_CACHE_KEY, json.dumps(data), store=LOCAL)
+
+        if data.get("isUpdateRequired"):
+            Logger.warning(
+                "NLZIET: *** APP DEPRECATION WARNING — isUpdateRequired=True *** "
+                "The NLZIET API client may need to be updated. "
+                "Update text: %s", data.get("updateText", ""))
+
+        return data
+
+    def __check_app_blocked(self, appconfig: dict) -> bool:
+        """Check the appconfig ``isAppBlocked`` flag and notify the user if set.
+
+        :param dict appconfig: Appconfig payload from ``__load_appconfig()``.
+        :return: True if the app is blocked (caller should abort API work).
+        :rtype: bool
+        """
+        if not appconfig.get("isAppBlocked"):
+            return False
+
+        reason = appconfig.get("appBlockedReason") or \
+            LanguageHelper.get_localized_string(LanguageHelper.ConnectionError)
+        Logger.error("NLZIET: App is blocked by server: %s", reason)
+        XbmcWrapper.show_notification("NLZIET", reason, XbmcWrapper.Error, display_time=8000)
+        return True
+
+    @staticmethod
+    def __signal_iptv_manager(delay_seconds: int) -> None:
+        """Tell IPTV Manager to call ``create_iptv_epg`` again in ~delay_seconds.
+
+        :param int delay_seconds: Desired gap before the next call (30 – 600).
+                                  Values ≤ 30 trigger on the next 30-second tick.
+        """
+        try:
+            iptv_mgr = xbmcaddon.Addon("service.iptv.manager")
+            if delay_seconds <= 30:
+                iptv_mgr.setSetting("last_refreshed", "0")
+            else:
+                refresh_interval = int(
+                    iptv_mgr.getSetting("refresh_interval") or "86400")
+                fake_ts = time.time() - refresh_interval + delay_seconds
+                iptv_mgr.setSetting("last_refreshed", str(fake_ts))
+        except Exception:  # NOSONAR — addon may not be installed
+            pass

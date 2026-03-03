@@ -49,7 +49,7 @@
     },
     {
       "order": 7,
-      "value": "label=\"30628\" type=\"slider\" option=\"int\" range=\"-60,10,300\" default=\"0\"",
+      "value": "label=\"30628\" type=\"slider\" option=\"int\" range=\"-120,5,120\" default=\"0\"",
       "id": "nlziet_live_start_offset"
     }
   ]

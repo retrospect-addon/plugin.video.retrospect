@@ -641,7 +641,47 @@ class TestNLZIETAuthLive(unittest.TestCase):
             else:
                 Logger.warning("Cleanup: Could not get mijn-nlziet token for device removal")
 
-# ============================================================================
+    def test_20_appconfig_status(self):
+        """Fetch /v7/appconfig and assert the API client is not deprecated or blocked.
+
+        This is a live CI canary.  If ``isUpdateRequired`` is True the test
+        emits a prominent warning so the CI pipeline surfaces it without
+        failing the build.  If ``isAppBlocked`` is True the test fails hard —
+        that means the service is actively refusing connections.
+        """
+        self.handler.log_on(self.username, self.password)
+        token = self.handler.get_valid_token()
+        self.assertIsNotNone(token, "Could not obtain access token for appconfig fetch")
+
+        headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+
+        from resources.lib.helpers.jsonhelper import JsonHelper
+        api_v7_appconfig = "https://api.nlziet.nl/v7/appconfig?os=web&origin=app"
+        raw = UriHandler.open(api_v7_appconfig, additional_headers=headers)
+        self.assertIsNotNone(raw, "Failed to fetch /v7/appconfig — service unreachable?")
+
+        cfg = JsonHelper(raw)
+
+        is_blocked = cfg.get_value("isAppBlocked", fallback=False)
+        self.assertFalse(is_blocked,
+                         "NLZIET isAppBlocked=True — service is refusing API access")
+
+        is_update_required = cfg.get_value("isUpdateRequired", fallback=False)
+        if is_update_required:
+            Logger.warning(
+                "*** NLZIET API DEPRECATION: isUpdateRequired=True — "
+                "the API client needs updating! updateText: %s",
+                cfg.get_value("updateText", fallback=""))
+            import warnings
+            warnings.warn(
+                "NLZIET API deprecation: isUpdateRequired=True. "
+                "Update the API client.",
+                DeprecationWarning, stacklevel=2)
+
+        Logger.info("NLZIET appconfig OK: isAppBlocked=%s, isUpdateRequired=%s",
+                    is_blocked, is_update_required)
+
+
 # Mocked Test Class — runs all tests against mock API responses
 # ============================================================================
 
@@ -709,6 +749,10 @@ class TestNLZIETAuthMocked(TestNLZIETAuthLive):
 
     def test_16_device_flow_refresh_token(self):
         self._run_device_flow_refresh_token()
+
+    @unittest.skip("Live API test — not applicable with mock dispatcher")
+    def test_20_appconfig_status(self):
+        pass  # Overridden to skip in mocked test class
 
     def test_refresh_no_tokens_raises_value_error(self):
         """refresh_access_token raises ValueError when no refresh or id token is stored."""

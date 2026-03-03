@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+    Channel sort-order dialog.
+
+    Control IDs:
+      10   Title label
+      100  Channel list (type="list")
+      200  Move-Up button
+      210  Move-Down button
+      300  OK button
+      310  Cancel button
+-->
+<window type="dialog">
+    <defaultcontrol always="true">300</defaultcontrol>
+    <visible>true</visible>
+    <animation effect="fade" start="0" end="100" time="300">WindowOpen</animation>
+    <animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
+    <controls>
+
+        <!-- Dim overlay -->
+        <control type="image">
+            <left>-2000</left>
+            <top>-2000</top>
+            <width>6000</width>
+            <height>6000</height>
+            <texture colordiffuse="AA000000">white.png</texture>
+        </control>
+
+        <!-- Dialog background -->
+        <control type="group">
+            <left>280</left>
+            <top>120</top>
+            <width>1360</width>
+            <height>840</height>
+
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>1360</width>
+                <height>840</height>
+                <texture colordiffuse="background">white.png</texture>
+            </control>
+
+            <!-- Header strip -->
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>1360</width>
+                <height>70</height>
+                <texture colordiffuse="button_focus">white.png</texture>
+            </control>
+
+            <!-- Title -->
+            <control type="label" id="10">
+                <left>40</left>
+                <top>10</top>
+                <width>1280</width>
+                <height>50</height>
+                <font>font20</font>
+                <aligny>center</aligny>
+            </control>
+
+            <!-- Channel list -->
+            <control type="list" id="100">
+                <left>40</left>
+                <top>90</top>
+                <width>1180</width>
+                <height>680</height>
+                <itemlayout height="50">
+                    <control type="label">
+                        <left>10</left>
+                        <top>0</top>
+                        <width>1160</width>
+                        <height>50</height>
+                        <font>font16</font>
+                        <aligny>center</aligny>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout height="50">
+                    <control type="image">
+                        <left>0</left>
+                        <top>0</top>
+                        <width>1180</width>
+                        <height>50</height>
+                        <texture colordiffuse="button_focus">white.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>10</left>
+                        <top>0</top>
+                        <width>1160</width>
+                        <height>50</height>
+                        <font>font16</font>
+                        <aligny>center</aligny>
+                        <textcolor>white</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+                <onup>300</onup>
+                <ondown>300</ondown>
+            </control>
+
+            <!-- Up / Down buttons on the right -->
+            <control type="button" id="200">
+                <left>1240</left>
+                <top>90</top>
+                <width>80</width>
+                <height>50</height>
+                <label>▲</label>
+                <font>font20</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <textcolor>grey</textcolor>
+                <focusedcolor>white</focusedcolor>
+                <texturenofocus />
+                <texturefocus colordiffuse="button_focus">white.png</texturefocus>
+                <onclick>noop</onclick>
+            </control>
+
+            <control type="button" id="210">
+                <left>1240</left>
+                <top>150</top>
+                <width>80</width>
+                <height>50</height>
+                <label>▼</label>
+                <font>font20</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <textcolor>grey</textcolor>
+                <focusedcolor>white</focusedcolor>
+                <texturenofocus />
+                <texturefocus colordiffuse="button_focus">white.png</texturefocus>
+                <onclick>noop</onclick>
+            </control>
+
+            <!-- OK / Cancel buttons -->
+            <control type="grouplist" id="9000">
+                <left>0</left>
+                <top>765</top>
+                <width>1360</width>
+                <height>60</height>
+                <orientation>horizontal</orientation>
+                <align>center</align>
+                <itemgap>40</itemgap>
+
+                <control type="button" id="300">
+                    <width>260</width>
+                    <height>50</height>
+                    <font>font16</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>grey</textcolor>
+                    <focusedcolor>white</focusedcolor>
+                    <texturenofocus />
+                    <texturefocus colordiffuse="button_focus">white.png</texturefocus>
+                    <onclick>Close()</onclick>
+                </control>
+
+                <control type="button" id="310">
+                    <width>260</width>
+                    <height>50</height>
+                    <font>font16</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>grey</textcolor>
+                    <focusedcolor>white</focusedcolor>
+                    <texturenofocus />
+                    <texturefocus colordiffuse="button_focus">white.png</texturefocus>
+                    <onclick>Close()</onclick>
+                </control>
+
+            </control>
+
+        </control>
+
+    </controls>
+</window>
