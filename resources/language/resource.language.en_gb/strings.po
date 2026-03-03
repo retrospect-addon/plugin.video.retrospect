@@ -1381,3 +1381,7 @@ msgstr ""
 msgctxt "#30629"
 msgid "QR code addon not installed.[CR]Install 'script.module.qrcode' for QR code support."
 msgstr ""
+
+msgctxt "#30630"
+msgid "Only show subscribed channels"
+msgstr ""

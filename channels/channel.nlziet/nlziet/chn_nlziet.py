@@ -1410,10 +1410,19 @@ class Channel(chn_class.Channel):
             channels = []
 
         parent_item = MediaItem("Live", API_V9_EPG_LIVE, media_type=mediatype.FOLDER)
+        subscribed_only = (
+            AddonSettings.get_channel_setting(self, "nlziet_epg_subscribed_only", "true") == "true"
+        )
+
         items = []
         iptv_streams = []
 
         for channel_entry in channels:
+            if subscribed_only:
+                miss = channel_entry.get("channel", {}).get("missingSubscriptionFeature")
+                if miss is not None:
+                    continue
+
             item = self.create_live_channel_item(channel_entry)
             if item is None:
                 continue
@@ -1478,6 +1487,9 @@ class Channel(chn_class.Channel):
             epg_enrichment.fetch_and_cache(batch, self.httpHeaders)
 
         cache = epg_enrichment.load_detail_cache()
+        subscribed_only = (
+            AddonSettings.get_channel_setting(self, "nlziet_epg_subscribed_only", "true") == "true"
+        )
 
         parent = MediaItem("EPG", API_V9_EPG, media_type=mediatype.FOLDER)
         iptv_epg = {}
@@ -1492,8 +1504,10 @@ class Channel(chn_class.Channel):
 
         if is_stale:
             new_progloc = {"fetched_at": now_ts}
+            subscribed_channels = set()  # populated from first stale fetch
         else:
             new_progloc = progloc_cache  # reuse; fetched_at is preserved
+            subscribed_channels = set(progloc_cache.get("subscribed_channels", []))
 
         start = datetime.datetime.now() - datetime.timedelta(days=days_past)
         for day_offset in range(days_past + days_future + 1):
@@ -1514,10 +1528,12 @@ class Channel(chn_class.Channel):
 
                 day_entries = []
                 for channel_entry in channels:
-                    channel_id = (channel_entry.get("channel", {})
-                                  .get("content", {}).get("id"))
+                    channel_data = channel_entry.get("channel", {})
+                    channel_id = channel_data.get("content", {}).get("id")
                     if not channel_id:
                         continue
+                    if channel_data.get("missingSubscriptionFeature") is None:
+                        subscribed_channels.add(channel_id)
                     for prog in channel_entry.get("programLocations", []):
                         cdata = prog.get("content", {})
                         cid = cdata.get("contentItemId")
@@ -1550,6 +1566,9 @@ class Channel(chn_class.Channel):
                  is_replay, cdata) = entry
 
                 if not title or not start_at or not end_at:
+                    continue
+
+                if subscribed_only and subscribed_channels and channel_id not in subscribed_channels:
                     continue
 
                 if channel_id not in iptv_epg:
@@ -1585,6 +1604,7 @@ class Channel(chn_class.Channel):
                     all_programmes.append((cid, asset_id, s_ts, is_now, is_past))
 
         if is_stale:
+            new_progloc["subscribed_channels"] = sorted(subscribed_channels)
             epg_enrichment.save_progloc_cache(new_progloc)
 
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)

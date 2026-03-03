@@ -51,6 +51,11 @@
       "order": 7,
       "value": "label=\"30628\" type=\"slider\" option=\"int\" range=\"-120,5,120\" default=\"0\"",
       "id": "nlziet_live_start_offset"
+    },
+    {
+      "order": 8,
+      "value": "label=\"30630\" type=\"bool\" default=\"true\"",
+      "id": "nlziet_epg_subscribed_only"
     }
   ]
 }
