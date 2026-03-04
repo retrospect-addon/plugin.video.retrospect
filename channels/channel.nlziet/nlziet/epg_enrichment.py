@@ -250,7 +250,12 @@ def fetch_and_cache(
 
         Logger.debug("NLZIET EPG: fetching detail for %s/%s", content_item_id, asset_id)
         url = API_V9_EPG_ITEM_DETAIL.format(content_item_id, asset_id)
-        raw = UriHandler.open(url, additional_headers=http_headers)
+        try:
+            raw = UriHandler.open(url, additional_headers=http_headers)
+        except Exception as e:
+            Logger.warning("NLZIET EPG: Network error fetching detail for %s: %s — aborting batch",
+                           content_item_id, e)
+            break
         if not raw:
             Logger.warning("NLZIET EPG: No detail data for %s", content_item_id)
             continue
