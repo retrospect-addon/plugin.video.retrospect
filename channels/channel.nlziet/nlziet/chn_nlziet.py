@@ -1399,6 +1399,7 @@ class Channel(chn_class.Channel):
             Logger.warning("NLZIET IPTV: Not authenticated, returning empty streams")
             return []
 
+        Logger.debug("NLZIET IPTV: create_iptv_streams called")
         live_data = UriHandler.open(API_V9_EPG_LIVE, additional_headers=self.httpHeaders)
         if not live_data:
             Logger.warning("NLZIET IPTV: Empty live channel response")
@@ -1441,7 +1442,8 @@ class Channel(chn_class.Channel):
 
         parameter_parser.pickler.store_media_items(
             parent_item.guid, parent_item, items)
-        Logger.info("NLZIET IPTV: Returning %d streams", len(iptv_streams))
+        Logger.info("NLZIET IPTV: create_iptv_streams returning %d streams"
+                    " (subscribed_only=%s)", len(iptv_streams), subscribed_only)
         return iptv_streams
 
     def create_iptv_epg(self, parameter_parser):
@@ -1479,12 +1481,22 @@ class Channel(chn_class.Channel):
         days_past = appconfig.get("epgDateRangePastDays", 7)
         days_future = appconfig.get("epgDateRangeFutureDays", 7)
 
+        # Load programme-location cache.  A stale cache triggers a full API
+        # fetch and counts as an "interesting" cycle (resets backoff).
+        progloc_cache, is_stale = epg_enrichment.load_progloc_cache()
+        Logger.debug("NLZIET IPTV: create_iptv_epg called"
+                     " (days_past=%d, days_future=%d, progloc_stale=%s)",
+                     days_past, days_future, is_stale)
+
         # Pipeline: drain the batch queued by the previous call so newly-fetched
         # details are immediately included in the EPG we are about to build.
         prev_queue = epg_enrichment.load_enrich_queue()
         if prev_queue:
+            Logger.debug("NLZIET IPTV: draining %d items from previous cycle", len(prev_queue))
             batch = prev_queue[:EPG_ENRICH_BATCH_SIZE]
             epg_enrichment.fetch_and_cache(batch, self.httpHeaders)
+        else:
+            Logger.debug("NLZIET IPTV: no prior queue to drain")
 
         cache = epg_enrichment.load_detail_cache()
         subscribed_only = (
@@ -1497,9 +1509,6 @@ class Channel(chn_class.Channel):
         all_programmes = []  # (contentItemId, assetId, start_ts, is_now, is_past)
         now_ts = time.time()
 
-        # Load programme-location cache.  A stale cache triggers a full API
-        # fetch and counts as an "interesting" cycle (resets backoff).
-        progloc_cache, is_stale = epg_enrichment.load_progloc_cache()
         interesting_cycle = is_stale  # also set True if queue non-empty
 
         if is_stale:
@@ -1557,8 +1566,12 @@ class Channel(chn_class.Channel):
                             cdata,
                         ])
                 new_progloc[date_str] = day_entries
+                Logger.debug("NLZIET IPTV: day %s: fetched %d programmes from API",
+                             date_str, len(day_entries))
             else:
                 day_entries = progloc_cache.get(date_str, [])
+                Logger.debug("NLZIET IPTV: day %s: loaded %d programmes from cache",
+                             date_str, len(day_entries))
 
             for entry in day_entries:
                 (cid, asset_id, s_ts, e_ts, channel_id,
@@ -1607,12 +1620,15 @@ class Channel(chn_class.Channel):
             new_progloc["subscribed_channels"] = sorted(subscribed_channels)
             epg_enrichment.save_progloc_cache(new_progloc)
 
+        Logger.debug("NLZIET IPTV: collected %d channels, %d programmes total",
+                     len(iptv_epg), len(all_programmes))
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
 
         # Rebuild enrichment queue with fresh time-relative priority ordering
         queue = epg_enrichment.build_enrich_queue(all_programmes, cache)
         epg_enrichment.save_enrich_queue(queue)
-        Logger.debug("NLZIET IPTV: Enrich queue rebuilt (%d items)", len(queue))
+        # build_enrich_queue already logs the breakdown; just note queue length here
+        Logger.debug("NLZIET IPTV: enrich queue saved (%d items)", len(queue))
 
         if queue:
             interesting_cycle = True
@@ -1632,7 +1648,7 @@ class Channel(chn_class.Channel):
                      delay, backoff_cycles)
         self.__signal_iptv_manager(delay)
 
-        Logger.info("NLZIET IPTV: Returning EPG for %d channels", len(iptv_epg))
+        Logger.info("NLZIET IPTV: create_iptv_epg returning EPG for %d channels", len(iptv_epg))
         return iptv_epg
 
     def __create_replay_item(self, content, channel_id):
@@ -1689,9 +1705,12 @@ class Channel(chn_class.Channel):
                 cached = json.loads(raw_cached)
                 age = time.time() - cached.get("_fetched_at", 0)
                 if age < APPCONFIG_CACHE_TTL:
+                    Logger.debug("NLZIET: appconfig serving from cache (age=%.0fs)", age)
                     return cached
             except (ValueError, TypeError):
                 pass
+
+        Logger.debug("NLZIET: appconfig fetching fresh")
 
         raw = UriHandler.open(API_V7_APPCONFIG, additional_headers=self.httpHeaders)
         if not raw:
@@ -1752,5 +1771,7 @@ class Channel(chn_class.Channel):
             signal_path = os.path.join(addon_data, EPG_SIGNAL_FILE_NAME)
             with open(signal_path, "w") as fh:
                 fh.write(str(time.time() + delay_seconds))
-        except Exception:  # NOSONAR — best-effort IPC
-            pass
+            Logger.debug("NLZIET IPTV: signal written to %s (fires in %ds)",
+                         signal_path, delay_seconds)
+        except Exception as exc:  # NOSONAR — best-effort IPC
+            Logger.warning("NLZIET IPTV: failed to write signal file: %s", exc)
