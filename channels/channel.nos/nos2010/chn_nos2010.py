@@ -1392,6 +1392,14 @@ class Channel(chn_class.Channel):
                     if len(JsonHelper.get_from(item, "images")) > 0:
                         iptv_epg_item["image"] = JsonHelper.get_from(item, "images")[0].get("url")
 
+                    genres = item.get("genres") or []
+                    if genres:
+                        iptv_epg_item["genre"] = genres[0].get("name", "")
+                    if item.get("synopsis"):
+                        iptv_epg_item["description"] = item["synopsis"]
+                    if item.get("episodeTitle"):
+                        iptv_epg_item["subtitle"] = item["episodeTitle"]
+
                     if media_item is not None:
                         iptv_epg_item["stream"] = parameter_parser.create_action_url(
                             self, action=action.PLAY_VIDEO, item=media_item, store_id=parent.guid)
