@@ -1385,3 +1385,7 @@ msgstr ""
 msgctxt "#30630"
 msgid "Only show subscribed channels"
 msgstr ""
+
+msgctxt "#30631"
+msgid "Watch in advance"
+msgstr ""

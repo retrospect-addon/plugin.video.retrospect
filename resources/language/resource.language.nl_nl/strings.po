@@ -1366,3 +1366,11 @@ msgstr "Maximaal aantal gelijktijdige streams bereikt ({0} van {1} beschikbare s
 msgctxt "#30629"
 msgid "Please install the script.module.qrcode addon to scan a QR code."
 msgstr "Installeer de script.module.qrcode addon om een QR-code te scannen."
+
+msgctxt "#30630"
+msgid "Only show subscribed channels"
+msgstr "Alleen geabonneerde zenders tonen"
+
+msgctxt "#30631"
+msgid "Watch in advance"
+msgstr "Vooruitkijken"

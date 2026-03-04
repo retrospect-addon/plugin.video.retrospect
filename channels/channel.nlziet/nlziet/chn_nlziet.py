@@ -1553,6 +1553,7 @@ class Channel(chn_class.Channel):
                             cdata.get("image", {}).get("landscapeUrl"),
                             cdata.get("isMovie", False),
                             cdata.get("isReplayAllowed", False),
+                            "WatchInAdvance" in (cdata.get("tags") or []),
                         ])
                 new_progloc[date_str] = day_entries
                 Logger.debug("NLZIET IPTV: day %s: fetched %d programmes from API",
@@ -1565,7 +1566,8 @@ class Channel(chn_class.Channel):
             for entry in day_entries:
                 (cid, asset_id, s_ts, e_ts, channel_id,
                  start_at, end_at, title, landscape, is_movie,
-                 is_replay) = entry
+                 is_replay) = entry[:11]
+                is_watch_ahead = entry[11] if len(entry) > 11 else False
 
                 if not title or not start_at or not end_at:
                     continue
@@ -1596,6 +1598,19 @@ class Channel(chn_class.Channel):
                         epg_item["stream"] = parameter_parser.create_action_url(
                             self, action=action.PLAY_VIDEO,
                             item=replay_item, store_id=parent.guid)
+
+                if is_watch_ahead and not is_replay and s_ts > now_ts:
+                    wa_item = self.__create_replay_item(asset_id, title, channel_id)
+                    if wa_item:
+                        media_items.append(wa_item)
+                        epg_item["stream"] = parameter_parser.create_action_url(
+                            self, action=action.PLAY_VIDEO,
+                            item=wa_item, store_id=parent.guid)
+                        label = LanguageHelper.get_localized_string(
+                            LanguageHelper.WatchInAdvance)
+                        desc = epg_item.get("description") or ""
+                        epg_item["description"] = (
+                            "{0}. {1}".format(label, desc) if desc else label)
 
                 iptv_epg[channel_id].append(epg_item)
 

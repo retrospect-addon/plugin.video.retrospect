@@ -5,7 +5,9 @@ import unittest
 from resources.lib.urihandler import UriHandler
 
 import json
+import shutil
 import sys
+import tempfile
 from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, "channels/channel.nlziet/nlziet")
@@ -13,6 +15,7 @@ from api import (  # noqa: E402
     API_V8_SERIES, API_V9_VOD_HANDSHAKE, API_V9_PLACEMENT,
     API_V9_RECOMMEND_FILTERED,
 )
+import epg_enrichment  # noqa: E402
 
 from resources.lib import mediatype
 from .channeltest import ChannelTest
@@ -1043,7 +1046,8 @@ class TestNLZietChannel(ChannelTest):
                         "endAt": "2026-02-21T20:30:00+01:00",
                         "image": {"landscapeUrl": "https://example.com/news.jpg"},
                         "isReplayAllowed": True,
-                        "assetId": "replay-123"
+                        "assetId": "replay-123",
+                        "contentItemId": "news-item-1"
                     }
                 },
                 {
@@ -1052,7 +1056,9 @@ class TestNLZietChannel(ChannelTest):
                         "startAt": "2026-02-21T20:30:00+01:00",
                         "endAt": "2026-02-21T21:30:00+01:00",
                         "image": {},
-                        "isReplayAllowed": False
+                        "isReplayAllowed": False,
+                        "assetId": "drama-456",
+                        "contentItemId": "drama-item-2"
                     }
                 }
             ]
@@ -1063,6 +1069,16 @@ class TestNLZietChannel(ChannelTest):
         parser = MagicMock()
         parser.create_action_url.return_value = "plugin://plugin.video.retrospect/play"
         return parser
+
+    def _fresh_epg_cache_dir(self):
+        """Create a fresh temp dir for EPG caches, isolating tests from each other.
+
+        Returns the temp dir path.  Caller must clean up with shutil.rmtree and
+        reset epg_enrichment._CACHE_DIR to None.
+        """
+        tmpdir = tempfile.mkdtemp(prefix="retrospect-epg-test-")
+        epg_enrichment._CACHE_DIR = tmpdir
+        return tmpdir
 
     def test_iptv_streams_not_authenticated(self):
         """Returns empty list when not logged in."""
@@ -1115,54 +1131,148 @@ class TestNLZietChannel(ChannelTest):
     @patch("chn_nlziet.UriHandler")
     def test_iptv_epg_parsing(self, mock_uri):
         """Parses EPG JSON into channel-keyed dict with program entries."""
-        mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 5
-        self.channel.loggedOn = True
-        parser = self._make_mock_parser()
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
 
-        epg = self.channel.create_iptv_epg(parser)
+            epg = self.channel.create_iptv_epg(parser)
 
-        self.assertIn("npo1", epg)
-        programs = epg["npo1"]
-        self.assertEqual(len(programs), 2)
-        self.assertEqual(programs[0]["title"], "News")
-        self.assertEqual(programs[0]["start"], "2026-02-21T20:00:00+01:00")
-        self.assertEqual(programs[0]["stop"], "2026-02-21T20:30:00+01:00")
-        self.assertEqual(programs[0]["image"], "https://example.com/news.jpg")
-        self.assertEqual(programs[1]["title"], "Drama")
-        self.assertNotIn("image", programs[1])
+            self.assertIn("npo1", epg)
+            programs = epg["npo1"]
+            self.assertEqual(len(programs), 2)
+            self.assertEqual(programs[0]["title"], "News")
+            self.assertEqual(programs[0]["start"], "2026-02-21T20:00:00+01:00")
+            self.assertEqual(programs[0]["stop"], "2026-02-21T20:30:00+01:00")
+            self.assertEqual(programs[0]["image"], "https://example.com/news.jpg")
+            self.assertEqual(programs[1]["title"], "Drama")
+            self.assertNotIn("image", programs[1])
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
     @patch("chn_nlziet.UriHandler")
     def test_iptv_epg_replay_stream(self, mock_uri):
         """Replay-allowed programs include a stream URL."""
-        mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 5
-        self.channel.loggedOn = True
-        parser = self._make_mock_parser()
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
 
-        epg = self.channel.create_iptv_epg(parser)
+            epg = self.channel.create_iptv_epg(parser)
 
-        programs = epg["npo1"]
-        self.assertIn("stream", programs[0])
-        self.assertNotIn("stream", programs[1])
-        parser.pickler.store_media_items.assert_called()
+            programs = epg["npo1"]
+            self.assertIn("stream", programs[0])
+            self.assertNotIn("stream", programs[1])
+            parser.pickler.store_media_items.assert_called()
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
     @patch("chn_nlziet.UriHandler")
     def test_iptv_epg_skips_incomplete_programs(self, mock_uri):
         """Programs missing title/startAt/endAt are skipped."""
-        fixture = json.dumps({"data": [{
-            "channel": {"content": {"id": "ch1"}},
-            "programLocations": [
-                {"content": {"title": "Good", "startAt": "T1", "endAt": "T2"}},
-                {"content": {"title": "No End", "startAt": "T1"}},
-                {"content": {"startAt": "T1", "endAt": "T2"}},
-            ]
-        }]})
-        mock_uri.open.side_effect = [fixture] + [""] * 5
-        self.channel.loggedOn = True
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            fixture = json.dumps({"data": [{
+                "channel": {"content": {"id": "ch1"}},
+                "programLocations": [
+                    {"content": {"title": "Good", "startAt": "T1", "endAt": "T2",
+                                 "contentItemId": "good-1", "assetId": "asset-1"}},
+                    {"content": {"title": "No End", "startAt": "T1",
+                                 "contentItemId": "noend-2", "assetId": "asset-2"}},
+                    {"content": {"startAt": "T1", "endAt": "T2",
+                                 "contentItemId": "notitle-3", "assetId": "asset-3"}},
+                ]
+            }]})
+            mock_uri.open.side_effect = [fixture] + [""] * 20
+            self.channel.loggedOn = True
 
-        epg = self.channel.create_iptv_epg(self._make_mock_parser())
+            epg = self.channel.create_iptv_epg(self._make_mock_parser())
 
-        self.assertEqual(len(epg["ch1"]), 1)
-        self.assertEqual(epg["ch1"][0]["title"], "Good")
+            self.assertEqual(len(epg["ch1"]), 1)
+            self.assertEqual(epg["ch1"][0]["title"], "Good")
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_watch_ahead_gets_stream(self, mock_uri):
+        """Future programmes with WatchInAdvance tag get a stream URL."""
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            import datetime
+            future = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=3)
+            start = future.strftime("%Y-%m-%dT%H:%M:%S+01:00")
+            end = (future + datetime.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S+01:00")
+            fixture = json.dumps({"data": [{
+                "channel": {"content": {"id": "npo3"}},
+                "programLocations": [
+                    {
+                        "content": {
+                            "title": "Break Free",
+                            "startAt": start,
+                            "endAt": end,
+                            "tags": ["WatchInAdvance"],
+                            "isReplayAllowed": False,
+                            "assetId": "asset-wa-1",
+                            "contentItemId": "wa-item-1"
+                        }
+                    }
+                ]
+            }]})
+            mock_uri.open.side_effect = [fixture] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
+
+            epg = self.channel.create_iptv_epg(parser)
+
+            programs = epg["npo3"]
+            self.assertEqual(len(programs), 1)
+            self.assertIn("stream", programs[0])
+            self.assertIn("description", programs[0])
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_future_without_watch_ahead_no_stream(self, mock_uri):
+        """Future programmes without WatchInAdvance tag do NOT get a stream URL."""
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            import datetime
+            future = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=3)
+            start = future.strftime("%Y-%m-%dT%H:%M:%S+01:00")
+            end = (future + datetime.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S+01:00")
+            fixture = json.dumps({"data": [{
+                "channel": {"content": {"id": "npo3"}},
+                "programLocations": [
+                    {
+                        "content": {
+                            "title": "Regular Show",
+                            "startAt": start,
+                            "endAt": end,
+                            "isReplayAllowed": False,
+                            "assetId": "asset-future-1",
+                            "contentItemId": "future-item-1"
+                        }
+                    }
+                ]
+            }]})
+            mock_uri.open.side_effect = [fixture] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
+
+            epg = self.channel.create_iptv_epg(parser)
+
+            programs = epg["npo3"]
+            self.assertEqual(len(programs), 1)
+            self.assertNotIn("stream", programs[0])
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
     # -- deduplicate_episode_titles tests ------------------------------------
 
