@@ -1622,7 +1622,7 @@ class Channel(chn_class.Channel):
                             self, action=action.PLAY_VIDEO,
                             item=replay_item, store_id=parent.guid)
 
-                if is_watch_ahead and not is_replay and s_ts > now_ts:
+                if is_watch_ahead and s_ts > now_ts:
                     wa_item = self.__create_replay_item(cid, asset_id, title, channel_id)
                     if wa_item:
                         media_items.append(wa_item)
