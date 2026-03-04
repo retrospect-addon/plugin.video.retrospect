@@ -515,7 +515,8 @@ class Channel(chn_class.Channel):
             item, handshake_url, manifest_update="full")
         if start_offset > 0 and item.streams:
             item.streams[-1].add_property(
-                "inputstream.adaptive.live_offset", str(start_offset))
+                "inputstream.adaptive.manifest_config",
+                json.dumps({"live_offset": start_offset}))
         return item
 
     # -- VOD content (movies, series, trending) ----------------------------
