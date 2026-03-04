@@ -359,7 +359,7 @@ class TestUriHandler(unittest.TestCase):
 
         # verify the values from the json data
         data = json.loads(data)
-        cookie_value_retrieved = data[cookie_name]
+        cookie_value_retrieved = data.get("cookies", {}).get(cookie_name)
         self.assertEqual(cookie_value, cookie_value_retrieved)
 
     def test_set_cookie_with_cache(self):
@@ -420,7 +420,7 @@ class TestUriHandler(unittest.TestCase):
 
         # verify the values from the json data
         data = json.loads(data)
-        cookie_value_retrieved = data[cookie_name]
+        cookie_value_retrieved = data.get("cookies", {}).get(cookie_name)
         self.assertEqual(cookie_value, cookie_value_retrieved)
 
     def test_cookie_persist(self):
