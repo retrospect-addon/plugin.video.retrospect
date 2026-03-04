@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+    Device flow authentication dialog.
+-->
+<window type="dialog">
+    <defaultcontrol always="true">9000</defaultcontrol>
+    <visible>true</visible>
+    <animation effect="fade" start="0" end="100" time="300">WindowOpen</animation>
+    <animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
+    <controls>
+
+        <!-- Dim overlay: oversized to cover any resolution -->
+        <control type="image">
+            <left>-2000</left>
+            <top>-2000</top>
+            <width>6000</width>
+            <height>6000</height>
+            <texture colordiffuse="AA000000">white.png</texture>
+        </control>
+
+        <!-- Dialog background -->
+        <control type="group">
+            <left>360</left>
+            <top>240</top>
+            <width>1200</width>
+            <height>600</height>
+
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>1200</width>
+                <height>600</height>
+                <texture colordiffuse="background">white.png</texture>
+            </control>
+
+            <!-- Header background strip -->
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>1200</width>
+                <height>70</height>
+                <texture colordiffuse="button_focus">white.png</texture>
+            </control>
+
+            <!-- Title -->
+            <control type="label" id="10">
+                <left>40</left>
+                <top>10</top>
+                <width>1020</width>
+                <height>50</height>
+                <font>font20</font>
+                <aligny>center</aligny>
+            </control>
+
+            <!-- Logo: top-right of header -->
+            <control type="image" id="20">
+                <left>1110</left>
+                <top>10</top>
+                <width>50</width>
+                <height>50</height>
+                <aspectratio>keep</aspectratio>
+            </control>
+
+            <!-- QR instruction / QR-addon-missing notice -->
+            <control type="label" id="30">
+                <left>40</left>
+                <top>82</top>
+                <width>1120</width>
+                <height>76</height>
+                <font>font16</font>
+                <align>center</align>
+            </control>
+
+            <!-- QR code image -->
+            <control type="image" id="40">
+                <left>860</left>
+                <top>140</top>
+                <width>300</width>
+                <height>300</height>
+            </control>
+
+            <!-- Visit instruction -->
+            <control type="label" id="50">
+                <left>40</left>
+                <top>230</top>
+                <width>780</width>
+                <height>36</height>
+                <font>font16</font>
+            </control>
+
+            <!-- Verification URL -->
+            <control type="label" id="60">
+                <left>40</left>
+                <top>272</top>
+                <width>780</width>
+                <height>36</height>
+                <font>font16</font>
+                <textcolor>selected</textcolor>
+            </control>
+
+            <!-- Enter code instruction -->
+            <control type="label" id="70">
+                <left>40</left>
+                <top>314</top>
+                <width>780</width>
+                <height>36</height>
+                <font>font16</font>
+            </control>
+
+            <!-- User code -->
+            <control type="label" id="80">
+                <left>40</left>
+                <top>356</top>
+                <width>780</width>
+                <height>65</height>
+                <font>font20</font>
+            </control>
+
+            <!-- Time remaining  -->
+            <control type="label" id="90">
+                <left>1060</left>
+                <top>470</top>
+                <width>100</width>
+                <height>16</height>
+                <font>font13</font>
+                <align>right</align>
+                <aligny>center</aligny>
+            </control>
+
+            <!-- Progress bar background -->
+            <control type="image">
+                <left>40</left>
+                <top>470</top>
+                <width>1000</width>
+                <height>16</height>
+                <texture colordiffuse="grey">white.png</texture>
+            </control>
+            <!-- Progress bar foreground -->
+            <control type="image" id="100">
+                <left>40</left>
+                <top>470</top>
+                <width>1000</width>
+                <height>16</height>
+                <texture colordiffuse="button_focus">white.png</texture>
+            </control>
+
+            <!-- Buttons: grouplist auto-centres and allows left/right navigation -->
+            <control type="grouplist" id="9000">
+                <left>0</left>
+                <top>515</top>
+                <width>1200</width>
+                <height>70</height>
+                <orientation>horizontal</orientation>
+                <align>center</align>
+                <itemgap>40</itemgap>
+
+                <!-- Cancel button -->
+                <control type="button" id="110">
+                    <width>260</width>
+                    <height>50</height>
+                    <font>font16</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>grey</textcolor>
+                    <focusedcolor>white</focusedcolor>
+                    <texturenofocus />
+                    <texturefocus colordiffuse="button_focus">white.png</texturefocus>
+                    <onclick>Close()</onclick>
+                </control>
+
+                <!-- Manual login button -->
+                <control type="button" id="120">
+                    <width>260</width>
+                    <height>50</height>
+                    <font>font16</font>
+                    <align>center</align>
+                    <aligny>center</aligny>
+                    <textcolor>grey</textcolor>
+                    <focusedcolor>white</focusedcolor>
+                    <texturenofocus />
+                    <texturefocus colordiffuse="button_focus">white.png</texturefocus>
+                </control>
+
+            </control>
+
+        </control>
+
+    </controls>
+</window>
