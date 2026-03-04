@@ -627,7 +627,7 @@ class TestNLZietChannel(ChannelTest):
 
     @patch("chn_nlziet.UriHandler")
     def test_fetch_season_episodes_basic(self, mock_uri):
-        """Season episodes returns (broadcastAt, firstAvailable, item) tuples in order."""
+        """Season episodes returns (broadcastAt, item) tuples in order."""
         mock_uri.open.return_value = json.dumps({"data": [
             {"content": {"id": "ep1", "subtitle": "S1:A1 Pilot",
                          "broadcastAt": "2024-01-01T00:00:00+01:00",
@@ -637,9 +637,8 @@ class TestNLZietChannel(ChannelTest):
         ]})
         result = self.channel._Channel__fetch_season_episodes("sid", "s1")
         self.assertEqual(len(result), 2)
-        broadcast_at, first_available, item = result[0]
+        broadcast_at, item = result[0]
         self.assertEqual(broadcast_at, "2024-01-01T00:00:00+01:00")
-        self.assertEqual(first_available, "2024-01-02T00:00:00+01:00")
         self.assertIn("ep1", item.url)
         self.assertTrue(item.dontGroup)
         self.assertEqual(item.metaData.get("nlziet:ep_title"), "S1:A1 Pilot")
@@ -669,9 +668,8 @@ class TestNLZietChannel(ChannelTest):
         })
         result = self.channel._Channel__fetch_season_episodes("sid", "s1")
         self.assertEqual(len(result), 1)
-        broadcast_at, first_available, item = result[0]
+        broadcast_at, item = result[0]
         self.assertEqual(broadcast_at, "")
-        self.assertEqual(first_available, "")
         self.assertIn("ep1", item.url)
 
     @patch("chn_nlziet.UriHandler")
@@ -765,11 +763,11 @@ class TestNLZietChannel(ChannelTest):
         self.assertIn("ep3", shortcuts[1].url)  # max broadcastAt = latest
         self.assertIn("ep1", shortcuts[2].url)  # min broadcastAt = first
 
-    def _make_ep(self, ep_id, broadcast_at="", first_available=""):
-        """Helper: create a (broadcastAt, firstAvailable, MediaItem) tuple."""
+    def _make_ep(self, ep_id, broadcast_at=""):
+        """Helper: create a (broadcastAt, MediaItem) tuple."""
         from resources.lib.mediaitem import MediaItem
         item = MediaItem(ep_id, "https://example.com/{}".format(ep_id))
-        return (broadcast_at, first_available, item)
+        return (broadcast_at, item)
 
     def test_pick_boundary_none_for_empty(self):
         """Boundary picker returns None for empty input."""
@@ -780,7 +778,7 @@ class TestNLZietChannel(ChannelTest):
         """Boundary picker returns the only item regardless of direction."""
         eps = [self._make_ep("only")]
         result = self.channel._Channel__pick_boundary_episode(eps, True)
-        self.assertIs(result, eps[0][2])
+        self.assertIs(result, eps[0][1])
 
     def test_pick_boundary_ascending_api_broadcastAt_agree(self):
         """Ascending API: both API pos and broadcastAt vote for same first/last."""
@@ -809,7 +807,7 @@ class TestNLZietChannel(ChannelTest):
         self.assertIn("ep3", last.url)
 
     def test_pick_boundary_majority_vote_no_first_available(self):
-        """Without firstAvailable, 2-of-2 (API+broadcastAt) always agrees."""
+        """Descending API order: pick_first=True picks last item (oldest)."""
         eps = [
             self._make_ep("newest", "2024-12-01T00:00:00+00:00"),
             self._make_ep("oldest", "2020-01-01T00:00:00+00:00"),
@@ -1274,6 +1272,194 @@ class TestNLZietChannel(ChannelTest):
         self.assertEqual(result[0].name, "Schaatsen (NOS Olympische Spelen)")
         self.assertEqual(result[1].name, "Live (NOS Olympische Spelen)")
         self.assertEqual(result[2].name, "Unique Title")
+
+
+class TestEpisodeBoundaryDetection(unittest.TestCase):
+    """Unit tests for __pick_boundary_episode and __is_ascending."""
+
+    @classmethod
+    def setUpClass(cls):
+        from resources.lib.logger import Logger
+        from resources.lib.textures import TextureHandler
+        from resources.lib.retroconfig import Config
+        Logger.create_logger(None, str(cls), min_log_level=0)
+        UriHandler.create_uri_handler(ignore_ssl_errors=False)
+        TextureHandler.set_texture_handler(
+            Config, Logger.instance(), UriHandler.instance())
+
+    @classmethod
+    def tearDownClass(cls):
+        from resources.lib.addonsettings import AddonSettings
+        from resources.lib.logger import Logger
+        AddonSettings.clear_cached_addon_settings_object()
+        Logger.instance().close_log()
+
+    @staticmethod
+    def _make_item(name):
+        from resources.lib.mediaitem import MediaItem
+        return MediaItem(name, "http://example.com/{}".format(name),
+                         media_type=mediatype.EPISODE)
+
+    @staticmethod
+    def _pick(eps, pick_first):
+        from chn_nlziet import Channel
+        return Channel._Channel__pick_boundary_episode(eps, pick_first)
+
+    @staticmethod
+    def _is_ascending(eps):
+        from chn_nlziet import Channel
+        return Channel._Channel__is_ascending(eps)
+
+    def test_descending_clean_broadcastat_first(self):
+        """Descending API order with monotonic broadcastAt → first = last item."""
+        eps = [
+            ("2026-03-06T20:35:00+01:00", self._make_item("S20:A2")),
+            ("2026-02-27T20:35:00+01:00", self._make_item("S20:A1")),
+        ]
+        result = self._pick(eps, pick_first=True)
+        self.assertEqual(result.name, "S20:A1")
+
+    def test_descending_clean_broadcastat_recent(self):
+        """Descending API order with monotonic broadcastAt → recent = first item."""
+        eps = [
+            ("2026-03-06T20:35:00+01:00", self._make_item("S20:A2")),
+            ("2026-02-27T20:35:00+01:00", self._make_item("S20:A1")),
+        ]
+        result = self._pick(eps, pick_first=False)
+        self.assertEqual(result.name, "S20:A2")
+
+    def test_descending_corrupted_broadcastat_first(self):
+        """Flikken Maastricht S1: bulk-import timestamps, non-monotonic.
+
+        API order is correct (A13 → A1), broadcastAt is garbage.
+        Should still pick A1 as first episode.
+        """
+        eps = [
+            ("2025-05-22T10:36:27+02:00", self._make_item("S1:A13")),
+            ("2025-05-22T10:36:27+02:00", self._make_item("S1:A12")),
+            ("2022-01-13T01:00:00+01:00", self._make_item("S1:A11")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A10")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A9")),
+            ("2025-05-22T10:36:27+02:00", self._make_item("S1:A8")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A7")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A6")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A5")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A4")),
+            ("2025-05-22T10:36:26+02:00", self._make_item("S1:A3")),
+            ("2025-05-22T10:36:25+02:00", self._make_item("S1:A2")),
+            ("2025-05-22T10:36:25+02:00", self._make_item("S1:A1")),
+        ]
+        result = self._pick(eps, pick_first=True)
+        self.assertEqual(result.name, "S1:A1")
+
+    def test_descending_corrupted_broadcastat_recent(self):
+        """Flikken Maastricht S1: most recent should be A13."""
+        eps = [
+            ("2025-05-22T10:36:27+02:00", self._make_item("S1:A13")),
+            ("2022-01-13T01:00:00+01:00", self._make_item("S1:A11")),
+            ("2025-05-22T10:36:25+02:00", self._make_item("S1:A1")),
+        ]
+        result = self._pick(eps, pick_first=False)
+        self.assertEqual(result.name, "S1:A13")
+
+    def test_ascending_clean_broadcastat_first(self):
+        """Fawlty Towers S1: ascending API order, clean broadcastAt."""
+        eps = [
+            ("1975-09-19T01:00:00+01:00", self._make_item("S1:A1")),
+            ("1975-09-26T01:00:00+01:00", self._make_item("S1:A2")),
+            ("1975-10-03T01:00:00+01:00", self._make_item("S1:A3")),
+            ("1975-10-10T01:00:00+01:00", self._make_item("S1:A4")),
+            ("1975-10-17T01:00:00+01:00", self._make_item("S1:A5")),
+            ("1975-10-24T01:00:00+01:00", self._make_item("S1:A6")),
+        ]
+        result = self._pick(eps, pick_first=True)
+        self.assertEqual(result.name, "S1:A1")
+
+    def test_ascending_clean_broadcastat_recent(self):
+        """Fawlty Towers S1: most recent should be A6."""
+        eps = [
+            ("1975-09-19T01:00:00+01:00", self._make_item("S1:A1")),
+            ("1975-10-24T01:00:00+01:00", self._make_item("S1:A6")),
+        ]
+        result = self._pick(eps, pick_first=False)
+        self.assertEqual(result.name, "S1:A6")
+
+    def test_descending_rebroadcast_first(self):
+        """De Luizenmoeder S1: some episodes have re-broadcast dates."""
+        eps = [
+            ("2018-03-18T20:25:00+01:00", self._make_item("S1:A10")),
+            ("2018-03-11T20:25:00+01:00", self._make_item("S1:A9")),
+            ("2020-12-04T20:25:00+01:00", self._make_item("S1:A5")),
+            ("2020-12-11T20:25:00+01:00", self._make_item("S1:A3")),
+            ("2022-05-08T02:05:00+02:00", self._make_item("S1:A2")),
+            ("2018-01-14T20:25:00+01:00", self._make_item("S1:A1")),
+        ]
+        result = self._pick(eps, pick_first=True)
+        self.assertEqual(result.name, "S1:A1")
+
+    def test_descending_rebroadcast_recent(self):
+        """De Luizenmoeder S1: most recent should be A10."""
+        eps = [
+            ("2018-03-18T20:25:00+01:00", self._make_item("S1:A10")),
+            ("2020-12-04T20:25:00+01:00", self._make_item("S1:A5")),
+            ("2022-05-08T02:05:00+02:00", self._make_item("S1:A2")),
+            ("2018-01-14T20:25:00+01:00", self._make_item("S1:A1")),
+        ]
+        result = self._pick(eps, pick_first=False)
+        self.assertEqual(result.name, "S1:A10")
+
+    def test_single_episode(self):
+        """Single episode → always returned regardless of pick_first."""
+        eps = [("2025-01-01T00:00:00+01:00", self._make_item("Only"))]
+        self.assertEqual(self._pick(eps, pick_first=True).name, "Only")
+        self.assertEqual(self._pick(eps, pick_first=False).name, "Only")
+
+    def test_empty_list(self):
+        """Empty episode list → None."""
+        self.assertIsNone(self._pick([], pick_first=True))
+        self.assertIsNone(self._pick([], pick_first=False))
+
+    def test_no_broadcastat(self):
+        """All broadcastAt empty → defaults to descending."""
+        eps = [
+            ("", self._make_item("A3")),
+            ("", self._make_item("A2")),
+            ("", self._make_item("A1")),
+        ]
+        # Default descending: first = last, recent = first
+        self.assertEqual(self._pick(eps, pick_first=True).name, "A1")
+        self.assertEqual(self._pick(eps, pick_first=False).name, "A3")
+
+    def test_is_ascending_monotonic_increasing(self):
+        eps = [
+            ("2018-01-01T00:00:00+01:00", self._make_item("A")),
+            ("2018-02-01T00:00:00+01:00", self._make_item("B")),
+            ("2018-03-01T00:00:00+01:00", self._make_item("C")),
+        ]
+        self.assertTrue(self._is_ascending(eps))
+
+    def test_is_ascending_monotonic_decreasing(self):
+        eps = [
+            ("2018-03-01T00:00:00+01:00", self._make_item("C")),
+            ("2018-02-01T00:00:00+01:00", self._make_item("B")),
+            ("2018-01-01T00:00:00+01:00", self._make_item("A")),
+        ]
+        self.assertFalse(self._is_ascending(eps))
+
+    def test_is_ascending_non_monotonic(self):
+        """Non-monotonic broadcastAt → defaults to descending (False)."""
+        eps = [
+            ("2018-03-01T00:00:00+01:00", self._make_item("C")),
+            ("2018-01-01T00:00:00+01:00", self._make_item("A")),
+            ("2018-02-01T00:00:00+01:00", self._make_item("B")),
+        ]
+        self.assertFalse(self._is_ascending(eps))
+
+    def test_is_ascending_no_dates(self):
+        """No broadcastAt dates → defaults to descending (False)."""
+        eps = [("", self._make_item("A")), ("", self._make_item("B"))]
+        self.assertFalse(self._is_ascending(eps))
+
 
 class TestNLZietChannelLive(ChannelTest):
     """Live integration tests — requires NLZIET_USERNAME and NLZIET_PASSWORD."""

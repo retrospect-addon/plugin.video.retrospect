@@ -892,9 +892,9 @@ class Channel(chn_class.Channel):
 
         :param str series_id:  The series ID.
         :param str season_id:  The season ID.
-        :return: List of ``(broadcastAt, firstAvailable, item)`` tuples in API response order.
+        :return: List of ``(broadcastAt, item)`` tuples in API response order.
                  Date strings are ISO-8601 or empty when absent.
-        :rtype: list[tuple[str, str, MediaItem]]
+        :rtype: list[tuple[str, MediaItem]]
 
         """
 
@@ -925,28 +925,27 @@ class Channel(chn_class.Channel):
             self.__set_vod_metadata(item, content)
             item.HttpHeaders = self.httpHeaders
             broadcast_at = content.get("broadcastAt") or ""
-            first_available = content.get("firstAvailable") or ""
-            result.append((broadcast_at, first_available, item))
+            result.append((broadcast_at, item))
 
         return result
 
     @staticmethod
     def __pick_boundary_episode(eps, pick_first):
-        """Pick the earliest or most-recent episode using a 2-of-3 majority vote.
+        """Pick the earliest or most-recent episode from API results.
 
-        Three reference orderings are considered:
-        1. API response position: first item (index 0) vs. last item (index -1).
-        2. ``broadcastAt``: chronological min vs. max.
-        3. ``firstAvailable``: chronological min vs. max (when present).
+        The API always returns episodes in a logically correct order (episode
+        numbers are monotonic), but the direction varies per series: some are
+        newest-first (descending), others oldest-first (ascending).
 
-        If at least 2 of the 3 references agree on a candidate, that item is
-        returned.  With ``firstAvailable`` absent from most responses, this
-        reduces to comparing API order against ``broadcastAt`` order, which
-        reliably detects ascending vs. descending API sort order regardless of
-        which direction a given series uses.
+        Direction is detected by checking whether ``broadcastAt`` timestamps
+        are monotonically increasing or decreasing.  When ``broadcastAt`` is
+        non-monotonic (re-broadcasts, bulk imports) or absent, we default to
+        descending — the most common ordering across the NLZIET catalogue.
 
-        :param list[tuple[str, str, MediaItem]] eps: (broadcastAt, firstAvailable, item).
-        :param bool pick_first: True for the earliest episode; False for the most-recent.
+        :param list[tuple[str, MediaItem]] eps: (broadcastAt, item) tuples
+               in API response order.
+        :param bool pick_first: True for the earliest episode; False for the
+               most-recent.
         :return: The selected MediaItem or None.
         :rtype: MediaItem|None
 
@@ -955,34 +954,39 @@ class Channel(chn_class.Channel):
         if not eps:
             return None
         if len(eps) == 1:
-            return eps[0][2]
+            return eps[0][1]
 
-        # Reference 1: API response position (first or last item in the list).
-        api_item = eps[-1][2] if pick_first else eps[0][2]
+        ascending = Channel.__is_ascending(eps)
 
-        # Reference 2: broadcastAt chronological ordering.
-        with_ba = [(b, i) for b, _, i in eps if b]
-        ba_item = ((min if pick_first else max)(with_ba, key=lambda x: x[0])[1]
-                   if with_ba else None)
+        if pick_first:
+            return eps[0][1] if ascending else eps[-1][1]
+        return eps[-1][1] if ascending else eps[0][1]
 
-        # Reference 3: firstAvailable chronological ordering (often absent).
-        with_fa = [(f, i) for _, f, i in eps if f]
-        fa_item = ((min if pick_first else max)(with_fa, key=lambda x: x[0])[1]
-                   if with_fa else None)
+    @staticmethod
+    def __is_ascending(eps):
+        """Detect whether the API returned episodes oldest-first.
 
-        # Majority vote: tally votes per item URL; return winner when ≥ 2 agree.
-        votes = {}
-        for candidate in (api_item, ba_item, fa_item):
-            if candidate is not None:
-                votes[candidate.url] = votes.get(candidate.url, 0) + 1
+        Checks ``broadcastAt`` monotonicity: if every adjacent pair has a
+        non-decreasing timestamp the list is ascending; if non-increasing it
+        is descending.  Non-monotonic or missing timestamps default to
+        descending (the most common API ordering).
 
-        best_url, best_count = max(votes.items(), key=lambda x: x[1])
-        if best_count >= 2:
-            return next(c for c in (api_item, ba_item, fa_item)
-                        if c is not None and c.url == best_url)
+        :param list[tuple[str, MediaItem]] eps: (broadcastAt, item) tuples.
+        :return: True if the episode list is oldest-first (ascending).
+        :rtype: bool
 
-        # No majority (all three differ): prefer broadcastAt, then API order.
-        return ba_item or api_item
+        """
+
+        dates = [ba for ba, _ in eps if ba]
+        if len(dates) < 2:
+            return False
+
+        is_asc = all(dates[i] <= dates[i + 1] for i in range(len(dates) - 1))
+        if is_asc:
+            return True
+
+        # Not ascending — could be descending or non-monotonic; both → False.
+        return False
 
     @staticmethod
     def __vod_handshake_url(content_id):
