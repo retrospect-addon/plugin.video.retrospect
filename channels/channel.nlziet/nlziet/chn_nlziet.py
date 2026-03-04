@@ -1488,16 +1488,6 @@ class Channel(chn_class.Channel):
                      " (days_past=%d, days_future=%d, progloc_stale=%s)",
                      days_past, days_future, is_stale)
 
-        # Pipeline: drain the batch queued by the previous call so newly-fetched
-        # details are immediately included in the EPG we are about to build.
-        prev_queue = epg_enrichment.load_enrich_queue()
-        if prev_queue:
-            Logger.debug("NLZIET IPTV: draining %d items from previous cycle", len(prev_queue))
-            batch = prev_queue[:EPG_ENRICH_BATCH_SIZE]
-            epg_enrichment.fetch_and_cache(batch, self.httpHeaders)
-        else:
-            Logger.debug("NLZIET IPTV: no prior queue to drain")
-
         cache = epg_enrichment.load_detail_cache()
         subscribed_only = (
             AddonSettings.get_channel_setting(self, "nlziet_epg_subscribed_only", "true") == "true"
@@ -1509,7 +1499,7 @@ class Channel(chn_class.Channel):
         all_programmes = []  # (contentItemId, assetId, start_ts, is_now, is_past)
         now_ts = time.time()
 
-        interesting_cycle = is_stale  # also set True if queue non-empty
+        interesting_cycle = is_stale  # also True if "now" items remain in queue
 
         if is_stale:
             new_progloc = {"fetched_at": now_ts}
@@ -1560,10 +1550,9 @@ class Channel(chn_class.Channel):
                             cid, asset_id, s_ts, e_ts, channel_id,
                             start_at, end_at,
                             cdata.get("title"),
-                            cdata.get("image", {}),
+                            cdata.get("image", {}).get("landscapeUrl"),
                             cdata.get("isMovie", False),
                             cdata.get("isReplayAllowed", False),
-                            cdata,
                         ])
                 new_progloc[date_str] = day_entries
                 Logger.debug("NLZIET IPTV: day %s: fetched %d programmes from API",
@@ -1575,8 +1564,8 @@ class Channel(chn_class.Channel):
 
             for entry in day_entries:
                 (cid, asset_id, s_ts, e_ts, channel_id,
-                 start_at, end_at, title, image, is_movie,
-                 is_replay, cdata) = entry
+                 start_at, end_at, title, landscape, is_movie,
+                 is_replay) = entry
 
                 if not title or not start_at or not end_at:
                     continue
@@ -1588,7 +1577,6 @@ class Channel(chn_class.Channel):
                     iptv_epg[channel_id] = []
 
                 epg_item = dict(start=start_at, stop=end_at, title=title)
-                landscape = image.get("landscapeUrl") if isinstance(image, dict) else None
                 if landscape:
                     epg_item["image"] = landscape
 
@@ -1601,8 +1589,8 @@ class Channel(chn_class.Channel):
                 elif is_movie:
                     epg_item["genre"] = "Film"
 
-                if is_replay and isinstance(cdata, dict):
-                    replay_item = self.__create_replay_item(cdata, channel_id)
+                if is_replay:
+                    replay_item = self.__create_replay_item(asset_id, title, channel_id)
                     if replay_item:
                         media_items.append(replay_item)
                         epg_item["stream"] = parameter_parser.create_action_url(
@@ -1624,16 +1612,21 @@ class Channel(chn_class.Channel):
                      len(iptv_epg), len(all_programmes))
         parameter_parser.pickler.store_media_items(parent.guid, parent, media_items)
 
-        # Rebuild enrichment queue with fresh time-relative priority ordering
+        # Rebuild enrichment queue with fresh time-relative priority ordering,
+        # then immediately drain the first batch so this EPG response already
+        # reflects the newly-fetched details.
         queue = epg_enrichment.build_enrich_queue(all_programmes, cache)
-        epg_enrichment.save_enrich_queue(queue)
-        # build_enrich_queue already logs the breakdown; just note queue length here
-        Logger.debug("NLZIET IPTV: enrich queue saved (%d items)", len(queue))
-
+        Logger.debug("NLZIET IPTV: enrich queue has %d items", len(queue))
         if queue:
+            # Any non-empty queue means there is still enrichment work to do —
+            # backoff must not increase until the queue reaches zero.
             interesting_cycle = True
+            now_items_remain = any(e[3] == 1 for e in queue)
+            epg_enrichment.fetch_and_cache(queue[:EPG_ENRICH_BATCH_SIZE], self.httpHeaders)
+        else:
+            now_items_remain = False
 
-        # Adaptive backoff: slow down when idle, reset when there is work to do
+        # Adaptive backoff: slow down only when the queue is empty (idle).
         backoff_cycles = epg_enrichment.load_backoff_cycles()
         if interesting_cycle:
             backoff_cycles = 0
@@ -1643,7 +1636,12 @@ class Channel(chn_class.Channel):
                 epg_enrichment._MAX_BACKOFF_CYCLES)  # NOSONAR
         epg_enrichment.save_backoff_cycles(backoff_cycles)
 
-        delay = epg_enrichment.compute_signal_delay(backoff_cycles)
+        # Use a shorter delay when there are "now"-playing items still to enrich
+        # (visible change to the user) and a longer one for background work.
+        if interesting_cycle and not now_items_remain and not is_stale:
+            delay = 60
+        else:
+            delay = epg_enrichment.compute_signal_delay(backoff_cycles)
         Logger.debug("NLZIET IPTV: Signalling IPTV Manager (delay=%ds, backoff=%d)",
                      delay, backoff_cycles)
         self.__signal_iptv_manager(delay)
@@ -1651,22 +1649,22 @@ class Channel(chn_class.Channel):
         Logger.info("NLZIET IPTV: create_iptv_epg returning EPG for %d channels", len(iptv_epg))
         return iptv_epg
 
-    def __create_replay_item(self, content, channel_id):
+    def __create_replay_item(self, asset_id, title, channel_id):
         """Create a playable MediaItem for an EPG replay stream.
 
-        :param dict content: The program content dict from the EPG response.
+        :param str asset_id: The asset ID for the replay stream.
+        :param str title: The programme title.
         :param str channel_id: The channel ID for the replay URL.
         :return: A MediaItem or None if no assetId is available.
         :rtype: MediaItem|None
 
         """
 
-        asset_id = content.get("assetId")
         if not asset_id:
             return None
 
         replay_url = API_V9_EPG_LIVE_CHANNEL.format(channel_id)
-        item = MediaItem(content["title"], replay_url, media_type=mediatype.VIDEO)
+        item = MediaItem(title, replay_url, media_type=mediatype.VIDEO)
         item.isGeoLocked = True
         item.isDrmProtected = True
         item.metaData["asset_id"] = asset_id

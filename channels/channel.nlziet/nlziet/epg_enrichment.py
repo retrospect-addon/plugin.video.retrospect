@@ -5,20 +5,23 @@ These are module-level (stateless) functions so they can be called from both
 the channel (``chn_nlziet.py``) and the background service (``retroservice.py``)
 without instantiating a full Channel object.
 
-Queue format (stored in LocalSettings under ``EPG_ENRICH_QUEUE_KEY``):
-    [[contentItemId, assetId, start_ts, is_now], ...]
-
-Cache format (stored in LocalSettings under ``EPG_DETAIL_CACHE_KEY``):
+Detail cache format (stored in LocalSettings under ``EPG_DETAIL_CACHE_KEY``):
     {contentItemId: {"description": str|None,
                      "genre":       str|None,
                      "fetched_at":  float}}
 
-Programme-location cache (``EPG_PROGLOC_CACHE_KEY``):
+Programme-location cache (``nlziet_epg_progloc.json`` in the addon data dir):
     {"fetched_at": float,
-     date_str:     [[contentItemId, assetId, start_ts, stop_ts], ...], ...}
+     date_str:     [[contentItemId, assetId, start_ts, stop_ts, channel_id,
+                     start_at, end_at, title, landscape_url, is_movie,
+                     is_replay], ...], ...}
+
+The enrichment queue is ephemeral — built and drained within each
+``create_iptv_epg`` call and never written to disk.
 """
 
 import json
+import os
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -33,15 +36,41 @@ from api import (
     EPG_CACHE_TTL_DAYS,
     EPG_DETAIL_CACHE_KEY,
     EPG_ENRICH_BATCH_SIZE,
-    EPG_ENRICH_QUEUE_KEY,
-    EPG_PROGLOC_CACHE_KEY,
+    EPG_PROGLOC_CACHE_TTL,
 )
+
+# File name for the large progloc cache stored as a plain JSON file (not in
+# LocalSettings, which has a practical size limit the progloc cache easily exceeds).
+_PROGLOC_CACHE_FILE = "nlziet_epg_progloc.json"
+
+# Overrideable in unit tests: set to a tempdir path to avoid touching the real
+# Kodi addon data directory.
+_CACHE_DIR = None  # type: Optional[str]
 
 # Type alias for a queue entry
 _QueueEntry = List  # [contentItemId, assetId, start_ts, is_now_int]
 
 # Maximum consecutive empty cycles before hitting max backoff
 _MAX_BACKOFF_CYCLES = 20
+
+
+def _get_cache_file(name: str) -> str:
+    """Return the full path to a named cache file in the addon data directory.
+
+    When ``_CACHE_DIR`` is set (unit tests), that directory is used instead of
+    the real Kodi addon profile path.
+
+    :param str name: File name (no path components).
+    :rtype: str
+    """
+    if _CACHE_DIR is not None:
+        return os.path.join(_CACHE_DIR, name)
+    import xbmcvfs  # noqa: PLC0415
+    import xbmcaddon  # noqa: PLC0415
+    profile = xbmcvfs.translatePath(
+        xbmcaddon.Addon("plugin.video.retrospect").getAddonInfo("profile")
+    )
+    return os.path.join(profile, name)
 
 
 def load_detail_cache() -> Dict[str, dict]:
@@ -72,51 +101,27 @@ def save_detail_cache(cache: Dict[str, dict]) -> None:
     AddonSettings.set_setting(EPG_DETAIL_CACHE_KEY, json.dumps(pruned), store=LOCAL)
 
 
-def load_enrich_queue() -> List[_QueueEntry]:
-    """Load the enrichment queue from LocalSettings.
-
-    :return: Ordered list of [contentItemId, assetId, start_ts, is_now_int].
-    :rtype: list
-    """
-    raw = AddonSettings.get_setting(EPG_ENRICH_QUEUE_KEY, store=LOCAL) or ""
-    if not raw:
-        return []
-    try:
-        return json.loads(raw)
-    except (ValueError, TypeError):
-        Logger.warning("NLZIET EPG: Could not parse enrich queue, resetting")
-        return []
-
-
-def save_enrich_queue(queue: List[_QueueEntry]) -> None:
-    """Save the enrichment queue to LocalSettings.
-
-    :param list queue: Queue to persist.
-    """
-    AddonSettings.set_setting(EPG_ENRICH_QUEUE_KEY, json.dumps(queue), store=LOCAL)
-
-
 def load_progloc_cache() -> Tuple[Dict, bool]:
-    """Load the programme-location cache from LocalSettings.
+    """Load the programme-location cache from its JSON cache file.
 
     :return: Tuple of (cache_dict, is_stale).  ``is_stale`` is True when the
-             cache was absent or older than ``APPCONFIG_CACHE_TTL`` seconds
+             cache was absent or older than ``EPG_PROGLOC_CACHE_TTL`` seconds
              (caller should re-fetch and treat the cycle as "interesting").
     :rtype: tuple
     """
-    from api import APPCONFIG_CACHE_TTL  # avoid circular import at module level
-    raw = AddonSettings.get_setting(EPG_PROGLOC_CACHE_KEY, store=LOCAL) or ""
-    if not raw:
+    path = _get_cache_file(_PROGLOC_CACHE_FILE)
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, IOError):
         Logger.debug("NLZIET EPG: progloc cache absent")
         return {}, True
-    try:
-        data = json.loads(raw)
     except (ValueError, TypeError):
         Logger.warning("NLZIET EPG: Could not parse progloc cache, resetting")
         return {}, True
     fetched_at = data.get("fetched_at", 0)
     age = time.time() - fetched_at
-    is_stale = age > APPCONFIG_CACHE_TTL
+    is_stale = age > EPG_PROGLOC_CACHE_TTL
     date_keys = sum(1 for k in data if k != "fetched_at" and k != "subscribed_channels")
     if is_stale:
         Logger.debug("NLZIET EPG: progloc cache stale (age=%.0fs, %d date keys)", age, date_keys)
@@ -126,12 +131,17 @@ def load_progloc_cache() -> Tuple[Dict, bool]:
 
 
 def save_progloc_cache(cache: Dict) -> None:
-    """Persist the programme-location cache to LocalSettings.
+    """Persist the programme-location cache to its JSON cache file.
 
-    :param dict cache: Dict of {date_str: [[cid, assetId, start_ts, stop_ts], ...]}
+    :param dict cache: Dict of {date_str: [[cid, assetId, ...], ...]}
                        plus a top-level ``"fetched_at"`` key.
     """
-    AddonSettings.set_setting(EPG_PROGLOC_CACHE_KEY, json.dumps(cache), store=LOCAL)
+    path = _get_cache_file(_PROGLOC_CACHE_FILE)
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(cache, fh)
+    except (OSError, IOError) as exc:
+        Logger.warning("NLZIET EPG: Could not save progloc cache: %s", exc)
 
 
 def load_backoff_cycles() -> int:
