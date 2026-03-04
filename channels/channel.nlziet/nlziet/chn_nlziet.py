@@ -31,6 +31,7 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 from api import (
     API_V7_APPCONFIG,
     API_V7_CONTINUE_WATCHING,
+    API_V7_CURRENT_TIME,
     API_V8_PROFILE, API_V8_RECOMMEND,
     API_V8_SERIES, API_V8_SERIES_PREFIX, API_V8_TRACKED_SERIES,
     API_V9_CONTINUE_WATCHING,
@@ -1521,7 +1522,7 @@ class Channel(chn_class.Channel):
         iptv_epg = {}
         media_items = []
         all_programmes = []  # (contentItemId, assetId, start_ts, is_now, is_past)
-        now_ts = time.time()
+        now_ts = self.__get_server_time()
 
         interesting_cycle = is_stale  # also True if "now" items remain in queue
 
@@ -1723,6 +1724,27 @@ class Channel(chn_class.Channel):
         xbmc.executebuiltin("Container.Refresh()")
 
     # -- private helpers ---------------------------------------------------
+
+    def __get_server_time(self) -> float:
+        """Return the NLZIET server's current Unix time in seconds.
+
+        Fetches ``/v7/currenttime`` (returns milliseconds as a float).
+        Falls back to ``time.time()`` on any network or parse error so the
+        caller always gets a valid timestamp.
+
+        This is intentionally a private per-channel method: other channels
+        that implement ``create_iptv_epg`` use their own time reference.
+
+        :return: Current Unix timestamp in seconds.
+        :rtype: float
+        """
+        try:
+            raw = UriHandler.open(API_V7_CURRENT_TIME, additional_headers=self.httpHeaders)
+            if raw:
+                return float(raw.strip()) / 1000.0
+        except Exception as e:
+            Logger.debug("NLZIET: server time fetch failed, using local clock: %s", e)
+        return time.time()
 
     def __load_appconfig(self) -> dict:
         """Fetch and cache the /v7/appconfig payload.

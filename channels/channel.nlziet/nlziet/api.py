@@ -19,6 +19,7 @@ _API_BASE_URL = "https://api.nlziet.nl"
 # ── v7 ────────────────────────────────────────────────────────────────
 API_V7_APPCONFIG = f"{_API_BASE_URL}/v7/appconfig?os=web&origin=app"
 API_V7_CONTINUE_WATCHING = f"{_API_BASE_URL}/v7/continueWatching"
+API_V7_CURRENT_TIME = f"{_API_BASE_URL}/v7/currenttime"
 
 # ── v8 ────────────────────────────────────────────────────────────────
 API_V8_PROFILE = f"{_API_BASE_URL}/v8/profile"
