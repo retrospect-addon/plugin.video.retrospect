@@ -2,12 +2,13 @@
 <!--
   Retrospect genre-text → DVB-hex mapping for pvr.iptvsimple.
 
-  Channels translate native-language genres to the canonical English
-  strings below.  pvr.iptvsimple resolves them to DVB colour codes
-  via the genreTextMappings directory.
+  This is the base/default file.  Channels that emit IPTV EPG data may
+  ship a per-channel genres.xml alongside their channel module; retroservice
+  merges all channel files on top of this base (channel entries override
+  same-genreId entries here).
 
   Strings match kodiDvbGenres.xml exactly.
-  version: 1
+  version: 2
 -->
 
 <genres>
