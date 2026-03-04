@@ -4,6 +4,7 @@ import glob as _glob
 import os
 import re
 import shutil
+import threading
 import time
 import xml.etree.ElementTree as ET
 
@@ -16,7 +17,7 @@ _ADDON_DATA = xbmcvfs.translatePath(_ADDON.getAddonInfo("profile"))
 _ADDON_PATH = xbmcvfs.translatePath(_ADDON.getAddonInfo("path"))
 _EPG_SIGNAL_FILE = os.path.join(_ADDON_DATA, "nlziet_epg_signal_at")
 _EPG_PROGLOC_KEY = "nlziet_epg_progloc_cache"
-_PVR_GENRES_VERSION = 3
+_PVR_GENRES_VERSION = 7
 
 
 def _log(msg, level=xbmc.LOGDEBUG):
@@ -35,8 +36,9 @@ def _merge_genre_xmls():
     """Merge base pvr_genres.xml with any per-channel genres.xml overrides.
 
     Channels place a ``genres.xml`` alongside their channel module
-    (e.g. ``channels/channel.nlziet/nlziet/genres.xml``).  Entries in
-    channel files override same-genreId entries from the base file.
+    (e.g. ``channels/channel.nlziet/nlziet/genres.xml``).  The merged
+    dict is keyed by display text, so multiple texts may share a genreId
+    (e.g. both "Documentary" and "Documentaire" → 0x23).
 
     :return: Merged XML string, or None on error.
     :rtype: str|None
@@ -52,12 +54,14 @@ def _merge_genre_xmls():
         _log("Failed to parse pvr_genres.xml: %s" % e, xbmc.LOGWARNING)
         return None
 
-    # Ordered: genreId -> display text.  Base first; channels override.
+    # Ordered: display text -> genreId.  Keyed by text so multiple texts
+    # can share the same genreId (e.g. "Documentaire" and "Documentary"
+    # both → 0x23).  Later entries override earlier ones for the same text.
     genres = {}
     for elem in base_root.findall("genre"):
         gid = elem.get("genreId")
         if gid and elem.text:
-            genres[gid] = elem.text.strip()
+            genres[elem.text.strip()] = gid
 
     # Discover per-channel genres.xml files and merge
     channels_dir = os.path.join(_ADDON_PATH, "channels")
@@ -72,7 +76,7 @@ def _merge_genre_xmls():
                 for elem in croot.findall("genre"):
                     gid = elem.get("genreId")
                     if gid and elem.text:
-                        genres[gid] = elem.text.strip()
+                        genres[elem.text.strip()] = gid
                         count += 1
                 _log("Merged %d genre entries from %s" % (count, path))
             except ET.ParseError as e:
@@ -90,7 +94,7 @@ def _merge_genre_xmls():
         '  <name>Retrospect Genre Mappings</name>',
         '',
     ]
-    for gid, text in genres.items():
+    for text, gid in genres.items():
         lines.append('  <genre genreId="%s">%s</genre>' % (gid, text))
     lines += ['</genres>', '']
     return '\n'.join(lines)
@@ -131,10 +135,7 @@ def _configure_pvr_instances(pvr_data):
 
     :param str pvr_data: pvr.iptvsimple profile directory.
     """
-    genres_path = (
-        "special://userdata/addon_data/pvr.iptvsimple"
-        "/genres/genreTextMappings/genres.xml"
-    )
+    genres_path = "special://userdata/addon_data/plugin.video.retrospect/genres.xml"
 
     for instance_file in _glob.glob(os.path.join(pvr_data, "instance-settings-*.xml")):
         try:
@@ -148,6 +149,7 @@ def _configure_pvr_instances(pvr_data):
             continue
 
         original = content
+        content = _set_xml_setting(content, "kodi_addon_instance_name", "Retrospect")
         content = _set_xml_setting(content, "useEpgGenreText", "true")
         content = _set_xml_setting(content, "genresPathType", "0")
         content = _set_xml_setting(content, "genresPath", genres_path)
@@ -171,18 +173,14 @@ def _setup_pvr_genres():
     entries override same-genreId entries from the base file, so each
     channel controls only the genres it actually emits.
 
+    The merged file is written to Retrospect's own addon-data directory
+    (``special://userdata/addon_data/plugin.video.retrospect/genres.xml``)
+    so it is never overwritten by pvr.iptvsimple's own Rytec import.
+
     Also enables ``useEpgGenreText`` in any pvr.iptvsimple instance that
     uses the service.iptv.manager playlist.
     """
-    try:
-        pvr_addon = xbmcaddon.Addon("pvr.iptvsimple")
-    except RuntimeError:
-        _log("pvr.iptvsimple not installed — skipping genre setup")
-        return
-
-    pvr_data = xbmcvfs.translatePath(pvr_addon.getAddonInfo("profile"))
-    target_dir = os.path.join(pvr_data, "genres", "genreTextMappings")
-    target_file = os.path.join(target_dir, "genres.xml")
+    target_file = os.path.join(_ADDON_DATA, "genres.xml")
 
     version_marker = "version: %d" % _PVR_GENRES_VERSION
     if os.path.isfile(target_file):
@@ -191,7 +189,7 @@ def _setup_pvr_genres():
                 head = fh.read(512)
             if version_marker in head:
                 _log("pvr_genres v%d already installed" % _PVR_GENRES_VERSION)
-                _configure_pvr_instances(pvr_data)
+                _configure_pvr_instances_if_available()
                 return
         except OSError:
             pass
@@ -200,7 +198,6 @@ def _setup_pvr_genres():
     if not merged:
         return
 
-    os.makedirs(target_dir, exist_ok=True)
     try:
         with open(target_file, "w", encoding="utf-8") as fh:
             fh.write(merged)
@@ -210,6 +207,17 @@ def _setup_pvr_genres():
         _log("Failed to write %s: %s" % (target_file, e), xbmc.LOGWARNING)
         return
 
+    _configure_pvr_instances_if_available()
+
+
+def _configure_pvr_instances_if_available():
+    """Call ``_configure_pvr_instances`` if pvr.iptvsimple is installed."""
+    try:
+        pvr_addon = xbmcaddon.Addon("pvr.iptvsimple")
+    except RuntimeError:
+        _log("pvr.iptvsimple not installed — skipping instance config")
+        return
+    pvr_data = xbmcvfs.translatePath(pvr_addon.getAddonInfo("profile"))
     _configure_pvr_instances(pvr_data)
 
 
@@ -232,6 +240,26 @@ def _has_epg_data():
         result = False
     _log("has_epg_data=%s (path=%s)" % (result, settings_path))
     return result
+
+
+def _has_epg_programme_data():
+    """Return True if the last IPTV Manager EPG file contains at least one programme entry.
+
+    If the file is missing or empty (e.g. was written during a network outage),
+    returns False so the service can trigger an immediate refresh.
+    """
+    try:
+        epg_path = xbmcvfs.translatePath(
+            "special://userdata/addon_data/service.iptv.manager/epg.xml")
+        if not os.path.isfile(epg_path):
+            return False
+        with open(epg_path, encoding="utf-8", errors="ignore") as fh:
+            for line in fh:
+                if "<programme" in line:
+                    return True
+        return False
+    except OSError:
+        return False
 
 
 def _check_epg_signal():
@@ -265,6 +293,33 @@ class RetroService(xbmc.Monitor):
         self._initial_signal_sent = False
         self._tick_count = 0
 
+    def onNotification(self, sender, method, data):  # NOSONAR
+        """Re-configure pvr.iptvsimple genre settings whenever it is enabled.
+
+        Fires when any Kodi addon is enabled (e.g. installed via the
+        Retrospect settings "Install IPTV Manager" button).  We act on:
+
+        - ``pvr.iptvsimple``: freshly installed or re-enabled — configure
+          immediately.
+        - ``service.iptv.manager``: creates the pvr.iptvsimple instance
+          asynchronously; wait 5 s so the instance file exists before we
+          try to configure it.
+        """
+        if method != "System.OnAddonEnabled":
+            return
+        if "pvr.iptvsimple" in (data or ""):
+            _log("pvr.iptvsimple enabled — reconfiguring pvr genres", xbmc.LOGINFO)
+            _setup_pvr_genres()
+        elif "service.iptv.manager" in (data or ""):
+            _log("service.iptv.manager enabled — scheduling pvr genre reconfigure", xbmc.LOGINFO)
+            threading.Thread(target=self._delayed_pvr_setup, daemon=True).start()
+
+    @staticmethod
+    def _delayed_pvr_setup():
+        """Wait briefly, then reconfigure pvr.iptvsimple instances."""
+        time.sleep(5)
+        _setup_pvr_genres()
+
     def run(self):
         _log("started", xbmc.LOGINFO)
         _setup_pvr_genres()
@@ -278,16 +333,26 @@ class RetroService(xbmc.Monitor):
         _log("tick #%d" % self._tick_count)
         # Relay any signal written by create_iptv_epg
         _check_epg_signal()
-        # On first tick: trigger initial EPG fetch if no data yet
-        if not self._initial_signal_sent and not _has_epg_data():
-            if not os.path.isfile(_EPG_SIGNAL_FILE):
-                try:
-                    with open(_EPG_SIGNAL_FILE, "w") as fh:
-                        fh.write(str(time.time() + 5))
-                    _log("no EPG data yet — wrote initial trigger to %s" % _EPG_SIGNAL_FILE,
-                         xbmc.LOGINFO)
-                except OSError as e:
-                    _log("failed to write initial trigger: %s" % e, xbmc.LOGWARNING)
+        # On first tick: trigger initial EPG fetch if no data yet, or if the
+        # last-written EPG file contains no programme entries (e.g. was written
+        # during a network outage and is stuck empty).
+        if not self._initial_signal_sent:
+            if not _has_epg_data():
+                # Progloc cache never written — delay 5 s so the channel has
+                # time to initialise before the first refresh.
+                if not os.path.isfile(_EPG_SIGNAL_FILE):
+                    try:
+                        with open(_EPG_SIGNAL_FILE, "w") as fh:
+                            fh.write(str(time.time() + 5))
+                        _log("no EPG data yet — wrote initial trigger to %s" % _EPG_SIGNAL_FILE,
+                             xbmc.LOGINFO)
+                    except OSError as e:
+                        _log("failed to write initial trigger: %s" % e, xbmc.LOGWARNING)
+            elif not _has_epg_programme_data():
+                # Cache exists but epg.xml has no programmes — trigger immediately.
+                _log("EPG cache present but epg.xml has no programmes — forcing refresh",
+                     xbmc.LOGINFO)
+                _iptv_manager_signal()
             self._initial_signal_sent = True
 
 

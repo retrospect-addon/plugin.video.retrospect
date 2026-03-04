@@ -7,7 +7,8 @@
   merges all channel files on top of this base (channel entries override
   same-genreId entries here).
 
-  Strings match kodiDvbGenres.xml exactly.
+  Strings match kodiDvbGenres.xml exactly (English canonical names).
+  Per-channel genres.xml files add language-specific text → same DVB hex.
   version: 3
 -->
 

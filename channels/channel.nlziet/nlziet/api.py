@@ -90,6 +90,16 @@ API_V9_VOD_HANDSHAKE = (
     "&sourceType=Dash"
     "&playerName=BitmovinWeb"
 )
+API_V9_CATCHUP_PREFIX = f"{_API_BASE_URL}/v9/stream/handshake?context=Epg"
+API_V9_CATCHUP_HANDSHAKE = (
+    API_V9_CATCHUP_PREFIX
+    + "&channel={}"
+    + "&id={}"
+    + "&preferredAssetId={}"
+    + "&drmType=Widevine"
+    + "&sourceType=Dash"
+    + "&playerName=BitmovinWeb"
+)
 
 API_V9_TRACKED_SERIES = f"{_API_BASE_URL}/v9/trackedseries"
 API_V9_WATCH_IN_ADVANCE = f"{_API_BASE_URL}/v9/watchinadvance"
