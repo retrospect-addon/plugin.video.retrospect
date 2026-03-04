@@ -1346,7 +1346,7 @@ class Channel(chn_class.Channel):
             iptv_streams.append(dict(
                 id=JsonHelper.get_from(livestream, "guid"),
                 name=JsonHelper.get_from(livestream, "title"),
-                logo=logo_sources[JsonHelper.get_from(livestream, "title")],
+                logo=logo_sources.get(JsonHelper.get_from(livestream, "title"), ""),
                 group=self.channelName,
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item,
                                                           store_id=parent_item.guid),
