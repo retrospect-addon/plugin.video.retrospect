@@ -16,7 +16,7 @@ _ADDON_DATA = xbmcvfs.translatePath(_ADDON.getAddonInfo("profile"))
 _ADDON_PATH = xbmcvfs.translatePath(_ADDON.getAddonInfo("path"))
 _EPG_SIGNAL_FILE = os.path.join(_ADDON_DATA, "nlziet_epg_signal_at")
 _EPG_PROGLOC_KEY = "nlziet_epg_progloc_cache"
-_PVR_GENRES_VERSION = 2
+_PVR_GENRES_VERSION = 3
 
 
 def _log(msg, level=xbmc.LOGDEBUG):
@@ -151,6 +151,8 @@ def _configure_pvr_instances(pvr_data):
         content = _set_xml_setting(content, "useEpgGenreText", "true")
         content = _set_xml_setting(content, "genresPathType", "0")
         content = _set_xml_setting(content, "genresPath", genres_path)
+        content = _set_xml_setting(content, "catchupEnabled", "true")
+        content = _set_xml_setting(content, "catchupOnlyOnFinishedProgrammes", "false")
 
         if content != original:
             try:

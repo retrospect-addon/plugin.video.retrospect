@@ -8,7 +8,7 @@
   same-genreId entries here).
 
   Strings match kodiDvbGenres.xml exactly.
-  version: 2
+  version: 3
 -->
 
 <genres>
