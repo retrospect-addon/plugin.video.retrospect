@@ -49,6 +49,29 @@ from api import (
 )
 import epg_enrichment
 
+# Dutch NLZIET genre strings → kodiDvbGenres.xml canonical English strings.
+# pvr.iptvsimple resolves these via genreTextMappings/genres.xml → DVB hex
+# colour codes.  Only genres actually seen in the NLZIET API are listed.
+GENRE_MAP = {
+    "Amusement": "Show / Game Show",
+    "Comedy": "Comedy",
+    "Culinair": "Cooking",
+    "Documentaire": "Documentary",
+    "Drama": "General Movie / Drama",
+    "Film": "General Movie / Drama",
+    "Gezondheid/opvoeding": "Fitness and Health",
+    "Informatief": "Documentary",
+    "Jeugd/Familie": "Children's / Youth Programmes",
+    "Kids": "Children's / Youth Programmes",
+    "Muziek": "Music / Ballet / Dance",
+    "Nieuws/actualiteiten": "News / Current Affairs",
+    "Reality": "Show / Game Show",
+    "Spel/quiz": "Game Show / Quiz / Contest",
+    "Sport": "Sports",
+    "Talkshow": "Talk Show",
+    "Thriller/Crime": "Detective / Thriller",
+}
+
 
 class Channel(chn_class.Channel):
     def __init__(self, channel_info):
@@ -1587,9 +1610,12 @@ class Channel(chn_class.Channel):
                     if cached.get("description"):
                         epg_item["description"] = cached["description"]
                     if cached.get("genre"):
-                        epg_item["genre"] = cached["genre"]
+                        epg_item["genre"] = GENRE_MAP.get(
+                            cached["genre"], cached["genre"])
+                    elif is_movie:
+                        epg_item["genre"] = GENRE_MAP.get("Film", "Film")
                 elif is_movie:
-                    epg_item["genre"] = "Film"
+                    epg_item["genre"] = GENRE_MAP.get("Film", "Film")
 
                 if is_replay:
                     replay_item = self.__create_replay_item(asset_id, title, channel_id)

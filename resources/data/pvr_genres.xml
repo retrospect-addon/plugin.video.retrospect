@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Retrospect genre-text → DVB-hex mapping for pvr.iptvsimple.
+
+  Channels translate native-language genres to the canonical English
+  strings below.  pvr.iptvsimple resolves them to DVB colour codes
+  via the genreTextMappings directory.
+
+  Strings match kodiDvbGenres.xml exactly.
+  version: 1
+-->
+
+<genres>
+  <name>Retrospect Genre Mappings</name>
+
+  <!-- MOVIE / DRAMA -->
+  <genre genreId="0x10">General Movie / Drama</genre>
+  <genre genreId="0x11">Detective / Thriller</genre>
+  <genre genreId="0x14">Comedy</genre>
+  <genre genreId="0x15">Soap / Melodrama / Folkloric</genre>
+
+  <!-- NEWS / CURRENT AFFAIRS -->
+  <genre genreId="0x20">News / Current Affairs</genre>
+  <genre genreId="0x23">Documentary</genre>
+
+  <!-- SHOW -->
+  <genre genreId="0x30">Show / Game Show</genre>
+  <genre genreId="0x31">Game Show / Quiz / Contest</genre>
+  <genre genreId="0x33">Talk Show</genre>
+
+  <!-- SPORTS -->
+  <genre genreId="0x40">Sports</genre>
+
+  <!-- CHILDREN / YOUTH -->
+  <genre genreId="0x50">Children's / Youth Programmes</genre>
+  <genre genreId="0x55">Cartoons / Puppets</genre>
+
+  <!-- MUSIC / BALLET / DANCE -->
+  <genre genreId="0x60">Music / Ballet / Dance</genre>
+
+  <!-- ARTS / CULTURE -->
+  <genre genreId="0x70">Arts / Culture</genre>
+
+  <!-- SOCIAL / POLITICAL / ECONOMICS -->
+  <genre genreId="0x80">Social / Political / Economics</genre>
+
+  <!-- EDUCATIONAL / SCIENCE -->
+  <genre genreId="0x90">Education / Science / Factual</genre>
+  <genre genreId="0x91">Nature / Animals / Environment</genre>
+
+  <!-- LEISURE / HOBBIES -->
+  <genre genreId="0xA0">Leisure / Hobbies</genre>
+  <genre genreId="0xA1">Tourism / Travel</genre>
+  <genre genreId="0xA4">Fitness and Health</genre>
+  <genre genreId="0xA5">Cooking</genre>
+  <genre genreId="0xA6">Advertisement / Shopping</genre>
+</genres>

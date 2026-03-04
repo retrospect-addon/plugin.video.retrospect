@@ -8,6 +8,7 @@ import json
 import shutil
 import sys
 import tempfile
+import time
 from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, "channels/channel.nlziet/nlziet")
@@ -1273,6 +1274,112 @@ class TestNLZietChannel(ChannelTest):
         finally:
             epg_enrichment._CACHE_DIR = None
             shutil.rmtree(tmpdir, ignore_errors=True)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_genre_translated_to_english(self, mock_uri):
+        """Dutch genre from enrichment cache is translated to English canonical."""
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
+
+            # Pre-populate detail cache with a Dutch genre
+            epg_enrichment.save_detail_cache({
+                "news-item-1": {
+                    "description": "Het nieuws van vandaag.",
+                    "genre": "Nieuws/actualiteiten",
+                    "fetched_at": time.time(),
+                },
+            })
+
+            epg = self.channel.create_iptv_epg(parser)
+
+            programs = epg["npo1"]
+            self.assertEqual(programs[0]["genre"], "News / Current Affairs")
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_movie_genre_translated(self, mock_uri):
+        """Movies without enrichment get genre 'General Movie / Drama'."""
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            # Clear appconfig cache to force fresh fetch from mock
+            from resources.lib.addonsettings import AddonSettings, LOCAL
+            AddonSettings.set_setting("nlziet_appconfig", "", store=LOCAL)
+
+            fixture = json.dumps({"data": [{
+                "channel": {"content": {"id": "npo1"}},
+                "programLocations": [{
+                    "content": {
+                        "title": "Some Movie",
+                        "startAt": "2026-02-21T22:00:00+01:00",
+                        "endAt": "2026-02-22T00:00:00+01:00",
+                        "image": {},
+                        "isReplayAllowed": False,
+                        "isMovie": True,
+                        "assetId": "movie-1",
+                        "contentItemId": "movie-item-1"
+                    }
+                }]
+            }]})
+            # First call → appconfig, then fixture for each EPG day
+            mock_uri.open.side_effect = [fixture] + [fixture] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
+
+            epg = self.channel.create_iptv_epg(parser)
+
+            self.assertIn("npo1", epg)
+            programs = epg["npo1"]
+            movie_items = [p for p in programs if p.get("genre")]
+            self.assertTrue(movie_items, "Expected at least one program with genre")
+            self.assertEqual(movie_items[0]["genre"], "General Movie / Drama")
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    @patch("chn_nlziet.UriHandler")
+    def test_iptv_epg_unknown_genre_passed_through(self, mock_uri):
+        """Genres not in GENRE_MAP are passed through unchanged."""
+        tmpdir = self._fresh_epg_cache_dir()
+        try:
+            mock_uri.open.side_effect = [self._EPG_FIXTURE] + [""] * 20
+            self.channel.loggedOn = True
+            parser = self._make_mock_parser()
+
+            epg_enrichment.save_detail_cache({
+                "news-item-1": {
+                    "description": "Test.",
+                    "genre": "SomeNewGenre",
+                    "fetched_at": time.time(),
+                },
+            })
+
+            epg = self.channel.create_iptv_epg(parser)
+
+            programs = epg["npo1"]
+            self.assertEqual(programs[0]["genre"], "SomeNewGenre")
+        finally:
+            epg_enrichment._CACHE_DIR = None
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def test_genre_map_values_match_pvr_genres_xml(self):
+        """Every GENRE_MAP value must appear in resources/data/pvr_genres.xml."""
+        from chn_nlziet import GENRE_MAP
+        import xml.etree.ElementTree as ET
+
+        tree = ET.parse(os.path.join(
+            os.path.dirname(__file__), os.pardir, os.pardir,
+            "resources", "data", "pvr_genres.xml"))
+        xml_genres = {el.text for el in tree.findall(".//genre")}
+
+        for dutch, english in GENRE_MAP.items():
+            self.assertIn(
+                english, xml_genres,
+                "GENRE_MAP[%r] = %r not in pvr_genres.xml" % (dutch, english))
 
     # -- deduplicate_episode_titles tests ------------------------------------
 

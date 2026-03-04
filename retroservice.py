@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
+import shutil
 import time
 
 import xbmc
@@ -9,8 +10,10 @@ import xbmcvfs
 
 _ADDON = xbmcaddon.Addon()
 _ADDON_DATA = xbmcvfs.translatePath(_ADDON.getAddonInfo("profile"))
+_ADDON_PATH = xbmcvfs.translatePath(_ADDON.getAddonInfo("path"))
 _EPG_SIGNAL_FILE = os.path.join(_ADDON_DATA, "nlziet_epg_signal_at")
 _EPG_PROGLOC_KEY = "nlziet_epg_progloc_cache"
+_PVR_GENRES_VERSION = 1
 
 
 def _log(msg, level=xbmc.LOGDEBUG):
@@ -23,6 +26,40 @@ _log("addon_data=%s signal_file=%s" % (_ADDON_DATA, _EPG_SIGNAL_FILE), xbmc.LOGI
 def autorun_retrospect():
     if _ADDON.getSetting("auto_run") == "true":
         xbmc.executebuiltin("RunAddon(plugin.video.retrospect)")
+
+
+def _setup_pvr_genres():
+    """Install genre-text mapping for pvr.iptvsimple if needed."""
+    try:
+        pvr_addon = xbmcaddon.Addon("pvr.iptvsimple")
+    except RuntimeError:
+        _log("pvr.iptvsimple not installed — skipping genre setup")
+        return
+
+    pvr_data = xbmcvfs.translatePath(pvr_addon.getAddonInfo("profile"))
+    target_dir = os.path.join(pvr_data, "genres", "genreTextMappings")
+    target_file = os.path.join(target_dir, "genres.xml")
+
+    version_marker = "version: %d" % _PVR_GENRES_VERSION
+    if os.path.isfile(target_file):
+        try:
+            with open(target_file) as fh:
+                head = fh.read(500)
+            if version_marker in head:
+                _log("pvr_genres v%d already installed" % _PVR_GENRES_VERSION)
+                return
+        except OSError:
+            pass
+
+    source = os.path.join(_ADDON_PATH, "resources", "data", "pvr_genres.xml")
+    if not os.path.isfile(source):
+        _log("pvr_genres.xml not found at %s" % source, xbmc.LOGWARNING)
+        return
+
+    os.makedirs(target_dir, exist_ok=True)
+    shutil.copy2(source, target_file)
+    _log("Installed pvr_genres v%d -> %s" % (_PVR_GENRES_VERSION, target_file),
+         xbmc.LOGINFO)
 
 
 def _iptv_manager_signal():
@@ -79,6 +116,7 @@ class RetroService(xbmc.Monitor):
 
     def run(self):
         _log("started", xbmc.LOGINFO)
+        _setup_pvr_genres()
         autorun_retrospect()
         self._tick()  # run once immediately; don't wait 30s for the first check
         while not self.waitForAbort(30):
