@@ -160,6 +160,8 @@ class ChannelIndex(object):
                     continue
 
                 channel_set_info_path = os.path.join(channel_set_path, "chn_{}.json".format(channel_set))
+                if not os.path.isfile(channel_set_info_path):
+                    continue
                 channel_infos = ChannelInfo.from_json(channel_set_info_path)
 
                 # Check if the channel was updated
