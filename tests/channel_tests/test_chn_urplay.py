@@ -17,7 +17,7 @@ class TestUrPlayChannel(ChannelTest):
         from resources.lib.urihandler import UriHandler
         from resources.lib.regexer import Regexer
 
-        data = UriHandler.open("https://urplay.se", additional_headers=headers)
+        data = UriHandler.open("https://urplay.se")
         cls._version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
 
     def test_channel_exists(self):
