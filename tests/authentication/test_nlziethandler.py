@@ -216,11 +216,13 @@ class TestNLZIETAuthLive(unittest.TestCase):
         if not result.logged_on:
             self.skipTest("No active session - test_03 must run first")
 
-        # Force token expiry
+        # Force token expiry on both settings and cached instance state
         expiry_key = f"{self.handler.prefix}expires_at"
         AddonSettings.set_setting(expiry_key, str(int(time.time()) - 100), store=LOCAL)
+        self.handler._expires_at = int(time.time()) - 100
 
-        # get_valid_token should trigger silent re-authentication
+        # refresh_access_token() performs silent re-authentication when needed
+        self.assertTrue(self.handler.refresh_access_token(), "Silent re-authentication failed")
         token = self.handler.get_valid_token()
         self.assertIsNotNone(token, "Silent re-authentication failed")
 
@@ -612,7 +614,9 @@ class TestNLZIETAuthLive(unittest.TestCase):
         expiry_key = f"{device_handler.prefix}expires_at"
         old_expiry = int(AddonSettings.get_setting(expiry_key, store=LOCAL) or 0)
         AddonSettings.set_setting(expiry_key, str(int(time.time()) - 10), store=LOCAL)
+        device_handler._expires_at = int(time.time()) - 10
 
+        self.assertTrue(device_handler.refresh_access_token(), "Refresh token grant failed")
         token = device_handler.get_valid_token()
         self.assertIsNotNone(token, "Refresh token grant failed")
 
@@ -755,11 +759,64 @@ class TestNLZIETAuthMocked(TestNLZIETAuthLive):
         pass  # Overridden to skip in mocked test class
 
     def test_refresh_no_tokens_raises_value_error(self):
-        """refresh_access_token raises ValueError when no refresh or id token is stored."""
+        """refresh_access_token returns False when no refresh or id token is stored."""
         AddonSettings.set_setting(f"{self.handler.prefix}refresh_token", "", store=LOCAL)
         AddonSettings.set_setting(f"{self.handler.prefix}id_token", "", store=LOCAL)
-        with self.assertRaises(ValueError):
-            self.handler.refresh_access_token()
+        self.handler._refresh_token = ""
+        self.handler._id_token = ""
+        self.handler._expires_at = 0  # force expiry so the margin check doesn't short-circuit
+        self.assertFalse(self.handler.refresh_access_token())
+
+    def test_refresh_access_token_noop_when_valid(self):
+        """refresh_access_token() skips the network when the token is still fresh."""
+        from tests.authentication.nlziet_mocks import MOCK_ACCESS_TOKEN
+        # Seed a valid token with expiry far in the future.
+        self.handler._access_token = MOCK_ACCESS_TOKEN
+        self.handler._id_token = ""
+        self.handler._refresh_token = ""
+        self.handler._expires_at = int(time.time()) + 7200  # 2 hours from now
+
+        # Track whether _do_token_refresh is invoked.
+        refresh_called = []
+        original = self.handler._do_token_refresh
+        self.handler._do_token_refresh = lambda: refresh_called.append(True) or original()
+        try:
+            result = self.handler.refresh_access_token()
+        finally:
+            self.handler._do_token_refresh = original
+
+        self.assertTrue(result, "Expected True for still-valid token")
+        self.assertEqual(refresh_called, [], "_do_token_refresh must NOT be called when token is fresh")
+
+    def test_get_valid_token_is_pure_getter(self):
+        """get_valid_token() returns the cached access token without any side-effect."""
+        from tests.authentication.nlziet_mocks import MOCK_ACCESS_TOKEN
+        self.handler._access_token = MOCK_ACCESS_TOKEN
+        self.handler._expires_at = 0  # expired — but get_valid_token must NOT refresh
+
+        refresh_called = []
+        original = self.handler._do_token_refresh
+        self.handler._do_token_refresh = lambda: refresh_called.append(True) or original()
+        try:
+            token = self.handler.get_valid_token()
+        finally:
+            self.handler._do_token_refresh = original
+
+        self.assertEqual(token, MOCK_ACCESS_TOKEN, "Must return the cached token verbatim")
+        self.assertEqual(refresh_called, [], "_do_token_refresh must NOT be called by get_valid_token()")
+
+    def test_instance_vars_loaded_from_settings_at_init(self):
+        """Token state read from settings once at construction, not on every call."""
+        from tests.authentication.nlziet_mocks import MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN
+        future_expiry = int(time.time()) + 3600
+        AddonSettings.set_setting(f"{self.handler.prefix}access_token", MOCK_ACCESS_TOKEN, store=LOCAL)
+        AddonSettings.set_setting(f"{self.handler.prefix}refresh_token", MOCK_REFRESH_TOKEN, store=LOCAL)
+        AddonSettings.set_setting(f"{self.handler.prefix}expires_at", str(future_expiry), store=LOCAL)
+
+        fresh = NLZIETOAuth2Handler(use_device_flow=False)
+        self.assertEqual(fresh._access_token, MOCK_ACCESS_TOKEN)
+        self.assertEqual(fresh._refresh_token, MOCK_REFRESH_TOKEN)
+        self.assertEqual(fresh._expires_at, future_expiry)
 
     def test_set_profile_exchanges_token(self):
         """set_profile performs a token exchange and stores a profile-scoped token."""

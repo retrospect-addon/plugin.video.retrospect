@@ -44,12 +44,21 @@ from resources.lib.logger import Logger
 class OAuth2Handler(AuthenticationHandler, ABC):
     """Generic OAuth2 PKCE Handler for Retrospect."""
 
+    # How many seconds before token expiry we proactively refresh.
+    # 300s (5 minutes) gives ample time to retry on transient network errors.
+    _REFRESH_MARGIN = 300
+
     def __init__(self, realm: str, client_id: str):
         super(OAuth2Handler, self).__init__(realm, device_id=None)
         self.client_id_val = client_id
         # Use client-specific prefix to prevent storage collisions between different OAuth clients
         # e.g., "nlziet_oauth2_triple-web_" vs "nlziet_oauth2_triple-android-tv_"
         self.prefix = f"{realm}_oauth2_{client_id}_"
+        # Read token state once at construction; updated in-place by _store_tokens.
+        # Settings is the cross-invocation persistence layer (channel is re-created per action).
+        self._access_token = AddonSettings.get_setting(f"{self.prefix}access_token", store=LOCAL) or ""
+        self._refresh_token = AddonSettings.get_setting(f"{self.prefix}refresh_token", store=LOCAL) or ""
+        self._expires_at = int(AddonSettings.get_setting(f"{self.prefix}expires_at", store=LOCAL) or 0)
 
     @property
     @abstractmethod
@@ -105,13 +114,16 @@ class OAuth2Handler(AuthenticationHandler, ABC):
             raise
 
     def _store_tokens(self, tokens: dict):
-        """Persist token fields to addon settings."""
-        AddonSettings.set_setting(f"{self.prefix}access_token", tokens["access_token"], store=LOCAL)
+        """Persist token fields to addon settings and update cached instance state."""
+        self._access_token = tokens["access_token"]
+        AddonSettings.set_setting(f"{self.prefix}access_token", self._access_token, store=LOCAL)
         if "refresh_token" in tokens:
-            AddonSettings.set_setting(f"{self.prefix}refresh_token", tokens["refresh_token"], store=LOCAL)
+            self._refresh_token = tokens["refresh_token"]
+            AddonSettings.set_setting(f"{self.prefix}refresh_token", self._refresh_token, store=LOCAL)
 
         expires_in = tokens.get("expires_in", 3600)
-        AddonSettings.set_setting(f"{self.prefix}expires_at", str(int(time.time()) + expires_in), store=LOCAL)
+        self._expires_at = int(time.time()) + expires_in
+        AddonSettings.set_setting(f"{self.prefix}expires_at", str(self._expires_at), store=LOCAL)
 
     def exchange_code(self, code: str, verifier: str) -> bool:
         """Exchange authorization code for tokens.
@@ -135,34 +147,50 @@ class OAuth2Handler(AuthenticationHandler, ABC):
             Logger.error(f"OAuth2: exchange_code failed for {self.realm}: {e}")
             return False
 
-    def refresh_access_token(self):
-        """Refresh the access token using the refresh token."""
-        refresh_token = AddonSettings.get_setting(f"{self.prefix}refresh_token", store=LOCAL)
-        if not refresh_token:
+    def _do_token_refresh(self):
+        """Unconditional access token refresh using the stored refresh token.
+
+        Subclasses override this to implement flow-specific refresh logic
+        (e.g. device flow vs. silent re-authentication).
+        """
+        if not self._refresh_token:
             raise ValueError("No refresh token available.")
 
         Logger.debug(f"OAuth2: Refreshing access token for {self.realm}")
         data = {
             "grant_type": "refresh_token",
             "client_id": self.client_id_val,
-            "refresh_token": refresh_token
+            "refresh_token": self._refresh_token
         }
         self._request_tokens(data)
 
+    def refresh_access_token(self) -> bool:
+        """Refresh the access token if within _REFRESH_MARGIN seconds of expiry.
+
+        Intended to be called on every heartbeat cycle.  The method is a no-op
+        when the token is still comfortably valid, so calling it frequently is
+        cheap (one in-memory comparison).
+
+        :return: True if the token is valid after the call, False on failure.
+        """
+        if time.time() < (self._expires_at - self._REFRESH_MARGIN):
+            Logger.trace(f"OAuth2: Token still valid for {self.realm} "
+                         f"({self._expires_at - time.time():.0f}s remaining)")
+            return True
+        try:
+            self._do_token_refresh()
+            return True
+        except Exception as e:
+            Logger.warning(f"OAuth2: Token refresh failed for {self.realm}: {e}")
+            return False
+
     def get_valid_token(self) -> Optional[str]:
-        """Get a valid access token, refreshing if necessary."""
-        expires_at = int(AddonSettings.get_setting(f"{self.prefix}expires_at", store=LOCAL) or 0)
+        """Return the cached access token.
 
-        if time.time() > (expires_at - 60):
-            try:
-                self.refresh_access_token()
-            except Exception as e:
-                Logger.warning(f"OAuth2: Token refresh failed for {self.realm}: {e}")
-                return None
-        else:
-            Logger.trace(f"OAuth2: Using cached token for {self.realm}")
-
-        return AddonSettings.get_setting(f"{self.prefix}access_token", store=LOCAL)
+        Pure getter — no refresh side-effect.  Call refresh_access_token() first
+        whenever a fresh token is required.
+        """
+        return self._access_token or None
 
     def _extract_username_from_token(self, token: str) -> Optional[str]:
         """Extract username from JWT token."""
@@ -180,6 +208,7 @@ class OAuth2Handler(AuthenticationHandler, ABC):
 
     def active_authentication(self) -> AuthenticationResult:
         """Check for active authentication session."""
+        self.refresh_access_token()
         token = self.get_valid_token()
         if token:
             username = self._extract_username_from_token(token)
@@ -195,6 +224,9 @@ class OAuth2Handler(AuthenticationHandler, ABC):
         return AuthenticationResult(None, error="OAuth2 requires browser login.")
 
     def _clear_token_settings(self) -> None:
+        self._access_token = ""
+        self._refresh_token = ""
+        self._expires_at = 0
         AddonSettings.set_setting(f"{self.prefix}access_token", "", store=LOCAL)
         AddonSettings.set_setting(f"{self.prefix}refresh_token", "", store=LOCAL)
         AddonSettings.set_setting(f"{self.prefix}expires_at", "", store=LOCAL)

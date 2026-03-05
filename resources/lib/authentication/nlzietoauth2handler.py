@@ -70,6 +70,8 @@ class NLZIETOAuth2Handler(OAuth2Handler):
         self._use_device_flow = use_device_flow
         client_id = self.TV_CLIENT_ID if use_device_flow else self.WEB_CLIENT_ID
         super(NLZIETOAuth2Handler, self).__init__(realm="nlziet", client_id=client_id)
+        # id_token is NLZIET-specific; used for web-flow silent re-authentication.
+        self._id_token = AddonSettings.get_setting(f"{self.prefix}id_token", store=LOCAL) or ""
 
     @property
     def base_auth_url(self) -> str: return self.BASE_AUTH_URL
@@ -177,7 +179,8 @@ class NLZIETOAuth2Handler(OAuth2Handler):
         """Override to also store id_token for NLZiet silent auth."""
         super()._store_tokens(tokens)
         if "id_token" in tokens:
-            AddonSettings.set_setting(f"{self.prefix}id_token", tokens["id_token"], store=LOCAL)
+            self._id_token = tokens["id_token"]
+            AddonSettings.set_setting(f"{self.prefix}id_token", self._id_token, store=LOCAL)
             Logger.debug(f"OAuth2: Stored id_token for {self.realm} silent auth")
 
     def _exchange_code_with_verifier(self, auth_code: str, code_verifier: str):
@@ -191,16 +194,14 @@ class NLZIETOAuth2Handler(OAuth2Handler):
         }
         self._request_tokens(data)
 
-    def refresh_access_token(self):
-        """Refresh access token using refresh_token (device flow) or silent re-auth (web flow)."""
-        refresh_token = AddonSettings.get_setting(f"{self.prefix}refresh_token", store=LOCAL)
-        if refresh_token:
+    def _do_token_refresh(self):
+        """Unconditional token refresh: uses refresh_token (device flow) or silent re-auth (web flow)."""
+        if self._refresh_token:
             Logger.debug(f"OAuth2: Refreshing access token using refresh_token for {self.realm}")
-            super().refresh_access_token()
+            super()._do_token_refresh()
             return
 
-        id_token = AddonSettings.get_setting(f"{self.prefix}id_token", store=LOCAL)
-        if not id_token:
+        if not self._id_token:
             raise ValueError("No refresh_token or id_token available for authentication.")
 
         Logger.debug(f"OAuth2: Attempting silent re-authentication for {self.realm}")
@@ -219,7 +220,7 @@ class NLZIETOAuth2Handler(OAuth2Handler):
             "code_challenge_method": "S256",
             "response_mode": "query",
             "prompt": "none",
-            "id_token_hint": id_token
+            "id_token_hint": self._id_token
         }
 
         auth_url = f"{self.base_auth_url}?{urlencode(auth_params)}"
@@ -245,6 +246,8 @@ class NLZIETOAuth2Handler(OAuth2Handler):
 
         except Exception as e:
             Logger.warning(f"OAuth2: Silent re-authentication failed for {self.realm}: {e}")
+            self._id_token = ""
+            self._access_token = ""
             AddonSettings.set_setting(f"{self.prefix}id_token", "", store=LOCAL)
             AddonSettings.set_setting(f"{self.prefix}access_token", "", store=LOCAL)
             raise
@@ -282,8 +285,8 @@ class NLZIETOAuth2Handler(OAuth2Handler):
             if status.error and status.code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
                 Logger.warning("NLZIET: Profile API returned %s, attempting token refresh", status.code)
                 try:
-                    self.refresh_access_token()
-                    access_token = AddonSettings.get_setting(f"{self.prefix}access_token", store=LOCAL)
+                    self._do_token_refresh()
+                    access_token = self.get_valid_token()
                     if not access_token:
                         Logger.warning("NLZIET: Token refresh did not yield an access token")
                         return None
@@ -299,9 +302,7 @@ class NLZIETOAuth2Handler(OAuth2Handler):
                         return None
                 except Exception as e:
                     Logger.warning(f"NLZIET: Token refresh failed: {e}")
-                    AddonSettings.set_setting(f"{self.prefix}access_token", "", store=LOCAL)
-                    AddonSettings.set_setting(f"{self.prefix}refresh_token", "", store=LOCAL)
-                    AddonSettings.set_setting(f"{self.prefix}id_token", "", store=LOCAL)
+                    self._clear_token_settings()
                     return None
             elif not response:
                 Logger.error("NLZIET: Empty response from profile API")
@@ -745,6 +746,7 @@ class NLZIETOAuth2Handler(OAuth2Handler):
 
     def _clear_token_settings(self) -> None:
         super()._clear_token_settings()
+        self._id_token = ""
         AddonSettings.set_setting(f"{self.prefix}id_token", "", store=LOCAL)
 
     def _extract_csrf_token(self, content: str) -> Optional[str]:

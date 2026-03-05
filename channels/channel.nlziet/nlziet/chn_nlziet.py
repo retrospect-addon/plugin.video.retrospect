@@ -270,6 +270,7 @@ class Channel(chn_class.Channel):
     def __set_auth_headers(self):
         """Set the Bearer token and required app headers for API requests."""
 
+        self.__handler.refresh_access_token()
         token = self.__handler.get_valid_token()
         if token:
             self.httpHeaders["Authorization"] = "Bearer {}".format(token)
@@ -1420,6 +1421,9 @@ class Channel(chn_class.Channel):
             Logger.warning("NLZIET IPTV: Not authenticated, returning empty streams")
             return []
 
+        if self.__handler.refresh_access_token():
+            self.httpHeaders["Authorization"] = "Bearer {}".format(self.__handler.get_valid_token())
+
         Logger.debug("NLZIET IPTV: create_iptv_streams called")
         live_data = UriHandler.open(API_V9_EPG_LIVE, additional_headers=self.httpHeaders)
         if not live_data:
@@ -1493,6 +1497,9 @@ class Channel(chn_class.Channel):
         if not self.loggedOn:
             Logger.warning("NLZIET IPTV: Not authenticated, returning empty EPG")
             return {}
+
+        if self.__handler.refresh_access_token():
+            self.httpHeaders["Authorization"] = "Bearer {}".format(self.__handler.get_valid_token())
 
         # Load appconfig (cached); abort if the server has blocked the app.
         appconfig = self.__load_appconfig()
