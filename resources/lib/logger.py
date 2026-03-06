@@ -136,6 +136,8 @@ class Logger:
         """
 
         # noinspection PyArgumentList
+        if Logger.__logger is None:
+            return
         Logger.__logger.__write(msg, level=Logger.LVL_TRACE, *args, **kwargs)
         return
 
@@ -153,6 +155,8 @@ class Logger:
         """
 
         # noinspection PyArgumentList
+        if Logger.__logger is None:
+            return
         Logger.__logger.__write(msg, level=Logger.LVL_DEBUG, *args, **kwargs)
         return
 
@@ -170,6 +174,8 @@ class Logger:
         """
 
         # noinspection PyArgumentList
+        if Logger.__logger is None:
+            return
         Logger.__logger.__write(msg, level=Logger.LVL_INFO, *args, **kwargs)
         return
 
@@ -187,6 +193,8 @@ class Logger:
         """
 
         # noinspection PyArgumentList
+        if Logger.__logger is None:
+            return
         Logger.__logger.__write(msg, level=Logger.LVL_ERROR, *args, **kwargs)
         return
 
@@ -204,6 +212,8 @@ class Logger:
         """
 
         # noinspection PyArgumentList
+        if Logger.__logger is None:
+            return
         Logger.__logger.__write(msg, level=Logger.LVL_WARNING, *args, **kwargs)
         return
 
@@ -221,6 +231,8 @@ class Logger:
         """
 
         # noinspection PyArgumentList
+        if Logger.__logger is None:
+            return
         Logger.__logger.__write(msg, level=Logger.LVL_CRITICAL, *args, **kwargs)
         return
 
