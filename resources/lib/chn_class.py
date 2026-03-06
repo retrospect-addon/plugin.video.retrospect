@@ -890,9 +890,9 @@ class Channel:
         :rtype: list
         """
         return []
-    
+
     def create_iptv_epg(self, parameter_parser):
-        """ Fallback function if not implemented. 
+        """ Fallback function if not implemented.
         Fetch the EPG using the EPG endpoint and format it into JSON-EPG
 
         :param ActionParser parameter_parser: a ActionParser object to is used to parse and

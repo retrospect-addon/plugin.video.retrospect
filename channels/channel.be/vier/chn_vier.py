@@ -623,10 +623,10 @@ class Channel(chn_class.Channel):
         video_id = json_data.get_value("ssai", "videoID")
         drm_header = json_data.get_value("drmXml", fallback=None)
         return self.__get_ssai_streams_for_content_source(item, content_source_id, video_id, drm_header)
-    
+
     def __get_ssai_streams_for_content_source(self, item, content_source_id, video_id, drm_header):
         Logger.info("No stream data found, trying SSAI data")
-        
+
         streams_url = 'https://dai.google.com/ondemand/dash/content/{}/vid/{}/streams'.format(
             content_source_id, video_id)
         # streams_url = "https://pubads.g.doubleclick.net/ondemand/dash/content/{}/vid/{}/streams".format(

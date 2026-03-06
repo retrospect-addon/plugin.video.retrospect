@@ -788,116 +788,116 @@ class Channel(chn_class.Channel):
 
         if operation == "SeasonEpisodes":
             query = """
-                query SeasonEpisodes($input: SeasonEpisodesInput!, $seasonId: ID!) { 
-                    season(id: $seasonId) { id numberOfEpisodes episodes(input: $input) { initialSortOrder pageInfo { ...PageInfoFields } items { __typename ...EpisodeFieldsFull } } } } 
+                query SeasonEpisodes($input: SeasonEpisodesInput!, $seasonId: ID!) {
+                    season(id: $seasonId) { id numberOfEpisodes episodes(input: $input) { initialSortOrder pageInfo { ...PageInfoFields } items { __typename ...EpisodeFieldsFull } } } }
                 %(PageInfoFields)s %(EpisodeFieldsFull)s %(EpisodeFields)s %(ParentalRatingFields)s %(ImageFieldsLight)s %(VideoFields)s
             """ % fragments
 
         elif operation == "PageList":
             query = """
-                query PageList($pageListId: ID!) { pageList(id: $pageListId) { id content { ... 
-                    on PageReferenceItem { pageReference { ...PageListFields __typename } __typename } ... 
-                    on StaticPageItem { staticPage { id title type images { image4x3 { ...ImageFieldsFull __typename } __typename } __typename } __typename } __typename } __typename }} 
+                query PageList($pageListId: ID!) { pageList(id: $pageListId) { id content { ...
+                    on PageReferenceItem { pageReference { ...PageListFields __typename } __typename } ...
+                    on StaticPageItem { staticPage { id title type images { image4x3 { ...ImageFieldsFull __typename } __typename } __typename } __typename } __typename } __typename }}
                 %(PageListFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s
             """ % fragments
 
         elif operation == "Panel":
             query = """
-                query Panel($panelId: ID!, $offset: Int!, $limit: Int!) { panel(id: $panelId) { ... on ContinueWatchingPanel { id } ... on PagePanel 
-                { id content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { ... 
-                    on PagePanelPageItem { page { ...PageListFields } } } } } ... 
-                    on SportEventPanel { id content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { sportEvent { ...SportEventFieldsLight } } } } ... 
-                    on ClipsPanel { id title content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { __typename clip { __typename ...ClipFieldsLight } } } } ... 
-                    on EpisodesPanel { id title content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { episode { ...EpisodeFields } labelText } } } ... 
-                    on MediaPanel { __typename id slug title content(input: {offset: $offset, limit: $limit}) { __typename pageInfo { ...PageInfoFields } items { ... 
-                        on MediaPanelMovieItem { __typename movie { ...MovieFieldsLight __typename } } ... 
-                        on MediaPanelSeriesItem { __typename series { ...SeriesFieldsLight __typename} } } } } ... 
+                query Panel($panelId: ID!, $offset: Int!, $limit: Int!) { panel(id: $panelId) { ... on ContinueWatchingPanel { id } ... on PagePanel
+                { id content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { ...
+                    on PagePanelPageItem { page { ...PageListFields } } } } } ...
+                    on SportEventPanel { id content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { sportEvent { ...SportEventFieldsLight } } } } ...
+                    on ClipsPanel { id title content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { __typename clip { __typename ...ClipFieldsLight } } } } ...
+                    on EpisodesPanel { id title content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { episode { ...EpisodeFields } labelText } } } ...
+                    on MediaPanel { __typename id slug title content(input: {offset: $offset, limit: $limit}) { __typename pageInfo { ...PageInfoFields } items { ...
+                        on MediaPanelMovieItem { __typename movie { ...MovieFieldsLight __typename } } ...
+                        on MediaPanelSeriesItem { __typename series { ...SeriesFieldsLight __typename} } } } } ...
                         on ChannelPanel { id title type content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { channel { ...ChannelFields } } } } } }
-                %(ImageFieldsFull)s %(ParentalRatingFields)s %(ImageFieldsLight)s %(VideoFields)s %(EpisodeFields)s 
-                %(LabelFields)s %(MovieFieldsLight)s %(SportEventFieldsLight)s %(SeriesFieldsLight)s %(ClipFieldsLight)s 
+                %(ImageFieldsFull)s %(ParentalRatingFields)s %(ImageFieldsLight)s %(VideoFields)s %(EpisodeFields)s
+                %(LabelFields)s %(MovieFieldsLight)s %(SportEventFieldsLight)s %(SeriesFieldsLight)s %(ClipFieldsLight)s
                 %(ChannelFields)s %(PageListFields)s %(PageInfoFields)s
             """ % fragments
 
         elif operation == "MediaIndex":
             query = """
-                query MediaIndex($input: MediaIndexListInput!, $genres: [String!]) { mediaIndex(genres: $genres) { overview { letterIndex { letter totalCount } } contentList(input: $input) { __typename 
-                items { 
-                    ... on MediaIndexSeriesItem { __typename letter series { ...SeriesFieldsLight __typename } } 
-                    ... on MediaIndexMovieItem { __typename letter movie { ...MovieFieldsLight __typename } } 
+                query MediaIndex($input: MediaIndexListInput!, $genres: [String!]) { mediaIndex(genres: $genres) { overview { letterIndex { letter totalCount } } contentList(input: $input) { __typename
+                items {
+                    ... on MediaIndexSeriesItem { __typename letter series { ...SeriesFieldsLight __typename } }
+                    ... on MediaIndexMovieItem { __typename letter movie { ...MovieFieldsLight __typename } }
                 } pageInfo { hasMoreForLastLetter totalCount lastLetter nextPageOffset } } } }
-                %(SeriesFieldsLight)s %(MovieFieldsLight)s %(LabelFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(ParentalRatingFields)s 
+                %(SeriesFieldsLight)s %(MovieFieldsLight)s %(LabelFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(ParentalRatingFields)s
             """ % fragments
 
         elif operation == "ContentDetailsPage":
             query = """
-                query ContentDetailsPage($mediaId: ID!, $panelsInput: CdpPanelsInput!) { media(id: $mediaId) { 
-                    ... on SportEvent { __typename id slug title league arena commentators country round season inStudio isLiveContent isStartOverEnabled humanCallToAction editorialInfoText synopsis { brief long } trailers { ...TrailerFields } playableFrom { humanDateTime isoString readableDate } playableUntil { readableDate } liveEventEnd { isoString } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } upsell { tierId } } 
-                    ... on Movie { __typename id slug title genres humanCallToAction isPollFeatureEnabled productionYear isLiveContent isStartOverEnabled liveEventEnd { isoString } productionCountries { countryCode name } playableFrom { isoString readableDate humanDateTime readableDistance } playableUntil { isoString readableDate } video { ...VideoFields } parentalRating { ...ParentalRatingFields } credits { ...MovieCreditsFields } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } synopsis { brief long } trailers { ...TrailerFields } label { ...LabelFields } panels(input: $panelsInput) { ...CdpPanelsFields } hasPanels editorialInfoText upsell { tierId } } 
-                    ... on Series { __typename id slug title numberOfAvailableSeasons genres isPollFeatureEnabled 
-                        upcomingEpisode { ...UpcomingEpisodeFields } 
-                        trailers { ...TrailerFields } 
-                        parentalRating { ...ParentalRatingFields } 
-                        credits { ...SeriesCreditsFields } 
-                        images { 
-                            poster2x3 { ...ImageFieldsFull } 
-                            main16x9 { ...ImageFieldsFull } 
-                            logo { ...ImageFieldsLight } 
-                            brandLogo { ...ImageFieldsLight } } 
-                        synopsis { brief long } 
-                        allSeasonLinks { __typename seasonId title numberOfEpisodes } 
-                        label { ...LabelFields } 
-                        panels(input: $panelsInput) { ...CdpPanelsFields } 
+                query ContentDetailsPage($mediaId: ID!, $panelsInput: CdpPanelsInput!) { media(id: $mediaId) {
+                    ... on SportEvent { __typename id slug title league arena commentators country round season inStudio isLiveContent isStartOverEnabled humanCallToAction editorialInfoText synopsis { brief long } trailers { ...TrailerFields } playableFrom { humanDateTime isoString readableDate } playableUntil { readableDate } liveEventEnd { isoString } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } upsell { tierId } }
+                    ... on Movie { __typename id slug title genres humanCallToAction isPollFeatureEnabled productionYear isLiveContent isStartOverEnabled liveEventEnd { isoString } productionCountries { countryCode name } playableFrom { isoString readableDate humanDateTime readableDistance } playableUntil { isoString readableDate } video { ...VideoFields } parentalRating { ...ParentalRatingFields } credits { ...MovieCreditsFields } images { poster2x3 { ...ImageFieldsFull } main16x9 { ...ImageFieldsFull } logo { ...ImageFieldsLight } brandLogo { ...ImageFieldsLight } } synopsis { brief long } trailers { ...TrailerFields } label { ...LabelFields } panels(input: $panelsInput) { ...CdpPanelsFields } hasPanels editorialInfoText upsell { tierId } }
+                    ... on Series { __typename id slug title numberOfAvailableSeasons genres isPollFeatureEnabled
+                        upcomingEpisode { ...UpcomingEpisodeFields }
+                        trailers { ...TrailerFields }
+                        parentalRating { ...ParentalRatingFields }
+                        credits { ...SeriesCreditsFields }
+                        images {
+                            poster2x3 { ...ImageFieldsFull }
+                            main16x9 { ...ImageFieldsFull }
+                            logo { ...ImageFieldsLight }
+                            brandLogo { ...ImageFieldsLight } }
+                        synopsis { brief long }
+                        allSeasonLinks { __typename seasonId title numberOfEpisodes }
+                        label { ...LabelFields }
+                        panels(input: $panelsInput) { ...CdpPanelsFields }
                         hasPanels editorialInfoText upsell { tierId } }
-                    } 
+                    }
                 }
-                %(TrailerFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(VideoFields)s %(ParentalRatingFields)s 
+                %(TrailerFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(VideoFields)s %(ParentalRatingFields)s
                 %(MovieCreditsFields)s %(LabelFields)s %(CdpPanelsFields)s %(UpcomingEpisodeFields)s %(SeriesCreditsFields)s
             """ % fragments
 
         elif operation == "Page":
             query = """
-                query Page($pageId: ID!, $input: PageContentInput!) { page(id: $pageId) { id title content(input: $input) { pageInfo { ...PageInfoFields } panels { 
+                query Page($pageId: ID!, $input: PageContentInput!) { page(id: $pageId) { id title content(input: $input) { pageInfo { ...PageInfoFields } panels {
                     __typename
-                    ... on ContinueWatchingPanel { __typename id title } 
-                    ... on MediaPanel { __typename id slug title displayHint { mediaPanelImageRatio } } 
-                    ... on SportEventPanel { __typename id title } 
-                    ... on ClipsPanel { __typename id title } 
-                    ... on EpisodesPanel { __typename id title } 
-                    ... on LivePanel { __typename id title } 
-                    ... on PagePanel { __typename id title } 
-                    ... on ChannelPanel { __typename id title type } 
-                    ... on ThemePanel { __typename ...ThemePanelFields } 
-                    ... on SinglePanel { __typename ...SinglePanelFields } 
-                } } } } 
-                %(PageInfoFields)s %(ThemePanelFields)s %(SinglePanelFields)s %(ImageFieldsFull)s %(ParentalRatingFields)s 
-                %(ImageFieldsLight)s %(TrailerFields)s %(SportEventFieldsLight)s %(SeriesFieldsLight)s %(MovieFieldsLight)s 
+                    ... on ContinueWatchingPanel { __typename id title }
+                    ... on MediaPanel { __typename id slug title displayHint { mediaPanelImageRatio } }
+                    ... on SportEventPanel { __typename id title }
+                    ... on ClipsPanel { __typename id title }
+                    ... on EpisodesPanel { __typename id title }
+                    ... on LivePanel { __typename id title }
+                    ... on PagePanel { __typename id title }
+                    ... on ChannelPanel { __typename id title type }
+                    ... on ThemePanel { __typename ...ThemePanelFields }
+                    ... on SinglePanel { __typename ...SinglePanelFields }
+                } } } }
+                %(PageInfoFields)s %(ThemePanelFields)s %(SinglePanelFields)s %(ImageFieldsFull)s %(ParentalRatingFields)s
+                %(ImageFieldsLight)s %(TrailerFields)s %(SportEventFieldsLight)s %(SeriesFieldsLight)s %(MovieFieldsLight)s
                 %(EpisodeFields)s %(ClipFieldsLight)s %(ChannelFields)s %(LabelFields)s %(VideoFields)s
             """ % fragments
 
         elif operation == "LivePanel":
             query = """
-                query LivePanel($panelId: ID!, $offset: Int!, $limit: Int!) { panel(id: $panelId) { __typename 
-                ... on LivePanel { __typename id title playOutOfView content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items { 
-                    ... on LivePanelChannelItem { __typename channel { __typename ...ChannelVideoFields } } 
-                    ... on LivePanelEpisodeItem { __typename episode { __typename ...EpisodeVideoFields } } 
-                    ... on LivePanelMovieItem { __typename movie { __typename ...MovieVideoFields } } 
-                    ... on LivePanelSportEventItem { __typename sportEvent { __typename ...SportEventVideoFields } } } } } } } 
-                %(PageInfoFields)s %(ChannelVideoFields)s %(EpisodeVideoFields)s %(MovieVideoFields)s 
+                query LivePanel($panelId: ID!, $offset: Int!, $limit: Int!) { panel(id: $panelId) { __typename
+                ... on LivePanel { __typename id title playOutOfView content(input: {offset: $offset, limit: $limit}) { pageInfo { ...PageInfoFields } items {
+                    ... on LivePanelChannelItem { __typename channel { __typename ...ChannelVideoFields } }
+                    ... on LivePanelEpisodeItem { __typename episode { __typename ...EpisodeVideoFields } }
+                    ... on LivePanelMovieItem { __typename movie { __typename ...MovieVideoFields } }
+                    ... on LivePanelSportEventItem { __typename sportEvent { __typename ...SportEventVideoFields } } } } } } }
+                %(PageInfoFields)s %(ChannelVideoFields)s %(EpisodeVideoFields)s %(MovieVideoFields)s
                 %(SportEventVideoFields)s %(ImageFieldsLight)s %(ParentalRatingFields)s %(VideoFields)s
             """ % fragments
 
         elif operation == "PanelSearch":
-            query = """ 
-                query PanelSearch($input: PanelSearchInput!, $limit: Int!, $offset: Int!, $shouldFetchMovieSeries: Boolean!, $shouldFetchMovieSeriesUpsell: Boolean!, $shouldFetchClip: Boolean!, $shouldFetchPage: Boolean!, $shouldFetchSportEvent: Boolean!, $shouldFetchSportEventUpsell: Boolean!) { 
-                    panelSearch(input: $input) { 
-                        data { 
-                            movieSeries @include(if: $shouldFetchMovieSeries) { id title content(input: {limit: $limit, offset: $offset}) { items { ... on MediaPanelSeriesItem { __typename series { __typename ...SeriesFieldsLight } } ... on MediaPanelMovieItem { __typename movie { __typename ...MovieFieldsLight } } } pageInfo { ...PageInfoFields } } } 
-                            movieSeriesUpsell @include(if: $shouldFetchMovieSeriesUpsell) { id title content(input: {limit: $limit, offset: $offset}) { items { ... on MediaPanelSeriesItem { __typename series { __typename ...SeriesFieldsLight } } ... on MediaPanelMovieItem { __typename movie { __typename ...MovieFieldsLight } } } pageInfo { ...PageInfoFields } } } 
-                            clip @include(if: $shouldFetchClip) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename clip { __typename ...ClipFieldsLight } } pageInfo { ...PageInfoFields } } } 
-                            page @include(if: $shouldFetchPage) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename ... on PagePanelPageItem { __typename page { __typename ...PageListFields } } } pageInfo { ...PageInfoFields } } } 
-                            sportEvent @include(if: $shouldFetchSportEvent) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename sportEvent { __typename ...SportEventFieldsLight } } pageInfo { ...PageInfoFields } } } 
-                            sportEventUpsell @include(if: $shouldFetchSportEventUpsell) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename sportEvent { __typename ...SportEventFieldsLight } } pageInfo { ...PageInfoFields } } } } pageInfo { totalCountAll { clips movies pages series sportEvents } } order 
-                        } 
+            query = """
+                query PanelSearch($input: PanelSearchInput!, $limit: Int!, $offset: Int!, $shouldFetchMovieSeries: Boolean!, $shouldFetchMovieSeriesUpsell: Boolean!, $shouldFetchClip: Boolean!, $shouldFetchPage: Boolean!, $shouldFetchSportEvent: Boolean!, $shouldFetchSportEventUpsell: Boolean!) {
+                    panelSearch(input: $input) {
+                        data {
+                            movieSeries @include(if: $shouldFetchMovieSeries) { id title content(input: {limit: $limit, offset: $offset}) { items { ... on MediaPanelSeriesItem { __typename series { __typename ...SeriesFieldsLight } } ... on MediaPanelMovieItem { __typename movie { __typename ...MovieFieldsLight } } } pageInfo { ...PageInfoFields } } }
+                            movieSeriesUpsell @include(if: $shouldFetchMovieSeriesUpsell) { id title content(input: {limit: $limit, offset: $offset}) { items { ... on MediaPanelSeriesItem { __typename series { __typename ...SeriesFieldsLight } } ... on MediaPanelMovieItem { __typename movie { __typename ...MovieFieldsLight } } } pageInfo { ...PageInfoFields } } }
+                            clip @include(if: $shouldFetchClip) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename clip { __typename ...ClipFieldsLight } } pageInfo { ...PageInfoFields } } }
+                            page @include(if: $shouldFetchPage) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename ... on PagePanelPageItem { __typename page { __typename ...PageListFields } } } pageInfo { ...PageInfoFields } } }
+                            sportEvent @include(if: $shouldFetchSportEvent) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename sportEvent { __typename ...SportEventFieldsLight } } pageInfo { ...PageInfoFields } } }
+                            sportEventUpsell @include(if: $shouldFetchSportEventUpsell) { id title content(input: {limit: $limit, offset: $offset}) { items { __typename sportEvent { __typename ...SportEventFieldsLight } } pageInfo { ...PageInfoFields } } } } pageInfo { totalCountAll { clips movies pages series sportEvents } } order
+                        }
                     }
                     %(SeriesFieldsLight)s %(MovieFieldsLight)s %(PageInfoFields)s %(ClipFieldsLight)s %(PageListFields)s %(SportEventFieldsLight)s
                     %(LabelFields)s %(ImageFieldsFull)s %(ImageFieldsLight)s %(ParentalRatingFields)s %(VideoFields)s

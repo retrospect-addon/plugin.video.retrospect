@@ -83,7 +83,7 @@ class ChannelInfo(object):
         return "{0}-{1}".format(self.sortOrderPerCountry, self.channelName)
 
     def get_channel(self):
-        """ Instantiates a channel from a ChannelInfo object 
+        """ Instantiates a channel from a ChannelInfo object
 
         :returns: an instantiated Channel object based on this ChannelInfo object.
 
@@ -114,7 +114,7 @@ class ChannelInfo(object):
 
     def get_kodi_item(self):
         """ Creates an Kodi ListItem object for this channel
-        
+
         :return: a Kodi ListItem with all required properties set.
         :rtype: xbmcgui.ListItem
 
