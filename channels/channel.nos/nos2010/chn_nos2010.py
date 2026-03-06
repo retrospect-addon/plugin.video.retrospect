@@ -1338,7 +1338,7 @@ class Channel(chn_class.Channel):
             "NPO2 Extra": TextureHandler.instance().get_texture_uri(self, "npo2extra.png"),
             "NPO Politiek en Nieuws": TextureHandler.instance().get_texture_uri(self, "npopolitiekennieuws.png")
         }
-        
+
         for livestream in channel_data.json:
             item = self.create_api_live_tv(livestream)
             items.append(item)
@@ -1351,7 +1351,7 @@ class Channel(chn_class.Channel):
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item,
                                                           store_id=parent_item.guid),
             ))
-        
+
         parameter_parser.pickler.store_media_items(parent_item.guid, parent_item, items)
         return iptv_streams
 
@@ -1369,10 +1369,10 @@ class Channel(chn_class.Channel):
         parent = MediaItem("EPG", "https://start-api.npo.nl/epg/", media_type=mediatype.FOLDER)
         iptv_epg = dict()
         media_items = []
-        
+
         for livestream in channel_data.json:
             iptv_epg[livestream["guid"]] = []
-            
+
             # Fetch 3 days in the past and in the future
             start = datetime.datetime.now() - datetime.timedelta(days=3)
             for i in range(0, 6, 1):
@@ -1380,7 +1380,7 @@ class Channel(chn_class.Channel):
                 date = air_date.strftime("%d-%m-%Y")
                 guid = livestream["guid"]
                 guide_data = JsonHelper(UriHandler.open(f"https://npo.nl/start/api/domain/guide-channel?guid={guid}&date={date}"))
-        
+
                 for item in guide_data.json:
                     item["channel"] = livestream["title"]
                     media_item = self.create_api_epg_item(item)
@@ -1388,7 +1388,7 @@ class Channel(chn_class.Channel):
                         start=datetime.datetime.fromtimestamp(JsonHelper.get_from(item, "programStart"), datetime.timezone.utc).isoformat(),
                         stop=datetime.datetime.fromtimestamp(JsonHelper.get_from(item, "programEnd"), datetime.timezone.utc).isoformat(),
                         title=JsonHelper.get_from(item, "mainTitle"))
-                    
+
                     if len(JsonHelper.get_from(item, "images")) > 0:
                         iptv_epg_item["image"] = JsonHelper.get_from(item, "images")[0].get("url")
 

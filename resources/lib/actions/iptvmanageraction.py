@@ -52,14 +52,14 @@ class IPTVManagerAction(AddonAction):
     @via_socket
     def send_streams(self):
         """Return JSON-STREAMS formatted python datastructure to IPTV Manager"""
-        streams = [] 
+        streams = []
         channels = ChannelIndex.get_register().get_channels()
         for channel in channels:
             if channel.has_iptv:
                 Logger.debug("Create IPTV streams for '%s'", channel.channelName)
                 fetched_channel = channel.get_channel();
                 streams += fetched_channel.create_iptv_streams(self.__parameter_parser)
-                
+
         return dict(version=1, streams=streams)
 
     @via_socket

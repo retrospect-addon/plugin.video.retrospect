@@ -156,7 +156,7 @@ class WebDialogue(object):
             def __close_html(self):
                 return """<html>
                     <head>
-                    <body style="background-color: black; 
+                    <body style="background-color: black;
                                  font-family: sans-serif;
                                  color: white">
                     </body>
@@ -182,26 +182,26 @@ class WebDialogue(object):
                 return """<!DOCTYPE html>
                     <html>
                     <head>
-                    <body style="background-color: black; 
-                                 background-image: url('image/fanart'); 
+                    <body style="background-color: black;
+                                 background-image: url('image/fanart');
                                  background-position: center top;
                                  font-family: sans-serif;
                                  color: white;">
-    
-                    <h1>{0}</h2> 
+
+                    <h1>{0}</h2>
                     <form id="webdialogue" action="/" method="post">
                       <label for="value">{1}:</label><br />
                       <fieldset id="dialogueFields" style="border-width: 0px; padding: 0">
                           <input type="text" id="value" name="value" placeholder="{2}" value="" style="margin: 10px 0px; min-width: 450px;" />
                           <br />
-                          <progress value="{3}" max="{4}" id="pbar" style="margin: 10px 0px; width: 457px;" ></progress> 
+                          <progress value="{3}" max="{4}" id="pbar" style="margin: 10px 0px; width: 457px;" ></progress>
                           <br />
                           <br />
                           <input type="submit" name="ok" value="{5}" />
                           <input type="submit" name="cancel" value="{6}" />
                        </fieldset>
                     </form>
-                    
+
                     <script type="text/javascript">
                         var reverse_counter = {3};
                         var downloadTimer = setInterval(function(){{

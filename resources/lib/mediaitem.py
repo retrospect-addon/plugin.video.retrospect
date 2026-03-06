@@ -752,7 +752,7 @@ class MediaItem:
         return string_value
 
     def __str__(self):
-        """ String representation 
+        """ String representation
 
         :return: The String representation
         :rtype: str
@@ -1025,7 +1025,7 @@ class MediaStream:
         """ Appends a new property to the self.Properties dictionary. On playback
         these properties will be set to the Kodi PlaylistItem as properties.
 
-        Example:    
+        Example:
         strm.add_property("inputstream", "inputstream.adaptive")
         strm.add_property("inputstream.adaptive.manifest_type", "mpd")
 

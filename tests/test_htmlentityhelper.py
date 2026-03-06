@@ -262,9 +262,9 @@ class TestHtmlEntityHelper(unittest.TestCase):
             "&nbsp;": chr(160),  # Non-breaking space
             "&ndash;": u"–",  # En dash –
             "&mdash;": u"—",  # Em dash —
-            "&ensp;": u" ",  # En space  
-            "&emsp;": u" ",  # Em space  
-            "&thinsp;": u" ",  # Thin space  
+            "&ensp;": u" ",  # En space
+            "&emsp;": u" ",  # Em space
+            "&thinsp;": u" ",  # Thin space
             "&brvbar;": u"¦",  # Broken vertical bar ¦
             "&bull;": u"•",  # Bullet •
             "&hellip;": u"…",  # Horizontal ellipsis …

@@ -49,7 +49,7 @@
 
         <setting type="lsep" label="30060" />
         <!--<setting type="action" label="30598" action="RunScript(special://home/addons/plugin.video.retrospect/menu_enable.py)" option="close" />-->
-    
+
         <!-- start of channel selection -->
         <setting id="show_other" type="bool" label="30300" subsetting="false" default="true" />
         <setting id="show_belgium" type="bool" label="30306" subsetting="false" default="true" />

@@ -133,7 +133,7 @@ class XbmcWrapper:
         """ Returns the formatting string for the label of an item with an external add-on url
 
         :param str add_on_url:   The plugin://-handle for the add-on
-        
+
         :return: the name of the add-on or None if not installed
         :rtype: str
 

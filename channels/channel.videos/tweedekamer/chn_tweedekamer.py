@@ -337,7 +337,7 @@ class Channel(chn_class.Channel):
         return items
 
     def __create_video_item_for_debate(self, debate):
-        # create a MediaItem for the debate, given the JSON metadata 
+        # create a MediaItem for the debate, given the JSON metadata
 
         # startsAt is the official starting time in the calendar
         # we ignore the time zone to always use the local Dutch time

@@ -22,7 +22,7 @@ Starting from Kodi Leia (v18), you can easily install Retrospect from the offici
 
 ![alt text](./resources/media/retrospect01.jpg "The Retrospect information screen")
 
-### Kodi Krypton    
+### Kodi Krypton
 We have a -1/+1 Kodi release policy: we support the previous, the current and the future release of Kodi. So with the release of Kodi Matrix, the support for Kodi Krypton has been removed.
 
 ## Automation of Retrospect
@@ -33,9 +33,9 @@ Listing of folders or playing of media can be automated for Retrospect. In order
   - Add Shortcut.
   - Provide a `[simple name]`.
   - Remember the `simple name` as you need it later.
-- Then you can use this url to directly open or play the shortcut: 
+- Then you can use this url to directly open or play the shortcut:
   - `plugin://plugin.video.retrospect/?action=openshortcut&shortcut=[simple name]`
-  
+
 Listing a folder can be done by caling the Kodi API `Addons.ExecuteAddon` with the given shortcut url. Media can be played using the `Player.Open` API.
 
 If you were to use the Kodi JSON-RPC API (documented [here](https://kodi.wiki/view/JSON-RPC_API)) the following are your options:
@@ -79,11 +79,11 @@ As more and more people are starting to make channels for Retrospect, we want to
 The following persons have supported Retrospect by donating (the list is sorted chronologically):
 
 - David Testas
-- Stef Olde Scholtenhuis 
-- Gerhard ten Hove 
-- J.C. Frerichs 
-- Kenny Horbach 
-- Laurens De Graaff 
+- Stef Olde Scholtenhuis
+- Gerhard ten Hove
+- J.C. Frerichs
+- Kenny Horbach
+- Laurens De Graaff
 - Stehpan van Rooij
 - Niels Walta
 - Rene Wieldraaijer
@@ -91,42 +91,42 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Anton Vanhoucke
 - Niels van den Boogaard
 - Ferry Plekkenpol
-- Michel Bos 
-- M. Spaans 
-- Rogier Duurkoop 
-- Jonthe Grotenhuis 
-- Maurice van Trijffel 
-- Bjorn Stam 
-- Prism Open Source 
-- Serge Kapitein 
-- Robbert Hilgeman 
-- Jorn Luttikhold 
+- Michel Bos
+- M. Spaans
+- Rogier Duurkoop
+- Jonthe Grotenhuis
+- Maurice van Trijffel
+- Bjorn Stam
+- Prism Open Source
+- Serge Kapitein
+- Robbert Hilgeman
+- Jorn Luttikhold
 - Tom de Goeij
 - Gecko (Martijn Pet)
-- Henri Lier 
-- Edwin Endstra 
-- Fabian Labohm 
-- Jeroen van den Burg 
-- Ronald Geerlings 
-- Simon Algera 
-- Floris Dirkzwager 
-- Jurjen van Dijk 
-- J. Tebbes 
-- Dennis808 
-- Joost Wouterse 
-- Slashbot28 
-- Jasper Westerhof 
-- Jacques Overdijk 
+- Henri Lier
+- Edwin Endstra
+- Fabian Labohm
+- Jeroen van den Burg
+- Ronald Geerlings
+- Simon Algera
+- Floris Dirkzwager
+- Jurjen van Dijk
+- J. Tebbes
+- Dennis808
+- Joost Wouterse
+- Slashbot28
+- Jasper Westerhof
+- Jacques Overdijk
 - Ramon Broekhuijzen
 - Eymert Versteegt
-- Rick van Venrooij 
-- Frans Hondeman 
-- RSJ Kok 
-- Jamie Janssen 
-- Thomas Novin 
-- Emiel Havinga 
-- De php programmeur 
-- Tijs Gerritsen  
+- Rick van Venrooij
+- Frans Hondeman
+- RSJ Kok
+- Jamie Janssen
+- Thomas Novin
+- Emiel Havinga
+- De php programmeur
+- Tijs Gerritsen
 - Bonny Gijzen
 - Dennis van Kapel
 - Cameq
@@ -157,7 +157,7 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Patrik Johansson
 - Willy van Knippenberg
 - Stephan van Rooij
-- D J vd Wielen 
+- D J vd Wielen
 - Erik Bots
 - Alexander Jongeling
 - Robert Thörnberg
@@ -184,7 +184,7 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Arnd Brugman
 - David Kvarnberg
 - Jasper van den Broek
-- Jeroen Koning 
+- Jeroen Koning
 - Saskia Dijk
 - Erik Hond
 - Frank Hart
@@ -467,7 +467,7 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Peter Notebaert
 - Mjm De Frankrijker
 - Kris Provoost (via Brickshop.nl)
-- Lord_Drubibu (via World of Tanks) 
+- Lord_Drubibu (via World of Tanks)
 - Christian Johansson
 - Johan Johansson
 - Tpj Mulder
@@ -486,7 +486,7 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Cor Kuin
 - Ingos Data o PPDesign
 - Jules Harms
-- Reinier 
+- Reinier
 - Johan Pieter Zoetekouw
 - Michiel Modderman
 - Nick Corthals
@@ -526,7 +526,7 @@ The following persons have supported Retrospect by donating (the list is sorted 
 - Ruben Van Dijk
 - Egbert Van der Haring
 - P G M Schoonderwoerd
-- Jonas Koekenbier 
+- Jonas Koekenbier
 - Danny Sikke
 - M J Poortman
 - Robert Wijnands
