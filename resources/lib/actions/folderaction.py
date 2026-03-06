@@ -63,6 +63,11 @@ class FolderAction(AddonAction):
                 watcher = StopWatch("Plugin process_folder_list With Items", Logger.instance())
                 media_items = self.__favorites
 
+            if media_items is None:
+                Logger.warning("process_folder_list returned None, navigating back")
+                xbmcplugin.endOfDirectory(self.handle, False)
+                return
+
             if len(media_items) == 0:
                 Logger.warning("process_folder_list returned %s items", len(media_items))
                 ok = self.__show_empty_information(media_items, favs=self.__favorites is not None)
