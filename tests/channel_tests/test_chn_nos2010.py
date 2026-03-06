@@ -127,3 +127,13 @@ class TestNpoChannel(ChannelTest):
     def test_update_stream_pow(self):
         url = "KN_1693383"
         self._test_video_url(url)
+
+    def test_iptv_streams(self):
+        from resources.lib.plugin import Plugin
+        result = self.channel.create_iptv_streams(Plugin('plugin.video.restrospect', ''))
+        self.assertEqual(len(result), 6)
+
+    def test_iptv_epg(self):
+        from resources.lib.plugin import Plugin
+        result = self.channel.create_iptv_epg(Plugin('plugin.video.restrospect', ''))
+        self.assertGreaterEqual(len(result), 6)
