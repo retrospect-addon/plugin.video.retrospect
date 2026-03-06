@@ -1340,13 +1340,17 @@ class Channel(chn_class.Channel):
         }
 
         for livestream in channel_data.json:
+            item_name = JsonHelper.get_from(livestream, "title")
+            if item_name not in logo_sources:
+                continue
+
             item = self.create_api_live_tv(livestream)
             items.append(item)
 
             iptv_streams.append(dict(
                 id=JsonHelper.get_from(livestream, "guid"),
-                name=JsonHelper.get_from(livestream, "title"),
-                logo=logo_sources.get(JsonHelper.get_from(livestream, "title"), ""),
+                name=item_name,
+                logo=logo_sources[item_name],
                 group=self.channelName,
                 stream=parameter_parser.create_action_url(self, action=action.PLAY_VIDEO, item=item,
                                                           store_id=parent_item.guid),
