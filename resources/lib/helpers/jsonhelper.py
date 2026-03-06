@@ -127,8 +127,8 @@ class JsonHelper(object):
     def find_dict_by_key_value(self, key: str, value: Any) -> Optional[Dict]:
         return JsonHelper.find_dict_by_key_value_from(self.json, key, value)
 
-    def find_dict_by_key(self, key: str, value: Any) -> Optional[Dict]:
-        return JsonHelper.find_dict_by_key_from(self.json, key, value)
+    def find_dict_by_key(self, key: str) -> Optional[Dict]:
+        return JsonHelper.find_dict_by_key_from(self.json, key)
 
     @staticmethod
     def find_dict_by_key_value_from(data: Union[List, Dict], key: str, value: Any) -> Optional[Dict]:

@@ -40,7 +40,9 @@ class NextJsParser:
         elif self._key:
             result_data = JsonHelper.find_dict_by_key_from(result_data, self._key)
 
-        if result_data:
+        if result_data and isinstance(result_data, str):
+            return result_data, []
+        elif result_data:
             return JsonHelper(result_data), []
 
         Logger.warning("Could not find NextJs data for key: %s, value: %s", self._key, self._value)
@@ -48,6 +50,7 @@ class NextJsParser:
 
     def __str__(self):
         return f"NextJsParser(key={self._key}, value={self._value})"
+
 
 class Channel(chn_class.Channel):
     """
@@ -88,6 +91,10 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="playlists"),
                               parser=[-1], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
+
+        self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guide parser",
+                              preprocessor=NextJsParser(key="className", value="bg-gray-background w-full pt-8"),
+                              parser=["children"], creator=self.create_epg_item)
 
         # self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser without children",
         #                       preprocessor=NextJsParser(r"[A-F0-9]+:(\[[^\n\r]+playlists[^\n\r]+)"),
@@ -375,7 +382,7 @@ class Channel(chn_class.Channel):
         if isinstance(result_set, str):
             return None
 
-        data = result_set["program"]
+        data = result_set[-1]["program"]
         if not data["video"]:
             return None
 
@@ -508,10 +515,10 @@ class Channel(chn_class.Channel):
 
     def update_video_item_from_nextjs(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url, additional_headers=self.httpHeaders)
-        json_data = Regexer.do_regex(r"({\"video\":{[^\n\r]+})]]}", data)[0]
-        nextjs_json = JsonHelper(json_data)
-        video_id = nextjs_json.get_value("videoId")
-        item.metaData["whatsonId"] = nextjs_json.get_value("video", "tracking", "whatsonId")
+        video_id, _ = NextJsParser("videoId")(data)
+        whats_on_id, _ = NextJsParser("whatsonId")(data)
+
+        item.metaData["whatsonId"] = whats_on_id
         item.url = f"https://api.play.tv/web/v1/videos/long-form/{video_id}"
         return self.update_video_item_with_id(item)
 
