@@ -129,11 +129,11 @@ class TestNpoChannel(ChannelTest):
         self._test_video_url(url)
 
     def test_iptv_streams(self):
-        from resources.lib.plugin import Plugin
-        result = self.channel.create_iptv_streams(Plugin('plugin.video.restrospect', ''))
+        from resources.lib.actions.actionparser import ActionParser
+        result = self.channel.create_iptv_streams(ActionParser('plugin.video.restrospect', 314, ''))
         self.assertEqual(len(result), 6)
 
     def test_iptv_epg(self):
-        from resources.lib.plugin import Plugin
-        result = self.channel.create_iptv_epg(Plugin('plugin.video.restrospect', ''))
+        from resources.lib.actions.actionparser import ActionParser
+        result = self.channel.create_iptv_epg(ActionParser('plugin.video.restrospect', 314, ''))
         self.assertGreaterEqual(len(result), 6)
