@@ -2,7 +2,6 @@
 import re
 from typing import Optional, List
 
-import xbmc
 import xbmcplugin
 
 from resources.lib import contenttype
@@ -68,22 +67,14 @@ class SearchAction(AddonAction):
 
             self.__settings.set_setting("search", history[0:10], self.__channel)
 
-            # Make sure we actually load a new URL so a refresh won't pop up a loading screen.
-            needle = HtmlEntityHelper.url_encode(needle)
-            xbmcplugin.endOfDirectory(self.handle, True, cacheToDisc=True)
-            url = self.parameter_parser.create_action_url(self.__channel, action.SEARCH, needle=needle)
-            xbmc.executebuiltin(f"Container.Update({url})")
+            # Bug: empty needle is passed through, so a refresh triggers
+            # the keyboard pop-up instead of re-running the query.
+            media_items = self.__channel.search_site(needle=needle)
+            folder_action = FolderAction(self.parameter_parser, self.__channel, items=media_items)
+            folder_action.execute()
 
         else:
             media_items = self.__channel.search_site(needle=self.__needle)
-            # re_needle = re.escape(self.__needle)
-            # Logger.debug(f"Highlighting {self.__needle} `{re_needle}` in results.")
-            # highlighter = re.compile(f"({re_needle})", re.IGNORECASE)
-            #
-            # for item in media_items:
-            #     item.name = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.name)
-            #     if item.description:
-            #         item.description = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.description)
             folder_action = FolderAction(self.parameter_parser, self.__channel, items=media_items)
             folder_action.execute()
 
