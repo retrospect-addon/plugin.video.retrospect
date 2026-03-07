@@ -183,8 +183,11 @@ class FolderAction(AddonAction):
         else:
             ok = True
 
-        XbmcWrapper.show_notification(LanguageHelper.get_localized_string(LanguageHelper.ErrorId),
-                                      title, XbmcWrapper.Error, 2500)
+        notification_type = XbmcWrapper.Error if behaviour == "error" else XbmcWrapper.Info
+        notification_title = LanguageHelper.get_localized_string(
+            LanguageHelper.ErrorId) if behaviour == "error" else None
+        XbmcWrapper.show_notification(notification_title,
+                                      title, notification_type, 2500)
         return ok
 
     def __update_artwork(self, media_item, channel, use_thumbs_as_fanart):
