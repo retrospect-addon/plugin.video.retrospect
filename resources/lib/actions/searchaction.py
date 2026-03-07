@@ -38,7 +38,24 @@ class SearchAction(AddonAction):
         self.__settings = AddonSettings.store(store_location=LOCAL)
         self.__media_item = parameter_parser.media_item
         self.__channel = channel
+        self.__search_key = self.__get_search_key()
         Logger.debug(f"Searching for: {self.__needle}")
+
+    def __get_search_key(self) -> str:
+        """Return the settings key for search history.
+
+        When the channel provides a ``search_profile_id``, the key is scoped
+        to that profile so each profile has its own search history.
+        The active key is persisted so that Menu operations (clear, remove)
+        can find it without instantiating the full channel.
+        """
+        profile_id = self.__channel.search_profile_id
+        if profile_id:
+            key = f"search:{profile_id}"
+        else:
+            key = "search"
+        self.__settings.set_setting("search:active_key", key, self.__channel)
+        return key
 
     def execute(self):
         # read the item from the parameters
@@ -59,13 +76,13 @@ class SearchAction(AddonAction):
                 return
 
             # noinspection PyTypeChecker
-            history: List[str] = self.__settings.get_setting("search", self.__channel, [])  # type: ignore
+            history: List[str] = self.__settings.get_setting(self.__search_key, self.__channel, [])  # type: ignore
             history = [needle] + history
             # de-duplicate without changing order:
             seen = set()
             history = [h for h in history if h not in seen and not seen.add(h)]
 
-            self.__settings.set_setting("search", history[0:10], self.__channel)
+            self.__settings.set_setting(self.__search_key, history[0:10], self.__channel)
 
             # Bug: empty needle is passed through, so a refresh triggers
             # the keyboard pop-up instead of re-running the query.
@@ -80,7 +97,7 @@ class SearchAction(AddonAction):
 
     def __generate_search_history(self, selected_item: MediaItem, parent_guid: str):
         # noinspection PyTypeChecker
-        history: List[str] = self.__settings.get_setting("search", self.__channel, [])
+        history: List[str] = self.__settings.get_setting(self.__search_key, self.__channel, [])
 
         media_items = []
         search_item = FolderItem(
