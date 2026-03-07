@@ -675,7 +675,7 @@ class Channel(chn_class.Channel):
         item.set_info_label("genre", result_set.get("displayGenre"))
         self.__get_artwork(item, result_set.get("imageMedia"))
 
-        if "epgDate" in result_set:
+        if result_set.get("epgDate") is not None:
             time_stamp = result_set["epgDate"] / 1000
             date_stamp = DateHelper.get_date_from_posix(time_stamp, tz=self.__timezone_utc)
             date_stamp = date_stamp.astimezone(self.__timezone)
