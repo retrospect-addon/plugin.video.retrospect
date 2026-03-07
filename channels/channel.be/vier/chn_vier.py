@@ -89,7 +89,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://www.play.tv/", json=True, name="Main show parser",
                               preprocessor=NextJsParser(key="playlists"),
-                              parser=[-1], creator=self.create_season_item,
+                              parser=[], creator=self.create_season_item,
                               postprocessor=self.show_single_season)
 
         self._add_data_parser("https://www.play.tv/tv-gids/", json=True, name="TV Guide parser",
