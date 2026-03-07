@@ -177,8 +177,9 @@ class Channel(chn_class.Channel):
         # OLD but still working?
         # live radio, the folders and items
         self._add_data_parser(
-            "https://www.npoluister.nl/", name="Live Radio Streams",
-            parser=Regexer.from_expresso('<li><a[^>]+href="(?<url>https:[^"]+)"[^>]*>(?<title>[^<]+)'),
+            "https://npo.nl/luister", name="Live Radio Streams",
+            parser=Regexer.from_expresso(
+                "<li[^>]+><a[^>]+aria-label=\"[^\"]+ van (?<title>[^\"]+)\" [^>]+href=\"(?<url>https:[^\"]+)\"[^>]*>"),
             creator=self.create_live_radio
         )
         self._add_data_parser(
@@ -437,7 +438,7 @@ class Channel(chn_class.Channel):
                  content_type=contenttype.TVSHOWS)
 
         live_radio = add_item(
-            LanguageHelper.LiveRadio, "https://www.npoluister.nl/",
+            LanguageHelper.LiveRadio, "https://npo.nl/luister",
             content_type=contenttype.SONGS, headers=self.__jsonApiKeyHeader)
         live_radio.isLive = True
 
