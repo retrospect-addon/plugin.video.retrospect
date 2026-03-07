@@ -6,7 +6,7 @@ Fixed some Swedish channel-related issues.
 _None_
 
 [B]GUI/Settings/Language related[/B]
-_None_
+Fixed: Run search inline to prevent Kodi race condition.
 
 [B]Channel related[/B]
 * Fixed: TV4 Recents.
