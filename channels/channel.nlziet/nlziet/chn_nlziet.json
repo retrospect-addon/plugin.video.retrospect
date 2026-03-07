@@ -1,0 +1,61 @@
+{
+  "channels": [
+    {
+      "guid": "89E7B29E-6356-4276-A435-5FA915377C2C",
+      "name": "NLZIET",
+      "description": {
+          "en": "Watch online TV the way you want.",
+          "nl": "Online tv kijken zoals jij dat wilt."
+      },
+      "icon": "nlzieticon.png",
+      "category": "National",
+      "sortorder": 2,
+      "language": "nl",
+      "hasIptv": true,
+      "fanart": "nlzietfanart.jpg",
+      "poster": "nlzietposter.png"
+    }
+  ],
+  "settings": [
+    {
+      "order": 1,
+      "value": "label=\"30610\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.nlziet.nlziet&amp;action=execute&amp;command=setup_device)\" option=\"close\"",
+      "id": "nlziet_device_setup"
+    },
+    {
+      "order": 2,
+      "value": "type=\"text\" label=\"30035\" default=\"\"",
+      "id": "nlziet_username"
+    },
+    {
+      "order": 3,
+      "value": "default=\"\"",
+      "id": "nlziet_password"
+    },
+    {
+      "order": 4,
+      "value": "label=\"30093\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.nlziet.nlziet&amp;action=encryptsetting&amp;settingid=channel_89E7B29E-6356-4276-A435-5FA915377C2C_nlziet_password&amp;settingname=NLZIET&amp;tabfocus=102)\" option=\"close\"",
+      "id": "nlziet_password_set"
+    },
+    {
+      "order": 5,
+      "value": "label=\"30611\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.nlziet.nlziet&amp;action=execute&amp;command=log_off)\" option=\"close\"",
+      "id": "nlziet_log_off"
+    },
+    {
+      "order": 6,
+      "value": "label=\"30625\" type=\"action\" action=\"RunScript(plugin.video.retrospect, 0, ?channel=channel.nlziet.nlziet&amp;action=execute&amp;command=select_profile)\" option=\"close\"",
+      "id": "nlziet_select_profile"
+    },
+    {
+      "order": 7,
+      "value": "label=\"30628\" type=\"slider\" option=\"int\" range=\"-120,5,120\" default=\"0\"",
+      "id": "nlziet_live_start_offset"
+    },
+    {
+      "order": 8,
+      "value": "label=\"30630\" type=\"bool\" default=\"true\"",
+      "id": "nlziet_epg_subscribed_only"
+    }
+  ]
+}

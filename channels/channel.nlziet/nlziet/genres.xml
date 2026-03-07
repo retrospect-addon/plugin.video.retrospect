@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  NLZIET genre-text → DVB-hex mappings for pvr.iptvsimple.
+
+  Dutch genre strings as returned by the NLZIET API, mapped directly to
+  DVB hex codes.  Discovered and merged on top of resources/data/pvr_genres.xml
+  by retroservice._merge_genre_xmls().
+
+  version: 3
+-->
+
+<genres>
+  <name>NLZIET Genre Mappings</name>
+
+  <!-- MOVIE / DRAMA -->
+  <genre genreId="0x10">Drama</genre>
+  <genre genreId="0x10">Film</genre>
+  <genre genreId="0x11">Thriller/Crime</genre>
+  <genre genreId="0x14">Comedy</genre>
+
+  <!-- NEWS / CURRENT AFFAIRS -->
+  <genre genreId="0x20">Nieuws/actualiteiten</genre>
+  <genre genreId="0x23">Documentaire</genre>
+  <genre genreId="0x23">Informatief</genre>
+
+  <!-- SHOW -->
+  <genre genreId="0x30">Amusement</genre>
+  <genre genreId="0x30">Reality</genre>
+  <genre genreId="0x31">Spel/quiz</genre>
+  <genre genreId="0x33">Talkshow</genre>
+
+  <!-- SPORTS -->
+  <genre genreId="0x40">Sport</genre>
+
+  <!-- CHILDREN / YOUTH -->
+  <genre genreId="0x50">Jeugd/Familie</genre>
+  <genre genreId="0x50">Kids</genre>
+
+  <!-- ARTS / CULTURE -->
+  <genre genreId="0x70">Kunst/cultuur</genre>
+
+  <!-- MUSIC / BALLET / DANCE -->
+  <genre genreId="0x60">Muziek</genre>
+
+  <!-- LEISURE / HOBBIES -->
+  <genre genreId="0xA0">Lifestyle</genre>
+  <genre genreId="0xA4">Gezondheid/opvoeding</genre>
+  <genre genreId="0xA5">Culinair</genre>
+</genres>

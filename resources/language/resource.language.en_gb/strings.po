@@ -802,7 +802,15 @@ msgctxt "#30378"
 msgid "Remove Item"
 msgstr ""
 
-# empty strings from id 30379 to 30400
+msgctxt "#30379"
+msgid "First Episode"
+msgstr ""
+
+msgctxt "#30380"
+msgid "Most Recent Episode"
+msgstr ""
+
+# empty strings from id 30381 to 30400
 
 msgctxt "#30401"
 msgid "Dutch"
@@ -1292,4 +1300,92 @@ msgstr ""
 
 msgctxt "#30609"
 msgid "Error"
+msgstr ""
+
+msgctxt "#30610"
+msgid "Setup Device"
+msgstr ""
+
+msgctxt "#30611"
+msgid "Log Out"
+msgstr ""
+
+msgctxt "#30628"
+msgid "Live start offset adjustment (seconds, relative to broadcast start)"
+msgstr ""
+
+msgctxt "#30612"
+msgid "Device Setup"
+msgstr ""
+
+msgctxt "#30613"
+msgid "Scan this QR code to add your device."
+msgstr ""
+
+msgctxt "#30614"
+msgid "To set up your device, visit:"
+msgstr ""
+
+msgctxt "#30615"
+msgid "Could not connect to service. Please try again later."
+msgstr ""
+
+msgctxt "#30616"
+msgid "and enter this code:"
+msgstr ""
+
+msgctxt "#30617"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "#30618"
+msgid "Manual Login"
+msgstr ""
+
+msgctxt "#30619"
+msgid "Device activation timed out. Try again?"
+msgstr ""
+
+msgctxt "#30620"
+msgid "Failed to start device setup."
+msgstr ""
+
+msgctxt "#30621"
+msgid "Welcome, {0}!"
+msgstr ""
+
+msgctxt "#30622"
+msgid "Please select your profile."
+msgstr ""
+
+msgctxt "#30623"
+msgid "Your session has expired. Please log in again."
+msgstr ""
+
+msgctxt "#30624"
+msgid "Logged out successfully."
+msgstr ""
+
+msgctxt "#30625"
+msgid "Switch Profile"
+msgstr ""
+
+msgctxt "#30626"
+msgid "Please log in first."
+msgstr ""
+
+msgctxt "#30627"
+msgid "Maximum number of concurrent streams reached ({0} out of {1} available streams)."
+msgstr ""
+
+msgctxt "#30629"
+msgid "QR code addon not installed.[CR]Install 'script.module.qrcode' for QR code support."
+msgstr ""
+
+msgctxt "#30630"
+msgid "Only show subscribed channels"
+msgstr ""
+
+msgctxt "#30631"
+msgid "Watch in advance"
 msgstr ""

@@ -86,6 +86,8 @@ class LanguageHelper(object):
     RecommendedTvShows = 30374
     RecommendedVideos = 30375
     ContinueWatching = 30376
+    FirstEpisode = 30379
+    MostRecentEpisode = 30380
 
     ChannelSelection = 30507
     ShortCutName = 30512
@@ -157,6 +159,27 @@ class LanguageHelper(object):
     LogPostErrorTitle = 30602
     CleanupCache = 30604
     CleanupConfirmation = 30605
+
+    LogOut = 30611
+    DeviceSetupTitle = 30612
+    DeviceSetupQrInstruction = 30613
+    DeviceSetupVisit = 30614
+    ConnectionError = 30615
+    DeviceSetupEnterCode = 30616
+    Cancel = 30617
+    ManualLogin = 30618
+    DeviceSetupTimeout = 30619
+    DeviceSetupFailed = 30620
+    WelcomeUser = 30621
+    SelectProfile = 30622
+    SessionExpired = 30623
+    LoggedOutSuccessfully = 30624
+    SwitchProfile = 30625
+    LoginFirst = 30626
+    MaxStreamsReached = 30627
+    QrAddonMissing = 30629
+    SubscribedOnly = 30630
+    WatchInAdvance = 30631
 
     Today = 30551
     Yesterday = 30552

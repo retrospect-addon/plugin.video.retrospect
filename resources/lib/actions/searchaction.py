@@ -2,7 +2,6 @@
 import re
 from typing import Optional, List
 
-import xbmc
 import xbmcplugin
 
 from resources.lib import contenttype
@@ -39,7 +38,24 @@ class SearchAction(AddonAction):
         self.__settings = AddonSettings.store(store_location=LOCAL)
         self.__media_item = parameter_parser.media_item
         self.__channel = channel
+        self.__search_key = self.__get_search_key()
         Logger.debug(f"Searching for: {self.__needle}")
+
+    def __get_search_key(self) -> str:
+        """Return the settings key for search history.
+
+        When the channel provides a ``search_profile_id``, the key is scoped
+        to that profile so each profile has its own search history.
+        The active key is persisted so that Menu operations (clear, remove)
+        can find it without instantiating the full channel.
+        """
+        profile_id = self.__channel.search_profile_id
+        if profile_id:
+            key = f"search:{profile_id}"
+        else:
+            key = "search"
+        self.__settings.set_setting("search:active_key", key, self.__channel)
+        return key
 
     def execute(self):
         # read the item from the parameters
@@ -60,36 +76,28 @@ class SearchAction(AddonAction):
                 return
 
             # noinspection PyTypeChecker
-            history: List[str] = self.__settings.get_setting("search", self.__channel, [])  # type: ignore
+            history: List[str] = self.__settings.get_setting(self.__search_key, self.__channel, [])  # type: ignore
             history = [needle] + history
             # de-duplicate without changing order:
             seen = set()
             history = [h for h in history if h not in seen and not seen.add(h)]
 
-            self.__settings.set_setting("search", history[0:10], self.__channel)
+            self.__settings.set_setting(self.__search_key, history[0:10], self.__channel)
 
-            # Make sure we actually load a new URL so a refresh won't pop up a loading screen.
-            needle = HtmlEntityHelper.url_encode(needle)
-            xbmcplugin.endOfDirectory(self.handle, True, cacheToDisc=True)
-            url = self.parameter_parser.create_action_url(self.__channel, action.SEARCH, needle=needle)
-            xbmc.executebuiltin(f"Container.Update({url})")
+            # Bug: empty needle is passed through, so a refresh triggers
+            # the keyboard pop-up instead of re-running the query.
+            media_items = self.__channel.search_site(needle=needle)
+            folder_action = FolderAction(self.parameter_parser, self.__channel, items=media_items)
+            folder_action.execute()
 
         else:
             media_items = self.__channel.search_site(needle=self.__needle)
-            # re_needle = re.escape(self.__needle)
-            # Logger.debug(f"Highlighting {self.__needle} `{re_needle}` in results.")
-            # highlighter = re.compile(f"({re_needle})", re.IGNORECASE)
-            #
-            # for item in media_items:
-            #     item.name = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.name)
-            #     if item.description:
-            #         item.description = highlighter.sub(r"[COLOR gold]\1[/COLOR]", item.description)
             folder_action = FolderAction(self.parameter_parser, self.__channel, items=media_items)
             folder_action.execute()
 
     def __generate_search_history(self, selected_item: MediaItem, parent_guid: str):
         # noinspection PyTypeChecker
-        history: List[str] = self.__settings.get_setting("search", self.__channel, [])
+        history: List[str] = self.__settings.get_setting(self.__search_key, self.__channel, [])
 
         media_items = []
         search_item = FolderItem(
