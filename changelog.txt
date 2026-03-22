@@ -12,3 +12,4 @@ Fixed: Run search inline to prevent Kodi race condition.
 * Fixed: TV4 Recents.
 * Fixed: NPO TV programmes (See #1931).
 * Fixed: Vier/Play.tv channel (Fixes #1921).
+* Fixed: TV4.se max show limit (Fixes #1951).

@@ -419,7 +419,7 @@ class Channel(chn_class.Channel):
         if not title:
             return None
         season_id = result_set["seasonId"]
-        url, json_data = self.__get_api_query("SeasonEpisodes", {"seasonId": season_id, "input": {"limit": self.__max_page_size, "offset": 0}})
+        url, json_data = self.__get_api_query("SeasonEpisodes", {"seasonId": season_id, "input": {"limit": self.__max_page_size * 2, "offset": 0}})
         item = FolderItem(title, url, content_type=contenttype.EPISODES, media_type=mediatype.FOLDER)
         item.postJson = json_data
         item.metaData["seasonId"] = result_set["seasonId"]
