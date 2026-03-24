@@ -172,7 +172,7 @@ class Vault(object):
 
         return decrypted_value
 
-    def set_setting(self, setting_id, setting_name=None, setting_action_id=None):
+    def set_setting(self, setting_id, setting_name=None, setting_action_id=None, default=""):
         """ Reads a value for a setting from the keyboard and encrypts it in the Kodi
         Add-on settings.
 
@@ -182,6 +182,7 @@ class Vault(object):
         :param str setting_name:        The name to display in the keyboard.
         :param str setting_action_id:   The name of setting that shows the ***** if an value was
                                          encrypted.
+        :param str default:             Optional value to pre-fill in the keyboard.
 
         :rtype: None
 
@@ -189,7 +190,7 @@ class Vault(object):
 
         Logger.info("Encrypting value for setting '%s'", setting_id)
         input_value = XbmcWrapper.show_key_board(
-            "", LanguageHelper.get_localized_string(
+            default, LanguageHelper.get_localized_string(
                     LanguageHelper.VaultSpecifySetting
             ) % (setting_name or setting_id,)
         )
