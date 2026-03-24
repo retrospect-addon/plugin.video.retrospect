@@ -93,9 +93,11 @@ class Authenticator(object):
         return self.__hander.get_authentication_token()
 
     def log_off(self, username, force=True):
-        """ Check if the user with the given name is currently authenticated.
+        """ Logs off the currently authenticated user, clearing stored tokens.
 
-        :param str username:    The username to log off
+        :param str username:    The username to log off.
+        :param bool force:      If True, log off regardless of whether the stored
+                                username matches the given one.
 
         """
 
