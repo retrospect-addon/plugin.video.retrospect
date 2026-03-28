@@ -21,7 +21,7 @@ class TestVierBeChannel(ChannelTest):
 
     def test_go_play_tv_show(self):
         url = "https://www.play.tv/vik-gert"
-        self._test_folder_url(url, 5)
+        self._test_folder_url(url, 2)
 
     def test_recent_day_list(self):
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
