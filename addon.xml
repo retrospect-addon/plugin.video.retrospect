@@ -143,6 +143,7 @@ A number of fixes for channels (TV4, Play.tv and NPO) and some generic optimizat
 * Added: Profile-scoped search history for channels that support it (See #1943).
 * Fixed: ChannelImporter skips channel set dirs without JSON manifest (See #1947)
 * Fixed: Allow Vault.set_setting() to pre-fill the keyboard prompt.
+* Fixed: UriHandler unknown method fixed.
 
 [B]GUI/Settings/Language related[/B]
 * Fixed: Skip DRM warning when Widevine playback is available (See #1942).
