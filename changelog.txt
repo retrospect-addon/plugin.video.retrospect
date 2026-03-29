@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.32 - Changelog - 2025-11-04[/B]
+[B]Retrospect v5.7.33 - Changelog - 2026-03-29[/B]
 
-Fixed some Swedish channel-related issues.
+A number of fixes for channels (TV4, Play.tv and NPO) and some generic optimizations for the Retrospect framework.
 
 [B]Framework related[/B]
 * Add DELETE urihandler (See #1944).
