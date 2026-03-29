@@ -541,7 +541,7 @@ class _RequestsHandler(object):
                 r = s.get(uri, proxies=proxies, headers=headers,
                           stream=stream, timeout=self.webTimeOut)
 
-            if http_method == "POST":
+            elif http_method == "POST":
                 body_data, body_json = data, json
                 if params is not None:
                     # Old UriHandler behavior. Set form header to keep compatible
@@ -554,17 +554,20 @@ class _RequestsHandler(object):
                            proxies=proxies, headers=headers,
                            stream=stream, timeout=self.webTimeOut)
 
-            if http_method == "PATCH":
+            elif http_method == "PATCH":
                 Logger.info("Performing a PATCH with '%s' for %s",
                             headers.get("content-type", "<No Content-Type>"), uri)
                 r = s.patch(uri, data=data, json=json, proxies=proxies,
                             headers=headers, stream=stream,
                             timeout=self.webTimeOut)
 
-            if http_method == "DELETE":
+            elif http_method == "DELETE":
                 Logger.info("Performing a DELETE for %s", uri)
                 r = s.delete(uri, proxies=proxies, headers=headers,
                              stream=stream, timeout=self.webTimeOut)
+
+            else:
+                raise ValueError("Unsupported HTTP Method %s" % http_method)
 
             if r.ok:
                 Logger.info("%s resulted in '%s %s' (%s) for %s",
