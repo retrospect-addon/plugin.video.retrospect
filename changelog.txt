@@ -3,12 +3,19 @@
 Fixed some Swedish channel-related issues.
 
 [B]Framework related[/B]
-_None_
+* Add DELETE urihandler (See #1944).
+* Fixed: Run search inline to prevent Kodi race condition (See #1941).
+* Added: Profile-scoped search history for channels that support it (See #1943).
+* Fixed: ChannelImporter skips channel set dirs without JSON manifest (See #1947)
+* Fixed: Allow Vault.set_setting() to pre-fill the keyboard prompt.
 
 [B]GUI/Settings/Language related[/B]
-Fixed: Run search inline to prevent Kodi race condition.
+* Fixed: Skip DRM warning when Widevine playback is available (See #1942).
+* Fixed: Use Info notification for empty folder lists (See #1939).
+* Fixed: Run search inline to prevent Kodi race condition.
 
 [B]Channel related[/B]
 * Fixed: TV4 Recents.
-* Fixed: NPO TV programmes (See #1931).
+* Fixed: NPO TV programs (See #1931).
 * Fixed: Vier/Play.tv channel (Fixes #1921).
+* Fixed: TV4.se max show limit (Fixes #1951).
