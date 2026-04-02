@@ -172,6 +172,22 @@ class Vault(object):
 
         return decrypted_value
 
+    def set_channel_setting(self, channel_guid, setting_id, setting_name=None,
+                            setting_action_id=None, default=""):
+        """ Prompts for a value via keyboard, then encrypts and stores it as a channel-specific setting.
+
+        :param str channel_guid:        The GUID of the channel.
+        :param str setting_id:          The setting identifier.
+        :param str setting_name:        The name to display in the keyboard heading.
+        :param str setting_action_id:   The name of the setting that shows ****** after encryption.
+        :param str default:             Optional value to pre-fill in the keyboard.
+
+        :rtype: None
+        """
+
+        full_setting_id = "channel_%s_%s" % (channel_guid, setting_id)
+        self.set_setting(full_setting_id, setting_name, setting_action_id, default)
+
     def set_setting(self, setting_id, setting_name=None, setting_action_id=None, default=""):
         """ Reads a value for a setting from the keyboard and encrypts it in the Kodi
         Add-on settings.
