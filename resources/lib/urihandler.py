@@ -536,38 +536,44 @@ class _RequestsHandler(object):
                 # Promote to POST when body arguments are present
                 http_method = "POST" if has_body else "GET"
 
-            if http_method == "GET":
-                Logger.info("Performing a GET for %s", uri)
-                r = s.get(uri, proxies=proxies, headers=headers,
-                          stream=stream, timeout=self.webTimeOut)
+            try:
+                if http_method == "GET":
+                    Logger.info("Performing a GET for %s", uri)
+                    r = s.get(uri, proxies=proxies, headers=headers,
+                              stream=stream, timeout=self.webTimeOut)
 
-            elif http_method == "POST":
-                body_data, body_json = data, json
-                if params is not None:
-                    # Old UriHandler behavior. Set form header to keep compatible
-                    if "content-type" not in headers:
-                        headers["content-type"] = "application/x-www-form-urlencoded"
-                    body_data, body_json = params, None
-                Logger.info("Performing a POST with '%s' for %s",
-                            headers.get("content-type", "<No Content-Type>"), uri)
-                r = s.post(uri, data=body_data, json=body_json,
-                           proxies=proxies, headers=headers,
-                           stream=stream, timeout=self.webTimeOut)
+                elif http_method == "POST":
+                    body_data, body_json = data, json
+                    if params is not None:
+                        # Old UriHandler behavior. Set form header to keep compatible
+                        if "content-type" not in headers:
+                            headers["content-type"] = "application/x-www-form-urlencoded"
+                        body_data, body_json = params, None
+                    Logger.info("Performing a POST with '%s' for %s",
+                                headers.get("content-type", "<No Content-Type>"), uri)
+                    r = s.post(uri, data=body_data, json=body_json,
+                               proxies=proxies, headers=headers,
+                               stream=stream, timeout=self.webTimeOut)
 
-            elif http_method == "PATCH":
-                Logger.info("Performing a PATCH with '%s' for %s",
-                            headers.get("content-type", "<No Content-Type>"), uri)
-                r = s.patch(uri, data=data, json=json, proxies=proxies,
-                            headers=headers, stream=stream,
-                            timeout=self.webTimeOut)
+                elif http_method == "PATCH":
+                    Logger.info("Performing a PATCH with '%s' for %s",
+                                headers.get("content-type", "<No Content-Type>"), uri)
+                    r = s.patch(uri, data=data, json=json, proxies=proxies,
+                                headers=headers, stream=stream,
+                                timeout=self.webTimeOut)
 
-            elif http_method == "DELETE":
-                Logger.info("Performing a DELETE for %s", uri)
-                r = s.delete(uri, proxies=proxies, headers=headers,
-                             stream=stream, timeout=self.webTimeOut)
+                elif http_method == "DELETE":
+                    Logger.info("Performing a DELETE for %s", uri)
+                    r = s.delete(uri, proxies=proxies, headers=headers,
+                                 stream=stream, timeout=self.webTimeOut)
 
-            else:
-                raise ValueError("Unsupported HTTP Method %s" % http_method)
+                else:
+                    raise ValueError("Unsupported HTTP Method %s" % http_method)
+
+            except OSError as e:
+                Logger.error("Network error for %s", uri, exc_info=True)
+                self.status = UriStatus(code=0, url=uri, error=True, reason=str(e))
+                return None
 
             if r.ok:
                 Logger.info("%s resulted in '%s %s' (%s) for %s",
