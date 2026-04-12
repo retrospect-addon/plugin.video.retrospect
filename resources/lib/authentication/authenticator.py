@@ -25,7 +25,7 @@ class Authenticator(object):
         self.__hander = handler
 
     def log_on(self, username: str, password: Optional[str] = None, setting_id: Optional[str] = None, channel_guid: Optional[str] = None):
-        """ Peforms the logon of a user. Either with the specified password or via a lookup. Also
+        """ Performs the logon of a user. Either with the specified password or via a lookup. Also
         logs off a previous user if the username has changed from previous logins.
 
         :param username:        The username
