@@ -38,8 +38,8 @@ class Authenticator(object):
 
         """
 
-        res = self.__handler.active_authentication()
-        logged_on_user = res.username
+        result = self.__handler.active_authentication()
+        logged_on_user = result.username
 
         # Check if the existing login is the same as the requested one.
         if logged_on_user and (not username or logged_on_user.lower() != username.lower()):
@@ -49,7 +49,7 @@ class Authenticator(object):
 
         elif logged_on_user and logged_on_user == username:
             Logger.info("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
-            return res
+            return result
 
         if not username:
             Logger.warning("No username specified")
@@ -68,10 +68,10 @@ class Authenticator(object):
             Logger.error("No password specified")
             return AuthenticationResult(None)
 
-        res = self.__handler.log_on(username, password)
-        if res.error:
-            XbmcWrapper.show_dialog(None, res.error)
-        return res
+        result = self.__handler.log_on(username, password)
+        if result.error:
+            XbmcWrapper.show_dialog(None, result.error)
+        return result
 
     def active_authentication(self) -> AuthenticationResult:
         """ Check if the user with the given name is currently authenticated.
@@ -101,15 +101,15 @@ class Authenticator(object):
 
         """
 
-        res = self.__handler.active_authentication()
-        if not res.logged_on:
+        result = self.__handler.active_authentication()
+        if not result.logged_on:
             Logger.debug("User was not logged on.")
             return
 
-        logged_on_user = res.username
+        logged_on_user = result.username
         if logged_on_user is not None and (force or logged_on_user == username):
-            res = self.__handler.log_off(logged_on_user)
-            if res:
+            result = self.__handler.log_off(logged_on_user)
+            if result:
                 Logger.debug("Logged off successfully")
             else:
                 Logger.error("Log off failed")
