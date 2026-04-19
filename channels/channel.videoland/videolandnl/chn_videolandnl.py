@@ -241,7 +241,7 @@ class Channel(chn_class.Channel):
                 mins, _ = others.split("min")
             elif "min" in time_value:
                 mins, _ = time_value.split("min")
-            item.set_info_label(MediaItem.LabelDuration, 60 * int(hours) + int(mins))
+            item.set_info_label(MediaItem.LabelDuration, 3600 * int(hours) + 60 * int(mins))
 
         date_value = (result_set["details"] or "").lower()
         if date_value:
@@ -312,7 +312,9 @@ class Channel(chn_class.Channel):
             return None
 
         title = result_set["title"].get("long", result_set["title"].get("short"))
-        page_id = result_set["id"]
+        # Bedrock returns block ids as "page_<cache-buster>--<stable-id>"; the prefix changes
+        # per request and would make MediaItem.guid unstable, breaking Kodi watched/resume tracking.
+        page_id = result_set["id"].split("--", 1)[-1]
         url = f"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/{self.__program_id}/block/{page_id}?nbPages=10&page=1"
         item = FolderItem(title, url, content_type=contenttype.EPISODES)
 
