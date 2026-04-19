@@ -14,6 +14,7 @@ import requests.utils
 
 from resources.lib.connectivity.cachehttpadapter import CacheHTTPAdapter
 from resources.lib.connectivity.streamcache import StreamCache
+from resources.lib.helpers.useragenthelper import UserAgentHelper
 from resources.lib.logger import Logger
 from resources.lib.proxyinfo import ProxyInfo
 
@@ -336,7 +337,6 @@ class _RequestsHandler(object):
         else:
             Logger.debug("No cache-store provided. Cached disabled.")
 
-        self.userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
         self.webTimeOut = web_time_out                # max duration of request
         self.ignoreSslErrors = ignore_ssl_errors      # ignore SSL errors
         if self.ignoreSslErrors:
@@ -589,7 +589,8 @@ class _RequestsHandler(object):
                 headers[k.lower()] = v
 
         if "user-agent" not in headers:
-            headers["user-agent"] = self.userAgent
+            headers["user-agent"] = UserAgentHelper.get_user_agent()
+
         if referer and "referer" not in headers:
             headers["referer"] = referer
 

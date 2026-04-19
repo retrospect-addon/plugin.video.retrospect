@@ -3,6 +3,7 @@
 
 
 import unittest
+import unittest.mock
 import os
 import json
 import tempfile
@@ -191,13 +192,14 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
 
-    def test_user_agent(self):
+    @unittest.mock.patch("resources.lib.urihandler.UserAgentHelper.get_user_agent")
+    def test_user_agent(self, mock_get_user_agent: unittest.mock.MagicMock) -> None:
         UriHandler.create_uri_handler()
         url = self.base_url + "/headers"
         header_name = "User-Agent"
 
-        # standard header first, the one from code
-        header_value = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"
+        header_value = "ModernUserAgent/5.0"
+        mock_get_user_agent.return_value = header_value
         data = UriHandler.open(url)
         self.assertIsNot("", data)
         data = json.loads(data)
@@ -211,6 +213,7 @@ class TestUriHandler(unittest.TestCase):
         data = json.loads(data)
         self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
+
 
     def test_referer(self):
         UriHandler.create_uri_handler()
