@@ -22,10 +22,10 @@ class Authenticator(object):
         if not isinstance(handler, AuthenticationHandler):
             raise ValueError("Invalid authenication handler specified.")
 
-        self.__hander = handler
+        self.__handler = handler
 
     def log_on(self, username: str, password: Optional[str] = None, setting_id: Optional[str] = None, channel_guid: Optional[str] = None):
-        """ Peforms the logon of a user. Either with the specified password or via a lookup. Also
+        """ Performs the logon of a user. Either with the specified password or via a lookup. Also
         logs off a previous user if the username has changed from previous logins.
 
         :param username:        The username
@@ -38,18 +38,18 @@ class Authenticator(object):
 
         """
 
-        res = self.__hander.active_authentication()
-        logged_on_user = res.username
+        result = self.__handler.active_authentication()
+        logged_on_user = result.username
 
         # Check if the existing login is the same as the requested one.
         if logged_on_user and (not username or logged_on_user.lower() != username.lower()):
             Logger.warning("Existing but different authenticated user (%s) found. Logging of first.",
                            self.__safe_log(logged_on_user))
-            self.__hander.log_off(logged_on_user)
+            self.__handler.log_off(logged_on_user)
 
         elif logged_on_user and logged_on_user == username:
             Logger.info("Existing authenticated user (%s) found.", self.__safe_log(logged_on_user))
-            return res
+            return result
 
         if not username:
             Logger.warning("No username specified")
@@ -68,10 +68,10 @@ class Authenticator(object):
             Logger.error("No password specified")
             return AuthenticationResult(None)
 
-        res = self.__hander.log_on(username, password)
-        if res.error:
-            XbmcWrapper.show_dialog(None, res.error)
-        return res
+        result = self.__handler.log_on(username, password)
+        if result.error:
+            XbmcWrapper.show_dialog(None, result.error)
+        return result
 
     def active_authentication(self) -> AuthenticationResult:
         """ Check if the user with the given name is currently authenticated.
@@ -81,7 +81,7 @@ class Authenticator(object):
 
         """
 
-        return self.__hander.active_authentication()
+        return self.__handler.active_authentication()
 
     def get_authentication_token(self) -> Optional[str]:
         """ Fetches an authentication token for the given login
@@ -90,7 +90,7 @@ class Authenticator(object):
 
         """
 
-        return self.__hander.get_authentication_token()
+        return self.__handler.get_authentication_token()
 
     def log_off(self, username, force=True):
         """ Logs off the currently authenticated user, clearing stored tokens.
@@ -101,15 +101,15 @@ class Authenticator(object):
 
         """
 
-        res = self.__hander.active_authentication()
-        if not res.logged_on:
+        result = self.__handler.active_authentication()
+        if not result.logged_on:
             Logger.debug("User was not logged on.")
             return
 
-        logged_on_user = res.username
+        logged_on_user = result.username
         if logged_on_user is not None and (force or logged_on_user == username):
-            res = self.__hander.log_off(logged_on_user)
-            if res:
+            result = self.__handler.log_off(logged_on_user)
+            if result:
                 Logger.debug("Logged off successfully")
             else:
                 Logger.error("Log off failed")

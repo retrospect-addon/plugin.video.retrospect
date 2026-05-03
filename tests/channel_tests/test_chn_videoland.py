@@ -121,6 +121,6 @@ class TestVideolandNLChannel(ChannelTest):
         password = os.environ.get("VIDEOLAND_PASSWORD")
         # Make sure we are logged off
         self.channel._Channel__jwt = None
-        self.channel._Channel__authenticator._Authenticator__hander.log_off(username="")
+        self.channel._Channel__authenticator._Authenticator__handler.log_off(username="")
         # Then log on.
         self.channel.loggedOn = self.channel.log_on(username, password)
