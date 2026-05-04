@@ -3,10 +3,11 @@
 A number of fixes for channels (TV4, Play.tv and NPO) and some generic optimizations for the Retrospect framework.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Translate network exceptions into status errors (See #1961).
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
 * Fixed: Videoland watched/resume state persistence (Fixes #1963).
+* Fixed: New on SVT Play.

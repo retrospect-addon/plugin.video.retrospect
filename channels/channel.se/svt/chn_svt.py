@@ -114,10 +114,12 @@ class Channel(chn_class.Channel):
                               name="Genre clip parser for GraphQL",
                               parser=["videos"],
                               creator=self.create_api_typed_item)
-
-        self._add_data_parser("https://www.svtplay.se", match_type=ParserData.MatchExact,
-                              name="SVTPlay data retriever for New on SVT",
-                              preprocessor=self.extract_new_on_svt_id)
+        self._add_data_parsers(
+            [
+                "https://api.svt.se/contento/graphql?operationName=StartPage",
+                "https://www.svtplay.se/sitemap-lists.xml"],
+            name="SVTPlay data retriever for New on SVT", json=True,
+            preprocessor=self.extract_new_on_svt_id)
 
         # Setup channel listing based on JSON data in the HTML
         self._add_data_parser(
@@ -165,6 +167,7 @@ class Channel(chn_class.Channel):
         # ====================================== Actual channel setup STOPS here =======================================
         return
 
+    # noinspection PyUnhashable
     def add_live_items_and_genres(self, data):
         """ Adds the Live items, Channels and Last Episodes to the listing.
 
@@ -232,10 +235,12 @@ class Channel(chn_class.Channel):
             # We need to determine the `selectionId`
             LanguageHelper.get_localized_string(LanguageHelper.NewOnChannel) % self.channelName: (
                 # self.__get_api_url(
-                #     "FionaPage",
-                #     "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
-                #     variables={"includeFullOppetArkiv": True, "selectionId": "svtId_jGVZ7AL"}),
-                "https://www.svtplay.se",
+                #     "StartPage",
+                #     "7b7987111571da7a838426c3eb5fbd07182991e2ffe7d1301b18131465e5eb79",
+                #     variables={"includeFullOppetArkiv": True, "userIsAbroad": False,
+                #                "includeMissingConsentForContinueWatchingBanner": False,
+                #                "includeSlurpBanner": False,"kidsProfile": False }),
+                "https://www.svtplay.se/sitemap-lists.xml",
                 False)
         }
         # https://api.svt.se/contento/graphql?operationName=FionaPage&variables={"includeFullOppetArkiv":true,"selectionId":"svtId_egWQ3y7","userIsAbroad":true}&extensions={"persistedQuery":{"sha256Hash":"dc8f85e195903fe6227a76ec1e1d300d470ee8ea123bea6bee26215cc6e4959d","version":1}}&ua=svtplaywebb-render-low-prio-client
@@ -887,11 +892,18 @@ class Channel(chn_class.Channel):
             return self.create_api_genre_type(result_set)
 
     def extract_new_on_svt_id(self, data: str) -> Tuple[str, List[MediaItem]]:
-        new_id = Regexer.do_regex(r'href="/lista/([^/]+)/nytt-pa-play"', data)[0]
+        if data.startswith("<"):
+            new_id = Regexer.do_regex(r'/([^/]+)/nytt-pa-play', data)[0]
+        else:
+            json_data = JsonHelper(data)
+            items = json_data.get_value("data", "startForSvtPlay", "modules", "items")
+            new = [i for i in items if i.get("portraitSelection") and i["portraitSelection"]["name"].startswith("Nytt p")]
+            new_id = new[0]["id"]
+
         url = self.__get_api_url(
             "FionaPage",
-            "b4e65a8f4cedc6bd9981e3539690908443f625c6854ea65f18c4b3b3be66b5dc",
-            variables={"includeFullOppetArkiv": True, "selectionId": new_id})
+            "a65a9d8a147a598a3d5956cfa1578ab73352596322221219d0faa3cbbf6afc9f",
+            variables={"includeFullOppetArkiv": True, "selectionId": new_id, "userIsAbroad": True})
 
         self.parentItem.url = url
         items = self.process_folder_list(self.parentItem)
