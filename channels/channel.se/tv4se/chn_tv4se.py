@@ -388,9 +388,11 @@ class Channel(chn_class.Channel):
         item.isLive = result_set.get("isLiveContent", False)
         item.description = result_set.get("synopsis", {}).get("medium", "")
 
-        duration = JsonHelper.get_from(result_set, "video", "duration", "seconds", fallback=0)
-        if duration:
-            item.set_info_label(MediaItem.LabelDuration, duration)
+        video_info = JsonHelper.get_from(result_set, "video")
+        if video_info:
+            duration = JsonHelper.get_from(video_info, "duration", "seconds", fallback=0)
+            if duration:
+                item.set_info_label(MediaItem.LabelDuration, duration)
 
         # Playable from
         self.__set_playback_window(item, result_set)

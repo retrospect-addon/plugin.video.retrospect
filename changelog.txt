@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: Videoland watched/resume state persistence (Fixes #1963).
 * Fixed: New on SVT Play.
+* Fixed: TV4 Issue with listing some seasons (Fixes #1969).
