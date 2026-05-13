@@ -1,6 +1,6 @@
-[B]Retrospect v5.7.33 - Changelog - 2026-03-29[/B]
+[B]Retrospect v5.7.34 - Changelog - 2026-05-12[/B]
 
-A number of fixes for channels (TV4, Play.tv and NPO) and some generic optimizations for the Retrospect framework.
+This update fixes minor Videoland, SVT Play and TV4 issues.
 
 [B]Framework related[/B]
 * Fixed: Translate network exceptions into status errors (See #1961).
@@ -11,3 +11,4 @@ _None_
 [B]Channel related[/B]
 * Fixed: Videoland watched/resume state persistence (Fixes #1963).
 * Fixed: New on SVT Play.
+* Fixed: TV4 Issue with listing some seasons (Fixes #1969).
