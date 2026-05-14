@@ -107,3 +107,19 @@ class TestAuthenticator(unittest.TestCase):
         res = a.log_on(user_name, self.password)
         self.assertTrue(res.logged_on)
         self.assertEqual(user_name, a.active_authentication().username)
+
+    def test_safe_log_masks_odd_indices(self):
+        h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
+        a = Authenticator(h)
+        self.assertEqual(a._Authenticator__safe_log("user@example.com"),
+                         "u*e*@*x*m*l*.*o*")
+
+    def test_safe_log_passes_none_through(self):
+        h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
+        a = Authenticator(h)
+        self.assertIsNone(a._Authenticator__safe_log(None))
+
+    def test_safe_log_collapses_empty_string_to_none(self):
+        h = RtlXlHandler("rtlxl.nl", self.rtl_api_key)
+        a = Authenticator(h)
+        self.assertIsNone(a._Authenticator__safe_log(""))

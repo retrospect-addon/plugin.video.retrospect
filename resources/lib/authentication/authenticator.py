@@ -114,5 +114,14 @@ class Authenticator(object):
             else:
                 Logger.error("Log off failed")
 
-    def __safe_log(self, text):
+    def __safe_log(self, text: Optional[str]) -> Optional[str]:
+        """ Obfuscate a string for logging by masking every odd-positioned character.
+
+        :param text:    The string to obfuscate, or None.
+        :returns:       Obfuscated string, or None if input was empty/None.
+
+        """
+
+        if not text:
+            return None
         return "".join([text[i] if i % 2 == 0 else "*" for i in range(0, len(text))])
