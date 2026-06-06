@@ -640,12 +640,15 @@ class Channel(chn_class.Channel):
             # item.description = image_data.get("description")
 
         def set_description_async(item: MediaItem):
-            url = f"https://npo.nl/start/api/domain/series-detail?slug={slug}"
-            json_data = JsonHelper(UriHandler.open(url))
-            description = json_data.get_value("synopsis", fallback=None)
-            if description:
-                item.description = description
-                Logger.debug(f"Updated description for {item.name}: {description}")
+            try:
+                url = f"https://npo.nl/start/api/domain/series-detail?slug={slug}"
+                json_data = JsonHelper(UriHandler.open(url))
+                description = json_data.get_value("synopsis", fallback=None)
+                if description:
+                    item.description = description
+                    Logger.debug(f"Updated description for {item.name}: {description}")
+            except:
+                Logger.error(f"Failed to update description for {item.name}", exc_info=True)
 
         self._async.submit(set_description_async, item)
         return item

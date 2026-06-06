@@ -517,6 +517,7 @@ class Channel:
         if self.__async:
             Logger.info("Waiting for Async-tasks to complete...")
             self.__async.shutdown(wait=True)
+            Logger.info("Async-tasks completed.")
         return items
 
     def process_video_item(self, item: MediaItem) -> MediaItem:
@@ -565,7 +566,7 @@ class Channel:
         if self.__async:
             Logger.info("Waiting for Async-tasks to complete...")
             self.__async.shutdown(wait=True)
-
+            Logger.info("Async-tasks completed.")
         return updated_item
 
     def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
