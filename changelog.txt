@@ -1,14 +1,12 @@
-[B]Retrospect v5.7.34 - Changelog - 2026-05-12[/B]
+[B]Retrospect v5.7.x - Changelog - 2026-xx-xx[/B]
 
-This update fixes minor Videoland, SVT Play and TV4 issues.
+t.b.d.
 
 [B]Framework related[/B]
-* Fixed: Translate network exceptions into status errors (See #1961).
+* Added: ThreadPoolWorker for async work.
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
-* Fixed: Videoland watched/resume state persistence (Fixes #1963).
-* Fixed: New on SVT Play.
-* Fixed: TV4 Issue with listing some seasons (Fixes #1969).
+* Fixed: NPO Descriptions broke (See #1974).
