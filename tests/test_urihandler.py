@@ -380,7 +380,7 @@ class TestUriHandler(unittest.TestCase):
         data = UriHandler.open(url)
         self.assertEqual(200, UriHandler.instance().status.code)
         self.assertIsNot("", data)
-        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, path="/cookies")
+        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, path="/")
         self.assertIsNotNone(cookie)
         self.assertEqual(cookie.value.strip("\""), cookie_value)
 
@@ -423,7 +423,7 @@ class TestUriHandler(unittest.TestCase):
         UriHandler.create_uri_handler(cookie_jar=os.path.join(self.output_folder, "cookies.txt"))
 
         # pre check that there are none
-        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, path="/cookies")
+        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, path="/")
         self.assertIsNone(cookie)
 
         # load the url and receive cookies
@@ -432,18 +432,18 @@ class TestUriHandler(unittest.TestCase):
         self.assertIsNot("", data)
 
         # find the cookie
-        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, path="/cookies")
+        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, path="/")
         self.assertIsNotNone(cookie)
         self.assertEqual(cookie.value.strip("\""), cookie_value)
 
         # partial match
-        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, match_start=True, path="/cookies")
+        cookie = UriHandler.get_cookie(cookie_name, cookie_domain, match_start=True, path="/")
         self.assertIsNotNone(cookie)
         self.assertEqual(cookie.name, cookie_name)
         self.assertEqual(cookie.value.strip("\""), cookie_value)
 
         # do a quick check
-        self.assertIsNotNone(UriHandler.get_cookie(cookie_name, domain=cookie_domain, path="/cookies"))
+        self.assertIsNotNone(UriHandler.get_cookie(cookie_name, domain=cookie_domain, path="/"))
 
         # verify the values from the json data
         data = json.loads(data)
