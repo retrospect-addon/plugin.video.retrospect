@@ -4,6 +4,7 @@ import datetime
 import time
 from typing import Optional, List, Tuple, Union, Dict
 
+# pyrefly: ignore [untyped-import]
 import pytz
 
 from resources.lib import chn_class
@@ -636,7 +637,17 @@ class Channel(chn_class.Channel):
         if "images" in result_set and result_set["images"]:
             image_data = result_set["images"][0]
             item.set_artwork(thumb=image_data["url"], fanart=image_data["url"])
-            item.description = image_data.get("description")
+            # item.description = image_data.get("description")
+
+        def set_description_async(item: MediaItem):
+            url = f"https://npo.nl/start/api/domain/series-detail?slug={slug}"
+            json_data = JsonHelper(UriHandler.open(url))
+            description = json_data.get_value("synopsis", fallback=None)
+            if description:
+                item.description = description
+                Logger.debug(f"Updated description for {item.name}: {description}")
+
+        self._async.submit(set_description_async, item)
         return item
 
     def create_api_category_item(self, result_set: dict) -> Optional[MediaItem]:
