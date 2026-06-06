@@ -1,9 +1,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import List
+from typing import Union
+from typing import Optional
+from typing import Callable
 import re
+
+JsonPath = Union[Optional[List[Union[str, int]]], str]
 
 
 class ParserData(object):
+    PreProcessor: Optional[Callable]
+    Parser: JsonPath
+    Creator: Optional[Callable]
+    Updater: Optional[Callable]
+    PostProcessor: Optional[Callable]
+
     __slots__ = ["Name", "Match", "PreProcessor", "PostProcessor",
                  "Parser", "Creator", "Updater", "Label",
                  "IsJson", "MatchType", "LogOnRequired"]

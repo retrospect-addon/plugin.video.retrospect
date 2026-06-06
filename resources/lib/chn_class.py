@@ -14,7 +14,7 @@ from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.retroconfig import Config
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
-from resources.lib.parserdata import ParserData
+from resources.lib.parserdata import ParserData, JsonPath
 from resources.lib.textures import TextureHandler
 
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -22,9 +22,6 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.channelinfo import ChannelInfo
-
-
-JsonPath = Optional[List[Union[str, int]]]
 
 
 class Channel:
@@ -289,9 +286,14 @@ class Channel:
                            "order that Python likes which might result in unexpected result.", num_pre_procs)
 
         for data_parser in pre_procs:
+            data_parser: ParserData
+
             # remove it from the list
             self.currentParser = data_parser
             data_parsers.remove(data_parser)
+
+            if not data_parser.PreProcessor:
+                continue
 
             # and process it
             Logger.debug("[DataParsers] Pre-Processing %s", data_parser)

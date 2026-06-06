@@ -28,7 +28,7 @@ class TextureHandler:
         self.__addonIds = {}
 
     @staticmethod
-    def instance():
+    def instance() -> "TextureHandler":
         """ Returns the TextureHandler singleton
 
         :return: The TextureHandler
