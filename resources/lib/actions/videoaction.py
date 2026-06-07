@@ -144,7 +144,7 @@ class VideoAction(AddonAction):
     def __call_upnext(self, media_item):
         """ Calls UpNext to send information on the next episode.
 
-        :param MediaItem media_item: the current itme.
+        :param MediaItem media_item: the current item.
 
         """
 
