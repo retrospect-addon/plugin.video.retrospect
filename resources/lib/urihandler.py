@@ -75,6 +75,13 @@ class UriHandler(object):
         return UriHandler.__handler
 
     @staticmethod
+    def last_status() -> UriStatus:
+        if not UriHandler.__handler:
+            raise ValueError("UriHandler not initialized.")
+
+        return UriHandler.__handler.status
+
+    @staticmethod
     def download(uri, filename, folder, progress_callback=None, proxy=None,
                  params=None, data=None, json=None, referer=None, additional_headers=None):
         """ Downloads a remote file
