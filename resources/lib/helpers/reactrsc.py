@@ -1,7 +1,10 @@
 import json
 from typing import Any, Dict, Optional, Set, List, Union
+from typing import Tuple
 
 from resources.lib.helpers.jsonhelper import JsonHelper
+from resources.lib.logger import Logger
+from resources.lib.mediaitem import MediaItem
 
 
 class RSCHelper:
@@ -91,12 +94,31 @@ class RSCHelper:
 
         return value
 
-# if __name__ == "__main__":
-#     with open("nextjs.rsc.txt", "r") as f:
-#         content = f.read()
-#
-#     helper = RSCHelper(content)
-#     json_data = JsonHelper(helper.convert_to_json())
-#     tv_guide_data = json_data.find_dict_by_key_value("id", "tvguide-list")
-#
-#     print(JsonHelper.dump(tv_guide_data, pretty_print=True))
+
+class NextJsParser:
+    def __init__(self, key: str = "", value: str = "", return_parent: bool = False):
+        self._key = key
+        self._value = value
+        self._return_parent = return_parent
+
+    def __call__(self, data: str) -> Tuple[Union[JsonHelper, str], List[MediaItem]]:
+        helper = RSCHelper(data)
+        result_data = helper.convert_to_json()
+        if result_data:
+            Logger.debug("Found NextJs data: %s", JsonHelper.dump(result_data, pretty_print=False))
+
+        if self._key and self._value:
+            result_data = JsonHelper.find_dict_by_key_value_from(result_data, self._key, self._value)
+        elif self._key:
+            result_data = JsonHelper.find_dict_by_key_from(result_data, self._key, self._return_parent)
+
+        if result_data and isinstance(result_data, str):
+            return result_data, []
+        elif result_data:
+            return JsonHelper(result_data), []
+
+        Logger.warning("Could not find NextJs data for key: %s, value: %s", self._key, self._value)
+        return "", []
+
+    def __str__(self):
+        return f"NextJsParser(key={self._key}, value={self._value})"

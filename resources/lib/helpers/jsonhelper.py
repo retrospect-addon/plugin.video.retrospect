@@ -155,7 +155,7 @@ class JsonHelper(object):
         return None
 
     @staticmethod
-    def find_dict_by_key_from(data: Union[List, Dict], key: str) -> Optional[Dict]:
+    def find_dict_by_key_from(data: Union[List, Dict], key: str, return_parent: bool = False) -> Optional[Dict]:
         """
         Search recursively for a dictionary containing a specific key-value pair.
         Returns the dictionary and all its content if found, otherwise None.
@@ -163,16 +163,18 @@ class JsonHelper(object):
 
         if isinstance(data, dict):
             if key in data:
+                if return_parent:
+                    return data
                 return data[key]
 
             for child in data.values():
-                result = JsonHelper.find_dict_by_key_from(child, key)
+                result = JsonHelper.find_dict_by_key_from(child, key, return_parent)
                 if result is not None:
                     return result
 
         elif isinstance(data, list):
             for item in data:
-                result = JsonHelper.find_dict_by_key_from(item, key)
+                result = JsonHelper.find_dict_by_key_from(item, key, return_parent)
                 if result is not None:
                     return result
 
