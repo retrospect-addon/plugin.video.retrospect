@@ -131,7 +131,8 @@ class JsonHelper(object):
         return JsonHelper.find_dict_by_key_from(self.json, key)
 
     @staticmethod
-    def find_dict_by_key_value_from(data: Union[List, Dict], key: str, value: Any) -> Optional[Dict]:
+    def find_dict_by_key_value_from(
+            data: Union[List, Dict], key: str, value: Any, skip: Optional[List[int]] = None) -> Optional[Dict]:
         """
         Search recursively for a dictionary containing a specific key-value pair.
         Returns the dictionary and all its content if found, otherwise None.
@@ -139,23 +140,27 @@ class JsonHelper(object):
 
         if isinstance(data, dict):
             if key in data and data[key] == value:
-                return data
+                if skip is None or skip[0] <= 0:
+                    return data
+                else:
+                    skip[0] -= 1
 
             for child in data.values():
-                result = JsonHelper.find_dict_by_key_value_from(child, key, value)
+                result = JsonHelper.find_dict_by_key_value_from(child, key, value, skip)
                 if result is not None:
                     return result
 
         elif isinstance(data, list):
             for item in data:
-                result = JsonHelper.find_dict_by_key_value_from(item, key, value)
+                result = JsonHelper.find_dict_by_key_value_from(item, key, value, skip)
                 if result is not None:
                     return result
 
         return None
 
     @staticmethod
-    def find_dict_by_key_from(data: Union[List, Dict], key: str, return_parent: bool = False) -> Optional[Dict]:
+    def find_dict_by_key_from(
+            data: Union[List, Dict], key: str, return_parent: bool = False, skip: Optional[List[int]] = None) -> Optional[Dict]:
         """
         Search recursively for a dictionary containing a specific key-value pair.
         Returns the dictionary and all its content if found, otherwise None.
@@ -163,18 +168,21 @@ class JsonHelper(object):
 
         if isinstance(data, dict):
             if key in data:
-                if return_parent:
-                    return data
-                return data[key]
+                if skip is None or skip[0] <= 0:
+                    if return_parent:
+                        return data
+                    return data[key]
+                else:
+                    skip[0] -= 1
 
             for child in data.values():
-                result = JsonHelper.find_dict_by_key_from(child, key, return_parent)
+                result = JsonHelper.find_dict_by_key_from(child, key, return_parent, skip)
                 if result is not None:
                     return result
 
         elif isinstance(data, list):
             for item in data:
-                result = JsonHelper.find_dict_by_key_from(item, key, return_parent)
+                result = JsonHelper.find_dict_by_key_from(item, key, return_parent, skip)
                 if result is not None:
                     return result
 

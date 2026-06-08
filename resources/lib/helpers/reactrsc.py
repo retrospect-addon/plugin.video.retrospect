@@ -105,9 +105,10 @@ class RSCHelper:
 
 
 class NextJsParser:
-    def __init__(self, key: str = "", value: str = "", return_parent: bool = False):
+    def __init__(self, key: str = "", value: str = "", return_parent: bool = False, skip: int = 0) -> None:
         self._key = key
         self._value = value
+        self._skip = skip
         self._return_parent = return_parent
 
     def __call__(self, data: str) -> Tuple[Union[JsonHelper, str], List[MediaItem]]:
@@ -117,9 +118,11 @@ class NextJsParser:
             Logger.debug("Found NextJs data: %s", JsonHelper.dump(result_data, pretty_print=False))
 
         if self._key and self._value:
-            result_data = JsonHelper.find_dict_by_key_value_from(result_data, self._key, self._value)
+            result_data = JsonHelper.find_dict_by_key_value_from(
+                result_data, self._key, self._value, skip=[self._skip])
         elif self._key:
-            result_data = JsonHelper.find_dict_by_key_from(result_data, self._key, self._return_parent)
+            result_data = JsonHelper.find_dict_by_key_from(
+                result_data, self._key, self._return_parent, skip=[self._skip])
 
         if result_data and isinstance(result_data, str):
             return result_data, []
