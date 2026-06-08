@@ -48,6 +48,15 @@ class RSCHelper:
                 }
                 return
 
+            if raw.startswith("T"):
+                # string with length
+                hex_length, raw = raw[1:].split(",", 1)
+                length = int(hex_length, 16)
+                text_value = raw[0:length]
+                remainder = raw[length:]
+                self._records[key] = text_value
+                return self._parse_line(remainder)
+
             parsed = json.loads(raw)
             self._records[key] = parsed
 
