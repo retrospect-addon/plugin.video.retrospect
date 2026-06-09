@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Tuple
+from resources.lib.helpers.jsonhelper import JsonHelper
 from typing import Optional
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
@@ -8,7 +10,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.parserdata import ParserData
 from resources.lib import mediatype
-from resources.lib.helpers.reactrsc import NextJsParser
+from resources.lib.helpers.reactrsc import NextJsParser, RSCHelper
 from typing import Dict, Union, List
 
 from resources.lib.mediaitem import MediaItem, FolderItem
@@ -45,9 +47,11 @@ class Channel(chn_class.Channel):
         self.httpHeaders["rsc"] = "1"
 
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              preprocessor=NextJsParser(key="id", value="module-stories-carousel-0"), json=True,
-                              parser=["items"],
-                              creator=self.create_genre_item)
+                              preprocessor=self.main_list_preprocessor)
+
+        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
+                              parser=["carousel"],
+                              creator=self.create_swimlane_item)
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/",
                               preprocessor=NextJsParser(key="modules", return_parent=True), json=True,
@@ -57,23 +61,40 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="results", skip=1), json=True,
                               parser=[], creator=self.create_video_item)
 
+        self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/.+",
+                              updater=self.update_video_item, match_type=ParserData.MatchRegex)
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/serie/.+/aflevering",
                               updater=self.update_video_item, match_type=ParserData.MatchRegex)
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
                               updater=self.update_video_item)
 
-    def create_genre_item(self, result_set: Dict) -> Union[MediaItem, List[MediaItem], None]:
-        title = result_set["title"]
-        genre_id = result_set["id"]
-        item = FolderItem(title, f"https://schatkamer.beeldengeluid.nl/verhaal/{genre_id}", content_type=contenttype.TVSHOWS)
-        item.metaData["slug"] = genre_id
+    def main_list_preprocessor(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
+        rsc = RSCHelper(data)
+        helper = JsonHelper(rsc.convert_to_json())
 
-        if "image" in result_set and result_set["image"]:
-            item.set_artwork(thumb=result_set["image"]["url"])
-        return item
+        results = []
+        result_data = {"carousel": []}
+        for carousel_id in ["module-stories-carousel-0", "module-stories-carousel-3", "module-stories-carousel-6"]:
+            item_data = helper.find_dict_by_key_value("id", carousel_id)
+            if item_data:
+                result_data["carousel"].append(item_data)
+
+        for program_id in ["module-program-carousel-1", "module-program-carousel-4", "module-program-carousel-7"]:
+            item_data = helper.find_dict_by_key_value("id", program_id)
+            if item_data:
+                result_data["carousel"].append(item_data)
+
+        for serie_id in ["module-serie-carousel-5", "module-serie-carousel-8", "module-serie-carousel-10"]:
+            item_data = helper.find_dict_by_key_value("id", serie_id)
+            if item_data:
+                result_data["carousel"].append(item_data)
+
+        result = JsonHelper("[]")
+        result.json = result_data
+        return result, results
 
     def create_swimlane_item(self, result_set: Dict) -> Union[MediaItem, List[MediaItem], None]:
-        if result_set["type"] not in ("swimlane", ):
+        if result_set["type"] not in ("swimlane",):
             return None
 
         title = result_set["title"].title()
@@ -83,7 +104,9 @@ class Channel(chn_class.Channel):
             return parent
 
         for result in result_set["items"]:
-            if "/aflevering/" in result["url"] or "/programma/" in result["url"]:
+            if "/verhaal/" in result["url"]:
+                item = self.create_serie_item(result)
+            elif "/aflevering/" in result["url"] or "/programma/" in result["url"]:
                 item = self.create_video_item(result)
             else:
                 item = self.create_serie_item(result)
