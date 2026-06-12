@@ -156,7 +156,8 @@ class Channel(chn_class.Channel):
         if not needle:
             raise ValueError("No needle present")
 
-        url = "https://api-live.dumpert.nl/mobile_api/json/search/%s/0/"
+        # url = "https://api-live.dumpert.nl/mobile_api/json/search/%s/0/"
+        url = "https://post.dumpert.nl/api/v1.0/search/%s/0/?order=date&media_type=all&app=www.dumpert.nl"
         return chn_class.Channel.search_site(self, url, needle)
 
     def __ignore_cookie_law(self):
