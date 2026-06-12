@@ -1,13 +1,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Tuple
+from resources.lib.helpers.jsonhelper import JsonHelper
 from typing import Optional
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 
 from resources.lib.helpers.datehelper import DateHelper
+from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.parserdata import ParserData
 from resources.lib import mediatype
-from resources.lib.helpers.reactrsc import NextJsParser, RSCHelper
+from resources.lib.helpers.reactrsc import NextJsParser
 from typing import Dict, Union, List
 
 from resources.lib.mediaitem import MediaItem, FolderItem
@@ -44,7 +47,8 @@ class Channel(chn_class.Channel):
         self.httpHeaders["rsc"] = "1"
 
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              preprocessor=NextJsParser(key="data-gtm-ux-component", value="information-page-details"),
+                              # preprocessor=NextJsParser(key="data-gtm-ux-component", value="information-page-details"),
+                              preprocessor=self.main_list_preprocessor,
                               parser=["children", -1, "children"],
                               creator=self.create_carousel_item)
 
@@ -56,9 +60,9 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="results", skip=1), json=True,
                               parser=[], creator=self.create_video_item)
 
-        self._add_data_parser("https://schatkamer.beeldengeluid.nl/zoeken",
-                              preprocessor=NextJsParser(key="results"), json=True,
-                              parser=[], creator=self.create_video_item)
+        self._add_data_parser("https://schatkamer.beeldengeluid.nl/zoeken", json=True,
+                              preprocessor=NextJsParser(key="total", return_parent=True),
+                              parser=["results"], creator=self.create_video_item)
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/.+",
                               updater=self.update_video_item, match_type=ParserData.MatchRegex)
@@ -66,6 +70,15 @@ class Channel(chn_class.Channel):
                               updater=self.update_video_item, match_type=ParserData.MatchRegex)
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
                               updater=self.update_video_item)
+
+    def main_list_preprocessor(self, data: str) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
+        preprocessor = NextJsParser(key="data-gtm-ux-component", value="information-page-details")
+        json_data, items = preprocessor(data)
+
+        search = FolderItem(LanguageHelper.get_localized_string(LanguageHelper.Search), self.search_url,
+                            content_type=contenttype.EPISODES)
+        items.append(search)
+        return json_data, items
 
     def create_carousel_item(self, result_set: Dict) -> Union[MediaItem, List[MediaItem], None]:
         result_set = result_set[-1]["children"]
@@ -126,6 +139,7 @@ class Channel(chn_class.Channel):
 
         item = MediaItem(title, url, tv_show_title=tvshow, media_type=mediatype.EPISODE)
         item.HttpHeaders["rsc"] = "1"
+        item.description = result_set.get("description", "")
 
         if "image" in result_set and result_set["image"]:
             image = result_set["image"]["url"]
