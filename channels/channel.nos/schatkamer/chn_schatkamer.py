@@ -1,7 +1,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-
-from typing import Tuple
-from resources.lib.helpers.jsonhelper import JsonHelper
 from typing import Optional
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
@@ -46,12 +43,10 @@ class Channel(chn_class.Channel):
         # We need React Server Components
         self.httpHeaders["rsc"] = "1"
 
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
-                              preprocessor=self.main_list_preprocessor)
-
         self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              parser=["carousel"],
-                              creator=self.create_swimlane_item)
+                              preprocessor=NextJsParser(key="data-gtm-ux-component", value="information-page-details"),
+                              parser=["children", -1, "children"],
+                              creator=self.create_carousel_item)
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/",
                               preprocessor=NextJsParser(key="modules", return_parent=True), json=True,
@@ -61,6 +56,10 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="results", skip=1), json=True,
                               parser=[], creator=self.create_video_item)
 
+        self._add_data_parser("https://schatkamer.beeldengeluid.nl/zoeken",
+                              preprocessor=NextJsParser(key="results"), json=True,
+                              parser=[], creator=self.create_video_item)
+
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/.+",
                               updater=self.update_video_item, match_type=ParserData.MatchRegex)
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/serie/.+/aflevering",
@@ -68,30 +67,18 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
                               updater=self.update_video_item)
 
-    def main_list_preprocessor(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
-        rsc = RSCHelper(data)
-        helper = JsonHelper(rsc.convert_to_json())
+    def create_carousel_item(self, result_set: Dict) -> Union[MediaItem, List[MediaItem], None]:
+        result_set = result_set[-1]["children"]
+        for result in result_set:
+            if isinstance(result, list):
+                # pyrefly: ignore [bad-assignment]
+                result_set = result
+                break
+        result_set = result_set[-1]
+        if "data" not in result_set:
+            return None
 
-        results = []
-        result_data = {"carousel": []}
-        for carousel_id in ["module-stories-carousel-0", "module-stories-carousel-3", "module-stories-carousel-6"]:
-            item_data = helper.find_dict_by_key_value("id", carousel_id)
-            if item_data:
-                result_data["carousel"].append(item_data)
-
-        for program_id in ["module-program-carousel-1", "module-program-carousel-4", "module-program-carousel-7"]:
-            item_data = helper.find_dict_by_key_value("id", program_id)
-            if item_data:
-                result_data["carousel"].append(item_data)
-
-        for serie_id in ["module-serie-carousel-5", "module-serie-carousel-8", "module-serie-carousel-10"]:
-            item_data = helper.find_dict_by_key_value("id", serie_id)
-            if item_data:
-                result_data["carousel"].append(item_data)
-
-        result = JsonHelper("[]")
-        result.json = result_data
-        return result, results
+        return self.create_swimlane_item(result_set["data"])
 
     def create_swimlane_item(self, result_set: Dict) -> Union[MediaItem, List[MediaItem], None]:
         if result_set["type"] not in ("swimlane",):
@@ -153,6 +140,29 @@ class Channel(chn_class.Channel):
             item.set_date(year, month, day)
 
         return item
+
+    def search_site(self, url: Optional[str] = None, needle: Optional[str] = None) -> List[MediaItem]:
+        """ Creates a list of items by searching the site.
+
+        This method is called when and item with `self.search_url` is opened. The channel
+        calling this should implement the search functionality. This could also include
+        showing of an input keyboard and following actions.
+
+        The %s the url will be replaced with a URL encoded representation of the
+        text to search for.
+
+        :param url:     Url to use to search with an %s for the search parameters.
+        :param needle:  The needle to search for.
+
+        :return: A list with search results as MediaItems.
+
+        """
+
+        if not needle:
+            raise ValueError("No needle present")
+
+        url = f"https://schatkamer.beeldengeluid.nl/zoeken?q=%s&_rsc=1"
+        return chn_class.Channel.search_site(self, url, needle)
 
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url, additional_headers=item.HttpHeaders, no_cache=True)
