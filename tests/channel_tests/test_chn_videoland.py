@@ -19,36 +19,8 @@ class TestVideolandNLChannel(ChannelTest):
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
-    def test_episode_number_added_for_season(self):
+    def test_episode_names_unchanged_for_season(self):
         data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
-        items = [
-            self.create_media_item("Some episode name"),
-            self.create_media_item("Another episode name"),
-            self.create_media_item("Yet another episode name"),
-        ]
-
-        changed = self.channel.postprocess_episodes(data, items)
-        self.assertCountEqual(changed, items)
-        self.assertEqual(changed[0].name, "01 Some episode name")
-        self.assertEqual(changed[1].name, "02 Another episode name")
-        self.assertEqual(changed[2].name, "03 Yet another episode name")
-
-    def test_episode_number_not_added_for_other_than_episode(self):
-        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
-        items = [
-            self.create_media_item("Some episode name", "no_episode"),
-            self.create_media_item("Another episode name", "no_episode"),
-            self.create_media_item("Yet another episode name", "no_episode"),
-        ]
-
-        changed = self.channel.postprocess_episodes(data, items)
-        self.assertCountEqual(changed, items)
-        self.assertEqual(changed[0].name, "Some episode name")
-        self.assertEqual(changed[1].name, "Another episode name")
-        self.assertEqual(changed[2].name, "Yet another episode name")
-
-    def test_episode_number_not_added_for_other_list(self):
-        data = self.JsonWrapper({"featureId": "other"})
         items = [
             self.create_media_item("Some episode name"),
             self.create_media_item("Another episode name"),
@@ -61,22 +33,7 @@ class TestVideolandNLChannel(ChannelTest):
         self.assertEqual(changed[1].name, "Another episode name")
         self.assertEqual(changed[2].name, "Yet another episode name")
 
-    def test_episode_number_not_added_for_aflevering(self):
-        data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
-        # Episodes ordered backwards
-        items = [
-            self.create_media_item("Aflevering 3"),
-            self.create_media_item("Aflevering 2"),
-            self.create_media_item("Aflevering 1"),
-        ]
-
-        changed = self.channel.postprocess_episodes(data, items)
-        self.assertCountEqual(changed, items)
-        self.assertEqual(changed[0].name, "Aflevering 3")
-        self.assertEqual(changed[1].name, "Aflevering 2")
-        self.assertEqual(changed[2].name, "Aflevering 1")
-
-    def test_episode_number_date_filled_in(self):
+    def test_episode_date_filled_in(self):
         data = self.JsonWrapper({"featureId": "videos_by_season_by_program"})
         items = [
             self.create_media_item("Some episode name", date="2022-07-05"),
@@ -86,9 +43,9 @@ class TestVideolandNLChannel(ChannelTest):
 
         changed = self.channel.postprocess_episodes(data, items)
         self.assertCountEqual(changed, items)
-        self.assertEqual(changed[0].name, "01 Some episode name")
-        self.assertEqual(changed[1].name, "02 Another episode name")
-        self.assertEqual(changed[2].name, "03 Yet another episode name [date unknown]")
+        self.assertEqual(changed[0].name, "Some episode name")
+        self.assertEqual(changed[1].name, "Another episode name")
+        self.assertEqual(changed[2].name, "Yet another episode name [date unknown]")
         self.assertTrue(changed[0].has_date())
         self.assertTrue(changed[1].has_date())
         self.assertTrue(changed[2].has_date())
