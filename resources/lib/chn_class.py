@@ -29,11 +29,12 @@ Preprocessor = Union[
     Callable[[str], Tuple[Union[str, JsonHelper], List[MediaItem]]],
     Callable[[JsonHelper], Tuple[Union[str, JsonHelper], List[MediaItem]]],
 ]
+CreatorResult = Union[MediaItem, None, List[MediaItem]]
 Creator = Union[
-    Callable[[List[str]], Union[MediaItem, None, List[MediaItem]]],
-    Callable[[Dict], Union[MediaItem, None, List[MediaItem]]],
+    Callable[[List[str]], CreatorResult],
+    Callable[[Dict], CreatorResult],
 ]
-Parser = List[Union[str, int, Tuple[str, str]]]
+Parser = Union[List[Union[str, int, Tuple[str, str]]], str]
 Updater = Callable[[MediaItem], MediaItem]
 PostProcessor = Union[
     Callable[[str, List[MediaItem]], List[MediaItem]],
@@ -742,7 +743,7 @@ class Channel:
         item.complete = True
         return item
 
-    def create_video_item(self, result_set):
+    def create_video_item(self, result_set) -> CreatorResult:
         """ Creates a MediaItem of type 'video' using the result_set from the regex.
 
         This method creates a new MediaItem from the Regular Expression or Json

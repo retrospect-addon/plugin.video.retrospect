@@ -10,3 +10,4 @@ _None_
 
 [B]Channel related[/B]
 * Fixed: Dumpert search (Fixes #1976).
+* Fixed: NOS.nl changed layout (Fixes #1977).
