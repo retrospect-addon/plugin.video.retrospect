@@ -8,7 +8,6 @@ from urllib.parse import parse_qs
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.streams.m3u8 import M3u8
-from resources.lib.parserdata import ParserData
 from resources.lib import mediatype
 from resources.lib.helpers.reactrsc import NextJsParser
 from typing import Dict, Union, List
@@ -46,8 +45,7 @@ class Channel(chn_class.Channel):
         # We need React Server Components
         self.httpHeaders["rsc"] = "1"
 
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact, json=True,
-                              # preprocessor=NextJsParser(key="data-gtm-ux-component", value="information-page-details"),
+        self._add_data_parser(self.mainListUri, match_type="Exact", json=True,
                               preprocessor=self.main_list_preprocessor,
                               parser=["children", -1, "children"],
                               creator=self.create_carousel_item)
@@ -65,9 +63,9 @@ class Channel(chn_class.Channel):
                               parser=["results"], creator=self.create_video_item)
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/.+",
-                              updater=self.update_video_item, match_type=ParserData.MatchRegex)
+                              updater=self.update_video_item, match_type="Regex")
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/serie/.+/aflevering",
-                              updater=self.update_video_item, match_type=ParserData.MatchRegex)
+                              updater=self.update_video_item, match_type="Regex")
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
                               updater=self.update_video_item)
 

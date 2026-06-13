@@ -1,6 +1,9 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Dict
+from typing import Tuple
 
+from typing import Callable
 import urllib.parse as parse
 from typing import Optional, List, Union
 
@@ -21,6 +24,21 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.channelinfo import ChannelInfo
+
+Preprocessor = Union[
+    Callable[[str], Tuple[Union[str, JsonHelper], List[MediaItem]]],
+    Callable[[JsonHelper], Tuple[Union[str, JsonHelper], List[MediaItem]]],
+]
+Creator = Union[
+    Callable[[List[str]], Union[MediaItem, None, List[MediaItem]]],
+    Callable[[Dict], Union[MediaItem, None, List[MediaItem]]],
+]
+Parser = List[Union[str, int, Tuple[str, str]]]
+Updater = Callable[[MediaItem], MediaItem]
+PostProcessor = Union[
+    Callable[[str, List[MediaItem]], List[MediaItem]],
+    Callable[[JsonHelper, List[MediaItem]], List[MediaItem]],
+]
 
 
 class Channel:
@@ -924,27 +942,27 @@ class Channel:
         """
         return dict()
 
-    def _add_data_parsers(self, urls, name=None, preprocessor=None,
-                          parser=None, creator=None, updater=None,
-                          postprocessor=None,
-                          json=False, match_type=ParserData.MatchStart,
-                          requires_logon=False):
-        """ Adds a DataParser to the handlers dictionary for the  given urls
+    def _add_data_parsers(self, urls: List[str], name: Optional[str] = None,
+                          preprocessor: Optional[Preprocessor] = None,
+                          parser: Optional[Parser] = None,
+                          creator: Optional[Creator] = None,
+                          updater: Optional[Updater] = None,
+                          postprocessor: Optional[PostProcessor] = None,
+                          json: bool = False,
+                          match_type: ParserData.MatchTypes = "MatchStart",
+                          requires_logon: bool = False):
+        """ Adds a DataParser to the handlers-dictionary for the given urls
 
-        :param list[str] urls:              The URLs that triggers these handlers
-        :param str name:                    The name of the DataParser
-        :param preprocessor:                The pre-processor called
-        :type preprocessor:                 (str) -> (str|JsonHelper,list[MediaItem])
-        :param str|list[str|int] parser:    The parser (regex or json)
-        :param creator:                     The creator called with the results from the parser
-        :type creator:                      (list[str]|dict) -> MediaItem|None
-        :param updater:                     The updater called for updating a item
-        :type updater:                      MediaItem -> MediaItem
-        :param postprocessor:               The post-processor called
-        :type postprocessor:                (JsonHelper|str,list[MediaItems]) -> list[MediaItems]
-        :param bool json:                   Indication whether the parsers are JSON (True) or Regex (False)
-        :param str match_type:              The type of matching to use
-        :param bool requires_logon:         Do we need to be logged on?
+        :param urls:                The URLs that triggers these handlers
+        :param str name:            The name of the DataParser
+        :param preprocessor:        The pre-processor called
+        :param parser:              The parser (regex or json)
+        :param creator:             The creator called with the results from the parser
+        :param updater:             The updater called for updating a item
+        :param postprocessor:       The post-processor called
+        :param json:                Indication whether the parsers are JSON (True) or Regex (False)
+        :param match_type:          The type of matching to use
+        :param requires_logon:      Do we need to be logged on?
 
         """
 
@@ -954,33 +972,29 @@ class Channel:
                                   label=None)
         return
 
-    # noinspection PyPropertyAccess
-    def _add_data_parser(self, url, name=None, preprocessor=None,
-                         parser=None, creator=None, updater=None,
-                         postprocessor=None,
-                         json=False, match_type=ParserData.MatchStart, requires_logon=False,
-                         label=None):
-        """ Adds a DataParser to the handlers dictionary
+    def _add_data_parser(self, url: str, name: Optional[str] = None,
+                         preprocessor: Optional[Preprocessor] = None,
+                         parser: Optional[Parser] = None,
+                         creator: Optional[Creator] = None,
+                         updater: Optional[Updater] = None,
+                         postprocessor: Optional[PostProcessor] = None,
+                         json: bool = False,
+                         match_type: ParserData.MatchTypes = "MatchStart",
+                         requires_logon: bool = False,
+                         label: Optional[str] = None):
+        """ Adds a DataParser to the handlers-dictionary
 
-        :param preprocessor:                    The pre-processor called
-        :type preprocessor:                     (str|JsonHelper) -> (str|JsonHelper,list[MediaItem])
+        :param preprocessor:          The pre-processor called
+        :param name:                  The name of the DataParser
+        :param url:                   The URLs that triggers these handlers
+        :param parser:                The parser (regex or json).
 
-        :param str name:                        The name of the DataParser
-        :param str url:                         The URLs that triggers these handlers
-        :param str|list[str|int|tuple] parser:  The parser (regex or json).
-
-        :param creator:                         The creator called with the results from the parser
-        :type creator:                          (list[str]|dict) -> MediaItem|None|list[MediaItem]
-
-        :param updater:                         The updater called for updating a item
-        :type updater:                          MediaItem -> MediaItem
-
-        :param postprocessor:                   The post-processor called
-        :type postprocessor:                    (JsonHelper|str,list[MediaItems]) -> list[MediaItems]
-
-        :param bool json:                       Indication whether the parsers are JSON (True) or Regex (False)
-        :param str match_type:                  The type of matching to use
-        :param bool requires_logon:             Do we need to be logged on?
+        :param creator:               The creator called with the results from the parser
+        :param updater:               The updater called for updating a item
+        :param postprocessor:         The post-processor called
+        :param json:                  Indication whether the parsers are JSON (True) or Regex (False)
+        :param match_type:            The type of matching to use
+        :param requires_logon:        Do we need to be logged on?
 
         If a tuple (key,value,index) is used in the `parser` it will cause a list to be filtered
         based on the key and its corresponding value. if the index is a number, from the resulting
