@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from resources.lib.chn_class import PreProcessorResult
 from typing import Dict
 from typing import List
 
 from resources.lib import chn_class, mediatype, contenttype
 from resources.lib.chn_class import CreatorResult
 from resources.lib.helpers.datehelper import DateHelper
+from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.regexer import Regexer
@@ -41,13 +43,20 @@ class Channel(chn_class.Channel):
         self.mainListUri = "https://nos.nl/"
 
         self._add_data_parser(self.mainListUri, match_type="Exact",
-                              parser=r"<li>\W*<a[^>]+(?:nieuws|sport)[^>]+href=\"(/[^\"]+)\"[^>]*>([^<]+)",
+                              preprocessor=self.add_live,
+                              parser=r"<li>\W*<a[^>]+(nieuws|sport|live)[^>]+href=\"(/[^\"]+)\"[^>]*>([^<]+)",
                               creator=self.create_category_item)
 
         self._add_data_parser("https://nos.nl/_next/data/", json=True,
                               parser=["pageProps", "items"], creator=self.create_video_item)
 
-        self._add_data_parser("https://nos.nl/video/", updater=self.update_video_item)
+        self._add_data_parser("https://nos.nl/api/live-livestreams", json=True,
+                              parser=[], creator=self.create_live_stream_item)
+
+        self._add_data_parser("https://nos.nl/video/",
+                              updater=self.update_video_item)
+        self._add_data_parser("https://resolver.streaming.api.nos.nl/stream?stream",
+                              updater=self.update_resolved_stream)
 
     # noinspection PyPropertyDefinition
     @property
@@ -64,16 +73,62 @@ class Channel(chn_class.Channel):
 
         return self.__build_version
 
+    def add_live(self, data: str) -> PreProcessorResult:
+        url = "https://nos.nl/api/live-livestreams"
+        name = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamsTitleId)
+        live_item = MediaItem(name, url)
+        return data, [live_item]
+
     def create_category_item(self, result_set: List[str]) -> CreatorResult:
-        name = result_set[1]
+        link_type = result_set[0]
+        slug = result_set[1]
+        name = result_set[2]
+
         # https://nos.nl/_next/data/SE_PTjV3sJH9fMkxyA0z6/nieuws/laatste/videos.json
-        url = f"https://nos.nl/_next/data/{self.build_version}/{result_set[0]}/videos.json"
-        if "sport" in url:
+        url = f"https://nos.nl/_next/data/{self.build_version}/{slug}/videos.json"
+
+        if link_type == "sport":
             name = f"Sport: {name}"
-        elif "nieuws" in url:
+        elif link_type == "nieuws":
             name = f"Nieuws: {name}"
+        else:
+            name = f"Live: {name}"
 
         item = FolderItem(name, url, content_type=contenttype.VIDEOS)
+        return item
+
+    def create_live_stream_item(self, result_set: Dict) -> CreatorResult:
+        title = result_set["title"]
+        desc = result_set["description"]
+        online = result_set["isOnline"]
+
+        url = None
+        video_format: Dict[str, str]
+        for video_format in result_set["formats"]:
+            if "apple" in video_format["mimetype"]:
+                url = video_format["url"]
+                break
+
+        if not url or not online:
+            return None
+
+        item = MediaItem(title, url, media_type=mediatype.VIDEO)
+        item.description = desc
+        item.isLive = True
+        item.isGeoLocked = True
+
+        starts_at = result_set["startAt"]
+        date_time = DateHelper.get_date_from_string(starts_at, date_format="%Y-%m-%dT%H:%M:%S%z")
+        item.set_date(*date_time[0:6])
+
+        image_infos: List = result_set["indexImage"]["Ratio16x9"]
+        image_info: Dict
+        fanart = None
+        for image_info in image_infos:
+            if image_info["width"] >= 1080 and not fanart:
+                fanart = image_info["url"]
+                continue
+        item.set_artwork(thumb=fanart, fanart=fanart)
         return item
 
     def create_video_item(self, result_set: Dict) -> CreatorResult:

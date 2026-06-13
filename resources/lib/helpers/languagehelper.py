@@ -103,6 +103,7 @@ class LanguageHelper(object):
     Page = 30537
     NoLiveStreamId = 30538
     LiveStreamTitleId = 30539
+    LiveStreamsTitleId = 30589
     GeoLockedId = 30540
     PremiumPaid = 30049
     DrmProtected = 30050

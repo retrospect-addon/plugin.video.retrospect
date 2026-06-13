@@ -25,20 +25,21 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.channelinfo import ChannelInfo
 
+PreProcessorResult = Tuple[Union[str, JsonHelper], List[MediaItem]]
 Preprocessor = Union[
-    Callable[[str], Tuple[Union[str, JsonHelper], List[MediaItem]]],
-    Callable[[JsonHelper], Tuple[Union[str, JsonHelper], List[MediaItem]]],
+    Callable[[str], PreProcessorResult],
+    Callable[[JsonHelper], PreProcessorResult]
 ]
 CreatorResult = Union[MediaItem, None, List[MediaItem]]
 Creator = Union[
     Callable[[List[str]], CreatorResult],
-    Callable[[Dict], CreatorResult],
+    Callable[[Dict], CreatorResult]
 ]
 Parser = Union[List[Union[str, int, Tuple[str, str]]], str]
 Updater = Callable[[MediaItem], MediaItem]
 PostProcessor = Union[
     Callable[[str, List[MediaItem]], List[MediaItem]],
-    Callable[[JsonHelper, List[MediaItem]], List[MediaItem]],
+    Callable[[JsonHelper, List[MediaItem]], List[MediaItem]]
 ]
 
 
