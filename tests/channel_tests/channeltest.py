@@ -13,6 +13,9 @@ from resources.lib.urihandler import UriHandler
 
 
 class ChannelTest(unittest.TestCase):
+    # pyrefly: ignore [unknown-name]
+    channel: "Channel"
+
     # noinspection PyPep8Naming
     def __init__(self, methodName, channel=None, code=None):  # NOSONAR
         super(ChannelTest, self).__init__(methodName)
