@@ -1,3 +1,4 @@
+from resources.lib.chn_class import PreProcessorResult
 import json
 from typing import Any, Dict, Optional, Set, List, Union
 from typing import Tuple
@@ -111,7 +112,7 @@ class NextJsParser:
         self._skip = skip
         self._return_parent = return_parent
 
-    def __call__(self, data: str) -> Tuple[Union[JsonHelper, str], List[MediaItem]]:
+    def __call__(self, data: str) -> PreProcessorResult:
         helper = RSCHelper(data)
         result_data = helper.convert_to_json()
         if result_data:

@@ -25,12 +25,12 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.addonsettings import AddonSettings, LOCAL
 from resources.lib.channelinfo import ChannelInfo
 
-PreProcessorResult = Tuple[Union[str, JsonHelper], List[MediaItem]]
+PreProcessorResult = Tuple[Union[str, JsonHelper], Union[List[MediaItem], List[FolderItem]]]
 Preprocessor = Union[
     Callable[[str], PreProcessorResult],
     Callable[[JsonHelper], PreProcessorResult]
 ]
-CreatorResult = Union[MediaItem, None, List[MediaItem]]
+CreatorResult = Union[MediaItem, FolderItem, None, Union[List[MediaItem], List[FolderItem]]]
 Creator = Union[
     Callable[[List[str]], CreatorResult],
     Callable[[Dict], CreatorResult]

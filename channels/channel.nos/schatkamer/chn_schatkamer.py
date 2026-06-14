@@ -1,21 +1,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Tuple
-from resources.lib.helpers.jsonhelper import JsonHelper
+from typing import Dict, Union, List
 from typing import Optional
-from urllib.parse import urlparse
 from urllib.parse import parse_qs
+from urllib.parse import urlparse
 
+from resources.lib import chn_class, contenttype
+from resources.lib import mediatype
+from resources.lib.channelinfo import ChannelInfo
+from resources.lib.chn_class import PreProcessorResult
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib import mediatype
 from resources.lib.helpers.reactrsc import NextJsParser
-from typing import Dict, Union, List
-
 from resources.lib.mediaitem import MediaItem, FolderItem
-from resources.lib import chn_class, contenttype
-from resources.lib.channelinfo import ChannelInfo
 from resources.lib.regexer import Regexer
+from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 
 
@@ -69,7 +67,7 @@ class Channel(chn_class.Channel):
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
                               updater=self.update_video_item)
 
-    def main_list_preprocessor(self, data: str) -> Tuple[Union[str, JsonHelper], List[MediaItem]]:
+    def main_list_preprocessor(self, data: str) -> PreProcessorResult:
         preprocessor = NextJsParser(key="data-gtm-ux-component", value="information-page-details")
         json_data, items = preprocessor(data)
 
