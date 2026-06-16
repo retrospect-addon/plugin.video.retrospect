@@ -7,6 +7,7 @@ from typing import List
 from resources.lib import chn_class, mediatype, contenttype
 from resources.lib.chn_class import CreatorResult
 from resources.lib.helpers.datehelper import DateHelper
+from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
@@ -75,6 +76,12 @@ class Channel(chn_class.Channel):
 
     def add_live(self, data: str) -> PreProcessorResult:
         url = "https://nos.nl/api/live-livestreams"
+        live_data = UriHandler.open(url, no_cache=True)
+        live_json = JsonHelper(live_data)
+        if not live_json.json:
+            Logger.info("No live streams available for NOS.nl")
+            return data, []
+
         name = LanguageHelper.get_localized_string(LanguageHelper.LiveStreamsTitleId)
         live_item = MediaItem(name, url)
         return data, [live_item]
