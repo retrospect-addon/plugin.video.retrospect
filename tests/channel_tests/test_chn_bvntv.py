@@ -17,19 +17,19 @@ class TestBvnTvChannel(ChannelTest):
         self.assertGreater(len(items), 5)
 
     def test_episode_listing_show(self):
-        url = "https://www.bvn.tv/programma/nos-journaal/"
+        url = "https://legacy.bvn.tv/programma/nos-journaal/"
         self._test_folder_url(url, expected_results=1)
 
     @unittest.skip("Does no longer exist.")
     def test_episode_listing_show_few_results(self):
-        url = "https://www.bvn.tv/programma/opsporing-verzocht/"
+        url = "https://legacy.bvn.tv/programma/opsporing-verzocht/"
         self._test_folder_url(url, expected_results=1)
 
     @unittest.skip("No shows available with a single episode that is constent over time.")
     def test_episode_listing_show_single_episode(self):
-        url = "https://www.bvn.tv/programma/de-gert-hermien-story/"
+        url = "https://legacy.bvn.tv/programma/de-gert-hermien-story/"
         self._test_folder_url(url, expected_results=1)
 
     def test_live_stream(self):
-        url = "https://www.bvn.tv/programma/live/LI_BVN_4589107"
+        url = "https://legacy.bvn.tv/programma/live/LI_BVN_4589107"
         self._test_video_url(url)

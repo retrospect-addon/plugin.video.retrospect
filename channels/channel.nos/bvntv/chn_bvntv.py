@@ -21,15 +21,19 @@ class Channel(chn_class.Channel):
 
         """
 
+        # TODO: Use the /index-<build>.js to get to
+        #  bvnSchedule: "https://2f2q45shwd3l7zjffxcg4474tu0fawsf.lambda-url.eu-central-1.on.aws/schedule/
+        #  which can be use to get all the data
+
         chn_class.Channel.__init__(self, channel_info)
 
         # ============== Actual channel setup STARTS here and should be overwritten from derived classes ===============
         # setup the urls
-        self.baseUrl = "https://www.bvn.tv"
+        self.baseUrl = "https://legacy.bvn.tv"
 
         self.noImage = "bvntvimage.png"
         self.poster = "bvntvposter.png"
-        self.mainListUri = "https://www.bvn.tv/programmas/"
+        self.mainListUri = "https://legacy.bvn.tv/programmas/"
 
         episode_regex = (r'<a[^>]*href="(?<url>[^"]+)[^>]*>\W*<figure class="media">\W*<img[^>]*'
                          r'data-src="(?<thumburl>[^"]+)"[\w\W]{0,500}?<h4[^>]+>\W+'
@@ -44,7 +48,7 @@ class Channel(chn_class.Channel):
                        r'(?<title>[^<]+?)\W+</h4>\W*<p.+class="time">\W+\w+ (?<datetime>[^"]+?)'
                        r'\W+</p>')
         video_regex = Regexer.from_expresso(video_regex)
-        self._add_data_parser("https://www.bvn.tv/programma/", name="Main video listings for shows",
+        self._add_data_parser("https://legacy.bvn.tv/programma/", name="Main video listings for shows",
                               preprocessor=self.extract_episode_section,
                               parser=video_regex, creator=self.create_video_item,
                               updater=self.update_video_item)

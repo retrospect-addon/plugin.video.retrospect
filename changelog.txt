@@ -12,3 +12,4 @@ _None_
 * Fixed: Dumpert search (Fixes #1976).
 * Fixed: NOS.nl changed layout (Fixes #1977).
 * Added: De Schatkamer (Fixes 1971).
+* Fixed: BVN TV moved to a new layout. Using legacy now.
