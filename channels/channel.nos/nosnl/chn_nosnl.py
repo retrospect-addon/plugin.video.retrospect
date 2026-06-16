@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from resources.lib.streams.mpd import Mpd
 from resources.lib.chn_class import PreProcessorResult
 from typing import Dict
 from typing import List
@@ -112,9 +113,12 @@ class Channel(chn_class.Channel):
         url = None
         video_format: Dict[str, str]
         for video_format in result_set["formats"]:
-            if "apple" in video_format["mimetype"]:
+            # Finish on Dash, but always return a stream.
+            if "dash" in video_format["mimetype"]:
                 url = video_format["url"]
                 break
+            elif "apple" in video_format["mimetype"]:
+                url = video_format["url"]
 
         if not url or not online:
             return None
@@ -174,8 +178,16 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item: %s', item.name)
 
-        _, url = UriHandler.header(item.url)
-        item.complete = M3u8.update_part_with_m3u8_streams(item, url, bitrate=0)
+        content_type, url = UriHandler.header(item.url)
+        strm = item.add_stream(url)
+        item.url = url
+
+        if "dash" in content_type:
+            Mpd.set_input_stream_addon_input(strm)
+        else:
+            M3u8.set_input_stream_addon_input(strm)
+
+        item.complete = True
         return item
 
     def update_video_item(self, item: MediaItem) -> MediaItem:
