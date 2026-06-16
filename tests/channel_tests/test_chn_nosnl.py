@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.regexer import Regexer
+from resources.lib.urihandler import UriHandler
 import unittest
 
 from . channeltest import ChannelTest
@@ -7,7 +9,20 @@ from . channeltest import ChannelTest
 class TestNosChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
+        self.__build_version = None
         super(TestNosChannel, self).__init__(methodName, "channel.nos.nosnl", "nosnl")
+
+    @property
+    def build_version(self) -> str:
+        if not self.__build_version:
+            data = UriHandler.open("https://nos.nl/")
+            try:
+                build_version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
+            except:
+                raise
+            self.__build_version = build_version
+
+        return self.__build_version
 
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
@@ -25,7 +40,7 @@ class TestNosChannel(ChannelTest):
             self.assertTrue("cdn.streamgate.nl" in stream.Url)
 
     def test_video_listing(self):
-        url = "https://nos.nl/_next/data/SE_PTjV3sJH9fMkxyA0z6//nieuws/binnenland.json"
+        url = f"https://nos.nl/_next/data/{self.build_version}//nieuws/binnenland.json"
         self._test_folder_url(url, expected_results=20)
 
     @unittest.skip("GEO Blocked.")
