@@ -8,7 +8,7 @@ from typing import Dict, List, Union, Optional, Any
 
 #noinspection PyShadowingNames
 class JsonHelper(object):
-    def __init__(self, data, logger=None):
+    def __init__(self, data: Union[List, Dict], logger=None):
         """Creates a class that wraps json.
 
         :param str|unicode|dict|list data:    JSON data to parse.

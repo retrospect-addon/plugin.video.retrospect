@@ -62,6 +62,13 @@ class Channel(chn_class.Channel):
                                   key="className", value="AllCategoriesList-module__dZ8mUW__wrapper"),
                               parser=["children"], creator=self.create_category_items)
 
+        self._add_data_parser("https://urplay.se/bladdra/", json=True,
+                              preprocessor=NextJsParser(key="startPage", return_parent=True))
+
+        self._add_data_parser("https://urplay.se/bladdra/", json=True,
+                              preprocessor=self.extract_category_info,
+                              parser=["blocks"], creator=self.create_category_blocks)
+
         self._add_data_parser("https://urplay.se/api/v1/season_episodes?seriesId", json=True,
                               name="Series parser",
                               parser=["accessibleEpisodes"], creator=self.create_video_for_series)
@@ -71,6 +78,7 @@ class Channel(chn_class.Channel):
 
         self.__timezone = pytz.timezone("Europe/Amsterdam")
         self.__episode_text = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
+        self.__category_art = {}
 
     def generate_main_list(self, data: str) -> PreProcessorResult:
         """ Adds some generic items such as search and categories to the main listing.
@@ -118,13 +126,14 @@ class Channel(chn_class.Channel):
             result_set = result_set[-1]["children"][-1]
             href = result_set['href']
             show_id = href.split("/")[-1].split("-")[0]
-            image = f"https://assets.ur.se/id/{show_id}/images/1_xl.jpg"
+            image = f"https://assets.ur.se/id/{show_id}/images/1_1080.jpg"
+            poster = f"https://assets.ur.se/id/{show_id}/images/1_po_1080.jpg"
 
             # url = f"https://urplay.se{href}"
             url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
             name = result_set["children"]
             item = FolderItem(name, url, content_type=contenttype.EPISODES)
-            item.set_artwork(thumb=image, fanart=image)
+            item.set_artwork(thumb=image, fanart=image, poster=poster)
             items.append(item)
         return items
 
@@ -168,7 +177,38 @@ class Channel(chn_class.Channel):
 
         return iterate_results_set(result_set, [])
 
-    def create_video_for_series(self, result_set: dict, include_show_title: bool = False) -> CreatorResult:
+    def extract_category_info(self, data: JsonHelper) -> PreProcessorResult:
+        # Extract some extra info about the categories.
+        self.__category_art = {
+            "thumb": data.get_value("imageUrlLarge"),
+            "fanart": data.get_value("imageUrlLarge")
+        }
+
+        json_data: Dict = data.get_value("startPage")
+        data = JsonHelper(json_data)
+        return data, []
+
+    def create_category_blocks(self, result_set: Dict) -> CreatorResult:
+        title = result_set["title"]
+        description = result_set["description"]
+        block_id = result_set["id"]
+
+        folder = FolderItem(title, str(block_id), content_type=contenttype.EPISODES)
+        folder.description = description
+        if self.__category_art:
+            folder.set_artwork(**self.__category_art)
+
+        products = result_set.get("products", [])
+        lightweight_products = result_set.get("lightweightProducts", [])
+
+        for video_info in products + lightweight_products:
+            video = self.create_video_for_series(video_info)
+            if video:
+                folder.items.append(video)
+
+        return folder
+
+    def create_video_for_series(self, result_set: dict, include_show_title: bool = False) -> Union[None, MediaItem]:
         """ Creates a video item for a series
 
         :param result_set:
@@ -193,14 +233,15 @@ class Channel(chn_class.Channel):
 
         # slug = result_set['slug']
         # url = "%s/program/%s" % (self.baseUrl, slug)
-        url = f"https://media-api.urplay.se/config-streaming/v1/urplay/sources/{result_set['id']}"
+        video_id = result_set["id"]
+        url = f"https://media-api.urplay.se/config-streaming/v1/urplay/sources/{video_id}"
 
         item = MediaItem(title, url)
         item.media_type = mediatype.EPISODE
-        item.description = result_set['description']
+        item.description = result_set.get("description", "")
         item.complete = False
 
-        images = result_set["image"]
+        images = result_set.get("image") or {}
         thumb_fanart = None
         for dimension, url in images.items():
             if dimension.startswith("640x"):
@@ -210,6 +251,12 @@ class Channel(chn_class.Channel):
 
             if item.thumb and thumb_fanart:
                 break
+
+        if not item.thumb:
+            # If an item has no thumb, we set the main poster.
+            item.poster = f"https://assets.ur.se/id/{video_id}/images/1_po_1080.jpg"
+        if not item.fanart:
+            item.fanart = f"https://assets.ur.se/id/{video_id}/images/1_1080.jpg"
 
         # if there was a high quality thumb and no fanart (default one), the use the thumb.
         if item.fanart == self.fanart and thumb_fanart:
@@ -221,7 +268,9 @@ class Channel(chn_class.Channel):
 
         # Determine the date and keep timezones into account
         # date = result_set.get('publishedAt')
-        if "accessiblePlatforms" in result_set and "urplay" in result_set["accessiblePlatforms"]:
+        if ("accessiblePlatforms" in result_set
+                and result_set["accessiblePlatforms"]
+                and "urplay" in result_set["accessiblePlatforms"]):
             start_date = result_set["accessiblePlatforms"]["urplay"]["startTime"]
             end_date = result_set["accessiblePlatforms"]["urplay"]["endTime"]
 
