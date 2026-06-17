@@ -112,7 +112,7 @@ class JsonHelper(object):
         return chr(hex_value)
 
     #noinspection PyUnboundLocalVariable
-    def get_value(self, *args, **kwargs):
+    def get_value(self, *args, **kwargs) -> Any:
         """ Retrieves data from the JSON object based on the input parameters
 
         :param str args|int:    The dictionary keys, or list indexes.
@@ -190,7 +190,7 @@ class JsonHelper(object):
 
     #noinspection PyUnboundLocalVariable
     @staticmethod
-    def get_from(data, *args, logger=None, **kwargs):
+    def get_from(data, *args, logger=None, **kwargs) -> Any:
         """ Retrieves data from a generic JSON object based on the input parameters
 
         :param str data         The JSON data

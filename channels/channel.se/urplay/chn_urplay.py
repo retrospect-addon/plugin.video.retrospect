@@ -1,4 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# pyrefly: ignore [untyped-import]
+import pytz
+from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.mpd import Mpd
+from resources.lib.urihandler import UriHandler
+from resources.lib import mediatype
 from typing import Dict
 from typing import List
 from typing import Union
@@ -6,11 +12,13 @@ from typing import Union
 from resources.lib import chn_class, contenttype
 from resources.lib.chn_class import CreatorResult
 from resources.lib.chn_class import PreProcessorResult
+from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.reactrsc import NextJsParser
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
+from resources.lib.xbmcwrapper import XbmcWrapper
 
 
 class Channel(chn_class.Channel):
@@ -53,6 +61,16 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(
                                   key="className", value="AllCategoriesList-module__dZ8mUW__wrapper"),
                               parser=["children"], creator=self.create_category_items)
+
+        self._add_data_parser("https://urplay.se/api/v1/season_episodes?seriesId", json=True,
+                              name="Series parser",
+                              parser=["accessibleEpisodes"], creator=self.create_video_for_series)
+
+        self._add_data_parser("https://media-api.urplay.se/config-streaming/v1/urplay/sources/",
+                              updater=self.update_video_item)
+
+        self.__timezone = pytz.timezone("Europe/Amsterdam")
+        self.__episode_text = LanguageHelper.get_localized_string(LanguageHelper.EpisodeId)
 
     def generate_main_list(self, data: str) -> PreProcessorResult:
         """ Adds some generic items such as search and categories to the main listing.
@@ -102,7 +120,8 @@ class Channel(chn_class.Channel):
             show_id = href.split("/")[-1].split("-")[0]
             image = f"https://assets.ur.se/id/{show_id}/images/1_xl.jpg"
 
-            url = f"https://urplay.se{href}"
+            # url = f"https://urplay.se{href}"
+            url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
             name = result_set["children"]
             item = FolderItem(name, url, content_type=contenttype.EPISODES)
             item.set_artwork(thumb=image, fanart=image)
@@ -148,6 +167,110 @@ class Channel(chn_class.Channel):
             return results
 
         return iterate_results_set(result_set, [])
+
+    def create_video_for_series(self, result_set: dict, include_show_title: bool = False) -> CreatorResult:
+        """ Creates a video item for a series
+
+        :param result_set:
+        :return:
+        """
+        Logger.trace(result_set)
+
+        title = result_set["title"]
+        # We could add the main title
+
+        show_title = result_set.get('mainTitle')
+        episode = result_set.get('episodeNumber')
+
+        if show_title and include_show_title:
+            if bool(episode):
+                title = "{} - {} {:02d} - {}".format(show_title, self.__episode_text, episode, title)
+            else:
+                title = "{} - {}".format(show_title, title)
+
+        elif bool(episode):
+            title = "{} {:02d} - {}".format(self.__episode_text, episode, title)
+
+        # slug = result_set['slug']
+        # url = "%s/program/%s" % (self.baseUrl, slug)
+        url = f"https://media-api.urplay.se/config-streaming/v1/urplay/sources/{result_set['id']}"
+
+        item = MediaItem(title, url)
+        item.media_type = mediatype.EPISODE
+        item.description = result_set['description']
+        item.complete = False
+
+        images = result_set["image"]
+        thumb_fanart = None
+        for dimension, url in images.items():
+            if dimension.startswith("640x"):
+                item.thumb = url
+            elif dimension.startswith("1280x"):
+                thumb_fanart = url
+
+            if item.thumb and thumb_fanart:
+                break
+
+        # if there was a high quality thumb and no fanart (default one), the use the thumb.
+        if item.fanart == self.fanart and thumb_fanart:
+            item.fanart = thumb_fanart
+
+        duration = result_set.get("duration")
+        if duration:
+            item.set_info_label("duration", int(duration))
+
+        # Determine the date and keep timezones into account
+        # date = result_set.get('publishedAt')
+        if "accessiblePlatforms" in result_set and "urplay" in result_set["accessiblePlatforms"]:
+            start_date = result_set["accessiblePlatforms"]["urplay"]["startTime"]
+            end_date = result_set["accessiblePlatforms"]["urplay"]["endTime"]
+
+            if start_date:
+                start_date = start_date.replace(".000Z", "Z")
+                date_time = DateHelper.get_datetime_from_string(
+                    start_date, date_format="%Y-%m-%dT%H:%M:%SZ", time_zone="UTC")
+                date_time = date_time.astimezone(self.__timezone)
+                item.set_date(date_time.year, date_time.month, date_time.day,
+                              date_time.hour, date_time.minute, date_time.second)
+            if end_date:
+                end_date = end_date.replace(".000Z", "Z")
+                end_date_time = DateHelper.get_datetime_from_string(
+                    end_date, date_format="%Y-%m-%dT%H:%M:%SZ", time_zone="UTC")
+                end_date_time = end_date_time.astimezone(self.__timezone)
+                item.set_expire_datetime(end_date_time)
+
+        return item
+
+    def update_video_item(self, item: MediaItem) -> MediaItem:
+        """ Updates an existing MediaItem with more data.
+
+        :param MediaItem item: the original MediaItem that needs updating.
+
+        :return: The original item with more data added to it's properties.
+
+        """
+
+        Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
+
+        data = UriHandler.open(item.url, no_cache=True)
+        json: JsonHelper = JsonHelper(data)
+
+        error = json.get_value("error")
+        if error:
+            error_label = LanguageHelper.get_localized_string(LanguageHelper.ErrorId)
+            XbmcWrapper.show_dialog(LanguageHelper.NoPlaybackId, f"{error_label}: {error}")
+            return item
+
+        for stream_type, stream_url in json.get_value("sources").items():
+            if stream_type == "dash":
+                stream = item.add_stream(stream_url, 1)
+                Mpd.set_input_stream_addon_input(stream)
+                item.complete = True
+            elif stream_type == "hls":
+                stream = item.add_stream(stream_url, 0)
+                M3u8.set_input_stream_addon_input(stream)
+                item.complete = True
+        return item
 
     #     # Match the "series" API -> shows TV Shows
     #     self._add_data_parser(self.mainListUri, json=True,
