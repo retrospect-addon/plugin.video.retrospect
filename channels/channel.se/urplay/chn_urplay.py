@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # pyrefly: ignore [untyped-import]
 import pytz
+
+from resources.lib.regexer import Regexer
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
@@ -70,7 +72,7 @@ class Channel(chn_class.Channel):
                               parser=["blocks"], creator=self.create_category_blocks)
 
         self._add_data_parser("https://urplay.se/api/v1/season_episodes?seriesId", json=True,
-                              name="Series parser",
+                              name="Series parser", preprocessor=self.extract_season_info,
                               parser=["accessibleEpisodes"], creator=self.create_video_for_series)
 
         self._add_data_parser("https://media-api.urplay.se/config-streaming/v1/urplay/sources/",
@@ -94,7 +96,6 @@ class Channel(chn_class.Channel):
 
         Logger.info("Performing Pre-Processing")
         items = []
-        max_items_per_page = 20
 
         categories = {
             # LanguageHelper.Popular: "https://urplay.se/api/v1/search?product_type=program&query=&rows={}&start=0&view=most_viewed".format(max_items_per_page),
@@ -129,11 +130,11 @@ class Channel(chn_class.Channel):
             image = f"https://assets.ur.se/id/{show_id}/images/1_1080.jpg"
             poster = f"https://assets.ur.se/id/{show_id}/images/1_po_1080.jpg"
 
-            # url = f"https://urplay.se{href}"
             url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
             name = result_set["children"]
             item = FolderItem(name, url, content_type=contenttype.EPISODES)
             item.set_artwork(thumb=image, fanart=image, poster=poster)
+            item.metaData["seasonLink"] = f"https://urplay.se{href}"
             items.append(item)
         return items
 
@@ -188,6 +189,31 @@ class Channel(chn_class.Channel):
         data = JsonHelper(json_data)
         return data, []
 
+    def extract_season_info(self, data: str) -> PreProcessorResult:
+        items: List[FolderItem] = []
+
+        if not self.parentItem:
+            return data, items
+
+        season_url = self.parentItem.metaData.get("seasonLink")
+        if not season_url:
+            return data, items
+
+        season_data = UriHandler.open(season_url, additional_headers={"rsc": "0"})
+        next_info = Regexer.do_regex(r"(\{\\\"shouldNotBeInitiallyOpen[^>]+})[^>]+\)</script></body></html>", season_data)
+        if not next_info:
+            return data, items
+
+        next_json = next_info[0].replace('\\"', '"')
+        try:
+            json_data =  JsonHelper(next_json)
+            for season_result in json_data.get_value("superSeriesSeasons"):
+                item = self.create_season_item(season_result)
+                if item:
+                    items.append(item)
+        finally:
+            return data, items
+
     def create_category_blocks(self, result_set: Dict) -> CreatorResult:
         title = result_set["title"]
         description = result_set["description"]
@@ -207,6 +233,13 @@ class Channel(chn_class.Channel):
                 folder.items.append(video)
 
         return folder
+
+    def create_season_item(self, result_set: Dict) -> FolderItem:
+        name = result_set["label"]
+        season_id = result_set["id"]
+        url = f"https://urplay.se/api/v1/season_episodes?seriesId={season_id}"
+        item = FolderItem(name, url, content_type=contenttype.EPISODES)
+        return item
 
     def create_video_for_series(self, result_set: dict, include_show_title: bool = False) -> Union[None, MediaItem]:
         """ Creates a video item for a series
