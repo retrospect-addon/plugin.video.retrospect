@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # pyrefly: ignore [untyped-import]
+from typing import Optional
 import pytz
 
 from resources.lib.regexer import Regexer
@@ -17,7 +18,7 @@ from resources.lib.chn_class import PreProcessorResult
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.helpers.reactrsc import NextJsParser
+from resources.lib.helpers.reactrsc import NextJsParser, RSCHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.xbmcwrapper import XbmcWrapper
@@ -73,7 +74,8 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://urplay.se/api/v1/season_episodes?seriesId", json=True,
                               name="Series parser", preprocessor=self.extract_season_info,
-                              parser=["accessibleEpisodes"], creator=self.create_video_for_series)
+                              parser=["accessibleEpisodes"], creator=self.create_video_for_series,
+                              postprocessor=self.check_for_single_video)
 
         self._add_data_parser("https://media-api.urplay.se/config-streaming/v1/urplay/sources/",
                               updater=self.update_video_item)
@@ -214,6 +216,26 @@ class Channel(chn_class.Channel):
         finally:
             return data, items
 
+    def check_for_single_video(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        if len(items) > 0 or not self.parentItem:
+            return items
+
+        url = self.parentItem.url
+        series_id = url.split("=")[-1]
+
+        url = f"https://urplay.se/program/{series_id}"
+        data = UriHandler.open(url, additional_headers={"rsc": "1"})
+        rsc = RSCHelper(data)
+        json_data = JsonHelper(rsc.convert_to_json())
+        video_info = json_data.find_dict_by_key_value(key="name", value="Next.Metadata")
+        if not video_info or not video_info.get("children"):
+            return items
+
+        item = self.create_single_video(video_info.get("children"))
+        if item:
+            return [item]
+        return []
+
     def create_category_blocks(self, result_set: Dict) -> CreatorResult:
         title = result_set["title"]
         description = result_set["description"]
@@ -239,6 +261,39 @@ class Channel(chn_class.Channel):
         season_id = result_set["id"]
         url = f"https://urplay.se/api/v1/season_episodes?seriesId={season_id}"
         item = FolderItem(name, url, content_type=contenttype.EPISODES)
+        return item
+
+    def create_single_video(self, result_set: List) -> Optional[MediaItem]:
+        title = None
+        description = None
+        fanart = None
+        url = None
+
+        for meta in result_set:
+            data = meta[-1]
+            data_name = data.get("name", data.get("property"))
+            data_value = data.get("content")
+
+            if data_name == "description":
+                description = data_value
+            elif data_name == "og:title":
+                title = data_value
+            elif data_name == "og:image":
+                fanart = data_value
+            elif data_name == "og:url":
+                url = data_value
+
+        if not url or not title or not description:
+            return None
+
+        video_id = url.split("/")[-1].split("-")[0]
+        url = f"https://media-api.urplay.se/config-streaming/v1/urplay/sources/{video_id}"
+
+        item = MediaItem(title, url)
+        item.media_type = mediatype.EPISODE
+        item.description = description
+        item.complete = False
+        item.set_artwork(thumb=fanart, fanart=fanart)
         return item
 
     def create_video_for_series(self, result_set: dict, include_show_title: bool = False) -> Union[None, MediaItem]:

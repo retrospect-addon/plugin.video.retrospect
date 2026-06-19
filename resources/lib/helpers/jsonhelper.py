@@ -124,11 +124,11 @@ class JsonHelper(object):
 
         return JsonHelper.get_from(self.json, *args, logger=self.logger, **kwargs)
 
-    def find_dict_by_key_value(self, key: str, value: Any) -> Optional[Dict]:
-        return JsonHelper.find_dict_by_key_value_from(self.json, key, value)
+    def find_dict_by_key_value(self, key: str, value: Any, skip: Optional[List[int]] = None) -> Optional[Dict]:
+        return JsonHelper.find_dict_by_key_value_from(self.json, key, value, skip=skip)
 
-    def find_dict_by_key(self, key: str) -> Optional[Dict]:
-        return JsonHelper.find_dict_by_key_from(self.json, key)
+    def find_dict_by_key(self, key: str, skip: Optional[List[int]] = None) -> Optional[Dict]:
+        return JsonHelper.find_dict_by_key_from(self.json, key, skip=skip)
 
     @staticmethod
     def find_dict_by_key_value_from(
