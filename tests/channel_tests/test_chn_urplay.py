@@ -11,72 +11,51 @@ class TestUrPlayChannel(ChannelTest):
     def __init__(self, methodName):  # NOSONAR
         super(TestUrPlayChannel, self).__init__(methodName, "channel.se.urplay", None)
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        from resources.lib.urihandler import UriHandler
-        from resources.lib.regexer import Regexer
-
-        data = UriHandler.open("https://urplay.se")
-        cls._version = Regexer.do_regex(r"<script src=\"[^\"]+/([^/]+)/_buildManifest.js\"", data)[0]
-
     def test_channel_exists(self):
         self.assertIsNotNone(self.channel)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions of the build version.")
     def test_main_list(self):
         items = self.channel.process_folder_list(None)
-        self.assertGreaterEqual(len(items), 6, "No items found in mainlist")
+        self.assertEqual(len(items), 2)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_main_tv_show_list(self):
-        url = "#tvshows"
+        url = "https://urplay.se/bladdra/alla-program"
         self._test_folder_url(url, 100)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
+    def test_main_category_list(self):
+        url = "https://urplay.se/bladdra/alla-kategorier"
+        self._test_folder_url(url, 10)
+
     def test_video_play(self):
         url = "https://media-api.urplay.se/config-streaming/v1/urplay/sources/175178"
         self._test_video_url(url)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_video_audio(self):
-        url = "https://media-api.urplay.se/config-streaming/v1/urplay/sources/216777"
+    def test_audio_play(self):
+        url = "https://media-api.urplay.se/config-streaming/v1/urplay/sources/220604"
         self._test_video_url(url)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_categories(self):
-        url = "https://urplay.se/_next/data/gzO3h3V5Cycs_u1Wjwt8k/bladdra/alla-kategorier.json"
-        self._test_folder_url(url, expected_results=5)
+    def test_category_content(self):
+        url = "https://urplay.se/bladdra/dokumentar"
+        items = self._test_folder_url(url, 10) or []
+        self.assertGreaterEqual(len(items[0].items), 1)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_category(self):
-        url = "https://urplay.se/_next/data/CUD2PRDAoYCTpze5YHm-v/bladdra/drama.json?categoryPath=drama"
-        self._test_folder_url(url, expected_results=5)
+    def test_show_with_only_video(self):
+        url = "https://urplay.se/api/v1/season_episodes?seriesId=220596"
+        item = self._get_media_item(url, "Ada löser en tand")
+        item.metaData["seasonLink"] = "https://urplay.se/serie/220596-ada-loser-en-tand"
+        items = self.channel.process_folder_list(item)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_popular(self):
-        url = "https://urplay.se/api/v1/search?product_type=program&query=&rows=150&start=0&view=most_viewed"
-        self._test_folder_url(url, expected_results=10)
+        folders = [i for i in items if i.is_folder]
+        self.assertGreaterEqual(len(folders), 0)
+        videos = [i for i in items if i.is_playable]
+        self.assertGreater(len(videos), 2)
 
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_most_recent(self):
-        url = "https://urplay.se/api/v1/search?product_type=program&rows=150&start=0&view=published"
-        self._test_folder_url(url, expected_results=10)
-
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_last_chance(self):
-        url = "https://urplay.se/api/v1/search?product_type=program&rows=150&start=0&view=last_chance"
-        self._test_folder_url(url, expected_results=10)
-
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
-    def test_search(self):
-        url = "https://urplay.se/api/v1/search?query=Alfons"
-        self._test_folder_url(url, expected_results=5, exact_results=False)
-
-    @unittest.skipIf("CI" in os.environ, "Not working on CI due to GEO restrictions.")
     def test_show_with_seasons(self):
-        url = f"https://urplay.se/_next/data/{self._version}/serie/175177-pregunta-ya.json"
-        items = self._test_folder_url(url, expected_results=2)
+        url = "https://urplay.se/api/v1/season_episodes?seriesId=242456"
+        item = self._get_media_item(url, "Lassugen")
+        item.metaData["seasonLink"] = "https://urplay.se/serie/242456-lassugen"
+        items = self.channel.process_folder_list(item)
+
         folders = [i for i in items if i.is_folder]
         self.assertGreaterEqual(len(folders), 2)
         videos = [i for i in items if i.is_playable]

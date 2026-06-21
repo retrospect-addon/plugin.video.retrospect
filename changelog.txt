@@ -1,6 +1,6 @@
 [B]Retrospect v5.7.xx - Changelog - 2026-xx-xx[/B]
 
-t.b.d.
+Updated a number of channels that broke and added `De Schatkamer`.
 
 [B]Framework related[/B]
 _None_
@@ -12,4 +12,5 @@ _None_
 * Fixed: Dumpert search (Fixes #1976).
 * Fixed: NOS.nl changed layout (Fixes #1977).
 * Added: De Schatkamer (Fixes 1971).
-* Fixed: BVN TV moved to a new layout. Using legacy now.
+* Fixed: BVN TV moved to a new layout. Using legacy now
+* Fixed: UR Play broke (See #1980).
