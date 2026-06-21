@@ -127,18 +127,25 @@ class Channel(chn_class.Channel):
         items = []
         for result_set in list_root:
             result_set = result_set[-1]["children"][-1]
-            href = result_set['href']
-            show_id = href.split("/")[-1].split("-")[0]
-            image = f"https://assets.ur.se/id/{show_id}/images/1_1080.jpg"
-            poster = f"https://assets.ur.se/id/{show_id}/images/1_po_1080.jpg"
-
-            url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
-            name = result_set["children"]
-            item = FolderItem(name, url, content_type=contenttype.EPISODES)
-            item.set_artwork(thumb=image, fanart=image, poster=poster)
-            item.metaData["seasonLink"] = f"https://urplay.se{href}"
-            items.append(item)
+            item = self.create_series_item(result_set)
+            if item:
+                items.append(item)
         return items
+
+    def create_series_item(self, result_set: Dict) -> FolderItem:
+        # It differs if it came from a category or program directly.
+        href = result_set.get("href", result_set.get("link")) or ""
+
+        show_id = href.split("/")[-1].split("-")[0]
+        image = f"https://assets.ur.se/id/{show_id}/images/1_1080.jpg"
+        poster = f"https://assets.ur.se/id/{show_id}/images/1_po_1080.jpg"
+
+        url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
+        name = result_set.get("children", result_set.get("title"))
+        item = FolderItem(name, url, content_type=contenttype.EPISODES)
+        item.set_artwork(thumb=image, fanart=image, poster=poster)
+        item.metaData["seasonLink"] = f"https://urplay.se{href}"
+        return item
 
     def create_category_items(self, result_set: Dict) -> CreatorResult:
         if not result_set:
@@ -256,9 +263,15 @@ class Channel(chn_class.Channel):
         lightweight_products = result_set.get("lightweightProducts", [])
 
         for video_info in products + lightweight_products:
-            video = self.create_video_for_series(video_info)
-            if video:
-                folder.items.append(video)
+            item_type = video_info["productType"]
+            item = None
+            if item_type == "series":
+                item = self.create_series_item(video_info)
+            elif item_type == "program":
+                item = self.create_video_for_series(video_info)
+
+            if item:
+                folder.items.append(item)
 
         return folder
 
