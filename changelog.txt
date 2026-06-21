@@ -1,4 +1,4 @@
-[B]Retrospect v5.7.xx - Changelog - 2026-xx-xx[/B]
+[B]Retrospect v5.7.35 - Changelog - 2026-06-21[/B]
 
 Updated a number of channels that broke and added `De Schatkamer`.
 
