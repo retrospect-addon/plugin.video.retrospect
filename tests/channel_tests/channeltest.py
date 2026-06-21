@@ -1,4 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from resources.lib.mediaitem import MediaItem
+
 import time
 import unittest
 
@@ -13,6 +18,9 @@ from resources.lib.urihandler import UriHandler
 
 
 class ChannelTest(unittest.TestCase):
+    # pyrefly: ignore [unknown-name]
+    channel: "Channel"
+
     # noinspection PyPep8Naming
     def __init__(self, methodName, channel=None, code=None):  # NOSONAR
         super(ChannelTest, self).__init__(methodName)
@@ -75,7 +83,7 @@ class ChannelTest(unittest.TestCase):
                 else:
                     raise
 
-    def _test_video_url(self, url, headers=None, retry=1, parser=None):
+    def _test_video_url(self, url, headers=None, retry=1, parser=None) -> MediaItem:
         self.assertIsNotNone(self.channel)
 
         while retry >= 0:
@@ -99,7 +107,9 @@ class ChannelTest(unittest.TestCase):
                 else:
                     raise
 
-    def _get_media_item(self, url, name=None):
+        raise ValueError("Error testing video")
+
+    def _get_media_item(self, url, name=None) -> MediaItem:
         from resources.lib.mediaitem import MediaItem
 
         item = MediaItem(name or "test_item", url, media_type=mediatype.FOLDER)

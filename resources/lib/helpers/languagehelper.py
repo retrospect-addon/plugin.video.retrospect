@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import List
+from typing import Union
 from resources.lib.addonsettings import AddonSettings
 
 
@@ -101,6 +103,7 @@ class LanguageHelper(object):
     Page = 30537
     NoLiveStreamId = 30538
     LiveStreamTitleId = 30539
+    LiveStreamsTitleId = 30589
     GeoLockedId = 30540
     PremiumPaid = 30049
     DrmProtected = 30050
@@ -236,15 +239,15 @@ class LanguageHelper(object):
         return days
 
     @staticmethod
-    def get_localized_string(string_id, split_on_pipes=True, replace_pipes=False):
+    def get_localized_string(
+            string_id: int, split_on_pipes: bool = True, replace_pipes: bool = False) -> Union[str, List[str]]:
         """ Returns a localized Add-on string using the defined string_id.
 
-        :param int string_id:        The ID for the string.
-        :param bool split_on_pipes:  If true, | cause a split and a list will be returned.
-        :param bool replace_pipes:   If true, | will be replaced by \n.
+        :param string_id:           The ID for the string.
+        :param split_on_pipes:      If true, | cause a split and a list will be returned.
+        :param replace_pipes:       If true, | will be replaced by \n.
 
-        :rtype: str|unicode|list[str|unicode]
-        :return: localized Add-on string use the defined string_id.
+        :return: localized Add-on string. Use the defined string_id.
 
         """
 

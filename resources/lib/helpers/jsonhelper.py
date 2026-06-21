@@ -8,7 +8,7 @@ from typing import Dict, List, Union, Optional, Any
 
 #noinspection PyShadowingNames
 class JsonHelper(object):
-    def __init__(self, data, logger=None):
+    def __init__(self, data: Union[List, Dict], logger=None):
         """Creates a class that wraps json.
 
         :param str|unicode|dict|list data:    JSON data to parse.
@@ -112,7 +112,7 @@ class JsonHelper(object):
         return chr(hex_value)
 
     #noinspection PyUnboundLocalVariable
-    def get_value(self, *args, **kwargs):
+    def get_value(self, *args, **kwargs) -> Any:
         """ Retrieves data from the JSON object based on the input parameters
 
         :param str args|int:    The dictionary keys, or list indexes.
@@ -124,14 +124,15 @@ class JsonHelper(object):
 
         return JsonHelper.get_from(self.json, *args, logger=self.logger, **kwargs)
 
-    def find_dict_by_key_value(self, key: str, value: Any) -> Optional[Dict]:
-        return JsonHelper.find_dict_by_key_value_from(self.json, key, value)
+    def find_dict_by_key_value(self, key: str, value: Any, skip: Optional[List[int]] = None) -> Optional[Dict]:
+        return JsonHelper.find_dict_by_key_value_from(self.json, key, value, skip=skip)
 
-    def find_dict_by_key(self, key: str) -> Optional[Dict]:
-        return JsonHelper.find_dict_by_key_from(self.json, key)
+    def find_dict_by_key(self, key: str, skip: Optional[List[int]] = None) -> Optional[Dict]:
+        return JsonHelper.find_dict_by_key_from(self.json, key, skip=skip)
 
     @staticmethod
-    def find_dict_by_key_value_from(data: Union[List, Dict], key: str, value: Any) -> Optional[Dict]:
+    def find_dict_by_key_value_from(
+            data: Union[List, Dict], key: str, value: Any, skip: Optional[List[int]] = None) -> Optional[Dict]:
         """
         Search recursively for a dictionary containing a specific key-value pair.
         Returns the dictionary and all its content if found, otherwise None.
@@ -139,23 +140,27 @@ class JsonHelper(object):
 
         if isinstance(data, dict):
             if key in data and data[key] == value:
-                return data
+                if skip is None or skip[0] <= 0:
+                    return data
+                else:
+                    skip[0] -= 1
 
             for child in data.values():
-                result = JsonHelper.find_dict_by_key_value_from(child, key, value)
+                result = JsonHelper.find_dict_by_key_value_from(child, key, value, skip)
                 if result is not None:
                     return result
 
         elif isinstance(data, list):
             for item in data:
-                result = JsonHelper.find_dict_by_key_value_from(item, key, value)
+                result = JsonHelper.find_dict_by_key_value_from(item, key, value, skip)
                 if result is not None:
                     return result
 
         return None
 
     @staticmethod
-    def find_dict_by_key_from(data: Union[List, Dict], key: str) -> Optional[Dict]:
+    def find_dict_by_key_from(
+            data: Union[List, Dict], key: str, return_parent: bool = False, skip: Optional[List[int]] = None) -> Optional[Dict]:
         """
         Search recursively for a dictionary containing a specific key-value pair.
         Returns the dictionary and all its content if found, otherwise None.
@@ -163,16 +168,21 @@ class JsonHelper(object):
 
         if isinstance(data, dict):
             if key in data:
-                return data[key]
+                if skip is None or skip[0] <= 0:
+                    if return_parent:
+                        return data
+                    return data[key]
+                else:
+                    skip[0] -= 1
 
             for child in data.values():
-                result = JsonHelper.find_dict_by_key_from(child, key)
+                result = JsonHelper.find_dict_by_key_from(child, key, return_parent, skip)
                 if result is not None:
                     return result
 
         elif isinstance(data, list):
             for item in data:
-                result = JsonHelper.find_dict_by_key_from(item, key)
+                result = JsonHelper.find_dict_by_key_from(item, key, return_parent, skip)
                 if result is not None:
                     return result
 
@@ -180,7 +190,7 @@ class JsonHelper(object):
 
     #noinspection PyUnboundLocalVariable
     @staticmethod
-    def get_from(data, *args, logger=None, **kwargs):
+    def get_from(data, *args, logger=None, **kwargs) -> Any:
         """ Retrieves data from a generic JSON object based on the input parameters
 
         :param str data         The JSON data

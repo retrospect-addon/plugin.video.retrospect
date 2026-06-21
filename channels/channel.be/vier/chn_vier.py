@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.helpers.reactrsc import NextJsParser
 import datetime
 from typing import Tuple, List, Optional, Union
 
@@ -12,7 +13,6 @@ from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.helpers.reactrsc import RSCHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, MediaItemResult, FolderItem
 from resources.lib.regexer import Regexer
@@ -22,34 +22,6 @@ from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
 from resources.lib.vault import Vault
 from resources.lib.xbmcwrapper import XbmcWrapper
-
-
-class NextJsParser:
-    def __init__(self, key: str = "", value: str = ""):
-        self._key = key
-        self._value = value
-
-    def __call__(self, data: str) -> Tuple[Union[JsonHelper, str], List[MediaItem]]:
-        helper = RSCHelper(data)
-        result_data = helper.convert_to_json()
-        if result_data:
-            Logger.debug("Found NextJs data: %s", JsonHelper.dump(result_data, pretty_print=False))
-
-        if self._key and self._value:
-            result_data = JsonHelper.find_dict_by_key_value_from(result_data, self._key, self._value)
-        elif self._key:
-            result_data = JsonHelper.find_dict_by_key_from(result_data, self._key)
-
-        if result_data and isinstance(result_data, str):
-            return result_data, []
-        elif result_data:
-            return JsonHelper(result_data), []
-
-        Logger.warning("Could not find NextJs data for key: %s, value: %s", self._key, self._value)
-        return "", []
-
-    def __str__(self):
-        return f"NextJsParser(key={self._key}, value={self._value})"
 
 
 class Channel(chn_class.Channel):

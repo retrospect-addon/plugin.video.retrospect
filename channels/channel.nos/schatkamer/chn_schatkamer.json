@@ -1,0 +1,20 @@
+{
+  "channels": [
+    {
+      "guid": "89DBA754-1EAA-4C73-8009-B19ED9CE71C2",
+      "name": "De Schatkamer",
+      "description": {
+        "en": "Broadcast of the Dutch public broadcasters via https://npo.nl/start.\\n\\nA [COLOR=yellow]NPO Start account[/COLOR] can be configured via the add-on settings. This makes the 'subscribed' shows available within Retrospect.\",",
+        "nl": "In deze Schatkamer krijg je GRATIS toegang tot honderdduizenden Nederlandse radio- en televisieprogramma's. Hier kun je je favoriete programma's en series zoeken, vinden en bekijken. Waarnaar ga jij als eerste op zoek?"
+      },
+      "icon": "de-schatkamer-icon.png",
+      "category": "National",
+      "sortorder": 201,
+      "language": "nl",
+      "fanart": "de-schatkamer-fanart.jpg",
+      "poster": "de-schatkamer-poster.png",
+      "message": "By using De Schatkamer channel you are accepting their Terms of Use: https://schatkamer.beeldengeluid.nl/gebruikersvoorwaarden."
+    }
+  ],
+  "settings": []
+}

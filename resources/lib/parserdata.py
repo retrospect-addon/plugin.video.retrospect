@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Literal
 import re
 
 
@@ -10,6 +11,7 @@ class ParserData(object):
 
     # define them here so we can just refer to them instead of using the strings all
     # over the place. The values are self explaining.
+    MatchTypes = Literal["MatchStart", "MatchEnd", "Contains", "Exact", "Regex"]
     MatchStart = "MatchStart"
     MatchEnd = "MatchEnd"
     MatchContains = "Contains"
