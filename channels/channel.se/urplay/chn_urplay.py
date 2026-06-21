@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # pyrefly: ignore [untyped-import]
 from typing import Optional
+# pyrefly: ignore [untyped-import]
 import pytz
 
 from resources.lib.regexer import Regexer
@@ -137,8 +138,8 @@ class Channel(chn_class.Channel):
         href = result_set.get("href", result_set.get("link")) or ""
 
         show_id = href.split("/")[-1].split("-")[0]
-        image = f"https://assets.ur.se/id/{show_id}/images/1_1080.jpg"
-        poster = f"https://assets.ur.se/id/{show_id}/images/1_po_1080.jpg"
+        image = self.__get_image_url(show_id)
+        poster = self.__get_poster_url(show_id)
 
         url = f"https://urplay.se/api/v1/season_episodes?seriesId={show_id}"
         name = result_set.get("children", result_set.get("title"))
@@ -372,9 +373,9 @@ class Channel(chn_class.Channel):
 
         if not item.thumb:
             # If an item has no thumb, we set the main poster.
-            item.poster = f"https://assets.ur.se/id/{video_id}/images/1_po_1080.jpg"
+            item.poster = self.__get_poster_url(video_id)
         if not item.fanart:
-            item.fanart = f"https://assets.ur.se/id/{video_id}/images/1_1080.jpg"
+            item.fanart = self.__get_image_url(video_id)
 
         # if there was a high quality thumb and no fanart (default one), the use the thumb.
         if item.fanart == self.fanart and thumb_fanart:
@@ -438,6 +439,12 @@ class Channel(chn_class.Channel):
                 M3u8.set_input_stream_addon_input(stream)
                 item.complete = True
         return item
+
+    def __get_poster_url(self, show_id: str, size: str = "1080") -> str:
+        return f"https://assets.ur.se/id/{show_id}/images/1_po_{size}.jpg"
+
+    def __get_image_url(self, show_id: str, size: str = "xl") -> str:
+        return f"https://assets.ur.se/id/{show_id}/images/1_{size}.jpg"
 
     #     # Match the "series" API -> shows TV Shows
     #     self._add_data_parser(self.mainListUri, json=True,
