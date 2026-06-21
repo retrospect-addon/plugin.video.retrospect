@@ -217,9 +217,15 @@ class Channel(chn_class.Channel):
             return data, items
 
     def check_for_single_video(self, data: JsonHelper, items: List[MediaItem]) -> List[MediaItem]:
+        # Do we have items ore not.
         if len(items) > 0 or not self.parentItem:
-            return items
+            season_count = [s for s in items if s.is_folder]
+            if len(season_count) > 1:
+                return [i for i in items if i.is_folder]
 
+            return [i for i in items if not i.is_folder]
+
+        # Check of single videos
         url = self.parentItem.url
         series_id = url.split("=")[-1]
 
@@ -261,6 +267,10 @@ class Channel(chn_class.Channel):
         season_id = result_set["id"]
         url = f"https://urplay.se/api/v1/season_episodes?seriesId={season_id}"
         item = FolderItem(name, url, content_type=contenttype.EPISODES)
+
+        season_number = Regexer.do_regex(r".+(\d+)", name)
+        if season_number:
+            item.metaData["season"] = int(season_number[0])
         return item
 
     def create_single_video(self, result_set: List) -> Optional[MediaItem]:
@@ -309,14 +319,16 @@ class Channel(chn_class.Channel):
 
         show_title = result_set.get('mainTitle')
         episode = result_set.get('episodeNumber')
+        # Season defaults to 1
+        season = self.parentItem.metaData.get("season", 1) if self.parentItem else None
 
         if show_title and include_show_title:
-            if bool(episode):
+            if bool(episode) and not bool(season):
                 title = "{} - {} {:02d} - {}".format(show_title, self.__episode_text, episode, title)
             else:
                 title = "{} - {}".format(show_title, title)
 
-        elif bool(episode):
+        elif bool(episode) and not bool(season):
             title = "{} {:02d} - {}".format(self.__episode_text, episode, title)
 
         # slug = result_set['slug']
@@ -324,10 +336,15 @@ class Channel(chn_class.Channel):
         video_id = result_set["id"]
         url = f"https://media-api.urplay.se/config-streaming/v1/urplay/sources/{video_id}"
 
-        item = MediaItem(title, url)
-        item.media_type = mediatype.EPISODE
+        item = MediaItem(title, url, media_type=mediatype.VIDEO)
         item.description = result_set.get("description", "")
         item.complete = False
+        item.metaData["episode"] = episode
+
+        # Check for season info.
+        if season and episode:
+            item.media_type = mediatype.EPISODE
+            item.set_season_info(season=season, episode=episode)
 
         images = result_set.get("image") or {}
         thumb_fanart = None
