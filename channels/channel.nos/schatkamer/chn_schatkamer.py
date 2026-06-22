@@ -52,9 +52,10 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="modules", return_parent=True), json=True,
                               parser=["modules"], creator=self.create_swimlane_item)
 
-        self._add_data_parser("https://schatkamer.beeldengeluid.nl/serie/",
-                              preprocessor=NextJsParser(key="results", skip=1), json=True,
-                              parser=[], creator=self.create_video_item)
+        self._add_data_parsers(
+            ["https://schatkamer.beeldengeluid.nl/serie/", "https://schatkamer.beeldengeluid.nl/omroep/",],
+            preprocessor=NextJsParser(key="results", skip=1), json=True,
+            parser=[], creator=self.create_video_item)
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/zoeken", json=True,
                               preprocessor=NextJsParser(key="total", return_parent=True),
@@ -100,8 +101,10 @@ class Channel(chn_class.Channel):
             return parent
 
         for result in result_set["items"]:
-            if "/verhaal/" in result["url"]:
+            if "/verhaal/genre" in result["url"]:
                 item = self.create_serie_item(result)
+            elif "/verhaal/" in result["url"]:
+                item = self.create_video_item(result)
             elif "/aflevering/" in result["url"] or "/programma/" in result["url"]:
                 item = self.create_video_item(result)
             else:

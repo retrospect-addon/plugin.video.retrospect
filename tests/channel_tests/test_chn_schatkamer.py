@@ -21,6 +21,10 @@ class TestSchatKamerChannel(ChannelTest):
         url = "https://schatkamer.beeldengeluid.nl/serie/2101608030021822731/borreltijd"
         self._test_folder_url(url, 5)
 
+    def test_omroep(self):
+        url = "https://schatkamer.beeldengeluid.nl/omroep/236909/avrotros"
+        self._test_folder_url(url, 5)
+
     def test_video(self):
         url = "https://schatkamer.beeldengeluid.nl/programma/2101608050038191431/tussenspel-elektronische-muziek-door-tom-dissevelt"
         self._test_video_url(url, headers=self.headers)
