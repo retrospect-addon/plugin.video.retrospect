@@ -91,6 +91,9 @@ class ChannelInfo(object):
 
         Logger.trace("Importing module %s from path %s", self.moduleName, self.path)
 
+        if not TextureHandler.instance():
+            TextureHandler.set_texture_handler(Config, Logger.instance())
+
         sys.path.append(self.path)
         channel_module = importlib.import_module(self.moduleName)
         try:
