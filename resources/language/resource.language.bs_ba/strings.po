@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2025-08-27 08:29+0000\n"
 "Last-Translator: SecularSteve <fairfull.playing@gmail.com>\n"
@@ -1177,6 +1177,10 @@ msgstr "Prikaži streamove s funkcijama pristupačnosti"
 msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
 msgstr "Ovaj stream se ne može reproducirati zbog geografskih ograničenja."
+
+msgctxt "#30589"
+msgid "Live streams"
+msgstr ""
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
