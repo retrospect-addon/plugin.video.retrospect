@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2026-01-01 11:13+0000\n"
 "Last-Translator: Daniel Nylander <daniel@danielnylander.se>\n"
@@ -1181,6 +1181,10 @@ msgstr "Visa strömmar med tillgänglighetstjänster (syntolkat/teckenspråkstol
 msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
 msgstr "Den här strömmen kan inte spelas upp på grund av geografiska begränsningar."
+
+msgctxt "#30589"
+msgid "Live streams"
+msgstr ""
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
