@@ -1,19 +1,21 @@
-name: Kodi Matrix Repo
+name: Kodi Nexus Repo
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'master'
       - 'kodi-matrix'
+      - 'kodi-nexus'
       - 'kodi-py3'
 
 jobs:
   check-addon:
-    name: Kodi Matrix Repository Check (Py3)
+    name: Kodi Nexus Repository Check (Py3)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kodi-branch: [matrix]
+        kodi-branch: [nexus]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.8
