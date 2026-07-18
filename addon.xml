@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.36"
+        version="5.8.0"
         name="Retrospect"
         provider-name="Bas Rieter">
 
     <requires>
-        <import addon="xbmc.python" version="3.0.0" />
-        <import addon="script.module.requests" version="2.18.0" />
-        <import addon="script.module.pytz" version="2014.2" />
-        <import addon="inputstream.adaptive" version="2.0.19" />
-        <import addon="plugin.video.youtube" version="6.8.0" />
-        <import addon="script.module.inputstreamhelper" version="0.3.5" />
+        <import addon="xbmc.python" version="3.0.1" />
+        <import addon="script.module.requests" version="2.31.0" />
+        <import addon="script.module.pytz" version="2023.3.0" />
+        <import addon="inputstream.adaptive" version="20.3.18" />
+        <import addon="plugin.video.youtube" version="7.4.4" />
+        <import addon="script.module.inputstreamhelper" version="0.8.5" />
         <import addon="script.module.pyscrypt" version="1.6.2" />
         <import addon="script.module.pyaes" version="1.6.1" />
-        <import addon="resource.images.retrospect" version="1.0.22" />
+        <import addon="resource.images.retrospect" version="1.0.24" />
         <import addon="script.module.pyjwt" version="2.8.0" />
     </requires>
 
