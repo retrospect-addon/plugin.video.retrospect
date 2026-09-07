@@ -54,8 +54,8 @@ class Channel(chn_class.Channel):
 
         self._add_data_parsers(
             ["https://schatkamer.beeldengeluid.nl/serie/", "https://schatkamer.beeldengeluid.nl/omroep/",],
-            preprocessor=NextJsParser(key="results", skip=1), json=True,
-            parser=[], creator=self.create_video_item)
+            preprocessor=NextJsParser(key="total", return_parent=True), json=True,
+            parser=["results"], creator=self.create_video_item)
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/zoeken", json=True,
                               preprocessor=NextJsParser(key="total", return_parent=True),
