@@ -1,11 +1,12 @@
 [B]Retrospect v5.7.36 - Changelog - 2026-07-14[/B]
-This minor update fixes a small number of channel-related bugs.
+Fixed NPO playback and De Schatkamer listing.
 
 [B]Framework related[/B]
-* Updated: Python type hints.
+_None_
 
 [B]GUI/Settings/Language related[/B]
 _None_
 
 [B]Channel related[/B]
+* Fixed: De Schatkamer listing of some series.
 * Fixed: NPO changed player DRM (Fixes #1989). Needs latest Widevine.
