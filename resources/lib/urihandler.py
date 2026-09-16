@@ -607,6 +607,7 @@ class _RequestsHandler(object):
             headers["user-agent"] = self.userAgent
         if referer and "referer" not in headers:
             headers["referer"] = referer
+        headers["accept-encoding"] = "gzip, deflate"
 
         return headers
 

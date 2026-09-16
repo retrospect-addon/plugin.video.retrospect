@@ -2,7 +2,7 @@
 Fixed NPO playback and De Schatkamer listing.
 
 [B]Framework related[/B]
-_None_
+* Fixed: Don't allow `zstd` as compression.
 
 [B]GUI/Settings/Language related[/B]
 _None_

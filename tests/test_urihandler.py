@@ -1,7 +1,6 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-
 import unittest
 import os
 import json
@@ -16,9 +15,8 @@ from resources.lib.logger import Logger
 
 
 class TestUriHandler(unittest.TestCase):
-    base_host = "httpbin.org"
-    base_url = f"https://{base_host}"
-    # base_url = "https://httpbingo.org"
+    # base_url = "https://httpbin.org"
+    base_url = "https://httpbingo.org"
     http_bin = None
 
     @classmethod
@@ -47,7 +45,7 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_post(self):
@@ -63,9 +61,9 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
         self.assertTrue("form" in data_object)
-        self.assertEqual(post_data, data_object["form"]["test"])
+        self.assertEqual([post_data], data_object["form"]["test"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_post_bytes(self):
@@ -80,9 +78,9 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
         self.assertTrue("form" in data_object)
-        self.assertEqual(post_data, data_object["form"]["test"])
+        self.assertEqual([post_data], data_object["form"]["test"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_patch(self):
@@ -96,7 +94,7 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_delete(self):
@@ -109,7 +107,7 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_gzip(self):
@@ -168,8 +166,8 @@ class TestUriHandler(unittest.TestCase):
 
         url = self.base_url + "/get"
         data = UriHandler.header(url)
-        self.assertEqual("application/json", data[0])
-        self.assertEqual(f"https://{TestUriHandler.base_host}/get", data[1])
+        self.assertEqual("application/json; charset=utf-8", data[0])
+        self.assertEqual("https://httpbingo.org/get", data[1])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_head_error(self):
@@ -189,7 +187,7 @@ class TestUriHandler(unittest.TestCase):
         data = UriHandler.open(url, additional_headers=headers)
         self.assertIsNot("", data)
         data = json.loads(data)
-        self.assertEqual(header_value, data["headers"][header_name])
+        self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_user_agent(self):
@@ -202,7 +200,7 @@ class TestUriHandler(unittest.TestCase):
         data = UriHandler.open(url)
         self.assertIsNot("", data)
         data = json.loads(data)
-        self.assertEqual(header_value, data["headers"][header_name])
+        self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
 
         header_value = "UserAgent/5.0"
@@ -210,7 +208,7 @@ class TestUriHandler(unittest.TestCase):
         data = UriHandler.open(url, additional_headers=headers)
         self.assertIsNot("", data)
         data = json.loads(data)
-        self.assertEqual(header_value, data["headers"][header_name])
+        self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_referer(self):
@@ -223,13 +221,13 @@ class TestUriHandler(unittest.TestCase):
         data = UriHandler.open(url, additional_headers=headers)
         self.assertIsNot("", data)
         data = json.loads(data)
-        self.assertEqual(header_value, data["headers"][header_name])
+        self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
 
         data = UriHandler.open(url, referer=header_value)
         self.assertIsNot("", data)
         data = json.loads(data)
-        self.assertEqual(header_value, data["headers"][header_name])
+        self.assertEqual([header_value], data["headers"][header_name])
         self.assertEqual(200, UriHandler.instance().status.code)
 
     def test_cache_create(self):
@@ -274,7 +272,7 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
 
         self.assertEqual(0, UriHandler.instance().cacheStore.cacheHits)
         self.assertEqual(0, len(os.listdir(UriHandler.instance().cacheStore.cachePath)))
@@ -288,7 +286,7 @@ class TestUriHandler(unittest.TestCase):
         data_object = json.loads(data)
         self.assertIsNotNone(data_object)
         self.assertTrue("headers" in data_object)
-        self.assertEqual(TestUriHandler.base_host, data_object["headers"]["Host"])
+        self.assertEqual(['httpbingo.org'], data_object["headers"]["Host"])
 
         self.assertIsNone(UriHandler.instance().cacheStore)
 
@@ -386,7 +384,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertEqual(cookie.value.strip("\""), cookie_value)
 
         # verify the values from the json data
-        data = json.loads(data[9:])
+        data = json.loads(data)
         cookie_value_retrieved = data.get("cookies", {}).get(cookie_name)
         self.assertEqual(cookie_value, cookie_value_retrieved)
 
@@ -447,7 +445,7 @@ class TestUriHandler(unittest.TestCase):
         self.assertIsNotNone(UriHandler.get_cookie(cookie_name, domain=cookie_domain, path="/"))
 
         # verify the values from the json data
-        data = json.loads(data[9:])
+        data = json.loads(data)
         cookie_value_retrieved = data.get("cookies", {}).get(cookie_name)
         self.assertEqual(cookie_value, cookie_value_retrieved)
 
