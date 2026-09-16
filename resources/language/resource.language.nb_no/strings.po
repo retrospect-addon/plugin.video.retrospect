@@ -1159,6 +1159,10 @@ msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
 msgstr ""
 
+msgctxt "#30589"
+msgid "Live streams"
+msgstr ""
+
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"
 msgstr "Fastsett en ny Retrospect-PIN"

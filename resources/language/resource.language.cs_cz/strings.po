@@ -2,65 +2,65 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Retrospect Add-on\n"
-"Report-Msgid-Bugs-To: https://github.com/retrospect-addon/plugin.video.retrospect/issues\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-03-21 20:13+0000\n"
-"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"PO-Revision-Date: 2026-07-22 03:16+0000\n"
+"Last-Translator: Michal Várady <miko.vaji@gmail.com>\n"
 "Language-Team: Czech <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-retrospect/cs_cz/>\n"
 "Language: cs_cz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.11.2\n"
+"X-Generator: Weblate 2026.7.1\n"
 
 msgctxt "Addon Summary"
 msgid "Retrospect allows you to watch re-runs/catch-ups of TV shows made available via their official broadcasters."
-msgstr ""
+msgstr "Retrospect umožňuje sledovat reprízy a zpětně dostupné televizní pořady, které zpřístupňují jejich oficiální vysílatelé."
 
 msgctxt "Addon Description"
 msgid "Retrospect uses the official websites and freely available streams of different broadcasting companies (mainly Dutch, Belgian, British, Norwegian and Swedish) to make their re-run/catch-up episodes available on the Kodi platform. [CR][CR]Some channels that are included are: NPO Start, Kijk.nl (SBS6, NET5, Veronica, SBS9), RTL XL, NOS, Nickelodeon, AT5, Omroep Flevoland, L1, RTV Drenthe, RTV Oost, RTV Noord, RTV Noord-Holland, RTV Rijnmond, Omroep West, Omroep Gelderland, Omroep Brabant, Omrop Fryslân, WOS, DTV, Omroep Venlo Omroep Horst aan de Maas, Studio 040, RTV Utrecht, Omroep Zeeland, Eén, Vier, VRT.nu, VTM, Stieve, Ketnet, DPlay, SVT, ViaFree, Viasat, UR Play, MTV, NRK, BBC, Dumpert, Fox Sports, Pathé Nederland, Hardware.info and Ons.[CR][CR]More information can be found at https://github.com/retrospect-addon/plugin.video.retrospect or the Retrospect wiki at https://github.com/retrospect-addon/plugin.video.retrospect/wiki/."
-msgstr ""
+msgstr "Retrospect používá oficiální weby a volně dostupné streamy různých vysílacích společností (hlavně nizozemských, belgických, britských, norských a švédských), aby jejich reprízy a zpětně dostupné epizody zpřístupnil na platformě Kodi. [CR][CR]Mezi zahrnuté kanály patří například: NPO Start, Kijk.nl (SBS6, NET5, Veronica, SBS9), RTL XL, NOS, Nickelodeon, AT5, Omroep Flevoland, L1, RTV Drenthe, RTV Oost, RTV Noord, RTV Noord-Holland, RTV Rijnmond, Omroep West, Omroep Gelderland, Omroep Brabant, Omrop Fryslân, WOS, DTV, Omroep Venlo Omroep Horst aan de Maas, Studio 040, RTV Utrecht, Omroep Zeeland, Eén, Vier, VRT.nu, VTM, Stieve, Ketnet, DPlay, SVT, ViaFree, Viasat, UR Play, MTV, NRK, BBC, Dumpert, Fox Sports, Pathé Nederland, Hardware.info a Ons.[CR][CR]Další informace najdete na https://github.com/retrospect-addon/plugin.video.retrospect nebo na wiki Retrospectu na adrese https://github.com/retrospect-addon/plugin.video.retrospect/wiki/."
 
 msgctxt "Addon Disclaimer"
 msgid "Retrospect is provided as is. We do not take any responsibility for possible (but highly unlikely) damage caused to your system. Nor do we take responsibility for the content that can be watched using this add-on or any consequences of using this add-on to watch content via the content providers' platforms."
-msgstr ""
+msgstr "Retrospect je poskytován tak, jak je. Nepřebíráme žádnou odpovědnost za možné (i když velmi nepravděpodobné) škody způsobené vašemu systému. Nepřebíráme ani odpovědnost za obsah, který lze pomocí tohoto doplňku sledovat, ani za jakékoli důsledky používání tohoto doplňku ke sledování obsahu prostřednictvím platforem poskytovatelů obsahu."
 
 msgctxt "#30000"
 msgid "Stream Quality"
-msgstr ""
+msgstr "Kvalita streamu"
 
 msgctxt "#30001"
 msgid "Low"
-msgstr ""
+msgstr "Nízká"
 
 msgctxt "#30002"
 msgid "Medium"
-msgstr ""
+msgstr "Střední"
 
 msgctxt "#30003"
 msgid "High"
-msgstr ""
+msgstr "Vysoká"
 
 msgctxt "#30004"
 msgid "Release channel for update notifications"
-msgstr ""
+msgstr "Kanál vydání pro oznámení o aktualizacích"
 
 msgctxt "#30005"
 msgid "Stable"
-msgstr ""
+msgstr "Stabilní"
 
 msgctxt "#30006"
 msgid "Alpha/Beta"
-msgstr ""
+msgstr "Alfa/beta"
 
 msgctxt "#30007"
 msgid "via other add-on"
-msgstr ""
+msgstr "přes jiný doplněk"
 
 msgctxt "#30008"
 msgid "Retrospect"
-msgstr ""
+msgstr "Retrospect"
 
 msgctxt "#30009"
 msgid "General"
@@ -72,55 +72,55 @@ msgstr "Kanály"
 
 msgctxt "#30011"
 msgid "Requires restart of Retrospect to take effect."
-msgstr ""
+msgstr "Aby se změna projevila, je nutné restartovat Retrospect."
 
 msgctxt "#30012"
 msgid "Login Failed"
-msgstr ""
+msgstr "Přihlášení se nezdařilo"
 
 msgctxt "#30013"
 msgid "Could not log on to the selected channel."
-msgstr ""
+msgstr "Nepodařilo se přihlásit k vybranému kanálu."
 
 msgctxt "#30015"
 msgid "via missing add-on"
-msgstr ""
+msgstr "přes chybějící doplněk"
 
 msgctxt "#30016"
 msgid "Sort by"
-msgstr ""
+msgstr "Řadit podle"
 
 msgctxt "#30017"
 msgid "Name"
-msgstr ""
+msgstr "Název"
 
 msgctxt "#30018"
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 msgctxt "#30019"
 msgid "Show DRM/Paid warning before playback"
-msgstr ""
+msgstr "Zobrazit před přehráváním upozornění na DRM/placený obsah"
 
 msgctxt "#30020"
 msgid "Maximum Stream Bitrate [COLOR=gray](0=disabled)[/COLOR]"
-msgstr ""
+msgstr "Maximální datový tok streamu [COLOR=gray](0 = vypnuto)[/COLOR]"
 
 msgctxt "#30021"
 msgid "Enable subtitles by default when available"
-msgstr ""
+msgstr "Ve výchozím nastavení povolit titulky, jsou-li dostupné"
 
 msgctxt "#30022"
 msgid "If available"
-msgstr ""
+msgstr "Jsou-li dostupné"
 
 msgctxt "#30023"
 msgid "Never show"
-msgstr ""
+msgstr "Nikdy nezobrazovat"
 
 msgctxt "#30024"
 msgid "Recent"
-msgstr ""
+msgstr "Nedávné"
 
 msgctxt "#30025"
 msgid "None"
@@ -128,19 +128,19 @@ msgstr "Žádné"
 
 msgctxt "#30026"
 msgid "Group list if it exceeds # folders"
-msgstr ""
+msgstr "Seskupit seznam, pokud překročí zadaný počet složek"
 
 msgctxt "#30027"
 msgid "Autorun Retrospect on Kodi start"
-msgstr ""
+msgstr "Automaticky spustit Retrospect při spuštění Kodi"
 
 msgctxt "#30028"
 msgid "Proxy"
-msgstr ""
+msgstr "Proxy"
 
 msgctxt "#30029"
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 msgctxt "#30030"
 msgid "Port"
@@ -148,23 +148,23 @@ msgstr "Port"
 
 msgctxt "#30031"
 msgid "Cache HTTP(S) requests"
-msgstr ""
+msgstr "Ukládat požadavky HTTP(S) do mezipaměti"
 
 msgctxt "#30032"
 msgid "Channel Settings"
-msgstr ""
+msgstr "Nastavení kanálu"
 
 msgctxt "#30033"
 msgid "Expires at"
-msgstr ""
+msgstr "Platnost vyprší"
 
 msgctxt "#30034"
 msgid "No channel selected"
-msgstr ""
+msgstr "Není vybrán žádný kanál"
 
 msgctxt "#30035"
 msgid "Username"
-msgstr "Jméno"
+msgstr "Uživatelské jméno"
 
 msgctxt "#30036"
 msgid "Password"
@@ -172,15 +172,15 @@ msgstr "Heslo"
 
 msgctxt "#30037"
 msgid "Use 'Up Next' to play next episode"
-msgstr ""
+msgstr "Používat Up Next k přehrání další epizody"
 
 msgctxt "#30038"
 msgid "'Up Next' add-on settings"
-msgstr ""
+msgstr "Nastavení doplňku Up Next"
 
 msgctxt "#30039"
 msgid "Up Next integration"
-msgstr ""
+msgstr "Integrace Up Next"
 
 msgctxt "#30040"
 msgid "Channels"
@@ -188,60 +188,60 @@ msgstr "Kanály"
 
 msgctxt "#30041"
 msgid "Show \"All Favourites\" in main Channel listing"
-msgstr ""
+msgstr "Zobrazovat „Všechny oblíbené“ v hlavním seznamu kanálů"
 
 msgctxt "#30042"
 msgid "Enabled"
-msgstr ""
+msgstr "Povoleno"
 
 msgctxt "#30043"
 msgid "Folder prefix"
-msgstr ""
+msgstr "Prefix složky"
 
 msgctxt "#30044"
 msgid "Kodi update required"
-msgstr ""
+msgstr "Je vyžadována aktualizace Kodi"
 
 msgctxt "#30045"
 msgid "This feature of Retrospect requires a more recent version of Kodi. Please install the most recent version of your current Kodi build. Depending on your installation this can either be a 'stable' or 'nightly' build."
-msgstr ""
+msgstr "Tato funkce Retrospectu vyžaduje novější verzi Kodi. Nainstalujte nejnovější verzi svého aktuálního sestavení Kodi. Podle vaší instalace může jít o „stabilní“ nebo „noční“ sestavení."
 
 msgctxt "#30046"
 msgid "DRM/Geo-blocked/Premium filters"
-msgstr ""
+msgstr "Filtry DRM / geografického blokování / prémiového obsahu"
 
 msgctxt "#30047"
 msgid "Cannot playback this YouTube Video because the Kodi YouTube add-on is missing."
-msgstr ""
+msgstr "Toto video YouTube nelze přehrát, protože chybí doplněk Kodi YouTube."
 
 # empty string with id 30047
 msgctxt "#30048"
 msgid "Log level"
-msgstr ""
+msgstr "Úroveň protokolování"
 
 msgctxt "#30049"
 msgid "Premium/Paid"
-msgstr ""
+msgstr "Prémiové/placené"
 
 msgctxt "#30050"
 msgid "DRM Protected"
-msgstr ""
+msgstr "Chráněno DRM"
 
 msgctxt "#30051"
 msgid "Hidden item"
-msgstr ""
+msgstr "Skrytá položka"
 
 msgctxt "#30052"
 msgid "Send usage statistics"
-msgstr ""
+msgstr "Odesílat statistiky používání"
 
 msgctxt "#30053"
 msgid "Appearance"
-msgstr ""
+msgstr "Vzhled"
 
 msgctxt "#30054"
 msgid "[COLOR gold][B]The Retrospect Password Vault[/B][/COLOR][CR]'The Vault' enables storing sensitive data in a more secure way. How does this work:[CR][CR]* The users selects a simple Vault PIN that is used as the main code for accessing the Vault data.[CR]* This PIN can be rather simple and short and easy to remember: for example 3145.[CR]* That PIN is then used to generate a much stronger and complexer encryption key using Scrypt.[CR]* As a user you will not need to know this complex key.[CR][CR][COLOR gold][B]Storing sensitive data[/B][/COLOR][CR]Whenever sensitive data is being [B]stored[/B]:[CR][CR]* The user will be asked for their PIN first.[CR]* After a correct PIN the actual data to store will be asked.[CR][CR][COLOR gold][B]Retrieving sensitive data[/B][/COLOR][CR]Whenever sensitive data is being [B]retrieved[/B]:[CR][CR]* The user will only be asked for their PIN.[CR]* That PIN is then used to securely fetch the actual data.[CR][CR][COLOR gold][B]Resetting the Vault[/B][/COLOR][CR]If a user has forgotten the PIN, there is no way of recovering the data. The only solution is to reset the Vault and pick a new PIN and generate a new Vault Key. [B]This will invalidate all encrypted data[/B]. This data must be entered again."
-msgstr ""
+msgstr "[COLOR gold][B]Trezor hesel Retrospectu[/B][/COLOR][CR]„Trezor“ umožňuje ukládat citlivá data bezpečnějším způsobem. Jak to funguje:[CR][CR]* Uživatel zvolí jednoduchý PIN trezoru, který se používá jako hlavní kód pro přístup k datům v trezoru.[CR]* Tento PIN může být poměrně jednoduchý, krátký a snadno zapamatovatelný, například 3145.[CR]* Z tohoto PINu se potom pomocí Scryptu vygeneruje mnohem silnější a složitější šifrovací klíč.[CR]* Jako uživatel nemusíte tento složitý klíč znát.[CR][CR][COLOR gold][B]Ukládání citlivých dat[/B][/COLOR][CR]Kdykoli se citlivá data [B]ukládají[/B]:[CR][CR]* Uživatel bude nejprve požádán o PIN.[CR]* Po zadání správného PINu bude požádán o vlastní data, která se mají uložit.[CR][CR][COLOR gold][B]Načítání citlivých dat[/B][/COLOR][CR]Kdykoli se citlivá data [B]načítají[/B]:[CR][CR]* Uživatel bude požádán pouze o PIN.[CR]* Tento PIN se potom použije k bezpečnému načtení vlastních dat.[CR][CR][COLOR gold][B]Resetování trezoru[/B][/COLOR][CR]Pokud uživatel PIN zapomněl, data nelze nijak obnovit. Jediným řešením je resetovat trezor, zvolit nový PIN a vygenerovat nový klíč trezoru. [B]Tím se zneplatní všechna zašifrovaná data[/B]. Tato data bude nutné zadat znovu."
 
 msgctxt "#30055"
 msgid "Advanced"
@@ -249,52 +249,52 @@ msgstr "Pokročilé"
 
 msgctxt "#30056"
 msgid "Install the Up Next add-on"
-msgstr ""
+msgstr "Nainstalovat doplněk Up Next"
 
 msgctxt "#30057"
 msgid "Enable the Up Next add-on"
-msgstr ""
+msgstr "Povolit doplněk Up Next"
 
 # empty strings from id 30056 to 30058
 msgctxt "#30059"
 msgid "Other Countries"
-msgstr ""
+msgstr "Ostatní země"
 
 msgctxt "#30060"
 msgid "Enable/Disable channels by country of origin"
-msgstr ""
+msgstr "Povolit/zakázat kanály podle země původu"
 
 msgctxt "#30061"
 msgid "Channel Origin"
-msgstr ""
+msgstr "Původ kanálu"
 
 msgctxt "#30062"
 msgid "HTTP"
-msgstr ""
+msgstr "HTTP"
 
 msgctxt "#30063"
 msgid "Channel to configure"
-msgstr ""
+msgstr "Kanál ke konfiguraci"
 
 msgctxt "#30064"
 msgid "Proxy Group"
-msgstr ""
+msgstr "Skupina proxy"
 
 msgctxt "#30065"
 msgid "Country Settings"
-msgstr ""
+msgstr "Nastavení země"
 
 msgctxt "#30066"
 msgid "DNS"
-msgstr ""
+msgstr "DNS"
 
 msgctxt "#30067"
 msgid "Show channels in categories"
-msgstr ""
+msgstr "Zobrazovat kanály v kategoriích"
 
 msgctxt "#30068"
 msgid "Active"
-msgstr ""
+msgstr "Aktivní"
 
 msgctxt "#30069"
 msgid "Settings"
@@ -302,95 +302,95 @@ msgstr "Nastavení"
 
 msgctxt "#30070"
 msgid "Let Kodi determine bitrate if possible"
-msgstr ""
+msgstr "Nechat Kodi určit datový tok, pokud je to možné"
 
 msgctxt "#30071"
 msgid "Set the proxy and local IP to all channels related to this country"
-msgstr ""
+msgstr "Nastavit proxy a místní IP pro všechny kanály související s touto zemí"
 
 msgctxt "#30072"
 msgid "Proxy Type"
-msgstr ""
+msgstr "Typ proxy"
 
 msgctxt "#30073"
 msgid "- Geo-blocked = º, DRM protected = ^ and Premium = ª."
-msgstr ""
+msgstr "- Geograficky blokované = º, chráněné DRM = ^ a prémiové = ª."
 
 msgctxt "#30074"
 msgid "Disabled"
-msgstr ""
+msgstr "Zakázáno"
 
 msgctxt "#30075"
 msgid "Empty list behaviour"
-msgstr ""
+msgstr "Chování prázdného seznamu"
 
 msgctxt "#30076"
 msgid "Show error"
-msgstr ""
+msgstr "Zobrazit chybu"
 
 msgctxt "#30077"
 msgid "Show empty list"
-msgstr ""
+msgstr "Zobrazit prázdný seznam"
 
 msgctxt "#30078"
 msgid "Show dummy item"
-msgstr ""
+msgstr "Zobrazit zástupnou položku"
 
 msgctxt "#30079"
 msgid "Local IP (0.0.0.0=disabled)"
-msgstr ""
+msgstr "Místní IP (0.0.0.0 = vypnuto)"
 
 msgctxt "#30080"
 msgid "Filter DRM protected items"
-msgstr ""
+msgstr "Filtrovat položky chráněné DRM"
 
 msgctxt "#30081"
 msgid "Filter Premium/Paid items"
-msgstr ""
+msgstr "Filtrovat prémiové/placené položky"
 
 msgctxt "#30082"
 msgid "Apply filter to"
-msgstr ""
+msgstr "Použít filtr na"
 
 msgctxt "#30083"
 msgid "Folders & Streams"
-msgstr ""
+msgstr "Složky a streamy"
 
 msgctxt "#30084"
 msgid "Streams Only"
-msgstr ""
+msgstr "Pouze streamy"
 
 msgctxt "#30085"
 msgid "Geo Location"
-msgstr ""
+msgstr "Geografická poloha"
 
 msgctxt "#30086"
 msgid "Hide Fanart"
-msgstr ""
+msgstr "Skrýt fanart"
 
 msgctxt "#30087"
 msgid "Mix folders and streams while sorting"
-msgstr ""
+msgstr "Při řazení míchat složky a streamy"
 
 msgctxt "#30088"
 msgid "Show thumbnail as fanart if no fanart is available"
-msgstr ""
+msgstr "Pokud není dostupný fanart, zobrazit miniaturu jako fanart"
 
 msgctxt "#30089"
 msgid "Password Vault"
-msgstr ""
+msgstr "Trezor hesel"
 
 msgctxt "#30090"
 msgid "The 'Password Vault' protects stored password with encryption using a PIN."
-msgstr ""
+msgstr "„Trezor hesel“ chrání uložená hesla šifrováním pomocí PINu."
 
 msgctxt "#30091"
 msgid "Change Vault Pin"
-msgstr ""
+msgstr "Změnit PIN trezoru"
 
 msgctxt "#30092"
 msgid "Reset Vault"
-msgstr ""
+msgstr "Resetovat trezor"
 
 msgctxt "#30093"
 msgid "Password"
@@ -398,27 +398,27 @@ msgstr "Heslo"
 
 msgctxt "#30094"
 msgid "Username"
-msgstr "Jméno"
+msgstr "Uživatelské jméno"
 
 msgctxt "#30095"
 msgid "Show Hidden Items"
-msgstr ""
+msgstr "Zobrazovat skryté položky"
 
 msgctxt "#30096"
 msgid "Country"
-msgstr ""
+msgstr "Země"
 
 msgctxt "#30097"
 msgid "Local IP"
-msgstr ""
+msgstr "Místní IP"
 
 msgctxt "#30098"
 msgid "Logging & Diagnostics"
-msgstr ""
+msgstr "Protokolování a diagnostika"
 
 msgctxt "#30099"
 msgid "Use HLS instead of Dash for non-encrypted streams"
-msgstr ""
+msgstr "Používat HLS místo DASH pro nešifrované streamy"
 
 msgctxt "#30100"
 msgid "None"
@@ -426,245 +426,245 @@ msgstr "Žádné"
 
 msgctxt "#30101"
 msgid "Regional"
-msgstr ""
+msgstr "Regionální"
 
 msgctxt "#30102"
 msgid "National"
-msgstr ""
+msgstr "Celostátní"
 
 msgctxt "#30103"
 msgid "Video"
-msgstr ""
+msgstr "Video"
 
 msgctxt "#30104"
 msgid "Radio"
-msgstr ""
+msgstr "Rozhlas"
 
 msgctxt "#30105"
 msgid "Sport"
-msgstr ""
+msgstr "Sport"
 
 msgctxt "#30106"
 msgid "Kids"
-msgstr ""
+msgstr "Děti"
 
 msgctxt "#30107"
 msgid "Tech"
-msgstr ""
+msgstr "Technologie"
 
 msgctxt "#30108"
 msgid "Other"
-msgstr ""
+msgstr "Ostatní"
 
 msgctxt "#30109"
 msgid "IPTV Manager"
-msgstr ""
+msgstr "IPTV Manager"
 
 msgctxt "#30110"
 msgid "Install IPTV Manager add-on"
-msgstr ""
+msgstr "Nainstalovat doplněk IPTV Manager"
 
 msgctxt "#30111"
 msgid "Enable IPTV Manager integration"
-msgstr ""
+msgstr "Povolit integraci s IPTV Managerem"
 
 msgctxt "#30112"
 msgid "IPTV Manager settings…"
-msgstr ""
+msgstr "Nastavení IPTV Manageru…"
 
 msgctxt "#30113"
 msgid "Set refresh token"
-msgstr ""
+msgstr "Nastavit obnovovací token"
 
 msgctxt "#30114"
 msgid "Retrospect Web Dialog"
-msgstr ""
+msgstr "Webový dialog Retrospectu"
 
 msgctxt "#30115"
 msgid "Setting up Retrospect webserver"
-msgstr ""
+msgstr "Nastavování webového serveru Retrospectu"
 
 msgctxt "#30116"
 msgid "Starting webserver on port {}"
-msgstr ""
+msgstr "Spouštění webového serveru na portu {}"
 
 msgctxt "#30117"
 msgid "Waiting for input from browser"
-msgstr ""
+msgstr "Čeká se na vstup z prohlížeče"
 
 msgctxt "#30118"
 msgid "Input received from browser"
-msgstr ""
+msgstr "Vstup z prohlížeče byl přijat"
 
 msgctxt "#30119"
 msgid "Open a browser and navigate to http://{}:{}"
-msgstr ""
+msgstr "Otevřete prohlížeč a přejděte na http://{}:{}"
 
 msgctxt "#30120"
 msgid "Browser input cancelled"
-msgstr ""
+msgstr "Vstup z prohlížeče byl zrušen"
 
 msgctxt "#30121"
 msgid "Paste refresh token here."
-msgstr ""
+msgstr "Vložte sem obnovovací token."
 
 msgctxt "#30122"
 msgid "Invalid Refresh Token"
-msgstr ""
+msgstr "Neplatný obnovovací token"
 
 msgctxt "#30123"
 msgid "Expired Refresh Token"
-msgstr ""
+msgstr "Platnost obnovovacího tokenu vypršela"
 
 msgctxt "#30124"
 msgid "Find the <b>refresh token</b> for your account by examining the site's cookies and paste the <b>value</b> of the refresh token cookie here."
-msgstr ""
+msgstr "Vyhledejte <b>obnovovací token</b> svého účtu kontrolou cookies webu a sem vložte <b>hodnotu</b> cookie obnovovacího tokenu."
 
 msgctxt "#30125"
 msgid "Show future episodes under 'Recent > Today'"
-msgstr ""
+msgstr "Zobrazovat budoucí epizody v části „Nedávné > Dnes“"
 
 msgctxt "#30126"
 msgid "Default"
-msgstr ""
+msgstr "Výchozí"
 
 msgctxt "#30127"
 msgid "Show All"
-msgstr ""
+msgstr "Zobrazit vše"
 
 msgctxt "#30128"
 msgid "Filter Premium"
-msgstr ""
+msgstr "Filtrovat prémiový obsah"
 
 msgctxt "#30129"
 msgid "Re-Authenticate"
-msgstr ""
+msgstr "Znovu provést ověření"
 
 # used for list limits
 # empty strings from id 30109 to 30189
 msgctxt "#30190"
 msgid "Monday"
-msgstr ""
+msgstr "Pondělí"
 
 msgctxt "#30191"
 msgid "Tuesday"
-msgstr ""
+msgstr "Úterý"
 
 msgctxt "#30192"
 msgid "Wednesday"
-msgstr ""
+msgstr "Středa"
 
 msgctxt "#30193"
 msgid "Thursday"
-msgstr ""
+msgstr "Čtvrtek"
 
 msgctxt "#30194"
 msgid "Friday"
-msgstr ""
+msgstr "Pátek"
 
 msgctxt "#30195"
 msgid "Saturday"
-msgstr ""
+msgstr "Sobota"
 
 msgctxt "#30196"
 msgid "Sunday"
-msgstr ""
+msgstr "Neděle"
 
 msgctxt "#30199"
 msgid "10"
-msgstr ""
+msgstr "10"
 
 msgctxt "#30200"
 msgid "50"
-msgstr ""
+msgstr "50"
 
 msgctxt "#30201"
 msgid "75"
-msgstr ""
+msgstr "75"
 
 msgctxt "#30202"
 msgid "100"
-msgstr ""
+msgstr "100"
 
 msgctxt "#30203"
 msgid "150"
-msgstr ""
+msgstr "150"
 
 msgctxt "#30204"
 msgid "200"
-msgstr ""
+msgstr "200"
 
 msgctxt "#30205"
 msgid "1000"
-msgstr ""
+msgstr "1000"
 
 # language and countries
 # empty strings from id 30206 to 30299
 msgctxt "#30300"
 msgid "Other Countries"
-msgstr ""
+msgstr "Ostatní země"
 
 # nl
 msgctxt "#30301"
 msgid "The Netherlands"
-msgstr ""
+msgstr "Nizozemsko"
 
 msgctxt "#30302"
 msgid "Sweden"
-msgstr ""
+msgstr "Švédsko"
 
 msgctxt "#30303"
 msgid "Lithuania"
-msgstr ""
+msgstr "Litva"
 
 msgctxt "#30304"
 msgid "Latvia"
-msgstr ""
+msgstr "Lotyšsko"
 
 msgctxt "#30305"
 msgid "Norway"
-msgstr ""
+msgstr "Norsko"
 
 msgctxt "#30306"
 msgid "Belgium"
-msgstr ""
+msgstr "Belgie"
 
 msgctxt "#30307"
 msgid "United Kingdom"
-msgstr ""
+msgstr "Spojené království"
 
 msgctxt "#30308"
 msgid "Estonia"
-msgstr ""
+msgstr "Estonsko"
 
 msgctxt "#30309"
 msgid "Germany"
-msgstr ""
+msgstr "Německo"
 
 msgctxt "#30310"
 msgid "Denmark"
-msgstr ""
+msgstr "Dánsko"
 
 msgctxt "#30311"
 msgid "Finland"
-msgstr ""
+msgstr "Finsko"
 
 # empty strings from id 30312 to 30345
 msgctxt "#30346"
 msgid "Now Playing"
-msgstr ""
+msgstr "Právě se přehrává"
 
 msgctxt "#30347"
 msgid "Now"
-msgstr ""
+msgstr "Nyní"
 
 msgctxt "#30348"
 msgid "Next"
-msgstr ""
+msgstr "Následuje"
 
 msgctxt "#30349"
 msgid "Later"
-msgstr ""
+msgstr "Později"
 
 # empty strings from id 30312 to 30349
 msgctxt "#30350"
@@ -673,183 +673,183 @@ msgstr "Hledat"
 
 msgctxt "#30351"
 msgid "Categories"
-msgstr ""
+msgstr "Kategorie"
 
 msgctxt "#30352"
 msgid "TV shows"
-msgstr ""
+msgstr "Seriály"
 
 msgctxt "#30353"
 msgid "Currently playing"
-msgstr ""
+msgstr "Právě vysílané"
 
 msgctxt "#30354"
 msgid "Most viewed episodes"
-msgstr ""
+msgstr "Nejsledovanější epizody"
 
 msgctxt "#30355"
 msgid "Most recent episodes"
-msgstr ""
+msgstr "Nejnovější epizody"
 
 msgctxt "#30356"
 msgid "Live TV"
-msgstr ""
+msgstr "Živá TV"
 
 msgctxt "#30357"
 msgid "Live Radio"
-msgstr ""
+msgstr "Živý rozhlas"
 
 msgctxt "#30358"
 msgid "Episodes"
-msgstr ""
+msgstr "Epizody"
 
 msgctxt "#30359"
 msgid "Genres"
-msgstr ""
+msgstr "Žánry"
 
 msgctxt "#30360"
 msgid "Full list"
-msgstr ""
+msgstr "Úplný seznam"
 
 msgctxt "#30361"
 msgid "Tags"
-msgstr ""
+msgstr "Štítky"
 
 msgctxt "#30362"
 msgid "Last chance"
-msgstr ""
+msgstr "Poslední šance"
 
 msgctxt "#30363"
 msgid "Popular"
-msgstr ""
+msgstr "Populární"
 
 msgctxt "#30364"
 msgid "Latest news"
-msgstr ""
+msgstr "Nejnovější zprávy"
 
 msgctxt "#30365"
 msgid "Movies"
-msgstr ""
+msgstr "Filmy"
 
 msgctxt "#30366"
 msgid "Available from"
-msgstr ""
+msgstr "Dostupné od"
 
 msgctxt "#30367"
 msgid "New on %s"
-msgstr ""
+msgstr "Nové na %s"
 
 msgctxt "#30368"
 msgid "Extras"
-msgstr ""
+msgstr "Bonusy"
 
 msgctxt "#30369"
 msgid "Fragments"
-msgstr ""
+msgstr "Úryvky"
 
 msgctxt "#30370"
 msgid "All episodes"
-msgstr ""
+msgstr "Všechny epizody"
 
 msgctxt "#30371"
 msgid "Trending"
-msgstr ""
+msgstr "Trendy"
 
 msgctxt "#30372"
 msgid "New Search"
-msgstr ""
+msgstr "Nové hledání"
 
 msgctxt "#30373"
 msgid "Following"
-msgstr ""
+msgstr "Sledované"
 
 msgctxt "#30374"
 msgid "Recommended TV Shows"
-msgstr ""
+msgstr "Doporučené seriály"
 
 msgctxt "#30375"
 msgid "Recommended Videos"
-msgstr ""
+msgstr "Doporučená videa"
 
 msgctxt "#30376"
 msgid "Continue Watching"
-msgstr ""
+msgstr "Pokračovat ve sledování"
 
 msgctxt "#30377"
 msgid "Clear Search History"
-msgstr ""
+msgstr "Vymazat historii hledání"
 
 msgctxt "#30378"
 msgid "Remove Item"
-msgstr ""
+msgstr "Odebrat položku"
 
 # empty strings from id 30365 to 30400
 msgctxt "#30401"
 msgid "Dutch"
-msgstr ""
+msgstr "Nizozemské"
 
 # se
 msgctxt "#30402"
 msgid "Swedish"
-msgstr ""
+msgstr "Švédské"
 
 # lt
 msgctxt "#30403"
 msgid "Lithuanian"
-msgstr ""
+msgstr "Litevské"
 
 # lv
 msgctxt "#30404"
 msgid "Latvian"
-msgstr ""
+msgstr "Lotyšské"
 
 # no
 msgctxt "#30405"
 msgid "Norwegian"
-msgstr ""
+msgstr "Norské"
 
 # be
 msgctxt "#30406"
 msgid "Belgian"
-msgstr ""
+msgstr "Belgické"
 
 # en-gb
 msgctxt "#30407"
 msgid "British"
-msgstr ""
+msgstr "Britské"
 
 # ee
 msgctxt "#30408"
 msgid "Estonian"
-msgstr ""
+msgstr "Estonské"
 
 # de
 msgctxt "#30409"
 msgid "German"
-msgstr ""
+msgstr "Německé"
 
 # dk
 msgctxt "#30410"
 msgid "Danish"
-msgstr ""
+msgstr "Dánské"
 
 # fi
 msgctxt "#30411"
 msgid "Finnish"
-msgstr ""
+msgstr "Finské"
 
 # empty strings from id 30412 to 30498
 msgctxt "#30499"
 msgid "Contains all the Retrospect favourites that are available across all channels."
-msgstr ""
+msgstr "Obsahuje všechny oblíbené položky Retrospectu dostupné napříč všemi kanály."
 
 msgctxt "#30500"
 msgid "All Favourites"
-msgstr ""
+msgstr "Všechny oblíbené položky"
 
 msgctxt "#30501"
 msgid "Favourite"
-msgstr ""
+msgstr "Oblíbená položka"
 
 msgctxt "#30502"
 msgid "Favourites"
@@ -857,404 +857,408 @@ msgstr "Oblíbené"
 
 msgctxt "#30503"
 msgid "Channel Favourites"
-msgstr ""
+msgstr "Oblíbené položky kanálu"
 
 msgctxt "#30504"
 msgid "Add to Favourites"
-msgstr ""
+msgstr "Přidat do oblíbených"
 
 msgctxt "#30505"
 msgid "Hide"
-msgstr ""
+msgstr "Skrýt"
 
 msgctxt "#30506"
 msgid "Remove Favourite"
-msgstr ""
+msgstr "Odebrat oblíbenou položku"
 
 msgctxt "#30507"
 msgid "Select Channels »"
-msgstr ""
+msgstr "Vybrat kanály »"
 
 msgctxt "#30508"
 msgid "No favourites available"
-msgstr ""
+msgstr "Nejsou k dispozici žádné oblíbené položky"
 
 msgctxt "#30509"
 msgid "Cannot start playback"
-msgstr ""
+msgstr "Nelze spustit přehrávání"
 
 msgctxt "#30510"
 msgid "New version available"
-msgstr ""
+msgstr "Je dostupná nová verze"
 
 msgctxt "#30511"
 msgid "Add shortcut"
-msgstr ""
+msgstr "Přidat zkratku"
 
 msgctxt "#30512"
 msgid "Please provide a name for the shortcut."
-msgstr ""
+msgstr "Zadejte název zkratky."
 
 msgctxt "#30513"
 msgid "Profiles"
-msgstr ""
+msgstr "Profily"
 
 # empty strings from id 30511 to 30515
 msgctxt "#30516"
 msgid "New Version Available."
-msgstr ""
+msgstr "Je dostupná nová verze."
 
 msgctxt "#30517"
 msgid "A new version of %s is available: %s. Please visit the website to download it."
-msgstr ""
+msgstr "Je dostupná nová verze %s: %s. Stáhněte ji z webu."
 
 # empty strings from id 30518 to 30519
 msgctxt "#30520"
 msgid "Repository Warning"
-msgstr ""
+msgstr "Upozornění na repozitář"
 
 msgctxt "#30521"
 msgid "The Retrospect repository is not installed.|Please install it to allow future updates."
-msgstr ""
+msgstr "Repozitář Retrospectu není nainstalován.|Nainstalujte ho, aby bylo možné přijímat budoucí aktualizace."
 
 msgctxt "#30522"
 msgid "Channel message"
-msgstr ""
+msgstr "Zpráva kanálu"
 
 msgctxt "#30523"
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 msgctxt "#30524"
 msgid "No videos were found for the selected item."
-msgstr ""
+msgstr "Pro vybranou položku nebyla nalezena žádná videa."
 
 msgctxt "#30525"
 msgid "The selected item does not have|any streams associated."
-msgstr ""
+msgstr "K vybrané položce nejsou|přiřazeny žádné streamy."
 
 # empty strings from id 30526 to 30527
 msgctxt "#30528"
 msgid "Add-on Settings"
-msgstr ""
+msgstr "Nastavení doplňku"
 
 msgctxt "#30529"
 msgid "Refresh list"
-msgstr ""
+msgstr "Obnovit seznam"
 
 msgctxt "#30530"
 msgid "Check for Retrospect updates"
-msgstr ""
+msgstr "Zkontrolovat aktualizace Retrospectu"
 
 msgctxt "#30531"
 msgid "Missing 'InputStream Helper' add-on. Cannot install."
-msgstr ""
+msgstr "Chybí doplněk „InputStream Helper“. Instalaci nelze provést."
 
 msgctxt "#30532"
 msgid "Install Widevine using 'InputStream Helper' add-on"
-msgstr ""
+msgstr "Nainstalovat Widevine pomocí doplňku „InputStream Helper“"
 
 msgctxt "#30533"
 msgid "Installing Widevine libraries using the 'InputStream Helper' add-on is done at your own risk and Retrospect is not responsible for any results. Nor is it guaranteed that Widevine will be installed correctly."
-msgstr ""
+msgstr "Instalace knihoven Widevine pomocí doplňku „InputStream Helper“ probíhá na vlastní riziko a Retrospect neodpovídá za její výsledek. Zároveň není zaručeno, že bude Widevine nainstalováno správně."
 
 msgctxt "#30534"
 msgid "Installation of Widevine failed!"
-msgstr ""
+msgstr "Instalace Widevine selhala!"
 
 msgctxt "#30535"
 msgid "Installation of Widevine completed!"
-msgstr ""
+msgstr "Instalace Widevine byla dokončena!"
 
 msgctxt "#30536"
 msgid "This stream requires Kodi Leia, an enabled InputStream Adaptive add-on and the Widevine library to be installed. The latter can be installed from within the Retrospect add-on settings."
-msgstr ""
+msgstr "Tento stream vyžaduje Kodi Leia, povolený doplněk InputStream Adaptive a nainstalovanou knihovnu Widevine. Tu lze nainstalovat v nastavení doplňku Retrospect."
 
 msgctxt "#30537"
 msgid "Page"
-msgstr "Strana"
+msgstr "Stránka"
 
 msgctxt "#30538"
 msgid "The selected live stream has not yet|begun."
-msgstr ""
+msgstr "Vysílání vybraného živého streamu ještě|nezačalo."
 
 msgctxt "#30539"
 msgid "Live stream"
-msgstr ""
+msgstr "Živý stream"
 
 msgctxt "#30540"
 msgid "Geo-blocked"
-msgstr ""
+msgstr "Geograficky blokované"
 
 msgctxt "#30541"
 msgid "Queue item"
-msgstr ""
+msgstr "Zařadit položku do fronty"
 
 msgctxt "#30542"
 msgid "Starting %s."
-msgstr ""
+msgstr "Spouštění %s."
 
 msgctxt "#30543"
 msgid "Season"
-msgstr ""
+msgstr "Řada"
 
 msgctxt "#30544"
 msgid "Episode"
-msgstr ""
+msgstr "Epizoda"
 
 msgctxt "#30545"
 msgid "Titles with '%s'"
-msgstr ""
+msgstr "Názvy s „%s“"
 
 msgctxt "#30546"
 msgid "Other Chars"
-msgstr ""
+msgstr "Ostatní znaky"
 
 msgctxt "#30547"
 msgid "More Pages"
-msgstr ""
+msgstr "Další stránky"
 
 msgctxt "#30548"
 msgid "Clips"
-msgstr ""
+msgstr "Klipy"
 
 msgctxt "#30549"
 msgid "Error retrieving the list of items."
-msgstr ""
+msgstr "Chyba při načítání seznamu položek."
 
 msgctxt "#30550"
 msgid "No episodes found for the selected item."
-msgstr ""
+msgstr "Pro vybranou položku nebyly nalezeny žádné epizody."
 
 msgctxt "#30551"
 msgid "Today"
-msgstr ""
+msgstr "Dnes"
 
 msgctxt "#30552"
 msgid "Yesterday"
-msgstr ""
+msgstr "Včera"
 
 msgctxt "#30553"
 msgid "Day before yesterday"
-msgstr ""
+msgstr "Předevčírem"
 
 msgctxt "#30554"
 msgid "DRM Protection"
-msgstr ""
+msgstr "Ochrana DRM"
 
 msgctxt "#30555"
 msgid "The selected item is DRM protected and might not play on Kodi."
-msgstr ""
+msgstr "Vybraná položka je chráněna DRM a v Kodi se nemusí přehrát."
 
 msgctxt "#30556"
 msgid "Initialising channel(s)."
-msgstr ""
+msgstr "Inicializace kanálů."
 
 msgctxt "#30557"
 msgid "Channels have been updated or installed. Performing first time actions. This could take some time."
-msgstr ""
+msgstr "Kanály byly aktualizovány nebo nainstalovány. Provádějí se úvodní akce. To může nějakou dobu trvat."
 
 msgctxt "#30558"
 msgid "Fetching Textures"
-msgstr ""
+msgstr "Načítání textur"
 
 msgctxt "#30559"
 msgid "Fetching missing textures. This could take some time depending on the internet and system speed."
-msgstr ""
+msgstr "Načítání chybějících textur. V závislosti na rychlosti internetu a systému to může nějakou dobu trvat."
 
 msgctxt "#30560"
 msgid "Paid video"
-msgstr ""
+msgstr "Placené video"
 
 msgctxt "#30561"
 msgid "The selected item is not free and might not play on Kodi."
-msgstr ""
+msgstr "Vybraná položka není zdarma a v Kodi se nemusí přehrát."
 
 msgctxt "#30562"
 msgid "Username and/or password not set in Add-on settings"
-msgstr ""
+msgstr "V nastavení doplňku není nastaveno uživatelské jméno a/nebo heslo"
 
 msgctxt "#30563"
 msgid "Hide Item"
-msgstr ""
+msgstr "Skrýt položku"
 
 msgctxt "#30564"
 msgid "Show Hidden Item"
-msgstr ""
+msgstr "Zobrazit skrytou položku"
 
 msgctxt "#30565"
 msgid "Hidden items"
-msgstr ""
+msgstr "Skryté položky"
 
 msgctxt "#30566"
 msgid "To show a hidden item, first configure Retrospect to show hidden items. Then use the context menu's \"Show hidden item\"."
-msgstr ""
+msgstr "Pokud chcete zobrazit skrytou položku, nejprve nastavte Retrospect tak, aby zobrazoval skryté položky. Potom v kontextové nabídce použijte „Zobrazit skrytou položku“."
 
 msgctxt "#30567"
 msgid "Add-on(s) disabled"
-msgstr ""
+msgstr "Doplňky jsou zakázány"
 
 msgctxt "#30568"
 msgid "Some of the Retrospect Channel Add-ons are not enabled which will prevent them from auto updating. The Kodi add-on browser will now open and you should enable all Retrospect related add-ons. See http://kodi.wiki/view/add-on_manager."
-msgstr ""
+msgstr "Některé doplňky kanálů Retrospectu nejsou povoleny, což zabrání jejich automatické aktualizaci. Nyní se otevře prohlížeč doplňků Kodi a měli byste povolit všechny doplňky související s Retrospectem. Viz http://kodi.wiki/view/add-on_manager."
 
 msgctxt "#30569"
 msgid "Ignore SSL verification errors (Security Risk!)"
-msgstr ""
+msgstr "Ignorovat chyby ověření SSL (bezpečnostní riziko!)"
 
 msgctxt "#30570"
 msgid "Hide channel initialisation messages"
-msgstr ""
+msgstr "Skrýt zprávy o inicializaci kanálů"
 
 msgctxt "#30571"
 msgid "Use Kodi InputStream Adaptive add-on when possible"
-msgstr ""
+msgstr "Používat doplněk Kodi InputStream Adaptive, pokud je to možné"
 
 msgctxt "#30572"
 msgid "Retrospect Settings »"
-msgstr ""
+msgstr "Nastavení Retrospectu »"
 
 msgctxt "#30573"
 msgid "(Un-)Hide item »"
-msgstr ""
+msgstr "Skrýt/zobrazit položku »"
 
 msgctxt "#30574"
 msgid "Hide Channel"
-msgstr ""
+msgstr "Skrýt kanál"
 
 msgctxt "#30575"
 msgid "Retrospect Favourites »"
-msgstr ""
+msgstr "Oblíbené položky Retrospectu »"
 
 msgctxt "#30576"
 msgid "Select Countries"
-msgstr ""
+msgstr "Vybrat země"
 
 msgctxt "#30577"
 msgid "Bitrate »"
-msgstr ""
+msgstr "Datový tok »"
 
 msgctxt "#30578"
 msgid "InputStream Adaptive add-on settings"
-msgstr ""
+msgstr "Nastavení doplňku InputStream Adaptive"
 
 msgctxt "#30579"
 msgid "InputStream Adaptive add-on »"
-msgstr ""
+msgstr "Doplněk InputStream Adaptive »"
 
 msgctxt "#30580"
 msgid "Channel Options »"
-msgstr ""
+msgstr "Volby kanálu »"
 
 msgctxt "#30581"
 msgid "InputStream Adaptive add-on usage"
-msgstr ""
+msgstr "Použití doplňku InputStream Adaptive"
 
 msgctxt "#30582"
 msgid "Split TV shows and single episodes in separate folders"
-msgstr ""
+msgstr "Rozdělit seriály a jednotlivé epizody do samostatných složek"
 
 msgctxt "#30583"
 msgid "Single episodes"
-msgstr ""
+msgstr "Jednotlivé epizody"
 
 msgctxt "#30584"
 msgid "Fetching a long list of items using multiple API calls."
-msgstr ""
+msgstr "Načítání dlouhého seznamu položek pomocí více volání API."
 
 msgctxt "#30585"
 msgid "Page {} of {}"
-msgstr ""
+msgstr "Stránka {} z {}"
 
 msgctxt "#30586"
 msgid "Number of pages to load for the main listing"
-msgstr ""
+msgstr "Počet stránek načítaných pro hlavní seznam"
 
 msgctxt "#30587"
 msgid "Show streams with accessibility features"
-msgstr ""
+msgstr "Zobrazovat streamy s funkcemi zpřístupnění"
 
 msgctxt "#30588"
 msgid "This stream cannot be played due to geographical restrictions."
-msgstr ""
+msgstr "Tento stream nelze přehrát kvůli geografickým omezením."
+
+msgctxt "#30589"
+msgid "Live streams"
+msgstr "Živé streamy"
 
 # empty strings from id 30584 to 30589
 msgctxt "#30590"
 msgid "Set a new Retrospect PIN"
-msgstr ""
+msgstr "Nastavit nový PIN Retrospectu"
 
 msgctxt "#30591"
 msgid "No Retrospect PIN specified"
-msgstr ""
+msgstr "Nebyl zadán PIN Retrospectu"
 
 msgctxt "#30592"
 msgid "Repeat the new Retrospect PIN"
-msgstr ""
+msgstr "Zopakujte nový PIN Retrospectu"
 
 msgctxt "#30593"
 msgid "PINs don't match"
-msgstr ""
+msgstr "PINy se neshodují"
 
 msgctxt "#30594"
 msgid "Specify value for setting: '%s'"
-msgstr ""
+msgstr "Zadejte hodnotu nastavení: „%s“"
 
 msgctxt "#30595"
 msgid "Input Retrospect PIN"
-msgstr ""
+msgstr "Zadejte PIN Retrospectu"
 
 msgctxt "#30596"
 msgid "Incorrect Retrospect PIN specified"
-msgstr ""
+msgstr "Zadaný PIN Retrospectu je nesprávný"
 
 msgctxt "#30597"
 msgid "Resetting the vault will invalidate all existing encrypted values. Are you sure?"
-msgstr ""
+msgstr "Resetováním trezoru se zneplatní všechny stávající zašifrované hodnoty. Opravdu pokračovat?"
 
 msgctxt "#30598"
 msgid "Send retrospect.log »"
-msgstr ""
+msgstr "Odeslat retrospect.log »"
 
 msgctxt "#30599"
 msgid "Logfile posted to: %s[CR][CR]Note the URL (especially the last characters) and use them to refer to these log files in posts."
-msgstr ""
+msgstr "Soubor protokolu byl odeslán na: %s[CR][CR]Poznamenejte si URL (zejména poslední znaky) a použijte ji v příspěvcích jako odkaz na tyto soubory protokolu."
 
 msgctxt "#30600"
 msgid "Logfile successfully posted"
-msgstr ""
+msgstr "Soubor protokolu byl úspěšně odeslán"
 
 msgctxt "#30601"
 msgid "Error posting logfile: %s"
-msgstr ""
+msgstr "Chyba při odesílání souboru protokolu: %s"
 
 msgctxt "#30602"
 msgid "Error posting logfile"
-msgstr ""
+msgstr "Chyba při odesílání souboru protokolu"
 
 msgctxt "#30603"
 msgid "Retrospect changed add-on ID. To prevent data loss, your user data will now be migrated. After this has been done, please restart Kodi to complete migration. After the restart update any shortcut you had to Retrospect. The Retrospect marked as \"broken\" in \"My add-ons\" can be uninstalled."
-msgstr ""
+msgstr "Retrospect změnil ID doplňku. Aby nedošlo ke ztrátě dat, budou nyní migrována vaše uživatelská data. Po dokončení restartujte Kodi, aby se migrace dokončila. Po restartu aktualizujte všechny zkratky, které jste měli k Retrospectu. Doplněk Retrospect označený jako „poškozený“ v části „Moje doplňky“ lze odinstalovat."
 
 msgctxt "#30604"
 msgid "Clean-up cache and cookies »"
-msgstr ""
+msgstr "Vyčistit mezipaměť a cookies »"
 
 msgctxt "#30605"
 msgid "Are you sure you want to clean all of Retrospect's cache and cookies? This action cannot be undone."
-msgstr ""
+msgstr "Opravdu chcete vyčistit celou mezipaměť a všechny cookies Retrospectu? Tuto akci nelze vrátit zpět."
 
 msgctxt "#30606"
 msgid "Minimum level for showing notifications"
-msgstr ""
+msgstr "Minimální úroveň pro zobrazování oznámení"
 
 msgctxt "#30607"
 msgid "Info"
-msgstr ""
+msgstr "Informace"
 
 msgctxt "#30608"
 msgid "Warning"
-msgstr ""
+msgstr "Varování"
 
 msgctxt "#30609"
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
