@@ -8,8 +8,4 @@ This minor update fixes a small number of channel-related bugs.
 _None_
 
 [B]Channel related[/B]
-* Updated: SVT fanart.
-* Updated: TV4.se artwork.
-* Updated: UR Play artwork.
-* Fixed: Use correct live stream urls for SVT (Fixes #1924).
-* Fixed: Type-ing issues and JSON fix in openregio.
+* Fixed: NPO changed player DRM (Fixes #1989). Needs latest Widevine.
