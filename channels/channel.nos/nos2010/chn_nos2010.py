@@ -1393,6 +1393,9 @@ class Channel(chn_class.Channel):
                 date = air_date.strftime("%d-%m-%Y")
                 guid = livestream["guid"]
                 guide_content = UriHandler.open(f"https://npo.nl/start/api/domain/guide-channel?guid={guid}&date={date}")
+                if UriHandler.instance().status.error:
+                    continue
+
                 guide_data = JsonHelper(guide_content)
 
                 for item in guide_data.json:

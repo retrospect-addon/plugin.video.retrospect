@@ -11,3 +11,4 @@ _None_
 * Fixed: De Schatkamer listing of some series.
 * Fixed: NPO changed player DRM (Fixes #1989). Needs latest Widevine.
 * Fixed: NPO Radio playback.
+* Fixed: NPO EPG listings.
