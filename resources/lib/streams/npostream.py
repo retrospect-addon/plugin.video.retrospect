@@ -84,9 +84,14 @@ class NpoStream(object):
             message = video_info.get_value("body")
             return message
 
-        drm_token = video_info.get_value("stream", "drm", "drmToken")
-        drm_license_url = video_info.get_value("stream", "drm", "licenseUrl")
         stream_url = video_info.get_value("stream", "streamURL")
+        drm_info = video_info.get_value("stream", "drm", fallback=None)
+        if drm_info:
+            drm_token = video_info.get_value("stream", "drm", "drmToken")
+            drm_license_url = video_info.get_value("stream", "drm", "licenseUrl")
+        else:
+            drm_token = None
+            drm_license_url = None
 
         # Encryption?
         if drm_token:
