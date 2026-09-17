@@ -12,3 +12,4 @@ _None_
 * Fixed: NPO changed player DRM (Fixes #1989). Needs latest Widevine.
 * Fixed: NPO Radio playback.
 * Fixed: NPO EPG listings.
+* Fixed: De Schatkamer added Widevine DRM for HLS.
