@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.retrospect"
-        version="5.7.37"
+        version="5.7.38"
         name="Retrospect"
         provider-name="Bas Rieter">
 
@@ -133,7 +133,7 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <language>en nl de sv no lt lv fi</language>
-        <news>[B]Retrospect v5.7.37 - Changelog - 2026-09-18[/B]
+        <news>[B]Retrospect v5.7.38 - Changelog - 2026-09-19[/B]
 Fixed NPO playback and De Schatkamer listing and removed play.tv.
 
 [B]Framework related[/B]
