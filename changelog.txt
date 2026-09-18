@@ -1,4 +1,4 @@
-[B]Retrospect v5.7.36 - Changelog - 2026-07-14[/B]
+[B]Retrospect v5.7.37 - Changelog - 2026-09-18[/B]
 Fixed NPO playback and De Schatkamer listing and removed play.tv.
 
 [B]Framework related[/B]
