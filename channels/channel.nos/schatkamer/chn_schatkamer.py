@@ -51,7 +51,8 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/",
                               preprocessor=NextJsParser(key="modules", return_parent=True), json=True,
-                              parser=["modules"], creator=self.create_swimlane_item)
+                              parser=["modules"], creator=self.create_swimlane_item,
+                              updater=self.update_video_item, match_type="Regex")
 
         self._add_data_parsers(
             ["https://schatkamer.beeldengeluid.nl/serie/", "https://schatkamer.beeldengeluid.nl/omroep/", "https://schatkamer.beeldengeluid.nl/persoon/"],
@@ -62,8 +63,6 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="total", return_parent=True),
                               parser=["results"], creator=self.create_video_item)
 
-        self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/.+",
-                              updater=self.update_video_item, match_type="Regex")
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/serie/.+/aflevering",
                               updater=self.update_video_item, match_type="Regex")
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
