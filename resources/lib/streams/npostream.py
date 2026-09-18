@@ -95,7 +95,7 @@ class NpoStream(object):
 
         # Encryption?
         if drm_token:
-            Logger.info(f"Using encrypted Dash with Token for NPO: {drm_token}")
+            Logger.info(f"Using encrypted Dash with Token for NPO")
             drm_url = f"https://npo-drm-gateway.samgcloud.nepworldwide.nl/authentication?custom_data={drm_token}"
             Logger.info("Using encrypted Dash for NPO")
             license_key = "{0}|{1}|R{{SSM}}|".format(drm_url, "")
