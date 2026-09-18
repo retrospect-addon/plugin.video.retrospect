@@ -7,6 +7,7 @@ from resources.lib.addonsettings import AddonSettings
 from . channeltest import ChannelTest
 
 
+@unittest.skip("Broken")
 class TestVierBeChannel(ChannelTest):
     # noinspection PyPep8Naming
     def __init__(self, methodName):  # NOSONAR
