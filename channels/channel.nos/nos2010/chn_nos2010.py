@@ -3,6 +3,7 @@
 import datetime
 import time
 from typing import Optional, List, Tuple, Union, Dict
+from urllib.parse import urljoin
 
 import pytz
 
@@ -1220,8 +1221,9 @@ class Channel(chn_class.Channel):
         # <script src="/_next/static/chunks/0q2z4y5fhnk-0.js"
         scripts = Regexer.do_regex('<script src="([^"]+)', www_data)
         slug = ""
+        base_url = urljoin(item.url, "/")
         for script in scripts:
-            script_data = UriHandler.open(f"{item.url}{script}")
+            script_data = UriHandler.open(f"{base_url}{script}")
             slug = Regexer.do_regex('slug:\W*"([^"]+)"', script_data)
             if slug:
                 slug = slug[0]
