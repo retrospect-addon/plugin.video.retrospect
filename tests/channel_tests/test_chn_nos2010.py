@@ -28,7 +28,7 @@ class TestNpoChannel(ChannelTest):
         self._test_video_url(url, parser="liveRadio")
 
     def test_live_radio_audio(self):
-        url = "https://www.nporadio2.nl/soulenjazz"
+        url = "https://www.nporadio1.nl"
         self._test_video_url(url, parser="liveRadio")
 
     def test_live_tv(self):

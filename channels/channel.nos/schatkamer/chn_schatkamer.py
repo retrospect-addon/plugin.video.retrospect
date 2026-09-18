@@ -14,6 +14,7 @@ from resources.lib.helpers.reactrsc import NextJsParser
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.regexer import Regexer
 from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
 
 
@@ -50,10 +51,11 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/",
                               preprocessor=NextJsParser(key="modules", return_parent=True), json=True,
-                              parser=["modules"], creator=self.create_swimlane_item)
+                              parser=["modules"], creator=self.create_swimlane_item,
+                              updater=self.update_video_item, match_type="Regex")
 
         self._add_data_parsers(
-            ["https://schatkamer.beeldengeluid.nl/serie/", "https://schatkamer.beeldengeluid.nl/omroep/",],
+            ["https://schatkamer.beeldengeluid.nl/serie/", "https://schatkamer.beeldengeluid.nl/omroep/", "https://schatkamer.beeldengeluid.nl/persoon/"],
             preprocessor=NextJsParser(key="total", return_parent=True), json=True,
             parser=["results"], creator=self.create_video_item)
 
@@ -61,8 +63,6 @@ class Channel(chn_class.Channel):
                               preprocessor=NextJsParser(key="total", return_parent=True),
                               parser=["results"], creator=self.create_video_item)
 
-        self._add_data_parser("https://schatkamer.beeldengeluid.nl/verhaal/.+",
-                              updater=self.update_video_item, match_type="Regex")
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/serie/.+/aflevering",
                               updater=self.update_video_item, match_type="Regex")
         self._add_data_parser("https://schatkamer.beeldengeluid.nl/programma/",
@@ -193,7 +193,7 @@ class Channel(chn_class.Channel):
         cookie_value = cookie_value.strip(";")
 
         stream = item.add_stream(url, 0)
-        M3u8.set_input_stream_addon_input(
+        Mpd.set_input_stream_addon_input(
             stream,
             manifest_headers={
                 "cookie": cookie_value
@@ -203,7 +203,9 @@ class Channel(chn_class.Channel):
             },
             manifest_upd_params={
                 "cookie": cookie_value
-            }
+            },
+            # Take from the website JS file. Seems fixed.
+            license_key=Mpd.get_license_key("https://widevine-dash.ezdrm.com/widevine-php/widevine-foreignkey.php?pX=E24145", "R"),
         )
 
         item.complete = True
