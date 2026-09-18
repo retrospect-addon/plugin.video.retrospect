@@ -179,7 +179,12 @@ class Channel(chn_class.Channel):
 
     def update_video_item(self, item: MediaItem) -> MediaItem:
         data = UriHandler.open(item.url, additional_headers=item.HttpHeaders, no_cache=True)
-        url = Regexer.do_regex(r"(https:\/\/[^,]+\.m3u8[^:]+)\d\d:", data)[0]
+        url = Regexer.do_regex(r"https:\/\/[^,]+\.(?:m3u8[^:]+\d{2}:|mp4)", data)[0]
+
+        if url and url.endswith(".mp4"):
+            item.add_stream(url, 0)
+            item.complete = True
+            return item
 
         # We need to pass the parameters to both the manifest, stream and update parameter as a cookie.
         url_info = urlparse(url)
