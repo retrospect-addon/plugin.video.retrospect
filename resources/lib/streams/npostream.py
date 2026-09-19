@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Optional
 
+from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.mpd import Mpd
@@ -118,6 +119,11 @@ class NpoStream(object):
                 Logger.info(f"NPO-Stream: Adding custom headers: {','.join(drm_headers.keys())}")
                 key_headers.update(drm_headers)
             license_key = Mpd.get_license_key(drm_license_url, key_type="R", key_headers=key_headers)
+
+            if drm_certificate:
+                Logger.info(f"NPO-Stream: Received DRM Server Certificate {drm_certificate}.")
+                cert_data = UriHandler.open(drm_certificate)
+                drm_certificate = EncodingHelper.encode_base64(cert_data).decode('ascii')
         else:
             Logger.info("NPO-Stream: Using non-encrypted Dash for NPO")
             license_key = None
