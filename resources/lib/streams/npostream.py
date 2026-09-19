@@ -63,9 +63,11 @@ class NpoStream(object):
 
         if use_post:
             token_data = {"productId": episode_id}
-            token = UriHandler.open("https://npo.nl/start/api/domain/player-token", json=token_data)
+            token = UriHandler.open(
+                "https://npo.nl/start/api/domain/player-token", json=token_data, no_cache=True)
         else:
-            token = UriHandler.open(f"https://npo.nl/start/api/domain/player-token?productId={episode_id}", no_cache=True)
+            token = UriHandler.open(
+                f"https://npo.nl/start/api/domain/player-token?productId={episode_id}", no_cache=True)
 
         token_json = JsonHelper(token)
         token_value = token_json.get_value("jwt")
@@ -76,7 +78,8 @@ class NpoStream(object):
             "drmType": "widevine",
             "referrerUrl": "https://npo.nl/"
         }
-        data = UriHandler.open("https://prod.npoplayer.nl/stream-link", json=video_data, additional_headers=video_headers)
+        data = UriHandler.open(
+            "https://prod.npoplayer.nl/stream-link", json=video_data, additional_headers=video_headers, no_cache=True)
         video_info = JsonHelper(data)
 
         status = video_info.get_value("status", fallback=0)
