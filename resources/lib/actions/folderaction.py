@@ -314,7 +314,8 @@ class FolderAction(AddonAction):
                 sort_methods.append(xbmcplugin.SORT_METHOD_EPISODE)  # 24
 
         is_search = self.parameter_parser.action == action.SEARCH
-        if is_search:
+        is_live = items and all(i.isLive for i in items if i.is_playable)
+        if is_search or is_live:
             sort_methods.remove(xbmcplugin.SORT_METHOD_UNSORTED)
             sort_methods.insert(0, xbmcplugin.SORT_METHOD_UNSORTED)
 
