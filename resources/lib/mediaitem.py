@@ -1,10 +1,11 @@
 # coding=utf-8  # NOSONAR
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from xbmc import InfoTagMusic
 from datetime import datetime
 from functools import reduce
 from random import getrandbits
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional, Dict, Any, List, Union, Literal, Final, get_args
 
 import xbmcgui
 
@@ -19,6 +20,14 @@ from resources.lib import contenttype
 from resources.lib.retroconfig import Config
 from resources.lib.streams.adaptive import Adaptive
 from resources.lib.proxyinfo import ProxyInfo
+from xbmc import InfoTagVideo
+
+StrInt = Union[int, str]
+InfoLabel = Literal[
+    "albumartist", "aired", "artist", "date", "duration", "episode", "genre", "mediatype",
+    "plot", "season", "title", "tracknumber", "tvshowtitle", "year",
+]
+_INFO_LABELS = frozenset(get_args(InfoLabel))
 
 
 # Don't make this an MediaItem(object) as it breaks the pickles
@@ -61,10 +70,10 @@ class MediaItem:
     tv_show_title: Optional[str]
     url: str
 
-    LabelEpisode = "Episode"
-    LabelTrackNumber = "TrackNumber"
-    LabelDuration = "Duration"
-    LabelTvShowTitle = "TVShowTitle"
+    LabelEpisode: Final[InfoLabel] = "episode"
+    LabelTrackNumber: Final[InfoLabel] = "tracknumber"
+    LabelDuration: Final[InfoLabel] = "duration"
+    LabelTvShowTitle: Final[InfoLabel] = "tvshowtitle"
     ExpiresAt = LanguageHelper.get_localized_string(LanguageHelper.ExpiresAt)
 
     #noinspection PyShadowingBuiltins
@@ -115,7 +124,7 @@ class MediaItem:
         self.isPaid = False                       # : if set to True, the item is a Paid item and cannot be played (*)
         self.season = 0                           # : The season number
         self.episode = 0                          # : The episode number
-        self.__infoLabels = dict()                # : Additional Kodi InfoLabels
+        self.__infoLabels: Dict[InfoLabel, Any] = {}  # : Additional Kodi InfoLabels
 
         self.complete = False
         self.items = []
@@ -288,15 +297,19 @@ class MediaItem:
 
         return self.__infoLabels.get(label)
 
-    def set_info_label(self, label, value):
+    def set_info_label(self, label: InfoLabel, value: Any) -> None:
         """ Set a Kodi InfoLabel and its value.
 
-        See https://kodi.wiki/view/InfoLabels
-        :param str label: the name of the label
+        Only labels supported by get_kodi_item are accepted.
+        See https://xbmc.github.io/docs.kodi.tv/master/kodi-dev-kit/group__python__xbmcgui__listitem.html#ga0f1e91e1d5aa61d8dd0eac90e8edbf18
+        :param InfoLabel label: the lowercase name of the label
         :param Any value: the value to assign
+        :raises ValueError: if the label is unsupported or not lowercase
 
         """
 
+        if label not in _INFO_LABELS:
+            raise ValueError(f"Unsupported info label: {label!r}")
         self.__infoLabels[label] = value
 
     def has_info_label(self, label):
@@ -342,11 +355,11 @@ class MediaItem:
 
         if season:
             self.season = int(season)
-            self.__infoLabels["Season"] = self.season
+            self.__infoLabels["season"] = self.season
 
         if episode:
             self.episode = int(episode)
-            self.__infoLabels["Episode"] = self.episode
+            self.__infoLabels["episode"] = self.episode
 
         if tv_show_title:
             self.tv_show_title = tv_show_title
@@ -380,14 +393,12 @@ class MediaItem:
 
         """
 
-        return "{:03d}-{:03d}-{}-{}".format(
-            self.season,
-            self.episode,
-            self.__timestamp.strftime("%Y.%m.%d") if self.__timestamp.year > 1900 else "0001.01.01",
-            self.name)
+        time_stamp = self.__timestamp.strftime("%Y.%m.%d") if self.__timestamp.year > 1900 else "0001.01.01"
+        return f"{self.season:03d}-{self.episode:03d}-{time_stamp}-{self.name}"
 
-    def set_date(self, year, month, day,
-                 hour=None, minutes=None, seconds=None, only_if_newer=False, text=None):
+    def set_date(self, year: StrInt, month: StrInt, day: StrInt,
+                 hour: Optional[StrInt]=None, minutes: Optional[StrInt]=None, seconds: Optional[StrInt]=None,
+                 only_if_newer: bool=False, text: Optional[str]=None):
         """ Sets the datetime of the MediaItem.
 
         Sets the datetime of the MediaItem in the self.__date and the
@@ -438,11 +449,12 @@ class MediaItem:
                 time_stamp = datetime(int(year), int(month), int(day))
                 date = time_stamp.strftime(date_format)
             else:
-                time_stamp = datetime(int(year), int(month), int(day), int(hour), int(minutes), int(seconds))
+                time_stamp = datetime(
+                    int(year), int(month), int(day), int(hour or 0), int(minutes or 0), int(seconds or 0))
                 date = time_stamp.strftime(date_time_format)
 
             if only_if_newer and self.__timestamp > time_stamp:
-                return
+                return self.__timestamp
 
             self.__timestamp = time_stamp
             if text is None:
@@ -485,7 +497,7 @@ class MediaItem:
         name = "%s %s" % (name, name_post_fix)
         name = self.__full_decode_text(name)
 
-        if self.description is None:
+        if not self.description:
             self.description = ''
 
         if description_pre_fix != "":
@@ -498,9 +510,9 @@ class MediaItem:
             description = ""
 
         # the Kodi ListItem date
-        # date: string (%d.%m.%Y / 01.01.2009) - file date
+        # Nexus metadata setters use ISO dates.
         if self.__timestamp > datetime.min:
-            kodi_date = self.__timestamp.strftime("%d.%m.%Y")
+            kodi_date = self.__timestamp.strftime("%Y-%m-%d")
             kodi_year = self.__timestamp.year
         else:
             kodi_date = ""
@@ -508,17 +520,17 @@ class MediaItem:
 
         # Get all the info labels starting with the ones set and then add the specific ones
         info_labels = self.__infoLabels.copy()
-        info_labels["Title"] = name
+        info_labels["title"] = name
 
         if self.media_type and self.media_type != mediatype.PAGE:
             info_labels["mediatype"] = self.media_type
 
         if kodi_date:
-            info_labels["Date"] = kodi_date
-            info_labels["Year"] = kodi_year
-            info_labels["Aired"] = kodi_date
+            info_labels["date"] = kodi_date
+            info_labels["year"] = kodi_year
+            info_labels["aired"] = kodi_date
         if self.media_type in (mediatype.VIDEO_TYPES | mediatype.FOLDER_TYPES):
-            info_labels["Plot"] = description
+            info_labels["plot"] = description
         if self.tv_show_title:
             info_labels[MediaItem.LabelTvShowTitle] = self.tv_show_title
 
@@ -534,10 +546,56 @@ class MediaItem:
 
         # specific items
         Logger.trace("Setting InfoLabels: %s", info_labels)
-        if self.media_type in mediatype.AUDIO_TYPES:
-            item.setInfo(type="music", infoLabels=info_labels)
+        is_audio = self.media_type in mediatype.AUDIO_TYPES
+
+        music_tag: Optional[InfoTagMusic] = None
+        video_tag: Optional[InfoTagVideo] = None
+
+        if is_audio:
+            music_tag = item.getMusicInfoTag()
+            info_tag: Union[InfoTagMusic, InfoTagVideo] = music_tag
         else:
-            item.setInfo(type="video", infoLabels=info_labels)
+            video_tag = item.getVideoInfoTag()
+            info_tag = video_tag
+
+        for label, value in info_labels.items():
+            if value is None:
+                continue
+
+            if label == "title":
+                info_tag.setTitle(str(value))
+            elif label == "mediatype":
+                info_tag.setMediaType(str(value))
+            elif label == "year":
+                info_tag.setYear(int(value))
+            elif label == "duration":
+                info_tag.setDuration(int(value))
+            elif label == "genre":
+                info_tag.setGenres(self.__metadata_list(value))
+            elif label == "date":
+                item.setDateTime(str(value))
+
+            elif music_tag is not None:
+                if label == "tracknumber":
+                    music_tag.setTrack(int(value))
+                elif label == "artist":
+                    music_tag.setArtist(self.__music_artists(value))
+                elif label == "albumartist":
+                    music_tag.setAlbumArtist(self.__music_artists(value))
+
+            elif video_tag is not None:
+                if label == "plot":
+                    video_tag.setPlot(str(value))
+                elif label == "tvshowtitle":
+                    video_tag.setTvShowTitle(str(value))
+                elif label == "season":
+                    video_tag.setSeason(int(value))
+                elif label == "episode":
+                    video_tag.setEpisode(int(value))
+                elif label == "aired":
+                    video_tag.setFirstAired(str(value))
+                elif label == "tracknumber":
+                    video_tag.setTrackNumber(int(value))
 
         # now set all the art to prevent duplicate calls to Kodi
         art = {'thumb': self.thumb, 'icon': self.icon, 'landscape': self.thumb}
@@ -621,6 +679,16 @@ class MediaItem:
     @property
     def title(self):
         return self.name
+
+    @staticmethod
+    def __metadata_list(value):
+        """ Preserve lists and Kodi's separator for string-valued genres. """
+        return value.split(" / ") if isinstance(value, str) else list(value)
+
+    @staticmethod
+    def __music_artists(value):
+        """ Nexus music artist setters take a string rather than a list. """
+        return value if isinstance(value, str) else " / ".join(value)
 
     def __get_matching_stream(self, bitrate):
         """ Returns the MediaStream for the requested bitrate.
@@ -953,7 +1021,13 @@ class MediaItem:
         self.__dict__ = m.__dict__
         self.__dict__.update(state)
 
-        # Any modification/fixes for older version could be done here
+        # Cached items from older versions used mixed-case info labels.
+        # pyrefly: ignore [bad-assignment]
+        self.__infoLabels = {
+            label.lower(): value
+            for label, value in self.__infoLabels.items()
+            if label.lower() in _INFO_LABELS
+        }
         return
 
     # Because this happens at pickle-time, it could still lead to issues if the __init__() would
