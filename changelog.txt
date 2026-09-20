@@ -1,5 +1,5 @@
-[B]Retrospect v5.7.38 - Changelog - 2026-09-19[/B]
-Fixed NPO playback and De Schatkamer listing and removed play.tv.
+[B]Retrospect v5.7.39 - Changelog - 2026-09-20[/B]
+This is a quick patch for some minor NPO related issues.
 
 [B]Framework related[/B]
 * Fixed: Don't allow `zstd` as compression.
