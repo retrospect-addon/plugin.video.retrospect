@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Optional
 from resources.lib.xbmcwrapper import XbmcWrapper
 from resources.lib.helpers.jsonhelper import JsonHelper
 
@@ -11,7 +12,7 @@ Resources = "resources"
 
 
 class TextureHandler:
-    __TextureHandler = None
+    __TextureHandler: Optional['TextureHandler'] = None
 
     def __init__(self, logger):
         """ Initialize the texture base
@@ -28,7 +29,7 @@ class TextureHandler:
         self.__addonIds = {}
 
     @staticmethod
-    def instance():
+    def instance() -> 'TextureHandler':
         """ Returns the TextureHandler singleton
 
         :return: The TextureHandler
@@ -36,9 +37,10 @@ class TextureHandler:
 
         """
 
+        # pyrefly: ignore [bad-return]
         return TextureHandler.__TextureHandler
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,unused-parameter
     @staticmethod
     def set_texture_handler(config, logger, uri_handler=None):
         """ Fetches a TextureManager for specific mode and channel.
