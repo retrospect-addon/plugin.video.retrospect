@@ -1,8 +1,9 @@
-[B]Retrospect v5.7.40 - Changelog - 2026-10-31[/B]
-Minor channel fixes for NPO Start, De Schatkamer and UR Play.
+[B]Retrospect vx.x.x - Changelog - 2026-mm-dd[/B]
+t.b.d.
 
 [B]Framework related[/B]
-* Updated: RSCHelper parsers to understand multiline (byte length) data.
+* Changed: Use Kodi Nexus metadata setters instead of deprecated `ListItem.setInfo` calls.
+
 
 [B]GUI/Settings/Language related[/B]
 _None_
