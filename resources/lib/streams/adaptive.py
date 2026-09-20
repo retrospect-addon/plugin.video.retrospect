@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Literal
+from typing import TYPE_CHECKING
 from typing import Dict, Optional
 from urllib.parse import urlencode, quote
+
+if TYPE_CHECKING:
+    from resources.lib.mediaitem import MediaStream
 
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
@@ -12,7 +17,9 @@ class Adaptive(object):
         pass
 
     @staticmethod
-    def get_license_key(key_url, key_type="R", key_headers=None, key_value=None, json_filter=""):
+    def get_license_key(key_url: str, key_type: Literal["R", "A", "B", "D"] = "R",
+                        key_headers: Optional[Dict[str, str]] = None,
+                        key_value: Optional[str] = None, json_filter: str = ""):
         """ Generates a property license key value
 
         # A{SSM} -> not implemented
@@ -45,7 +52,7 @@ class Adaptive(object):
         if key_type in ("A", "R", "B"):
             key_value = "{0}{{SSM}}".format(key_type)
         elif key_type == "D":
-            if "D{SSM}" not in key_value:
+            if key_value and "D{SSM}" not in key_value:
                 raise ValueError("Missing D{SSM} placeholder")
             key_value = HtmlEntityHelper.url_encode(key_value)
 
@@ -120,7 +127,7 @@ class Adaptive(object):
             strm.add_property("inputstream.adaptive.license_type", license_type)
 
         if max_bit_rate:
-            strm.add_property("inputstream.adaptive.max_bandwidth", str(max_bit_rate * 1000))
+            strm.add_property("inputstream.adaptive.chooser_bandwidth_max", str(max_bit_rate * 1000))
         if persist_storage:
             strm.add_property("inputstream.adaptive.license_flags", "persistent_storage")
         if service_certificate is not None:
@@ -138,23 +145,28 @@ class Adaptive(object):
             #
             # From Kodi v21 or above:
             # Specifies the HTTP headers to be used to download streams (audio/video/subtitles) only.
+            # pyrefly: ignore [bad-argument-type]
             params = urlencode(stream_headers, quote_via=quote)
             strm.add_property("inputstream.adaptive.stream_headers", params)
 
         if stream_parameters and AddonSettings.is_min_version(AddonSettings.KodiNexus):
+            # pyrefly: ignore [bad-argument-type]
             params = urlencode(stream_parameters, quote_via=quote)
             strm.add_property("inputstream.adaptive.stream_params", params)
 
         # Manifest stuff
         if AddonSettings.is_min_version(AddonSettings.KodiNexus):
             if manifest_params:
+                # pyrefly: ignore [bad-argument-type]
                 params = urlencode(manifest_params, quote_via=quote)
                 strm.add_property("inputstream.adaptive.manifest_params", params)
 
             if manifest_headers:
+                # pyrefly: ignore [bad-argument-type]
                 params = urlencode(manifest_headers, quote_via=quote)
                 strm.add_property("inputstream.adaptive.manifest_headers", params)
             elif stream_headers:
+                # pyrefly: ignore [bad-argument-type]
                 params = urlencode(stream_headers, quote_via=quote)
                 strm.add_property("inputstream.adaptive.manifest_headers", params)
 
@@ -163,6 +175,7 @@ class Adaptive(object):
             strm.add_property("inputstream.adaptive.manifest_update_parameter", manifest_update_params)
 
         if manifest_upd_params and AddonSettings.is_min_version(AddonSettings.KodiOmega):
+            # pyrefly: ignore [bad-argument-type]
             params = urlencode(manifest_upd_params, quote_via=quote)
             strm.add_property("inputstream.adaptive.manifest_upd_params", params)
 
@@ -181,8 +194,8 @@ class Adaptive(object):
             return
 
         # Previously defined when creating the stream => We don't override that
-        if "inputstream.adaptive.max_bandwidth" in stream.Properties:
+        if "inputstream.adaptive.chooser_bandwidth_max" in stream.Properties:
             return
 
-        stream.add_property("inputstream.adaptive.max_bandwidth", str(max_bit_rate * 1000))
+        stream.add_property("inputstream.adaptive.chooser_bandwidth_max", str(max_bit_rate * 1000))
         return
