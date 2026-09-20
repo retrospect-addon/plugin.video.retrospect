@@ -1,7 +1,7 @@
-requests==2.31.0
-pyaes==1.6.1
-pyscrypt==1.6.2
-pytz==2023.3
-pytest==8.3.5
-sakee==0.1.8
-pyjwt==2.8.0
+requests
+pyaes
+pyscrypt
+pytz
+pytest
+sakee
+pyjwt
