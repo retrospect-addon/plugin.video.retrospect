@@ -608,7 +608,7 @@ class MediaItem:
         item.setContentLookup(False)
         return item
 
-    def get_resolved_kodi_item(self, bitrate, proxy=None):
+    def get_resolved_kodi_item(self, bitrate: int, proxy=None):
         """ Retrieves a resolved kodi ListItem.
 
         :param int bitrate:             The bitrate of the streams that should be in the
