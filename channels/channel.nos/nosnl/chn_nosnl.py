@@ -1,19 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from resources.lib.streams.mpd import Mpd
-from resources.lib.chn_class import PreProcessorResult
 from typing import Dict
 from typing import List
 
 from resources.lib import chn_class, mediatype, contenttype
 from resources.lib.chn_class import CreatorResult
+from resources.lib.chn_class import PreProcessorResult
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.regexer import Regexer
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 
 
@@ -182,11 +181,8 @@ class Channel(chn_class.Channel):
         strm = item.add_stream(url)
         item.url = url
 
-        if "dash" in content_type:
-            Mpd.set_input_stream_addon_input(strm)
-        else:
-            M3u8.set_input_stream_addon_input(strm)
-
+        input_stream = InputStream()
+        input_stream.set_input_stream_addon_input(strm)
         item.complete = True
         return item
 

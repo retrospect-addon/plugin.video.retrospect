@@ -5,12 +5,10 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.logger import Logger
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 from resources.lib.urihandler import UriHandler
-from resources.lib.parserdata import ParserData
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
-from resources.lib.streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
@@ -35,7 +33,7 @@ class Channel(chn_class.Channel):
         self.baseUrl = "http://www.srf.ch"
 
         # setup the intial listing
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+        self._add_data_parser(self.mainListUri, match_type="Exact",
                               json=True, name="Mainlisting of shows",
                               preprocessor=self.get_live_items,
                               parser=["data"], creator=self.create_episode_item)
@@ -102,7 +100,7 @@ class Channel(chn_class.Channel):
         url = "https://www.srf.ch/play/v3/api/srf/production/videos-by-show-id?showId={}".format(result_set["id"])
         item = FolderItem(result_set["title"], url, content_type=contenttype.EPISODES)
         item.description = result_set.get("description", "")
-        item.httpHeaders = self.httpHeaders
+        item.HttpHeaders = self.httpHeaders
         item.poster = result_set.get("posterImageUrl")
         item.thumb = result_set.get("imageUrl")
         item.fanart = item.thumb
@@ -148,7 +146,7 @@ class Channel(chn_class.Channel):
         # date=2021-07-01T12:34:50+02:00
         date_time = DateHelper.get_date_from_string(date_value, "%Y-%m-%dT%H:%M:%S")
         item.set_date(*date_time[0:6])
-        item.httpHeaders = self.httpHeaders
+        item.HttpHeaders = self.httpHeaders
         item.complete = False
         return item
 
@@ -226,6 +224,7 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url, additional_headers=item.HttpHeaders)
         json = JsonHelper(data)
         video_infos = json.get_value("chapterList", 0, "resourceList")
+        input_stream = InputStream()
 
         for video_info in video_infos:
             url = video_info["url"]
@@ -237,13 +236,21 @@ class Channel(chn_class.Channel):
                 bitrate = 2500
 
             if video_type == "hls":
-                item.complete = M3u8.update_part_with_m3u8_streams(item, url, bitrate=bitrate, encrypted=False)
+                stream = item.add_stream(url, bitrate=bitrate)
+                input_stream.set_input_stream_addon_input(stream)
+                item.complete = True
 
             elif video_type == "mpd" or video_type == "dash":
-                license_url = [d["licenseUrl"] for d in video_info["drmList"] if d["type"].lower() == "widevine"][0]
-                license_key = Mpd.get_license_key(license_url, key_type="R")
                 stream = item.add_stream(url, bitrate=bitrate + 1)
-                item.complete = Mpd.set_input_stream_addon_input(stream, license_key=license_key)
+
+                license_url = [d["licenseUrl"] for d in video_info["drmList"] if d["type"].lower() == "widevine"][0]
+                drm_config = InputStreamAdaptiveDrmConfig(
+                    license_type="com.widevine.alpha",
+                    server_url=license_url,
+                    key_type="R"
+                )
+                input_stream.set_input_stream_addon_input(stream, drm_config=drm_config)
+                item.complete = True
             else:
                 Logger.warning("Cannot playback type '%s': %s", video_type, url)
                 continue

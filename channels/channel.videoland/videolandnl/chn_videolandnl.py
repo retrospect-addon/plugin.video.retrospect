@@ -1,4 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.chn_class import PreProcessorResult
+from typing import Any
+from typing import Dict
+from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 import datetime
 import re
 from typing import Union, List, Optional, Tuple
@@ -14,8 +18,6 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.mediaitem import MediaItem, FolderItem
-from resources.lib.parserdata import ParserData
-from resources.lib.streams.mpd import Mpd
 from resources.lib.textures import TextureHandler
 from resources.lib.urihandler import UriHandler
 from resources.lib.xbmcwrapper import XbmcWrapper
@@ -54,7 +56,7 @@ class Channel(chn_class.Channel):
         self._add_data_parsers([
             r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/service/videoland_root/block/",
             r"^https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/\d+/block/"],
-            match_type=ParserData.MatchRegex,
+            match_type="Regex",
             name="Main processor that create content items (folders/videos) from blocks",
             json=True, requires_logon=True,
             postprocessor=self.postprocess_episodes,
@@ -62,7 +64,7 @@ class Channel(chn_class.Channel):
 
         self._add_data_parser(
             r"https://layout.videoland.bedrock.tech/front/v1/rtlnl/m6group_web/main/token-web-4/program/\d+/layout",
-            match_type=ParserData.MatchRegex, json=True, requires_logon=True,
+            match_type="Regex", json=True, requires_logon=True,
             name="Parser for the main folder of a show show/program.",
             preprocessor=self.extract_program_id,
             parser=["blocks"], creator=self.create_program_item)
@@ -74,7 +76,7 @@ class Channel(chn_class.Channel):
             requires_logon=True,
             name="Video updater", json=True, updater=self.update_video_item)
 
-        self._add_data_parser("algolia.net", match_type=ParserData.MatchContains, json=True,
+        self._add_data_parser("algolia.net", match_type="Contains", json=True,
                               name="Search results",
                               parser=["results", 0, "hits"], creator=self.create_search_result)
 
@@ -93,7 +95,7 @@ class Channel(chn_class.Channel):
         self.__pages = 10
         self.__timezone = pytz.timezone("Europe/Amsterdam")
 
-    def add_others_and_check_correct_url(self, data: str) -> Tuple[JsonHelper, List[MediaItem]]:
+    def add_others_and_check_correct_url(self, data: str) -> PreProcessorResult:
         items = []
         search = FolderItem(LanguageHelper.get_localized_string(LanguageHelper.Search),
                             self.search_url, content_type=contenttype.TVSHOWS)
@@ -162,11 +164,13 @@ class Channel(chn_class.Channel):
                 }
             ]
             for result_set in fallback:
-                items.append(self.create_mainlist_item(result_set))
+                item: Optional[FolderItem] = self.create_mainlist_item(result_set)
+                if item:
+                    items.append(item)
 
         return json_data, items
 
-    def create_mainlist_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
+    def create_mainlist_item(self, result_set: Dict[str, Any]) -> Optional[FolderItem]:
         if not result_set["title"]:
             return None
         title = result_set["title"].get("long", result_set["title"].get("short"))
@@ -183,8 +187,8 @@ class Channel(chn_class.Channel):
             item.poster = poster_url
         return item
 
-    def create_content_item(self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
-        result_set: dict = result_set["itemContent"]
+    def create_content_item(self, result_set: Dict[str, Any]) -> Optional[MediaItem]:
+        result_set = result_set["itemContent"]
 
         title = result_set["title"]
         extra_title = result_set.get("extraTitle")
@@ -301,7 +305,7 @@ class Channel(chn_class.Channel):
         return items
 
     def create_program_item(self, result_set: dict) -> Union[MediaItem, List[MediaItem], None]:
-        if not result_set["title"]:
+        if not result_set["title"] and self.parentItem:
             # Perhaps it is a single video?
             if result_set.get("blockTemplateId") == "Solo":
                 # Most likely a single video or movie
@@ -362,8 +366,7 @@ class Channel(chn_class.Channel):
         search_item.postJson = data
         return self.process_folder_list(search_item)
 
-    def create_search_result(
-            self, result_set: Union[str, dict]) -> Union[MediaItem, List[MediaItem], None]:
+    def create_search_result(self, result_set: Dict[str, Any]) -> Optional[MediaItem]:
         last_activity_date = result_set["metadata"].get("last_activity_date")
 
         result_set = result_set["item"]
@@ -378,7 +381,8 @@ class Channel(chn_class.Channel):
         return item
 
     def filter_premium(self) -> Optional[bool]:
-        filter_paid = int(self._get_setting("filter_premium", '0'))
+        filter_value: str = self._get_setting("filter_premium") or "0"
+        filter_paid = int(filter_value)
         if not filter_paid:
             return None
 
@@ -411,12 +415,20 @@ class Channel(chn_class.Channel):
         # Construct license info
         license_token_url = f"https://drm.videoland.bedrock.tech/v1/customers/rtlnl/platforms/m6group_web/services/{preferred_service}/users/{self.__uid}/{content_type}/{video_id}/upfront-token"
         license_token = JsonHelper(UriHandler.open(license_token_url, additional_headers=self.httpHeaders)).get_value("token")
-        license_key = Mpd.get_license_key(
-            "https://lic.drmtoday.com/license-proxy-widevine/cenc/",
-            key_headers={
+
+        input_stream = InputStream()
+        drm_config = InputStreamAdaptiveDrmConfig(
+            license_type="com.widevine.alpha",
+            server_url="https://lic.drmtoday.com/license-proxy-widevine/cenc/",
+            headers={
                 "x-dt-auth-token": license_token,
                 "content-type": "application/octstream"
-            }, json_filter="JBlicense")
+            },
+            unwrappers=["json", "base64"],
+            unwrapper_params={
+                "path_data": "license"
+            }
+        )
 
         for asset in video_info["assets"]:
             quality = asset["video_quality"]
@@ -431,7 +443,7 @@ class Channel(chn_class.Channel):
 
             if video_type == "mpd" or video_format == "dashcenc" or video_format == "dash":
                 stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
-                Mpd.set_input_stream_addon_input(stream, license_key=license_key)
+                input_stream.set_input_stream_addon_input(stream, drm_config=drm_config)
                 item.complete = True
 
             # elif video_type == "m3u8":
@@ -477,6 +489,7 @@ class Channel(chn_class.Channel):
             XbmcWrapper.show_dialog(None, LanguageHelper.MissingCredentials)
 
         result = self.__authenticator.log_on(
+            # pyrefly: ignore [bad-argument-type]
             username=username, password=password,
             channel_guid=self.guid, setting_id="videolandnl_password")
 
