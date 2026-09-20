@@ -1,3 +1,4 @@
+from typing import List
 import base64
 import json
 from dataclasses import dataclass
@@ -24,7 +25,7 @@ class InputStreamAdaptiveDrmConfig:
     params: Optional[str] = None
     data: Optional[Dict[str, str]] = None
     wrapper: Optional[Literal["base64", "urlenc", "none"]] = None
-    unwrapper: Optional[Literal["auto", "base64", "json", "xml", "none"]] = None
+    unwrappers: Optional[List[Literal["auto", "base64", "json", "xml", "none"]]] = None
     unwrapper_params: Optional[Dict[str, str]] = None
     key_ids: Optional[Dict[str, str]] = None
     key_type: Literal["R", "A", "B", "D"] = "R"
@@ -59,7 +60,6 @@ class InputStream:
         """ Updates an existing stream with parameters for the inputstream adaptive add-on.
 
         :param strm:                    The MediaStream to update.
-        :param license_type:            The type of license key request used (see below).
         :param drm_config:              A DRM Configuration object (optional).
         :param max_bit_rate:            The maximum bitrate to use (optional).
 
@@ -106,7 +106,7 @@ class InputStream:
                         "req_params": drm_config.params,
                         "req_data": base64.b64encode(json.dumps(drm_config.data).encode("utf-8")).decode("utf-8") if drm_config.data else None,
                         "wrapper": drm_config.wrapper,  # Widevine only
-                        "unwrapper": drm_config.unwrapper,  # Widevine only
+                        "unwrapper": ",".join(drm_config.unwrappers) if drm_config.unwrappers else None,  # Widevine only
                         "unwrapper_params": drm_config.unwrapper_params,  # Widevine only
                         "keyids": drm_config.key_ids  # ClearKey DRM
                     },
@@ -134,14 +134,19 @@ class InputStream:
         # Pre-Piers License configuration
         elif drm_config:
             strm.add_property("inputstream.adaptive.license_type", drm_config.license_type)
+
+            json_filter: str = ""
+            if drm_config.unwrappers and drm_config.unwrapper_params:
+                json_filters = [w[0].upper() for w in drm_config.unwrappers]
+                json_property = drm_config.unwrapper_params.get("path_data")
+                json_filter = f"{''.join(json_filters)}{json_property}" if json_filters and json_property else ""
+
             license_key = self.__get_license_server_format(
                 license_server_url=drm_config.server_url,
                 key_type=drm_config.key_type,
                 key_headers=drm_config.headers,
                 key_value=drm_config.params or "",
-                json_filter=drm_config.unwrapper_params.get("path_data", "")
-                    if drm_config.unwrapper_params
-                    else ""
+                json_filter=json_filter
             )
             strm.add_property("inputstream.adaptive.license_key", license_key)
 
@@ -218,7 +223,8 @@ class InputStream:
         :param key_headers:         A dictionary that contains the HTTP headers to pass.
         :param key_value:           The value that is being passed on as the key value.
         :param json_filter:         If specified selects that json element to extract the
-                                    key response.
+                                    key response. Should describe a sequence: JB<tag> for JSON  and then
+                                    B type.
 
         :return: A formatted license string that can be passed to the adaptive input add-on.
         :rtype: str
