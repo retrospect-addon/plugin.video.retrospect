@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
 from typing import Optional
 
 from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
@@ -91,9 +92,10 @@ class NpoStream(object):
         stream_url = video_info.get_value("stream", "streamURL")
         drm_info = video_info.get_value("stream", "drm", fallback=None)
         drm_token = None
-        drm_license_url = None
-        drm_certificate = None
+        drm_license_url: str = ""
+        drm_certificate: Optional[str] = None
         drm_headers = {}
+        drm_config: Optional[InputStreamAdaptiveDrmConfig] = None
 
         if drm_info:
             drm_token = drm_info.get("drmToken", None)
@@ -101,12 +103,17 @@ class NpoStream(object):
             drm_certificate = drm_info.get("certificateUrl", None)
             drm_headers = drm_info.get("httpHeaders", {})
 
+        input_stream = InputStream()
+
         # Encryption?
         if drm_token:
             Logger.info(f"NPO-Stream: Using encrypted Dash with Token for NPO")
-            drm_url = f"https://npo-drm-gateway.samgcloud.nepworldwide.nl/authentication?custom_data={drm_token}"
+            drm_license_url = f"https://npo-drm-gateway.samgcloud.nepworldwide.nl/authentication?custom_data={drm_token}"
             Logger.info("NPO-Stream: Using encrypted Dash for NPO")
-            license_key = "{0}|{1}|R{{SSM}}|".format(drm_url, "")
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url=drm_license_url
+            )
 
         elif drm_license_url:
             Logger.info(f"NPO-Stream: Using encrypted Dash with License Key for NPO: {drm_license_url}")
@@ -118,23 +125,29 @@ class NpoStream(object):
             if drm_headers:
                 Logger.info(f"NPO-Stream: Adding custom headers: {','.join(drm_headers.keys())}")
                 key_headers.update(drm_headers)
-            license_key = Mpd.get_license_key(drm_license_url, key_type="R", key_headers=key_headers)
 
             if drm_certificate:
                 Logger.info(f"NPO-Stream: Received DRM Server Certificate {drm_certificate}.")
                 cert_data = UriHandler.open(drm_certificate)
                 drm_certificate = EncodingHelper.encode_base64(cert_data).decode('ascii')
+
+            # Create a DRM configuration
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url=drm_license_url,
+                server_certificate=drm_certificate,
+                headers=key_headers
+            )
         else:
             Logger.info("NPO-Stream: Using non-encrypted Dash for NPO")
-            license_key = None
 
         # Actually set the stream
         stream = item.add_stream(stream_url, 0)
-        Mpd.set_input_stream_addon_input(stream,
-                                         headers,
-                                         license_key=license_key,
-                                         service_certificate=drm_certificate,
-                                         manifest_update_params=None if not live else "full")
+        input_stream.set_input_stream_addon_input(
+            stream,
+            drm_config=drm_config,
+            stream_headers=headers,
+        )
         return None
 
     @staticmethod
