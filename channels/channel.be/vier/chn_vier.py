@@ -17,8 +17,7 @@ from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem, MediaItemResult, FolderItem
 from resources.lib.regexer import Regexer
 from resources.lib.retroconfig import Config
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 from resources.lib.urihandler import UriHandler
 from resources.lib.vault import Vault
 from resources.lib.xbmcwrapper import XbmcWrapper
@@ -560,8 +559,10 @@ class Channel(chn_class.Channel):
             # set it for the error statistics
             item.isGeoLocked = True
 
-        item.complete = M3u8.update_part_with_m3u8_streams(
-            item, m3u8_url, channel=self, encrypted=False)
+        stream = item.add_stream(m3u8_url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
+        return item
 
     def __extract_artwork(self, item: MediaItem, images: dict, set_fanart: bool = True):
         if not images:
@@ -609,11 +610,13 @@ class Channel(chn_class.Channel):
 
         if drm_header:
             header = {"customdata": drm_header, "content-type": "application/octet-stream"}
-            license_key = Mpd.get_license_key(
-                "https://wv-keyos.licensekeyserver.com/", key_type="R",
-                key_headers=header)
-            Mpd.set_input_stream_addon_input(stream, license_key=license_key)
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url="https://wv-keyos.licensekeyserver.com/",
+                headers=header
+            )
+            InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
         else:
-            Mpd.set_input_stream_addon_input(stream)
+            InputStream().set_input_stream_addon_input(stream)
         item.complete = True
         return item
