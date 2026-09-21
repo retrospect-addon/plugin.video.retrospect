@@ -48,6 +48,10 @@ class Channel:
     main class from which all channels inherit
     """
 
+    icon: str
+    fanart: str
+    poster: str
+
     def __init__(self, channel_info):
         """ Initialisation of the class.
 
