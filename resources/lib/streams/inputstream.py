@@ -15,6 +15,8 @@ from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 if TYPE_CHECKING:
     from resources.lib.mediaitem import MediaStream
 
+KeyType = Literal["R", "A", "B", "D", "b"]
+
 
 @dataclass
 class InputStreamAdaptiveDrmConfig:
@@ -28,7 +30,7 @@ class InputStreamAdaptiveDrmConfig:
     unwrappers: Optional[List[Literal["auto", "base64", "json", "xml", "none"]]] = None
     unwrapper_params: Optional[Dict[str, str]] = None
     key_ids: Optional[Dict[str, str]] = None
-    key_type: Literal["R", "A", "B", "D"] = "R"
+    key_type: KeyType = "R"
     init_data: Optional[str] = None
     persistent_storage: Optional[bool] = None
     force_single_session: Optional[bool] = None
@@ -203,7 +205,7 @@ class InputStream:
         return strm
 
     def __get_license_server_format(self, license_server_url: str,
-                                    key_type: Literal["R", "A", "B", "D"] = "R",
+                                    key_type: KeyType = "R",
                                     key_headers: Optional[Dict[str, str]] = None,
                                     key_value: str = "", json_filter: str = ""):
         """ Generates a property license key value
