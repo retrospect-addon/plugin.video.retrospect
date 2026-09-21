@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
-import json
-import random
-import sys
 from typing import List, Optional
 
 import pytz
@@ -17,9 +14,8 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
 from resources.lib.mediaitem import MediaItem, FolderItem
-from resources.lib.parserdata import ParserData
 from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 from resources.lib.regexer import Regexer
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
@@ -56,7 +52,7 @@ class Channel(chn_class.Channel):
             self._add_data_parser("#recentgraphql", preprocessor=self.add_graphql_recents,
                                   name="GraphQL Recent listing")
 
-            self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+            self._add_data_parser(self.mainListUri, match_type="Exact",
                                   name="Main GraphQL Program parser", json=True,
                                   preprocessor=self.add_graphql_extras,
                                   parser=[], creator=self.create_api_typed_item)
@@ -177,7 +173,7 @@ class Channel(chn_class.Channel):
             # https://api.kijk.nl/v2/templates/page/missed/all/20180626
             # url = "https://api.kijk.nl/v2/templates/page/missed/all/{0}{1:02d}{2:02d}".format(date.year, date.month, date.day)
             # https://api.kijk.nl/v1/default/sections/missed-all-20180619
-            url = "https://api.kijk.nl/v1/default/sections/missed-all-{0}{1:02d}{2:02d}".format(date.year, date.month, date.day)
+            url = f"https://api.kijk.nl/v1/default/sections/missed-all-{date.year}{date.month:02d}{date.day:02d}"
             if i == 0:
                 title = LanguageHelper.get_localized_string(LanguageHelper.Today)
             elif i == 1:
@@ -220,6 +216,7 @@ class Channel(chn_class.Channel):
         headers = {"accept": "application/vnd.sbs.ovp+json; version=2.0"}
         data = UriHandler.open(item.url, additional_headers=headers)
 
+        # pyrefly: ignore [missing-attribute]
         if UriHandler.instance().status.code == 404:
             Logger.warning("No normal stream found. Trying newer method")
             new_url = item.url.replace("https://embed.kijk.nl/api/", "https://embed.kijk.nl/")
@@ -236,12 +233,11 @@ class Channel(chn_class.Channel):
             except:
                 Logger.warning("Failed to update embedded item:", exc_info=True)
 
-        use_adaptive_with_encryption = AddonSettings.use_adaptive_stream_add_on(with_encryption=True, channel=self)
         mpd_info = json.get_value("entitlements", "play")
 
         # is there MPD information in the API response?
         if mpd_info is not None:
-            return self.__update_video_from_mpd(item, mpd_info, use_adaptive_with_encryption)
+            return self.__update_video_from_mpd(item, mpd_info)
 
         # Try the plain M3u8 streams
         m3u8_url = json.get_value("playlist")
@@ -250,17 +246,17 @@ class Channel(chn_class.Channel):
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url parameter instead of an empty m3u8 file
         Logger.debug("Trying standard M3u8 streams.")
-        if m3u8_url != "https://embed.kijk.nl/api/playlist/.m3u8" \
-                and "hostingervice=brightcove" not in m3u8_url:
+        if m3u8_url != "https://embed.kijk.nl/api/playlist/.m3u8" and "hostingervice=brightcove" not in m3u8_url:
+            # pyrefly: ignore [bad-unpacking]
             for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
                 if "_enc_" in s:
                     continue
 
                 if use_adaptive:
                     # we have at least 1 none encrypted streams
-                    Logger.info("Using HLS InputStreamAddon")
+                    Logger.info("Kijk.nl: Using standard M3u8 stream from JSON.")
                     strm = item.add_stream(m3u8_url, 0)
-                    M3u8.set_input_stream_addon_input(strm)
+                    InputStream().set_input_stream_addon_input(strm)
                     item.complete = True
                     return item
 
@@ -268,7 +264,7 @@ class Channel(chn_class.Channel):
                 item.complete = True
             return item
 
-        Logger.warning("No M3u8 data found. Falling back to BrightCove")
+        Logger.warning("Kijk.nl: No M3u8 data found. Falling back to BrightCove")
         video_id = json.get_value("vpakey")
         # videoId = json.get_value("videoId") -> Not all items have a videoId
         mpd_manifest_url = "https://embed.kijk.nl/video/%s?width=868&height=491" % (video_id,)
@@ -283,21 +279,13 @@ class Channel(chn_class.Channel):
             # We need the actual URI to make this work, so fetch it.
             m3u8_url = UriHandler.header(m3u8_url)[-1]
             Logger.debug("Found direct M3u8 in brightcove data.")
-            if use_adaptive:
-                # we have at least 1 none encrypted streams
-                Logger.info("Using HLS InputStreamAddon")
-                strm = item.add_stream(m3u8_url, 0)
-                M3u8.set_input_stream_addon_input(strm)
-                item.complete = True
-                return item
 
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
-                item.complete = True
-                item.add_stream(s, b)
-
+            stream = item.add_stream(m3u8_url, 0)
+            InputStream().set_input_stream_addon_input(stream)
+            item.complete = True
             return item
 
-        return self.__update_video_from_brightcove(item, data, use_adaptive_with_encryption)
+        return self.__update_video_from_brightcove(item, data)
 
     def __update_embedded_video(self, item):
         """ Updates video items that are encrypted. This could be the default for Krypton!
@@ -310,6 +298,7 @@ class Channel(chn_class.Channel):
         """
 
         data = UriHandler.open(item.url)
+        # pyrefly: ignore [missing-attribute]
         if UriHandler.instance().status.code == 404:
             title, message = Regexer.do_regex(r'<h1>([^<]+)</h1>\W+<p>([^<]+)<', data)[0]
             XbmcWrapper.show_dialog(title, message)
@@ -321,9 +310,6 @@ class Channel(chn_class.Channel):
         data = data[start_data:end_data].strip().rstrip(";")
 
         json = JsonHelper(data)
-        has_drm_only = True
-        adaptive_available = AddonSettings.use_adaptive_stream_add_on(with_encryption=False, channel=self)
-        adaptive_available_encrypted = AddonSettings.use_adaptive_stream_add_on(with_encryption=True, channel=self)
 
         for play_list_entry in json.get_value("playlist"):
             for source in play_list_entry["sources"]:
@@ -332,44 +318,48 @@ class Channel(chn_class.Channel):
                 stream_drm = source.get("drm")
 
                 if not stream_drm:
-                    has_drm_only = False
                     if stream_type == "m3u8":
-                        Logger.debug("Found non-encrypted M3u8 stream: %s", stream_url)
-                        M3u8.update_part_with_m3u8_streams(item, stream_url, channel=self)
+                        Logger.debug("Kijk.nl: Found non-encrypted M3u8 stream: %s", stream_url)
+                        stream = item.add_stream(stream_url, 0)
+                        InputStream().set_input_stream_addon_input(stream)
                         item.complete = True
-                    elif stream_type == "dash" and adaptive_available:
-                        Logger.debug("Found non-encrypted Dash stream: %s", stream_url)
+
+                    elif stream_type == "dash":
+                        Logger.debug("Kijk.nl: Found non-encrypted Dash stream: %s", stream_url)
                         stream = item.add_stream(stream_url, 1)
-                        Mpd.set_input_stream_addon_input(stream)
+                        InputStream().set_input_stream_addon_input(stream)
                         item.complete = True
+
                     else:
-                        Logger.debug("Unknown stream source: %s", source)
+                        Logger.debug("Kijk.nl: Unknown stream source: %s", source)
 
                 else:
                     compatible_drm = "widevine"
                     if compatible_drm not in stream_drm or stream_type != "dash":
-                        Logger.debug("Found encrypted %s stream: %s", stream_type, stream_url)
+                        Logger.debug("Found incompatible encrypted %s stream: %s", stream_type, stream_url)
                         continue
 
-                    Logger.debug("Found Widevine encrypted Dash stream: %s", stream_url)
+                    Logger.debug("Kijk.nl: Found Widevine encrypted Dash stream: %s", stream_url)
                     license_url = stream_drm[compatible_drm]["url"]
                     pid = stream_drm[compatible_drm]["releasePid"]
                     encryption_json = '{"getRawWidevineLicense":' \
                                       '{"releasePid":"%s", "widevineChallenge":"b{SSM}"}' \
                                       '}' % (pid,)
-
                     headers = {
                         "Content-Type": "application/json",
                         "Origin": "https://embed.kijk.nl",
                         "Referer": stream_url
                     }
 
-                    encryption_key = Mpd.get_license_key(
-                        license_url, key_type=None, key_value=encryption_json, key_headers=headers)
-
                     stream = item.add_stream(stream_url, 0)
-                    Mpd.set_input_stream_addon_input(
-                        stream, license_key=encryption_key)
+                    drm_config = InputStreamAdaptiveDrmConfig(
+                        license_type="com.widevine.alpha",
+                        server_url=license_url,
+                        headers=headers,
+                        params=encryption_json,
+                        key_type="b"
+                    )
+                    InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
                     item.complete = True
 
             subs = [s['file'] for s in play_list_entry.get("tracks", []) if s.get('kind') == "captions"]
@@ -377,26 +367,20 @@ class Channel(chn_class.Channel):
                 subtitle = SubtitleHelper.download_subtitle(subs[0], format="webvtt")
                 item.subtitle = subtitle
 
-        if has_drm_only and not adaptive_available_encrypted:
-            XbmcWrapper.show_dialog(
-                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
-                LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired)
-            )
         return item
 
-    def __update_video_from_mpd(self, item, mpd_info, use_adaptive_with_encryption):
+    def __update_video_from_mpd(self, item, mpd_info):
         """ Updates an existing MediaItem with more data based on an MPD stream.
 
         :param dict[str,str] mpd_info:              Stream info retrieved from the stream json.
-        :param bool use_adaptive_with_encryption:   Do we use the Adaptive InputStream add-on?
         :param MediaItem item:                      The original MediaItem that needs updating.
 
-        :return: The original item with more data added to it's properties.
+        :return: The original item with more data added to its properties.
         :rtype: MediaItem
 
         """
 
-        Logger.debug("Updating streams using BrightCove data.")
+        Logger.debug("Kijk.nl: Updating streams using MPD data.")
 
         mpd_manifest_url = "https:{0}".format(mpd_info["mediaLocator"])
         mpd_data = UriHandler.open(mpd_manifest_url)
@@ -407,36 +391,33 @@ class Channel(chn_class.Channel):
             subtitle = SubtitleHelper.download_subtitle(subtitles[0], format="webvtt")
             item.subtitle = subtitle
 
-        if use_adaptive_with_encryption:
-            # We can use the adaptive add-on with encryption
-            Logger.info("Using MPD InputStreamAddon")
-            license_url = Regexer.do_regex('licenseUrl="([^"]+)"', mpd_data)[0]
-            token = "Bearer {0}".format(mpd_info["playToken"])
-            key_headers = {"Authorization": token}
-            license_key = Mpd.get_license_key(license_url, key_headers=key_headers)
+        # We can use the adaptive add-on with encryption
+        Logger.info("Using MPD InputStreamAddon")
+        license_url = Regexer.do_regex('licenseUrl="([^"]+)"', mpd_data)[0]
+        token = "Bearer {0}".format(mpd_info["playToken"])
+        key_headers = {"Authorization": token}
 
-            stream = item.add_stream(mpd_manifest_url, 0)
-            Mpd.set_input_stream_addon_input(stream, license_key=license_key)
-            item.complete = True
-        else:
-            XbmcWrapper.show_dialog(
-                LanguageHelper.get_localized_string(LanguageHelper.DrmTitle),
-                LanguageHelper.get_localized_string(LanguageHelper.WidevineLeiaRequired)
-            )
-
+        stream = item.add_stream(mpd_manifest_url, 0)
+        drm_config = InputStreamAdaptiveDrmConfig(
+            license_type="com.widevine.alpha",
+            server_url=license_url,
+            headers=key_headers
+        )
+        InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
+        item.complete = True
         return item
 
-    def __update_video_from_brightcove(self, item, data, use_adaptive_with_encryption):
+    def __update_video_from_brightcove(self, item, data):
         """ Updates an existing MediaItem with more data based on an MPD stream.
 
         :param str data:                            Stream info retrieved from BrightCove.
-        :param bool use_adaptive_with_encryption:   Do we use the Adaptive InputStream add-on?
         :param MediaItem item:                      The original MediaItem that needs updating.
 
         :return: The original item with more data added to it's properties.
         :rtype: MediaItem
 
         """
+        Logger.debug("Kijk.nl: Updating streams using BrightCove data.")
 
         # Then try the new BrightCove JSON
         bright_cove_regex = '<video[^>]+data-video-id="(?<videoId>[^"]+)[^>]+data-account="(?<videoAccount>[^"]+)'
@@ -464,18 +445,10 @@ class Channel(chn_class.Channel):
         # noinspection PyTypeChecker
         stream_url = streams[0]["src"]
 
-        # these streams work better with the the InputStreamAddon because it removes the
-        # "range" http header
-        if use_adaptive_with_encryption:
-            Logger.info("Using InputStreamAddon for playback of HLS stream")
-            strm = item.add_stream(stream_url, 0)
-            M3u8.set_input_stream_addon_input(strm)
-            item.complete = True
-            return item
-
-        for s, b in M3u8.get_streams_from_m3u8(stream_url):
-            item.complete = True
-            item.add_stream(s, b)
+        Logger.info("Using InputStreamAddon for playback of HLS stream")
+        stream = item.add_stream(stream_url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item
 
     #region GraphQL data
@@ -556,8 +529,7 @@ class Channel(chn_class.Channel):
             title = "%04d-%02d-%02d - %s" % (air_date.year, air_date.month, air_date.day, day)
 
             recent_url = self.__get_api_query_url(
-                "programsByDate(date:\"{:04d}-{:02d}-{:02d}\",numOfDays:0)".format(
-                    air_date.year, air_date.month, air_date.day),
+                f"programsByDate(date:\"{air_date.year:04d}-{air_date.month:02d}-{air_date.day:02d}\",numOfDays:0)",
                 self.__video_fields
             )
             extra = FolderItem(title, recent_url, content_type=contenttype.EPISODES)
@@ -707,7 +679,7 @@ class Channel(chn_class.Channel):
 
         season_number = result_set["seasonNumber"]
         title = LanguageHelper.get_localized_string(LanguageHelper.SeasonId)
-        title = "{} {:02d}".format(title, season_number)
+        title = f"{title} {season_number:02d}"
 
         season_id = result_set["id"].rsplit("/", 1)[-1]
         url = self.__get_api_query_url(
@@ -774,6 +746,7 @@ class Channel(chn_class.Channel):
         season_number = result_set.get("seasonNumber")
         episode_number = result_set.get("tvSeasonEpisodeNumber")
 
+        # pyrefly: ignore [missing-attribute]
         title_format = self.parentItem.metaData.get("title_format", "s{0:02d}e{1:02d} - {2}")
         if title is None and result_set["series"] is None:
             Logger.warning("Cannot format title. %s", result_set)
@@ -833,9 +806,11 @@ class Channel(chn_class.Channel):
                 url = url[:url.index("?filter=")]
 
             if stream_type == "dash" and not drm:
+                Logger.debug("Kijk.nl: Updating streams using GraphQL Dash data.")
                 bitrate = 0 if hls_over_dash else 2
                 stream = item.add_stream(url, bitrate)
-                item.complete = Mpd.set_input_stream_addon_input(stream)
+                InputStream().set_input_stream_addon_input(stream)
+                item.complete = True
 
             elif stream_type == "dash" and drm and "widevine" in drm:
                 bitrate = 0 if hls_over_dash else 1
@@ -846,10 +821,7 @@ class Channel(chn_class.Channel):
 
                 # fetch the authentication token:
                 if "vudrm" in key_url:
-                    # url = self.__get_api_query_url(
-                    #     f"drmToken(drmProvider:JWP)", "{token,expiration}")
-                    # url = f"{url}&rnd={random.randint(0, sys.maxsize)}"
-                    # token_data = UriHandler.open(url, no_cache=True)
+                    Logger.debug("Kijk.nl: Updating streams using GraphQL Dash with VUDRM.")
                     url = "https://graph.kijk.nl/graphql"
                     data = {
                         "query": "query DrmTokenQuery($provider: DrmProvider) {drmToken(drmProvider:$provider) {expiration,token}}",
@@ -857,10 +829,10 @@ class Channel(chn_class.Channel):
                     token_data = UriHandler.open(url, json=data)
                     token_json = JsonHelper(token_data)
                     token = token_json.get_value("data", "drmToken", "token")
-                    encryption_key = Mpd.get_license_key(
-                        key_url=key_url,
-                        key_type="R",
-                        key_headers={
+                    drm_config = InputStreamAdaptiveDrmConfig(
+                        license_type="com.widevine.alpha",
+                        server_url=key_url,
+                        headers={
                             "x-vudrm-token": token,
                             # "user-agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
                             # "origin": "https://kijk.nl",
@@ -868,6 +840,7 @@ class Channel(chn_class.Channel):
                         }
                     )
                 else:
+                    Logger.debug("Kijk.nl: Updating streams using GraphQL Dash with non-VUDRM.")
                     # url = self.__get_api_persisted_url("drmToken", "634c83ae7588a877e2bb67d078dda618cfcfc70ac073aef5e134e622686c0bb6", variables={})
                     url = self.__get_api_query_url("drmToken", "{token,expiration}")
                     token_data = UriHandler.open(url, no_cache=True)
@@ -876,22 +849,25 @@ class Channel(chn_class.Channel):
 
                     # we need to POST to this url using this wrapper:
                     encryption_json = '{{"getRawWidevineLicense":{{"releasePid":"{}","widevineChallenge":"b{{SSM}}"}}}}'.format(release_pid)
-                    encryption_key = Mpd.get_license_key(
-                        key_url=key_url,
-                        key_type="b",
-                        key_value=encryption_json,
-                        key_headers={"Content-Type": "application/json", "authorization": "Basic {}".format(token)}
+                    drm_config = InputStreamAdaptiveDrmConfig(
+                        license_type="com.widevine.alpha",
+                        server_url=key_url,
+                        headers={"Content-Type": "application/json", "authorization": "Basic {}".format(token)},
+                        params=encryption_json,
+                        key_type="b"
                     )
 
-                Mpd.set_input_stream_addon_input(
-                    stream, license_key=encryption_key,
+                InputStream().set_input_stream_addon_input(
+                    stream, drm_config=drm_config,
                     stream_headers={"user-agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB; rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)"})
                 item.complete = True
 
             elif stream_type == "m3u8" and not drm:
+                Logger.debug("Kijk.nl: Updating streams using GraphQL M3u8.")
                 bitrate = 2 if hls_over_dash else 0
-                item.complete = M3u8.update_part_with_m3u8_streams(
-                    item, url, channel=self, bitrate=bitrate)
+                stream = item.add_stream(url, bitrate)
+                InputStream().set_input_stream_addon_input(stream)
+                item.complete = True
 
             else:
                 Logger.debug("Found incompatible stream: %s", src)
