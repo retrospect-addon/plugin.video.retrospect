@@ -5,8 +5,9 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
+from resources.lib.streams.inputstream import InputStream
+from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
 from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
 from resources.lib.urihandler import UriHandler
 from resources.lib.chn_class import Channel
 
@@ -105,20 +106,21 @@ class Vualto(object):
 
             elif video_type == "mpeg_dash" and adaptive_available:
                 if not drm_protected:
-                    Logger.debug("Found standard MPD stream and without DRM protection")
+                    Logger.debug("Vualto: Found standard MPD stream and without DRM protection")
                     stream = item.add_stream(video_url, 1)
-                    Mpd.set_input_stream_addon_input(stream)
+                    InputStream().set_input_stream_addon_input(stream)
                 else:
+                    Logger.debug("Vualto: Found standard MPD stream with DRM protection")
                     stream = item.add_stream(video_url, 1)
-                    encryption_json = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}' \
-                        .format(drm_key)
-                    encryption_key = Mpd.get_license_key(
-                        key_url="https://widevine-proxy.drm.technology/proxy",
+                    encryption_json = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'.format(drm_key)
+                    drm_config = InputStreamAdaptiveDrmConfig(
+                        license_type="com.widevine.alpha",
+                        server_url="https://widevine-proxy.drm.technology/proxy",
+                        headers={"Content-Type": "text/plain;charset=UTF-8"},
+                        params=encryption_json,
                         key_type="D",
-                        key_value=encryption_json,
-                        key_headers={"Content-Type": "text/plain;charset=UTF-8"}
                     )
-                    Mpd.set_input_stream_addon_input(stream, license_key=encryption_key)
+                    InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
 
             if video_type.startswith("hls") and srt is None:
                 srt = M3u8.get_subtitle(video_url)
