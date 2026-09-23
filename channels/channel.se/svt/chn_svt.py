@@ -15,10 +15,7 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
-from resources.lib.addonsettings import AddonSettings
-
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
 
@@ -480,7 +477,7 @@ class Channel(chn_class.Channel):
         item = FolderItem(result_set['name'], "#program_item", content_type=contenttype.EPISODES)
         item.metaData["slug"] = url
         item.tv_show_title = item.name
-        item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
+        item.isGeoLocked = result_set.get("restrictions", {}).get("onlyAvailableInSweden", False)
         item.description = result_set.get('longDescription')
 
         self.__extract_artwork(result_set.get("images"), item)
@@ -510,7 +507,7 @@ class Channel(chn_class.Channel):
         item = FolderItem(result_set['name'], "#program_item", content_type=contenttype.EPISODES)
         item.metaData["slug"] = url
         item.tv_show_title = item.name
-        item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
+        item.isGeoLocked = result_set.get("restrictions", {}).get("onlyAvailableInSweden", False)
         item.description = result_set.get('description')
         self.__extract_artwork(result_set.get("images"), item)
         return item
@@ -759,7 +756,7 @@ class Channel(chn_class.Channel):
         item.description = result_set.get('longDescription')
 
         self.__extract_artwork(result_set.get("images"), item)
-        item.isGeoLocked = result_set.get('restrictions', {}).get('onlyAvailableInSweden', False)
+        item.isGeoLocked = result_set.get("restrictions", {}).get("onlyAvailableInSweden", False)
 
         duration = int(result_set.get("duration", 0))
         if duration > 0:
@@ -803,7 +800,7 @@ class Channel(chn_class.Channel):
         item = MediaItem(title, url)
         item.media_type = mediatype.VIDEO
         item.description = result_set.get('longDescription')
-        item.isGeoLocked = result_set['restrictions']['onlyAvailableInSweden']
+        item.isGeoLocked = result_set.get("restrictions", {}).get("onlyAvailableInSweden", False)
 
         self.__extract_artwork(result_set.get("images"), item)
 
@@ -970,7 +967,7 @@ class Channel(chn_class.Channel):
         return json_data, items
 
     # noinspection PyUnusedLocal
-    def fetch_genre_api_data(self, data):
+    def fetch_genre_api_data(self, data: str):
         if self.channelCode == "oppetarkiv" and self.parentItem is None:
             genre = "oppet-arkiv"
         elif self.parentItem is not None:
@@ -1367,7 +1364,6 @@ class Channel(chn_class.Channel):
         rights = rights or {}
 
         item.streams = []
-        use_input_stream = AddonSettings.use_adaptive_stream_add_on(channel=self)
         in_sweden = self.__validate_location()
         Logger.debug("Streaming location within GEO area: %s", in_sweden)
         is_drm_protected = rights.get("drmCopyProtection", False)
@@ -1413,26 +1409,13 @@ class Channel(chn_class.Channel):
                 Logger.debug("Skippping duplicate Stream url: %s", url)
                 continue
 
-            if "dash" in video_format and use_input_stream:
-                stream = item.add_stream(video['url'], supported_formats[video_format])
-                Mpd.set_input_stream_addon_input(stream)
+            if "-fmp4.m3u8" in url or "-lowbw.m3u8" in url:
+                Logger.trace("Ignoring: %s", url)
+                continue
 
-            elif "m3u8" in url:
-                alt_index = url.find("m3u8?")
-                if alt_index > 0:
-                    url = url[0:alt_index + 4]
-
-                if "-fmp4.m3u8" in url or "-lowbw.m3u8" in url:
-                    Logger.trace("Ignoring: %s", url)
-                    continue
-
-                M3u8.update_part_with_m3u8_streams(
-                    item,
-                    url,
-                    encrypted=False,
-                    channel=self,
-                    bitrate=supported_formats[video_format]
-                )
+            if "dash" in video_format or "m3u8" in url:
+                stream = item.add_stream(url, supported_formats[video_format])
+                InputStream().set_input_stream_addon_input(stream)
 
             elif video["url"].startswith("rtmp"):
                 # just replace some data in the URL
