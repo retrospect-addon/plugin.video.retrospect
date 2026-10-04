@@ -11,7 +11,6 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.inputstream import InputStream
 
 
@@ -270,7 +269,9 @@ class Channel(chn_class.Channel):
         # Append time stamps.
         url += '&start=%s&end=%s' % (HtmlEntityHelper.url_encode(json_data.get_value('startedAt')),
                                      HtmlEntityHelper.url_encode(json_data.get_value('endedAt')))
-        item.complete = M3u8.update_part_with_m3u8_streams(item, url, channel=self, encrypted=False)
+        stream = item.add_stream(url)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
 
         Logger.info('Starting update_video_item: url = %s', url)
 
@@ -282,10 +283,6 @@ class Channel(chn_class.Channel):
             duration = sum([int(d) * (60 ** i)
                             for i, d in enumerate(reversed(duration.split(":")))])
             item.set_info_label(MediaItem.LabelDuration, duration)
-
-        # alternative: use inputstream adaptive
-        # (currently does not work)
-        # item.complete = M3u8.update_part_with_m3u8_streams(item, url, channel=self, encrypted=False, map_audio=True)
 
         Logger.debug('Finished update_video_item: %s', item.name)
         return item
