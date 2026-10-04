@@ -14,7 +14,6 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 
 from resources.lib.mediaitem import MediaItem, FolderItem
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 from resources.lib.regexer import Regexer
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -241,27 +240,15 @@ class Channel(chn_class.Channel):
 
         # Try the plain M3u8 streams
         m3u8_url = json.get_value("playlist")
-        use_adaptive = AddonSettings.use_adaptive_stream_add_on(channel=self)
 
         # with the Accept: application/vnd.sbs.ovp+json; version=2.0 header, the m3u8 streams that
         # are brightcove based have an url parameter instead of an empty m3u8 file
         Logger.debug("Trying standard M3u8 streams.")
         if m3u8_url != "https://embed.kijk.nl/api/playlist/.m3u8" and "hostingervice=brightcove" not in m3u8_url:
-            # pyrefly: ignore [bad-unpacking]
-            for s, b in M3u8.get_streams_from_m3u8(m3u8_url, append_query_string=True):
-                if "_enc_" in s:
-                    continue
-
-                if use_adaptive:
-                    # we have at least 1 none encrypted streams
-                    Logger.info("Kijk.nl: Using standard M3u8 stream from JSON.")
-                    strm = item.add_stream(m3u8_url, 0)
-                    InputStream().set_input_stream_addon_input(strm)
-                    item.complete = True
-                    return item
-
-                item.add_stream(s, b)
-                item.complete = True
+            Logger.info("Kijk.nl: Using standard M3u8 stream from JSON.")
+            stream = item.add_stream(m3u8_url, 0)
+            InputStream().set_input_stream_addon_input(stream)
+            item.complete = True
             return item
 
         Logger.warning("Kijk.nl: No M3u8 data found. Falling back to BrightCove")

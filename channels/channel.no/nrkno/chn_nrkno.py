@@ -429,8 +429,7 @@ class Channel(chn_class.Channel):
         item_id = result_set["id"]
         if program_type == "programme":
             url = self.__get_video_url(item_id)
-            item = MediaItem(title, url)
-            item.type = 'video'
+            item = MediaItem(title, url, media_type=mediatype.VIDEO)
         else:
             use_old_series_api = False
             if use_old_series_api:
@@ -795,11 +794,9 @@ class Channel(chn_class.Channel):
         url = video_info["url"]
         # Is it encrypted? encrypted = video_info["encrypted"]
 
-        # Adaptive add-on does not work with audio only
-        for s, b in M3u8.get_streams_from_m3u8(url):
-            item.complete = True
-            item.add_stream(s, b)
-
+        stream = item.add_stream(url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item
 
     def __update_live_video(self, item, manifest):
@@ -821,15 +818,9 @@ class Channel(chn_class.Channel):
             InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
             item.complete = True
         else:
-            use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
-            if use_adaptive:
-                stream = item.add_stream(url, 0)
-                InputStream().set_input_stream_addon_input(stream)
-                item.complete = True
-            else:
-                for s, b in M3u8.get_streams_from_m3u8(url):
-                    item.complete = True
-                    item.add_stream(s, b)
+            stream = item.add_stream(url, 0)
+            InputStream().set_input_stream_addon_input(stream)
+            item.complete = True
 
         return item
 
