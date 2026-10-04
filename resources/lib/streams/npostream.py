@@ -4,7 +4,6 @@ from typing import Optional
 
 from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.streams.inputstream import InputStream
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.urihandler import UriHandler

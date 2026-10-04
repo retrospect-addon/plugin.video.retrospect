@@ -43,6 +43,25 @@ class InputStream:
     def __init__(self, addon: str = "inputstream.adaptive"):
         self.addon = addon
 
+    @staticmethod
+    def set_max_bitrate(stream, max_bit_rate):
+        """ Sets the maximum bitrate for a stream.
+
+        :param MediaStream stream:  The stream to limit.
+        :param int max_bit_rate:    The maximum bitrate
+
+        """
+
+        if not stream.Adaptive or max_bit_rate == 0:
+            return
+
+        # Previously defined when creating the stream => We don't override that
+        if "inputstream.adaptive.chooser_bandwidth_max" in stream.Properties:
+            return
+
+        stream.add_property("inputstream.adaptive.chooser_bandwidth_max", str(max_bit_rate * 1000))
+        return
+
     def set_input_stream_addon_input(
             self,
             strm: "MediaStream",

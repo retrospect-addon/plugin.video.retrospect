@@ -18,7 +18,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib import mediatype
 from resources.lib import contenttype
 from resources.lib.retroconfig import Config
-from resources.lib.streams.adaptive import Adaptive
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.proxyinfo import ProxyInfo
 from xbmc import InfoTagVideo
 
@@ -634,7 +634,7 @@ class MediaItem:
 
         stream = self.__get_matching_stream(bitrate=bitrate)
         if stream.Adaptive and bitrate > 0:
-            Adaptive.set_max_bitrate(stream, max_bit_rate=bitrate)
+            InputStream.set_max_bitrate(stream, max_bit_rate=bitrate)
 
         # Set the actual stream path
         kodi_item.setPath(path=stream.Url)
@@ -920,18 +920,21 @@ class MediaItem:
         if self.isDrmProtected:
             title_postfix.append(("gold", drm_lock))
             description_prefix.append(
+                # pyrefly: ignore [bad-argument-type]
                 ("gold", LanguageHelper.get_localized_string(LanguageHelper.DrmProtected))
             )
 
         if self.isGeoLocked:
             title_postfix.append(("aqua", geo_lock))
             description_prefix.append(
+                # pyrefly: ignore [bad-argument-type]
                 ("aqua", LanguageHelper.get_localized_string(LanguageHelper.GeoLockedId))
             )
 
         if self.isPaid:
             title_postfix.append(("gold", paid))
             description_prefix.append(
+                # pyrefly: ignore [bad-argument-type]
                 ("gold", LanguageHelper.get_localized_string(LanguageHelper.PremiumPaid))
             )
 
