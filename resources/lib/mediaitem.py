@@ -941,6 +941,7 @@ class MediaItem:
         if self.isCloaked:
             title_postfix.append(("gold", cloaked))
             description_prefix.append(
+                # pyrefly: ignore [bad-argument-type]
                 ("gold", LanguageHelper.get_localized_string(LanguageHelper.HiddenItem))
             )
 
@@ -1097,6 +1098,15 @@ class MediaStream:
         for prop in args:
             self.add_property(prop[0], prop[1])
         return
+
+    @property
+    def url(self) -> str:
+        """The stream URL, also available as ``Url`` for compatibility."""
+        return self.Url
+
+    @url.setter
+    def url(self, value) -> None:
+        self.Url = value
 
     def add_property(self, name, value):
         """ Appends a new property to the self.Properties dictionary. On playback
