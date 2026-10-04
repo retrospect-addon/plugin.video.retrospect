@@ -11,7 +11,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.mediatype import EPISODE
 from resources.lib.parserdata import ParserData
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 
 
@@ -264,7 +264,9 @@ class Channel(chn_class.Channel):
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
-        item.complete = M3u8.update_part_with_m3u8_streams(item, item.url, channel=self)
+        stream = item.add_stream(item.url)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item
 
     def update_live_stream(self, item):
@@ -302,7 +304,8 @@ class Channel(chn_class.Channel):
             url = "https://rrr.sz.xlcdn.com/?account=atvijf" \
                   "&file=live&type=live&service=wowza&protocol=https&output=playlist.m3u8"
 
-        item.complete = \
-            M3u8.update_part_with_m3u8_streams(item, url, channel=self)
+        stream = item.add_stream(url)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
 
         return item

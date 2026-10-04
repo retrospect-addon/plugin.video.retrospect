@@ -1,5 +1,4 @@
 requests
-future
 pyaes
 pyscrypt
 pytz

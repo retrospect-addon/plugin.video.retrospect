@@ -1,8 +1,9 @@
-[B]Retrospect v5.7.39 - Changelog - 2026-09-20[/B]
-This is a quick patch for some minor NPO related issues.
+[B]Retrospect vx.x.x - Changelog - 2026-mm-dd[/B]
+t.b.d.
 
 [B]Framework related[/B]
-* Fixed: Don't allow `zstd` as compression.
+* Changed: Use Kodi Nexus metadata setters instead of deprecated `ListItem.setInfo` calls.
+
 
 [B]GUI/Settings/Language related[/B]
 _None_

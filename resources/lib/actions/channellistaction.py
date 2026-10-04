@@ -48,7 +48,7 @@ class ChannelListAction(AddonAction):
                 name = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesId)
                 description = LanguageHelper.get_localized_string(LanguageHelper.AllFavouritesDescriptionId)
                 kodi_item = kodifactory.list_item(name, name)
-                kodi_item.setInfo("video", {"Plot": description})
+                kodi_item.getVideoInfoTag().setPlot(description)
 
                 # set art
                 try:

@@ -1,23 +1,23 @@
 name: Kodi via Zip
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - '**'
       - '!kodi-leia'
       - '!kodi-matrix'
-
   pull_request:
     branches:
       - master
 
 jobs:
   check-addon:
-    name: Kodi Matrix ZIP Install Check (Py3)
+    name: Kodi Nexus ZIP Install Check (Py3)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kodi-branch: [matrix]
+        kodi-branch: [nexus]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.8

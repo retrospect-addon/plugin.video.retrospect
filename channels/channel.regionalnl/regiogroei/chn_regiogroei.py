@@ -10,7 +10,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.logger import Logger
 from resources.lib.helpers.jsonhelper import JsonHelper
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 
 
@@ -380,7 +380,9 @@ class Channel(chn_class.Channel):
             # _, video_url = UriHandler.header(video_url)
 
             if "m3u8" in video_url:
-                item.complete = M3u8.update_part_with_m3u8_streams(item, video_url, bitrate=bitrate)
+                stream = item.add_stream(video_url, bitrate=bitrate)
+                InputStream().set_input_stream_addon_input(stream)
+                item.complete = True
 
             elif media_type.startswith("mp4_"):
                 item.add_stream(video_url, bitrate=bitrate)

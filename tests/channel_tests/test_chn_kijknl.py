@@ -68,7 +68,7 @@ class TestKijkNlChannel(ChannelTest):
 
         mpd = [s for s in item.streams if ".mpd" in s.Url]
         self.assertGreaterEqual(len(mpd), 1)
-        self.assertEqual(len(mpd[0].Properties), 3)
+        self.assertEqual(len(mpd[0].Properties), 1)
 
     def test_graphql_m3u8_video(self):
         item = self._test_video_url(

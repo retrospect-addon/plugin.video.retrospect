@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
 from typing import Optional
 
 from resources.lib.helpers.encodinghelper import EncodingHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
@@ -91,9 +91,10 @@ class NpoStream(object):
         stream_url = video_info.get_value("stream", "streamURL")
         drm_info = video_info.get_value("stream", "drm", fallback=None)
         drm_token = None
-        drm_license_url = None
-        drm_certificate = None
+        drm_license_url: str = ""
+        drm_certificate: Optional[str] = None
         drm_headers = {}
+        drm_config: Optional[InputStreamAdaptiveDrmConfig] = None
 
         if drm_info:
             drm_token = drm_info.get("drmToken", None)
@@ -101,12 +102,17 @@ class NpoStream(object):
             drm_certificate = drm_info.get("certificateUrl", None)
             drm_headers = drm_info.get("httpHeaders", {})
 
+        input_stream = InputStream()
+
         # Encryption?
         if drm_token:
             Logger.info(f"NPO-Stream: Using encrypted Dash with Token for NPO")
-            drm_url = f"https://npo-drm-gateway.samgcloud.nepworldwide.nl/authentication?custom_data={drm_token}"
+            drm_license_url = f"https://npo-drm-gateway.samgcloud.nepworldwide.nl/authentication?custom_data={drm_token}"
             Logger.info("NPO-Stream: Using encrypted Dash for NPO")
-            license_key = "{0}|{1}|R{{SSM}}|".format(drm_url, "")
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url=drm_license_url
+            )
 
         elif drm_license_url:
             Logger.info(f"NPO-Stream: Using encrypted Dash with License Key for NPO: {drm_license_url}")
@@ -118,103 +124,27 @@ class NpoStream(object):
             if drm_headers:
                 Logger.info(f"NPO-Stream: Adding custom headers: {','.join(drm_headers.keys())}")
                 key_headers.update(drm_headers)
-            license_key = Mpd.get_license_key(drm_license_url, key_type="R", key_headers=key_headers)
 
             if drm_certificate:
                 Logger.info(f"NPO-Stream: Received DRM Server Certificate {drm_certificate}.")
                 cert_data = UriHandler.open(drm_certificate)
                 drm_certificate = EncodingHelper.encode_base64(cert_data).decode('ascii')
+
+            # Create a DRM configuration
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url=drm_license_url,
+                server_certificate=drm_certificate,
+                headers=key_headers
+            )
         else:
             Logger.info("NPO-Stream: Using non-encrypted Dash for NPO")
-            license_key = None
 
         # Actually set the stream
         stream = item.add_stream(stream_url, 0)
-        Mpd.set_input_stream_addon_input(stream,
-                                         headers,
-                                         license_key=license_key,
-                                         service_certificate=drm_certificate,
-                                         manifest_update_params=None if not live else "full")
+        input_stream.set_input_stream_addon_input(
+            stream,
+            drm_config=drm_config,
+            stream_headers=headers,
+        )
         return None
-
-    @staticmethod
-    def get_streams_from_npo(url, episode_id, headers=None):
-        """ Retrieve NPO Player Live streams from a different number of stream urls.
-
-        @param url:               (String) The url to download
-        @param episode_id:         (String) The NPO episode ID
-        @param headers:           (dict) Possible HTTP Headers
-
-        Can be used like this:
-
-            for s, b in NpoStream.get_streams_from_npo(m3u8Url):
-                item.complete = True
-                # s = self.get_verifiable_video_url(s)
-                item.add_stream(s, b)
-
-        """
-
-        if url:
-            Logger.info("NPO-Stream: Determining streams for url: %s", url)
-            episode_id = url.split("/")[-1]
-        elif episode_id:
-            Logger.info("NPO-Stream: Determining streams for VideoId: %s", episode_id)
-        else:
-            Logger.error("NPO-Stream: No url or streamId specified!")
-            return []
-
-        # we need an hash code
-        token_json_data = UriHandler.open("http://ida.omroep.nl/app.php/auth",
-                                          no_cache=True, additional_headers=headers)
-        token_json = JsonHelper(token_json_data)
-        token = token_json.get_value("token")
-
-        url = "http://ida.omroep.nl/app.php/%s?adaptive=yes&token=%s" % (episode_id, token)
-        stream_data = UriHandler.open(url, additional_headers=headers)
-        if not stream_data:
-            return []
-
-        stream_json = JsonHelper(stream_data, logger=Logger.instance())
-        stream_infos = stream_json.get_value("items")[0]
-        Logger.trace(stream_infos)
-        streams = []
-        for stream_info in stream_infos:
-            Logger.debug("NPO-Stream: Found stream info: %s", stream_info)
-            if stream_info["format"] == "mp3":
-                streams.append((stream_info["url"], 0))
-                continue
-
-            elif stream_info["contentType"] == "live":
-                Logger.debug("NPO-Stream: Found live stream")
-                url = stream_info["url"]
-                url = url.replace("jsonp", "json")
-                live_url_data = UriHandler.open(url, additional_headers=headers)
-                live_url = live_url_data.strip("\"").replace("\\", "")
-                Logger.trace(live_url)
-                streams += M3u8.get_streams_from_m3u8(live_url, headers=headers)
-
-            elif stream_info["format"] == "hls":
-                m3u8_info_url = stream_info["url"]
-                m3u8_info_data = UriHandler.open(m3u8_info_url, additional_headers=headers)
-                m3u8_info_json = JsonHelper(m3u8_info_data, logger=Logger.instance())
-                m3u8_url = m3u8_info_json.get_value("url")
-                streams += M3u8.get_streams_from_m3u8(m3u8_url, headers=headers)
-
-            elif stream_info["format"] == "mp4":
-                bitrates = {"hoog": 1000, "normaal": 500}
-                url = stream_info["url"]
-                if "contentType" in stream_info and stream_info["contentType"] == "url":
-                    mp4_url = url
-                else:
-                    url = url.replace("jsonp", "json")
-                    mp4_url_data = UriHandler.open(url, additional_headers=headers)
-                    mp4_info_json = JsonHelper(mp4_url_data, logger=Logger.instance())
-                    mp4_url = mp4_info_json.get_value("url")
-                bitrate = bitrates.get(stream_info["label"].lower(), 0)
-                if bitrate == 0 and "/ipod/" in mp4_url:
-                    bitrate = 200
-                elif bitrate == 0 and "/mp4/" in mp4_url:
-                    bitrate = 500
-                streams.append((mp4_url, bitrate))
-
-        return streams

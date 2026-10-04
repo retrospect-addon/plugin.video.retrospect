@@ -10,7 +10,7 @@ from resources.lib.logger import Logger
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.urihandler import UriHandler
 from resources.lib.parserdata import ParserData
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 
 
 class Channel(chn_class.Channel):
@@ -448,7 +448,8 @@ class Channel(chn_class.Channel):
 
         """
 
-        M3u8.update_part_with_m3u8_streams(item, item.url, channel=self, encrypted=False)
+        stream = item.add_stream(item.url)
+        InputStream().set_input_stream_addon_input(stream)
         item.complete = True
         return item
 

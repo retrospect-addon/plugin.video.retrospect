@@ -13,8 +13,7 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.reactrsc import NextJsParser
 from resources.lib.mediaitem import MediaItem, FolderItem
 from resources.lib.regexer import Regexer
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream, InputStreamAdaptiveDrmConfig
 from resources.lib.urihandler import UriHandler
 
 
@@ -146,6 +145,7 @@ class Channel(chn_class.Channel):
 
         date_info: Optional[str] = result_set.get("date")
         if date_info and "-" in date_info:
+            # pyrefly: ignore [bad-argument-type]
             item.set_date(*date_info.split("-"))
         elif date_info and " " in date_info:
             day, month_name, year = date_info.split(" ")
@@ -198,20 +198,16 @@ class Channel(chn_class.Channel):
         cookie_value = cookie_value.strip(";")
 
         stream = item.add_stream(url, 0)
-        Mpd.set_input_stream_addon_input(
-            stream,
-            manifest_headers={
-                "cookie": cookie_value
-            },
-            stream_headers={
-                "cookie": cookie_value
-            },
-            manifest_upd_params={
-                "cookie": cookie_value
-            },
-            # Take from the website JS file. Seems fixed.
-            license_key=Mpd.get_license_key("https://widevine-dash.ezdrm.com/widevine-php/widevine-foreignkey.php?pX=E24145", "R"),
+        drm_config = InputStreamAdaptiveDrmConfig(
+            license_type="com.widevine.alpha",
+            server_url="https://widevine-dash.ezdrm.com/widevine-php/widevine-foreignkey.php?pX=E24145",
+            key_type="R"
         )
-
+        InputStream().set_input_stream_addon_input(
+            stream, drm_config,
+            manifest_headers={"cookie": cookie_value},
+            stream_headers={"cookie": cookie_value},
+            manifest_upd_params={"cookie": cookie_value}
+        )
         item.complete = True
         return item

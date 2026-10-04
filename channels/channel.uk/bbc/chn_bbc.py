@@ -8,10 +8,8 @@ from resources.lib.helpers import subtitlehelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.streams.f4m import F4m
 from resources.lib.logger import Logger
-from resources.lib.parserdata import ParserData
 from resources.lib.regexer import Regexer
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 
 
@@ -41,7 +39,7 @@ class Channel(chn_class.Channel):
         # setup the main parsing data
         self.episodeItemRegex = '<a class="letter stat" href="(?<url>/iplayer/a-z/[^"]+)">(?<title>[^<]+)</a>'\
                                 .replace("(?<", "(?P<")
-        self._add_data_parser(self.mainListUri, match_type=ParserData.MatchExact,
+        self._add_data_parser(self.mainListUri, match_type="Exact",
                               preprocessor=self.add_live_channels_and_folders)
 
         # A-Z listing
@@ -118,7 +116,7 @@ class Channel(chn_class.Channel):
             url = "{}{}".format(self.baseUrl, url)
 
         title = result_set["title"]
-        if title is None:
+        if title is None and self.parentItem:
             title = self.parentItem.name
         elif append_subtitle and "subtitle" in result_set:
             title = "{} - {}".format(title, result_set["subtitle"])
@@ -151,7 +149,7 @@ class Channel(chn_class.Channel):
         Logger.info("Performing Pre-Processing")
         items = []
 
-        if "episode.json" in self.parentItem.url:
+        if self.parentItem and "episode.json" in self.parentItem.url:
             Logger.debug("Fetching Carousel data")
             json = JsonHelper(data)
             data = json.get_value("carousel")
@@ -307,10 +305,12 @@ class Channel(chn_class.Channel):
                     continue
 
                 if transfer_format == "hls":
-                    item.complete = M3u8.update_part_with_m3u8_streams(item, url, bitrate=stream_bitrate)
+                    strm = item.add_stream(url, bitrate=stream_bitrate)
+                    InputStream().set_input_stream_addon_input(strm)
+
                 elif transfer_format == "dash":
                     strm = item.add_stream(url, bitrate)
-                    Mpd.set_input_stream_addon_input(strm)
+                    InputStream().set_input_stream_addon_input(strm)
 
         # get the subtitle
         subtitles = Regexer.do_regex(
@@ -404,7 +404,7 @@ class Channel(chn_class.Channel):
         items = []
         # https://www.bbc.co.uk/iplayer/a-z/a
 
-        title_format = LanguageHelper.get_localized_string(LanguageHelper.StartWith)
+        title_format: str = "".join(LanguageHelper.get_localized_string(LanguageHelper.StartWith))
         url_format = "https://www.bbc.co.uk/iplayer/a-z/%s"
         for char in "abcdefghijklmnopqrstuvwxyz0":
             if char == "0":

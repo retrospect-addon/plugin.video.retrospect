@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.regexer import Regexer
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
-from resources.lib.streams.m3u8 import M3u8
-from resources.lib.streams.mpd import Mpd
+from resources.lib.streams.inputstream import InputStream
+from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
 from resources.lib.urihandler import UriHandler
 from resources.lib.chn_class import Channel
 
@@ -74,61 +75,95 @@ class Vualto(object):
                 # no difference in encrypted or not.
                 Logger.debug("Found HLS AES encrypted stream and a DRM key")
                 stream = item.add_stream(video_url, hls_prio)
-                M3u8.set_input_stream_addon_input(stream)
+                InputStream().set_input_stream_addon_input(stream)
 
             elif video_type == "hls" and not drm_protected:
-                # no difference in encrypted or not.
-                if adaptive_available:
-                    Logger.debug("Found standard HLS stream and without DRM protection")
-                    stream = item.add_stream(video_url, hls_prio)
-                    M3u8.set_input_stream_addon_input(stream)
-                else:
-                    m3u8_data = UriHandler.open(video_url)
-                    for s, b, a in M3u8.get_streams_from_m3u8(video_url,
-                                                              play_list_data=m3u8_data,
-                                                              map_audio=True):
-                        item.complete = True
-                        if a:
-                            audio_part = a.rsplit("-", 1)[-1]
-                            audio_part = "-%s" % (audio_part,)
-                            s = s.replace(".m3u8", audio_part)
-                        item.add_stream(s, b)
-
-                    srt = M3u8.get_subtitle(video_url, play_list_data=m3u8_data)
-                    if not srt or live:
-                        # If there is not SRT don't download it. If it a live stream with subs,
-                        # don't use it as it is not supported by Kodi
-                        continue
-
-                    srt = srt.replace(".m3u8", ".vtt")
-                    item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
+                Logger.debug("Found standard HLS stream without DRM protection")
+                stream = item.add_stream(video_url, hls_prio)
+                InputStream().set_input_stream_addon_input(stream)
 
             elif video_type == "mpeg_dash" and adaptive_available:
                 if not drm_protected:
-                    Logger.debug("Found standard MPD stream and without DRM protection")
+                    Logger.debug("Vualto: Found standard MPD stream and without DRM protection")
                     stream = item.add_stream(video_url, 1)
-                    Mpd.set_input_stream_addon_input(stream)
+                    InputStream().set_input_stream_addon_input(stream)
                 else:
+                    Logger.debug("Vualto: Found standard MPD stream with DRM protection")
                     stream = item.add_stream(video_url, 1)
-                    encryption_json = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}' \
-                        .format(drm_key)
-                    encryption_key = Mpd.get_license_key(
-                        key_url="https://widevine-proxy.drm.technology/proxy",
+                    encryption_json = '{{"token":"{0}","drm_info":[D{{SSM}}],"kid":"{{KID}}"}}'.format(drm_key)
+                    drm_config = InputStreamAdaptiveDrmConfig(
+                        license_type="com.widevine.alpha",
+                        server_url="https://widevine-proxy.drm.technology/proxy",
+                        headers={"Content-Type": "text/plain;charset=UTF-8"},
+                        params=encryption_json,
                         key_type="D",
-                        key_value=encryption_json,
-                        key_headers={"Content-Type": "text/plain;charset=UTF-8"}
                     )
-                    Mpd.set_input_stream_addon_input(stream, license_key=encryption_key)
+                    InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
 
             if video_type.startswith("hls") and srt is None:
-                srt = M3u8.get_subtitle(video_url)
-                if not srt or live:
-                    # If there is not SRT don't download it. If it a live stream with subs,
-                    # don't use it as it is not supported by Kodi
-                    continue
-
-                srt = srt.replace(".m3u8", ".vtt")
-                item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
+                srt = self.__get_subtitle(video_url)
+                if srt and not live:
+                    srt = srt.replace(".m3u8", ".vtt")
+                    item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             item.complete = True
         return item
+
+    def __get_subtitle(self, url, play_list_data=None, append_query_string=True, language=None):  # NOSONAR
+        """ Retrieves a subtitle url either from a M3u8 file via HTTP or alternatively from a
+        M3u8 playlist string value (in case it was already retrieved).
+
+        :param str url:                     The M3u8 url that contains   the subtitle information.
+        :param str play_list_data:          The data (in case the URL was already retrieved).
+        :param bool append_query_string:    Should we re-append the query string?
+        :param str language:                The language to select (if multiple are present).
+
+        :return: The subtitle url for the M3u8 file.
+        :rtype: str
+
+        """
+
+        data = play_list_data or UriHandler.open(url)
+        regex = r'(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*LANGUAGE="(\w+)"[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
+        sub = ""
+
+        qs = None
+        if append_query_string and "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.info("Going to append QS: %s", qs)
+        elif "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.info("Ignoring QS: %s", qs)
+            qs = None
+        else:
+            base = url
+
+        needles = Regexer.do_regex(regex, data)
+        url_index = 2
+        language_index = 1
+        base_url_logged = False
+        base_url = base[:base.rindex("/")]
+        for n in needles:
+            if language is not None and n[language_index] != language:
+                Logger.debug("Found incorrect language: %s", n[language_index])
+                continue
+
+            if "://" not in n[url_index]:
+                if not base_url_logged:
+                    Logger.debug("Using base_url %s for M3u8", base_url)
+                    base_url_logged = True
+                sub = "%s/%s" % (base_url, n[url_index])
+            else:
+                if not base_url_logged:
+                    Logger.debug("Full url found in M3u8")
+                    base_url_logged = True
+                sub = n[url_index]
+
+            if qs is not None and sub.endswith("?null="):
+                sub = sub.replace("?null=", "?%s" % (qs, ))
+            elif qs is not None and "?" in sub:
+                sub = "%s&%s" % (sub, qs)
+            elif qs is not None:
+                sub = "%s?%s" % (sub, qs)
+
+        return sub
