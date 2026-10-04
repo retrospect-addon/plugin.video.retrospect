@@ -9,6 +9,7 @@ from resources.lib.regexer import Regexer
 from resources.lib.urihandler import UriHandler
 from resources.lib.parserdata import ParserData
 from resources.lib.addonsettings import AddonSettings
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.streams.m3u8 import M3u8
 
 
@@ -202,7 +203,7 @@ class Channel(chn_class.Channel):
 
         if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
             stream = item.add_stream(m3u8_url, 0)
-            M3u8.set_input_stream_addon_input(stream)
+            InputStream().set_input_stream_addon_input(stream)
             item.complete = True
         else:
             for s, b, a in M3u8.get_streams_from_m3u8(m3u8_url, map_audio=True):
