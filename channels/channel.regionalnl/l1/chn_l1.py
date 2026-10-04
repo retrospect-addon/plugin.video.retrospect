@@ -175,7 +175,6 @@ class Channel(chn_class.Channel):
             url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/tv/index.m3u8"
             strm = item.add_stream(url)
             InputStream().set_input_stream_addon_input(strm)
-            # M3u8.update_part_with_m3u8_streams(item, url, encrypted=True)
         else:
             url = "https://d34pj260kw1xmk.cloudfront.net/icecast/l1/radio-bb-mp3"
             strm = item.add_stream(url)

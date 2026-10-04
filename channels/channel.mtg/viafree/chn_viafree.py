@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from resources.lib.chn_class import PreProcessorResult
 import datetime
 from typing import Optional, List
 
@@ -14,10 +15,8 @@ from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
-from resources.lib.parserdata import ParserData
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.streams.inputstream import InputStream
-from resources.lib.streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
@@ -121,9 +120,9 @@ class Channel(chn_class.Channel):
 
         # New JSON page data
         self._add_data_parser(self.mainListUri, preprocessor=self.extract_json_data,
-                              match_type=ParserData.MatchExact)
+                              match_type="Exact")
         self._add_data_parser(self.mainListUri, preprocessor=self.extract_categories_and_add_search,
-                              json=True, match_type=ParserData.MatchExact,
+                              json=True, match_type="Exact",
                               parser=["_embedded", "programs"],
                               creator=self.create_json_episode_item)
 
@@ -150,13 +149,13 @@ class Channel(chn_class.Channel):
                               parser=["_embedded", "formats"], creator=self.create_json_search_item)
 
         self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
-                              match_type=ParserData.MatchContains,
+                              match_type="Contains",
                               parser=["data", "formats"], creator=self.create_json_episode_item)
         self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
-                              match_type=ParserData.MatchContains,
+                              match_type="Contains",
                               parser=["data", "clips"], creator=self.create_json_video_item)
         self._add_data_parser("/api/playClient;isColumn=true;query=", json=True,
-                              match_type=ParserData.MatchContains,
+                              match_type="Contains",
                               parser=["data", "episodes"], creator=self.create_json_video_item)
         # ===============================================================================================================
         # non standard items
@@ -249,7 +248,7 @@ class Channel(chn_class.Channel):
 
         return self.__create_json_episode_item(result_set, check_channel=False)
 
-    def merge_season_data(self, data):
+    def merge_season_data(self, data) -> PreProcessorResult:
         """ Merge some season data to make it more easy for parsing.
 
         The return values should always be instantiated in at least ("", []).
@@ -267,7 +266,9 @@ class Channel(chn_class.Channel):
                                              "ContentPageProgramStore", "format", "videos")
         for season in season_folders:
             for video in season_folders[season]['program']:
-                items.append(self.create_json_video_item(video))
+                video_item = self.create_json_video_item(video)
+                if video_item:
+                    items.append(video_item)
 
         return data, items
 
@@ -340,7 +341,7 @@ class Channel(chn_class.Channel):
         # if the main list was retrieve using json, are the current data is json, just determine
         # the clip URL
         clip_url = None
-        if data.lstrip().startswith("{"):
+        if self.parentItem and data.lstrip().startswith("{"):
             if self.parentItem.url.endswith("type=program"):
                 # http://playapi.mtgx.tv/v3/videos?format=6723&order=-airdate&type=program
                 # http://playapi.mtgx.tv/v3/videos?format=6723&order=-updated&type=clip" % (data_id,)
@@ -421,6 +422,7 @@ class Channel(chn_class.Channel):
         Logger.debug("Using search url: %s", url)
         return chn_class.Channel.search_site(self, url, needle)
 
+    # pyrefly: ignore [bad-override]
     def create_page_item(self, result_set):
         """ Creates a MediaItem of type 'page' using the result_set from the regex.
 
@@ -645,12 +647,9 @@ class Channel(chn_class.Channel):
 
         """
 
-        item.complete = M3u8.update_part_with_m3u8_streams(item, url, encrypted=True, bitrate=1)
-
-        # if not item.has_streams() and "manifest.m3u8" in url:
-        #     Logger.warning("No streams found in %s, trying alternative with 'master.m3u8'", url)
-        #     url = url.replace("manifest.m3u8", "master.m3u8")
-        #     item.complete = M3u8.update_part_with_m3u8_streams(item, url, channel=self, encrypted=True)
+        stream = item.add_stream(url, 1)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
 
         # check for subs
         # https://mtgxse01-vh.akamaihd.net/i/201703/13/DCjOLN_1489416462884_427ff3d3_,48,260,460,900,1800,2800,.mp4.csmil/master.m3u8?__b__=300&hdnts=st=1489687185~exp=3637170832~acl=/*~hmac=d0e12e62c219d96798e5b5ef31b11fa848724516b255897efe9808c8a499308b&cc1=name=Svenska%20f%C3%B6r%20h%C3%B6rselskadade~default=no~forced=no~lang=sv~uri=https%3A%2F%2Fsubstitch.play.mtgx.tv%2Fsubtitle%2Fconvert%2Fxml%3Fsource%3Dhttps%3A%2F%2Fcdn-subtitles-mtgx-tv.akamaized.net%2Fpitcher%2F20xxxxxx%2F2039xxxx%2F203969xx%2F20396967%2F20396967-swt.xml%26output%3Dm3u8

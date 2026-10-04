@@ -2,9 +2,6 @@
 from resources.lib.urihandler import UriHandler
 from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
-from resources.lib.mediaitem import MediaItem
-from resources.lib.addonsettings import AddonSettings
-from resources.lib.streams.inputstream import InputStream
 
 
 class M3u8(object):
@@ -70,59 +67,6 @@ class M3u8(object):
                 sub = "%s?%s" % (sub, qs)
 
         return sub
-
-    @staticmethod
-    def update_part_with_m3u8_streams(item, url,
-                                      encrypted=False,
-                                      headers=None,
-                                      map_audio=False,
-                                      bitrate=0,
-                                      channel=None):
-        """ Updates an existing MediaItem with M3u8 data either using the Adaptive Inputstream
-        Add-on or with the built-in code.
-
-        :param MediaItem item:          The MediaItem to update
-        :param str url:                 The url to download
-        :param bool encrypted:          Is the stream encrypted?
-        :param dict[str,str] headers:   Possible HTTP Headers
-        :param bool map_audio:          Should audio tracks be mapped separately?
-        :param int bitrate:             Initial bitrate to use. Will be overridden later.
-        :param ChannelInfo channel:     If specified, the channel specific configuration is
-                                        considered.
-
-        :return: indication if updating was successful.
-        :rtype: bool
-
-        """
-
-        input_stream = AddonSettings.use_adaptive_stream_add_on(encrypted, channel=channel)
-        if not input_stream and encrypted:
-            Logger.error("Cannot play encrypted stream without InputStream Adaptive with Encryption support!")
-            return False
-
-        if input_stream:
-            Logger.debug("Using InputStream Adaptive add-on for M3u8 playback.")
-            stream = item.add_stream(url, bitrate)
-            InputStream().set_input_stream_addon_input(stream, stream_headers=headers)
-            return True
-
-        complete = False
-        if map_audio:
-            Logger.debug("Using Retrospect code with Audio mapping for M3u8 playback.")
-            for s, b, a in M3u8.get_streams_from_m3u8(url, map_audio=True):
-                if a:
-                    audio_part = a.rsplit("-", 1)[-1]
-                    audio_part = "-%s" % (audio_part,)
-                    s = s.replace(".m3u8", audio_part)
-                item.add_stream(s, b)
-                complete = True
-        else:
-            Logger.debug("Using Retrospect code for M3u8 playback.")
-            for s, b in M3u8.get_streams_from_m3u8(url):
-                item.add_stream(s, b)
-                complete = True
-
-        return complete
 
     # @staticmethod
     # def get_streams_from_m3u8(url,  # NOSONAR
