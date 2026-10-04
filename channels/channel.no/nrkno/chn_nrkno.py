@@ -9,6 +9,8 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.parserdata import ParserData
+from resources.lib.streams.inputstream import InputStream
+from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
 from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -811,14 +813,18 @@ class Channel(chn_class.Channel):
                 Logger.error("Cannot playback encrypted item without inputstream.adaptive with encryption support")
                 return item
             stream = item.add_stream(url, 0)
-            key = M3u8.get_license_key("", key_type="R")
-            M3u8.set_input_stream_addon_input(stream, license_key=key)
+            drm_config = InputStreamAdaptiveDrmConfig(
+                license_type="com.widevine.alpha",
+                server_url="",
+                key_type="R",
+            )
+            InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
             item.complete = True
         else:
             use_adaptive = AddonSettings.use_adaptive_stream_add_on(with_encryption=False)
             if use_adaptive:
                 stream = item.add_stream(url, 0)
-                M3u8.set_input_stream_addon_input(stream)
+                InputStream().set_input_stream_addon_input(stream)
                 item.complete = True
             else:
                 for s, b in M3u8.get_streams_from_m3u8(url):

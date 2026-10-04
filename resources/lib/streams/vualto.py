@@ -75,14 +75,14 @@ class Vualto(object):
                 # no difference in encrypted or not.
                 Logger.debug("Found HLS AES encrypted stream and a DRM key")
                 stream = item.add_stream(video_url, hls_prio)
-                M3u8.set_input_stream_addon_input(stream)
+                InputStream().set_input_stream_addon_input(stream)
 
             elif video_type == "hls" and not drm_protected:
                 # no difference in encrypted or not.
                 if adaptive_available:
                     Logger.debug("Found standard HLS stream and without DRM protection")
                     stream = item.add_stream(video_url, hls_prio)
-                    M3u8.set_input_stream_addon_input(stream)
+                    InputStream().set_input_stream_addon_input(stream)
                 else:
                     m3u8_data = UriHandler.open(video_url)
                     for s, b, a in M3u8.get_streams_from_m3u8(video_url,

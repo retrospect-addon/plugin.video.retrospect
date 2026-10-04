@@ -450,7 +450,7 @@ class Channel(chn_class.Channel):
             #     # Not working in Kodi
             #     stream = item.add_stream(url, 2000 if quality == "hd" else 1200)
             #     item.complete = True
-            #     M3u8.set_input_stream_addon_input(stream)
+            #     InputStream().set_input_stream_addon_input(stream)
         return item
 
     def log_off(self):
