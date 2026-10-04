@@ -16,6 +16,7 @@ from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.addonsettings import AddonSettings
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.streams.m3u8 import M3u8
 
 
@@ -784,7 +785,7 @@ class Channel(chn_class.Channel):
 
         stream_url = embedded_data["prioritizedStreams"][0]["links"]["stream"]["href"]
         stream = item.add_stream(stream_url, 0)
-        M3u8.set_input_stream_addon_input(stream)
+        InputStream().set_input_stream_addon_input(stream)
         item.complete = True
 
         # Some language codes need translation:

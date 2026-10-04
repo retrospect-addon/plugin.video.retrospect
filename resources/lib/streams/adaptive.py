@@ -97,7 +97,7 @@ class Adaptive(object):
         Can be used like this:
 
             stream = item.add_stream(stream_url, 0)
-            M3u8.set_input_stream_addon_input(stream, self.headers)
+            InputStream().set_input_stream_addon_input(stream, stream_headers=self.headers)
             item.complete = True
 
         if maxBitRate is not set, the bitrate will be configured via the normal generic Retrospect

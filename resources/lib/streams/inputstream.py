@@ -79,7 +79,7 @@ class InputStream:
         Can be used like this:
 
             stream = item.add_stream(stream_url, 0)
-            M3u8.set_input_stream_addon_input(stream)
+            InputStream().set_input_stream_addon_input(stream)
             item.complete = True
 
         if maxBitRate is not set, the bitrate will be configured via the normal generic Retrospect
