@@ -11,6 +11,8 @@ from urllib.parse import urlencode
 
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
+from resources.lib.logger import Logger
+from resources.lib.urihandler import UriHandler
 
 if TYPE_CHECKING:
     from resources.lib.mediaitem import MediaStream
@@ -112,6 +114,7 @@ class InputStream:
 
         # License Stuff for Piers and later
         if drm_config and AddonSettings.is_min_version(AddonSettings.KodiPiers):
+            Logger.debug(f"InputStream :: Setting up Kodi Piers (and later) DRM Configuration")
             # https://github.com/xbmc/inputstream.adaptive/wiki/Integration-DRM
             drm_configs = {
                 drm_config.license_type: {
@@ -154,6 +157,7 @@ class InputStream:
 
         # Pre-Piers License configuration
         elif drm_config:
+            Logger.debug(f"InputStream :: Setting up Kodi Nexus DRM Configuration")
             strm.add_property("inputstream.adaptive.license_type", drm_config.license_type)
 
             json_filter: str = ""
@@ -174,7 +178,27 @@ class InputStream:
         strm.add_property("inputstream", self.addon)
 
         if max_bit_rate:
+            Logger.debug(f"InputStream :: Adding `chooser_bandwidth_max`: {max_bit_rate * 1000}")
             strm.add_property("inputstream.adaptive.chooser_bandwidth_max", str(max_bit_rate * 1000))
+
+        # Kodi Nexus still needs `manifest_type` to work properly.
+        if not AddonSettings.is_min_version(AddonSettings.KodiOmega):
+            content_type, resolved_url = UriHandler.header(strm.url, additional_headers=manifest_headers)
+            # Determine it automagically
+            manifest_type = ""
+            if content_type.startswith("application/dash"):
+                manifest_type = "mpd"
+            elif content_type == "application/vnd.apple.mpegurl":
+                manifest_type = "hls"
+            # Just in case
+            elif ".m3u8" in resolved_url:
+                manifest_type = "hls"
+            elif ".mpd" in resolved_url:
+                manifest_type = "mpd"
+
+            if manifest_type:
+                strm.add_property("inputstream.adaptive.manifest_type", manifest_type)
+                Logger.debug(f"InputStream :: Discovered `manifest_type` for Kodi Nexus: {manifest_type}")
 
         # InputStream Adaptive non-DRM stuff
         if stream_headers:
