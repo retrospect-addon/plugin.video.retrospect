@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+from resources.lib.regexer import Regexer
 from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.htmlentityhelper import HtmlEntityHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -7,7 +8,6 @@ from resources.lib.logger import Logger
 from resources.lib.mediaitem import MediaItem
 from resources.lib.streams.inputstream import InputStream
 from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 from resources.lib.chn_class import Channel
 
@@ -101,10 +101,69 @@ class Vualto(object):
                     InputStream().set_input_stream_addon_input(stream, drm_config=drm_config)
 
             if video_type.startswith("hls") and srt is None:
-                srt = M3u8.get_subtitle(video_url)
+                srt = self.__get_subtitle(video_url)
                 if srt and not live:
                     srt = srt.replace(".m3u8", ".vtt")
                     item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             item.complete = True
         return item
+
+    def __get_subtitle(self, url, play_list_data=None, append_query_string=True, language=None):  # NOSONAR
+        """ Retrieves a subtitle url either from a M3u8 file via HTTP or alternatively from a
+        M3u8 playlist string value (in case it was already retrieved).
+
+        :param str url:                     The M3u8 url that contains   the subtitle information.
+        :param str play_list_data:          The data (in case the URL was already retrieved).
+        :param bool append_query_string:    Should we re-append the query string?
+        :param str language:                The language to select (if multiple are present).
+
+        :return: The subtitle url for the M3u8 file.
+        :rtype: str
+
+        """
+
+        data = play_list_data or UriHandler.open(url)
+        regex = r'(#\w[^:]+)[^\n]+TYPE=SUBTITLES[^\n]*LANGUAGE="(\w+)"[^\n]*\W+URI="([^"]+.m3u8[^"\n\r]*)'
+        sub = ""
+
+        qs = None
+        if append_query_string and "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.info("Going to append QS: %s", qs)
+        elif "?" in url:
+            base, qs = url.split("?", 1)
+            Logger.info("Ignoring QS: %s", qs)
+            qs = None
+        else:
+            base = url
+
+        needles = Regexer.do_regex(regex, data)
+        url_index = 2
+        language_index = 1
+        base_url_logged = False
+        base_url = base[:base.rindex("/")]
+        for n in needles:
+            if language is not None and n[language_index] != language:
+                Logger.debug("Found incorrect language: %s", n[language_index])
+                continue
+
+            if "://" not in n[url_index]:
+                if not base_url_logged:
+                    Logger.debug("Using base_url %s for M3u8", base_url)
+                    base_url_logged = True
+                sub = "%s/%s" % (base_url, n[url_index])
+            else:
+                if not base_url_logged:
+                    Logger.debug("Full url found in M3u8")
+                    base_url_logged = True
+                sub = n[url_index]
+
+            if qs is not None and sub.endswith("?null="):
+                sub = sub.replace("?null=", "?%s" % (qs, ))
+            elif qs is not None and "?" in sub:
+                sub = "%s&%s" % (sub, qs)
+            elif qs is not None:
+                sub = "%s?%s" % (sub, qs)
+
+        return sub

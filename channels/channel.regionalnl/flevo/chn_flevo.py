@@ -3,14 +3,12 @@
 import datetime
 from resources.lib import chn_class, mediatype
 from resources.lib.mediaitem import MediaItem
-from resources.lib.addonsettings import AddonSettings
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
 from resources.lib.streams.inputstream import InputStream
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 
 
