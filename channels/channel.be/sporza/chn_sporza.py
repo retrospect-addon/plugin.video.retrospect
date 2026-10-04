@@ -6,7 +6,7 @@ from resources.lib.mediaitem import MediaItem
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
 from resources.lib.parserdata import ParserData
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
@@ -283,9 +283,9 @@ class Channel(chn_class.Channel):
             return item
 
         Logger.debug("Found stream url for %s: %s", item, url)
-        for s, b in M3u8.get_streams_from_m3u8(url):
-            item.complete = True
-            item.add_stream(s, b)
+        stream = item.add_stream(url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
         return item
 
     def update_video_item(self, item):
@@ -358,9 +358,9 @@ class Channel(chn_class.Channel):
                     if not flv.endswith("playlist.m3u8"):
                         flv = "%s/playlist.m3u8" % (flv,)
 
-                    for s, b in M3u8.get_streams_from_m3u8(flv):
-                        item.complete = True
-                        item.add_stream(s, b)
+                    stream = item.add_stream(flv, 0)
+                    InputStream().set_input_stream_addon_input(stream)
+                    item.complete = True
                     # no need to continue adding the streams
                     continue
 

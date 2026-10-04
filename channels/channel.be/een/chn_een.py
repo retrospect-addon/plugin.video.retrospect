@@ -8,7 +8,7 @@ from resources.lib.mediaitem import MediaItem, FolderItem
 
 from resources.lib.regexer import Regexer
 from resources.lib.logger import Logger
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 
@@ -192,8 +192,8 @@ class Channel(chn_class.Channel):
                 continue
 
             hls_url = url_info["url"]
-            for s, b in M3u8.get_streams_from_m3u8(hls_url):
-                item.add_stream(s, b)
+            stream = item.add_stream(hls_url, 0)
+            InputStream().set_input_stream_addon_input(stream)
 
         item.complete = True
         return item

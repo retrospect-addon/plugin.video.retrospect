@@ -78,31 +78,9 @@ class Vualto(object):
                 InputStream().set_input_stream_addon_input(stream)
 
             elif video_type == "hls" and not drm_protected:
-                # no difference in encrypted or not.
-                if adaptive_available:
-                    Logger.debug("Found standard HLS stream and without DRM protection")
-                    stream = item.add_stream(video_url, hls_prio)
-                    InputStream().set_input_stream_addon_input(stream)
-                else:
-                    m3u8_data = UriHandler.open(video_url)
-                    for s, b, a in M3u8.get_streams_from_m3u8(video_url,
-                                                              play_list_data=m3u8_data,
-                                                              map_audio=True):
-                        item.complete = True
-                        if a:
-                            audio_part = a.rsplit("-", 1)[-1]
-                            audio_part = "-%s" % (audio_part,)
-                            s = s.replace(".m3u8", audio_part)
-                        item.add_stream(s, b)
-
-                    srt = M3u8.get_subtitle(video_url, play_list_data=m3u8_data)
-                    if not srt or live:
-                        # If there is not SRT don't download it. If it a live stream with subs,
-                        # don't use it as it is not supported by Kodi
-                        continue
-
-                    srt = srt.replace(".m3u8", ".vtt")
-                    item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
+                Logger.debug("Found standard HLS stream without DRM protection")
+                stream = item.add_stream(video_url, hls_prio)
+                InputStream().set_input_stream_addon_input(stream)
 
             elif video_type == "mpeg_dash" and adaptive_available:
                 if not drm_protected:
@@ -124,13 +102,9 @@ class Vualto(object):
 
             if video_type.startswith("hls") and srt is None:
                 srt = M3u8.get_subtitle(video_url)
-                if not srt or live:
-                    # If there is not SRT don't download it. If it a live stream with subs,
-                    # don't use it as it is not supported by Kodi
-                    continue
-
-                srt = srt.replace(".m3u8", ".vtt")
-                item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
+                if srt and not live:
+                    srt = srt.replace(".m3u8", ".vtt")
+                    item.subtitle = SubtitleHelper.download_subtitle(srt, format="webvtt")
 
             item.complete = True
         return item
