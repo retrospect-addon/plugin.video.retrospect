@@ -60,7 +60,7 @@ class TestChannelImporter(unittest.TestCase):
         instance = ChannelIndex.get_register()
 
         # Fetch a simple channel
-        channel = instance.get_channel("channel.nos.schooltv", "schooltv")
+        channel = instance.get_channel("channel.be.vier", "playtv")
         self.assertIsNone(channel)
 
     def test_categories(self):

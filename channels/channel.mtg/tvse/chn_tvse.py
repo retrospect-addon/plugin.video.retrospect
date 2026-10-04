@@ -8,9 +8,7 @@ from resources.lib.logger import Logger
 from resources.lib.regexer import Regexer
 from resources.lib.urihandler import UriHandler
 from resources.lib.parserdata import ParserData
-from resources.lib.addonsettings import AddonSettings
 from resources.lib.streams.inputstream import InputStream
-from resources.lib.streams.m3u8 import M3u8
 
 
 class Channel(chn_class.Channel):
@@ -201,19 +199,9 @@ class Channel(chn_class.Channel):
         data = UriHandler.open(item.url)
         m3u8_url = Regexer.do_regex('data-file="([^"]+)"', data)[0]
 
-        if AddonSettings.use_adaptive_stream_add_on(with_encryption=False):
-            stream = item.add_stream(m3u8_url, 0)
-            InputStream().set_input_stream_addon_input(stream)
-            item.complete = True
-        else:
-            for s, b, a in M3u8.get_streams_from_m3u8(m3u8_url, map_audio=True):
-
-                if a and "-audio" not in s:
-                    video_part = s.rsplit("-", 1)[-1]
-                    video_part = "-%s" % (video_part,)
-                    s = a.replace(".m3u8", video_part)
-                item.add_stream(s, b)
-                item.complete = True
+        stream = item.add_stream(m3u8_url, 0)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
 
         return item
 

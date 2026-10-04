@@ -4,7 +4,7 @@ from resources.lib import chn_class, mediatype
 from resources.lib.mediaitem import MediaItem
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.logger import Logger
-from resources.lib.streams.m3u8 import M3u8
+from resources.lib.streams.inputstream import InputStream
 from resources.lib.urihandler import UriHandler
 from resources.lib.regexer import Regexer
 from resources.lib.helpers.jsonhelper import JsonHelper
@@ -120,7 +120,7 @@ class Channel(chn_class.Channel):
         """
 
         item = chn_class.Channel.create_episode_item(self, result_set)
-        if "L1 Gemist" in item.name:
+        if item and isinstance(item, MediaItem) and "L1 Gemist" in item.name:
             return None
         return item
 
@@ -144,7 +144,7 @@ class Channel(chn_class.Channel):
         """
 
         item = chn_class.Channel.create_video_item(self, result_set)
-        if not item.thumb.startswith("http"):
+        if item and isinstance(item, MediaItem) and not item.thumb.startswith("http"):
             item.thumb = "%s/%s" % (self.baseUrl, item.thumb)
         return item
 
@@ -170,14 +170,15 @@ class Channel(chn_class.Channel):
 
         """
 
+        item.isLive = True
         if item.url == "#livetv":
             url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/tv/index.m3u8"
-            M3u8.update_part_with_m3u8_streams(item, url, encrypted=True)
+            strm = item.add_stream(url)
+            InputStream().set_input_stream_addon_input(strm)
+            # M3u8.update_part_with_m3u8_streams(item, url, encrypted=True)
         else:
-            # the audio won't play with the InputStream Adaptive add-on.
-            url = "https://d34pj260kw1xmk.cloudfront.net/live/l1/radio/index.m3u8"
-            for s, b in M3u8.get_streams_from_m3u8(url):
-                item.add_stream(s, b)
+            url = "https://d34pj260kw1xmk.cloudfront.net/icecast/l1/radio-bb-mp3"
+            strm = item.add_stream(url)
 
         item.complete = True
         return item
