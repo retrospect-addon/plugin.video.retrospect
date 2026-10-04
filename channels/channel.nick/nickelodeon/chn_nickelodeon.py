@@ -11,6 +11,7 @@ from resources.lib.regexer import Regexer
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
 from resources.lib.urihandler import UriHandler
+from resources.lib.streams.inputstream import InputStream
 
 
 class Channel(chn_class.Channel):
@@ -336,11 +337,11 @@ class Channel(chn_class.Channel):
         """
 
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
-        from resources.lib.streams.m3u8 import M3u8
-
         data = JsonHelper(UriHandler.open(item.url))
         stream_url = data.get_value("stitchedstream", "source")
-        item.complete |= M3u8.update_part_with_m3u8_streams(item, stream_url)
+        stream = item.add_stream(stream_url)
+        InputStream().set_input_stream_addon_input(stream)
+        item.complete = True
 
         Logger.trace("Media url: %s", item)
         return item

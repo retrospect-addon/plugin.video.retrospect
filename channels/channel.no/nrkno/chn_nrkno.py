@@ -11,7 +11,6 @@ from resources.lib.helpers.subtitlehelper import SubtitleHelper
 from resources.lib.parserdata import ParserData
 from resources.lib.streams.inputstream import InputStream
 from resources.lib.streams.inputstream import InputStreamAdaptiveDrmConfig
-from resources.lib.streams.m3u8 import M3u8
 from resources.lib.urihandler import UriHandler
 from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.logger import Logger
@@ -755,7 +754,9 @@ class Channel(chn_class.Channel):
             url = stream_info["url"]
             stream_type = stream_info["format"]
             if stream_type == "HLS":
-                item.complete = M3u8.update_part_with_m3u8_streams(item, url)
+                stream = item.add_stream(url)
+                InputStream().set_input_stream_addon_input(stream)
+                item.complete = True
             else:
                 Logger.warning("Found unknow stream type: %s", stream_type)
 

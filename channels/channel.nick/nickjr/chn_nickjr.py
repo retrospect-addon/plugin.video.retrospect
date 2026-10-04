@@ -11,6 +11,7 @@ from resources.lib.helpers.jsonhelper import JsonHelper
 from resources.lib.helpers.datehelper import DateHelper
 from resources.lib.helpers.languagehelper import LanguageHelper
 from resources.lib.urihandler import UriHandler
+from resources.lib.streams.inputstream import InputStream
 
 
 class Channel(chn_class.Channel):
@@ -267,8 +268,6 @@ class Channel(chn_class.Channel):
 
         """
 
-        from resources.lib.streams.m3u8 import M3u8
-
         Logger.debug('Starting update_video_item for %s (%s)', item.name, self.channelName)
 
         meta_data = UriHandler.open(item.url, referer=self.baseUrl)
@@ -286,7 +285,8 @@ class Channel(chn_class.Channel):
             hls_streams = stream.get_value("package", "video", "item", 0, "rendition")
             for hls_stream in hls_streams:
                 hls_url = hls_stream["src"]
-                item.complete |= M3u8.update_part_with_m3u8_streams(item, hls_url)
+                stream = item.add_stream(hls_url)
+                InputStream().set_input_stream_addon_input(stream)
 
         item.complete = True
         Logger.trace("Media url: %s", item)
