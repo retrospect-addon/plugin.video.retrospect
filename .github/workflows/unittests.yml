@@ -36,10 +36,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-24.04 ]
         python-version: [ 3.8, 3.11 ]
         include:
-          # Kodi Matrix on Windows uses a bundled Python 3.8, but we test 3.9 also to be sure.
+          # Kodi Matrix on Windows uses a bundled Python 3.8, but we test 3.11 also to be sure.
           - os: windows-latest
             python-version: 3.8
           - os: windows-latest
