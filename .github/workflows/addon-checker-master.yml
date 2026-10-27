@@ -14,21 +14,21 @@ on:
 jobs:
   check-addon:
     name: Kodi Matrix ZIP Install Check (Py3)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         kodi-branch: [matrix]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: 3.8
       - name: Install dependencies
         run: |
           # sudo apt-get install libxml2-utils
           python -m pip install --upgrade pip
-          pip install kodi-addon-checker
+          python -m pip install kodi-addon-checker
       - name: Run kodi-addon-checker
         run: |
-          kodi-addon-checker --branch=${{ matrix.kodi-branch }} .
+          python -m kodi-addon-checker --branch=${{ matrix.kodi-branch }} .
